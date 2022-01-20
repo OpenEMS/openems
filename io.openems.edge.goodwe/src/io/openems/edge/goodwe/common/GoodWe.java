@@ -18,7 +18,6 @@ import io.openems.edge.goodwe.charger.GoodWeEtCharger1;
 import io.openems.edge.goodwe.charger.GoodWeEtCharger2;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.ArcSelfCheckStatus;
-import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
 import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ComMode;
@@ -34,7 +33,6 @@ import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.ExternalEmsFlag;
 import io.openems.edge.goodwe.common.enums.EzloggerProCommStatus;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
-import io.openems.edge.goodwe.common.enums.FeedPowerEnable;
 import io.openems.edge.goodwe.common.enums.GoodweGridMeterType;
 import io.openems.edge.goodwe.common.enums.GoodweType;
 import io.openems.edge.goodwe.common.enums.GridProtect;
@@ -45,7 +43,6 @@ import io.openems.edge.goodwe.common.enums.LoadRegulationIndex;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 import io.openems.edge.goodwe.common.enums.MeterConnectCheckFlag;
 import io.openems.edge.goodwe.common.enums.MeterConnectStatus;
-import io.openems.edge.goodwe.common.enums.MeterReverseEnable;
 import io.openems.edge.goodwe.common.enums.OperationMode;
 import io.openems.edge.goodwe.common.enums.OutputTypeAC;
 import io.openems.edge.goodwe.common.enums.PvMode;
@@ -520,11 +517,11 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		PV_START_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
-		ENABLE_MPPT4_SHADOW(Doc.of(OpenemsType.INTEGER) //
+		MPPT_FOR_SHADOW_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		BACK_UP_ENABLE(Doc.of(BackupEnable.values()) //
+		BACK_UP_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		AUTO_START_BACKUP(Doc.of(BackupEnable.values()) //
+		AUTO_START_BACKUP(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		GRID_WAVE_CHECK_LEVEL(Doc.of(GridWaveCheckLevel.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -967,7 +964,7 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		COM_LED_STATE(Doc.of(LedState.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		METER_CT1_REVERSE_ENABLE(Doc.of(MeterReverseEnable.values()) //
+		METER_CT1_REVERSE_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		ERROR_LOG_READ_PAGE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -1022,7 +1019,7 @@ public interface GoodWe extends OpenemsComponent {
 		BMS_AVG_CHG_HOURS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.HOUR) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		FEED_POWER_ENABLE(Doc.of(FeedPowerEnable.values()) //
+		FEED_POWER_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //

@@ -4,10 +4,9 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.goodwe.GoodWeConstants;
-import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.ControlMode;
+import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
-import io.openems.edge.goodwe.common.enums.FeedPowerEnable;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
 @ObjectClassDefinition(//
@@ -37,25 +36,21 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 	String Modbus_target() default "(enabled=true)";
 
 	@AttributeDefinition(name = "Country Setting", description = "Selection of feed in country")
-	SafetyCountry safetyCountry() default SafetyCountry.UNDEFINED;
+	SafetyCountry safetyCountry() default SafetyCountry.GERMANY;
 
-	@AttributeDefinition(name = "Enable/Disable Backup Power", description = "In case of Off-Grid case backup power will provide power to battery, "
-			+ "in this case battery is connected to inverter backup side. "
-			+ "Otherwise battery is connected to grid side of the inverter."
-			+ "When the battery connected to backup side, "
-			+ "if 'backupEnable' select as DISABLE there will be power outage on battery side !!!!! ")
-	BackupEnable backupEnable() default BackupEnable.ENABLE;
+	@AttributeDefinition(name = "Mppt For Shadow Enable or Disable", description = "Selection the activation of Mppt tracker")
+	EnableDisable mpptForShadowEnable() default EnableDisable.ENABLE;
+
+	@AttributeDefinition(name = "Enable/Disable Backup Power", description = "In case of Off-Grid case backup power will be activated")
+	EnableDisable backupEnable() default EnableDisable.ENABLE;
 
 	@AttributeDefinition(name = "Enable Feed In To Grid", description = "Enable-disable feed in to grid")
-	FeedPowerEnable feedPowerEnable() default FeedPowerEnable.DISABLE;
+	EnableDisable feedPowerEnable() default EnableDisable.DISABLE;
 
 	@AttributeDefinition(name = "Feed In To Grid Power", description = "Fixed feed in to grid power (Only positive [0 - 10_000])")
 	int feedPowerPara() default 0;
 
-	@AttributeDefinition(name = "Feed In Power Selection", description = "This is the selection of inverter power settings. "
-			+ "For QuEnableCurve inverter will operate based on power and frequency curve, "
-			+ "For PuEnableCurve inverter will operate based on power factor(cos phi)"
-			+ "Rest of the selections for specific Lagging or Leading factors.")
+	@AttributeDefinition(name = "Feed In Power Selection", description = "This is the selection of inverter power settings")
 	FeedInPowerSettings setfeedInPowerSettings() default FeedInPowerSettings.UNDEFINED;
 
 	String webconsole_configurationFactory_nameHint() default "GoodWe Battery Inverter [{id}]";
