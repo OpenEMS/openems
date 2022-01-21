@@ -412,9 +412,14 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		int surplusPower = productionPower //
 				/* Charge-Max-Current */ - this.getBmsChargeMaxCurrent().orElse(0) //
 						/* Battery Voltage */ * wbmsVoltageChannel.value().orElse(0);
+		
+		if(surplusPower <= 0) {
+			// PV Production is less than the maximum charge power -> no surplus power
+			return null;
+		}
 
-		// Must be positive
-		return Math.max(surplusPower, 0);
+		// Surplus power is always positive here
+		return surplusPower;
 	}
 
 	@Override
