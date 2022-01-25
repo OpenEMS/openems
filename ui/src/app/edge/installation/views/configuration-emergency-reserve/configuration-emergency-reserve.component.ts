@@ -79,7 +79,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
         label: "Wert [%]",
         description: "Aktuell: 20",
         required: true,
-        min: 0,
+        min: 5,
         max: 100,
         attributes: {
           pin: "true"

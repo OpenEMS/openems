@@ -417,7 +417,7 @@ public class OdooHandler {
 			throw new OpenemsException("Edge not found for id [" + edgeId + "]");
 		}
 
-		var password = PasswordUtils.generateRandomPassword(24);
+		var password = PasswordUtils.generateRandomPassword(8);
 		var odooUserId = this.createOdooUser(userJson, password);
 
 		var customerId = this.getOdooPartnerId(odooUserId);

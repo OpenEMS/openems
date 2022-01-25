@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { FormlyFieldConfig } from '@ngx-formly/core';
+import { FormlyField, FormlyFieldConfig } from '@ngx-formly/core';
 import { InstallationData } from '../../installation.component';
 
 export type DcPv = {
@@ -25,33 +25,39 @@ export class ProtocolPv implements OnInit {
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
   @Output() public nextViewEvent = new EventEmitter<InstallationData>();
 
-  public formMppt1: FormGroup;
-  public fieldsMppt1: FormlyFieldConfig[];
-  public modelMppt1;
-
-  public formMppt2: FormGroup;
-  public fieldsMppt2: FormlyFieldConfig[];
-  public modelMppt2;
-
-  constructor() { }
+  public forms: Array<{ formGroup: FormGroup, fields: FormlyFieldConfig[], model: any }> = new Array();
 
   public ngOnInit() {
 
     // Initialize PV-Object
     this.installationData.pv ??= {};
+    this.forms.push({
+      formGroup: new FormGroup({}),
+      fields: [],
+      model: {}
+    },
+      {
+        formGroup: new FormGroup({}),
+        fields: [],
+        model: {}
+      },
+      {
+        formGroup: new FormGroup({}),
+        fields: [],
+        model: {}
+      })
 
-    this.formMppt1 = new FormGroup({});
-    this.fieldsMppt1 = this.getFields(1);
-    this.modelMppt1 = this.installationData.pv.dc1 ?? {
+    this.forms[0].model = this.installationData.batteryInverter ?? {
+      shadowManagementDisabled: false
+    }
+    this.forms[1].model = this.installationData.pv.dc1 ?? {
+      isSelected: false
+    };
+    this.forms[2].model = this.installationData.pv.dc2 ?? {
       isSelected: false
     };
 
-    this.formMppt2 = new FormGroup({});
-    this.fieldsMppt2 = this.getFields(2);
-    this.modelMppt2 = this.installationData.pv.dc2 ?? {
-      isSelected: false
-    };
-
+    this.getFields();
   }
 
   public onPreviousClicked() {
@@ -60,97 +66,102 @@ export class ProtocolPv implements OnInit {
 
   public onNextClicked() {
 
-    if (this.formMppt1.invalid || this.formMppt2.invalid) {
-      return;
+    // Iterate over forms and prohibit onNextClicked if forms are not valid
+    for (let form of this.forms) {
+      if (form.formGroup.invalid) {
+        return
+      }
     }
 
-    this.installationData.pv.dc1 = this.modelMppt1;
-    this.installationData.pv.dc2 = this.modelMppt2;
+    this.installationData.batteryInverter = this.forms[0].model;
+    this.installationData.pv.dc1 = this.forms[1].model;
+    this.installationData.pv.dc2 = this.forms[2].model;
 
     this.nextViewEvent.emit(this.installationData);
-
   }
 
-  public getFields(forMpptNr: 1 | 2): FormlyFieldConfig[] {
+  public getFields(): void {
 
-    let fields: FormlyFieldConfig[] = [];
-
-    fields.push({
-      key: "isSelected",
+    this.forms[0].fields.push({
+      key: "shadowManagementDisabled",
       type: "checkbox",
       templateOptions: {
-        label: "MPPT " + forMpptNr + " (beschriftet mit ''PV" + forMpptNr + "'')",
-        required: true
-      }
-    });
-
-    fields.push({
-      key: "alias",
-      type: "input",
-      templateOptions: {
-        label: "Bezeichnung",
-        description: "wird im Online-Monitoring angezeigt, z. B. ''PV Hausdach''",
-        required: true
+        label: "Schattenmanagement deaktivieren",
+        description: "Nur wenn Optimierer verbaut sind, muss das Schattenmanagement deaktiviert werden",
       },
-      hideExpression: model => !model.isSelected
-    });
+    })
 
-    fields.push({
-      key: "value",
-      type: "input",
-      templateOptions: {
-        type: "number",
-        label: "Installierte Leistung [Wₚ]",
-        min: 1000,
-        required: true
+    //  For 2 DC-PVs
+    for (let forMpptNr = 1; forMpptNr <= 2; forMpptNr++) {
+
+      this.forms[forMpptNr]?.fields.push({
+        key: "isSelected",
+        type: "checkbox",
+        templateOptions: {
+          label: "MPPT " + forMpptNr + " (beschriftet mit ''PV" + forMpptNr + "'')",
+        }
       },
-      parsers: [Number],
-      hideExpression: model => !model.isSelected
-    });
-
-    fields.push({
-      key: "orientation",
-      type: "select",
-      templateOptions: {
-        label: "Ausrichtung",
-        options: [
-          { label: "Süd", value: "s" },
-          { label: "Südwest", value: "sw" },
-          { label: "West", value: "w" },
-          { label: "Südost", value: "so" },
-          { label: "Ost", value: "o" },
-          { label: "Nordwest", value: "nw" },
-          { label: "Nordost", value: "no" },
-          { label: "Nord", value: "n" },
-          { label: "", value: undefined }
-        ]
-      },
-      hideExpression: model => !model.isSelected
-    });
-
-    fields.push({
-      key: "moduleType",
-      type: "input",
-      templateOptions: {
-        label: "Modultyp",
-        description: "z. B. Hersteller und Leistung"
-      },
-      hideExpression: model => !model.isSelected
-    });
-
-    fields.push({
-      key: "modulesPerString",
-      type: "input",
-      templateOptions: {
-        type: "number",
-        label: "Anzahl PV-Module"
-      },
-      parsers: [Number],
-      hideExpression: model => !model.isSelected
-    });
-
-    return fields;
-
+        {
+          key: "alias",
+          type: "input",
+          templateOptions: {
+            label: "Bezeichnung",
+            description: "wird im Online-Monitoring angezeigt, z. B. ''PV Hausdach''",
+            required: true
+          },
+          hideExpression: model => !model.isSelected
+        },
+        {
+          key: "value",
+          type: "input",
+          templateOptions: {
+            type: "number",
+            label: "Installierte Leistung [Wₚ]",
+            min: 1000,
+            required: true
+          },
+          parsers: [Number],
+          hideExpression: model => !model.isSelected
+        },
+        {
+          key: "orientation",
+          type: "select",
+          templateOptions: {
+            label: "Ausrichtung",
+            options: [
+              { label: "Süd", value: "s" },
+              { label: "Südwest", value: "sw" },
+              { label: "West", value: "w" },
+              { label: "Südost", value: "so" },
+              { label: "Ost", value: "o" },
+              { label: "Nordwest", value: "nw" },
+              { label: "Nordost", value: "no" },
+              { label: "Nord", value: "n" },
+              { label: "", value: undefined }
+            ]
+          },
+          hideExpression: model => !model.isSelected
+        },
+        {
+          key: "moduleType",
+          type: "input",
+          templateOptions: {
+            label: "Modultyp",
+            description: "z. B. Hersteller und Leistung"
+          },
+          hideExpression: model => !model.isSelected
+        },
+        {
+          key: "modulesPerString",
+          type: "input",
+          templateOptions: {
+            type: "number",
+            label: "Anzahl PV-Module"
+          },
+          parsers: [Number],
+          hideExpression: model => !model.isSelected
+        })
+    }
   }
 
 }

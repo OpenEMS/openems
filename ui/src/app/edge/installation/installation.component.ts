@@ -72,7 +72,9 @@ export type InstallationData = {
     email?: string,
     phone?: string
   },
-
+  batteryInverter?: {
+    shadowManagementDisabled?: boolean
+  }
   battery?: {
     // configuration-system
     type?: string,
