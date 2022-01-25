@@ -203,6 +203,7 @@ export class ConfigurationSummaryComponent implements OnInit {
     let batteryInverterData: { label: string, value: any }[] = [
       { label: "Maximale Einspeiseleistung", value: dynamicFeedInLimitation.maximumFeedInPower }
     ]
+    batteryInverterData.push({ label: "Schattenmanagement deaktiviert", value: this.installationData.batteryInverter.shadowManagementDisabled ? 'ja' : 'nein' });
 
     batteryInverterData.push({ label: "Typ", value: dynamicFeedInLimitation.feedInSetting });
 

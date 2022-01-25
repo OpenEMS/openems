@@ -1,7 +1,7 @@
 <installation-view iconName="clipboard-outline" header="DC-PV Installation (Wechselrichtereingänge)"
-  (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()">
+  (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()" *ngIf="forms">
 
-  <formly-form [form]="formMppt1" [fields]="fieldsMppt1" [model]="modelMppt1"></formly-form>
-  <formly-form [form]="formMppt2" [fields]="fieldsMppt2" [model]="modelMppt2"></formly-form>
+  <formly-form *ngFor="let form of forms" [form]="form.formGroup" [fields]="form.fields" [model]="form.model">
+  </formly-form>
 
 </installation-view>

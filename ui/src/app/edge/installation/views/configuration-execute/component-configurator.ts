@@ -37,7 +37,7 @@ export type ConfigurationObject = {
     functionState?: FunctionState
 }
 
-const DELAY_CLEAR = 15000;          // Time between the clear and the start of the configurations
+const DELAY_CLEAR = 5000;          // Time between the clear and the start of the configurations
 const DELAY_CONFIG = 15000;         // Time between the configuration of every component
 const DELAY_FUNCTION_TEST = 15000;  // Time between the configuration and the function test of every component
 
@@ -169,21 +169,50 @@ export class ComponentConfigurator {
      */
     private clear(): Promise<void> {
         return new Promise((resolve, reject) => {
-            let reverseConfigurationObjects = this.configurationObjects.slice().reverse();
-            for (let configurationObject of reverseConfigurationObjects) {
+            const preConfiguredObjects = this.configurationObjects
+                .slice()
+                .reverse()
+                .filter(config => config.configState === ConfigurationState.PreConfigured);
 
-                if (configurationObject.configState === ConfigurationState.PreConfigured) {
-                    this.edge.deleteComponentConfig(this.websocket, configurationObject.componentId).then(() => {
-                        configurationObject.configState = ConfigurationState.Missing;
-                    }).catch((reason) => {
-                        configurationObject.configState = ConfigurationState.Error;
-                        reject(reason);
-                    });
-                }
-            }
-            setTimeout(() => {
+            if (preConfiguredObjects.length == 0) {
                 resolve();
-            }, DELAY_CLEAR);
+            }
+
+            this.clearComponent(preConfiguredObjects, 0)
+                .then(() => resolve())
+                .catch(reason => reject(reason));
+        });
+    }
+
+    /**
+     * Delete given pre configured components.
+     * 
+     * @param preConfiguredObjects Components to delete
+     * @param index Index of component to be deleted
+     * @returns Promise
+     */
+    private clearComponent(preConfiguredObjects: Array<ConfigurationObject>, index: number): Promise<void> {
+        return new Promise((resolve, reject) => {
+            let configurationObject = preConfiguredObjects[index];
+
+            this.edge.deleteComponentConfig(this.websocket, configurationObject.componentId).then(() => {
+                configurationObject.configState = ConfigurationState.Missing;
+
+                setTimeout(() => {
+                    if (index + 1 < preConfiguredObjects.length) {
+                        this.clearComponent(preConfiguredObjects, index + 1).then(() => {
+                            resolve();
+                        }).catch((reason) => {
+                            reject(reason);
+                        });
+                    } else {
+                        resolve();
+                    }
+                }, DELAY_CLEAR);
+            }).catch((reason) => {
+                configurationObject.configState = ConfigurationState.Error;
+                reject(reason);
+            });
         });
     }
 
@@ -343,11 +372,12 @@ export class ComponentConfigurator {
      */
     private updateScheduler() {
         let scheduler: EdgeConfig.Component = this.config.getComponent("scheduler0");
-
-        let requiredControllerIds = ["ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0", "ctrlBalancing0"];
         let installationData = JSON.parse(sessionStorage.installationData);
 
-        if (installationData && installationData.battery && (!installationData.battery.emergencyReserve.isEnabled)) {
+        let requiredControllerIds: string[];
+        if (installationData?.battery?.emergencyReserve?.isEnabled) {
+            requiredControllerIds = ["ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0", "ctrlBalancing0"];
+        } else {
             requiredControllerIds = ["ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0", "ctrlBalancing0"];
         }
 

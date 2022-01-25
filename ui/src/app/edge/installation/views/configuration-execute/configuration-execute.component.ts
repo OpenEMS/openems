@@ -172,11 +172,12 @@ export class ConfigurationExecuteComponent implements OnInit {
           { name: "modbusUnitId", value: 247 },
           { name: "safetyCountry", value: safetyCountry },
           { name: "backupEnable", value: this.installationData.battery.emergencyReserve.isEnabled ? "ENABLE" : "DISABLE" },
-          { name: "feedPowerEnable", value: "ENABLE" },
+          { name: "feedPowerEnable", value: this.installationData.customer.country == 'at' ? "DISABLE" : "ENABLE" },
           { name: "feedPowerPara", value: this.installationData.dynamicFeedInLimitation.maximumFeedInPower },
           { name: "setfeedInPowerSettings", value: feedInSetting },
           { name: "emsPowerMode", value: "UNDEFINED" },
           { name: "emsPowerSet", value: -1 },
+          { name: "mpptForShadowEnable", value: this.installationData.batteryInverter.shadowManagementDisabled ? "DISABLE" : "ENABLE" }
         ],
         mode: ConfigurationMode.RemoveAndConfigure
       });
@@ -311,35 +312,30 @@ export class ConfigurationExecuteComponent implements OnInit {
       });
 
       let emergencyReserve = this.installationData.battery.emergencyReserve;
-      if (emergencyReserve != undefined) {
-        this.componentConfigurator.add({
-          factoryId: "GoodWe.EmergencyPowerMeter",
-          componentId: "meter2",
-          alias: "Notstromverbraucher",
-          properties: [
-            { name: "enabled", value: true },
-            { name: "modbus.id", value: "modbus1" },
-            { name: "modbusUnitId", value: 247 }
-          ],
-          mode: emergencyReserve.isEnabled ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
-        });
+      this.componentConfigurator.add({
+        factoryId: "GoodWe.EmergencyPowerMeter",
+        componentId: "meter2",
+        alias: "Notstromverbraucher",
+        properties: [
+          { name: "enabled", value: true },
+          { name: "modbus.id", value: "modbus1" },
+          { name: "modbusUnitId", value: 247 }
+        ],
+        mode: emergencyReserve.isEnabled ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+      });
 
-        if (emergencyReserve.isEnabled) {
-          // TODO shouldn't this controller always be active? otherwise 'mode' below has no sense.
-          this.componentConfigurator.add({
-            factoryId: "Controller.Ess.EmergencyCapacityReserve",
-            componentId: "ctrlEmergencyCapacityReserve0",
-            alias: "Ansteuerung der Notstromreserve",
-            properties: [
-              { name: "enabled", value: true },
-              { name: "ess.id", value: "ess0" },
-              { name: "mode", value: emergencyReserve.isReserveSocEnabled },
-              { name: "reserveSoc", value: emergencyReserve.value }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-          });
-        }
-      }
+      this.componentConfigurator.add({
+        factoryId: "Controller.Ess.EmergencyCapacityReserve",
+        componentId: "ctrlEmergencyCapacityReserve0",
+        alias: "Ansteuerung der Notstromreserve",
+        properties: [
+          { name: "enabled", value: true },
+          { name: "ess.id", value: "ess0" },
+          { name: "mode", value: emergencyReserve.isReserveSocEnabled },
+          { name: "reserveSoc", value: emergencyReserve.value ?? 5 /* minimum allowed value */ }
+        ],
+        mode: emergencyReserve.isEnabled ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+      });
 
       //#endregion
 
