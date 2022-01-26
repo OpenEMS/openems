@@ -10,6 +10,7 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	com.squareup.okio:okio;version='1.17.2',\
 	com.squareup.retrofit2:converter-moshi;version='2.9.0',\
 	com.squareup.retrofit2:retrofit;version='2.9.0',\
+	com.sun.activation.javax.activation;version='1.2.0',\
 	eu.chargetime.ocpp:OCPP-J;version='1.0.1',\
 	eu.chargetime.ocpp:common;version='1.0',\
 	eu.chargetime.ocpp:v1_6;version='1.0.1',\
