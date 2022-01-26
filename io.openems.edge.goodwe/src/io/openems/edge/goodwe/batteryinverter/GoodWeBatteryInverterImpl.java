@@ -26,6 +26,7 @@ import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -44,9 +45,9 @@ import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
-import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
+import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
 import io.openems.edge.timedata.api.Timedata;
 
@@ -154,14 +155,15 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 	private void applyConfig(Config config) throws OpenemsNamedException {
 		this.config = config;
 
-		// TODO write values only if update is required
-
 		// (0x00) 'General Mode: Self use' instead of (0x01) 'Off-grid Mode', (0x02)
 		// 'Backup Mode' or (0x03) 'Economic Mode'.
 		this.writeToChannel(GoodWe.ChannelId.SELECT_WORK_MODE, AppModeIndex.SELF_USE);
 
 		// country setting
 		this.writeToChannel(GoodWe.ChannelId.SAFETY_COUNTRY_CODE, config.safetyCountry());
+
+		// Mppt Shadow enable / disable
+		this.writeToChannel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE, config.mpptForShadowEnable());
 
 		// Backup Power on / off
 		this.writeToChannel(GoodWe.ChannelId.BACK_UP_ENABLE, config.backupEnable());
@@ -357,6 +359,19 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		channel.setNextWriteValue(value);
 	}
 
+	private void writeToChannel(GoodWe.ChannelId channelId, EnableDisable value)
+			throws IllegalArgumentException, OpenemsNamedException {
+		BooleanWriteChannel channel = this.channel(channelId);
+		switch (value) {
+		case ENABLE:
+			channel.setNextWriteValue(true);
+			break;
+		case DISABLE:
+			channel.setNextWriteValue(false);
+			break;
+		}
+	}
+
 	private void writeToChannel(GoodWe.ChannelId channelId, Integer value)
 			throws IllegalArgumentException, OpenemsNamedException {
 		IntegerWriteChannel channel = this.channel(channelId);
@@ -397,9 +412,14 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		int surplusPower = productionPower //
 				/* Charge-Max-Current */ - this.getBmsChargeMaxCurrent().orElse(0) //
 						/* Battery Voltage */ * wbmsVoltageChannel.value().orElse(0);
+		
+		if(surplusPower <= 0) {
+			// PV Production is less than the maximum charge power -> no surplus power
+			return null;
+		}
 
-		// Must be positive
-		return Math.max(surplusPower, 0);
+		// Surplus power is always positive here
+		return surplusPower;
 	}
 
 	@Override
@@ -445,7 +465,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Override
 	public boolean isOffGridPossible() {
-		return this.config.backupEnable().equals(BackupEnable.ENABLE);
+		return this.config.backupEnable().equals(EnableDisable.ENABLE);
 	}
 
 }

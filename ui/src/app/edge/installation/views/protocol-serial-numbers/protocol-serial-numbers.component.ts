@@ -437,6 +437,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
     let installationData = this.installationData;
 
+    let installer = installationData.installer;
     let customer = installationData.customer;
     let battery = installationData.battery;
     let dynamicFeedInLimitation = installationData.dynamicFeedInLimitation;
@@ -452,6 +453,11 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     //#endregion
 
     //#region Addresses & General
+
+    let installerObj: any = {
+      firstname: installer.firstName,
+      lastname: installer.lastName
+    }
 
     let customerObj: any = {
       firstname: customer.firstName,
@@ -476,6 +482,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       fems: {
         id: this.installationData.edge.id
       },
+      installer: installerObj,
       customer: customerObj
     };
 

@@ -104,6 +104,7 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
       totalPvPower += ac.value;
     }
 
+    totalPvPower = Math.round(this.installationData.customer.country != 'at' ? (totalPvPower * 0.7) : totalPvPower);
     fields.push({
       key: "maximumFeedInPower",
       type: "input",
@@ -111,10 +112,11 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
         type: "number",
         label: "Maximale Einspeiseleistung [W]",
         description: "Diesen Wert entnehmen Sie der Anschlussbestätigung des Netzbetreibers",
-        required: true
+        required: true,
       },
-      parsers: [Number],
-      defaultValue: parseInt((totalPvPower * 0.7).toFixed(0))
+      // Hide maximumFeedInPower for austrian customers, due to no 70% cut-off limitation
+      hide: this.installationData.customer.country == 'at' ? true : false,
+      defaultValue: totalPvPower.toFixed(0),
     });
 
     fields.push({

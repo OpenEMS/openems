@@ -4,6 +4,10 @@ export type SetupProtocol = {
     fems: {
         id: string
     },
+    installer: {
+        firstname: string,
+        lastname: string
+    },
     customer: {
         firstname: string,
         lastname: string,
