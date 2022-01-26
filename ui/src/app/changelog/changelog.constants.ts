@@ -58,6 +58,7 @@ export class Product {
     public static readonly FEMS_CORRENTLY = new Product('FEMS-App STROMDAO Corrently', 'https://fenecon.de/fems/'); // TODO Add Product Page
     public static readonly FEMS_TIBBER = new Product('FEMS-App Tibber', 'https://fenecon.de/fems/'); // TODO Add Product Page
     public static readonly FEMS_ALL_TIME_OF_USE_TARIFF = [Product.FEMS_AWATTAR, Product.FEMS_CORRENTLY, Product.FEMS_TIBBER];
+    public static readonly FEMS_HOCHLASTZEITFENSTER = new Product('FEMS-App Hochlastzeitfenster', 'https://fenecon.de/fems/'); // TODO Add Product Page
 
     // Industrial
     public static readonly INDUSTRIAL = new Product('FENECON Industrial-Serie', 'https://fenecon.de/industrial/');

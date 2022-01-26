@@ -37,6 +37,17 @@ export class ChangelogComponent {
       {
         version: '2022.1.2',
         changes: [
+          Changelog.product(Product.FEMS_HOCHLASTZEITFENSTER) + "Kompatibilität des Hochlastzeitfensters mit Blindleistungsregelung",
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Eingabe der Installateursdaten, externer Optimierer (Schattenmanagement)",
+          Changelog.product(Product.HOME, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Möglichkeit zur Deaktivierung des MPP-Trackers bei externen Optimierern",
+          Changelog.product(Product.HOME) + "Verbesserung des 'SMART'-Mode",
+          { roleIsAtLeast: Role.ADMIN, change: "Verbesserung an FEMS System-Update Funktion" },
+          { roleIsAtLeast: Role.ADMIN, change: "Bugfix OCPP-Server mit Java 11" },
+        ]
+      },
+      {
+        version: '2022.1.2',
+        changes: [
           Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + "Verbesserung der historischen Darstellung über einen längeren Zeitraum",
         ]
       },
