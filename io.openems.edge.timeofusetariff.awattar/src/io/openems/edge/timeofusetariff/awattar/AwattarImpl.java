@@ -47,7 +47,7 @@ import okhttp3.Response;
 )
 public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTariff, OpenemsComponent, Awattar {
 
-	private static final String AWATTAR_API_URL = "https://api.awattar.com/v1/marketdata";
+	private static final String AWATTAR_API_URL = "https://api.awattar.de/v1/marketdata";
 
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 

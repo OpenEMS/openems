@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig.Component.JsonFormat;
@@ -42,6 +44,8 @@ public class EdgeConfig {
 	 * Represents an instance of an OpenEMS Component.
 	 */
 	public static class Component {
+
+		public static final String NO_SERVICE_PID = "NO_SERVICE_PID";
 
 		/**
 		 * Represents a Channel of an OpenEMS Component.
@@ -300,17 +304,45 @@ public class EdgeConfig {
 		private final String id;
 		private final String alias;
 		private final String factoryId;
-		private final TreeMap<String, JsonElement> properties;
-		private final TreeMap<String, Channel> channels;
+		private final SortedMap<String, JsonElement> properties;
+		private final SortedMap<String, Channel> channels;
 
 		public Component(String servicePid, String id, String alias, String factoryId,
-				TreeMap<String, JsonElement> properties, TreeMap<String, Channel> channels) {
+				SortedMap<String, JsonElement> properties, SortedMap<String, Channel> channels) {
 			this.servicePid = servicePid;
 			this.id = id;
 			this.alias = alias;
 			this.factoryId = factoryId;
 			this.properties = properties;
 			this.channels = channels;
+		}
+
+		/**
+		 * Constructor with NO_SERVICE_PID.
+		 * 
+		 * @param id         the Component-ID
+		 * @param alias      the Alias
+		 * @param factoryId  the Factory-ID
+		 * @param properties the configuration properties
+		 * @param channels   the channels
+		 */
+		public Component(String id, String alias, String factoryId, SortedMap<String, JsonElement> properties,
+				SortedMap<String, Channel> channels) {
+			this(NO_SERVICE_PID, id, alias, factoryId, properties, channels);
+		}
+
+		/**
+		 * Constructor with NO_SERVICE_PID, properties as JsonObject and no channels
+		 * 
+		 * @param id         the Component-ID
+		 * @param factoryId  the Factory-ID
+		 * @param properties the configuration properties
+		 */
+		public Component(String id, String alias, String factoryId, JsonObject properties) {
+			this(NO_SERVICE_PID, id, alias, factoryId,
+					properties.entrySet().stream()
+							.collect(Collectors.toMap(Entry::getKey, Entry::getValue, (o1, o2) -> o1, TreeMap::new)),
+					new TreeMap<>());
 		}
 
 		/**
@@ -366,6 +398,21 @@ public class EdgeConfig {
 		 */
 		public Optional<JsonElement> getProperty(String propertyId) {
 			return Optional.ofNullable(this.properties.get(propertyId));
+		}
+
+		/**
+		 * Gets the Property with the given ID or throws an Exception if it does not
+		 * exist.
+		 *
+		 * @param propertyId the Property-ID
+		 * @return the Property
+		 */
+		public JsonElement getPropertyOrError(String propertyId) throws InvalidValueException {
+			JsonElement property = this.properties.get(propertyId);
+			if (property != null) {
+				return property;
+			}
+			throw new InvalidValueException("Property with ID [" + propertyId + "] does not exist.");
 		}
 
 		/**
@@ -509,7 +556,6 @@ public class EdgeConfig {
 				}
 			}
 			return new Component(//
-					"NO_SERVICE_PID", //
 					componentId, //
 					alias, //
 					factoryId, //
@@ -1053,6 +1099,20 @@ public class EdgeConfig {
 	 */
 	public Optional<Component> getComponent(String componentId) {
 		return Optional.ofNullable(this.components.get(componentId));
+	}
+
+	/**
+	 * Gets the {@link Component} or throws an Exception if it does not exist.
+	 *
+	 * @param componentId the Component-ID
+	 * @return the {@link Component}
+	 */
+	public Component getComponentOrError(String componentId) throws InvalidValueException {
+		Component component = this.components.get(componentId);
+		if (component != null) {
+			return component;
+		}
+		throw new InvalidValueException("Component with ID [" + componentId + "] does not exist.");
 	}
 
 	/**

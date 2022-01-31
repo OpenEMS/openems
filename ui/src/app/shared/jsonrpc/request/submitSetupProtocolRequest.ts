@@ -4,6 +4,10 @@ export type SetupProtocol = {
     edge: {
         id: string
     },
+    installer: {
+        firstname: string,
+        lastname: string
+    },
     customer: {
         firstname: string,
         lastname: string,

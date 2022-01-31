@@ -63,12 +63,10 @@ public enum OpenemsError {
 	JSON_NO_STRING(5009, "JSON [%s] is not a String"), //
 	JSON_NO_STRING_MEMBER(5010, "JSON [%s:%s] is not a String"), //
 	JSON_NO_BOOLEAN(5011, "JSON [%s] is not a Boolean"), //
-	JSON_NO_BOOLEAN_MEMBER(5012, "JSON [%s:%s] is not a Boolean"), //
 	JSON_NO_NUMBER(5013, "JSON [%s] is not a Number"), //
 	JSON_NO_NUMBER_MEMBER(5014, "JSON [%s:%s] is not a Number"), //
 	JSON_PARSE_ELEMENT_FAILED(5015, "JSON failed to parse [%s]. %s: %s"), //
 	JSON_PARSE_FAILED(5016, "JSON failed to parse [%s]: %s"), //
-	JSON_NO_FLOAT_MEMBER(5017, "JSON [%s:%s] is not a Float"), //
 	JSON_NO_ENUM_MEMBER(5018, "JSON [%s:%s] is not an Enum"), //
 	JSON_NO_INET4ADDRESS(5020, "JSON [%s] is not an IPv4 address"), //
 	JSON_NO_ENUM(5021, "JSON [%s] is not an Enum"), //

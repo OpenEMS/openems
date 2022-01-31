@@ -28,8 +28,8 @@ public abstract class JsonrpcRequest extends AbstractJsonrpcRequest {
 	public static final int DEFAULT_TIMEOUT_SECONDS = 60;
 	public static final int NO_TIMEOUT = -1;
 
-	private final UUID id;
-	private final Optional<Integer> timeoutOpt;
+	public final UUID id;
+	public final Optional<Integer> timeoutOpt;
 
 	/**
 	 * Creates a {@link JsonrpcRequest} with random {@link UUID} as id and
@@ -115,6 +115,7 @@ public abstract class JsonrpcRequest extends AbstractJsonrpcRequest {
 	 *
 	 * @return the {@link UUID} id
 	 */
+	// TODO remove this method and directly use the public final 'id'.
 	public UUID getId() {
 		return this.id;
 	}

@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.JsonFormat;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 
 public class UpdateEdgeConfig extends DatabaseTask {
@@ -19,7 +20,7 @@ public class UpdateEdgeConfig extends DatabaseTask {
 
 	public UpdateEdgeConfig(int odooId, EdgeConfig config) {
 		this.odooId = odooId;
-		this.fullConfig = new GsonBuilder().setPrettyPrinting().create().toJson(config.toJson());
+		this.fullConfig = JsonUtils.prettyToString(config.toJson());
 		this.componentsConfig = new GsonBuilder().setPrettyPrinting().create()
 				.toJson(config.componentsToJson(JsonFormat.WITHOUT_CHANNELS));
 	}

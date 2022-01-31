@@ -408,6 +408,7 @@ public class OdooHandler {
 	public int submitSetupProtocol(MyUser user, JsonObject setupProtocolJson) throws OpenemsNamedException {
 		var userJson = JsonUtils.getAsJsonObject(setupProtocolJson, "customer");
 		var edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "edge");
+		var installerJson = JsonUtils.getAsJsonObject(setupProtocolJson, "installer");
 
 		var edgeId = JsonUtils.getAsString(edgeJson, "id");
 		int[] foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
@@ -416,7 +417,7 @@ public class OdooHandler {
 			throw new OpenemsException("Edge not found for id [" + edgeId + "]");
 		}
 
-		var password = PasswordUtils.generateRandomPassword(24);
+		var password = PasswordUtils.generateRandomPassword(8);
 		var odooUserId = this.createOdooUser(userJson, password);
 
 		var customerId = this.getOdooPartnerId(odooUserId);
@@ -424,6 +425,20 @@ public class OdooHandler {
 		this.assignEdgeToUser(odooUserId, foundEdge[0], OdooUserRole.OWNER);
 
 		var protocolId = this.createSetupProtocol(setupProtocolJson, foundEdge[0], customerId, installerId);
+
+		var installer = OdooUtils.readOne(credentials, Field.Partner.ODOO_MODEL, installerId, Field.Partner.IS_COMPANY);
+		boolean isCompany = (boolean) installer.get("is_company");
+		if (!isCompany) {
+			Map<String, Object> fieldsToUpdate = new HashMap<>();
+			JsonUtils.getAsOptionalString(installerJson, "firstname") //
+					.ifPresent(firstname -> fieldsToUpdate.put(Field.Partner.FIRSTNAME.id(), firstname));
+			JsonUtils.getAsOptionalString(installerJson, "lastname") //
+					.ifPresent(lastname -> fieldsToUpdate.put(Field.Partner.LASTNAME.id(), lastname));
+
+			if (!fieldsToUpdate.isEmpty()) {
+				OdooUtils.write(credentials, Field.Partner.ODOO_MODEL, new Integer[] { installerId }, fieldsToUpdate);
+			}
+		}
 
 		try {
 			this.sendSetupProtocolMail(user, protocolId, edgeId);
@@ -481,18 +496,40 @@ public class OdooHandler {
 				new Domain(Field.User.LOGIN, "=", email));
 
 		if (userFound.length == 1) {
+			// update existing user
 			var userId = userFound[0];
 			OdooUtils.write(this.credentials, Field.User.ODOO_MODEL, new Integer[] { userId }, customerFields);
 			return userId;
 		}
+
 		customerFields.put(Field.User.LOGIN.id(), email);
 		customerFields.put(Field.User.PASSWORD.id(), password);
 		customerFields.put(Field.User.GLOBAL_ROLE.id(), OdooUserRole.OWNER.getOdooRole());
 		customerFields.put(Field.User.GROUPS.id(), OdooUserRole.OWNER.toOdooIds());
 		var createdUserId = OdooUtils.create(this.credentials, Field.User.ODOO_MODEL, customerFields);
 
+		try {
+			this.addTagToPartner(createdUserId);
+		} catch (OpenemsException e) {
+			this.log.warn("Unable to add tag for Odoo user id [" + createdUserId + "]", e);
+		}
+
 		this.sendRegistrationMail(createdUserId, password);
 		return createdUserId;
+	}
+
+	/**
+	 * Add the "Created via IBN" tag to the referenced partner for given user id.
+	 * 
+	 * @param userId to get Odoo partner
+	 * @throws OpenemsException on error
+	 */
+	private void addTagToPartner(int userId) throws OpenemsException {
+		var tagId = OdooUtils.getObjectReference(credentials, "edge", "res_partner_category_created_via_ibn");
+		var partnerId = this.getOdooPartnerId(userId);
+
+		OdooUtils.write(this.credentials, Field.Partner.ODOO_MODEL, new Integer[] { partnerId },
+				new FieldValue<>(Field.Partner.CATEGORY_ID, new Integer[] { tagId }));
 	}
 
 	/**
