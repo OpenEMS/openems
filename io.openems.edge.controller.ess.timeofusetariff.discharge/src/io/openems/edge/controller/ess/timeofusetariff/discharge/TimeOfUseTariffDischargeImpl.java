@@ -26,9 +26,11 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.emergencycapacityreserve.EmergencyCapacityReserve;
 import io.openems.edge.controller.ess.limittotaldischarge.LimitTotalDischargeController;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
@@ -72,11 +74,17 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	@Reference(policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(&(enabled=true)(isReserveSocEnabled=true))")
 	private volatile List<EmergencyCapacityReserve> ctrlEmergencyCapacityReserves = new CopyOnWriteArrayList<>();
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private volatile List<LimitTotalDischargeController> ctrlLimitTotalDischargeControllers = new CopyOnWriteArrayList<>();
+	@Reference(policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE, //
+			target = "(enabled=true)")
+	private volatile List<LimitTotalDischargeController> ctrlLimitTotalDischarges = new CopyOnWriteArrayList<>();
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
@@ -224,8 +232,8 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 		// Usable capacity based on minimum SoC from Limit total discharge and emergency
 		// reserve controllers.
 		int limitSoc = 0;
-		for (LimitTotalDischargeController ctrl : this.ctrlLimitTotalDischargeControllers) {
-			limitSoc = Math.max(limitSoc, ctrl.getMinSoc());
+		for (LimitTotalDischargeController ctrl : this.ctrlLimitTotalDischarges) {
+			limitSoc = Math.max(limitSoc, ctrl.getConfig().minSoc());
 		}
 		for (EmergencyCapacityReserve ctrl : this.ctrlEmergencyCapacityReserves) {
 			limitSoc = Math.max(limitSoc, ctrl.getConfig().reserveSoc());
@@ -369,7 +377,17 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 		if (this.boundarySpace != null && this.boundarySpace.isWithinBoundary(now)) {
 			if (this.targetPeriods.contains(currentQuarterHour)) {
 				// set result
-				this.ess.setActivePowerLessOrEquals(0);
+				final Integer chargeLimit;
+				if (this.ess instanceof HybridEss) {
+					// DC or Hybrid system: limit AC export power to DC production power
+					var e = (HybridEss) this.ess;
+					chargeLimit = TypeUtils.subtract(this.ess.getActivePower().get(), e.getDcDischargePower().get());
+
+				} else {
+					// AC system
+					chargeLimit = 0;
+				}
+				this.ess.setActivePowerLessOrEquals(chargeLimit);
 				this._setDelayed(true);
 				this._setStateMachine(StateMachine.DELAYED);
 			} else {
