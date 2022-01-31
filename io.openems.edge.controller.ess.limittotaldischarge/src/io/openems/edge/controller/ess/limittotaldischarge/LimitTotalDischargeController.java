@@ -1,8 +1,8 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
 import io.openems.common.channel.Level;
-import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
@@ -33,7 +33,7 @@ public interface LimitTotalDischargeController extends Controller, OpenemsCompon
 	 *
 	 * @return the Channel
 	 */
-	public default BooleanReadChannel getAwaitingHysteresisChannel() {
+	public default StateChannel getAwaitingHysteresisChannel() {
 		return this.channel(ChannelId.AWAITING_HYSTERESIS);
 	}
 
