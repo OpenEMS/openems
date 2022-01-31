@@ -6,7 +6,6 @@ import java.util.TreeSet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,17 +20,17 @@ import io.openems.common.types.ChannelAddress;
 
 public abstract class SubscribedChannelsWorker {
 
-	protected final static int UPDATE_INTERVAL_IN_SECONDS = 2;
+	protected static final int UPDATE_INTERVAL_IN_SECONDS = 2;
 
 	private final Logger log = LoggerFactory.getLogger(SubscribedChannelsWorker.class);
 
 	/**
-	 * Holds subscribed channels
+	 * Holds subscribed channels.
 	 */
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
 
 	/**
-	 * Holds the scheduled task for currentData
+	 * Holds the scheduled task for currentData.
 	 */
 	private Optional<ScheduledFuture<?>> futureOpt = Optional.empty();
 
@@ -45,7 +44,7 @@ public abstract class SubscribedChannelsWorker {
 
 	/**
 	 * Applies a SubscribeChannelsRequest.
-	 * 
+	 *
 	 * @param role    the Role - no specific level required
 	 * @param request the SubscribeChannelsRequest
 	 */
@@ -58,7 +57,7 @@ public abstract class SubscribedChannelsWorker {
 
 	/**
 	 * Sets the subscribed Channels.
-	 * 
+	 *
 	 * @param channels Set of ChannelAddresses
 	 */
 	private synchronized void setChannels(Set<ChannelAddress> channels) {
@@ -80,7 +79,7 @@ public abstract class SubscribedChannelsWorker {
 				/*
 				 * This task is executed regularly. Sends data to Websocket.
 				 */
-				WebSocket ws = this.parent.getWebsocket();
+				var ws = this.parent.getWebsocket();
 				if (ws == null || !ws.isOpen()) {
 					// disconnected; stop worker
 					this.dispose();
@@ -93,26 +92,29 @@ public abstract class SubscribedChannelsWorker {
 					this.log.warn("Unable to send SubscribedChannels: " + e.getMessage());
 				}
 
-			}, 0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS));
-		}
-	}
-
-	public void dispose() {
-		// unsubscribe regular task
-		if (this.futureOpt.isPresent()) {
-			futureOpt.get().cancel(true);
+			}, 0, SubscribedChannelsWorker.UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS));
 		}
 	}
 
 	/**
-	 * Gets a JSON-RPC Notification with all subscribed channels data
+	 * Dispose and deactivate the {@link SubscribedChannelsWorker}.
+	 */
+	public void dispose() {
+		// unsubscribe regular task
+		if (this.futureOpt.isPresent()) {
+			this.futureOpt.get().cancel(true);
+		}
+	}
+
+	/**
+	 * Gets a JSON-RPC Notification with all subscribed channels data.
 	 *
-	 * @return
+	 * @return the {@link CurrentDataNotification}
 	 */
 	private CurrentDataNotification getCurrentData() {
-		CurrentDataNotification result = new CurrentDataNotification();
+		var result = new CurrentDataNotification();
 		for (ChannelAddress channel : this.channels) {
-			JsonElement value = this.getChannelValue(channel);
+			var value = this.getChannelValue(channel);
 			result.add(channel, value);
 		}
 		return result;

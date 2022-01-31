@@ -40,12 +40,12 @@ public class FeneconHomeBatteryTest {
 
 	/**
 	 * Battery start up when the relay and battery off test.
-	 * 
+	 *
 	 * @throws Exception on error
 	 */
 	@Test
 	public void test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 
 		new ComponentTest(new FeneconHomeBatteryImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -73,7 +73,8 @@ public class FeneconHomeBatteryTest {
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL") //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL")//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_ON) //
+						.input(BMS_CONTROL, BmsControl.SWITCHED_ON)) //
+				.next(new TestCase("in WAIT_FOR_BMS_CONTROL")//
 						.output(BATTERY_RELAY, false)) //
 				.next(new TestCase("in WAIT_FOR_SWITCH_OFF") //
 						.input(BATTERY_RELAY, false) //
@@ -110,7 +111,7 @@ public class FeneconHomeBatteryTest {
 
 	/**
 	 * Battery start up when the relay is on and battery is off test.
-	 * 
+	 *
 	 * @throws Exception on error
 	 */
 	@Test
@@ -152,7 +153,7 @@ public class FeneconHomeBatteryTest {
 	/**
 	 * Battery start up when the relay is off and battery has already started, FEMS
 	 * restarted.
-	 * 
+	 *
 	 * @throws Exception on error
 	 */
 	@Test
@@ -189,7 +190,7 @@ public class FeneconHomeBatteryTest {
 
 	/**
 	 * Battery hard switch is off, should stay in GO_RUNNING.
-	 * 
+	 *
 	 * @throws Exception on error
 	 */
 	@Test
@@ -245,7 +246,7 @@ public class FeneconHomeBatteryTest {
 	/**
 	 * Configuration problems, IO wrong configured channel, if battery has not
 	 * started yet, in these case Fault state should be taken care(TODO).
-	 * 
+	 *
 	 * @throws Exception on error
 	 */
 	@Test
@@ -289,7 +290,7 @@ public class FeneconHomeBatteryTest {
 	/**
 	 * Configuration problems, or Relay board is not connected, if battery already
 	 * started.
-	 * 
+	 *
 	 * @throws Exception on error
 	 */
 	@Test

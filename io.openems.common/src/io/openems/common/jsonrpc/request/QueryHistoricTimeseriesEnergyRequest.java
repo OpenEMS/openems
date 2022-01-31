@@ -18,13 +18,13 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'queryHistoricTimeseriesEnergy'.
- * 
+ *
  * <p>
  * This Request is for use-cases where you want to get the energy for one period
  * per Channel, e.g. to show the entire energy over a period as a text. The
  * energy is calculated by subtracting first value of the period ('fromDate')
  * from the last value of the period ('toDate').
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -47,21 +47,21 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link AuthenticateWithPasswordRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link AuthenticateWithPasswordRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static QueryHistoricTimeseriesEnergyRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		int timezoneDiff = JsonUtils.getAsInt(p, "timezone");
-		ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
-		ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
-		ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
-		QueryHistoricTimeseriesEnergyRequest result = new QueryHistoricTimeseriesEnergyRequest(r, fromDate, toDate);
-		JsonArray channels = JsonUtils.getAsJsonArray(p, "channels");
+		var p = r.getParams();
+		var timezoneDiff = JsonUtils.getAsInt(p, "timezone");
+		var timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
+		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
+		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
+		var result = new QueryHistoricTimeseriesEnergyRequest(r, fromDate, toDate);
+		var channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
-			ChannelAddress address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
+			var address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
 			result.addChannel(address);
 		}
 		return result;
@@ -76,7 +76,7 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 
 	private QueryHistoricTimeseriesEnergyRequest(JsonrpcRequest request, ZonedDateTime fromDate, ZonedDateTime toDate)
 			throws OpenemsNamedException {
-		super(request, METHOD);
+		super(request, QueryHistoricTimeseriesEnergyRequest.METHOD);
 
 		DateUtils.assertSameTimezone(fromDate, toDate);
 		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
@@ -86,7 +86,7 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 
 	public QueryHistoricTimeseriesEnergyRequest(ZonedDateTime fromDate, ZonedDateTime toDate)
 			throws OpenemsNamedException {
-		super(METHOD);
+		super(QueryHistoricTimeseriesEnergyRequest.METHOD);
 
 		DateUtils.assertSameTimezone(fromDate, toDate);
 		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
@@ -100,20 +100,20 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray channels = new JsonArray();
+		var channels = new JsonArray();
 		for (ChannelAddress address : this.channels) {
 			channels.add(address.toString());
 		}
 		return JsonUtils.buildJsonObject().addProperty("timezone", this.timezoneDiff) //
-				.addProperty("fromDate", FORMAT.format(this.fromDate)) //
-				.addProperty("toDate", FORMAT.format(this.toDate)) //
+				.addProperty("fromDate", QueryHistoricTimeseriesEnergyRequest.FORMAT.format(this.fromDate)) //
+				.addProperty("toDate", QueryHistoricTimeseriesEnergyRequest.FORMAT.format(this.toDate)) //
 				.add("channels", channels) //
 				.build();
 	}
 
 	/**
 	 * Gets the From-Date.
-	 * 
+	 *
 	 * @return From-Date
 	 */
 	public ZonedDateTime getFromDate() {
@@ -122,7 +122,7 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the To-Date.
-	 * 
+	 *
 	 * @return To-Date
 	 */
 	public ZonedDateTime getToDate() {
@@ -131,7 +131,7 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the {@link ChannelAddress}es.
-	 * 
+	 *
 	 * @return Set of {@link ChannelAddress}
 	 */
 	public TreeSet<ChannelAddress> getChannels() {

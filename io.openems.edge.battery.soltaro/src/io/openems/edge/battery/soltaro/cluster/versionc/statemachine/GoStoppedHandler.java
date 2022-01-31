@@ -34,7 +34,7 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 			return State.STOPPED;
 		}
 
-		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
+		var isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
 				.getSeconds() > Constants.RETRY_COMMAND_SECONDS;
 		if (isMaxStartTimePassed) {
 			// First try - or waited long enough for next try

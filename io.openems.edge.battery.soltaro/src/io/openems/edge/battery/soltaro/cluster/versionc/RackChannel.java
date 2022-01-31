@@ -538,7 +538,7 @@ public enum RackChannel {
 
 	/**
 	 * Creates a Channel-ID String from the enum and returns it.
-	 * 
+	 *
 	 * @param rack the {@link Rack}
 	 * @return the ChannelId as camel-case String
 	 */
@@ -548,7 +548,7 @@ public enum RackChannel {
 
 	/**
 	 * Creates a new Channel-ID from the enum and returns it.
-	 * 
+	 *
 	 * @param rack the {@link Rack}
 	 * @return the ChannelId
 	 */
@@ -558,7 +558,7 @@ public enum RackChannel {
 
 	/**
 	 * Creates a UPPER_CASE ChannelId.
-	 * 
+	 *
 	 * @param rack the {@link Rack}
 	 * @return the ChannelId as upper-case string
 	 */

@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -103,7 +102,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	private BatteryState batteryState;
 	private State state = State.UNDEFINED;
 	private Config config;
-	private Map<Integer, SingleRack> racks = new HashMap<>();
+	private final Map<Integer, SingleRack> racks = new HashMap<>();
 	// this timestamp is used to wait a certain time if system state could no be
 	// determined at once
 	private LocalDateTime pendingTimestamp;
@@ -124,6 +123,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -134,7 +134,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		// Create racks dynamically, do this before super() call because super() uses
 		// getModbusProtocol, and it is using racks...
 		for (int i : config.racks()) {
-			RackInfo rackInfo = RACK_INFO.get(i);
+			var rackInfo = RACK_INFO.get(i);
 			if (rackInfo == null) {
 				throw new OpenemsException("Invalid configuration value [" + i + "] for 'racks'");
 			}
@@ -196,7 +196,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	private void handleStateMachine() {
 		// log.info("Cluster.doNormalHandling(): State: " +
 		// this.getStateMachineState());
-		boolean readyForWorking = false;
+		var readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
 			this.stopSystem();
@@ -224,17 +224,15 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 				this.setStateMachineState(State.RUNNING);
 				this.unsuccessfulStarts = 0;
 				this.startAttemptTime = null;
-			} else {
-				if (this.startAttemptTime.plusSeconds(this.config.maxStartTime()).isBefore(LocalDateTime.now())) {
-					this.startAttemptTime = null;
-					this.unsuccessfulStarts++;
-					this.stopSystem();
-					this.setStateMachineState(State.STOPPING);
-					if (this.unsuccessfulStarts >= this.config.maxStartAppempts()) {
-						this.errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.startUnsuccessfulDelay());
-						this.setStateMachineState(State.ERRORDELAY);
-						this.unsuccessfulStarts = 0;
-					}
+			} else if (this.startAttemptTime.plusSeconds(this.config.maxStartTime()).isBefore(LocalDateTime.now())) {
+				this.startAttemptTime = null;
+				this.unsuccessfulStarts++;
+				this.stopSystem();
+				this.setStateMachineState(State.STOPPING);
+				if (this.unsuccessfulStarts >= this.config.maxStartAppempts()) {
+					this.errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.startUnsuccessfulDelay());
+					this.setStateMachineState(State.ERRORDELAY);
+					this.unsuccessfulStarts = 0;
 				}
 			}
 			break;
@@ -258,10 +256,8 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		case STOPPING:
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
-			} else {
-				if (this.isSystemStopped()) {
-					this.setStateMachineState(State.OFF);
-				}
+			} else if (this.isSystemStopped()) {
+				this.setStateMachineState(State.OFF);
 			}
 			break;
 		case UNDEFINED:
@@ -284,17 +280,15 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 				this.pendingTimestamp = null;
 				this.stopSystem();
 				this.setStateMachineState(State.OFF);
-			} else {
-				if (this.isError()) {
-					this.setStateMachineState(State.ERROR);
-					this.pendingTimestamp = null;
-				} else if (this.isSystemStopped()) {
-					this.setStateMachineState(State.OFF);
-					this.pendingTimestamp = null;
-				} else if (this.isSystemRunning()) {
-					this.setStateMachineState(State.RUNNING);
-					this.pendingTimestamp = null;
-				}
+			} else if (this.isError()) {
+				this.setStateMachineState(State.ERROR);
+				this.pendingTimestamp = null;
+			} else if (this.isSystemStopped()) {
+				this.setStateMachineState(State.OFF);
+				this.pendingTimestamp = null;
+			} else if (this.isSystemRunning()) {
+				this.setStateMachineState(State.RUNNING);
+				this.pendingTimestamp = null;
 			}
 			break;
 		case ERROR_HANDLING:
@@ -353,13 +347,14 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		return false;
 	}
 
+	@Override
 	protected Channel<?> addChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		return super.addChannel(channelId);
 	}
 
 	private boolean readValueFromStateChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		StateChannel s = this.channel(channelId);
-		Optional<Boolean> val = s.value().asOptional();
+		var val = s.value().asOptional();
 		return val.isPresent() && val.get();
 	}
 
@@ -372,7 +367,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	private boolean haveAllRacksTheSameContactorControlState(ContactorControl cctrl) {
-		boolean b = true;
+		var b = true;
 		for (SingleRack r : this.racks.values()) {
 			b = b && cctrl == this.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId).value()
 					.asEnum();
@@ -384,16 +379,16 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	 * Checks whether system has an undefined state, e.g. rack 1 & 2 are configured,
 	 * but only rack 1 is running. This state can only be reached at startup coming
 	 * from state undefined
-	 * 
+	 *
 	 * @return boolean
 	 */
 	private boolean isSystemStatePending() {
-		boolean b = true;
+		var b = true;
 
 		for (SingleRack r : this.racks.values()) {
 			EnumReadChannel channel = this.channel(RACK_INFO.get(r.getRackNumber()).positiveContactorChannelId);
-			Optional<Integer> val = channel.value().asOptional();
-			b = b && val.isPresent();
+			var valOpt = channel.value().asOptional();
+			b = b && valOpt.isPresent();
 		}
 
 		return b && !this.isSystemRunning() && !this.isSystemStopped();
@@ -412,7 +407,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	private void sleepSystem() {
 		// Write sleep and reset to all racks
 		for (SingleRack rack : this.racks.values()) {
-			IntegerWriteChannel sleepChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_SLEEP);
+			var sleepChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_SLEEP);
 			try {
 				sleepChannel.setNextWriteValue(0x1);
 			} catch (OpenemsNamedException e) {
@@ -425,7 +420,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	private void resetSystem() {
 		// Write reset to all racks and the master
 
-		IntegerWriteChannel resetMasterChannel = (IntegerWriteChannel) this.channel(ClusterVersionBChannelId.RESET);
+		var resetMasterChannel = (IntegerWriteChannel) this.channel(ClusterVersionBChannelId.RESET);
 		try {
 			resetMasterChannel.setNextWriteValue(0x1);
 		} catch (OpenemsNamedException e) {
@@ -433,7 +428,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 		}
 
 		for (SingleRack rack : this.racks.values()) {
-			IntegerWriteChannel resetChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_RESET);
+			var resetChannel = (IntegerWriteChannel) rack.getChannel(SingleRack.KEY_RESET);
 			try {
 				resetChannel.setNextWriteValue(0x1);
 			} catch (OpenemsNamedException e) {
@@ -474,7 +469,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 
 	/**
 	 * Gets the ModbusBridgeId.
-	 * 
+	 *
 	 * @return String
 	 */
 	public String getModbusBridgeId() {
@@ -483,7 +478,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 
 	/**
 	 * Gets the StateMachineState.
-	 * 
+	 *
 	 * @return State
 	 */
 	public State getStateMachineState() {
@@ -492,7 +487,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 
 	/**
 	 * Sets the StateMachineState.
-	 * 
+	 *
 	 * @param state the {@link State}
 	 */
 	public void setStateMachineState(State state) {
@@ -502,89 +497,66 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ModbusProtocol protocol = new ModbusProtocol(this, new Task[] {
+		var protocol = new ModbusProtocol(this,
 				// -------- control registers of master --------------------------------------
 				new FC16WriteRegistersTask(0x1004, //
-						m(ClusterVersionBChannelId.RESET, new UnsignedWordElement(0x1004)) //
-				), //
-
+						m(ClusterVersionBChannelId.RESET, new UnsignedWordElement(0x1004))), //
 				new FC16WriteRegistersTask(0x1017, //
 						m(SoltaroCluster.ChannelId.CLUSTER_START_STOP, new UnsignedWordElement(0x1017)), //
 						m(SoltaroCluster.ChannelId.RACK_1_USAGE, new UnsignedWordElement(0x1018)), //
 						m(SoltaroCluster.ChannelId.RACK_2_USAGE, new UnsignedWordElement(0x1019)), //
 						m(SoltaroCluster.ChannelId.RACK_3_USAGE, new UnsignedWordElement(0x101A)), //
 						m(SoltaroCluster.ChannelId.RACK_4_USAGE, new UnsignedWordElement(0x101B)), //
-						m(SoltaroCluster.ChannelId.RACK_5_USAGE, new UnsignedWordElement(0x101C)) //
-				), //
+						m(SoltaroCluster.ChannelId.RACK_5_USAGE, new UnsignedWordElement(0x101C))), //
 				new FC3ReadRegistersTask(0x1017, Priority.HIGH,
 						m(SoltaroCluster.ChannelId.CLUSTER_START_STOP, new UnsignedWordElement(0x1017)), //
 						m(SoltaroCluster.ChannelId.RACK_1_USAGE, new UnsignedWordElement(0x1018)), //
 						m(SoltaroCluster.ChannelId.RACK_2_USAGE, new UnsignedWordElement(0x1019)), //
 						m(SoltaroCluster.ChannelId.RACK_3_USAGE, new UnsignedWordElement(0x101A)), //
 						m(SoltaroCluster.ChannelId.RACK_4_USAGE, new UnsignedWordElement(0x101B)), //
-						m(SoltaroCluster.ChannelId.RACK_5_USAGE, new UnsignedWordElement(0x101C)) //
-				), //
-
+						m(SoltaroCluster.ChannelId.RACK_5_USAGE, new UnsignedWordElement(0x101C))), //
 				new FC16WriteRegistersTask(0x101F,
 						m(ClusterVersionBChannelId.SYSTEM_INSULATION_LEVEL_1, new UnsignedWordElement(0x101F)), //
 						m(ClusterVersionBChannelId.SYSTEM_INSULATION_LEVEL_2, new UnsignedWordElement(0x1020)), //
 						new DummyRegisterElement(0x1021), //
 						m(ClusterVersionBChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x1022)), //
-						m(ClusterVersionBChannelId.EMS_ADDRESS, new UnsignedWordElement(0x1023)) //
-				), //
-
+						m(ClusterVersionBChannelId.EMS_ADDRESS, new UnsignedWordElement(0x1023))), //
 				new FC3ReadRegistersTask(0x101F, Priority.LOW,
 						m(ClusterVersionBChannelId.SYSTEM_INSULATION_LEVEL_1, new UnsignedWordElement(0x101F)), //
 						m(ClusterVersionBChannelId.SYSTEM_INSULATION_LEVEL_2, new UnsignedWordElement(0x1020)), //
 						new DummyRegisterElement(0x1021), //
 						m(ClusterVersionBChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x1022)), //
-						m(ClusterVersionBChannelId.EMS_ADDRESS, new UnsignedWordElement(0x1023)) //
-				), //
-
+						m(ClusterVersionBChannelId.EMS_ADDRESS, new UnsignedWordElement(0x1023))), //
 				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1),
 						m(ClusterVersionBChannelId.RACK_1_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1))) //
-				), //
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1)))), //
 				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1), Priority.HIGH,
 						m(ClusterVersionBChannelId.RACK_1_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1))) //
-				), //
-
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_1)))), //
 				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2),
 						m(ClusterVersionBChannelId.RACK_2_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2))) //
-				), //
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2)))), //
 				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2), Priority.HIGH,
 						m(ClusterVersionBChannelId.RACK_2_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2))) //
-				), //
-
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_2)))), //
 				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3),
 						m(ClusterVersionBChannelId.RACK_3_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3))) //
-				), //
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3)))), //
 				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3), Priority.HIGH,
 						m(ClusterVersionBChannelId.RACK_3_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3))) //
-				), //
-
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_3)))), //
 				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4),
 						m(ClusterVersionBChannelId.RACK_4_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4))) //
-				), //
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4)))), //
 				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4), Priority.HIGH,
 						m(ClusterVersionBChannelId.RACK_4_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4))) //
-				), //
-
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_4)))), //
 				new FC16WriteRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5),
 						m(ClusterVersionBChannelId.RACK_5_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5))) //
-				), //
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5)))), //
 				new FC3ReadRegistersTask(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5), Priority.HIGH,
 						m(ClusterVersionBChannelId.RACK_5_POSITIVE_CONTACTOR,
-								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5))) //
-				), //
+								new UnsignedWordElement(this.getAddressContactorControl(ADDRESS_OFFSET_RACK_5)))), //
 
 				// -------- state registers of master --------------------------------------
 				new FC3ReadRegistersTask(0x1044, Priority.LOW, //
@@ -598,17 +570,14 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 								}), //
 						m(SoltaroCluster.ChannelId.SYSTEM_RUNNING_STATE, new UnsignedWordElement(0x1048)), //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(0x1049), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
-
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 				new FC3ReadRegistersTask(0x104A, Priority.HIGH, //
 						m(SoltaroCluster.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x104A)), //
 						new DummyRegisterElement(0x104B, 0x104D), //
 						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x104E),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x104F),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-				), //
-
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
 				new FC3ReadRegistersTask(0x1081, Priority.LOW, //
 						m(new BitsWordElement(0x1081, this) //
 								.bit(4, ClusterVersionBChannelId.MASTER_ALARM_LEVEL_2_INSULATION) //
@@ -618,7 +587,6 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 								.bit(0, ClusterVersionBChannelId.MASTER_ALARM_COMMUNICATION_ERROR_WITH_SUBMASTER) //
 						), //
 						new UnsignedWordElement(0x1082).onUpdateCallback(this.parseSubMasterCommunicationFailure),
-
 						m(new BitsWordElement(0x1083, this) //
 								.bit(5, ClusterVersionBChannelId.RACK_1_LEVEL_2_ALARM) //
 								.bit(4, ClusterVersionBChannelId.RACK_1_PCS_CONTROL_FAULT) //
@@ -658,10 +626,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 								.bit(2, ClusterVersionBChannelId.RACK_5_DEVICE_ERROR) //
 								.bit(1, ClusterVersionBChannelId.RACK_5_CYCLE_OVER_CURRENT) //
 								.bit(0, ClusterVersionBChannelId.RACK_5_VOLTAGE_DIFFERENCE) //
-						) //
-				) //
-
-		});
+						))); //
 
 		for (SingleRack rack : this.racks.values()) {
 			protocol.addTasks(rack.getTasks().toArray(new Task[] {}));
@@ -676,14 +641,14 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	 * parses the state for all active racks and sets the StateChannels (e.g.
 	 * SoltaroCluster.ChannelId.SUB_MASTER_1_COMMUNICATION_FAILURE) accordingly.
 	 */
-	protected final Consumer<Integer> parseSubMasterCommunicationFailure = (value) -> {
+	protected final Consumer<Integer> parseSubMasterCommunicationFailure = value -> {
 		if (value == null) {
 			// assume no error
 			value = 0;
 		}
 		for (Entry<Integer, RackInfo> entry : RACK_INFO.entrySet()) {
 			final boolean hasFailure;
-			if (this.racks.keySet().contains(entry.getKey())) {
+			if (this.racks.containsKey(entry.getKey())) {
 				// rack is active
 				hasFailure = value << ~(entry.getKey() - 1) < 0;
 			} else {
@@ -713,8 +678,8 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	protected void recalculateSoc() {
-		int i = 0;
-		int soc = 0;
+		var i = 0;
+		var soc = 0;
 
 		for (SingleRack rack : this.racks.values()) {
 			soc = soc + rack.getSoC();
@@ -728,7 +693,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	protected void recalculateMaxCellVoltage() {
-		int max = Integer.MIN_VALUE;
+		var max = Integer.MIN_VALUE;
 
 		for (SingleRack rack : this.racks.values()) {
 			max = Math.max(max, rack.getMaximalCellVoltage());
@@ -737,7 +702,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	protected void recalculateMinCellVoltage() {
-		int min = Integer.MAX_VALUE;
+		var min = Integer.MAX_VALUE;
 
 		for (SingleRack rack : this.racks.values()) {
 			min = Math.min(min, rack.getMinimalCellVoltage());
@@ -746,7 +711,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	protected void recalculateMaxCellTemperature() {
-		int max = Integer.MIN_VALUE;
+		var max = Integer.MIN_VALUE;
 
 		for (SingleRack rack : this.racks.values()) {
 			max = Math.max(max, rack.getMaximalCellTemperature());
@@ -755,7 +720,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	protected void recalculateMinCellTemperature() {
-		int min = Integer.MAX_VALUE;
+		var min = Integer.MAX_VALUE;
 
 		for (SingleRack rack : this.racks.values()) {
 			min = Math.min(min, rack.getMinimalCellTemperature());
@@ -772,7 +737,7 @@ public class ClusterVersionB extends AbstractOpenemsModbusComponent implements S
 	}
 
 	private static Map<Integer, RackInfo> createRackInfo() {
-		Map<Integer, RackInfo> map = new HashMap<Integer, RackInfo>();
+		Map<Integer, RackInfo> map = new HashMap<>();
 		map.put(1,
 				new RackInfo(ADDRESS_OFFSET_RACK_1, SoltaroCluster.ChannelId.RACK_1_USAGE,
 						ClusterVersionBChannelId.RACK_1_POSITIVE_CONTACTOR,

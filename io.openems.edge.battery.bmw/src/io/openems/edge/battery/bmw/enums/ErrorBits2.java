@@ -6,9 +6,7 @@ public enum ErrorBits2 implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	CONTAINER(0, "Container Error"), //
 	SOH(1, "SoH Error"), //
-	RACK_STRING(2, "Rack/String Error"), //
-	
-	;
+	RACK_STRING(2, "Rack/String Error");
 
 	private final int value;
 	private final String name;
@@ -20,12 +18,12 @@ public enum ErrorBits2 implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

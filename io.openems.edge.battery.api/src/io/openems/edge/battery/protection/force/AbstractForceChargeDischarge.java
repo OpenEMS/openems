@@ -23,7 +23,6 @@ public abstract class AbstractForceChargeDischarge
 		private final Integer maxCellVoltage;
 
 		public Context(ClockProvider clockProvider, Integer minCellVoltage, Integer maxCellVoltage) {
-			super();
 			this.clockProvider = clockProvider;
 			this.minCellVoltage = minCellVoltage;
 			this.maxCellVoltage = maxCellVoltage;
@@ -77,7 +76,7 @@ public abstract class AbstractForceChargeDischarge
 	public StateHandler<State, Context> getStateHandler(State state) {
 		switch (state) {
 		case UNDEFINED:
-			return new StateHandler<State, Context>() {
+			return new StateHandler<>() {
 				@Override
 				protected State runAndGetNextState(Context context) throws OpenemsNamedException {
 					return AbstractForceChargeDischarge.this.handleUndefinedState(context.minCellVoltage,
@@ -86,9 +85,10 @@ public abstract class AbstractForceChargeDischarge
 			};
 
 		case WAIT_FOR_FORCE_MODE:
-			return new StateHandler<State, Context>() {
+			return new StateHandler<>() {
 				private Instant enteredAt = Instant.MAX;
 
+				@Override
 				protected void onEntry(Context context) throws OpenemsNamedException {
 					this.enteredAt = context.now();
 				}
@@ -101,7 +101,7 @@ public abstract class AbstractForceChargeDischarge
 			};
 
 		case FORCE_MODE:
-			return new StateHandler<State, Context>() {
+			return new StateHandler<>() {
 				@Override
 				protected State runAndGetNextState(Context context) throws OpenemsNamedException {
 					return AbstractForceChargeDischarge.this.handleForceModeState(context.minCellVoltage,
@@ -110,7 +110,7 @@ public abstract class AbstractForceChargeDischarge
 			};
 
 		case BLOCK_MODE:
-			return new StateHandler<State, Context>() {
+			return new StateHandler<>() {
 				@Override
 				protected State runAndGetNextState(Context context) throws OpenemsNamedException {
 					return AbstractForceChargeDischarge.this.handleBlockModeState(context.minCellVoltage,

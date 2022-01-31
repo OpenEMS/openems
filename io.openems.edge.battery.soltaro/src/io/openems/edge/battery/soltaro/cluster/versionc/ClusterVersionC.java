@@ -29,7 +29,7 @@ public interface ClusterVersionC extends //
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStartAttemptsChannel() {
@@ -38,7 +38,7 @@ public interface ClusterVersionC extends //
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStartAttempts() {
@@ -48,7 +48,7 @@ public interface ClusterVersionC extends //
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStartAttempts(Boolean value) {
@@ -57,7 +57,7 @@ public interface ClusterVersionC extends //
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStopAttemptsChannel() {
@@ -66,7 +66,7 @@ public interface ClusterVersionC extends //
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStopAttempts() {
@@ -76,7 +76,7 @@ public interface ClusterVersionC extends //
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStopAttempts(Boolean value) {
@@ -87,7 +87,7 @@ public interface ClusterVersionC extends //
 	 * Gets the common {@link PreChargeControl}. If all Racks share the same
 	 * {@link PreChargeControl} state, that one is returned; otherwise
 	 * Optional.empty.
-	 * 
+	 *
 	 * @return the {@link PreChargeControl} state of all Reacks; or empty if they
 	 *         are different
 	 */
@@ -95,21 +95,21 @@ public interface ClusterVersionC extends //
 
 	/**
 	 * Gets the active Racks.
-	 * 
+	 *
 	 * @return a set of Racks
 	 */
 	public Set<Rack> getRacks();
 
 	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
-	 * 
+	 *
 	 * @return {@link StartStop}
 	 */
 	public StartStop getStartStopTarget();
 
 	/**
 	 * Gets the Channel for a Rack.
-	 * 
+	 *
 	 * @param <T>         the expected typed Channel
 	 * @param rack        the {@link Rack}
 	 * @param rackChannel the {@link RackChannel}
