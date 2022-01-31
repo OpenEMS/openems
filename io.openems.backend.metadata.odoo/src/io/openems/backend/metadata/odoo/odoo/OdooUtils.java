@@ -435,6 +435,34 @@ public class OdooUtils {
 	}
 
 	/**
+	 * Executes a get object reference from Odoo.
+	 * 
+	 * @param credentials the Odoo credentials
+	 * @param module      the Odoo module
+	 * @param name        the external identifier
+	 * @return internal id of external identifier
+	 * @throws OpenemsException on error
+	 */
+	protected static int getObjectReference(Credentials credentials, String module, String name)
+			throws OpenemsException {
+		// Create request params
+		Object[] params = { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(), "ir.model.data",
+				"get_object_reference", new Object[] { module, name } };
+		try {
+			// Execute XML request
+			var resultObj = (Object[]) executeKw(credentials.getUrl(), params);
+			if (resultObj == null) {
+				throw new OpenemsException(
+						"No matching entry found for module [" + module + "] and name [" + name + "]");
+			}
+
+			return (int) resultObj[1];
+		} catch (Throwable e) {
+			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
+		}
+	}
+
+	/**
 	 * Adds a message in Odoo Chatter ('mail.thread').
 	 *
 	 * @param credentials the Odoo credentials

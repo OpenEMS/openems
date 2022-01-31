@@ -9,6 +9,8 @@ import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.ComponentContext;
 
+import com.google.gson.JsonObject;
+
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
@@ -29,6 +31,7 @@ public class DummyComponentManager implements ComponentManager {
 
 	private final List<OpenemsComponent> components = new ArrayList<>();
 	private final Clock clock;
+	private JsonObject edgeConfigJson;
 
 	public DummyComponentManager() {
 		this(Clock.systemDefaultZone());
@@ -72,9 +75,27 @@ public class DummyComponentManager implements ComponentManager {
 		return this;
 	}
 
+	/**
+	 * Sets a {@link EdgeConfig} json.
+	 * 
+	 * @param the {@link EdgeConfig} json
+	 */
+	public void setConfigJson(JsonObject json) {
+		this.edgeConfigJson = json;
+	}
+
 	@Override
 	public EdgeConfig getEdgeConfig() {
-		return new EdgeConfig();
+		if (this.edgeConfigJson != null) {
+			try {
+				return EdgeConfig.fromJson(this.edgeConfigJson);
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+				throw new IllegalArgumentException(e.getMessage());
+			}
+		} else {
+			return new EdgeConfig();
+		}
 	}
 
 	@Override

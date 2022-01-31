@@ -18,7 +18,7 @@
 -runbundles+: \
 	org.apache.felix.scr;startlevel=10,\
 	org.eclipse.equinox.event;startlevel=11,\
-    org.ops4j.pax.logging.pax-logging-log4j2;startlevel=12
+	org.ops4j.pax.logging.pax-logging-log4j2;startlevel=12
 
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\

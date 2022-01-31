@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.fenecon.home.enums.BmsControl;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine;
 import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
@@ -62,7 +61,7 @@ public class FeneconHomeBatteryTest {
 
 				.next(new TestCase("Battery Relay false") //
 						.input(BATTERY_RELAY, false)//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_OFF)//
+						.input(BMS_CONTROL, true)// Switched Off
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
@@ -73,7 +72,7 @@ public class FeneconHomeBatteryTest {
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL") //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL")//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_ON)) //
+						.input(BMS_CONTROL, false)) // Switched On
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL")//
 						.output(BATTERY_RELAY, false)) //
 				.next(new TestCase("in WAIT_FOR_SWITCH_OFF") //
@@ -131,7 +130,7 @@ public class FeneconHomeBatteryTest {
 
 				.next(new TestCase()//
 						.input(BATTERY_RELAY, true)//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_OFF)//
+						.input(BMS_CONTROL, Boolean.TRUE)// Switched Off
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
@@ -140,7 +139,7 @@ public class FeneconHomeBatteryTest {
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL") //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL")//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_ON)) //
+						.input(BMS_CONTROL, false))// Switched On
 				.next(new TestCase("in WAIT_FOR_SWITCH_OFF") //
 						.input(BATTERY_RELAY, false) //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
@@ -173,7 +172,7 @@ public class FeneconHomeBatteryTest {
 
 				.next(new TestCase()//
 						.input(BATTERY_RELAY, false)//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_ON)//
+						.input(BMS_CONTROL, false)// Switched On
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
@@ -210,7 +209,7 @@ public class FeneconHomeBatteryTest {
 
 				.next(new TestCase()//
 						.input(BATTERY_RELAY, false)//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_OFF)//
+						.input(BMS_CONTROL, true)// Switched Off
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
@@ -232,7 +231,7 @@ public class FeneconHomeBatteryTest {
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				// Ex; after long time if hard switch turned on....
 				.next(new TestCase("in WAIT_FOR_BMS_CONTROL")//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_ON)//
+						.input(BMS_CONTROL, false)// Switched On
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING))//
 				.next(new TestCase("in WAIT_FOR_SWITCH_OFF") //
 						.input(BATTERY_RELAY, false) //
@@ -266,7 +265,7 @@ public class FeneconHomeBatteryTest {
 
 				.next(new TestCase("Battery Relay false") //
 						.input(BATTERY_RELAY, false)//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_OFF)//
+						.input(BMS_CONTROL, true)// Switched Off
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //
@@ -310,7 +309,7 @@ public class FeneconHomeBatteryTest {
 
 				.next(new TestCase()//
 						.input(BATTERY_RELAY, false)//
-						.input(BMS_CONTROL, BmsControl.SWITCHED_ON)//
+						.input(BMS_CONTROL, false)// Switched On
 						.output(STATE_MACHINE, StateMachine.State.UNDEFINED))//
 				.next(new TestCase() //
 						.output(STATE_MACHINE, StateMachine.State.GO_RUNNING)) //

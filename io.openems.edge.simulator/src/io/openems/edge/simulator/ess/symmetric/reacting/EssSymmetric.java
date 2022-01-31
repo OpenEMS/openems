@@ -29,6 +29,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -43,8 +45,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		property = { //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
-public class EssSymmetric extends AbstractOpenemsComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
+public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSymmetricEss, SymmetricEss,
+		OpenemsComponent, TimedataProvider, EventHandler, StartStoppable, ModbusSlave {
 
 	/**
 	 * Current Energy in the battery [Wms], based on SoC
@@ -108,6 +110,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}
@@ -217,7 +220,8 @@ public class EssSymmetric extends AbstractOpenemsComponent
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(EssSymmetric.class, accessMode, 300) //
+				StartStoppable.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(EssSymmetric.class, accessMode, 100) //
 						.build());
 	}
 
@@ -247,4 +251,8 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		return this.timedata;
 	}
 
+	@Override
+	public void setStartStop(StartStop value) {
+		this._setStartStop(value);
+	}
 }

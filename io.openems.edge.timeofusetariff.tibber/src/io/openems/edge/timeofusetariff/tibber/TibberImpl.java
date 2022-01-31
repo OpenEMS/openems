@@ -198,7 +198,7 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 				// parse the arrays for price and time stamps.
 				for (JsonArray day : days) {
 					for (JsonElement element : day) {
-						float marketPrice = JsonUtils.getAsFloat(element, "total");
+						float marketPrice = JsonUtils.getAsFloat(element, "total") * 1000;
 						ZonedDateTime startTime = ZonedDateTime
 								.parse(JsonUtils.getAsString(element, "startsAt"), DateTimeFormatter.ISO_DATE_TIME)
 								.withZoneSameInstant(ZoneId.systemDefault());
