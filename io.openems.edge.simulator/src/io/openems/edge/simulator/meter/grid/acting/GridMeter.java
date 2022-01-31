@@ -23,7 +23,6 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -137,20 +136,15 @@ public class GridMeter extends AbstractOpenemsComponent
 		 * Calculate Active Power
 		 */
 		Integer activePower = simulatedActivePower;
-		if (activePower != null) {
-			for (ManagedSymmetricEss ess : this.symmetricEsss) {
-				Value<Integer> essPowerOpt = ess.getActivePower();
-				if (essPowerOpt.isDefined()) {
-					activePower -= essPowerOpt.get();
-				}
-			}
+		for (ManagedSymmetricEss ess : this.symmetricEsss) {
+			activePower = TypeUtils.subtract(activePower, ess.getActivePower().get());
 		}
 
-		this._setActivePower(simulatedActivePower);
-		Integer simulatedActivePowerByThree = TypeUtils.divide(simulatedActivePower, 3);
-		this._setActivePowerL1(simulatedActivePowerByThree);
-		this._setActivePowerL2(simulatedActivePowerByThree);
-		this._setActivePowerL3(simulatedActivePowerByThree);
+		this._setActivePower(activePower);
+		Integer activePowerByThree = TypeUtils.divide(activePower, 3);
+		this._setActivePowerL1(activePowerByThree);
+		this._setActivePowerL2(activePowerByThree);
+		this._setActivePowerL3(activePowerByThree);
 	}
 
 	@Override
