@@ -26,6 +26,11 @@ public interface LimitTotalDischargeController extends Controller, OpenemsCompon
 		}
 	}
 
+	/**
+	 * Gets the {@link Config}.
+	 * 
+	 * @return the Config
+	 */
 	public Config getConfig();
 
 	/**
