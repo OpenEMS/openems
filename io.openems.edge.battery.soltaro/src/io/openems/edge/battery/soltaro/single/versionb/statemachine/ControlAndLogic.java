@@ -53,7 +53,7 @@ public class ControlAndLogic {
 	}
 
 	private static boolean isAlarmLevel2Error(SingleRackVersionB singleRackVersionB) {
-		return (readValueFromBooleanChannel(singleRackVersionB,
+		return readValueFromBooleanChannel(singleRackVersionB,
 				SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_VOLTAGE_HIGH)
 				|| readValueFromBooleanChannel(singleRackVersionB,
 						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_HIGH)
@@ -83,12 +83,12 @@ public class ControlAndLogic {
 				|| readValueFromBooleanChannel(singleRackVersionB,
 						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH)
 				|| readValueFromBooleanChannel(singleRackVersionB,
-						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW));
+						SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW);
 	}
 
 	private static boolean isSlaveCommunicationError(SingleRackVersionB singleRackVersionB,
 			Optional<Integer> numberOfModules) {
-		boolean b = false;
+		var b = false;
 		switch (numberOfModules.orElse(0)) {
 		case 20:
 			b = b || readValueFromBooleanChannel(singleRackVersionB,
@@ -177,13 +177,13 @@ public class ControlAndLogic {
 	private static boolean readValueFromBooleanChannel(OpenemsComponent component,
 			SingleRackVersionB.ChannelId singleRackChannelId) {
 		StateChannel r = component.channel(singleRackChannelId);
-		Optional<Boolean> bOpt = r.value().asOptional();
+		var bOpt = r.value().asOptional();
 		return bOpt.isPresent() && bOpt.get();
 	}
 
 	/**
 	 * Sets the watchdog.
-	 * 
+	 *
 	 * @param singleRackVersionB the battery
 	 * @param timeSeconds        the time in seconds
 	 */
@@ -197,7 +197,7 @@ public class ControlAndLogic {
 
 	/**
 	 * Sets the soc low alarm.
-	 * 
+	 *
 	 * @param singleRackVersionB the battery
 	 * @param soCLowAlarm        the value to set
 	 */

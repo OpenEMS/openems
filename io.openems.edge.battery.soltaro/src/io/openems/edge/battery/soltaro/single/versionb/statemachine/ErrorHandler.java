@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.battery.soltaro.single.versionb.SingleRackVersionBImpl;
 import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
@@ -21,7 +20,7 @@ public class ErrorHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected void onExit(Context context) throws OpenemsNamedException {
-		SingleRackVersionBImpl battery = context.getParent();
+		var battery = context.getParent();
 		battery._setMaxStartAttempts(false);
 		battery._setMaxStopAttempts(false);
 	}

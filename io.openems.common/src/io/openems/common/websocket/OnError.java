@@ -9,10 +9,10 @@ public interface OnError {
 
 	/**
 	 * Handles a websocket error.
-	 * 
-	 * @param ws
-	 * @param ex
-	 * @throws OpenemsException
+	 *
+	 * @param ws the {@link WebSocket}
+	 * @param ex the {@link Exception}
+	 * @throws OpenemsException on error
 	 */
 	public void run(WebSocket ws, Exception ex) throws OpenemsException;
 

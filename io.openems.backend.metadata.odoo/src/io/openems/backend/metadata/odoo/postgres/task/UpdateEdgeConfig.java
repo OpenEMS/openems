@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.JsonFormat;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 
 public class UpdateEdgeConfig extends DatabaseTask {
@@ -19,14 +20,14 @@ public class UpdateEdgeConfig extends DatabaseTask {
 
 	public UpdateEdgeConfig(int odooId, EdgeConfig config) {
 		this.odooId = odooId;
-		this.fullConfig = new GsonBuilder().setPrettyPrinting().create().toJson(config.toJson());
+		this.fullConfig = JsonUtils.prettyToString(config.toJson());
 		this.componentsConfig = new GsonBuilder().setPrettyPrinting().create()
 				.toJson(config.componentsToJson(JsonFormat.WITHOUT_CHANNELS));
 	}
 
 	@Override
 	protected void _execute(Connection connection) throws SQLException {
-		PreparedStatement ps = this.psUpdateEdgeConfig(connection);
+		var ps = this.psUpdateEdgeConfig(connection);
 		ps.setString(1, this.fullConfig);
 		ps.setString(2, this.componentsConfig);
 		ps.setInt(3, this.odooId);
@@ -36,7 +37,7 @@ public class UpdateEdgeConfig extends DatabaseTask {
 	/**
 	 * UPDATE {} SET openems_config = {}, openems_config_components = {} WHERE id =
 	 * {};.
-	 * 
+	 *
 	 * @param connection the {@link Connection}
 	 * @return the PreparedStatement
 	 * @throws SQLException on error

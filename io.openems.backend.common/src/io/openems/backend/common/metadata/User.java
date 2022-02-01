@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
-import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -33,7 +32,7 @@ public class User extends AbstractUser {
 
 	/**
 	 * Gets the login token.
-	 * 
+	 *
 	 * @return the token
 	 */
 	public String getToken() {
@@ -42,23 +41,23 @@ public class User extends AbstractUser {
 
 	/**
 	 * Gets the user language.
-	 * 
+	 *
 	 * @return the language
 	 */
 	public String getLanguage() {
-		return language;
+		return this.language;
 	}
 
 	/**
 	 * Gets the information whether the Users Role for the given Edge is equal or
 	 * more privileged than the given Role.
-	 * 
+	 *
 	 * @param edgeId the Edge-Id
 	 * @param role   the compared Role
 	 * @return true if the Users Role privileges are equal or higher
 	 */
 	public boolean roleIsAtLeast(String edgeId, Role role) {
-		Optional<Role> thisRoleOpt = this.getRole(edgeId);
+		var thisRoleOpt = this.getRole(edgeId);
 		if (!thisRoleOpt.isPresent()) {
 			return false;
 		}
@@ -68,7 +67,7 @@ public class User extends AbstractUser {
 	/**
 	 * Throws an exception if the current Role is equal or more privileged than the
 	 * given Role.
-	 * 
+	 *
 	 * @param resource a resource identifier; used for the exception
 	 * @param edgeId   the Edge-ID
 	 * @param role     the compared Role
@@ -76,11 +75,11 @@ public class User extends AbstractUser {
 	 * @throws OpenemsNamedException if the current Role privileges are less
 	 */
 	public Role assertEdgeRoleIsAtLeast(String resource, String edgeId, Role role) throws OpenemsNamedException {
-		Optional<Role> thisRoleOpt = this.getRole(edgeId);
+		var thisRoleOpt = this.getRole(edgeId);
 		if (!thisRoleOpt.isPresent()) {
 			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(this.getId());
 		}
-		Role thisRole = thisRoleOpt.get();
+		var thisRole = thisRoleOpt.get();
 		if (!thisRole.isAtLeast(role)) {
 			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, role.toString());
 		}
@@ -89,7 +88,7 @@ public class User extends AbstractUser {
 
 	/**
 	 * Gets the Metadata information of the accessible Edges.
-	 * 
+	 *
 	 * @param user            the {@link User}
 	 * @param metadataService a {@link Metadata} provider
 	 * @return a list of {@link EdgeMetadata}
@@ -97,18 +96,18 @@ public class User extends AbstractUser {
 	public static List<EdgeMetadata> generateEdgeMetadatas(User user, Metadata metadataService) {
 		List<EdgeMetadata> metadatas = new ArrayList<>();
 		for (Entry<String, Role> edgeRole : user.getEdgeRoles().entrySet()) {
-			String edgeId = edgeRole.getKey();
-			Role role = edgeRole.getValue();
-			Optional<Edge> edgeOpt = metadataService.getEdge(edgeId);
+			var edgeId = edgeRole.getKey();
+			var role = edgeRole.getValue();
+			var edgeOpt = metadataService.getEdge(edgeId);
 			if (edgeOpt.isPresent()) {
-				Edge e = edgeOpt.get();
+				var edge = edgeOpt.get();
 				metadatas.add(new EdgeMetadata(//
-						e.getId(), // Edge-ID
-						e.getComment(), // Comment
-						e.getProducttype(), // Product-Type
-						e.getVersion(), // Version
+						edge.getId(), // Edge-ID
+						edge.getComment(), // Comment
+						edge.getProducttype(), // Product-Type
+						edge.getVersion(), // Version
 						role, // Role
-						e.isOnline() // Online-State
+						edge.isOnline() // Online-State
 				));
 			}
 		}

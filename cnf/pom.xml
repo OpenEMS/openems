@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>local</groupId>
@@ -78,10 +76,16 @@
 			<version>2.9.0</version>
 		</dependency>
 		<dependency>
+			<!-- JavaBeans Activation Framework -->
+			<groupId>com.sun.activation</groupId>
+			<artifactId>javax.activation</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+		<dependency>
 			<!-- HikariCP A solid, high-performance, JDBC connection pool at last. -->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>4.0.3</version>
+			<version>5.0.1</version>
 		</dependency>
 		<!-- commons -->
 		<dependency>
@@ -144,7 +148,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.configadmin</artifactId>
-			<version>1.9.20</version>
+			<version>1.9.22</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix EventAdmin -->
@@ -203,7 +207,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.12.12</version>
+			<version>0.12.14</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -282,12 +286,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.32</version>
+			<version>1.7.35</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.32</version>
+			<version>1.7.35</version>
 		</dependency>
 	</dependencies>
 </project>

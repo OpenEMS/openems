@@ -21,19 +21,31 @@ public class EdgeCache {
 	/**
 	 * The Timestamp of the data in the Cache.
 	 */
-	private long cacheTimestamp = 0l;
+	private long cacheTimestamp = 0L;
 
 	/**
 	 * The Timestamp when the Cache was last applied to the incoming data.
 	 */
-	private long lastAppliedTimestamp = 0l;
+	private long lastAppliedTimestamp = 0L;
 
 	private final HashMap<ChannelAddress, JsonElement> cacheData = new HashMap<>();
 
-	public synchronized final Optional<JsonElement> getChannelValue(ChannelAddress address) {
+	/**
+	 * Gets the channel value from cache.
+	 * 
+	 * @param address the {@link ChannelAddress} of the channel
+	 * @return the value; empty if it is not in cache
+	 */
+	public final synchronized Optional<JsonElement> getChannelValue(ChannelAddress address) {
 		return Optional.ofNullable(this.cacheData.get(address));
 	}
 
+	/**
+	 * Updates the 'incoming data' with the data from the cache.
+	 * 
+	 * @param edgeId        the Edge-ID
+	 * @param incomingDatas the incoming data
+	 */
 	public synchronized void complementDataFromCache(String edgeId,
 			SortedMap<Long, Map<ChannelAddress, JsonElement>> incomingDatas) {
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : incomingDatas.entrySet()) {
@@ -52,7 +64,7 @@ public class EdgeCache {
 					if (this.cacheTimestamp != 0L) {
 						this.log.info("Edge [" + edgeId + "]: invalidate cache. Incoming ["
 								+ Instant.ofEpochMilli(incomingTimestamp) + "]. Cache ["
-								+ Instant.ofEpochMilli(cacheTimestamp) + "]");
+								+ Instant.ofEpochMilli(this.cacheTimestamp) + "]");
 					}
 					// Clear Cache
 					this.cacheData.clear();
@@ -66,7 +78,7 @@ public class EdgeCache {
 					// cache is valid (not elder than 5 minutes)
 					this.lastAppliedTimestamp = incomingTimestamp;
 					for (Entry<ChannelAddress, JsonElement> cacheEntry : this.cacheData.entrySet()) {
-						ChannelAddress channel = cacheEntry.getKey();
+						var channel = cacheEntry.getKey();
 						// check if there is a current value for this timestamp + channel
 						if (!incomingData.containsKey(channel)) {
 							// if not -> add cache data to write data

@@ -43,18 +43,18 @@ import io.openems.common.utils.JsonUtils;
 /**
  * This implementation of MetadataService reads Edges configuration from a file.
  * The layout of the file is as follows:
- * 
+ *
  * <pre>
  * {
  *   edges: {
  *     [edgeId: string]: {
  *       comment: string,
  *       apikey: string
- *     } 
+ *     }
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * This implementation does not require any login. It always serves the same
  * user, which has 'ADMIN'-permissions on all given Edges.
@@ -83,7 +83,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Activate
-	void activate(Config config) {
+	private void activate(Config config) {
 		this.log.info("Activate [path=" + config.path() + "]");
 		this.path = config.path();
 
@@ -94,7 +94,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		this.logInfo(this.log, "Deactivate");
 	}
 
@@ -120,7 +120,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	public synchronized Optional<String> getEdgeIdForApikey(String apikey) {
 		this.refreshData();
 		for (Entry<String, MyEdge> entry : this.edges.entrySet()) {
-			MyEdge edge = entry.getValue();
+			var edge = entry.getValue();
 			if (edge.getApikey().equals(apikey)) {
 				return Optional.of(edge.getId());
 			}
@@ -160,9 +160,9 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	private synchronized void refreshData() {
 		if (this.edges.isEmpty()) {
 			// read file
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			String line = null;
-			try (BufferedReader br = new BufferedReader(new FileReader(this.path))) {
+			try (var br = new BufferedReader(new FileReader(this.path))) {
 				while ((line = br.readLine()) != null) {
 					sb.append(line);
 				}
@@ -209,7 +209,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 	private static User generateUser() {
 		return new User(FileMetadata.USER_ID, FileMetadata.USER_NAME, UUID.randomUUID().toString(),
-				FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>(), LANGUAGE.name());
+				FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>(), FileMetadata.LANGUAGE.name());
 	}
 
 	@Override
@@ -244,7 +244,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 	@Override
 	public void updateUserLanguage(User user, Language locale) throws OpenemsNamedException {
-		LANGUAGE = locale;
+		FileMetadata.LANGUAGE = locale;
 	}
 
 }

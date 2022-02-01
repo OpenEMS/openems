@@ -5,7 +5,6 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.fenecon.home.enums.BmsControl;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -19,35 +18,35 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the Channel for {@link ChannelId#BMS_CONTROL}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
-	public default Channel<BmsControl> getBmsControlChannel() {
+	public default Channel<Boolean> getBmsControlChannel() {
 		return this.channel(ChannelId.BMS_CONTROL);
 	}
 
 	/**
 	 * Gets the BmsControl, see {@link ChannelId#BMS_CONTROL}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default BmsControl getBmsControl() {
-		return this.getBmsControlChannel().value().asEnum();
+	public default Value<Boolean> getBmsControl() {
+		return this.getBmsControlChannel().value();
 	}
 
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#BMS_CONTROL}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
-	public default void _setBmsControl(BmsControl value) {
+	public default void _setBmsControl(Boolean value) {
 		this.getBmsControlChannel().setNextValue(value);
 	}
 
 	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
-	 * 
+	 *
 	 * @return {@link StartStop}
 	 */
 	public StartStop getStartStopTarget();
@@ -73,107 +72,107 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Cell Under Voltage warning")), //
 
-		RACK_PRE_ALARM_CELL_OVER_VOLTAGE(Doc.of(Level.INFO) //
+		RACK_PRE_ALARM_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Rack Cell Over Voltage Alarm")), //
-		RACK_PRE_ALARM_OVER_CHARGING_CURRENT(Doc.of(Level.INFO) //
+		RACK_PRE_ALARM_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Charging Current Alarm")), //
-		RACK_PRE_ALARM_OVER_DISCHARGING_CURRENT(Doc.of(Level.INFO) //
+		RACK_PRE_ALARM_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Discharging Current Alarm")), //
-		RACK_PRE_ALARM_OVER_TEMPERATURE(Doc.of(Level.INFO) //
+		RACK_PRE_ALARM_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Temperature Alarm")), //
-		RACK_PRE_ALARM_UNDER_TEMPERATURE(Doc.of(Level.INFO) //
+		RACK_PRE_ALARM_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Under Temperature Alarm")), //
-		RACK_PRE_ALARM_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.INFO) //
+		RACK_PRE_ALARM_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Cell VOltage Difference Alarm")), //
-		RACK_PRE_ALARM_BCU_TEMP_DIFFERENCE(Doc.of(Level.INFO) //
+		RACK_PRE_ALARM_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack BCU Temp Difference Alarm")), //
-		RACK_PRE_ALARM_UNDER_SOH(Doc.of(Level.INFO) //
+		RACK_PRE_ALARM_UNDER_SOH(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Under SOH Alarm")), //
-		RACK_PRE_ALARM_OVER_CHARGING_POWER(Doc.of(Level.INFO) //
+		RACK_PRE_ALARM_OVER_CHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Charging Alarm")), //
-		RACK_PRE_ALARM_OVER_DISCHARGING_POWER(Doc.of(Level.INFO) //
+		RACK_PRE_ALARM_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Discharging Alarm")), //
-		RACK_LEVEL_1_CELL_OVER_VOLTAGE(Doc.of(Level.WARNING) //
+		RACK_LEVEL_1_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Rack Cell Over Voltage warning")), //
-		RACK_LEVEL_1_OVER_CHARGING_CURRENT(Doc.of(Level.WARNING) //
+		RACK_LEVEL_1_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Charging Current warning")), //
-		RACK_LEVEL_1_OVER_DISCHARGING_CURRENT(Doc.of(Level.WARNING) //
+		RACK_LEVEL_1_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Discharging Current warning")), //
-		RACK_LEVEL_1_OVER_TEMPERATURE(Doc.of(Level.WARNING) //
+		RACK_LEVEL_1_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Temperature warning")), //
-		RACK_LEVEL_1_UNDER_TEMPERATURE(Doc.of(Level.WARNING) //
+		RACK_LEVEL_1_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Under Temperature warning")), //
-		RACK_LEVEL_1_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
+		RACK_LEVEL_1_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Cell VOltage Difference warning")), //
-		RACK_LEVEL_1_BCU_TEMP_DIFFERENCE(Doc.of(Level.WARNING) //
+		RACK_LEVEL_1_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack BCU Temp Difference warning")), //
-		RACK_LEVEL_1_UNDER_SOH(Doc.of(Level.WARNING) //
+		RACK_LEVEL_1_UNDER_SOH(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Under SOH warning")), //
-		RACK_LEVEL_1_OVER_CHARGING_POWER(Doc.of(Level.WARNING) //
+		RACK_LEVEL_1_OVER_CHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Charging warning")), //
-		RACK_LEVEL_1_OVER_DISCHARGING_POWER(Doc.of(Level.WARNING) //
+		RACK_LEVEL_1_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Discharging warning")), //
-		RACK_LEVEL_2_CELL_OVER_VOLTAGE(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_CELL_OVER_VOLTAGE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Cell Over Voltage Fault")), //
-		RACK_LEVEL_2_CELL_UNDER_VOLTAGE(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_CELL_UNDER_VOLTAGE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Cell Under Voltage Fault")), //
-		RACK_LEVEL_2_OVER_CHARGING_CURRENT(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_OVER_CHARGING_CURRENT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Charging Current Fault")), //
-		RACK_LEVEL_2_OVER_DISCHARGING_CURRENT(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_OVER_DISCHARGING_CURRENT(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Discharging Current Fault")), //
-		RACK_LEVEL_2_OVER_TEMPERATURE(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_OVER_TEMPERATURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Over Temperature Fault")), //
-		RACK_LEVEL_2_UNDER_TEMPERATURE(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_UNDER_TEMPERATURE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Under Temperature Fault")), //
-		RACK_LEVEL_2_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Cell Voltage Difference Fault")), //
-		RACK_LEVEL_2_BCU_TEMP_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_BCU_TEMP_DIFFERENCE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack BCU Temp Difference Fault")), //
-		RACK_LEVEL_2_CELL_TEMPERATURE_DIFFERENCE(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_CELL_TEMPERATURE_DIFFERENCE(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Cell Temperature Difference Fault")), //
-		RACK_LEVEL_2_INTERNAL_COMMUNICATION(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_INTERNAL_COMMUNICATION(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Internal Communication Fault")), //
-		RACK_LEVEL_2_EXTERNAL_COMMUNICATION(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_EXTERNAL_COMMUNICATION(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack External Communication Fault")), //
-		RACK_LEVEL_2_PRE_CHARGE_FAIL(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_PRE_CHARGE_FAIL(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Pre Charge Fault")), //
-		RACK_LEVEL_2_PARALLEL_FAIL(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_PARALLEL_FAIL(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Parallel Fault")), //
-		RACK_LEVEL_2_SYSTEM_FAIL(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_SYSTEM_FAIL(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack System Fault")), //
-		RACK_LEVEL_2_HARDWARE_FAIL(Doc.of(Level.FAULT) //
+		RACK_LEVEL_2_HARDWARE_FAIL(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Rack Hardware Fault")), //
 
@@ -184,25 +183,25 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 		ALARM_POSITION_BCU_3(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Alarm BCU 3 Position")), //
-		ALARM_POSITION_BCU_4(Doc.of(Level.INFO) //
+		ALARM_POSITION_BCU_4(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Alarm BCU 4 Position")), //
-		ALARM_POSITION_BCU_5(Doc.of(Level.INFO) //
+		ALARM_POSITION_BCU_5(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Alarm BCU 5 Position")), //
-		ALARM_POSITION_BCU_6(Doc.of(Level.INFO) //
+		ALARM_POSITION_BCU_6(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Alarm BCU 6 Position")), //
-		ALARM_POSITION_BCU_7(Doc.of(Level.INFO) //
+		ALARM_POSITION_BCU_7(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Alarm BCU 7 Position")), //
-		ALARM_POSITION_BCU_8(Doc.of(Level.INFO) //
+		ALARM_POSITION_BCU_8(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Alarm BCU 8 Position")), //
-		ALARM_POSITION_BCU_9(Doc.of(Level.INFO) //
+		ALARM_POSITION_BCU_9(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Alarm BCU 9 Position")), //
-		ALARM_POSITION_BCU_10(Doc.of(Level.INFO) //
+		ALARM_POSITION_BCU_10(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Alarm BCU 10 Position")), //
 
@@ -213,25 +212,25 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 		WARNING_POSITION_BCU_3(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Warning BCU 3 Position")), //
-		WARNING_POSITION_BCU_4(Doc.of(Level.WARNING) //
+		WARNING_POSITION_BCU_4(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Warning BCU 4 Position")), //
-		WARNING_POSITION_BCU_5(Doc.of(Level.WARNING) //
+		WARNING_POSITION_BCU_5(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Warning BCU 5 Position")), //
-		WARNING_POSITION_BCU_6(Doc.of(Level.WARNING) //
+		WARNING_POSITION_BCU_6(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Warning BCU 6 Position")), //
-		WARNING_POSITION_BCU_7(Doc.of(Level.WARNING) //
+		WARNING_POSITION_BCU_7(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Warning BCU 7 Position")), //
-		WARNING_POSITION_BCU_8(Doc.of(Level.WARNING) //
+		WARNING_POSITION_BCU_8(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Warning BCU 8 Position")), //
-		WARNING_POSITION_BCU_9(Doc.of(Level.WARNING) //
+		WARNING_POSITION_BCU_9(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Warning BCU 9 Position")), //
-		WARNING_POSITION_BCU_10(Doc.of(Level.WARNING) //
+		WARNING_POSITION_BCU_10(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Warning BCU 10 Position")), //
 
@@ -370,107 +369,107 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.text("CV Point")),
 
 		// BCU Status Flags
-		STATUS_ALARM(Doc.of(Level.INFO) //
+		STATUS_ALARM(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status Alarm")),
-		STATUS_WARNING(Doc.of(Level.WARNING) //
+		STATUS_WARNING(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status WARNNG")),
-		STATUS_FAULT(Doc.of(Level.WARNING) //
+		STATUS_FAULT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status BCU Status Fault")),
-		STATUS_PFET(Doc.of(Level.INFO) //
+		STATUS_PFET(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status Pre-Charge FET On/Off")),
-		STATUS_CFET(Doc.of(Level.INFO) //
+		STATUS_CFET(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status Charge FET On/Off")),
-		STATUS_DFET(Doc.of(Level.INFO) //
+		STATUS_DFET(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status Discharge FET On/Off")),
-		STATUS_BATTERY_IDLE(Doc.of(Level.INFO) //
+		STATUS_BATTERY_IDLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status Battery Idle")),
-		STATUS_BATTERY_CHARGING(Doc.of(Level.INFO) //
+		STATUS_BATTERY_CHARGING(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status Battery Charging")),
-		STATUS_BATTERY_DISCHARGING(Doc.of(Level.INFO) //
+		STATUS_BATTERY_DISCHARGING(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Status Battery Discharging")),
 
 		// Bcu Alarm Flags
-		PRE_ALARM_CELL_OVER_VOLTAGE(Doc.of(Level.INFO) //
+		PRE_ALARM_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm Cell Over Voltage")),
-		PRE_ALARM_CELL_UNDER_VOLTAGE(Doc.of(Level.INFO) //
+		PRE_ALARM_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm Cell Under Voltage")),
-		PRE_ALARM_OVER_CHARGING_CURRENT(Doc.of(Level.INFO) //
+		PRE_ALARM_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm Over Charging Current")),
-		PRE_ALARM_OVER_DISCHARGING_CURRENT(Doc.of(Level.INFO) //
+		PRE_ALARM_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm Over Discharging Current")),
-		PRE_ALARM_OVER_TEMPERATURE(Doc.of(Level.INFO) //
+		PRE_ALARM_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm Over Temperature")),
-		PRE_ALARM_UNDER_TEMPERATURE(Doc.of(Level.INFO) //
+		PRE_ALARM_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm Under Temperature")),
-		PRE_ALARM_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.INFO) //
+		PRE_ALARM_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm Cell Voltage Difference")),
-		PRE_ALARM_BCU_TEMP_DIFFERENCE(Doc.of(Level.INFO) //
+		PRE_ALARM_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm BCU Temperature Difference")),
-		PRE_ALARM_UNDER_SOC(Doc.of(Level.INFO) //
+		PRE_ALARM_UNDER_SOC(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm Under SOC")),
-		PRE_ALARM_UNDER_SOH(Doc.of(Level.INFO) //
+		PRE_ALARM_UNDER_SOH(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm Under SOH")),
-		PRE_ALARM_OVER_CHARGING_POWER(Doc.of(Level.INFO) //
+		PRE_ALARM_OVER_CHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm Over Charging Power")),
-		PRE_ALARM_OVER_DISCHARGING_POWER(Doc.of(Level.INFO) //
+		PRE_ALARM_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Alarm Over Discharging Power")),
 
 		// Bcu Warning Flags
-		LEVEL_1_CELL_OVER_VOLTAGE(Doc.of(Level.WARNING) //
+		LEVEL_1_CELL_OVER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning Cell Over Voltage")),
-		LEVEL_1_CELL_UNDER_VOLTAGE(Doc.of(Level.WARNING) //
+		LEVEL_1_CELL_UNDER_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning Cell Under Voltage")),
-		LEVEL_1_OVER_CHARGING_CURRENT(Doc.of(Level.WARNING) //
+		LEVEL_1_OVER_CHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning Over Charging Current")),
-		LEVEL_1_OVER_DISCHARGING_CURRENT(Doc.of(Level.WARNING) //
+		LEVEL_1_OVER_DISCHARGING_CURRENT(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning Over Discharging Current")),
-		LEVEL_1_OVER_TEMPERATURE(Doc.of(Level.WARNING) //
+		LEVEL_1_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning Over Temperature")),
-		LEVEL_1_UNDER_TEMPERATURE(Doc.of(Level.WARNING) //
+		LEVEL_1_UNDER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning Under Temperature")),
-		LEVEL_1_CELL_VOLTAGE_DIFFERENCE(Doc.of(Level.WARNING) //
+		LEVEL_1_CELL_VOLTAGE_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning Cell Voltage Difference")),
-		LEVEL_1_BCU_TEMP_DIFFERENCE(Doc.of(Level.WARNING) //
+		LEVEL_1_BCU_TEMP_DIFFERENCE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning BCU Temperature Difference")),
-		LEVEL_1_UNDER_SOC(Doc.of(Level.WARNING) //
+		LEVEL_1_UNDER_SOC(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning Under SOC")),
-		LEVEL_1_UNDER_SOH(Doc.of(Level.WARNING) //
+		LEVEL_1_UNDER_SOH(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning Under SOH")),
-		LEVEL_1_OVER_CHARGING_POWER(Doc.of(Level.WARNING) //
+		LEVEL_1_OVER_CHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning Over Charging Power")),
-		LEVEL_1_OVER_DISCHARGING_POWER(Doc.of(Level.WARNING) //
+		LEVEL_1_OVER_DISCHARGING_POWER(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("BCU Warning Over Discharging Power")),
 
@@ -609,8 +608,8 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 				.accessMode(AccessMode.READ_ONLY) //
 				.text("Bms software version of first tower")),
 
-		BMS_CONTROL(Doc.of(BmsControl.values()) //
-				.text("BMS CONTROL(1: Shutdown, 0: no action, 2: Ignore)")),
+		BMS_CONTROL(Doc.of(OpenemsType.BOOLEAN) //
+				.text("BMS CONTROL(1: Shutdown, 0: no action)")),
 		STATE_MACHINE(Doc.of(State.values()) //
 				.text("Current State of State-Machine")), //
 		RUN_FAILED(Doc.of(Level.FAULT) //

@@ -18,13 +18,13 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request for 'queryHistoricTimeseriesEnergyPerPeriod'.
- * 
+ *
  * <p>
  * This Request is for use-cases where you want to get the energy for each
  * period (with length 'resolution') per Channel, e.g. to visualize energy in a
  * histogram chart. For each period the energy is calculated by subtracting
  * first value of the period from the last value of the period.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -48,23 +48,23 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 	/**
 	 * Create {@link QueryHistoricTimeseriesEnergyPerPeriodRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static QueryHistoricTimeseriesEnergyPerPeriodRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		int timezoneDiff = JsonUtils.getAsInt(p, "timezone");
-		ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
-		ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
-		ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
-		int resolution = JsonUtils.getAsInt(p, "resolution");
-		QueryHistoricTimeseriesEnergyPerPeriodRequest result = new QueryHistoricTimeseriesEnergyPerPeriodRequest(r,
+		var p = r.getParams();
+		var timezoneDiff = JsonUtils.getAsInt(p, "timezone");
+		var timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
+		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
+		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
+		var resolution = JsonUtils.getAsInt(p, "resolution");
+		var result = new QueryHistoricTimeseriesEnergyPerPeriodRequest(r,
 				fromDate, toDate, resolution);
-		JsonArray channels = JsonUtils.getAsJsonArray(p, "channels");
+		var channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
-			ChannelAddress address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
+			var address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
 			result.addChannel(address);
 		}
 		return result;
@@ -80,7 +80,7 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 
 	private QueryHistoricTimeseriesEnergyPerPeriodRequest(JsonrpcRequest request, ZonedDateTime fromDate,
 			ZonedDateTime toDate, int resolution) throws OpenemsNamedException {
-		super(request, METHOD);
+		super(request, QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD);
 
 		DateUtils.assertSameTimezone(fromDate, toDate);
 		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
@@ -91,7 +91,7 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 
 	public QueryHistoricTimeseriesEnergyPerPeriodRequest(ZonedDateTime fromDate, ZonedDateTime toDate, int resolution)
 			throws OpenemsNamedException {
-		super(METHOD);
+		super(QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD);
 
 		DateUtils.assertSameTimezone(fromDate, toDate);
 		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
@@ -106,13 +106,13 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray channels = new JsonArray();
+		var channels = new JsonArray();
 		for (ChannelAddress address : this.channels) {
 			channels.add(address.toString());
 		}
 		return JsonUtils.buildJsonObject().addProperty("timezone", this.timezoneDiff) //
-				.addProperty("fromDate", FORMAT.format(this.fromDate)) //
-				.addProperty("toDate", FORMAT.format(this.toDate)) //
+				.addProperty("fromDate", QueryHistoricTimeseriesEnergyPerPeriodRequest.FORMAT.format(this.fromDate)) //
+				.addProperty("toDate", QueryHistoricTimeseriesEnergyPerPeriodRequest.FORMAT.format(this.toDate)) //
 				.add("channels", channels) //
 				.addProperty("resolution", this.resolution) //
 				.build();
@@ -120,7 +120,7 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 
 	/**
 	 * Gets the From-Date.
-	 * 
+	 *
 	 * @return From-Date
 	 */
 	public ZonedDateTime getFromDate() {
@@ -129,7 +129,7 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 
 	/**
 	 * Gets the To-Date.
-	 * 
+	 *
 	 * @return To-Date
 	 */
 	public ZonedDateTime getToDate() {
@@ -138,7 +138,7 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 
 	/**
 	 * Gets the {@link ChannelAddress}es.
-	 * 
+	 *
 	 * @return Set of {@link ChannelAddress}
 	 */
 	public TreeSet<ChannelAddress> getChannels() {
@@ -147,7 +147,7 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 
 	/**
 	 * Gets the requested Resolution in [s].
-	 * 
+	 *
 	 * @return Resolution
 	 */
 	public int getResolution() {

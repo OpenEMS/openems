@@ -32,7 +32,7 @@ public class FieldValue<T> {
 		} else {
 			string = this.value.toString();
 		}
-		string = string.replaceAll("\n", "");
+		string = string.replace("\n", "");
 		return this.field.id() + ":" + string;
 	}
 }

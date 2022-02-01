@@ -10,12 +10,12 @@ public abstract class DatabaseTask {
 	/**
 	 * Execute the Task, making sure the Connection handle is released properly on
 	 * exception.
-	 * 
+	 *
 	 * @param dataSource the {@link HikariDataSource}
 	 * @throws SQLException on error
 	 */
 	public void execute(HikariDataSource dataSource) throws SQLException {
-		try (Connection con = dataSource.getConnection()) {
+		try (var con = dataSource.getConnection()) {
 			this._execute(con);
 		}
 	}

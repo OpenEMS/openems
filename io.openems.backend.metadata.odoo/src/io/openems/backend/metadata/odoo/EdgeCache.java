@@ -15,7 +15,6 @@ import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
-import io.openems.backend.metadata.odoo.postgres.QueueWriteWorker;
 import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
@@ -37,17 +36,17 @@ public class EdgeCache {
 	/**
 	 * Map Edge-ID (String) to Edge.
 	 */
-	private Map<String, MyEdge> edgeIdToEdge = new HashMap<>();
+	private final Map<String, MyEdge> edgeIdToEdge = new HashMap<>();
 
 	/**
 	 * Map Odoo-ID (Integer) to Edge-ID (String).
 	 */
-	private Map<Integer, String> odooIdToEdgeId = new HashMap<>();
+	private final Map<Integer, String> odooIdToEdgeId = new HashMap<>();
 
 	/**
 	 * Map Apikey (String) to Edge-ID (String).
 	 */
-	private Map<String, String> apikeyToEdgeId = new HashMap<>();
+	private final Map<String, String> apikeyToEdgeId = new HashMap<>();
 
 	public EdgeCache(OdooMetadata parent) {
 		this.parent = parent;
@@ -55,7 +54,7 @@ public class EdgeCache {
 
 	/**
 	 * Adds a Edge or Updates an existing Edge from a SQL ResultSet.
-	 * 
+	 *
 	 * @param rs the ResultSet record
 	 * @return the new or updated Edge instance
 	 * @throws SQLException     on error
@@ -63,13 +62,13 @@ public class EdgeCache {
 	 */
 	public synchronized MyEdge addOrUpate(ResultSet rs) throws SQLException, OpenemsException {
 		// simple fields
-		String edgeId = PgUtils.getAsString(rs, EdgeDevice.NAME);
-		int odooId = PgUtils.getAsInt(rs, EdgeDevice.ID);
-		String apikey = PgUtils.getAsString(rs, EdgeDevice.APIKEY);
+		var edgeId = PgUtils.getAsString(rs, EdgeDevice.NAME);
+		var odooId = PgUtils.getAsInt(rs, EdgeDevice.ID);
+		var apikey = PgUtils.getAsString(rs, EdgeDevice.APIKEY);
 
 		// Config
 		EdgeConfig config;
-		String configString = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_CONFIG, "");
+		var configString = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_CONFIG, "");
 		if (configString.isEmpty()) {
 			config = new EdgeConfig();
 		} else {
@@ -85,10 +84,10 @@ public class EdgeCache {
 		}
 
 		// State
-		String stateString = PgUtils.getAsStringOrElse(rs, EdgeDevice.STATE, State.INACTIVE.name());
+		var stateString = PgUtils.getAsStringOrElse(rs, EdgeDevice.STATE, State.INACTIVE.name());
 		State state;
 		try {
-			state = State.valueOf(stateString.toUpperCase().replaceAll("-", "_"));
+			state = State.valueOf(stateString.toUpperCase().replace('-', '_'));
 		} catch (IllegalArgumentException e) {
 			this.parent.logWarn(this.log,
 					"Edge [" + edgeId + "]. Unable to get State from [" + stateString + "]: " + e.getMessage());
@@ -96,13 +95,13 @@ public class EdgeCache {
 		}
 
 		// more simple fields
-		String comment = PgUtils.getAsStringOrElse(rs, EdgeDevice.COMMENT, "");
-		String version = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_VERSION, "");
-		String productType = PgUtils.getAsStringOrElse(rs, EdgeDevice.PRODUCT_TYPE, "");
+		var comment = PgUtils.getAsStringOrElse(rs, EdgeDevice.COMMENT, "");
+		var version = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_VERSION, "");
+		var productType = PgUtils.getAsStringOrElse(rs, EdgeDevice.PRODUCT_TYPE, "");
 		int sumStateInt = PgUtils.getAsIntegerOrElse(rs, EdgeDevice.OPENEMS_SUM_STATE, -1);
-		Level sumState = Level.fromValue(sumStateInt).orElse(null);
+		var sumState = Level.fromValue(sumStateInt).orElse(null);
 
-		MyEdge edge = this.edgeIdToEdge.get(edgeId);
+		var edge = this.edgeIdToEdge.get(edgeId);
 		if (edge == null) {
 			// This is new -> create instance of Edge and register listeners
 			edge = new MyEdge(odooId, edgeId, apikey, comment, state, version, productType, sumState, config);
@@ -125,7 +124,7 @@ public class EdgeCache {
 
 	/**
 	 * Gets an Edge from its Edge-ID.
-	 * 
+	 *
 	 * @param edgeId the Edge-ID
 	 * @return the Edge, or null
 	 */
@@ -135,12 +134,12 @@ public class EdgeCache {
 
 	/**
 	 * Gets an Edge from its Odoo-ID.
-	 * 
+	 *
 	 * @param odooId the Odoo-ID
 	 * @return the Edge, or null
 	 */
 	public synchronized MyEdge getEdgeFromOdooId(int odooId) {
-		String edgeId = this.odooIdToEdgeId.get(odooId);
+		var edgeId = this.odooIdToEdgeId.get(odooId);
 		if (edgeId == null) {
 			return null;
 		}
@@ -149,12 +148,12 @@ public class EdgeCache {
 
 	/**
 	 * Gets an Edge from its Apikey.
-	 * 
+	 *
 	 * @param apikey the Apikey
 	 * @return the Edge, or null
 	 */
 	public synchronized MyEdge getEdgeForApikey(String apikey) {
-		String edgeId = this.apikeyToEdgeId.get(apikey);
+		var edgeId = this.apikeyToEdgeId.get(apikey);
 		if (edgeId == null) {
 			return null;
 		}
@@ -163,7 +162,7 @@ public class EdgeCache {
 
 	/**
 	 * Gets all Edges as an unmodifiable Collection.
-	 * 
+	 *
 	 * @return a collection of Edges
 	 */
 	public Collection<Edge> getAllEdges() {
@@ -172,7 +171,7 @@ public class EdgeCache {
 
 	/**
 	 * Adds Listeners to act on changes to Edge.
-	 * 
+	 *
 	 * @param edge the Edge
 	 */
 	private void addListeners(MyEdge edge) {
@@ -187,7 +186,7 @@ public class EdgeCache {
 							"Mark Edge [" + edge.getId() + "] as ACTIVE. It was [" + edge.getState().name() + "]");
 					edge.setState(State.ACTIVE);
 					this.parent.getPostgresHandler().getQueueWriteWorker();
-					QueueWriteWorker queueWriteWorker = this.parent.getPostgresHandler().getQueueWriteWorker();
+					var queueWriteWorker = this.parent.getPostgresHandler().getQueueWriteWorker();
 					queueWriteWorker.addTask(new UpdateEdgeStateActive(edge.getOdooId()));
 				}
 			} else {
@@ -197,14 +196,14 @@ public class EdgeCache {
 		});
 		edge.onSetConfig(config -> {
 			// Update Edge Config in Odoo/Postgres
-			EdgeConfigDiff diff = EdgeConfigDiff.diff(config, edge.getConfig());
+			var diff = EdgeConfigDiff.diff(config, edge.getConfig());
 			if (!diff.isDifferent()) {
 				return;
 			}
 
 			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "]. Update config: " + diff.toString());
 
-			QueueWriteWorker queueWriteWorker = this.parent.getPostgresHandler().getQueueWriteWorker();
+			var queueWriteWorker = this.parent.getPostgresHandler().getQueueWriteWorker();
 			queueWriteWorker.addTask(new UpdateEdgeConfig(edge.getOdooId(), config));
 			queueWriteWorker.addTask(new InsertEdgeConfigUpdate(edge.getOdooId(), diff));
 		});
@@ -221,7 +220,7 @@ public class EdgeCache {
 			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "]: Update OpenEMS Edge version to [" + version
 					+ "]. It was [" + edge.getVersion() + "]");
 			this.parent.odooHandler.writeEdge(edge,
-					new FieldValue<String>(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
+					new FieldValue<>(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
 		});
 		edge.onSetSumState(sumState -> {
 			// Set Sum-State in Odoo/Postgres

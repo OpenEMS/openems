@@ -15,7 +15,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	private final B2bWebsocket parent;
 	private final SubscribedEdgesChannelsWorker worker;
-	private CompletableFuture<User> user = new CompletableFuture<User>();
+	private final CompletableFuture<User> user = new CompletableFuture<>();
 
 	public WsData(B2bWebsocket parent) {
 		this.parent = parent;
@@ -35,6 +35,14 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return this.user;
 	}
 
+	/**
+	 * Gets the logged in User with a timeout.
+	 * 
+	 * @param timeout the timeout length
+	 * @param unit    the {@link TimeUnit} of the timeout
+	 * @return the {@link User}
+	 * @throws OpenemsNamedException on error
+	 */
 	public User getUserWithTimeout(long timeout, TimeUnit unit) throws OpenemsNamedException {
 		try {
 			return this.user.get(timeout, unit);
@@ -49,7 +57,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Gets the SubscribedChannelsWorker to take care of subscribe to CurrentData.
-	 * 
+	 *
 	 * @return the SubscribedChannelsWorker
 	 */
 	public SubscribedEdgesChannelsWorker getSubscribedChannelsWorker() {
@@ -60,9 +68,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 	public String toString() {
 		if (this.user == null) {
 			return "B2bWebsocket.WsData [user=UNKNOWN]";
-		} else {
-			return "B2bWebsocket.WsData [user=" + user + "]";
 		}
+		return "B2bWebsocket.WsData [user=" + this.user + "]";
 	}
 
 	@Override

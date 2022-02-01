@@ -15,7 +15,7 @@ import io.openems.common.types.ChannelAddress;
 
 /**
  * Represents a JSON-RPC Response for 'queryHistoricTimeseriesEnergyPerPeriod'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -37,7 +37,8 @@ public class QueryHistoricTimeseriesEnergyPerPeriodResponse extends JsonrpcRespo
 
 	private final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table;
 
-	public QueryHistoricTimeseriesEnergyPerPeriodResponse(SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table) {
+	public QueryHistoricTimeseriesEnergyPerPeriodResponse(
+			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table) {
 		this(UUID.randomUUID(), table);
 	}
 
@@ -49,16 +50,16 @@ public class QueryHistoricTimeseriesEnergyPerPeriodResponse extends JsonrpcRespo
 
 	@Override
 	public JsonObject getResult() {
-		JsonObject result = new JsonObject();
+		var result = new JsonObject();
 
-		JsonArray timestamps = new JsonArray();
-		for (ZonedDateTime timestamp : table.keySet()) {
+		var timestamps = new JsonArray();
+		for (ZonedDateTime timestamp : this.table.keySet()) {
 			timestamps.add(timestamp.format(DateTimeFormatter.ISO_INSTANT));
 		}
 		result.add("timestamps", timestamps);
 
-		JsonObject data = new JsonObject();
-		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> rowEntry : table.entrySet()) {
+		var data = new JsonObject();
+		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> rowEntry : this.table.entrySet()) {
 			for (Entry<ChannelAddress, JsonElement> colEntry : rowEntry.getValue().entrySet()) {
 				String channelAddress = colEntry.getKey().toString();
 				JsonElement value = colEntry.getValue();

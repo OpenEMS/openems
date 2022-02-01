@@ -118,7 +118,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
 		if (activePower != null) {
 			ess.setActivePowerEqualsWithPid(activePower);
-			ess.setReactivePowerEquals(0);
 		}
 	}
 

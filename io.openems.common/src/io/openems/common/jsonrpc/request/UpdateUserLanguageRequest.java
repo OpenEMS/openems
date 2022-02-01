@@ -8,6 +8,8 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
 
 /**
+ * Updates the User Language.
+ * 
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -33,7 +35,7 @@ public class UpdateUserLanguageRequest extends JsonrpcRequest {
 		 * Get {@link Language} for given key of the language or throws an exception.
 		 * The given key is removed all leading and trailing whitespaces and converts
 		 * all characters to upper case.
-		 * 
+		 *
 		 * @param languageKey to get the {@link Language}
 		 * @return the founded {@link Language} or throws an exception
 		 * @throws OpenemsException on error
@@ -53,21 +55,21 @@ public class UpdateUserLanguageRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link UpdateUserLanguageRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param request the template {@link JsonrpcRequest}
 	 * @return the {@link UpdateUserLanguageRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static UpdateUserLanguageRequest from(JsonrpcRequest request) throws OpenemsNamedException {
-		JsonObject params = request.getParams();
-		String language = JsonUtils.getAsString(params, "language");
+		var params = request.getParams();
+		var language = JsonUtils.getAsString(params, "language");
 		return new UpdateUserLanguageRequest(request, Language.from(language));
 	}
 
 	private final Language language;
 
 	private UpdateUserLanguageRequest(JsonrpcRequest request, Language language) throws OpenemsException {
-		super(request, METHOD);
+		super(request, UpdateUserLanguageRequest.METHOD);
 		this.language = language;
 	}
 

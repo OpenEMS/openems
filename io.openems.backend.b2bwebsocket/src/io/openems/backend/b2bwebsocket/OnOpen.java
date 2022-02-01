@@ -28,21 +28,21 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		try {
 			// Read "Authorization" header for Simple HTTP authentication. Source:
 			// https://stackoverflow.com/questions/16000517/how-to-get-password-from-http-basic-authentication
-			final String authorization = JsonUtils.getAsString(handshake, "Authorization");
+			final var authorization = JsonUtils.getAsString(handshake, "Authorization");
 			if (authorization == null || !authorization.toLowerCase().startsWith("basic")) {
 				throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 			}
 
 			String base64Credentials = authorization.substring("Basic".length()).trim();
 			byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
-			String credentials = new String(credDecoded, StandardCharsets.UTF_8);
+			var credentials = new String(credDecoded, StandardCharsets.UTF_8);
 			// credentials = username:password
-			final String[] values = credentials.split(":", 2);
+			final var values = credentials.split(":", 2);
 			if (values.length != 2) {
 				throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 			}
-			String username = values[0];
-			String password = values[1];
+			var username = values[0];
+			var password = values[1];
 			User user = this.parent.metadata.authenticate(username, password);
 
 			WsData wsData = ws.getAttachment();

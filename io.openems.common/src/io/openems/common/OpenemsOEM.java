@@ -10,12 +10,12 @@ public class OpenemsOEM {
 	/*
 	 * General.
 	 */
-	public final static String MANUFACTURER = "OpenEMS Association e.V.";
+	public static final String MANUFACTURER = "OpenEMS Association e.V.";
 
 	/*
 	 * Backend-Api Controller
 	 */
-	public final static String BACKEND_API_URI = "ws://localhost:8081";
+	public static final String BACKEND_API_URI = "ws://localhost:8081";
 
 	/*
 	 * System-Update.

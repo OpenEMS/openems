@@ -97,7 +97,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
-	private TreeSet<Rack> racks = new TreeSet<>();
+	private final TreeSet<Rack> racks = new TreeSet<>();
 	private BatteryProtection batteryProtection = null;
 
 	public ClusterVersionCImpl() {
@@ -114,6 +114,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -380,13 +381,12 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 				this.logError(this.log, "Error while creating modbus tasks: " + e.getMessage());
 				e.printStackTrace();
 			} //
-			Consumer<CellChannelFactory.Type> addCellChannels = (type) -> {
-				for (int i = 0; i < numberOfModules; i++) {
-					AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[type.getSensorsPerModule()];
-					for (int j = 0; j < type.getSensorsPerModule(); j++) {
-						int sensorIndex = i * type.getSensorsPerModule() + j;
-						io.openems.edge.common.channel.ChannelId channelId = CellChannelFactory.create(r, type,
-								sensorIndex);
+			Consumer<CellChannelFactory.Type> addCellChannels = type -> {
+				for (var i = 0; i < numberOfModules; i++) {
+					var elements = new AbstractModbusElement<?>[type.getSensorsPerModule()];
+					for (var j = 0; j < type.getSensorsPerModule(); j++) {
+						var sensorIndex = i * type.getSensorsPerModule() + j;
+						var channelId = CellChannelFactory.create(r, type, sensorIndex);
 						// Register the Channel at this Component
 						this.addChannel(channelId);
 						// Add the Modbus Element and map it to the Channel
@@ -408,7 +408,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 			// WARN_LEVEL_Pre Alarm (Pre Alarm configuration registers RW)
 			{
-				AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[] {
+				AbstractModbusElement<?>[] elements = {
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_ALARM),
 								new UnsignedWordElement(r.offset + 0x080)), //
 						m(this.createChannelId(r, RackChannel.PRE_ALARM_CELL_OVER_VOLTAGE_RECOVER),
@@ -483,7 +483,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 			// WARN_LEVEL1 (Level1 warning registers RW)
 			{
-				AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[] {
+				AbstractModbusElement<?>[] elements = {
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x040)), //
 						m(this.createChannelId(r, RackChannel.LEVEL1_CELL_OVER_VOLTAGE_RECOVER),
@@ -558,7 +558,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 			// WARN_LEVEL2 (Level2 Protection registers RW)
 			{
-				AbstractModbusElement<?>[] elements = new AbstractModbusElement<?>[] {
+				AbstractModbusElement<?>[] elements = {
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_PROTECTION),
 								new UnsignedWordElement(r.offset + 0x400)), //
 						m(this.createChannelId(r, RackChannel.LEVEL2_CELL_OVER_VOLTAGE_RECOVER),
@@ -645,23 +645,23 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	/**
 	 * Calculates the Capacity as Capacity per module multiplied with number of
 	 * modules and sets the CAPACITY channel.
-	 * 
+	 *
 	 * @param numberOfTowers  the number of battery towers
 	 * @param numberOfModules the number of battery modules
 	 */
 	private void calculateCapacity(int numberOfTowers, int numberOfModules) {
-		int capacity = numberOfTowers * numberOfModules * ModuleType.MODULE_3_5_KWH.getCapacity_Wh();
+		var capacity = numberOfTowers * numberOfModules * ModuleType.MODULE_3_5_KWH.getCapacity_Wh();
 		this._setCapacity(capacity);
 	}
 
 	/**
 	 * Gets the Number of Modules.
-	 * 
+	 *
 	 * @return the Number of Modules as a {@link CompletableFuture}.
 	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<Integer> getNumberOfModules() {
-		final CompletableFuture<Integer> result = new CompletableFuture<Integer>();
+		final var result = new CompletableFuture<Integer>();
 
 		try {
 			ModbusUtils
@@ -683,7 +683,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	/**
 	 * Recursively reads the 'No of modules' register of each tower. Eventually
 	 * completes the {@link CompletableFuture}.
-	 * 
+	 *
 	 * @param result              the {@link CompletableFuture}
 	 * @param totalNumberOfTowers the recursively incremented total number of towers
 	 * @param addresses           Queue with the remaining 'No of modules' registers
@@ -693,7 +693,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	 */
 	private void checkNumberOfTowers(CompletableFuture<Integer> result, int totalNumberOfTowers,
 			final Queue<Integer> addresses, boolean tryAgainOnError) {
-		final Integer address = addresses.poll();
+		final var address = addresses.poll();
 
 		if (address == null) {
 			// Finished Queue
@@ -709,11 +709,10 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 							if (tryAgainOnError) {
 								// Try again
 								return;
-							} else {
-								// Read error -> this tower does not exist. Stop here.
-								result.complete(totalNumberOfTowers);
-								return;
 							}
+							// Read error -> this tower does not exist. Stop here.
+							result.complete(totalNumberOfTowers);
+							return;
 						}
 
 						// Read successful -> try to read next tower
@@ -727,9 +726,9 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 	}
 
 	private CompletableFuture<Integer> getNumberOfTowers() throws OpenemsException {
-		final CompletableFuture<Integer> result = new CompletableFuture<Integer>();
+		final var result = new CompletableFuture<Integer>();
 
-		Queue<Integer> addresses = new LinkedList<Integer>();
+		Queue<Integer> addresses = new LinkedList<>();
 		addresses.add(0x20C1 /* No of modules for 1st tower */);
 		addresses.add(0x30C1 /* No of modules for 2nd tower */);
 		addresses.add(0x40C1 /* No of modules for 3rd tower */);
@@ -770,7 +769,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.config);
+		var context = new Context(this, this.config);
 
 		// Call the StateMachine
 		try {
@@ -794,28 +793,25 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ModbusProtocol protocol = new ModbusProtocol(this,
+		return new ModbusProtocol(this,
 				/*
 				 * BMS Control Registers
 				 */
 				new FC16WriteRegistersTask(0x1024,
 						m(SoltaroBatteryVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x1024)), //
 						m(SoltaroBatteryVersionC.ChannelId.EMS_ADDRESS, new UnsignedWordElement(0x1025)), //
-						m(SoltaroBatteryVersionC.ChannelId.EMS_BAUDRATE, new UnsignedWordElement(0x1026)) //
-				), //
+						m(SoltaroBatteryVersionC.ChannelId.EMS_BAUDRATE, new UnsignedWordElement(0x1026))), //
 				new FC3ReadRegistersTask(0x1024, Priority.LOW,
 						m(SoltaroBatteryVersionC.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x1024)), //
 						m(SoltaroBatteryVersionC.ChannelId.EMS_ADDRESS, new UnsignedWordElement(0x1025)), //
-						m(SoltaroBatteryVersionC.ChannelId.EMS_BAUDRATE, new UnsignedWordElement(0x1026)) //
-				), //
+						m(SoltaroBatteryVersionC.ChannelId.EMS_BAUDRATE, new UnsignedWordElement(0x1026))), //
 				new FC16WriteRegistersTask(0x10C3, //
 						m(SoltaroCluster.ChannelId.CLUSTER_START_STOP, new UnsignedWordElement(0x10C3)), //
 						m(SoltaroCluster.ChannelId.RACK_1_USAGE, new UnsignedWordElement(0x10C4)), //
 						m(SoltaroCluster.ChannelId.RACK_2_USAGE, new UnsignedWordElement(0x10C5)), //
 						m(SoltaroCluster.ChannelId.RACK_3_USAGE, new UnsignedWordElement(0x10C6)), //
 						m(SoltaroCluster.ChannelId.RACK_4_USAGE, new UnsignedWordElement(0x10C7)), //
-						m(SoltaroCluster.ChannelId.RACK_5_USAGE, new UnsignedWordElement(0x10C8)) //
-				), //
+						m(SoltaroCluster.ChannelId.RACK_5_USAGE, new UnsignedWordElement(0x10C8))), //
 				new FC3ReadRegistersTask(0x10C3, Priority.LOW,
 						m(SoltaroCluster.ChannelId.CLUSTER_START_STOP, new UnsignedWordElement(0x10C3)), //
 						m(SoltaroCluster.ChannelId.RACK_1_USAGE, new UnsignedWordElement(0x10C4)), //
@@ -949,17 +945,13 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 								.bit(12, SoltaroBatteryVersionC.ChannelId.LEVEL2_INSULATION_VALUE) //
 								.bit(13, SoltaroBatteryVersionC.ChannelId.LEVEL2_TOTAL_VOLTAGE_DIFF_TOO_BIG) //
 								.bit(14, SoltaroBatteryVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_HIGH) //
-								.bit(15, SoltaroBatteryVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_LOW) //
-						) //
-				)); //
-
-		return protocol;
+								.bit(15, SoltaroBatteryVersionC.ChannelId.LEVEL2_DISCHARGE_TEMP_LOW)))); //
 	}
 
 	/**
 	 * Factory-Function for SingleRack-ChannelIds. Creates a ChannelId, registers
 	 * the Channel and returns the ChannelId.
-	 * 
+	 *
 	 * @param rack        the {@link Rack}
 	 * @param rackChannel the {@link RackChannel}
 	 * @return the {@link io.openems.edge.common.channel.ChannelId}
@@ -969,11 +961,10 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		Channel<?> existingChannel = this._channel(rackChannel.toChannelIdString(rack));
 		if (existingChannel != null) {
 			return existingChannel.channelId();
-		} else {
-			io.openems.edge.common.channel.ChannelId channelId = rackChannel.toChannelId(rack);
-			this.addChannel(channelId);
-			return channelId;
 		}
+		var channelId = rackChannel.toChannelId(rack);
+		this.addChannel(channelId);
+		return channelId;
 	}
 
 	/**
@@ -990,7 +981,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 	/**
 	 * Calculates the average of RackChannel over all active Racks.
-	 * 
+	 *
 	 * @param rackChannel the {@link RackChannel}
 	 * @return the average value or null
 	 */
@@ -998,7 +989,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		Integer cumulated = null;
 		for (Rack rack : this.racks) {
 			IntegerReadChannel channel = this.channel(rack, rackChannel);
-			Integer value = channel.getNextValue().get();
+			var value = channel.getNextValue().get();
 			if (value == null) {
 				continue;
 			} else if (cumulated == null) {
@@ -1009,14 +1000,13 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		}
 		if (cumulated != null) {
 			return cumulated / this.racks.size();
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	/**
 	 * Finds the maximum of a RackChannel over all active Racks.
-	 * 
+	 *
 	 * @param rackChannel the {@link RackChannel}
 	 * @return the maximum value or null
 	 */
@@ -1024,7 +1014,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		Integer result = null;
 		for (Rack rack : this.racks) {
 			IntegerReadChannel channel = this.channel(rack, rackChannel);
-			Integer value = channel.getNextValue().get();
+			var value = channel.getNextValue().get();
 			if (value == null) {
 				continue;
 			} else if (result == null) {
@@ -1038,7 +1028,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 	/**
 	 * Finds the minimum of a RackChannel over all active Racks.
-	 * 
+	 *
 	 * @param rackChannel the {@link RackChannel}
 	 * @return the minimum value or null
 	 */
@@ -1046,7 +1036,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		Integer result = null;
 		for (Rack rack : this.racks) {
 			IntegerReadChannel channel = this.channel(rack, rackChannel);
-			Integer value = channel.getNextValue().get();
+			var value = channel.getNextValue().get();
 			if (value == null) {
 				continue;
 			} else if (result == null) {
@@ -1096,7 +1086,7 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 		return this.racks;
 	}
 
-	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
 	@Override
 	public void setStartStop(StartStop value) {
