@@ -76,6 +76,7 @@ export class Library {
     public static readonly APACHE_FELIX_METATYPE = new Library('Apache Felix MetaType', 'org.apache.felix.metatype');
     public static readonly APACHE_FELIX_SCR = new Library('Apache Felix SCR', 'org.apache.felix.scr');
     public static readonly APACHE_FELIX_WEBCONSOLE = new Library('Apache Felix Webconsole', 'org.apache.felix.webconsole');
+    public static readonly APACHE_FELIX_CONFIGADMIN = new Library('Apache Felix Configuration Admin', 'org.apache.felix.configadmin');
     public static readonly CHARGETIME_OCPP = new Library('Open Charge Alliance Java OCPP', 'eu.chargetime.ocpp'); // https://github.com/ChargeTimeEU/Java-OCA-OCPP
     public static readonly ECLIPSE_OSGI = new Library('Eclipse OSGi', 'org.eclipse.osgi');
     public static readonly FASTEXCEL = new Library('fastexcel', 'fastexcel');
