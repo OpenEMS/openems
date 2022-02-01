@@ -687,7 +687,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		// Example: Rated frequency is 60Hz, the target active power is set to 10kW,
 		// Freq/Watt regulation point is set to 2Hz, ramp rate is set as 0.5, If the
 		// actual frequency reaches 63Hz, the output active power will be
-		// 10kW-(63Hz-62Hz) 0.5*(10kW/Hz) = 5kW
+		// 10kW-(63Hz-62Hz) x 0.5*(10kW/Hz) = 5kW
 		SLOPE_OF_FREQUENCY_DROP(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// AS4777 only, bias Bias from rated frequency

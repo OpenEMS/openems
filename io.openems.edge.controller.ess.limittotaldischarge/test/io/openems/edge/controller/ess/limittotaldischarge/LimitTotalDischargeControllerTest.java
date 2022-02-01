@@ -25,7 +25,7 @@ public class LimitTotalDischargeControllerTest {
 	public void test() throws Exception {
 		// Initialize mocked Clock
 		final TimeLeapClock clock = new TimeLeapClock();
-		new ControllerTest(new LimitTotalDischargeController()) //
+		new ControllerTest(new LimitTotalDischargeControllerImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID) //
 						.withSoc(20) //

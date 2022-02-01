@@ -13,11 +13,10 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.goodwe.GoodWeConstants;
 import io.openems.edge.goodwe.charger.GoodWeEtCharger1;
-import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
+import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
-import io.openems.edge.goodwe.common.enums.FeedPowerEnable;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
@@ -73,8 +72,9 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setSafetyCountry(SafetyCountry.GERMANY) //
-						.setBackupEnable(BackupEnable.ENABLE) //
-						.setFeedPowerEnable(FeedPowerEnable.ENABLE) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
@@ -105,8 +105,9 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setSafetyCountry(SafetyCountry.GERMANY) //
-						.setBackupEnable(BackupEnable.ENABLE) //
-						.setFeedPowerEnable(FeedPowerEnable.ENABLE) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
@@ -136,8 +137,9 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setSafetyCountry(SafetyCountry.GERMANY) //
-						.setBackupEnable(BackupEnable.ENABLE) //
-						.setFeedPowerEnable(FeedPowerEnable.ENABLE) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.REMOTE) //
@@ -167,8 +169,9 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setSafetyCountry(SafetyCountry.GERMANY) //
-						.setBackupEnable(BackupEnable.ENABLE) //
-						.setFeedPowerEnable(FeedPowerEnable.ENABLE) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
@@ -211,8 +214,9 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setSafetyCountry(SafetyCountry.GERMANY) //
-						.setBackupEnable(BackupEnable.ENABLE) //
-						.setFeedPowerEnable(FeedPowerEnable.ENABLE) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
@@ -240,8 +244,9 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setSafetyCountry(SafetyCountry.GERMANY) //
-						.setBackupEnable(BackupEnable.ENABLE) //
-						.setFeedPowerEnable(FeedPowerEnable.ENABLE) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
@@ -269,8 +274,9 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setSafetyCountry(SafetyCountry.GERMANY) //
-						.setBackupEnable(BackupEnable.ENABLE) //
-						.setFeedPowerEnable(FeedPowerEnable.ENABLE) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
@@ -298,8 +304,9 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setSafetyCountry(SafetyCountry.GERMANY) //
-						.setBackupEnable(BackupEnable.ENABLE) //
-						.setFeedPowerEnable(FeedPowerEnable.ENABLE) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
@@ -327,8 +334,9 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setSafetyCountry(SafetyCountry.GERMANY) //
-						.setBackupEnable(BackupEnable.ENABLE) //
-						.setFeedPowerEnable(FeedPowerEnable.ENABLE) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
@@ -356,8 +364,9 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setSafetyCountry(SafetyCountry.GERMANY) //
-						.setBackupEnable(BackupEnable.ENABLE) //
-						.setFeedPowerEnable(FeedPowerEnable.ENABLE) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
 						.setFeedPowerPara(3000) //
 						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
 						.setControlMode(ControlMode.SMART) //
