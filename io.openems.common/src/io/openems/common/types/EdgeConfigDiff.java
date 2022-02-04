@@ -24,13 +24,13 @@ public class EdgeConfigDiff {
 
 	/**
 	 * Find difference between two EdgeConfigs.
-	 * 
+	 *
 	 * @param newConfig the new EdgeConfig
 	 * @param oldConfig the old EdgeConfig
 	 * @return an instance of EdgeConfigDiff
 	 */
 	public static EdgeConfigDiff diff(EdgeConfig newConfig, EdgeConfig oldConfig) {
-		EdgeConfigDiff result = new EdgeConfigDiff();
+		var result = new EdgeConfigDiff();
 		SortedMapDifference<String, EdgeConfig.Component> diffComponents = Maps.difference(newConfig.getComponents(),
 				oldConfig.getComponents());
 		/*
@@ -126,16 +126,16 @@ public class EdgeConfigDiff {
 			}
 
 			public JsonElement getOld() {
-				return oldP;
+				return this.oldP;
 			}
 
 			public JsonElement getNew() {
-				return newP;
+				return this.newP;
 			}
 
 			@Override
 			public String toString() {
-				return "[old=" + oldP + ", new=" + newP + "]";
+				return "[old=" + this.oldP + ", new=" + this.newP + "]";
 			}
 		}
 
@@ -153,7 +153,7 @@ public class EdgeConfigDiff {
 			this.lastChangeAt = lastChangeAt;
 		}
 
-		public ComponentDiff add(String name, OldNewProperty property) {
+		protected ComponentDiff add(String name, OldNewProperty property) {
 			switch (name) {
 			case OpenemsConstants.PROPERTY_LAST_CHANGE_BY:
 				this.lastChangeBy = property;
@@ -169,7 +169,8 @@ public class EdgeConfigDiff {
 
 		@Override
 		public String toString() {
-			return "[" + this.change.toString() + " " + component.getFactoryId() + ": properties=" + properties + "]";
+			return "[" + this.change.toString() + " " + this.component.getFactoryId() + ": properties="
+					+ this.properties + "]";
 		}
 
 		public Component getComponent() {
@@ -177,7 +178,7 @@ public class EdgeConfigDiff {
 		}
 
 		public TreeMap<String, OldNewProperty> getProperties() {
-			return properties;
+			return this.properties;
 		}
 	}
 
@@ -185,7 +186,7 @@ public class EdgeConfigDiff {
 
 	/**
 	 * Add a newly created component configuration.
-	 * 
+	 *
 	 * @param componentId the Component-ID of the Property
 	 * @param component   the Component instance of the Property
 	 * @param properties  the properties
@@ -205,7 +206,7 @@ public class EdgeConfigDiff {
 
 	/**
 	 * Add a deleted component configuration.
-	 * 
+	 *
 	 * @param componentId the Component-ID of the Property
 	 * @param component   the Component instance of the Property
 	 * @param properties  the properties
@@ -227,7 +228,7 @@ public class EdgeConfigDiff {
 
 	/**
 	 * Add an updated component configuration.
-	 * 
+	 *
 	 * @param componentId the Component-ID of the Property
 	 * @param component   the Component instance of the Property
 	 * @param properties  the properties
@@ -247,22 +248,22 @@ public class EdgeConfigDiff {
 
 	/**
 	 * Formats the Diff as a HTML table.
-	 * 
+	 *
 	 * @return a String with the HTML code
 	 */
 	public String getAsHtml() {
-		StringBuilder b = new StringBuilder();
-		b.append("<table border=\"1\" style=\"border-collapse: collapse\"" + //
-				"	<thead>" + //
-				"		<tr>" + //
-				"			<th>Change</th>" + //
-				"			<th>Component</th>" + //
-				"			<th>Name</th>" + //
-				"			<th>Old Value</th>" + //
-				"			<th>New Value</th>" + //
-				"		</tr>" + //
-				"	</thead>" + //
-				"	<tbody>");
+		var b = new StringBuilder();
+		b.append("<table border=\"1\" style=\"border-collapse: collapse\"" //
+				+ "	<thead>" //
+				+ "		<tr>" //
+				+ "			<th>Change</th>" //
+				+ "			<th>Component</th>" //
+				+ "			<th>Name</th>"//
+				+ "			<th>Old Value</th>"//
+				+ "			<th>New Value</th>"//
+				+ "		</tr>" //
+				+ "	</thead>" //
+				+ "	<tbody>");
 		for (Entry<String, ComponentDiff> componentEntry : this.components.entrySet()) {
 			String componentId = componentEntry.getKey();
 			ComponentDiff component = componentEntry.getValue();
@@ -281,26 +282,26 @@ public class EdgeConfigDiff {
 
 			// LastChangeBy
 			{
-				String propertyName = OpenemsConstants.PROPERTY_LAST_CHANGE_BY;
-				OldNewProperty property = component.lastChangeBy;
-				String oldP = property.oldP.isJsonNull() ? "" : property.oldP.toString();
-				String newP = property.newP.isJsonNull() ? "" : property.newP.toString();
+				var propertyName = OpenemsConstants.PROPERTY_LAST_CHANGE_BY;
+				var property = component.lastChangeBy;
+				var oldP = property.oldP.isJsonNull() ? "" : property.oldP.toString();
+				var newP = property.newP.isJsonNull() ? "" : property.newP.toString();
 				b.append(String.format("<td>%s</td><td>%s</td><td>%s</td></tr>", propertyName, oldP, newP)); // no <tr>!
 			}
 			// LastChangeAt
 			{
-				String propertyName = OpenemsConstants.PROPERTY_LAST_CHANGE_AT;
-				OldNewProperty property = component.lastChangeAt;
-				String oldP = property.oldP.isJsonNull() ? "" : property.oldP.toString();
-				String newP = property.newP.isJsonNull() ? "" : property.newP.toString();
+				var propertyName = OpenemsConstants.PROPERTY_LAST_CHANGE_AT;
+				var property = component.lastChangeAt;
+				var oldP = property.oldP.isJsonNull() ? "" : property.oldP.toString();
+				var newP = property.newP.isJsonNull() ? "" : property.newP.toString();
 				b.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td></tr>", propertyName, oldP, newP));
 			}
 			// Properties
 			for (Entry<String, OldNewProperty> propertyEntry : component.properties.entrySet()) {
-				String propertyName = propertyEntry.getKey();
-				OldNewProperty property = propertyEntry.getValue();
-				String oldP = property.oldP.isJsonNull() ? "" : property.oldP.toString();
-				String newP = property.newP.isJsonNull() ? "" : property.newP.toString();
+				var propertyName = propertyEntry.getKey();
+				var property = propertyEntry.getValue();
+				var oldP = property.oldP.isJsonNull() ? "" : property.oldP.toString();
+				var newP = property.newP.isJsonNull() ? "" : property.newP.toString();
 
 				b.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td></tr>", propertyName, oldP, newP));
 			}
@@ -312,11 +313,11 @@ public class EdgeConfigDiff {
 
 	/**
 	 * Formats the Diff as Text.
-	 * 
+	 *
 	 * @return a String representing the Diff
 	 */
 	public String getAsText() {
-		StringBuilder b = new StringBuilder();
+		var b = new StringBuilder();
 		for (Entry<String, ComponentDiff> componentEntry : this.components.entrySet()) {
 			final ComponentDiff component = componentEntry.getValue();
 			String change = component.properties.entrySet().stream() //
@@ -354,7 +355,7 @@ public class EdgeConfigDiff {
 			b.append(component.change);
 			b.append(" ");
 			b.append(componentEntry.getKey());
-			String factoryId = component.component.getFactoryId();
+			var factoryId = component.component.getFactoryId();
 			if (!factoryId.isEmpty()) {
 				b.append(String.format(" (%s)", factoryId));
 			}
@@ -372,7 +373,7 @@ public class EdgeConfigDiff {
 	/**
 	 * Gets whether this diff is not empty, i.e. the EdgeConfig instances were
 	 * different.
-	 * 
+	 *
 	 * @return true for different EdgeConfigs.
 	 */
 	public boolean isDifferent() {

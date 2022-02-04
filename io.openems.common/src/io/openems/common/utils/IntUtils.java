@@ -8,10 +8,10 @@ public class IntUtils {
 
 	/**
 	 * Rounds a value to a defined precision.
-	 * 
+	 *
 	 * <p>
 	 * Example: roundToPrecision(1234, Round.AWAY_FROM_ZERO, 100) -&gt; 1300
-	 * 
+	 *
 	 * @param value     the value
 	 * @param round     the rounding mode
 	 * @param precision the decimal precision
@@ -28,9 +28,8 @@ public class IntUtils {
 
 		if (value < 0 && round == Round.AWAY_FROM_ZERO || value > 0 && round == Round.TOWARDS_ZERO) {
 			return (int) Math.floor(value / precision) * precision;
-		} else {
-			return (int) Math.ceil(value / precision) * precision;
 		}
+		return (int) Math.ceil(value / precision) * precision;
 	}
 
 }

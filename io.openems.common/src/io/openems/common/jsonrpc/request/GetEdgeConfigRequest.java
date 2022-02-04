@@ -8,7 +8,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 /**
  * Represents a JSON-RPC Request for 'getEdgeConfig'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -24,7 +24,7 @@ public class GetEdgeConfigRequest extends JsonrpcRequest {
 
 	/**
 	 * Create {@link GetEdgeConfigRequest} from a template {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link GetEdgeConfigRequest}
 	 * @throws OpenemsNamedException on parse error
@@ -33,8 +33,12 @@ public class GetEdgeConfigRequest extends JsonrpcRequest {
 		return new GetEdgeConfigRequest(r);
 	}
 
+	public GetEdgeConfigRequest() {
+		super(GetEdgeConfigRequest.METHOD);
+	}
+
 	private GetEdgeConfigRequest(JsonrpcRequest request) {
-		super(request, METHOD);
+		super(request, GetEdgeConfigRequest.METHOD);
 	}
 
 	@Override

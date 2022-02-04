@@ -70,14 +70,19 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                 new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
             ]
 
-            this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster.SelfConsumption') && !(component.factoryId == 'Evcs.Cluster.PeakShaving') && !component.isEnabled == false);
+            this.evcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+                .filter(component =>
+                    !(component.factoryId == 'Evcs.Cluster.SelfConsumption') &&
+                    !(component.factoryId == 'Evcs.Cluster.PeakShaving') &&
+                    !component.isEnabled == false);
             for (let component of this.evcsComponents) {
                 channels.push(
                     new ChannelAddress(component.id, 'EnergyTotal'),
                 )
             }
 
-            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.properties['type'] == 'CONSUMPTION_METERED');
+            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+                .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
             for (let component of this.consumptionMeterComponents) {
                 channels.push(
                     new ChannelAddress(component.id, 'ActiveProductionEnergy'),

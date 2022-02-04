@@ -6,12 +6,12 @@ public class PasswordUtils {
 
 	/**
 	 * Generate a random alphabetic numeric password with given length.
-	 * 
+	 *
 	 * @param length of the Password
 	 * @return Generated Password
 	 */
 	public static String generateRandomPassword(int length) {
-		SecureRandom random = new SecureRandom();
+		var random = new SecureRandom();
 
 		return random.ints(48, 122) //
 				.filter(i -> Character.isAlphabetic(i) || Character.isDigit(i)) //

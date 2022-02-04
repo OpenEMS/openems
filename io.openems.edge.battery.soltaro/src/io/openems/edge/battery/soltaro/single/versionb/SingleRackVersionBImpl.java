@@ -39,6 +39,7 @@ import io.openems.edge.battery.soltaro.single.versionb.statemachine.StateMachine
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
@@ -49,7 +50,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
-import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -69,8 +69,8 @@ import io.openems.edge.common.taskmanager.Priority;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
-public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
-		implements Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable, SingleRackVersionB {
+public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent implements Battery, ModbusComponent,
+		OpenemsComponent, EventHandler, ModbusSlave, StartStoppable, SingleRackVersionB {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -78,7 +78,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ComponentManager componentManager;
 
-	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
 	/**
 	 * Manages the {@link State}s of the StateMachine.
@@ -94,6 +94,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	public SingleRackVersionBImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				SingleRackVersionB.ChannelId.values(), //
@@ -101,6 +102,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -147,7 +149,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.config, this.numberOfModules);
+		var context = new Context(this, this.config, this.numberOfModules);
 
 		// Call the StateMachine
 		try {
@@ -161,6 +163,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -232,33 +235,29 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
-		ModbusProtocol protocol = new ModbusProtocol(this, //
+		var protocol = new ModbusProtocol(this, //
 				// Main switch
 				new FC6WriteRegisterTask(0x2010,
-						m(SingleRackVersionB.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010)) //
-				),
+						m(SingleRackVersionB.ChannelId.BMS_CONTACTOR_CONTROL, new UnsignedWordElement(0x2010))), //
 
 				// System reset
 				new FC6WriteRegisterTask(0x2004, //
-						m(SingleRackVersionB.ChannelId.SYSTEM_RESET, new UnsignedWordElement(0x2004)) //
-				),
+						m(SingleRackVersionB.ChannelId.SYSTEM_RESET, new UnsignedWordElement(0x2004))), //
 
 				// EMS timeout --> Watchdog
 				new FC6WriteRegisterTask(0x201C, //
-						m(SingleRackVersionB.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x201C)) //
-				),
+						m(SingleRackVersionB.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x201C))), //
+
 				// Sleep
 				new FC6WriteRegisterTask(0x201D, //
-						m(SingleRackVersionB.ChannelId.SLEEP, new UnsignedWordElement(0x201D)) //
-				),
+						m(SingleRackVersionB.ChannelId.SLEEP, new UnsignedWordElement(0x201D))), //
 
 				// Work parameter
 				new FC6WriteRegisterTask(0x20C1, //
 						m(SingleRackVersionB.ChannelId.WORK_PARAMETER_NUMBER_OF_MODULES,
-								new UnsignedWordElement(0x20C1)) //
-				), //
+								new UnsignedWordElement(0x20C1))), //
 
-				// Paramaeters for configuring
+				// Parameters for configuring
 				new FC6WriteRegisterTask(0x2014,
 						m(SingleRackVersionB.ChannelId.AUTO_SET_SLAVES_ID, new UnsignedWordElement(0x2014))),
 				new FC6WriteRegisterTask(0x2019,
@@ -290,8 +289,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 								.bit(3, SingleRackVersionB.ChannelId.ALARM_FLAG_STATUS_CELL_LOW_VOLTAGE) //
 								.bit(2, SingleRackVersionB.ChannelId.ALARM_FLAG_STATUS_CHARGE_OVER_CURRENT) //
 								.bit(1, SingleRackVersionB.ChannelId.ALARM_FLAG_STATUS_SYSTEM_OVER_VOLTAGE) //
-								.bit(0, SingleRackVersionB.ChannelId.ALARM_FLAG_STATUS_CELL_OVER_VOLTAGE) //
-						), //
+								.bit(0, SingleRackVersionB.ChannelId.ALARM_FLAG_STATUS_CELL_OVER_VOLTAGE)), //
 						m(new BitsWordElement(0x2008, this) //
 								.bit(15, SingleRackVersionB.ChannelId.PROTECT_FLAG_STATUS_DISCHARGE_TEMPERATURE_LOW) //
 								.bit(14, SingleRackVersionB.ChannelId.PROTECT_FLAG_STATUS_DISCHARGE_TEMPERATURE_HIGH) //
@@ -308,8 +306,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 								.bit(3, SingleRackVersionB.ChannelId.PROTECT_FLAG_STATUS_CELL_LOW_VOLTAGE) //
 								.bit(2, SingleRackVersionB.ChannelId.PROTECT_FLAG_STATUS_CHARGE_OVER_CURRENT) //
 								.bit(1, SingleRackVersionB.ChannelId.PROTECT_FLAG_STATUS_SYSTEM_OVER_VOLTAGE) //
-								.bit(0, SingleRackVersionB.ChannelId.PROTECT_FLAG_STATUS_CELL_OVER_VOLTAGE) //
-						), //
+								.bit(0, SingleRackVersionB.ChannelId.PROTECT_FLAG_STATUS_CELL_OVER_VOLTAGE)), //
 						m(SingleRackVersionB.ChannelId.ALARM_FLAG_REGISTER_1, new UnsignedWordElement(0x2009)), //
 						m(SingleRackVersionB.ChannelId.ALARM_FLAG_REGISTER_2, new UnsignedWordElement(0x200A)), //
 						m(SingleRackVersionB.ChannelId.PROTECT_FLAG_REGISTER_1, new UnsignedWordElement(0x200B)), //
@@ -328,8 +325,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.SET_EMS_ADDRESS, new UnsignedWordElement(0x201B)), //
 						m(SingleRackVersionB.ChannelId.EMS_COMMUNICATION_TIMEOUT, new UnsignedWordElement(0x201C)), //
 						m(SingleRackVersionB.ChannelId.SLEEP, new UnsignedWordElement(0x201D)), //
-						m(SingleRackVersionB.ChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x201E)) //
-				), //
+						m(SingleRackVersionB.ChannelId.VOLTAGE_LOW_PROTECTION, new UnsignedWordElement(0x201E))), //
 
 				// Voltage ranges
 				new FC3ReadRegistersTask(0x2082, Priority.LOW, //
@@ -344,8 +340,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 										ElementToChannelConverter.SCALE_FACTOR_2) //
 								.m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-								.build() //
-				),
+								.build()), //
 
 				// Summary state
 				new FC3ReadRegistersTask(0x2100, Priority.HIGH, //
@@ -406,8 +401,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.TOTAL_VOLTAGE_DIFFERENCE, new UnsignedWordElement(0x2118),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SingleRackVersionB.ChannelId.POWER_TEMPERATURE, new UnsignedWordElement(0x2119)), //
-						m(SingleRackVersionB.ChannelId.POWER_SUPPLY_VOLTAGE, new UnsignedWordElement(0x211A)) //
-				),
+						m(SingleRackVersionB.ChannelId.POWER_SUPPLY_VOLTAGE, new UnsignedWordElement(0x211A))), //
 
 				// Critical state
 				new FC3ReadRegistersTask(0x2140, Priority.HIGH, //
@@ -427,8 +421,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 								.bit(12, SingleRackVersionB.ChannelId.ALARM_LEVEL_2_INSULATION_LOW) //
 								.bit(13, SingleRackVersionB.ChannelId.ALARM_LEVEL_2_TOTAL_VOLTAGE_DIFFERENCE_HIGH) //
 								.bit(14, SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH) //
-								.bit(15, SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW) //
-						), //
+								.bit(15, SingleRackVersionB.ChannelId.ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW)), //
 						m(new BitsWordElement(0x2141, this) //
 								.bit(0, SingleRackVersionB.ChannelId.ALARM_LEVEL_1_CELL_VOLTAGE_HIGH) //
 								.bit(1, SingleRackVersionB.ChannelId.ALARM_LEVEL_1_TOTAL_VOLTAGE_HIGH) //
@@ -445,10 +438,8 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 								.bit(12, SingleRackVersionB.ChannelId.ALARM_LEVEL_1_INSULATION_LOW) //
 								.bit(13, SingleRackVersionB.ChannelId.ALARM_LEVEL_1_TOTAL_VOLTAGE_DIFF_HIGH) //
 								.bit(14, SingleRackVersionB.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_HIGH) //
-								.bit(15, SingleRackVersionB.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW) //
-						), //
+								.bit(15, SingleRackVersionB.ChannelId.ALARM_LEVEL_1_CELL_DISCHA_TEMP_LOW)), //
 						m(SingleRackVersionB.ChannelId.CLUSTER_RUN_STATE, new UnsignedWordElement(0x2142)), //
-
 						m(SingleRackVersionB.ChannelId.MAXIMUM_CELL_VOLTAGE_NUMBER_WHEN_ALARM,
 								new UnsignedWordElement(0x2143)), //
 						m(SingleRackVersionB.ChannelId.MAXIMUM_CELL_VOLTAGE_WHEN_ALARM,
@@ -486,52 +477,49 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(BatteryProtection.ChannelId.BP_CHARGE_BMS, new UnsignedWordElement(0x2160),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(BatteryProtection.ChannelId.BP_DISCHARGE_BMS, new UnsignedWordElement(0x2161),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
-				),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
+
 				// Cluster info
 				new FC3ReadRegistersTask(0x2180, Priority.LOW, //
 						m(SingleRackVersionB.ChannelId.CYCLE_TIME, new UnsignedWordElement(0x2180)), //
 						m(SingleRackVersionB.ChannelId.TOTAL_CAPACITY_HIGH_BITS, new UnsignedWordElement(0x2181)), //
 						m(SingleRackVersionB.ChannelId.TOTAL_CAPACITY_LOW_BITS, new UnsignedWordElement(0x2182)), //
 						m(new BitsWordElement(0x2183, this) //
-								.bit(3, SingleRackVersionB.ChannelId.SLAVE_20_COMMUNICATION_ERROR)//
-								.bit(2, SingleRackVersionB.ChannelId.SLAVE_19_COMMUNICATION_ERROR)//
-								.bit(1, SingleRackVersionB.ChannelId.SLAVE_18_COMMUNICATION_ERROR)//
-								.bit(0, SingleRackVersionB.ChannelId.SLAVE_17_COMMUNICATION_ERROR)//
-						), //
+								.bit(3, SingleRackVersionB.ChannelId.SLAVE_20_COMMUNICATION_ERROR) //
+								.bit(2, SingleRackVersionB.ChannelId.SLAVE_19_COMMUNICATION_ERROR) //
+								.bit(1, SingleRackVersionB.ChannelId.SLAVE_18_COMMUNICATION_ERROR) //
+								.bit(0, SingleRackVersionB.ChannelId.SLAVE_17_COMMUNICATION_ERROR)), //
 						m(new BitsWordElement(0x2184, this) //
-								.bit(15, SingleRackVersionB.ChannelId.SLAVE_16_COMMUNICATION_ERROR)//
-								.bit(14, SingleRackVersionB.ChannelId.SLAVE_15_COMMUNICATION_ERROR)//
-								.bit(13, SingleRackVersionB.ChannelId.SLAVE_14_COMMUNICATION_ERROR)//
-								.bit(12, SingleRackVersionB.ChannelId.SLAVE_13_COMMUNICATION_ERROR)//
-								.bit(11, SingleRackVersionB.ChannelId.SLAVE_12_COMMUNICATION_ERROR)//
-								.bit(10, SingleRackVersionB.ChannelId.SLAVE_11_COMMUNICATION_ERROR)//
-								.bit(9, SingleRackVersionB.ChannelId.SLAVE_10_COMMUNICATION_ERROR)//
-								.bit(8, SingleRackVersionB.ChannelId.SLAVE_9_COMMUNICATION_ERROR)//
-								.bit(7, SingleRackVersionB.ChannelId.SLAVE_8_COMMUNICATION_ERROR)//
-								.bit(6, SingleRackVersionB.ChannelId.SLAVE_7_COMMUNICATION_ERROR)//
-								.bit(5, SingleRackVersionB.ChannelId.SLAVE_6_COMMUNICATION_ERROR)//
-								.bit(4, SingleRackVersionB.ChannelId.SLAVE_5_COMMUNICATION_ERROR)//
-								.bit(3, SingleRackVersionB.ChannelId.SLAVE_4_COMMUNICATION_ERROR)//
-								.bit(2, SingleRackVersionB.ChannelId.SLAVE_3_COMMUNICATION_ERROR)//
-								.bit(1, SingleRackVersionB.ChannelId.SLAVE_2_COMMUNICATION_ERROR)//
-								.bit(0, SingleRackVersionB.ChannelId.SLAVE_1_COMMUNICATION_ERROR)//
-						), //
+								.bit(15, SingleRackVersionB.ChannelId.SLAVE_16_COMMUNICATION_ERROR) //
+								.bit(14, SingleRackVersionB.ChannelId.SLAVE_15_COMMUNICATION_ERROR) //
+								.bit(13, SingleRackVersionB.ChannelId.SLAVE_14_COMMUNICATION_ERROR) //
+								.bit(12, SingleRackVersionB.ChannelId.SLAVE_13_COMMUNICATION_ERROR) //
+								.bit(11, SingleRackVersionB.ChannelId.SLAVE_12_COMMUNICATION_ERROR) //
+								.bit(10, SingleRackVersionB.ChannelId.SLAVE_11_COMMUNICATION_ERROR) //
+								.bit(9, SingleRackVersionB.ChannelId.SLAVE_10_COMMUNICATION_ERROR) //
+								.bit(8, SingleRackVersionB.ChannelId.SLAVE_9_COMMUNICATION_ERROR) //
+								.bit(7, SingleRackVersionB.ChannelId.SLAVE_8_COMMUNICATION_ERROR) //
+								.bit(6, SingleRackVersionB.ChannelId.SLAVE_7_COMMUNICATION_ERROR) //
+								.bit(5, SingleRackVersionB.ChannelId.SLAVE_6_COMMUNICATION_ERROR) //
+								.bit(4, SingleRackVersionB.ChannelId.SLAVE_5_COMMUNICATION_ERROR) //
+								.bit(3, SingleRackVersionB.ChannelId.SLAVE_4_COMMUNICATION_ERROR) //
+								.bit(2, SingleRackVersionB.ChannelId.SLAVE_3_COMMUNICATION_ERROR) //
+								.bit(1, SingleRackVersionB.ChannelId.SLAVE_2_COMMUNICATION_ERROR) //
+								.bit(0, SingleRackVersionB.ChannelId.SLAVE_1_COMMUNICATION_ERROR)), //
 						m(new BitsWordElement(0x2185, this) //
-								.bit(0, SingleRackVersionB.ChannelId.FAILURE_SAMPLING_WIRE)//
-								.bit(1, SingleRackVersionB.ChannelId.FAILURE_CONNECTOR_WIRE)//
-								.bit(2, SingleRackVersionB.ChannelId.FAILURE_LTC6803)//
-								.bit(3, SingleRackVersionB.ChannelId.FAILURE_VOLTAGE_SAMPLING)//
-								.bit(4, SingleRackVersionB.ChannelId.FAILURE_TEMP_SAMPLING)//
-								.bit(5, SingleRackVersionB.ChannelId.FAILURE_TEMP_SENSOR)//
-								.bit(6, SingleRackVersionB.ChannelId.FAILURE_GR_T)//
-								.bit(7, SingleRackVersionB.ChannelId.FAILURE_PCB)//
-								.bit(8, SingleRackVersionB.ChannelId.FAILURE_BALANCING_MODULE)//
-								.bit(9, SingleRackVersionB.ChannelId.FAILURE_TEMP_SAMPLING_LINE)//
-								.bit(10, SingleRackVersionB.ChannelId.FAILURE_INTRANET_COMMUNICATION)//
-								.bit(11, SingleRackVersionB.ChannelId.FAILURE_EEPROM)//
-								.bit(12, SingleRackVersionB.ChannelId.FAILURE_INITIALIZATION)//
-						), //
+								.bit(0, SingleRackVersionB.ChannelId.FAILURE_SAMPLING_WIRE) //
+								.bit(1, SingleRackVersionB.ChannelId.FAILURE_CONNECTOR_WIRE) //
+								.bit(2, SingleRackVersionB.ChannelId.FAILURE_LTC6803) //
+								.bit(3, SingleRackVersionB.ChannelId.FAILURE_VOLTAGE_SAMPLING) //
+								.bit(4, SingleRackVersionB.ChannelId.FAILURE_TEMP_SAMPLING) //
+								.bit(5, SingleRackVersionB.ChannelId.FAILURE_TEMP_SENSOR) //
+								.bit(6, SingleRackVersionB.ChannelId.FAILURE_GR_T) //
+								.bit(7, SingleRackVersionB.ChannelId.FAILURE_PCB) //
+								.bit(8, SingleRackVersionB.ChannelId.FAILURE_BALANCING_MODULE) //
+								.bit(9, SingleRackVersionB.ChannelId.FAILURE_TEMP_SAMPLING_LINE) //
+								.bit(10, SingleRackVersionB.ChannelId.FAILURE_INTRANET_COMMUNICATION) //
+								.bit(11, SingleRackVersionB.ChannelId.FAILURE_EEPROM) //
+								.bit(12, SingleRackVersionB.ChannelId.FAILURE_INITIALIZATION)), //
 						m(SingleRackVersionB.ChannelId.SYSTEM_TIME_HIGH, new UnsignedWordElement(0x2186)), //
 						m(SingleRackVersionB.ChannelId.SYSTEM_TIME_LOW, new UnsignedWordElement(0x2187)), //
 						new DummyRegisterElement(0x2188, 0x218E), //
@@ -591,8 +579,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.SLAVE_TEMPERATURE_COMMUNICATION_ERROR_HIGH,
 								new UnsignedWordElement(0x21B4)), //
 						m(SingleRackVersionB.ChannelId.SLAVE_TEMPERATURE_COMMUNICATION_ERROR_LOW,
-								new UnsignedWordElement(0x21B5)) //
-				), //
+								new UnsignedWordElement(0x21B5))), //
 
 				// Add tasks to read/write work and warn parameters
 
@@ -665,8 +652,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION,
 								new SignedWordElement(0x2060)), //
 						m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER,
-								new SignedWordElement(0x2061)) //
-				),
+								new SignedWordElement(0x2061))), //
 
 				// Warn parameter
 				new FC16WriteRegistersTask(0x2080, //
@@ -736,17 +722,14 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM,
 								new SignedWordElement(0x20A1)), //
 						m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER,
-								new SignedWordElement(0x20A2)) //
-				),
+								new SignedWordElement(0x20A2))), //
 
 				new FC6WriteRegisterTask(0x20DF,
-						m(SingleRackVersionB.ChannelId.SET_SOC, new UnsignedWordElement(0x20DF)))
-
-		);
+						m(SingleRackVersionB.ChannelId.SET_SOC, new UnsignedWordElement(0x20DF))));
 
 		if (!this.config.ReduceTasks()) {
 			// Stop parameter
-			Task readStopParameters = new FC3ReadRegistersTask(0x2040, Priority.LOW, //
+			protocol.addTask(new FC3ReadRegistersTask(0x2040, Priority.LOW, //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_PROTECTION,
 							new UnsignedWordElement(0x2040)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_CELL_OVER_VOLTAGE_RECOVER,
@@ -812,11 +795,10 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION,
 							new SignedWordElement(0x2060)), //
 					m(SingleRackVersionB.ChannelId.STOP_PARAMETER_TEMPERATURE_DIFFERENCE_PROTECTION_RECOVER,
-							new SignedWordElement(0x2061)) //
-			);
+							new SignedWordElement(0x2061)))); //
 
 			// Warn parameter
-			Task readWarnParameters = new FC3ReadRegistersTask(0x2080, Priority.LOW, //
+			protocol.addTask(new FC3ReadRegistersTask(0x2080, Priority.LOW, //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_ALARM,
 							new UnsignedWordElement(0x2080)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_CELL_OVER_VOLTAGE_RECOVER,
@@ -880,11 +862,7 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM,
 							new SignedWordElement(0x20A1)), //
 					m(SingleRackVersionB.ChannelId.WARN_PARAMETER_TEMPERATURE_DIFFERENCE_ALARM_RECOVER,
-							new SignedWordElement(0x20A2)) //
-			);
-
-			protocol.addTask(readStopParameters);
-			protocol.addTask(readWarnParameters);
+							new SignedWordElement(0x20A2)))); //
 		}
 
 		return protocol;
@@ -892,12 +870,12 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Gets the Number of Modules.
-	 * 
+	 *
 	 * @return the Number of Modules as a {@link CompletableFuture}.
 	 * @throws OpenemsException on error
 	 */
 	private CompletableFuture<Integer> getNumberOfModules() {
-		final CompletableFuture<Integer> result = new CompletableFuture<Integer>();
+		final var result = new CompletableFuture<Integer>();
 		try {
 			ModbusUtils.readELementOnce(this.getModbusProtocol(), new UnsignedWordElement(0x20C1), true)
 					.thenAccept(numberOfModules -> {
@@ -915,11 +893,11 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Calculates the Capacity as Capacity per module multiplied with number of
 	 * modules and sets the CAPACITY channel.
-	 * 
+	 *
 	 * @param numberOfModules the number of battery modules
 	 */
 	private void calculateCapacity(Integer numberOfModules) {
-		int capacity = numberOfModules * this.config.moduleType().getCapacity_Wh();
+		var capacity = numberOfModules * this.config.moduleType().getCapacity_Wh();
 		this._setCapacity(capacity);
 	}
 
@@ -931,34 +909,34 @@ public class SingleRackVersionBImpl extends AbstractOpenemsModbusComponent
 	/*
 	 * Dynamically generate Channels and Modbus mappings for Cell-Temperatures and
 	 * for Cell-Voltages. Channel-IDs are like "CLUSTER_1_BATTERY_001_VOLTAGE".
-	 * 
+	 *
 	 * @param numberOfModules the number of battery modules
 	 */
 	private void createDynamicChannels(int numberOfModules) {
 		try {
-			for (int i = 0; i < numberOfModules; i++) {
-				AbstractModbusElement<?>[] ameVolt = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
-				AbstractModbusElement<?>[] ameTemp = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
-				for (int j = 0; j < SENSORS_PER_MODULE; j++) {
-					int sensor = i * SENSORS_PER_MODULE + j;
+			for (var i = 0; i < numberOfModules; i++) {
+				var ameVolt = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
+				var ameTemp = new AbstractModbusElement<?>[SENSORS_PER_MODULE];
+				for (var j = 0; j < SENSORS_PER_MODULE; j++) {
+					var sensor = i * SENSORS_PER_MODULE + j;
 					{
 						// Create Voltage Channel
-						ChannelIdImpl channelId = new ChannelIdImpl(
+						var channelId = new ChannelIdImpl(
 								"CLUSTER_1_BATTERY_" + String.format("%03d", sensor) + "_VOLTAGE",
 								Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIVOLT));
 						this.addChannel(channelId);
 						// Create Modbus-Mapping for Voltages
-						UnsignedWordElement uwe = new UnsignedWordElement(VOLTAGE_ADDRESS_OFFSET + sensor);
+						var uwe = new UnsignedWordElement(VOLTAGE_ADDRESS_OFFSET + sensor);
 						ameVolt[j] = m(channelId, uwe);
 					}
 					{
 						// Create Temperature Channel
-						ChannelIdImpl channelId = new ChannelIdImpl(
+						var channelId = new ChannelIdImpl(
 								"CLUSTER_1_BATTERY_" + String.format("%03d", sensor) + "_TEMPERATURE",
 								Doc.of(OpenemsType.INTEGER).unit(Unit.DEZIDEGREE_CELSIUS));
 						this.addChannel(channelId);
 						// Create Modbus-Mapping for Temperatures
-						UnsignedWordElement uwe = new UnsignedWordElement(TEMPERATURE_ADDRESS_OFFSET + sensor);
+						var uwe = new UnsignedWordElement(TEMPERATURE_ADDRESS_OFFSET + sensor);
 						ameTemp[j] = m(channelId, uwe);
 					}
 				}

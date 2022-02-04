@@ -16,12 +16,14 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ChannelMetaInfoReadAndWrite;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -32,6 +34,9 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -46,8 +51,8 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 				"type=PRODUCTION" //
 		})
-public class SolarLogImpl extends AbstractOpenemsModbusComponent
-		implements SolarLog, ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+public class SolarLogImpl extends AbstractOpenemsModbusComponent implements SolarLog, ManagedSymmetricPvInverter,
+		SymmetricMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
 			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
@@ -60,6 +65,7 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent
 	public SolarLogImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				SolarLog.ChannelId.values() //
@@ -175,5 +181,15 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(SolarLog.class, accessMode, 100) //
+						.build());
 	}
 }

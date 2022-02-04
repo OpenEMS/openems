@@ -1,8 +1,8 @@
-Bundle-Name: SDNotify
-Bundle-Description:  SDNotify implements the systemd notification protocol in Java.
-Bundle-DocURL: https://github.com/faljse/SDNotify
-Bundle-License: https://opensource.org/licenses/LGPL-2.1
-Bundle-Version: 1.0
+Bundle-Name: Java-OCA-OCPP
+Bundle-Description: A client and server library of Open Charge-Point Protocol from openchargealliance.org
+Bundle-DocURL: https://github.com/ChargeTimeEU/Java-OCA-OCPP
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 1.0.1
 
 Include-Resource: \
 	@v1_6-1.0.1.jar, \
@@ -14,9 +14,9 @@ Include-Resource: \
 -metatypeannotations: *
 
 Import-Package: \
-    com.sun.activation.registries;resolution:=optional,\
-    com.google.gson,\
+    com.sun.activation.registries,\
     javax.xml.soap,\
+    com.google.gson,\
     javax.xml.transform,\
     org.java_websocket,\
     org.java_websocket.drafts,\

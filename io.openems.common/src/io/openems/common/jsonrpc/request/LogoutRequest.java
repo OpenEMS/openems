@@ -7,10 +7,10 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 /**
  * Represents a JSON-RPC Request to logout.
- * 
+ *
  * <p>
  * This is used by UI to logout from Edge or Backend.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -26,7 +26,7 @@ public class LogoutRequest extends JsonrpcRequest {
 
 	/**
 	 * Create {@link LogoutRequest} from a template {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link LogoutRequest}
 	 * @throws OpenemsNamedException on parse error
@@ -36,11 +36,11 @@ public class LogoutRequest extends JsonrpcRequest {
 	}
 
 	private LogoutRequest(JsonrpcRequest request) {
-		super(request, METHOD);
+		super(request, LogoutRequest.METHOD);
 	}
 
 	public LogoutRequest() {
-		super(METHOD);
+		super(LogoutRequest.METHOD);
 	}
 
 	@Override

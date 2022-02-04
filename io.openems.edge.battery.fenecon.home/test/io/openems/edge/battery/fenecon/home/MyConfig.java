@@ -10,6 +10,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id = null;
 		private String modbusId = null;
+		private String batteryStartUpRelay;
 		public int modbusUnitId;
 		public StartStopConfig startStop;
 
@@ -36,6 +37,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setBatteryStartUpRelay(String batteryStartUpRelay) {
+			this.batteryStartUpRelay = batteryStartUpRelay;
+			return this;
+		}
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -43,7 +49,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -75,6 +81,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public StartStopConfig startStop() {
 		return this.builder.startStop;
+	}
+
+	@Override
+	public String batteryStartUpRelay() {
+		return this.builder.batteryStartUpRelay;
 	}
 
 }

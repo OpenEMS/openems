@@ -42,7 +42,7 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Timedata timeData;
 
-	protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
+	protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(10,
 			new ThreadFactoryBuilder().setNameFormat("B2bWebsocket-%d").build());
 
 	public B2bWebsocket() {
@@ -52,17 +52,17 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 	private Config config;
 
 	private final Runnable startServerWhenMetadataIsInitialized = () -> {
-		this.startServer(config.port(), config.poolSize(), config.debugMode());
+		this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
 	};
 
 	@Activate
-	void activate(Config config) {
+	private void activate(Config config) {
 		this.config = config;
 		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.stopServer();
@@ -70,7 +70,7 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 
 	/**
 	 * Create and start new server.
-	 * 
+	 *
 	 * @param port      the port
 	 * @param poolSize  number of threads dedicated to handle the tasks
 	 * @param debugMode activate a regular debug log about the state of the tasks

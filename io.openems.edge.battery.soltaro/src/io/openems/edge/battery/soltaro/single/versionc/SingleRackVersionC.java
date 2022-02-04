@@ -26,7 +26,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the Channel for {@link ChannelId#PRE_CHARGE_CONTROL}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default WriteChannel<PreChargeControl> getPreChargeControlChannel() {
@@ -35,7 +35,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the PreChargeControl, see {@link ChannelId#PRE_CHARGE_CONTROL}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default PreChargeControl getPreChargeControl() {
@@ -45,7 +45,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#PRE_CHARGE_CONTROL} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setPreChargeControl(PreChargeControl value) {
@@ -54,7 +54,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Writes the value to the {@link ChannelId#PRE_CHARGE_CONTROL} Register.
-	 * 
+	 *
 	 * @param value the next value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -64,7 +64,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStartAttemptsChannel() {
@@ -73,7 +73,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStartAttempts() {
@@ -83,7 +83,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStartAttempts(Boolean value) {
@@ -92,7 +92,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStopAttemptsChannel() {
@@ -101,7 +101,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStopAttempts() {
@@ -111,7 +111,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStopAttempts(Boolean value) {
@@ -120,7 +120,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
-	 * 
+	 *
 	 * @return {@link StartStop}
 	 */
 	public StartStop getStartStopTarget();
@@ -147,7 +147,7 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 		EMS_COMMUNICATION_TIMEOUT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.SECONDS) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_PARAMETER_PCS_COMMUNICATION_RATE(Doc.of(OpenemsType.INTEGER) //
+		NUMBER_OF_MODULES_PER_TOWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		SYSTEM_TOTAL_CAPACITY(Doc.of(OpenemsType.INTEGER) //

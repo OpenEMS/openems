@@ -130,7 +130,7 @@ export const TRANSLATION = {
             phone: "Phone number",
             email: "E-Mail",
             password: "Password",
-            confirmPassword: "Confirm password"
+            confirmPassword: "Confirm password",
         },
         button: "Create",
         errors: {
@@ -149,6 +149,10 @@ export const TRANSLATION = {
     },
     Edge: {
         Index: {
+            EmergencyReserve: {
+                InfoForEmergencyReserveSlider: 'By activating the emergency power reserve, the value can be freely selected between 5% and 100%.',
+                emergencyReserve: 'Emergencyreserve',
+            },
             Energymonitor: {
                 activePower: 'Active power',
                 consumptionWarning: 'Consumption & unknown producers',
@@ -355,7 +359,18 @@ export const TRANSLATION = {
                     switchOnRec: 'Switch-on recommendation',
                     switchOnRecShort: 'Recommendation',
                     undefined: 'Undefined',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Current price',
+                    delayedDischarge: 'Delayed Discharge',
+                    storageDischarge: 'Storage Discharge',
+                    State: {
+                        notStarted: 'Controller has not yet started',
+                        delayed: 'Delayed',
+                        allowsDischarge: 'Allows Discharge',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {

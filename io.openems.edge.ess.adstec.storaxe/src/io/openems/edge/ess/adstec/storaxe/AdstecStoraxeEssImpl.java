@@ -18,6 +18,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverterChain;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -38,7 +39,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
-		implements SymmetricEss, OpenemsComponent, ModbusSlave {
+		implements SymmetricEss, OpenemsComponent, ModbusComponent, ModbusSlave {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -51,6 +52,7 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 	public AdstecStoraxeEssImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				AsymmetricEss.ChannelId.values(), //
 				AdstecStoraxeEss.ChannelId.values() //
@@ -77,7 +79,7 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 		// inductive, but the channel expects
 		// pos for from-battery, neg for to-battery.
 		final ElementToChannelConverter reactivePowerConverter = new ElementToChannelConverter(
-				value -> Math.abs((Short)value) * Integer.signum(this.getActivePower().get()));
+				value -> Math.abs((Short) value) * Integer.signum(this.getActivePower().get()));
 
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(1 + offset, Priority.LOW, //
@@ -85,7 +87,8 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, new SignedWordElement(2 + offset),
 								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(SymmetricEss.ChannelId.REACTIVE_POWER, new SignedWordElement(3 + offset),
-								new ElementToChannelConverterChain(ElementToChannelConverter.SCALE_FACTOR_2, reactivePowerConverter))),
+								new ElementToChannelConverterChain(ElementToChannelConverter.SCALE_FACTOR_2,
+										reactivePowerConverter))),
 				new FC4ReadInputRegistersTask(125 + offset, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(125 + offset),
 								ElementToChannelConverter.SCALE_FACTOR_2),
@@ -99,8 +102,7 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(138 + offset),
 								ElementToChannelConverter.DIRECT_1_TO_1),
 						m(SymmetricEss.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(139 + offset),
-								ElementToChannelConverter.DIRECT_1_TO_1))
-		);
+								ElementToChannelConverter.DIRECT_1_TO_1)));
 	}
 
 	@Override
@@ -117,16 +119,15 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 				ModbusSlaveNatureTable.of(AdstecStoraxeEss.class, accessMode, 300) //
 						.build());
 	}
-	
-	private static final ElementToChannelConverter GRID_MODE_CONVERTER = new ElementToChannelConverter(
-			value -> {
-				switch ((Integer) value) {
-				case 1:
-					return GridMode.OFF_GRID;
-				case 2:
-					return GridMode.ON_GRID;
-				default:
-					return GridMode.UNDEFINED;
-				}
-			});
+
+	private static final ElementToChannelConverter GRID_MODE_CONVERTER = new ElementToChannelConverter(value -> {
+		switch ((Integer) value) {
+		case 1:
+			return GridMode.OFF_GRID;
+		case 2:
+			return GridMode.ON_GRID;
+		default:
+			return GridMode.UNDEFINED;
+		}
+	});
 }

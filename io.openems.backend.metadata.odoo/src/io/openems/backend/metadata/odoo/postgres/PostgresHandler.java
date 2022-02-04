@@ -39,6 +39,9 @@ public class PostgresHandler {
 		this.queueWriteWorker.start();
 	}
 
+	/**
+	 * Deactivates the {@link PostgresHandler}.
+	 */
 	public void deactivate() {
 		this.initializeEdgesWorker.stop();
 		this.periodicWriteWorker.stop();
@@ -47,7 +50,7 @@ public class PostgresHandler {
 
 	/**
 	 * Gets the Edge for an API-Key, i.e. authenticates the API-Key.
-	 * 
+	 *
 	 * @param apikey the API-Key
 	 * @return the Edge or Empty
 	 */
@@ -65,7 +68,7 @@ public class PostgresHandler {
 
 	/**
 	 * Creates a {@link HikariDataSource} connection pool.
-	 * 
+	 *
 	 * @param config the configuration
 	 * @return the HikariDataSource
 	 * @throws SQLException on error
@@ -74,7 +77,7 @@ public class PostgresHandler {
 		if (!Driver.isRegistered()) {
 			Driver.register();
 		}
-		PGSimpleDataSource pgds = new PGSimpleDataSource();
+		var pgds = new PGSimpleDataSource();
 		pgds.setServerNames(new String[] { config.pgHost() });
 		pgds.setPortNumbers(new int[] { config.pgPort() });
 		pgds.setDatabaseName(config.database());
@@ -82,7 +85,7 @@ public class PostgresHandler {
 		if (config.pgPassword() != null) {
 			pgds.setPassword(config.pgPassword());
 		}
-		HikariDataSource result = new HikariDataSource();
+		var result = new HikariDataSource();
 		result.setDataSource(pgds);
 		return result;
 	}

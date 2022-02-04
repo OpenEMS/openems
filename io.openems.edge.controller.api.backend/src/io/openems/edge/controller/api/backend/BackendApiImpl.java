@@ -104,7 +104,8 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 		// initialize Executor
 		String name = COMPONENT_NAME + ":" + this.id();
-		this.executor = Executors.newScheduledThreadPool(1,
+		this.executor = Executors
+				.newScheduledThreadPool(10,
 				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		// initialize ApiWorker

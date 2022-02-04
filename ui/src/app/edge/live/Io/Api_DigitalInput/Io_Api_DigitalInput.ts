@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Io_Api_DigitalInput_ModalComponent } from './modal/modal.component';
 import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
-import { AbstractFlatWidget } from '../../flat/abstract-flat-widget';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 
 @Component({
     selector: 'Io_Api_DigitalInput',

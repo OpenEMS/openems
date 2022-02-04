@@ -9,10 +9,15 @@ import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.ComponentContext;
 
-import io.openems.common.exceptions.NotImplementedException;
+import com.google.gson.JsonObject;
+
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
+import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
@@ -26,6 +31,7 @@ public class DummyComponentManager implements ComponentManager {
 
 	private final List<OpenemsComponent> components = new ArrayList<>();
 	private final Clock clock;
+	private JsonObject edgeConfigJson;
 
 	public DummyComponentManager() {
 		this(Clock.systemDefaultZone());
@@ -69,9 +75,27 @@ public class DummyComponentManager implements ComponentManager {
 		return this;
 	}
 
+	/**
+	 * Sets a {@link EdgeConfig} json.
+	 * 
+	 * @param the {@link EdgeConfig} json
+	 */
+	public void setConfigJson(JsonObject json) {
+		this.edgeConfigJson = json;
+	}
+
 	@Override
 	public EdgeConfig getEdgeConfig() {
-		return new EdgeConfig();
+		if (this.edgeConfigJson != null) {
+			try {
+				return EdgeConfig.fromJson(this.edgeConfigJson);
+			} catch (OpenemsNamedException e) {
+				e.printStackTrace();
+				throw new IllegalArgumentException(e.getMessage());
+			}
+		} else {
+			return new EdgeConfig();
+		}
 	}
 
 	@Override
@@ -108,7 +132,31 @@ public class DummyComponentManager implements ComponentManager {
 	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
 			throws OpenemsNamedException {
-		throw new NotImplementedException("handleJsonrpcRequest is not implemented for DummyComponentManager");
+		user.assertRoleIsAtLeast("handleJsonrpcRequest", Role.GUEST);
+
+		switch (request.getMethod()) {
+
+		case GetEdgeConfigRequest.METHOD:
+			return this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
+
+		default:
+			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
+		}
+	}
+
+	/**
+	 * Handles a {@link GetEdgeConfigRequest}.
+	 * 
+	 * @param user    the {@link User}
+	 * @param request the {@link GetEdgeConfigRequest}
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
+			GetEdgeConfigRequest request) throws OpenemsNamedException {
+		EdgeConfig config = this.getEdgeConfig();
+		GetEdgeConfigResponse response = new GetEdgeConfigResponse(request.getId(), config);
+		return CompletableFuture.completedFuture(response);
 	}
 
 	@Override

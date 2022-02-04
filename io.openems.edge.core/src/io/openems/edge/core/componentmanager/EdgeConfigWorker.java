@@ -43,6 +43,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
@@ -66,6 +67,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	private static final int CYCLE_TIME = 300_000; // in ms
+
+	private static final Logger LOG = LoggerFactory.getLogger(EdgeConfigWorker.class);
 
 	private final Logger log = LoggerFactory.getLogger(EdgeConfigWorker.class);
 	private final Queue<ConfigurationEvent> events = new ArrayDeque<ConfigurationEvent>();
@@ -560,14 +563,24 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	 * @return the value as JsonElement
 	 */
 	private static JsonElement getPropertyAsJsonElement(Dictionary<String, Object> properties, String key) {
-		Object valueObj = properties.get(key);
+		var valueObj = properties.get(key);
 		if (valueObj != null && valueObj instanceof String) {
-			String value = (String) valueObj;
+			var value = ((String) valueObj).trim();
 			// find boolean
 			if (value.equalsIgnoreCase("true")) {
 				return new JsonPrimitive(true);
 			} else if (value.equalsIgnoreCase("false")) {
 				return new JsonPrimitive(false);
+			}
+			// find JSON
+			if ((value.startsWith("{") && value.endsWith("}")) /* JsonObject */
+					|| (value.startsWith("[") && value.endsWith("]")) /* JsonObject */
+			) {
+				try {
+					return JsonUtils.parse(value);
+				} catch (OpenemsNamedException e) {
+					LOG.warn(e.getMessage());
+				}
 			}
 		}
 		// fallback to JsonUtils

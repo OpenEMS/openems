@@ -14,10 +14,10 @@ import io.openems.edge.common.type.TypeUtils;
 /**
  * This utility class provides algorithms to calculate maximum allowed charge
  * and discharge currents for batteries.
- * 
+ *
  * <p>
  * The logic uses:
- * 
+ *
  * <ul>
  * <li>Allowed Current Limit provided by Battery Management System
  * <li>Voltage-to-Percent characteristics based on Min- and Max-Cell-Voltage
@@ -32,7 +32,7 @@ public class BatteryProtection {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Charge Current limit provided by the Battery/BMS.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -44,7 +44,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Current limit provided by the Battery/BMS.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -56,7 +56,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Charge Current limit derived from Min-Cell-Voltage.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -68,7 +68,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Current limit derived from Min-Cell-Voltage.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -80,7 +80,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Charge Current limit derived from Max-Cell-Voltage.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -92,7 +92,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Current limit derived from Max-Cell-Voltage.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -104,7 +104,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Charge Current limit derived from Min-Cell-Temperature.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -116,7 +116,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Current limit derived from Min-Cell-Temperature.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -128,7 +128,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Charge Current limit derived from Max-Cell-Temperature.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -140,7 +140,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Current limit derived from Max-Cell-Temperature.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -152,7 +152,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Charge Max-Increase Current limit.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -164,7 +164,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Discharge Max-Increase Current limit.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -176,7 +176,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Force-Discharge State.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -187,7 +187,7 @@ public class BatteryProtection {
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Force-Charge State.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: BatteryProtection
 		 * <li>Type: Integer
@@ -223,7 +223,7 @@ public class BatteryProtection {
 
 		/**
 		 * Applies all values from a {@link BatteryProtectionDefinition}.
-		 * 
+		 *
 		 * @param def           the {@link BatteryProtectionDefinition}
 		 * @param clockProvider a {@link ClockProvider}
 		 * @return a {@link Builder}
@@ -249,7 +249,7 @@ public class BatteryProtection {
 
 		/**
 		 * Sets the {@link ChargeMaxCurrentHandler}.
-		 * 
+		 *
 		 * @param chargeMaxCurrentHandler the {@link ChargeMaxCurrentHandler}
 		 * @return a {@link Builder}
 		 */
@@ -260,7 +260,7 @@ public class BatteryProtection {
 
 		/**
 		 * Sets the {@link DischargeMaxCurrentHandler}.
-		 * 
+		 *
 		 * @param dischargeMaxCurrentHandler the {@link DischargeMaxCurrentHandler}
 		 * @return a {@link Builder}
 		 */
@@ -271,7 +271,7 @@ public class BatteryProtection {
 
 		/**
 		 * Builds the {@link BatteryProtection} instance.
-		 * 
+		 *
 		 * @return a {@link BatteryProtection}
 		 */
 		public BatteryProtection build() {
@@ -281,7 +281,7 @@ public class BatteryProtection {
 
 	/**
 	 * Create a {@link BatteryProtection} using builder pattern.
-	 * 
+	 *
 	 * @param battery the {@link Battery}
 	 * @return a {@link Builder}
 	 */
@@ -307,7 +307,7 @@ public class BatteryProtection {
 
 	/**
 	 * Apply the logic on the {@link Battery}.
-	 * 
+	 *
 	 * <ul>
 	 * <li>Set CHARGE_MAX_CURRENT Channel
 	 * <li>Set DISCHARGE_MAX_CURRENT Channel
@@ -320,8 +320,8 @@ public class BatteryProtection {
 		// Use MaxCurrentHandlers to calculate max charge and discharge currents.
 		// These methods also write debug information to BatteryProtection-Channels, so
 		// it is feasible to always execute them, even if battery is not started.
-		int chargeMaxCurrent = this.chargeMaxCurrentHandler.calculateCurrentLimit(this.battery);
-		int dischargeMaxCurrent = this.dischargeMaxCurrentHandler.calculateCurrentLimit(this.battery);
+		var chargeMaxCurrent = this.chargeMaxCurrentHandler.calculateCurrentLimit(this.battery);
+		var dischargeMaxCurrent = this.dischargeMaxCurrentHandler.calculateCurrentLimit(this.battery);
 
 		// Set max charge and discharge currents
 		this.battery._setChargeMaxCurrent(chargeMaxCurrent);

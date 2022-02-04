@@ -28,6 +28,7 @@ import io.openems.edge.battery.bmw.enums.State;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -55,7 +56,7 @@ import io.openems.edge.common.taskmanager.Priority;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 )
 public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
-		implements BmwBattery, Battery, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
+		implements BmwBattery, Battery, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(BmwBatteryImpl.class);
 
@@ -65,6 +66,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	private ComponentManager manager;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -85,9 +87,10 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	public BmwBatteryImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
 				Battery.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
-				BMWChannelId.values() //
+				BmwChannelId.values() //
 		);
 	}
 
@@ -101,7 +104,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void handleStateMachine() {
-		boolean readyForWorking = false;
+		var readyForWorking = false;
 		switch (this.getStateMachineState()) {
 		case ERROR:
 			this.clearError();
@@ -124,17 +127,15 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 				this.setStateMachineState(State.RUNNING);
 				this.unsuccessfulStarts = 0;
 				this.startAttemptTime = null;
-			} else {
-				if (this.startAttemptTime.plusSeconds(this.config.maxStartTime()).isBefore(LocalDateTime.now())) {
-					this.startAttemptTime = null;
-					this.unsuccessfulStarts++;
-					this.stopSystem();
-					this.setStateMachineState(State.STOPPING);
-					if (this.unsuccessfulStarts >= this.config.maxStartAttempts()) {
-						this.errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.startUnsuccessfulDelay());
-						this.setStateMachineState(State.ERRORDELAY);
-						this.unsuccessfulStarts = 0;
-					}
+			} else if (this.startAttemptTime.plusSeconds(this.config.maxStartTime()).isBefore(LocalDateTime.now())) {
+				this.startAttemptTime = null;
+				this.unsuccessfulStarts++;
+				this.stopSystem();
+				this.setStateMachineState(State.STOPPING);
+				if (this.unsuccessfulStarts >= this.config.maxStartAttempts()) {
+					this.errorDelayIsOver = LocalDateTime.now().plusSeconds(this.config.startUnsuccessfulDelay());
+					this.setStateMachineState(State.ERRORDELAY);
+					this.unsuccessfulStarts = 0;
 				}
 			}
 			break;
@@ -158,10 +159,8 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		case STOPPING:
 			if (this.isError()) {
 				this.setStateMachineState(State.ERROR);
-			} else {
-				if (this.isSystemStopped()) {
-					this.setStateMachineState(State.OFF);
-				}
+			} else if (this.isSystemStopped()) {
+				this.setStateMachineState(State.OFF);
 			}
 			break;
 		case UNDEFINED:
@@ -184,17 +183,15 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 				this.pendingTimestamp = null;
 				this.stopSystem();
 				this.setStateMachineState(State.OFF);
-			} else {
-				if (this.isError()) {
-					this.setStateMachineState(State.ERROR);
-					this.pendingTimestamp = null;
-				} else if (this.isSystemStopped()) {
-					this.setStateMachineState(State.OFF);
-					this.pendingTimestamp = null;
-				} else if (this.isSystemRunning()) {
-					this.setStateMachineState(State.RUNNING);
-					this.pendingTimestamp = null;
-				}
+			} else if (this.isError()) {
+				this.setStateMachineState(State.ERROR);
+				this.pendingTimestamp = null;
+			} else if (this.isSystemStopped()) {
+				this.setStateMachineState(State.OFF);
+				this.pendingTimestamp = null;
+			} else if (this.isSystemRunning()) {
+				this.setStateMachineState(State.RUNNING);
+				this.pendingTimestamp = null;
 			}
 			break;
 		case STANDBY:
@@ -210,7 +207,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void clearError() {
-		BooleanWriteChannel clearErrorChannel = this.channel(BMWChannelId.BMS_STATE_COMMAND_CLEAR_ERROR);
+		BooleanWriteChannel clearErrorChannel = this.channel(BmwChannelId.BMS_STATE_COMMAND_CLEAR_ERROR);
 		try {
 			clearErrorChannel.setNextWriteValue(true);
 		} catch (OpenemsNamedException e) {
@@ -219,6 +216,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -250,45 +248,46 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
-//  TODO Check this needed or not
-//	public void shutDownBattery() {
-//		SymmetricEss ess;
-//		try {
-//			ess = this.manager.getComponent(this.config.Inverter_id());
-//		} catch (OpenemsNamedException e1) {
-//
-//			e1.printStackTrace();
-//			return;
-//		}
-//		int activePowerInverter = ess.getActivePower().value().orElse(0);
-//		int reactivePowerInverter = ess.getReactivePower().value().orElse(0);
-//
-//		if (activePowerInverter == 0 && reactivePowerInverter == 0) {
-//			IntegerWriteChannel commandChannel = this.channel(BMWChannelId.BMS_STATE_COMMAND);
-//			try {
-//				commandChannel.setNextWriteValue(OPEN_CONTACTORS);
-//			} catch (OpenemsNamedException e) {
-//				log.error("Problem occurred during send start command");
-//			}
-//		}
-//
-//	}
+	// TODO Check this needed or not
+	// public void shutDownBattery() {
+	// SymmetricEss ess;
+	// try {
+	// ess = this.manager.getComponent(this.config.Inverter_id());
+	// } catch (OpenemsNamedException e1) {
+	//
+	// e1.printStackTrace();
+	// return;
+	// }
+	// int activePowerInverter = ess.getActivePower().value().orElse(0);
+	// int reactivePowerInverter = ess.getReactivePower().value().orElse(0);
+	//
+	// if (activePowerInverter == 0 && reactivePowerInverter == 0) {
+	// IntegerWriteChannel commandChannel =
+	// this.channel(BMWChannelId.BMS_STATE_COMMAND);
+	// try {
+	// commandChannel.setNextWriteValue(OPEN_CONTACTORS);
+	// } catch (OpenemsNamedException e) {
+	// log.error("Problem occurred during send start command");
+	// }
+	// }
+	//
+	// }
 
 	private boolean isSystemRunning() {
-		EnumReadChannel bmsStateChannel = this.channel(BMWChannelId.BMS_STATE);
+		EnumReadChannel bmsStateChannel = this.channel(BmwChannelId.BMS_STATE);
 		BmsState bmsState = bmsStateChannel.value().asEnum();
 		return bmsState == BmsState.OPERATION;
 	}
 
 	private boolean isSystemStopped() {
-		EnumReadChannel bmsStateChannel = this.channel(BMWChannelId.BMS_STATE);
+		EnumReadChannel bmsStateChannel = this.channel(BmwChannelId.BMS_STATE);
 		BmsState bmsState = bmsStateChannel.value().asEnum();
 		return bmsState == BmsState.OFF;
 	}
 
 	/**
 	 * Checks whether system has an undefined state.
-	 * 
+	 *
 	 * @return true if system is neither running nor stopped
 	 */
 	private boolean isSystemStatePending() {
@@ -296,7 +295,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private boolean isError() {
-		EnumReadChannel bmsStateChannel = this.channel(BMWChannelId.BMS_STATE);
+		EnumReadChannel bmsStateChannel = this.channel(BmwChannelId.BMS_STATE);
 		BmsState bmsState = bmsStateChannel.value().asEnum();
 		return bmsState == BmsState.ERROR;
 	}
@@ -312,7 +311,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	private void startSystem() {
 		// TODO Currently not necessary, Battery starts itself?!
 		this.log.debug("Start system");
-		IntegerWriteChannel commandChannel = this.channel(BMWChannelId.BMS_STATE_COMMAND);
+		IntegerWriteChannel commandChannel = this.channel(BmwChannelId.BMS_STATE_COMMAND);
 		try {
 			commandChannel.setNextWriteValue(CLOSE_CONTACTORS);
 		} catch (OpenemsNamedException e) {
@@ -324,7 +323,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 	private void stopSystem() {
 		// TODO Currently not necessary, Battery starts itself?!
 		this.log.debug("Stop system");
-		IntegerWriteChannel commandChannel = this.channel(BMWChannelId.BMS_STATE_COMMAND);
+		IntegerWriteChannel commandChannel = this.channel(BmwChannelId.BMS_STATE_COMMAND);
 		try {
 			commandChannel.setNextWriteValue(OPEN_CONTACTORS);
 		} catch (OpenemsNamedException e) {
@@ -338,7 +337,7 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 
 	private void setStateMachineState(State state) {
 		this.state = state;
-		this.channel(BMWChannelId.STATE_MACHINE).setNextValue(this.state);
+		this.channel(BmwChannelId.STATE_MACHINE).setNextValue(this.state);
 	}
 
 	@Override
@@ -346,33 +345,34 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 
 		return new ModbusProtocol(this, //
 
-				new FC16WriteRegistersTask(1399, m(BMWChannelId.HEART_BEAT, new UnsignedWordElement(1399)), //
-						m(BMWChannelId.BMS_STATE_COMMAND, new UnsignedWordElement(1400)), //
-						m(BMWChannelId.OPERATING_STATE_INVERTER, new UnsignedWordElement(1401)), //
-						m(BMWChannelId.DC_LINK_VOLTAGE, new UnsignedWordElement(1402),
+				new FC16WriteRegistersTask(1399, //
+						m(BmwChannelId.HEART_BEAT, new UnsignedWordElement(1399)), //
+						m(BmwChannelId.BMS_STATE_COMMAND, new UnsignedWordElement(1400)), //
+						m(BmwChannelId.OPERATING_STATE_INVERTER, new UnsignedWordElement(1401)), //
+						m(BmwChannelId.DC_LINK_VOLTAGE, new UnsignedWordElement(1402),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(BMWChannelId.DC_LINK_CURRENT, new UnsignedWordElement(1403)), //
-						m(BMWChannelId.OPERATION_MODE_REQUEST_GRANTED, new UnsignedWordElement(1404)), //
-						m(BMWChannelId.OPERATION_MODE_REQUEST_CANCELED, new UnsignedWordElement(1405)), //
+						m(BmwChannelId.DC_LINK_CURRENT, new UnsignedWordElement(1403)), //
+						m(BmwChannelId.OPERATION_MODE_REQUEST_GRANTED, new UnsignedWordElement(1404)), //
+						m(BmwChannelId.OPERATION_MODE_REQUEST_CANCELED, new UnsignedWordElement(1405)), //
 						m(new BitsWordElement(1406, this) //
-								.bit(1, BMWChannelId.CONNECTION_STRATEGY_HIGH_SOC_FIRST) //
-								.bit(0, BMWChannelId.CONNECTION_STRATEGY_LOW_SOC_FIRST) //
+								.bit(1, BmwChannelId.CONNECTION_STRATEGY_HIGH_SOC_FIRST) //
+								.bit(0, BmwChannelId.CONNECTION_STRATEGY_LOW_SOC_FIRST) //
 						), //
-						m(BMWChannelId.SYSTEM_TIME, new UnsignedDoublewordElement(1407)) //
+						m(BmwChannelId.SYSTEM_TIME, new UnsignedDoublewordElement(1407)) //
 				),
 
 				new FC4ReadInputRegistersTask(999, Priority.HIGH,
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.LIFE_SIGN, new UnsignedWordElement(999)),
-						m(BMWChannelId.BMS_STATE, new UnsignedWordElement(1000)), //
-						m(BMWChannelId.ERROR_BITS_1, new UnsignedWordElement(1001)), //
-						m(BMWChannelId.ERROR_BITS_2, new UnsignedWordElement(1002)), //
-						m(BMWChannelId.WARNING_BITS_1, new UnsignedWordElement(1003)), //
-						m(BMWChannelId.WARNING_BITS_2, new UnsignedWordElement(1004)), //
+						m(BmwChannelId.LIFE_SIGN, new UnsignedWordElement(999)),
+						m(BmwChannelId.BMS_STATE, new UnsignedWordElement(1000)), //
+						m(BmwChannelId.ERROR_BITS_1, new UnsignedWordElement(1001)), //
+						m(BmwChannelId.ERROR_BITS_2, new UnsignedWordElement(1002)), //
+						m(BmwChannelId.WARNING_BITS_1, new UnsignedWordElement(1003)), //
+						m(BmwChannelId.WARNING_BITS_2, new UnsignedWordElement(1004)), //
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.INFO_BITS, new UnsignedWordElement(1005)),
-						m(BMWChannelId.MAXIMUM_OPERATING_CURRENT, new SignedWordElement(1006)), //
-						m(BMWChannelId.MINIMUM_OPERATING_CURRENT, new SignedWordElement(1007)), //
+						m(BmwChannelId.INFO_BITS, new UnsignedWordElement(1005)),
+						m(BmwChannelId.MAXIMUM_OPERATING_CURRENT, new SignedWordElement(1006)), //
+						m(BmwChannelId.MINIMUM_OPERATING_CURRENT, new SignedWordElement(1007)), //
 						m(Battery.ChannelId.CHARGE_MAX_VOLTAGE, new UnsignedWordElement(1008),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Battery.ChannelId.DISCHARGE_MIN_VOLTAGE, new UnsignedWordElement(1009),
@@ -380,78 +380,78 @@ public class BmwBatteryImpl extends AbstractOpenemsModbusComponent
 						m(Battery.ChannelId.DISCHARGE_MAX_CURRENT, new SignedWordElement(1010)), //
 						m(Battery.ChannelId.CHARGE_MAX_CURRENT, new SignedWordElement(1011),
 								ElementToChannelConverter.INVERT), //
-						m(BMWChannelId.MAXIMUM_LIMIT_DYNAMIC_VOLTAGE, new UnsignedWordElement(1012),
+						m(BmwChannelId.MAXIMUM_LIMIT_DYNAMIC_VOLTAGE, new UnsignedWordElement(1012),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(BMWChannelId.MINIMUM_LIMIT_DYNAMIC_VOLTAGE, new UnsignedWordElement(1013),
+						m(BmwChannelId.MINIMUM_LIMIT_DYNAMIC_VOLTAGE, new UnsignedWordElement(1013),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(BMWChannelId.NUMBER_OF_STRINGS_CONNECTED, new UnsignedWordElement(1014)), //
-						m(BMWChannelId.NUMBER_OF_STRINGS_INSTALLED, new UnsignedWordElement(1015)), //
-						m(BMWChannelId.SOC_ALL_STRINGS, new UnsignedWordElement(1016),
+						m(BmwChannelId.NUMBER_OF_STRINGS_CONNECTED, new UnsignedWordElement(1014)), //
+						m(BmwChannelId.NUMBER_OF_STRINGS_INSTALLED, new UnsignedWordElement(1015)), //
+						m(BmwChannelId.SOC_ALL_STRINGS, new UnsignedWordElement(1016),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(Battery.ChannelId.SOC, new UnsignedWordElement(1017),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(BMWChannelId.REMAINING_CHARGE_CAPACITY, new UnsignedWordElement(1018)), //
-						m(BMWChannelId.REMAINING_DISCHARGE_CAPACITY, new UnsignedWordElement(1019)), //
-						m(BMWChannelId.REMAINING_CHARGE_ENERGY, new UnsignedWordElement(1020)), //
-						m(BMWChannelId.REMAINING_DISCHARGE_ENERGY, new UnsignedWordElement(1021)), //
-						m(BMWChannelId.NOMINAL_ENERGY, new UnsignedWordElement(1022)), //
-						m(BMWChannelId.TOTAL_ENERGY, new UnsignedWordElement(1023)), //
-						m(BMWChannelId.NOMINAL_CAPACITY, new UnsignedWordElement(1024)), //
+						m(BmwChannelId.REMAINING_CHARGE_CAPACITY, new UnsignedWordElement(1018)), //
+						m(BmwChannelId.REMAINING_DISCHARGE_CAPACITY, new UnsignedWordElement(1019)), //
+						m(BmwChannelId.REMAINING_CHARGE_ENERGY, new UnsignedWordElement(1020)), //
+						m(BmwChannelId.REMAINING_DISCHARGE_ENERGY, new UnsignedWordElement(1021)), //
+						m(BmwChannelId.NOMINAL_ENERGY, new UnsignedWordElement(1022)), //
+						m(BmwChannelId.TOTAL_ENERGY, new UnsignedWordElement(1023)), //
+						m(BmwChannelId.NOMINAL_CAPACITY, new UnsignedWordElement(1024)), //
 						m(Battery.ChannelId.CAPACITY, new UnsignedWordElement(1025)), //
 						m(Battery.ChannelId.SOH, new UnsignedWordElement(1026),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(Battery.ChannelId.VOLTAGE, new UnsignedWordElement(1027),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(BMWChannelId.DC_VOLTAGE_AVERAGE, new UnsignedWordElement(1028),
+						m(BmwChannelId.DC_VOLTAGE_AVERAGE, new UnsignedWordElement(1028),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
 				new FC4ReadInputRegistersTask(1029, Priority.HIGH, //
 						m(new SignedWordElement(1029)) //
-								.m(BMWChannelId.DC_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
+								.m(BmwChannelId.DC_CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) //
 								.build()), //
 				new FC4ReadInputRegistersTask(1030, Priority.HIGH, //
-						m(BMWChannelId.AVERAGE_TEMPERATURE, new SignedWordElement(1030))), //
+						m(BmwChannelId.AVERAGE_TEMPERATURE, new SignedWordElement(1030))), //
 				new FC4ReadInputRegistersTask(1031, Priority.HIGH, //
 						m(new SignedWordElement(1031)) //
-								.m(BMWChannelId.MINIMUM_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(BmwChannelId.MINIMUM_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.MIN_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build()), //
 				new FC4ReadInputRegistersTask(1032, Priority.HIGH, //
 						m(new SignedWordElement(1032)) //
-								.m(BMWChannelId.MAXIMUM_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
+								.m(BmwChannelId.MAXIMUM_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.m(Battery.ChannelId.MAX_CELL_TEMPERATURE, ElementToChannelConverter.DIRECT_1_TO_1) //
 								.build()), //
 				new FC4ReadInputRegistersTask(1033, Priority.HIGH,
 						m(Battery.ChannelId.MIN_CELL_VOLTAGE, new UnsignedWordElement(1033)), //
 						m(Battery.ChannelId.MAX_CELL_VOLTAGE, new UnsignedWordElement(1034)), //
-						m(BMWChannelId.AVERAGE_CELL_VOLTAGE, new UnsignedWordElement(1035)), //
+						m(BmwChannelId.AVERAGE_CELL_VOLTAGE, new UnsignedWordElement(1035)), //
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.INTERNAL_RESISTANCE, new UnsignedWordElement(1036)),
-						m(BMWChannelId.INSULATION_RESISTANCE, new UnsignedWordElement(1037),
+						m(BmwChannelId.INTERNAL_RESISTANCE, new UnsignedWordElement(1036)),
+						m(BmwChannelId.INSULATION_RESISTANCE, new UnsignedWordElement(1037),
 								ElementToChannelConverter.DIRECT_1_TO_1), //
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.CONTAINER_TEMPERATURE, new UnsignedWordElement(1038),
+						m(BmwChannelId.CONTAINER_TEMPERATURE, new UnsignedWordElement(1038),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.AMBIENT_TEMPERATURE, new UnsignedWordElement(1039),
+						m(BmwChannelId.AMBIENT_TEMPERATURE, new UnsignedWordElement(1039),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.HUMIDITY_CONTAINER, new UnsignedWordElement(1040),
+						m(BmwChannelId.HUMIDITY_CONTAINER, new UnsignedWordElement(1040),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(BMWChannelId.MAXIMUM_LIMIT_DYNAMIC_CURRENT_HIGH_RES, new SignedWordElement(1041),
+						m(BmwChannelId.MAXIMUM_LIMIT_DYNAMIC_CURRENT_HIGH_RES, new SignedWordElement(1041),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(BMWChannelId.MINIMUM_LIMIT_DYNAMIC_CURRENT_HIGH_RES, new SignedWordElement(1042),
+						m(BmwChannelId.MINIMUM_LIMIT_DYNAMIC_CURRENT_HIGH_RES, new SignedWordElement(1042),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(BMWChannelId.FULL_CYCLE_COUNT, new UnsignedWordElement(1043)), //
+						m(BmwChannelId.FULL_CYCLE_COUNT, new UnsignedWordElement(1043)), //
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.OPERATING_TIME_COUNT, new UnsignedDoublewordElement(1044)),
+						m(BmwChannelId.OPERATING_TIME_COUNT, new UnsignedDoublewordElement(1044)),
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.COM_PRO_VERSION, new UnsignedDoublewordElement(1046)),
+						m(BmwChannelId.COM_PRO_VERSION, new UnsignedDoublewordElement(1046)),
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1048)),
+						m(BmwChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(1048)),
 						// not defined by "BCS_HL-SW_Operating-Instructions_V1.0.2_under_work_ChL.pdf"
-						m(BMWChannelId.SOFTWARE_VERSION, new UnsignedDoublewordElement(1050)) //
+						m(BmwChannelId.SOFTWARE_VERSION, new UnsignedDoublewordElement(1050)) //
 				));
 	}
 

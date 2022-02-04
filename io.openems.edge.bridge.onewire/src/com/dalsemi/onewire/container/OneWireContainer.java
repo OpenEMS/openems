@@ -538,7 +538,7 @@ public class OneWireContainer {
 		if (this.address == null)
 			return 0;
 		else
-			return (new Long(Address.toLong(this.address))).hashCode();
+			return (Long.valueOf(Address.toLong(this.address))).hashCode();
 	}
 
 	/**

@@ -16,7 +16,7 @@ public interface OnOpen {
 
 	/**
 	 * Handles OnOpen event of WebSocket.
-	 * 
+	 *
 	 * @param ws        the WebSocket
 	 * @param handshake the HTTP handshake/headers
 	 * @throws OpenemsNamedException on error
@@ -25,12 +25,12 @@ public interface OnOpen {
 
 	/**
 	 * Get field from the 'cookie' field in the handshake.
-	 * 
+	 *
 	 * <p>
 	 * Per <a href=
 	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
 	 * all variants of 'cookie' are accepted.
-	 * 
+	 *
 	 * @param handshake the Handshake
 	 * @param fieldname the field name
 	 * @return value as optional

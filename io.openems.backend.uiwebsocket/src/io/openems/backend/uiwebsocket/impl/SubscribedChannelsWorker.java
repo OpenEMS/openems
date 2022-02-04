@@ -1,7 +1,5 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import java.util.Optional;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
@@ -27,8 +25,8 @@ public class SubscribedChannelsWorker extends io.openems.common.websocket.Subscr
 			return JsonNull.INSTANCE;
 		}
 
-		Optional<JsonElement> channelCacheValue = this.parent.timeData.getChannelValue(this.edgeId, channelAddress);
-		return channelCacheValue.orElse(JsonNull.INSTANCE);
+		var channelCacheValueOpt = this.parent.timeData.getChannelValue(this.edgeId, channelAddress);
+		return channelCacheValueOpt.orElse(JsonNull.INSTANCE);
 	}
 
 	@Override

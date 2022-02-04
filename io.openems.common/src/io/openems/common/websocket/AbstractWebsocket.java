@@ -8,57 +8,57 @@ public abstract class AbstractWebsocket<T extends WsData> {
 
 	/**
 	 * Creates an empty WsData object that is attached to the WebSocket as early as
-	 * possible
-	 * 
-	 * @return
+	 * possible.
+	 *
+	 * @return the typed {@link WsData}
 	 */
 	protected abstract T createWsData();
 
 	/**
-	 * Callback for internal error
-	 * 
-	 * @return
+	 * Callback for internal error.
+	 *
+	 * @return the {@link OnInternalError} callback
 	 */
 	protected abstract OnInternalError getOnInternalError();
 
 	/**
-	 * Callback for websocket OnOpen event
-	 * 
-	 * @return
+	 * Callback for websocket OnOpen event.
+	 *
+	 * @return the {@link OnOpen} callback
 	 */
 	protected abstract OnOpen getOnOpen();
 
 	/**
-	 * Callback for JSON-RPC request
-	 * 
-	 * @return
+	 * Callback for JSON-RPC request.
+	 *
+	 * @return the {@link OnRequest} callback
 	 */
 	protected abstract OnRequest getOnRequest();
 
 	/**
-	 * Callback for JSON-RPC notification
-	 * 
-	 * @return
+	 * Callback for JSON-RPC notification.
+	 *
+	 * @return the {@link OnNotification} callback
 	 */
 	protected abstract OnNotification getOnNotification();
 
 	/**
-	 * Callback for websocket error
-	 * 
-	 * @return
+	 * Callback for websocket error.
+	 *
+	 * @return the {@link OnError} callback
 	 */
 	protected abstract OnError getOnError();
 
 	/**
-	 * Callback for websocket OnClose event
-	 * 
-	 * @return
+	 * Callback for websocket OnClose event.
+	 *
+	 * @return the {@link OnClose} callback
 	 */
 	protected abstract OnClose getOnClose();
 
 	/**
 	 * Construct this {@link AbstractWebsocket}.
-	 * 
+	 *
 	 * @param name a name that is used to identify log messages
 	 */
 	public AbstractWebsocket(String name) {
@@ -66,41 +66,43 @@ public abstract class AbstractWebsocket<T extends WsData> {
 	}
 
 	/**
-	 * Gets the internal name of this websocket client/server
-	 * 
-	 * @return
+	 * Gets the internal name of this websocket client/server.
+	 *
+	 * @return the internal name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	protected void start() {
 
 	}
 
-	public void stop() {
+	protected void stop() {
 	}
 
 	/**
 	 * Execute a {@link Runnable}.
-	 * 
+	 *
 	 * @param command the {@link Runnable}
 	 */
 	protected abstract void execute(Runnable command);
 
 	/**
-	 * Handles an internal Error asynchronously
-	 * 
-	 * @param e
+	 * Handles an internal Error asynchronously.
+	 *
+	 * @param e the {@link Exception} to be handled
 	 */
 	protected void handleInternalErrorAsync(Exception e) {
 		this.execute(new OnInternalErrorHandler(this.getOnInternalError(), e));
 	}
 
 	/**
-	 * Handles an internal Error synchronously
-	 * 
-	 * @param e
+	 * Handles an internal Error synchronously.
+	 *
+	 * @param e            the {@link Exception}to be handled
+	 * @param wsDataString the toString() content of the WsData attachment of the
+	 *                     WebSocket
 	 */
 	protected void handleInternalErrorSync(Exception e, String wsDataString) {
 		this.getOnInternalError().run(e, wsDataString);
@@ -108,7 +110,7 @@ public abstract class AbstractWebsocket<T extends WsData> {
 
 	/**
 	 * Log a info message.
-	 * 
+	 *
 	 * @param log     a Logger instance
 	 * @param message the message
 	 */
@@ -116,7 +118,7 @@ public abstract class AbstractWebsocket<T extends WsData> {
 
 	/**
 	 * Log a warn message.
-	 * 
+	 *
 	 * @param log     a Logger instance
 	 * @param message the message
 	 */

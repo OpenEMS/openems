@@ -108,7 +108,7 @@
       <message key="name.invalidPattern" value="Parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="LambdaParameterName">
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^[a-z][a-zA-Z0-9]*?$"/>
       <message key="name.invalidPattern" value="Lambda parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="CatchParameterName">
@@ -202,8 +202,8 @@
     <module name="MissingJavadocMethod">
       <property name="allowedAnnotations" value="Before,Test,After,Override"/>
       <property name="allowMissingPropertyJavadoc" value="true"/>
-      <property name="ignoreMethodNamesRegex" value="doc|set.+"/>
-      <property name="tokens" value="METHOD_DEF,ANNOTATION_FIELD_DEF"/>
+      <property name="ignoreMethodNamesRegex" value="doc|set.+|build"/>
+      <property name="tokens" value="METHOD_DEF"/>
     </module>
   </module>
   <module name="LineLength">

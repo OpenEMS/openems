@@ -11,6 +11,7 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
@@ -169,6 +170,11 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 	 */
 	public default void setActivePowerLimit(int value) throws OpenemsNamedException {
 		this.getActivePowerLimitChannel().setNextWriteValue(value);
+	}
+
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(ManagedSymmetricPvInverter.class, accessMode, 100) //
+				.build();
 	}
 
 }

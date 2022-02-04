@@ -13,10 +13,19 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
 
 /**
- * Handles implicit conversions between {@link OpenemsType}s
+ * Handles implicit conversions between {@link OpenemsType}s.
  */
 public class TypeUtils {
 
+	/**
+	 * Converts and casts a Object to a given type.
+	 * 
+	 * @param <T>   the Type for implicit casting of the result
+	 * @param type  the type as {@link OpenemsType}
+	 * @param value the value as {@link Object}
+	 * @return the converted and casted value
+	 * @throws IllegalArgumentException on error
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getAsType(OpenemsType type, Object value) throws IllegalArgumentException {
 		// Extract Value containers
@@ -79,6 +88,7 @@ public class TypeUtils {
 					throw new IllegalArgumentException("Cannot convert String [" + value + "] to Boolean.");
 				}
 			}
+			break;
 
 		case SHORT:
 			if (value == null) {
@@ -203,7 +213,7 @@ public class TypeUtils {
 
 			} else if (value instanceof Boolean) {
 				boolean boolValue = (Boolean) value;
-				return (T) Long.valueOf((boolValue ? 1l : 0l));
+				return (T) Long.valueOf((boolValue ? 1L : 0L));
 
 			} else if (value instanceof Short) {
 				return (T) (Long) ((Short) value).longValue();
@@ -267,13 +277,9 @@ public class TypeUtils {
 				return (T) (Float) value;
 
 			} else if (value instanceof Double) {
-				double doubleValue = (Double) value;
-				if (doubleValue >= Float.MIN_VALUE && doubleValue <= Float.MAX_VALUE) {
-					return (T) (Float) Float.valueOf((float) doubleValue);
-				} else {
-					throw new IllegalArgumentException(
-							"Cannot convert. Double [" + value + "] is not fitting in Float range.");
-				}
+				// Returns the value of this Double as a float after a narrowing primitive
+				// conversion.
+				return (T) (Float) Float.valueOf(((Double) value).floatValue());
 
 			} else if (value instanceof String) {
 				String stringValue = (String) value;
@@ -294,7 +300,7 @@ public class TypeUtils {
 
 			} else if (value instanceof Boolean) {
 				boolean boolValue = (Boolean) value;
-				return (T) Double.valueOf((boolValue ? 1l : 0l));
+				return (T) Double.valueOf((boolValue ? 1L : 0L));
 
 			} else if (value instanceof Short) {
 				return (T) Double.valueOf((Short) value);
@@ -362,6 +368,13 @@ public class TypeUtils {
 
 	}
 
+	/**
+	 * Gets the value of the given type as {@link JsonElement}.
+	 * 
+	 * @param type          the type as {@link OpenemsType}
+	 * @param originalValue the value
+	 * @return the converted value
+	 */
 	public static JsonElement getAsJson(OpenemsType type, Object originalValue) {
 		if (originalValue == null) {
 			return JsonNull.INSTANCE;
@@ -390,8 +403,8 @@ public class TypeUtils {
 	 * Safely add Integers. If one of them is null it is considered '0'. If all of
 	 * them are null, 'null' is returned.
 	 * 
-	 * @param values
-	 * @return
+	 * @param values the {@link Integer} values
+	 * @return the sum
 	 */
 	public static Integer sum(Integer... values) {
 		Integer result = null;
@@ -412,8 +425,8 @@ public class TypeUtils {
 	 * Safely add Longs. If one of them is null it is considered '0'. If all of them
 	 * are null, 'null' is returned.
 	 * 
-	 * @param values
-	 * @return
+	 * @param values the {@link Long} values
+	 * @return the sum
 	 */
 	public static Long sum(Long... values) {
 		Long result = null;
@@ -551,6 +564,7 @@ public class TypeUtils {
 	/**
 	 * Safely finds the max value of all values.
 	 * 
+	 * @param values the {@link Integer} values
 	 * @return the max value; or null if all values are null
 	 */
 	public static Integer max(Integer... values) {
@@ -570,6 +584,25 @@ public class TypeUtils {
 	/**
 	 * Safely finds the min value of all values.
 	 * 
+	 * @param values the {@link Integer} values
+	 * @return the min value; or null if all values are null
+	 */
+	public static Integer min(Integer... values) {
+		Integer result = null;
+		for (Integer value : values) {
+			if (result != null && value != null) {
+				result = Math.min(result, value);
+			} else if (value != null) {
+				result = value;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely finds the min value of all values.
+	 * 
+	 * @param values the {@link Double} values
 	 * @return the min value; or null if all values are null
 	 */
 	public static Double min(Double... values) {
@@ -589,6 +622,7 @@ public class TypeUtils {
 	/**
 	 * Safely finds the average value of all values.
 	 * 
+	 * @param values the {@link Integer} values
 	 * @return the average value; or null if all values are null
 	 */
 	public static Float average(Integer... values) {
@@ -609,6 +643,7 @@ public class TypeUtils {
 	/**
 	 * Safely finds the average value of all values.
 	 * 
+	 * @param values the double values
 	 * @return the average value; or Double.NaN if all values are invalid.
 	 */
 	public static double average(double... values) {
@@ -632,6 +667,7 @@ public class TypeUtils {
 	 * Safely finds the average value of all values and rounds the result to an
 	 * Integer using {@link Math#round(float)}.
 	 * 
+	 * @param values the {@link Integer} values
 	 * @return the rounded average value; or null if all values are null
 	 */
 	public static Integer averageRounded(Integer... values) {
@@ -641,23 +677,6 @@ public class TypeUtils {
 		} else {
 			return Math.round(result);
 		}
-	}
-
-	/**
-	 * Safely finds the min value of all values.
-	 * 
-	 * @return the min value; or null if all values are null
-	 */
-	public static Integer min(Integer... values) {
-		Integer result = null;
-		for (Integer value : values) {
-			if (result != null && value != null) {
-				result = Math.min(result, value);
-			} else if (value != null) {
-				result = value;
-			}
-		}
-		return result;
 	}
 
 	/**
@@ -676,7 +695,7 @@ public class TypeUtils {
 	}
 
 	/**
-	 * Safely convert from {@link Integer} to {@link Double}
+	 * Safely convert from {@link Integer} to {@link Double}.
 	 * 
 	 * @param value the Integer value, possibly null
 	 * @return the Double value, possibly null
@@ -690,7 +709,7 @@ public class TypeUtils {
 	}
 
 	/**
-	 * Safely convert from {@link Float} to {@link Double}
+	 * Safely convert from {@link Float} to {@link Double}.
 	 * 
 	 * @param value the Float value, possibly null
 	 * @return the Double value, possibly null
@@ -706,6 +725,7 @@ public class TypeUtils {
 	/**
 	 * Returns the 'alternativeValue' if the 'nullableValue' is null.
 	 * 
+	 * @param <T>              the Type for implicit casting
 	 * @param nullableValue    the value, can be null
 	 * @param alternativeValue the alternative value
 	 * @return either the value (not null), alternatively the 'orElse' value
@@ -726,9 +746,9 @@ public class TypeUtils {
 	 * @param value     the actual value
 	 * @return the adjusted value
 	 */
-	public static Integer fitWithin(Integer lowLimit, Integer highLimit, Integer value) {
-		return TypeUtils.max(lowLimit, //
-				TypeUtils.min(highLimit, value));
+	public static int fitWithin(int lowLimit, int highLimit, int value) {
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
 	}
 
 	/**
