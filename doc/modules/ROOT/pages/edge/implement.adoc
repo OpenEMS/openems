@@ -187,7 +187,7 @@ import io.openems.edge.meter.api.MeterType;
 
 === Implement the OpenEMS Component
 
-The Bndtools assistant created a `MyModbusDevice.java` file. First step is to set a proper name for this file. To rename the file, select it by clicking on it and choose btn:[Refactor] -> btn:[Rename...] in the menu. Write `MeterSimulated` as 'New name' and press btn:[Finish].
+The Bndtools assistant created a `MyModbusDevice.java` and a `MyModbusDeviceImpl.java` file. First step is to set a proper names for these files. To rename a file, select it by clicking on it and choose btn:[Refactor] -> btn:[Rename...] in the menu. Write `MeterSimulated` and `MeterSimulatedImpl` respectively as 'New name' and press btn:[Finish].
 
 .Renaming a Java class in Eclipse IDE
 image::eclipse-rename.png[Renaming a Java class in Eclipse IDE]
