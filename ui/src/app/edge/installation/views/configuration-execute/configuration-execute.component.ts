@@ -172,7 +172,7 @@ export class ConfigurationExecuteComponent implements OnInit {
           { name: "modbusUnitId", value: 247 },
           { name: "safetyCountry", value: safetyCountry },
           { name: "backupEnable", value: this.installationData.battery.emergencyReserve.isEnabled ? "ENABLE" : "DISABLE" },
-          { name: "feedPowerEnable", value: this.installationData.customer.country == 'at' ? "DISABLE" : "ENABLE" },
+          { name: "feedPowerEnable", value: "ENABLE" },
           { name: "feedPowerPara", value: this.installationData.dynamicFeedInLimitation.maximumFeedInPower },
           { name: "setfeedInPowerSettings", value: feedInSetting },
           { name: "emsPowerMode", value: "UNDEFINED" },
