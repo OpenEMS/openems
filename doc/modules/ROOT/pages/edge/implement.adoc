@@ -32,8 +32,9 @@ image::eclipse-bndtools-osgi-project.png[Creating a Bnd OSGi Project in Eclipse 
 . Select btn:[OpenEMS Templates] -> btn:[OpenEMS Modbus Devices] and press btn:[Next >]
 +
 .Creating an OpenEMS Modbus Devices Bundle in Eclipse IDE
-NOTE: If the Templates are missing, restart the IDE
++
 image::eclipse-new-openems-modbus-device.png[Creating an OpenEMS Modbus Devices Bundle in Eclipse IDE]
+TIP: If the templates are missing, restart the IDE
 
 . Choose a project name and press btn:[Next >]
 +
@@ -74,8 +75,6 @@ io.openems.edge.bridge.modbus::
   the Modbus Bridge provides the xref:bridge.adoc[Bridge] services for Modbus/RTU and Modbus/TCP protocols
 io.openems.edge.common::
   OpenEMS Edge commons
-slf4j.api::
-  to be able to use the logger
 ====
 +
 .Bndtools Build configuration
@@ -187,7 +186,7 @@ import io.openems.edge.meter.api.MeterType;
 
 === Implement the OpenEMS Component
 
-The Bndtools assistant created a `MyModbusDevice.java` and a `MyModbusDeviceImpl.java` file. First step is to set a proper names for these files. To rename a file, select it by clicking on it and choose btn:[Refactor] -> btn:[Rename...] in the menu. Write `MeterSimulated` and `MeterSimulatedImpl` respectively as 'New name' and press btn:[Finish].
+The Bndtools assistant created a `MyModbusDevice.java` and a `MyModbusDeviceImpl.java` files. First step is to set proper names for these files. To rename a file, select it by clicking on it and choose btn:[Refactor] -> btn:[Rename...] in the menu. Write `MeterSimulated` and `MeterSimulatedImpl` respectively as 'New name' and press btn:[Finish].
 
 .Renaming a Java class in Eclipse IDE
 image::eclipse-rename.png[Renaming a Java class in Eclipse IDE]
