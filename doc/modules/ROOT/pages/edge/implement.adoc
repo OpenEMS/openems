@@ -225,11 +225,12 @@ public MeterType getMeterType() {
 +
 [source,java]
 ----
-public MeterSimulated() {
+public MeterSimulatedImpl() {
 	super(//
 			OpenemsComponent.ChannelId.values(), //
 			SymmetricMeter.ChannelId.values(), //
-			ChannelId.values() //
+			ModbusComponent.ChannelId.values(), //
+			MeterSimulated.ChannelId.values() //
 	);
 }
 ----
