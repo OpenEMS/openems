@@ -32,6 +32,7 @@ image::eclipse-bndtools-osgi-project.png[Creating a Bnd OSGi Project in Eclipse 
 . Select btn:[OpenEMS Templates] -> btn:[OpenEMS Modbus Devices] and press btn:[Next >]
 +
 .Creating an OpenEMS Modbus Devices Bundle in Eclipse IDE
+NOTE: If the Templates are missing, restart the IDE
 image::eclipse-new-openems-modbus-device.png[Creating an OpenEMS Modbus Devices Bundle in Eclipse IDE]
 
 . Choose a project name and press btn:[Next >]
