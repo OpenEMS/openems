@@ -192,7 +192,7 @@ The Bndtools assistant created a `MyModbusDevice.java` and a `MyModbusDeviceImpl
 .Renaming a Java class in Eclipse IDE
 image::eclipse-rename.png[Renaming a Java class in Eclipse IDE]
 
-Afterwards adjust the following content in the template:
+Afterwards adjust the following content in the template `MeterSimulatedImpl.Java`:
 
 . In the `@Component` annotation set the `name` to `"Meter.Simulated"`:
 +
@@ -208,7 +208,7 @@ Afterwards adjust the following content in the template:
 +
 [source,java]
 ----
-public class MeterSimulated extends AbstractOpenemsModbusComponent implements SymmetricMeter, OpenemsComponent {
+public class MeterSimulatedImpl extends AbstractOpenemsModbusComponent implements MeterSimulated, SymmetricMeter, OpenemsComponent, ModbusComponent {
 ----
 . Eclipse will underline `SymmetricMeter` and show you the error *SymmetricMeter cannot be resolved to a type*. Resolve it by importing adding an `import io.openems.edge.meter.api.SymmetricMeter;`.
 +
