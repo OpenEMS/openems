@@ -265,11 +265,11 @@ and solve the import errors again as described above.
 ----
 @Override
 public String debugLog() {
-	return "L:" + this.getActivePower().value().asString();
+	return "L:" + this.getActivePower().asString();
 }
 ----
 
-The content of `MeterSimulated.java` should now match the following code:
+The content of `MeterSimulatedImpl.java` should now match the following code:
 
 [source,java]
 ----
@@ -304,31 +304,17 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, // <4>
 		configurationPolicy = ConfigurationPolicy.REQUIRE // <5>
 )
-public class MeterSimulated extends AbstractOpenemsModbusComponent // <6>
-	implements SymmetricMeter, OpenemsComponent { // <7>
+public class MeterSimulatedImpl extends AbstractOpenemsModbusComponent // <6>
+	implements MeterSimulated, SymmetricMeter, OpenemsComponent, ModbusComponent { // <7>
 
 	private Config config = null;
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId { // <8>
-		;
-
-		private final Doc doc;
-
-		private ChannelId(Doc doc) {
-			this.doc = doc;
-		}
-
-		@Override
-		public Doc doc() {
-			return this.doc;
-		}
-	}
-
-	public MeterSimulated() {
+	public MeterSimulatedImpl() {
 		super(// <9>
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
-				ChannelId.values() //
+				ModbusComponent.ChannelId.values(), //
+				MeterSimulated.ChannelId.values() //
 		);
 	}
 
@@ -366,7 +352,7 @@ public class MeterSimulated extends AbstractOpenemsModbusComponent // <6>
 
 	@Override
 	public String debugLog() { // <19>
-		return "L:" + this.getActivePower().value().asString();
+		return "L:" + this.getActivePower().asString();
 	}
 }
 ----
