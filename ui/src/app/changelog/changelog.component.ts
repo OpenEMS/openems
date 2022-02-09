@@ -35,6 +35,13 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.2.2',
+        changes: [
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Dynamische Begrenzung der Netzeinspeiseleistung in Österreich",
+          Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + "Änderungen an der maximalen Netzeinspeiseleistung müssen durch erneutes Ausführen des Inbetriebnahmeassistenten gesetzt werden",
+        ]
+      },
+      {
         version: '2022.2.1',
         changes: [
           Changelog.openems('2022.2.0'),
