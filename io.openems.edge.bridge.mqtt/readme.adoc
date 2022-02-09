@@ -1,0 +1,95 @@
+= io.openems.edge.bridge.mqtt Provider
+
+This Bundle Provides the MQTT Bridge communicating with MQTT V3.1.1, and Telemetry/CommandComponents.
+It Communicates with a Broker.
+It handles subscribe and Publish - Tasks.
+persistent/clean Session will be configured automatically.
+
+AutoReconnect is per default set to true.
+
+TelemetryComponents can send data to a broker.
+You can configure multiple Payloads and send them to multiple Topics.
+Note: You cannot send different payloads to the same Topic within the same TelemetryComponent, however you can send the same Topic to different/multiple topics within the same TelemetryComponent.
+Additionally, you can Map Keys to OpenEmsChannel for telemetry subscription to get Virtual/Remote data and store them in mapped channel.
+CommandComponents react to Commands from the broker reading a "method" and store a value and expiration.
+These command values will be stored in corresponding channel.
+These can be used in implementing Components to react to certain values/events.
+^Those need to be implemented.
+
+== Configuration
+
+1. At First Configure a MQTT Bridge.
+You can EITHER set the complete URL, or if you're not sure about that, type in the different Configuration parts such an IP, Port, TCP/WS connection, Basepath etc.
+NOTE: If you have no "null" String in the URL String Configuration ->
+the URL will be set.
+The Rest of the configuration regarding the URL (IP/WS/ConnectionType etc) will be ignored.
+2. After that you can configure a TelemetryComponent.
+The TelemetryComponent receives a different DeviceId with the Channels you want to log/push/subscribed data should be transferred.
+If you want to configure the OpenemsComponent via the UI/ApacheFelix -> just hit save (Configuration done needs to be set to false) After saving, the Channels of the Component will be loaded in.
+You have an easier time to configure the telemetryComponent.
+Reconfigure the activated telemetryComponent and you will see that the Channel of the Component are loaded in.
+Now you can start to configure the Payload and Publish/Subscribe parts (to be fair, nothing is preventing you to configure the Component, before the channels load in...) The Payload receives a Key:Value pair, where Key:Value:Key:Value:Key:Value can be concatenated.
+The Key is the key for the json string and will appear in the broker.
+The Value is the OpenemsChannel you want to log.(PublishConfig) Or the Channel you want to Store your information in (SubscribeConfig).
+E.g. VirtualTemperatures.
+Reminder: PayloadCounting start at 0 this is important for the Publish/Subscribe Config.
+
+The Publish/SubscribeConfig Part are both equally build.
+The ConfigurationString is a whole String, where an attribute is split by a ConfigurationSplitter(Usually !) (See Enum ConfigurationSplits) You can have Multiple Publish/SubscribeConfigs, each one is an entry of a String []
+At first you put in the Priority.
+Supported Priorities will be listed in the MQTT Bridge but atm the supported priorities are:
+
+* LOW (Put in task list if enough time is available.)
+* HIGH (Higher Prio than LOW but can be ignored.)
+* URGENT(Highest Priority, will be handled first.)
+
+Followed by the Topic e.g. telemetry/foo The third entry is the Quality of Service (Mqtt QoS) 0-2.
+The RetainFlag can be set afterwards.
+The TimeStamp Flag is the next option (adds a TimeStamp to the payload, usually true for Publish und false for subscribe config) The next ConfigurationEntry is one of the most important configurationentries.
+The PayloadNo.
+The PayloadNo comes from the String[] payload entries starting with 0 . Here you can "Map" the Topic to the Payload you want to get published / subscribe from.
+And the Last entry tells the "TimeToWait" e.g. how regularly the Paylodas should be published/subscribed from Example:
+PayloadEntries:
+tp-1:Temperature:tp-2:FlowTemperature tp-1:ReturnTemperature meter-1:ConsumedPower
+
+=== PublishConfig:
+LOW!telemetry/Temperature!0!true!true!0!10 (<- Every 10 seconds the Payload0 (tp-1:Temperature:tp-2:FlowTemperature) will be published at topic telemetry/Temperature) URGENT!telemetry/Temperature2!0!true!true!1!5(<- Every 5 seconds the Payload1 (tp-1:ReturnTemperature) will be published at topic telemetry/Temperature2) SubscribeConfig:
+
+=== SubscribeConfig:
+LOW!telemetry/MeterPower!0!true!true!2!10 (<- Every 10 seconds the Value subscribed from the Broker under Topic MeterPower will be written into the ConsumedPower Channel from the key : meter-1)
+
+"Priority!Topic!QoS!RetainFlag!TimestampUseBoolean!PayloadNo!TimeToWait"
+
+The main purpose for the MqttBridge is done here.
+
+=== CommandComponent
+
+Additionally, there is the support for the CommandComponent, where you can setup Commands, that will be handled by the commandComponent.
+This will subscribe to topics and write Value to the MqttCommands Nature.
+If you want to add Commands, just put in another entry in the MqttCommandType, and the MqttCommands.
+Additionally, go to the MqttCommandComponent and put in a Handling for the MqttCommandType.
+
+However, the Configuration is almost the same, the only thing important here is the Topic.
+Every method within the topic will be read and evaluated.
+
+The Bridge tells the CommandComponent to react to the Commands, stored within the SubscribeTask.
+If the Value is Valid and not expired, the Value stored within the SusbscribeTask will be written into the Corresponding channel.
+
+e.g. The SETPOWER Method is corresponding to the SetPower Channel of the MqttCommandComponent.
+If the Value is valid, the CommandComponent will write the Value of the SETPOWER method to the SetPowerChannel.
+Let's say a Heater implements the MqttCommandComponent and listens to the SetPowerChannel ->
+Set the EnableSignal to true / Set the SetPointPowerLevel etc etc -> it starts to heat.
+The CommandComponent will subscribe to a topic and await the SetPower Method (Note: The MethodName must match the MqttCommandType).
+When the method has a value and expiration (in seconds) -> the value will be stored within the SubscribeTask and later called by the MqttBridge/CommandComponent.
+The CommandComponent will check for the Value and if the time has not expired -> write the Value to the SetPowerChannel.
+If expired -> reset the value (write null).
+
+
+== External Resource: http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html ::
+
+== Implemented Natures::
+- MqttBridge.
+
+
+
+

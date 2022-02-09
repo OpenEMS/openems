@@ -1,0 +1,19 @@
+{
+  "GenericExample": {
+    "time": "TimestampUTC",
+    "method": "MethodeName",
+    "device": "DeviceName",
+    "value": "value",
+    "expires": "ExpirationTime"
+  },
+
+  "ExampleWithAComponent": {
+    "time": "2020-11-28T18:50:22.016751+00:00",
+    "method": "setPower",
+    "device": "chp-1",
+    "value": 15,
+    "expires": 900
+  }
+}
+
+

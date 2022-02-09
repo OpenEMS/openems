@@ -1,0 +1,20 @@
+Bundle-Name: paho-mqttv3
+Bundle-DocURL: https://github.com/eclipse/paho.mqtt.java
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.2.5
+
+Fragment-Host: org.eclipse.paho.client.mqttv3
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+Export-Package: \
+	org.eclipse.paho.client.mqttv3,\
+	org.eclipse.paho.client.mqttv3.internal,\
+	org.eclipse.paho.client.mqttv3.logging,\
+	org.eclipse.paho.client.mqttv3.persist,\
+	org.eclipse.paho.client.mqttv3.spi,\
+	org.eclipse.paho.client.mqttv3.util,\
+	
+-sources: false

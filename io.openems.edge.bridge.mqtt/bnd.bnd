@@ -1,0 +1,19 @@
+Bundle-Name: OpenEMS Edge Mqtt
+Bundle-Vendor: Consolinno Energy GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath:  \
+	${buildpath},\
+	com.google.guava,\
+	com.google.gson,\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.wrapper.paho-mqttv3;version=latest,\
+	io.openems.wrapper.jodatime;version=latest,\
+	joda-time;version=latest,\
+    org.eclipse.paho.client.mqttv3;version=latest,\
+
+-testpath: \
+	${testpath}
+
