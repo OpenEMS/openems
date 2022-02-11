@@ -65,23 +65,8 @@ export class AdvertWidgets {
 
         let list: AdvertWidget[] = [];
 
-        for (let producttype of Object.values(advertisableWidgetProducttype).filter(v => typeof v === 'string')) {
-            if (producttype == edge.producttype) {
-                list.push({ name: producttype });
-            }
-        }
-
-        for (let nature of Object.values(advertisableWidgetNature).filter(v => typeof v === 'string')) {
-            if (nature == 'io.openems.edge.evcs.api.Evcs' && config.widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false) {
-                list.push({ name: nature });
-            }
-        }
-        list.push(
-            { name: 'Heimatstrom' },
-            { name: 'Stille Beteiligung' })
-
         // Dont show home AdvertWidget for 'Homes'
-        if (!edge.producttype.includes('home')) {
+        if (edge.producttype != 'home') {
             list.push(
                 { name: 'FENECON Home' }
             );

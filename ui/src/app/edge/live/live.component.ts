@@ -20,6 +20,7 @@ export class LiveComponent {
     protected utils: Utils,
   ) {
   }
+
   ionViewWillEnter() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
