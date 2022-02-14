@@ -30,7 +30,7 @@ public class MyModbusDeviceImpl extends AbstractOpenemsModbusComponent implement
 
 	private Config config = null;
 
-	public MyModbusDevice() {
+	public MyModbusDeviceImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
