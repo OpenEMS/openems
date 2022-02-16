@@ -82,4 +82,4 @@
 	org.osgi.service.jdbc;version='[1.0.1,1.0.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
-	org.postgresql.jdbc;version='[42.3.2,42.3.3)'
+	org.postgresql.jdbc;version='[42.3.3,42.3.4)'
