@@ -223,26 +223,6 @@ public interface PagedMemoryBank extends MemoryBank {
 	 * @see #readPage(int,boolean,byte[],int,byte[]) readPage(extra)
 	 * @see #readPageCRC(int,boolean,byte[],int,byte[]) readPageCRC(extra)
 	 * @see #readPagePacket(int,boolean,byte[],int,byte[]) readPagePacket(extra)
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by {@link #hasExtraInfo()}
-	 */
-	public boolean haveExtraInfo();
-
-	/**
-	 * Checks to see if this memory bank's pages deliver extra information outside
-	 * of the normal data space, when read. Examples of this may be a redirection
-	 * byte, counter, tamper protection bytes, or SHA-1 result. If this method
-	 * returns true then the methods with an 'extraInfo' parameter can be used:
-	 * {@link #readPage(int,boolean,byte[],int,byte[]) readPage},
-	 * {@link #readPageCRC(int,boolean,byte[],int,byte[]) readPageCRC}, and
-	 * {@link #readPagePacket(int,boolean,byte[],int,byte[]) readPagePacket}.
-	 *
-	 * @return <CODE> true </CODE> if reading the this memory bank's pages provides
-	 *         extra information
-	 *
-	 * @see #readPage(int,boolean,byte[],int,byte[]) readPage(extra)
-	 * @see #readPageCRC(int,boolean,byte[],int,byte[]) readPageCRC(extra)
-	 * @see #readPagePacket(int,boolean,byte[],int,byte[]) readPagePacket(extra)
 	 * @since 1-Wire API 0.01
 	 */
 	public boolean hasExtraInfo();

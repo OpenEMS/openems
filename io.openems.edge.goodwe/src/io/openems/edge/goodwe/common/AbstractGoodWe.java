@@ -569,7 +569,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(45250, Priority.LOW, //
 						m(GoodWe.ChannelId.PV_START_VOLTAGE, new UnsignedWordElement(45250),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.ENABLE_MPPT4_SHADOW, new UnsignedWordElement(45251)), //
+						m(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE, new UnsignedWordElement(45251)), //
 						m(GoodWe.ChannelId.BACK_UP_ENABLE, new UnsignedWordElement(45252)), //
 						m(GoodWe.ChannelId.AUTO_START_BACKUP, new UnsignedWordElement(45253)), //
 						m(GoodWe.ChannelId.GRID_WAVE_CHECK_LEVEL, new UnsignedWordElement(45254)), //
@@ -940,7 +940,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.PV_START_VOLTAGE, new UnsignedWordElement(45250),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						// as default is deactivated, set "1" to activate "Shadow Scan" functtion
-						m(GoodWe.ChannelId.ENABLE_MPPT4_SHADOW, new UnsignedWordElement(45251)), //
+						m(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE, new UnsignedWordElement(45251)), //
 						// as default is deactivated, set "1" to activate "Shadow Scan" functtion
 						m(GoodWe.ChannelId.BACK_UP_ENABLE, new UnsignedWordElement(45252)), //
 						// Off-Grid Auto startup, as default is deactivated, set "1" to activate "Shadow

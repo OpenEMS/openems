@@ -36,7 +36,7 @@ public class InsertOrUpdateDeviceStates extends DatabaseTask {
 
 	@Override
 	protected void _execute(Connection connection) throws SQLException {
-		PreparedStatement ps = this.psInsertOrUpdateDeviceState(connection);
+		var ps = this.psInsertOrUpdateDeviceState(connection);
 		// device_id
 		ps.setInt(1, this.odooId);
 		// last_appearance
@@ -59,10 +59,11 @@ public class InsertOrUpdateDeviceStates extends DatabaseTask {
 	/**
 	 * INSERT INTO {} (...) VALUES (...) ON CONFLICT (..) UPDATE SET
 	 * item=excluded.item;
-	 * 
+	 *
 	 * <p>
 	 * Be careful to synchronize access to the resulting PreparedStatement.
-	 * 
+	 *
+	 * @param connection the {@link Connection}
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */

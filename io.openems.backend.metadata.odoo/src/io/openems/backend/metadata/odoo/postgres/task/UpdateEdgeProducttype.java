@@ -18,7 +18,7 @@ public class UpdateEdgeProducttype extends DatabaseTask {
 
 	@Override
 	protected void _execute(Connection connection) throws SQLException {
-		PreparedStatement ps = this.psUpdateProductType(connection);
+		var ps = this.psUpdateProductType(connection);
 		ps.setString(1, this.producttype);
 		ps.setInt(2, this.odooId);
 		ps.execute();
@@ -26,7 +26,8 @@ public class UpdateEdgeProducttype extends DatabaseTask {
 
 	/**
 	 * UPDATE {} SET version = {} WHERE id = {};.
-	 * 
+	 *
+	 * @param connection the {@link Connection}
 	 * @return the PreparedStatement
 	 * @throws SQLException on error
 	 */

@@ -42,18 +42,18 @@ public class B2bRest extends AbstractOpenemsBackendComponent {
 	}
 
 	@Activate
-	void activate(Config config) throws OpenemsException {
+	private void activate(Config config) throws OpenemsException {
 		this.startServer(config.port());
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		this.stopServer();
 	}
 
 	/**
 	 * Create and start new server.
-	 * 
+	 *
 	 * @param port the port
 	 * @throws OpenemsException on error
 	 */

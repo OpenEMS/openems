@@ -1,9 +1,9 @@
 Bundle-Name: ojalgo
 Bundle-DocURL: https://www.ojalgo.org
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 48.4.1
+Bundle-Version: 50.0.2
 
-Include-Resource: @ojalgo-48.4.1.jar
+Include-Resource: @ojalgo-50.0.2.jar
 
 -dsannotations: *
 
@@ -27,6 +27,7 @@ Export-Package: \
     org.ojalgo.optimisation,\
     org.ojalgo.scalar,\
     org.ojalgo.structure,\
+    org.ojalgo.tensor,\
     org.ojalgo.type,\
     org.ojalgo.type.context,\
     org.ojalgo.type.format,\

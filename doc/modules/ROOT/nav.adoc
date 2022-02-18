@@ -26,5 +26,4 @@
 ** xref:simulation/realtime.adoc[Real-Time Simulation]
 ** xref:simulation/ui-history.adoc[UI History Simulation]
 * xref:documentation.adoc[Documentation]
-* xref:randd.adoc[Research and Development]
 * https://openems.github.io/openems.io/javadoc/[Javadoc]

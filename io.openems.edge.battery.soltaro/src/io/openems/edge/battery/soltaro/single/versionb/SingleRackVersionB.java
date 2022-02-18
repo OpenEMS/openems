@@ -30,7 +30,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the ContactorControlChannel.
-	 * 
+	 *
 	 * @return WriteChannel
 	 */
 	public default WriteChannel<ContactorControl> getContactorControlChannel() {
@@ -39,7 +39,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the ContactorControl.
-	 * 
+	 *
 	 * @return ContactorControl
 	 */
 	public default ContactorControl getContactorControl() {
@@ -48,7 +48,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Sets the ContactorControl.
-	 * 
+	 *
 	 * @param value the value
 	 */
 	public default void _setContactorControl(ContactorControl value) {
@@ -57,7 +57,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Sets the ContactorControl.
-	 * 
+	 *
 	 * @param value the value
 	 * @throws OpenemsNamedException the Exception
 	 */
@@ -67,7 +67,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the SystemResetChannel.
-	 * 
+	 *
 	 * @return IntegerWriteChannel
 	 */
 	public default IntegerWriteChannel getSystemResetChannel() {
@@ -76,7 +76,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the SystemReset.
-	 * 
+	 *
 	 * @return Value
 	 */
 	public default Value<Integer> getSystemReset() {
@@ -85,7 +85,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Sets the SystemReset.
-	 * 
+	 *
 	 * @param value the value
 	 */
 	public default void _setSystemReset(Integer value) {
@@ -94,7 +94,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Sets the SystemReset.
-	 * 
+	 *
 	 * @param value the value
 	 * @throws OpenemsNamedException the exception
 	 */
@@ -104,7 +104,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the SleepChannel.
-	 * 
+	 *
 	 * @return IntegerWriteChannel
 	 */
 	public default IntegerWriteChannel getSleepChannel() {
@@ -113,7 +113,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the Sleep.
-	 * 
+	 *
 	 * @return Value
 	 */
 	public default Value<Integer> getSleep() {
@@ -122,7 +122,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Sets the Sleep.
-	 * 
+	 *
 	 * @param value Integer
 	 */
 	public default void _setSleep(Integer value) {
@@ -131,7 +131,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Sets the Sleep.
-	 * 
+	 *
 	 * @param value Integer
 	 * @throws OpenemsNamedException the exception
 	 */
@@ -141,7 +141,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the SocLowProtectionChannel.
-	 * 
+	 *
 	 * @return IntegerWriteChannel
 	 */
 	public default IntegerWriteChannel getSocLowProtectionChannel() {
@@ -150,7 +150,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the SocLowProtection.
-	 * 
+	 *
 	 * @return Value
 	 */
 	public default Value<Integer> getSocLowProtection() {
@@ -159,7 +159,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Sets SocLowProtection.
-	 * 
+	 *
 	 * @param value Integer
 	 */
 	public default void _setSocLowProtection(Integer value) {
@@ -168,7 +168,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Sets SocLowProtection.
-	 * 
+	 *
 	 * @param value Integer
 	 * @throws OpenemsNamedException the exception
 	 */
@@ -178,7 +178,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the SocLowProtectionRecoverChannel.
-	 * 
+	 *
 	 * @return IntegerWriteChannel
 	 */
 	public default IntegerWriteChannel getSocLowProtectionRecoverChannel() {
@@ -187,7 +187,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the SocLowProtectionRecover.
-	 * 
+	 *
 	 * @return Value
 	 */
 	public default Value<Integer> getSocLowProtectionRecover() {
@@ -196,7 +196,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Sets the SocLowProtectionRecover.
-	 * 
+	 *
 	 * @param value Integer
 	 */
 	public default void _setSocLowProtectionRecover(Integer value) {
@@ -205,7 +205,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Sets the SocLowProtectionRecover.
-	 * 
+	 *
 	 * @param value Integer
 	 * @throws OpenemsNamedException OpenemsNamedException
 	 */
@@ -215,7 +215,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the WatchdogChannel.
-	 * 
+	 *
 	 * @return IntegerWriteChannel
 	 */
 	public default IntegerWriteChannel getWatchdogChannel() {
@@ -224,7 +224,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the Watchdog.
-	 * 
+	 *
 	 * @return Value
 	 */
 	public default Value<Integer> getWatchdog() {
@@ -233,7 +233,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Sets the Watchdog.
-	 * 
+	 *
 	 * @param value Integer
 	 */
 	public default void _setWatchdog(Integer value) {
@@ -242,7 +242,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * sets the watchdog.
-	 * 
+	 *
 	 * @param value the value
 	 * @throws OpenemsNamedException the exception
 	 */
@@ -252,7 +252,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStartAttemptsChannel() {
@@ -261,7 +261,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStartAttempts() {
@@ -271,7 +271,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStartAttempts(Boolean value) {
@@ -280,7 +280,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStopAttemptsChannel() {
@@ -289,7 +289,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStopAttempts() {
@@ -299,7 +299,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStopAttempts(Boolean value) {
@@ -308,7 +308,7 @@ public interface SingleRackVersionB extends Battery, OpenemsComponent, StartStop
 
 	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
-	 * 
+	 *
 	 * @return {@link StartStop}
 	 */
 	public StartStop getStartStopTarget();

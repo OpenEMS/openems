@@ -21,7 +21,7 @@ public class MyEdge extends Edge {
 	}
 
 	public String getApikey() {
-		return apikey;
+		return this.apikey;
 	}
 
 }

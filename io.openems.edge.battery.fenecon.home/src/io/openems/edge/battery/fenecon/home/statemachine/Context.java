@@ -7,7 +7,7 @@ import io.openems.edge.common.statemachine.AbstractContext;
 public class Context extends AbstractContext<FeneconHomeBattery> {
 
 	/**
-	 * The Battery-Start-Up-Relay Channel used to start the battery; possibly null
+	 * The Battery-Start-Up-Relay Channel used to start the battery; possibly null.
 	 */
 	protected final BooleanWriteChannel batteryStartUpRelayChannel;
 
@@ -17,16 +17,10 @@ public class Context extends AbstractContext<FeneconHomeBattery> {
 	}
 
 	protected boolean isBatteryStarted() {
-		switch (this.getParent().getBmsControl()) {
-		case SWITCHED_ON:
-		case IGNORED:
-			return true;
-
-		case SWITCHED_OFF:
-		case UNDEFINED:
+		var isNotStarted = this.getParent().getBmsControl();
+		if (!isNotStarted.isDefined()) {
 			return false;
 		}
-		return false;
+		return !isNotStarted.get();
 	}
-
 }

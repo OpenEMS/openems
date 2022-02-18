@@ -6,10 +6,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Java 8
+      - name: Setup Java 11
         uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '11'
 
       - name: Setup Cache for Java/Gradle
         uses: actions/cache@v2
@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '14'
 
       - name: Setup Cache for Node.js
         uses: actions/cache@v2
@@ -60,3 +60,27 @@ jobs:
           cd ui
           npm ci --prefer-offline --cache ~/.npm
           node_modules/@angular/cli/bin/ng build -c "openems,openems-edge-prod,prod"
+
+      #
+      # Is this a Tag? Prepare release assets and create a draft release
+      #
+      - name: Prepare Edge+Backend assets
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          ./gradlew buildEdge buildBackend
+
+      - name: Prepare UI asset
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: edgarrc/action-7z@v1
+        with:
+          args: 7z a openems-ui.zip ./ui/target/*
+
+      - name: Create draft Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: |
+            build/openems-edge.jar
+            build/openems-backend.jar
+            openems-ui.zip

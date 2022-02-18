@@ -481,7 +481,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @return The OWPath representing the network path to the device.
 	 */
 	public OWPath getDevicePath(long address) {
-		return getDevicePath(new Long(address));
+		return getDevicePath(Long.valueOf(address));
 	}
 
 	/**
@@ -536,7 +536,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @return The specific OneWireContainer object of the device
 	 */
 	public static OneWireContainer getDeviceContainer(DSPortAdapter adapter, long address) {
-		return getDeviceContainer(adapter, new Long(address));
+		return getDeviceContainer(adapter, Long.valueOf(address));
 	}
 
 	/**
@@ -584,7 +584,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 * @param owc     The specific OneWireContainer object of the device
 	 */
 	public static void putDeviceContainer(long address, OneWireContainer owc) {
-		putDeviceContainer(new Long(address), owc);
+		putDeviceContainer(Long.valueOf(address), owc);
 	}
 
 	/**

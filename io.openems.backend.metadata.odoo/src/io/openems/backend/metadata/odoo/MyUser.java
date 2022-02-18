@@ -17,7 +17,7 @@ public class MyUser extends User {
 
 	/**
 	 * Gets the internal Odoo record ID.
-	 * 
+	 *
 	 * @return the odoo id
 	 */
 	public int getOdooId() {

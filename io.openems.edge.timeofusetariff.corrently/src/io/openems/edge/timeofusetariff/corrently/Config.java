@@ -18,7 +18,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 
 	@AttributeDefinition(name = "ZIP Code", description = "German ZIP Code of the customer location")
-	String zipcode() default "94469";
+	String zipcode();
 
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff Corrently [{id}]";
 }

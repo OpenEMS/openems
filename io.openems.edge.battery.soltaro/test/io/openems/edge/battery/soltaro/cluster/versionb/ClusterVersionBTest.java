@@ -30,7 +30,7 @@ public class ClusterVersionBTest {
 
 	@Test
 	public void test() throws Exception {
-		ClusterVersionB sut = new ClusterVersionB();
+		var sut = new ClusterVersionB();
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager())

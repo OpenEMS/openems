@@ -8,11 +8,15 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.utils.JsonUtils;
 
 public class OnRequestHandler implements Runnable {
 
@@ -45,19 +49,55 @@ public class OnRequestHandler implements Runnable {
 				// ...without timeout
 				response = responseFuture.get();
 			}
-		} catch (OpenemsNamedException e) {
-			// Get Named Exception error response
-			this.parent.logWarn(this.log, "JSON-RPC Error Response: " + e.getMessage());
-			response = new JsonrpcResponseError(request.getId(), e);
+
 		} catch (Exception e) {
-			// Get GENERIC error response
-			this.parent.logWarn(this.log, "JSON-RPC Error Response. " + e.getClass().getSimpleName() + ". " //
-					+ "Request: " + this.request.toString() + ". " //
-					+ "Message: " + e.getMessage());
-			response = new JsonrpcResponseError(request.getId(), e.getMessage());
+			// Log Error
+			var log = new StringBuilder() //
+					.append("JSON-RPC Error ") //
+					.append("Response \"").append(e.getMessage()).append("\" ");
+			if (!(e instanceof OpenemsNamedException)) {
+				log.append("of type ").append(e.getClass().getCanonicalName()).append("] ");
+			}
+			log.append("for Request ").append(simplifyJsonrpcMessage(this.request.toJsonObject()).toString()); //
+			this.parent.logWarn(this.log, log.toString());
+
+			// Get JSON-RPC Response Error
+			if (e instanceof OpenemsNamedException) {
+				response = new JsonrpcResponseError(this.request.getId(), (OpenemsNamedException) e);
+			} else {
+				response = new JsonrpcResponseError(this.request.getId(), e.getMessage());
+			}
 		}
 
-		responseCallback.accept(response);
+		this.responseCallback.accept(response);
+	}
+
+	/**
+	 * Simplifies a {@link JsonrpcMessage} by recursively removing unnecessary
+	 * elements "jsonrpc" and "id".
+	 * 
+	 * @param j the {@link JsonrpcMessage#toJsonObject()}
+	 * @return a simplified {@link JsonObject}
+	 */
+	protected static JsonObject simplifyJsonrpcMessage(JsonObject j) {
+		if (j.has("jsonrpc")) {
+			j.remove("jsonrpc");
+			j.remove("id");
+		}
+		if (j.has("params")) {
+			try {
+				var params = JsonUtils.getAsJsonObject(j, "params");
+				if (params.has("payload")) {
+					var originalPayload = JsonUtils.getAsJsonObject(params, "payload");
+					var simplifiedPayload = simplifyJsonrpcMessage(originalPayload);
+					params.add("payload", simplifiedPayload);
+					j.add("params", params);
+				}
+			} catch (OpenemsNamedException e) {
+				// ignore -> do not replace params/payload
+			}
+		}
+		return j;
 	}
 
 }

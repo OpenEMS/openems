@@ -18,7 +18,7 @@ import io.openems.common.utils.JsonUtils;
 /**
  * Represents a JSON-RPC Response for {@link AuthenticateWithPasswordRequest} or
  * {@link AuthenticateWithTokenRequest}.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -37,7 +37,7 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 
 		/**
 		 * Converts a collection of EdgeMetadatas to a JsonArray.
-		 * 
+		 *
 		 * <pre>
 		 * [{
 		 *   "id": String,
@@ -48,12 +48,12 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 		 *   "isOnline: boolean
 		 * }]
 		 * </pre>
-		 * 
+		 *
 		 * @param metadatas the EdgeMetadatas
 		 * @return a JsonArray
 		 */
 		public static JsonArray toJson(Collection<EdgeMetadata> metadatas) {
-			JsonArray result = new JsonArray();
+			var result = new JsonArray();
 			for (EdgeMetadata metadata : metadatas) {
 				result.add(metadata.toJsonObject());
 			}

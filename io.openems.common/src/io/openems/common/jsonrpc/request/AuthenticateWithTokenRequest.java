@@ -8,10 +8,10 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Request to authenticate with a Token.
- * 
+ *
  * <p>
  * This is used by UI to login with a Token at Edge or Backend.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -30,32 +30,32 @@ public class AuthenticateWithTokenRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link AuthenticateWithTokenRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link AuthenticateWithTokenRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static AuthenticateWithTokenRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		String token = JsonUtils.getAsString(p, "token");
+		var p = r.getParams();
+		var token = JsonUtils.getAsString(p, "token");
 		return new AuthenticateWithTokenRequest(r, token);
 	}
 
 	private final String token;
 
 	private AuthenticateWithTokenRequest(JsonrpcRequest request, String token) {
-		super(request, METHOD);
+		super(request, AuthenticateWithTokenRequest.METHOD);
 		this.token = token;
 	}
 
 	public AuthenticateWithTokenRequest(String token) {
-		super(METHOD);
+		super(AuthenticateWithTokenRequest.METHOD);
 		this.token = token;
 	}
 
 	/**
 	 * Gets the Token.
-	 * 
+	 *
 	 * @return Token
 	 */
 	public String getToken() {

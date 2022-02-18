@@ -11,7 +11,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Response for {@link AddEdgeToUserRequest}.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -34,7 +34,7 @@ public class AddEdgeToUserResponse extends JsonrpcResponseSuccess {
 		super(id);
 		this.edge = edge;
 	}
-	
+
 	@Override
 	public JsonObject getResult() {
 		return JsonUtils.buildJsonObject() //
