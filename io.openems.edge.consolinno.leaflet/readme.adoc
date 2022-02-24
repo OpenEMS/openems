@@ -1,0 +1,80 @@
+= Consolinno Leaflet
+
+This Module provides the functionality of the Consolinno Leaflet.
+This includes:
+
+- Consolinno Leaflet Core This Configurator reads an Input CSV file with the Modbus Register Map.
+It will allocate these to the correct components and configures the Modules connected.
+On Leaflets the BasePath for the CSV File is : /usr/include/leafletbs/
+
+- Consolinno Leaflet Pwm This Pwm will regulate power output on a given Module and Position by writing the Modbus Registers accordingly.
+
+- Consolinno Leaflet Relay This Relay will set the relay state on a given Module and Position, by writing the Modbus Registers accordingly.
+
+- Consolinno Leaflet Sensor Signal This Signal Sensor will read the Temperature on a given Module and Position, by reading the according Modbus Registers.
+Additionally, it will write a Status in the Status Channel, if the temperature reading is below or above a given Value.
+
+- Consolinno Leaflet Sensor Temperature This Temperature Sensor will read the Temperature on a given Module and Position, by reading the according Modbus Registers.
+
+
+== How to Install LeafletBs for Linux/Raspbian devices.
+
+
+Usually the LeafletBaseModule comes with a preinstalled configuration, BaseSoftware etc.
+Therefore, you shouldn't have to apply the following steps, except if you want to create your own Image:
+
+Create a conf file for Consolinno Debian Repository
+
+    sudo nano /etc/apt/sources.list.d/consolinno.list
+
+After that, add the line:
+
+    deb https://repo.services.consolinno.de/ buster main
+    Save and exit.
+
+  sudo wget -qO - https://repo.services.consolinno.de/repo_signing.key | sudo apt-key add -
+
+to get the key
+
+    sudo apt-get update
+
+to update and finally
+
+        sudo apt install leafletbs-app
+
+install the software.
+
+NOTE
+
+If the device tells you that it needs modbus libs etc to work properly/install at all:
+
+create
+
+    sudo nano /etc/apt/sources.list.d/sources.list
+
+add:
+
+    deb http://archive.raspbian.org/raspbian buster main contrib non-free
+    deb-src http://archive.raspbian.org/raspbian buster main contrib non-free
+
+
+save and exit, execute after that:
+
+     wget https://archive.raspbian.org/raspbian.public.key -O - | sudo apt-key add -
+
+install
+
+    sudo apt install libconfig++9v5
+    sudo apt install libmodbus5
+
+
+If the CA certificates on your device expired (CA from lets encrypt), make sure to delete old certificates.
+
+    grep DST /etc/ca-certificates.conf
+
+Certs without an exclamation point before that -> need an exclamation point otherwise old certs will be used.
+
+    sudo update-ca-certificates
+    sudo apt-get install apt-transport-https ca-certificates
+
+If you have done that, you can retry to get the repo key of Consolinno.
