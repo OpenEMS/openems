@@ -240,7 +240,19 @@ public enum Unit {
 	/**
 	 * Unit of Resistance [uOhm].
 	 */
-	MICROOHM("uOhm", OHM, -6);
+	MICROOHM("uOhm", OHM, -6),
+
+
+	// ##########
+	// Pressure
+	// ##########
+
+
+	/**
+	 * Unit of Pressure [bar].
+	 */
+	BAR("bar");
+
 
 	private final Unit baseUnit;
 	private final int scaleFactor;
@@ -290,6 +302,7 @@ public enum Unit {
 		case NONE:
 			return value.toString();
 		case AMPERE:
+		case BAR:
 		case DEGREE_CELSIUS:
 		case DEZIDEGREE_CELSIUS:
 		case EUROS_PER_MEGAWATT_HOUR:

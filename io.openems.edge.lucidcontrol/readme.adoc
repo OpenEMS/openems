@@ -1,0 +1,40 @@
+= LucidControl
+:hide-uri-scheme:
+
+The support for LucidControl Devices from
+https://lucid-control.com
+
+Remember to get their Software at :
+https://lucid-control.com/downloads/
+NOTE: This Implementation only supports Linux/Raspbian devices and POSITIVE Voltage LucidIOs.(Not +-5V and +-10V)
+
+== Description
+
+This Bridge/Api provides the Communication with LucidControl Modules, and it's Devices.
+The Bridge handles the Communication between OpenEMS and the LucidControl Software, by calling the Shell, executing a command to call the LucidControl Software, and getting the Output (on Read) to get the current Volt input and write into the LucidControlDevice.
+
+First you have to Configure a Bridge, followed by a Module and in the end n Devices (n determined by connectors to the LucidModule itself.)
+
+== Example
+
+1. Configure Bridge LucidControl and add the Path to the LucidIoControl Software.
+The Bridge is in Singleton Pattern.
+
+2. Configure a Module.
+The important part here is the Module Path.
+The default path ist /dev/ttyACM0 where following devices, login with ttyACM'X' where 'X'' represents a number.
+
+3. Last but not Least configure the device.
+The Device connected to a Module.
+The Devices are Split into In and Output devices.
+Both Devices need a ModuleId, and a PinPosition (starting with 0) The Input Devices need a "MaxPressure".
+Allowing the mapping of Max Voltage to the max pressure -> and therefore the Pressure can be calculated.
+The Output device needs a more detailed configuration.
+Where a  Threshold maps a Value.
+When Writing from a Device to another some lost Voltage can be measured e.g. 50% != 50% but 45% -> A Threshold Value (in Volt) will be added to the calculated value.
+
+== References
+
+https://lucid-control.com
+https://www.lucid-control.com/downloads/
+
