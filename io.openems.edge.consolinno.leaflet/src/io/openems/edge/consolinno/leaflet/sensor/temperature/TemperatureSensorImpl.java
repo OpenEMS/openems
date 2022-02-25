@@ -4,6 +4,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Thermometer.Consolinno.Leaflet.Temperature", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class TemperatureSensorImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, Thermometer {
+public class TemperatureSensorImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, Thermometer, ModbusComponent {
 
     @Reference
     protected ConfigurationAdmin cm;
@@ -54,7 +55,9 @@ public class TemperatureSensorImpl extends AbstractOpenemsModbusComponent implem
     private int temperatureAnalogInput;
 
     public TemperatureSensorImpl() {
-        super(OpenemsComponent.ChannelId.values(), Thermometer.ChannelId.values());
+        super(OpenemsComponent.ChannelId.values(),
+                ModbusComponent.ChannelId.values(),
+                Thermometer.ChannelId.values());
     }
 
 

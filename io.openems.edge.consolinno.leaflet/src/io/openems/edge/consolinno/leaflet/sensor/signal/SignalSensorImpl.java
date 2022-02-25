@@ -4,6 +4,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
 @Component(name = "Consolinno.Leaflet.Sensor.Signal", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 
-public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, Thermometer, SignalSensor, EventHandler {
+public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, Thermometer, SignalSensor, EventHandler, ModbusComponent {
 
     @Reference
     protected ConfigurationAdmin cm;
@@ -66,7 +67,10 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
     private boolean isInverted;
 
     public SignalSensorImpl() {
-        super(OpenemsComponent.ChannelId.values(), Thermometer.ChannelId.values(), SignalSensor.ChannelId.values());
+        super(OpenemsComponent.ChannelId.values(),
+                Thermometer.ChannelId.values(),
+                ModbusComponent.ChannelId.values(),
+                SignalSensor.ChannelId.values());
     }
 
 

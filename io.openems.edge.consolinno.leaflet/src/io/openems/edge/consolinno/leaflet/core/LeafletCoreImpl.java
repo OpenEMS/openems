@@ -5,6 +5,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -53,7 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component(name = "Consolinno.Leaflet.Configurator", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 
-public class LeafletCoreImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, LeafletCore, EventHandler {
+public class LeafletCoreImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, LeafletCore, EventHandler, ModbusComponent {
 
     private List<List<String>> source;
     private final Map<ModuleRegister, Integer> discreteOutputCoils = new HashMap<>();
@@ -117,7 +118,9 @@ public class LeafletCoreImpl extends AbstractOpenemsModbusComponent implements O
 
 
     public LeafletCoreImpl() {
-        super(OpenemsComponent.ChannelId.values(), LeafletCore.ChannelId.values());
+        super(OpenemsComponent.ChannelId.values(),
+                ModbusComponent.ChannelId.values(),
+                LeafletCore.ChannelId.values());
     }
 
     @Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

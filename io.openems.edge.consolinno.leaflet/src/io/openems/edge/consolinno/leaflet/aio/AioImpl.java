@@ -5,6 +5,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -52,7 +53,7 @@ import org.slf4j.LoggerFactory;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Consolinno.Leaflet.Aio", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-public class AioImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, AnalogInputOutput, EventHandler {
+public class AioImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, AnalogInputOutput, EventHandler, ModbusComponent {
 
 
     @Reference
@@ -89,7 +90,9 @@ public class AioImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
     private int value;
 
     public AioImpl() {
-        super(OpenemsComponent.ChannelId.values(), AnalogInputOutput.ChannelId.values());
+        super(OpenemsComponent.ChannelId.values(),
+                ModbusComponent.ChannelId.values(),
+                AnalogInputOutput.ChannelId.values());
     }
 
 

@@ -5,6 +5,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -42,7 +43,7 @@ import org.slf4j.LoggerFactory;
 @Component(name = "Consolinno.Leaflet.Pwm", immediate = true,
         configurationPolicy = ConfigurationPolicy.REQUIRE)
 
-public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, Pwm {
+public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsComponent, Pwm, ModbusComponent {
 
     @Reference
     protected ConfigurationAdmin cm;
@@ -63,7 +64,9 @@ public class PwmImpl extends AbstractOpenemsModbusComponent implements OpenemsCo
     private int pwmDiscreteOutput;
 
     public PwmImpl() {
-        super(OpenemsComponent.ChannelId.values(), Pwm.ChannelId.values());
+        super(OpenemsComponent.ChannelId.values(),
+                ModbusComponent.ChannelId.values(),
+                Pwm.ChannelId.values());
     }
 
 
