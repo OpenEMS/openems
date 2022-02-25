@@ -447,6 +447,62 @@ public class PowerComponentTest {
 		componentTest.next(new TestCase("#7"));
 	}
 
+	@Test
+	public void testMultilayerCluster() throws Exception {
+		PowerComponent powerComponent = new PowerComponentImpl();
+		DummyManagedSymmetricEss ess11 = new DummyManagedSymmetricEss("ess11", powerComponent) //
+				.withAllowedChargePower(-70000) //
+				.withAllowedDischargePower(70000) //
+				.withMaxApparentPower(50000) //
+				.withSoc(30);
+		DummyManagedSymmetricEss ess12 = new DummyManagedSymmetricEss("ess12", powerComponent) //
+				.withAllowedChargePower(-70000) //
+				.withAllowedDischargePower(70000) //
+				.withMaxApparentPower(50000) //
+				.withSoc(60);
+		DummyMetaEss ess10 = new DummyMetaEss("ess10", powerComponent, ess11, ess12); //
+		DummyManagedSymmetricEss ess21 = new DummyManagedSymmetricEss("ess21", powerComponent) //
+				.withAllowedChargePower(-70000) //
+				.withAllowedDischargePower(70000) //
+				.withMaxApparentPower(50000) //
+				.withSoc(30);
+		DummyManagedSymmetricEss ess22 = new DummyManagedSymmetricEss("ess22", powerComponent) //
+				.withAllowedChargePower(-70000) //
+				.withAllowedDischargePower(70000) //
+				.withMaxApparentPower(50000) //
+				.withSoc(60);
+		DummyMetaEss ess20 = new DummyMetaEss("ess20", powerComponent, ess21, ess22); //
+		DummyMetaEss ess0 = new DummyMetaEss("ess0", powerComponent, ess10, ess20); //
+
+		final DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(PowerComponent.SINGLETON_SERVICE_PID);
+
+		final ComponentTest componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("addEss", ess0) //
+				.addReference("addEss", ess10) //
+				.addReference("addEss", ess11) //
+				.addReference("addEss", ess12) //
+				.addReference("addEss", ess20) //
+				.addReference("addEss", ess21) //
+				.addReference("addEss", ess22) //
+				.activate(MyConfig.create() //
+						.setStrategy(SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(false) //
+						.build()); //
+
+		// #1
+		expect("#1", ess11, 1500, 1500);
+		expect("#1", ess12, 1500, 1500);
+		expect("#1", ess21, 1500, 1500);
+		expect("#1", ess22, 1500, 1500);
+		ess0.addPowerConstraint("#1", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 6000);
+		ess0.addPowerConstraint("#1", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 6000);
+		componentTest.next(new TestCase("#1"));
+	}
+
 	private static void expect(String description, DummyManagedSymmetricEss ess, int p, int q) {
 		openCallbacks.incrementAndGet();
 		ess.withSymmetricApplyPowerCallback((record) -> {
