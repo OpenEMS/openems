@@ -1,0 +1,43 @@
+= Timer
+
+This Bundle provides an API to automatically check if a time is up.
+The Timer can either use time or Cycles to tell, if the time to wait is up or not.
+
+This helps to handle ExceptionalStates, or TimeOuts (for an EnableSignal) etc.
+Implementing classes should use the TimerHandler implementation for an easier usage of the TimerApi.
+
+== Timer Interface
+
+The Timer interface.
+This is normally used by TimerHandler, but other classes can use the Timer directly.
+(Even though it's not recommended) The Timer is used to measure, if a specific time is up.
+ATM it can be a cycle counter or it could be a real Time.
+Usually Components instantiate a TimerHandler and add it's config to the Timerhandler.
+The Timerhandler therefore communicates between a class and the timer itself, providing the info a class needs to determine if a certain time is up or not.
+Key is the Id and the identifier.
+A class can have multiple identifier, each mapped to certain intitial Timestamps/Cyclecounts.
+Making it possible to support "n" identifier.
+
+== TimerHandler Interface
+
+The TimerHandler Interface makes the use of Timer easier.
+OpenemsComponents, that wants to use the Timer should use this, to avoid a bulk of implementation.
+Components can add an Identifier to the TimerHandler by giving it the identifier id, the TimerString they want to use and the maxTime.
+Everything's usually from configuration, except the identifier, this can be a static final string.
+The identifier is used internally by a Component to determine which "time" they want to check.
+
+== Example
+
+Component A with ID "A_ID" has 2 Different Times to watch.
+A Timer watching Time (ID == TimerByTime), and a Timer counting Cycles (TimerByCycles) is activated.
+The first one is for an EnableSignal, and the attribute is ENABLE_SIGNAL_IDENTIFIER, with the value of "ENABLE_ID" the second one is for an ExceptionalState, the attribute is EXCEPTIONAL_STATE_IDENTIFIER, with the value of "EXCEPTIONAL_ID"
+
+A new TimerHandler will be created, receiving the Id of Component A (A_ID), and the ComponentManager.
+After that ComponentA adds Identifier to the TimerHandler by adding the TimerID (TimerByTime or TimerByCycles), the Identifier (ENABLE_SIGNAL_IDENTIFER OR EXECPTIONAL_STATE_IDENTIFIER) and the deltaTime (how long to wait until time is up).
+
+After adding the identifier, the Component A can watch the timer, by using the "checkTimeIsUp" method and evaluate the time.
+You can reset the time by calling resetTimer(ID) method, where ID in this case would be ENABLE_SIGNAL_IDENTIFIER or EXCEPTIONAL_STATE_IDENTIFIER.
+
+A Component can have 'n' many identifier.
+Each Component is mapped internally by the timer via their OpenEMS id (A_ID in this case) The Timer stores everything under a map: Map<String, Map<String, ValueInitializedWrapper>>.
+Where the first String is in this example A_ID the second one is either ENABLE_SIGNAL_IDENTIFER or EXECPTIONAL_STATE_IDENTIFIER and the ValueInitializedWrapper is unique per IDENTIFIER (Storing max delta Time, current Time and if the component was initialized(has it started or not)).
