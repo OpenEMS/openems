@@ -42,9 +42,6 @@ export class SetUserInformationRequest extends JsonrpcRequest {
                     zip: string,
                     city: string,
                     country: string
-                },
-                company: {
-                    name: string
                 }
             }
         }

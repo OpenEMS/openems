@@ -122,6 +122,40 @@ export const TRANSLATION = {
     },
     Register: {
         title: "Vytvoření uživatelského účtu",
+        segment: {
+            user: "Uživatel",
+            installer: "Instalatér"
+        },
+        form: {
+            user: {
+                acceptPrivacyPolicy: "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*",
+            },
+            installer: {
+                acceptPrivacyPolicy: "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*",
+            },
+            contactDetails: "Kontaktní údaje",
+            companyName: "název společnosti",
+            firstname: "jméno",
+            lastname: " Příjmení",
+            street: "Ulice",
+            zip: "Ulice",
+            city: "Město",
+            country: "Město",
+            phone: "Telefonní číslo",
+            email: "E-Mail",
+            password: "Heslo",
+            confirmPassword: "Potvrzení hesla",
+            isElectrician: "Potvrzuji, že moje společnost je zapsána v registru instalátorů, a jsem tedy oprávněn připojit a uvést do provozu systém ukládání dat.",
+            acceptPrivacyPolicy: "Vytvořením účtu instalátoru FENECON prohlašuji, že jsem si přečetl(a) a souhlasím se <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Zásadami ochrany osobních údajů</a> a Podmínkami použití společnosti FENECON.*",
+            acceptAgb: "Potvrzuji <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+            subscribeNewsletter: "Chci se přihlásit k odběru newsletteru FENECON a dostávat všechny novinky z FENECON."
+        },
+        button: "Vytvořit",
+        errors: {
+            requiredFields: "Vyplňte prosím všechna pole",
+            passwordNotEqual: "Hesla nejsou stejná"
+        },
+        success: "Úspěšná registrace"
     },
     Edge: {
         Index: {

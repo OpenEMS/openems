@@ -120,6 +120,40 @@ export const TRANSLATION = {
     },
     Register: {
         title: "Créer un compte utilisateur",
+        segment: {
+            user: "Utilisateur",
+            installer: "Installateur"
+        },
+        form: {
+            user: {
+                acceptPrivacyPolicy: "En créant un compte FENECON, je déclare avoir lu et accepté la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Politique de confidentialité</a> et les conditions d'utilisation de FENECON*.",
+            },
+            installer: {
+                acceptPrivacyPolicy: "En créant un compte installateur FENECON, je déclare avoir lu et accepté la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Politique de confidentialité</a> et les conditions d'utilisation de FENECON.*",
+            },
+            contactDetails: "Coordonnées",
+            companyName: "Nom de la société",
+            firstname: "Prénom",
+            lastname: "Nom de famille",
+            street: "Rue | Numéro de maison",
+            zip: "Code postal",
+            city: "Ville",
+            country: "Pays",
+            phone: "Numéro de téléphone",
+            email: "Courrier électronique.",
+            password: "Mot de passe.",
+            confirmPassword: "Confirmer le mot de passe.",
+            isElectrician: "Je confirme que mon entreprise est inscrite dans le registre des installateurs et que je suis donc autorisé à raccorder et à mettre en service un système de stockage.",
+            acceptPrivacyPolicy: "En créant un compte installateur FENECON, je déclare avoir lu et accepté la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Politique de confidentialité</a> et les conditions d'utilisation de FENECON.*",
+            acceptAgb: "Je confirme le <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+            subscribeNewsletter: "Je souhaite m'inscrire à la newsletter de la FENECON pour recevoir toutes les dernières nouvelles de la FENECON."
+        },
+        button: "Créer",
+        errors: {
+            requiredFields: "Veuillez remplir tous les champs",
+            passwordNotEqual: "Les mots de passe ne sont pas égaux."
+        },
+        success: "Inscription réussie"
     },
     Edge: {
         Index: {

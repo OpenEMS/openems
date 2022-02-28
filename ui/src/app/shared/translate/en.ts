@@ -127,9 +127,10 @@ export const TRANSLATION = {
             installer: {
                 acceptPrivacyPolicy: "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
             },
+            contactDetails: "Contact Details",
             companyName: "Company name",
-            firstname: "Firstname",
-            lastname: "Lastname",
+            firstname: "First name",
+            lastname: "Last name",
             street: "Street",
             zip: "Postal code",
             city: "City",
