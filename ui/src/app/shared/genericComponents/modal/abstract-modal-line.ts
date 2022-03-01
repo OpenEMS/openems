@@ -7,7 +7,6 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
-import { Icon } from "../../type/widget";
 
 @Directive()
 export abstract class AbstractModalLine implements OnDestroy {
@@ -18,7 +17,7 @@ export abstract class AbstractModalLine implements OnDestroy {
     /** component */
     @Input() component: EdgeConfig.Component = null;
 
-    /** Component-Properties ControlName */
+    /** FormGroup ControlName */
     @Input() controlName: string;
 
     /**

@@ -1,4 +1,4 @@
-import { formatNumber } from '@angular/common';
+import { formatDate, formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { saveAs } from 'file-saver-es';
@@ -286,6 +286,30 @@ export class Utils {
     } else {
       return { name: translate.instant('General.chargePower'), value: power * -1 };
     }
+  }
+
+  /**
+ * Converts states 'MANUAL', 'OFF' and 'AUTOMATIC' to translated strings.
+ * 
+ * @param value the value from passed value in html
+ * @returns converted value
+ */
+  public static CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = (translate: TranslateService) => {
+    return (value: any): string => {
+      if (value === 'MANUAL') {
+        return translate.instant('General.manually');
+      } else if (value === 'OFF') {
+        return translate.instant('General.off');
+      } else if (value === 'AUTOMATIC') {
+        return translate.instant('General.automatic');
+      } else {
+        return '-';
+      }
+    }
+  }
+
+  public static CONVERT_MINUTE_TO_TIME_OF_DAY = (value: number): string => {
+    return formatDate(value * 60 * 1000, 'HH:mm', 'UTC') + ' h'
   }
 
   /**

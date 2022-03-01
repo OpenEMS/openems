@@ -244,17 +244,17 @@ export const TRANSLATION = {
                     medium: 'Mittel',
                     minimumCharge: 'Minimale Beladung',
                     RiskDescription: {
-                        Low: {
+                        LOW: {
                             functionDescription: 'Vergleichsweise frühzeitige Beladung des Speichers',
                             storageDescription: 'Höhere Wahrscheinlichkeit, dass der Speicher vollständig beladen wird',
                             pvCurtail: 'Geringere Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
                         },
-                        Medium: {
+                        MEDIUM: {
                             functionDescription: 'Vergleichsweise gleichmäßige Beladung des Speichers',
                             storageDescription: 'Hohe Wahrscheinlichkeit, dass der Speicher vollständig beladen wird',
                             pvCurtail: 'Hohe Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
                         },
-                        High: {
+                        HIGH: {
                             functionDescription: 'Vergleichsweise spätere Beladung des Speichers',
                             storageDescription: 'Geringere Wahrscheinlichkeit, dass der Speicher voll wird',
                             pvCurtail: 'Höhere Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
@@ -272,6 +272,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Endzeitpunkt der begrenzten Beladung überschritten',
                         storageAlreadyFull: 'Speicher bereits voll',
                     },
+                    storageCapacity: 'Speicherkapazität (nur sichtbar für admin)'
                 },
                 CHP: {
                     highThreshold: 'Oberer Schwellenwert',
@@ -311,7 +312,7 @@ export const TRANSLATION = {
                     starting: 'Startet',
                     status: 'Status',
                     totalCharge: 'Gesamte Beladung',
-                    totalChargingPower: 'Gesamte Lade-Leistung',
+                    totalChargingPower: 'Gesamte Ladeleistung',
                     unknown: 'Unbekannt',
                     unplugged: 'Ausgesteckt',
                     Administration: {

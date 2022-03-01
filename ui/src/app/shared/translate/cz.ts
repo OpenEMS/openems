@@ -269,6 +269,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Byl překročen čas ukončení omezeného načítání',
                         storageAlreadyFull: 'Paměť je již plná',
                     },
+                    storageCapacity: 'skladovací kapacita (viditelné pouze pro správce)'
                 },
                 CHP: {
                     highThreshold: 'vysoký práh',

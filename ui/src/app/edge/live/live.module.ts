@@ -15,6 +15,7 @@ import { Controller_ChannelthresholdComponent } from './Controller/Channelthresh
 import { Controller_ChpSocComponent } from './Controller/ChpSoc/ChpSoc';
 import { Controller_ChpSocModalComponent } from './Controller/ChpSoc/modal/modal.component';
 import { Controller_Ess_FixActivePower } from './Controller/Ess_FixActivePower/Ess_FixActivePower';
+import { Controller_Ess_GridOptimizedCharge } from './Controller/Ess_GridOptimizedCharge/Ess_GridOptimizedCharge';
 import { Controller_Ess_TimeOfUseTariff_Discharge } from './Controller/Ess_Time-Of-Use-Tariff_Discharge/Ess_Time-Of-Use-Tariff_Discharge';
 import { Controller_Ess_TimeOfUseTariff_DischargeModalComponent } from './Controller/Ess_Time-Of-Use-Tariff_Discharge/modal/modal.component';
 import { Controller_EvcsComponent } from './Controller/Evcs/Evcs';
@@ -38,9 +39,6 @@ import { Controller_Symmetric_TimeSlot_PeakShavingComponent } from './Controller
 import { DelayedSellToGridComponent } from './delayedselltogrid/delayedselltogrid.component';
 import { DelayedSellToGridModalComponent } from './delayedselltogrid/modal/modal.component';
 import { EnergymonitorModule } from './energymonitor/energymonitor.module';
-import { GridOptimizedChargeComponent } from './gridoptimizedcharge/gridoptimizedcharge.component';
-import { GridOptimizedChargeModalComponent } from './gridoptimizedcharge/modal/modal.component';
-import { PredictionChartComponent } from './gridoptimizedcharge/modal/predictionChart';
 import { InfoComponent } from './info/info.component';
 import { Io_Api_DigitalInputComponent } from './Io/Api_DigitalInput/Io_Api_DigitalInput';
 import { Io_Api_DigitalInput_ModalComponent } from './Io/Api_DigitalInput/modal/modal.component';
@@ -57,9 +55,12 @@ import { ProductionComponent } from './production/production.component';
     AdvertisementModule,
     BrowserAnimationsModule,
     BrowserModule,
+    // Common
     Common_Autarchy,
     Common_Selfconsumption,
+    // Controller
     Controller_Ess_FixActivePower,
+    Controller_Ess_GridOptimizedCharge,
     EnergymonitorModule,
     SharedModule,
   ],
@@ -84,7 +85,6 @@ import { ProductionComponent } from './production/production.component';
     DelayedSellToGridModalComponent,
     Evcs_Api_ClusterModalComponent,
     GridModalComponent,
-    GridOptimizedChargeModalComponent,
     Io_Api_DigitalInput_ModalComponent,
     Io_Api_DigitalInputComponent,
     ProductionModalComponent,
@@ -124,14 +124,11 @@ import { ProductionComponent } from './production/production.component';
     EvcsChart,
     GridComponent,
     GridModalComponent,
-    GridOptimizedChargeComponent,
-    GridOptimizedChargeModalComponent,
     InfoComponent,
     Io_Api_DigitalInput_ModalComponent,
     Io_Api_DigitalInputComponent,
     LiveComponent,
     OfflineComponent,
-    PredictionChartComponent,
     ProductionComponent,
     ProductionModalComponent,
     StorageComponent,

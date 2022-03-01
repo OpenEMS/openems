@@ -271,6 +271,7 @@ export const TRANSLATION = {
                         passedEndTime: 'End time of limited charging exceeded',
                         storageAlreadyFull: 'Memory already full',
                     },
+                    storageCapacity: 'Storagecapacity (only visible for admin)'
                 },
                 CHP: {
                     highThreshold: 'High Threshold',
@@ -311,7 +312,7 @@ export const TRANSLATION = {
                     starting: 'Starting',
                     status: 'Status',
                     totalCharge: 'Total charge',
-                    totalChargingPower: 'Total charging power',
+                    totalChargingPower: 'Total chargingpower',
                     unknown: 'Unknown',
                     unplugged: 'Unplugged',
                     Administration: {

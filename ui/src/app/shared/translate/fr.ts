@@ -272,6 +272,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Heure de fin du chargement limité dépassée',
                         storageAlreadyFull: 'Mémoire déjà pleine',
                     },
+                    storageCapacity: 'capacité de stockage (visible seulement pour admin)'
                 },
                 CHP: {
                     highThreshold: 'Seuil Haut',
