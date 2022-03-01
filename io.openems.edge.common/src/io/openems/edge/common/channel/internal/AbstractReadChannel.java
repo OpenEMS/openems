@@ -149,7 +149,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	public Value<T> value() throws IllegalArgumentException {
 		switch (this.channelDoc.getAccessMode()) {
 		case WRITE_ONLY:
-			throw new IllegalArgumentException("Channel [" + this.channelId + "] is WRITE_ONLY.");
+			throw new IllegalArgumentException("Channel [" + this.channelId.id() + "] is WRITE_ONLY.");
 		case READ_ONLY:
 		case READ_WRITE:
 			break;
@@ -160,9 +160,10 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	@Override
 	public String toString() {
 		return "Channel [" //
-				+ "ID=" + this.channelId + ", " //
+				+ "ID=" + this.channelId.id() + ", " //
 				+ "type=" + this.type + ", " //
-				+ "activeValue=" + this.activeValue.asString() //
+				+ "activeValue=" + this.activeValue.asString() + ", "//
+				+ "access=" + this.channelDoc.getAccessMode() //
 				+ "]";
 	}
 
