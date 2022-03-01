@@ -19,7 +19,7 @@ import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.test.DummyAsymmetricMeter;
-import io.openems.edge.predictor.api.test.DummyPrediction48Hours;
+import io.openems.edge.predictor.api.test.DummyPrediction24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
 
@@ -137,8 +137,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -194,8 +194,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -256,8 +256,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -335,8 +335,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -412,8 +412,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours();
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours();
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours();
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours();
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -462,9 +462,9 @@ public class MyControllerTest {
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction48Hours(), "_sum/ProductionActivePower");
+				new DummyPrediction24Hours(), "_sum/ProductionActivePower");
 		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction48Hours(), "_sum/ConsumptionActivePower");
+				new DummyPrediction24Hours(), "_sum/ConsumptionActivePower");
 
 		// PredictorManager
 		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
@@ -560,9 +560,9 @@ public class MyControllerTest {
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction48Hours(), "_sum/ProductionActivePower");
+				new DummyPrediction24Hours(), "_sum/ProductionActivePower");
 		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction48Hours(), "_sum/ConsumptionActivePower");
+				new DummyPrediction24Hours(), "_sum/ConsumptionActivePower");
 
 		// PredictorManager
 		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
@@ -660,9 +660,9 @@ public class MyControllerTest {
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction48Hours(), "_sum/ProductionActivePower");
+				new DummyPrediction24Hours(), "_sum/ProductionActivePower");
 		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction48Hours(), "_sum/ConsumptionActivePower");
+				new DummyPrediction24Hours(), "_sum/ConsumptionActivePower");
 
 		// PredictorManager
 		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
@@ -757,8 +757,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -815,8 +815,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -871,8 +871,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -929,8 +929,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -979,8 +979,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -1041,8 +1041,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -1107,8 +1107,8 @@ public class MyControllerTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,

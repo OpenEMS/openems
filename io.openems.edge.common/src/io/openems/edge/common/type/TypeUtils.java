@@ -508,6 +508,24 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely multiply Floats.
+	 * 
+	 * @param factors the factors of the multiplication
+	 * @return the result, possibly null if all factors are null
+	 */
+	public static Float multiply(Float... factors) {
+		Float result = null;
+		for (var factor : factors) {
+			if (result == null) {
+				result = factor;
+			} else if (factor != null) {
+				result *= factor;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely multiply Doubles.
 	 * 
 	 * @param factors the factors of the multiplication
@@ -570,6 +588,26 @@ public class TypeUtils {
 	public static Integer max(Integer... values) {
 		Integer result = null;
 		for (Integer value : values) {
+			if (value != null) {
+				if (result == null) {
+					result = value;
+				} else {
+					result = Math.max(result, value);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely finds the max value of all values.
+	 * 
+	 * @param values the {@link Float} values
+	 * @return the max value; or null if all values are null
+	 */
+	public static Float max(Float... values) {
+		Float result = null;
+		for (var value : values) {
 			if (value != null) {
 				if (result == null) {
 					result = value;
