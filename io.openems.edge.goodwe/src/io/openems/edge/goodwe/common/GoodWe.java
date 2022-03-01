@@ -404,7 +404,7 @@ public interface GoodWe extends OpenemsComponent {
 		STATE_113(Doc.of(Level.FAULT).text("Off-grid zero error")), //
 		STATE_114(Doc.of(Level.FAULT).text("Power fast retrack error")), //
 		STATE_115(Doc.of(Level.FAULT).text("Bypass relay switch error")), //
-		STATE_116(Doc.of(Level.FAULT).text("Backup load realy switch error")), //
+		STATE_116(Doc.of(Level.FAULT).text("Backup load relay switch error")), //
 
 		// Table 8-32 Inverter detailed status
 		STATE_117(Doc.of(Level.INFO).text("Over frequency curve running")), //
@@ -417,7 +417,7 @@ public interface GoodWe extends OpenemsComponent {
 		STATE_124(Doc.of(Level.INFO).text("Fixed PF is set")), //
 		STATE_125(Doc.of(Level.INFO).text("Fixed reactive power is set")), //
 		STATE_126(Doc.of(Level.INFO).text("Inverter over temp,derating curve operation")), //
-		STATE_127(Doc.of(Level.INFO).text("Australian DRED electricty sale status")), //
+		STATE_127(Doc.of(Level.INFO).text("Australian DRED electricity sale status")), //
 		STATE_128(Doc.of(Level.INFO).text("Australian DRED purchase status")), //
 		STATE_129(Doc.of(Level.INFO).text("Active power limit set")), //
 		STATE_130(Doc.of(Level.INFO).text("70 percent derating (Germany) has been opened")), //
