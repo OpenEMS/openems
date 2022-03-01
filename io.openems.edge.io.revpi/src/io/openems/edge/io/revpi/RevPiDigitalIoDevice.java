@@ -122,7 +122,7 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 		// from outside
 		for (int idx = 0; idx < this.channelOut.length; idx++) {
 			try {
-				boolean in = this.revPiHardware.getDataOut(idx + 1);
+				boolean in = this.revPiHardware.getDigital("In_" + (idx + 1));
 				this.channelOut[idx].setNextWriteValue(in);
 			} catch (Exception e) {
 				this.logError(this.log, "Unable to update channel values ex: " + e.getMessage());
@@ -170,7 +170,7 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 				}
 
 				if (this.revPiHardware != null) {
-					this.revPiHardware.setDataOut(idx + 1, writeValue.get());
+					this.revPiHardware.setDigital("Out_" + (idx + 1), writeValue.get());
 				}
 				this.logInfo(this.log, this.channelOut[idx].channelId() + " " + writeValue.get());
 				this.channelOut[idx].setNextValue(writeValue.get());
@@ -241,7 +241,7 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 	 * @brief reads the data either from the given DATA IN hardware port
 	 */
 	private boolean getData(int idx) throws IOException {
-		return this.revPiHardware.getDataIn(idx + 1);
+		return this.revPiHardware.getDigital("In_" + (idx + 1));
 	}
 
 	private void appendBool(StringBuilder b, Optional<Boolean> val) {
