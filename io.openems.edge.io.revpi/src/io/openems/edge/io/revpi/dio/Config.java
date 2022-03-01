@@ -1,4 +1,4 @@
-package io.openems.edge.io.revpi;
+package io.openems.edge.io.revpi.dio;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

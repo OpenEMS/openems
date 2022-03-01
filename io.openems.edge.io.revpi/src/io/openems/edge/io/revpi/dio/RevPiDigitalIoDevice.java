@@ -1,4 +1,4 @@
-package io.openems.edge.io.revpi;
+package io.openems.edge.io.revpi.dio;
 
 import java.io.IOException;
 import java.util.Objects;

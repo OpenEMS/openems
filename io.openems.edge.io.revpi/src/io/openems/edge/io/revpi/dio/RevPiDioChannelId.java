@@ -1,4 +1,4 @@
-package io.openems.edge.io.revpi;
+package io.openems.edge.io.revpi.dio;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
