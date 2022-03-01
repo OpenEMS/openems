@@ -6,6 +6,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.TypeUtils;
 import org.osgi.annotation.versioning.ProviderType;
 
 
@@ -192,14 +193,14 @@ public interface LeafletCore extends OpenemsComponent {
          * <li>Type: Integer
          * </ul>
          */
-        WRITE_PWM_FREQUENCY_ONE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
-        WRITE_PWM_FREQUENCY_TWO(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
-        WRITE_PWM_FREQUENCY_THREE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
-        WRITE_PWM_FREQUENCY_FOUR(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
-        WRITE_PWM_FREQUENCY_FIVE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
-        WRITE_PWM_FREQUENCY_SIX(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
-        WRITE_PWM_FREQUENCY_SEVEN(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
-        WRITE_PWM_FREQUENCY_EIGHT(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
+        WRITE_PWM_FREQUENCY_ONE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).initialValue(TypeUtils.getAsType(OpenemsType.INTEGER,200))),
+        WRITE_PWM_FREQUENCY_TWO(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).initialValue(TypeUtils.getAsType(OpenemsType.INTEGER,200))),
+        WRITE_PWM_FREQUENCY_THREE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).initialValue(TypeUtils.getAsType(OpenemsType.INTEGER,200))),
+        WRITE_PWM_FREQUENCY_FOUR(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).initialValue(TypeUtils.getAsType(OpenemsType.INTEGER,200))),
+        WRITE_PWM_FREQUENCY_FIVE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).initialValue(TypeUtils.getAsType(OpenemsType.INTEGER,200))),
+        WRITE_PWM_FREQUENCY_SIX(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).initialValue(TypeUtils.getAsType(OpenemsType.INTEGER,200))),
+        WRITE_PWM_FREQUENCY_SEVEN(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).initialValue(TypeUtils.getAsType(OpenemsType.INTEGER,200))),
+        WRITE_PWM_FREQUENCY_EIGHT(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).initialValue(TypeUtils.getAsType(OpenemsType.INTEGER,200))),
         /**
          * Write Configuration Channels for the Operating modes of the Aio Modules.
          * <ul>
@@ -776,36 +777,36 @@ public interface LeafletCore extends OpenemsComponent {
 
         String returnString = "";
         if (this.getReadPwmFrequencyOne().value().isDefined() && this.getReadPwmFrequencyOne().value().get() != Error.NOT_CONNECTED.getValue()
-                && this.getReadPwmFrequencyOne().value().get() != Error.ERROR.getValue()) {
-            returnString = returnString + this.getReadPwmFrequencyOne().value();
+                && this.getReadPwmFrequencyOne().value().get() != Error.READ_ERROR.getValue()) {
+            returnString = returnString + this.getReadPwmFrequencyOne().value() + " ";
         }
         if (this.getReadPwmFrequencyTwo().value().isDefined() && this.getReadPwmFrequencyTwo().value().get() != Error.NOT_CONNECTED.getValue()
-                && this.getReadPwmFrequencyTwo().value().get() != Error.ERROR.getValue()) {
-            returnString = returnString + this.getReadPwmFrequencyTwo().value();
+                && this.getReadPwmFrequencyTwo().value().get() != Error.READ_ERROR.getValue()) {
+            returnString = returnString + this.getReadPwmFrequencyTwo().value() + " ";
         }
         if (this.getReadPwmFrequencyThree().value().isDefined() && this.getReadPwmFrequencyThree().value().get() != Error.NOT_CONNECTED.getValue()
-                && this.getReadPwmFrequencyThree().value().get() != Error.ERROR.getValue()) {
-            returnString = returnString + this.getReadPwmFrequencyThree().value();
+                && this.getReadPwmFrequencyThree().value().get() != Error.READ_ERROR.getValue()) {
+            returnString = returnString + this.getReadPwmFrequencyThree().value() + " ";
         }
         if (this.getReadPwmFrequencyFour().value().isDefined() && this.getReadPwmFrequencyFour().value().get() != Error.NOT_CONNECTED.getValue()
-                && this.getReadPwmFrequencyFour().value().get() != Error.ERROR.getValue()) {
-            returnString = returnString + this.getReadPwmFrequencyFour().value();
+                && this.getReadPwmFrequencyFour().value().get() != Error.READ_ERROR.getValue()) {
+            returnString = returnString + this.getReadPwmFrequencyFour().value() + " ";
         }
         if (this.getReadPwmFrequencyFive().value().isDefined() && this.getReadPwmFrequencyFive().value().get() != Error.NOT_CONNECTED.getValue()
-                && this.getReadPwmFrequencyFive().value().get() != Error.ERROR.getValue()) {
-            returnString = returnString + this.getReadPwmFrequencyFive().value();
+                && this.getReadPwmFrequencyFive().value().get() != Error.READ_ERROR.getValue()) {
+            returnString = returnString + this.getReadPwmFrequencyFive().value() + " ";
         }
         if (this.getReadPwmFrequencySix().value().isDefined() && this.getReadPwmFrequencySix().value().get() != Error.NOT_CONNECTED.getValue()
-                && this.getReadPwmFrequencySix().value().get() != Error.ERROR.getValue()) {
-            returnString = returnString + this.getReadPwmFrequencySix().value();
+                && this.getReadPwmFrequencySix().value().get() != Error.READ_ERROR.getValue()) {
+            returnString = returnString + this.getReadPwmFrequencySix().value() + " ";
         }
         if (this.getReadPwmFrequencySeven().value().isDefined() && this.getReadPwmFrequencySeven().value().get() != Error.NOT_CONNECTED.getValue()
-                && this.getReadPwmFrequencySeven().value().get() != Error.ERROR.getValue()) {
-            returnString = returnString + this.getReadPwmFrequencySeven().value();
+                && this.getReadPwmFrequencySeven().value().get() != Error.READ_ERROR.getValue()) {
+            returnString = returnString + this.getReadPwmFrequencySeven().value() + " ";
         }
         if (this.getReadPwmFrequencyEight().value().isDefined() && this.getReadPwmFrequencyEight().value().get() != Error.NOT_CONNECTED.getValue()
-                && this.getReadPwmFrequencyEight().value().get() != Error.ERROR.getValue()) {
-            returnString = returnString + this.getReadPwmFrequencyEight().value();
+                && this.getReadPwmFrequencyEight().value().get() != Error.READ_ERROR.getValue()) {
+            returnString = returnString + this.getReadPwmFrequencyEight().value() + " ";
         }
         return returnString;
     }

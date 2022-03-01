@@ -301,7 +301,7 @@ public class LeafletCoreImpl extends AbstractOpenemsModbusComponent implements O
                     //PWM Frequency Configuration
                     new FC6WriteRegisterTask(this.pwmConfigRegisterOne,
                             m(LeafletCore.ChannelId.WRITE_PWM_FREQUENCY_ONE,
-                                    new SignedWordElement(this.pwmConfigRegisterOne),
+                                    new UnsignedWordElement(this.pwmConfigRegisterOne),
                                     ElementToChannelConverter.DIRECT_1_TO_1)),
                     new FC6WriteRegisterTask(this.pwmConfigRegisterTwo,
                             m(LeafletCore.ChannelId.WRITE_PWM_FREQUENCY_TWO,
@@ -317,7 +317,7 @@ public class LeafletCoreImpl extends AbstractOpenemsModbusComponent implements O
                                     ElementToChannelConverter.DIRECT_1_TO_1)),
                     new FC6WriteRegisterTask(this.pwmConfigRegisterFive,
                             m(LeafletCore.ChannelId.WRITE_PWM_FREQUENCY_FIVE,
-                                    new SignedWordElement(this.pwmConfigRegisterFive),
+                                    new UnsignedWordElement(this.pwmConfigRegisterFive),
                                     ElementToChannelConverter.DIRECT_1_TO_1)),
                     new FC6WriteRegisterTask(this.pwmConfigRegisterSix,
                             m(LeafletCore.ChannelId.WRITE_PWM_FREQUENCY_SIX,
@@ -363,35 +363,35 @@ public class LeafletCoreImpl extends AbstractOpenemsModbusComponent implements O
 
                     new FC3ReadRegistersTask(this.pwmConfigRegisterOne, Priority.LOW,
                             m(LeafletCore.ChannelId.READ_PWM_FREQUENCY_ONE,
-                                    new SignedWordElement(this.pwmConfigRegisterOne),
+                                    new UnsignedWordElement(this.pwmConfigRegisterOne),
                                     ElementToChannelConverter.DIRECT_1_TO_1)),
                     new FC3ReadRegistersTask(this.pwmConfigRegisterTwo, Priority.LOW,
                             m(LeafletCore.ChannelId.READ_PWM_FREQUENCY_TWO,
-                                    new SignedWordElement(this.pwmConfigRegisterTwo),
+                                    new UnsignedWordElement(this.pwmConfigRegisterTwo),
                                     ElementToChannelConverter.DIRECT_1_TO_1)),
                     new FC3ReadRegistersTask(this.pwmConfigRegisterThree, Priority.LOW,
                             m(LeafletCore.ChannelId.READ_PWM_FREQUENCY_THREE,
-                                    new SignedWordElement(this.pwmConfigRegisterThree),
+                                    new UnsignedWordElement(this.pwmConfigRegisterThree),
                                     ElementToChannelConverter.DIRECT_1_TO_1)),
                     new FC3ReadRegistersTask(this.pwmConfigRegisterFour, Priority.LOW,
                             m(LeafletCore.ChannelId.READ_PWM_FREQUENCY_FOUR,
-                                    new SignedWordElement(this.pwmConfigRegisterFour),
+                                    new UnsignedWordElement(this.pwmConfigRegisterFour),
                                     ElementToChannelConverter.DIRECT_1_TO_1)),
                     new FC3ReadRegistersTask(this.pwmConfigRegisterFive, Priority.LOW,
                             m(LeafletCore.ChannelId.READ_PWM_FREQUENCY_FIVE,
-                                    new SignedWordElement(this.pwmConfigRegisterFive),
+                                    new UnsignedWordElement(this.pwmConfigRegisterFive),
                                     ElementToChannelConverter.DIRECT_1_TO_1)),
                     new FC3ReadRegistersTask(this.pwmConfigRegisterSix, Priority.LOW,
                             m(LeafletCore.ChannelId.READ_PWM_FREQUENCY_SIX,
-                                    new SignedWordElement(this.pwmConfigRegisterSix),
+                                    new UnsignedWordElement(this.pwmConfigRegisterSix),
                                     ElementToChannelConverter.DIRECT_1_TO_1)),
                     new FC3ReadRegistersTask(this.pwmConfigRegisterSeven, Priority.LOW,
                             m(LeafletCore.ChannelId.READ_PWM_FREQUENCY_SEVEN,
-                                    new SignedWordElement(this.pwmConfigRegisterSeven),
+                                    new UnsignedWordElement(this.pwmConfigRegisterSeven),
                                     ElementToChannelConverter.DIRECT_1_TO_1)),
                     new FC3ReadRegistersTask(this.pwmConfigRegisterEight, Priority.LOW,
                             m(LeafletCore.ChannelId.READ_PWM_FREQUENCY_EIGHT,
-                                    new SignedWordElement(this.pwmConfigRegisterEight),
+                                    new UnsignedWordElement(this.pwmConfigRegisterEight),
                                     ElementToChannelConverter.DIRECT_1_TO_1)),
 
                     new FC3ReadRegistersTask(this.aioConfigRegisterOne, Priority.LOW,
@@ -815,6 +815,7 @@ public class LeafletCoreImpl extends AbstractOpenemsModbusComponent implements O
      */
     @Override
     public void setPwmConfiguration(int moduleNumber, int frequency) {
+        this.enterConfigMode();
         try {
             switch (moduleNumber) {
                 case 1:
@@ -1018,7 +1019,6 @@ public class LeafletCoreImpl extends AbstractOpenemsModbusComponent implements O
                 | this.aioConfigFour | this.aioConfigFive | this.aioConfigSix | this.aioConfigSeven))) {
             this.exitConfigMode();
         }
-
     }
 
     /**
