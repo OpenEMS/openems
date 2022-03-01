@@ -17,9 +17,9 @@ import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 public class DummyPredictor24Hours extends AbstractPredictor24Hours implements Predictor24Hours {
 
 	private final ClockProvider clockProvider;
-	private final DummyPrediction48Hours prediction48Hours;
+	private DummyPrediction24Hours prediction24Hours;
 
-	public DummyPredictor24Hours(String id, ClockProvider clockProvider, DummyPrediction48Hours prediction24Hours,
+	public DummyPredictor24Hours(String id, ClockProvider clockProvider, DummyPrediction24Hours prediction24Hours,
 			String... channelAddresses) throws OpenemsNamedException {
 		super(//
 				OpenemsComponent.ChannelId.values() //
@@ -29,7 +29,11 @@ public class DummyPredictor24Hours extends AbstractPredictor24Hours implements P
 		}
 		super.activate(null, id, "", true, channelAddresses);
 		this.clockProvider = clockProvider;
-		this.prediction48Hours = prediction24Hours;
+		this.prediction24Hours = prediction24Hours;
+	}
+
+	public void setPrediction24Hours(DummyPrediction24Hours prediction24Hours) {
+		this.prediction24Hours = prediction24Hours;
 	}
 
 	@Override
@@ -44,7 +48,7 @@ public class DummyPredictor24Hours extends AbstractPredictor24Hours implements P
 		now = roundZonedDateTimeDownTo15Minutes(now);
 
 		int quarterHourIndex = now.get(ChronoField.MINUTE_OF_DAY) / 15;
-		Integer[] values = this.prediction48Hours.getValues();
+		Integer[] values = this.prediction24Hours.getValues();
 		Integer[] adjustedValues = new Integer[Prediction24Hours.NUMBER_OF_VALUES];
 
 		for (int i = quarterHourIndex, y = 0; i < quarterHourIndex + Prediction24Hours.NUMBER_OF_VALUES
