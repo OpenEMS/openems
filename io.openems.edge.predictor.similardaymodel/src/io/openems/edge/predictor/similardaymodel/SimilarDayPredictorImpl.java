@@ -208,7 +208,7 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 	 * @param whichDay      current actual day.
 	 * @param numDaysOfWeek total number of days of week.
 	 * @param nthTerm       nthterm
-	 * @return boolean value to represent is value memeber of correct day
+	 * @return boolean value to represent is value member of correct day
 	 */
 	private static boolean isMember(int whichDay, int numDaysOfWeek, int nthTerm) {
 		if (numDaysOfWeek == 0) {

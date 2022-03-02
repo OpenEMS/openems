@@ -1,5 +1,5 @@
 Bundle-Name: aXMLRPC
-Bundle-Description: aXMLRPC is a Java library with a leightweight XML-RPC client. 
+Bundle-Description: aXMLRPC is a Java library with a lightweight XML-RPC client. 
 Bundle-DocURL: https://github.com/gturri/aXMLRPC
 Bundle-License: https://opensource.org/licenses/MIT
 Bundle-Version: 1.12.0

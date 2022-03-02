@@ -203,7 +203,7 @@ INFO  [onent.AbstractOpenemsComponent] [ctrlApiWebsocket0] Activate Controller.A
 INFO  [socket.AbstractWebsocketServer] Starting [Websocket Api] websocket server [port=8085]
 ```
 +
-NOTE: The Controller Api Websocket is required so that OpenEMS UI can connecto to OpenEMS Edge locally.
+NOTE: The Controller Api Websocket is required so that OpenEMS UI can connect to OpenEMS Edge locally.
 
 == Setup Visual Studio Code for OpenEMS UI
 
@@ -361,7 +361,7 @@ NOTE: OpenEMS UI can work both for local connections to OpenEMS Edge as well as 
 
 . You should see OpenEMS UI Login. Log in with any email / username and password.
 +
-NOTE: _**Metadata.Dummy**_ accepts any user/password combination. For production use, switch to a differen *Metadata* implementation as described above.
+NOTE: _**Metadata.Dummy**_ accepts any user/password combination. For production use, switch to a different *Metadata* implementation as described above.
 +
 .UI via Backend
 image::ui-via-backend.png[UI via Backend]

@@ -43,8 +43,8 @@
 
 -runbundles: \
 	Java-WebSocket;version='[1.5.2,1.5.3)',\
-	com.google.gson;version='[2.8.9,2.8.10)',\
-	com.google.guava;version='[31.0.1,31.0.2)',\
+	com.google.gson;version='[2.9.0,2.9.1)',\
+	com.google.guava;version='[31.1.0,31.1.1)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.zaxxer.HikariCP;version='[5.0.1,5.0.2)',\
 	io.openems.backend.application;version=snapshot,\
@@ -82,4 +82,4 @@
 	org.osgi.service.jdbc;version='[1.0.1,1.0.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
-	org.postgresql.jdbc;version='[42.3.2,42.3.3)'
+	org.postgresql.jdbc;version='[42.3.3,42.3.4)'
