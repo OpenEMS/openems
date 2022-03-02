@@ -36,12 +36,12 @@ import io.openems.edge.io.api.DigitalOutput;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
+public class RevPiDioDevice extends AbstractOpenemsComponent
 		implements DigitalOutput, DigitalInput, OpenemsComponent, EventHandler {
 
 	private static final Object INVALIDATE_CHANNEL = null;
 
-	private final Logger log = LoggerFactory.getLogger(RevPiDigitalIoDevice.class);
+	private final Logger log = LoggerFactory.getLogger(RevPiDioDevice.class);
 	private final BooleanWriteChannel[] channelOut;
 	private final BooleanReadChannel[] channelIn;
 	private final BooleanReadChannel[] channelOutDbg;
@@ -50,7 +50,7 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 	private Config config = null;
 	private DataInOut revPiHardware;
 
-	public RevPiDigitalIoDevice() {
+	public RevPiDioDevice() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
