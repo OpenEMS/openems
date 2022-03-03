@@ -10,7 +10,6 @@ public interface BpPvInverter {
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		PV_LIMIT_FAILED(Doc.of(Level.FAULT) //
 				.text("PV-Limit failed"));
-		;
 
 		private final Doc doc;
 

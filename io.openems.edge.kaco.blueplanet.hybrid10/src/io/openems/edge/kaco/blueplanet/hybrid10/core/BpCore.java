@@ -1,13 +1,5 @@
 package io.openems.edge.kaco.blueplanet.hybrid10.core;
 
-import com.ed.data.BatteryData;
-import com.ed.data.EnergyMeter;
-import com.ed.data.InverterData;
-import com.ed.data.Settings;
-import com.ed.data.Status;
-import com.ed.data.SystemInfo;
-import com.ed.data.VectisData;
-
 import io.openems.common.channel.Level;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -15,34 +7,104 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.BatteryData;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.EnergyMeter;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.InverterData;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Settings;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Status;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.SystemInfo;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.VectisData;
 
 public interface BpCore extends OpenemsComponent {
+
+	/**
+	 * Gets the {@link BatteryData}.
+	 * 
+	 * @return {@link BatteryData}
+	 */
 	public BatteryData getBatteryData();
 
+	/**
+	 * Gets the {@link InverterData}.
+	 * 
+	 * @return {@link InverterData}
+	 */
 	public InverterData getInverterData();
 
+	/**
+	 * Gets the {@link Status}.
+	 * 
+	 * @return {@link Status}
+	 */
 	public Status getStatusData();
 
+	/**
+	 * Is the Client connected?.
+	 * 
+	 * @return true if connected
+	 */
 	public boolean isConnected();
 
+	/**
+	 * Is the default user logged in?.
+	 * 
+	 * @return true if the default password for user was not changed
+	 */
+	public boolean isDefaultUser();
+
+	/**
+	 * Gets the {@link Settings}.
+	 * 
+	 * @return {@link Settings}
+	 */
 	public Settings getSettings();
 
+	/**
+	 * Gets the {@link VectisData}.
+	 * 
+	 * @return {@link VectisData}
+	 */
 	public VectisData getVectis();
 
+	/**
+	 * Gets the {@link EnergyMeter}.
+	 * 
+	 * @return {@link EnergyMeter}
+	 */
 	public EnergyMeter getEnergyMeter();
 
+	/**
+	 * Gets the {@link SystemInfo}.
+	 * 
+	 * @return {@link SystemInfo}
+	 */
 	public SystemInfo getSystemInfo();
+
+	/**
+	 * Gets the {@link StableVersion}.
+	 * 
+	 * @return {@link StableVersion}
+	 */
+	public StableVersion getStableVersion();
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
-				.text("Communication to KACO blueplanet hybrid 10 failed")), //
+				.text("Communication to KACO blueplanet hybrid 10 failed. Please check the network connection and the status of the inverter")), //
 		USER_ACCESS_DENIED(Doc.of(Level.FAULT) //
-				.text("KACO User Access denied")), //
+				/*
+				 * Additional text when we are able to ensure the functionality of the external
+				 * mode: Please forward the new user password (set in the KACO Hy-Sys tool) to
+				 * our service department (service@fenecon.de)
+				 */
+				.text("KACO user access denied.")), //
+		MULTIPLE_ACCESS(Doc.of(Level.FAULT) //
+				.text("KACO is read by multiple devices. Authentication might fail because KACO is not able to handle multiple requests")), //
 		VERSION_COM(Doc.of(OpenemsType.FLOAT) //
-				.text("Version of COM")), //
+				.text("Version of COM")), ///
+		STABLE_VERSION(Doc.of(StableVersion.values()) //
+				.text("Stable Version")),
 		SERIALNUMBER(Doc.of(OpenemsType.STRING) //
-				.text("Serial-Number")), //
-		;
+				.text("Serial-Number")),;
 
 		private final Doc doc;
 

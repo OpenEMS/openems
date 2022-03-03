@@ -20,10 +20,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ed.data.InverterData;
-import com.ed.data.Settings;
-import com.ed.data.Status;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -35,6 +31,9 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.InverterData;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Settings;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Status;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
@@ -42,7 +41,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Kaco.BlueplanetHybrid10.PvInverter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
@@ -88,7 +87,7 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "core", config.core_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {
 			return;
 		}
 	}
@@ -141,7 +140,7 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 			Status status = this.core.getStatusData();
 			if (status != null) {
 				// Set error channels
-				List<String> errors = status.getErrors().getErrorCodes();
+				List<String> errors = status.getErrors();
 				for (ErrorChannelId channelId : ErrorChannelId.values()) {
 					this.channel(channelId).setNextValue(errors.contains(channelId.getErrorCode()));
 				}

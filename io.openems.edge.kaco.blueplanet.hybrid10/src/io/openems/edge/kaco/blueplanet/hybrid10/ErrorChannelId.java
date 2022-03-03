@@ -1,7 +1,7 @@
 package io.openems.edge.kaco.blueplanet.hybrid10;
 
-import io.openems.edge.common.channel.Doc;
 import io.openems.common.channel.Level;
+import io.openems.edge.common.channel.Doc;
 
 public enum ErrorChannelId implements io.openems.edge.common.channel.ChannelId {
 	A001(Doc.of(Level.WARNING).text("Emergency Stop")), //

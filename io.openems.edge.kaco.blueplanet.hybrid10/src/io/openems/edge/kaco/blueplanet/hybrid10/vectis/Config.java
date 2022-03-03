@@ -3,7 +3,7 @@ package io.openems.edge.kaco.blueplanet.hybrid10.vectis;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "KACO blueplanet hybrid 10.0 TL3 Grid Meter", //
 		description = "Implements the hy-switch Grid Meter for KACO blueplanet hybrid 10.0 TL3")
 @interface Config {
@@ -16,7 +16,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Use external sensors", description = "Only activate this if Vectis uses external sensors")
 	boolean external() default false;
 

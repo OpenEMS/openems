@@ -22,11 +22,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ed.data.BatteryData;
-import com.ed.data.InverterData;
-import com.ed.data.Settings;
-import com.ed.data.Status;
-
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -45,8 +40,11 @@ import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
-import io.openems.edge.kaco.blueplanet.hybrid10.GlobalUtils;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.BatteryData;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.InverterData;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Settings;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Status;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -115,11 +113,11 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 		this._setCapacity(config.capacity());
 
 		// Set Max-Apparent-Power
-		timedata.getLatestValue(new ChannelAddress(config.id(), SymmetricEss.ChannelId.MAX_APPARENT_POWER.id()))
+		this.timedata.getLatestValue(new ChannelAddress(config.id(), SymmetricEss.ChannelId.MAX_APPARENT_POWER.id()))
 				.thenAccept(latestValue -> {
 					Integer lastMaxApparentPower = TypeUtils.getAsType(OpenemsType.INTEGER, latestValue);
 					if (lastMaxApparentPower != null
-							&& lastMaxApparentPower != 10_000 /* throw away value that was previously fixed */ ) {
+							&& lastMaxApparentPower != 10_000 /* throw away value that was previously fixed */) {
 						this._setMaxApparentPower(lastMaxApparentPower);
 					} else {
 						this._setMaxApparentPower(MAX_POWER_RAMP); // start low
@@ -164,8 +162,8 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 			if (battery != null) {
 				soc = Math.round(battery.getSOE());
 				float batteryPower = battery.getPower();
-				activePower = GlobalUtils.roundToPowerPrecision(batteryPower - inverter.getPvPower()) * -1; // invert
-				dcDischargePower = GlobalUtils.roundToPowerPrecision(batteryPower) * -1; // invert
+				activePower = Math.round(batteryPower - inverter.getPvPower()) * -1; // invert
+				dcDischargePower = Math.round(batteryPower) * -1; // invert
 				bmsVoltage = battery.getBmsVoltage();
 
 				// Handle MaxApparentPower
@@ -198,16 +196,15 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 				}
 
 				// Set error channels
-				List<String> errors = status.getErrors().getErrorCodes();
+				List<String> errors = status.getErrors();
 				for (ErrorChannelId channelId : ErrorChannelId.values()) {
 					this.channel(channelId).setNextValue(errors.contains(channelId.getErrorCode()));
 				}
 			}
 
 			if (inverter != null) {
-				reactivePower = (GlobalUtils.roundToPowerPrecision(inverter.getReactivPower(0))
-						+ GlobalUtils.roundToPowerPrecision(inverter.getReactivPower(1))
-						+ GlobalUtils.roundToPowerPrecision(inverter.getReactivPower(2))) * -1;
+				reactivePower = Math.round(
+						inverter.getReactivPower(0) + inverter.getReactivPower(1) + inverter.getReactivPower(2)) * -1;
 				riso = inverter.getRIso();
 			}
 		}
@@ -310,10 +307,29 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 		}
 
 		// Detect if hy-switch Grid-Meter is available for Read-Only mode
-		if (this.config.readOnly() && status.getVectisConfig() == 0 /* VECTIS disabled */) {
+		if (this.config.readOnly() && status.getPowerGridConfig() == 0 /* VECTIS disabled */) {
 			this._setNoGridMeterDetected(true);
 		} else {
 			this._setNoGridMeterDetected(false);
+		}
+
+		// The "setPacSetPoint" method of the edcom version 8, has no effect
+		// if the default user password is configured
+		switch (this.core.getStableVersion()) {
+		case VERSION_8:
+			this._setUserPasswordNotChangedWithExternalKacoVersion8(true);
+			if (this.core.isDefaultUser()) {
+				return;
+			}
+			if (!this.core.getUserAccessDenied().orElse(true)) {
+				// If the system is at least running, it should not remain in fault state
+				this._setUserPasswordNotChangedWithExternalKacoVersion8(false);
+			}
+			break;
+		case UNDEFINED:
+		case VERSION_7_OR_OLDER:
+			this._setUserPasswordNotChangedWithExternalKacoVersion8(false);
+			break;
 		}
 
 		Instant now = Instant.now();
@@ -344,7 +360,7 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 
 	@Override
 	public int getPowerPrecision() {
-		return GlobalUtils.POWER_PRECISION;
+		return 1;
 	}
 
 	@Override

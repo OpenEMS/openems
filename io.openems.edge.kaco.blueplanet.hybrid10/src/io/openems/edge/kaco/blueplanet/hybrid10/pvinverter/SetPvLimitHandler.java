@@ -7,12 +7,11 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ed.data.Settings;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Settings;
 
 public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
@@ -20,7 +19,7 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 	private final BpPvInverterImpl parent;
 	private final ChannelId channelId;
 
-	private Float lastEPLimit = null;
+	private Float lastEpLimit = null;
 	private LocalDateTime lastWMaxLimPctTime = LocalDateTime.MIN;
 
 	public SetPvLimitHandler(BpPvInverterImpl parent, ChannelId channelId) {
@@ -52,7 +51,7 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 			ePLimit = 100;
 		}
 
-		if (!Objects.equals(this.lastEPLimit, ePLimit) || this.lastWMaxLimPctTime
+		if (!Objects.equals(this.lastEpLimit, ePLimit) || this.lastWMaxLimPctTime
 				.isBefore(LocalDateTime.now().minusSeconds(60 /* TODO: how often should it be written? */))) {
 			// Value needs to be set
 			Settings settings = this.parent.core.getSettings();
@@ -60,7 +59,7 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 				this.parent.logInfo(this.log, "Apply new limit: " + power + " W (" + ePLimit + " %)");
 				settings.setEPLimit(ePLimit);
 
-				this.lastEPLimit = ePLimit;
+				this.lastEpLimit = ePLimit;
 				this.lastWMaxLimPctTime = LocalDateTime.now();
 
 			} else {
