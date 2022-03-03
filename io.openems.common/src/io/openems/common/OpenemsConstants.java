@@ -31,7 +31,7 @@ public class OpenemsConstants {
 	 * This is always `0` for OpenEMS open source releases and reserved for private
 	 * distributions.
 	 */
-	public final static short VERSION_PATCH = 1;
+	public final static short VERSION_PATCH = 2;
 
 	/**
 	 * The additional version string.

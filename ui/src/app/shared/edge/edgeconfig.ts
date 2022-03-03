@@ -1,4 +1,3 @@
-import { is } from 'date-fns/locale';
 import { ChannelAddress } from '../type/channeladdress';
 import { AdvertWidgets, Widgets } from '../type/widget';
 import { Edge } from './edge';
@@ -270,9 +269,8 @@ export class EdgeConfig {
         }
         // Do we have a Meter with type PRODUCTION?
         for (let component of this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")) {
-            if (component.isEnabled) {
-
-                return this.isProducer(component);
+            if (component.isEnabled && this.isProducer(component)) {
+                return true;
             }
         }
         return false;
