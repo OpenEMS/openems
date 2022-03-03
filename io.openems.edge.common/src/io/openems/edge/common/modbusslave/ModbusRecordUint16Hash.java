@@ -17,7 +17,7 @@ public class ModbusRecordUint16Hash extends ModbusRecordUint16 {
 
 	@Override
 	public String getValueDescription() {
-		return "0x" + Integer.toHexString(this.value & 0xffff);
+		return "\"0x" + Integer.toHexString(this.value & 0xffff) + "\"";
 	}
 
 }

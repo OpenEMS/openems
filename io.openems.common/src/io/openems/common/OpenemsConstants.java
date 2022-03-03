@@ -98,8 +98,6 @@ public class OpenemsConstants {
 	 */
 	public static final String MANUFACTURER_EMS_SERIAL_NUMBER = "";
 
-	public static final String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
-
 	/*
 	 * Constants for Component properties
 	 */
