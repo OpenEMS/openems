@@ -35,6 +35,19 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.3.1',
+        changes: [
+          Changelog.openems('2022.3.0'),
+          Changelog.UI + "Anzeigen/Ändern der Kontaktdaten im Benutzer-Menü",
+          Changelog.UI + "Beim Login mit Benutzername/E-Mail-Adresse wird die Groß-/Kleinschreibung ignoriert",
+          Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + "Überarbeitung des Widgets im Online-Monitoring",
+          Changelog.product(Product.PRO_HYBRID_10) + "Kompatibilität mit KACO Firmware Version 8 (nur lesend)",
+          Changelog.product(Product.FEMS_MODBUS_TCP_API) + "Auslesen On-Grid-/Off-Grid-Modus + Überarbeitung der Beschreibungen in der Excel-Datei",
+          Changelog.product(Product.FEMS_PV_FRONIUS) + "Kompatibilität mit Fronius PV-Wechselrichtern. Getestet mit Fronius Symo",
+          Changelog.library(Library.SLF4J, Library.POSTGRESQL, Library.GSON, Library.GUAVA, Library.NGX_FORMLY),
+        ]
+      },
+      {
         version: '2022.2.3',
         changes: [
           Changelog.UI
@@ -88,7 +101,7 @@ export class ChangelogComponent {
         changes: [
           Changelog.openems('2021.22.0'),
           Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent für FEMS-App SG-Ready Wärmepumpe",
-          Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung beim Erfassen der Seriennumer",
+          Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung beim Erfassen der Seriennummer",
           "Implementierung Siemens PAC2200/3200/4200 Zähler",
           Changelog.library(Library.APACHE_FELIX_WEBCONSOLE, Library.PAX_LOGGING),
           "Aktualisierung auf Log4j Version 2 mit aktualiserten Sicherheitspatches. Vorher wurde Log4j in Version 1 genutzt, die für die kritische Schwachstelle an Log4j (CVE-2021-44228) ebenfalls nicht anfällig war.",

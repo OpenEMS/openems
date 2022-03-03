@@ -50,6 +50,7 @@ export class Product {
     public static readonly FEMS_REST_JSON_API = new Product('FEMS-App REST/JSON-Api', 'https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_lesend');
     public static readonly FEMS_PV_KACO = new Product('FEMS-App KACO PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/');
     public static readonly FEMS_PV_SMA = new Product('FEMS-App SMA PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-sma-pv-wechselrichter/');
+    public static readonly FEMS_PV_FRONIUS = new Product('FEMS-App SMA PV-Wechselrichter', 'https://fenecon.de/fems-2-2/'); // TODO Add Product Page
     public static readonly FEMS_JANITZA_ZAEHLER = new Product('FEMS-App Janitza Zähler', 'https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/');
     public static readonly FEMS_PQ_PLUS_ZAEHLER = new Product('FEMS-App PQ-Plus Zähler', 'https://fenecon.de/fems/'); // TODO Add Product Page
     public static readonly FEMS_HEIZSTAB = new Product('FEMS-App Heizstab', 'https://fenecon.de/fems-2-2/fems-app-heizstab-6-kw/');
