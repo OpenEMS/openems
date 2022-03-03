@@ -24,10 +24,16 @@ public interface BpEss extends OpenemsComponent {
 
 		EXTERNAL_CONTROL_FAULT(Doc.of(Level.FAULT) //
 				.text("Inverter is not configured for External EMS")), //
+		/**
+		 * To be able to set Set-Points on KACO inverter starting from firmware version
+		 * 8, it is required to change the user password to something different than
+		 * 'user' via the KACO Hy-Sys tool.
+		 */
+		EXTERNAL_CONTROL_FAULT_VERSION_8(Doc.of(Level.FAULT) //
+				.text("Starting with Firmware Version 8 KACO inverter cannot be controlled via FEMS")),
 
 		NO_GRID_METER_DETECTED(Doc.of(Level.WARNING) //
 				.text("No hy-switch Grid-Meter detected. Read-Only mode can not work correctly"));
-		;
 
 		private final Doc doc;
 
@@ -67,6 +73,25 @@ public interface BpEss extends OpenemsComponent {
 	 */
 	public default void _setExternalControlFault(boolean value) {
 		this.getExternalControlFaultChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#EXTERNAL_CONTROL_FAULT_VERSION_8}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getUserPasswordNotChangedWithExternalKacoVersion8() {
+		return this.channel(ChannelId.EXTERNAL_CONTROL_FAULT_VERSION_8);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#EXTERNAL_CONTROL_FAULT_VERSION_8} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setUserPasswordNotChangedWithExternalKacoVersion8(boolean value) {
+		this.getUserPasswordNotChangedWithExternalKacoVersion8().setNextValue(value);
 	}
 
 	/**

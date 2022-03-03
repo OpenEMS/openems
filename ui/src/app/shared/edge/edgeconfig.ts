@@ -1,3 +1,4 @@
+import { is } from 'date-fns/locale';
 import { ChannelAddress } from '../type/channeladdress';
 import { AdvertWidgets, Widgets } from '../type/widget';
 import { Edge } from './edge';
@@ -270,26 +271,8 @@ export class EdgeConfig {
         // Do we have a Meter with type PRODUCTION?
         for (let component of this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")) {
             if (component.isEnabled) {
-                // TODO make sure 'type' is provided for all Meters
-                if (component.properties['type'] == "PRODUCTION") {
-                    return true;
-                }
-                // TODO remove, once all Edges are at least version 2019.15
-                switch (component.factoryId) {
-                    case 'Fenecon.Mini.PvMeter':
-                    case 'Fenecon.Dess.PvMeter':
-                    case 'Fenecon.Pro.PvMeter':
-                    case 'Kostal.Piko.Charger':
-                    case 'Kaco.BlueplanetHybrid10.PvInverter':
-                    case 'PV-Inverter.Solarlog':
-                    case 'PV-Inverter.KACO.blueplanet':
-                    case 'PV-Inverter.SunSpec':
-                    case 'PV-Inverter.SMA.SunnyTripower':
-                    case 'SolarEdge.PV-Inverter':
-                    case 'Simulator.PvInverter':
-                    case 'Simulator.ProductionMeter.Acting':
-                        return true;
-                }
+
+                return this.isProducer(component);
             }
         }
         return false;
@@ -304,24 +287,25 @@ export class EdgeConfig {
     public isProducer(component: EdgeConfig.Component) {
         if (component.properties['type'] == "PRODUCTION") {
             return true;
-        } else {
-            // TODO properties in OSGi Component annotations are not transmitted correctly with Apache Felix SCR
-            switch (component.factoryId) {
-                case 'Fenecon.Mini.PvMeter':
-                case 'Fenecon.Dess.PvMeter':
-                case 'Fenecon.Pro.PvMeter':
-                case 'Kostal.Piko.Charger':
-                case 'Kaco.BlueplanetHybrid10.PvInverter':
-                case 'PV-Inverter.Solarlog':
-                case 'PV-Inverter.KACO.blueplanet':
-                case 'PV-Inverter.SunSpec':
-                case 'PV-Inverter.SMA.SunnyTripower':
-                case 'SolarEdge.PV-Inverter':
-                case 'Simulator.PvInverter':
-                case 'Simulator.ProductionMeter.Acting':
-                    return true;
-            }
         }
+        // TODO properties in OSGi Component annotations are not transmitted correctly with Apache Felix SCR
+        switch (component.factoryId) {
+            case 'Fenecon.Dess.PvMeter':
+            case 'Fenecon.Mini.PvMeter':
+            case 'Fenecon.Pro.PvMeter':
+            case 'Kaco.BlueplanetHybrid10.PvInverter':
+            case 'Kostal.Piko.Charger':
+            case 'PV-Inverter.Fronius':
+            case 'PV-Inverter.KACO.blueplanet':
+            case 'PV-Inverter.SMA.SunnyTripower':
+            case 'PV-Inverter.Solarlog':
+            case 'PV-Inverter.SunSpec':
+            case 'Simulator.ProductionMeter.Acting':
+            case 'Simulator.PvInverter':
+            case 'SolarEdge.PV-Inverter':
+                return true;
+        }
+
         return false;
     }
 

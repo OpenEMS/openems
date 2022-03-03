@@ -7,6 +7,7 @@ import { IsclassPipe } from './isclass/isclass.pipe';
 import { KeysPipe } from './keys/keys.pipe';
 import { SecToHourMinPipe } from './sectohour/sectohour.pipe';
 import { SignPipe } from './sign/sign.pipe';
+import { TypeofPipe } from './typeof/typeof.pipe';
 import { UnitvaluePipe } from './unitvalue/unitvalue.pipe';
 
 @NgModule({
@@ -20,7 +21,8 @@ import { UnitvaluePipe } from './unitvalue/unitvalue.pipe';
         KeysPipe,
         IsclassPipe,
         HasclassPipe,
-        ClassnamePipe
+        ClassnamePipe,
+        TypeofPipe
     ],
     declarations: [
         UnitvaluePipe,
@@ -29,7 +31,8 @@ import { UnitvaluePipe } from './unitvalue/unitvalue.pipe';
         KeysPipe,
         IsclassPipe,
         HasclassPipe,
-        ClassnamePipe
+        ClassnamePipe,
+        TypeofPipe
     ],
     exports: [
         UnitvaluePipe,
@@ -38,14 +41,14 @@ import { UnitvaluePipe } from './unitvalue/unitvalue.pipe';
         KeysPipe,
         IsclassPipe,
         HasclassPipe,
-        ClassnamePipe
+        ClassnamePipe,
+        TypeofPipe
     ],
     providers: [
         DecimalPipe,
         SecToHourMinPipe,
         UnitvaluePipe,
+        TypeofPipe
     ]
 })
-export class PipeModule {
-
-}
+export class PipeModule { }

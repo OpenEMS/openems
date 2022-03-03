@@ -117,6 +117,40 @@ export const TRANSLATION = {
     },
     Register: {
         title: "Gebruikersaccount aanmaken",
+        segment: {
+            user: "Gebruiker",
+            installer: "Installateur"
+        },
+        form: {
+            user: {
+                acceptPrivacyPolicy: "Door een FENECON account aan te maken, verklaar ik dat ik de FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacybeleid</a> en Gebruiksvoorwaarden heb gelezen en ermee akkoord ga.*",
+            },
+            installer: {
+                acceptPrivacyPolicy: "Door een FENECON installateursaccount aan te maken verklaar ik dat ik het FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacybeleid</a> en de Gebruiksvoorwaarden heb gelezen en ermee akkoord ga.*"
+            },
+            contactDetails: "Contactgegevens",
+            companyName: "Bedrijfsnaam",
+            firstname: "Voornaam",
+            lastname: "Achternaam",
+            street: "Straat | huisnummer",
+            zip: "Postcode",
+            city: "Stad",
+            country: "Land",
+            phone: "Telefoonnummer",
+            email: "E-Mail - adres",
+            password: "Wachtwoord",
+            confirmPassword: "Bevestig wachtwoord",
+            isElectrician: "Ik bevestig dat mijn bedrijf is ingeschreven in het installateursregister en dat ik daarmee bevoegd ben om een opslagsysteem aan te sluiten en in bedrijf te stellen.*",
+            acceptPrivacyPolicy: "Door een FENECON installateursaccount aan te maken, verklaar ik dat ik het<a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">privacybeleid</a> en de gebruiksvoorwaarden van FENECON heb gelezen en ermee akkoord ga.*",
+            acceptAgb: "Ik bevestig de <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+            subscribeNewsletter: "Ik wil me graag abonneren op de FENECON nieuwsbrief om al het laatste nieuws van FENECON te ontvangen."
+        },
+        button: "Maken",
+        errors: {
+            requiredFields: "Gelieve alle velden in te vullen",
+        },
+        passwordNotEqual: "Wachtwoorden zijn niet gelijk",
+        success: "Registratie succesvol"
     },
     Edge: {
         Index: {
@@ -228,6 +262,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Eindtijd van beperkt laden overschreden',
                         storageAlreadyFull: 'Geheugen al vol',
                     },
+                    storageCapacity: 'opslagcapaciteit (alleen zichtbaar voor admin)'
                 },
                 CHP: {
                     highThreshold: 'hoge drempel',

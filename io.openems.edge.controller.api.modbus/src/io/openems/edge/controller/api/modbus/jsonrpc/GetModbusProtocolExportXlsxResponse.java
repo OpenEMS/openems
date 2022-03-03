@@ -44,9 +44,9 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 	}
 
 	private static final int COL_ADDRESS = 0;
-	private static final int COL_DESCRIPTION = 1;
+	private static final int COL_NAME = 1;
 	private static final int COL_TYPE = 2;
-	private static final int COL_VALUE = 3;
+	private static final int COL_VALUE_DESCRIPTION = 3;
 	private static final int COL_UNIT = 4;
 	private static final int COL_ACCESS = 5;
 
@@ -62,9 +62,9 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 					ws = wb.newWorksheet("Modbus-Table");
 
 					ws.width(COL_ADDRESS, 10);
-					ws.width(COL_DESCRIPTION, 25);
+					ws.width(COL_NAME, 25);
 					ws.width(COL_TYPE, 10);
-					ws.width(COL_VALUE, 35);
+					ws.width(COL_VALUE_DESCRIPTION, 150);
 					ws.width(COL_UNIT, 20);
 					ws.width(COL_ACCESS, 10);
 					// Add headers
@@ -115,9 +115,9 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 
 	private static void addSheetHeader(Workbook workbook, Worksheet sheet) {
 		sheet.value(0, COL_ADDRESS, "Address");
-		sheet.value(0, COL_DESCRIPTION, "Description");
+		sheet.value(0, COL_NAME, "Name");
 		sheet.value(0, COL_TYPE, "Type");
-		sheet.value(0, COL_VALUE, "Value/Range");
+		sheet.value(0, COL_VALUE_DESCRIPTION, "Value/Description");
 		sheet.value(0, COL_UNIT, "Unit");
 		sheet.value(0, COL_ACCESS, "Access");
 		sheet.style(0, 0).bold().fillColor(Color.GRAY5).borderStyle("thin");
@@ -130,9 +130,9 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 
 	private static void addRecord(Worksheet sheet, int address, ModbusRecord record, int rowCount) {
 		sheet.value(rowCount, COL_ADDRESS, address);
-		sheet.value(rowCount, COL_DESCRIPTION, record.getName());
+		sheet.value(rowCount, COL_NAME, record.getName());
 		sheet.value(rowCount, COL_TYPE, record.getType().toString());
-		sheet.value(rowCount, COL_VALUE, record.getValueDescription());
+		sheet.value(rowCount, COL_VALUE_DESCRIPTION, record.getValueDescription());
 		Unit unit = record.getUnit();
 		if (unit != Unit.NONE) {
 			sheet.value(rowCount, COL_UNIT, unit.toString());
@@ -165,6 +165,7 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 			case STRING16:
 				value = ModbusRecordString16.UNDEFINED_VALUE;
 				break;
+			case ENUM16:
 			case UINT16:
 				value = ModbusRecordUint16.UNDEFINED_VALUE;
 				break;

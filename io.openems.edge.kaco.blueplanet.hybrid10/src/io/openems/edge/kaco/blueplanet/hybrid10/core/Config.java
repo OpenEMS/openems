@@ -3,7 +3,7 @@ package io.openems.edge.kaco.blueplanet.hybrid10.core;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "KACO blueplanet hybrid 10.0 TL3 Core", //
 		description = "Implements the Core component for KACO blueplanet hybrid 10.0 TL3")
 @interface Config {

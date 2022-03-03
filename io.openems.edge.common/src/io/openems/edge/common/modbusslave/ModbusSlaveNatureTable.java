@@ -48,6 +48,7 @@ public final class ModbusSlaveNatureTable {
 				case STRING16:
 					this.string16Reserved(offset);
 					break;
+				case ENUM16:
 				case UINT16:
 					this.uint16Reserved(offset);
 					break;

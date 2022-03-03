@@ -3,9 +3,6 @@ Bundle-Vendor: KACO new energy GmbH, FENECON GmbH
 Bundle-License: PROPRIETARY
 Bundle-Version: 1.0.0.${tstamp}
 
--includeresource.edcom: \
-	@lib/edcom-v3.0.jar!/(com/*|javax/*); lib:=true
-
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
@@ -15,7 +12,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.meter.api,\
 	io.openems.edge.pvinverter.api,\
 	io.openems.edge.timedata.api,\
-	lib/edcom-v3.0.jar;version=file,\
+	javax.jmdns,\
 
 -testpath: \
 	${testpath}

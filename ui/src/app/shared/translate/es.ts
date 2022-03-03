@@ -118,6 +118,40 @@ export const TRANSLATION = {
     },
     Register: {
         title: "Crear una cuenta de usuario",
+        segment: {
+            user: "Usuario",
+            installer: "Instalador"
+        },
+        form: {
+            user: {
+                acceptPrivacyPolicy: "Al crear una cuenta de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de Privacidad</a> y las Condiciones de Uso de FENECON.*",
+            },
+            installer: {
+                acceptPrivacyPolicy: "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de privacidad</a> y las Condiciones de uso de FENECON.*",
+            },
+            contactDetails: "Datos de contacto",
+            companyName: "Nombre de la empresa",
+            firstname: "Nombre",
+            lastname: "Apellido",
+            street: "Calle | número de casa",
+            zip: "Código postal",
+            city: "Ciudad",
+            country: "País",
+            phone: "Número de teléfono",
+            email: "Correo electrónico",
+            password: "Contraseña",
+            confirmPassword: "Confirmar contraseña",
+            isElectrician: "Confirmo que mi empresa está inscrita en el registro de instaladores y, por tanto, estoy autorizado a conectar y poner en marcha un sistema de almacenamiento.",
+            acceptPrivacyPolicy: "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la  <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de privacidad</a> y las condiciones de uso de FENECON.*",
+            acceptAgb: "Confirmo el <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+            subscribeNewsletter: "Me gustaría suscribirme al boletín de FENECON para recibir todas las novedades de FENECON."
+        },
+        button: "Crear",
+        errors: {
+            requiredFields: "Por favor, rellene todos los campos",
+            passwordNotEqual: "Las contraseñas no son iguales"
+        },
+        success: "Registro realizado con éxito"
     },
     Edge: {
         Index: {
@@ -230,6 +264,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Se superó el tiempo de finalización de la carga limitada',
                         storageAlreadyFull: 'Memoria ya llena',
                     },
+                    storageCapacity: 'capacidad de almacenamiento (sólo visible para el administrador)'
                 },
                 CHP: {
                     highThreshold: 'Umbral alto',

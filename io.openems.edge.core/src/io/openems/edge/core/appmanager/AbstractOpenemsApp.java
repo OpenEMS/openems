@@ -182,7 +182,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			result.put(key, entry.getValue());
 		}
 		if (!unknownProperties.isEmpty()) {
-			errors.add("Unknown Configuration Propert" //
+			errors.add("Unknown Configuration Property" //
 					+ (unknownProperties.size() > 1 ? "ies" : "y") + ":" //
 					+ unknownProperties.stream().collect(Collectors.joining(",")));
 		}

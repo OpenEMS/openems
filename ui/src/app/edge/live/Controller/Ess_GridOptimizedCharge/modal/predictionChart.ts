@@ -10,7 +10,7 @@ import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart'
 
 @Component({
     selector: 'predictionChart',
-    templateUrl: '../../../history/abstracthistorychart.html'
+    templateUrl: '../../../../history/abstracthistorychart.html'
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
 

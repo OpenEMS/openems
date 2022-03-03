@@ -127,9 +127,10 @@ export const TRANSLATION = {
             installer: {
                 acceptPrivacyPolicy: "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
             },
+            contactDetails: "Contact Details",
             companyName: "Company name",
-            firstname: "Firstname",
-            lastname: "Lastname",
+            firstname: "First name",
+            lastname: "Last name",
             street: "Street",
             zip: "Postal code",
             city: "City",
@@ -270,6 +271,7 @@ export const TRANSLATION = {
                         passedEndTime: 'End time of limited charging exceeded',
                         storageAlreadyFull: 'Memory already full',
                     },
+                    storageCapacity: 'Storagecapacity (only visible for admin)'
                 },
                 CHP: {
                     highThreshold: 'High Threshold',
@@ -310,7 +312,7 @@ export const TRANSLATION = {
                     starting: 'Starting',
                     status: 'Status',
                     totalCharge: 'Total charge',
-                    totalChargingPower: 'Total charging power',
+                    totalChargingPower: 'Total chargingpower',
                     unknown: 'Unknown',
                     unplugged: 'Unplugged',
                     Administration: {

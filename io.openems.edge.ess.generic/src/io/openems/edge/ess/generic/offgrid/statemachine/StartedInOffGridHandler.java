@@ -62,7 +62,7 @@ public class StartedInOffGridHandler extends StateHandler<OffGridState, Context>
 			this.isLastChangeChecked = false;
 		}
 
-		// Allowed discharge reduces to 0, becuase target gridmode changes the inverter
+		// Allowed discharge reduces to 0, because target gridmode changes the inverter
 		// from RUNNING to GO_RUNNING state
 		if (ess.getAllowedDischargePower().orElse(0) == 0 && ess.getGridMode() == GridMode.OFF_GRID
 				&& ess.getSoc().get() < 5) {
