@@ -35,6 +35,12 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.3.2',
+        changes: [
+          Changelog.UI
+        ]
+      },
+      {
         version: '2022.3.1',
         changes: [
           Changelog.openems('2022.3.0'),
