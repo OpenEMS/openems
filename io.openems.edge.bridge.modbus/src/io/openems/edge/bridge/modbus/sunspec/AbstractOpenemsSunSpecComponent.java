@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -77,6 +78,10 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			throws OpenemsException {
 		this.readFromCommonBlockNo = readFromCommonBlockNo;
 
+		var expectedBlocks = this.activeModels.keySet().stream() //
+				.map(m -> m.getBlockId()) //
+				.collect(Collectors.toSet());
+
 		// Start the SunSpec read procedure...
 		this.isSunSpec().thenAccept(isSunSpec -> {
 			if (!isSunSpec) {
@@ -84,7 +89,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 			}
 
 			try {
-				this.readNextBlock(40_002).thenRun(() -> {
+				this.readNextBlock(40_002, expectedBlocks).thenRun(() -> {
 					this.isSunSpecInitializationCompleted = true;
 					this.onSunSpecInitializationCompleted();
 				});
@@ -129,12 +134,28 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	/**
 	 * Reads the next SunSpec block.
 	 * 
-	 * @param startAddress the startAddress
+	 * @param startAddress    the startAddress
+	 * @param remainingBlocks the remaining blocks expected to read
 	 * @return a future that completes once reading the block finished
 	 * @throws OpenemsException on error
 	 */
-	private CompletableFuture<Void> readNextBlock(int startAddress) throws OpenemsException {
+	private CompletableFuture<Void> readNextBlock(int startAddress, Set<Integer> remainingBlocks)
+			throws OpenemsException {
 		final CompletableFuture<Void> finished = new CompletableFuture<Void>();
+
+		// Finish if all expected Blocks have been read
+		if (remainingBlocks.isEmpty()) {
+			finished.complete(null);
+		}
+
+		/*
+		 * Try to read block by block until all required blocks have been read or an
+		 * END_OF_MAP register has been found.
+		 * 
+		 * It may still happen that a device does not have a valid END_OF_MAP register
+		 * and that some blocks are not read - especially when one component is used for
+		 * multiple devices like single and three phase inverter.
+		 */
 		this.readElementsOnceTyped(new UnsignedWordElement(startAddress), new UnsignedWordElement(startAddress + 1))
 				.thenAccept(values -> {
 					int blockId = values.get(0);
@@ -164,6 +185,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 							Priority priority = activeEntry.getValue();
 							try {
 								this.addBlock(startAddress, sunSpecModel, priority);
+								remainingBlocks.remove(activeEntry.getKey().getBlockId());
 							} catch (OpenemsException e) {
 								this.logWarn(this.log, "Error while adding SunSpec-Model [" + blockId
 										+ "] starting at [" + startAddress + "]: " + e.getMessage());
@@ -180,7 +202,9 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 					// Read next block recursively
 					int nextBlockStartAddress = startAddress + 2 + length;
 					try {
-						final CompletableFuture<Void> readNextBlockFuture = this.readNextBlock(nextBlockStartAddress);
+
+						final CompletableFuture<Void> readNextBlockFuture = this.readNextBlock(nextBlockStartAddress,
+								remainingBlocks);
 						// Announce finished when next block (recursively) is finished
 						readNextBlockFuture.thenRun(() -> {
 							finished.complete(null);
@@ -250,7 +274,6 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 	 * @param startAddress the address to start reading from
 	 * @param model        the SunSpecModel
 	 * @param priority     the reading priority
-	 * @return future that gets completed when the Block elements are read
 	 * @throws OpenemsException on error
 	 */
 	protected void addBlock(int startAddress, SunSpecModel model, Priority priority) throws OpenemsException {
