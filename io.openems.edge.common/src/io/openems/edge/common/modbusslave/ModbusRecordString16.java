@@ -40,7 +40,7 @@ public class ModbusRecordString16 extends ModbusRecordConstant {
 
 	@Override
 	public String getValueDescription() {
-		return this.value != null ? this.value : "";
+		return this.value != null ? "\"" + this.value.toString() + "\"" : "";
 	}
 
 }

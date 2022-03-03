@@ -1,9 +1,7 @@
 package io.openems.edge.common.modbusslave;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +11,6 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class ModbusRecordChannel extends ModbusRecord {
@@ -49,6 +45,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 		case STRING16:
 			byteLength = ModbusRecordString16.BYTE_LENGTH;
 			break;
+		case ENUM16:
 		case UINT16:
 			byteLength = ModbusRecordUint16.BYTE_LENGTH;
 			break;
@@ -141,6 +138,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			case WRITE_ONLY:
 				return ModbusRecordString16Reserved.UNDEFINED_VALUE;
 			}
+		case ENUM16:
 		case UINT16:
 			switch (this.accessMode) {
 			case READ_ONLY:
@@ -211,6 +209,8 @@ public class ModbusRecordChannel extends ModbusRecord {
 		case STRING16:
 			value = ""; // TODO implement String conversion
 			break;
+
+		case ENUM16:
 		case UINT16:
 			value = buff.getShort();
 			break;
@@ -239,18 +239,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 
 	@Override
 	public String getValueDescription() {
-		Doc doc = this.channelId.doc();
-		if (doc instanceof EnumDoc) {
-			// List possible Options for this Enum
-			EnumDoc d = (EnumDoc) doc;
-			return Arrays.stream(d.getOptions()) //
-					.map(option -> {
-						return option.getValue() + ":" + option.getName();
-					}) //
-					.collect(Collectors.joining(", "));
-		}
-
-		return ""; // TODO get some meaningful text from Doc(), like 'between 0 and 100 %'
+		return this.channelId.doc().getText();
 	}
 
 	@Override

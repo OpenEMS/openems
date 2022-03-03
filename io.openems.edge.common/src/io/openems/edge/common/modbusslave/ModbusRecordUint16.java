@@ -38,7 +38,7 @@ public class ModbusRecordUint16 extends ModbusRecordConstant {
 
 	@Override
 	public String getValueDescription() {
-		return this.value != null ? Short.toString(this.value) : "";
+		return this.value != null ? "\"" + Short.toString(this.value) + "\"" : "";
 	}
 
 }

@@ -1,6 +1,8 @@
 package io.openems.edge.common.channel;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.exceptions.OpenemsError;
@@ -142,5 +144,22 @@ public class EnumDoc extends AbstractDoc<Integer> {
 			return Value.UNDEFINED_VALUE_STRING;
 		}
 		return option.getName();
+	}
+
+	@Override
+	public String getText() {
+		// If Doc has a Text, return it
+		var docText = super.getText();
+		if (!docText.isBlank()) {
+			return docText;
+		}
+		// Otherwise generate Text from options without UNDEFINED option in the form
+		// "<value>:<name>, <value>:<name>".
+		return Stream.of(this.options) //
+				.filter(option -> !option.isUndefined()) //
+				.map(option -> { //
+					return option.getValue() + ":" + option.getName(); //
+				}) //
+				.collect(Collectors.joining(", "));
 	}
 }

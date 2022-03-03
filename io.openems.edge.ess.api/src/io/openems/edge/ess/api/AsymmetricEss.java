@@ -32,8 +32,9 @@ public interface AsymmetricEss extends SymmetricEss {
 		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.text("AC-side power of Energy Storage System on phase L1. " //
+						+ "Includes excess DC-PV production for hybrid inverters. " //
+						+ "Negative values for charge; positive for discharge")),
 		/**
 		 * Active Power L2
 		 * 
@@ -47,8 +48,9 @@ public interface AsymmetricEss extends SymmetricEss {
 		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.text("AC-side power of Energy Storage System on phase L2. " //
+						+ "Includes excess DC-PV production for hybrid inverters. " //
+						+ "Negative values for charge; positive for discharge")),
 		/**
 		 * Active Power L3
 		 * 
@@ -62,8 +64,9 @@ public interface AsymmetricEss extends SymmetricEss {
 		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.text("AC-side power of Energy Storage System on phase L3. " //
+						+ "Includes excess DC-PV production for hybrid inverters. " //
+						+ "Negative values for charge; positive for discharge")),
 		/**
 		 * Reactive Power L1
 		 * 
@@ -76,9 +79,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L2
 		 * 
@@ -91,9 +92,7 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L3
 		 * 
@@ -106,9 +105,8 @@ public interface AsymmetricEss extends SymmetricEss {
 		 */
 		REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		);
+				.persistencePriority(PersistencePriority.HIGH)) //
+		;
 
 		private final Doc doc;
 
