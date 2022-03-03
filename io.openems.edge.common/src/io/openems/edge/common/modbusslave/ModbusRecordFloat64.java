@@ -38,7 +38,7 @@ public class ModbusRecordFloat64 extends ModbusRecordConstant {
 
 	@Override
 	public String getValueDescription() {
-		return this.value != null ? this.value.toString() : "";
+		return this.value != null ? "\"" + this.value.toString() + "\"" : "";
 	}
 
 }
