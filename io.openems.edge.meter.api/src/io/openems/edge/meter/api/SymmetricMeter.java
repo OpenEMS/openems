@@ -1,6 +1,5 @@
 package io.openems.edge.meter.api;
 
-import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
@@ -87,7 +86,6 @@ public interface SymmetricMeter extends OpenemsComponent {
 		ACTIVE_POWER(new IntegerDoc() //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT) //
 				.onInit(channel -> {
 					channel.onSetNextValue(value -> {
 						/*
@@ -135,8 +133,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 		 */
 		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(OpenemsConstants.POWER_DOC_TEXT)), //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Active Production Energy.
 		 * 

@@ -3,7 +3,7 @@ package io.openems.edge.ess.offgrid.api;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 /**
- * Represents a Energy Storage System with Off-Grid capabilites.
+ * Represents a Energy Storage System with Off-Grid capabilities.
  */
 public interface OffGridEss extends ManagedSymmetricEss {
 

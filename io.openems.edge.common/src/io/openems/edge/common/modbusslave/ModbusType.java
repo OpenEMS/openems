@@ -1,6 +1,7 @@
 package io.openems.edge.common.modbusslave;
 
 public enum ModbusType {
+	ENUM16(1, "enum16"), //
 	UINT16(1, "uint16"), //
 	UINT32(2, "uint32"), //
 	FLOAT32(2, "float32"), //

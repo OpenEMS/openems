@@ -29,6 +29,10 @@ public class CalculateGridMode {
 	 * @return
 	 */
 	public GridMode calculate() {
+		if(this.values.isEmpty()) {
+			return GridMode.UNDEFINED;
+		}
+		
 		int onGrids = 0;
 		int offGrids = 0;
 		for (GridMode gridMode : this.values) {
