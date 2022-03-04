@@ -1,5 +1,7 @@
 package io.openems.edge.predictor.api.oneday;
 
+import java.util.Arrays;
+
 import io.openems.edge.common.type.TypeUtils;
 
 /**
@@ -59,6 +61,11 @@ public class Prediction24Hours {
 
 	public Integer[] getValues() {
 		return this.values;
+	}
+
+	@Override
+	public String toString() {
+		return "Prediction24Hours " + Arrays.toString(values);
 	}
 
 }

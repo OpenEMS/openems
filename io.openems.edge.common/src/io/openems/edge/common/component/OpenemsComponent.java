@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
@@ -187,6 +189,12 @@ public interface OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// Running State of the component. Keep values in sync with 'Level' enum!
 		STATE(new StateCollectorChannelDoc() //
+				// Set Text to "0:Ok, 1:Info, 2:Warning, 3:Fault"
+				.text(Stream.of(Level.values()) //
+						.map(option -> { //
+							return option.getValue() + ":" + option.getName(); //
+						}) //
+						.collect(Collectors.joining(", "))) //
 				.persistencePriority(PersistencePriority.VERY_HIGH));
 
 		private final Doc doc;
@@ -210,7 +218,7 @@ public interface OpenemsComponent {
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(OpenemsComponent.class, accessMode, 80) //
-				.channel(0, ChannelId.STATE, ModbusType.UINT16) //
+				.channel(0, ChannelId.STATE, ModbusType.ENUM16) //
 				.build();
 	}
 
