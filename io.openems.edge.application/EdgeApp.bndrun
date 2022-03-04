@@ -138,6 +138,7 @@
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.predictor.similardaymodel',\
 	bnd.identity;id='io.openems.edge.pvinverter.cluster',\
+	bnd.identity;id='io.openems.edge.pvinverter.fronius',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.sma',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
@@ -158,8 +159,8 @@
 	Java-WebSocket;version='[1.5.2,1.5.3)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
-	com.google.gson;version='[2.8.9,2.8.10)',\
-	com.google.guava;version='[31.0.1,31.0.2)',\
+	com.google.gson;version='[2.9.0,2.9.1)',\
+	com.google.guava;version='[31.1.0,31.1.1)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.sun.jna;version='[5.10.0,5.10.1)',\
 	io.openems.common;version=snapshot,\
@@ -283,6 +284,7 @@
 	io.openems.edge.predictor.similardaymodel;version=snapshot,\
 	io.openems.edge.pvinverter.api;version=snapshot,\
 	io.openems.edge.pvinverter.cluster;version=snapshot,\
+	io.openems.edge.pvinverter.fronius;version=snapshot,\
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
 	io.openems.edge.pvinverter.sma;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\

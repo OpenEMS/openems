@@ -19,8 +19,6 @@ import io.openems.edge.common.sum.GridMode;
 @ProviderType
 public interface SymmetricEss extends OpenemsComponent {
 
-	public static final String POWER_DOC_TEXT = "Negative values for Charge; positive for Discharge";
-
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * State of Charge.
@@ -73,7 +71,7 @@ public interface SymmetricEss extends OpenemsComponent {
 		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
+				.text("Negative values for Charge; positive for Discharge") //
 		),
 		/**
 		 * Reactive Power.
@@ -82,13 +80,11 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
 		 * <li>Unit: var
-		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
 		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
 		),
 		/**
 		 * Holds the currently maximum possible apparent power. This value is commonly
