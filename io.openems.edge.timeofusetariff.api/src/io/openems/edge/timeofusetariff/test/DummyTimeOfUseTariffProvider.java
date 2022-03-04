@@ -1,12 +1,13 @@
 package io.openems.edge.timeofusetariff.test;
 
 import java.time.ZonedDateTime;
+
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 
-	private final TimeOfUsePrices prices;
+	private TimeOfUsePrices prices;
 
 	/**
 	 * Builds a {@link DummyTimeOfUseTariffProvider} from hourly prices.
@@ -15,7 +16,7 @@ public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 	 * @param now          {@ZonedDateTime} given during test.
 	 * @return a {@link DummyTimeOfUseTariffProvider}.
 	 */
-	public static DummyTimeOfUseTariffProvider fromHourlyPrices(ZonedDateTime now, Float[] hourlyPrices) {
+	public static DummyTimeOfUseTariffProvider fromHourlyPrices(ZonedDateTime now, Float... hourlyPrices) {
 
 		Float[] quarterlyPrices = new Float[96];
 
@@ -29,7 +30,11 @@ public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 		return new DummyTimeOfUseTariffProvider(now, quarterlyPrices);
 	}
 
-	private DummyTimeOfUseTariffProvider(ZonedDateTime now, Float[] quarterlyPrices) {
+	public DummyTimeOfUseTariffProvider(ZonedDateTime now, Float... quarterlyPrices) {
+		this.setPrices(now, quarterlyPrices);
+	}
+
+	public void setPrices(ZonedDateTime now, Float... quarterlyPrices) {
 		this.prices = new TimeOfUsePrices(now, quarterlyPrices);
 	}
 

@@ -365,7 +365,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		COS_PHI(Doc.of(OpenemsType.FLOAT) //
 				.accessMode(AccessMode.READ_ONLY)), //
 
-		// TODO delete later, just for info whats inside ;)
+		// TODO delete later, just for info what's inside ;)
 		REACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_ONLY)), //
 

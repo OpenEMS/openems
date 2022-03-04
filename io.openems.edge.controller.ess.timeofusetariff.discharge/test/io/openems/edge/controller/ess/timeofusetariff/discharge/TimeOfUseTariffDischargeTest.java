@@ -14,7 +14,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.predictor.api.test.DummyPrediction48Hours;
+import io.openems.edge.predictor.api.test.DummyPrediction24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictor24Hours;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
 import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
@@ -114,8 +114,8 @@ public class TimeOfUseTariffDischargeTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -168,8 +168,8 @@ public class TimeOfUseTariffDischargeTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -250,8 +250,8 @@ public class TimeOfUseTariffDischargeTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
@@ -307,8 +307,8 @@ public class TimeOfUseTariffDischargeTest {
 		final DummyComponentManager cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction48Hours productionPrediction = new DummyPrediction48Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction48Hours consumptionPrediction = new DummyPrediction48Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
 		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,

@@ -931,7 +931,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// default 100 kilo Ohm, to read or set Isolation protection threshold for the
 						// inverter
 						m(GoodWe.ChannelId.ISO_LIMIT, new UnsignedWordElement(45245)), //
-						// as default is deactivated, set "1" to activate LVRT functtion, Set "2" to
+						// as default is deactivated, set "1" to activate LVRT function, Set "2" to
 						// activate HVRT, The same as 45499
 						m(GoodWe.ChannelId.LVRT_HVRT, new UnsignedWordElement(45246))), //
 				new FC16WriteRegistersTask(45250, //
@@ -939,12 +939,12 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// user manual
 						m(GoodWe.ChannelId.PV_START_VOLTAGE, new UnsignedWordElement(45250),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						// as default is deactivated, set "1" to activate "Shadow Scan" functtion
+						// as default is deactivated, set "1" to activate "Shadow Scan" function
 						m(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE, new UnsignedWordElement(45251)), //
-						// as default is deactivated, set "1" to activate "Shadow Scan" functtion
+						// as default is deactivated, set "1" to activate "Shadow Scan" function
 						m(GoodWe.ChannelId.BACK_UP_ENABLE, new UnsignedWordElement(45252)), //
 						// Off-Grid Auto startup, as default is deactivated, set "1" to activate "Shadow
-						// Scan" functtion
+						// Scan" function
 						m(GoodWe.ChannelId.AUTO_START_BACKUP, new UnsignedWordElement(45253)), //
 						// As default is "0"
 						m(GoodWe.ChannelId.GRID_WAVE_CHECK_LEVEL, new UnsignedWordElement(45254)), //
@@ -1762,7 +1762,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(47001), //
 						m(GoodWe.ChannelId.WMETER_CONNECT_CHECK_FLAG, new UnsignedWordElement(47002)), //
 						new DummyRegisterElement(47003, 47004), //
-						// Breakpoint Resume for Data transfering. Activated as default, time
+						// Breakpoint Resume for Data transferring. Activated as default, time
 						// interval 5
 						// minutes
 						m(GoodWe.ChannelId.LOG_DATA_ENABLE, new UnsignedWordElement(47005)), //
@@ -1778,7 +1778,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// 1: off, 2: on, 3: flash 1x, 4: flash 2x, 5: flash 4x
 						m(GoodWe.ChannelId.WIFI_LED_STATE, new UnsignedWordElement(47013)), //
 						m(GoodWe.ChannelId.COM_LED_STATE, new UnsignedWordElement(47014)), //
-						// 1:on 0:off ony for single phase Smart meter
+						// 1:on 0:off only for single phase Smart meter
 						m(GoodWe.ChannelId.METER_CT1_REVERSE_ENABLE, new UnsignedWordElement(47015)), //
 						m(GoodWe.ChannelId.ERROR_LOG_READ_PAGE, new UnsignedWordElement(47016)), //
 						// 1:on 0:off If not connect to Internet, please set 1

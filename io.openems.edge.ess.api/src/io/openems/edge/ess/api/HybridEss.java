@@ -36,8 +36,8 @@ public interface HybridEss extends SymmetricEss {
 		DC_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.text("Actual AC-side battery discharge power of Energy Storage System. " //
+						+ "Negative values for charge; positive for discharge")),
 		/**
 		 * DC Charge Energy.
 		 * 
