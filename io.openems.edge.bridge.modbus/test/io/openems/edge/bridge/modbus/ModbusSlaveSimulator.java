@@ -10,7 +10,7 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 public class ModbusSlaveSimulator {
 
 	private static final int UNIT_ID = 1;
-	private static final int PORT = 502;
+	private static final int PORT = 8502;
 	private static final int CONCURRENT_CONNECTIONS = 5;
 
 	public static void main(String[] args) throws ModbusException {
