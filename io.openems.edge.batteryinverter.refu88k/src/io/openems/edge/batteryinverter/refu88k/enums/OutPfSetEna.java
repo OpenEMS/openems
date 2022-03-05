@@ -1,29 +1,28 @@
-package io.openems.edge.batteryinverter.refu88k;
+package io.openems.edge.batteryinverter.refu88k.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum OutPFSetEna implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"),
-	DISABLED(0, "Disabled"),
-	ENABLED(1, "Enabled")
-	;
+public enum OutPfSetEna implements OptionsEnum {
+	UNDEFINED(-1, "Undefined"), //
+	DISABLED(0, "Disabled"), //
+	ENABLED(1, "Enabled");
 
 	private final int value;
 	private final String name;
 
-	private OutPFSetEna(int value, String name) {
+	private OutPfSetEna(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
