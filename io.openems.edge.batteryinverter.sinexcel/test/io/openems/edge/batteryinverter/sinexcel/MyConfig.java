@@ -1,7 +1,6 @@
 package io.openems.edge.batteryinverter.sinexcel;
 
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.batteryinverter.sinexcel.Config;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
@@ -12,7 +11,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id = null;
 		private String modbusId = null;
 		private StartStopConfig startStopConfig = null;
-		private int modbusUnitId;
 
 		private Builder() {
 		}
@@ -39,7 +37,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

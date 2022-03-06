@@ -48,7 +48,6 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -115,6 +114,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 		this._setMaxApparentPower(SinexcelImpl.MAX_APPARENT_POWER);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -125,10 +125,10 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
 				config.modbus_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -149,7 +149,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 		this.setBatteryLimits(battery);
 
 		// Prepare Context
-		Context context = new Context(this, this.config, this.targetGridMode.get(), setActivePower, setReactivePower);
+		var context = new Context(this, this.config, this.targetGridMode.get(), setActivePower, setReactivePower);
 
 		// Call the StateMachine
 		try {
@@ -165,7 +165,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 
 	/**
 	 * Updates the Channel if its current value is not equal to the new value.
-	 * 
+	 *
 	 * @param channelId Sinexcel Channel-Id
 	 * @param newValue  {@link OptionsEnum} value.
 	 * @throws IllegalArgumentException on error
@@ -177,14 +177,14 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 
 	/**
 	 * Updates the Channel if its current value is not equal to the new value.
-	 * 
+	 *
 	 * @param channelId Sinexcel Channel-Id
 	 * @param newValue  Integer value.
 	 * @throws IllegalArgumentException on error
 	 */
 	private void updateIfNotEqual(Sinexcel.ChannelId channelId, Integer newValue) throws IllegalArgumentException {
 		WriteChannel<Integer> channel = this.channel(channelId);
-		Value<Integer> currentValue = channel.value();
+		var currentValue = channel.value();
 		if (currentValue.isDefined() && !Objects.equals(currentValue.get(), newValue)) {
 			try {
 				channel.setNextWriteValue(newValue);
@@ -198,7 +198,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 
 	/**
 	 * Sets some default settings on the inverter, like Timeout.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setDefaultSettings() throws OpenemsNamedException {
@@ -210,7 +210,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 
 	/**
 	 * Sets the Battery Limits.
-	 * 
+	 *
 	 * @param battery the linked {@link Battery}
 	 * @throws OpenemsNamedException on error
 	 */
@@ -293,15 +293,14 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 		if (this.stateMachine.getCurrentState() == State.RUNNING) {
 			return BatteryInverterConstraint.NO_CONSTRAINTS;
 
-		} else {
-			// Block any power as long as we are not RUNNING
-			return new BatteryInverterConstraint[] { //
-					new BatteryInverterConstraint("Sinexcel inverter not ready", Phase.ALL, Pwr.REACTIVE, //
-							Relationship.EQUALS, 0d), //
-					new BatteryInverterConstraint("Sinexcel inverter not ready", Phase.ALL, Pwr.ACTIVE, //
-							Relationship.EQUALS, 0d) //
-			};
 		}
+		// Block any power as long as we are not RUNNING
+		return new BatteryInverterConstraint[] { //
+				new BatteryInverterConstraint("Sinexcel inverter not ready", Phase.ALL, Pwr.REACTIVE, //
+						Relationship.EQUALS, 0d), //
+				new BatteryInverterConstraint("Sinexcel inverter not ready", Phase.ALL, Pwr.ACTIVE, //
+						Relationship.EQUALS, 0d) //
+		};
 	}
 
 	@Override
@@ -318,6 +317,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 		);
 	}
 
+	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(1, Priority.HIGH, //
@@ -1097,9 +1097,8 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 				int value = (Short) obj;
 				if (Math.abs(value) < 100) {
 					return 0;
-				} else {
-					return value;
 				}
+				return value;
 			}, //
 			value -> value);
 
@@ -1116,6 +1115,6 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 	 */
 	public void softStart(boolean switchOn) throws OpenemsNamedException {
 		BooleanWriteChannel setSoftStart = this.channel(Sinexcel.ChannelId.SET_SOFT_START);
-		setSoftStart.setNextWriteValue(switchOn ? true : false);
+		setSoftStart.setNextWriteValue(switchOn == true);
 	}
 }
