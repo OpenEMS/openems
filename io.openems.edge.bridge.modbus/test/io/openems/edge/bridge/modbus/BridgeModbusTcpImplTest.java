@@ -39,14 +39,14 @@ public class BridgeModbusTcpImplTest {
 	public void test() throws Exception {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(CYCLE_TIME);
 
-		int port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
+		var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
 		ModbusSlave slave = null;
 		try {
 			/*
 			 * Open Modbus/TCP Slave
 			 */
 			slave = ModbusSlaveFactory.createTCPSlave(port, 1);
-			SimpleProcessImage processImage = new SimpleProcessImage(UNIT_ID);
+			var processImage = new SimpleProcessImage(UNIT_ID);
 			Register register100 = new SimpleRegister(123);
 			processImage.addRegister(100, register100);
 			slave.addProcessImage(UNIT_ID, processImage);
@@ -55,9 +55,9 @@ public class BridgeModbusTcpImplTest {
 			/*
 			 * Instantiate Modbus-Bridge
 			 */
-			BridgeModbusTcpImpl sut = new BridgeModbusTcpImpl();
-			MyModbusComponent device = new MyModbusComponent(DEVICE_ID, sut, UNIT_ID);
-			ComponentTest test = new ComponentTest(sut) //
+			var sut = new BridgeModbusTcpImpl();
+			var device = new MyModbusComponent(DEVICE_ID, sut, UNIT_ID);
+			var test = new ComponentTest(sut) //
 					.addComponent(device) //
 					.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 					.activate(MyConfigTcp.create() //
@@ -83,7 +83,7 @@ public class BridgeModbusTcpImplTest {
 			 * Reading Register fails after debounce of 10
 			 */
 			processImage.removeRegister(register100);
-			for (int i = 0; i < 9; i++) {
+			for (var i = 0; i < 9; i++) {
 				test.next(new TestCase() //
 						.onAfterProcessImage(sleep));
 			}
@@ -136,7 +136,7 @@ public class BridgeModbusTcpImplTest {
 		protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 			return new ModbusProtocol(this, //
 					new FC3ReadRegistersTask(100, Priority.HIGH, //
-							m(ChannelId.REGISTER_100, new UnsignedWordElement(100) //
+							this.m(ChannelId.REGISTER_100, new UnsignedWordElement(100) //
 							))); //
 		}
 

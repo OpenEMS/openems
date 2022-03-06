@@ -24,8 +24,8 @@ public abstract class AbstractReadInputRegistersTask extends AbstractReadTask<In
 	@Override
 	protected void doElementSetInput(ModbusElement<?> modbusElement, int position, InputRegister[] response)
 			throws OpenemsException {
-		((ModbusRegisterElement<?>) modbusElement).setInputRegisters(
-				(InputRegister[]) Arrays.copyOfRange(response, position, position + modbusElement.getLength()));
+		((ModbusRegisterElement<?>) modbusElement)
+				.setInputRegisters(Arrays.copyOfRange(response, position, position + modbusElement.getLength()));
 	}
 
 	@Override
