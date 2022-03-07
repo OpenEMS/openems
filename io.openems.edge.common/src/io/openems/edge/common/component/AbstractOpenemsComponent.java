@@ -8,11 +8,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.metatype.MetaTypeInformation;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.osgi.util.tracker.ServiceTracker;
@@ -35,7 +33,7 @@ import io.openems.edge.common.type.TypeUtils;
 
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
- * 
+ *
  * {@link #activate(ComponentContext, String, boolean)} and
  * {@link #deactivate()} methods should be called by the corresponding methods
  * in the OSGi component.
@@ -59,24 +57,24 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	private boolean enabled = true;
 
 	private ServiceTracker<MetaTypeService, MetaTypeService> metaTypeServiceTracker = null;
-	private AtomicReference<MetaTypeService> metaTypeService = new AtomicReference<>();
+	private final AtomicReference<MetaTypeService> metaTypeService = new AtomicReference<>();
 
 	/**
 	 * Default constructor for AbstractOpenemsComponent.
-	 * 
+	 *
 	 * <p>
 	 * Automatically initializes (i.e. creates {@link Channel} instances for each
 	 * given {@link ChannelId} using the Channel-{@link Doc}.
-	 * 
+	 *
 	 * <p>
 	 * It is important to list all Channel-ID enums of all inherited
 	 * OpenEMS-Natures, i.e. for every OpenEMS Java interface you are implementing,
 	 * you need to list the interface' ChannelID-enum here like
 	 * Interface.ChannelId.values().
-	 * 
+	 *
 	 * <p>
 	 * Use as follows:
-	 * 
+	 *
 	 * <pre>
 	 * public YourPhantasticOpenemsComponent() {
 	 * 	super(//
@@ -84,17 +82,17 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * 			YourPhantasticOpenemsComponent.ChannelId.values());
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * Note: the separation in firstInitialChannelIds and furtherInitialChannelIds
 	 * is only there to enforce that calling the constructor cannot be forgotten.
 	 * This way it needs to be called with at least one parameter - which is always
 	 * at least "OpenemsComponent.ChannelId.values()". Just use it as if it was:
-	 * 
+	 *
 	 * <pre>
 	 * AbstractOpenemsComponent(ChannelId[]... channelIds)
 	 * </pre>
-	 * 
+	 *
 	 * @param firstInitialChannelIds   the Channel-IDs to initialize.
 	 * @param furtherInitialChannelIds the Channel-IDs to initialize.
 	 */
@@ -106,7 +104,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Handles @Activate of implementations. Prints log output.
-	 * 
+	 *
 	 * @param context the OSGi ComponentContext
 	 * @param id      the unique OpenEMS Component ID
 	 * @param alias   Human-readable name of this Component. Typically
@@ -118,12 +116,12 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		// If we wouldn't do this here, each inheriting Component would have to get an
 		// @Reference to MetaTypeService, which would be cumbersome.
 		if (context != null && context.getBundleContext() != null) {
-			this.metaTypeServiceTracker = new ServiceTracker<MetaTypeService, MetaTypeService>(
+			this.metaTypeServiceTracker = new ServiceTracker<>(
 					context.getBundleContext(), MetaTypeService.class, null) {
 
 				@Override
 				public MetaTypeService addingService(ServiceReference<MetaTypeService> serviceReference) {
-					MetaTypeService metaTypeService = super.addingService(serviceReference);
+					var metaTypeService = super.addingService(serviceReference);
 					AbstractOpenemsComponent.this.metaTypeService.set(metaTypeService);
 					AbstractOpenemsComponent.this.addChannelsForProperties();
 					return metaTypeService;
@@ -150,7 +148,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Handles @Modified of implementations.
-	 * 
+	 *
 	 * @param context the OSGi ComponentContext
 	 * @param id      the unique OpenEMS Component ID
 	 * @param alias   Human-readable name of this Component. Typically
@@ -199,7 +197,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Helper method to update the Context on @Activate and @Modified.
-	 * 
+	 *
 	 * @param context the OSGi ComponentContext
 	 * @param id      the unique OpenEMS Component ID
 	 * @param alias   Human-readable name of this Component. Typically
@@ -229,7 +227,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Add a Channel for each Property and set the configured value.
-	 * 
+	 *
 	 * <p>
 	 * If the Property key is "enabled" then a Channel with the ID
 	 * "_PropertyEnabled" is generated.
@@ -237,28 +235,28 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	private synchronized void addChannelsForProperties() {
 		// Make sure ComponentContext, MetaTypeService, Bundle and MetaTypeInformation
 		// are available
-		final ComponentContext context = this.componentContext;
-		final MetaTypeService metaTypeService = this.metaTypeService.get();
+		final var context = this.componentContext;
+		final var metaTypeService = this.metaTypeService.get();
 		if (context == null || metaTypeService == null) {
 			return;
 		}
-		final Bundle bundle = context.getUsingBundle();
+		final var bundle = context.getUsingBundle();
 		if (bundle == null) {
 			return;
 		}
-		final MetaTypeInformation mti = metaTypeService.getMetaTypeInformation(bundle);
+		final var mti = metaTypeService.getMetaTypeInformation(bundle);
 		if (mti == null) {
 			return;
 		}
-		final Dictionary<String, Object> properties = context.getProperties();
+		final var properties = context.getProperties();
 		if (properties == null) {
 			return;
 		}
 
 		// get Factory-PIDs in this Bundle
-		String[] factoryPids = mti.getFactoryPids();
+		var factoryPids = mti.getFactoryPids();
 		for (String factoryPid : factoryPids) {
-			ObjectClassDefinition ocd = mti.getObjectClassDefinition(factoryPid, null);
+			var ocd = mti.getObjectClassDefinition(factoryPid, null);
 			this.addChannelsForProperties(ocd, properties);
 		}
 
@@ -266,7 +264,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		for (String pid : mti.getPids()) {
 			switch (pid) {
 			default:
-				ObjectClassDefinition ocd = mti.getObjectClassDefinition(pid, null);
+				var ocd = mti.getObjectClassDefinition(pid, null);
 				this.addChannelsForProperties(ocd, properties);
 			}
 		}
@@ -274,7 +272,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Adds Channels for Properties defined by {@link ObjectClassDefinition}..
-	 * 
+	 *
 	 * @param ocd        The {@link ObjectClassDefinition}, i.e. the main annotation
 	 *                   on the Config class
 	 * @param properties the configuration properties {@link Dictionary}
@@ -288,7 +286,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 			// Evaluate Channel-Type
 			final OpenemsType channelType;
-			Object propertyValue = properties.get(property.getId());
+			var propertyValue = properties.get(property.getId());
 			if (propertyValue != null && propertyValue.getClass().isArray() && Array.getLength(propertyValue) > 1) {
 				// Arrays with more than one value can only be stored as string
 				channelType = OpenemsType.STRING;
@@ -297,7 +295,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 			}
 
 			// Create Channel
-			String channelName = PROPERTY_CHANNEL_ID_PREFIX
+			var channelName = PROPERTY_CHANNEL_ID_PREFIX
 					+ CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, property.getId().replace(".", "_"));
 			Channel<?> channel = this.channels
 					.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
@@ -341,17 +339,17 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Initializes the given Channel-ID.
-	 * 
+	 *
 	 * <ul>
 	 * <li>Creates an object instance from Channel-Doc
 	 * <li>Registers the Channel
 	 * </ul>
-	 * 
+	 *
 	 * @param channelId the given Channel-ID
 	 * @return the newly created Channel
 	 */
 	protected Channel<?> addChannel(io.openems.edge.common.channel.ChannelId channelId) {
-		Doc doc = channelId.doc();
+		var doc = channelId.doc();
 		Channel<?> channel = doc.createChannelInstance(this, channelId);
 		this.addChannel(channel);
 		return channel;
@@ -359,7 +357,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Adds a Channel to this Component.
-	 * 
+	 *
 	 * @param channel the Channel
 	 * @throws NullPointerException     if the Channel was not initialized.
 	 * @throws IllegalArgumentException if the Channel-ID had already been added.
@@ -383,12 +381,12 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Initializes the given Channel-IDs.
-	 * 
+	 *
 	 * <ul>
 	 * <li>Creates object instances from Channel-Doc
 	 * <li>Registers the Channels
 	 * </ul>
-	 * 
+	 *
 	 * @param initialChannelIds the given Channel-IDs
 	 */
 	protected void addChannels(io.openems.edge.common.channel.ChannelId[] initialChannelIds) {
@@ -399,12 +397,12 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Initializes the given Channel-IDs.
-	 * 
+	 *
 	 * <ul>
 	 * <li>Creates object instances from Channel-Doc
 	 * <li>Registers the Channels
 	 * </ul>
-	 * 
+	 *
 	 * @param initialChannelIds the given Channel-IDs
 	 */
 	protected void addChannels(io.openems.edge.common.channel.ChannelId[][] initialChannelIds) {
@@ -417,19 +415,19 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Nicely writes a log message on activate/deactivate/modified events.
-	 * 
+	 *
 	 * @param message the message
 	 */
 	private void logMessage(String message) {
 		// by default: use the class name
-		String name = this.getClass().getSimpleName();
+		var name = this.getClass().getSimpleName();
 
 		// try to find the component name
-		ComponentContext context = this.componentContext;
+		var context = this.componentContext;
 		if (context != null) {
-			Dictionary<String, Object> properties = context.getProperties();
+			var properties = context.getProperties();
 			if (properties != null) {
-				Object obj = properties.get(ComponentConstants.COMPONENT_NAME);
+				var obj = properties.get(ComponentConstants.COMPONENT_NAME);
 				if (obj != null) {
 					name = obj.toString();
 				}
@@ -451,13 +449,12 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	@Deprecated()
 	@Override
 	public Channel<?> _channel(String channelName) {
-		Channel<?> channel = this.channels.get(channelName);
-		return channel;
+		return this.channels.get(channelName);
 	}
 
 	/**
 	 * Removes a Channel from this Component.
-	 * 
+	 *
 	 * @param channel the Channel
 	 */
 	// TODO remove Channel(s) using Channel-ID; see addChannels()-method above.
@@ -477,7 +474,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log a debug message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger instance
 	 * @param message the message
 	 */
@@ -487,7 +484,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log an info message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger instance
 	 * @param message the message
 	 */
@@ -497,7 +494,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log a warn message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger instance
 	 * @param message the message
 	 */
@@ -507,7 +504,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log an error message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger instance
 	 * @param message the message
 	 */

@@ -21,17 +21,19 @@ public abstract class ModbusRecordConstant extends ModbusRecord {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordConstant [getOffset()=" + getOffset() + ", getType()=" + getType() + "]";
+		return "ModbusRecordConstant [getOffset()=" + this.getOffset() + ", getType()=" + this.getType() + "]";
 	}
 
 	public byte[] getValue() {
 		return this.value;
 	}
 
+	@Override
 	public byte[] getValue(OpenemsComponent component) {
 		return this.getValue();
 	}
 
+	@Override
 	public void writeValue(OpenemsComponent component, int index, byte byte1, byte byte2) {
 		this.log.warn("Writing to Read-Only Modbus Record is not allowed! [" + this.getOffset() + ", " + this.getType()
 				+ "]");

@@ -2,6 +2,7 @@ package io.openems.edge.common.modbusslave;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.openems.common.channel.AccessMode;
@@ -24,16 +25,16 @@ public final class ModbusSlaveNatureTable {
 		}
 
 		public Builder channel(int offset, ChannelId channelId, ModbusType type) {
-			AccessMode filter = this.accessModeFilter;
-			AccessMode channel = channelId.doc().getAccessMode();
+			var filter = this.accessModeFilter;
+			var channel = channelId.doc().getAccessMode();
 			if (
 			// Filter for READ_ONLY Channels
-			(filter == AccessMode.READ_ONLY && (channel == AccessMode.READ_ONLY || channel == AccessMode.READ_WRITE)) || //
+			filter == AccessMode.READ_ONLY && (channel == AccessMode.READ_ONLY || channel == AccessMode.READ_WRITE) || //
 			// Filter for READ_WRITE channels -> allow all Channels
-					(filter == AccessMode.READ_WRITE) || //
+					filter == AccessMode.READ_WRITE || //
 					// Filter for WRITE_ONLY channels
-					(filter == AccessMode.WRITE_ONLY
-							&& (channel == AccessMode.WRITE_ONLY || channel == AccessMode.READ_WRITE))) {
+					filter == AccessMode.WRITE_ONLY
+							&& (channel == AccessMode.WRITE_ONLY || channel == AccessMode.READ_WRITE)) {
 				this.add(new ModbusRecordChannel(offset, type, channelId, filter));
 
 			} else {
@@ -121,10 +122,9 @@ public final class ModbusSlaveNatureTable {
 		}
 
 		public ModbusSlaveNatureTable build() {
-			Collections.sort(this.maps, (m1, m2) -> {
-				return Integer.compare(m1.getOffset(), m2.getOffset());
-			});
-			return new ModbusSlaveNatureTable(nature, length, this.maps.toArray(new ModbusRecord[this.maps.size()]));
+			Collections.sort(this.maps, Comparator.comparing(ModbusRecord::getOffset));
+			return new ModbusSlaveNatureTable(this.nature, this.length,
+					this.maps.toArray(new ModbusRecord[this.maps.size()]));
 		}
 
 	}
@@ -144,14 +144,14 @@ public final class ModbusSlaveNatureTable {
 	}
 
 	public Class<?> getNature() {
-		return nature;
+		return this.nature;
 	}
 
 	public int getLength() {
-		return length;
+		return this.length;
 	}
 
 	public ModbusRecord[] getModbusRecords() {
-		return modbusRecords;
+		return this.modbusRecords;
 	}
 }

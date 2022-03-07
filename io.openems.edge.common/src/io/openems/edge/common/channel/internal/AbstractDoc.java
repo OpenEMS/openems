@@ -26,7 +26,7 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	/**
 	 * Gets an instance of the correct subclass of myself.
-	 * 
+	 *
 	 * @return myself
 	 */
 	protected abstract AbstractDoc<T> self();
@@ -43,11 +43,11 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	/**
 	 * Sets the {@link AccessMode} for the Channel.
-	 * 
+	 *
 	 * <p>
 	 * This is validated on construction of the Channel by
 	 * {@link AbstractReadChannel}
-	 * 
+	 *
 	 * @param accessMode the {@link AccessMode}
 	 * @return myself
 	 */
@@ -69,11 +69,11 @@ public abstract class AbstractDoc<T> implements Doc {
 	/**
 	 * Sets the {@link PersistencePriority}. Defaults to
 	 * {@link PersistencePriority#VERY_LOW}.
-	 * 
+	 *
 	 * <p>
 	 * This parameter may be used by persistence services to decide, if the Channel
 	 * should be persisted to the hard disk.
-	 * 
+	 *
 	 * @param persistencePriority the {@link PersistencePriority}
 	 * @return myself
 	 */
@@ -94,7 +94,7 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	/**
 	 * Initial-Value. Default: none
-	 * 
+	 *
 	 * @param initialValue the initial value
 	 * @return myself
 	 */
@@ -105,7 +105,7 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	/**
 	 * Gets the initial value.
-	 * 
+	 *
 	 * @return the initial value
 	 */
 	public T getInitialValue() {
@@ -140,7 +140,7 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	/**
 	 * Activates the more verbose debug mode.
-	 * 
+	 *
 	 * @return myself
 	 */
 	public AbstractDoc<T> debug() {
@@ -160,7 +160,7 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	/**
 	 * Provides a callback on initialization of the actual Channel.
-	 * 
+	 *
 	 * @param callback the method to call on initialization
 	 * @return myself
 	 */
@@ -171,7 +171,7 @@ public abstract class AbstractDoc<T> implements Doc {
 
 	/**
 	 * Gets the callbacks for initialization of the actual Channel.
-	 * 
+	 *
 	 * @return a list of callbacks
 	 */
 	protected List<Consumer<Channel<T>>> getOnInitCallbacks() {
@@ -181,12 +181,13 @@ public abstract class AbstractDoc<T> implements Doc {
 	/**
 	 * Creates an instance of {@link Channel} for the given Channel-ID using its
 	 * Channel-{@link AbstractDoc}.
-	 * 
+	 *
 	 * @param <C>       the {@link Channel} type
 	 * @param component the {@link OpenemsComponent}
 	 * @param channelId the {@link ChannelId}
 	 * @return the Channel
 	 */
+	@Override
 	public abstract <C extends Channel<?>> C createChannelInstance(OpenemsComponent component,
 			io.openems.edge.common.channel.ChannelId channelId);
 }

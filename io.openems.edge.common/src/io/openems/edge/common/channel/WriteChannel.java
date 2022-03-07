@@ -11,7 +11,7 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	/**
 	 * Updates the 'next' write value of Channel.
-	 * 
+	 *
 	 * @param value the typed value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -27,18 +27,18 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	/**
 	 * Updates the 'next' write value of Channel from an Object value.
-	 * 
+	 *
 	 * <p>
 	 * Use this method if the value is not yet in the correct Type. Otherwise use
 	 * {@link WriteChannel#setNextWriteValue(Object)} directly.
-	 * 
+	 *
 	 * @param value the value as an Object
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
 	public default void setNextWriteValueFromObject(Object value)
 			throws OpenemsNamedException, IllegalArgumentException {
-		T typedValue = TypeUtils.<T>getAsType(this.getType(), value);
+		var typedValue = TypeUtils.<T>getAsType(this.getType(), value);
 		OpenemsNamedException exception = null;
 		// set the write value
 		this._setNextWriteValue(typedValue);
@@ -56,7 +56,7 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	/**
 	 * Internal method. Do not call directly.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Deprecated
@@ -64,11 +64,11 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	/**
 	 * Gets the next write value and resets it.
-	 * 
+	 *
 	 * @return
 	 */
 	public default Optional<T> getNextWriteValueAndReset() {
-		Optional<T> valueOpt = this.getNextWriteValue();
+		var valueOpt = this.getNextWriteValue();
 		if (valueOpt.isPresent()) {
 			this._setNextWriteValue(null);
 		}
@@ -77,7 +77,7 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	/**
 	 * Gets the next write value.
-	 * 
+	 *
 	 * @return the next write value; not-present if no write value had been set
 	 */
 	public Optional<T> getNextWriteValue();
@@ -85,7 +85,7 @@ public interface WriteChannel<T> extends Channel<T> {
 	/**
 	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
 	 * set.
-	 * 
+	 *
 	 * <p>
 	 * The callback can throw an {@link OpenemsNamedException}.
 	 */
