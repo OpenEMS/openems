@@ -3,10 +3,8 @@ package io.openems.edge.controller.io.channelsinglethreshold;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.OptionalDouble;
 import java.util.Set;
 
 import org.osgi.service.component.ComponentContext;
@@ -87,6 +85,7 @@ public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -94,7 +93,7 @@ public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		List<WriteChannel<Boolean>> outputChannels = this.getOutputChannels();
+		var outputChannels = this.getOutputChannels();
 
 		switch (this.config.mode()) {
 		case ON:
@@ -111,7 +110,7 @@ public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 
 	/**
 	 * From the configured outputChannelAddresses get the actual Channel Objects.
-	 * 
+	 *
 	 * @return the list of Channels
 	 * @throws Exception if no configured Channel is available; if at least one
 	 *                   Channel is available, that one is returned even if other
@@ -133,35 +132,34 @@ public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 		}
 		if (result.isEmpty() && exceptionHappened != null) {
 			throw exceptionHappened;
-		} else {
-			return result;
 		}
+		return result;
 	}
 
 	/**
 	 * Automated control.
-	 * 
+	 *
 	 * @param outputChannels the configured output channels
 	 * @throws OpenemsNamedException on error
 	 */
 	private void automaticMode(List<WriteChannel<Boolean>> outputChannels) throws OpenemsNamedException {
 
-		ChannelAddress inputChannelAddress = ChannelAddress.fromString(this.config.inputChannelAddress());
+		var inputChannelAddress = ChannelAddress.fromString(this.config.inputChannelAddress());
 
 		// Get average input value of the last 'minimumSwitchingTime' seconds
 		IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
-		Collection<Value<Integer>> values = inputChannel.getPastValues().tailMap(
+		var values = inputChannel.getPastValues().tailMap(
 				LocalDateTime.now(this.componentManager.getClock()).minusSeconds(this.config.minimumSwitchingTime()),
 				true).values();
 
 		// make sure we have at least one value
 		if (values.isEmpty()) {
-			values = new ArrayList<Value<Integer>>();
+			values = new ArrayList<>();
 			values.add(inputChannel.value());
 		}
 
-		OptionalDouble inputValueOpt = values.stream().filter(v -> v.isDefined()) //
-				.mapToInt(v -> v.get()) //
+		var inputValueOpt = values.stream().filter(Value::isDefined) //
+				.mapToInt(Value::get) //
 				.average();
 		int inputValue;
 		if (inputValueOpt.isPresent()) {
@@ -171,7 +169,7 @@ public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 			 * Power value (switchedLoadPower) of the output device is added to the input
 			 * channel value to avoid immediate switching based on threshold - e.g. helpful
 			 * when the input channel is the Grid Active Power.
-			 * 
+			 *
 			 * Example use case: if the feed-in is more than threshold, the output device is
 			 * switched on and next second feed-in reduces below threshold and immediately
 			 * switches off the device.
@@ -248,11 +246,11 @@ public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 
 	/**
 	 * A flag to maintain change in the state.
-	 * 
+	 *
 	 * @param nextState the target state
 	 */
 	private void changeState(State nextState) {
-		Duration hysteresis = Duration.ofSeconds(this.config.minimumSwitchingTime());
+		var hysteresis = Duration.ofSeconds(this.config.minimumSwitchingTime());
 		if (this.state != nextState) {
 			if (this.lastStateChange.plus(hysteresis).isBefore(LocalDateTime.now(this.componentManager.getClock()))) {
 				this.state = nextState;
@@ -268,14 +266,14 @@ public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Helper function to switch multiple outputs if they were not switched before.
-	 * 
+	 *
 	 * @param outputChannels the output channels
 	 * @param value          true to switch ON, false to switch ON
 	 * @throws OpenemsNamedException on error
 	 */
 	private void setOutputs(List<WriteChannel<Boolean>> outputChannels, boolean value) throws OpenemsNamedException {
 		for (WriteChannel<Boolean> outputChannel : outputChannels) {
-			Value<Boolean> currentValue = outputChannel.value();
+			var currentValue = outputChannel.value();
 			if (!currentValue.isDefined() || currentValue.get() != value) {
 				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (value ? "ON" : "OFF") + ".");
 				outputChannel.setNextWriteValue(value);
