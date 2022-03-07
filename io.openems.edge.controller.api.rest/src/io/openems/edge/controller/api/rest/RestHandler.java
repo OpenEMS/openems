@@ -4,14 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -77,7 +74,7 @@ public class RestHandler extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		try {
-			User user = this.authenticate(request);
+			var user = this.authenticate(request);
 
 			List<String> targets = Arrays.asList(//
 					target.substring(1) // remove leading '/'
@@ -87,8 +84,8 @@ public class RestHandler extends AbstractHandler {
 				throw new OpenemsException("Missing arguments to handle request");
 			}
 
-			String thisTarget = targets.get(0);
-			List<String> remainingTargets = targets.subList(1, targets.size());
+			var thisTarget = targets.get(0);
+			var remainingTargets = targets.subList(1, targets.size());
 
 			switch (thisTarget) {
 			case "rest":
@@ -120,17 +117,17 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Authenticate a user.
-	 * 
+	 *
 	 * @param request the HttpServletRequest
 	 * @return the User
 	 * @throws OpenemsNamedException on error
 	 */
 	private User authenticate(HttpServletRequest request) throws OpenemsNamedException {
-		String authHeader = request.getHeader("Authorization");
+		var authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
-			StringTokenizer st = new StringTokenizer(authHeader);
+			var st = new StringTokenizer(authHeader);
 			if (st.hasMoreTokens()) {
-				String basic = st.nextToken();
+				var basic = st.nextToken();
 				if (basic.equalsIgnoreCase("Basic")) {
 					String credentials;
 					try {
@@ -138,12 +135,12 @@ public class RestHandler extends AbstractHandler {
 					} catch (UnsupportedEncodingException e) {
 						throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 					}
-					int p = credentials.indexOf(":");
+					var p = credentials.indexOf(":");
 					if (p != -1) {
-						String username = credentials.substring(0, p).trim();
-						String password = credentials.substring(p + 1).trim();
+						var username = credentials.substring(0, p).trim();
+						var password = credentials.substring(p + 1).trim();
 						// authenticate using username & password
-						Optional<User> userOpt = this.parent.getUserService().authenticate(username, password);
+						var userOpt = this.parent.getUserService().authenticate(username, password);
 						if (userOpt.isPresent()) {
 							return userOpt.get();
 						}
@@ -165,8 +162,8 @@ public class RestHandler extends AbstractHandler {
 			throw new OpenemsException("Missing arguments to handle REST-request");
 		}
 
-		String thisTarget = targets.get(0);
-		List<String> remainingTargets = targets.subList(1, targets.size());
+		var thisTarget = targets.get(0);
+		var remainingTargets = targets.subList(1, targets.size());
 
 		switch (thisTarget) {
 		case "channel":
@@ -184,7 +181,7 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		// get request attributes
-		ChannelAddress channelAddress = new ChannelAddress(targets.get(0), targets.get(1));
+		var channelAddress = new ChannelAddress(targets.get(0), targets.get(1));
 
 		// call handler methods
 		switch (request.getMethod()) {
@@ -208,7 +205,7 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Handles HTTP GET request.
-	 * 
+	 *
 	 * @param user           the {@link User}
 	 * @param channelAddress the ChannelAddress (may include RegExp)
 	 * @param baseRequest    the HTTP POST base-request
@@ -221,7 +218,7 @@ public class RestHandler extends AbstractHandler {
 			HttpServletResponse response) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP GET", Role.GUEST);
 
-		List<Channel<?>> channellist = new ArrayList<Channel<?>>();
+		List<Channel<?>> channellist = new ArrayList<>();
 
 		if (this.parent.isDebugModeEnabled()) {
 			this.parent.logInfo(this.log,
@@ -229,13 +226,13 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		// Build list of all channels where components are enabled
-		List<OpenemsComponent> ComponentList = this.parent.getComponentManager().getEnabledComponents();
+		var ComponentList = this.parent.getComponentManager().getEnabledComponents();
 		for (OpenemsComponent component : ComponentList) {
 			// Loop over enabled ComponentIds, look for exact or RegExp match
-			if (matchesSafely(component.id(), channelAddress.getComponentId())) {
+			if (this.matchesSafely(component.id(), channelAddress.getComponentId())) {
 				for (Channel<?> channel : component.channels()) {
 					// Loop over attached channels, look for exact or RegExp match
-					if (matchesSafely(channelAddress.getChannelId(), channel.channelId().id())) {
+					if (this.matchesSafely(channelAddress.getChannelId(), channel.channelId().id())) {
 						channellist.add(channel);
 					}
 				}
@@ -251,9 +248,9 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		// Creating JSON response for all matched channels
-		JsonArray channeljson = new JsonArray();
+		var channeljson = new JsonArray();
 		for (Channel<?> channel : channellist) {
-			JsonObject j = new JsonObject();
+			var j = new JsonObject();
 			// name
 			j.addProperty("address", channel.address().toString());
 			// type
@@ -271,7 +268,7 @@ public class RestHandler extends AbstractHandler {
 
 		// if this a request for a single channel only return a single JsonObject, not
 		// an array (for compatibility to previous versions)
-		JsonElement result = channeljson.size() == 1 ? channeljson.get(0) : channeljson;
+		var result = channeljson.size() == 1 ? channeljson.get(0) : channeljson;
 
 		if (this.parent.isDebugModeEnabled()) {
 			this.parent.logInfo(this.log, "REST call by User [" + user.getName() + "]: GET Channel ["
@@ -283,7 +280,7 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Safely matches a regular expression against a string.
-	 * 
+	 *
 	 * @param str   the string
 	 * @param regex the regular expression
 	 * @return true on match
@@ -350,15 +347,14 @@ public class RestHandler extends AbstractHandler {
 		user.assertRoleIsAtLeast("HTTP POST", Role.OWNER);
 
 		// parse json
-		JsonObject jHttpPost = RestHandler.parseJson(baseRequest);
+		var jHttpPost = RestHandler.parseJson(baseRequest);
 
 		// parse value
 		JsonElement jValue;
-		if (jHttpPost.has("value")) {
-			jValue = jHttpPost.get("value");
-		} else {
+		if (!jHttpPost.has("value")) {
 			throw new OpenemsException("Value is missing");
 		}
+		jValue = jHttpPost.get("value");
 
 		if (this.parent.isDebugModeEnabled()) {
 			this.parent.logInfo(this.log, "REST call by User [" + user.getName() + "]: POST Channel ["
@@ -374,7 +370,7 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Parses a Request to JSON.
-	 * 
+	 *
 	 * @param baseRequest the Request
 	 * @return the request as JSON
 	 * @throws OpenemsException on error
@@ -393,7 +389,7 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Handles an http request to 'jsonrpc' endpoint.
-	 * 
+	 *
 	 * @param user         the {@link User}
 	 * @param baseRequest  the HTTP POST base-request
 	 * @param httpRequest  the HTTP POST request
@@ -404,7 +400,7 @@ public class RestHandler extends AbstractHandler {
 			HttpServletResponse httpResponse) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP POST JSON-RPC", Role.OWNER);
 
-		UUID requestId = new UUID(0L, 0L); /* dummy UUID */
+		var requestId = new UUID(0L, 0L); /* dummy UUID */
 		try {
 			// call handler methods
 			if (!httpRequest.getMethod().equals("POST")) {
@@ -413,7 +409,7 @@ public class RestHandler extends AbstractHandler {
 			}
 
 			// parse json and add "jsonrpc" and "id" properties if missing
-			JsonObject json = RestHandler.parseJson(baseRequest);
+			var json = RestHandler.parseJson(baseRequest);
 			if (this.parent.isDebugModeEnabled()) {
 				this.parent.logInfo(this.log,
 						"REST/JsonRpc call by User [" + user.getName() + "]: " + StringUtils.toShortString(json, 100));
@@ -426,9 +422,9 @@ public class RestHandler extends AbstractHandler {
 				json.addProperty("id", UUID.randomUUID().toString());
 			}
 			if (json.has("params")) {
-				JsonObject params = JsonUtils.getAsJsonObject(json, "params");
+				var params = JsonUtils.getAsJsonObject(json, "params");
 				if (params.has("payload")) {
-					JsonObject payload = JsonUtils.getAsJsonObject(params, "payload");
+					var payload = JsonUtils.getAsJsonObject(params, "payload");
 					if (!payload.has("jsonrpc")) {
 						payload.addProperty("jsonrpc", "2.0");
 					}
@@ -441,15 +437,15 @@ public class RestHandler extends AbstractHandler {
 			}
 
 			// parse JSON-RPC Request
-			JsonrpcMessage message = JsonrpcMessage.from(json);
+			var message = JsonrpcMessage.from(json);
 			if (!(message instanceof JsonrpcRequest)) {
 				throw new OpenemsException("Only JSON-RPC Request is supported here.");
 			}
-			JsonrpcRequest request = (JsonrpcRequest) message;
+			var request = (JsonrpcRequest) message;
 			requestId = request.getId();
 
 			// handle the request
-			CompletableFuture<JsonrpcResponseSuccess> responseFuture = this.handleJsonRpcRequest(user, request);
+			var responseFuture = this.handleJsonRpcRequest(user, request);
 
 			// wait for response
 			JsonrpcResponseSuccess response;
@@ -472,7 +468,7 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Handles an JSON-RPC Request.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link JsonrpcRequest}
 	 * @return the JSON-RPC Success Response Future
@@ -511,7 +507,7 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Handles a QueryHistoricDataRequest.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link QueryHistoricTimeseriesDataRequest}
 	 * @return the Future JSON-RPC Response
@@ -519,7 +515,7 @@ public class RestHandler extends AbstractHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(User user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.parent.getTimedata()
+		var data = this.parent.getTimedata()
 				.queryHistoricData(//
 						null, /* ignore Edge-ID */
 						request);
@@ -530,7 +526,7 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Handles a QueryHistoricEnergyRequest.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link QueryHistoricTimeseriesEnergyRequest}
 	 * @return the Future JSPN-RPC Response
@@ -557,7 +553,7 @@ public class RestHandler extends AbstractHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
 			GetEdgeConfigRequest getEdgeConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
+		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
 				getEdgeConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
@@ -565,7 +561,7 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Handles a CreateComponentConfigRequest.
-	 * 
+	 *
 	 * @param user                         the {@link User}
 	 * @param createComponentConfigRequest the {@link CreateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
@@ -574,7 +570,7 @@ public class RestHandler extends AbstractHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
 			CreateComponentConfigRequest createComponentConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
+		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
 				createComponentConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
@@ -582,7 +578,7 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Handles a UpdateComponentConfigRequest.
-	 * 
+	 *
 	 * @param user                         the {@link User}
 	 * @param updateComponentConfigRequest the {@link UpdateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
@@ -591,7 +587,7 @@ public class RestHandler extends AbstractHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
 			UpdateComponentConfigRequest updateComponentConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
+		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
 				updateComponentConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
@@ -599,7 +595,7 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Handles a DeleteComponentConfigRequest.
-	 * 
+	 *
 	 * @param user                         the User
 	 * @param deleteComponentConfigRequest the DeleteComponentConfigRequest
 	 * @return the Future JSON-RPC Response
@@ -608,7 +604,7 @@ public class RestHandler extends AbstractHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
 			DeleteComponentConfigRequest deleteComponentConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
+		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
 				deleteComponentConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
@@ -616,7 +612,7 @@ public class RestHandler extends AbstractHandler {
 
 	/**
 	 * Handles a ComponentJsonApiRequest.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the ComponentJsonApiRequest
 	 * @return the JSON-RPC Success Response Future
@@ -625,8 +621,8 @@ public class RestHandler extends AbstractHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(User user,
 			ComponentJsonApiRequest request) throws OpenemsNamedException {
 		// get Component
-		String componentId = request.getComponentId();
-		OpenemsComponent component = this.parent.getComponentManager().getComponent(componentId);
+		var componentId = request.getComponentId();
+		var component = this.parent.getComponentManager().getComponent(componentId);
 
 		if (component == null) {
 			throw new OpenemsException("Unable to find Component [" + componentId + "]");
@@ -637,7 +633,7 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		// call JsonApi
-		JsonApi jsonApi = (JsonApi) component;
+		var jsonApi = (JsonApi) component;
 		CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
 				request.getPayload());
 
@@ -647,7 +643,7 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		// Wrap reply in EdgeRpcResponse
-		CompletableFuture<JsonrpcResponseSuccess> edgeRpcResponse = new CompletableFuture<>();
+		var edgeRpcResponse = new CompletableFuture<JsonrpcResponseSuccess>();
 		responseFuture.whenComplete((r, ex) -> {
 			if (ex != null) {
 				edgeRpcResponse.completeExceptionally(ex);
