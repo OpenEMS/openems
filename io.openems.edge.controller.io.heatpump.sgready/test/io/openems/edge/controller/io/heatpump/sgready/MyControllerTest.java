@@ -34,7 +34,7 @@ public class MyControllerTest {
 	@Test
 	public void manual_undefined_test() throws Exception {
 
-		final TimeLeapClock clock = new TimeLeapClock(
+		final var clock = new TimeLeapClock(
 				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
 
 		new ControllerTest(new HeatPumpImpl()) //
@@ -57,7 +57,7 @@ public class MyControllerTest {
 	@Test
 	public void manual_regular_test() throws Exception {
 
-		final TimeLeapClock clock = new TimeLeapClock(
+		final var clock = new TimeLeapClock(
 				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
 
 		new ControllerTest(new HeatPumpImpl()) //
@@ -80,7 +80,7 @@ public class MyControllerTest {
 	@Test
 	public void manual_recommendation_test() throws Exception {
 
-		final TimeLeapClock clock = new TimeLeapClock(
+		final var clock = new TimeLeapClock(
 				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
 
 		new ControllerTest(new HeatPumpImpl()) //
@@ -103,7 +103,7 @@ public class MyControllerTest {
 	@Test
 	public void manual_force_on_test() throws Exception {
 
-		final TimeLeapClock clock = new TimeLeapClock(
+		final var clock = new TimeLeapClock(
 				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
 
 		new ControllerTest(new HeatPumpImpl()) //
@@ -126,7 +126,7 @@ public class MyControllerTest {
 	@Test
 	public void manual_lock_test() throws Exception {
 
-		final TimeLeapClock clock = new TimeLeapClock(
+		final var clock = new TimeLeapClock(
 				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
 
 		new ControllerTest(new HeatPumpImpl()) //
@@ -149,7 +149,7 @@ public class MyControllerTest {
 	@Test
 	public void automatic_regular_test() throws Exception {
 
-		final TimeLeapClock clock = new TimeLeapClock(
+		final var clock = new TimeLeapClock(
 				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
 
 		new ControllerTest(new HeatPumpImpl()) //
@@ -174,7 +174,7 @@ public class MyControllerTest {
 	@Test
 	public void automatic_normal_config_test() throws Exception {
 
-		final TimeLeapClock clock = new TimeLeapClock(
+		final var clock = new TimeLeapClock(
 				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
 
 		new ControllerTest(new HeatPumpImpl()) //
@@ -236,7 +236,7 @@ public class MyControllerTest {
 	@Test
 	public void automatic_switching_time_test() throws Exception {
 
-		final TimeLeapClock clock = new TimeLeapClock(
+		final var clock = new TimeLeapClock(
 				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
 
 		new ControllerTest(new HeatPumpImpl()) //
@@ -304,7 +304,7 @@ public class MyControllerTest {
 	@Test
 	public void automatic_switching2_time_test() throws Exception {
 
-		final TimeLeapClock clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800), ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800), ZoneOffset.UTC);
 
 		new ControllerTest(new HeatPumpImpl()).addReference("componentManager", //
 				new DummyComponentManager(clock)) //
