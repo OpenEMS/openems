@@ -7,7 +7,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Controller Balancing Cos-Phi Asymmetric", //
 		description = "Keeps the Grid meter on a defined Cos-Phi.")
 @interface Config {
-	
+
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ctrlBalancingCosPhi0";
 
