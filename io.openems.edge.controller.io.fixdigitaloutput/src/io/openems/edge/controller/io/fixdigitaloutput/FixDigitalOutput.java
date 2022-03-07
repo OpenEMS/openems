@@ -71,6 +71,7 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -87,7 +88,7 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * Switch the output ON.
-	 * 
+	 *
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
@@ -97,7 +98,7 @@ public class FixDigitalOutput extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * Switch the output OFF.
-	 * 
+	 *
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
