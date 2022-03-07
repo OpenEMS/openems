@@ -12,7 +12,7 @@ class BoundarySpace {
 	/**
 	 * Factory method for {@link BoundarySpace}: calculates the boundary space
 	 * within which the schedule logic works.
-	 * 
+	 *
 	 * @param startQuarterHour {@link ZonedDateTime} start time of the prediction
 	 * @param productionMap    predictions for production
 	 * @param consumptionMap   predictions for consumption
@@ -28,17 +28,17 @@ class BoundarySpace {
 		ZonedDateTime proMoreThanCon = null;
 
 		for (Entry<ZonedDateTime, Integer> entry : consumptionMap.entrySet()) {
-			Integer production = productionMap.get(entry.getKey());
-			Integer consumption = entry.getValue();
+			var production = productionMap.get(entry.getKey());
+			var consumption = entry.getValue();
 
 			if (production != null && consumption != null) {
 
 				final ZonedDateTime start;
 				if (isBeforeMidnight(startQuarterHour.getHour())) {
 					// Last hour of the day when Production < Consumption.
-					if ((production > consumption) //
-							&& (entry.getKey().getDayOfYear() == startQuarterHour.getDayOfYear())
-							&& (entry.getKey().getHour() >= 14)) {
+					if (production > consumption //
+							&& entry.getKey().getDayOfYear() == startQuarterHour.getDayOfYear()
+							&& entry.getKey().getHour() >= 14) {
 						proLessThanCon = entry.getKey(); // Sunset
 					}
 
@@ -49,10 +49,10 @@ class BoundarySpace {
 				}
 
 				// First hour of the day when production > consumption
-				if ((production > consumption) //
-						&& (entry.getKey().getDayOfYear() == start.getDayOfYear()) //
-						&& (proMoreThanCon == null) //
-						&& (entry.getKey().getHour() <= 10)) {
+				if (production > consumption //
+						&& entry.getKey().getDayOfYear() == start.getDayOfYear() //
+						&& proMoreThanCon == null //
+						&& entry.getKey().getHour() <= 10) {
 					proMoreThanCon = entry.getKey(); // Sunrise
 				}
 			}
@@ -96,7 +96,7 @@ class BoundarySpace {
 
 	/**
 	 * Is the given date between the boundaries?.
-	 * 
+	 *
 	 * @param now the given date
 	 * @return true if it is within the boundaries
 	 */
@@ -112,7 +112,7 @@ class BoundarySpace {
 
 	/**
 	 * Is the given hour before or after the midnight?.
-	 * 
+	 *
 	 * @param hour the given hour
 	 * @return true if it is before the midnight.
 	 */
