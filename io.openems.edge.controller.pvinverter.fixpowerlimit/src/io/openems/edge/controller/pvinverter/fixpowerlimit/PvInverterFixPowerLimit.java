@@ -64,6 +64,7 @@ public class PvInverterFixPowerLimit extends AbstractOpenemsComponent implements
 		this.powerLimit = config.powerLimit();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		// Reset limit

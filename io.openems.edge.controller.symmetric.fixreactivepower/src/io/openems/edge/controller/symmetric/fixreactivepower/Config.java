@@ -1,7 +1,7 @@
 package io.openems.edge.controller.symmetric.fixreactivepower;
 
-import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import org.osgi.service.metatype.annotations.AttributeDefinition;;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;;
 
 @ObjectClassDefinition( //
 		name = "Controller Fix Reactive Power Symmetric", //

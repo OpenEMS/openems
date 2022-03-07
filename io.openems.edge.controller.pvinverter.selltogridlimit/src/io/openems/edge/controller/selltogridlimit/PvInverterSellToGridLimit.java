@@ -58,6 +58,7 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -65,7 +66,7 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 
 	/**
 	 * Calculates required charge/discharge power.
-	 * 
+	 *
 	 * @param pvInverter the SymmetricPvInverter
 	 * @param meter      the Meter
 	 * @return the required power
@@ -75,7 +76,7 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 			throws InvalidValueException {
 		return meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
 				+ pvInverter.getActivePower().getOrError() /* current charge/discharge Ess */
-				+ config.maximumSellToGridPower(); /* the configured limit */
+				+ this.config.maximumSellToGridPower(); /* the configured limit */
 	}
 
 	@Override
@@ -84,10 +85,10 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
 		// Calculates required charge/discharge power
-		int calculatedPower = this.calculateRequiredPower(pvInverter, meter);
+		var calculatedPower = this.calculateRequiredPower(pvInverter, meter);
 
-		if (Math.abs(this.lastSetLimit) > 100 && Math.abs(calculatedPower) > 100 && Math.abs(
-				this.lastSetLimit - calculatedPower) > (Math.abs(this.lastSetLimit) * DEFAULT_MAX_ADJUSTMENT_RATE)) {
+		if (Math.abs(this.lastSetLimit) > 100 && Math.abs(calculatedPower) > 100 && Math
+				.abs(this.lastSetLimit - calculatedPower) > Math.abs(this.lastSetLimit) * DEFAULT_MAX_ADJUSTMENT_RATE) {
 			if (this.lastSetLimit > calculatedPower) {
 				calculatedPower = this.lastSetLimit - (int) Math.abs(this.lastSetLimit * DEFAULT_MAX_ADJUSTMENT_RATE);
 			} else {
