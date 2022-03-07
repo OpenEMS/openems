@@ -8,7 +8,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 /**
  * PhaseDef represents one Phase of the Heating Element.
- * 
+ *
  * <ul>
  * <li>Keeps info about whether the phase is switched ON or OFF
  * <li>Calculates totalTime and totalEnergy
@@ -42,9 +42,9 @@ public class PhaseDef {
 
 	/**
 	 * Switch the output ON.
-	 * 
+	 *
 	 * @param outputChannelAddress address of the channel which must set to ON
-	 * 
+	 *
 	 * @throws OpenemsNamedException    on error.
 	 * @throws IllegalArgumentException on error.
 	 */
@@ -58,9 +58,9 @@ public class PhaseDef {
 
 	/**
 	 * Switch the output OFF.
-	 * 
+	 *
 	 * @param outputChannelAddress address of the channel which must set to OFF.
-	 * 
+	 *
 	 * @throws OpenemsNamedException    on error.
 	 * @throws IllegalArgumentException on error.
 	 */
@@ -75,13 +75,13 @@ public class PhaseDef {
 
 	/**
 	 * Gets the total switch-on time in seconds since last reset on midnight.
-	 * 
+	 *
 	 * @return the total elapsed time
 	 */
 	public Duration getTotalDuration() {
 
 		// Did we pass midnight?
-		LocalDate today = LocalDate.now(this.parent.componentManager.getClock());
+		var today = LocalDate.now(this.parent.componentManager.getClock());
 		if (!this.currentDay.equals(today)) {
 			// Always reset Duration
 			this.currentDay = today;
@@ -93,10 +93,9 @@ public class PhaseDef {
 
 		// Calculate and return the Duration
 		if (this.lastSwitchOn != null) {
-			LocalTime now = LocalTime.now(this.parent.componentManager.getClock());
+			var now = LocalTime.now(this.parent.componentManager.getClock());
 			return this.duration.plus(Duration.between(this.lastSwitchOn, now));
-		} else {
-			return this.duration;
 		}
+		return this.duration;
 	}
 }

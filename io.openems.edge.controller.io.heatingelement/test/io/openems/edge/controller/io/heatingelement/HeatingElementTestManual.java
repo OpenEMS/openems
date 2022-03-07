@@ -19,8 +19,6 @@ public class HeatingElementTestManual {
 	private final static String CTRL_ID = "ctrl0";
 	private final static String IO_ID = "io0";
 
-	private final static ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress("_sum", "GridActivePower");
-
 	private final static ChannelAddress IO_OUTPUT1 = new ChannelAddress(IO_ID, "InputOutput1");
 	private final static ChannelAddress IO_OUTPUT2 = new ChannelAddress(IO_ID, "InputOutput2");
 	private final static ChannelAddress IO_OUTPUT3 = new ChannelAddress(IO_ID, "InputOutput3");
@@ -35,7 +33,6 @@ public class HeatingElementTestManual {
 				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
-						.setInputChannelAddress(SUM_GRID_ACTIVE_POWER.toString()) //
 						.setOutputChannelPhaseL1(IO_OUTPUT1.toString()) //
 						.setOutputChannelPhaseL2(IO_OUTPUT2.toString()) //
 						.setOutputChannelPhaseL3(IO_OUTPUT3.toString()) //
