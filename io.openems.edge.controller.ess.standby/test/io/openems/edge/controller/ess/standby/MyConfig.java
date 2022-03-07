@@ -2,7 +2,6 @@ package io.openems.edge.controller.ess.standby;
 
 import java.time.DayOfWeek;
 
-import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
