@@ -83,9 +83,10 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 	@Override
 	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
 		super.modified(context, id, alias, enabled);
-		this.updateConfig(config);
+		this.updateConfig(this.config);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -93,19 +94,19 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		Context context = this.handleStateMachine();
+		var context = this.handleStateMachine();
 
 		if (this.config.isReserveSocEnabled()) {
-			Integer activePowerConstraint = rampFilter.getFilteredValueAsInteger(context.getTargetPower(),
+			var activePowerConstraint = this.rampFilter.getFilteredValueAsInteger(context.getTargetPower(),
 					context.getRampPower());
 
 			if (activePowerConstraint != null && context.maxApparentPower > activePowerConstraint) {
 				// Set constraint did not reach max apparent power
-				ess.setActivePowerLessOrEquals(activePowerConstraint);
+				this.ess.setActivePowerLessOrEquals(activePowerConstraint);
 				this._setDebugSetActivePowerLessOrEquals(activePowerConstraint);
 			} else {
 				// Set no constraint max apparent power reached
-				ess.setActivePowerLessOrEquals(null);
+				this.ess.setActivePowerLessOrEquals(null);
 				this._setDebugSetActivePowerLessOrEquals(null);
 			}
 
@@ -118,13 +119,13 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Update {@link Config} for the controller.
-	 * 
+	 *
 	 * @param config to update
 	 */
 	private void updateConfig(Config config) {
 		this.config = config;
 
-		boolean enableWarning = false;
+		var enableWarning = false;
 		if (this.config.reserveSoc() < reservSocMinValue || this.config.reserveSoc() > reservSocMaxValue) {
 			enableWarning = true;
 		}
@@ -132,25 +133,24 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 		this._setRangeOfReserveSocOutsideAllowedValue(enableWarning);
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
 		}
 	}
 
 	/**
 	 * Handle different {@link State} of the {@link StateMachine}.
-	 * 
+	 *
 	 * @return created {@link Context}
 	 */
 	private Context handleStateMachine() {
 		this._setStateMachine(this.stateMachine.getCurrentState());
 
-		Value<Integer> soc = ess.getSoc();
-		Value<Integer> maxApparentPower = ess.getMaxApparentPower();
+		var soc = this.ess.getSoc();
+		var maxApparentPower = this.ess.getMaxApparentPower();
 
 		Integer socToUse = null;
 		if (!soc.isDefined()) {
 			// use last valid soc value
-			OptionalInt lastSocValue = this.getLastValidSoc(ess.getSocChannel());
+			var lastSocValue = this.getLastValidSoc(this.ess.getSocChannel());
 			if (lastSocValue.isPresent()) {
 				socToUse = lastSocValue.getAsInt();
 			}
@@ -163,7 +163,7 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 			this.stateMachine.forceNextState(State.NO_LIMIT);
 		}
 
-		Context context = new Context(this, this.sum, maxApparentPower.get(), socToUse, this.config.reserveSoc());
+		var context = new Context(this, this.sum, maxApparentPower.get(), socToUse, this.config.reserveSoc());
 		try {
 			this.stateMachine.run(context);
 
@@ -180,7 +180,7 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 	/**
 	 * Get last defined value of an {@link IntegerReadChannel} as an
 	 * {@link OptionalInt}.
-	 * 
+	 *
 	 * @param channel {@link IntegerReadChannel} to get values
 	 * @return Last defined value from given {@link IntegerReadChannel}
 	 */
@@ -188,8 +188,8 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 		// get first defined value
 		return channel.getPastValues().values() //
 				.stream() //
-				.filter(value -> value.isDefined()) //
-				.mapToInt(value -> value.get()) //
+				.filter(Value::isDefined) //
+				.mapToInt(Value::get) //
 				.findFirst();
 	}
 
