@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.osgi.service.component.ComponentContext;
@@ -85,7 +84,7 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 			if (channel.isEmpty()) {
 				continue;
 			}
-			ChannelAddress c = ChannelAddress.fromString(channel);
+			var c = ChannelAddress.fromString(channel);
 			this.additionalChannels.put(c.getComponentId(), c.getChannelId());
 		}
 
@@ -99,6 +98,7 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -117,20 +117,19 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 		 */
 		this.components.stream() //
 				.sorted((c1, c2) -> {
-					Matcher c1Matcher = COMPONENT_ID_PATTERN.matcher(c1.id());
-					Matcher c2Matcher = COMPONENT_ID_PATTERN.matcher(c2.id());
+					var c1Matcher = COMPONENT_ID_PATTERN.matcher(c1.id());
+					var c2Matcher = COMPONENT_ID_PATTERN.matcher(c2.id());
 					if (c1Matcher.find() && c2Matcher.find()) {
-						String c1Name = c1Matcher.group(1);
-						int c1Number = Integer.parseInt(c1Matcher.group(2));
-						String c2Name = c2Matcher.group(1);
-						int c2Number = Integer.parseInt(c2Matcher.group(2));
+						var c1Name = c1Matcher.group(1);
+						var c1Number = Integer.parseInt(c1Matcher.group(2));
+						var c2Name = c2Matcher.group(1);
+						var c2Number = Integer.parseInt(c2Matcher.group(2));
 						if (c1Name.equals(c2Name)) {
 							// Sort by Component-ID numbers
 							return Integer.compare(c1Number, c2Number);
-						} else {
-							// Sort by full Component-ID
-							return c1.id().compareTo(c2.id());
 						}
+						// Sort by full Component-ID
+						return c1.id().compareTo(c2.id());
 					}
 					// Sort by full Component-ID
 					return c1.id().compareTo(c2.id());
@@ -142,13 +141,13 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 					if (this.ignoreComponents.stream() //
 							.noneMatch(pattern -> StringUtils.matchWildcard(component.id(), pattern) >= 0)) {
 						// Component Debug-Log
-						String debugLog = component.debugLog();
+						var debugLog = component.debugLog();
 						if (debugLog != null) {
 							logs.add(debugLog);
 						}
 
 						// State
-						String state = component.getStateChannel().listStates();
+						var state = component.getStateChannel().listStates();
 						if (!state.isEmpty()) {
 							logs.add("State:" + state);
 						}
@@ -163,7 +162,7 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 
 					// Any logs? Add them to the output
 					if (!logs.isEmpty()) {
-						StringBuilder b = new StringBuilder();
+						var b = new StringBuilder();
 						b.append(component.id()).append("[");
 						if (this.config.showAlias() && !Objects.equal(component.id(), component.alias())) {
 							b.append(component.alias()).append("|");
@@ -176,9 +175,8 @@ public class DebugLogImpl extends AbstractOpenemsComponent implements DebugLog, 
 		if (this.config.condensedOutput()) {
 			// separate components by space; one line in total
 			return String.join(" ", result);
-		} else {
-			// separate components by newline
-			return String.join("\n", result);
 		}
+		// separate components by newline
+		return String.join("\n", result);
 	}
 }
