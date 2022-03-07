@@ -48,7 +48,6 @@ public class EssFixActivePowerImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		if (this.applyConfig(context, config)) {
-			return;
 		}
 	}
 
@@ -56,7 +55,6 @@ public class EssFixActivePowerImpl extends AbstractOpenemsComponent
 	private void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		if (this.applyConfig(context, config)) {
-			return;
 		}
 	}
 
@@ -65,6 +63,7 @@ public class EssFixActivePowerImpl extends AbstractOpenemsComponent
 		return OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
