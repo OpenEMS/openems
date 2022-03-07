@@ -133,21 +133,21 @@ public class MyControllerTest {
 
 	@Test
 	public void automatic_default_predictions_at_midnight_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
@@ -190,21 +190,21 @@ public class MyControllerTest {
 
 	@Test
 	public void automatic_default_predictions_at_midday_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
@@ -252,21 +252,21 @@ public class MyControllerTest {
 		// does not consider the mocked Clock.
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
 
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
@@ -331,21 +331,21 @@ public class MyControllerTest {
 
 	@Test
 	public void automatic_default_predictions_at_evening_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T20:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T20:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
@@ -408,21 +408,21 @@ public class MyControllerTest {
 
 	@Test
 	public void automatic_no_predictions_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours();
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours();
+		final var productionPrediction = new DummyPrediction24Hours();
+		final var consumptionPrediction = new DummyPrediction24Hours();
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
@@ -457,17 +457,17 @@ public class MyControllerTest {
 
 	@Test
 	public void automatic_sell_to_grid_limit_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				new DummyPrediction24Hours(), "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				new DummyPrediction24Hours(), "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
@@ -555,17 +555,17 @@ public class MyControllerTest {
 
 	@Test
 	public void automatic_sell_to_grid_limit_test_with_full_ess() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				new DummyPrediction24Hours(), "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				new DummyPrediction24Hours(), "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
@@ -655,17 +655,17 @@ public class MyControllerTest {
 
 	@Test
 	public void automatic_sell_to_grid_limit_buffer_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				new DummyPrediction24Hours(), "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				new DummyPrediction24Hours(), "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
@@ -753,21 +753,21 @@ public class MyControllerTest {
 
 	@Test
 	public void manual_midnight_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
@@ -811,21 +811,21 @@ public class MyControllerTest {
 
 	@Test
 	public void manual_midday_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
@@ -867,21 +867,21 @@ public class MyControllerTest {
 
 	@Test
 	public void hybridEss_manual_midday_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
@@ -925,21 +925,21 @@ public class MyControllerTest {
 
 	@Test
 	public void mode_off_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
@@ -975,21 +975,21 @@ public class MyControllerTest {
 
 	@Test
 	public void no_capacity_left_test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
@@ -1037,21 +1037,21 @@ public class MyControllerTest {
 		// does not consider the mocked Clock.
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
 
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
@@ -1102,22 +1102,22 @@ public class MyControllerTest {
 		// does not consider the mocked Clock.
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
 
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"),
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"),
 				ZoneId.of("Europe/Berlin"));
-		final DummyComponentManager cm = new DummyComponentManager(clock);
+		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
-		final DummyPrediction24Hours productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
-		final DummyPrediction24Hours consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
+		final var productionPrediction = new DummyPrediction24Hours(DEFAULT_PRODUCTION_PREDICTION);
+		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final DummyPredictor24Hours productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				productionPrediction, "_sum/ProductionActivePower");
-		final DummyPredictor24Hours consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
 				consumptionPrediction, "_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final DummyPredictorManager predictorManager = new DummyPredictorManager(productionPredictor,
+		final var predictorManager = new DummyPredictorManager(productionPredictor,
 				consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //

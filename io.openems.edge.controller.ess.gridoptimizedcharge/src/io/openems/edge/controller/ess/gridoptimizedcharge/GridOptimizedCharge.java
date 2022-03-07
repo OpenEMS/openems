@@ -2,7 +2,6 @@ package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -45,7 +44,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Raw Delay-Charge without consideration of the last limits.
-		 * 
+		 *
 		 * <p>
 		 * This channel is used for debugging and to calculate the average for the
 		 * {@link ChannelId#DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT} channel.
@@ -63,7 +62,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Raw sell to grid limit charge power limitation.
-		 * 
+		 *
 		 * <p>
 		 * This value is negative for DC systems. Prefer
 		 * SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT for visualization.
@@ -74,7 +73,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Predicted target minute as minute of the day.
-		 * 
+		 *
 		 * <p>
 		 * Actual target minute calculated from prediction without buffer hours (for
 		 * automatic mode).
@@ -84,7 +83,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Predicted target minute adjusted with a buffer as minute of the day.
-		 * 
+		 *
 		 * <p>
 		 * Adjusted target minute calculated from prediction including the buffer hours
 		 * (for automatic mode).
@@ -94,7 +93,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Target minute as epoch seconds.
-		 * 
+		 *
 		 * <p>
 		 * Automatically set, when the original TARGET_MINUTE is set.
 		 */
@@ -103,7 +102,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Target minute as minute of the day.
-		 * 
+		 *
 		 * <p>
 		 * Target minute independent of the current mode Manual and Automatic.
 		 */
@@ -113,16 +112,16 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 					((IntegerReadChannel) channel).onSetNextValue(value -> {
 						if (value != null && value.isDefined()) {
 							int targetTime = value.get();
-							GridOptimizedChargeImpl gridOptimizedCharge = (GridOptimizedChargeImpl) channel
+							var gridOptimizedCharge = (GridOptimizedChargeImpl) channel
 									.getComponent();
 
-							LocalDateTime targetDateTime = LocalDate
+							var targetDateTime = LocalDate
 									.now(gridOptimizedCharge.componentManager.getClock())
 									.atTime(LocalTime.of(targetTime / 60, targetTime % 60));
 
-							ZonedDateTime zonedDateTime = ZonedDateTime.ofLocal(targetDateTime, ZoneId.systemDefault(),
+							var zonedDateTime = ZonedDateTime.ofLocal(targetDateTime, ZoneId.systemDefault(),
 									null);
-							long targetEpochTime = zonedDateTime.toEpochSecond();
+							var targetEpochTime = zonedDateTime.toEpochSecond();
 
 							gridOptimizedCharge.channel(ChannelId.TARGET_EPOCH_SECONDS).setNextValue(targetEpochTime);
 						}
@@ -131,7 +130,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Start time as epoch seconds of the current day.
-		 * 
+		 *
 		 * <p>
 		 * Keeps the time, when the production higher than the consumption for the first
 		 * time on the current day.
@@ -550,8 +549,8 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	 */
 	public default void _setStartEpochSeconds(LocalTime value, Clock clock) {
 
-		LocalDateTime startDateTime = LocalDate.now(clock).atTime(value);
-		ZonedDateTime zonedDateTime = ZonedDateTime.ofLocal(startDateTime, clock.getZone(), null);
+		var startDateTime = LocalDate.now(clock).atTime(value);
+		var zonedDateTime = ZonedDateTime.ofLocal(startDateTime, clock.getZone(), null);
 
 		this.getStartEpochSecondsChannel().setNextValue(zonedDateTime.toEpochSecond());
 	}
