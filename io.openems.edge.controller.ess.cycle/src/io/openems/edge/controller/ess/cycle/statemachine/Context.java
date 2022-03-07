@@ -41,7 +41,7 @@ public class Context extends AbstractContext<EssCycle> {
 	/**
 	 * Helper for a state change. If awaiting hysteresis time exceeded switches from
 	 * currentState to NextState.
-	 * 
+	 *
 	 * @param currentState Used to output better log.
 	 * @param nextState    state which will be switched to.
 	 * @return boolean true if change state is allowed
@@ -50,19 +50,17 @@ public class Context extends AbstractContext<EssCycle> {
 		if (LocalDateTime.now(this.componentManager.getClock()).minus(Duration.ofMinutes(this.config.standbyTime()))
 				.isAfter(this.lastStateChange)) {
 			return true;
-		} else {
-			this.logInfo(this.log,
-					"Awaiting hysteresis for changing from [" + currentState + "] to [" + nextState + "]");
-			return false;
 		}
+		this.logInfo(this.log, "Awaiting hysteresis for changing from [" + currentState + "] to [" + nextState + "]");
+		return false;
 	}
 
 	protected int getChargePower() {
 		// get max charge/discharge power
-		int power = Math.max(this.maxChargePower, this.config.power() * -1);
+		var power = Math.max(this.maxChargePower, this.config.power() * -1);
 		if (this.ess instanceof HybridEss) {
 			// modify target power by DC production for HybridEss
-			HybridEss ess = (HybridEss) this.ess;
+			var ess = (HybridEss) this.ess;
 			power -= ess.getActivePower().orElse(0) - ess.getDcDischargePower().orElse(0);
 		}
 		return power;

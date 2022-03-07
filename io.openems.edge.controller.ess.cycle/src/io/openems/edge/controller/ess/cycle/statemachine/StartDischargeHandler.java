@@ -18,20 +18,18 @@ public class StartDischargeHandler extends StateHandler<State, Context> {
 				// Wait for hysteresis
 				if (context.waitForChangeState(State.START_DISCHARGE, State.CONTINUE_WITH_CHARGE)) {
 					return State.CONTINUE_WITH_CHARGE;
-				} else {
-					return State.START_DISCHARGE;
 				}
+				return State.START_DISCHARGE;
 			}
 		} else if (context.ess.getSoc().orElse(0) <= context.config.minSoc()) {
 			// Wait for hysteresis
 			if (context.waitForChangeState(State.START_DISCHARGE, State.CONTINUE_WITH_CHARGE)) {
 				return State.CONTINUE_WITH_CHARGE;
-			} else {
-				return State.START_DISCHARGE;
 			}
+			return State.START_DISCHARGE;
 		}
 
-		int power = context.getDischargePower();
+		var power = context.getDischargePower();
 		context.logInfo(this.log, "START DISCHARGE with [" + power + " W]" //
 				+ " Current Cycle [ " + context.getParent().getCompletedCycles() + "] " //
 				+ "out of " + context.config.totalCycleNumber() + "]");

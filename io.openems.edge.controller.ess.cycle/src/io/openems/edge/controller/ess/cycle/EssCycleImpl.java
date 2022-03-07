@@ -42,7 +42,7 @@ public class EssCycleImpl extends AbstractOpenemsComponent implements Controller
 	// Time formatter from the String
 	public static final String TIME_FORMAT = "HH:mm";
 
-	private StateMachine stateMachine = new StateMachine(State.UNDEFINED);
+	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
 	private Config config;
 
@@ -77,12 +77,12 @@ public class EssCycleImpl extends AbstractOpenemsComponent implements Controller
 		this.config = config;
 		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled());
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", this.config.ess_id())) {
-			return;
 		}
 	}
 
 	// TODO add @Modified to enable configuration changes during long running cycles
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -92,16 +92,16 @@ public class EssCycleImpl extends AbstractOpenemsComponent implements Controller
 	public void run() throws OpenemsNamedException {
 
 		// get max charge/discharge power
-		int maxDischargePower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
-		int maxChargePower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+		var maxDischargePower = this.ess.getPower().getMaxPower(this.ess, Phase.ALL, Pwr.ACTIVE);
+		var maxChargePower = this.ess.getPower().getMinPower(this.ess, Phase.ALL, Pwr.ACTIVE);
 
 		// store current state in StateMachine channel
-		State state = this.stateMachine.getCurrentState();
+		var state = this.stateMachine.getCurrentState();
 		this.channel(EssCycle.ChannelId.STATE_MACHINE).setNextValue(state);
 
 		// Prepare Context
-		State previousState = this.stateMachine.getPreviousState();
-		Context context = new Context(this, this.config, this.componentManager, this.ess, maxChargePower,
+		var previousState = this.stateMachine.getPreviousState();
+		var context = new Context(this, this.config, this.componentManager, this.ess, maxChargePower,
 				maxDischargePower, previousState, this.lastStateChange);
 
 		// Call the StateMachine
