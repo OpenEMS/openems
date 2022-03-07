@@ -85,7 +85,7 @@ public class DeviceMonitorException extends Exception {
 	 * @return the wrapped exception that was generated during a 1-Wire search.
 	 */
 	public Exception getException() {
-		return exception;
+		return this.exception;
 	}
 
 	/**
@@ -93,7 +93,7 @@ public class DeviceMonitorException extends Exception {
 	 *
 	 */
 	public void throwException() throws Exception {
-		throw exception;
+		throw this.exception;
 	}
 
 	/**
@@ -101,7 +101,8 @@ public class DeviceMonitorException extends Exception {
 	 *
 	 * @return a string representation of this object
 	 */
+	@Override
 	public String toString() {
-		return "Device Monitor Exception: " + exception.toString();
+		return "Device Monitor Exception: " + this.exception.toString();
 	}
 }
