@@ -20,7 +20,7 @@ public abstract class WriteObject {
 
 	/**
 	 * Callback on successful setting of the value.
-	 * 
+	 *
 	 * @param callback a callback {@link Runnable}
 	 * @return myself
 	 */
@@ -31,7 +31,7 @@ public abstract class WriteObject {
 
 	/**
 	 * Callback on first successful setting of the value.
-	 * 
+	 *
 	 * @param callback a callback {@link Runnable}
 	 * @return myself
 	 */
@@ -42,7 +42,7 @@ public abstract class WriteObject {
 
 	/**
 	 * Callback on error while setting the value.
-	 * 
+	 *
 	 * @param callback a callback {@link Runnable}
 	 * @return myself
 	 */
@@ -53,7 +53,7 @@ public abstract class WriteObject {
 
 	/**
 	 * Callback on first error while setting the value.
-	 * 
+	 *
 	 * @param callback a callback {@link Runnable}
 	 * @return myself
 	 */
@@ -64,7 +64,7 @@ public abstract class WriteObject {
 
 	/**
 	 * Callback on timeout while setting the value.
-	 * 
+	 *
 	 * @param callback a callback {@link Runnable}
 	 * @return myself
 	 */
@@ -78,15 +78,15 @@ public abstract class WriteObject {
 	 */
 	public void notifySuccess() {
 		if (!this.notifiedSuccess) {
-			this.onFirstSuccessCallbacks.forEach(callback -> callback.run());
+			this.onFirstSuccessCallbacks.forEach(Runnable::run);
 			this.notifiedSuccess = true;
 		}
-		this.onSuccessCallbacks.forEach(callback -> callback.run());
+		this.onSuccessCallbacks.forEach(Runnable::run);
 	}
 
 	/**
 	 * Notify error while setting the value.
-	 * 
+	 *
 	 * @param e the {@link OpenemsException}
 	 */
 	public void notifyError(OpenemsException e) {
@@ -101,12 +101,12 @@ public abstract class WriteObject {
 	 * Notify a timeout for setting the value.
 	 */
 	public void notifyTimeout() {
-		this.onTimeoutCallbacks.forEach(callback -> callback.run());
+		this.onTimeoutCallbacks.forEach(Runnable::run);
 	}
 
 	/**
 	 * Set the next write value of the Channel.
-	 * 
+	 *
 	 * @param writeChannel the {@link WriteChannel}
 	 * @throws OpenemsNamedException on error
 	 */
@@ -114,14 +114,14 @@ public abstract class WriteObject {
 
 	/**
 	 * Gets the value as a String for logging purposes.
-	 * 
+	 *
 	 * @return the value as String
 	 */
 	public abstract String valueToString();
 
 	/**
 	 * Is there a defined value?.
-	 * 
+	 *
 	 * @return true if no value is there; false if a value is available.
 	 */
 	public abstract boolean isNull();
