@@ -11,7 +11,7 @@ public class ComponentManagerImplTest {
 
 	@Test
 	public void test() throws OpenemsException, Exception {
-		final DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
 		new ComponentTest(new ComponentManagerImpl()) //
 				.addReference("cm", cm) //

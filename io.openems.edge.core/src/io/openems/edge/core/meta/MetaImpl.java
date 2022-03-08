@@ -38,10 +38,10 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 	void activate(ComponentContext context) {
 		super.activate(context, SINGLETON_COMPONENT_ID, Meta.SINGLETON_SERVICE_PID, true);
 		if (OpenemsComponent.validateSingleton(this.cm, Meta.SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

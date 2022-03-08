@@ -18,18 +18,15 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
 		return new Builder();
 	}
 
-	private final Builder builder;
-
 	private MyConfig(Builder builder) {
 		super(Config.class, ComponentManager.SINGLETON_COMPONENT_ID);
-		this.builder = builder;
 	}
 
 }

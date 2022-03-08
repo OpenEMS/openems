@@ -8,7 +8,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 /**
  * Represents a JSON-RPC Request to execute a system update.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -24,7 +24,7 @@ public class SystemUpdateRequest extends JsonrpcRequest {
 
 	/**
 	 * Parses a generic {@link JsonrpcRequest} to a {@link SystemUpdateRequest}.
-	 * 
+	 *
 	 * @param r the {@link JsonrpcRequest}
 	 * @return the {@link SystemUpdateRequest}
 	 * @throws OpenemsNamedException on error
