@@ -86,45 +86,45 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 		var modbusProtocol = new ModbusProtocol(this,
 				// Consumption and Production Energy
 				new FC3ReadRegistersTask(30581, Priority.HIGH, //
-						this.m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(30581)),
-						this.m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(30581)),
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new UnsignedDoublewordElement(30583))),
 				// Power Readings
 				new FC3ReadRegistersTask(30865, Priority.HIGH, //
-						this.m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER, new SignedDoublewordElement(30865)),
-						this.m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER, new SignedDoublewordElement(30867))),
+						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER, new SignedDoublewordElement(30865)),
+						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER, new SignedDoublewordElement(30867))),
 				// Voltage, Power and Reactive Power
 				new FC3ReadRegistersTask(31253, Priority.HIGH, //
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(31253),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(31253),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(31255),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(31255),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(31257),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(31257),
 								ElementToChannelConverter.SCALE_FACTOR_1),
-						this.m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L1,
+						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L1,
 								new UnsignedDoublewordElement(31259)),
-						this.m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L2,
+						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L2,
 								new UnsignedDoublewordElement(31261)),
-						this.m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L3,
+						m(MeterSmaShm20.ChannelId.ACTIVE_CONSUMPTION_POWER_L3,
 								new UnsignedDoublewordElement(31263)),
-						this.m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L1,
+						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L1,
 								new UnsignedDoublewordElement(31265)),
-						this.m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L2,
+						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L2,
 								new UnsignedDoublewordElement(31267)),
-						this.m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L3,
+						m(MeterSmaShm20.ChannelId.ACTIVE_PRODUCTION_POWER_L3,
 								new UnsignedDoublewordElement(31269)),
-						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(31271)),
-						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(31273)),
-						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(31275)),
-						this.m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(31277))),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedDoublewordElement(31271)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedDoublewordElement(31273)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedDoublewordElement(31275)),
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(31277))),
 				// Current
 				new FC3ReadRegistersTask(31435, Priority.HIGH, //
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(31435)),
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(31437)),
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(31439))),
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(31435)),
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(31437)),
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(31439))),
 				// Frequency
 				new FC3ReadRegistersTask(31447, Priority.LOW, //
-						this.m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(31447),
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(31447),
 								ElementToChannelConverter.SCALE_FACTOR_1)));
 
 		// Calculates required Channels from other existing Channels.

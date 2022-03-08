@@ -94,32 +94,32 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 
 				// Power of each backup up phase
 				new FC3ReadRegistersTask(35145, Priority.LOW, //
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35145), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35145), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35146), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35146), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L1, new UnsignedWordElement(35147), //
+						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L1, new UnsignedWordElement(35147), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35148), //
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(35149)), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(35149)), //
 
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35151), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35151), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35152), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35152), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L2, new UnsignedWordElement(35153), //
+						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L2, new UnsignedWordElement(35153), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35154), //
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(35155)), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(35155)), //
 
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35157), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35157), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35158), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35158), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L3, new UnsignedWordElement(35159), //
+						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L3, new UnsignedWordElement(35159), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35160), //
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(35161))));
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(35161))));
 	}
 
 	@Override

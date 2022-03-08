@@ -174,33 +174,33 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(100, Priority.LOW, //
-						this.m(FeneconMiniEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
-						this.m(FeneconMiniEss.ChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
+						m(FeneconMiniEss.ChannelId.SYSTEM_STATE, new UnsignedWordElement(100)), //
+						m(FeneconMiniEss.ChannelId.CONTROL_MODE, new UnsignedWordElement(101)), //
 						new DummyRegisterElement(102, 107), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_GROUP_STATE, new UnsignedWordElement(108)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_GROUP_STATE, new UnsignedWordElement(108)), //
 						new DummyRegisterElement(109), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_POWER, new SignedWordElement(112))), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_CURRENT, new SignedWordElement(111)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_POWER, new SignedWordElement(112))), //
 				new FC3ReadRegistersTask(2007, Priority.HIGH, //
-						this.m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2007),
+						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2007),
 								UNSIGNED_POWER_CONVERTER)), //
 				new FC3ReadRegistersTask(2107, Priority.HIGH, //
-						this.m(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2107),
+						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2107),
 								UNSIGNED_POWER_CONVERTER)), //
 				new FC3ReadRegistersTask(2207, Priority.HIGH, //
-						this.m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2207),
+						m(AsymmetricEss.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2207),
 								UNSIGNED_POWER_CONVERTER)), //
 				new FC3ReadRegistersTask(3000, Priority.LOW, //
-						this.m(FeneconMiniEss.ChannelId.BECU1_ALLOWED_CHARGE_CURRENT, new UnsignedWordElement(3000),
+						m(FeneconMiniEss.ChannelId.BECU1_ALLOWED_CHARGE_CURRENT, new UnsignedWordElement(3000),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_ALLOWED_DISCHARGE_CURRENT, new UnsignedWordElement(3001),
+						m(FeneconMiniEss.ChannelId.BECU1_ALLOWED_DISCHARGE_CURRENT, new UnsignedWordElement(3001),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_TOTAL_VOLTAGE, new UnsignedWordElement(3002),
+						m(FeneconMiniEss.ChannelId.BECU1_TOTAL_VOLTAGE, new UnsignedWordElement(3002),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_TOTAL_CURRENT, new UnsignedWordElement(3003)), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_SOC, new UnsignedWordElement(3004)), //
-						this.m(new BitsWordElement(3005, this) //
+						m(FeneconMiniEss.ChannelId.BECU1_TOTAL_CURRENT, new UnsignedWordElement(3003)), //
+						m(FeneconMiniEss.ChannelId.BECU1_SOC, new UnsignedWordElement(3004)), //
+						m(new BitsWordElement(3005, this) //
 								.bit(0, FeneconMiniEss.ChannelId.STATE_1) //
 								.bit(1, FeneconMiniEss.ChannelId.STATE_2) //
 								.bit(2, FeneconMiniEss.ChannelId.STATE_3) //
@@ -217,7 +217,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								.bit(13, FeneconMiniEss.ServiceInfoChannelId.STATE_14) //
 								.bit(14, FeneconMiniEss.ServiceInfoChannelId.STATE_15) //
 								.bit(15, FeneconMiniEss.ChannelId.STATE_16)), //
-						this.m(new BitsWordElement(3006, this) //
+						m(new BitsWordElement(3006, this) //
 								.bit(0, FeneconMiniEss.ChannelId.STATE_17) //
 								.bit(1, FeneconMiniEss.ChannelId.STATE_18) //
 								.bit(2, FeneconMiniEss.ChannelId.STATE_19) //
@@ -233,7 +233,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								.bit(13, FeneconMiniEss.ServiceInfoChannelId.STATE_29) //
 								.bit(14, FeneconMiniEss.ServiceInfoChannelId.STATE_30) //
 								.bit(15, FeneconMiniEss.ServiceInfoChannelId.STATE_31)), //
-						this.m(new BitsWordElement(3007, this) //
+						m(new BitsWordElement(3007, this) //
 								.bit(0, FeneconMiniEss.ServiceInfoChannelId.STATE_32) //
 								.bit(1, FeneconMiniEss.ServiceInfoChannelId.STATE_33) //
 								.bit(2, FeneconMiniEss.SystemErrorChannelId.STATE_34) //
@@ -248,7 +248,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								.bit(13, FeneconMiniEss.ServiceInfoChannelId.STATE_43) //
 								.bit(14, FeneconMiniEss.ChannelId.STATE_44) //
 								.bit(15, FeneconMiniEss.ChannelId.STATE_45)), //
-						this.m(new BitsWordElement(3008, this) //
+						m(new BitsWordElement(3008, this) //
 								.bit(0, FeneconMiniEss.ChannelId.STATE_46) //
 								.bit(1, FeneconMiniEss.ChannelId.STATE_47) //
 								.bit(2, FeneconMiniEss.ServiceInfoChannelId.STATE_48) //
@@ -256,60 +256,60 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								.bit(10, FeneconMiniEss.ServiceInfoChannelId.STATE_50) //
 								.bit(12, FeneconMiniEss.ServiceInfoChannelId.STATE_51) //
 								.bit(13, FeneconMiniEss.ServiceInfoChannelId.STATE_52)), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_VERSION, new UnsignedWordElement(3009)), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_NOMINAL_CAPACITY, new UnsignedWordElement(3010)), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_CURRENT_CAPACITY, new UnsignedWordElement(3011)), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_MINIMUM_VOLTAGE_NO, new UnsignedWordElement(3012)), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_MINIMUM_VOLTAGE, new UnsignedWordElement(3013)), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_MAXIMUM_VOLTAGE_NO, new UnsignedWordElement(3014)), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_MAXIMUM_VOLTAGE, new UnsignedWordElement(3015)), // ^
-						this.m(FeneconMiniEss.ChannelId.BECU1_MINIMUM_TEMPERATURE_NO, new UnsignedWordElement(3016)), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_MINIMUM_TEMPERATURE, new UnsignedWordElement(3017),
+						m(FeneconMiniEss.ChannelId.BECU1_VERSION, new UnsignedWordElement(3009)), //
+						m(FeneconMiniEss.ChannelId.BECU1_NOMINAL_CAPACITY, new UnsignedWordElement(3010)), //
+						m(FeneconMiniEss.ChannelId.BECU1_CURRENT_CAPACITY, new UnsignedWordElement(3011)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MINIMUM_VOLTAGE_NO, new UnsignedWordElement(3012)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MINIMUM_VOLTAGE, new UnsignedWordElement(3013)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MAXIMUM_VOLTAGE_NO, new UnsignedWordElement(3014)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MAXIMUM_VOLTAGE, new UnsignedWordElement(3015)), // ^
+						m(FeneconMiniEss.ChannelId.BECU1_MINIMUM_TEMPERATURE_NO, new UnsignedWordElement(3016)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MINIMUM_TEMPERATURE, new UnsignedWordElement(3017),
 								new ElementToChannelOffsetConverter(-40)), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_MAXIMUM_TEMPERATURE_NO, new UnsignedWordElement(3018)), //
-						this.m(FeneconMiniEss.ChannelId.BECU1_MAXIMUM_TEMPERATURE, new UnsignedWordElement(
+						m(FeneconMiniEss.ChannelId.BECU1_MAXIMUM_TEMPERATURE_NO, new UnsignedWordElement(3018)), //
+						m(FeneconMiniEss.ChannelId.BECU1_MAXIMUM_TEMPERATURE, new UnsignedWordElement(
 								3019), new ElementToChannelOffsetConverter(-40))),
 				new FC3ReadRegistersTask(3020, Priority.LOW, //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_1, new UnsignedWordElement(3020)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_2, new UnsignedWordElement(3021)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_3, new UnsignedWordElement(3022)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_4, new UnsignedWordElement(3023)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_5, new UnsignedWordElement(3024)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_6, new UnsignedWordElement(3025)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_7, new UnsignedWordElement(3026)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_8, new UnsignedWordElement(3027)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_9, new UnsignedWordElement(3028)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_10, new UnsignedWordElement(3029)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_11, new UnsignedWordElement(3030)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_12, new UnsignedWordElement(3031)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_13, new UnsignedWordElement(3032)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_14, new UnsignedWordElement(3033)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_15, new UnsignedWordElement(3034)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_16, new UnsignedWordElement(3035)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_1, new UnsignedWordElement(3036)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_2, new UnsignedWordElement(3037)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_3, new UnsignedWordElement(3038)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_4, new UnsignedWordElement(3039)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_5, new UnsignedWordElement(3040)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_6, new UnsignedWordElement(3041)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_7, new UnsignedWordElement(3042)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_8, new UnsignedWordElement(3043)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_9, new UnsignedWordElement(3044)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_10, new UnsignedWordElement(3045)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_11, new UnsignedWordElement(3046)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_12, new UnsignedWordElement(3047)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_13, new UnsignedWordElement(3048)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_14, new UnsignedWordElement(3049)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_15, new UnsignedWordElement(3050)), //
-						this.m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_16, new UnsignedWordElement(3051))), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_1, new UnsignedWordElement(3020)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_2, new UnsignedWordElement(3021)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_3, new UnsignedWordElement(3022)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_4, new UnsignedWordElement(3023)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_5, new UnsignedWordElement(3024)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_6, new UnsignedWordElement(3025)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_7, new UnsignedWordElement(3026)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_8, new UnsignedWordElement(3027)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_9, new UnsignedWordElement(3028)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_10, new UnsignedWordElement(3029)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_11, new UnsignedWordElement(3030)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_12, new UnsignedWordElement(3031)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_13, new UnsignedWordElement(3032)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_14, new UnsignedWordElement(3033)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_15, new UnsignedWordElement(3034)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_VOLTAGE_SECTION_16, new UnsignedWordElement(3035)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_1, new UnsignedWordElement(3036)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_2, new UnsignedWordElement(3037)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_3, new UnsignedWordElement(3038)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_4, new UnsignedWordElement(3039)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_5, new UnsignedWordElement(3040)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_6, new UnsignedWordElement(3041)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_7, new UnsignedWordElement(3042)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_8, new UnsignedWordElement(3043)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_9, new UnsignedWordElement(3044)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_10, new UnsignedWordElement(3045)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_11, new UnsignedWordElement(3046)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_12, new UnsignedWordElement(3047)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_13, new UnsignedWordElement(3048)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_14, new UnsignedWordElement(3049)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_15, new UnsignedWordElement(3050)), //
+						m(FeneconMiniEss.ChannelId.BATTERY_TEMPERATURE_SECTION_16, new UnsignedWordElement(3051))), //
 				new FC3ReadRegistersTask(3200, Priority.LOW, //
-						this.m(FeneconMiniEss.ChannelId.BECU2_CHARGE_CURRENT, new UnsignedWordElement(3200)), //
-						this.m(FeneconMiniEss.ChannelId.BECU2_DISCHARGE_CURRENT, new UnsignedWordElement(3201)), //
-						this.m(FeneconMiniEss.ChannelId.BECU2_VOLT, new UnsignedWordElement(3202)), //
-						this.m(FeneconMiniEss.ChannelId.BECU2_CURRENT, new UnsignedWordElement(3203)), //
-						this.m(FeneconMiniEss.ChannelId.BECU2_SOC, new UnsignedWordElement(3204))), //
+						m(FeneconMiniEss.ChannelId.BECU2_CHARGE_CURRENT, new UnsignedWordElement(3200)), //
+						m(FeneconMiniEss.ChannelId.BECU2_DISCHARGE_CURRENT, new UnsignedWordElement(3201)), //
+						m(FeneconMiniEss.ChannelId.BECU2_VOLT, new UnsignedWordElement(3202)), //
+						m(FeneconMiniEss.ChannelId.BECU2_CURRENT, new UnsignedWordElement(3203)), //
+						m(FeneconMiniEss.ChannelId.BECU2_SOC, new UnsignedWordElement(3204))), //
 				new FC3ReadRegistersTask(3205, Priority.LOW, //
-						this.m(new BitsWordElement(3205, this) //
+						m(new BitsWordElement(3205, this) //
 								.bit(0, FeneconMiniEss.ServiceInfoChannelId.STATE_53) //
 								.bit(1, FeneconMiniEss.ServiceInfoChannelId.STATE_54) //
 								.bit(2, FeneconMiniEss.ServiceInfoChannelId.STATE_55) //
@@ -326,7 +326,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								.bit(13, FeneconMiniEss.ServiceInfoChannelId.STATE_66) //
 								.bit(14, FeneconMiniEss.ServiceInfoChannelId.STATE_67) //
 								.bit(15, FeneconMiniEss.ServiceInfoChannelId.STATE_68)), //
-						this.m(new BitsWordElement(3206, this) //
+						m(new BitsWordElement(3206, this) //
 								.bit(0, FeneconMiniEss.ServiceInfoChannelId.STATE_69) //
 								.bit(1, FeneconMiniEss.ServiceInfoChannelId.STATE_70) //
 								.bit(2, FeneconMiniEss.ServiceInfoChannelId.STATE_71) //
@@ -342,7 +342,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								.bit(13, FeneconMiniEss.ServiceInfoChannelId.STATE_81) //
 								.bit(14, FeneconMiniEss.ServiceInfoChannelId.STATE_82) //
 								.bit(15, FeneconMiniEss.ServiceInfoChannelId.STATE_83)),
-						this.m(new BitsWordElement(3207, this) //
+						m(new BitsWordElement(3207, this) //
 								.bit(0, FeneconMiniEss.ServiceInfoChannelId.STATE_84) //
 								.bit(1, FeneconMiniEss.ServiceInfoChannelId.STATE_85) //
 								.bit(2, FeneconMiniEss.ServiceInfoChannelId.STATE_86) //
@@ -357,7 +357,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								.bit(13, FeneconMiniEss.ServiceInfoChannelId.STATE_95) //
 								.bit(14, FeneconMiniEss.ChannelId.STATE_96) //
 								.bit(15, FeneconMiniEss.ChannelId.STATE_97)), //
-						this.m(new BitsWordElement(3208, this) //
+						m(new BitsWordElement(3208, this) //
 								.bit(0, FeneconMiniEss.ChannelId.STATE_98) //
 								.bit(1, FeneconMiniEss.ChannelId.STATE_99) //
 								.bit(2, FeneconMiniEss.ServiceInfoChannelId.STATE_100) //
@@ -365,44 +365,44 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								.bit(10, FeneconMiniEss.ServiceInfoChannelId.STATE_102) //
 								.bit(12, FeneconMiniEss.ServiceInfoChannelId.STATE_103) //
 								.bit(13, FeneconMiniEss.ServiceInfoChannelId.STATE_104)),
-						this.m(FeneconMiniEss.ChannelId.BECU2_VERSION, new UnsignedWordElement(3209)), //
+						m(FeneconMiniEss.ChannelId.BECU2_VERSION, new UnsignedWordElement(3209)), //
 						new DummyRegisterElement(3210, 3211), //
-						this.m(FeneconMiniEss.ChannelId.BECU2_MIN_VOLT_NO, new UnsignedWordElement(3212)), //
-						this.m(FeneconMiniEss.ChannelId.BECU2_MIN_VOLT, new UnsignedWordElement(3213)), //
-						this.m(FeneconMiniEss.ChannelId.BECU2_MAX_VOLT_NO, new UnsignedWordElement(3214)), //
-						this.m(FeneconMiniEss.ChannelId.BECU2_MAX_VOLT, new UnsignedWordElement(3215)), // ^
-						this.m(FeneconMiniEss.ChannelId.BECU2_MIN_TEMP_NO, new UnsignedWordElement(3216)), //
-						this.m(FeneconMiniEss.ChannelId.BECU2_MIN_TEMP, new UnsignedWordElement(3217)), //
-						this.m(FeneconMiniEss.ChannelId.BECU2_MAX_TEMP_NO, new UnsignedWordElement(3218)), //
-						this.m(FeneconMiniEss.ChannelId.BECU2_MAX_TEMP, new UnsignedWordElement(3219))), //
+						m(FeneconMiniEss.ChannelId.BECU2_MIN_VOLT_NO, new UnsignedWordElement(3212)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MIN_VOLT, new UnsignedWordElement(3213)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MAX_VOLT_NO, new UnsignedWordElement(3214)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MAX_VOLT, new UnsignedWordElement(3215)), // ^
+						m(FeneconMiniEss.ChannelId.BECU2_MIN_TEMP_NO, new UnsignedWordElement(3216)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MIN_TEMP, new UnsignedWordElement(3217)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MAX_TEMP_NO, new UnsignedWordElement(3218)), //
+						m(FeneconMiniEss.ChannelId.BECU2_MAX_TEMP, new UnsignedWordElement(3219))), //
 				new FC3ReadRegistersTask(4000, Priority.LOW, //
-						this.m(FeneconMiniEss.ChannelId.SYSTEM_WORK_STATE, new UnsignedDoublewordElement(4000)), //
-						this.m(FeneconMiniEss.ChannelId.SYSTEM_WORK_MODE_STATE, new UnsignedDoublewordElement(4002))), //
+						m(FeneconMiniEss.ChannelId.SYSTEM_WORK_STATE, new UnsignedDoublewordElement(4000)), //
+						m(FeneconMiniEss.ChannelId.SYSTEM_WORK_MODE_STATE, new UnsignedDoublewordElement(4002))), //
 				new FC3ReadRegistersTask(4800, Priority.LOW, //
-						this.m(FeneconMiniEss.ChannelId.BECU_NUM, new UnsignedWordElement(4800)), //
+						m(FeneconMiniEss.ChannelId.BECU_NUM, new UnsignedWordElement(4800)), //
 						// TODO BECU_WORK_STATE has been implemented with both registers(4801 and 4807)
-						this.m(FeneconMiniEss.ChannelId.BECU_WORK_STATE, new UnsignedWordElement(4801)), //
+						m(FeneconMiniEss.ChannelId.BECU_WORK_STATE, new UnsignedWordElement(4801)), //
 						new DummyRegisterElement(4802), //
-						this.m(FeneconMiniEss.ChannelId.BECU_CHARGE_CURRENT, new UnsignedWordElement(4803)), //
-						this.m(FeneconMiniEss.ChannelId.BECU_DISCHARGE_CURRENT, new UnsignedWordElement(4804)), //
-						this.m(FeneconMiniEss.ChannelId.BECU_VOLT, new UnsignedWordElement(4805)), //
-						this.m(FeneconMiniEss.ChannelId.BECU_CURRENT, new UnsignedWordElement(4806))), //
+						m(FeneconMiniEss.ChannelId.BECU_CHARGE_CURRENT, new UnsignedWordElement(4803)), //
+						m(FeneconMiniEss.ChannelId.BECU_DISCHARGE_CURRENT, new UnsignedWordElement(4804)), //
+						m(FeneconMiniEss.ChannelId.BECU_VOLT, new UnsignedWordElement(4805)), //
+						m(FeneconMiniEss.ChannelId.BECU_CURRENT, new UnsignedWordElement(4806))), //
 				new FC16WriteRegistersTask(4809, //
-						this.m(new BitsWordElement(4809, this) //
+						m(new BitsWordElement(4809, this) //
 								.bit(0, FeneconMiniEss.ServiceInfoChannelId.STATE_111) //
 								.bit(1, FeneconMiniEss.ServiceInfoChannelId.STATE_112))), //
 				new FC3ReadRegistersTask(4808, Priority.LOW, //
-						this.m(new BitsWordElement(4808, this) //
+						m(new BitsWordElement(4808, this) //
 								.bit(0, FeneconMiniEss.SystemErrorChannelId.STATE_105) //
 								.bit(1, FeneconMiniEss.ServiceInfoChannelId.STATE_106) //
 								.bit(2, FeneconMiniEss.ServiceInfoChannelId.STATE_107) //
 								.bit(3, FeneconMiniEss.ServiceInfoChannelId.STATE_108) //
 								.bit(4, FeneconMiniEss.ServiceInfoChannelId.STATE_109) //
 								.bit(9, FeneconMiniEss.ServiceInfoChannelId.STATE_110)), //
-						this.m(new BitsWordElement(4809, this) //
+						m(new BitsWordElement(4809, this) //
 								.bit(0, FeneconMiniEss.ServiceInfoChannelId.STATE_111) //
 								.bit(1, FeneconMiniEss.ServiceInfoChannelId.STATE_112)), //
-						this.m(new BitsWordElement(4810, this) //
+						m(new BitsWordElement(4810, this) //
 								.bit(0, FeneconMiniEss.ServiceInfoChannelId.STATE_113) //
 								.bit(1, FeneconMiniEss.ServiceInfoChannelId.STATE_114) //
 								.bit(2, FeneconMiniEss.ServiceInfoChannelId.STATE_115) //
@@ -419,7 +419,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								.bit(13, FeneconMiniEss.ServiceInfoChannelId.STATE_126) //
 								.bit(14, FeneconMiniEss.ServiceInfoChannelId.STATE_127) //
 								.bit(15, FeneconMiniEss.ServiceInfoChannelId.STATE_128)), //
-						this.m(new BitsWordElement(4811, this) //
+						m(new BitsWordElement(4811, this) //
 								.bit(0, FeneconMiniEss.ServiceInfoChannelId.STATE_129) //
 								.bit(1, FeneconMiniEss.ServiceInfoChannelId.STATE_130) //
 								.bit(2, FeneconMiniEss.ServiceInfoChannelId.STATE_131) //
@@ -434,7 +434,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								.bit(11, FeneconMiniEss.ServiceInfoChannelId.STATE_140) //
 								.bit(12, FeneconMiniEss.ServiceInfoChannelId.STATE_141) //
 								.bit(14, FeneconMiniEss.ChannelId.STATE_143)),
-						this.m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(4812),
+						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(4812),
 								new ElementToChannelConverter(value -> {
 									// Set SoC to 100 % if battery is full and AllowedCharge is zero
 									if (value == null) {
@@ -451,40 +451,40 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 				), //
 
 				new FC16WriteRegistersTask(9014, //
-						this.m(FeneconMiniEss.ChannelId.RTC_YEAR, new UnsignedWordElement(9014)), //
-						this.m(FeneconMiniEss.ChannelId.RTC_MONTH, new UnsignedWordElement(9015)), //
-						this.m(FeneconMiniEss.ChannelId.RTC_DAY, new UnsignedWordElement(9016)), //
-						this.m(FeneconMiniEss.ChannelId.RTC_HOUR, new UnsignedWordElement(9017)), //
-						this.m(FeneconMiniEss.ChannelId.RTC_MINUTE, new UnsignedWordElement(9018)), //
-						this.m(FeneconMiniEss.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
+						m(FeneconMiniEss.ChannelId.RTC_YEAR, new UnsignedWordElement(9014)), //
+						m(FeneconMiniEss.ChannelId.RTC_MONTH, new UnsignedWordElement(9015)), //
+						m(FeneconMiniEss.ChannelId.RTC_DAY, new UnsignedWordElement(9016)), //
+						m(FeneconMiniEss.ChannelId.RTC_HOUR, new UnsignedWordElement(9017)), //
+						m(FeneconMiniEss.ChannelId.RTC_MINUTE, new UnsignedWordElement(9018)), //
+						m(FeneconMiniEss.ChannelId.RTC_SECOND, new UnsignedWordElement(9019))), //
 				new FC16WriteRegistersTask(30526, //
-						this.m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30526),
+						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30526),
 								ElementToChannelConverter.SCALE_FACTOR_2,
 								new ChannelMetaInfoReadAndWrite(30126, 30526)), //
-						this.m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30527),
+						m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30527),
 								ElementToChannelConverter.SCALE_FACTOR_2,
 								new ChannelMetaInfoReadAndWrite(30127, 30527))), //
 				new FC16WriteRegistersTask(30558, //
-						this.m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558),
+						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30558),
 								new ChannelMetaInfoReadAndWrite(30157, 30558))), //
 				new FC16WriteRegistersTask(30559, //
-						this.m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30559),
+						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30559),
 								new ChannelMetaInfoReadAndWrite(30158, 30559))), //
 
 				new FC3ReadRegistersTask(30126, Priority.LOW, //
-						this.m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30126),
+						m(FeneconMiniEss.ChannelId.GRID_MAX_CHARGE_CURRENT, new UnsignedWordElement(30126),
 								ElementToChannelConverter.SCALE_FACTOR_2,
 								new ChannelMetaInfoReadAndWrite(30126, 30526)), //
-						this.m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30127),
+						m(FeneconMiniEss.ChannelId.GRID_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(30127),
 								ElementToChannelConverter.SCALE_FACTOR_2,
 								new ChannelMetaInfoReadAndWrite(30127, 30527)), //
 						new DummyRegisterElement(30128, 30156), //
-						this.m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157),
+						m(FeneconMiniEss.ChannelId.SETUP_MODE, new UnsignedWordElement(30157),
 								new ChannelMetaInfoReadAndWrite(30157, 30558)), //
-						this.m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158),
+						m(FeneconMiniEss.ChannelId.PCS_MODE, new UnsignedWordElement(30158),
 								new ChannelMetaInfoReadAndWrite(30158, 30559)), //
 						new DummyRegisterElement(30159, 30165), //
-						this.m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(30166),
+						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(30166),
 								new ElementToChannelConverter(
 										// element -> channel
 										value -> {
@@ -504,9 +504,9 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 										value -> value))), //
 
 				new FC3ReadRegistersTask(2992, Priority.LOW, //
-						this.m(FeneconMiniEss.ChannelId.DEBUG_RUN_STATE, new UnsignedWordElement(2992))), //
+						m(FeneconMiniEss.ChannelId.DEBUG_RUN_STATE, new UnsignedWordElement(2992))), //
 				new FC16WriteRegistersTask(2992, //
-						this.m(FeneconMiniEss.ChannelId.DEBUG_RUN_STATE, new UnsignedWordElement(2992))) //
+						m(FeneconMiniEss.ChannelId.DEBUG_RUN_STATE, new UnsignedWordElement(2992))) //
 		);//
 	}
 

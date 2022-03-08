@@ -118,30 +118,30 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(121, Priority.LOW, //
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(121),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(121),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(122),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(122),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(123),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(123),
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 
 				new FC3ReadRegistersTask(2035, Priority.LOW, // //
-						this.m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L1, new UnsignedDoublewordElement(2035),
+						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L1, new UnsignedDoublewordElement(2035),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2037, 2065), //
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066),
 								MINUS_10000_CONVERTER)), //
 				new FC3ReadRegistersTask(2135, Priority.LOW, // //
-						this.m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L2, new UnsignedDoublewordElement(2135),
+						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L2, new UnsignedDoublewordElement(2135),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2137, 2165), //
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166),
 								MINUS_10000_CONVERTER)), //
 				new FC3ReadRegistersTask(2235, Priority.LOW, // //
-						this.m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L3, new UnsignedDoublewordElement(2235),
+						m(FeneconProPvMeter.ChannelId.ACTIVE_ENERGY_L3, new UnsignedDoublewordElement(2235),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2237, 2265), //
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266),
 								MINUS_10000_CONVERTER))//
 
 		);

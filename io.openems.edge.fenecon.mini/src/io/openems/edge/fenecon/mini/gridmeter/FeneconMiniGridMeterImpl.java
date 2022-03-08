@@ -89,10 +89,10 @@ public class FeneconMiniGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(4004, Priority.HIGH, //
-						this.m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(4004),
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(4004),
 								SIGNED_POWER_CONVERTER_AND_INVERT)), //
 				new FC3ReadRegistersTask(4811, Priority.LOW, //
-						this.m(new BitsWordElement(4811, this) //
+						m(new BitsWordElement(4811, this) //
 								.bit(13, FeneconMiniGridMeter.ChannelId.COMMUNICATION_BREAK))) //
 		);
 	}

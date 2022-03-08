@@ -96,56 +96,56 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(3845, Priority.HIGH, //
-						this.m(new FloatDoublewordElement(3845))
+						m(new FloatDoublewordElement(3845))
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3)//
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3)//
 								.build(),
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3847),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3847),
 								ElementToChannelConverter.SCALE_FACTOR_3), //
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3849),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3849),
 								ElementToChannelConverter.SCALE_FACTOR_3), // , //
-						new DummyRegisterElement(3851, 3852), this.m(new FloatDoublewordElement(3853)) //
+						new DummyRegisterElement(3851, 3852), m(new FloatDoublewordElement(3853)) //
 								.m(AsymmetricMeter.ChannelId.CURRENT_L1,
 										ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)) //
 								.m(SymmetricMeter.ChannelId.CURRENT,
 										ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)) //
 								.build(), //
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3855), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3855), //
 								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)), //
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3857), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3857), //
 								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)), //
 						new DummyRegisterElement(3859, 3860),
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3861), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3861), //
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(3863), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(3863), //
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(3865), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(3865), //
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
 						new DummyRegisterElement(3867, 3868),
-						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(3869), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(3869), //
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
-						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(3871), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(3871), //
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
-						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(3873), //
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(3873), //
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))), //
 				new FC3ReadRegistersTask(3925, Priority.HIGH, //
-						this.m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3925)), //
-						this.m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3927), //
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3925)), //
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3927), //
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))), //
 				new FC3ReadRegistersTask(3995, Priority.LOW, //
-						this.m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3995), //
+						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3995), //
 								ElementToChannelConverter.SCALE_FACTOR_3)));
 
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
-					this.m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19068)),
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19068)),
 					new DummyRegisterElement(19070, 19075),
-					this.m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19076))));
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19076))));
 		} else {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
-					this.m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19068)),
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19068)),
 					new DummyRegisterElement(19070, 19075),
-					this.m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19076))));
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19076))));
 		}
 
 		return modbusProtocol;

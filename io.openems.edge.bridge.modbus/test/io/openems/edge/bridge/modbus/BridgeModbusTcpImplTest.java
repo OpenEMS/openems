@@ -136,7 +136,7 @@ public class BridgeModbusTcpImplTest {
 		protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 			return new ModbusProtocol(this, //
 					new FC3ReadRegistersTask(100, Priority.HIGH, //
-							this.m(ChannelId.REGISTER_100, new UnsignedWordElement(100) //
+							m(ChannelId.REGISTER_100, new UnsignedWordElement(100) //
 							))); //
 		}
 

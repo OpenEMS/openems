@@ -268,7 +268,7 @@ public class Wago extends AbstractOpenemsModbusComponent
 	 * @return the modbus {@link CoilElement}
 	 */
 	protected CoilElement createModbusCoilElement(io.openems.edge.common.channel.ChannelId channelId, int address) {
-		return this.m(channelId, new CoilElement(address));
+		return m(channelId, new CoilElement(address));
 	}
 
 	@Override

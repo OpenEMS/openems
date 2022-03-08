@@ -95,41 +95,41 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 				// Active and reactive power, Power factor and frequency
 				new FC3ReadRegistersTask(36005, Priority.HIGH, //
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005),
 								ElementToChannelConverter.INVERT), //
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006),
 								ElementToChannelConverter.INVERT), //
-						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007),
 								ElementToChannelConverter.INVERT), //
 						new DummyRegisterElement(36008, 36012), //
-						this.m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
+						m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						this.m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
 
 				// Voltage, current and Grid Frequency of each phase
 				new FC3ReadRegistersTask(35121, Priority.LOW, //
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35121),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35121),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35122),
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35122),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(GoodWeGridMeter.ChannelId.F_GRID_R, new UnsignedWordElement(35123),
+						m(GoodWeGridMeter.ChannelId.F_GRID_R, new UnsignedWordElement(35123),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35124, 35125), //
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35126),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35126),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35127),
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35127),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(GoodWeGridMeter.ChannelId.F_GRID_S, new UnsignedWordElement(35128),
+						m(GoodWeGridMeter.ChannelId.F_GRID_S, new UnsignedWordElement(35128),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35129, 35130), //
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35131),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35131),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35132),
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35132),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						this.m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133),
+						m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						this.m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
+						m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2))); //
 	}
 

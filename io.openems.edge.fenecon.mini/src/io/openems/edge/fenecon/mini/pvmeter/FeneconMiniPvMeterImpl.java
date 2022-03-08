@@ -85,7 +85,7 @@ public class FeneconMiniPvMeterImpl extends AbstractOpenemsModbusComponent imple
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(4006, Priority.HIGH, //
-						this.m(SymmetricMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(4006))));
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(4006))));
 	}
 
 	@Override

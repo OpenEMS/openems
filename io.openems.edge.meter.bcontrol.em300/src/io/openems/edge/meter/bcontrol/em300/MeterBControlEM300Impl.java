@@ -92,72 +92,72 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0, Priority.HIGH, //
-						this.m(MeterBControlEM300.ChannelId.ACTIVE_POWER_POS, new UnsignedDoublewordElement(0),
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_POS, new UnsignedDoublewordElement(0),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(MeterBControlEM300.ChannelId.ACTIVE_POWER_NEG, new UnsignedDoublewordElement(2),
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_NEG, new UnsignedDoublewordElement(2),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(MeterBControlEM300.ChannelId.REACTIVE_POWER_POS, new UnsignedDoublewordElement(4),
+						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_POS, new UnsignedDoublewordElement(4),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(MeterBControlEM300.ChannelId.REACTIVE_POWER_NEG, new UnsignedDoublewordElement(6),
+						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_NEG, new UnsignedDoublewordElement(6),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 
 				new FC3ReadRegistersTask(10, Priority.LOW,
-						this.m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(10))),
+						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(10))),
 
 				new FC3ReadRegistersTask(40, Priority.HIGH,
-						this.m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(40),
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(40),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_NEG, new UnsignedDoublewordElement(42),
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L1_NEG, new UnsignedDoublewordElement(42),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(44),
+						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_POS, new UnsignedDoublewordElement(44),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_NEG, new UnsignedDoublewordElement(46),
+						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L1_NEG, new UnsignedDoublewordElement(46),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 
 				new FC3ReadRegistersTask(60, Priority.HIGH,
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(60)),
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(62))), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(60)),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(62))), //
 
 				new FC3ReadRegistersTask(80, Priority.HIGH,
-						this.m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(80),
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(80),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_NEG, new UnsignedDoublewordElement(82),
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L2_NEG, new UnsignedDoublewordElement(82),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 
-						this.m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(84),
+						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_POS, new UnsignedDoublewordElement(84),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_NEG, new UnsignedDoublewordElement(86),
+						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L2_NEG, new UnsignedDoublewordElement(86),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 
 				new FC3ReadRegistersTask(100, Priority.HIGH,
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(100)),
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102))),
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(100)),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(102))),
 
 				new FC3ReadRegistersTask(120, Priority.HIGH,
-						this.m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(120),
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(120),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_NEG, new UnsignedDoublewordElement(122),
+						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_L3_NEG, new UnsignedDoublewordElement(122),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(124),
+						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_POS, new UnsignedDoublewordElement(124),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						this.m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_NEG, new UnsignedDoublewordElement(126),
+						m(MeterBControlEM300.ChannelId.REACTIVE_POWER_L3_NEG, new UnsignedDoublewordElement(126),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)),
 
 				new FC3ReadRegistersTask(140, Priority.HIGH,
-						this.m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(140)),
-						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(142))));
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(140)),
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(142))));
 
 		if (this.config.invert()) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(512, Priority.LOW, //
-					this.m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(512),
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(512),
 							ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-					this.m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(516),
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(516),
 							ElementToChannelConverter.SCALE_FACTOR_MINUS_1)));
 		} else {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(512, Priority.LOW, //
-					this.m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(512),
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(512),
 							ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-					this.m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(516),
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(516),
 							ElementToChannelConverter.SCALE_FACTOR_MINUS_1)));
 		}
 
