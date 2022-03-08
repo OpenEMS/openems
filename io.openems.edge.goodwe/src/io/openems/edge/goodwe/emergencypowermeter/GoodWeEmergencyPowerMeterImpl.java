@@ -50,6 +50,7 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -78,10 +79,10 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -93,32 +94,32 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 
 				// Power of each backup up phase
 				new FC3ReadRegistersTask(35145, Priority.LOW, //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35145), //
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35145), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35146), //
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35146), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L1, new UnsignedWordElement(35147), //
+						this.m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L1, new UnsignedWordElement(35147), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35148), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(35149)), //
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(35149)), //
 
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35151), //
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35151), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35152), //
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35152), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L2, new UnsignedWordElement(35153), //
+						this.m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L2, new UnsignedWordElement(35153), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35154), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(35155)), //
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(35155)), //
 
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35157), //
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35157), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35158), //
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35158), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L3, new UnsignedWordElement(35159), //
+						this.m(GoodWeEmergencyPowerMeter.ChannelId.FREQUENCY_L3, new UnsignedWordElement(35159), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35160), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(35161))));
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(35161))));
 	}
 
 	@Override
@@ -145,7 +146,7 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

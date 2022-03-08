@@ -42,14 +42,14 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		final int startAddress = this.getStartAddress();
+		final var startAddress = this.getStartAddress();
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(startAddress, Priority.HIGH, //
-						m(GoodWeEtCharger.ChannelId.V, new UnsignedWordElement(startAddress), //
+						this.m(GoodWeEtCharger.ChannelId.V, new UnsignedWordElement(startAddress), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWeEtCharger.ChannelId.I, new UnsignedWordElement(startAddress + 1),
+						this.m(GoodWeEtCharger.ChannelId.I, new UnsignedWordElement(startAddress + 1),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(startAddress + 2))));
+						this.m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(startAddress + 2))));
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	 * Calculate the Energy values from ActivePower.
 	 */
 	private void calculateEnergy() {
-		Integer actualPower = this.getActualPower().get();
+		var actualPower = this.getActualPower().get();
 		if (actualPower == null) {
 			// Not available
 			this.calculateActualEnergy.update(null);
@@ -81,7 +81,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	 * Updates the 'Has-No-DC-PV' State Channel.
 	 */
 	private void updateState() {
-		GoodWe goodWe = this.getEssOrBatteryInverter();
+		var goodWe = this.getEssOrBatteryInverter();
 		Boolean hasNoDcPv = null;
 		if (goodWe != null) {
 			switch (goodWe.getGoodweType().getSeries()) {

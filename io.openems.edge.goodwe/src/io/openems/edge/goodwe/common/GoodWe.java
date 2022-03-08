@@ -57,14 +57,14 @@ public interface GoodWe extends OpenemsComponent {
 
 	/**
 	 * Registers a GoodWe Charger.
-	 * 
+	 *
 	 * @param charger either {@link GoodWeEtCharger1} or {@link GoodWeEtCharger2}
 	 */
 	public void addCharger(AbstractGoodWeEtCharger charger);
 
 	/**
 	 * Unregisters a GoodWe Charger.
-	 * 
+	 *
 	 * @param charger either {@link GoodWeEtCharger1} or {@link GoodWeEtCharger2}
 	 */
 	public void removeCharger(AbstractGoodWeEtCharger charger);
@@ -103,7 +103,7 @@ public interface GoodWe extends OpenemsComponent {
 
 		/**
 		 * Total Active Power Of Inverter.
-		 * 
+		 *
 		 * <p>
 		 * (If meter connection ok, it is meter power.If meter connection fail, it is
 		 * inverter on-grid port power)
@@ -1359,7 +1359,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the BMS Charge-Max-Current in [A]. See
 	 * {@link ChannelId#BMS_CHARGE_MAX_CURRENT}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -1399,7 +1399,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the BMS Discharge-Max-Current in [A]. See
 	 * {@link ChannelId#BMS_DISCHARGE_MAX_CURRENT}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -1439,7 +1439,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the BMS Charge-Max-Voltage in [V]. See
 	 * {@link ChannelId#BMS_CHARGE_MAX_VOLTAGE}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -1479,7 +1479,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the BMS Discharge-Min-Voltage in [V]. See
 	 * {@link ChannelId#BMS_DISCHARGE_MIN_VOLTAGE}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -1545,7 +1545,7 @@ public interface GoodWe extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_AC_EXPORT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getMaxAcExportChannel() {
@@ -1555,7 +1555,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the Max AC-Export Power in [W]. Positive Values. See
 	 * {@link ChannelId#MAX_AC_EXPORT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getMaxAcExport() {
@@ -1565,7 +1565,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_AC_EXPORT}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxAcExport(Integer value) {
@@ -1574,7 +1574,7 @@ public interface GoodWe extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_AC_IMPORT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getMaxAcImportChannel() {
@@ -1584,7 +1584,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the Max AC-Import Power in [W]. Negative Values. See
 	 * {@link ChannelId#MAX_AC_IMPORT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getMaxAcImport() {
@@ -1594,7 +1594,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_AC_IMPORT}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxAcImport(Integer value) {

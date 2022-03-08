@@ -51,6 +51,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -79,10 +80,10 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -94,41 +95,41 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 				// Active and reactive power, Power factor and frequency
 				new FC3ReadRegistersTask(36005, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005),
 								ElementToChannelConverter.INVERT), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(36006),
 								ElementToChannelConverter.INVERT), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(36007),
 								ElementToChannelConverter.INVERT), //
 						new DummyRegisterElement(36008, 36012), //
-						m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
+						this.m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
+						this.m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
 
 				// Voltage, current and Grid Frequency of each phase
 				new FC3ReadRegistersTask(35121, Priority.LOW, //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35121),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35121),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35122),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35122),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWeGridMeter.ChannelId.F_GRID_R, new UnsignedWordElement(35123),
+						this.m(GoodWeGridMeter.ChannelId.F_GRID_R, new UnsignedWordElement(35123),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35124, 35125), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35126),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35126),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35127),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35127),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWeGridMeter.ChannelId.F_GRID_S, new UnsignedWordElement(35128),
+						this.m(GoodWeGridMeter.ChannelId.F_GRID_S, new UnsignedWordElement(35128),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(35129, 35130), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35131),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35131),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35132),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35132),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133),
+						this.m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
+						this.m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2))); //
 	}
 
@@ -146,7 +147,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

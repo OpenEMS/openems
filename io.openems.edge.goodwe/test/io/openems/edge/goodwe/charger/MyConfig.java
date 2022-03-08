@@ -38,7 +38,7 @@ public class MyConfig extends AbstractComponentConfig implements ConfigPV1, Conf
 
 		/**
 		 * Builds the Config.
-		 * 
+		 *
 		 * @return the Config
 		 */
 		public MyConfig build() {
@@ -48,7 +48,7 @@ public class MyConfig extends AbstractComponentConfig implements ConfigPV1, Conf
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
