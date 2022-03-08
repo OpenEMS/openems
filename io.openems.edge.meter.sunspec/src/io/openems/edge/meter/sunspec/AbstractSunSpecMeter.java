@@ -34,7 +34,7 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 
 	/**
 	 * Make sure to call this method from the inheriting OSGi Component.
-	 * 
+	 *
 	 * @throws OpenemsException on error
 	 */
 	@Override
@@ -48,6 +48,7 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 	/**
 	 * Make sure to call this method from the inheriting OSGi Component.
 	 */
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

@@ -20,6 +20,7 @@ public interface SocomecMeterSinglephase extends SymmetricMeter, AsymmetricMeter
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

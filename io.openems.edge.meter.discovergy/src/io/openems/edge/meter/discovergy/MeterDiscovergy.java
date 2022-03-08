@@ -15,7 +15,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import io.openems.common.channel.Level;
@@ -74,12 +73,13 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 		if (config.enabled()) {
 			this.apiClient = new DiscovergyApiClient(config.email(), config.password());
 
-			this.worker = new DiscovergyWorker(this, apiClient, config);
+			this.worker = new DiscovergyWorker(this, this.apiClient, config);
 			this.worker.activate(config.id());
 			this.worker.triggerNextRun();
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -119,6 +119,7 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -176,10 +177,10 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 
 	/**
 	 * Handles a GetMetersRequest.
-	 * 
+	 *
 	 * <p>
 	 * See {@link DiscovergyApiClient#getMeters()}
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the GetMetersRequest
 	 * @return the Future JSON-RPC Response
@@ -187,17 +188,17 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetMetersRequest(User user, GetMetersRequest request)
 			throws OpenemsNamedException {
-		JsonArray meters = this.apiClient.getMeters();
-		GetMetersResponse response = new GetMetersResponse(request.getId(), meters);
+		var meters = this.apiClient.getMeters();
+		var response = new GetMetersResponse(request.getId(), meters);
 		return CompletableFuture.completedFuture(response);
 	}
 
 	/**
 	 * Handles a GetFieldNamesRequest.
-	 * 
+	 *
 	 * <p>
 	 * See {@link DiscovergyApiClient#getFieldNames(String)}
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the GetFieldNamesRequest
 	 * @return the Future JSON-RPC Response
@@ -205,12 +206,12 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetFieldNamesRequest(User user,
 			GetFieldNamesRequest request) throws OpenemsNamedException {
-		JsonArray fieldNames = this.apiClient.getFieldNames(request.getMeterId());
+		var fieldNames = this.apiClient.getFieldNames(request.getMeterId());
 		Set<Field> fields = new HashSet<>();
 		for (JsonElement fieldNameElement : fieldNames) {
 			fields.add(JsonUtils.getAsEnum(Field.class, fieldNameElement));
 		}
-		GetFieldNamesResponse response = new GetFieldNamesResponse(request.getId(), fields);
+		var response = new GetFieldNamesResponse(request.getId(), fields);
 		return CompletableFuture.completedFuture(response);
 	}
 }

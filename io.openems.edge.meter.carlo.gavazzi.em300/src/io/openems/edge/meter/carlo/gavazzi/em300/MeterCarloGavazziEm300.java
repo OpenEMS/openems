@@ -26,6 +26,7 @@ public interface MeterCarloGavazziEm300 extends SymmetricMeter, AsymmetricMeter,
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

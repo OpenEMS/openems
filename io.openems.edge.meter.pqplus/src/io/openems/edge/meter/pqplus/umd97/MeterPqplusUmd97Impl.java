@@ -29,7 +29,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements the PQ Plus UMD 97 meter.
- * 
+ *
  * <p>
  * https://www.pq-plus.de/news/pqplus/umd-97-messgeraet.html
  */
@@ -57,6 +57,7 @@ public class MeterPqplusUmd97Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -68,10 +69,10 @@ public class MeterPqplusUmd97Impl extends AbstractOpenemsModbusComponent
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -86,34 +87,34 @@ public class MeterPqplusUmd97Impl extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(19000, Priority.HIGH, //
-						m(new FloatDoublewordElement(19000)) //
+						this.m(new FloatDoublewordElement(19000)) //
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3) //
 								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3) //
 								.build(), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(19002),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(19002),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(19004),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(19004),
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						new DummyRegisterElement(19006, 19011), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(19012),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(19012),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(19014),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(19014),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(19016),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(19016),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(19018),
+						this.m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(19018),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(19020)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(19022)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(19024)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(19026)),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(19020)),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(19022)),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(19024)),
+						this.m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(19026)),
 						new DummyRegisterElement(19028, 19035), //
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(19036)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(19038)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(19040)),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(19042)),
+						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(19036)),
+						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(19038)),
+						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(19040)),
+						this.m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(19042)),
 						new DummyRegisterElement(19044, 19049), //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(19050),
+						this.m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(19050),
 								ElementToChannelConverter.SCALE_FACTOR_3)));
 	}
 

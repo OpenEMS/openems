@@ -55,6 +55,7 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -66,10 +67,10 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -83,6 +84,7 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -97,40 +99,42 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this,
 				new FC4ReadInputRegistersTask(0x0000, Priority.HIGH,
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0x0000)),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0x0002)),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0x0004)),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedDoublewordElement(0x0000)),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedDoublewordElement(0x0002)),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0x0004)),
 						new DummyRegisterElement(0x0006, 0x000B),
-						m(SymmetricMeter.ChannelId.VOLTAGE, new UnsignedDoublewordElement(0x000C)),
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(0x000E)),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(0x0010)),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(0x0012)),
+						this.m(SymmetricMeter.ChannelId.VOLTAGE, new UnsignedDoublewordElement(0x000C)),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(0x000E)),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(0x0010)),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(0x0012)),
 						new DummyRegisterElement(0x0014, 0x0015),
-						m(SymmetricMeter.ChannelId.CURRENT, new SignedDoublewordElement(0x0016)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0018),
+						this.m(SymmetricMeter.ChannelId.CURRENT, new SignedDoublewordElement(0x0016)),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0018),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedQuadruplewordElement(0x001C),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedQuadruplewordElement(0x001C),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedQuadruplewordElement(0X0020),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedQuadruplewordElement(0X0020),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedQuadruplewordElement(0X0024),
+						this.m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedQuadruplewordElement(0X0024),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
 						new DummyRegisterElement(0x0028, 0x0037),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0038),
+						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new SignedQuadruplewordElement(0x0038),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedQuadruplewordElement(0x003C),
+						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new SignedQuadruplewordElement(0x003C),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedQuadruplewordElement(0x0040),
+						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new SignedQuadruplewordElement(0x0040),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedQuadruplewordElement(0x0044),
+						this.m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedQuadruplewordElement(0x0044),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
 						new DummyRegisterElement(0x0048, 0x0071),
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0x0072))),
+						this.m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0x0072))),
 
 				new FC4ReadInputRegistersTask(0x0418, Priority.LOW,
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(0x0418),
+						this.m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+								new UnsignedQuadruplewordElement(0x0418),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(0x0041C),
+						this.m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+								new UnsignedQuadruplewordElement(0x0041C),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)));
 	}
 

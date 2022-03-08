@@ -33,7 +33,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements the Siemens PAC2200/3200/4200 power meter.
- * 
+ *
  * <p>
  * https://cache.industry.siemens.com/dl/files/150/26504150/att_906558/v1/A5E01168664B-04_EN-US_122016_201612221316360495.pdf
  */
@@ -66,6 +66,7 @@ public class SiemensPacMeterImpl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -78,10 +79,10 @@ public class SiemensPacMeterImpl extends AbstractOpenemsModbusComponent
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -95,52 +96,52 @@ public class SiemensPacMeterImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
-		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
+		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(1, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(1),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(1),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(5),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(5),
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						new DummyRegisterElement(7, 12), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(13),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(13),
 								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(15),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(15),
 								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(17),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(17),
 								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(19, 24), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(25),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(25),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(27),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(27),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(29),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(29),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(31),
+						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(31),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(33),
+						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(33),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(35),
+						this.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(35),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(37, 60), //
-						m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(61),
+						this.m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(61),
 								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(63, 64), //
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(65),
+						this.m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(65),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(67),
+						this.m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(67),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))));
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(801, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatQuadruplewordElement(801)),
+					this.m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatQuadruplewordElement(801)),
 					new DummyRegisterElement(805, 808), //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatQuadruplewordElement(809))));
+					this.m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatQuadruplewordElement(809))));
 		} else {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(801, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatQuadruplewordElement(801)),
+					this.m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatQuadruplewordElement(801)),
 					new DummyRegisterElement(805, 808), //
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatQuadruplewordElement(809))));
+					this.m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatQuadruplewordElement(809))));
 		}
 
 		return modbusProtocol;

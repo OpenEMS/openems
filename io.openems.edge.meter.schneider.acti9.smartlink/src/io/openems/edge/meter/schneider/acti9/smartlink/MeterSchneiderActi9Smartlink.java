@@ -52,6 +52,7 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -63,10 +64,10 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 		this.inverted = config.invert();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -79,48 +80,48 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		final int offset = 1;
+		final var offset = 1;
 		/**
 		 * See Datasheet PDF-file in doc directory.
-		 * 
+		 *
 		 * Phase specific reactive Power, Single Current and Voltage figures are not
 		 * implemented by this meter.
 		 */
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(3000 - offset, Priority.HIGH,
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(3000 - offset),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(3000 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.inverted)),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3002 - offset),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3002 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.inverted)),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3004 - offset),
+						this.m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3004 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.inverted))),
 				new FC4ReadInputRegistersTask(3028 - offset, Priority.LOW,
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(3028 - offset),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(3028 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3030 - offset),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3030 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3032 - offset),
+						this.m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3032 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3)),
 				new FC4ReadInputRegistersTask(3054 - offset, Priority.HIGH,
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3054 - offset),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3054 - offset),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(3056 - offset),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(3056 - offset),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(3058 - offset),
+						this.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(3058 - offset),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3060 - offset),
+						this.m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3060 - offset),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
 						new DummyRegisterElement(3062 - offset, 3067 - offset),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3068 - offset),
+						this.m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3068 - offset),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted))),
 				new FC4ReadInputRegistersTask(3110 - offset, Priority.LOW,
-						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3110 - offset),
+						this.m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3110 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3)),
 				new FC4ReadInputRegistersTask(3208 - offset, Priority.LOW,
-						m(this.inverted ? SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY
+						this.m(this.inverted ? SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY
 								: SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new UnsignedQuadruplewordElement(3208 - offset)),
-						m(this.inverted ? SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY
+						this.m(this.inverted ? SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY
 								: SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new UnsignedQuadruplewordElement(3212 - offset))));
 	}

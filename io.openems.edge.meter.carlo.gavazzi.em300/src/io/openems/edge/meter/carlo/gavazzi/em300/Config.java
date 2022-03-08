@@ -27,7 +27,7 @@ import io.openems.edge.meter.api.MeterType;
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId();
-	
+
 	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
 	boolean invert() default false;
 
