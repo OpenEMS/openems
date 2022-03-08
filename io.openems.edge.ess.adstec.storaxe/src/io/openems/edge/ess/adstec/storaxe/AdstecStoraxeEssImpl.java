@@ -44,6 +44,7 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -66,6 +67,7 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 		this._setCapacity(config.capacity());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -73,12 +75,12 @@ public class AdstecStoraxeEssImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		final int offset = -1; // The Modbus library seems to use 0 offsets.
+		final var offset = -1; // The Modbus library seems to use 0 offsets.
 
 		// We need to override because the ess returns neg for capacitative, pos for
 		// inductive, but the channel expects
 		// pos for from-battery, neg for to-battery.
-		final ElementToChannelConverter reactivePowerConverter = new ElementToChannelConverter(
+		final var reactivePowerConverter = new ElementToChannelConverter(
 				value -> Math.abs((Short) value) * Integer.signum(this.getActivePower().get()));
 
 		return new ModbusProtocol(this, //
