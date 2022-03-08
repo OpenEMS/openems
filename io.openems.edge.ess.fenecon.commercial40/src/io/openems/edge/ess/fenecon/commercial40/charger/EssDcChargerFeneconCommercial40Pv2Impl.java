@@ -43,9 +43,9 @@ public class EssDcChargerFeneconCommercial40Pv2Impl extends AbstractEssDcCharger
 	private volatile Timedata timedata = null;
 
 	public EssDcChargerFeneconCommercial40Pv2Impl() {
-		super();
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -69,6 +69,7 @@ public class EssDcChargerFeneconCommercial40Pv2Impl extends AbstractEssDcCharger
 		this.ess.addCharger(this);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.ess != null) {
