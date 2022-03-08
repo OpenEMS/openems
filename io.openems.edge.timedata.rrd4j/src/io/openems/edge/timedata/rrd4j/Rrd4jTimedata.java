@@ -27,7 +27,7 @@ public interface Rrd4jTimedata extends Timedata, OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#QUEUE_IS_FULL}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getQueueIsFullChannel() {
@@ -36,7 +36,7 @@ public interface Rrd4jTimedata extends Timedata, OpenemsComponent {
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#QUEUE_IS_FULL}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getQueueIsFull() {
@@ -46,7 +46,7 @@ public interface Rrd4jTimedata extends Timedata, OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#QUEUE_IS_FULL}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setQueueIsFull(Boolean value) {
@@ -55,7 +55,7 @@ public interface Rrd4jTimedata extends Timedata, OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#UNABLE_TO_INSERT_SAMPLE}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getUnableToInsertSampleChannel() {
@@ -64,7 +64,7 @@ public interface Rrd4jTimedata extends Timedata, OpenemsComponent {
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#UNABLE_TO_INSERT_SAMPLE}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getUnableToInsertSample() {
@@ -74,7 +74,7 @@ public interface Rrd4jTimedata extends Timedata, OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#UNABLE_TO_INSERT_SAMPLE} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setUnableToInsertSample(Boolean value) {
