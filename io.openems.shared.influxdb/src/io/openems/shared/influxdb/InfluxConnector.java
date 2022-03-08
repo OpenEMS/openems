@@ -74,7 +74,7 @@ public class InfluxConnector {
 
 	/**
 	 * The Constructor.
-	 * 
+	 *
 	 * @param ip           IP-Address of the InfluxDB-Server
 	 * @param port         Port of the InfluxDB-Server
 	 * @param username     The username
@@ -88,7 +88,6 @@ public class InfluxConnector {
 	 */
 	public InfluxConnector(String ip, int port, String username, String password, String database,
 			String retentionPolicy, boolean isReadOnly, BiConsumer<Iterable<Point>, Throwable> onWriteError) {
-		super();
 		this.ip = ip;
 		this.port = port;
 		this.username = username;
@@ -98,13 +97,13 @@ public class InfluxConnector {
 		this.isReadOnly = isReadOnly;
 		this.onWriteError = onWriteError;
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			int queueSize = this.executor.getQueue().size();
+			var queueSize = this.executor.getQueue().size();
 			this.log.info(String.format("[monitor] Pool: %d, Active: %d, Pending: %d, Completed: %d %s",
 					this.executor.getPoolSize(), //
 					this.executor.getActiveCount(), //
 					this.executor.getQueue().size(), //
 					this.executor.getCompletedTaskCount(), //
-					(queueSize == EXECUTOR_QUEUE_SIZE) ? "!!!BACKPRESSURE!!!" : "")); //
+					queueSize == EXECUTOR_QUEUE_SIZE ? "!!!BACKPRESSURE!!!" : "")); //
 		}, 10, 10, TimeUnit.SECONDS);
 	}
 
@@ -116,21 +115,21 @@ public class InfluxConnector {
 
 	/**
 	 * Get InfluxDB Connection.
-	 * 
+	 *
 	 * @return the {@link InfluxDB} connection
 	 */
 	private InfluxDB getConnection() {
 		if (this._influxDB == null) {
-			OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient().newBuilder() //
+			var okHttpClientBuilder = new OkHttpClient().newBuilder() //
 					.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS) //
 					.readTimeout(READ_TIMEOUT, TimeUnit.SECONDS) //
 					.writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS);
-			InfluxDB influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
+			var influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
 					this.password, okHttpClientBuilder);
 			try {
 				influxDB.query(new Query("CREATE DATABASE " + this.database, ""));
 			} catch (InfluxDBException e) {
-				log.warn("InfluxDB-Exception: " + e.getMessage());
+				this.log.warn("InfluxDB-Exception: " + e.getMessage());
 			}
 			influxDB.setDatabase(this.database);
 			influxDB.setRetentionPolicy(this.retentionPolicy);
@@ -189,7 +188,7 @@ public class InfluxConnector {
 
 	/**
 	 * Copied from backend.timedata.influx.provider.
-	 * 
+	 *
 	 * @param query the Query
 	 * @return the {@link QueryResult}
 	 * @throws OpenemsException on error
@@ -200,7 +199,7 @@ public class InfluxConnector {
 					"InfluxDB read is temporarily blocked [" + this.queryLimit + "]. Query: " + query);
 		}
 
-		InfluxDB influxDB = this.getConnection();
+		var influxDB = this.getConnection();
 
 		// Parse result
 		QueryResult queryResult;
@@ -222,7 +221,7 @@ public class InfluxConnector {
 
 	/**
 	 * Queries historic energy.
-	 * 
+	 *
 	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
 	 * @param fromDate     the From-Date
 	 * @param toDate       the To-Date
@@ -239,11 +238,11 @@ public class InfluxConnector {
 
 		// handle empty call
 		if (channels.isEmpty()) {
-			return new TreeMap<ChannelAddress, JsonElement>();
+			return new TreeMap<>();
 		}
 
 		// Prepare query string
-		StringBuilder b = new StringBuilder("SELECT ");
+		var b = new StringBuilder("SELECT ");
 		b.append(InfluxConnector.toChannelAddressStringEnergy(channels));
 		b.append(" FROM data WHERE ");
 		if (influxEdgeId.isPresent()) {
@@ -255,21 +254,17 @@ public class InfluxConnector {
 		b.append(" AND time < ");
 		b.append(String.valueOf(toDate.toEpochSecond()));
 		b.append("s");
-		String query = b.toString();
+		var query = b.toString();
 
 		// Execute query
-		QueryResult queryResult = this.executeQuery(query);
+		var queryResult = this.executeQuery(query);
 
-		// Prepare result
-		SortedMap<ChannelAddress, JsonElement> result = InfluxConnector.convertHistoricEnergyResult(query, queryResult,
-				fromDate.getZone());
-
-		return result;
+		return InfluxConnector.convertHistoricEnergyResult(query, queryResult, fromDate.getZone());
 	}
 
 	/**
 	 * Queries historic energy per period.
-	 * 
+	 *
 	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
 	 * @param fromDate     the From-Date
 	 * @param toDate       the To-Date
@@ -292,7 +287,7 @@ public class InfluxConnector {
 		}
 
 		// Prepare query string
-		StringBuilder b = new StringBuilder("SELECT ");
+		var b = new StringBuilder("SELECT ");
 		b.append(InfluxConnector.toChannelAddressStringNonNegativeDifferenceLast(channels));
 		b.append(" FROM data WHERE ");
 		if (influxEdgeId.isPresent()) {
@@ -307,21 +302,17 @@ public class InfluxConnector {
 		b.append(" GROUP BY time(");
 		b.append(resolution);
 		b.append("s) fill(null)");
-		String query = b.toString();
+		var query = b.toString();
 
 		// Execute query
-		QueryResult queryResult = this.executeQuery(query);
+		var queryResult = this.executeQuery(query);
 
-		// Prepare result
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = InfluxConnector
-				.convertHistoricDataQueryResult(queryResult, fromDate.getZone());
-
-		return result;
+		return InfluxConnector.convertHistoricDataQueryResult(queryResult, fromDate.getZone());
 	}
 
 	/**
 	 * Queries historic data.
-	 * 
+	 *
 	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
 	 * @param fromDate     the From-Date
 	 * @param toDate       the To-Date
@@ -334,7 +325,7 @@ public class InfluxConnector {
 			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
 			int resolution) throws OpenemsNamedException {
 		// Prepare query string
-		StringBuilder query = new StringBuilder("SELECT ");
+		var query = new StringBuilder("SELECT ");
 		query.append(InfluxConnector.toChannelAddressStringData(channels));
 		query.append(" FROM data WHERE ");
 		if (influxEdgeId.isPresent()) {
@@ -351,18 +342,14 @@ public class InfluxConnector {
 		query.append("s) fill(null)");
 
 		// Execute query
-		QueryResult queryResult = this.executeQuery(query.toString());
+		var queryResult = this.executeQuery(query.toString());
 
-		// Prepare result
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = InfluxConnector
-				.convertHistoricDataQueryResult(queryResult, fromDate.getZone());
-
-		return result;
+		return InfluxConnector.convertHistoricDataQueryResult(queryResult, fromDate.getZone());
 	}
 
 	/**
 	 * Converts the QueryResult of a Historic-Data query to a properly typed Table.
-	 * 
+	 *
 	 * @param queryResult the Query-Result
 	 * @return the historic data as Map
 	 * @throws OpenemsException on error
@@ -371,11 +358,11 @@ public class InfluxConnector {
 			QueryResult queryResult, ZoneId timezone) throws OpenemsNamedException {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
 		for (Result result : queryResult.getResults()) {
-			List<Series> seriess = result.getSeries();
+			var seriess = result.getSeries();
 			if (seriess != null) {
 				for (Series series : seriess) {
 					// create ChannelAddress index
-					ArrayList<ChannelAddress> addressIndex = new ArrayList<>();
+					var addressIndex = new ArrayList<ChannelAddress>();
 					for (String column : series.getColumns()) {
 						if (column.equals("time")) {
 							continue;
@@ -387,12 +374,12 @@ public class InfluxConnector {
 					for (List<Object> values : series.getValues()) {
 						SortedMap<ChannelAddress, JsonElement> tableRow = new TreeMap<>();
 						// get timestamp
-						Instant timestampInstant = Instant.ofEpochMilli((long) ((Double) values.get(0)).doubleValue());
-						ZonedDateTime timestamp = ZonedDateTime.ofInstant(timestampInstant, timezone);
-						for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
+						var timestampInstant = Instant.ofEpochMilli((long) ((Double) values.get(0)).doubleValue());
+						var timestamp = ZonedDateTime.ofInstant(timestampInstant, timezone);
+						for (var columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
 							// Note: ignoring index '0' here as it is the 'timestamp'
-							ChannelAddress address = addressIndex.get(columnIndex);
-							Object valueObj = values.get(columnIndex + 1);
+							var address = addressIndex.get(columnIndex);
+							var valueObj = values.get(columnIndex + 1);
 							JsonElement value;
 							if (valueObj == null) {
 								value = JsonNull.INSTANCE;
@@ -413,7 +400,7 @@ public class InfluxConnector {
 
 	/**
 	 * Converts the QueryResult of a Historic-Energy query to a properly typed Map.
-	 * 
+	 *
 	 * @param queryResult the Query-Result
 	 * @return the historic energy as Map
 	 * @throws OpenemsException on error
@@ -422,11 +409,11 @@ public class InfluxConnector {
 			QueryResult queryResult, ZoneId timezone) throws OpenemsNamedException {
 		SortedMap<ChannelAddress, JsonElement> map = new TreeMap<>();
 		for (Result result : queryResult.getResults()) {
-			List<Series> seriess = result.getSeries();
+			var seriess = result.getSeries();
 			if (seriess != null) {
 				for (Series series : seriess) {
 					// create ChannelAddress index
-					ArrayList<ChannelAddress> addressIndex = new ArrayList<>();
+					var addressIndex = new ArrayList<ChannelAddress>();
 					for (String column : series.getColumns()) {
 						if (column.equals("time")) {
 							continue;
@@ -436,15 +423,15 @@ public class InfluxConnector {
 
 					// add all data
 					for (List<Object> values : series.getValues()) {
-						for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
+						for (var columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
 							// Note: ignoring index '0' here as it is the 'timestamp'
-							ChannelAddress address = addressIndex.get(columnIndex);
-							Object valueObj = values.get(columnIndex + 1);
+							var address = addressIndex.get(columnIndex);
+							var valueObj = values.get(columnIndex + 1);
 							JsonElement value;
 							if (valueObj == null) {
 								value = JsonNull.INSTANCE;
 							} else if (valueObj instanceof Number) {
-								Number number = (Number) valueObj;
+								var number = (Number) valueObj;
 								if (number.intValue() < 0) {
 									// do not consider negative values
 									LOG.warn("Got negative Energy value [" + number + "] for query: " + query);
@@ -464,7 +451,7 @@ public class InfluxConnector {
 
 		{
 			// Check if all values are null
-			boolean areAllValuesNull = true;
+			var areAllValuesNull = true;
 			for (JsonElement value : map.values()) {
 				if (!value.isJsonNull()) {
 					areAllValuesNull = false;
@@ -480,7 +467,7 @@ public class InfluxConnector {
 	}
 
 	protected static String toChannelAddressStringData(Set<ChannelAddress> channels) throws OpenemsException {
-		ArrayList<String> channelAddresses = new ArrayList<>();
+		var channelAddresses = new ArrayList<String>();
 		for (ChannelAddress channel : channels) {
 			channelAddresses.add("MEAN(\"" + channel.toString() + "\") AS \"" + channel.toString() + "\"");
 		}
@@ -488,7 +475,7 @@ public class InfluxConnector {
 	}
 
 	protected static String toChannelAddressStringEnergy(Set<ChannelAddress> channels) throws OpenemsException {
-		ArrayList<String> channelAddresses = new ArrayList<>();
+		var channelAddresses = new ArrayList<String>();
 		for (ChannelAddress channel : channels) {
 			channelAddresses.add("LAST(\"" + channel.toString() + "\") - FIRST(\"" + channel.toString() + "\") AS \""
 					+ channel.toString() + "\"");
@@ -498,7 +485,7 @@ public class InfluxConnector {
 
 	protected static String toChannelAddressStringNonNegativeDifferenceLast(Set<ChannelAddress> channels)
 			throws OpenemsException {
-		ArrayList<String> channelAddresses = new ArrayList<>();
+		var channelAddresses = new ArrayList<String>();
 		for (ChannelAddress channel : channels) {
 			channelAddresses.add(
 					"NON_NEGATIVE_DIFFERENCE(LAST(\"" + channel.toString() + "\")) AS \"" + channel.toString() + "\"");
@@ -508,13 +495,13 @@ public class InfluxConnector {
 
 	/**
 	 * Actually write the Point to InfluxDB.
-	 * 
+	 *
 	 * @param point the InfluxDB Point
 	 * @throws OpenemsException on error
 	 */
 	public void write(Point point) throws OpenemsException {
 		if (this.isReadOnly) {
-			log.info("Read-Only-Mode is activated. Not writing points: "
+			this.log.info("Read-Only-Mode is activated. Not writing points: "
 					+ StringUtils.toShortString(point.lineProtocol(), 100));
 			return;
 		}
