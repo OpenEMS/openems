@@ -57,6 +57,7 @@ public class EvcsPowerComponent extends AbstractOpenemsComponent implements Open
 		this.updateConfig(config);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -84,7 +85,7 @@ public class EvcsPowerComponent extends AbstractOpenemsComponent implements Open
 	public RampFilter getRampFilter() {
 		return this.rampFilter;
 	}
-	
+
 	@Override
 	public float getIncreaseRate() {
 		return this.increaseRate;
