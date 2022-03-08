@@ -41,7 +41,7 @@ public abstract class AbstractFeneconDessCharger extends AbstractOpenemsModbusCo
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		final int offset = this.getOffset();
+		final var offset = this.getOffset();
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(offset + 2, Priority.LOW, //
 						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedWordElement(offset + 2)), //
@@ -72,7 +72,7 @@ public abstract class AbstractFeneconDessCharger extends AbstractOpenemsModbusCo
 	 * Calculate the Energy values from ActivePower.
 	 */
 	private void calculateEnergy() {
-		Integer actualPower = this.getActualPower().get();
+		var actualPower = this.getActualPower().get();
 		if (actualPower == null) {
 			// Not available
 			this.calculateActualEnergy.update(null);

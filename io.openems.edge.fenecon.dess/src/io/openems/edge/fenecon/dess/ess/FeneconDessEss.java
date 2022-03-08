@@ -2,7 +2,6 @@ package io.openems.edge.fenecon.dess.ess;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
@@ -17,28 +16,28 @@ public interface FeneconDessEss extends AsymmetricEss, SymmetricEss, OpenemsComp
 
 	/**
 	 * Gets the Modbus Unit-ID.
-	 * 
+	 *
 	 * @return the Unit-ID
 	 */
 	public Integer getUnitId();
 
 	/**
 	 * Gets the Modbus-Bridge Component-ID, i.e. "modbus0".
-	 * 
+	 *
 	 * @return the Component-ID
 	 */
 	public String getModbusBridgeId();
 
 	/**
 	 * Registers a Charger with this ESS.
-	 * 
+	 *
 	 * @param charger the Charger
 	 */
 	public void addCharger(AbstractFeneconDessCharger charger);
 
 	/**
 	 * Unregisters a Charger from this ESS.
-	 * 
+	 *
 	 * @param charger the Charger
 	 */
 	public void removeCharger(AbstractFeneconDessCharger charger);
@@ -52,9 +51,9 @@ public interface FeneconDessEss extends AsymmetricEss, SymmetricEss, OpenemsComp
 		BSMU_WORK_STATE(Doc.of(BsmuWorkState.values()) //
 				.onInit(channel -> { //
 					// on each update set Grid-Mode channel
-					((Channel<Integer>) channel).onChange((oldValue, newValue) -> {
+					channel.onChange((oldValue, newValue) -> {
 						BsmuWorkState state = newValue.asEnum();
-						SymmetricEss parent = (SymmetricEss) channel.getComponent();
+						var parent = (SymmetricEss) channel.getComponent();
 						switch (state) {
 						case ON_GRID:
 							parent._setGridMode(GridMode.ON_GRID);
