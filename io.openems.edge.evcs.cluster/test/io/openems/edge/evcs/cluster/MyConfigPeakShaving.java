@@ -1,9 +1,5 @@
 package io.openems.edge.evcs.cluster;
 
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
-
-import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
@@ -12,8 +8,6 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 	protected static class Builder {
 
 		private String id = "evcsCluster0";
-		private String alias = "Evcs Cluster";
-		private boolean enabled = true;
 		private boolean debugMode = false;
 		private int hardwarePowerLimitPerPhase = 7000;
 		private String[] evcs_ids = { "evcs0", "evcs1" };
@@ -29,16 +23,6 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 
 		public Builder setId(String id) {
 			this.id = id;
-			return this;
-		}
-
-		public Builder setAlias(String alias) {
-			this.alias = alias;
-			return this;
-		}
-
-		public Builder setEnabled(boolean enabled) {
-			this.enabled = enabled;
 			return this;
 		}
 

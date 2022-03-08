@@ -1,11 +1,5 @@
 package io.openems.edge.evcs.cluster;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.sum.Sum;
-import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.ManagedEvcs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +22,13 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.sum.Sum;
+import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.ManagedEvcs;
+
 @Designate(ocd = ConfigSelfConsumption.class, factory = true)
 @Component(//
 		name = "Evcs.Cluster.SelfConsumption", //
@@ -38,14 +39,14 @@ import org.slf4j.LoggerFactory;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 		})
-public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements OpenemsComponent, Evcs, EventHandler  {
+public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements OpenemsComponent, Evcs, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(EvcsClusterSelfConsumption.class);
 
 	// Used EVCSs
-	private String[] evcsIds = new String[0];
+	private String[] evcsIds = {};
 	private final List<Evcs> sortedEvcss = new ArrayList<>();
-	private Map<String, Evcs> evcss = new ConcurrentHashMap<>();
+	private final Map<String, Evcs> evcss = new ConcurrentHashMap<>();
 
 	private ConfigSelfConsumption config;
 
@@ -84,17 +85,17 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	@Activate
 	void activate(ComponentContext context, ConfigSelfConsumption config) throws OpenemsNamedException {
 		this.evcsIds = config.evcs_ids();
-		updateSortedEvcss();
+		this.updateSortedEvcss();
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
 
 		// update filter for 'evcs' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		for (Evcs evcs : this.sortedEvcss) {
@@ -110,7 +111,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 	private synchronized void updateSortedEvcss() {
 		this.sortedEvcss.clear();
 		for (String id : this.evcsIds) {
-			Evcs evcs = this.evcss.get(id);
+			var evcs = this.evcss.get(id);
 			if (evcs == null) {
 				this.logWarn(this.log, "Required Evcs [" + id + "] is not available.");
 			} else {
@@ -121,7 +122,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 
 	/**
 	 * Sets the cluster channel to false and resets all depending channels.
-	 * 
+	 *
 	 * @param evcs Electric Vehicle Charging Station
 	 */
 	private void resetClusteredState(Evcs evcs) {
@@ -134,7 +135,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 
 	/**
 	 * Sets the cluster channel to true.
-	 * 
+	 *
 	 * @param evcs Electric Vehicle Charging Station
 	 */
 	private void setClusteredState(Evcs evcs) {
@@ -155,16 +156,12 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 
 	@Override
 	public int getMaximumPowerToDistribute() {
-		int excessPower = 0;
-
 		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
 		int essDischarge = this.sum.getEssActivePower().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
 		int evcsCharge = this.getChargePower().orElse(0);
 
-		excessPower = evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
-
-		return excessPower;
+		return evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
 	}
 
 	@Override
