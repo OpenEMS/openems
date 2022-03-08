@@ -3,7 +3,6 @@ package io.openems.edge.simulator.evcs;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -54,6 +53,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -83,6 +83,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 		this._setPowerPrecision(1);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -99,7 +100,6 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 			break;
 		}
 	}
-	
 
 	private LocalDateTime lastUpdate = LocalDateTime.now();
 	private double exactEnergySession = 0;
@@ -107,7 +107,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	private void updateChannels() {
 		int chargePowerLimit = this.getChargePower().orElse(0);
 
-		Optional<Integer> chargePowerLimitOpt = this.getSetChargePowerLimitChannel().getNextWriteValueAndReset();
+		var chargePowerLimitOpt = this.getSetChargePowerLimitChannel().getNextWriteValueAndReset();
 		if (chargePowerLimitOpt.isPresent()) {
 			chargePowerLimit = chargePowerLimitOpt.get();
 		}
@@ -123,19 +123,19 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 		int sentPower = this.getSetChargePowerLimitChannel().getNextWriteValue().orElse(0);
 		this._setSetChargePowerLimit(sentPower);
 		this._setChargePower(sentPower);
-		
+
 		/*
 		 * get and store Simulated "meter" Active Power
 		 */
 		this._setActivePower(sentPower);
 
-		Integer simulatedActivePowerByThree = TypeUtils.divide(sentPower, 3);
+		var simulatedActivePowerByThree = TypeUtils.divide(sentPower, 3);
 		this._setActivePowerL1(simulatedActivePowerByThree);
 		this._setActivePowerL2(simulatedActivePowerByThree);
 		this._setActivePowerL3(simulatedActivePowerByThree);
 
-		long timeDiff = ChronoUnit.MILLIS.between(this.lastUpdate, LocalDateTime.now());
-		double energyTransfered = (timeDiff / 1000.0 / 60.0 / 60.0) * this.getChargePower().orElse(0);
+		var timeDiff = ChronoUnit.MILLIS.between(this.lastUpdate, LocalDateTime.now());
+		var energyTransfered = timeDiff / 1000.0 / 60.0 / 60.0 * this.getChargePower().orElse(0);
 
 		this.exactEnergySession = this.exactEnergySession + energyTransfered;
 		this._setEnergySession((int) this.exactEnergySession);
@@ -157,7 +157,7 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	public Value<Long> getActiveConsumptionEnergy() {
 		return ManagedEvcs.super.getActiveConsumptionEnergy();
 	}
-	
+
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.CONSUMPTION_NOT_METERED;

@@ -25,7 +25,7 @@ public class EssSymmetricTest {
 
 	@Test
 	public void test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(
+		final var clock = new TimeLeapClock(
 				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
 		new ManagedSymmetricEssTest(new EssSymmetric()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -54,7 +54,7 @@ public class EssSymmetricTest {
 						.timeleap(clock, 30, ChronoUnit.MINUTES) //
 						.input(ESS_SET_ACTIVE_POWER_EQUALS, 10_000) //
 						.output(ESS_SOC, 25)); //
-		;
+
 	}
 
 }

@@ -53,6 +53,7 @@ public class NrcMeter extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -78,10 +79,10 @@ public class NrcMeter extends AbstractOpenemsComponent
 
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -125,7 +126,7 @@ public class NrcMeter extends AbstractOpenemsComponent
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 		this._setActivePower(simulatedActivePower);
 
-		Integer simulatedActivePowerByThree = TypeUtils.divide(simulatedActivePower, 3);
+		var simulatedActivePowerByThree = TypeUtils.divide(simulatedActivePower, 3);
 		this._setActivePowerL1(simulatedActivePowerByThree);
 		this._setActivePowerL2(simulatedActivePowerByThree);
 		this._setActivePowerL3(simulatedActivePowerByThree);
@@ -141,7 +142,7 @@ public class NrcMeter extends AbstractOpenemsComponent
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

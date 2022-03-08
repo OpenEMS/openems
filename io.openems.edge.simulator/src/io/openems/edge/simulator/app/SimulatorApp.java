@@ -20,7 +20,6 @@ import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -106,7 +105,6 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 		public CurrentSimulation(User user, ExecuteSimulationRequest request, TimeLeapClock clock,
 				CompletableFuture<ExecuteSimulationResponse> response) {
-			super();
 			this.user = user;
 			this.request = request;
 			this.clock = clock;
@@ -114,7 +112,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		}
 
 		public void addData(ZonedDateTime timestamp, List<Channel<?>> channels) {
-			SortedMap<ChannelAddress, JsonElement> values = new TreeMap<ChannelAddress, JsonElement>();
+			SortedMap<ChannelAddress, JsonElement> values = new TreeMap<>();
 			for (Channel<?> channel : channels) {
 				values.put(channel.address(), channel.value().asJson());
 			}
@@ -134,6 +132,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -150,10 +149,10 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	void activate(ComponentContext componentContext, Config config) throws OpenemsException {
 		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, config.enabled());
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -179,7 +178,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	/**
 	 * Handles a {@link ExecuteSimulationRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link ExecuteSimulationRequest}
 	 * @return the Future JSON-RPC Response
@@ -199,7 +198,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 				new CreateComponentConfigRequest("Ess.Power", Arrays.asList(new Property("enablePid", false))));
 
 		// Create Components
-		Set<String> simulatorComponentIds = new HashSet<String>();
+		Set<String> simulatorComponentIds = new HashSet<>();
 		for (CreateComponentConfigRequest createRequest : request.components) {
 			this.logInfo(this.log, "Create Component [" + createRequest.getComponentId() + "] from ["
 					+ createRequest.getFactoryPid() + "]");
@@ -211,10 +210,10 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		this.logInfo(this.log, "All Simulator-Components are activated!");
 
 		// prepare response
-		CompletableFuture<ExecuteSimulationResponse> response = new CompletableFuture<ExecuteSimulationResponse>();
+		var response = new CompletableFuture<ExecuteSimulationResponse>();
 
 		// Configure Clock
-		TimeLeapClock timeLeapClock = new TimeLeapClock(//
+		var timeLeapClock = new TimeLeapClock(//
 				request.clock.start.toInstant(), ZoneId.systemDefault());
 
 		// keep simulation data for later use
@@ -244,12 +243,11 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	@Override
 	public Clock getClock() {
-		CurrentSimulation currentSimulation = this.currentSimulation;
+		var currentSimulation = this.currentSimulation;
 		if (currentSimulation != null) {
 			return currentSimulation.clock;
-		} else {
-			return Clock.systemDefaultZone();
 		}
+		return Clock.systemDefaultZone();
 	}
 
 	private long lastLogMessage = 0;
@@ -258,7 +256,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	 * Is executed on every Cycle After Write Event.
 	 */
 	private void simulateNextCycle() {
-		CurrentSimulation currentSimulation = this.currentSimulation;
+		var currentSimulation = this.currentSimulation;
 		if (currentSimulation == null) {
 			return;
 		}
@@ -266,7 +264,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		// Apply simulated Time-Leap per Cycle
 		this.applyTimeLeap(currentSimulation.clock, currentSimulation.request);
 
-		ZonedDateTime now = ZonedDateTime.now(currentSimulation.clock);
+		var now = ZonedDateTime.now(currentSimulation.clock);
 
 		if (System.currentTimeMillis() - MILLISECONDS_BETWEEN_LOGS > this.lastLogMessage) {
 			this.logInfo(this.log, "Simulating " + now.withZoneSameInstant(ZoneId.of("UTC")));
@@ -280,13 +278,13 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	}
 
 	private void collectData() {
-		CurrentSimulation currentSimulation = this.currentSimulation;
+		var currentSimulation = this.currentSimulation;
 		if (currentSimulation == null) {
 			return;
 		}
 
-		ZonedDateTime now = ZonedDateTime.now(currentSimulation.clock);
-		List<Channel<?>> channels = new ArrayList<Channel<?>>();
+		var now = ZonedDateTime.now(currentSimulation.clock);
+		List<Channel<?>> channels = new ArrayList<>();
 		for (ChannelAddress channelAddress : currentSimulation.request.collects) {
 			try {
 				channels.add(this.componentManager.getChannel(channelAddress));
@@ -299,7 +297,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	/**
 	 * Apply simulated Time-Leap per Cycle.
-	 * 
+	 *
 	 * @param clock                    the {@link TimeLeapClock}
 	 * @param currentSimulationRequest the current {@link ExecuteSimulationRequest}
 	 */
@@ -328,7 +326,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	/**
 	 * Delete all non-required Components.
-	 * 
+	 *
 	 * @param user the {@link User}
 	 * @throws OpenemsNamedException on error
 	 */
@@ -336,7 +334,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		Set<String> deletedComponents = new HashSet<>();
 		for (OpenemsComponent component : this.componentManager.getAllComponents()) {
 			deletedComponents.add(component.id());
-			String factoryPid = component.serviceFactoryPid();
+			var factoryPid = component.serviceFactoryPid();
 			if (factoryPid == null || factoryPid.trim().isEmpty()) {
 				continue;
 			}
@@ -364,7 +362,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	private void stopSimulation() {
 		this.logInfo(this.log, "Stopping Simulation");
 
-		CurrentSimulation currentSimulation = this.currentSimulation;
+		var currentSimulation = this.currentSimulation;
 		final User user;
 		if (currentSimulation != null) {
 			user = currentSimulation.user;
@@ -388,25 +386,25 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	/**
 	 * Deletes a Component configuration.
-	 * 
+	 *
 	 * @param user        the {@link User}
 	 * @param componentId the Component-ID
 	 * @throws OpenemsNamedException on error
 	 */
 	private void deleteComponent(User user, String componentId) throws OpenemsNamedException {
 		this.logInfo(this.log, "Delete Component [" + componentId + "]");
-		DeleteComponentConfigRequest deleteComponentConfigRequest = new DeleteComponentConfigRequest(componentId);
+		var deleteComponentConfigRequest = new DeleteComponentConfigRequest(componentId);
 		this.componentManager.handleJsonrpcRequest(user, deleteComponentConfigRequest);
 	}
 
 	/**
 	 * Sets the global OpenEMS Edge Cycle-Time.
-	 * 
+	 *
 	 * @param cycleTime the cycleTime in [ms]
 	 */
 	private void setCycleTime(int cycleTime) {
 		try {
-			Configuration config = this.configurationAdmin.getConfiguration("Core.Cycle", null);
+			var config = this.configurationAdmin.getConfiguration("Core.Cycle", null);
 			Dictionary<String, Object> properties = new Hashtable<>();
 			properties.put("cycleTime", cycleTime);
 			config.update(properties);
@@ -417,21 +415,20 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	private void waitForComponentsToActivate(Set<String> simulatorComponentIds) throws OpenemsException {
 		// Wait for Components to appear
-		for (int i = 0; i < 100; i++) {
-			Set<String> allComponentIds = this.componentManager.getAllComponents().stream().map(c -> c.id())
+		for (var i = 0; i < 100; i++) {
+			Set<String> allComponentIds = this.componentManager.getAllComponents().stream().map(OpenemsComponent::id)
 					.collect(Collectors.toSet());
 			simulatorComponentIds.removeAll(allComponentIds);
 
 			if (simulatorComponentIds.isEmpty()) {
 				// finished
 				return;
-			} else {
-				this.logInfo(this.log, "Still waiting for [" + simulatorComponentIds + "] to activate");
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					this.log.warn(e.getClass().getSimpleName() + ": " + e.getMessage());
-				}
+			}
+			this.logInfo(this.log, "Still waiting for [" + simulatorComponentIds + "] to activate");
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				this.log.warn(e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
 		}
 		throw new OpenemsException("Timeout while waiting for [" + simulatorComponentIds + "] to activate");
@@ -439,21 +436,20 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	private void waitForComponentsToDeactivate(Set<String> deletedComponents) throws OpenemsException {
 		Set<String> stillExistingComponents = new HashSet<>();
-		for (int i = 0; i < 100; i++) {
-			List<OpenemsComponent> allComponents = this.componentManager.getAllComponents();
-			stillExistingComponents = allComponents.stream().map(c -> c.id()).collect(Collectors.toSet());
+		for (var i = 0; i < 100; i++) {
+			var allComponents = this.componentManager.getAllComponents();
+			stillExistingComponents = allComponents.stream().map(OpenemsComponent::id).collect(Collectors.toSet());
 			stillExistingComponents.removeAll(deletedComponents);
 
 			if (stillExistingComponents.isEmpty()) {
 				// finished
 				return;
-			} else {
-				this.log.info("Still waiting for [" + stillExistingComponents + "] to disappear");
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					this.log.warn(e.getClass().getSimpleName() + ": " + e.getMessage());
-				}
+			}
+			this.log.info("Still waiting for [" + stillExistingComponents + "] to disappear");
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				this.log.warn(e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
 		}
 		throw new OpenemsException("Timeout while waiting for [" + stillExistingComponents + "] to disappear");
@@ -462,7 +458,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	@Override
 	public Set<String> getKeys() {
 		if (this.currentSimulation == null) {
-			return new HashSet<String>();
+			return new HashSet<>();
 		}
 		return this.currentSimulation.request.profiles.keySet();
 	}
@@ -478,7 +474,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			return null;
 		}
 		// First: try full ChannelAddress
-		Profile profile = this.currentSimulation.request.profiles.get(channelAddress.toString());
+		var profile = this.currentSimulation.request.profiles.get(channelAddress.toString());
 		if (profile == null) {
 			// Not found: try Channel-ID only (without Component-ID)
 			profile = this.currentSimulation.request.profiles.get(channelAddress.getChannelId());
@@ -495,8 +491,8 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			return new TreeMap<>();
 		}
 
-		Period fakePeriod = this.convertToSimulatedFromToDates(fromDate, toDate);
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.lastSimulation.collectedData
+		var fakePeriod = this.convertToSimulatedFromToDates(fromDate, toDate);
+		var data = this.lastSimulation.collectedData
 				.subMap(fakePeriod.fromDate, fakePeriod.toDate);
 
 		if (channels.isEmpty()) {
@@ -507,10 +503,10 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = new TreeMap<>();
 		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> entry : this.lastSimulation.collectedData
 				.subMap(fakePeriod.fromDate, fakePeriod.toDate).entrySet()) {
-			SortedMap<ChannelAddress, JsonElement> values = entry.getValue();
-			TreeMap<ChannelAddress, JsonElement> resultPerTimestamp = new TreeMap<>();
+			var values = entry.getValue();
+			var resultPerTimestamp = new TreeMap<ChannelAddress, JsonElement>();
 			for (ChannelAddress channel : channels) {
-				JsonElement value = values.get(channel);
+				var value = values.get(channel);
 				resultPerTimestamp.put(channel, value == null ? JsonNull.INSTANCE : value);
 			}
 			result.put(entry.getKey(), resultPerTimestamp);
@@ -524,15 +520,15 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		if (this.lastSimulation == null || this.lastSimulation.collectedData.isEmpty()) {
 			return new TreeMap<>();
 		}
-		Period fakePeriod = this.convertToSimulatedFromToDates(fromDate, toDate);
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> partOfCollectedData = this.lastSimulation.collectedData
+		var fakePeriod = this.convertToSimulatedFromToDates(fromDate, toDate);
+		var partOfCollectedData = this.lastSimulation.collectedData
 				.subMap(fakePeriod.fromDate, fakePeriod.toDate);
-		SortedMap<ChannelAddress, JsonElement> result = new TreeMap<ChannelAddress, JsonElement>();
-		SortedMap<ChannelAddress, JsonElement> firstValues = partOfCollectedData.get(partOfCollectedData.firstKey());
-		SortedMap<ChannelAddress, JsonElement> lastValues = partOfCollectedData.get(partOfCollectedData.lastKey());
+		SortedMap<ChannelAddress, JsonElement> result = new TreeMap<>();
+		var firstValues = partOfCollectedData.get(partOfCollectedData.firstKey());
+		var lastValues = partOfCollectedData.get(partOfCollectedData.lastKey());
 		for (ChannelAddress channel : channels) {
-			Long firstValue = (Long) JsonUtils.getAsType(Long.class, firstValues.get(channel));
-			Long lastValue = (Long) JsonUtils.getAsType(Long.class, lastValues.get(channel));
+			var firstValue = (Long) JsonUtils.getAsType(Long.class, firstValues.get(channel));
+			var lastValue = (Long) JsonUtils.getAsType(Long.class, lastValues.get(channel));
 			if (firstValue != null && lastValue != null) {
 				result.put(channel, new JsonPrimitive(lastValue - firstValue));
 			} else {
@@ -555,7 +551,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		if (this.lastSimulation == null || this.lastSimulation.collectedData.isEmpty()) {
 			value = JsonNull.INSTANCE;
 		} else {
-			SortedMap<ChannelAddress, JsonElement> lastValues = this.lastSimulation.collectedData
+			var lastValues = this.lastSimulation.collectedData
 					.get(this.lastSimulation.collectedData.lastKey());
 			value = lastValues.get(channelAddress);
 		}
@@ -571,7 +567,6 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		private final ZonedDateTime toDate;
 
 		public Period(ZonedDateTime fromDate, ZonedDateTime toDate) {
-			super();
 			this.fromDate = fromDate;
 			this.toDate = toDate;
 		}
@@ -579,12 +574,12 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	/**
 	 * Adjusts the FromDate and ToDate as if they would be current.
-	 * 
+	 *
 	 * <p>
 	 * For the simulation the fromDate and toDate do not actually matter, so very
 	 * often something like 1st January 2000 will be used. That would be
 	 * inconvenient to visualize in OpenEMS UI, so we fake the dates here.
-	 * 
+	 *
 	 * @param fromDate the original Request fromDate
 	 * @param toDate   the original Request toDate
 	 * @return a {@link Period} with faked fromDate and toDate
@@ -593,11 +588,11 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		if (this.lastSimulation == null) {
 			return null;
 		}
-		long durationDays = Duration.between(fromDate, toDate).toDays();
-		long toDateOffset = Duration.between(toDate, ZonedDateTime.now()).toDays();
-		ZonedDateTime lastCollected = this.lastSimulation.collectedData.lastKey();
-		ZonedDateTime newToDate = lastCollected.minusDays(toDateOffset);
-		ZonedDateTime newFromDate = newToDate.minusDays(durationDays);
+		var durationDays = Duration.between(fromDate, toDate).toDays();
+		var toDateOffset = Duration.between(toDate, ZonedDateTime.now()).toDays();
+		var lastCollected = this.lastSimulation.collectedData.lastKey();
+		var newToDate = lastCollected.minusDays(toDateOffset);
+		var newFromDate = newToDate.minusDays(durationDays);
 		return new Period(newFromDate, newToDate);
 	}
 

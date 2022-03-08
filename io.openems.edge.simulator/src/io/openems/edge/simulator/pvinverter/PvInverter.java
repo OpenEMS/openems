@@ -21,7 +21,6 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -54,6 +53,7 @@ public class PvInverter extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -83,6 +83,7 @@ public class PvInverter extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -124,7 +125,7 @@ public class PvInverter extends AbstractOpenemsComponent
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 
 		// Apply Active Power Limit
-		Value<Integer> activePowerLimitOpt = this.getActivePowerLimit();
+		var activePowerLimitOpt = this.getActivePowerLimit();
 		if (simulatedActivePower != null && activePowerLimitOpt.isDefined()) {
 			int activePowerLimit = activePowerLimitOpt.get();
 			simulatedActivePower = Math.min(simulatedActivePower, activePowerLimit);
@@ -148,7 +149,7 @@ public class PvInverter extends AbstractOpenemsComponent
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);
