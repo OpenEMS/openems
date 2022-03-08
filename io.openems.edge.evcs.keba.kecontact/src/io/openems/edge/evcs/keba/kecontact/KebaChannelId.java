@@ -19,8 +19,9 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	COM_MODULE(Doc.of(OpenemsType.STRING).text("Communication module is installed; KeContact P30 only")),
 	DIP_SWITCH_1(Doc.of(OpenemsType.STRING).text("The first eight dip switch settings as binary")),
 	DIP_SWITCH_2(Doc.of(OpenemsType.STRING).text("The second eight dip switch settings as binary")),
-	DIP_SWITCH_MAX_HW(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).text("The raw maximum limit configured by the dip switches")),
-	
+	DIP_SWITCH_MAX_HW(
+			Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).text("The raw maximum limit configured by the dip switches")),
+
 	/*
 	 * Report 2
 	 */

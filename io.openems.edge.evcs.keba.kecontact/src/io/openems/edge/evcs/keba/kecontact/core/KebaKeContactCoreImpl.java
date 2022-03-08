@@ -62,34 +62,37 @@ public class KebaKeContactCoreImpl implements KebaKeContactCore {
 		@Override
 		public void activate(String name) {
 			super.activate(name);
-			log.info("Started Evcs.Keba.KeContact.Core listener on port [" + KebaKeContact.UDP_PORT + "]");
+			KebaKeContactCoreImpl.this.log
+					.info("Started Evcs.Keba.KeContact.Core listener on port [" + KebaKeContact.UDP_PORT + "]");
 		}
 
 		@Override
 		public void deactivate() {
 			this.socket.close();
 			super.deactivate();
-			log.info("Stopped Evcs.Keba.KeContact.Core listener on port [" + KebaKeContact.UDP_PORT + "]");
+			KebaKeContactCoreImpl.this.log
+					.info("Stopped Evcs.Keba.KeContact.Core listener on port [" + KebaKeContact.UDP_PORT + "]");
 		}
 
 		@Override
 		protected void forever() {
 			// Wait for message
-			DatagramPacket packet = new DatagramPacket(new byte[512], 512);
+			var packet = new DatagramPacket(new byte[512], 512);
 			try {
-				socket.receive(packet);
+				this.socket.receive(packet);
 			} catch (IOException e) {
-				log.error("Error while receiving data from KEBA KeContact: " + e.getMessage());
+				KebaKeContactCoreImpl.this.log
+						.error("Error while receiving data from KEBA KeContact: " + e.getMessage());
 			}
 
 			// Read message
-			InetAddress ip = packet.getAddress();
-			int len = packet.getLength();
-			byte[] data = packet.getData();
-			String message = new String(data, 0, len);
+			var ip = packet.getAddress();
+			var len = packet.getLength();
+			var data = packet.getData();
+			var message = new String(data, 0, len);
 
 			// call callbacks
-			onReceiveCallbacks.forEach(consumer -> consumer.accept(ip, message));
+			KebaKeContactCoreImpl.this.onReceiveCallbacks.forEach(consumer -> consumer.accept(ip, message));
 		}
 	}
 
