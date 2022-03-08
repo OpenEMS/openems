@@ -531,8 +531,10 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 												OpenemsType.BOOLEAN)) //
 										.bit(7, this.generateTowerChannel(tower, "PRE_ALARM_BCU_TEMP_DIFFERENCE",
 												OpenemsType.BOOLEAN)) //
-										.bit(8, this.generateTowerChannel(tower, "PRE_ALARM_UNDER_SOC", OpenemsType.BOOLEAN)) //
-										.bit(9, this.generateTowerChannel(tower, "PRE_ALARM_UNDER_SOH", OpenemsType.BOOLEAN)) //
+										.bit(8, this.generateTowerChannel(tower, "PRE_ALARM_UNDER_SOC",
+												OpenemsType.BOOLEAN)) //
+										.bit(9, this.generateTowerChannel(tower, "PRE_ALARM_UNDER_SOH",
+												OpenemsType.BOOLEAN)) //
 										.bit(10, this.generateTowerChannel(tower, "PRE_ALARM_OVER_CHARGING_POWER",
 												OpenemsType.BOOLEAN)) //
 										.bit(11, this.generateTowerChannel(tower, "PRE_ALARM_OVER_DISCHARGING_POWER",
@@ -558,8 +560,10 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 												OpenemsType.BOOLEAN)) //
 										.bit(7, this.generateTowerChannel(tower, "LEVEL_1_BCU_TEMP_DIFFERENCE",
 												OpenemsType.BOOLEAN)) //
-										.bit(8, this.generateTowerChannel(tower, "LEVEL_1_UNDER_SOC", OpenemsType.BOOLEAN)) //
-										.bit(9, this.generateTowerChannel(tower, "LEVEL_1_UNDER_SOH", OpenemsType.BOOLEAN)) //
+										.bit(8, this.generateTowerChannel(tower, "LEVEL_1_UNDER_SOC",
+												OpenemsType.BOOLEAN)) //
+										.bit(9, this.generateTowerChannel(tower, "LEVEL_1_UNDER_SOH",
+												OpenemsType.BOOLEAN)) //
 										.bit(10, this.generateTowerChannel(tower, "LEVEL_1_OVER_CHARGING_POWER",
 												OpenemsType.BOOLEAN)) //
 										.bit(11, this.generateTowerChannel(tower, "LEVEL_1_OVER_DISCHARGING_POWER",
@@ -591,22 +595,28 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 												Level.WARNING)) //
 										.bit(10, this.generateTowerChannel(tower, "LEVEL_2_EXTERNAL_COMMUNICATION",
 												Level.WARNING)) //
-										.bit(11, this.generateTowerChannel(tower, "LEVEL_2_PRECHARGE_FAIL", Level.WARNING)) //
-										.bit(12, this.generateTowerChannel(tower, "LEVEL_2_PARALLEL_FAIL", Level.WARNING)) //
+										.bit(11, this.generateTowerChannel(tower, "LEVEL_2_PRECHARGE_FAIL",
+												Level.WARNING)) //
+										.bit(12, this.generateTowerChannel(tower, "LEVEL_2_PARALLEL_FAIL",
+												Level.WARNING)) //
 										.bit(13, this.generateTowerChannel(tower, "LEVEL_2_SYSTEM_FAIL", Level.WARNING)) //
-										.bit(14, this.generateTowerChannel(tower, "LEVEL_2_HARDWARE_FAIL", Level.WARNING)) //
+										.bit(14, this.generateTowerChannel(tower, "LEVEL_2_HARDWARE_FAIL",
+												Level.WARNING)) //
 										.bit(14, this.generateTowerChannel(tower, "LEVEL_2_BAT_UNDER_VOLTAGE",
 												Level.WARNING))), //
 								m(new BitsWordElement(towerOffset + 6, this)
 										.bit(0, this.generateTowerChannel(tower, "HW_AFE_COMMUNICAITON_FAULT",
 												Level.WARNING)) //
-										.bit(1, this.generateTowerChannel(tower, "HW_ACTOR_DRIVER_FAULT", Level.WARNING)) //
+										.bit(1, this.generateTowerChannel(tower, "HW_ACTOR_DRIVER_FAULT",
+												Level.WARNING)) //
 										.bit(2, this.generateTowerChannel(tower, "HW_EEPROM_COMMUNICATION_FAULT",
 												Level.WARNING)) //
-										.bit(3, this.generateTowerChannel(tower, "HW_VOLTAGE_DETECT_FAULT", Level.WARNING)) //
+										.bit(3, this.generateTowerChannel(tower, "HW_VOLTAGE_DETECT_FAULT",
+												Level.WARNING)) //
 										.bit(4, this.generateTowerChannel(tower, "HW_TEMPERATURE_DETECT_FAULT",
 												Level.WARNING)) //
-										.bit(5, this.generateTowerChannel(tower, "HW_CURRENT_DETECT_FAULT", Level.WARNING)) //
+										.bit(5, this.generateTowerChannel(tower, "HW_CURRENT_DETECT_FAULT",
+												Level.WARNING)) //
 										.bit(6, this.generateTowerChannel(tower, "HW_ACTOR_NOT_CLOSE", Level.WARNING)) //
 										.bit(7, this.generateTowerChannel(tower, "HW_ACTOR_NOT_OPEN", Level.WARNING)) //
 										.bit(8, this.generateTowerChannel(tower, "HW_FUSE_BROKEN", Level.WARNING))), //
@@ -615,7 +625,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 												Level.WARNING)) //
 										.bit(1, this.generateTowerChannel(tower, "SYSTEM_AFE_UNDER_TEMPERATURE",
 												Level.WARNING)) //
-										.bit(2, this.generateTowerChannel(tower, "SYSTEM_AFE_OVER_VOLTAGE", Level.WARNING)) //
+										.bit(2, this.generateTowerChannel(tower, "SYSTEM_AFE_OVER_VOLTAGE",
+												Level.WARNING)) //
 										.bit(3, this.generateTowerChannel(tower, "SYSTEM_AFE_UNDER_VOLTAGE",
 												Level.WARNING)) //
 										.bit(4, this.generateTowerChannel(tower,
@@ -626,7 +637,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 												"SYSTEM_HIGH_CELL_VOLTAGE_PERMANENT_FAILURE", Level.WARNING)) //
 										.bit(7, this.generateTowerChannel(tower,
 												"SYSTEM_LOW_CELL_VOLTAGE_PERMANENT_FAILURE", Level.WARNING)) //
-										.bit(8, this.generateTowerChannel(tower, "SYSTEM_SHORT_CIRCUIT", Level.WARNING))), //
+										.bit(8, this.generateTowerChannel(tower, "SYSTEM_SHORT_CIRCUIT",
+												Level.WARNING))), //
 								m(this.generateTowerChannel(tower, "_SOC", OpenemsType.INTEGER),
 										new UnsignedWordElement(towerOffset + 8), // [%]
 										ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //

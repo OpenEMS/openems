@@ -85,10 +85,9 @@ public class RestApiReadWriteImplTest {
 				.build(), channelGet);
 
 		// POST successful as OWNER
-		var channelPost = sendPostRequest(port, OWNER, "/rest/channel/dummy0/WriteChannel",
-				JsonUtils.buildJsonObject() //
-						.addProperty("value", 4321) //
-						.build());
+		var channelPost = sendPostRequest(port, OWNER, "/rest/channel/dummy0/WriteChannel", JsonUtils.buildJsonObject() //
+				.addProperty("value", 4321) //
+				.build());
 		assertEquals(new JsonObject(), channelPost);
 		test //
 				.next(new TestCase() //

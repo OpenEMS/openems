@@ -102,8 +102,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());
-				var channelAggregateFunction = this
-						.getChannelAggregateFunction(channel.channelDoc().getUnit());
+				var channelAggregateFunction = this.getChannelAggregateFunction(channel.channelDoc().getUnit());
 
 				var value = channelAggregateFunction.apply(//
 						channel.getPastValues() //

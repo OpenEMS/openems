@@ -130,11 +130,9 @@ public class MeterArtemesAM2 extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0x0072))),
 
 				new FC4ReadInputRegistersTask(0x0418, Priority.LOW,
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
-								new UnsignedQuadruplewordElement(0x0418),
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedQuadruplewordElement(0x0418),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
-								new UnsignedQuadruplewordElement(0x0041C),
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedQuadruplewordElement(0x0041C),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)));
 	}
 

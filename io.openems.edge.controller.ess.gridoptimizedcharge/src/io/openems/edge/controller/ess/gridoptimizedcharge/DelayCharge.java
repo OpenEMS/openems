@@ -205,8 +205,7 @@ public class DelayCharge {
 		}
 
 		// Calculate target minute
-		var targetMinute = this.calculateTargetMinute(hourlyProduction, hourlyConsumption,
-				predictionStartQuarterHour);
+		var targetMinute = this.calculateTargetMinute(hourlyProduction, hourlyConsumption, predictionStartQuarterHour);
 
 		// Production was never higher than consumption
 		if (targetMinute == null) {

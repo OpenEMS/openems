@@ -136,8 +136,7 @@ public class OWPath {
 		if (currentOWPath != null) {
 
 			// enumerature through elements in current path
-			for (var path_enum = currentOWPath.getAllOWPathElements(); path_enum
-					.hasMoreElements();) {
+			for (var path_enum = currentOWPath.getAllOWPathElements(); path_enum.hasMoreElements();) {
 
 				// cast the enum as a OWPathElements and add to vector
 				this.elements.addElement(path_enum.nextElement());

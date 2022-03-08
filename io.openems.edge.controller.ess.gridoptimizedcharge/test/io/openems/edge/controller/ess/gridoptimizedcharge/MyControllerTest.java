@@ -141,14 +141,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
@@ -198,14 +197,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
@@ -260,14 +258,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
@@ -339,14 +336,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
@@ -416,14 +412,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours();
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -461,14 +456,13 @@ public class MyControllerTest {
 		final var cm = new DummyComponentManager(clock);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction24Hours(), "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction24Hours(), "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -559,14 +553,13 @@ public class MyControllerTest {
 		final var cm = new DummyComponentManager(clock);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction24Hours(), "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction24Hours(), "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -659,14 +652,13 @@ public class MyControllerTest {
 		final var cm = new DummyComponentManager(clock);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction24Hours(), "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				new DummyPrediction24Hours(), "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, new DummyPrediction24Hours(),
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -761,14 +753,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
@@ -819,14 +810,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
@@ -875,14 +865,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
@@ -933,14 +922,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -983,14 +971,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		System.out.println(Arrays.toString(predictorManager
 				.get24HoursPrediction(ChannelAddress.fromString("_sum/ProductionActivePower")).getValues()));
@@ -1045,14 +1032,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //
@@ -1102,8 +1088,7 @@ public class MyControllerTest {
 		// does not consider the mocked Clock.
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
 
-		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"),
-				ZoneId.of("Europe/Berlin"));
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneId.of("Europe/Berlin"));
 		final var cm = new DummyComponentManager(clock);
 
 		// Predictions
@@ -1111,14 +1096,13 @@ public class MyControllerTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		new ControllerTest(new GridOptimizedChargeImpl()) //
 				.addReference("predictorManager", predictorManager) //

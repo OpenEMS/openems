@@ -165,8 +165,7 @@ public class PolyLine {
 			return floorEntry.getValue();
 
 		} else {
-			var m = (ceilingEntry.getValue() - floorEntry.getValue())
-					/ (ceilingEntry.getKey() - floorEntry.getKey());
+			var m = (ceilingEntry.getValue() - floorEntry.getValue()) / (ceilingEntry.getKey() - floorEntry.getKey());
 			var t = floorEntry.getValue() - m * floorEntry.getKey();
 			return m * x + t;
 		}

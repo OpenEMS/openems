@@ -37,8 +37,8 @@ public class BalancingScheduleImplTest {
 	@Test
 	public void test() throws Exception {
 		final var start = 1577836800L;
-		final var clock = new TimeLeapClock(
-				Instant.ofEpochSecond(start) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(start) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
 		new ControllerTest(new BalancingScheduleImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //

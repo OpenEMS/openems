@@ -136,8 +136,7 @@ public class MeterWeidmueller525 extends AbstractOpenemsModbusComponent
 						m(WeidmuellerChannelId.REACTIVE_ENERGY_CAPACITIVE_L1, new FloatDoublewordElement(19102)), //
 						m(WeidmuellerChannelId.REACTIVE_ENERGY_CAPACITIVE_L2, new FloatDoublewordElement(19104)), //
 						m(WeidmuellerChannelId.REACTIVE_ENERGY_CAPACITIVE_L3, new FloatDoublewordElement(19106)), //
-						m(WeidmuellerChannelId.REACTIVE_ENERGY_CAPACITIVE_L1_L3,
-								new FloatDoublewordElement(19108)), //
+						m(WeidmuellerChannelId.REACTIVE_ENERGY_CAPACITIVE_L1_L3, new FloatDoublewordElement(19108)), //
 						m(WeidmuellerChannelId.HARMONIC_THD_VOLT_L1N, new FloatDoublewordElement(19110)), //
 						m(WeidmuellerChannelId.HARMONIC_THD_VOLT_L2N, new FloatDoublewordElement(19112)), //
 						m(WeidmuellerChannelId.HARMONIC_THD_VOLT_L3N, new FloatDoublewordElement(19114)), //

@@ -71,8 +71,7 @@ public class Humidity extends TaggedDevice implements TaggedSensor {
 		hc.doHumidityConvert(state);
 
 		// construct the return string
-		var return_string = new StringBuilder().append((int) this.roundDouble(hc.getHumidity(state)))
-				.append("%");
+		var return_string = new StringBuilder().append((int) this.roundDouble(hc.getHumidity(state))).append("%");
 		if (hc.isRelative()) {
 			return_string.append("RH");
 		}

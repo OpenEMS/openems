@@ -127,8 +127,7 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 		var mainData = getSlicedArrayList(result, numOfDataPerDay);
 
 		// Getting the indexes of the last four similar days
-		var lastFourSimilarDays = getCorrectIndexes(mainData, NUM_OF_DAYS_OF_WEEK,
-				PREDCTION_FOR_ONE_DAY);
+		var lastFourSimilarDays = getCorrectIndexes(mainData, NUM_OF_DAYS_OF_WEEK, PREDCTION_FOR_ONE_DAY);
 
 		// Getting the average predictions
 		var nextOneDayPredictions = getAverage(lastFourSimilarDays);

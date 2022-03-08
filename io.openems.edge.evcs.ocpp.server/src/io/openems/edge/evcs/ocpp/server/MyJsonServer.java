@@ -105,8 +105,8 @@ public class MyJsonServer {
 			public void lostSession(UUID sessionIndex) {
 				MyJsonServer.this.logDebug("Session " + sessionIndex + " lost connection");
 
-				var sessionEvcss = MyJsonServer.this.parent.activeEvcsSessions
-						.getOrDefault(sessionIndex, new ArrayList<>());
+				var sessionEvcss = MyJsonServer.this.parent.activeEvcsSessions.getOrDefault(sessionIndex,
+						new ArrayList<>());
 
 				if (sessionEvcss != null) {
 					for (AbstractOcppEvcsComponent ocppEvcs : sessionEvcss) {
@@ -174,8 +174,8 @@ public class MyJsonServer {
 	 */
 	protected void sendInitialRequests(UUID sessionIndex, AbstractOcppEvcsComponent ocppEvcs) {
 		// Setting the Evcss of this session id to available
-		var changeAvailabilityRequest = new ChangeAvailabilityRequest(
-				ocppEvcs.getConfiguredConnectorId(), AvailabilityType.Operative);
+		var changeAvailabilityRequest = new ChangeAvailabilityRequest(ocppEvcs.getConfiguredConnectorId(),
+				AvailabilityType.Operative);
 		this.sendDefault(sessionIndex, changeAvailabilityRequest);
 
 		// Sending all required requests defined for each EVCS
@@ -211,8 +211,7 @@ public class MyJsonServer {
 		try {
 			var resp = this.send(sessionIndex, request);
 
-			var get = (GetConfigurationConfirmation) resp.toCompletableFuture().get(2,
-					TimeUnit.SECONDS);
+			var get = (GetConfigurationConfirmation) resp.toCompletableFuture().get(2, TimeUnit.SECONDS);
 			var das = get.getConfigurationKey();
 			for (KeyValueType element : das) {
 				hash.put(element.getKey(), element.getValue());

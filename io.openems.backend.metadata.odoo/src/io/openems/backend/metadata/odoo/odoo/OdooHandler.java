@@ -488,7 +488,7 @@ public class OdooHandler {
 
 		var email = JsonUtils.getAsString(userJson, "email").toLowerCase();
 		customerFields.put(Field.Partner.EMAIL.id(), email);
-		
+
 		JsonUtils.getAsOptionalString(userJson, "phone") //
 				.ifPresent(phone -> customerFields.put(Field.Partner.PHONE.id(), phone));
 

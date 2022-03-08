@@ -377,14 +377,11 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			throws OpenemsNamedException {
 		var currentBlock = Block.UNDEFINED;
 		final var name = new AtomicReference<String>();
-		final var dhcp = new AtomicReference<ConfigurationProperty<Boolean>>(
-				ConfigurationProperty.asNotSet());
+		final var dhcp = new AtomicReference<ConfigurationProperty<Boolean>>(ConfigurationProperty.asNotSet());
 		final var linkLocalAddressing = new AtomicReference<ConfigurationProperty<Boolean>>(
 				ConfigurationProperty.asNotSet());
-		final var gateway = new AtomicReference<ConfigurationProperty<Inet4Address>>(
-				ConfigurationProperty.asNotSet());
-		final var dns = new AtomicReference<ConfigurationProperty<Inet4Address>>(
-				ConfigurationProperty.asNotSet());
+		final var gateway = new AtomicReference<ConfigurationProperty<Inet4Address>>(ConfigurationProperty.asNotSet());
+		final var dns = new AtomicReference<ConfigurationProperty<Inet4Address>>(ConfigurationProperty.asNotSet());
 		final var addresses = new AtomicReference<ConfigurationProperty<Set<Inet4AddressWithNetmask>>>(
 				ConfigurationProperty.asNotSet());
 

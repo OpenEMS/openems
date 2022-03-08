@@ -284,8 +284,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					}
 					var factory = result.getFactories().get(factoryPid);
 					if (factory != null) {
-						var defaultValue = JsonUtils
-								.getAsOptionalString(factory.getPropertyDefaultValue("id"));
+						var defaultValue = JsonUtils.getAsOptionalString(factory.getPropertyDefaultValue("id"));
 						if (defaultValue.isPresent()) {
 							componentId = defaultValue.get();
 						}
@@ -392,8 +391,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			}
 
 			// Update existing Channels
-			var resultChannels = resultComponent.get()
-					.getChannels();
+			var resultChannels = resultComponent.get().getChannels();
 			for (Entry<String, io.openems.common.types.EdgeConfig.Component.Channel> channel : channels.entrySet()) {
 				if (!resultChannels.containsKey(channel.getKey())) {
 					resultChannels.put(channel.getKey(), channel.getValue());
@@ -482,8 +480,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	private String[] getNatures(Bundle bundle, Manifest manifest, String factoryPid) {
 		try {
 			// get "Service-Component"-Entry of Manifest
-			var serviceComponentsString = manifest.getMainAttributes()
-					.getValue(ComponentConstants.SERVICE_COMPONENT);
+			var serviceComponentsString = manifest.getMainAttributes().getValue(ComponentConstants.SERVICE_COMPONENT);
 			if (serviceComponentsString == null) {
 				return new String[0];
 			}

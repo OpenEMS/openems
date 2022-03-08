@@ -118,18 +118,16 @@ public class TimeOfUseTariffDischargeTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		// Price provider
-		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.fromHourlyPrices(null,
-				DEFAULT_HOURLY_PRICES);
+		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.fromHourlyPrices(null, DEFAULT_HOURLY_PRICES);
 
 		// Printing
 		// System.out.println("Time: " + clock);
@@ -171,18 +169,17 @@ public class TimeOfUseTariffDischargeTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		// Price provider
-		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider
-				.fromHourlyPrices(ZonedDateTime.now(clock), DEFAULT_HOURLY_PRICES);
+		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.fromHourlyPrices(ZonedDateTime.now(clock),
+				DEFAULT_HOURLY_PRICES);
 
 		// Printing
 		// System.out.println("Time: " + clock);
@@ -253,18 +250,17 @@ public class TimeOfUseTariffDischargeTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		// Price provider
-		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider
-				.fromHourlyPrices(ZonedDateTime.now(clock), DEFAULT_HOURLY_PRICES);
+		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.fromHourlyPrices(ZonedDateTime.now(clock),
+				DEFAULT_HOURLY_PRICES);
 
 		// Printing
 		// System.out.println("Time: " + clock);
@@ -310,18 +306,17 @@ public class TimeOfUseTariffDischargeTest {
 		final var consumptionPrediction = new DummyPrediction24Hours(DEFAULT_CONSUMPTION_PREDICTION);
 
 		// Predictors
-		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				productionPrediction, "_sum/ProductionActivePower");
-		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm,
-				consumptionPrediction, "_sum/ConsumptionActivePower");
+		final var productionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, productionPrediction,
+				"_sum/ProductionActivePower");
+		final var consumptionPredictor = new DummyPredictor24Hours(PREDICTOR_ID, cm, consumptionPrediction,
+				"_sum/ConsumptionActivePower");
 
 		// PredictorManager
-		final var predictorManager = new DummyPredictorManager(productionPredictor,
-				consumptionPredictor);
+		final var predictorManager = new DummyPredictorManager(productionPredictor, consumptionPredictor);
 
 		// Price provider
-		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider
-				.fromHourlyPrices(ZonedDateTime.now(clock), DEFAULT_HOURLY_PRICES);
+		final var timeOfUseTariffProvider = DummyTimeOfUseTariffProvider.fromHourlyPrices(ZonedDateTime.now(clock),
+				DEFAULT_HOURLY_PRICES);
 
 		// Printing
 		// System.out.println("Time: " + clock);

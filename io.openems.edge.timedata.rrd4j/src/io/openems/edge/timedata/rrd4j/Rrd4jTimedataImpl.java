@@ -125,8 +125,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 				}
 
 				var chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
-				var request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp,
-						resolution);
+				var request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp, resolution);
 
 				// Post-Process data
 				var result = postProcessData(request, resolution);
@@ -314,11 +313,9 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 					.withZoneSameInstant(timezone);
 
 			var timestampInstantTo = Instant.ofEpochSecond(nextStamp);
-			var dateTimeTo = ZonedDateTime.ofInstant(timestampInstantTo, ZoneOffset.UTC)
-					.withZoneSameInstant(timezone);
+			var dateTimeTo = ZonedDateTime.ofInstant(timestampInstantTo, ZoneOffset.UTC).withZoneSameInstant(timezone);
 
-			var tableRow = this.queryHistoricEnergy(null, dateTimeFrom, dateTimeTo,
-					channels);
+			var tableRow = this.queryHistoricEnergy(null, dateTimeFrom, dateTimeTo, channels);
 
 			table.put(dateTimeFrom, tableRow);
 
@@ -543,8 +540,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		// Read data of last month
 		var lastTimestamp = oldDb.getLastUpdateTime();
 		var firstTimestamp = lastTimestamp - 60 /* minute */ * 60 /* hour */ * 24 /* day */ * 31;
-		var fetchRequest = oldDb.createFetchRequest(oldDb.getArchive(0).getConsolFun(), firstTimestamp,
-				lastTimestamp);
+		var fetchRequest = oldDb.createFetchRequest(oldDb.getArchive(0).getConsolFun(), firstTimestamp, lastTimestamp);
 		var fetchData = fetchRequest.fetchData();
 		var values = postProcessData(fetchRequest, DEFAULT_HEARTBEAT_SECONDS);
 		if (fetchData.getTimestamps().length > 0) {

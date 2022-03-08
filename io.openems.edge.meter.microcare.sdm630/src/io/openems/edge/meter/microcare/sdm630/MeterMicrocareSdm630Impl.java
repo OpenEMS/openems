@@ -86,9 +86,10 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
 				new FC4ReadInputRegistersTask(30001 - offset, Priority.HIGH,
 						m(new FloatDoublewordElement(30001 - offset).wordOrder(WordOrder.MSWLSW)
 								.byteOrder(ByteOrder.BIG_ENDIAN))
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3)//
-								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3)//
-								.build(),
+										.m(AsymmetricMeter.ChannelId.VOLTAGE_L1,
+												ElementToChannelConverter.SCALE_FACTOR_3)//
+										.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3)//
+										.build(),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2,
 								new FloatDoublewordElement(30003 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),

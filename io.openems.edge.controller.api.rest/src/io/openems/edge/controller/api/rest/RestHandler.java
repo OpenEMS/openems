@@ -515,10 +515,9 @@ public class RestHandler extends AbstractHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(User user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		var data = this.parent.getTimedata()
-				.queryHistoricData(//
-						null, /* ignore Edge-ID */
-						request);
+		var data = this.parent.getTimedata().queryHistoricData(//
+				null, /* ignore Edge-ID */
+				request);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
@@ -553,8 +552,7 @@ public class RestHandler extends AbstractHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
 			GetEdgeConfigRequest getEdgeConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
-		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
-				getEdgeConfigRequest);
+		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID, getEdgeConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
 	}

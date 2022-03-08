@@ -180,8 +180,8 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 					"Creating Component configuration [" + factoryPid + "]: " + properties.stream() //
 							.map(p -> p.getName() + ":" + p.getValue().toString()) //
 							.collect(Collectors.joining(", ")));
-			var response = this.parent.handleCreateComponentConfigRequest(
-					null /* no user */, new CreateComponentConfigRequest(factoryPid, properties));
+			var response = this.parent.handleCreateComponentConfigRequest(null /* no user */,
+					new CreateComponentConfigRequest(factoryPid, properties));
 			response.get(60, TimeUnit.SECONDS);
 
 		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {
@@ -208,8 +208,8 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 							.map(p -> p.getName() + ":" + p.getValue().toString()) //
 							.collect(Collectors.joining(", ")));
 
-			var response = this.parent.handleUpdateComponentConfigRequest(
-					null /* no user */, new UpdateComponentConfigRequest(componentId, properties));
+			var response = this.parent.handleUpdateComponentConfigRequest(null /* no user */,
+					new UpdateComponentConfigRequest(componentId, properties));
 			response.get(60, TimeUnit.SECONDS);
 
 		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {
@@ -231,8 +231,8 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		try {
 			this.parent.logInfo(this.log, "Deleting Component [" + componentId + "]");
 
-			var response = this.parent.handleDeleteComponentConfigRequest(
-					null /* no user */, new DeleteComponentConfigRequest(componentId));
+			var response = this.parent.handleDeleteComponentConfigRequest(null /* no user */,
+					new DeleteComponentConfigRequest(componentId));
 			response.get(60, TimeUnit.SECONDS);
 
 		} catch (OpenemsNamedException | InterruptedException | ExecutionException | TimeoutException e) {

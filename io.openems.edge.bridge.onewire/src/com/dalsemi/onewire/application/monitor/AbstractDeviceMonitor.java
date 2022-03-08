@@ -425,8 +425,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 *                arrivals.
 	 */
 	protected void fireArrivalEvent(DSPortAdapter adapter, Vector<Long> address) {
-		var dme = new DeviceMonitorEvent(DeviceMonitorEvent.ARRIVAL, this, adapter,
-				(Vector<Long>) address.clone());
+		var dme = new DeviceMonitorEvent(DeviceMonitorEvent.ARRIVAL, this, adapter, (Vector<Long>) address.clone());
 		for (var i = 0; i < this.listeners.size(); i++) {
 			var listener = this.listeners.elementAt(i);
 			listener.deviceArrival(dme);
@@ -440,8 +439,7 @@ public abstract class AbstractDeviceMonitor implements Runnable {
 	 *                devices.
 	 */
 	protected void fireDepartureEvent(DSPortAdapter adapter, Vector<Long> address) {
-		var dme = new DeviceMonitorEvent(DeviceMonitorEvent.DEPARTURE, this, adapter,
-				(Vector<Long>) address.clone());
+		var dme = new DeviceMonitorEvent(DeviceMonitorEvent.DEPARTURE, this, adapter, (Vector<Long>) address.clone());
 
 		for (var i = 0; i < this.listeners.size(); i++) {
 			var listener = this.listeners.elementAt(i);

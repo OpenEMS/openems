@@ -124,8 +124,8 @@ public class InfluxConnector {
 					.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS) //
 					.readTimeout(READ_TIMEOUT, TimeUnit.SECONDS) //
 					.writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS);
-			var influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
-					this.password, okHttpClientBuilder);
+			var influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username, this.password,
+					okHttpClientBuilder);
 			try {
 				influxDB.query(new Query("CREATE DATABASE " + this.database, ""));
 			} catch (InfluxDBException e) {

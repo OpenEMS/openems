@@ -83,8 +83,7 @@ public class SurplusFeedInHandler {
 					.toMinutes();
 			// slowly reduce the surplus-feed-in-power from 100 to 0 %
 			var pvPower = this.getPvPower(chargers);
-			var factor = DoubleUtils.normalize(goingDeactivatedSinceMinutes, 0, GOING_DEACTIVATED_MINUTES, 0, 1,
-					true);
+			var factor = DoubleUtils.normalize(goingDeactivatedSinceMinutes, 0, GOING_DEACTIVATED_MINUTES, 0, 1, true);
 			var power = Math.max((int) ((pvPower + this.getIncreasePower(config, pvPower)) * factor),
 					this.getIncreasePower(config, pvPower));
 			if (goingDeactivatedSinceMinutes > GOING_DEACTIVATED_MINUTES) {

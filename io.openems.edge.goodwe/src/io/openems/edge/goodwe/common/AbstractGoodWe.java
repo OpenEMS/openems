@@ -83,68 +83,65 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(35001)), //
 						new DummyRegisterElement(35002), //
 						m(GoodWe.ChannelId.SERIAL_NUMBER, new StringWordElement(35003, 8)), //
-						m(GoodWe.ChannelId.GOODWE_TYPE, new StringWordElement(35011, 5),
-								new ElementToChannelConverter(
-										// element -> channel
-										value -> {
-											// Evaluate GoodweType
-											final GoodweType result;
-											if (value == null) {
-												result = GoodweType.UNDEFINED;
-											} else {
-												String stringValue = TypeUtils.<String>getAsType(OpenemsType.STRING,
-														value);
-												switch (stringValue) {
-												// TODO add identification for FENECON branded inverter
-												case "GW10K-BT":
-													result = GoodweType.GOODWE_10K_BT;
-													break;
-												case "GW8K-BT":
-													result = GoodweType.GOODWE_8K_BT;
-													break;
-												case "GW5K-BT":
-													result = GoodweType.GOODWE_5K_BT;
-													break;
-												case "GW10K-ET":
-													result = GoodweType.GOODWE_10K_ET;
-													break;
-												case "GW8K-ET":
-													result = GoodweType.GOODWE_8K_ET;
-													break;
-												case "GW5K-ET":
-													result = GoodweType.GOODWE_5K_ET;
-													break;
-												case "FHI-10-DAH":
-													result = GoodweType.FENECON_FHI_10_DAH;
-													break;
-												default:
-													this.logInfo(this.log,
-															"Unable to identify GoodWe by name [" + value + "]");
-													result = GoodweType.UNDEFINED;
-													break;
-												}
-											}
-											// Log on first occurrence
-											if (result != this.getGoodweType()) {
-												switch (result) {
-												case GOODWE_10K_BT:
-												case GOODWE_8K_BT:
-												case GOODWE_5K_BT:
-												case GOODWE_10K_ET:
-												case GOODWE_8K_ET:
-												case GOODWE_5K_ET:
-												case FENECON_FHI_10_DAH:
-													this.logInfo(this.log, "Identified " + result.getName());
-													break;
-												case UNDEFINED:
-													break;
-												}
-											}
-											return result;
-										}, //
+						m(GoodWe.ChannelId.GOODWE_TYPE, new StringWordElement(35011, 5), new ElementToChannelConverter(
+								// element -> channel
+								value -> {
+									// Evaluate GoodweType
+									final GoodweType result;
+									if (value == null) {
+										result = GoodweType.UNDEFINED;
+									} else {
+										String stringValue = TypeUtils.<String>getAsType(OpenemsType.STRING, value);
+										switch (stringValue) {
+										// TODO add identification for FENECON branded inverter
+										case "GW10K-BT":
+											result = GoodweType.GOODWE_10K_BT;
+											break;
+										case "GW8K-BT":
+											result = GoodweType.GOODWE_8K_BT;
+											break;
+										case "GW5K-BT":
+											result = GoodweType.GOODWE_5K_BT;
+											break;
+										case "GW10K-ET":
+											result = GoodweType.GOODWE_10K_ET;
+											break;
+										case "GW8K-ET":
+											result = GoodweType.GOODWE_8K_ET;
+											break;
+										case "GW5K-ET":
+											result = GoodweType.GOODWE_5K_ET;
+											break;
+										case "FHI-10-DAH":
+											result = GoodweType.FENECON_FHI_10_DAH;
+											break;
+										default:
+											this.logInfo(this.log, "Unable to identify GoodWe by name [" + value + "]");
+											result = GoodweType.UNDEFINED;
+											break;
+										}
+									}
+									// Log on first occurrence
+									if (result != this.getGoodweType()) {
+										switch (result) {
+										case GOODWE_10K_BT:
+										case GOODWE_8K_BT:
+										case GOODWE_5K_BT:
+										case GOODWE_10K_ET:
+										case GOODWE_8K_ET:
+										case GOODWE_5K_ET:
+										case FENECON_FHI_10_DAH:
+											this.logInfo(this.log, "Identified " + result.getName());
+											break;
+										case UNDEFINED:
+											break;
+										}
+									}
+									return result;
+								}, //
 
-										// channel -> element
-										value -> value))
+								// channel -> element
+								value -> value))
 
 				), //
 
@@ -406,12 +403,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(GoodWe.ChannelId.MIN_GRID_VOLTAGE_WITHIN_1_MINUTE_T, new UnsignedWordElement(35275),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWe.ChannelId.MAX_BACKUP_POWER_WITHIN_1_MINUTE_R,
-								new UnsignedDoublewordElement(35276)), //
-						m(GoodWe.ChannelId.MAX_BACKUP_POWER_WITHIN_1_MINUTE_S,
-								new UnsignedDoublewordElement(35278)), //
-						m(GoodWe.ChannelId.MAX_BACKUP_POWER_WITHIN_1_MINUTE_T,
-								new UnsignedDoublewordElement(35280)), //
+						m(GoodWe.ChannelId.MAX_BACKUP_POWER_WITHIN_1_MINUTE_R, new UnsignedDoublewordElement(35276)), //
+						m(GoodWe.ChannelId.MAX_BACKUP_POWER_WITHIN_1_MINUTE_S, new UnsignedDoublewordElement(35278)), //
+						m(GoodWe.ChannelId.MAX_BACKUP_POWER_WITHIN_1_MINUTE_T, new UnsignedDoublewordElement(35280)), //
 						m(GoodWe.ChannelId.MAX_BACKUP_POWER_WITHIN_1_MINUTE_TOTAL,
 								new UnsignedDoublewordElement(35282)), //
 						m(GoodWe.ChannelId.GRID_HVRT_EVENT_TIMES, new UnsignedWordElement(35284)), //
@@ -596,8 +590,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.OFF_GRID_TO_ON_GRID_DELAY, new UnsignedWordElement(45276)), //
 						// If set 80%, when offgrid output voltage less than 230*80%=184V, inverter will
 						// have the error.
-						m(GoodWe.ChannelId.OFF_GRID_UNDER_VOLTAGE_PROTECT_COEFFICIENT,
-								new UnsignedWordElement(45277)), //
+						m(GoodWe.ChannelId.OFF_GRID_UNDER_VOLTAGE_PROTECT_COEFFICIENT, new UnsignedWordElement(45277)), //
 						// When offgrid and the battery SOC is low, PV charge the battery
 						m(GoodWe.ChannelId.BATTERY_MODE_PV_CHARGE_ENABLE, new UnsignedWordElement(45278)), //
 						// Default fisresttt.ing is 1
@@ -978,8 +971,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.OFF_GRID_TO_ON_GRID_DELAY, new UnsignedWordElement(45276)), //
 						// If set 80%, when offgrid output voltage less than 230*80%=184V, inverter will
 						// have the error.Default setting is
-						m(GoodWe.ChannelId.OFF_GRID_UNDER_VOLTAGE_PROTECT_COEFFICIENT,
-								new UnsignedWordElement(45277)), //
+						m(GoodWe.ChannelId.OFF_GRID_UNDER_VOLTAGE_PROTECT_COEFFICIENT, new UnsignedWordElement(45277)), //
 						// When offgrid and the battery SOC is low, PV charge the battery
 						m(GoodWe.ChannelId.BATTERY_MODE_PV_CHARGE_ENABLE, new UnsignedWordElement(45278)), //
 						// Default setting 1, [1,20]
@@ -1466,8 +1458,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47547)), //
 						m(GoodWe.ChannelId.WORK_WEEK_1_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47548)), //
-						m(GoodWe.ChannelId.WORK_WEEK_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47549)), //
+						m(GoodWe.ChannelId.WORK_WEEK_1_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47549)), //
 						m(GoodWe.ChannelId.WORK_WEEK_1_PARAMETER1_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47550)), //
 						m(GoodWe.ChannelId.WORK_WEEK_1_PARAMETER1_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1479,8 +1470,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47553)), //
 						m(GoodWe.ChannelId.WORK_WEEK_2_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47554)), //
-						m(GoodWe.ChannelId.WORK_WEEK_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47555)), //
+						m(GoodWe.ChannelId.WORK_WEEK_2_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47555)), //
 						m(GoodWe.ChannelId.WORK_WEEK_2_PARAMETER2_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47556)), //
 						m(GoodWe.ChannelId.WORK_WEEK_2_PARAMETER2_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1492,8 +1482,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47559)), //
 						m(GoodWe.ChannelId.WORK_WEEK_3_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47560)), //
-						m(GoodWe.ChannelId.WORK_WEEK_3_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47561)), //
+						m(GoodWe.ChannelId.WORK_WEEK_3_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47561)), //
 						m(GoodWe.ChannelId.WORK_WEEK_3_PARAMETER3_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47562)), //
 						m(GoodWe.ChannelId.WORK_WEEK_3_PARAMETER3_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1505,8 +1494,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47565)), //
 						m(GoodWe.ChannelId.WORK_WEEK_4_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47566)), //
-						m(GoodWe.ChannelId.WORK_WEEK_4_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47567)), //
+						m(GoodWe.ChannelId.WORK_WEEK_4_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47567)), //
 						m(GoodWe.ChannelId.WORK_WEEK_4_PARAMETER4_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47568)), //
 						m(GoodWe.ChannelId.WORK_WEEK_4_PARAMETER4_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1518,8 +1506,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47571)), //
 						m(GoodWe.ChannelId.WORK_WEEK_5_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47572)), //
-						m(GoodWe.ChannelId.WORK_WEEK_5_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47573)), //
+						m(GoodWe.ChannelId.WORK_WEEK_5_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47573)), //
 						m(GoodWe.ChannelId.WORK_WEEK_5_PARAMETER5_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47574)), //
 						m(GoodWe.ChannelId.WORK_WEEK_5_PARAMETER5_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1531,8 +1518,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47577)), //
 						m(GoodWe.ChannelId.WORK_WEEK_6_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47578)), //
-						m(GoodWe.ChannelId.WORK_WEEK_6_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47579)), //
+						m(GoodWe.ChannelId.WORK_WEEK_6_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47579)), //
 						m(GoodWe.ChannelId.WORK_WEEK_6_PARAMETER6_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47580)), //
 						m(GoodWe.ChannelId.WORK_WEEK_6_PARAMETER6_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1544,8 +1530,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47583)), //
 						m(GoodWe.ChannelId.WORK_WEEK_7_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47584)), //
-						m(GoodWe.ChannelId.WORK_WEEK_7_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47585)), //
+						m(GoodWe.ChannelId.WORK_WEEK_7_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47585)), //
 						m(GoodWe.ChannelId.WORK_WEEK_7_PARAMETER7_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47586)), //
 						m(GoodWe.ChannelId.WORK_WEEK_7_PARAMETER7_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1557,8 +1542,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47589)), //
 						m(GoodWe.ChannelId.WORK_WEEK_8_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47590)), //
-						m(GoodWe.ChannelId.WORK_WEEK_8_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47591)), //
+						m(GoodWe.ChannelId.WORK_WEEK_8_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47591)), //
 						m(GoodWe.ChannelId.WORK_WEEK_8_PARAMETER8_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47592)), //
 						m(GoodWe.ChannelId.WORK_WEEK_8_PARAMETER8_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1586,8 +1570,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47547)), //
 						m(GoodWe.ChannelId.WORK_WEEK_1_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47548)), //
-						m(GoodWe.ChannelId.WORK_WEEK_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47549)), //
+						m(GoodWe.ChannelId.WORK_WEEK_1_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47549)), //
 						m(GoodWe.ChannelId.WORK_WEEK_1_PARAMETER1_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47550)), //
 						m(GoodWe.ChannelId.WORK_WEEK_1_PARAMETER1_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1599,8 +1582,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47553)), //
 						m(GoodWe.ChannelId.WORK_WEEK_2_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47554)), //
-						m(GoodWe.ChannelId.WORK_WEEK_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47555)), //
+						m(GoodWe.ChannelId.WORK_WEEK_2_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47555)), //
 						m(GoodWe.ChannelId.WORK_WEEK_2_PARAMETER2_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47556)), //
 						m(GoodWe.ChannelId.WORK_WEEK_2_PARAMETER2_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1612,8 +1594,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47559)), //
 						m(GoodWe.ChannelId.WORK_WEEK_3_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47560)), //
-						m(GoodWe.ChannelId.WORK_WEEK_3_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47561)), //
+						m(GoodWe.ChannelId.WORK_WEEK_3_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47561)), //
 						m(GoodWe.ChannelId.WORK_WEEK_3_PARAMETER3_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47562)), //
 						m(GoodWe.ChannelId.WORK_WEEK_3_PARAMETER3_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1625,8 +1606,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47565)), //
 						m(GoodWe.ChannelId.WORK_WEEK_4_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47566)), //
-						m(GoodWe.ChannelId.WORK_WEEK_4_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47567)), //
+						m(GoodWe.ChannelId.WORK_WEEK_4_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47567)), //
 						m(GoodWe.ChannelId.WORK_WEEK_4_PARAMETER4_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47568)), //
 						m(GoodWe.ChannelId.WORK_WEEK_4_PARAMETER4_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1638,8 +1618,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47571)), //
 						m(GoodWe.ChannelId.WORK_WEEK_5_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47572)), //
-						m(GoodWe.ChannelId.WORK_WEEK_5_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47573)), //
+						m(GoodWe.ChannelId.WORK_WEEK_5_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47573)), //
 						m(GoodWe.ChannelId.WORK_WEEK_5_PARAMETER5_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47574)), //
 						m(GoodWe.ChannelId.WORK_WEEK_5_PARAMETER5_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1651,8 +1630,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47577)), //
 						m(GoodWe.ChannelId.WORK_WEEK_6_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47578)), //
-						m(GoodWe.ChannelId.WORK_WEEK_6_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47579)), //
+						m(GoodWe.ChannelId.WORK_WEEK_6_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47579)), //
 						m(GoodWe.ChannelId.WORK_WEEK_6_PARAMETER6_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47580)), //
 						m(GoodWe.ChannelId.WORK_WEEK_6_PARAMETER6_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1664,8 +1642,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47583)), //
 						m(GoodWe.ChannelId.WORK_WEEK_7_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47584)), //
-						m(GoodWe.ChannelId.WORK_WEEK_7_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47585)), //
+						m(GoodWe.ChannelId.WORK_WEEK_7_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47585)), //
 						m(GoodWe.ChannelId.WORK_WEEK_7_PARAMETER7_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47586)), //
 						m(GoodWe.ChannelId.WORK_WEEK_7_PARAMETER7_2_ECO_MODE_FOR_ARM_18_AND_GREATER,
@@ -1677,8 +1654,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(47589)), //
 						m(GoodWe.ChannelId.WORK_WEEK_8_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47590)), //
-						m(GoodWe.ChannelId.WORK_WEEK_8_ECO_MODE_FOR_ARM_18_AND_GREATER,
-								new UnsignedWordElement(47591)), //
+						m(GoodWe.ChannelId.WORK_WEEK_8_ECO_MODE_FOR_ARM_18_AND_GREATER, new UnsignedWordElement(47591)), //
 						m(GoodWe.ChannelId.WORK_WEEK_8_PARAMETER8_1_ECO_MODE_FOR_ARM_18_AND_GREATER,
 								new UnsignedWordElement(47592)), //
 						m(GoodWe.ChannelId.WORK_WEEK_8_PARAMETER8_2_ECO_MODE_FOR_ARM_18_AND_GREATER,

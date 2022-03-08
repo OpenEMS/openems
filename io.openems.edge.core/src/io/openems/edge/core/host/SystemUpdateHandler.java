@@ -147,8 +147,7 @@ public class SystemUpdateHandler {
 
 		var result = new CompletableFuture<JsonrpcResponseSuccess>();
 		this.executor.execute(() -> {
-			var response = GetSystemUpdateStateResponse.isRunning(request.getId(),
-					this.updateState);
+			var response = GetSystemUpdateStateResponse.isRunning(request.getId(), this.updateState);
 			try {
 				this.executeUpdate(result);
 				this.updateState.setPercentCompleted(100);
@@ -197,8 +196,7 @@ public class SystemUpdateHandler {
 				}
 				{
 					this.updateState.addLog("# Executing 'apt-get install at'");
-					var response = this.executeSystemCommand("apt-get -y install at", 3600)
-							.get();
+					var response = this.executeSystemCommand("apt-get -y install at", 3600).get();
 					this.updateState.addLog("'apt-get install at'", response);
 					if (response.getExitCode() != 0) {
 						throw new Exception("'apt-get install at' failed");

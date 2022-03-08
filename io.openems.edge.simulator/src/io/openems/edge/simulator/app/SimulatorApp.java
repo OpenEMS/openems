@@ -492,8 +492,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		}
 
 		var fakePeriod = this.convertToSimulatedFromToDates(fromDate, toDate);
-		var data = this.lastSimulation.collectedData
-				.subMap(fakePeriod.fromDate, fakePeriod.toDate);
+		var data = this.lastSimulation.collectedData.subMap(fakePeriod.fromDate, fakePeriod.toDate);
 
 		if (channels.isEmpty()) {
 			// No Channels given -> return all data
@@ -521,8 +520,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 			return new TreeMap<>();
 		}
 		var fakePeriod = this.convertToSimulatedFromToDates(fromDate, toDate);
-		var partOfCollectedData = this.lastSimulation.collectedData
-				.subMap(fakePeriod.fromDate, fakePeriod.toDate);
+		var partOfCollectedData = this.lastSimulation.collectedData.subMap(fakePeriod.fromDate, fakePeriod.toDate);
 		SortedMap<ChannelAddress, JsonElement> result = new TreeMap<>();
 		var firstValues = partOfCollectedData.get(partOfCollectedData.firstKey());
 		var lastValues = partOfCollectedData.get(partOfCollectedData.lastKey());
@@ -551,8 +549,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 		if (this.lastSimulation == null || this.lastSimulation.collectedData.isEmpty()) {
 			value = JsonNull.INSTANCE;
 		} else {
-			var lastValues = this.lastSimulation.collectedData
-					.get(this.lastSimulation.collectedData.lastKey());
+			var lastValues = this.lastSimulation.collectedData.get(this.lastSimulation.collectedData.lastKey());
 			value = lastValues.get(channelAddress);
 		}
 		return CompletableFuture.completedFuture(Optional.ofNullable(value));

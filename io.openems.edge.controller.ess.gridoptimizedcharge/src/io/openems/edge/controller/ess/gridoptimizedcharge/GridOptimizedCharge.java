@@ -112,15 +112,12 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 					((IntegerReadChannel) channel).onSetNextValue(value -> {
 						if (value != null && value.isDefined()) {
 							int targetTime = value.get();
-							var gridOptimizedCharge = (GridOptimizedChargeImpl) channel
-									.getComponent();
+							var gridOptimizedCharge = (GridOptimizedChargeImpl) channel.getComponent();
 
-							var targetDateTime = LocalDate
-									.now(gridOptimizedCharge.componentManager.getClock())
+							var targetDateTime = LocalDate.now(gridOptimizedCharge.componentManager.getClock())
 									.atTime(LocalTime.of(targetTime / 60, targetTime % 60));
 
-							var zonedDateTime = ZonedDateTime.ofLocal(targetDateTime, ZoneId.systemDefault(),
-									null);
+							var zonedDateTime = ZonedDateTime.ofLocal(targetDateTime, ZoneId.systemDefault(), null);
 							var targetEpochTime = zonedDateTime.toEpochSecond();
 
 							gridOptimizedCharge.channel(ChannelId.TARGET_EPOCH_SECONDS).setNextValue(targetEpochTime);
