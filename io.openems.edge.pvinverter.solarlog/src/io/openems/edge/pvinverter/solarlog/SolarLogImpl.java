@@ -72,6 +72,7 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -88,10 +89,10 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 
 		// Stop if component is disabled
 		if (!config.enabled()) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -101,53 +102,53 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(3500, Priority.HIGH,
-						m(SolarLog.ChannelId.LAST_UPDATE_TIME,
+						this.m(SolarLog.ChannelId.LAST_UPDATE_TIME,
 								new SignedDoublewordElement(3500).wordOrder(WordOrder.LSWMSW)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
+						this.m(SymmetricMeter.ChannelId.ACTIVE_POWER,
 								new SignedDoublewordElement(3502).wordOrder(WordOrder.LSWMSW)),
-						m(SolarLog.ChannelId.PDC, new SignedDoublewordElement(3504).wordOrder(WordOrder.LSWMSW)),
-						m(SymmetricMeter.ChannelId.VOLTAGE, new SignedWordElement(3506),
+						this.m(SolarLog.ChannelId.PDC, new SignedDoublewordElement(3504).wordOrder(WordOrder.LSWMSW)),
+						this.m(SymmetricMeter.ChannelId.VOLTAGE, new SignedWordElement(3506),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(SolarLog.ChannelId.UDC, new SignedWordElement(3507),
+						this.m(SolarLog.ChannelId.UDC, new SignedWordElement(3507),
 								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+						this.m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new SignedDoublewordElement(3508).wordOrder(WordOrder.LSWMSW)),
-						m(SolarLog.ChannelId.YESTERDAY_YIELD,
+						this.m(SolarLog.ChannelId.YESTERDAY_YIELD,
 								new SignedDoublewordElement(3510).wordOrder(WordOrder.LSWMSW)),
-						m(SolarLog.ChannelId.MONTHLY_YIELD,
+						this.m(SolarLog.ChannelId.MONTHLY_YIELD,
 								new SignedDoublewordElement(3512).wordOrder(WordOrder.LSWMSW)),
-						m(SolarLog.ChannelId.YEARLY_YIELD,
+						this.m(SolarLog.ChannelId.YEARLY_YIELD,
 								new SignedDoublewordElement(3514).wordOrder(WordOrder.LSWMSW)),
-						m(SolarLog.ChannelId.TOTAL_YIELD,
+						this.m(SolarLog.ChannelId.TOTAL_YIELD,
 								new SignedDoublewordElement(3516).wordOrder(WordOrder.LSWMSW)),
-						m(SolarLog.ChannelId.PAC_CONSUMPTION,
+						this.m(SolarLog.ChannelId.PAC_CONSUMPTION,
 								new SignedDoublewordElement(3518).wordOrder(WordOrder.LSWMSW)),
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+						this.m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new SignedDoublewordElement(3520).wordOrder(WordOrder.LSWMSW)),
-						m(SolarLog.ChannelId.YESTERDAY_YIELD_CONS,
+						this.m(SolarLog.ChannelId.YESTERDAY_YIELD_CONS,
 								new SignedDoublewordElement(3522).wordOrder(WordOrder.LSWMSW)),
-						m(SolarLog.ChannelId.MONTHLY_YIELD_CONS,
+						this.m(SolarLog.ChannelId.MONTHLY_YIELD_CONS,
 								new SignedDoublewordElement(3524).wordOrder(WordOrder.LSWMSW)),
-						m(SolarLog.ChannelId.YEARLY_YIELD_CONS,
+						this.m(SolarLog.ChannelId.YEARLY_YIELD_CONS,
 								new SignedDoublewordElement(3526).wordOrder(WordOrder.LSWMSW)),
-						m(SolarLog.ChannelId.TOTAL_YIELD_CONS,
+						this.m(SolarLog.ChannelId.TOTAL_YIELD_CONS,
 								new SignedDoublewordElement(3528).wordOrder(WordOrder.LSWMSW)),
-						m(SolarLog.ChannelId.TOTAL_POWER,
+						this.m(SolarLog.ChannelId.TOTAL_POWER,
 								new SignedDoublewordElement(3530).wordOrder(WordOrder.LSWMSW))),
 
 				new FC16WriteRegistersTask(10400, //
-						m(SolarLog.ChannelId.P_LIMIT_TYPE, new UnsignedWordElement(10400)),
-						m(SolarLog.ChannelId.P_LIMIT_PERC, new UnsignedWordElement(10401),
+						this.m(SolarLog.ChannelId.P_LIMIT_TYPE, new UnsignedWordElement(10400)),
+						this.m(SolarLog.ChannelId.P_LIMIT_PERC, new UnsignedWordElement(10401),
 								new ChannelMetaInfoReadAndWrite(10901, 10401))),
 				new FC16WriteRegistersTask(10404,
-						m(SolarLog.ChannelId.WATCH_DOG_TAG,
+						this.m(SolarLog.ChannelId.WATCH_DOG_TAG,
 								new UnsignedDoublewordElement(10404).wordOrder(WordOrder.LSWMSW))),
 
 				new FC4ReadInputRegistersTask(10900, Priority.LOW, //
-						m(SolarLog.ChannelId.STATUS, new SignedWordElement(10900)), //
-						m(SolarLog.ChannelId.P_LIMIT_PERC, new SignedWordElement(10901),
+						this.m(SolarLog.ChannelId.STATUS, new SignedWordElement(10900)), //
+						this.m(SolarLog.ChannelId.P_LIMIT_PERC, new SignedWordElement(10901),
 								new ChannelMetaInfoReadAndWrite(10901, 10401)),
-						m(SolarLog.ChannelId.P_LIMIT, new SignedWordElement(10902))));
+						this.m(SolarLog.ChannelId.P_LIMIT, new SignedWordElement(10902))));
 	}
 
 	@Override

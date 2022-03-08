@@ -41,7 +41,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 
 	/**
 	 * Make sure to call this method from the inheriting OSGi Component.
-	 * 
+	 *
 	 * @throws OpenemsException on error
 	 */
 	@Override
@@ -55,6 +55,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	/**
 	 * Make sure to call this method from the inheriting OSGi Component.
 	 */
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -62,16 +63,16 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 
 	/**
 	 * Make sure to call this method from the inheriting OSGi Component.
-	 * 
+	 *
 	 * <p>
 	 * Requires:
-	 * 
+	 *
 	 * <pre>
 	 * property = { //
 	 *   EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 */
 	@Override
 	public void handleEvent(Event event) {
