@@ -133,6 +133,7 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 		this._setRangeOfReserveSocOutsideAllowedValue(enableWarning);
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
 		}
 	}
 

@@ -62,6 +62,7 @@ public class EssSellToGridLimitImpl extends AbstractOpenemsComponent
 
 		// update filter for 'meter'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
+			return;
 		}
 	}
 

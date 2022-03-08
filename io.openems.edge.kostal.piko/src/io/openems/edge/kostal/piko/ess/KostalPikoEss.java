@@ -74,6 +74,7 @@ public class KostalPikoEss extends AbstractOpenemsComponent implements Symmetric
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		// update filter for 'Core'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Core", config.core_id())) {
+			return;
 		}
 	}
 

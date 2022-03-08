@@ -114,6 +114,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 			return;
 		}
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
+			return;
 		}
 	}
 

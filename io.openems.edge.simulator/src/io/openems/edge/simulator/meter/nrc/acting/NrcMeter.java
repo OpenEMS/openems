@@ -79,6 +79,7 @@ public class NrcMeter extends AbstractOpenemsComponent
 
 		// update filter for 'datasource'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
+			return;
 		}
 	}
 

@@ -114,6 +114,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 
 		// update filter for 'ess'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
 		}
 	}
 
@@ -370,8 +371,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 
 		this._setTargetHoursIsEmpty(this.targetPeriods.isEmpty());
 
-		var currentQuarterHour = TimeOfUseTariffUtils
-				.getNowRoundedDownToMinutes(this.componentManager.getClock(), 15) //
+		var currentQuarterHour = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(), 15) //
 				.withZoneSameInstant(ZoneId.systemDefault());
 
 		if (this.boundarySpace != null && this.boundarySpace.isWithinBoundary(now)) {
@@ -549,8 +549,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 			TreeMap<ZonedDateTime, Float> quarterlyPrices, long remainingEnergy, BoundarySpace boundarySpace) {
 
 		List<ZonedDateTime> targetHours = new ArrayList<>();
-		var currentQuarterHour = TimeOfUseTariffUtils
-				.getNowRoundedDownToMinutes(this.componentManager.getClock(), 15) //
+		var currentQuarterHour = TimeOfUseTariffUtils.getNowRoundedDownToMinutes(this.componentManager.getClock(), 15) //
 				.withZoneSameInstant(ZoneId.systemDefault());
 
 		List<Entry<ZonedDateTime, Float>> priceList = new ArrayList<>(quarterlyPrices //

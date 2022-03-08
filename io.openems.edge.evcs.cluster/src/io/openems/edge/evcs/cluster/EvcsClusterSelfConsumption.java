@@ -92,6 +92,7 @@ public class EvcsClusterSelfConsumption extends AbstractEvcsCluster implements O
 
 		// update filter for 'evcs' component
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
+			return;
 		}
 	}
 

@@ -50,6 +50,7 @@ public class SurplusFeedToGridControllerImpl extends AbstractOpenemsComponent
 
 		// update filter for 'ess'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+			return;
 		}
 	}
 

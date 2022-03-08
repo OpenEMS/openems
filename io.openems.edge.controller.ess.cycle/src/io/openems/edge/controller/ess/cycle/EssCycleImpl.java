@@ -77,6 +77,7 @@ public class EssCycleImpl extends AbstractOpenemsComponent implements Controller
 		this.config = config;
 		super.activate(context, this.config.id(), this.config.alias(), this.config.enabled());
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", this.config.ess_id())) {
+			return;
 		}
 	}
 
@@ -101,8 +102,8 @@ public class EssCycleImpl extends AbstractOpenemsComponent implements Controller
 
 		// Prepare Context
 		var previousState = this.stateMachine.getPreviousState();
-		var context = new Context(this, this.config, this.componentManager, this.ess, maxChargePower,
-				maxDischargePower, previousState, this.lastStateChange);
+		var context = new Context(this, this.config, this.componentManager, this.ess, maxChargePower, maxDischargePower,
+				previousState, this.lastStateChange);
 
 		// Call the StateMachine
 		try {

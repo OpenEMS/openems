@@ -103,6 +103,7 @@ public class GenericOffGridEssImpl
 		// update filter for 'Off Grid Switch'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "offGridSwitch",
 				config.offGridSwitch_id())) {
+			return;
 		}
 	}
 

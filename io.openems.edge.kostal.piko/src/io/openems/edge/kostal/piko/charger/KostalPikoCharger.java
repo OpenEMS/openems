@@ -78,6 +78,7 @@ public class KostalPikoCharger extends AbstractOpenemsComponent implements EssDc
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		// update filter for 'Core'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Core", config.core_id())) {
+			return;
 		}
 	}
 
