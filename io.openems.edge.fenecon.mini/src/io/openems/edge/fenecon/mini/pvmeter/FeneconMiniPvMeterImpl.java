@@ -47,6 +47,7 @@ public class FeneconMiniPvMeterImpl extends AbstractOpenemsModbusComponent imple
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -71,10 +72,10 @@ public class FeneconMiniPvMeterImpl extends AbstractOpenemsModbusComponent imple
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconMiniConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -84,7 +85,7 @@ public class FeneconMiniPvMeterImpl extends AbstractOpenemsModbusComponent imple
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(4006, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(4006))));
+						this.m(SymmetricMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(4006))));
 	}
 
 	@Override
@@ -111,7 +112,7 @@ public class FeneconMiniPvMeterImpl extends AbstractOpenemsModbusComponent imple
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

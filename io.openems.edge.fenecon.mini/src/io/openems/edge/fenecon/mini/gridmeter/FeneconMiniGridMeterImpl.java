@@ -57,6 +57,7 @@ public class FeneconMiniGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -75,10 +76,10 @@ public class FeneconMiniGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconMiniConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -88,10 +89,10 @@ public class FeneconMiniGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(4004, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(4004),
+						this.m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedWordElement(4004),
 								SIGNED_POWER_CONVERTER_AND_INVERT)), //
 				new FC3ReadRegistersTask(4811, Priority.LOW, //
-						m(new BitsWordElement(4811, this) //
+						this.m(new BitsWordElement(4811, this) //
 								.bit(13, FeneconMiniGridMeter.ChannelId.COMMUNICATION_BREAK))) //
 		);
 	}
@@ -133,7 +134,7 @@ public class FeneconMiniGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);
