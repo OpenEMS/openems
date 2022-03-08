@@ -88,6 +88,7 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 		this.channelManager.activate(this.esss);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		this.channelManager.deactivate();
