@@ -20,7 +20,7 @@ public class KeepAllEqual {
 
 	/**
 	 * Tries to distribute power equally between inverters.
-	 * 
+	 *
 	 * @param coefficients   the {@link Coefficients}
 	 * @param allInverters   all {@link Inverter}s
 	 * @param allConstraints all active {@link Constraint}s
@@ -31,9 +31,9 @@ public class KeepAllEqual {
 		try {
 			List<Constraint> constraints = new ArrayList<>(allConstraints);
 			// Create weighted Constraint between first inverter and every other inverter
-			Inverter invA = allInverters.get(0);
-			for (int j = 1; j < allInverters.size(); j++) {
-				Inverter invB = allInverters.get(j);
+			var invA = allInverters.get(0);
+			for (var j = 1; j < allInverters.size(); j++) {
+				var invB = allInverters.get(j);
 				constraints.add(new Constraint(
 						invA.toString() + "|" + invB.toString() + ": distribute ActivePower equally",
 						new LinearCoefficient[] {
