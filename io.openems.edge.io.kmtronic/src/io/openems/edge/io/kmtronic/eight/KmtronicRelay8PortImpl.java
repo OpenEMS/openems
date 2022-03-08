@@ -41,6 +41,7 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -54,10 +55,10 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -70,26 +71,26 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 				 * For Read: Read Coils
 				 */
 				new FC1ReadCoilsTask(0, Priority.LOW, //
-						m(KmtronicRelay8Port.ChannelId.RELAY_1, new CoilElement(0)), //
-						m(KmtronicRelay8Port.ChannelId.RELAY_2, new CoilElement(1)), //
-						m(KmtronicRelay8Port.ChannelId.RELAY_3, new CoilElement(2)), //
-						m(KmtronicRelay8Port.ChannelId.RELAY_4, new CoilElement(3)), //
-						m(KmtronicRelay8Port.ChannelId.RELAY_5, new CoilElement(4)), //
-						m(KmtronicRelay8Port.ChannelId.RELAY_6, new CoilElement(5)), //
-						m(KmtronicRelay8Port.ChannelId.RELAY_7, new CoilElement(6)), //
-						m(KmtronicRelay8Port.ChannelId.RELAY_8, new CoilElement(7)) //
+						this.m(KmtronicRelay8Port.ChannelId.RELAY_1, new CoilElement(0)), //
+						this.m(KmtronicRelay8Port.ChannelId.RELAY_2, new CoilElement(1)), //
+						this.m(KmtronicRelay8Port.ChannelId.RELAY_3, new CoilElement(2)), //
+						this.m(KmtronicRelay8Port.ChannelId.RELAY_4, new CoilElement(3)), //
+						this.m(KmtronicRelay8Port.ChannelId.RELAY_5, new CoilElement(4)), //
+						this.m(KmtronicRelay8Port.ChannelId.RELAY_6, new CoilElement(5)), //
+						this.m(KmtronicRelay8Port.ChannelId.RELAY_7, new CoilElement(6)), //
+						this.m(KmtronicRelay8Port.ChannelId.RELAY_8, new CoilElement(7)) //
 				),
 				/*
 				 * For Write: Write Single Coil
 				 */
-				new FC5WriteCoilTask(0, m(KmtronicRelay8Port.ChannelId.RELAY_1, new CoilElement(0))), //
-				new FC5WriteCoilTask(1, m(KmtronicRelay8Port.ChannelId.RELAY_2, new CoilElement(1))), //
-				new FC5WriteCoilTask(2, m(KmtronicRelay8Port.ChannelId.RELAY_3, new CoilElement(2))), //
-				new FC5WriteCoilTask(3, m(KmtronicRelay8Port.ChannelId.RELAY_4, new CoilElement(3))), //
-				new FC5WriteCoilTask(4, m(KmtronicRelay8Port.ChannelId.RELAY_5, new CoilElement(4))), //
-				new FC5WriteCoilTask(5, m(KmtronicRelay8Port.ChannelId.RELAY_6, new CoilElement(5))), //
-				new FC5WriteCoilTask(6, m(KmtronicRelay8Port.ChannelId.RELAY_7, new CoilElement(6))), //
-				new FC5WriteCoilTask(7, m(KmtronicRelay8Port.ChannelId.RELAY_8, new CoilElement(7))) //
+				new FC5WriteCoilTask(0, this.m(KmtronicRelay8Port.ChannelId.RELAY_1, new CoilElement(0))), //
+				new FC5WriteCoilTask(1, this.m(KmtronicRelay8Port.ChannelId.RELAY_2, new CoilElement(1))), //
+				new FC5WriteCoilTask(2, this.m(KmtronicRelay8Port.ChannelId.RELAY_3, new CoilElement(2))), //
+				new FC5WriteCoilTask(3, this.m(KmtronicRelay8Port.ChannelId.RELAY_4, new CoilElement(3))), //
+				new FC5WriteCoilTask(4, this.m(KmtronicRelay8Port.ChannelId.RELAY_5, new CoilElement(4))), //
+				new FC5WriteCoilTask(5, this.m(KmtronicRelay8Port.ChannelId.RELAY_6, new CoilElement(5))), //
+				new FC5WriteCoilTask(6, this.m(KmtronicRelay8Port.ChannelId.RELAY_7, new CoilElement(6))), //
+				new FC5WriteCoilTask(7, this.m(KmtronicRelay8Port.ChannelId.RELAY_8, new CoilElement(7))) //
 		);
 	}
 

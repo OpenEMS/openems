@@ -19,7 +19,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Holds writes to Relay Output 1 for debugging.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Shelly25
 		 * <li>Type: Boolean
@@ -29,7 +29,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 		DEBUG_RELAY_1(Doc.of(OpenemsType.BOOLEAN)), //
 		/**
 		 * Relay Output 1.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Shelly25
 		 * <li>Type: Boolean
@@ -41,7 +41,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_1))), //
 		/**
 		 * Holds writes to Relay Output 2 for debugging.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Shelly25
 		 * <li>Type: Boolean
@@ -51,7 +51,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 		DEBUG_RELAY_2(Doc.of(OpenemsType.BOOLEAN)), //
 		/**
 		 * Relay Output 2.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Shelly25
 		 * <li>Type: Boolean
@@ -63,7 +63,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_2))), //
 		/**
 		 * Slave Communication Failed Fault.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Shelly25
 		 * <li>Type: State
@@ -77,6 +77,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -111,7 +112,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 
 	/**
 	 * Sets the Relay Output 1. See {@link ChannelId#RELAY_1}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -148,7 +149,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 
 	/**
 	 * Sets the Relay Output 2. See {@link ChannelId#RELAY_2}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -158,7 +159,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getSlaveCommunicationFailedChannel() {
@@ -168,7 +169,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 	/**
 	 * Gets the Slave Communication Failed State. See
 	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getSlaveCommunicationFailed() {
@@ -178,7 +179,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setSlaveCommunicationFailed(boolean value) {
