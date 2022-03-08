@@ -53,7 +53,7 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 	};
 
 	// Values that a Ies KeyWatt is supporting
-	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<OcppInformations>(
+	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<>(
 			Arrays.asList(OcppInformations.values()));
 
 	private Config config;
@@ -117,25 +117,19 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 
 	@Override
 	public OcppStandardRequests getStandardRequests() {
-		return new OcppStandardRequests() {
-
-			@Override
-			public Request setChargePowerLimit(int chargePower) {
-				return new ChangeConfigurationRequest("PowerLimit", String.valueOf(chargePower));
-			}
-		};
+		return chargePower -> new ChangeConfigurationRequest("PowerLimit", String.valueOf(chargePower));
 	}
 
 	@Override
 	public List<Request> getRequiredRequestsAfterConnection() {
 
-		ArrayList<Request> requests = new ArrayList<>();
+		var requests = new ArrayList<Request>();
 
-		ChangeConfigurationRequest setMeterValueSampleInterval = new ChangeConfigurationRequest(
+		var setMeterValueSampleInterval = new ChangeConfigurationRequest(
 				"MeterValueSampleInterval", "10");
 		requests.add(setMeterValueSampleInterval);
 
-		TriggerMessageRequest requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
+		var requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
 		requests.add(requestStatus);
 
 		return requests;
@@ -143,7 +137,7 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 
 	@Override
 	public List<Request> getRequiredRequestsDuringConnection() {
-		return new ArrayList<Request>();
+		return new ArrayList<>();
 	}
 
 	@Override
