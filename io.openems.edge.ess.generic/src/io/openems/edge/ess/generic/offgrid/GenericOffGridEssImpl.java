@@ -103,10 +103,10 @@ public class GenericOffGridEssImpl
 		// update filter for 'Off Grid Switch'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "offGridSwitch",
 				config.offGridSwitch_id())) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		this.getChannelManager().deactivate();
@@ -126,7 +126,7 @@ public class GenericOffGridEssImpl
 		// that is currently in StartedInOffGrid
 
 		// Prepare Context
-		Context context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.getOffGridSwitch(),
+		var context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.getOffGridSwitch(),
 				this.componentManager);
 
 		// Call the StateMachine
