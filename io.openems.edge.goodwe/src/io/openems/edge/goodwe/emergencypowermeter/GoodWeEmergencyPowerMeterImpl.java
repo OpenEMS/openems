@@ -79,6 +79,7 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
+			return;
 		}
 	}
 

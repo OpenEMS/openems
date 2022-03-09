@@ -125,6 +125,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
 				config.modbus_id())) {
+			return;
 		}
 	}
 

@@ -55,6 +55,7 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
+			return;
 		}
 	}
 

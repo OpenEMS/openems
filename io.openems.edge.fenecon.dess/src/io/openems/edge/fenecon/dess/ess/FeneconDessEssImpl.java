@@ -101,6 +101,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id())) {
+			return;
 		}
 	}
 

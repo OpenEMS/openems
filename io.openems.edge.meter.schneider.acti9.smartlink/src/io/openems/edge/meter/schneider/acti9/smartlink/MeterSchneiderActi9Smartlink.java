@@ -64,6 +64,7 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 		this.inverted = config.invert();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
+			return;
 		}
 	}
 

@@ -67,6 +67,7 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 		this.meterType = config.type();
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
+			return;
 		}
 	}
 

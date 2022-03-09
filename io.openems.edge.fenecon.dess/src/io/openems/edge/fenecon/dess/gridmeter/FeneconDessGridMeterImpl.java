@@ -82,6 +82,7 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), FeneconDessConstants.UNIT_ID,
 				this.cm, "Modbus", config.modbus_id())) {
+			return;
 		}
 	}
 

@@ -195,7 +195,8 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [A]
 								.build(), //
 						m(BatteryBoxC130.ChannelId.BATTERY_WORK_STATE, new UnsignedWordElement(0x2102)), //
-						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), m(new UnsignedWordElement(0x2104)) //
+						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), //
+						m(new UnsignedWordElement(0x2104)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.m(Battery.ChannelId.SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.build(), //
