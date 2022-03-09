@@ -149,6 +149,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	void activate(ComponentContext componentContext, Config config) throws OpenemsException {
 		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, config.enabled());
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
 		}
 	}
 

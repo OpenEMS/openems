@@ -13,6 +13,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -115,10 +117,10 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 	}
 
 	private void setChannels(State state, int limit) {
-		var stateMachineChannel = this.channel(ChannelId.STATE_MACHINE);
+		EnumReadChannel stateMachineChannel = this.channel(ChannelId.STATE_MACHINE);
 		stateMachineChannel.setNextValue(state);
 
-		var chargePowerLimitChannel = this.channel(ChannelId.CHARGE_POWER_LIMIT);
+		IntegerReadChannel chargePowerLimitChannel = this.channel(ChannelId.CHARGE_POWER_LIMIT);
 		chargePowerLimitChannel.setNextValue(limit);
 	}
 }

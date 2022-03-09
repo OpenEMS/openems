@@ -78,7 +78,8 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 		this.influxConnector = new InfluxConnector(config.ip(), config.port(), config.username(), config.password(),
 				config.database(), config.retentionPolicy(), config.isReadOnly(), //
 				(failedPoints, throwable) -> {
-					var pointsString = StreamSupport.stream(failedPoints.spliterator(), false).map(Point::lineProtocol)
+					var pointsString = StreamSupport.stream(failedPoints.spliterator(), false)//
+							.map(Point::lineProtocol) //
 							.collect(Collectors.joining(","));
 					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage() + " for "
 							+ StringUtils.toShortString(pointsString, 100));

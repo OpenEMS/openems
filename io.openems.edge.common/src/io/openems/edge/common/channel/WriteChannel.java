@@ -38,7 +38,7 @@ public interface WriteChannel<T> extends Channel<T> {
 	 */
 	public default void setNextWriteValueFromObject(Object value)
 			throws OpenemsNamedException, IllegalArgumentException {
-		var typedValue = TypeUtils.<T>getAsType(this.getType(), value);
+		T typedValue = TypeUtils.<T>getAsType(this.getType(), value);
 		OpenemsNamedException exception = null;
 		// set the write value
 		this._setNextWriteValue(typedValue);

@@ -54,7 +54,11 @@ public class Utils {
 	}
 
 	public static String toBitString(byte[] bs) {
-		return IntStream.range(0, bs.length).map(idx -> bs[idx]).mapToObj(b -> String.format("%8s", //
-				Integer.toBinaryString((byte) b & 0xFF)).replace(' ', '0')).collect(Collectors.joining(" "));
+		return IntStream //
+				.range(0, bs.length) //
+				.map(idx -> bs[idx]) //
+				.mapToObj(b -> String.format("%8s", //
+						Integer.toBinaryString((byte) b & 0xFF)).replace(' ', '0'))
+				.collect(Collectors.joining(" "));
 	}
 }

@@ -28,6 +28,8 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
@@ -1846,8 +1848,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 					// element -> channel
 					value -> {
 						// Set SoC to undefined if there is No Battery
-						var batteryModeChannel = this.channel(GoodWe.ChannelId.BATTERY_MODE);
-						var batteryMode = batteryModeChannel.value().asEnum();
+						EnumReadChannel batteryModeChannel = this.channel(GoodWe.ChannelId.BATTERY_MODE);
+						BatteryMode batteryMode = batteryModeChannel.value().asEnum();
 						if (batteryMode == BatteryMode.NO_BATTERY || batteryMode == BatteryMode.UNDEFINED) {
 							return null;
 						} else {
@@ -1897,7 +1899,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		/*
 		 * Update AC Active Power
 		 */
-		var activePowerChannel = this.channel(this.activePowerChannelId);
+		IntegerReadChannel activePowerChannel = this.channel(this.activePowerChannelId);
 		activePowerChannel.setNextValue(acActivePower);
 
 		/*
@@ -1920,7 +1922,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		/*
 		 * Update DC Discharge Power
 		 */
-		var dcDischargePowerChannel = this.channel(this.dcDischargePowerChannelId);
+		IntegerReadChannel dcDischargePowerChannel = this.channel(this.dcDischargePowerChannelId);
 		dcDischargePowerChannel.setNextValue(dcDischargePower);
 
 		/*

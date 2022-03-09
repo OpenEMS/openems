@@ -231,41 +231,5 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			}
 		}
 	}
-//	/**
-//	 * Aggregate Channels of {@link AsymmetricEss}s.
-//	 *
-//	 * @param aggregator          the aggregator function
-//	 * @param esss                the List of {@link SymmetricEss}
-//	 * @param asymmetricChannelId the AsymmetricEss.ChannelId
-//	 * @param asymmetricChannelId the fallback SymmetricEss.ChannelId; used for
-//	 *                            SymmetricEss and divided by 3
-//	 */
-//	private void calculate(BiFunction<Integer, Integer, Integer> aggregator, List<SymmetricEss> esss,
-//			AsymmetricEss.ChannelId asymmetricChannelId, SymmetricEss.ChannelId symmetricChannelId) {
-//		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
-//			Integer result = null;
-//			for (SymmetricEss ess : esss) {
-//				if (ess instanceof AsymmetricEss) {
-//					Channel<Integer> channel = ((AsymmetricEss) ess).channel(asymmetricChannelId);
-//					result = aggregator.apply(result, channel.getNextValue().get());
-//				} else {
-//					// SymmetricEss
-//					Channel<Integer> channel = ess.channel(symmetricChannelId);
-//					result = aggregator.apply(result, TypeUtils.divide(channel.getNextValue().get(), 3));
-//				}
-//			}
-//
-//			Channel<Integer> channel = this.parent.channel(asymmetricChannelId);
-//			channel.setNextValue(result);
-//		};
-//
-//		for (SymmetricEss ess : esss) {
-//			if (ess instanceof AsymmetricEss) {
-//				this.addOnChangeListener((AsymmetricEss) ess, asymmetricChannelId, callback);
-//			} else {
-//				this.addOnChangeListener(ess, symmetricChannelId, callback);
-//			}
-//		}
-//	}
 
 }

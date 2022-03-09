@@ -67,6 +67,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 	void activate(ComponentContext context) {
 		super.activate(context, PredictorManager.SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
 		}
 	}
 

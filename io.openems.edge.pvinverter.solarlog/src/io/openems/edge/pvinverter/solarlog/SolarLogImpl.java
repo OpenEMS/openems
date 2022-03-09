@@ -89,6 +89,7 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 
 		// Stop if component is disabled
 		if (!config.enabled()) {
+			return;
 		}
 	}
 

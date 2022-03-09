@@ -25,8 +25,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return new Builder();
 	}
 
+	private final Builder builder;
+
 	private MyConfig(Builder builder) {
 		super(Config.class, ComponentManager.SINGLETON_COMPONENT_ID);
+		this.builder = builder;
 	}
 
 }

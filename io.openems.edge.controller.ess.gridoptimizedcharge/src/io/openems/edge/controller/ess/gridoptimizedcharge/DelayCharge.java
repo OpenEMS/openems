@@ -12,6 +12,8 @@ import java.util.stream.IntStream;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
@@ -75,7 +77,7 @@ public class DelayCharge {
 			} catch (DateTimeParseException i) {
 
 				// Set Info state channel and log
-				var noValidManualTargetTime = this.parent
+				StateChannel noValidManualTargetTime = this.parent
 						.channel(GridOptimizedCharge.ChannelId.NO_VALID_MANUAL_TARGET_TIME);
 				noValidManualTargetTime.setNextValue(true);
 				this.parent.logDebug(noValidManualTargetTime.channelDoc().getText());
@@ -275,7 +277,7 @@ public class DelayCharge {
 		/**
 		 * Calculate the average with the last 900 limits
 		 */
-		var delayChargeLimitRawChannel = this.parent.getRawDelayChargeLimitChannel();
+		IntegerReadChannel delayChargeLimitRawChannel = this.parent.getRawDelayChargeLimitChannel();
 
 		var pastLimits = delayChargeLimitRawChannel.getPastValues()
 				.tailMap(LocalDateTime.now(this.parent.componentManager.getClock()).minusSeconds(900), true) //
