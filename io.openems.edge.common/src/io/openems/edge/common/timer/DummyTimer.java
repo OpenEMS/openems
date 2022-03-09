@@ -1,10 +1,10 @@
-package io.openems.edge.timer.api;
+package io.openems.edge.common.timer;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import org.joda.time.DateTime;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public class DummyTimer extends AbstractOpenemsComponent implements OpenemsCompo
 
     public DummyTimer(String id, TimerType type) {
         super(
-                OpenemsComponent.ChannelId.values()
+                ChannelId.values()
         );
         for (Channel<?> channel : this.channels()) {
             channel.nextProcessImage();
@@ -52,10 +52,10 @@ public class DummyTimer extends AbstractOpenemsComponent implements OpenemsCompo
             case TIME:
                 wrapper = this.getWrapper(identifier);
                 if (wrapper.isInitialized()) {
-                    return DateTime.now().isAfter(wrapper.getInitialDateTime().get().plusSeconds(wrapper.getMaxValue()));
+                    return Instant.now().isAfter(wrapper.getInitialDateTime().get().plusSeconds(wrapper.getMaxValue()));
                 } else {
                     wrapper.setInitialized(true);
-                    wrapper.getInitialDateTime().set(new DateTime());
+                    wrapper.getInitialDateTime().set(Instant.now());
                 }
                 return false;
         }
@@ -102,10 +102,10 @@ public class DummyTimer extends AbstractOpenemsComponent implements OpenemsCompo
     }
 
     @Override
-    public void setInitTime(String id, String identifierSwap, DateTime dateTime) {
+    public void setInitTime(String id, String identifierSwap, Instant time) {
         if (this.type.equals(TimerType.TIME)) {
             this.identifierToValueWrapper.get(identifierSwap).setInitialized(true);
-            this.identifierToValueWrapper.get(identifierSwap).setInitialDateTime(dateTime);
+            this.identifierToValueWrapper.get(identifierSwap).setInitialDateTime(time);
         }
     }
 

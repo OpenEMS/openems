@@ -1,7 +1,6 @@
-package io.openems.edge.timer.api;
+package io.openems.edge.common.timer;
 
-import org.joda.time.DateTime;
-
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -17,12 +16,12 @@ class ValueInitializedWrapper {
     private boolean initialized;
     //only needed by CycleTimer
     private final AtomicInteger counter = new AtomicInteger(0);
-    private final AtomicReference<DateTime> initialDateTime = new AtomicReference<>();
+    private final AtomicReference<Instant> initialDateTime = new AtomicReference<>();
 
     public ValueInitializedWrapper(int maxValue, boolean initialized) {
         this.maxValue = maxValue;
         this.initialized = initialized;
-        this.initialDateTime.set(new DateTime());
+        this.initialDateTime.set(Instant.now());
     }
 
     public ValueInitializedWrapper(int maxValue) {
@@ -50,14 +49,15 @@ class ValueInitializedWrapper {
         return this.counter;
     }
 
-    AtomicReference<DateTime> getInitialDateTime() {
+    AtomicReference<Instant> getInitialDateTime() {
         return this.initialDateTime;
     }
 
-    void setInitialDateTime(DateTime time){
+    void setInitialDateTime(Instant time) {
         this.initialDateTime.set(time);
     }
-    void setCounter(int value){
+
+    void setCounter(int value) {
         this.counter.set(value);
     }
 }

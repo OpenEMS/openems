@@ -1,8 +1,7 @@
-package io.openems.edge.timer.api;
+package io.openems.edge.common.timer;
 
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import org.joda.time.DateTime;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -13,6 +12,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+
+import java.time.Instant;
 
 /**
  * This Timer is one of the child Implementations of the {@link AbstractTimer} and the {@link Timer}.
@@ -93,13 +94,20 @@ public class TimerByCycles extends AbstractTimer implements OpenemsComponent, Ev
         }
     }
 
+    /**
+     * Overrides the Initial Time. Use with caution.
+     *
+     * @param id             the OpenemsComponent Id.
+     * @param identifierSwap one of the identifier of the component.
+     * @param count          new initial SetPoint of the counter.
+     */
     @Override
     public void setInitTime(String id, String identifierSwap, Integer count) {
         super.setInitTime(id, identifierSwap, count);
     }
 
     @Override
-    public void setInitTime(String id, String identifierSwap, DateTime dateTime) {
-
+    public void setInitTime(String id, String identifierSwap, Instant time) {
+        //not supported here
     }
 }

@@ -1,8 +1,8 @@
-package io.openems.edge.timer.api;
+package io.openems.edge.common.timer;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import org.joda.time.DateTime;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,15 +88,29 @@ public abstract class AbstractTimer extends AbstractOpenemsComponent implements 
         }
     }
 
+    /**
+     * Overrides the Initial Time. Use with caution.
+     *
+     * @param id             the OpenemsComponent Id.
+     * @param identifierSwap one of the identifier of the component.
+     * @param time           the new initial Time.
+     */
     @Override
-    public void setInitTime(String id, String identifierSwap, DateTime dateTime){
+    public void setInitTime(String id, String identifierSwap, Instant time) {
         this.getWrapper(id, identifierSwap).setInitialized(true);
-        this.getWrapper(id,identifierSwap).setInitialDateTime(dateTime);
+        this.getWrapper(id, identifierSwap).setInitialDateTime(time);
     }
 
+    /**
+     * Overrides the Initial Time. Use with caution.
+     *
+     * @param id             the OpenemsComponent Id.
+     * @param identifierSwap one of the identifier of the component.
+     * @param count          new initial SetPoint of the counter.
+     */
     @Override
-    public void setInitTime(String id, String identifierSwap, Integer count){
+    public void setInitTime(String id, String identifierSwap, Integer count) {
         this.getWrapper(id, identifierSwap).setInitialized(true);
-        this.getWrapper(id,identifierSwap).setCounter(count);
+        this.getWrapper(id, identifierSwap).setCounter(count);
     }
 }

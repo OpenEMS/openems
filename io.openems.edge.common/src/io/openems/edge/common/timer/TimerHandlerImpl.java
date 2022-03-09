@@ -1,11 +1,11 @@
-package io.openems.edge.timer.api;
+package io.openems.edge.common.timer;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import org.joda.time.DateTime;
 import org.osgi.service.cm.ConfigurationException;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +14,6 @@ import java.util.Map;
  * should use this, to avoid a bulk of implementation.
  * Components cann add an Identifier to the TimerHandler by giving it the identifier id, the TimerString they want to use and the maxTime
  * Everything's usually from config, except the identifier, this can be a static final string.
- *
  */
 public class TimerHandlerImpl implements TimerHandler {
     private final Map<String, Timer> identifierToTimerMap = new HashMap<>();
@@ -73,9 +72,10 @@ public class TimerHandlerImpl implements TimerHandler {
 
     /**
      * Private Method to validate the Timer. Checks if the ID is correct and if the component is an instance of a Timer.
+     *
      * @param timer the TimerId
      * @return the Timer if id is correct.
-     * @throws ConfigurationException if Id not an instance of Timer
+     * @throws ConfigurationException             if Id not an instance of Timer
      * @throws OpenemsError.OpenemsNamedException if id could not be found.
      */
     private Timer getValidTimer(String timer) throws ConfigurationException, OpenemsError.OpenemsNamedException {
@@ -119,11 +119,23 @@ public class TimerHandlerImpl implements TimerHandler {
         return this.identifierToTimerMap.get(identifier).checkIsTimeUp(this.id, identifier);
     }
 
+    /**
+     * Overrides the Initial Time. Use with caution.
+     *
+     * @param time           the new initial Time.
+     * @param identifierSwap one of the identifier of the component.
+     */
     @Override
-    public void setInitialTime(DateTime dateTime, String identifierSwap) {
-        this.identifierToTimerMap.get(identifierSwap).setInitTime(this.id, identifierSwap, dateTime);
+    public void setInitialTime(Instant time, String identifierSwap) {
+        this.identifierToTimerMap.get(identifierSwap).setInitTime(this.id, identifierSwap, time);
     }
 
+    /**
+     * Overrides the Initial Time. Use with caution.
+     *
+     * @param count          new initial SetPoint of the counter.
+     * @param identifierSwap one of the identifier of the component.
+     */
     @Override
     public void setInitialTime(Integer count, String identifierSwap) {
         this.identifierToTimerMap.get(identifierSwap).setInitTime(this.id, identifierSwap, count);

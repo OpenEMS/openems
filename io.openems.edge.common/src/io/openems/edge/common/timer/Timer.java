@@ -1,6 +1,7 @@
-package io.openems.edge.timer.api;
+package io.openems.edge.common.timer;
 
-import org.joda.time.DateTime;
+
+import java.time.Instant;
 
 /**
  * The Timer interface. This is normally used by TimerHandler, but other classes can use the Timer directly. (Even though it's not recommended)
@@ -45,7 +46,21 @@ public interface Timer {
      */
     void addIdentifierToTimer(String id, String identifier, int maxValue);
 
-    void setInitTime(String id, String identifierSwap, DateTime dateTime);
+    /**
+     * Overrides the Initial Time. Use with caution.
+     *
+     * @param id             the OpenemsComponent Id.
+     * @param time           the new initial Time.
+     * @param identifierSwap one of the identifier of the component.
+     */
+    void setInitTime(String id, String identifierSwap, Instant time);
 
+    /**
+     * Overrides the Initial Time. Use with caution.
+     *
+     * @param id             the OpenemsComponent Id.
+     * @param count          new initial SetPoint of the counter.
+     * @param identifierSwap one of the identifier of the component.
+     */
     void setInitTime(String id, String identifierSwap, Integer count);
 }

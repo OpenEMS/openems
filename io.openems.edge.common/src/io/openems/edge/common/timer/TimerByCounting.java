@@ -1,7 +1,6 @@
-package io.openems.edge.timer.api;
+package io.openems.edge.common.timer;
 
 import io.openems.edge.common.component.OpenemsComponent;
-import org.joda.time.DateTime;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -9,6 +8,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.metatype.annotations.Designate;
+
+import java.time.Instant;
 
 
 /**
@@ -30,7 +31,7 @@ public class TimerByCounting extends AbstractTimer implements OpenemsComponent {
 
 
     public TimerByCounting() {
-        super(OpenemsComponent.ChannelId.values());
+        super(ChannelId.values());
     }
 
     @Activate
@@ -53,6 +54,7 @@ public class TimerByCounting extends AbstractTimer implements OpenemsComponent {
      * Get the current Counter of the {@link ValueInitializedWrapper#getCounter()} increment,
      * and check if the maxValue is reached.
      * Note: After Init the return value will always be false.
+     *
      * @param id         the OpenemsComponent Id.
      * @param identifier the identifier the component uses.
      * @return true if Time is up.
@@ -69,13 +71,20 @@ public class TimerByCounting extends AbstractTimer implements OpenemsComponent {
         return false;
     }
 
+    /**
+     * Overrides the Initial Time. Use with caution.
+     *
+     * @param id             the OpenemsComponent Id.
+     * @param identifierSwap one of the identifier of the component.
+     * @param count          new initial SetPoint of the counter.
+     */
     @Override
     public void setInitTime(String id, String identifierSwap, Integer count) {
         super.setInitTime(id, identifierSwap, count);
     }
 
     @Override
-    public void setInitTime(String id, String identifierSwap, DateTime dateTime) {
-
+    public void setInitTime(String id, String identifierSwap, Instant time) {
+        //Not supported here
     }
 }

@@ -1,8 +1,7 @@
-package io.openems.edge.timer.api;
+package io.openems.edge.common.timer;
 
 
 import io.openems.edge.common.component.OpenemsComponent;
-import org.joda.time.DateTime;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -10,6 +9,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.metatype.annotations.Designate;
+
+import java.time.Instant;
 
 /**
  * This Timer is one of the child Implementations of the {@link AbstractTimer} and the {@link Timer}.
@@ -26,7 +27,7 @@ import org.osgi.service.metatype.annotations.Designate;
 public class TimerByTimeImpl extends AbstractTimer implements OpenemsComponent {
 
     public TimerByTimeImpl() {
-        super(OpenemsComponent.ChannelId.values());
+        super(ChannelId.values());
     }
 
     @Activate
@@ -55,21 +56,28 @@ public class TimerByTimeImpl extends AbstractTimer implements OpenemsComponent {
     public boolean checkIsTimeUp(String id, String identifier) {
         ValueInitializedWrapper wrapper = super.getWrapper(id, identifier);
         if (wrapper.isInitialized()) {
-            return DateTime.now().isAfter(wrapper.getInitialDateTime().get().plusSeconds(wrapper.getMaxValue()));
+            return Instant.now().isAfter(wrapper.getInitialDateTime().get().plusSeconds(wrapper.getMaxValue()));
         } else {
             wrapper.setInitialized(true);
-            wrapper.getInitialDateTime().set(new DateTime());
+            wrapper.getInitialDateTime().set(Instant.now());
         }
         return false;
     }
 
+    /**
+     * Overrides the Initial Time. Use with caution.
+     *
+     * @param id             the OpenemsComponent Id.
+     * @param identifierSwap one of the identifier of the component.
+     * @param time           the new initial Time.
+     */
     @Override
-    public void setInitTime(String id, String identifierSwap, DateTime dateTime) {
-       super.setInitTime(id, identifierSwap, dateTime);
+    public void setInitTime(String id, String identifierSwap, Instant time) {
+        super.setInitTime(id, identifierSwap, time);
     }
 
     @Override
     public void setInitTime(String id, String identifierSwap, Integer count) {
-
+        //not supported here
     }
 }
