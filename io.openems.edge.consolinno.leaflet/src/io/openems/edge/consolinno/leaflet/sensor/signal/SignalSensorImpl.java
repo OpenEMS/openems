@@ -111,7 +111,7 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
             return new ModbusProtocol(this,
                     new FC4ReadInputRegistersTask(this.temperatureAnalogInput, Priority.HIGH,
                             m(Thermometer.ChannelId.TEMPERATURE, new SignedWordElement(this.temperatureAnalogInput),
-                                    ElementToChannelConverter.DIRECT_1_TO_1)));
+                                    ElementToChannelConverter.REPLACE_WITH_MINUS_999_IF_LEAFLET_ERROR_NEGATIVE)));
         } else {
             return null;
         }
@@ -127,7 +127,7 @@ public class SignalSensorImpl extends AbstractOpenemsModbusComponent implements 
         Value<Integer> currentTemperature = getTemperature();
         boolean currentTempDefined = currentTemperature.isDefined();
         boolean signalActive = false;
-        if (currentTempDefined) {
+        if (currentTempDefined && !currentTemperature.get().equals(-999)) {
             signalActive = this.isInverted == (currentTemperature.get() < MAX_TEMPERATURE);
         }
         this.signalActive().setNextValue(signalActive);

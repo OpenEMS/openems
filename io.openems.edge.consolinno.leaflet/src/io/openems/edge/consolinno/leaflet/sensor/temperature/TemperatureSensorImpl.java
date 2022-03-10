@@ -96,7 +96,7 @@ public class TemperatureSensorImpl extends AbstractOpenemsModbusComponent implem
             return new ModbusProtocol(this,
                     new FC4ReadInputRegistersTask(this.temperatureAnalogInput, Priority.HIGH,
                             m(Thermometer.ChannelId.TEMPERATURE, new SignedWordElement(this.temperatureAnalogInput),
-                                    ElementToChannelConverter.DIRECT_1_TO_1)));
+                                    ElementToChannelConverter.REPLACE_WITH_MINUS_999_IF_LEAFLET_ERROR_NEGATIVE)));
         } else {
             this.deactivate();
             return null;
