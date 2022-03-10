@@ -1,9 +1,7 @@
 package io.openems.edge.bridge.mqtt.api;
 
+import java.time.ZonedDateTime;
 import java.util.Map;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 
 /**
@@ -23,9 +21,8 @@ public interface MqttSubscribeTask extends MqttTask {
     /**
      * Converts the time. Usually Called by Manager.
      *
-     * @param timeZone given by Manager-Class.
      */
-    void convertTime(DateTimeZone timeZone);
+    void convertTime();
 
     /**
      * Gets the Time where the Payload was received (important for CommandValues -> check if command is expired).
@@ -33,7 +30,7 @@ public interface MqttSubscribeTask extends MqttTask {
      * @return the Time (Joda-Time)
      */
 
-    DateTime getTime();
+    ZonedDateTime getTime();
 
     /**
      * Get the Commands and their WrapperClass.

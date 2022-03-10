@@ -5,7 +5,6 @@ import io.openems.edge.bridge.mqtt.api.MqttTask;
 import io.openems.edge.bridge.mqtt.api.MqttType;
 import io.openems.edge.bridge.mqtt.connection.MqttConnectionSubscribeImpl;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +23,9 @@ public class MqttSubscribeManager extends AbstractMqttManager {
 
 
     public MqttSubscribeManager(Map<String, List<MqttTask>> subscribeTasks, String mqttBroker,
-                                String mqttUsername, String mqttPassword, String mqttClientId, int keepAlive,
-                                DateTimeZone timeZone) throws MqttException {
+                                String mqttUsername, String mqttPassword, String mqttClientId, int keepAlive) throws MqttException {
 
-        super(mqttBroker, mqttUsername, mqttPassword, mqttClientId, keepAlive, subscribeTasks, timeZone);
+        super(mqttBroker, mqttUsername, mqttPassword, mqttClientId, keepAlive, subscribeTasks);
         MqttType[] types = MqttType.values();
         //Create MqttConnections for each mqttType
         for (int x = 0; x < types.length; x++) {
@@ -50,7 +48,7 @@ public class MqttSubscribeManager extends AbstractMqttManager {
                 if (task.isReady(super.getCurrentTime())) {
                     //Response to new message.
                     ((MqttSubscribeTask) task).response(this.connections.get(task.getMqttType()).getPayload(task.getTopic()));
-                    ((MqttSubscribeTask) task).convertTime(super.timeZone);
+                    ((MqttSubscribeTask) task).convertTime();
                 }
             }
         }));

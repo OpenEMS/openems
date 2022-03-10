@@ -10,8 +10,6 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.wrapper.paho-mqttv3;version=latest,\
-	io.openems.wrapper.jodatime;version=latest,\
-	joda-time;version=latest,\
     org.eclipse.paho.client.mqttv3;version=latest,\
 
 -testpath: \

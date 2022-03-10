@@ -1,10 +1,8 @@
 package io.openems.edge.bridge.mqtt.manager;
 
-import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.bridge.mqtt.api.MqttTask;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.cycle.Cycle;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +38,6 @@ abstract class AbstractMqttManager {
     String mqttPassword;
     String mqttClientId;
     int keepAlive;
-    DateTimeZone timeZone;
     protected static final int MAX_LIST_LENGTH = 30;
     //Counter for Qos --> e.g. QoS 0 has counter 10 --> FOR LIST FILL
     Map<Integer, AtomicInteger> counterForQos = new HashMap<>();
@@ -52,8 +49,7 @@ abstract class AbstractMqttManager {
     private final List<Long> averageTime = new ArrayList<>();
 
     AbstractMqttManager(String mqttBroker, String mqttUsername, String mqttPassword,
-                        String mqttClientId, int keepAlive, Map<String, List<MqttTask>> allTasks,
-                        DateTimeZone timeZone) {
+                        String mqttClientId, int keepAlive, Map<String, List<MqttTask>> allTasks) {
 
         this.mqttBroker = mqttBroker;
         this.mqttUsername = mqttUsername;
@@ -70,7 +66,6 @@ abstract class AbstractMqttManager {
             //just default timestamps that will be overwritten
             this.timeForQos.get(x).add(0, (long) (x + 1) * 10);
         }
-        this.timeZone = timeZone;
     }
 
     void foreverAbstract() {

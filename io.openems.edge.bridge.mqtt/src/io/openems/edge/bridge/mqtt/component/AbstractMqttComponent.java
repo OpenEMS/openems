@@ -13,7 +13,6 @@ import io.openems.edge.bridge.mqtt.api.MqttType;
 import io.openems.edge.bridge.mqtt.api.PayloadStyle;
 import io.openems.edge.common.channel.Channel;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.joda.time.DateTime;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
@@ -22,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -572,11 +572,11 @@ public abstract class AbstractMqttComponent {
      */
 
     public boolean expired(MqttSubscribeTask task, int expirationTime) {
-        DateTime now = new DateTime(this.mqttBridge.getTimeZone());
+        ZonedDateTime now = ZonedDateTime.now();
         if (task.getTime() == null) {
             return false;
         }
-        DateTime expiration = task.getTime().plusSeconds(expirationTime);
+        ZonedDateTime expiration = task.getTime().plusSeconds(expirationTime);
         return now.isAfter(expiration);
     }
 

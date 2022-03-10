@@ -15,7 +15,6 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	eu.chargetime.ocpp:common;version='1.0',\
 	eu.chargetime.ocpp:v1_6;version='1.0.1',\
 	info.faljse:SDNotify;version='1.3',\
-	joda-time;version='1.10.13',\
 	fr.turri:aXMLRPC;version='1.12',\
 	org.dhatim:fastexcel;version='0.12.13',\
 	org.eclipse.paho.client.mqttv3;version='1.2.3',\

@@ -13,7 +13,6 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.joda.time.DateTime;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -21,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +37,7 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
     AtomicReference<MqttBridge> mqttBridge = new AtomicReference<>();
     OpenemsComponent otherComponent;
     String mqttBridgeId;
-    DateTime initTime;
+    Instant initTime;
     private static final int WAIT_SECONDS = 10;
     private boolean initialized = false;
 
@@ -238,7 +238,7 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
      */
     protected void renewReferenceAndMqttConfigurationComponent(ComponentManager cpm) {
         if (this.initialized) {
-            if (this.initTime != null && new DateTime().isAfter(this.initTime.plusSeconds(WAIT_SECONDS))) {
+            if (this.initTime != null && Instant.now().isAfter(this.initTime.plusSeconds(WAIT_SECONDS))) {
                 this.initialized = false;
                 try {
                     if (this.otherComponent != null && (this.otherComponent.isEnabled() == false || this.componentIsSame(cpm, this.otherComponent) == false)) {
@@ -257,7 +257,7 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
             }
         } else {
             this.initialized = true;
-            this.initTime = new DateTime();
+            this.initTime = Instant.now();
         }
     }
 

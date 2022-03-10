@@ -76,9 +76,6 @@ import org.osgi.service.metatype.annotations.Option;
     @AttributeDefinition(name = "Use Time for Last Will", description = "Send a timestamp?")
     boolean timeStampEnabled() default true;
 
-    @AttributeDefinition(name = "Region", description = "Set Region of your Device e.g. Europe/Berlin (look up Joda TimeZones) empty String = UTC")
-    String locale() default "Europe/Berlin";
-
     @AttributeDefinition(name = "Mqtt Types", description = "Possible MqttTypes, will be filled after activation")
     String[] mqttTypes() default {""};
 

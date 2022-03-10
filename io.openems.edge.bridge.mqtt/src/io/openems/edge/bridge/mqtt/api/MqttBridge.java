@@ -1,26 +1,18 @@
 package io.openems.edge.bridge.mqtt.api;
 
-import java.util.List;
-
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.joda.time.DateTimeZone;
+
+import java.util.List;
 
 /**
  * This Interface provides the MqttBridge Nature. This allows the Telemetry/Command Component to add it's task to this
  * bridge and communicate via MQTT.
  */
 public interface MqttBridge extends OpenemsComponent {
-
-    /**
-     * Get the Timezone set for the Bridge and therefore for all Timestamps of each payload who have a Timestamp bool set.
-     *
-     * @return the TimeZone measured by external library joda-time
-     */
-    DateTimeZone getTimeZone();
 
     /**
      * Check if the Given Component is in the MqttBridge.

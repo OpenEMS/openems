@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.mqtt;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.mqtt.api.GetStandardZonedDateTimeFormatted;
 import io.openems.edge.bridge.mqtt.api.MqttBridge;
 import io.openems.edge.bridge.mqtt.api.MqttComponent;
 import io.openems.edge.bridge.mqtt.api.MqttPriority;
@@ -16,8 +17,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
@@ -36,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -95,7 +95,7 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
     private AtomicInteger executorCurrent = new AtomicInteger(10);
     private static final int EXECUTOR_MAX = 90;
 
-    private DateTime initialTime;
+    private Instant initialTime;
     private boolean initialized;
     private static final int TIME_SECONDS_TO_WAIT_TILL_RECONNECT = 60;
     private Map<String, List<MqttTask>> missingSubscriptionsAfterReconnect = new HashMap<>();
@@ -105,7 +105,6 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
     private MqttConnectionPublishImpl bridgePublisher;
 
     //TimeZone Available for all classes
-    private DateTimeZone timeZone = DateTimeZone.UTC;
     private boolean isFirstConnection;
 
     public MqttBridgeImpl() {
@@ -135,7 +134,6 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
      */
     private void basicActivationOrModifiedSetup(Config config) throws OpenemsException, MqttException {
         if (config.enabled()) {
-            this.timeZone = config.locale().equals("") ? DateTimeZone.UTC : DateTimeZone.forID(config.locale());
             //Important for last will.
             this.bridgePublisher = new MqttConnectionPublishImpl();
             try {
@@ -146,10 +144,10 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
             }
 
             this.publishManager = new MqttPublishManager(this.publishTasks, this.mqttBroker, this.mqttUsername,
-                    this.mqttPassword, config.keepAlive(), this.mqttClientId, this.timeZone);
+                    this.mqttPassword, config.keepAlive(), this.mqttClientId);
             //ClientId --> + CLIENT_SUB_0
             this.subscribeManager = new MqttSubscribeManager(this.subscribeTasks, this.mqttBroker, this.mqttUsername,
-                    this.mqttPassword, this.mqttClientId, config.keepAlive(), this.timeZone);
+                    this.mqttPassword, this.mqttClientId, config.keepAlive());
             this.publishManager.setComponentManager(this.cpm);
             this.subscribeManager.setComponentManager(this.cpm);
             this.publishManager.setCoreCycle(config.useCoreCycleTime());
@@ -229,7 +227,7 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
                     this.mqttUsername, this.mqttPassword, config.cleanSessionFlag());
             this.bridgePublisher.addLastWill(config.topicLastWill(),
                     config.payloadLastWill(), config.qosLastWill(), config.timeStampEnabled(), config.retainedFlag(),
-                    DateTime.now(this.timeZone).toString("yyyy-MM-dd'T'HH:mm:ss.SSSZZ"));
+                    GetStandardZonedDateTimeFormatted.getStandardZonedDateTimeString());
             //External Call bc Last will can be set
             this.bridgePublisher.connect();
         }
@@ -288,11 +286,6 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
         super.deactivate();
     }
 
-
-    @Override
-    public DateTimeZone getTimeZone() {
-        return this.timeZone;
-    }
 
     @Override
     public boolean containsComponent(String id) {
@@ -534,14 +527,14 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
             return true;
         }
         if (this.initialized) {
-            boolean shouldTryToReconnectAgain = new DateTime().isAfter(this.initialTime.plusSeconds(TIME_SECONDS_TO_WAIT_TILL_RECONNECT));
+            boolean shouldTryToReconnectAgain = Instant.now().isAfter(this.initialTime.plusSeconds(TIME_SECONDS_TO_WAIT_TILL_RECONNECT));
             if (shouldTryToReconnectAgain) {
                 this.initialized = false;
             }
             return shouldTryToReconnectAgain;
         } else {
             this.initialized = true;
-            this.initialTime = new DateTime();
+            this.initialTime = Instant.now();
             //first time to try to reconnect
             return false;
         }
@@ -562,10 +555,10 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
         try {
 
             this.publishManager = new MqttPublishManager(this.publishTasks, this.mqttBroker, this.mqttUsername,
-                    this.mqttPassword, this.keepAlive, this.mqttClientId, this.timeZone);
+                    this.mqttPassword, this.keepAlive, this.mqttClientId);
             //ClientId --> + CLIENT_SUB_0
             this.subscribeManager = new MqttSubscribeManager(this.subscribeTasks, this.mqttBroker, this.mqttUsername,
-                    this.mqttPassword, this.mqttClientId, this.keepAlive, this.timeZone);
+                    this.mqttPassword, this.mqttClientId, this.keepAlive);
             this.subscribeTasks.forEach((key, value) -> value.forEach(entry -> {
                 try {
                     this.subscribeManager.subscribeToTopic(entry, key);

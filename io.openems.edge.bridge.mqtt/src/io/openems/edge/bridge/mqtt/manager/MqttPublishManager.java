@@ -1,11 +1,10 @@
 package io.openems.edge.bridge.mqtt.manager;
 
+import io.openems.edge.bridge.mqtt.api.GetStandardZonedDateTimeFormatted;
 import io.openems.edge.bridge.mqtt.api.MqttPublishTask;
 import io.openems.edge.bridge.mqtt.api.MqttTask;
 import io.openems.edge.bridge.mqtt.connection.MqttConnectionPublishImpl;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,11 +24,9 @@ public class MqttPublishManager extends AbstractMqttManager {
     private final Map<Integer, MqttConnectionPublishImpl> connections = new HashMap<>();
 
     public MqttPublishManager(Map<String, List<MqttTask>> publishTasks, String mqttBroker,
-                              String mqttUsername, String mqttPassword, int keepAlive, String mqttClientId,
-                              DateTimeZone formatter) throws MqttException {
+                              String mqttUsername, String mqttPassword, int keepAlive, String mqttClientId) throws MqttException {
 
-        super(mqttBroker, mqttUsername, mqttPassword, mqttClientId, keepAlive, publishTasks,
-                formatter);
+        super(mqttBroker, mqttUsername, mqttPassword, mqttClientId, keepAlive, publishTasks);
         //Create new Connection Publish
         //Magic numbers bc there are only 3 QoS available
         for (int x = 0; x < 3; x++) {
@@ -51,13 +48,14 @@ public class MqttPublishManager extends AbstractMqttManager {
                 //Update Payload
                 if (task instanceof MqttPublishTask) {
                     MqttPublishTask task1 = ((MqttPublishTask) task);
-                    String now = DateTime.now(timeZone).toString("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+                    //see https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html
+                    //Example expected output:"2022-03-10T19:18:43.657+01:00"
+                    String now = GetStandardZonedDateTimeFormatted.getStandardZonedDateTimeString();
                     //add the Timestamp and update the Payload getting values from Channel(Each Task)
                     task1.updatePayload(now);
                 }
                 //Sending the message via Mqttconnection + start and stop time to check how long it does take
                 //In Super class qos 0 will be "ignored" since there's no ack etc
-
                 int qos = task.getQos();
                 long time = System.currentTimeMillis();
                 this.connections.get(qos).sendMessage(task.getTopic(), task.getPayload(), qos, task.getRetainFlag());

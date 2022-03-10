@@ -1,22 +1,19 @@
 package io.openems.edge.bridge.mqtt.api;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.WriteChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-
-import io.openems.common.exceptions.OpenemsError;
-import io.openems.edge.common.channel.Channel;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import io.openems.edge.common.channel.WriteChannel;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -28,7 +25,7 @@ public class MqttSubscribeTaskImpl extends AbstractMqttTask implements MqttSubsc
     private final Logger log = LoggerFactory.getLogger(MqttSubscribeTaskImpl.class);
     private String time;
     //converted time
-    private DateTime timeDate;
+    private ZonedDateTime timeDate;
     //                                               //name in Broker   // ID of channel
     //Map of ID For Broker and ChannelID --> e.g. roomTemperature: temperature.channelId.id();
     private Map<String, String> nameIdAndChannelIdMap;
@@ -226,17 +223,16 @@ public class MqttSubscribeTaskImpl extends AbstractMqttTask implements MqttSubsc
     /**
      * Converts the time. Usually Called by Manager.
      *
-     * @param timeZone given by Manager-Class.
      */
     @Override
-    public void convertTime(DateTimeZone timeZone) {
+    public void convertTime() {
         if (this.time != null && !this.time.equals("")) {
-            this.timeDate = DateTime.now(timeZone);
+            this.timeDate = ZonedDateTime.parse(this.time);
         }
     }
 
     @Override
-    public DateTime getTime() {
+    public ZonedDateTime getTime() {
         return this.timeDate;
     }
 
