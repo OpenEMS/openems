@@ -36,7 +36,7 @@ public enum DelayChargeRiskLevel {
 
 	/**
 	 * Get buffer minutes.
-	 * 
+	 *
 	 * @return buffer minutes
 	 */
 	public int getBufferMinutes() {

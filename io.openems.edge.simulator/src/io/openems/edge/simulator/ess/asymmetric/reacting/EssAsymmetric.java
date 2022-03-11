@@ -61,6 +61,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -102,6 +103,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 		this._setGridMode(config.gridMode());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -145,12 +147,12 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) throws OpenemsException {
-		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
+		var activePower = activePowerL1 + activePowerL2 + activePowerL3;
 		/*
 		 * calculate State of charge
 		 */
-		float watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
-		float socChange = watthours / this.config.capacity();
+		var watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
+		var socChange = watthours / this.config.capacity();
 		this.soc -= socChange;
 		if (this.soc > 100) {
 			this.soc = 100;
@@ -166,7 +168,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 		this._setActivePowerL3(activePowerL3);
 		this._setActivePower(activePower);
 
-		int reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
+		var reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
 		this._setReactivePowerL1(reactivePowerL1);
 		this._setReactivePowerL2(reactivePowerL2);
 		this._setReactivePowerL3(reactivePowerL3);
@@ -208,7 +210,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateChargeEnergy.update(null);

@@ -37,7 +37,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Gets the logged in User with a timeout.
-	 * 
+	 *
 	 * @param timeout the timeout length
 	 * @param unit    the {@link TimeUnit} of the timeout
 	 * @return the {@link User}

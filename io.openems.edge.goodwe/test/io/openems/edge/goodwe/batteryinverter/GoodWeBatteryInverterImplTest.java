@@ -48,7 +48,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testEt() throws Exception {
-		GoodWeEtCharger1 charger = new GoodWeEtCharger1();
+		var charger = new GoodWeEtCharger1();
 		new ComponentTest(charger) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -59,7 +59,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.build());
 
-		GoodWeBatteryInverterImpl ess = new GoodWeBatteryInverterImpl();
+		var ess = new GoodWeBatteryInverterImpl();
 		ess.addCharger(charger);
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
@@ -94,7 +94,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testNegativSetActivePoint() throws Exception {
-		GoodWeBatteryInverterImpl ess = new GoodWeBatteryInverterImpl();
+		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -126,7 +126,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testDischargeBattery() throws Exception {
-		GoodWeBatteryInverterImpl ess = new GoodWeBatteryInverterImpl();
+		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -158,7 +158,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testEmsPowerModeAutoWithBalancing() throws Exception {
-		GoodWeBatteryInverterImpl ess = new GoodWeBatteryInverterImpl();
+		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -189,7 +189,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testEmsPowerModeAutoWithSurplus() throws Exception {
-		GoodWeEtCharger1 charger = new GoodWeEtCharger1();
+		var charger = new GoodWeEtCharger1();
 		new ComponentTest(charger) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -200,7 +200,7 @@ public class GoodWeBatteryInverterImplTest {
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.build());
 
-		GoodWeBatteryInverterImpl ess = new GoodWeBatteryInverterImpl();
+		var ess = new GoodWeBatteryInverterImpl();
 		ess.addCharger(charger);
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
@@ -233,7 +233,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testEmsPowerModeAutoWithMaxAcImport() throws Exception {
-		GoodWeBatteryInverterImpl ess = new GoodWeBatteryInverterImpl();
+		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -263,7 +263,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testEmsPowerModeAutoWithMaxAcExport() throws Exception {
-		GoodWeBatteryInverterImpl ess = new GoodWeBatteryInverterImpl();
+		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -293,7 +293,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testBatteryIsFull() throws Exception {
-		GoodWeBatteryInverterImpl ess = new GoodWeBatteryInverterImpl();
+		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -323,7 +323,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testBatteryIsEmpty() throws Exception {
-		GoodWeBatteryInverterImpl ess = new GoodWeBatteryInverterImpl();
+		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -353,7 +353,7 @@ public class GoodWeBatteryInverterImplTest {
 
 	@Test
 	public void testAcCalculation() throws Exception {
-		GoodWeBatteryInverterImpl ess = new GoodWeBatteryInverterImpl();
+		var ess = new GoodWeBatteryInverterImpl();
 		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //

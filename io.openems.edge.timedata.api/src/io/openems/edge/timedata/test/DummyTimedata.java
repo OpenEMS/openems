@@ -40,7 +40,7 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 
 	/**
 	 * Adds a value to the Dummy Timedata.
-	 * 
+	 *
 	 * @param timestamp      the {@link ZonedDateTime}
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @param value          the value as {@link Integer}
@@ -51,13 +51,13 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 
 	/**
 	 * Adds a value to the Dummy Timedata.
-	 * 
+	 *
 	 * @param timestamp      the {@link ZonedDateTime}
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @param value          the value as {@link JsonElement}
 	 */
 	public void add(ZonedDateTime timestamp, ChannelAddress channelAddress, JsonElement value) {
-		SortedMap<ChannelAddress, JsonElement> perTime = this.data.get(timestamp);
+		var perTime = this.data.get(timestamp);
 		if (perTime == null) {
 			perTime = new TreeMap<>();
 			this.data.put(timestamp, perTime);

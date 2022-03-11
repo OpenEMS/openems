@@ -5,7 +5,7 @@ import io.openems.edge.common.channel.Doc;
 /**
  * This file should contain all the extra channels apart from the standard
  * natures that the StoraXe provides.
- * 
+ *
  * @author les
  *
  */

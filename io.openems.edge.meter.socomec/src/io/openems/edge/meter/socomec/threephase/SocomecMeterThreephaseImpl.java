@@ -64,6 +64,7 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -79,6 +80,7 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 		this.identifySocomecMeter();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

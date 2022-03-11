@@ -107,6 +107,7 @@ public class GenericOffGridEssImpl
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		this.getChannelManager().deactivate();
@@ -126,7 +127,7 @@ public class GenericOffGridEssImpl
 		// that is currently in StartedInOffGrid
 
 		// Prepare Context
-		Context context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.getOffGridSwitch(),
+		var context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.getOffGridSwitch(),
 				this.componentManager);
 
 		// Call the StateMachine

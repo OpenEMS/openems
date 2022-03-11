@@ -46,7 +46,7 @@ public class LongWriteChannel extends LongReadChannel implements WriteChannel<Lo
 
 	/**
 	 * Internal method. Do not call directly.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Deprecated

@@ -1,6 +1,7 @@
 package io.openems.edge.common.modbusslave;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 		this.accessMode = evaluateActualAccessMode(channelId, modbusApiAccessMode);
 
 		// initialize buffer
-		int byteLength = 0;
+		var byteLength = 0;
 		switch (this.getType()) {
 		case FLOAT32:
 			byteLength = ModbusRecordFloat32.BYTE_LENGTH;
@@ -59,13 +60,13 @@ public class ModbusRecordChannel extends ModbusRecord {
 	/**
 	 * Evaluate the AccessMode from configured Modbus-Api-AccessMode and
 	 * Channel-AccessMode.
-	 * 
+	 *
 	 * @param channelId         the {@link ChannelId}
 	 * @param channelAccessMode the configured {@link AccessMode}
 	 * @return the actual {@link AccessMode}
 	 */
 	private static AccessMode evaluateActualAccessMode(ChannelId channelId, AccessMode modbusApiAccessMode) {
-		AccessMode channelAccessMode = channelId.doc().getAccessMode();
+		var channelAccessMode = channelId.doc().getAccessMode();
 		switch (modbusApiAccessMode) {
 		case READ_ONLY:
 			switch (channelAccessMode) {
@@ -93,7 +94,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			}
 		}
 		// should never come here
-		assert (true);
+		assert true;
 		return AccessMode.READ_ONLY;
 	}
 
@@ -120,7 +121,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			case READ_WRITE:
 				return ModbusRecordFloat32.toByteArray(channel.value().get());
 			case WRITE_ONLY:
-				return ModbusRecordFloat32Reserved.UNDEFINED_VALUE;
+				return ModbusRecordFloat32.UNDEFINED_VALUE;
 			}
 		case FLOAT64:
 			switch (this.accessMode) {
@@ -128,7 +129,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			case READ_WRITE:
 				return ModbusRecordFloat64.toByteArray(channel.value().get());
 			case WRITE_ONLY:
-				return ModbusRecordFloat64Reserved.UNDEFINED_VALUE;
+				return ModbusRecordFloat64.UNDEFINED_VALUE;
 			}
 		case STRING16:
 			switch (this.accessMode) {
@@ -136,7 +137,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			case READ_WRITE:
 				return ModbusRecordString16.toByteArray(channel.value().get());
 			case WRITE_ONLY:
-				return ModbusRecordString16Reserved.UNDEFINED_VALUE;
+				return ModbusRecordString16.UNDEFINED_VALUE;
 			}
 		case ENUM16:
 		case UINT16:
@@ -145,7 +146,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			case READ_WRITE:
 				return ModbusRecordUint16.toByteArray(channel.value().get());
 			case WRITE_ONLY:
-				return ModbusRecordUint16Reserved.UNDEFINED_VALUE;
+				return ModbusRecordUint16.UNDEFINED_VALUE;
 			}
 		case UINT32:
 			switch (this.accessMode) {
@@ -153,7 +154,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			case READ_WRITE:
 				return ModbusRecordUint32.toByteArray(channel.value().get());
 			case WRITE_ONLY:
-				return ModbusRecordUint32Reserved.UNDEFINED_VALUE;
+				return ModbusRecordUint32.UNDEFINED_VALUE;
 			}
 		}
 		assert true;
@@ -179,23 +180,21 @@ public class ModbusRecordChannel extends ModbusRecord {
 		this.writeValueBuffer[index * 2] = byte1;
 		this.writeValueBuffer[index * 2 + 1] = byte2;
 		// is the buffer full?
-		for (int i = 0; i < this.writeValueBuffer.length; i++) {
-			if (this.writeValueBuffer[i] == null) {
+		for (Byte element : this.writeValueBuffer) {
+			if (element == null) {
 				return; // no, it is not full
 			}
 		}
 
 		// yes, it is full -> Prepare ByteBuffer
-		ByteBuffer buff = ByteBuffer.allocate(this.writeValueBuffer.length);
-		for (int i = 0; i < this.writeValueBuffer.length; i++) {
-			buff.put(this.writeValueBuffer[i]);
+		var buff = ByteBuffer.allocate(this.writeValueBuffer.length);
+		for (Byte element : this.writeValueBuffer) {
+			buff.put(element);
 		}
 		buff.rewind();
 
 		// clear buffer
-		for (int i = 0; i < this.writeValueBuffer.length; i++) {
-			this.writeValueBuffer[i] = null;
-		}
+		Arrays.fill(this.writeValueBuffer, null);
 
 		// Get Value-Object from ByteBuffer
 		Object value = null;

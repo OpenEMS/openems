@@ -33,7 +33,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements the Siemens PAC2200/3200/4200 power meter.
- * 
+ *
  * <p>
  * https://cache.industry.siemens.com/dl/files/150/26504150/att_906558/v1/A5E01168664B-04_EN-US_122016_201612221316360495.pdf
  */
@@ -66,6 +66,7 @@ public class SiemensPacMeterImpl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -82,6 +83,7 @@ public class SiemensPacMeterImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -95,7 +97,7 @@ public class SiemensPacMeterImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
-		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
+		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(1, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(1),
 								ElementToChannelConverter.SCALE_FACTOR_3),

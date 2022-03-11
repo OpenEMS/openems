@@ -11,7 +11,8 @@ import io.openems.common.types.OpenemsType;
  * A DummyRegisterElement is a placeholder for an empty
  * {@link ModbusRegisterElement}.
  */
-public class DummyRegisterElement extends AbstractModbusElement<Void> implements ModbusRegisterElement<Void>, DummyElement {
+public class DummyRegisterElement extends AbstractModbusElement<Void>
+		implements ModbusRegisterElement<Void>, DummyElement {
 
 	private final int length;
 
@@ -26,7 +27,7 @@ public class DummyRegisterElement extends AbstractModbusElement<Void> implements
 
 	@Override
 	public int getLength() {
-		return length;
+		return this.length;
 	}
 
 	/**
@@ -34,7 +35,6 @@ public class DummyRegisterElement extends AbstractModbusElement<Void> implements
 	 */
 	@Override
 	public void setInputRegisters(InputRegister... registers) {
-		return;
 	}
 
 	@Override

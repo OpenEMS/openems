@@ -75,7 +75,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <DD>
  * <H4>Example 1</H4> Display some features of TemperatureContainer instance
  * '<code>tc</code>':
- * 
+ *
  * <PRE>
  *  <CODE>
  *   // Read High and Low Alarms
@@ -94,7 +94,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <DD>
  * <H4>Example 2</H4> Gets temperature reading from a TemperatureContainer
  * instance '<code>tc</code>':
- * 
+ *
  * <PRE>
  *  <CODE>
  *   double lastTemperature;
@@ -122,7 +122,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * to do a conversion without reading the result. One could take advantage of
  * the alarm features of a device by setting a threshold and doing conversions
  * until the device is alarming. For example:
- * 
+ *
  * <PRE>
  *  <CODE>
  *   // get the current resolution of the device
@@ -143,7 +143,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <DD>
  * <H4>Example 3</H4> Sets the temperature resolution of a TemperatureContainer
  * instance '<code>tc</code>':
- * 
+ *
  * <PRE>
  *  <CODE>
  *   byte[] state = tc.readDevice();

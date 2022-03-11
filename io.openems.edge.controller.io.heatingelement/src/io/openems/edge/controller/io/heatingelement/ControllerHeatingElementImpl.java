@@ -3,7 +3,6 @@ package io.openems.edge.controller.io.heatingelement;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -76,6 +75,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		this.updateConfig(config);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -104,10 +104,10 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		}
 
 		// Calculate Phase Time
-		int phase1Time = (int) this.phase1.getTotalDuration().getSeconds();
-		int phase2Time = (int) this.phase2.getTotalDuration().getSeconds();
-		int phase3Time = (int) this.phase3.getTotalDuration().getSeconds();
-		int totalPhaseTime = phase1Time + phase2Time + phase3Time;
+		var phase1Time = (int) this.phase1.getTotalDuration().getSeconds();
+		var phase2Time = (int) this.phase2.getTotalDuration().getSeconds();
+		var phase3Time = (int) this.phase3.getTotalDuration().getSeconds();
+		var totalPhaseTime = phase1Time + phase2Time + phase3Time;
 
 		// Update Channels
 		this.channel(ControllerHeatingElement.ChannelId.PHASE1_TIME).setNextValue(phase1Time);
@@ -122,7 +122,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handle Mode "Manual On".
-	 * 
+	 *
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
@@ -132,7 +132,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handle Mode "Manual Off".
-	 * 
+	 *
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
@@ -142,7 +142,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handle Mode "Automatic".
-	 * 
+	 *
 	 * @throws IllegalArgumentException on error.
 	 * @throws OpenemsNamedException    on error.
 	 */
@@ -160,8 +160,8 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		if (gridActivePower > 0) {
 			excessPower = 0;
 		} else {
-			excessPower = (gridActivePower * -1) - essDischargePower
-					+ (this.currentLevel.getValue() * this.config.powerPerPhase());
+			excessPower = gridActivePower * -1 - essDischargePower
+					+ this.currentLevel.getValue() * this.config.powerPerPhase();
 		}
 
 		// Calculate Level from excessPower
@@ -177,9 +177,9 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		}
 
 		// Do we need to force-heat?
-		LocalTime now = LocalTime.now(this.componentManager.getClock());
-		LocalTime configuredEndTime = LocalTime.parse(this.config.endTime());
-		LocalTime latestForceChargeStartTime = this.calculateLatestForceHeatingStartTime();
+		var now = LocalTime.now(this.componentManager.getClock());
+		var configuredEndTime = LocalTime.parse(this.config.endTime());
+		var latestForceChargeStartTime = this.calculateLatestForceHeatingStartTime();
 		if (now.isAfter(latestForceChargeStartTime) && now.isBefore(configuredEndTime)) {
 			if (targetLevel.getValue() < this.config.defaultLevel().getValue()) {
 				targetLevel = this.config.defaultLevel(); // force-heat with configured default level
@@ -200,7 +200,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Calculates the minimum total phase time the user demands in [s].
-	 * 
+	 *
 	 * <ul>
 	 * <li>in {@link WorkMode#TIME}:
 	 * <ul>
@@ -211,7 +211,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	 * </ul>
 	 * <li>in {@link WorkMode#NONE}: always return 0
 	 * </ul>
-	 * 
+	 *
 	 * @return the minimum total phase time [s]
 	 */
 	private static long calculateMinimumTotalPhaseTime(Config config) {
@@ -232,44 +232,43 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		case NONE:
 			return 0;
 		}
-		assert (true);
+		assert true;
 		return 0;
 	}
 
 	/**
 	 * Calculates the time from when force-heating needs to start latest.
-	 * 
+	 *
 	 * @return the time, or {@link LocalTime#MAX} if no force-heating is required
 	 */
 	private LocalTime calculateLatestForceHeatingStartTime() {
-		long totalPhaseTime = this.phase1.getTotalDuration().getSeconds() //
+		var totalPhaseTime = this.phase1.getTotalDuration().getSeconds() //
 				+ this.phase2.getTotalDuration().getSeconds() //
 				+ this.phase3.getTotalDuration().getSeconds(); // [s]
-		long remainingTotalPhaseTime = this.minimumTotalPhaseTime - totalPhaseTime; // [s]
+		var remainingTotalPhaseTime = this.minimumTotalPhaseTime - totalPhaseTime; // [s]
 		if (remainingTotalPhaseTime < 0) {
 			return LocalTime.MAX;
-		} else {
-			LocalTime endTime = LocalTime.parse(this.config.endTime());
-			switch (this.config.defaultLevel()) {
-			case LEVEL_0:
-			case UNDEFINED:
-			case LEVEL_1:
-				// keep value
-				break;
-			case LEVEL_2:
-				remainingTotalPhaseTime /= 2;
-				break;
-			case LEVEL_3:
-				remainingTotalPhaseTime /= 3;
-				break;
-			}
-			return endTime.minusSeconds(remainingTotalPhaseTime);
 		}
+		var endTime = LocalTime.parse(this.config.endTime());
+		switch (this.config.defaultLevel()) {
+		case LEVEL_0:
+		case UNDEFINED:
+		case LEVEL_1:
+			// keep value
+			break;
+		case LEVEL_2:
+			remainingTotalPhaseTime /= 2;
+			break;
+		case LEVEL_3:
+			remainingTotalPhaseTime /= 3;
+			break;
+		}
+		return endTime.minusSeconds(remainingTotalPhaseTime);
 	}
 
 	/**
 	 * Switch on Phases according to selected {@link Level}.
-	 * 
+	 *
 	 * @param level the target Level
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsNamedException    on error
@@ -306,15 +305,15 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Applies the {@link #HYSTERESIS} to avoid too quick changes of Levels.
-	 * 
+	 *
 	 * @param targetLevel the target {@link Level}
 	 * @return the targetLevel if no hysteresis needs to be applied; the
 	 *         currentLevel if hysteresis is to be applied
 	 */
 	private Level applyHysteresis(Level targetLevel) {
 		if (this.currentLevel != targetLevel) {
-			LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
-			Duration hysteresis = Duration.ofSeconds(this.config.minimumSwitchingTime());
+			var now = LocalDateTime.now(this.componentManager.getClock());
+			var hysteresis = Duration.ofSeconds(this.config.minimumSwitchingTime());
 			if (this.lastLevelChange.plus(hysteresis).isBefore(now)) {
 				// no hysteresis applied
 				this.currentLevel = targetLevel;
@@ -336,7 +335,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the configured Power-per-Phase in [W].
-	 * 
+	 *
 	 * @return power per phase
 	 */
 	protected int getPowerPerPhase() {
@@ -353,18 +352,18 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	 * @throws IllegalArgumentException on error.
 	 */
 	protected void setOutput(Phase phase, boolean value) throws IllegalArgumentException, OpenemsNamedException {
-		ChannelAddress channelAddress = this.getChannelAddressForPhase(phase);
+		var channelAddress = this.getChannelAddressForPhase(phase);
 		WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(channelAddress);
-		Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+		var currentValueOpt = outputChannel.value().asOptional();
 		if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
-			this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (value) + ".");
+			this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + value + ".");
 			outputChannel.setNextWriteValue(value);
 		}
 	}
 
 	/**
 	 * Gets the Output ChannelAddress for a given Phase.
-	 * 
+	 *
 	 * @param phase the Phase
 	 * @return the Output ChannelAddress
 	 * @throws OpenemsNamedException on error
@@ -378,7 +377,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		case L3:
 			return ChannelAddress.fromString(this.config.outputChannelPhaseL3());
 		}
-		assert (true); // can never happen
+		assert true; // can never happen
 		return null;
 	}
 }

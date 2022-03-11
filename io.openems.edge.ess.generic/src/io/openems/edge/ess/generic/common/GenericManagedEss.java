@@ -53,14 +53,14 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 
 	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
-	 * 
+	 *
 	 * @return {@link StartStop}
 	 */
 	public StartStop getStartStopTarget();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_BATTERY_START_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxBatteryStartAttemptsFaultChannel() {
@@ -70,7 +70,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Gets the {@link StateChannel} for
 	 * {@link ChannelId#MAX_BATTERY_START_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxBatteryStartAttemptsFault() {
@@ -80,7 +80,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_BATTERY_START_ATTEMPTS_FAULT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxBatteryStartAttemptsFault(boolean value) {
@@ -89,7 +89,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_BATTERY_STOP_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxBatteryStopAttemptsFaultChannel() {
@@ -99,7 +99,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Gets the {@link StateChannel} for
 	 * {@link ChannelId#MAX_BATTERY_STOP_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxBatteryStopAttemptsFault() {
@@ -109,7 +109,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_BATTERY_STOP_ATTEMPTS_FAULT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxBatteryStopAttemptsFault(boolean value) {
@@ -119,7 +119,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Gets the Channel for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxBatteryInverterStartAttemptsFaultChannel() {
@@ -129,7 +129,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Gets the {@link StateChannel} for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxBatteryInverterStartAttemptsFault() {
@@ -139,7 +139,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxBatteryInverterStartAttemptsFault(boolean value) {
@@ -149,7 +149,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Gets the Channel for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxBatteryInverterStopAttemptsFaultChannel() {
@@ -159,7 +159,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Gets the {@link StateChannel} for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxBatteryInverterStopAttemptsFault() {
@@ -169,7 +169,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxBatteryInverterStopAttemptsFault(boolean value) {

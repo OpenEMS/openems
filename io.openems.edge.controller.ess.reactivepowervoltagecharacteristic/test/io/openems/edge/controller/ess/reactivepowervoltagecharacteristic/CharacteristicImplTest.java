@@ -27,7 +27,7 @@ public class CharacteristicImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-10-05T14:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.parse("2020-10-05T14:00:00.00Z"), ZoneOffset.UTC);
 		new ControllerTest(new ReactivePwrVoltChractersticImpl())//
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //

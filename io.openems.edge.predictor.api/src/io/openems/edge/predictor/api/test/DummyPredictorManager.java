@@ -1,6 +1,7 @@
 package io.openems.edge.predictor.api.test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.openems.common.types.ChannelAddress;
@@ -13,7 +14,7 @@ import io.openems.edge.predictor.api.oneday.Predictor24Hours;
 
 public class DummyPredictorManager extends AbstractOpenemsComponent implements PredictorManager, OpenemsComponent {
 
-	private List<Predictor24Hours> predictors = new ArrayList<>();
+	private final List<Predictor24Hours> predictors = new ArrayList<>();
 
 	public DummyPredictorManager(Predictor24Hours... predictors) {
 		super(//
@@ -23,9 +24,7 @@ public class DummyPredictorManager extends AbstractOpenemsComponent implements P
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
-		for (Predictor24Hours predictor : predictors) {
-			this.predictors.add(predictor);
-		}
+		Collections.addAll(this.predictors, predictors);
 		super.activate(null, PredictorManager.SINGLETON_COMPONENT_ID, PredictorManager.SINGLETON_SERVICE_PID, true);
 	}
 

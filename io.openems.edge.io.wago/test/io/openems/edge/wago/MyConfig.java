@@ -19,12 +19,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.id = id;
 			return this;
 		}
-		
+
 		public Builder setUsername(String username) {
 			this.username = username;
 			return this;
 		}
-		
+
 		public Builder setPassword(String password) {
 			this.password = password;
 			return this;
@@ -42,7 +42,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

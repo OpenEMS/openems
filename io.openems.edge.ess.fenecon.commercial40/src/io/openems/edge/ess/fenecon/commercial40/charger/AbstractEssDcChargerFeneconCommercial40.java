@@ -35,7 +35,7 @@ public abstract class AbstractEssDcChargerFeneconCommercial40 extends AbstractOp
 
 	/**
 	 * Is this PV1 or PV2 charger?.
-	 * 
+	 *
 	 * @return true for PV1, false for PV2
 	 */
 	protected abstract boolean isPV1();
@@ -52,7 +52,7 @@ public abstract class AbstractEssDcChargerFeneconCommercial40 extends AbstractOp
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ModbusProtocol protocol = new ModbusProtocol(this, //
+		var protocol = new ModbusProtocol(this, //
 				new FC16WriteRegistersTask(0x0503, //
 						m(EssDcChargerFeneconCommercial40.ChannelId.SET_PV_POWER_LIMIT, new UnsignedWordElement(0x0503),
 								ElementToChannelConverter.SCALE_FACTOR_2))); //
@@ -225,7 +225,7 @@ public abstract class AbstractEssDcChargerFeneconCommercial40 extends AbstractOp
 	 * Calculate the Energy values from ActivePower.
 	 */
 	private void calculateEnergy() {
-		Integer actualPower = this.getActualPower().get();
+		var actualPower = this.getActualPower().get();
 		if (actualPower == null) {
 			// Not available
 			this.calculateActualEnergy.update(null);

@@ -59,6 +59,7 @@ public class PersistenceModelPredictorImpl extends AbstractPredictor24Hours
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.channelAddresses());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -66,8 +67,8 @@ public class PersistenceModelPredictorImpl extends AbstractPredictor24Hours
 
 	@Override
 	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
-		ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock());
-		ZonedDateTime fromDate = now.minus(1, ChronoUnit.DAYS);
+		var now = ZonedDateTime.now(this.componentManager.getClock());
+		var fromDate = now.minus(1, ChronoUnit.DAYS);
 
 		// Query database
 		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult;
@@ -81,17 +82,16 @@ public class PersistenceModelPredictorImpl extends AbstractPredictor24Hours
 		}
 
 		// Extract data
-		Integer[] result = queryResult.values().stream() //
-				.map(m -> m.values()) //
+		var result = queryResult.values().stream() //
+				.map(SortedMap::values) //
 				// extract JsonElement values as flat stream
 				.flatMap(Collection::stream) //
 				// convert JsonElement to Integer
 				.map(v -> {
 					if (v.isJsonNull()) {
 						return (Integer) null;
-					} else {
-						return v.getAsInt();
 					}
+					return v.getAsInt();
 				})
 				// get as Array
 				.toArray(Integer[]::new);

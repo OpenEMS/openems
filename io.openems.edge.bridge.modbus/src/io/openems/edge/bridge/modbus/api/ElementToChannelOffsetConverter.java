@@ -4,7 +4,7 @@ import io.openems.common.types.OpenemsType;
 
 /**
  * Converts between Element and Channel by applying an offset.
- * 
+ *
  * <p>
  * (channel = element + offset)
  */
@@ -13,14 +13,10 @@ public class ElementToChannelOffsetConverter extends ElementToChannelConverter {
 	public ElementToChannelOffsetConverter(int offset) {
 		super(//
 				// element -> channel
-				value -> {
-					return apply(value, offset);
-				}, //
+				value -> apply(value, offset), //
 
 				// channel -> element
-				value -> {
-					return apply(value, offset * -1);
-				});
+				value -> apply(value, offset * -1));
 	}
 
 	private static Object apply(Object value, int offset) {
@@ -43,40 +39,38 @@ public class ElementToChannelOffsetConverter extends ElementToChannelConverter {
 					return (boolean) value;
 				}
 				if (value instanceof Short) {
-					long result = ((Short) value) + offset;
+					long result = (Short) value + offset;
 					if (result >= Short.MIN_VALUE && result <= Short.MAX_VALUE) {
 						return Short.valueOf((short) result);
-					} else if (result > Integer.MIN_VALUE && result < Integer.MAX_VALUE) {
+					}
+					if (result > Integer.MIN_VALUE && result < Integer.MAX_VALUE) {
 						return Integer.valueOf((int) result);
 					} else {
 						return Long.valueOf(result);
 					}
 				}
 				if (value instanceof Integer) {
-					long result = ((Integer) value) + offset;
+					long result = (Integer) value + offset;
 					if (result >= Integer.MIN_VALUE && result <= Integer.MAX_VALUE) {
 						return Integer.valueOf((int) result);
-					} else {
-						return Long.valueOf(result);
 					}
+					return Long.valueOf(result);
 				}
 				if (value instanceof Long) {
-					long result = ((Long) value) + offset;
-					return result;
+					return (Long) value + offset;
 				}
 				if (value instanceof Float) {
-					double result = ((Float) value) + offset;
+					double result = (Float) value + offset;
 					if (result >= Float.MIN_VALUE && result <= Float.MAX_VALUE) {
 						return Float.valueOf((float) result);
-					} else {
-						return Double.valueOf(result);
 					}
+					return Double.valueOf(result);
 				}
 				if (value instanceof Double) {
-					return Double.valueOf(((Double) value) + offset);
+					return Double.valueOf((Double) value + offset);
 				}
 				if (value instanceof String) {
-					return (String) value;
+					return value;
 				}
 			}
 			break;

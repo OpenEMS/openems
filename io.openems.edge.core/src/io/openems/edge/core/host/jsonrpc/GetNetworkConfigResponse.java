@@ -9,9 +9,9 @@ import io.openems.edge.core.host.NetworkConfiguration;
 
 /**
  * JSON-RPC Response to "getNetworkConfig" Request.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

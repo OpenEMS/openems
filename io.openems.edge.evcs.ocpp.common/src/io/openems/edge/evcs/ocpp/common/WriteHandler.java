@@ -1,7 +1,6 @@
 package io.openems.edge.evcs.ocpp.common;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import eu.chargetime.ocpp.NotConnectedException;
 import eu.chargetime.ocpp.OccurenceConstraintException;
 import eu.chargetime.ocpp.UnsupportedFeatureException;
-import eu.chargetime.ocpp.model.Request;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.evcs.api.Evcs;
@@ -38,7 +36,7 @@ public class WriteHandler implements Runnable {
 	/**
 	 * Sends commands to the loading station depending on which profiles it
 	 * implements.
-	 * 
+	 *
 	 * <p>
 	 * It is not sending an command, if the communication failed or the write
 	 * channel is not set.
@@ -79,7 +77,7 @@ public class WriteHandler implements Runnable {
 
 	/**
 	 * Sets the current or power from SET_CHARGE_POWER channel.
-	 * 
+	 *
 	 * <p>
 	 * Depending on the charging type it will send different commands with different
 	 * units. Invalid values are discarded. If the energy limit is reached it will
@@ -91,27 +89,27 @@ public class WriteHandler implements Runnable {
 
 		if (energyLimit == 0 || energyLimit > this.parent.getEnergySession().orElse(0)) {
 			WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
-			Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+			var valueOpt = channel.getNextWriteValueAndReset();
 
-			OcppStandardRequests requests = this.parent.getStandardRequests();
+			var requests = this.parent.getStandardRequests();
 
 			if (valueOpt.isPresent()) {
 
 				int maxPower = this.parent.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT);
-				Integer power = valueOpt.get();
+				var power = valueOpt.get();
 
 				Integer target = power > maxPower ? maxPower : power;
-				Request request = requests.setChargePowerLimit(target);
+				var request = requests.setChargePowerLimit(target);
 
 				/*
 				 * Only if the target has changed or a time has passed.
 				 */
-				if (!target.equals(lastTarget) || this.nextPowerWrite.isBefore(LocalDateTime.now())) {
+				if (!target.equals(this.lastTarget) || this.nextPowerWrite.isBefore(LocalDateTime.now())) {
 
 					try {
 						this.parent.ocppServer.send(this.parent.sessionId, request)
 								.whenComplete((confirmation, throwable) -> {
-									this.parent.logInfo(log, confirmation.toString());
+									this.parent.logInfo(this.log, confirmation.toString());
 								});
 
 						this.parent.logInfo(this.log,
@@ -122,11 +120,11 @@ public class WriteHandler implements Runnable {
 						this.lastTarget = target;
 
 					} catch (OccurenceConstraintException e) {
-						this.parent.logWarn(log, "The request is not a valid OCPP request.");
+						this.parent.logWarn(this.log, "The request is not a valid OCPP request.");
 					} catch (UnsupportedFeatureException e) {
-						this.parent.logWarn(log, "This feature is not implemented by the charging station.");
+						this.parent.logWarn(this.log, "This feature is not implemented by the charging station.");
 					} catch (NotConnectedException e) {
-						this.parent.logWarn(log, "The server is not connected.");
+						this.parent.logWarn(this.log, "The server is not connected.");
 					}
 				}
 			}
@@ -144,20 +142,21 @@ public class WriteHandler implements Runnable {
 	 */
 	private void setEnergyLimit() {
 		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
-		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+		var valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
-			Integer energyLimit = valueOpt.get();
+			var energyLimit = valueOpt.get();
 
 			/*
 			 * Only if the target has changed or a time has passed.
 			 */
-			if (!energyLimit.equals(lastEnergySession) || this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
+			if (!energyLimit.equals(this.lastEnergySession)
+					|| this.nextEnergySessionWrite.isBefore(LocalDateTime.now())) {
 
 				this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT).setNextValue(energyLimit);
 				this.parent.logInfo(this.log, "Setting OCPP EVCS " + this.parent.alias()
 						+ " Energy Limit in this Session to [" + energyLimit + " Wh]");
-				lastEnergySession = energyLimit;
-				nextEnergySessionWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
+				this.lastEnergySession = energyLimit;
+				this.nextEnergySessionWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 			}
 		}
 	}

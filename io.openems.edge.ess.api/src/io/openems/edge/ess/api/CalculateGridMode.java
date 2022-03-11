@@ -15,7 +15,7 @@ public class CalculateGridMode {
 
 	/**
 	 * Adds a Channel-Value.
-	 * 
+	 *
 	 * @param channel
 	 */
 	public void addValue(Channel<GridMode> channel) {
@@ -25,16 +25,16 @@ public class CalculateGridMode {
 
 	/**
 	 * Finds the effective Grid-Mode.
-	 * 
+	 *
 	 * @return
 	 */
 	public GridMode calculate() {
-		if(this.values.isEmpty()) {
+		if (this.values.isEmpty()) {
 			return GridMode.UNDEFINED;
 		}
-		
-		int onGrids = 0;
-		int offGrids = 0;
+
+		var onGrids = 0;
+		var offGrids = 0;
 		for (GridMode gridMode : this.values) {
 			switch (gridMode) {
 			case OFF_GRID:
@@ -48,7 +48,7 @@ public class CalculateGridMode {
 			}
 		}
 
-		GridMode result = GridMode.UNDEFINED;
+		var result = GridMode.UNDEFINED;
 		if (this.values.size() == onGrids) {
 			result = GridMode.ON_GRID;
 		}

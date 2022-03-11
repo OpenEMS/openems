@@ -57,14 +57,14 @@ public class OneWireThermometer extends AbstractOpenemsComponent implements Ther
 		);
 	}
 
-	private Consumer<DSPortAdapter> task = (adapter) -> {
+	private final Consumer<DSPortAdapter> task = adapter -> {
 		try {
-			TemperatureContainer container = this.getDeviceContainer(adapter);
+			var container = this.getDeviceContainer(adapter);
 			if (this.state != null) {
 				container.doTemperatureConvert(this.state);
 			}
 			this.state = container.readDevice();
-			double temp = container.getTemperature(this.state);
+			var temp = container.getTemperature(this.state);
 
 			this._setTemperature((int) (temp * 10 /* convert to decidegree */));
 			this._setCommunicationFailed(false);
@@ -96,15 +96,16 @@ public class OneWireThermometer extends AbstractOpenemsComponent implements Ther
 		if (this._container != null) {
 			return this._container;
 		}
-		OneWireContainer owc = adapter.getDeviceContainer(config.address());
+		var owc = adapter.getDeviceContainer(this.config.address());
 		if (!(owc instanceof OneWireContainer)) {
 			throw new OpenemsException("This is not a OneWire Temperature Container");
 		}
-		TemperatureContainer container = (TemperatureContainer) owc;
+		var container = (TemperatureContainer) owc;
 		this._container = container;
 		return this._container;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		this.bridge.removeTask(this.task);

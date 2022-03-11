@@ -27,7 +27,7 @@ public abstract class JsonrpcResponse extends JsonrpcMessage {
 
 	/**
 	 * Parses a JSON String to a {@link JsonrpcResponse}.
-	 * 
+	 *
 	 * @param json the JSON String
 	 * @return the {@link JsonrpcResponse}
 	 * @throws OpenemsNamedException on error
@@ -38,7 +38,7 @@ public abstract class JsonrpcResponse extends JsonrpcMessage {
 
 	/**
 	 * Parses a {@link JsonObject} to a {@link JsonrpcResponse}.
-	 * 
+	 *
 	 * @param j the {@link JsonObject}
 	 * @return the {@link JsonrpcResponse}
 	 * @throws OpenemsNamedException on error
@@ -47,7 +47,8 @@ public abstract class JsonrpcResponse extends JsonrpcMessage {
 		var id = UUID.fromString(JsonUtils.getAsString(j, "id"));
 		if (j.has("result")) {
 			return new GenericJsonrpcResponseSuccess(id, JsonUtils.getAsJsonObject(j, "result"));
-		} else if (j.has("error")) {
+		}
+		if (j.has("error")) {
 			return JsonrpcResponseError.from(j);
 		}
 		throw new OpenemsException("Unable to parse JsonrpcResponse from " + StringUtils.toShortString(j, 100));

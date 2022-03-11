@@ -2,7 +2,6 @@ package io.openems.edge.common.component;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,7 +29,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
 /**
  * This is the base interface for and should be implemented by every service
  * component in OpenEMS Edge.
- * 
+ *
  * <p>
  * Every OpenEMS service has:
  * <ul>
@@ -44,7 +43,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
  * <li>a kind of 'toString' method which provides the most important info about
  * the component. (see {@link #debugLog()})
  * </ul>
- * 
+ *
  * <p>
  * The recommended implementation of an OpenEMS component is via
  * {@link AbstractOpenemsComponent}.
@@ -53,35 +52,35 @@ public interface OpenemsComponent {
 
 	/**
 	 * Returns a unique ID for this OpenEMS component.
-	 * 
+	 *
 	 * @return the unique ID
 	 */
 	public String id();
 
 	/**
 	 * Returns a human-readable name of this Component..
-	 * 
+	 *
 	 * @return the human-readable name
 	 */
 	public String alias();
 
 	/**
 	 * Returns whether this component is enabled.
-	 * 
+	 *
 	 * @return true if the component is enabled
 	 */
 	public boolean isEnabled();
 
 	/**
 	 * Returns the Service PID.
-	 * 
+	 *
 	 * @return the OSGi Service PID
 	 */
 	default String servicePid() {
-		ComponentContext context = this.getComponentContext();
+		var context = this.getComponentContext();
 		if (context != null) {
-			Dictionary<String, Object> properties = context.getProperties();
-			Object servicePid = properties.get(Constants.SERVICE_PID);
+			var properties = context.getProperties();
+			var servicePid = properties.get(Constants.SERVICE_PID);
 			if (servicePid != null) {
 				return servicePid.toString();
 			}
@@ -91,15 +90,15 @@ public interface OpenemsComponent {
 
 	/**
 	 * Returns the Service Factory-PID.
-	 * 
+	 *
 	 * @return the OSGi Service Factory-PID
 	 */
 	default String serviceFactoryPid() {
-		ComponentContext context = this.getComponentContext();
+		var context = this.getComponentContext();
 		if (context != null) {
-			Dictionary<String, Object> properties = context.getProperties();
+			var properties = context.getProperties();
 
-			Object servicePid = properties.get("service.factoryPid");
+			var servicePid = properties.get("service.factoryPid");
 			if (servicePid != null) {
 				return servicePid.toString();
 			}
@@ -115,18 +114,18 @@ public interface OpenemsComponent {
 
 	/**
 	 * Returns the ComponentContext.
-	 * 
+	 *
 	 * @return the OSGi ComponentContext
 	 */
 	public ComponentContext getComponentContext();
 
 	/**
 	 * Returns an undefined Channel defined by its ChannelId string representation.
-	 * 
+	 *
 	 * <p>
 	 * Note: It is preferred to use the typed channel()-method, that's why it is
 	 * marked as @Deprecated.
-	 * 
+	 *
 	 * @param channelName the Channel-ID as a string
 	 * @return the Channel or null
 	 */
@@ -135,7 +134,7 @@ public interface OpenemsComponent {
 
 	/**
 	 * Returns a Channel defined by its ChannelId string representation.
-	 * 
+	 *
 	 * @param channelName the Channel-ID as a string
 	 * @param <T>         the expected typed Channel
 	 * @throws IllegalArgumentException on error
@@ -149,10 +148,9 @@ public interface OpenemsComponent {
 			if (this.id() == null) {
 				throw new IllegalArgumentException("Channel [" + channelName + "] is not defined for implementation ["
 						+ this.getClass().getCanonicalName() + "].");
-			} else {
-				throw new IllegalArgumentException("Channel [" + channelName + "] is not defined for ID [" + this.id()
-						+ "]. Implementation [" + this.getClass().getCanonicalName() + "]");
 			}
+			throw new IllegalArgumentException("Channel [" + channelName + "] is not defined for ID [" + this.id()
+					+ "]. Implementation [" + this.getClass().getCanonicalName() + "]");
 		}
 		// check correct type
 		T typedChannel;
@@ -167,7 +165,7 @@ public interface OpenemsComponent {
 
 	/**
 	 * Returns a Channel defined by its ChannelId.
-	 * 
+	 *
 	 * @param <T>       the Type of the Channel. See {@link Doc#getType()}
 	 * @param channelId the Channel-ID
 	 * @return the Channel
@@ -175,13 +173,12 @@ public interface OpenemsComponent {
 	 */
 	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.ChannelId channelId)
 			throws IllegalArgumentException {
-		T channel = this.<T>channel(channelId.id());
-		return channel;
+		return this.<T>channel(channelId.id());
 	}
 
 	/**
 	 * Returns all Channels.
-	 * 
+	 *
 	 * @return a Collection of Channels
 	 */
 	public Collection<Channel<?>> channels();
@@ -191,9 +188,7 @@ public interface OpenemsComponent {
 		STATE(new StateCollectorChannelDoc() //
 				// Set Text to "0:Ok, 1:Info, 2:Warning, 3:Fault"
 				.text(Stream.of(Level.values()) //
-						.map(option -> { //
-							return option.getValue() + ":" + option.getName(); //
-						}) //
+						.map(option -> (option.getValue() + ":" + option.getName())) //
 						.collect(Collectors.joining(", "))) //
 				.persistencePriority(PersistencePriority.VERY_HIGH));
 
@@ -212,7 +207,7 @@ public interface OpenemsComponent {
 	/**
 	 * Used for Modbus/TCP Api Controller. Provides a modbus table for the Channels
 	 * of this Component.
-	 * 
+	 *
 	 * @param accessMode the {@link AccessMode} of the Controller
 	 * @return a {@link ModbusSlaveNatureTable}
 	 */
@@ -224,7 +219,7 @@ public interface OpenemsComponent {
 
 	/**
 	 * Gets the Component State-Channel.
-	 * 
+	 *
 	 * @return the StateCollectorChannel
 	 */
 	public default StateCollectorChannel getStateChannel() {
@@ -241,7 +236,7 @@ public interface OpenemsComponent {
 
 	/**
 	 * Gets the Component State {@link Level}.
-	 * 
+	 *
 	 * @return the StateCollectorChannel
 	 */
 	public default Level getState() {
@@ -250,7 +245,7 @@ public interface OpenemsComponent {
 
 	/**
 	 * Gets the Channel as the given Type.
-	 * 
+	 *
 	 * @param <T>       the expected Channel type
 	 * @param channelId the Channel-ID
 	 * @param type      the expected Type
@@ -272,7 +267,7 @@ public interface OpenemsComponent {
 	/**
 	 * Gets some output that is suitable for a continuous Debug log. Returns 'null'
 	 * by default which causes no output.
-	 * 
+	 *
 	 * @return the debug log output
 	 */
 	public default String debugLog() {
@@ -281,28 +276,28 @@ public interface OpenemsComponent {
 
 	/**
 	 * Does this OpenEMS Component report any Faults?
-	 * 
+	 *
 	 * <p>
 	 * Evaluates all {@link StateChannel}s and returns true if any Channel with
 	 * {@link Level#FAULT} is set.
-	 * 
+	 *
 	 * @return true if there is a Fault.
 	 */
 	public default boolean hasFaults() {
-		Level level = this.getState();
+		var level = this.getState();
 		return level.isAtLeast(Level.FAULT);
 	}
 
 	/**
 	 * Sets a target filter for a Declarative Service @Reference member.
-	 * 
+	 *
 	 * <p>
 	 * Usage:
-	 * 
+	 *
 	 * <pre>
 	 * updateReferenceFilter(config.service_pid(), "Controllers", controllersIds);
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * Generates a 'target' filter on the 'Controllers' member so, that the the
 	 * expected service to be injected needs to fulfill:
@@ -311,37 +306,37 @@ public interface OpenemsComponent {
 	 * <li>the service must not have the same PID as the calling component
 	 * <li>the service "id" must be one of the provided "controllersIds"
 	 * </ul>
-	 * 
-	 * 
+	 *
+	 *
 	 * @param cm     a ConfigurationAdmin instance. Get one using
-	 * 
+	 *
 	 *               <pre>
 	 *               &#64;Reference
 	 *               ConfigurationAdmin cm;
 	 *               </pre>
-	 * 
+	 *
 	 * @param pid    PID of the calling component (use 'config.service_pid()' or
 	 *               '(String)prop.get(Constants.SERVICE_PID)'; if null, PID filter
 	 *               is not added to the resulting target filter
 	 * @param member Name of the Method or Field with the Reference annotation, e.g.
-	 * 
+	 *
 	 * @param ids    Component IDs to be filtered for; for empty list, no ids are
 	 *               added to the target filter
-	 * 
+	 *
 	 * @return true if the filter was updated. You may use it to abort the
 	 *         activate() method.
 	 */
 	public static boolean updateReferenceFilter(ConfigurationAdmin cm, String pid, String member, String... ids) {
-		final String targetProperty = member + ".target";
-		final String requiredTarget = ConfigUtils.generateReferenceTargetFilter(pid, ids);
+		final var targetProperty = member + ".target";
+		final var requiredTarget = ConfigUtils.generateReferenceTargetFilter(pid, ids);
 		/*
 		 * read existing target filter
 		 */
 		Configuration c;
 		try {
 			c = cm.getConfiguration(pid, "?");
-			Dictionary<String, Object> properties = c.getProperties();
-			String existingTarget = (String) properties.get(targetProperty);
+			var properties = c.getProperties();
+			var existingTarget = (String) properties.get(targetProperty);
 			/*
 			 * update target filter if required
 			 */
@@ -359,52 +354,52 @@ public interface OpenemsComponent {
 
 	/**
 	 * Validates and possibly fixes the Component-ID of a Singleton.
-	 * 
+	 *
 	 * <p>
 	 * Singleton Components are allowed to live only exactly once in an OpenEMS
 	 * instance. These Components are marked with an Annotation:
-	 * 
+	 *
 	 * <pre>
 	 * &#64;Designate(factory = false)
 	 * </pre>
-	 * 
+	 *
 	 * By design it is required for these Singleton Components to have a predefined
 	 * Component-ID, like '_cycle', '_sum', etc. This method makes sure the
 	 * Component-ID matches this predefined ID - and if not automatically adjusts
 	 * it.
-	 * 
+	 *
 	 * <p>
 	 * Sidenote: ideally it would be possible to use the Component Annotation
-	 * 
+	 *
 	 * <pre>
 	 * &#64;Component(property = { "id=_cycle" })
 	 * </pre>
-	 * 
+	 *
 	 * for this purpose. Unfortunately this is not sufficient to have the 'id'
 	 * property listed in EdgeConfig, ConfigurationAdmin, etc. This is why this
 	 * workaround is required.
-	 * 
+	 *
 	 * <p>
 	 * Usage:
-	 * 
+	 *
 	 * <pre>
 	 * if (OpenemsComponent.validateSingletonComponentId(this.cm, this.serviceFactoryPid(), SINGLETON_COMPONENT_ID)) {
 	 * 	return;
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param cm         a ConfigurationAdmin instance. Get one using
-	 * 
+	 *
 	 *                   <pre>
 	 *                   &#64;Reference
 	 *                   ConfigurationAdmin cm;
 	 *                   </pre>
-	 * 
+	 *
 	 * @param pid        PID of the calling component (use 'config.service_pid()' or
 	 *                   '(String)prop.get(Constants.SERVICE_PID)'; if null,
 	 *                   Component-ID can not be updated.
 	 * @param expectedId The expected predefined Component-ID
-	 * 
+	 *
 	 * @return true if the ID was updated. You may use it to abort the activate()
 	 *         method.
 	 */
@@ -412,7 +407,7 @@ public interface OpenemsComponent {
 		Configuration c;
 		try {
 			c = cm.getConfiguration(pid, "?");
-			Dictionary<String, Object> properties = c.getProperties();
+			var properties = c.getProperties();
 
 			final String actualId;
 			final String actualAlias;
@@ -442,23 +437,23 @@ public interface OpenemsComponent {
 
 	/**
 	 * Update a configuration property.
-	 * 
+	 *
 	 * <p>
 	 * Usage:
-	 * 
+	 *
 	 * <pre>
 	 * updateConfigurationProperty(cm, servicePid, "propertyName", "propertyValue");
 	 * </pre>
-	 * 
+	 *
 	 * <p>
-	 * 
+	 *
 	 * @param cm       a ConfigurationAdmin instance. Get one using
-	 * 
+	 *
 	 *                 <pre>
 	 *                 &#64;Reference
 	 *                 ConfigurationAdmin cm;
 	 *                 </pre>
-	 * 
+	 *
 	 * @param pid      PID of the calling component (use 'config.service_pid()' or
 	 *                 '(String)prop.get(Constants.SERVICE_PID)'
 	 * @param property Name of the configuration property
@@ -468,7 +463,7 @@ public interface OpenemsComponent {
 		Configuration c;
 		try {
 			c = cm.getConfiguration(pid, "?");
-			Dictionary<String, Object> properties = c.getProperties();
+			var properties = c.getProperties();
 			properties.put(property, value);
 			c.update(properties);
 		} catch (IOException | SecurityException e) {
@@ -478,7 +473,7 @@ public interface OpenemsComponent {
 
 	/**
 	 * Log a debug message including the Component ID.
-	 * 
+	 *
 	 * @param component the {@link OpenemsComponent}
 	 * @param log       the {@link Logger} instance
 	 * @param message   the message
@@ -494,7 +489,7 @@ public interface OpenemsComponent {
 
 	/**
 	 * Log a info message including the Component ID.
-	 * 
+	 *
 	 * @param component the {@link OpenemsComponent}
 	 * @param log       the {@link Logger} instance
 	 * @param message   the message
@@ -509,7 +504,7 @@ public interface OpenemsComponent {
 
 	/**
 	 * Log a warn message including the Component ID.
-	 * 
+	 *
 	 * @param component the {@link OpenemsComponent}
 	 * @param log       the {@link Logger} instance
 	 * @param message   the message
@@ -524,7 +519,7 @@ public interface OpenemsComponent {
 
 	/**
 	 * Log a error message including the Component ID.
-	 * 
+	 *
 	 * @param component the {@link OpenemsComponent}
 	 * @param log       the {@link Logger} instance
 	 * @param message   the message

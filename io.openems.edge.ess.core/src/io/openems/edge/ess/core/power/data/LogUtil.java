@@ -10,7 +10,7 @@ public class LogUtil {
 
 	/**
 	 * Prints all Constraints to the system log.
-	 * 
+	 *
 	 * @param log         a logger instance
 	 * @param title       the log title
 	 * @param constraints a list of Constraints

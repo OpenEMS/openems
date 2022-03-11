@@ -179,8 +179,8 @@ public class EdgeConfig {
 					}
 				}
 				var text = JsonUtils.getAsOptionalString(json, "text").orElse("");
-				Unit unit = JsonUtils.getAsOptionalEnum(Unit.class, json, "unit").orElse(Unit.NONE);
-				ChannelCategory category = JsonUtils.getAsOptionalEnum(ChannelCategory.class, json, "category")
+				var unit = JsonUtils.getAsOptionalEnum(Unit.class, json, "unit").orElse(Unit.NONE);
+				var category = JsonUtils.getAsOptionalEnum(ChannelCategory.class, json, "category")
 						.orElse(ChannelCategory.OPENEMS_TYPE);
 				ChannelDetail detail = null;
 				switch (category) {
@@ -202,7 +202,7 @@ public class EdgeConfig {
 				}
 
 				case STATE: {
-					Level level = JsonUtils.getAsEnum(Level.class, json, "level");
+					var level = JsonUtils.getAsEnum(Level.class, json, "level");
 					detail = new ChannelDetailState(level);
 					break;
 				}
@@ -319,7 +319,7 @@ public class EdgeConfig {
 
 		/**
 		 * Constructor with NO_SERVICE_PID.
-		 * 
+		 *
 		 * @param id         the Component-ID
 		 * @param alias      the Alias
 		 * @param factoryId  the Factory-ID
@@ -333,7 +333,7 @@ public class EdgeConfig {
 
 		/**
 		 * Constructor with NO_SERVICE_PID, properties as JsonObject and no channels
-		 * 
+		 *
 		 * @param id         the Component-ID
 		 * @param factoryId  the Factory-ID
 		 * @param properties the configuration properties
@@ -408,7 +408,7 @@ public class EdgeConfig {
 		 * @return the Property
 		 */
 		public JsonElement getPropertyOrError(String propertyId) throws InvalidValueException {
-			JsonElement property = this.properties.get(propertyId);
+			var property = this.properties.get(propertyId);
 			if (property != null) {
 				return property;
 			}
@@ -758,44 +758,43 @@ public class EdgeConfig {
 									.build()) //
 							.build();
 
-				} else {
-					// generate schema from AttributeDefinition Type
-					switch (ad.getType()) {
-					case AttributeDefinition.STRING:
-					case AttributeDefinition.CHARACTER:
-						return JsonUtils.buildJsonObject() //
-								.addProperty("type", "input") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("type", "text") //
-										.build()) //
-								.build();
+				}
+				// generate schema from AttributeDefinition Type
+				switch (ad.getType()) {
+				case AttributeDefinition.STRING:
+				case AttributeDefinition.CHARACTER:
+					return JsonUtils.buildJsonObject() //
+							.addProperty("type", "input") //
+							.add("templateOptions", JsonUtils.buildJsonObject() //
+									.addProperty("type", "text") //
+									.build()) //
+							.build();
 
-					case AttributeDefinition.LONG:
-					case AttributeDefinition.INTEGER:
-					case AttributeDefinition.SHORT:
-					case AttributeDefinition.DOUBLE:
-					case AttributeDefinition.FLOAT:
-					case AttributeDefinition.BYTE:
-						return JsonUtils.buildJsonObject() //
-								.addProperty("type", "input") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("type", "number") //
-										.build()) //
-								.build();
+				case AttributeDefinition.LONG:
+				case AttributeDefinition.INTEGER:
+				case AttributeDefinition.SHORT:
+				case AttributeDefinition.DOUBLE:
+				case AttributeDefinition.FLOAT:
+				case AttributeDefinition.BYTE:
+					return JsonUtils.buildJsonObject() //
+							.addProperty("type", "input") //
+							.add("templateOptions", JsonUtils.buildJsonObject() //
+									.addProperty("type", "number") //
+									.build()) //
+							.build();
 
-					case AttributeDefinition.PASSWORD:
-						return JsonUtils.buildJsonObject() //
-								.addProperty("type", "input") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("type", "password") //
-										.build()) //
-								.build();
+				case AttributeDefinition.PASSWORD:
+					return JsonUtils.buildJsonObject() //
+							.addProperty("type", "input") //
+							.add("templateOptions", JsonUtils.buildJsonObject() //
+									.addProperty("type", "password") //
+									.build()) //
+							.build();
 
-					case AttributeDefinition.BOOLEAN:
-						return JsonUtils.buildJsonObject() //
-								.addProperty("type", "toggle") //
-								.build();
-					}
+				case AttributeDefinition.BOOLEAN:
+					return JsonUtils.buildJsonObject() //
+							.addProperty("type", "toggle") //
+							.build();
 				}
 
 				return schema;
@@ -812,7 +811,7 @@ public class EdgeConfig {
 				var id = JsonUtils.getAsString(json, "id");
 				var name = JsonUtils.getAsString(json, "name");
 				var description = JsonUtils.getAsString(json, "description");
-				OpenemsType type = JsonUtils.getAsOptionalEnum(OpenemsType.class, json, "type")
+				var type = JsonUtils.getAsOptionalEnum(OpenemsType.class, json, "type")
 						.orElse(OpenemsType.STRING);
 				var isRequired = JsonUtils.getAsBoolean(json, "isRequired");
 				boolean isPassword = JsonUtils.getAsOptionalBoolean(json, "isPassword").orElse(false);
@@ -1108,7 +1107,7 @@ public class EdgeConfig {
 	 * @return the {@link Component}
 	 */
 	public Component getComponentOrError(String componentId) throws InvalidValueException {
-		Component component = this.components.get(componentId);
+		var component = this.components.get(componentId);
 		if (component != null) {
 			return component;
 		}

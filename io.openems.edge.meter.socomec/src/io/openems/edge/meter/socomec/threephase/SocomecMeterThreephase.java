@@ -20,6 +20,7 @@ public interface SocomecMeterThreephase extends SymmetricMeter, AsymmetricMeter,
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

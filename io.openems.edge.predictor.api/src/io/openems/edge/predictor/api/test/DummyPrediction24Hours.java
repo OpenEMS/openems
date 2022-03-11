@@ -4,7 +4,7 @@ import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 
 /**
  * Holds a prediction for 24 h; one value per 15 minutes; 96 values in total.
- * 
+ *
  * <p>
  * Values have the same unit as the base Channel, i.e. if the Prediction relates
  * to _sum/ProductionGridActivePower, the value is in unit Watt and represents
@@ -18,16 +18,15 @@ public class DummyPrediction24Hours extends Prediction24Hours {
 	/**
 	 * Holds a {@link DummyPrediction24Hours} with all values null.
 	 */
-	public final static DummyPrediction24Hours EMPTY = new DummyPrediction24Hours(new Integer[0]);
+	public final static DummyPrediction24Hours EMPTY = new DummyPrediction24Hours();
 
 	/**
 	 * Constructs a {@link DummyPrediction24Hours}.
-	 * 
+	 *
 	 * @param values the minimum 96 prediction values
 	 */
 	public DummyPrediction24Hours(Integer... values) {
-		super();
-		for (int i = 0; i < DUMMY_NUMBER_OF_VALUES && i < values.length; i++) {
+		for (var i = 0; i < DUMMY_NUMBER_OF_VALUES && i < values.length; i++) {
 			this.values[i] = values[i];
 		}
 	}

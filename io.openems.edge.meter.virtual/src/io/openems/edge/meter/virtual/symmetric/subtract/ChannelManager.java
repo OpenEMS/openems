@@ -22,7 +22,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 
 	/**
 	 * Called on Component activate().
-	 * 
+	 *
 	 * @param minuend     the Minuend Component
 	 * @param subtrahends the Subtrahend Components
 	 */

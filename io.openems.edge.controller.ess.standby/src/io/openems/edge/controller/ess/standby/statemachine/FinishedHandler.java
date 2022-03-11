@@ -26,10 +26,9 @@ public class FinishedHandler extends StateHandler<State, Context> {
 		if (LocalDate.now(context.clock).isAfter(this.enteredStateAt)) {
 			// day changed
 			return State.UNDEFINED;
-		} else {
-			// stay in this State
-			return State.FINISHED;
 		}
+		// stay in this State
+		return State.FINISHED;
 	}
 
 }

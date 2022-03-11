@@ -12,7 +12,7 @@ public class BelowReserveSocHandler extends StateHandler<State, Context> {
 		context.setTargetPower(0);
 		context.setRampPower(context.maxApparentPower * 0.05);
 
-		int reserveSoc = context.reserveSoc;
+		var reserveSoc = context.reserveSoc;
 		int soc = context.soc;
 
 		// SoC is 4% under configured reserveSoC

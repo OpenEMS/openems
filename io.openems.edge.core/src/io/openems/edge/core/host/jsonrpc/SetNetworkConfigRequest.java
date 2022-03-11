@@ -14,7 +14,7 @@ import io.openems.edge.core.host.NetworkInterface;
 
 /**
  * Updates the current network configuration.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -39,14 +39,14 @@ public class SetNetworkConfigRequest extends JsonrpcRequest {
 
 	/**
 	 * Parses a generic {@link JsonrpcRequest} to a {@link SetNetworkConfigRequest}.
-	 * 
+	 *
 	 * @param r the {@link JsonrpcRequest}
 	 * @return the {@link SetNetworkConfigRequest}
 	 * @throws OpenemsNamedException on error
 	 */
 	public static SetNetworkConfigRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		JsonObject jInterfaces = JsonUtils.getAsJsonObject(p, "interfaces");
+		var p = r.getParams();
+		var jInterfaces = JsonUtils.getAsJsonObject(p, "interfaces");
 		List<NetworkInterface<?>> interfaces = new ArrayList<>();
 		for (Entry<String, JsonElement> entry : jInterfaces.entrySet()) {
 			interfaces.add(NetworkInterface.from(entry.getKey(), JsonUtils.getAsJsonObject(entry.getValue())));
@@ -68,7 +68,7 @@ public class SetNetworkConfigRequest extends JsonrpcRequest {
 
 	@Override
 	public JsonObject getParams() {
-		JsonObject interfaces = new JsonObject();
+		var interfaces = new JsonObject();
 		for (NetworkInterface<?> iface : this.networkInterfaces) {
 			interfaces.add(iface.getName(), iface.toJson());
 		}
@@ -79,7 +79,7 @@ public class SetNetworkConfigRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the request network interfaces.
-	 * 
+	 *
 	 * @return the network interfaces
 	 */
 	public List<NetworkInterface<?>> getNetworkInterface() {

@@ -24,7 +24,7 @@ public class OpenemsAppInstance {
 
 	/**
 	 * Gets this {@link OpenemsAppInstance} as {@link JsonObject}.
-	 * 
+	 *
 	 * @return the {@link JsonObject}
 	 */
 	public JsonObject toJsonObject() {

@@ -26,8 +26,7 @@ public class DisabledRampFilter extends RampFilter {
 	private Integer getAsInt(Float value) {
 		if (value == null) {
 			return null;
-		} else {
-			return Math.round(value);
 		}
+		return Math.round(value);
 	}
 }

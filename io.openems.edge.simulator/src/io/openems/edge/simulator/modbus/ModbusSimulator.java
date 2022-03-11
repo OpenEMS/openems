@@ -36,6 +36,7 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -46,6 +47,7 @@ public class ModbusSimulator extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

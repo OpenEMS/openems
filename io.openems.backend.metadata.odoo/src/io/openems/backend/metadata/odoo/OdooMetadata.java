@@ -93,7 +93,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public User authenticate(String sessionId) throws OpenemsNamedException {
-		JsonObject result = this.odooHandler.authenticateSession(sessionId);
+		var result = this.odooHandler.authenticateSession(sessionId);
 
 		// Parse Result
 		var jDevices = JsonUtils.getAsJsonArray(result, "devices");

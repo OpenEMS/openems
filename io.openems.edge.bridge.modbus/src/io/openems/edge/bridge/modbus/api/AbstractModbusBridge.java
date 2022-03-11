@@ -19,7 +19,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 
 	/**
 	 * Default Modbus timeout in [ms].
-	 * 
+	 *
 	 * <p>
 	 * Modbus library default is 3000 ms
 	 */
@@ -27,7 +27,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 
 	/**
 	 * Default Modbus retries.
-	 * 
+	 *
 	 * <p>
 	 * Modbus library default is 5
 	 */
@@ -55,6 +55,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		}
 	}
 
+	@Override
 	protected void deactivate() {
 		super.deactivate();
 		this.worker.deactivate();
@@ -65,19 +66,21 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 
 	/**
 	 * Adds the protocol.
-	 * 
+	 *
 	 * @param sourceId Component-ID of the source
 	 * @param protocol the ModbusProtocol
 	 */
+	@Override
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
 		this.worker.addProtocol(sourceId, protocol);
 	}
 
 	/**
 	 * Removes the protocol.
-	 * 
+	 *
 	 * @param sourceId Component-ID of the source
 	 */
+	@Override
 	public void removeProtocol(String sourceId) {
 		this.worker.removeProtocol(sourceId);
 	}
@@ -99,7 +102,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 
 	/**
 	 * Creates a new Modbus Transaction on an open Modbus connection.
-	 * 
+	 *
 	 * @return the Modbus Transaction
 	 * @throws OpenemsException on error
 	 */
@@ -131,7 +134,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 
 	/**
 	 * After how many errors should a element be invalidated?.
-	 * 
+	 *
 	 * @return value
 	 */
 	public int invalidateElementsAfterReadErrors() {

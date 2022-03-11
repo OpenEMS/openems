@@ -29,7 +29,6 @@ public class DummyCoilElement extends AbstractModbusElement<Boolean> implements 
 	 */
 	@Override
 	public void setInputCoil(Boolean coil) {
-		return;
 	}
 
 	@Override

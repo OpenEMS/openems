@@ -58,8 +58,7 @@ public class SystemLog {
 	 */
 	public static SystemLog fromPaxLoggingEvent(PaxLoggingEvent event) {
 		var level = Level.fromPaxLevel(event.getLevel());
-		var time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(event.getTimeStamp()),
-				ZoneId.systemDefault());
+		var time = ZonedDateTime.ofInstant(Instant.ofEpochMilli(event.getTimeStamp()), ZoneId.systemDefault());
 		var source = event.getLoggerName();
 		var message = event.getRenderedMessage();
 		return new SystemLog(time, level, source, message);

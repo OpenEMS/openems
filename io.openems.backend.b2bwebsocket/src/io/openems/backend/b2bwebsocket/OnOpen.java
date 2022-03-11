@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -33,8 +32,8 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 				throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 			}
 
-			String base64Credentials = authorization.substring("Basic".length()).trim();
-			byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
+			var base64Credentials = authorization.substring("Basic".length()).trim();
+			var credDecoded = Base64.getDecoder().decode(base64Credentials);
 			var credentials = new String(credDecoded, StandardCharsets.UTF_8);
 			// credentials = username:password
 			final var values = credentials.split(":", 2);
@@ -43,7 +42,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			}
 			var username = values[0];
 			var password = values[1];
-			User user = this.parent.metadata.authenticate(username, password);
+			var user = this.parent.metadata.authenticate(username, password);
 
 			WsData wsData = ws.getAttachment();
 			wsData.setUser(user);

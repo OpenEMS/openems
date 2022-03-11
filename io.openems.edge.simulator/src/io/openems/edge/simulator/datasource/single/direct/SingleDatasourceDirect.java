@@ -50,7 +50,7 @@ public class SingleDatasourceDirect extends AbstractCsvDatasource
 
 	@Override
 	protected DataContainer getData() throws NumberFormatException, IOException {
-		DataContainer result = new DataContainer();
+		var result = new DataContainer();
 		for (int value : this.config.values()) {
 			result.addRecord(new Float[] { Float.valueOf(value) });
 		}

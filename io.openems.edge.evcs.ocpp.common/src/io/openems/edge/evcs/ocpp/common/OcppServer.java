@@ -13,16 +13,16 @@ public interface OcppServer {
 
 	/**
 	 * Send message to EVCS.
-	 * 
+	 *
 	 * <p>
 	 * Example: <blockquote>
-	 * 
+	 *
 	 * <pre>
 	 * send(session, request).whenComplete((confirmation, throwable) -&gt; {
 	 * 	this.logInfo(log, confirmation.toString());
 	 * });
 	 * </pre>
-	 * 
+	 *
 	 * </blockquote>
 	 *
 	 * @param session Current session

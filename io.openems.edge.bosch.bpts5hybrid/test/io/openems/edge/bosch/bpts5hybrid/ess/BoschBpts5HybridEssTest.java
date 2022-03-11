@@ -13,7 +13,7 @@ public class BoschBpts5HybridEssTest {
 
 	@Test
 	public void test() throws Exception {
-		BoschBpts5HybridCoreImpl core = new BoschBpts5HybridCoreImpl();
+		var core = new BoschBpts5HybridCoreImpl();
 		new ComponentTest(new BoschBpts5HybridCoreImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(io.openems.edge.bosch.bpts5hybrid.core.MyConfig.create() //

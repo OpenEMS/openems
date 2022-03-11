@@ -17,10 +17,11 @@ public enum ModbusType {
 	}
 
 	public int getWords() {
-		return words;
+		return this.words;
 	}
 
+	@Override
 	public String toString() {
-		return name;
+		return this.name;
 	}
 }

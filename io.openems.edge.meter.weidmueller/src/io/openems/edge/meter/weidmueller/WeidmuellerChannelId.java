@@ -1,8 +1,8 @@
 package io.openems.edge.meter.weidmueller;
 
-import io.openems.edge.common.channel.Doc;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Doc;
 
 public enum WeidmuellerChannelId implements io.openems.edge.common.channel.ChannelId {
 	VOLTAGE_L1_L2(Doc.of(OpenemsType.INTEGER) //
@@ -94,6 +94,7 @@ public enum WeidmuellerChannelId implements io.openems.edge.common.channel.Chann
 		this.doc = doc;
 	}
 
+	@Override
 	public Doc doc() {
 		return this.doc;
 	}

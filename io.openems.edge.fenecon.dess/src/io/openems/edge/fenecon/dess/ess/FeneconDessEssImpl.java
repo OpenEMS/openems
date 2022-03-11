@@ -70,6 +70,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -104,6 +105,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -195,7 +197,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 		/*
 		 * Calculate AC Energy
 		 */
-		Integer acActivePower = this.getActivePowerChannel().getNextValue().get();
+		var acActivePower = this.getActivePowerChannel().getNextValue().get();
 		if (acActivePower == null) {
 			// Not available
 			this.calculateAcChargeEnergy.update(null);
@@ -212,7 +214,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 		/*
 		 * Calculate DC Power and Energy
 		 */
-		Integer dcDischargePower = acActivePower;
+		var dcDischargePower = acActivePower;
 		for (EssDcCharger charger : this.chargers) {
 			dcDischargePower = TypeUtils.subtract(dcDischargePower,
 					charger.getActualPowerChannel().getNextValue().get());

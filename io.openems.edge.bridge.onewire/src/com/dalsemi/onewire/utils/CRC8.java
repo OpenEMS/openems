@@ -61,15 +61,16 @@ public class CRC8 {
 		int acc;
 		int crc;
 
-		for (int i = 0; i < 256; i++) {
+		for (var i = 0; i < 256; i++) {
 			acc = i;
 			crc = 0;
 
-			for (int j = 0; j < 8; j++) {
+			for (var j = 0; j < 8; j++) {
 				if (((acc ^ crc) & 0x01) == 0x01) {
-					crc = ((crc ^ 0x18) >> 1) | 0x80;
-				} else
+					crc = (crc ^ 0x18) >> 1 | 0x80;
+				} else {
 					crc = crc >> 1;
+				}
 
 				acc = acc >> 1;
 			}
@@ -102,7 +103,7 @@ public class CRC8 {
 	 * @return CRC8 value
 	 */
 	public static int compute(int dataToCRC, int seed) {
-		return (dscrc_table[(seed ^ dataToCRC) & 0x0FF] & 0x0FF);
+		return dscrc_table[(seed ^ dataToCRC) & 0x0FF] & 0x0FF;
 	}
 
 	/**
@@ -114,7 +115,7 @@ public class CRC8 {
 	 * @return CRC8 value
 	 */
 	public static int compute(int dataToCRC) {
-		return (dscrc_table[dataToCRC & 0x0FF] & 0x0FF);
+		return dscrc_table[dataToCRC & 0x0FF] & 0x0FF;
 	}
 
 	/**
@@ -157,12 +158,13 @@ public class CRC8 {
 	public static int compute(byte dataToCrc[], int off, int len, int seed) {
 
 		// loop to do the crc on each data element
-		int CRC8 = seed;
+		var CRC8 = seed;
 
-		for (int i = 0; i < len; i++)
+		for (var i = 0; i < len; i++) {
 			CRC8 = dscrc_table[(CRC8 ^ dataToCrc[i + off]) & 0x0FF];
+		}
 
-		return (CRC8 & 0x0FF);
+		return CRC8 & 0x0FF;
 	}
 
 	/**

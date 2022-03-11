@@ -51,9 +51,9 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	private final Logger log = LoggerFactory.getLogger(EvcsClusterPeakShaving.class);
 
 	// Used EVCSs
-	private String[] evcsIds = new String[0];
+	private String[] evcsIds = {};
 	private final List<Evcs> sortedEvcss = new ArrayList<>();
-	private Map<String, Evcs> evcss = new ConcurrentHashMap<>();
+	private final Map<String, Evcs> evcss = new ConcurrentHashMap<>();
 
 	private ConfigPeakShaving config;
 
@@ -101,7 +101,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	@Activate
 	void activate(ComponentContext context, ConfigPeakShaving config) throws OpenemsNamedException {
 		this.evcsIds = config.evcs_ids();
-		updateSortedEvcss();
+		this.updateSortedEvcss();
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
@@ -110,14 +110,15 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
 			return;
 		}
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "meter", config.meter_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		for (Evcs evcs : this.sortedEvcss) {
@@ -133,7 +134,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	private synchronized void updateSortedEvcss() {
 		this.sortedEvcss.clear();
 		for (String id : this.evcsIds) {
-			Evcs evcs = this.evcss.get(id);
+			var evcs = this.evcss.get(id);
 			if (evcs == null) {
 				this.logWarn(this.log, "Required Evcs [" + id + "] is not available.");
 			} else {
@@ -144,7 +145,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 
 	/**
 	 * Sets the cluster channel to false and resets all depending channels.
-	 * 
+	 *
 	 * @param evcs Electric Vehicle Charging Station
 	 */
 	private void resetClusteredState(Evcs evcs) {
@@ -157,7 +158,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 
 	/**
 	 * Sets the cluster channel to true.
-	 * 
+	 *
 	 * @param evcs Electric Vehicle Charging Station
 	 */
 	private void setClusteredState(Evcs evcs) {
@@ -179,25 +180,25 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	@Override
 	public int getMaximumPowerToDistribute() {
 
-		int allowedChargePower = 0;
-		int maxEssDischarge = 0;
-		long maxAvailableStoragePower = 0;
+		var allowedChargePower = 0;
+		var maxEssDischarge = 0;
+		var maxAvailableStoragePower = 0L;
 
-		if(this.ess instanceof ManagedSymmetricEss) {
-			maxEssDischarge = ((ManagedSymmetricEss)this.ess).getAllowedDischargePower().orElse(0);
+		if (this.ess instanceof ManagedSymmetricEss) {
+			maxEssDischarge = ((ManagedSymmetricEss) this.ess).getAllowedDischargePower().orElse(0);
 			// TODO: Use PowerComponent
 		} else {
 			maxEssDischarge = this.ess.getMaxApparentPower().orElse(0);
 		}
-		
+
 		if (this.config.enable_secure_ess_discharge()) {
 			maxEssDischarge = this.getSecureEssDischargePower(maxEssDischarge);
 			this.channel(AbstractEvcsCluster.ChannelId.USED_ESS_MAXIMUM_DISCHARGE_POWER).setNextValue(maxEssDischarge);
 		}
-		
+
 		// TODO: Calculate the available ESS charge power, depending on a specific ESS
 		// component (e.g. If there is a ESS cluster)
-		
+
 		// Calculate maximum ess power
 		long essDischargePower = this.sum.getEssActivePower().orElse(0);
 		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
@@ -205,35 +206,34 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		this.channel(AbstractEvcsCluster.ChannelId.MAXIMUM_AVAILABLE_ESS_POWER).setNextValue(maxAvailableStoragePower);
 
 		// Calculate maximum grid power
-		int gridPower = getGridPower();
-		int maxAvailableGridPower = (this.config.hardwarePowerLimitPerPhase() * DEFAULT_PHASES) - gridPower;
+		var gridPower = this.getGridPower();
+		var maxAvailableGridPower = this.config.hardwarePowerLimitPerPhase() * DEFAULT_PHASES - gridPower;
 		this.channel(AbstractEvcsCluster.ChannelId.MAXIMUM_AVAILABLE_GRID_POWER).setNextValue(maxAvailableGridPower);
-		
+
 		// Current evcs charge power
 		int evcsCharge = this.getChargePower().orElse(0);
 
 		allowedChargePower = (int) (evcsCharge + maxAvailableStoragePower + maxAvailableGridPower);
 
-		this.logInfoInDebugmode(log, "Calculation of the maximum charge Power: EVCS Charge [" + evcsCharge
+		this.logInfoInDebugmode(this.log, "Calculation of the maximum charge Power: EVCS Charge [" + evcsCharge
 				+ "]  +  Max. available storage power [" + maxAvailableStoragePower
 				+ "]  +  ( Configured Hardware Limit * 3 [" + this.config.hardwarePowerLimitPerPhase() * DEFAULT_PHASES
 				+ "]  -  Maximum of all three phases * 3 [" + gridPower + "]");
 
-		allowedChargePower = allowedChargePower > 0 ? allowedChargePower : 0;
-		return allowedChargePower;
+		return allowedChargePower > 0 ? allowedChargePower : 0;
 	}
 
 	/**
 	 * Calculate the reduced maximum discharge power.
-	 * 
+	 *
 	 * @param maxEssDischarge original maximum ess discharge power
 	 * @return reduced ess discharge power
 	 */
 	private int getSecureEssDischargePower(int maxEssDischarge) {
 		int soc = this.ess.getSoc().orElse(0);
-		int startSoc = this.config.ess_secure_discharge_soc();
-		int minSoc = this.config.ess_secure_discharge_min_soc();
-		double factor = 1.0 / (startSoc - minSoc);
+		var startSoc = this.config.ess_secure_discharge_soc();
+		var minSoc = this.config.ess_secure_discharge_min_soc();
+		var factor = 1.0 / (startSoc - minSoc);
 
 		if (soc >= startSoc) {
 			return maxEssDischarge;
@@ -242,25 +242,25 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 			return (int) (maxEssDischarge * factor);
 		}
 		factor = factor * (startSoc - soc);
-		return (int) (maxEssDischarge - (maxEssDischarge * factor));
+		return (int) (maxEssDischarge - maxEssDischarge * factor);
 	}
 
 	/**
 	 * Calculates the current grid power depending on the phases if possible.
-	 * 
+	 *
 	 * @return calculated grid power
 	 */
 	private int getGridPower() {
 		int gridPower = this.meter.getActivePower().orElse(0);
 
 		if (this.meter instanceof AsymmetricMeter) {
-			AsymmetricMeter asymmetricMeter = (AsymmetricMeter) this.meter;
+			var asymmetricMeter = (AsymmetricMeter) this.meter;
 
 			int gridPowerL1 = asymmetricMeter.getActivePowerL1().orElse(0);
 			int gridPowerL2 = asymmetricMeter.getActivePowerL2().orElse(0);
 			int gridPowerL3 = asymmetricMeter.getActivePowerL3().orElse(0);
 
-			int maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
+			var maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
 			gridPower = maxPowerOnPhase * 3;
 		}
 		return gridPower;

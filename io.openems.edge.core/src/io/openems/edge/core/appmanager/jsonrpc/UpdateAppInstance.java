@@ -11,10 +11,10 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
 /**
  * Updates an {@link OpenemsAppInstance}..
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -26,10 +26,10 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -46,7 +46,7 @@ public class UpdateAppInstance {
 
 		/**
 		 * Parses a generic {@link JsonrpcRequest} to a {@link UpdateAppInstance}.
-		 * 
+		 *
 		 * @param r the {@link JsonrpcRequest}
 		 * @return the {@link UpdateAppInstance}
 		 * @throws OpenemsNamedException on error

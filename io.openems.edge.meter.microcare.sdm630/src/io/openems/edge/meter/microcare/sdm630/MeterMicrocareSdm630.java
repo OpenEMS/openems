@@ -5,7 +5,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 
 public interface MeterMicrocareSdm630 {
-	
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		REACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.KILOWATT_HOURS)), //
@@ -19,9 +19,10 @@ public interface MeterMicrocareSdm630 {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
 	}
-	
+
 }

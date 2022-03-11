@@ -41,7 +41,7 @@ public class ChargeSessionStamp {
 	}
 
 	public Instant getTime() {
-		return time;
+		return this.time;
 	}
 
 	public void setTime(Instant time) {
@@ -49,7 +49,7 @@ public class ChargeSessionStamp {
 	}
 
 	public long getEnergy() {
-		return energy;
+		return this.energy;
 	}
 
 	public void setEnergy(long energy) {
@@ -59,23 +59,23 @@ public class ChargeSessionStamp {
 	public boolean isChargeSessionStampPresent() {
 		return this.time != null;
 	}
-	
+
 	public void setChargeSessionStamp(Instant time, long energy) {
 		this.time = time;
 		this.energy = energy;
 	}
-	
+
 	public void resetChargeSessionStamp() {
 		this.time = null;
 		this.energy = 0;
 	}
-	
+
 	public void setChargeSessionStampIfNotPresent(Instant time, long energy) {
 		this.setChargeSessionStamp(time, energy);
 	}
-	
+
 	public void resetChargeSessionStampIfPresent() {
-		if(isChargeSessionStampPresent()) {
+		if (this.isChargeSessionStampPresent()) {
 			this.resetChargeSessionStamp();
 		}
 	}

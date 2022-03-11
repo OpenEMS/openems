@@ -45,7 +45,6 @@ public class OWFileNotFoundException extends java.io.IOException {
 	 * error detail message.
 	 */
 	public OWFileNotFoundException() {
-		super();
 	}
 
 	/**

@@ -89,7 +89,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	/**
 	 * Schedules a command using the {@link ScheduledExecutorService}.
-	 * 
+	 *
 	 * @param command      a {@link Runnable}
 	 * @param initialDelay the initial delay
 	 * @param delay        the delay
