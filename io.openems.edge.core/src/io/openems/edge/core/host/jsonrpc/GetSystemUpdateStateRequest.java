@@ -9,7 +9,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Gets the System Update State.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -28,7 +28,7 @@ public class GetSystemUpdateStateRequest extends JsonrpcRequest {
 	/**
 	 * Parses a generic {@link JsonrpcRequest} to a
 	 * {@link GetSystemUpdateStateRequest}.
-	 * 
+	 *
 	 * @param r the {@link JsonrpcRequest}
 	 * @return the {@link GetSystemUpdateStateRequest}
 	 * @throws OpenemsNamedException on error

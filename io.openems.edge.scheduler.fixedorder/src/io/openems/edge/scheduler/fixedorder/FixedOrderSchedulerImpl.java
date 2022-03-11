@@ -26,7 +26,7 @@ import io.openems.edge.scheduler.api.Scheduler;
 )
 public class FixedOrderSchedulerImpl extends AbstractOpenemsComponent implements FixedOrderScheduler, Scheduler {
 
-	private LinkedHashSet<String> controllerIds = new LinkedHashSet<>();
+	private final LinkedHashSet<String> controllerIds = new LinkedHashSet<>();
 
 	public FixedOrderSchedulerImpl() {
 		super(//
@@ -58,6 +58,7 @@ public class FixedOrderSchedulerImpl extends AbstractOpenemsComponent implements
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

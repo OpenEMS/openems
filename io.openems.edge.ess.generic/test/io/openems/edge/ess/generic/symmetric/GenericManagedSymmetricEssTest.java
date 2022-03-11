@@ -42,7 +42,7 @@ public class GenericManagedSymmetricEssTest {
 
 	@Test
 	public void testStart() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		new ComponentTest(new GenericManagedSymmetricEssImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //

@@ -16,11 +16,11 @@ public enum SinglePhase {
 	}
 
 	public String getSymbol() {
-		return symbol;
+		return this.symbol;
 	}
 
 	public Phase getPowerApiPhase() {
-		return powerApiPhase;
+		return this.powerApiPhase;
 	}
 
 }

@@ -20,12 +20,12 @@ public class ModbusRecordString16 extends ModbusRecordConstant {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordString16 [value=" + this.value + ", type=" + getType() + "]";
+		return "ModbusRecordString16 [value=" + this.value + ", type=" + this.getType() + "]";
 	}
 
 	public static byte[] toByteArray(String value) {
-		byte[] result = new byte[BYTE_LENGTH];
-		byte[] converted = value.getBytes(StandardCharsets.US_ASCII);
+		var result = new byte[BYTE_LENGTH];
+		var converted = value.getBytes(StandardCharsets.US_ASCII);
 		System.arraycopy(converted, 0, result, 0, Math.min(BYTE_LENGTH, converted.length));
 		return result;
 	}
@@ -33,9 +33,8 @@ public class ModbusRecordString16 extends ModbusRecordConstant {
 	public static byte[] toByteArray(Object value) {
 		if (value == null) {
 			return UNDEFINED_VALUE;
-		} else {
-			return toByteArray((String) TypeUtils.getAsType(OpenemsType.STRING, value));
 		}
+		return toByteArray((String) TypeUtils.getAsType(OpenemsType.STRING, value));
 	}
 
 	@Override

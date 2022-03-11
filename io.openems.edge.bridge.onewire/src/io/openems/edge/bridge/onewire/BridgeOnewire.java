@@ -32,7 +32,7 @@ public interface BridgeOnewire extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#UNABLE_TO_SELECT_PORT_FAULT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getUnableToSelectPortFaultChannel() {
@@ -42,7 +42,7 @@ public interface BridgeOnewire extends OpenemsComponent {
 	/**
 	 * Gets the Unable-To-Select-Port Fault State. See
 	 * {@link ChannelId#UNABLE_TO_SELECT_PORT_FAULT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getUnableToSelectPortFault() {
@@ -52,7 +52,7 @@ public interface BridgeOnewire extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#UNABLE_TO_SELECT_PORT_FAULT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setUnableToSelectPortFault(boolean value) {
@@ -61,17 +61,17 @@ public interface BridgeOnewire extends OpenemsComponent {
 
 	/**
 	 * Add a Task.
-	 * 
+	 *
 	 * <p>
 	 * Tasks are executed sequentially in a separate thread.
-	 * 
+	 *
 	 * @param task the task
 	 */
 	public void addTask(Consumer<DSPortAdapter> task);
 
 	/**
 	 * Removes a Task.
-	 * 
+	 *
 	 * @param task the task
 	 */
 	public void removeTask(Consumer<DSPortAdapter> task);

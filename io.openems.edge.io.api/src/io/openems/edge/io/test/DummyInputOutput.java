@@ -47,6 +47,7 @@ public class DummyInputOutput extends AbstractOpenemsComponent implements Digita
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

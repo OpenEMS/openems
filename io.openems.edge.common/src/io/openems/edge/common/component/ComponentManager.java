@@ -38,6 +38,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -162,14 +163,15 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	/**
 	 * Gets the OpenEMS Clock - either the real system clock or a mocked clock for
 	 * simulations.
-	 * 
+	 *
 	 * @return the Clock
 	 */
+	@Override
 	public Clock getClock();
 
 	/**
 	 * Gets all enabled OpenEMS-Components.
-	 * 
+	 *
 	 * @return a List of OpenEMS-Components
 	 * @throws IllegalArgumentException if the Component was not found
 	 */
@@ -177,7 +179,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 
 	/**
 	 * Gets all enabled OpenEMS-Components of the given Type.
-	 * 
+	 *
 	 * @param <T>   the given Type, subclass of {@link OpenemsComponent}
 	 * @param clazz the given Type, subclass of {@link OpenemsComponent}
 	 * @return a List of OpenEMS-Components
@@ -186,7 +188,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 
 	/**
 	 * Gets all OpenEMS-Components.
-	 * 
+	 *
 	 * @return a List of OpenEMS-Components
 	 * @throws IllegalArgumentException if the Component was not found
 	 */
@@ -195,7 +197,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	/**
 	 * Gets a OpenEMS-Component by its Component-ID. The Component is guaranteed to
 	 * be enabled.
-	 * 
+	 *
 	 * @param componentId the Component-ID (e.g. "_sum")
 	 * @param <T>         the typed Component
 	 * @return the OpenEMS-Component
@@ -206,7 +208,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 		if (SINGLETON_COMPONENT_ID.equals(componentId)) {
 			return (T) this;
 		}
-		List<OpenemsComponent> components = this.getEnabledComponents();
+		var components = this.getEnabledComponents();
 		for (OpenemsComponent component : components) {
 			if (component.id().equals(componentId)) {
 				return (T) component;
@@ -219,7 +221,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	 * Gets a OpenEMS-Component by its Component-ID. Be careful, that the Component
 	 * might not be 'enabled'. If in doubt, use {@link #getComponent(String)}
 	 * instead.
-	 * 
+	 *
 	 * @param componentId the Component-ID (e.g. "_sum")
 	 * @param <T>         the typed Component
 	 * @return the OpenEMS-Component
@@ -231,7 +233,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 		if (SINGLETON_COMPONENT_ID.equals(componentId)) {
 			return (T) this;
 		}
-		List<OpenemsComponent> components = this.getAllComponents();
+		var components = this.getAllComponents();
 		for (OpenemsComponent component : components) {
 			if (component.id().equals(componentId)) {
 				return (T) component;
@@ -242,7 +244,7 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 
 	/**
 	 * Gets a Channel by its Channel-Address.
-	 * 
+	 *
 	 * @param channelAddress the Channel-Address
 	 * @param <T>            the typed Channel
 	 * @return the Channel
@@ -251,17 +253,17 @@ public interface ComponentManager extends OpenemsComponent, JsonApi, ClockProvid
 	 */
 	public default <T extends Channel<?>> T getChannel(ChannelAddress channelAddress)
 			throws IllegalArgumentException, OpenemsNamedException {
-		OpenemsComponent component = this.getComponent(channelAddress.getComponentId());
+		var component = this.getComponent(channelAddress.getComponentId());
 		return component.channel(channelAddress.getChannelId());
 	}
 
 	/**
 	 * Gets the complete configuration of this OpenEMS Edge.
-	 * 
+	 *
 	 * <p>
 	 * Internally updates the cache if necessary and publishes a CONFIG_UPDATE event
 	 * on update.
-	 * 
+	 *
 	 * @return the {@link EdgeConfig} object
 	 */
 	public EdgeConfig getEdgeConfig();

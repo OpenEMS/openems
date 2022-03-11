@@ -60,9 +60,9 @@ public class QueryHistoricTimeseriesDataResponse extends JsonrpcResponseSuccess 
 		var data = new JsonObject();
 		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> rowEntry : this.table.entrySet()) {
 			for (Entry<ChannelAddress, JsonElement> colEntry : rowEntry.getValue().entrySet()) {
-				String channelAddress = colEntry.getKey().toString();
-				JsonElement value = colEntry.getValue();
-				JsonElement channelValuesElement = data.get(channelAddress);
+				var channelAddress = colEntry.getKey().toString();
+				var value = colEntry.getValue();
+				var channelValuesElement = data.get(channelAddress);
 				JsonArray channelValues;
 				if (channelValuesElement != null) {
 					channelValues = channelValuesElement.getAsJsonArray();

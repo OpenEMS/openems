@@ -53,7 +53,7 @@ public class GetUserInformationResponse extends JsonrpcResponseSuccess {
 				.build();
 
 		String country = null;
-		Object[] array = ObjectUtils.getAsObjectArrray(this.userInformation.get("country_id"));
+		var array = ObjectUtils.getAsObjectArrray(this.userInformation.get("country_id"));
 		if (array.length > 2) {
 			country = ObjectUtils.getAsString(array[2]).toLowerCase();
 		}

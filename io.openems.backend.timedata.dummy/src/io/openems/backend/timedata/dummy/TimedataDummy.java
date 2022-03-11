@@ -49,7 +49,7 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 
 	@Override
 	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress) {
-		EdgeCache edgeCache = this.edgeCacheMap.get(edgeId);
+		var edgeCache = this.edgeCacheMap.get(edgeId);
 		if (edgeCache != null) {
 			return edgeCache.getChannelValue(channelAddress);
 		}
@@ -59,7 +59,7 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 	@Override
 	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
 		// get existing or create new EdgeCache
-		EdgeCache edgeCache = this.edgeCacheMap.get(edgeId);
+		var edgeCache = this.edgeCacheMap.get(edgeId);
 		if (edgeCache == null) {
 			edgeCache = new EdgeCache();
 			this.edgeCacheMap.put(edgeId, edgeCache);

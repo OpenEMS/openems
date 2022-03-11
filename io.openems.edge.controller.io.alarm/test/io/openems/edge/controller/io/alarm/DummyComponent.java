@@ -1,7 +1,7 @@
 package io.openems.edge.controller.io.alarm;
 
-import io.openems.edge.common.channel.Doc;
 import io.openems.common.channel.Level;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -14,9 +14,8 @@ public class DummyComponent extends AbstractOpenemsComponent implements OpenemsC
 		/**
 		 * Dummy state channels for testing.
 		 */
-		STATE_0(Doc.of(Level.WARNING).text("State 0")),
-		STATE_1(Doc.of(Level.WARNING).text("State 1")),
-		;
+		STATE_0(Doc.of(Level.WARNING).text("State 0")), //
+		STATE_1(Doc.of(Level.WARNING).text("State 1")),;
 
 		private final Doc doc;
 
@@ -24,14 +23,15 @@ public class DummyComponent extends AbstractOpenemsComponent implements OpenemsC
 			this.doc = doc;
 		}
 
-		public Doc doc() {	
+		@Override
+		public Doc doc() {
 			return this.doc;
 		}
 	}
-	
+
 	public DummyComponent(String id) {
 		super(//
-				OpenemsComponent.ChannelId.values(),//
+				OpenemsComponent.ChannelId.values(), //
 				ChannelId.values() //
 		);
 		super.activate(null, id, "", true);

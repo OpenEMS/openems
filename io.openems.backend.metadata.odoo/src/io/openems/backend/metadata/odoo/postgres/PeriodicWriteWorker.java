@@ -129,7 +129,7 @@ public class PeriodicWriteWorker {
 	public void isOnline(MyEdge edge) {
 		synchronized (this.isOnlineOdooIds) {
 			synchronized (this.isOfflineOdooIds) {
-				int odooId = edge.getOdooId();
+				var odooId = edge.getOdooId();
 				this.isOfflineOdooIds.remove(odooId);
 				this.isOnlineOdooIds.add(edge.getOdooId());
 			}
@@ -144,7 +144,7 @@ public class PeriodicWriteWorker {
 	public void isOffline(MyEdge edge) {
 		synchronized (this.isOnlineOdooIds) {
 			synchronized (this.isOfflineOdooIds) {
-				int odooId = edge.getOdooId();
+				var odooId = edge.getOdooId();
 				this.isOnlineOdooIds.remove(odooId);
 				this.isOfflineOdooIds.add(edge.getOdooId());
 			}

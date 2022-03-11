@@ -19,32 +19,30 @@ public class RampFilter {
 	/**
 	 * Get filtered value using the present lastValue, the value to reach and a
 	 * fixed maximum change per call.
-	 * 
+	 *
 	 * @param targetValue      Value to reach
 	 * @param maxChangePerCall Fixed change per call
 	 * @return value as Integer with applied ramp filter
 	 */
 	public Integer getFilteredValueAsInteger(Float targetValue, float maxChangePerCall) {
-		Float result = this.applyRampFilter(targetValue, maxChangePerCall);
+		var result = this.applyRampFilter(targetValue, maxChangePerCall);
 		if (result == null) {
 			return null;
-		} else {
-			return Math.round(result);
 		}
+		return Math.round(result);
 	}
 
 	/**
 	 * Get filtered value using the given lastValue, the value to reach and a
 	 * calculated maximum change per call.
-	 * 
-	 * @param targetValue Value to reach
+	 *
+	 * @param targetValue  Value to reach
 	 * @param lastValue    Last or current value that needs to be adjusted
 	 * @param maximumLimit Maximum limit used to calculate a fixed change per call
 	 * @param increaseRate Increasing rate used to calculate a fixed change per call
 	 * @return value as Integer with applied ramp filter
 	 */
-	public Integer getFilteredValueAsInteger(float lastValue,
-			Float targetValue, float maximumLimit,
+	public Integer getFilteredValueAsInteger(float lastValue, Float targetValue, float maximumLimit,
 			float increaseRate) {
 		this.lastValue = lastValue;
 		return this.getFilteredValueAsInteger(targetValue, maximumLimit * increaseRate);
@@ -53,8 +51,8 @@ public class RampFilter {
 	/**
 	 * Get filtered value using the given lastValue, the value to reach and a fixed
 	 * maximum change per call.
-	 * 
-	 * @param targetValue     Value to reach
+	 *
+	 * @param targetValue      Value to reach
 	 * @param lastValue        Last or current value that needs to be adjusted
 	 * @param maxChangePerCall Fixed change per call
 	 * @return value as Integer with applied ramp filter
@@ -72,7 +70,8 @@ public class RampFilter {
 		if (this.lastValue == null) {
 			this.lastValue = targetValue;
 			return targetValue;
-		} else if (targetValue > this.lastValue) {
+		}
+		if (targetValue > this.lastValue) {
 			return this.increase(targetValue, maxChangePerCall);
 		} else {
 			return this.decrease(targetValue, maxChangePerCall);

@@ -30,10 +30,9 @@ public class SlowCharge1Handler extends StateHandler<State, Context> {
 				.toMinutes() >= MAX_STATE_DURATION_MINUTES) {
 			// time passed
 			return State.FAST_CHARGE;
-		} else {
-			// stay in this State
-			return State.SLOW_CHARGE_1;
 		}
+		// stay in this State
+		return State.SLOW_CHARGE_1;
 	}
 
 }

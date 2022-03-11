@@ -2,7 +2,6 @@ package io.openems.edge.scheduler.daily;
 
 import java.time.LocalTime;
 import java.util.LinkedHashSet;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.osgi.service.component.ComponentContext;
@@ -58,16 +57,16 @@ public class DailySchedulerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Updates the internal "controllerSchedule" map.
-	 * 
+	 *
 	 * @param schedule the configured schedule as {@link JsonArray}
 	 * @throws OpenemsNamedException on error
 	 */
 	private void updateControllerSchedule(JsonArray schedule) throws OpenemsNamedException {
 		this.controllerSchedule.clear();
 		for (JsonElement period : schedule) {
-			LocalTime time = LocalTime.parse(JsonUtils.getAsString(period, "time"));
-			JsonArray jControllerIds = JsonUtils.getAsJsonArray(period, "controllers");
-			LinkedHashSet<String> controllerIds = new LinkedHashSet<String>();
+			var time = LocalTime.parse(JsonUtils.getAsString(period, "time"));
+			var jControllerIds = JsonUtils.getAsJsonArray(period, "controllers");
+			var controllerIds = new LinkedHashSet<String>();
 			for (JsonElement controllerId : jControllerIds) {
 				controllerIds.add(JsonUtils.getAsString(controllerId));
 			}
@@ -77,7 +76,7 @@ public class DailySchedulerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public LinkedHashSet<String> getControllers() {
-		LinkedHashSet<String> result = new LinkedHashSet<>();
+		var result = new LinkedHashSet<String>();
 
 		// add "Always Run Before" Controllers
 		for (String controllerId : this.config.alwaysRunBeforeController_ids()) {
@@ -85,8 +84,7 @@ public class DailySchedulerImpl extends AbstractOpenemsComponent
 		}
 
 		// add "Daily Schedule" Controllers
-		Entry<LocalTime, LinkedHashSet<String>> scheduledIds = this.controllerSchedule
-				.lowerEntry(LocalTime.now(this.componentManager.getClock()));
+		var scheduledIds = this.controllerSchedule.lowerEntry(LocalTime.now(this.componentManager.getClock()));
 		if (scheduledIds == null) {
 			// No entry found -> take the one with highest time, i.e. the one before
 			// midnight.
@@ -114,6 +112,7 @@ public class DailySchedulerImpl extends AbstractOpenemsComponent
 		result.add(controllerId);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

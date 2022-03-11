@@ -21,7 +21,7 @@ public class FC2ReadInputsTask extends AbstractReadDigitalInputsTask implements 
 
 	@Override
 	protected BitVector getBitVector(ModbusResponse response) {
-		ReadInputDiscretesResponse readInputDiscretesResponse = (ReadInputDiscretesResponse) response;
+		var readInputDiscretesResponse = (ReadInputDiscretesResponse) response;
 		return readInputDiscretesResponse.getDiscretes();
 	}
 
@@ -37,6 +37,6 @@ public class FC2ReadInputsTask extends AbstractReadDigitalInputsTask implements 
 
 	@Override
 	protected ModbusRequest getRequest() {
-		return new ReadInputDiscretesRequest(getStartAddress(), getLength());
+		return new ReadInputDiscretesRequest(this.getStartAddress(), this.getLength());
 	}
 }

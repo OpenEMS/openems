@@ -27,7 +27,7 @@ public interface SurplusFeedToGridController extends Controller, OpenemsComponen
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SURPLUS_FEED_TO_GRID_IS_LIMITED}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getSurplusFeedToGridIsLimitedChannel() {
@@ -37,7 +37,7 @@ public interface SurplusFeedToGridController extends Controller, OpenemsComponen
 	/**
 	 * Gets the Run-Failed State. See
 	 * {@link ChannelId#SURPLUS_FEED_TO_GRID_IS_LIMITED}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getSurplusFeedToGridIsLimited() {
@@ -47,7 +47,7 @@ public interface SurplusFeedToGridController extends Controller, OpenemsComponen
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#SURPLUS_FEED_TO_GRID_IS_LIMITED} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setSurplusFeedToGridIsLimited(boolean value) {

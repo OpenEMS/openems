@@ -17,6 +17,7 @@ public interface DigitalOutput extends OpenemsComponent {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -24,7 +25,7 @@ public interface DigitalOutput extends OpenemsComponent {
 
 	/**
 	 * Gets all Output Channels.
-	 * 
+	 *
 	 * @return an array of Channels
 	 */
 	public BooleanWriteChannel[] digitalOutputChannels();

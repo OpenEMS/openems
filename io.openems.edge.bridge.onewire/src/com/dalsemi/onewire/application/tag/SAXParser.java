@@ -90,7 +90,7 @@ public class SAXParser implements org.xml.sax.Parser {
 	 */
 	public SAXParser() {
 		// load the fully-qualified classname of the SAX Parser
-		String className = OneWireAccessProvider.getProperty("SAXParser.ClassName");
+		var className = OneWireAccessProvider.getProperty("SAXParser.ClassName");
 		if (className == null) {
 			// default to NanoXML
 			className = "nanoxml.sax.SAXParser";
@@ -98,7 +98,7 @@ public class SAXParser implements org.xml.sax.Parser {
 
 		try {
 			Class<?> c = Class.forName(className);
-			parser = (org.xml.sax.Parser) c.newInstance();
+			this.parser = (org.xml.sax.Parser) c.newInstance();
 		} catch (Exception e) {
 			throw new RuntimeException("Can't load SAX Parser (" + className + "): " + e.getMessage());
 		}
@@ -110,8 +110,9 @@ public class SAXParser implements org.xml.sax.Parser {
 	 * @param locale The locale to use.
 	 * @throws SAXException If the <var>locale</var> is not supported.
 	 */
+	@Override
 	public void setLocale(Locale locale) throws SAXException {
-		parser.setLocale(locale);
+		this.parser.setLocale(locale);
 	}
 
 	/**
@@ -122,8 +123,9 @@ public class SAXParser implements org.xml.sax.Parser {
 	 *
 	 * @param resolver The entity resolver to use.
 	 */
+	@Override
 	public void setEntityResolver(EntityResolver resolver) {
-		parser.setEntityResolver(resolver);
+		this.parser.setEntityResolver(resolver);
 	}
 
 	/**
@@ -134,8 +136,9 @@ public class SAXParser implements org.xml.sax.Parser {
 	 *
 	 * @param handler The DTD handler to use.
 	 */
+	@Override
 	public void setDTDHandler(DTDHandler handler) {
-		parser.setDTDHandler(handler);
+		this.parser.setDTDHandler(handler);
 	}
 
 	/**
@@ -146,8 +149,9 @@ public class SAXParser implements org.xml.sax.Parser {
 	 *
 	 * @param handler The document handler to use.
 	 */
+	@Override
 	public void setDocumentHandler(DocumentHandler handler) {
-		parser.setDocumentHandler(handler);
+		this.parser.setDocumentHandler(handler);
 	}
 
 	/**
@@ -159,8 +163,9 @@ public class SAXParser implements org.xml.sax.Parser {
 	 *
 	 * @param handler The error handler to use.
 	 */
+	@Override
 	public void setErrorHandler(ErrorHandler handler) {
-		parser.setErrorHandler(handler);
+		this.parser.setErrorHandler(handler);
 	}
 
 	/**
@@ -170,8 +175,9 @@ public class SAXParser implements org.xml.sax.Parser {
 	 * @throws SAXException Any SAX exception, possibly wrapping another exception.
 	 * @throws IOException  If an I/O error occurred while reading the document.
 	 */
+	@Override
 	public void parse(InputSource inputSource) throws SAXException, IOException {
-		parser.parse(inputSource);
+		this.parser.parse(inputSource);
 	}
 
 	/**
@@ -181,7 +187,8 @@ public class SAXParser implements org.xml.sax.Parser {
 	 * @throws SAXException Any SAX exception, possibly wrapping another exception.
 	 * @throws IOException  If an I/O error occurred while reading the document.
 	 */
+	@Override
 	public void parse(String systemID) throws SAXException, IOException {
-		parser.parse(systemID);
+		this.parser.parse(systemID);
 	}
 }

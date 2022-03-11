@@ -14,7 +14,7 @@ public class SecureRandomSingleton {
 
 	/**
 	 * Gets the {@link SecureRandom} singleton instance.
-	 * 
+	 *
 	 * @return the {@link SecureRandom} instance
 	 */
 	public static synchronized SecureRandom getInstance() {

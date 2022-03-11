@@ -58,8 +58,8 @@ public class SinexcelImplTest {
 
 	@Test
 	public void testStart() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(
-				Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
 		new MyComponentTest(new SinexcelImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
@@ -92,9 +92,9 @@ public class SinexcelImplTest {
 
 	@Test
 	public void testOffGrid() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(
-				Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
-		SinexcelImpl sut = new SinexcelImpl();
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
+		var sut = new SinexcelImpl();
 		new MyComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //

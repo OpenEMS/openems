@@ -29,7 +29,7 @@ public interface Timedata extends CommonTimedataService, OpenemsComponent {
 
 	/**
 	 * Gets the latest known value for the given {@link ChannelAddress}.
-	 * 
+	 *
 	 * @param channelAddress the ChannelAddress to be queried
 	 * @return the latest known value or Empty
 	 */

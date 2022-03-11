@@ -15,13 +15,13 @@ import io.openems.edge.common.type.TypeUtils;
 
 /**
  * Represents an Asymmetric Meter.
- * 
+ *
  * - Negative ActivePowerL1/L2/L3 and ConsumptionActivePowerL1/L2/L3 represent
  * Consumption, i.e. power that is 'leaving the system', e.g. feed-to-grid
- * 
+ *
  * - Positive ActivePowerL1/L2/L3 and ProductionActivePowerL1/L2/L3 represent
  * Production, i.e. power that is 'entering the system', e.g. buy-from-grid
- * 
+ *
  */
 public interface AsymmetricMeter extends SymmetricMeter {
 
@@ -30,7 +30,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Active Power L1
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -46,7 +46,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Active Power L2
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -62,7 +62,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Active Power L3
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -78,7 +78,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Reactive Power L1
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -94,7 +94,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Reactive Power L2
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -110,7 +110,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Reactive Power L3
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -126,7 +126,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.text(POWER_DOC_TEXT)), //
 		/**
 		 * Voltage L1
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -138,7 +138,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Voltage L2
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -150,7 +150,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Voltage L3
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -162,7 +162,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Current L1
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -174,7 +174,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Current L2
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -186,7 +186,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Current L3
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -203,6 +203,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -693,7 +694,7 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Initializes Channel listeners to set the Active- and Reactive-Power Channel
 	 * value as the sum of L1 + L2 + L3.
-	 * 
+	 *
 	 * @param meter
 	 */
 	public static void initializePowerSumChannels(AsymmetricMeter meter) {

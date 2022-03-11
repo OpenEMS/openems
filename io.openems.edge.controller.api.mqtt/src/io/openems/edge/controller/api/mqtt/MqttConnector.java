@@ -16,7 +16,7 @@ import org.eclipse.paho.mqttv5.common.MqttException;
 
 /**
  * This helper class wraps a connection to an MQTT broker.
- * 
+ *
  * <p>
  * One main feature of this class is to retry the initial connection to an MQTT
  * broker. A feature that is unfortunately not present in Eclipse Paho. After
@@ -27,7 +27,7 @@ public class MqttConnector {
 
 	private static final int INCREASE_WAIT_SECONDS = 5;
 	private static final int MAX_WAIT_SECONDS = 60 * 5;
-	private AtomicInteger waitSeconds = new AtomicInteger(0);
+	private final AtomicInteger waitSeconds = new AtomicInteger(0);
 
 	/**
 	 * Private inner class handles actual connection. It is executed via the
@@ -77,7 +77,7 @@ public class MqttConnector {
 			client.setCallback(callback);
 		}
 
-		MqttConnectionOptions options = new MqttConnectionOptions();
+		var options = new MqttConnectionOptions();
 		options.setUserName(username);
 		if (password != null) {
 			options.setPassword(password.getBytes(StandardCharsets.UTF_8));

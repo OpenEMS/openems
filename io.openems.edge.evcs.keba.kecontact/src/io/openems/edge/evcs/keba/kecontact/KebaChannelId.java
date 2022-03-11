@@ -9,41 +9,64 @@ import io.openems.edge.evcs.api.Status;
 
 public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 
-	ALIAS(Doc.of(OpenemsType.STRING).text("A human-readable name of this Component")),
+	ALIAS(Doc.of(OpenemsType.STRING) //
+			.text("A human-readable name of this Component")),
 	/*
 	 * Report 1
 	 */
-	PRODUCT(Doc.of(OpenemsType.STRING).text("Model name (variant)")), //
-	SERIAL(Doc.of(OpenemsType.STRING).text("Serial number")), //
-	FIRMWARE(Doc.of(OpenemsType.STRING).text("Firmware version")), //
-	COM_MODULE(Doc.of(OpenemsType.STRING).text("Communication module is installed; KeContact P30 only")),
-	DIP_SWITCH_1(Doc.of(OpenemsType.STRING).text("The first eight dip switch settings as binary")),
-	DIP_SWITCH_2(Doc.of(OpenemsType.STRING).text("The second eight dip switch settings as binary")),
-	DIP_SWITCH_MAX_HW(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).text("The raw maximum limit configured by the dip switches")),
-	
+	PRODUCT(Doc.of(OpenemsType.STRING) //
+			.text("Model name (variant)")), //
+	SERIAL(Doc.of(OpenemsType.STRING) //
+			.text("Serial number")), //
+	FIRMWARE(Doc.of(OpenemsType.STRING) //
+			.text("Firmware version")), //
+	COM_MODULE(Doc.of(OpenemsType.STRING) //
+			.text("Communication module is installed; KeContact P30 only")),
+	DIP_SWITCH_1(Doc.of(OpenemsType.STRING) //
+			.text("The first eight dip switch settings as binary")),
+	DIP_SWITCH_2(Doc.of(OpenemsType.STRING) //
+			.text("The second eight dip switch settings as binary")),
+	DIP_SWITCH_MAX_HW(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.AMPERE) //
+			.text("The raw maximum limit configured by the dip switches")),
+
 	/*
 	 * Report 2
 	 */
-	STATUS_KEBA(Doc.of(Status.values()).text("Current state of the charging station")),
-	ERROR_1(Doc.of(OpenemsType.INTEGER).text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
-	ERROR_2(Doc.of(OpenemsType.INTEGER).text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
-	PLUG(Doc.of(Plug.values())),
-	ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN).text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
-	ENABLE_USER(Doc.of(OpenemsType.BOOLEAN).text("Enable condition via UDP")), //
-	MAX_CURR(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current preset value via Control pilot")), //
-	MAX_CURR_PERCENT(
-			Doc.of(OpenemsType.INTEGER).text("Current preset value via Control pilot in 0,1% of the PWM value")), //
-	CURR_USER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)
-			.text("Current preset value of the user via UDP; Default = 63000mA")), //
-	CURR_FAILSAFE(
-			Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current preset value for the Failsafe function")), //
-	TIMEOUT_FAILSAFE(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS)
+	STATUS_KEBA(Doc.of(Status.values()) //
+			.text("Current state of the charging station")),
+	ERROR_1(Doc.of(OpenemsType.INTEGER) //
+			.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
+	ERROR_2(Doc.of(OpenemsType.INTEGER) //
+			.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
+	PLUG(Doc.of(Plug.values())), ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN) //
+			.text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
+	ENABLE_USER(Doc.of(OpenemsType.BOOLEAN) //
+			.text("Enable condition via UDP")), //
+	MAX_CURR(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIAMPERE) //
+			.text("Current preset value via Control pilot")), //
+	MAX_CURR_PERCENT(Doc.of(OpenemsType.INTEGER) //
+			.text("Current preset value via Control pilot in 0,1% of the PWM value")), //
+	CURR_USER(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIAMPERE).text("Current preset value of the user via UDP; Default = 63000mA")), //
+	CURR_FAILSAFE(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIAMPERE) //
+			.text("Current preset value for the Failsafe function")), //
+	TIMEOUT_FAILSAFE(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.SECONDS) //
 			.text("Communication timeout before triggering the Failsafe function")), //
-	CURR_TIMER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Shows the current preset value of currtime")), //
-	TIMEOUT_CT(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS)
+	CURR_TIMER(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIAMPERE) //
+			.text("Shows the current preset value of currtime")), //
+	TIMEOUT_CT(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.SECONDS) //
 			.text("Shows the remaining time until the current value is accepted")), //
-	OUTPUT(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF).text("State of the output X2")), //
-	INPUT(Doc.of(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)
+	OUTPUT(Doc.of(OpenemsType.BOOLEAN) //
+			.unit(Unit.ON_OFF) //
+			.text("State of the output X2")), //
+	INPUT(Doc.of(OpenemsType.BOOLEAN) //
+			.unit(Unit.ON_OFF) //
 			.text("State of the potential free Enable input X1. When using the input, "
 					+ "please pay attention to the information in the installation manual.")), //
 	/*
@@ -57,7 +80,8 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	CURRENT_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L3")), //
 	ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIWATT).text("Total real power")), //
 	COS_PHI(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT).text("Power factor")), //
-	ENERGY_TOTAL(Doc.of(OpenemsType.LONG).unit(Unit.WATT_HOURS)
+	ENERGY_TOTAL(Doc.of(OpenemsType.LONG) //
+			.unit(Unit.WATT_HOURS) //
 			.text("Total power consumption (persistent) without current loading session. "
 					+ "Is summed up after each completed charging session")), //
 	DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM(Doc.of(Level.FAULT) //

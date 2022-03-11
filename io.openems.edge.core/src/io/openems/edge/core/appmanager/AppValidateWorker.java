@@ -14,7 +14,7 @@ import io.openems.common.worker.AbstractWorker;
 
 /**
  * This Worker constantly validates:.
- * 
+ *
  * <ul>
  * <li>that all enabled OpenEMS Apps are properly configured, including required
  * OpenEMS Components, IP addresses, Scheduler settings, etc.
@@ -26,7 +26,7 @@ public class AppValidateWorker extends AbstractWorker {
 	 * For INITIAL_CYCLES cycles the distance between two checks is
 	 * INITIAL_CYCLE_TIME, afterwards the check runs every REGULAR_CYCLE_TIME
 	 * milliseconds.
-	 * 
+	 *
 	 * Why? In the beginning it takes a while till all components are up and
 	 * running. So it is likely, that in the beginning not all are immediately
 	 * running.
@@ -55,7 +55,7 @@ public class AppValidateWorker extends AbstractWorker {
 
 	/**
 	 * Validates all Apps.
-	 * 
+	 *
 	 * <p>
 	 * 'protected' so that it can be used in a JUnit test.
 	 */
@@ -71,16 +71,16 @@ public class AppValidateWorker extends AbstractWorker {
 
 	/**
 	 * Validates all Apps.
-	 * 
+	 *
 	 * <p>
 	 * 'protected' so that it can be used in a JUnit test.
-	 * 
+	 *
 	 * @param app        the {@link OpenemsApp}
 	 * @param properties the App properties
 	 */
 	protected void validateApp(OpenemsApp app, JsonObject properties) {
 		// Found correct OpenemsApp -> validate
-		String key = app.getName();
+		var key = app.getName();
 		try {
 			app.validate(properties);
 
@@ -97,14 +97,13 @@ public class AppValidateWorker extends AbstractWorker {
 		if (this.cycleCountDown > 0) {
 			this.cycleCountDown--;
 			return AppValidateWorker.INITIAL_CYCLE_TIME;
-		} else {
-			return AppValidateWorker.REGULAR_CYCLE_TIME;
 		}
+		return AppValidateWorker.REGULAR_CYCLE_TIME;
 	}
 
 	/**
 	 * Called by {@link ConfigurationListener}.
-	 * 
+	 *
 	 * @param event a {@link ConfigurationEvent}
 	 */
 	protected void configurationEvent(ConfigurationEvent event) {
@@ -121,7 +120,7 @@ public class AppValidateWorker extends AbstractWorker {
 
 	/**
 	 * Called by parent debugLog.
-	 * 
+	 *
 	 * @return a debug log String or null
 	 */
 	protected String debugLog() {
@@ -132,9 +131,8 @@ public class AppValidateWorker extends AbstractWorker {
 		if (defectiveApps.isEmpty()) {
 			return null;
 
-		} else {
-			return defectiveApps;
 		}
+		return defectiveApps;
 	}
 
 }

@@ -37,7 +37,7 @@ public class KostalPikoGridMeter extends AbstractOpenemsComponent implements Sym
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	private AtomicReference<KostalPikoCore> core = new AtomicReference<>();
+	private final AtomicReference<KostalPikoCore> core = new AtomicReference<>();
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setCore(KostalPikoCore core) {
@@ -76,11 +76,12 @@ public class KostalPikoGridMeter extends AbstractOpenemsComponent implements Sym
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		// update filter for 'Core'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Core", config.core_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Core", config.core_id())) {
 			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

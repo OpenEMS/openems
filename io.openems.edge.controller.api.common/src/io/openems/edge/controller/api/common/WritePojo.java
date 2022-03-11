@@ -11,7 +11,6 @@ public class WritePojo extends WriteObject {
 	public final Object value;
 
 	public WritePojo(Object value) {
-		super();
 		this.value = value;
 	}
 

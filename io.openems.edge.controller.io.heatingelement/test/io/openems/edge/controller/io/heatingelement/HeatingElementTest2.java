@@ -31,15 +31,14 @@ public class HeatingElementTest2 {
 
 	@Test
 	public void test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(
-				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
 		new ControllerTest(new ControllerHeatingElementImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
 				.addComponent(new DummyInputOutput(IO_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
-						.setInputChannelAddress(SUM_GRID_ACTIVE_POWER.toString()) //
 						.setOutputChannelPhaseL1(IO_OUTPUT1.toString()) //
 						.setOutputChannelPhaseL2(IO_OUTPUT2.toString()) //
 						.setOutputChannelPhaseL3(IO_OUTPUT3.toString()) //

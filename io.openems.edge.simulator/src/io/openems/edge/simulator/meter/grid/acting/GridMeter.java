@@ -58,6 +58,7 @@ public class GridMeter extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -90,6 +91,7 @@ public class GridMeter extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -135,13 +137,13 @@ public class GridMeter extends AbstractOpenemsComponent
 		/*
 		 * Calculate Active Power
 		 */
-		Integer activePower = simulatedActivePower;
+		var activePower = simulatedActivePower;
 		for (ManagedSymmetricEss ess : this.symmetricEsss) {
 			activePower = TypeUtils.subtract(activePower, ess.getActivePower().get());
 		}
 
 		this._setActivePower(activePower);
-		Integer activePowerByThree = TypeUtils.divide(activePower, 3);
+		var activePowerByThree = TypeUtils.divide(activePower, 3);
 		this._setActivePowerL1(activePowerByThree);
 		this._setActivePowerL2(activePowerByThree);
 		this._setActivePowerL3(activePowerByThree);
@@ -157,7 +159,7 @@ public class GridMeter extends AbstractOpenemsComponent
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

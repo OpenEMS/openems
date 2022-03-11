@@ -42,13 +42,12 @@ public class Event extends TaggedDevice implements TaggedSensor {
 	 * Creates an object for the device.
 	 */
 	public Event() {
-		super();
 	}
 
 	/**
 	 * Creates an object for the device with the supplied address and device type
 	 * connected to the supplied port adapter.
-	 * 
+	 *
 	 * @param adapter    The adapter serving the sensor.
 	 * @param netAddress The 1-Wire network address of the sensor.
 	 *
@@ -60,20 +59,21 @@ public class Event extends TaggedDevice implements TaggedSensor {
 	/**
 	 * The readSensor method returns the "max" string if the Sensor (a switch) has
 	 * had activity since last time it was checked for activity.
-	 * 
+	 *
 	 * @return String The "max" string associated with this Sensor.
 	 */
+	@Override
 	public String readSensor() throws OneWireException {
-		String returnString = "";
+		var returnString = "";
 		byte[] switchState;
 		SwitchContainer Container;
-		Container = (SwitchContainer) DeviceContainer;
+		Container = (SwitchContainer) this.DeviceContainer;
 
 		if (Container.hasActivitySensing()) // if there is any activity, read it.
 		{
 			switchState = Container.readDevice();
-			if (Container.getSensedActivity(getChannel(), switchState)) {
-				returnString = getMax();
+			if (Container.getSensedActivity(this.getChannel(), switchState)) {
+				returnString = this.getMax();
 				// for future accurate readings, clear activity.
 				Container.clearActivity();
 				switchState = Container.readDevice(); // throw away the reading

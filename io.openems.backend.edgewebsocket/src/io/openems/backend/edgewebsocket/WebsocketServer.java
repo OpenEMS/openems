@@ -55,7 +55,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	/**
 	 * Is the given Edge online?.
-	 * 
+	 *
 	 * @param edgeId the Edge-ID
 	 * @return true if it is online.
 	 */

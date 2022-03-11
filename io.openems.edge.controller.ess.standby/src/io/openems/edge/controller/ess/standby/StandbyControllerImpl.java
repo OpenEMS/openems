@@ -17,7 +17,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.standby.statemachine.Context;
@@ -70,6 +69,7 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 		this.configuredEndDate = convertDate(config.endDate());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -82,7 +82,7 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode();
+		var gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -98,7 +98,7 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 		this.channel(StandbyController.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
 		// Prepare Context
-		Context context = new Context(this, ess, this.sum, this.configuredStartDate, this.configuredEndDate,
+		var context = new Context(this, ess, this.sum, this.configuredStartDate, this.configuredEndDate,
 				this.config.dayOfWeek(), this.componentManager.getClock());
 
 		// Call the StateMachine
@@ -107,13 +107,12 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Converts a string to a LocalDate.
-	 * 
+	 *
 	 * @param date the date as string in the format "dd.MM.yyyy" (DATE_FORMAT).
 	 * @return the date as {@link LocalDate}
 	 */
 	private static LocalDate convertDate(String date) {
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
-		LocalDate localDate = LocalDate.parse(date, dateTimeFormatter);
-		return localDate;
+		var dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+		return LocalDate.parse(date, dateTimeFormatter);
 	}
 }

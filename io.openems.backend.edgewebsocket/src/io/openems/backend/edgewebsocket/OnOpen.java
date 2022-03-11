@@ -24,7 +24,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		// get websocket attachment
 		WsData wsData = ws.getAttachment();
 
-		String apikey = "";
+		var apikey = "";
 		try {
 			// get apikey from handshake
 			var apikeyOpt = JsonUtils.getAsOptionalString(handshake, "apikey");

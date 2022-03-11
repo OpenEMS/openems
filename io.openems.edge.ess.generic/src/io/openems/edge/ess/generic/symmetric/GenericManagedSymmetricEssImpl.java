@@ -94,6 +94,7 @@ public class GenericManagedSymmetricEssImpl
 				config.battery_id(), config.startStop());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -109,7 +110,7 @@ public class GenericManagedSymmetricEssImpl
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.getBattery(), this.getBatteryInverter());
+		var context = new Context(this, this.getBattery(), this.getBatteryInverter());
 
 		// Call the StateMachine
 		try {
@@ -160,9 +161,8 @@ public class GenericManagedSymmetricEssImpl
 	public Integer getSurplusPower() {
 		if (this.batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
 			return ((HybridManagedSymmetricBatteryInverter) this.batteryInverter).getSurplusPower();
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package io.openems.edge.controller.channelthreshold;
 
-import java.util.Optional;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -80,6 +78,7 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -238,7 +237,7 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * Switch the output ON.
-	 * 
+	 *
 	 * @throws OpenemsNamedException
 	 * @throws IllegalArgumentException
 	 */
@@ -248,7 +247,7 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * Switch the output OFF.
-	 * 
+	 *
 	 * @throws OpenemsNamedException
 	 * @throws IllegalArgumentException
 	 */
@@ -267,11 +266,11 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
 		try {
 			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
-			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+			var currentValueOpt = outputChannel.value().asOptional();
 			if (!currentValueOpt.isPresent() || currentValueOpt.get() != (value ^ this.invertOutput)) {
 				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] "
 						+ (value ^ this.invertOutput ? "ON" : "OFF") + ".");
-				outputChannel.setNextWriteValue(value ^ invertOutput);
+				outputChannel.setNextWriteValue(value ^ this.invertOutput);
 			}
 		} catch (OpenemsException e) {
 			this.logError(this.log, "Unable to set output: [" + this.outputChannelAddress + "] " + e.getMessage());

@@ -1,6 +1,5 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
-import java.lang.reflect.Method;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -65,10 +64,10 @@ public class KacoBlueplanetGridsaveTest {
 
 	@Before
 	public void prepareTest() throws Exception {
-		final long start = 1577836800L;
+		final var start = 1577836800L;
 		clock = new TimeLeapClock(Instant.ofEpochSecond(start) /* starts at 1. January 2020 00:00:00 */,
 				ZoneOffset.UTC);
-		KacoBlueplanetGridsaveImpl sut = new KacoBlueplanetGridsaveImpl();
+		var sut = new KacoBlueplanetGridsaveImpl();
 
 		test = new MyComponentTest(sut) //
 				.addReference("cycle", new DummyCycle(1000)) //
@@ -78,7 +77,7 @@ public class KacoBlueplanetGridsaveTest {
 
 		// TODO implement proper Dummy-Modbus-Bridge with SunSpec support. Till then...
 		test.addReference("isSunSpecInitializationCompleted", true); //
-		Method addChannel = AbstractOpenemsComponent.class.getDeclaredMethod("addChannel", ChannelId.class);
+		var addChannel = AbstractOpenemsComponent.class.getDeclaredMethod("addChannel", ChannelId.class);
 		addChannel.setAccessible(true);
 		addChannel.invoke(sut, KacoSunSpecModel.S64203.BAT_SOC_0.getChannelId());
 		addChannel.invoke(sut, KacoSunSpecModel.S64203.BAT_SOH_0.getChannelId());

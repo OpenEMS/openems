@@ -55,6 +55,7 @@ public class ProductionMeter extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -84,6 +85,7 @@ public class ProductionMeter extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -127,7 +129,7 @@ public class ProductionMeter extends AbstractOpenemsComponent
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 		this._setActivePower(simulatedActivePower);
 
-		Integer simulatedActivePowerByThree = TypeUtils.divide(simulatedActivePower, 3);
+		var simulatedActivePowerByThree = TypeUtils.divide(simulatedActivePower, 3);
 		this._setActivePowerL1(simulatedActivePowerByThree);
 		this._setActivePowerL2(simulatedActivePowerByThree);
 		this._setActivePowerL3(simulatedActivePowerByThree);
@@ -143,7 +145,7 @@ public class ProductionMeter extends AbstractOpenemsComponent
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

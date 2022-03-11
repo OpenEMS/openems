@@ -63,7 +63,7 @@ public class DebugLogImplTest {
 			}
 		});
 
-		DebugLogImpl sut = new DebugLogImpl();
+		var sut = new DebugLogImpl();
 		new ControllerTest(sut) //
 				.addReference("components", components) //
 				.activate(MyConfig.create() //
@@ -108,7 +108,7 @@ public class DebugLogImplTest {
 			}
 		});
 
-		DebugLogImpl sut = new DebugLogImpl();
+		var sut = new DebugLogImpl();
 		new ControllerTest(sut) //
 				.addReference("components", components) //
 				.addComponent(components.get(0)) //

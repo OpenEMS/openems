@@ -41,6 +41,7 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -50,7 +51,6 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 	private FeneconDessEss ess;
 
 	public FeneconDessCharger1() {
-		super();
 	}
 
 	@Activate
@@ -68,6 +68,7 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 		this.ess.addCharger(this);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		this.ess.removeCharger(this);

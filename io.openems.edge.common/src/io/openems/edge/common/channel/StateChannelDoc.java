@@ -28,13 +28,13 @@ public class StateChannelDoc extends AbstractDoc<Boolean> {
 	}
 
 	public Level getLevel() {
-		return level;
+		return this.level;
 	}
 
 	/**
 	 * Creates an instance of {@link Channel} for the given Channel-ID using its
 	 * Channel-{@link Doc}.
-	 * 
+	 *
 	 * @param channelId the Channel-ID
 	 * @return the Channel
 	 */
@@ -59,10 +59,10 @@ public class StateChannelDoc extends AbstractDoc<Boolean> {
 	}
 
 	public int getDebounce() {
-		return debounce;
+		return this.debounce;
 	}
 
 	public Debounce getDebounceMode() {
-		return debounceMode;
+		return this.debounceMode;
 	}
 }

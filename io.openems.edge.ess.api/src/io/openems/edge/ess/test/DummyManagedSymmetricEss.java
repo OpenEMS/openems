@@ -78,7 +78,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 	/**
 	 * Set {@link SymmetricEss.ChannelId#SOC} of this
 	 * {@link DummyManagedSymmetricEss}.
-	 * 
+	 *
 	 * @param value the state-of-charge
 	 * @return myself
 	 */
@@ -91,7 +91,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 	/**
 	 * Set {@link SymmetricEss.ChannelId#CAPACITY} of this
 	 * {@link DummyManagedSymmetricEss}. *
-	 * 
+	 *
 	 * @param value the capacity
 	 * @return myself
 	 */
@@ -104,7 +104,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 	/**
 	 * Set {@link SymmetricEss.ChannelId#GRID_MODE} of this
 	 * {@link DummyManagedSymmetricEss}. *
-	 * 
+	 *
 	 * @param value the {@link GridMode}
 	 * @return myself
 	 */
@@ -117,7 +117,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 	/**
 	 * Set {@link SymmetricEss.ChannelId#MAX_APPARENT_POWER} of this
 	 * {@link DummyManagedSymmetricEss}. *
-	 * 
+	 *
 	 * @param value the max apparent power
 	 * @return myself
 	 */
@@ -130,7 +130,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 	/**
 	 * Set {@link ManagedSymmetricEss.ChannelId#ALLOWED_CHARGE_POWER} of this
 	 * {@link DummyManagedSymmetricEss}. *
-	 * 
+	 *
 	 * @param value the allowed charge power
 	 * @return myself
 	 */
@@ -143,7 +143,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 	/**
 	 * Set {@link ManagedSymmetricEss.ChannelId#ALLOWED_DISCHARGE_POWER} of this
 	 * {@link DummyManagedSymmetricEss}. *
-	 * 
+	 *
 	 * @param value the allowed discharge power
 	 * @return myself
 	 */
@@ -155,7 +155,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 
 	/**
 	 * Set Power Precision of this {@link DummyManagedSymmetricEss}.
-	 * 
+	 *
 	 * @param value the power precision
 	 * @return myself
 	 */
@@ -166,7 +166,7 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 
 	/**
 	 * Set callback for applyPower() of this {@link DummyManagedSymmetricEss}.
-	 * 
+	 *
 	 * @param callback the callback
 	 * @return myself
 	 */

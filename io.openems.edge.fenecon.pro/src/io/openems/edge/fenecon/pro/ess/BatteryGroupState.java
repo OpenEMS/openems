@@ -10,7 +10,7 @@ public enum BatteryGroupState implements OptionsEnum {
 	RUNNING(3, "Running"), //
 	STOPPING(4, "Stopping"), //
 	FAIL(5, "Fail");
-	
+
 	private final int value;
 	private final String name;
 

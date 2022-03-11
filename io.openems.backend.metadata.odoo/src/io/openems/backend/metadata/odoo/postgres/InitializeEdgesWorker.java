@@ -2,7 +2,6 @@ package io.openems.backend.metadata.odoo.postgres;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,8 +53,8 @@ public class InitializeEdgesWorker {
 		/*
 		 * First: mark all Edges as offline
 		 */
-		try (Connection con = self.dataSource.getConnection(); //
-				PreparedStatement pst = self.psUpdateAllEdgesOffline(con); //
+		try (var con = self.dataSource.getConnection(); //
+				var pst = self.psUpdateAllEdgesOffline(con); //
 		) {
 			pst.execute();
 		} catch (SQLException e) {
@@ -67,12 +66,12 @@ public class InitializeEdgesWorker {
 		/**
 		 * Reads all Edges from Postgres and puts them in a local Cache.
 		 */
-		try (Connection con = self.dataSource.getConnection(); //
-				PreparedStatement pst = self.psQueryAllEdges(con); //
-				ResultSet rs = pst.executeQuery(); //
+		try (var con = self.dataSource.getConnection(); //
+				var pst = self.psQueryAllEdges(con); //
+				var rs = pst.executeQuery(); //
 		) {
 			self.parent.logInfo(this.log, "Caching Edges from Postgres");
-			for (int i = 0; rs.next(); i++) {
+			for (var i = 0; rs.next(); i++) {
 				if (i % 100 == 0) {
 					self.parent.logInfo(this.log, "Caching Edges from Postgres. Finished [" + i + "]");
 				}

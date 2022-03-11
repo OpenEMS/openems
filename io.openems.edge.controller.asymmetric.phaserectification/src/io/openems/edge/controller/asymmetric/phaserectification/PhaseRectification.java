@@ -15,13 +15,11 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.AsymmetricMeter;
@@ -65,6 +63,7 @@ public class PhaseRectification extends AbstractOpenemsComponent implements Cont
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -78,7 +77,7 @@ public class PhaseRectification extends AbstractOpenemsComponent implements Cont
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode();
+		var gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -90,21 +89,21 @@ public class PhaseRectification extends AbstractOpenemsComponent implements Cont
 			return;
 		}
 
-		int meterL1 = meter.getActivePowerL1().getOrError() * -1;
-		int meterL2 = meter.getActivePowerL2().getOrError() * -1;
-		int meterL3 = meter.getActivePowerL3().getOrError() * -1;
-		int meterPowerAvg = (meterL1 + meterL2 + meterL3) / 3;
-		int meterL1Delta = meterPowerAvg - meterL1;
-		int meterL2Delta = meterPowerAvg - meterL2;
-		int meterL3Delta = meterPowerAvg - meterL3;
+		var meterL1 = meter.getActivePowerL1().getOrError() * -1;
+		var meterL2 = meter.getActivePowerL2().getOrError() * -1;
+		var meterL3 = meter.getActivePowerL3().getOrError() * -1;
+		var meterPowerAvg = (meterL1 + meterL2 + meterL3) / 3;
+		var meterL1Delta = meterPowerAvg - meterL1;
+		var meterL2Delta = meterPowerAvg - meterL2;
+		var meterL3Delta = meterPowerAvg - meterL3;
 		int essL1 = ess.getActivePowerL1().getOrError();
 		int essL2 = ess.getActivePowerL2().getOrError();
 		int essL3 = ess.getActivePowerL3().getOrError();
-		int activePowerL1 = essL1 + meterL1Delta;
-		int activePowerL2 = essL2 + meterL2Delta;
-		int activePowerL3 = essL3 + meterL3Delta;
+		var activePowerL1 = essL1 + meterL1Delta;
+		var activePowerL2 = essL2 + meterL2Delta;
+		var activePowerL3 = essL3 + meterL3Delta;
 
-		Power power = ess.getPower();
+		var power = ess.getPower();
 		power.addConstraintAndValidate(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
 				new LinearCoefficient(power.getCoefficient(ess, Phase.L1, Pwr.ACTIVE), 1), //
 				new LinearCoefficient(power.getCoefficient(ess, Phase.L2, Pwr.ACTIVE), -1) //

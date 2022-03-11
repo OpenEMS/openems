@@ -36,7 +36,7 @@ public class MyChargerConfig extends AbstractComponentConfig implements Config1,
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

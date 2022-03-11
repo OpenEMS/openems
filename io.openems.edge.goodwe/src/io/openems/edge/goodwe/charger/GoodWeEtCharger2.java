@@ -44,13 +44,13 @@ public class GoodWeEtCharger2 extends AbstractGoodWeEtCharger
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
 	public GoodWeEtCharger2() {
-		super();
 	}
 
 	@Activate
@@ -71,6 +71,7 @@ public class GoodWeEtCharger2 extends AbstractGoodWeEtCharger
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.essOrBatteryInverter != null) {

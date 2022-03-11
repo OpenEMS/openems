@@ -70,7 +70,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterMaximum_essActivePowerTest() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -110,7 +110,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterMaximum_symmetricGridPowerTest() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -150,7 +150,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterMaximum_assymmetricGridPowerTest() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -190,7 +190,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterMaximum_symmetricGridPower_essActivePowerTest() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -232,7 +232,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterMaximum_essAllowedDischargePowerTest() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -274,7 +274,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterDistribution_nothingToChargeTest() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -339,7 +339,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterDistribution_chargeTest() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1", "evcs2", "evcs3", "evcs4" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -395,7 +395,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterDistribution_chargeTest2() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -444,7 +444,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterDistribution_chargeTest_maximumHardwarePowerTest() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -491,7 +491,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterDistribution_chargeTest_maximumPowerTest() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -538,7 +538,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterDistribution_chargeTest_minimumPowerTest() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -592,7 +592,7 @@ public class EvcsClusterTest {
 	@Test
 	public void clusterMaximum_secureEssDischargeTest() throws Exception {
 		String[] EVCS_IDS = { "evcs0", "evcs1" };
-		EVCS_TARGET = getEvcsTarget(EVCS_IDS);
+		EVCS_TARGET = this.getEvcsTarget(EVCS_IDS);
 
 		new ComponentTest(new EvcsClusterPeakShaving()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -673,7 +673,7 @@ public class EvcsClusterTest {
 	}
 
 	private String getEvcsTarget(String[] evcs_ids) {
-		StringBuilder stringBuilder = new StringBuilder();
+		var stringBuilder = new StringBuilder();
 		for (String evcs_id : evcs_ids) {
 			stringBuilder.append("(id=" + evcs_id + ")");
 		}

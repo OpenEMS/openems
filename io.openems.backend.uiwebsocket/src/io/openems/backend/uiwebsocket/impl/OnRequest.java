@@ -348,7 +348,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSubmitSetupProtocolRequest(User user,
 			SubmitSetupProtocolRequest request) throws OpenemsNamedException {
-		int protocolId = this.parent.metadata.submitSetupProtocol(user, request.getJsonObject());
+		var protocolId = this.parent.metadata.submitSetupProtocol(user, request.getJsonObject());
 
 		var response = JsonUtils.buildJsonObject() //
 				.addProperty("setupProtocolId", protocolId) //

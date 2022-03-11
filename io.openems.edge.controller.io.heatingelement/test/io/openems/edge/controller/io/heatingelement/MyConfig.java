@@ -7,7 +7,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String inputChannelAddress;
 		private String outputChannelPhaseL1;
 		private String outputChannelPhaseL2;
 		private String outputChannelPhaseL3;
@@ -25,11 +24,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setId(String id) {
 			this.id = id;
-			return this;
-		}
-
-		public Builder setInputChannelAddress(String inputChannelAddress) {
-			this.inputChannelAddress = inputChannelAddress;
 			return this;
 		}
 
