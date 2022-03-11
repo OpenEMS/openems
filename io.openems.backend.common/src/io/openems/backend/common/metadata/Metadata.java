@@ -20,7 +20,6 @@ import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.Channel;
-import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 
 @ProviderType
@@ -181,10 +180,10 @@ public interface Metadata {
 		// Sort active State-Channels by Level and Component-ID
 		var states = new HashMap<Level, HashMultimap<String, Channel>>();
 		for (Entry<ChannelAddress, Channel> entry : activeStateChannels.entrySet()) {
-			ChannelDetail detail = entry.getValue().getDetail();
+			var detail = entry.getValue().getDetail();
 			if (detail instanceof ChannelDetailState) {
 				var level = ((ChannelDetailState) detail).getLevel();
-				HashMultimap<String, Channel> channelsByComponent = states.get(level);
+				var channelsByComponent = states.get(level);
 				if (channelsByComponent == null) {
 					channelsByComponent = HashMultimap.create();
 					states.put(level, channelsByComponent);

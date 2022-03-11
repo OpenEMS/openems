@@ -24,7 +24,7 @@ public class EdgeConfigNotification extends JsonrpcNotification {
 
 	/**
 	 * Parses a {@link JsonObject} to a {@link EdgeConfigNotification}.
-	 * 
+	 *
 	 * @param j the {@link JsonObject}
 	 * @return the {@link EdgeConfigNotification}
 	 * @throws OpenemsNamedException on error
@@ -35,7 +35,7 @@ public class EdgeConfigNotification extends JsonrpcNotification {
 
 	/**
 	 * Parses a {@link JsonrpcNotification} to a {@link EdgeConfigNotification}.
-	 * 
+	 *
 	 * @param n the {@link JsonrpcNotification}
 	 * @return the {@link EdgeConfigNotification}
 	 * @throws OpenemsNamedException on error

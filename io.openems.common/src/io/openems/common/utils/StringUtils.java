@@ -9,10 +9,10 @@ public class StringUtils {
 
 	/**
 	 * Shortens a string to a given length.
-	 * 
+	 *
 	 * <p>
 	 * Example: converts a string "hello world" to "hello w..."
-	 * 
+	 *
 	 * @param s      the string
 	 * @param length the target string length
 	 * @return the shortened string
@@ -26,10 +26,10 @@ public class StringUtils {
 
 	/**
 	 * Shortens a {@link JsonElement} string representation to a given length.
-	 * 
+	 *
 	 * <p>
 	 * Example: converts a "{ 'foo': 'bar' }" to "{ 'foo': '..."
-	 * 
+	 *
 	 * @param j      the {@link JsonElement}
 	 * @param length the target string length
 	 * @return the shortened string
@@ -41,10 +41,10 @@ public class StringUtils {
 
 	/**
 	 * Convert the first letter of a string to Upper-Case.
-	 * 
+	 *
 	 * <p>
 	 * Example: converts "hello world" to "Hello world"
-	 * 
+	 *
 	 * @param s the string
 	 * @return the converted string
 	 */
@@ -74,7 +74,8 @@ public class StringUtils {
 	public static int matchWildcard(String source, String pattern) {
 		if (source.equals(pattern)) {
 			return 0;
-		} else if (pattern.equals("*")) {
+		}
+		if (pattern.equals("*")) {
 			return 1;
 		} else if (pattern.startsWith("*") && source.endsWith(pattern.substring(1))) {
 			return pattern.length();

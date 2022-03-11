@@ -25,7 +25,7 @@ public abstract class AbstractJsonrpcRequest extends JsonrpcMessage {
 
 	/**
 	 * Gets the params {@link JsonObject} of the {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @return the params as {@link JsonObject}
 	 */
 	public abstract JsonObject getParams();

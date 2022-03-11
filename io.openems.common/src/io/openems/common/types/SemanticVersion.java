@@ -99,7 +99,7 @@ public class SemanticVersion {
 
 	/**
 	 * Is this version at least as high as the given {@link SemanticVersion}?.
-	 * 
+	 *
 	 * @param o the given version
 	 * @return true if this version is greater or equal to the given version
 	 */

@@ -23,7 +23,7 @@ public class GenericJsonrpcNotification extends JsonrpcNotification {
 
 	/**
 	 * Parses a JSON String to a {@link GenericJsonrpcNotification}.
-	 * 
+	 *
 	 * @param json the JSON String
 	 * @return the {@link GenericJsonrpcNotification}
 	 * @throws OpenemsNamedException on error
@@ -34,7 +34,7 @@ public class GenericJsonrpcNotification extends JsonrpcNotification {
 
 	/**
 	 * Parses a {@link JsonObject} to a {@link GenericJsonrpcNotification}.
-	 * 
+	 *
 	 * @param j the {@link JsonObject}
 	 * @return the {@link GenericJsonrpcNotification}
 	 * @throws OpenemsNamedException on error

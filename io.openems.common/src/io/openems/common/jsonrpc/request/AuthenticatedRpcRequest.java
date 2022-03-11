@@ -53,14 +53,14 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 	 *   "role": {@link Role}
 	 * }
 	 *                    </pre>
-	 * 
+	 *
 	 * @return the {@link AuthenticatedRpcRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static <USER extends AbstractUser> AuthenticatedRpcRequest<USER> from(JsonrpcRequest r,
 			ThrowingFunction<JsonObject, USER, OpenemsNamedException> userFactory) throws OpenemsNamedException {
 		var p = r.getParams();
-		USER user = userFactory.apply(JsonUtils.getAsJsonObject(p, "user"));
+		var user = userFactory.apply(JsonUtils.getAsJsonObject(p, "user"));
 		JsonrpcRequest payload = GenericJsonrpcRequest.from(JsonUtils.getAsJsonObject(p, "payload"));
 		return new AuthenticatedRpcRequest<>(r, Optional.empty(), user, payload);
 	}

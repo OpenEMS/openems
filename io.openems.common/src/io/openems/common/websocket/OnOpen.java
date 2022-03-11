@@ -38,10 +38,10 @@ public interface OnOpen {
 	public static Optional<String> getFieldFromHandshakeCookie(JsonObject handshake, String fieldname) {
 		for (Entry<String, JsonElement> entry : handshake.entrySet()) {
 			if (entry.getKey().equalsIgnoreCase("cookie")) {
-				Optional<String> cookieOpt = JsonUtils.getAsOptionalString(entry.getValue());
+				var cookieOpt = JsonUtils.getAsOptionalString(entry.getValue());
 				if (cookieOpt.isPresent()) {
 					for (String cookieVariable : cookieOpt.get().split("; ")) {
-						String[] keyValue = cookieVariable.split("=");
+						var keyValue = cookieVariable.split("=");
 						if (keyValue.length == 2) {
 							if (keyValue[0].equals(fieldname)) {
 								return Optional.ofNullable(keyValue[1]);
