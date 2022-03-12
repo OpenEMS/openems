@@ -1,5 +1,6 @@
 package io.openems.edge.scheduler.allalphabetically;
 
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 
 import org.osgi.service.component.ComponentContext;
@@ -39,6 +40,7 @@ public class AllAlphabeticallySchedulerImpl extends AbstractOpenemsComponent
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -54,7 +56,7 @@ public class AllAlphabeticallySchedulerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public LinkedHashSet<String> getControllers() {
-		LinkedHashSet<String> result = new LinkedHashSet<>();
+		var result = new LinkedHashSet<String>();
 
 		// add sorted controllers
 		for (String id : this.config.controllers_ids()) {
@@ -67,7 +69,7 @@ public class AllAlphabeticallySchedulerImpl extends AbstractOpenemsComponent
 		// add remaining controllers
 		this.componentManager.getEnabledComponents().stream() //
 				.filter(c -> c instanceof Controller) //
-				.sorted((c1, c2) -> c1.id().compareTo(c2.id())) //
+				.sorted(Comparator.comparing(OpenemsComponent::id)) //
 				.forEach(c -> result.add(c.id()));
 
 		return result;

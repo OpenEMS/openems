@@ -33,7 +33,7 @@ public class TimestampedDataNotification extends JsonrpcNotification {
 	/**
 	 * Parses a {@link JsonrpcNotification} to a
 	 * {@link TimestampedDataNotification}.
-	 * 
+	 *
 	 * @param n the {@link JsonrpcNotification}
 	 * @return the {@link TimestampedDataNotification}
 	 * @throws OpenemsNamedException on error
@@ -42,8 +42,8 @@ public class TimestampedDataNotification extends JsonrpcNotification {
 		var result = new TimestampedDataNotification();
 		var j = n.getParams();
 		for (Entry<String, JsonElement> e1 : j.entrySet()) {
-			long timestamp = Long.parseLong(e1.getKey());
-			JsonObject jTime = JsonUtils.getAsJsonObject(e1.getValue());
+			var timestamp = Long.parseLong(e1.getKey());
+			var jTime = JsonUtils.getAsJsonObject(e1.getValue());
 			for (Entry<String, JsonElement> e2 : jTime.entrySet()) {
 				result.add(timestamp, ChannelAddress.fromString(e2.getKey()), e2.getValue());
 			}
@@ -61,7 +61,7 @@ public class TimestampedDataNotification extends JsonrpcNotification {
 
 	/**
 	 * Add timestamped data.
-	 * 
+	 *
 	 * @param timestamp the timestamp epoch in milliseconds
 	 * @param data      a map of {@link ChannelAddress} to {@link JsonElement} value
 	 */
@@ -73,7 +73,7 @@ public class TimestampedDataNotification extends JsonrpcNotification {
 
 	/**
 	 * Add a timestamped value.
-	 * 
+	 *
 	 * @param timestamp the timestamp epoch in milliseconds
 	 * @param address   the {@link ChannelAddress}
 	 * @param value     the {@link JsonElement} value
@@ -88,8 +88,8 @@ public class TimestampedDataNotification extends JsonrpcNotification {
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> e1 : this.data.rowMap().entrySet()) {
 			var jTime = new JsonObject();
 			for (Entry<ChannelAddress, JsonElement> e2 : e1.getValue().entrySet()) {
-				ChannelAddress address = e2.getKey();
-				JsonElement value = e2.getValue();
+				var address = e2.getKey();
+				var value = e2.getValue();
 				jTime.add(address.toString(), value);
 			}
 			p.add(e1.getKey().toString(), jTime);

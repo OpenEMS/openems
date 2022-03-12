@@ -43,7 +43,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 
 	/**
 	 * Activate the {@link AbstractRestApi}.
-	 * 
+	 *
 	 * @param context            the {@link ComponentContext}
 	 * @param id                 the ID
 	 * @param alias              the Alias
@@ -85,6 +85,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -123,7 +124,7 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the Timedata service.
-	 * 
+	 *
 	 * @return the service
 	 * @throws OpenemsException if the timeservice is not available
 	 */
@@ -131,21 +132,21 @@ public abstract class AbstractRestApi extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the UserService.
-	 * 
+	 *
 	 * @return the service
 	 */
 	protected abstract UserService getUserService();
 
 	/**
 	 * Gets the ComponentManager.
-	 * 
+	 *
 	 * @return the service
 	 */
 	protected abstract ComponentManager getComponentManager();
 
 	/**
 	 * Gets the AccessMode.
-	 * 
+	 *
 	 * @return the {@link AccessMode}
 	 */
 	protected abstract AccessMode getAccessMode();

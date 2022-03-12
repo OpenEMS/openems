@@ -1,7 +1,5 @@
 package io.openems.edge.controller.chp.soc;
 
-import java.util.Optional;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -80,11 +78,12 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 		this.outputChannelAddress = ChannelAddress.fromString(config.outputChannelAddress());
 		this.mode = config.mode();
-		this.channel(ChannelId.MODE).setNextValue(mode);
+		this.channel(ChannelId.MODE).setNextValue(this.mode);
 		this.invertOutput = config.invert();
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -105,11 +104,11 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 			modeChanged = false;
 			switch (this.mode) {
 			case MANUAL_ON:
-				setOutput(true);
+				this.setOutput(true);
 				modeChanged = this.changeMode(Mode.MANUAL_ON);
 				break;
 			case MANUAL_OFF:
-				setOutput(false);
+				this.setOutput(false);
 				modeChanged = this.changeMode(Mode.MANUAL_OFF);
 				break;
 			case AUTOMATIC:
@@ -185,7 +184,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * A flag to maintain change in the state.
-	 * 
+	 *
 	 * @param nextState the target state
 	 * @return Flag that the state is changed or not
 	 */
@@ -193,9 +192,8 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 		if (this.state != nextState) {
 			this.state = nextState;
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	/**
@@ -208,9 +206,9 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 	private void setOutput(Boolean value) throws IllegalArgumentException, OpenemsNamedException {
 		try {
 			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
-			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+			var currentValueOpt = outputChannel.value().asOptional();
 			if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
-				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (value) + ".");
+				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + value + ".");
 				outputChannel.setNextWriteValue(value);
 			}
 		} catch (OpenemsException e) {
@@ -220,7 +218,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * A flag to maintain change in the mode.
-	 * 
+	 *
 	 * @param nextMode the target mode
 	 * @return Flag that the mode is changed or not
 	 */
@@ -228,8 +226,7 @@ public class ControllerChpSoc extends AbstractOpenemsComponent implements Contro
 		if (this.mode != nextMode) {
 			this.mode = nextMode;
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 }

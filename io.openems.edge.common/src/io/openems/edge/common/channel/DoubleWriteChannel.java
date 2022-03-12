@@ -17,7 +17,7 @@ public class DoubleWriteChannel extends DoubleReadChannel implements WriteChanne
 
 	/**
 	 * Internal method. Do not call directly.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Deprecated

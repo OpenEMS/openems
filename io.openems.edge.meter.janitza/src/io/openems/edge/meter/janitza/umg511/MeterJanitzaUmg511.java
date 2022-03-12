@@ -16,6 +16,7 @@ public interface MeterJanitzaUmg511 extends SymmetricMeter, AsymmetricMeter, Ope
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

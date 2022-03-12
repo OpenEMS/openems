@@ -12,11 +12,11 @@ import io.openems.edge.common.startstop.StartStoppable;
 
 /**
  * Represents a Symmetric Battery-Inverter that can be controlled.
- * 
+ *
  * <p>
  * To indicate, that the Battery-Inverter is ready for charging/discharging, the
  * following Channels need to be set:
- * 
+ *
  * <ul>
  * <li>StartStoppable.ChannelId.START_STOP must be set to 'START'
  * <li>No 'Fault'-StateChannels are set (i.e. 'OpenemsComponent.ChannelId.STATE'
@@ -35,6 +35,7 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -42,7 +43,7 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 
 	/**
 	 * Gets the {@link ModbusSlaveNatureTable} for Modbus/TCP Api.
-	 * 
+	 *
 	 * @param accessMode the {@link AccessMode}
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
@@ -53,16 +54,16 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 
 	/**
 	 * Run the Battery-Inverter.
-	 * 
+	 *
 	 * <ul>
 	 * <li>bring the Battery-Inverter in the desired state
 	 * <li>apply information from {@link Battery} as required
 	 * <li>set the target Active and Reactive Power.
 	 * </ul>
-	 * 
+	 *
 	 * <p>
 	 * This is called on ManagedSymmetricEss::applyPower()
-	 * 
+	 *
 	 * @param battery          the {@link Battery}
 	 * @param setActivePower   the active power setpoint
 	 * @param setReactivePower the reactive power setpoint
@@ -73,7 +74,7 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 	/**
 	 * Gets static Constraints for this Battery-Inverter. Override this method to
 	 * provide specific Constraints for this Battery-Inverter on every Cycle.
-	 * 
+	 *
 	 * @return the Constraints
 	 * @throws OpenemsException on error
 	 */
@@ -89,18 +90,18 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 	 * <li>KACO blueplanet gridsave 50 allows setting of power in 0.1 % of 52 VA. It
 	 * should return 52 (= 52000 * 0.001)
 	 * </ul>
-	 * 
+	 *
 	 * @return the power precision
 	 */
 	public int getPowerPrecision();
 
 	/**
 	 * Gets a boolean if the battery inverter is managed or not.
-	 * 
+	 *
 	 * <p>
 	 * Returns false if the battery inverter itself is not managed or in a read only
 	 * mode.
-	 * 
+	 *
 	 * @return is managed or not
 	 */
 	public default boolean isManaged() {
@@ -110,10 +111,10 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 	/**
 	 * Gets a boolean if the battery inverter is able to build a micro-grid in
 	 * off-grid.
-	 * 
+	 *
 	 * <p>
 	 * Returns false if the battery inverter is not able to build a micro-grid.
-	 * 
+	 *
 	 * @return is managed or not
 	 */
 	public default boolean isOffGridPossible() {

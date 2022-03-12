@@ -36,7 +36,7 @@ public class CurrentDataNotification extends JsonrpcNotification {
 
 	/**
 	 * Add a Channel value.
-	 * 
+	 *
 	 * @param channel the {@link ChannelAddress}
 	 * @param value   the value as {@link JsonElement}
 	 */

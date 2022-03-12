@@ -14,7 +14,6 @@ import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.filter.RampFilter;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.type.TypeUtils;
@@ -28,7 +27,7 @@ public interface ManagedEvcs extends Evcs {
 
 		/**
 		 * Gets the smallest power steps that can be set (given in W).
-		 * 
+		 *
 		 * <p>
 		 * Example:
 		 * <ul>
@@ -36,7 +35,7 @@ public interface ManagedEvcs extends Evcs {
 		 * (0.001A * 230V).
 		 * <li>Hardy Barth allows setting in Ampere. It should return 230 W (1A * 230V).
 		 * </ul>
-		 * 
+		 *
 		 * <p>
 		 * <ul>
 		 * <li>Interface: ManagedEvcs
@@ -52,7 +51,7 @@ public interface ManagedEvcs extends Evcs {
 
 		/**
 		 * Sets the charge power limit of the EVCS in [W].
-		 * 
+		 *
 		 * <p>
 		 * Actual charge power depends on
 		 * <ul>
@@ -62,7 +61,7 @@ public interface ManagedEvcs extends Evcs {
 		 * <li>limit of power line
 		 * <li>...
 		 * </ul>
-		 * 
+		 *
 		 * <p>
 		 * Function:
 		 * <ul>
@@ -70,7 +69,7 @@ public interface ManagedEvcs extends Evcs {
 		 * <li>Read value should contain the currently valid loading target that was
 		 * sent
 		 * </ul>
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: ManagedEvcs
 		 * <li>Writable
@@ -86,7 +85,7 @@ public interface ManagedEvcs extends Evcs {
 		/**
 		 * Applies the configured filter in {@link EvcsPowerComponent} and sets a the
 		 * charge power limit.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: ManagedEvcs
 		 * <li>Writable
@@ -100,15 +99,15 @@ public interface ManagedEvcs extends Evcs {
 					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
 
 						if (value != null) {
-							ManagedEvcs evcs = (ManagedEvcs) channel.getComponent();
+							var evcs = (ManagedEvcs) channel.getComponent();
 
-							RampFilter rampFilter = evcs.getEvcsPower().getRampFilter();
+							var rampFilter = evcs.getEvcsPower().getRampFilter();
 
 							value = TypeUtils.fitWithin(evcs.getMinimumHardwarePower().orElse(0),
 									evcs.getMaximumHardwarePower().orElse(0), value);
 
 							int currentPower = evcs.getChargePower().orElse(0);
-							float increaseRate = evcs.getEvcsPower().getIncreaseRate();
+							var increaseRate = evcs.getEvcsPower().getIncreaseRate();
 							int result = rampFilter.getFilteredValueAsInteger(currentPower, value.floatValue(),
 									evcs.getMaximumHardwarePower().orElse(22080), increaseRate);
 
@@ -119,7 +118,7 @@ public interface ManagedEvcs extends Evcs {
 
 		/**
 		 * Is true if the EVCS is in a EVCS-Cluster.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: ManagedEvcs
 		 * <li>Readable
@@ -132,11 +131,11 @@ public interface ManagedEvcs extends Evcs {
 
 		/**
 		 * Sets a Text that is shown on the display of the EVCS.
-		 * 
+		 *
 		 * <p>
 		 * Be aware that the EVCS might not have a display or the text might be
 		 * restricted.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: ManagedEvcs
 		 * <li>Writable
@@ -149,7 +148,7 @@ public interface ManagedEvcs extends Evcs {
 		/**
 		 * Sets a request for a charge power. The limit is not directly activated by
 		 * this call.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: ManagedEvcs
 		 * <li>Writable
@@ -163,7 +162,7 @@ public interface ManagedEvcs extends Evcs {
 
 		/**
 		 * Sets the energy limit for the current or next session in [Wh].
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: ManagedEvcs
 		 * <li>Writable
@@ -268,7 +267,7 @@ public interface ManagedEvcs extends Evcs {
 	/**
 	 * Sets the charge power limit of the EVCS in [W]. See
 	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -318,7 +317,7 @@ public interface ManagedEvcs extends Evcs {
 	/**
 	 * Sets the charge power limit of the EVCS in [W] with applied filter. See
 	 * {@link ChannelId#SET_CHARGE_POWER_LIMIT_WITH_FILTER}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -387,7 +386,7 @@ public interface ManagedEvcs extends Evcs {
 	/**
 	 * Sets a Text that is shown on the display of the EVCS. See
 	 * {@link ChannelId#SET_DISPLAY_TEXT}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -437,7 +436,7 @@ public interface ManagedEvcs extends Evcs {
 	/**
 	 * Sets the request for a charge power in [W]. The limit is not directly
 	 * activated by this call. See {@link ChannelId#SET_CHARGE_POWER_REQUEST}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -487,7 +486,7 @@ public interface ManagedEvcs extends Evcs {
 	/**
 	 * Sets the energy limit for the current or next session in [Wh]. See
 	 * {@link ChannelId#SET_ENERGY_LIMIT}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -497,7 +496,7 @@ public interface ManagedEvcs extends Evcs {
 
 	/**
 	 * Returns the modbus table for this nature.
-	 * 
+	 *
 	 * @param accessMode accessMode
 	 * @return nature table
 	 */

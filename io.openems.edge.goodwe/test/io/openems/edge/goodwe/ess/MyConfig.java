@@ -3,7 +3,6 @@ package io.openems.edge.goodwe.ess;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.goodwe.common.enums.ControlMode;
-import io.openems.edge.goodwe.ess.MyConfig.Builder;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -57,7 +56,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

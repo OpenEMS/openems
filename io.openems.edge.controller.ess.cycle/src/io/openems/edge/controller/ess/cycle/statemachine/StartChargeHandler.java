@@ -18,21 +18,19 @@ public class StartChargeHandler extends StateHandler<State, Context> {
 				// Wait for hysteresis
 				if (context.waitForChangeState(State.START_CHARGE, State.CONTINUE_WITH_DISCHARGE)) {
 					return State.CONTINUE_WITH_DISCHARGE;
-				} else {
-					return State.START_CHARGE;
 				}
+				return State.START_CHARGE;
 			}
 		} else if (context.ess.getSoc().orElse(0) >= context.config.maxSoc()) {
 			// Wait for hysteresis
 			if (context.waitForChangeState(State.START_CHARGE, State.CONTINUE_WITH_DISCHARGE)) {
 				return State.CONTINUE_WITH_DISCHARGE;
-			} else {
-				return State.START_CHARGE;
 			}
+			return State.START_CHARGE;
 		}
 
 		// get max charge/discharge power
-		int power = context.getChargePower();
+		var power = context.getChargePower();
 		context.logInfo(this.log, "START CHARGE with [" + power + " W]" //
 				+ " Current Cycle [ " + context.getParent().getCompletedCycles() + "] " //
 				+ "out of " + context.config.totalCycleNumber() + "]");

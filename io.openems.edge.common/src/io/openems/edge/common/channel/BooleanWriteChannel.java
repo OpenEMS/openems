@@ -46,7 +46,7 @@ public class BooleanWriteChannel extends BooleanReadChannel implements WriteChan
 
 	/**
 	 * Internal method. Do not call directly.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Deprecated

@@ -36,7 +36,7 @@ public class ApparentPowerConstraintUtil {
 
 	/**
 	 * Generate Constraints for ApparentPower.
-	 * 
+	 *
 	 * @param coefficients  the {@link Coefficients}
 	 * @param essId         the Id of the {@link ManagedSymmetricEss}
 	 * @param phase         the {@link Phase}
@@ -50,11 +50,11 @@ public class ApparentPowerConstraintUtil {
 
 		if (apparentPower > 0) {
 			// Calculate 'Apparent-Power Circle'
-			double degreeDelta = 90.0 / CIRCLE_SECTIONS_PER_QUARTER;
-			Point p1 = getPointOnCircle(apparentPower, 0);
+			var degreeDelta = 90.0 / CIRCLE_SECTIONS_PER_QUARTER;
+			var p1 = getPointOnCircle(apparentPower, 0);
 
-			for (double degree = degreeDelta; Math.floor(degree) <= 360; degree += degreeDelta) {
-				Point p2 = getPointOnCircle(apparentPower, degree);
+			for (var degree = degreeDelta; Math.floor(degree) <= 360; degree += degreeDelta) {
+				var p2 = getPointOnCircle(apparentPower, degree);
 
 				Relationship relationship;
 				if (Math.floor(degree) <= 180) {
@@ -63,7 +63,7 @@ public class ApparentPowerConstraintUtil {
 					relationship = Relationship.LESS_OR_EQUALS;
 				}
 
-				Constraint constraint = getConstraintThroughPoints(coefficients, essId, phase, p1, p2, relationship);
+				var constraint = getConstraintThroughPoints(coefficients, essId, phase, p1, p2, relationship);
 				result.add(constraint);
 
 				// set p2 -> p1 for next loop
@@ -89,14 +89,14 @@ public class ApparentPowerConstraintUtil {
 			Point p2, Relationship relationship) throws OpenemsException {
 		/**
 		 * Build the LinearConstraint.
-		 * 
+		 *
 		 * <pre>
 		 *  We use the formula:
 		 *  y = ((y2-y1)/(x2-x1)) * x + ((x2*y1-x1*y2)/(x2-x1))
 		 * </pre>
 		 */
-		double constraintValue = -1 * (p1.y * p2.x - p2.y * p1.x) / (p2.x - p1.x);
-		double coefficient1 = (p2.y - p1.y) / (p2.x - p1.x);
+		var constraintValue = -1 * (p1.y * p2.x - p2.y * p1.x) / (p2.x - p1.x);
+		var coefficient1 = (p2.y - p1.y) / (p2.x - p1.x);
 		double coefficient2 = -1;
 
 		return new Constraint(essId + ": Max Apparent Power", new LinearCoefficient[] { //

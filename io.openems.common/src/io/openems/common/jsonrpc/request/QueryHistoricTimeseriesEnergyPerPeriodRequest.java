@@ -60,8 +60,7 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
 		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
 		var resolution = JsonUtils.getAsInt(p, "resolution");
-		var result = new QueryHistoricTimeseriesEnergyPerPeriodRequest(r,
-				fromDate, toDate, resolution);
+		var result = new QueryHistoricTimeseriesEnergyPerPeriodRequest(r, fromDate, toDate, resolution);
 		var channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
 			var address = ChannelAddress.fromString(JsonUtils.getAsString(channel));

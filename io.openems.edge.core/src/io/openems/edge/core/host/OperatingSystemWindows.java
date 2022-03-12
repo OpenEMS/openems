@@ -20,7 +20,7 @@ public class OperatingSystemWindows implements OperatingSystem {
 
 	/**
 	 * Gets the current network configuration.
-	 * 
+	 *
 	 * @return the current network configuration
 	 * @throws OpenemsException on error
 	 */
@@ -32,7 +32,7 @@ public class OperatingSystemWindows implements OperatingSystem {
 
 	/**
 	 * Handles a SetNetworkConfigRequest for Windows.
-	 * 
+	 *
 	 * @param oldNetworkConfiguration the current/old network configuration
 	 * @param request                 the JSON-RPC request
 	 * @throws OpenemsException on error

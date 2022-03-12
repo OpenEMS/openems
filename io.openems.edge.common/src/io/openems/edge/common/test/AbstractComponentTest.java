@@ -1,10 +1,8 @@
 package io.openems.edge.common.test;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
@@ -60,7 +58,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		/**
 		 * Gets the {@link ChannelAddress}.
-		 * 
+		 *
 		 * @return the {@link ChannelAddress}
 		 */
 		public ChannelAddress getAddress() {
@@ -69,7 +67,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		/**
 		 * Gets the value {@link Object}.
-		 * 
+		 *
 		 * @return the {@link Object}
 		 */
 		public Object getValue() {
@@ -127,7 +125,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		/**
 		 * Create a TestCase with a description.
-		 * 
+		 *
 		 * @param description the description
 		 */
 		public TestCase(String description) {
@@ -136,7 +134,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		/**
 		 * Adds an input value for a Channel.
-		 * 
+		 *
 		 * @param address the {@link ChannelAddress}
 		 * @param value   the value {@link Object}
 		 * @return myself
@@ -148,7 +146,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		/**
 		 * Adds an expected output value for a Channel.
-		 * 
+		 *
 		 * @param address the {@link ChannelAddress}
 		 * @param value   the value {@link Object}
 		 * @return myself
@@ -160,7 +158,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		/**
 		 * Adds a simulated timeleap, i.e. simulates that a given amount of time passed.
-		 * 
+		 *
 		 * @param clock       the active {@link TimeLeapClock}, i.e. provided to the
 		 *                    system-under-test by a {@link ClockProvider} like
 		 *                    {@link ComponentManager}.
@@ -177,7 +175,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		/**
 		 * Adds a Callback that is called on
 		 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_PROCESS_IMAGE} event.
-		 * 
+		 *
 		 * @param callback the callback
 		 * @return myself
 		 */
@@ -189,7 +187,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		/**
 		 * Adds a Callback that is called on
 		 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_PROCESS_IMAGE} event.
-		 * 
+		 *
 		 * @param callback the callback
 		 * @return myself
 		 */
@@ -201,7 +199,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		/**
 		 * Adds a Callback that is called on
 		 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS} event.
-		 * 
+		 *
 		 * @param callback the callback
 		 * @return myself
 		 */
@@ -214,7 +212,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		 * Adds a Callback that is called after
 		 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS} and before
 		 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS}. events.
-		 * 
+		 *
 		 * @param callback the callback
 		 * @return myself
 		 */
@@ -226,7 +224,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		/**
 		 * Adds a Callback that is called on
 		 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS} event.
-		 * 
+		 *
 		 * @param callback the callback
 		 * @return myself
 		 */
@@ -238,7 +236,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		/**
 		 * Adds a Callback that is called on
 		 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_WRITE} event.
-		 * 
+		 *
 		 * @param callback the callback
 		 * @return myself
 		 */
@@ -250,7 +248,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		/**
 		 * Adds a Callback that is called on
 		 * {@link EdgeEventConstants#TOPIC_CYCLE_EXECUTE_WRITE} event.
-		 * 
+		 *
 		 * @param callback the callback
 		 * @return myself
 		 */
@@ -262,7 +260,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		/**
 		 * Adds a Callback that is called on
 		 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_WRITE} event.
-		 * 
+		 *
 		 * @param callback the callback
 		 * @return myself
 		 */
@@ -282,7 +280,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		/**
 		 * Applies the values for input channels.
-		 * 
+		 *
 		 * @param components Referenced components
 		 * @throws OpenemsNamedException    on error
 		 * @throws IllegalArgumentException on error
@@ -290,7 +288,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		protected void applyInputs(Map<String, OpenemsComponent> components)
 				throws IllegalArgumentException, OpenemsNamedException {
 			for (ChannelValue input : this.inputs) {
-				OpenemsComponent component = components.get(input.address.getComponentId());
+				var component = components.get(input.address.getComponentId());
 				if (component == null) {
 					throw new IllegalArgumentException("On TestCase [" + this.description + "]: " + //
 							"the component [" + input.address.getComponentId() + "] " //
@@ -307,13 +305,13 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 		/**
 		 * Validates the output values.
-		 * 
+		 *
 		 * @param components Referenced components
 		 * @throws Exception on validation failure
 		 */
 		protected void validateOutputs(Map<String, OpenemsComponent> components) throws Exception {
 			for (ChannelValue output : this.outputs) {
-				Object expected = output.value;
+				var expected = output.value;
 				Channel<?> channel = components.get(output.address.getComponentId())
 						.channel(output.address.getChannelId());
 				Object got;
@@ -326,8 +324,8 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 				// Try to parse an Enum
 				if (channel.channelDoc() instanceof EnumDoc) {
-					EnumDoc enumDoc = (EnumDoc) channel.channelDoc();
-					Integer intGot = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, got);
+					var enumDoc = (EnumDoc) channel.channelDoc();
+					var intGot = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, got);
 					got = enumDoc.getOption(intGot);
 				}
 				if (!Objects.equals(expected, got)) {
@@ -358,7 +356,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * Constructs the Component-Test and validates the implemented Channel-IDs.
-	 * 
+	 *
 	 * @param sut the 'system-under-test'
 	 * @throws OpenemsException on error
 	 */
@@ -373,7 +371,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				if (Arrays.asList(subclass.getInterfaces()).contains(io.openems.edge.common.channel.ChannelId.class)) {
 					// Then read all the Channel-IDs...
 					for (Object enumConstant : subclass.getEnumConstants()) {
-						ChannelId channelId = (ChannelId) enumConstant;
+						var channelId = (ChannelId) enumConstant;
 						// and validate that they were initialized in the constructor.
 						try {
 							sut.channel(channelId);
@@ -391,7 +389,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * Gets the 'system-under-test', i.e. the tested {@link OpenemsComponent}.
-	 * 
+	 *
 	 * @return the tested Component
 	 */
 	public SUT getSut() {
@@ -400,17 +398,17 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * Gets an instance of the correct subclass of myself.
-	 * 
+	 *
 	 * @return myself
 	 */
 	protected abstract SELF self();
 
 	/**
 	 * Adds a OSGi Declarative Services @Reference via java reflection.
-	 * 
+	 *
 	 * <p>
 	 * Can also be used to set any other private field via reflection.
-	 * 
+	 *
 	 * @param memberName the name of the field or method
 	 * @param object     the reference object
 	 * @return itself, to use as a builder
@@ -448,7 +446,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	private boolean addReference(Class<?> clazz, String memberName, Object object)
 			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		try {
-			Field field = clazz.getDeclaredField(memberName);
+			var field = clazz.getDeclaredField(memberName);
 			field.setAccessible(true);
 			field.set(this.sut, object);
 			return true;
@@ -469,10 +467,10 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * Adds an available {@link OpenemsComponent}.
-	 * 
+	 *
 	 * <p>
 	 * If the provided Component is a {@link DummyComponentManager}.
-	 * 
+	 *
 	 * @param component the {@link OpenemsComponent}s
 	 * @return itself, to use as a builder
 	 */
@@ -490,11 +488,11 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * Calls the 'activate()' method of the 'system-under-test'.
-	 * 
+	 *
 	 * <p>
 	 * If 'activate()' changes the configuration, the OSGi behavior is simulated by
 	 * calling 'deactivate()' and then again 'activate()'
-	 * 
+	 *
 	 * @param config the configuration
 	 * @return itself, to use as a builder
 	 * @throws Exception on error
@@ -503,12 +501,12 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		// Add the configuration to ConfigurationAdmin
 		for (Object object : this.references) {
 			if (object instanceof DummyConfigurationAdmin) {
-				DummyConfigurationAdmin cm = (DummyConfigurationAdmin) object;
+				var cm = (DummyConfigurationAdmin) object;
 				cm.addConfig(config);
 			}
 		}
 
-		int configChangeCount = this.getConfigChangeCount();
+		var configChangeCount = this.getConfigChangeCount();
 		this.callActivate(config);
 
 		if (configChangeCount != this.getConfigChangeCount()) {
@@ -523,11 +521,11 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	}
 
 	private int getConfigChangeCount() throws IOException, InvalidSyntaxException {
-		int result = 0;
+		var result = 0;
 		for (Object object : this.references) {
 			if (object instanceof ConfigurationAdmin) {
-				ConfigurationAdmin cm = (ConfigurationAdmin) object;
-				Configuration[] configs = cm.listConfigurations(null);
+				var cm = (ConfigurationAdmin) object;
+				var configs = cm.listConfigurations(null);
 				for (Configuration config : configs) {
 					result += config.getChangeCount();
 				}
@@ -539,14 +537,14 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	private void callActivate(AbstractComponentConfig config)
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Class<?> clazz = this.sut.getClass();
-		Method[] methods = clazz.getDeclaredMethods();
+		var methods = clazz.getDeclaredMethods();
 		for (Method method : methods) {
 			if (!method.getName().equals("activate")) {
 				continue;
 			}
-			Object[] args = new Object[method.getParameterCount()];
-			for (int i = 0; i < method.getParameterCount(); i++) {
-				Parameter parameter = method.getParameters()[i];
+			var args = new Object[method.getParameterCount()];
+			for (var i = 0; i < method.getParameterCount(); i++) {
+				var parameter = method.getParameters()[i];
 				Object arg;
 
 				if (ComponentContext.class.isAssignableFrom(parameter.getType())) {
@@ -576,14 +574,14 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	private void callDeactivate() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
 		Class<?> clazz = this.sut.getClass();
-		Method method = clazz.getDeclaredMethod("deactivate");
+		var method = clazz.getDeclaredMethod("deactivate");
 		method.setAccessible(true);
 		method.invoke(this.sut);
 	}
 
 	private boolean invokeSingleArgMethod(Class<?> clazz, String methodName, Object arg)
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Method[] methods = clazz.getDeclaredMethods();
+		var methods = clazz.getDeclaredMethods();
 		for (Method method : methods) {
 			if (!method.getName().equals(methodName)) {
 				continue;
@@ -592,7 +590,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 				continue;
 			}
 
-			Parameter parameter = method.getParameters()[0];
+			var parameter = method.getParameters()[0];
 			if (!parameter.getType().isAssignableFrom(arg.getClass())) {
 				continue;
 			}
@@ -608,7 +606,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	/**
 	 * Runs a Test-Case.
-	 * 
+	 *
 	 * @param testCase The TestCase
 	 * @return itself, to use as a builder
 	 * @throws Exception on error
@@ -655,14 +653,14 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	/**
 	 * If the 'system-under-test' is a {@link EventHandler} call the
 	 * {@link EventHandler#handleEvent(Event)} method.
-	 * 
+	 *
 	 * @param topic the {@link Event} topic
 	 * @throws Exception on error
-	 * 
+	 *
 	 */
 	protected void handleEvent(String topic) throws Exception {
 		if (this.sut instanceof EventHandler) {
-			Event event = new Event(topic, new HashMap<String, Object>());
+			var event = new Event(topic, new HashMap<String, Object>());
 			((EventHandler) this.sut).handleEvent(event);
 		}
 	}
@@ -670,7 +668,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	/**
 	 * This method is executed before the
 	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_PROCESS_IMAGE} event.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	protected void onBeforeProcessImage() throws OpenemsNamedException {
@@ -679,7 +677,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	/**
 	 * This method is executed before the
 	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_PROCESS_IMAGE} event.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	protected void onAfterProcessImage() throws OpenemsNamedException {
@@ -688,7 +686,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	/**
 	 * This method is executed before the
 	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS} event.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	protected void onBeforeControllers() throws OpenemsNamedException {
@@ -698,7 +696,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	 * This method is executed after
 	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_CONTROLLERS} and before
 	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS}.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	protected void onExecuteControllers() throws OpenemsNamedException {
@@ -707,7 +705,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	/**
 	 * This method is executed before the
 	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_CONTROLLERS} event.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	protected void onAfterControllers() throws OpenemsNamedException {
@@ -716,7 +714,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	/**
 	 * This method is executed before the
 	 * {@link EdgeEventConstants#TOPIC_CYCLE_BEFORE_WRITE} event.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	protected void onBeforeWrite() throws OpenemsNamedException {
@@ -725,7 +723,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	/**
 	 * This method is executed before the
 	 * {@link EdgeEventConstants#TOPIC_CYCLE_EXECUTE_WRITE} event.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	protected void onExecuteWrite() throws OpenemsNamedException {
@@ -734,7 +732,7 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 	/**
 	 * This method is executed before
 	 * {@link EdgeEventConstants#TOPIC_CYCLE_AFTER_WRITE}.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	protected void onAfterWrite() throws OpenemsNamedException {

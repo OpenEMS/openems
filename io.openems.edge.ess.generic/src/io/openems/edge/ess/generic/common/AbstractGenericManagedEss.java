@@ -47,7 +47,7 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 
 	/**
 	 * Helper wrapping class to handle everything related to Channels.
-	 * 
+	 *
 	 * @return the {@link ChannelManager}
 	 */
 	protected abstract AbstractChannelManager<ESS, BATTERY, BATTERY_INVERTER> getChannelManager();
@@ -88,6 +88,7 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 		this.getChannelManager().activate(this.getComponentManager(), this.getBattery(), this.getBatteryInverter());
 	}
 
+	@Override
 	protected void deactivate() {
 		this.getChannelManager().deactivate();
 		super.deactivate();
@@ -114,18 +115,18 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 	protected StringBuilder genericDebugLog() {
 		// Get DC-PV-Power for Hybrid ESS
 		Integer dcPvPower = null;
-		BATTERY_INVERTER batteryInverter = this.getBatteryInverter();
+		var batteryInverter = this.getBatteryInverter();
 		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
 			dcPvPower = ((HybridManagedSymmetricBatteryInverter) batteryInverter).getDcPvPower();
 		}
 
-		StringBuilder result = new StringBuilder() //
+		var result = new StringBuilder() //
 				.append("SoC:").append(this.getSoc().asString()) //
 				.append("|L:").append(this.getActivePower().asString());
 
 		// For HybridEss show actual Battery charge power and PV production power
 		if (dcPvPower != null) {
-			HybridEss me = (HybridEss) this;
+			HybridEss me = this;
 			result //
 					.append("|Battery:").append(me.getDcDischargePower().asString()) //
 					.append("|PV:").append(dcPvPower);
@@ -146,7 +147,7 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 
 	/**
 	 * Forwards the power request to the {@link SymmetricBatteryInverter}.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -156,7 +157,7 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 
 	/**
 	 * Retrieves PowerPrecision from {@link SymmetricBatteryInverter}.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -166,19 +167,18 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 
 	/**
 	 * Retrieves StaticConstraints from {@link SymmetricBatteryInverter}.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
 
-		List<Constraint> result = new ArrayList<Constraint>();
+		List<Constraint> result = new ArrayList<>();
 
 		// Get BatteryInverterConstraints
-		BatteryInverterConstraint[] constraints = this.getBatteryInverter().getStaticConstraints();
+		var constraints = this.getBatteryInverter().getStaticConstraints();
 
-		for (int i = 0; i < constraints.length; i++) {
-			BatteryInverterConstraint c = constraints[i];
+		for (BatteryInverterConstraint c : constraints) {
 			result.add(this.getPower().createSimpleConstraint(c.description, this, c.phase, c.pwr, c.relationship,
 					c.value));
 		}
@@ -195,12 +195,11 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 
 	@Override
 	public Integer getSurplusPower() {
-		BATTERY_INVERTER batteryInverter = this.getBatteryInverter();
+		var batteryInverter = this.getBatteryInverter();
 		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
 			return ((HybridManagedSymmetricBatteryInverter) batteryInverter).getSurplusPower();
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	@Override
@@ -214,15 +213,14 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTER
 
 	@Override
 	public boolean isOffGridPossible() {
-		BATTERY_INVERTER batteryInverter = this.getBatteryInverter();
+		var batteryInverter = this.getBatteryInverter();
 		if (batteryInverter instanceof OffGridBatteryInverter) {
 			return batteryInverter.isOffGridPossible();
-		} else {
-			return false;
 		}
+		return false;
 	}
 
-	protected final AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+	protected final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
 	@Override
 	public StartStop getStartStopTarget() {

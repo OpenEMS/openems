@@ -54,7 +54,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	/**
 	 * Provides a factory for {@link AppConfiguration}s.
-	 * 
+	 *
 	 * @return a {@link Function} that creates a {@link AppConfiguration} from a
 	 *         JsonObject config.
 	 */
@@ -70,7 +70,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	/**
 	 * Validate the App configuration.
-	 * 
+	 *
 	 * @param jProperties a JsonObject holding the App properties
 	 * @return a list of validation errors. Empty list says 'no errors'
 	 */
@@ -93,7 +93,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	/**
 	 * Validates the execution order in the Scheduler.
-	 * 
+	 *
 	 * @param errors                   a collection of validation errors
 	 * @param actualEdgeConfig         the currently active {@link EdgeConfig}
 	 * @param expectedAppConfiguration the expected {@link AppConfiguration}
@@ -121,8 +121,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		}
 
 		// Prepare Queue
-		var controllers = new LinkedList<String>();
-		controllers.addAll(expectedAppConfiguration.schedulerExecutionOrder);
+		var controllers = new LinkedList<String>(expectedAppConfiguration.schedulerExecutionOrder);
 		var nextControllerId = controllers.poll();
 
 		// Remove found Controllers from Queue in order
@@ -146,7 +145,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	/**
 	 * Gets the {@link AppConfiguration} for the given properties.
-	 * 
+	 *
 	 * @param errors     a collection of validation errors
 	 * @param properties the configured App properties
 	 * @return the {@link AppConfiguration} or null
@@ -162,7 +161,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	/**
 	 * Convert JsonObject with Properties to EnumMap.
-	 * 
+	 *
 	 * @param errors     a collection of validation errors
 	 * @param properties the configured App properties
 	 * @return a typed {@link EnumMap} of Properties
@@ -191,7 +190,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	/**
 	 * Compare actual and expected Components.
-	 * 
+	 *
 	 * @param errors                   a collection of validation errors
 	 * @param actualEdgeConfig         the currently active {@link EdgeConfig}
 	 * @param expectedAppConfiguration the expected {@link AppConfiguration}
@@ -221,8 +220,8 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			}
 
 			for (Entry<String, JsonElement> entry : expectedComponent.getProperties().entrySet()) {
-				String key = entry.getKey();
-				JsonElement expectedProperty = entry.getValue();
+				var key = entry.getKey();
+				var expectedProperty = entry.getValue();
 				JsonElement actualProperty;
 				try {
 					actualProperty = actualComponent.getPropertyOrError(key);
@@ -255,7 +254,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	/**
 	 * Validates if the 'actual' matches the 'expected' value.
-	 * 
+	 *
 	 * @param expected the expected value
 	 * @param actual   the actual value
 	 * @return true if they match

@@ -18,7 +18,7 @@ import io.openems.edge.ess.power.api.Relationship;
 public class DummyPower implements Power {
 
 	private final PidFilter pidFilter;
-	private List<ManagedSymmetricEss> esss = new ArrayList<>();
+	private final List<ManagedSymmetricEss> esss = new ArrayList<>();
 
 	private int maxApparentPower;
 
@@ -33,7 +33,7 @@ public class DummyPower implements Power {
 	/**
 	 * Creates a {@link DummyPower} with given MaxApparentPower and disabled PID
 	 * filter.
-	 * 
+	 *
 	 * @param maxApparentPower the MaxApparentPower
 	 */
 	public DummyPower(int maxApparentPower) {
@@ -92,7 +92,7 @@ public class DummyPower implements Power {
 
 	@Override
 	public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-		int result = this.maxApparentPower;
+		var result = this.maxApparentPower;
 		for (ManagedSymmetricEss e : this.esss) {
 			result = TypeUtils.min(result, e.getMaxApparentPower().get(), e.getAllowedDischargePower().get());
 		}
@@ -101,7 +101,7 @@ public class DummyPower implements Power {
 
 	@Override
 	public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-		int result = this.maxApparentPower;
+		var result = this.maxApparentPower;
 		for (ManagedSymmetricEss e : this.esss) {
 			result = TypeUtils.min(result, e.getMaxApparentPower().get(),
 					TypeUtils.multiply(e.getAllowedChargePower().get(), -1));

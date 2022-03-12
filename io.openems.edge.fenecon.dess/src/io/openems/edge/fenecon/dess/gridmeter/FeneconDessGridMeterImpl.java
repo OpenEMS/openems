@@ -59,6 +59,7 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -85,6 +86,7 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -164,7 +166,7 @@ public class FeneconDessGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

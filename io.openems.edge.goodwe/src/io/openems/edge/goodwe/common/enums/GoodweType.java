@@ -38,7 +38,7 @@ public enum GoodweType implements OptionsEnum {
 
 	/**
 	 * Is this GoodWe a ET-Series or BT-Series.
-	 * 
+	 *
 	 * @return the Series or UNDEFINED if unknown
 	 */
 	public Series getSeries() {

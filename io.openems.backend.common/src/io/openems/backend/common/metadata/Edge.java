@@ -68,7 +68,7 @@ public class Edge {
 
 	/**
 	 * Gets this {@link Edge} as {@link JsonObject}.
-	 * 
+	 *
 	 * @return a {@link JsonObject}
 	 */
 	public JsonObject toJsonObject() {
@@ -103,7 +103,7 @@ public class Edge {
 
 	/**
 	 * Add a Listener for Set-Online events.
-	 * 
+	 *
 	 * @param listener the listener
 	 */
 	public void onSetOnline(Consumer<Boolean> listener) {
@@ -179,7 +179,7 @@ public class Edge {
 
 	/**
 	 * Add a Listener for Set-Last-Message events.
-	 * 
+	 *
 	 * @param listener the listener
 	 */
 	public void onSetLastMessage(Runnable listener) {
@@ -217,7 +217,7 @@ public class Edge {
 
 	/**
 	 * Add a Listener for Set-Last-Update events.
-	 * 
+	 *
 	 * @param listener the listener
 	 */
 	public void onSetLastUpdate(Runnable listener) {
@@ -259,7 +259,7 @@ public class Edge {
 
 	/**
 	 * Add a Listener for Set-Version events.
-	 * 
+	 *
 	 * @param listener the listener
 	 */
 	public void onSetVersion(Consumer<SemanticVersion> listener) {
@@ -303,7 +303,7 @@ public class Edge {
 
 	/**
 	 * Add a Listener for Set-Product-Type events.
-	 * 
+	 *
 	 * @param listener the listener
 	 */
 	public void onSetProducttype(Consumer<String> listener) {
@@ -347,7 +347,7 @@ public class Edge {
 
 	/**
 	 * Add a Listener for Set-Sum-State events.
-	 * 
+	 *
 	 * @param listener the listener
 	 */
 	public void onSetSumState(Consumer<Level> listener) {

@@ -1,14 +1,12 @@
 package io.openems.edge.evcs.hardybarth;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
 
@@ -46,13 +44,13 @@ public class HardyBarthWriteHandler implements Runnable {
 
 	/**
 	 * Set manual mode.
-	 * 
+	 *
 	 * <p>
 	 * Sets the chargemode to manual if not set.
 	 */
 	private void setManualMode() {
 		StringReadChannel channelChargeMode = this.parent.channel(HardyBarth.ChannelId.RAW_SALIA_CHARGE_MODE);
-		Optional<String> valueOpt = channelChargeMode.value().asOptional();
+		var valueOpt = channelChargeMode.value().asOptional();
 		if (valueOpt.isPresent()) {
 			if (!valueOpt.get().equals("manual")) {
 				// Set to manual mode
@@ -69,7 +67,7 @@ public class HardyBarthWriteHandler implements Runnable {
 
 	/**
 	 * Set heartbeat.
-	 * 
+	 *
 	 * <p>
 	 * Sets the heartbeat to on or off.
 	 */
@@ -90,7 +88,7 @@ public class HardyBarthWriteHandler implements Runnable {
 
 	/**
 	 * Enable external meter.
-	 * 
+	 *
 	 * <p>
 	 * Enables the external meter if not set.
 	 */
@@ -102,7 +100,7 @@ public class HardyBarthWriteHandler implements Runnable {
 	// be called every cycle
 	/*
 	 * private void enableExternalMeter() {
-	 * 
+	 *
 	 * BooleanReadChannel channelChargeMode =
 	 * this.parent.channel(HardyBarth.ChannelId.RAW_SALIA_CHANGE_METER);
 	 * Optional<Boolean> valueOpt = channelChargeMode.value().asOptional(); if
@@ -113,7 +111,7 @@ public class HardyBarthWriteHandler implements Runnable {
 	 * this.parent.api.sendPutRequest("/api/secc", "salia/changemeter",
 	 * "enable | /dev/ttymxc0 | klefr | 9600 | none | 1");
 	 * this.parent.debugLog(result.toString());
-	 * 
+	 *
 	 * if (result.toString().equals("{\"result\":\"ok\"}")) { // Reboot the charger
 	 * this.parent.debugLog("Reboot of HardyBarth " + this.parent.id()); JsonElement
 	 * resultReboot = this.parent.api.sendPutRequest("/api/secc",
@@ -123,7 +121,7 @@ public class HardyBarthWriteHandler implements Runnable {
 
 	/**
 	 * Sets the current from SET_CHARGE_POWER channel.
-	 * 
+	 *
 	 * <p>
 	 * Allowed loading current are between 6A and 32A. Invalid values are discarded.
 	 * The value is also depending on the configured min and max current of the
@@ -138,18 +136,18 @@ public class HardyBarthWriteHandler implements Runnable {
 
 			// Check current set_charge_power_limit write value
 			WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
-			Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+			var valueOpt = channel.getNextWriteValueAndReset();
 			if (valueOpt.isPresent()) {
 
 				int power = valueOpt.get();
 
 				// Convert it to ampere and apply hard limits
-				Value<Integer> phases = this.parent.getPhases();
+				var phases = this.parent.getPhases();
 				Integer current = (int) Math.round(power / (double) phases.orElse(3) / 230.0);
 
 				// TODO: Read separate saliaconf.json and set minimum and maximum dynamically
-				int maximum = this.parent.config.maxHwCurrent() / 1000;
-				int minimum = this.parent.config.minHwCurrent() / 1000;
+				var maximum = this.parent.config.maxHwCurrent() / 1000;
+				var minimum = this.parent.config.minHwCurrent() / 1000;
 				if (current > maximum) {
 					current = maximum;
 				}
@@ -178,7 +176,7 @@ public class HardyBarthWriteHandler implements Runnable {
 
 	/**
 	 * Set current target to the charger.
-	 * 
+	 *
 	 * @param current current target in A
 	 * @param power   current target in W
 	 */
@@ -218,9 +216,9 @@ public class HardyBarthWriteHandler implements Runnable {
 	 */
 	private void setEnergyLimit() {
 		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
-		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+		var valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
-			Integer energyLimit = valueOpt.get();
+			var energyLimit = valueOpt.get();
 
 			// Set if the energy target to set changed
 			if (!energyLimit.equals(this.lastEnergySession)) {

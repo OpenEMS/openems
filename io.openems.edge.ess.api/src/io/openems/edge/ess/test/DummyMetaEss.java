@@ -34,7 +34,7 @@ public class DummyMetaEss extends AbstractOpenemsComponent
 		}
 		super.activate(null, id, "", true);
 		// Add all ManagedSymmetricEss devices to this.essIds
-		this.essIds = Arrays.stream(esss).map(e -> e.id()).toArray(String[]::new);
+		this.essIds = Arrays.stream(esss).map(SymmetricEss::id).toArray(String[]::new);
 	}
 
 	public DummyMetaEss(String id, SymmetricEss... esss) {

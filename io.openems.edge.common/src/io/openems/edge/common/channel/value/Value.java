@@ -18,9 +18,9 @@ import io.openems.edge.common.type.TypeUtils;
  * Device or Service, or because the system is just starting up and does not yet
  * have any data. This class wraps a 'value' information for a Channel and
  * provides convenience methods for retrieving it.
- * 
+ *
  * <p>
- * 
+ *
  * To get the actual value of a Channel using this object, typically one of the
  * following methods will fit:
  * <ul>
@@ -31,7 +31,7 @@ import io.openems.edge.common.type.TypeUtils;
  * <li>{@link #orElse(Object)}: gets the value; or fallback alternative if the
  * value is null
  * </ul>
- * 
+ *
  * @param <T> the type of the value
  */
 public class Value<T> {
@@ -50,26 +50,26 @@ public class Value<T> {
 
 	/**
 	 * Gets the value as a formatted String with its unit. (Same as toString())
-	 * 
+	 *
 	 * @return
 	 */
 	public String asString() {
 		return this.toString();
 	}
 
+	@Override
 	public String toString() {
-		if (this.value == null) {
-			EnumDoc enumDoc = this.isEnumValue();
-			if (enumDoc != null) {
-				// special handling for EnumDocs
-				return enumDoc.getOptionString(null);
-			} else {
-				return UNDEFINED_VALUE_STRING;
-			}
-		} else {
-			String optionString = this.asOptionString();
+		if (this.value != null) {
+			var optionString = this.asOptionString();
 			return this.parent.channelDoc().getUnit().format(this.value, this.parent.getType())
 					+ (optionString.isEmpty() ? "" : ":" + optionString);
+		}
+		var enumDoc = this.isEnumValue();
+		if (enumDoc != null) {
+			// special handling for EnumDocs
+			return enumDoc.getOptionString(null);
+		} else {
+			return UNDEFINED_VALUE_STRING;
 		}
 	}
 
@@ -79,7 +79,7 @@ public class Value<T> {
 	 * @return
 	 */
 	public String asStringWithoutUnit() {
-		T value = this.get();
+		var value = this.get();
 		if (value == null) {
 			return Value.UNDEFINED_VALUE_STRING;
 		}
@@ -101,7 +101,7 @@ public class Value<T> {
 	 * @return
 	 */
 	public T getOrError() throws InvalidValueException {
-		T value = this.get();
+		var value = this.get();
 		if (value != null) {
 			return value;
 		}
@@ -115,7 +115,7 @@ public class Value<T> {
 	 */
 	public Optional<T> asOptional() {
 		return Optional.ofNullable(this.get());
-	};
+	}
 
 	/**
 	 * Is the value defined?. This is an abbreviation for
@@ -125,7 +125,7 @@ public class Value<T> {
 	 */
 	public boolean isDefined() {
 		return this.asOptional().isPresent();
-	};
+	}
 
 	/**
 	 * Gets the value or the given alternativeValue. This is short for
@@ -135,7 +135,7 @@ public class Value<T> {
 	 */
 	public T orElse(T alternativeValue) {
 		return Optional.ofNullable(this.get()).orElse(alternativeValue);
-	};
+	}
 
 	/**
 	 * Gets the value as its String option. Enum options are converted to Strings.
@@ -144,17 +144,16 @@ public class Value<T> {
 	 * @return
 	 */
 	public String asOptionString() {
-		EnumDoc enumDoc = this.isEnumValue();
-		if (enumDoc != null) {
-			T value = this.get();
-			try {
-				Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
-				return enumDoc.getOptionString(intValue);
-			} catch (IllegalArgumentException e) {
-				return enumDoc.getOptionString(null);
-			}
-		} else {
+		var enumDoc = this.isEnumValue();
+		if (enumDoc == null) {
 			return "";
+		}
+		var value = this.get();
+		try {
+			var intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+			return enumDoc.getOptionString(intValue);
+		} catch (IllegalArgumentException e) {
+			return enumDoc.getOptionString(null);
 		}
 	}
 
@@ -166,26 +165,25 @@ public class Value<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	public <O extends OptionsEnum> O asEnum() {
-		EnumDoc enumDoc = this.isEnumValue();
-		if (enumDoc != null) {
-			T value = this.get();
-			if (value == null) {
-				return (O) enumDoc.getOption(null);
-			}
-			try {
-				int intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
-				return (O) enumDoc.getOption(intValue);
-			} catch (Exception e) {
-				return (O) enumDoc.getOption(null);
-			}
-		} else {
+		var enumDoc = this.isEnumValue();
+		if (enumDoc == null) {
 			return null;
+		}
+		var value = this.get();
+		if (value == null) {
+			return (O) enumDoc.getOption(null);
+		}
+		try {
+			int intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+			return (O) enumDoc.getOption(intValue);
+		} catch (Exception e) {
+			return (O) enumDoc.getOption(null);
 		}
 	}
 
 	/**
 	 * Gets the value in GSON JSON format
-	 * 
+	 *
 	 * @return
 	 */
 	public JsonElement asJson() {
@@ -194,22 +192,20 @@ public class Value<T> {
 
 	/**
 	 * Internal helper to find out if this Value refers to an EnumValue.
-	 * 
+	 *
 	 * @return the corresponding {@link EnumDoc}; or null if this Value is not an
 	 *         enum
 	 */
 	private EnumDoc isEnumValue() {
 		if (this.parent.channelDoc() instanceof EnumDoc) {
-			EnumDoc enumDoc = (EnumDoc) this.parent.channelDoc();
-			return enumDoc;
-		} else {
-			return null;
+			return (EnumDoc) this.parent.channelDoc();
 		}
+		return null;
 	}
 
 	/**
 	 * Gets the timestamp when the value was created.
-	 * 
+	 *
 	 * @return the timestamp
 	 */
 	public LocalDateTime getTimestamp() {

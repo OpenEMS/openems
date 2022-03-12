@@ -18,6 +18,7 @@ public interface SiemensPacMeter
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

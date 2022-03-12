@@ -136,6 +136,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 		setReactivePowerChannel.setNextWriteValue(reactivePower);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -150,6 +151,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -170,8 +172,8 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 						m(EssFeneconCommercial40.ChannelId.BATTERY_MAINTENANCE_STATE, new UnsignedWordElement(0x0104)),
 						m(EssFeneconCommercial40.ChannelId.INVERTER_STATE, new UnsignedWordElement(0x0105)),
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(0x0106), //
-								new ElementToChannelConverter((value) -> {
-									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+								new ElementToChannelConverter(value -> {
+									var intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
 									if (intValue != null) {
 										switch (intValue) {
 										case 1:
@@ -748,14 +750,14 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 		 */
 		// TODO this should be smarter: set in energy saving mode if there was no output
 		// power for a while and we don't need emergency power.
-		LocalDateTime now = LocalDateTime.now();
+		var now = LocalDateTime.now();
 		if (this.lastDefineWorkState == null || now.minusMinutes(1).isAfter(this.lastDefineWorkState)) {
 			this.lastDefineWorkState = now;
 			EnumWriteChannel setWorkStateChannel = this.channel(EssFeneconCommercial40.ChannelId.SET_WORK_STATE);
 			try {
 				setWorkStateChannel.setNextWriteValue(SetWorkState.START);
 			} catch (OpenemsNamedException e) {
-				logError(this.log, "Unable to start: " + e.getMessage());
+				this.logError(this.log, "Unable to start: " + e.getMessage());
 			}
 		}
 	}
@@ -869,7 +871,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 		/*
 		 * Calculate AC Energy
 		 */
-		Integer acActivePower = this.getActivePowerChannel().getNextValue().get();
+		var acActivePower = this.getActivePowerChannel().getNextValue().get();
 		if (acActivePower == null) {
 			// Not available
 			this.calculateAcChargeEnergy.update(null);
@@ -886,7 +888,7 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 		/*
 		 * Calculate DC Power and Energy
 		 */
-		Integer dcDischargePower = acActivePower;
+		var dcDischargePower = acActivePower;
 		for (EssDcChargerFeneconCommercial40 charger : this.chargers) {
 			dcDischargePower = TypeUtils.subtract(dcDischargePower,
 					charger.getActualPowerChannel().getNextValue().get());

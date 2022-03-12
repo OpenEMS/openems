@@ -49,7 +49,7 @@ public class StandbyControllerImplTest {
 
 	private static ControllerTest tillDischarge() throws Exception {
 		// Initialize ESS
-		final DummyManagedSymmetricEss ess = new DummyManagedSymmetricEss(ESS_ID) //
+		final var ess = new DummyManagedSymmetricEss(ESS_ID) //
 				.setGridMode(GridMode.ON_GRID) //
 				.setMaxApparentPower(MAX_APPARENT_POWER) //
 				.setSoc(70);

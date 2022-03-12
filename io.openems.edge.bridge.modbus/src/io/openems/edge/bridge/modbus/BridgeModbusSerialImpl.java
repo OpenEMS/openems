@@ -91,6 +91,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		this.parity = config.parity();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -111,8 +112,8 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	@Override
 	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
-		SerialConnection connection = this.getModbusConnection();
-		ModbusSerialTransaction transaction = new ModbusSerialTransaction(connection);
+		var connection = this.getModbusConnection();
+		var transaction = new ModbusSerialTransaction(connection);
 		transaction.setRetries(AbstractModbusBridge.DEFAULT_RETRIES);
 		return transaction;
 	}
@@ -124,7 +125,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			/*
 			 * create new connection
 			 */
-			SerialParameters params = new SerialParameters();
+			var params = new SerialParameters();
 			params.setPortName(this.portName);
 			params.setBaudRate(this.baudrate);
 			params.setDatabits(this.databits);
@@ -132,7 +133,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			params.setParity(this.parity.getValue());
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
-			SerialConnection connection = new SerialConnection(params);
+			var connection = new SerialConnection(params);
 			this._connection = connection;
 		}
 		if (!this._connection.isOpen()) {

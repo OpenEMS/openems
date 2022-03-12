@@ -11,7 +11,7 @@ public interface OperatingSystem {
 
 	/**
 	 * Gets the network configuration.
-	 * 
+	 *
 	 * @return the network configuration object
 	 * @throws OpenemsNamedException on error
 	 */
@@ -19,7 +19,7 @@ public interface OperatingSystem {
 
 	/**
 	 * Handles a SetNetworkConfigRequest.
-	 * 
+	 *
 	 * @param oldNetworkConfiguration the current/old network configuration
 	 * @param request                 the SetNetworkConfigRequest
 	 * @throws OpenemsNamedException on error
@@ -29,7 +29,7 @@ public interface OperatingSystem {
 
 	/**
 	 * Gets the USB configuration.
-	 * 
+	 *
 	 * @return the original configuration in textual form
 	 * @throws OpenemsNamedException on error
 	 */
@@ -37,7 +37,7 @@ public interface OperatingSystem {
 
 	/**
 	 * Executes a command.
-	 * 
+	 *
 	 * @param request the ExecuteCommandRequest
 	 * @return a ExecuteCommandResponse
 	 * @throws OpenemsNamedException on error

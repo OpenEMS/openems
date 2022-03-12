@@ -1,7 +1,5 @@
 package io.openems.edge.ess.byd.container.watchdog;
 
-import java.util.Optional;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -72,6 +70,7 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -81,9 +80,9 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
 		// Get ESS
 		EssFeneconBydContainer ess = this.componentManager.getComponent(this.config.ess_id());
-		boolean isReadonly = (boolean) ess.getComponentContext().getProperties().get("readonly");
 		IntegerWriteChannel channel = this.channel(ChannelId.WATCHDOG);
-		Optional<Integer> value = channel.getNextWriteValueAndReset();
+		var isReadonly = (boolean) ess.getComponentContext().getProperties().get("readonly");
+		var value = channel.getNextWriteValueAndReset();
 
 		// Check if Watchdog has been triggered in time.
 		// Timeout is configured in Modbus-TCP-Api Controller.
@@ -94,18 +93,16 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 				// if readonly is already set to true --> do nothing
 			} else {
 				// Set to read-only mode
-				setConfig(true, ess.servicePid());
+				this.setConfig(true, ess.servicePid());
 			}
-		} else {
-			if (isReadonly) {
-				// Timeout happened, Set readonly flag to false once.
-				setConfig(false, ess.servicePid());
+		} else if (isReadonly) {
+			// Timeout happened, Set readonly flag to false once.
+			this.setConfig(false, ess.servicePid());
 
-			} else {
-				// setting the active and reactive power to zero
-				ess.setActivePowerEquals(0);
-				ess.setReactivePowerEquals(0);
-			}
+		} else {
+			// setting the active and reactive power to zero
+			ess.setActivePowerEquals(0);
+			ess.setReactivePowerEquals(0);
 		}
 	}
 
@@ -125,7 +122,7 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 	 *              off;
 	 * @param pid   pid of the Ess
 	 * @throws OpenemsNamedException on error
-	 * 
+	 *
 	 */
 	private void setConfig(Boolean value, String pid) throws OpenemsNamedException {
 		OpenemsComponent.updateConfigurationProperty(this.cm, pid, "readonly", value);

@@ -16,7 +16,7 @@ public interface Meta extends ModbusSlave {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * OpenEMS Version
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meta
 		 * <li>Type: String
@@ -30,6 +30,7 @@ public interface Meta extends ModbusSlave {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

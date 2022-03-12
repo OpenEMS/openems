@@ -16,7 +16,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -64,6 +63,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -71,7 +71,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 
 	/**
 	 * Calculates required charge/discharge power.
-	 * 
+	 *
 	 * @param ess   the Ess
 	 * @param meter the Meter
 	 * @return the required power
@@ -80,7 +80,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	private int calculateRequiredPower(ManagedSymmetricEss ess, SymmetricMeter meter) throws InvalidValueException {
 		return meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
 				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */
-				- config.targetGridSetpoint(); /* the configured target setpoint */
+				- this.config.targetGridSetpoint(); /* the configured target setpoint */
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode();
+		var gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -106,7 +106,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		/*
 		 * Calculates required charge/discharge power
 		 */
-		int calculatedPower = this.calculateRequiredPower(ess, meter);
+		var calculatedPower = this.calculateRequiredPower(ess, meter);
 
 		/*
 		 * set result

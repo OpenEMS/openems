@@ -54,7 +54,7 @@ public class BackendApiImplTest {
 		}
 
 		public void waitForCallback(int timeout) throws InterruptedException, OpenemsException {
-			Instant start = Instant.now();
+			var start = Instant.now();
 			while (!this.wasCalled) {
 				if (Duration.between(start, Instant.now()).getSeconds() > timeout) {
 					throw new OpenemsException("Timeout [" + timeout + "s]");
@@ -72,7 +72,7 @@ public class BackendApiImplTest {
 			}
 			if (notification.getMethod().equals(TimestampedDataNotification.METHOD)) {
 				for (String timestamp : notification.getParams().keySet()) {
-					JsonObject values = JsonUtils.getAsJsonObject(notification.getParams().get(timestamp));
+					var values = JsonUtils.getAsJsonObject(notification.getParams().get(timestamp));
 					this.wasCalled = true;
 					this.callback.accept(Long.valueOf(timestamp), values);
 				}
@@ -83,17 +83,17 @@ public class BackendApiImplTest {
 
 	@Test
 	public void test() throws Exception {
-		TimestampedDataNotificationHandler handler = new TimestampedDataNotificationHandler();
+		var handler = new TimestampedDataNotificationHandler();
 
-		try (final DummyWebsocketServer server = DummyWebsocketServer.create() //
+		try (final var server = DummyWebsocketServer.create() //
 				.onNotification(handler) //
 				.build()) {
-			int port = server.startBlocking();
+			var port = server.startBlocking();
 
-			final TimeLeapClock clock = new TimeLeapClock(
+			final var clock = new TimeLeapClock(
 					Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
-			final BackendApiImpl sut = new BackendApiImpl();
-			ComponentTest test = new ComponentTest(sut) //
+			final var sut = new BackendApiImpl();
+			var test = new ComponentTest(sut) //
 					.addReference("componentManager", new DummyComponentManager(clock)) //
 					.addReference("cycle", new DummyCycle(1000)) //
 					.addComponent(new DummySum()) //

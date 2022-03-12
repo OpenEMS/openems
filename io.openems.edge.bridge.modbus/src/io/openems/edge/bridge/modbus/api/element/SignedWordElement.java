@@ -20,10 +20,12 @@ public class SignedWordElement extends AbstractWordElement<SignedWordElement, Sh
 		return this;
 	}
 
+	@Override
 	protected Short fromByteBuffer(ByteBuffer buff) {
-		return buff.order(getByteOrder()).getShort(0);
+		return buff.order(this.getByteOrder()).getShort(0);
 	}
 
+	@Override
 	protected ByteBuffer toByteBuffer(ByteBuffer buff, Object object) {
 		Short value = TypeUtils.getAsType(OpenemsType.SHORT, object);
 		return buff.putShort(value.shortValue());

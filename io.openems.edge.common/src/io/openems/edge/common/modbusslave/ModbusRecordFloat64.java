@@ -7,8 +7,8 @@ import io.openems.edge.common.type.TypeUtils;
 
 public class ModbusRecordFloat64 extends ModbusRecordConstant {
 
-	public final static byte[] UNDEFINED_VALUE = new byte[] { (byte) 0x7F, (byte) 0xF8, (byte) 0x00, (byte) 0x00,
-			(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
+	public final static byte[] UNDEFINED_VALUE = { (byte) 0x7F, (byte) 0xF8, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+			(byte) 0x00, (byte) 0x00, (byte) 0x00 };
 
 	public final static int BYTE_LENGTH = 8;
 
@@ -21,7 +21,7 @@ public class ModbusRecordFloat64 extends ModbusRecordConstant {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordFloat64 [value=" + this.value + ", type=" + getType() + "]";
+		return "ModbusRecordFloat64 [value=" + this.value + ", type=" + this.getType() + "]";
 	}
 
 	public static byte[] toByteArray(double value) {
@@ -31,9 +31,8 @@ public class ModbusRecordFloat64 extends ModbusRecordConstant {
 	public static byte[] toByteArray(Object value) {
 		if (value == null) {
 			return UNDEFINED_VALUE;
-		} else {
-			return toByteArray((double) TypeUtils.getAsType(OpenemsType.DOUBLE, value));
 		}
+		return toByteArray((double) TypeUtils.getAsType(OpenemsType.DOUBLE, value));
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package io.openems.edge.pvinverter.solarlog;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,7 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 	@Override
 	public void run() throws OpenemsNamedException {
 		IntegerWriteChannel channel = this.parent.channel(this.channelId);
-		Optional<Integer> powerOpt = channel.getNextWriteValueAndReset();
+		var powerOpt = channel.getNextWriteValueAndReset();
 
 		int pLimitPerc;
 		int power;

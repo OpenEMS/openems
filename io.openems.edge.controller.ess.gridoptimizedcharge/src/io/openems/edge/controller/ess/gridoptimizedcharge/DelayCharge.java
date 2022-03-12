@@ -7,8 +7,6 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.stream.IntStream;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -16,9 +14,9 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 
 public class DelayCharge {
 
@@ -39,13 +37,13 @@ public class DelayCharge {
 
 	/**
 	 * Get the maximum active power limit depending on the prediction values.
-	 * 
+	 *
 	 * <p>
 	 * Calculates the target minute, when the state of charge should reach 100
 	 * percent depending on the predicted production and consumption and limits the
 	 * charge value of the ESS, to get full at this calculated target minute
 	 * including a configured buffer.
-	 * 
+	 *
 	 * @return Maximum charge power
 	 * @throws OpenemsNamedException on error
 	 */
@@ -56,15 +54,15 @@ public class DelayCharge {
 
 	/**
 	 * Get the maximum active power limit depending the configured target time.
-	 * 
+	 *
 	 * <p>
 	 * Limits the charge value of the ESS, to get full at the given target minute.
-	 * 
+	 *
 	 * @return Maximum charge power
 	 * @throws OpenemsNamedException on error
 	 */
 	protected Integer getManualDelayChargeMaxCharge() throws OpenemsNamedException {
-		LocalTime targetTime = LocalTime.of(17, 0);
+		var targetTime = LocalTime.of(17, 0);
 
 		// Try to parse the configured Time as LocalTime or ZonedDateTime, which is the
 		// format that comes from UI.
@@ -86,13 +84,13 @@ public class DelayCharge {
 			}
 		}
 
-		int targetMinute = targetTime.get(ChronoField.MINUTE_OF_DAY);
+		var targetMinute = targetTime.get(ChronoField.MINUTE_OF_DAY);
 		return this.calculateDelayChargeMaxCharge(targetMinute);
 	}
 
 	/**
 	 * Apply the calculated power limit as constraint.
-	 * 
+	 *
 	 * @param rawDelayChargeMaxChargePower raw maximum charge power (Not adapted to
 	 *                                     DC)
 	 * @param delayChargeMaxChargePower    maximum power that should be charged by
@@ -102,7 +100,7 @@ public class DelayCharge {
 	protected void applyCalculatedLimit(int rawDelayChargeMaxChargePower, int delayChargeMaxChargePower) {
 
 		// Current DelayCharge state
-		DelayChargeState state = DelayChargeState.ACTIVE_LIMIT;
+		var state = DelayChargeState.ACTIVE_LIMIT;
 
 		try {
 			// Set the power limitation constraint
@@ -119,12 +117,12 @@ public class DelayCharge {
 	/**
 	 * Calculate the maximum active power limit depending on the given target
 	 * minute.
-	 * 
+	 *
 	 * <p>
 	 * Limits the charge value of the ESS, to reach 100 percent at this calculated
 	 * target minute.
-	 * 
-	 * 
+	 *
+	 *
 	 * @param targetMinute Minute when the production get's lower than the
 	 *                     consumption
 	 * @return Maximum charge power
@@ -145,17 +143,15 @@ public class DelayCharge {
 		if (this.passedTargetMinute(targetMinute)) {
 			// Slowly increasing the maximum charge power with a ramp
 			float maximum = this.parent.ess.getMaxApparentPower().getOrError();
-			Optional<Integer> currentLimitOpt = this.parent.getDelayChargeLimit().asOptional();
+			var currentLimitOpt = this.parent.getDelayChargeLimit().asOptional();
 
 			if (currentLimitOpt.isPresent() && currentLimitOpt.get() < maximum) {
-				// Apply ramp filter
-				Integer filteredLimit = this.parent.rampFilter.getFilteredValueAsInteger(currentLimitOpt.get(), maximum,
-						maximum, 0.0025f);
-				return filteredLimit;
+				return this.parent.rampFilter.getFilteredValueAsInteger(currentLimitOpt.get(), maximum, maximum,
+						0.0025f);
 			}
 
 			// Already reached the maximum
-			if ((!currentLimitOpt.isPresent()) || maximum <= currentLimitOpt.get()) {
+			if (!currentLimitOpt.isPresent() || maximum <= currentLimitOpt.get()) {
 				this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_TIME, null);
 				return null;
 
@@ -163,7 +159,7 @@ public class DelayCharge {
 		}
 
 		// Calculate the power limit depending on the remaining time and capacity
-		Integer calculatedPower = this.getCalculatedPowerLimit(targetMinute);
+		var calculatedPower = this.getCalculatedPowerLimit(targetMinute);
 		if (calculatedPower == null) {
 			return null;
 		}
@@ -181,27 +177,27 @@ public class DelayCharge {
 
 	/**
 	 * Gets the calculated target minute.
-	 * 
+	 *
 	 * <p>
 	 * Calculates the target minute when there is no longer surplus power depending
 	 * on the predicted production and consumption.
-	 * 
+	 *
 	 * @return predicted target minute (Minute of the day)
 	 */
 	private Integer getCalculatedTargetMinute() {
 
 		// Predictions
-		Prediction24Hours hourlyPredictionProduction = this.parent.predictorManager
+		var hourlyPredictionProduction = this.parent.predictorManager
 				.get24HoursPrediction(new ChannelAddress("_sum", "ProductionActivePower"));
-		Prediction24Hours hourlyPredictionConsumption = this.parent.predictorManager
+		var hourlyPredictionConsumption = this.parent.predictorManager
 				.get24HoursPrediction(new ChannelAddress("_sum", "ConsumptionActivePower"));
 
-		ZonedDateTime now = ZonedDateTime.now(this.parent.componentManager.getClock());
-		ZonedDateTime predictionStartQuarterHour = roundZonedDateTimeDownTo15Minutes(now);
+		var now = ZonedDateTime.now(this.parent.componentManager.getClock());
+		var predictionStartQuarterHour = roundZonedDateTimeDownTo15Minutes(now);
 
 		// Predictions as Integer array
-		Integer[] hourlyProduction = hourlyPredictionProduction.getValues();
-		Integer[] hourlyConsumption = hourlyPredictionConsumption.getValues();
+		var hourlyProduction = hourlyPredictionProduction.getValues();
+		var hourlyConsumption = hourlyPredictionConsumption.getValues();
 
 		// Displays the production values once, if debug mode is activated.
 		if (this.predictionDebugLog) {
@@ -211,8 +207,7 @@ public class DelayCharge {
 		}
 
 		// Calculate target minute
-		Integer targetMinute = this.calculateTargetMinute(hourlyProduction, hourlyConsumption,
-				predictionStartQuarterHour);
+		var targetMinute = this.calculateTargetMinute(hourlyProduction, hourlyConsumption, predictionStartQuarterHour);
 
 		// Production was never higher than consumption
 		if (targetMinute == null) {
@@ -227,7 +222,7 @@ public class DelayCharge {
 
 	/**
 	 * Calculates the charging power limit for the current cycle.
-	 * 
+	 *
 	 * @param targetMinute target as minute of the day
 	 * @return the calculated charging power limit or null if no limit should be
 	 *         applied
@@ -246,7 +241,7 @@ public class DelayCharge {
 		int capacity = this.parent.ess.getCapacity().getOrError();
 
 		// No remaining capacity
-		int minPower = this.parent.ess.getPower().getMinPower(this.parent.ess, Phase.ALL, Pwr.ACTIVE);
+		var minPower = this.parent.ess.getPower().getMinPower(this.parent.ess, Phase.ALL, Pwr.ACTIVE);
 		if (minPower >= 0 && soc > 95) {
 			this.setDelayChargeStateAndLimit(DelayChargeState.NO_REMAINING_CAPACITY, null);
 			return null;
@@ -257,10 +252,10 @@ public class DelayCharge {
 		soc -= 1;
 
 		// Remaining capacity of the battery in Ws till target point.
-		int remainingCapacity = Math.round(capacity * (100 - soc) * 36);
+		var remainingCapacity = Math.round(capacity * (100 - soc) * 36);
 
 		// Remaining time in seconds till the target point.
-		int remainingTime = this.calculateRemainingTime(targetMinute);
+		var remainingTime = this.calculateRemainingTime(targetMinute);
 
 		// No remaining time -> no restrictions
 		if (remainingTime <= 0) {
@@ -268,7 +263,7 @@ public class DelayCharge {
 			return null;
 		}
 		// Calculate charge power limit
-		int calculatedPower = remainingCapacity / remainingTime;
+		var calculatedPower = remainingCapacity / remainingTime;
 
 		// Max apparent power
 		int maxApparentPower = this.parent.ess.getMaxApparentPower().orElse(Integer.MAX_VALUE);
@@ -284,17 +279,17 @@ public class DelayCharge {
 		 */
 		IntegerReadChannel delayChargeLimitRawChannel = this.parent.getRawDelayChargeLimitChannel();
 
-		IntStream pastLimits = delayChargeLimitRawChannel.getPastValues()
+		var pastLimits = delayChargeLimitRawChannel.getPastValues()
 				.tailMap(LocalDateTime.now(this.parent.componentManager.getClock()).minusSeconds(900), true) //
-				.values().stream().filter(v -> v.isDefined()).mapToInt(v -> v.get());
+				.values().stream().filter(Value::isDefined).mapToInt(Value::get);
 
-		IntStream currentLimit = IntStream.of(calculatedPower);
+		var currentLimit = IntStream.of(calculatedPower);
 
 		// Concat the limit values of the last 900 seconds with the current limit
-		IntStream limits = IntStream.concat(pastLimits, currentLimit); //
+		var limits = IntStream.concat(pastLimits, currentLimit); //
 
 		// Get the average of the past values including the current
-		OptionalDouble limitValueOpt = limits.average();
+		var limitValueOpt = limits.average();
 
 		if (!limitValueOpt.isPresent()) {
 			return null;
@@ -305,26 +300,24 @@ public class DelayCharge {
 
 	/**
 	 * Calculates the number of seconds left to the target hour.
-	 * 
+	 *
 	 * @param targetMinute target as minute of the day
 	 * @return the remaining time
 	 */
 	private int calculateRemainingTime(int targetMinute) {
-		int targetSecondOfDay = targetMinute * 60;
-		int remainingTime = targetSecondOfDay
+		var targetSecondOfDay = targetMinute * 60;
+		return targetSecondOfDay
 				- ZonedDateTime.now(this.parent.componentManager.getClock()).get(ChronoField.SECOND_OF_DAY);
-
-		return remainingTime;
 	}
 
 	/**
 	 * Calculates the target minute from quarter-hourly production and consumption
 	 * predictions.
-	 * 
+	 *
 	 * <p>
 	 * Returning the last valid target minute if it is present and the new
 	 * calculated target minute would be null.
-	 * 
+	 *
 	 * @param quarterHourlyProduction    the production prediction
 	 * @param quarterHourlyConsumption   the consumption prediction
 	 * @param predictionStartQuarterHour the prediction start quarterHour
@@ -333,18 +326,18 @@ public class DelayCharge {
 	private Integer calculateTargetMinute(Integer[] quarterHourlyProduction, Integer[] quarterHourlyConsumption,
 			ZonedDateTime predictionStartQuarterHour) {
 
-		int predictionStartQuarterHourIndex = predictionStartQuarterHour.get(ChronoField.MINUTE_OF_DAY) / 15;
+		var predictionStartQuarterHourIndex = predictionStartQuarterHour.get(ChronoField.MINUTE_OF_DAY) / 15;
 
 		// Last hour when production was greater than consumption.
-		int lastQuarterHour = -1;
+		var lastQuarterHour = -1;
 		Integer targetMinuteActual = null;
 		Integer targetMinuteAdjusted = null;
 
 		// Iterate predictions till midnight
-		for (int i = 0; i < (96 - predictionStartQuarterHourIndex); i++) {
+		for (var i = 0; i < 96 - predictionStartQuarterHourIndex; i++) {
 			// to avoid null and negative consumption values.
-			if ((quarterHourlyProduction[i] != null && quarterHourlyConsumption[i] != null
-					&& quarterHourlyConsumption[i] >= 0)) {
+			if (quarterHourlyProduction[i] != null && quarterHourlyConsumption[i] != null
+					&& quarterHourlyConsumption[i] >= 0) {
 
 				// Updating last quarter hour if production is higher than consumption plus
 				// power buffer
@@ -386,18 +379,18 @@ public class DelayCharge {
 
 	/**
 	 * Rounds a {@link ZonedDateTime} down to 15 minutes.
-	 * 
+	 *
 	 * @param d the {@link ZonedDateTime}
 	 * @return the rounded result
 	 */
 	private static ZonedDateTime roundZonedDateTimeDownTo15Minutes(ZonedDateTime d) {
-		int minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
+		var minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
 		return d.with(ChronoField.NANO_OF_DAY, 0).plus(minuteOfDay / 15 * 15, ChronoUnit.MINUTES);
 	}
 
 	/**
 	 * Update the StateMachine and ChargePowerLimit channels.
-	 * 
+	 *
 	 * @param state the {@link DelayChargeState}
 	 * @param limit the ChargePowerLimit
 	 */
@@ -408,7 +401,7 @@ public class DelayCharge {
 
 	/**
 	 * Checks if we passed already the target minute.
-	 * 
+	 *
 	 * @param targetMinute target as minute of the day
 	 * @return true if it is later than the target minute.
 	 */

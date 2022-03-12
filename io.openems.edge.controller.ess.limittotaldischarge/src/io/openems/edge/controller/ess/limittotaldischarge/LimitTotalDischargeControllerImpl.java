@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -92,6 +91,7 @@ public class LimitTotalDischargeControllerImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -102,7 +102,7 @@ public class LimitTotalDischargeControllerImpl extends AbstractOpenemsComponent
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
 
 		// Set to normal state and return if SoC is not available
-		Value<Integer> socOpt = ess.getSoc();
+		var socOpt = ess.getSoc();
 		if (!socOpt.isDefined()) {
 			this.state = State.NORMAL;
 			return;
@@ -128,7 +128,8 @@ public class LimitTotalDischargeControllerImpl extends AbstractOpenemsComponent
 				if (soc <= this.forceChargeSoc) {
 					stateChanged = this.changeState(State.FORCE_CHARGE_SOC);
 					break;
-				} else if (soc <= this.minSoc) {
+				}
+				if (soc <= this.minSoc) {
 					stateChanged = this.changeState(State.MIN_SOC);
 					break;
 				}
@@ -159,7 +160,7 @@ public class LimitTotalDischargeControllerImpl extends AbstractOpenemsComponent
 				if (this.forceChargePower.isPresent()) {
 					calculatedPower = this.forceChargePower.get() * -1; // convert to negative for charging
 				} else {
-					int maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+					var maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
 					calculatedPower = maxCharge / 5;
 				}
 
@@ -187,26 +188,25 @@ public class LimitTotalDischargeControllerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Changes the state if hysteresis time passed, to avoid too quick changes.
-	 * 
+	 *
 	 * @param nextState the target state
 	 * @return whether the state was changed
 	 */
 	private boolean changeState(State nextState) {
-		if (this.state != nextState) {
-			if (Duration.between(//
-					this.lastStateChange, //
-					Instant.now(this.componentManager.getClock()) //
-			).toMinutes() >= HYSTERESIS) {
-				this.state = nextState;
-				this.lastStateChange = Instant.now(this.componentManager.getClock());
-				this._setAwaitingHysteresisValue(false);
-				return true;
-			} else {
-				this._setAwaitingHysteresisValue(true);
-				return false;
-			}
-		} else {
+		if (this.state == nextState) {
 			this._setAwaitingHysteresisValue(false);
+			return false;
+		}
+		if (Duration.between(//
+				this.lastStateChange, //
+				Instant.now(this.componentManager.getClock()) //
+		).toMinutes() >= HYSTERESIS) {
+			this.state = nextState;
+			this.lastStateChange = Instant.now(this.componentManager.getClock());
+			this._setAwaitingHysteresisValue(false);
+			return true;
+		} else {
+			this._setAwaitingHysteresisValue(true);
 			return false;
 		}
 	}

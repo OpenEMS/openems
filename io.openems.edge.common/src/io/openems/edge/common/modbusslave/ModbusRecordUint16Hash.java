@@ -12,7 +12,7 @@ public class ModbusRecordUint16Hash extends ModbusRecordUint16 {
 	@Override
 	public String toString() {
 		return "ModbusRecordUint16Hash [text=" + this.text + ", value=" + this.value + "/0x"
-				+ Integer.toHexString(this.value) + ", type=" + getType() + "]";
+				+ Integer.toHexString(this.value) + ", type=" + this.getType() + "]";
 	}
 
 	@Override

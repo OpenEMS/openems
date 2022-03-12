@@ -154,7 +154,6 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 *      super.setupContainer()
 	 */
 	public OneWireContainer24() {
-		super();
 	}
 
 	/**
@@ -226,6 +225,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS2415";
 	}
@@ -237,6 +237,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 *
 	 * @return 1-Wire device alternate names
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "DS1904";
 	}
@@ -247,6 +248,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
 		return "Real time clock implemented as a binary counter " + "that can be used to add functions such as "
 				+ "calendar, time and date stamp and logbook to any "
@@ -268,6 +270,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean hasClockAlarm() {
 		return false;
 	}
@@ -280,6 +283,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @see #isClockRunning(byte[])
 	 * @see #setClockRunEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean canDisableClock() {
 		return true;
 	}
@@ -289,6 +293,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 *
 	 * @return the clock resolution in milliseconds
 	 */
+	@Override
 	public long getClockResolution() {
 		return 1000;
 	}
@@ -311,18 +316,19 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
-		byte[] state = new byte[5];
-		if (adapter.select(address)) {
+		var state = new byte[5];
+		if (this.adapter.select(this.address)) {
 			// send out the read clock command
 			// first write the command to the 1-wire bus
-			adapter.putByte(READ_CLOCK_COMMAND);
+			this.adapter.putByte(READ_CLOCK_COMMAND);
 			// now grab the five bytes
-			adapter.getBlock(state, 0, 5);
+			this.adapter.getBlock(state, 0, 5);
 			return state;
-		} else
-			// failed to get a match
-			throw new OneWireIOException("Device not found on 1-Wire Network");
+		}
+		// failed to get a match
+		throw new OneWireIOException("Device not found on 1-Wire Network");
 	}
 
 	/**
@@ -340,23 +346,27 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
-		if (adapter.select(address)) {
-			byte[] writeblock = new byte[6];
-			writeblock[0] = WRITE_CLOCK_COMMAND;
-			System.arraycopy(state, 0, writeblock, 1, 5);
-			// send the write clock command with the five bytes appended
-			adapter.dataBlock(writeblock, 0, 6);
-
-			// double check by reading the clock bytes back
-			byte[] readblock = readDevice();
-			if ((readblock[0] & 0x0C) != (state[0] & 0x0C))
-				throw new OneWireIOException("Failed to write to the clock register page");
-			for (int i = 1; i < 5; i++)
-				if (readblock[i] != state[i])
-					throw new OneWireIOException("Failed to write to the clock register page");
-		} else
+		if (!this.adapter.select(this.address)) {
 			throw new OneWireIOException("Device not found on one-wire network");
+		}
+		var writeblock = new byte[6];
+		writeblock[0] = WRITE_CLOCK_COMMAND;
+		System.arraycopy(state, 0, writeblock, 1, 5);
+		// send the write clock command with the five bytes appended
+		this.adapter.dataBlock(writeblock, 0, 6);
+
+		// double check by reading the clock bytes back
+		var readblock = this.readDevice();
+		if ((readblock[0] & 0x0C) != (state[0] & 0x0C)) {
+			throw new OneWireIOException("Failed to write to the clock register page");
+		}
+		for (var i = 1; i < 5; i++) {
+			if (readblock[i] != state[i]) {
+				throw new OneWireIOException("Failed to write to the clock register page");
+			}
+		}
 	}
 
 	// --------
@@ -375,6 +385,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #setClock(long,byte[])
 	 */
+	@Override
 	public long getClock(byte[] state) {
 		return Convert.toLong(state, RTC_OFFSET, 4) * 1000;
 	}
@@ -396,6 +407,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public long getClockAlarm(byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not support clock alarms.");
 	}
@@ -416,6 +428,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockAlarming(byte[] state) {
 		return false;
 	}
@@ -435,6 +448,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockAlarmEnabled(byte[] state) {
 		return false;
 	}
@@ -452,8 +466,9 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @see #canDisableClock()
 	 * @see #setClockRunEnable(boolean,byte[])
 	 */
+	@Override
 	public boolean isClockRunning(byte[] state) {
-		return (Bit.arrayReadBit(3, CONTROL_OFFSET, state) == 1);
+		return Bit.arrayReadBit(3, CONTROL_OFFSET, state) == 1;
 	}
 
 	// --------
@@ -473,8 +488,9 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
 	 * @see #getClock(byte[])
 	 */
+	@Override
 	public void setClock(long time, byte[] state) {
-		Convert.toByteArray((time / 1000L), state, RTC_OFFSET, 4);
+		Convert.toByteArray(time / 1000L, state, RTC_OFFSET, 4);
 	}
 
 	/**
@@ -498,6 +514,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @see #isClockAlarming(byte[])
 	 * @see #setClockAlarmEnable(boolean,byte[])
 	 */
+	@Override
 	public void setClockAlarm(long time, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not support clock alarms.");
 	}
@@ -523,6 +540,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @see #setClockAlarm(long,byte[])
 	 * @see #isClockAlarming(byte[])
 	 */
+	@Override
 	public void setClockAlarmEnable(boolean alarmEnable, byte[] state) throws OneWireException {
 		throw new OneWireException("This device does not support clock alarms.");
 	}
@@ -544,6 +562,7 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 	 * @see #canDisableClock()
 	 * @see #isClockRunning(byte[])
 	 */
+	@Override
 	public void setClockRunEnable(boolean runEnable, byte[] state) {
 		/* When writing oscillator enable, both bits should have identical data. */
 		Bit.arrayWriteBit(runEnable ? 1 : 0, 3, CONTROL_OFFSET, state);

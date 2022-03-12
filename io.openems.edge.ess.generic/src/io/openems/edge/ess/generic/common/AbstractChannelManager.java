@@ -31,7 +31,7 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 
 	/**
 	 * Called on Component activate().
-	 * 
+	 *
 	 * @param clockProvider   the {@link ClockProvider}
 	 * @param battery         the {@link Battery}
 	 * @param batteryInverter the {@link ManagedSymmetricBatteryInverter}
@@ -94,13 +94,13 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 		 * Battery
 		 */
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MIN_VOLTAGE,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+				ignored -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.DISCHARGE_MAX_CURRENT,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+				ignored -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_VOLTAGE,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+				ignored -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT,
-				(ignored) -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
+				ignored -> this.allowedChargeDischargeHandler.accept(clockProvider, battery));
 		this.addCopyListener(battery, //
 				Battery.ChannelId.CAPACITY, //
 				SymmetricEss.ChannelId.CAPACITY);
@@ -112,7 +112,7 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 	/**
 	 * Adds a Copy-Listener. It listens on setNextValue() and copies the value to
 	 * the target channel.
-	 * 
+	 *
 	 * @param <T>             the Channel-Type
 	 * @param sourceComponent the source component - Battery or BatteryInverter
 	 * @param sourceChannelId the source ChannelId
@@ -120,7 +120,7 @@ public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Ba
 	 */
 	protected <T> void addCopyListener(OpenemsComponent sourceComponent, ChannelId sourceChannelId,
 			ChannelId targetChannelId) {
-		this.<T>addOnSetNextValueListener(sourceComponent, sourceChannelId, (value) -> {
+		this.<T>addOnSetNextValueListener(sourceComponent, sourceChannelId, value -> {
 			Channel<T> targetChannel = this.parent.channel(targetChannelId);
 			targetChannel.setNextValue(value);
 		});

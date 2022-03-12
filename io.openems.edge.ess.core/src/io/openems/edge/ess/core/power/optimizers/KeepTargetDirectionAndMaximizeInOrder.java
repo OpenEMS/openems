@@ -24,7 +24,7 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 	/**
 	 * Tries to keep all Target Inverters in the right TargetDirection; then
 	 * maximizes them in order.
-	 * 
+	 *
 	 * @param coefficients    the {@link Coefficients}
 	 * @param allInverters    all {@link Inverter}s
 	 * @param targetInverters the target {@link Inverter}s
@@ -50,9 +50,9 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 			}
 		}
 
-		PointValuePair result = ConstraintSolver.solve(coefficients, constraints);
+		var result = ConstraintSolver.solve(coefficients, constraints);
 
-		Relationship relationship = Relationship.EQUALS;
+		var relationship = Relationship.EQUALS;
 		switch (targetDirection) {
 		case CHARGE:
 			relationship = Relationship.LESS_OR_EQUALS;
@@ -91,14 +91,14 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 				goal = GoalType.MAXIMIZE;
 			}
 
-			double activePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(),
+			var activePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(),
 					inv.getPhase(), Pwr.ACTIVE, goal);
 			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
 					ConstraintUtil.createSimpleConstraint(coefficients, //
 							inv.toString() + ": Set ActivePower " + goal.name() + " value", //
 							inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, activePowerTarget));
 
-			double reactivePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(),
+			var reactivePowerTarget = CalculatePowerExtrema.from(coefficients, allConstraints, inv.getEssId(),
 					inv.getPhase(), Pwr.REACTIVE, goal);
 			result = addContraintIfProblemStillSolves(result, constraints, coefficients,
 					ConstraintUtil.createSimpleConstraint(coefficients, //
@@ -111,7 +111,7 @@ public class KeepTargetDirectionAndMaximizeInOrder {
 
 	/**
 	 * Add Constraint only if the problem still solves with the Constraint.
-	 * 
+	 *
 	 * @param lastResult   the last result
 	 * @param constraints  the list of {@link Constraint}s
 	 * @param coefficients the {@link Coefficients}

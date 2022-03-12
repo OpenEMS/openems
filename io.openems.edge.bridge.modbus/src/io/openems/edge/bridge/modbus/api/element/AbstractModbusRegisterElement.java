@@ -1,14 +1,16 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
-import com.ghgande.j2mod.modbus.procimg.Register;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
+import java.nio.ByteOrder;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteOrder;
-import java.util.Optional;
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import com.ghgande.j2mod.modbus.procimg.Register;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 
 /**
  * A ModbusRegisterElement represents one or more Modbus Registers.
@@ -29,7 +31,7 @@ public abstract class AbstractModbusRegisterElement<E, T> extends AbstractModbus
 
 	/**
 	 * Gets an instance of the correct subclass of myself.
-	 * 
+	 *
 	 * @return myself
 	 */
 	protected abstract E self();
@@ -42,6 +44,7 @@ public abstract class AbstractModbusRegisterElement<E, T> extends AbstractModbus
 		this.nextWriteValue = writeValueOpt;
 	}
 
+	@Override
 	public Optional<Register[]> getNextWriteValue() {
 		return this.nextWriteValue;
 	}
@@ -54,7 +57,7 @@ public abstract class AbstractModbusRegisterElement<E, T> extends AbstractModbus
 	/**
 	 * Sets the Byte-Order. Default is "BIG_ENDIAN". See
 	 * http://www.simplymodbus.ca/FAQ.htm#Order.
-	 * 
+	 *
 	 * @param byteOrder the ByteOrder
 	 * @return myself
 	 */
@@ -64,21 +67,21 @@ public abstract class AbstractModbusRegisterElement<E, T> extends AbstractModbus
 	}
 
 	public ByteOrder getByteOrder() {
-		return byteOrder;
+		return this.byteOrder;
 	}
 
 	@Override
 	public void setInputRegisters(InputRegister... registers) throws OpenemsException {
 		if (this.isDebug()) {
-			StringBuilder b = new StringBuilder("Element [" + this + "] set input registers to [");
-			for (int i = 0; i < registers.length; i++) {
+			var b = new StringBuilder("Element [" + this + "] set input registers to [");
+			for (var i = 0; i < registers.length; i++) {
 				b.append(registers[i].getValue());
 				if (i < registers.length - 1) {
 					b.append(",");
 				}
 			}
 			b.append("].");
-			log.info(b.toString());
+			this.log.info(b.toString());
 		}
 		if (registers.length != this.getLength()) {
 			throw new OpenemsException("Modbus Element [" + this + "]: registers length [" + registers.length

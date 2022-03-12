@@ -45,7 +45,6 @@ public class OneWireException extends Exception {
 	 * Constructs a <code>OneWireException</code> with no detail message.
 	 */
 	public OneWireException() {
-		super();
 	}
 
 	/**

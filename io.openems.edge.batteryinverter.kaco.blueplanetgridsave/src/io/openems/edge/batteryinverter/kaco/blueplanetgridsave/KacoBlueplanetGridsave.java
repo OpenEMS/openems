@@ -26,7 +26,8 @@ public interface KacoBlueplanetGridsave
 	 */
 	public static final int WATCHDOG_TIMEOUT_SECONDS = 60;
 	/**
-	 * The watchdog gets triggered every WATCHDOG_TRIGGER_CYCLES seconds. This must be less than WATCHDOG_TIMEOUT_SECONDS.
+	 * The watchdog gets triggered every WATCHDOG_TRIGGER_CYCLES seconds. This must
+	 * be less than WATCHDOG_TIMEOUT_SECONDS.
 	 */
 	public static final int WATCHDOG_TRIGGER_SECONDS = 10;
 
@@ -68,14 +69,14 @@ public interface KacoBlueplanetGridsave
 
 	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
-	 * 
+	 *
 	 * @return {@link StartStop}
 	 */
 	public StartStop getStartStopTarget();
 
 	/**
 	 * Get the Channel for the given Point or throw an error if it is not available.
-	 * 
+	 *
 	 * @param <T>   the Channel type
 	 * @param point the SunSpec Point
 	 * @return the optional Channel
@@ -85,14 +86,14 @@ public interface KacoBlueplanetGridsave
 
 	/**
 	 * Gets the Current State.
-	 * 
+	 *
 	 * @return the {@link S64201CurrentState}
 	 */
 	public S64201CurrentState getCurrentState();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStartAttemptsChannel() {
@@ -101,7 +102,7 @@ public interface KacoBlueplanetGridsave
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStartAttempts() {
@@ -111,7 +112,7 @@ public interface KacoBlueplanetGridsave
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStartAttempts(Boolean value) {
@@ -120,7 +121,7 @@ public interface KacoBlueplanetGridsave
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStopAttemptsChannel() {
@@ -129,7 +130,7 @@ public interface KacoBlueplanetGridsave
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStopAttempts() {
@@ -139,7 +140,7 @@ public interface KacoBlueplanetGridsave
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStopAttempts(Boolean value) {
@@ -148,7 +149,7 @@ public interface KacoBlueplanetGridsave
 
 	/**
 	 * Gets the Channel for KacoSunSpecModel.S64201.REQUESTED_STATE.
-	 * 
+	 *
 	 * @return the Channel
 	 * @throws OpenemsException on error
 	 */
@@ -158,7 +159,7 @@ public interface KacoBlueplanetGridsave
 
 	/**
 	 * Writes the value to the KacoSunSpecModel.S64201.REQUESTED_STATE Register.
-	 * 
+	 *
 	 * @param value the next value
 	 * @throws OpenemsNamedException on error
 	 */

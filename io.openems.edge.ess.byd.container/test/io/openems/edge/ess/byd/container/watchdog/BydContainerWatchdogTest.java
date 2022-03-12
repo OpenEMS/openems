@@ -29,7 +29,7 @@ public class BydContainerWatchdogTest {
 	// TODO requires fix by Pooran Chandrashekaraiah
 	// @Test
 	protected void test() throws Exception {
-		EssFeneconBydContainer ess = new EssFeneconBydContainer();
+		var ess = new EssFeneconBydContainer();
 		new ComponentTest(ess) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("power", new DummyPower()) //

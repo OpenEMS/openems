@@ -8,6 +8,7 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.generic.symmetric.ChannelManager;
 
 /**
  * Helper class to handle calculation of Allowed-Charge-Power and
@@ -21,7 +22,7 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 
 	/**
 	 * Allow a maximum increase per second.
-	 * 
+	 *
 	 * <p>
 	 * 5 % of possible allowed charge/discharge power
 	 */
@@ -44,14 +45,14 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 	 * Calculates Allowed-Charge-Power and Allowed-Discharge Power from the given
 	 * parameters. Result is stored in 'lastBatteryAllowedChargePower' and
 	 * 'lastBatteryAllowedDischargePower' variables - both as positive values!
-	 * 
+	 *
 	 * @param clockProvider the {@link ClockProvider}
 	 * @param battery       the {@link Battery}
 	 */
 	protected void calculateAllowedChargeDischargePower(ClockProvider clockProvider, Battery battery) {
-		Integer chargeMaxCurrent = battery.getChargeMaxCurrentChannel().getNextValue().get();
-		Integer dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue().get();
-		Integer voltage = battery.getVoltageChannel().getNextValue().get();
+		var chargeMaxCurrent = battery.getChargeMaxCurrentChannel().getNextValue().get();
+		var dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue().get();
+		var voltage = battery.getVoltageChannel().getNextValue().get();
 
 		// Is the ESS started?
 		final boolean isStarted;
@@ -69,7 +70,7 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 	 * Calculates Allowed-Charge-Power and Allowed-Discharge Power from the given
 	 * parameters. Result is stored in 'allowedChargePower' and
 	 * 'allowedDischargePower' variables - both as positive values!
-	 * 
+	 *
 	 * @param clockProvider       the {@link ClockProvider}
 	 * @param isStarted           is the ESS started?
 	 * @param chargeMaxCurrent    the {@link Battery.ChannelId#CHARGE_MAX_CURRENT}
@@ -78,7 +79,7 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 	 */
 	protected void calculateAllowedChargeDischargePower(ClockProvider clockProvider, boolean isStarted,
 			Integer chargeMaxCurrent, Integer dischargeMaxCurrent, Integer voltage) {
-		final Instant now = Instant.now(clockProvider.getClock());
+		final var now = Instant.now(clockProvider.getClock());
 		float charge;
 		float discharge;
 
@@ -141,7 +142,7 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 
 	/**
 	 * Applies the max increase ramp, built from MAX_INCREASE_PERCENTAGE.
-	 * 
+	 *
 	 * @param lastValue   the result value in [W] of previous run
 	 * @param thisValue   the current value [W]
 	 * @param lastInstant the timestamp of the previous run
@@ -158,6 +159,6 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 			millis = Duration.between(lastInstant, thisInstant).toMillis();
 		}
 		return Math.min(thisValue, //
-				lastValue + (thisValue * millis * MAX_INCREASE_PERCENTAGE) / 1000.F /* convert [mW] to [W] */);
+				lastValue + thisValue * millis * MAX_INCREASE_PERCENTAGE / 1000.F /* convert [mW] to [W] */);
 	}
 }

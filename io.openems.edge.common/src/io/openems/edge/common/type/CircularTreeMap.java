@@ -1,15 +1,14 @@
 package io.openems.edge.common.type;
 
-import java.util.Iterator;
 import java.util.TreeMap;
 
 /**
  * Implements a circular buffer with a TreeMap.
- * 
+ *
  * <p>
  * Be aware that not the eldest entry is removed when the buffer is full, but
  * the entry with the lowest key is removed!
- * 
+ *
  * @param <K> the type of the Key
  * @param <V> the type of the Value
  */
@@ -25,7 +24,7 @@ public class CircularTreeMap<K, V> extends TreeMap<K, V> {
 
 	@Override
 	public V put(K key, V value) {
-		V result = super.put(key, value);
+		var result = super.put(key, value);
 		if (super.size() > this.limit) {
 			this.removeLowest();
 		}
@@ -33,7 +32,7 @@ public class CircularTreeMap<K, V> extends TreeMap<K, V> {
 	}
 
 	private void removeLowest() {
-		Iterator<K> iterator = this.keySet().iterator();
+		var iterator = this.keySet().iterator();
 		if (iterator.hasNext()) {
 			this.remove(iterator.next());
 		}

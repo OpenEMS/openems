@@ -61,6 +61,7 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -77,6 +78,7 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -89,7 +91,7 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
+		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(0, Priority.HIGH, //
 						m(MeterBControlEM300.ChannelId.ACTIVE_POWER_POS, new UnsignedDoublewordElement(0),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
@@ -201,8 +203,8 @@ public class MeterBControlEM300Impl extends AbstractOpenemsModbusComponent
 
 		@Override
 		public void accept(Value<Integer> ignore) {
-			Value<Integer> posValue = this.posChannel.getNextValue();
-			Value<Integer> negValue = this.negChannel.getNextValue();
+			var posValue = this.posChannel.getNextValue();
+			var negValue = this.negChannel.getNextValue();
 			final Integer result;
 			if (posValue.isDefined() && negValue.isDefined()) {
 				if (this.invert) {
