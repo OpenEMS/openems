@@ -2,7 +2,6 @@ package io.openems.backend.timedata.influx;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -128,20 +127,20 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 */
 	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data)
 			throws OpenemsException {
-		Set<Entry<Long, Map<ChannelAddress, JsonElement>>> dataEntries = data.rowMap().entrySet();
+		var dataEntries = data.rowMap().entrySet();
 		if (dataEntries.isEmpty()) {
 			// no data to write
 			return;
 		}
 
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> dataEntry : dataEntries) {
-			Set<Entry<ChannelAddress, JsonElement>> channelEntries = dataEntry.getValue().entrySet();
+			var channelEntries = dataEntry.getValue().entrySet();
 			if (channelEntries.isEmpty()) {
 				// no points to add
 				continue;
 			}
 
-			Long timestamp = dataEntry.getKey();
+			var timestamp = dataEntry.getKey();
 			// this builds an InfluxDB record ("point") for a given timestamp
 			var builder = Point //
 					.measurement(InfluxConnector.MEASUREMENT) //
@@ -158,10 +157,10 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 	/**
 	 * Parses the number of an Edge from its name string.
-	 * 
+	 *
 	 * <p>
 	 * e.g. translates "edge0" to "0".
-	 * 
+	 *
 	 * @param name the edge name
 	 * @return the number
 	 * @throws OpenemsException on error
@@ -306,7 +305,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 */
 	@Deprecated
 	private Optional<JsonElement> getCompatibilityChannelValue(ChannelFormula[] compatibility, EdgeCache cache) {
-		int value = 0;
+		var value = 0;
 		for (ChannelFormula formula : compatibility) {
 			switch (formula.getFunction()) {
 			case PLUS:
@@ -331,7 +330,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			switch (address.getChannelId()) {
 
 			case "EssSoc": {
-				List<String> ids = config.getComponentsImplementingNature("EssNature");
+				var ids = config.getComponentsImplementingNature("EssNature");
 				if (ids.size() > 0) {
 					// take first result
 					return new ChannelFormula[] {
@@ -341,11 +340,11 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			}
 
 			case "EssActivePower": {
-				List<String> asymmetricIds = config.getComponentsImplementingNature("AsymmetricEssNature");
-				List<String> symmetricIds = config.getComponentsImplementingNature("SymmetricEssNature");
+				var asymmetricIds = config.getComponentsImplementingNature("AsymmetricEssNature");
+				var symmetricIds = config.getComponentsImplementingNature("SymmetricEssNature");
 				symmetricIds.removeAll(asymmetricIds);
 				var result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
-				int i = 0;
+				var i = 0;
 				for (String id : asymmetricIds) {
 					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL1"));
 					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL2"));
@@ -413,18 +412,18 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 						ChannelFormula.class);
 
 			case "ProductionAcActivePower": {
-				List<String> ignoreIds = config.getComponentsImplementingNature("FeneconMiniConsumptionMeter");
+				var ignoreIds = config.getComponentsImplementingNature("FeneconMiniConsumptionMeter");
 				ignoreIds.add("meter0");
 
-				List<String> asymmetricIds = config.getComponentsImplementingNature("AsymmetricMeterNature");
+				var asymmetricIds = config.getComponentsImplementingNature("AsymmetricMeterNature");
 				asymmetricIds.removeAll(ignoreIds);
 
-				List<String> symmetricIds = config.getComponentsImplementingNature("SymmetricMeterNature");
+				var symmetricIds = config.getComponentsImplementingNature("SymmetricMeterNature");
 				symmetricIds.removeAll(ignoreIds);
 				symmetricIds.removeAll(asymmetricIds);
 
 				var result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
-				int i = 0;
+				var i = 0;
 				for (String id : asymmetricIds) {
 					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL1"));
 					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL2"));
@@ -437,9 +436,9 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			}
 
 			case "ProductionDcActualPower": {
-				List<String> ids = config.getComponentsImplementingNature("ChargerNature");
+				var ids = config.getComponentsImplementingNature("ChargerNature");
 				var result = new ChannelFormula[ids.size()];
-				for (int i = 0; i < ids.size(); i++) {
+				for (var i = 0; i < ids.size(); i++) {
 					result[i] = new ChannelFormula(Function.PLUS, new ChannelAddress(ids.get(i), "ActualPower"));
 				}
 				return result;

@@ -21,10 +21,10 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * Status.
-		 * 
+		 *
 		 * <p>
 		 * The Status of the EVCS charging station.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -37,7 +37,7 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * Charge Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -51,10 +51,10 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * Charging Type.
-		 * 
+		 *
 		 * <p>
 		 * Type of charging.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -67,11 +67,11 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * Count of phases, the EV is charging with.
-		 * 
+		 *
 		 * <p>
 		 * This value is derived from the charging station or calculated during the
 		 * charging.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -84,11 +84,11 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * Minimum Power valid by the hardware.
-		 * 
+		 *
 		 * <p>
 		 * In the cases that the EVCS can't be controlled, the Minimum will be the
 		 * maximum too.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -103,7 +103,7 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * Maximum Power valid by the hardware.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -118,7 +118,7 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * Maximum Power defined by software.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -133,7 +133,7 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * Minimum Power defined by software.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -148,7 +148,7 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * Energy that was charged during the current or last Session.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -163,7 +163,7 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * Active Consumption Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Type: Integer
@@ -177,7 +177,7 @@ public interface Evcs extends OpenemsComponent {
 
 		/**
 		 * Failed state channel for a failed communication to the EVCS.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Evcs
 		 * <li>Readable
@@ -595,7 +595,7 @@ public interface Evcs extends OpenemsComponent {
 
 	/**
 	 * Returns the modbus table for this nature.
-	 * 
+	 *
 	 * @param accessMode accessMode
 	 * @return nature table
 	 */

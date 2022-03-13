@@ -30,7 +30,7 @@ public class ChargingLowerThanTargetHandler {
 	 * Check if the difference between the requested charging target and the real
 	 * charging power is higher than the CHARGING_TARGET_MAX_DIFFERENCE for at least
 	 * MAXIMUM_OUT_OF_RANGE_TRIES.
-	 * 
+	 *
 	 * @param evcs EVCS
 	 * @return true if the difference is too high
 	 * @throws InvalidValueException invalidValueException
@@ -56,7 +56,7 @@ public class ChargingLowerThanTargetHandler {
 	 * Check if the difference between the requested charging target and the real
 	 * charging power is higher than the CHARGING_TARGET_MAX_DIFFERENCE. If it
 	 * returns true, it is setting the maximumPower.
-	 * 
+	 *
 	 * @param evcs EVCS
 	 * @return true if the difference is too high
 	 * @throws InvalidValueException invalidValueException
@@ -66,7 +66,7 @@ public class ChargingLowerThanTargetHandler {
 		int chargePowerTarget = evcs.getSetChargePowerLimit().orElse(evcs.getMaximumHardwarePower().getOrError());
 
 		if (chargePowerTarget - chargePower > chargePowerTarget * CHARGING_TARGET_MAX_DIFFERENCE_PERCENT) {
-			this.maximumChargePower = calculateMaximumPower(chargePower);
+			this.maximumChargePower = this.calculateMaximumPower(chargePower);
 			this.lastChargingCheck = LocalDateTime.now();
 			return true;
 		}
@@ -77,7 +77,7 @@ public class ChargingLowerThanTargetHandler {
 	/**
 	 * Returns the calculated maximum charge power depending on the current charge
 	 * power and the current maximum charge power.
-	 * 
+	 *
 	 * @param chargingPower current charge power
 	 * @return the current charge power or one of the past charge power values
 	 */
@@ -89,8 +89,9 @@ public class ChargingLowerThanTargetHandler {
 	}
 
 	/**
-	 * Maximum charge power of the EV depending on the last {@link #isChargingLowerThanTarget(ManagedEvcs)} try's.
-	 * 
+	 * Maximum charge power of the EV depending on the last
+	 * {@link #isChargingLowerThanTarget(ManagedEvcs)} try's.
+	 *
 	 * @return The maximum charge power of the EV.
 	 */
 	protected Integer getMaximumChargePower() {

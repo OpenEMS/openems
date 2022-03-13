@@ -112,7 +112,7 @@ public class EmergencyCapacityReserveImplTest {
 
 	@Test
 	public void testReachTargetPower() throws Exception {
-		ControllerTest controllerTest = new ControllerTest(new EmergencyCapacityReserveImpl()) //
+		var controllerTest = new ControllerTest(new EmergencyCapacityReserveImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
@@ -131,12 +131,12 @@ public class EmergencyCapacityReserveImplTest {
 						.input(ESS_SOC, 21) //
 						.output(STATE_MACHINE, State.NO_LIMIT)); //
 
-		int maxApparentPower = 10000;
+		var maxApparentPower = 10000;
 		Integer targetPower = maxApparentPower / 2;
-		double rampPower = maxApparentPower * 0.01;
+		var rampPower = maxApparentPower * 0.01;
 
-		int result = maxApparentPower;
-		for (int i = 0; i < 100; i++) {
+		var result = maxApparentPower;
+		for (var i = 0; i < 100; i++) {
 			if (result > targetPower) {
 				result -= rampPower;
 			}

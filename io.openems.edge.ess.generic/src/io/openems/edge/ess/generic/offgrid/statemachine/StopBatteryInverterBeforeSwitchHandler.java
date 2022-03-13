@@ -18,41 +18,37 @@ public class StopBatteryInverterBeforeSwitchHandler extends StateHandler<OffGrid
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.lastAttempt = Instant.MIN;
 		this.attemptCounter = 0;
-		GenericManagedEss ess = context.getParent();
+		var ess = context.getParent();
 		ess._setMaxBatteryInverterStopAttemptsFault(false);
 	}
 
 	@Override
 	public OffGridState runAndGetNextState(Context context) throws OpenemsNamedException {
-		GenericManagedEss ess = context.getParent();
+		var ess = context.getParent();
 
 		if (context.batteryInverter.isStopped()) {
 			return OffGridState.UNDEFINED;
 		}
 
-		boolean isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
+		var isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
 				.getSeconds() > GenericManagedEss.RETRY_COMMAND_SECONDS;
-		if (isMaxStartTimePassed) {
-			// First try - or waited long enough for next try
-
-			if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
-				// Too many tries
-				ess._setMaxBatteryInverterStopAttemptsFault(true);
-				return OffGridState.UNDEFINED;
-
-			} else {
-				// Trying to stop Battery Inverter before switching the relays
-				context.batteryInverter.stop();
-
-				this.lastAttempt = Instant.now();
-				this.attemptCounter++;
-				return OffGridState.STOP_BATTERY_INVERTER_BEFORE_SWITCH;
-
-			}
-
-		} else {
+		if (!isMaxStartTimePassed) {
 			// Still waiting...
 			return OffGridState.STOP_BATTERY_INVERTER_BEFORE_SWITCH;
+		}
+		if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
+			// Too many tries
+			ess._setMaxBatteryInverterStopAttemptsFault(true);
+			return OffGridState.UNDEFINED;
+
+		} else {
+			// Trying to stop Battery Inverter before switching the relays
+			context.batteryInverter.stop();
+
+			this.lastAttempt = Instant.now();
+			this.attemptCounter++;
+			return OffGridState.STOP_BATTERY_INVERTER_BEFORE_SWITCH;
+
 		}
 	}
 

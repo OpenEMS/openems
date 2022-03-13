@@ -22,6 +22,7 @@ public interface SocomecMeter extends SymmetricMeter, AsymmetricMeter, OpenemsCo
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

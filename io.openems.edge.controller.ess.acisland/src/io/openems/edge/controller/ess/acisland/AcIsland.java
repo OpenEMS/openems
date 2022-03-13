@@ -1,7 +1,5 @@
 package io.openems.edge.controller.ess.acisland;
 
-import java.util.Optional;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -78,6 +76,7 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 		this.onGridOutputChannelAddress = ChannelAddress.fromString(config.onGridOutputChannelAddress());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -87,14 +86,14 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 	public void run() throws OpenemsNamedException {
 		// Get all required values - or abort with exception
 		SymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		GridMode gridMode = ess.getGridMode();
+		var gridMode = ess.getGridMode();
 		int soc = ess.getSoc().getOrError();
 
 		BooleanWriteChannel onGridOutputChannel = this.componentManager.getChannel(this.onGridOutputChannelAddress);
 		BooleanWriteChannel offGridOutputChannel = this.componentManager.getChannel(this.offGridOutputChannelAddress);
-		boolean isProducerOffGrid = this.isProducerOffGrid(onGridOutputChannel, offGridOutputChannel);
-		boolean isProducerOff = this.isProducerOff(onGridOutputChannel, offGridOutputChannel);
-		boolean isProducerOnGrid = this.isProducerOnGrid(onGridOutputChannel, offGridOutputChannel);
+		var isProducerOffGrid = this.isProducerOffGrid(onGridOutputChannel, offGridOutputChannel);
+		var isProducerOff = this.isProducerOff(onGridOutputChannel, offGridOutputChannel);
+		var isProducerOnGrid = this.isProducerOnGrid(onGridOutputChannel, offGridOutputChannel);
 
 		/*
 		 * State Machine
@@ -108,12 +107,10 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 				if (isProducerOffGrid || isProducerOff) {
 					if (gridMode == GridMode.ON_GRID) {
 						stateChanged = this.changeState(State.SWITCH_TO_ONGRID);
-					} else {
-						if (soc >= config.maxSoc()) {
-							this.disconnectOffGrid(offGridOutputChannel);
-						} else if (soc <= config.minSoc()) {
-							this.connectOffGrid(offGridOutputChannel);
-						}
+					} else if (soc >= this.config.maxSoc()) {
+						this.disconnectOffGrid(offGridOutputChannel);
+					} else if (soc <= this.config.minSoc()) {
+						this.connectOffGrid(offGridOutputChannel);
 					}
 				} else {
 					stateChanged = this.changeState(State.SWITCH_TO_OFFGRID);
@@ -138,7 +135,7 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 						this.isProducerDisconnected = true;
 						this.timeProducerDisconnected = System.currentTimeMillis();
 					}
-					if (this.timeProducerDisconnected + config.switchDelay() <= System.currentTimeMillis()
+					if (this.timeProducerDisconnected + this.config.switchDelay() <= System.currentTimeMillis()
 							&& this.isProducerDisconnected) {
 						stateChanged = this.changeState(State.OFF_GRID);
 					}
@@ -154,21 +151,19 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 				if (isProducerOnGrid) {
 					this.changeState(State.ON_GRID);
 					this.isProducerDisconnected = false;
-				} else {
-					if (isProducerOff) {
-						if (!this.isProducerDisconnected) {
-							this.isProducerDisconnected = true;
-							this.timeProducerDisconnected = System.currentTimeMillis();
-						}
-						if (this.timeProducerDisconnected + config.switchDelay() <= System.currentTimeMillis()
-								&& this.isProducerDisconnected) {
-							this.connectOnGrid(onGridOutputChannel);
-						}
-					} else {
-						this.isProducerDisconnected = false;
-						this.disconnectOnGrid(onGridOutputChannel);
-						this.disconnectOffGrid(offGridOutputChannel);
+				} else if (isProducerOff) {
+					if (!this.isProducerDisconnected) {
+						this.isProducerDisconnected = true;
+						this.timeProducerDisconnected = System.currentTimeMillis();
 					}
+					if (this.timeProducerDisconnected + this.config.switchDelay() <= System.currentTimeMillis()
+							&& this.isProducerDisconnected) {
+						this.connectOnGrid(onGridOutputChannel);
+					}
+				} else {
+					this.isProducerDisconnected = false;
+					this.disconnectOnGrid(onGridOutputChannel);
+					this.disconnectOffGrid(offGridOutputChannel);
 				}
 				break;
 			}
@@ -201,11 +196,11 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 	}
 
 	private void connectOnGrid(BooleanWriteChannel onGridOutputChannel) throws OpenemsNamedException {
-		this.switchOutput(onGridOutputChannel, true, config.invertOnGridOutput());
+		this.switchOutput(onGridOutputChannel, true, this.config.invertOnGridOutput());
 	}
 
 	private void disconnectOnGrid(BooleanWriteChannel onGridOutputChannel) throws OpenemsNamedException {
-		this.switchOutput(onGridOutputChannel, false, config.invertOnGridOutput());
+		this.switchOutput(onGridOutputChannel, false, this.config.invertOnGridOutput());
 	}
 
 	private boolean isOnGridOn(BooleanWriteChannel onGridOutputChannel) {
@@ -213,11 +208,11 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 	}
 
 	private void connectOffGrid(BooleanWriteChannel offGridOutputChannel) throws OpenemsNamedException {
-		this.switchOutput(offGridOutputChannel, true, config.invertOffGridOutput());
+		this.switchOutput(offGridOutputChannel, true, this.config.invertOffGridOutput());
 	}
 
 	private void disconnectOffGrid(BooleanWriteChannel offGridOutputChannel) throws OpenemsNamedException {
-		this.switchOutput(offGridOutputChannel, false, config.invertOffGridOutput());
+		this.switchOutput(offGridOutputChannel, false, this.config.invertOffGridOutput());
 	}
 
 	private boolean isOffGridOn(BooleanWriteChannel offGridOutputChannel) {
@@ -226,7 +221,7 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 
 	private void switchOutput(BooleanWriteChannel outputChannel, boolean on, boolean invertOutput)
 			throws OpenemsNamedException {
-		Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+		var currentValueOpt = outputChannel.value().asOptional();
 		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (on ^ invertOutput)) {
 			this.logInfo(this.log,
 					"Set output [" + outputChannel.address() + "] " + (on ^ invertOutput ? "ON" : "OFF") + ".");
@@ -236,7 +231,7 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 
 	/**
 	 * A flag to maintain change in the state
-	 * 
+	 *
 	 * @param nextState the target state
 	 * @return Flag that the state is changed or not
 	 */
@@ -244,8 +239,8 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 		if (this.state != nextState) {
 			this.state = nextState;
 			return true;
-		} else
-			return false;
+		}
+		return false;
 	}
 
 }

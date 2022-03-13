@@ -1,6 +1,7 @@
 package io.openems.edge.tesla.powerwall2.core;
 
 import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -35,7 +36,7 @@ public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 
 	private ReadWorker worker = null;
 
-	private AtomicReference<TeslaPowerwall2Battery> battery = new AtomicReference<>();
+	private final AtomicReference<TeslaPowerwall2Battery> battery = new AtomicReference<>();
 
 	public TeslaPowerwall2CoreImpl() {
 		super(//
@@ -48,10 +49,11 @@ public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config)
 			throws UnknownHostException, KeyManagementException, NoSuchAlgorithmException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.worker = new ReadWorker(this, (Inet4Address) Inet4Address.getByName(config.ipAddress()), config.port());
+		this.worker = new ReadWorker(this, (Inet4Address) InetAddress.getByName(config.ipAddress()), config.port());
 		this.worker.activate(config.id());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.worker != null) {
@@ -73,12 +75,14 @@ public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	public void setBattery(TeslaPowerwall2Battery battery) {
 		this.battery.set(battery);
 	}
 
+	@Override
 	public Optional<TeslaPowerwall2Battery> getBattery() {
-		return Optional.ofNullable(battery.get());
+		return Optional.ofNullable(this.battery.get());
 	}
 
 }

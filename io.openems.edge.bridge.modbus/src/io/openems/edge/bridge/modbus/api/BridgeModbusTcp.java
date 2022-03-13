@@ -26,7 +26,7 @@ public interface BridgeModbusTcp extends BridgeModbus {
 
 	/**
 	 * Gets the IP address.
-	 * 
+	 *
 	 * @return the IP address
 	 */
 	public InetAddress getIpAddress();

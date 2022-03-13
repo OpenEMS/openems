@@ -69,13 +69,14 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 
 		if (config.enabled()) {
 			this.api = new HardyBarthApi(config.ip(), this);
-			
+
 			// Reading the given values
 			this.readWorker.activate(config.id());
 			this.readWorker.triggerNextRun();
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -105,10 +106,10 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Debug Log.
-	 * 
+	 *
 	 * <p>
 	 * Logging only if the debug mode is enabled
-	 * 
+	 *
 	 * @param message text that should be logged
 	 */
 	public void debugLog(String message) {

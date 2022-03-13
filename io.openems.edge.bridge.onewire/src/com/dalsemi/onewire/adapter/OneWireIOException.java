@@ -46,7 +46,6 @@ public class OneWireIOException extends OneWireException {
 	 * Constructs a <code>OneWireIOException</code> with no detail message.
 	 */
 	public OneWireIOException() {
-		super();
 	}
 
 	/**

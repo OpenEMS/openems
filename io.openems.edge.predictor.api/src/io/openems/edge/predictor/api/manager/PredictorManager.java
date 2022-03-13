@@ -19,6 +19,7 @@ public interface PredictorManager extends OpenemsComponent {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -27,7 +28,7 @@ public interface PredictorManager extends OpenemsComponent {
 	/**
 	 * Gets the {@link Prediction24Hours} by the best matching
 	 * {@link Predictor24Hours} for the given {@link ChannelAddress}.
-	 * 
+	 *
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @return the {@link Prediction24Hours} - all values null if no Predictor
 	 *         matches the Channel-Address

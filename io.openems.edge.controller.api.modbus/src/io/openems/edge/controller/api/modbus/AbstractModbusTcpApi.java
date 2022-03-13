@@ -32,7 +32,6 @@ import io.openems.edge.common.modbusslave.ModbusRecordUint16BlockLength;
 import io.openems.edge.common.modbusslave.ModbusRecordUint16Hash;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
@@ -114,6 +113,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 		this.startApiWorker.activate(id);
 	}
 
+	@Override
 	protected void deactivate() {
 		this.startApiWorker.deactivate();
 		ModbusSlaveFactory.close();
@@ -130,7 +130,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 		@Override
 		protected void forever() {
-			int port = AbstractModbusTcpApi.this.port;
+			var port = AbstractModbusTcpApi.this.port;
 			if (this.slave == null) {
 				try {
 					// start new server
@@ -151,7 +151,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 			} else {
 				// regular check for errors
-				String error = this.slave.getError();
+				var error = this.slave.getError();
 				if (error != null) {
 					AbstractModbusTcpApi.this.logError(this.log,
 							"Unable to start Modbus/TCP Api on port [" + port + "]: " + error);
@@ -172,14 +172,14 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 	/**
 	 * Initialize Modbus-Records for all configured Component-IDs.
-	 * 
+	 *
 	 * @param metaComponent the {@link Meta} component
 	 * @param componentIds  the configured Component-IDs.
 	 */
 	private void initializeModbusRecords(Meta metaComponent, String[] componentIds) {
 		// Add generic header
 		this.records.put(0, new ModbusRecordUint16Hash(0, "OpenEMS"));
-		int nextAddress = 1;
+		var nextAddress = 1;
 
 		// add Meta-Component
 		nextAddress = this.addMetaComponentToProcessImage(nextAddress, metaComponent);
@@ -187,7 +187,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 		// add remaining components; sorted by configured componentIds
 		for (String id : componentIds) {
 			// find next component in order
-			ModbusSlave component = this._components.get(id);
+			var component = this._components.get(id);
 			if (component == null) {
 				this.logWarn(this.log, "Required Component [" + id + "] is not available.");
 				continue;
@@ -200,16 +200,16 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 	/**
 	 * Adds the Meta-Component to the Process Image.
-	 * 
+	 *
 	 * @param startAddress the start-address
 	 * @param component    the {@link Meta} component
 	 * @return the next start-address
 	 */
 	private int addMetaComponentToProcessImage(int startAddress, Meta component) {
-		ModbusSlaveTable table = component.getModbusSlaveTable(this.getAccessMode());
+		var table = component.getModbusSlaveTable(this.getAccessMode());
 
 		// add the Component-Model Length
-		int nextAddress = this.addRecordToProcessImage(startAddress,
+		var nextAddress = this.addRecordToProcessImage(startAddress,
 				new ModbusRecordUint16BlockLength(-1, component.id(), (short) table.getLength()), component);
 
 		// add Records
@@ -223,22 +223,22 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 	/**
 	 * Adds a Component to the Process Image.
-	 * 
+	 *
 	 * @param startAddress the start-address
 	 * @param component    the OpenEMS Component
 	 * @return the next start-address
 	 */
 	private int addComponentToProcessImage(int startAddress, ModbusSlave component) {
 		this.components.put(startAddress, component.alias());
-		ModbusSlaveTable table = component.getModbusSlaveTable(this.getAccessMode());
+		var table = component.getModbusSlaveTable(this.getAccessMode());
 
 		// add the Component-ID and Component-Model Length
-		int nextAddress = this.addRecordToProcessImage(startAddress,
+		var nextAddress = this.addRecordToProcessImage(startAddress,
 				new ModbusRecordString16(-1, "Component-ID", component.id()), component);
 		this.addRecordToProcessImage(nextAddress,
 				new ModbusRecordUint16BlockLength(-1, component.id(), (short) table.getLength()), component);
 		nextAddress = startAddress + 20;
-		int nextNatureAddress = nextAddress;
+		var nextNatureAddress = nextAddress;
 
 		// add all Nature-Tables
 		for (ModbusSlaveNatureTable natureTable : table.getNatureTables()) {
@@ -262,7 +262,7 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 	/**
 	 * Adds a Record to the process image at the given address.
-	 * 
+	 *
 	 * @param address   the address
 	 * @param record    the record
 	 * @param component the OpenEMS Component
@@ -273,8 +273,8 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 		// Handle writes to the Channel; limited to ModbusRecordChannels
 		if (record instanceof ModbusRecordChannel) {
-			ModbusRecordChannel r = (ModbusRecordChannel) record;
-			r.onWriteValue((value) -> {
+			var r = (ModbusRecordChannel) record;
+			r.onWriteValue(value -> {
 				Channel<?> readChannel = component.channel(r.getChannelId());
 				if (!(readChannel instanceof WriteChannel)) {
 					this.logWarn(this.log, "Unable to write to Read-Only-Channel [" + readChannel.address() + "]");
@@ -326,16 +326,16 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the AccessMode.
-	 * 
+	 *
 	 * @return the {@link AccessMode}
 	 */
 	protected abstract AccessMode getAccessMode();
 
 	/**
 	 * Gets the Component.
-	 * 
+	 *
 	 * @param componentId the Component-ID
-	 * 
+	 *
 	 * @return the {@link ModbusSlave} Component
 	 */
 	protected ModbusSlave getComponent(String componentId) {

@@ -8,7 +8,7 @@ public class CompletedCycleHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws IllegalArgumentException, OpenemsNamedException {
-		int completedCycles = context.getParent().getCompletedCycles().orElse(0) + 1;
+		var completedCycles = context.getParent().getCompletedCycles().orElse(0) + 1;
 		context.getParent()._setCompletedCycles(completedCycles);
 
 		if (completedCycles == context.config.totalCycleNumber()) {

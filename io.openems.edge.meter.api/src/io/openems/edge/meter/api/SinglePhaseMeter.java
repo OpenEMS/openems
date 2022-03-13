@@ -26,7 +26,7 @@ public interface SinglePhaseMeter extends AsymmetricMeter {
 
 	/**
 	 * Gets the Phase this ESS is connected to.
-	 * 
+	 *
 	 * @return the Phase
 	 */
 	public SinglePhase getPhase();
@@ -34,7 +34,7 @@ public interface SinglePhaseMeter extends AsymmetricMeter {
 	/**
 	 * Initializes Channel listeners. Copies the Active-Power Phase-Channel value to
 	 * Active-Power Channel.
-	 * 
+	 *
 	 * @param meter the AsymmetricMeter
 	 * @param phase the Phase
 	 */

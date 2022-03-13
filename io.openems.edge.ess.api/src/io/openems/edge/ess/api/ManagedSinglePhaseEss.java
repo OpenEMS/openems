@@ -20,6 +20,7 @@ public interface ManagedSinglePhaseEss extends ManagedSymmetricEss, SinglePhaseE
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

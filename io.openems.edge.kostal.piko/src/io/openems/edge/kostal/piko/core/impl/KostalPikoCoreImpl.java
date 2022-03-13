@@ -94,7 +94,7 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				KostalPikoCore.ChannelId.values() //
 		);
-		this.readTasksManager = new TasksManager<ReadTask>(//
+		this.readTasksManager = new TasksManager<>(//
 				/*
 				 * ONCE
 				 */
@@ -295,11 +295,12 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.socketConnection = new SocketConnection(config.ip(), config.port(), (byte) config.unitID());
-		Protocol protocol = new Protocol(this, socketConnection);
+		var protocol = new Protocol(this, this.socketConnection);
 		this.worker = new Worker(protocol, this.readTasksManager);
 		this.worker.activate(config.id());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.worker != null) {
@@ -330,13 +331,13 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 			// calculate Charger ActivePower
 			Channel<Float> pvPower1 = this.channel(KostalPikoCore.ChannelId.DC_POWER_STRING_1);
 			Channel<Float> pvPower2 = this.channel(KostalPikoCore.ChannelId.DC_POWER_STRING_2);
-			float pvPower = pvPower1.value().orElse(0f) + pvPower2.value().orElse(0f);
+			var pvPower = pvPower1.value().orElse(0f) + pvPower2.value().orElse(0f);
 			this.charger._setActualPower(Math.round(pvPower));
 
 			// calculate ESS ActivePower
 			Channel<Float> gridAcPTotalChannel = this.channel(KostalPikoCore.ChannelId.GRID_AC_P_TOTAL);
 			float gridAcPTotal = gridAcPTotalChannel.value().orElse(0f);
-			float essActivPower = (pvPower - gridAcPTotal);
+			var essActivPower = pvPower - gridAcPTotal;
 			this.ess._setActivePower(Math.round(essActivPower));
 
 			// calculate Meter ActivePower
@@ -356,7 +357,7 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 			float homePwL2 = homePowerL2.value().orElse(0f);
 			float homePwL3 = homePowerL3.value().orElse(0f);
 
-			float load = homeConsmBatttery + homeConsmGrid + homePwL1 + homePwL2 + homePwL3;
+			var load = homeConsmBatttery + homeConsmGrid + homePwL1 + homePwL2 + homePwL3;
 			this.meter._setActivePower(Math.round(load - gridAcPTotal));
 		}
 

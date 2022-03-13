@@ -118,7 +118,7 @@ public enum OpenemsError {
 
 	/**
 	 * Gets the formatted Error message.
-	 * 
+	 *
 	 * @param params the error parameters
 	 * @return the error message as String
 	 */

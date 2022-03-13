@@ -25,7 +25,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 		/**
 		 * Sets the {@link OnOpen} callback.
-		 * 
+		 *
 		 * @param onOpen the callback
 		 * @return the {@link Builder}
 		 */
@@ -36,7 +36,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 		/**
 		 * Sets the {@link OnRequest} callback.
-		 * 
+		 *
 		 * @param onRequest the callback
 		 * @return the {@link Builder}
 		 */
@@ -47,7 +47,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 		/**
 		 * Sets the {@link OnNotification} callback.
-		 * 
+		 *
 		 * @param onNotification the callback
 		 * @return the {@link Builder}
 		 */
@@ -58,7 +58,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 		/**
 		 * Sets the {@link OnError} callback.
-		 * 
+		 *
 		 * @param onError the callback
 		 * @return the {@link Builder}
 		 */
@@ -69,7 +69,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 		/**
 		 * Sets the {@link OnClose} callback.
-		 * 
+		 *
 		 * @param onClose the callback
 		 * @return the {@link Builder}
 		 */

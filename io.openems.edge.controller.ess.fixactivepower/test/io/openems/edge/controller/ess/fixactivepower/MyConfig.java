@@ -24,7 +24,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.essId = essId;
 			return this;
 		}
-		
+
 		public Builder setPower(int power) {
 			this.power = power;
 			return this;
@@ -34,7 +34,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.mode = mode;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -42,7 +42,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

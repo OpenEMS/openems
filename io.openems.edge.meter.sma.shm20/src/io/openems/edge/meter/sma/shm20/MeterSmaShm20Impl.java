@@ -56,6 +56,7 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -70,6 +71,7 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -82,7 +84,7 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ModbusProtocol modbusProtocol = new ModbusProtocol(this,
+		var modbusProtocol = new ModbusProtocol(this,
 				// Consumption and Production Energy
 				new FC3ReadRegistersTask(30581, Priority.HIGH, //
 						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new UnsignedDoublewordElement(30581)),
@@ -195,8 +197,8 @@ public class MeterSmaShm20Impl extends AbstractOpenemsModbusComponent
 
 		@Override
 		public void accept(Value<Integer> ignore) {
-			Value<Integer> prodValue = this.prodChannel.getNextValue();
-			Value<Integer> consValue = this.consChannel.getNextValue();
+			var prodValue = this.prodChannel.getNextValue();
+			var consValue = this.consChannel.getNextValue();
 			final Integer result;
 			if (prodValue.isDefined() && consValue.isDefined()) {
 				result = prodValue.get() - consValue.get();

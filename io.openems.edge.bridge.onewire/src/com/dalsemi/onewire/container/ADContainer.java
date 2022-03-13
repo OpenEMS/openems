@@ -70,7 +70,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *     double[] voltages = new double[adcontainer.getNumberADChannels()];
  *     for (int i=0; i &lt; adcontainer.getNumberADChannels(); i++)
  *     {
- *          adcontainer.doADConvert(i, state);         
+ *          adcontainer.doADConvert(i, state);
  *          voltages[i] = adc.getADVoltage(i, state);
  *     }
  *     if (adcontainer.hasADAlarms())
@@ -163,7 +163,7 @@ public interface ADContainer extends OneWireSensor {
 	 * same time.
 	 *
 	 * @return true if the device can do multi-channel voltage reads
-	 * 
+	 *
 	 * @see #doADConvert(boolean[],byte[])
 	 */
 	public boolean canADMultiChannelRead();
@@ -215,7 +215,7 @@ public interface ADContainer extends OneWireSensor {
 	 *                            error.
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter. This is usually a non-recoverable error.
-	 * 
+	 *
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #getADVoltage(byte[])
 	 * @see #canADMultiChannelRead()
@@ -370,7 +370,7 @@ public interface ADContainer extends OneWireSensor {
 	 *                <code>readDevice()</code>
 	 *
 	 * @return the input voltage range
-	 * 
+	 *
 	 * @see #getADRanges(int)
 	 * @see #setADRange(int,double,byte[])
 	 */

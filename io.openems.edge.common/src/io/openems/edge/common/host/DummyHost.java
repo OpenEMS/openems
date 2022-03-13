@@ -29,7 +29,7 @@ public class DummyHost extends AbstractOpenemsComponent implements Host {
 
 	/**
 	 * Sets and applies the {@link Host.ChannelId#HOSTNAME}.
-	 * 
+	 *
 	 * @param value the Hostname
 	 * @return myself
 	 */

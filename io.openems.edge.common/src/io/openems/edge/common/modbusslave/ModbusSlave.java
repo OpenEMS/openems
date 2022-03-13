@@ -7,7 +7,7 @@ public interface ModbusSlave extends OpenemsComponent {
 
 	/**
 	 * Gets the Modbus-Slave-Table for this OpenEMS-Component.
-	 * 
+	 *
 	 * @param accessMode filters the Modbus-Records that should be shown
 	 * @return the Modbus-Slave-Table
 	 */

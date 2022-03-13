@@ -7,7 +7,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 		private String id = null;
-		private String modbusId = null;
 		public String ipaddress;
 		public int interval;
 
@@ -36,7 +35,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

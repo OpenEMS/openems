@@ -60,14 +60,13 @@ public class UserServiceImpl implements UserService {
 				if (user.validatePassword(password)) {
 					this.log.info("Authentication successful for user[" + username + "].");
 					return Optional.of(user);
-				} else {
-					this.log.info("Authentication failed for user[" + username + "]: wrong password");
-					return Optional.empty();
 				}
+				this.log.info("Authentication failed for user[" + username + "]: wrong password");
+				return Optional.empty();
 			}
 		}
 		// Try authenticating with password only
-		return authenticate(password);
+		return this.authenticate(password);
 	}
 
 	@Override

@@ -26,6 +26,7 @@ public interface Host extends OpenemsComponent, JsonApi {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

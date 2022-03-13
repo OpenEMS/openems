@@ -34,10 +34,10 @@ public class CycleWorker extends AbstractWorker {
 	@Override
 	protected void forever() {
 		// Prepare Cycle-Time measurement
-		Stopwatch stopwatch = Stopwatch.createStarted();
+		var stopwatch = Stopwatch.createStarted();
 
 		// Kick Operating System Watchdog
-		String socketName = System.getenv().get("NOTIFY_SOCKET");
+		var socketName = System.getenv().get("NOTIFY_SOCKET");
 		if (socketName != null && socketName.length() != 0) {
 			if (SDNotify.isAvailable()) {
 				SDNotify.sendWatchdog();
@@ -85,7 +85,7 @@ public class CycleWorker extends AbstractWorker {
 			this.parent.eventAdmin
 					.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, new HashMap<>()));
 
-			boolean hasDisabledController = false;
+			var hasDisabledController = false;
 
 			/*
 			 * Execute Schedulers and their Controllers
@@ -94,7 +94,7 @@ public class CycleWorker extends AbstractWorker {
 				this.parent.logWarn(this.log, "There are no Schedulers configured!");
 			} else {
 				for (Scheduler scheduler : this.parent.schedulers) {
-					boolean schedulerControllerIsMissing = false;
+					var schedulerControllerIsMissing = false;
 
 					for (String controllerId : scheduler.getControllers()) {
 						Controller controller;

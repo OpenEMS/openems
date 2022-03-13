@@ -90,6 +90,7 @@ public interface EssDcChargerFeneconCommercial40 extends EssDcCharger, OpenemsCo
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

@@ -9,7 +9,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Updates the User Language.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

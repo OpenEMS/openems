@@ -73,7 +73,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <H3>Usage</H3>
  *
  * Display some features of PotentiometerContainer instance '<code>pc</code>':
- * 
+ *
  * <PRE>
  *  <CODE>
  *      byte[] state = pc.readDevice();

@@ -39,7 +39,7 @@ public class EdgesCurrentDataNotification extends JsonrpcNotification {
 
 	/**
 	 * Adds a value to the notification.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param channel the {@link ChannelAddress}
 	 * @param value   the value
@@ -52,12 +52,12 @@ public class EdgesCurrentDataNotification extends JsonrpcNotification {
 	public JsonObject getParams() {
 		var j = new JsonObject();
 		for (Entry<String, Map<ChannelAddress, JsonElement>> row : this.values.rowMap().entrySet()) {
-			String edgeId = row.getKey();
-			Map<ChannelAddress, JsonElement> columns = row.getValue();
+			var edgeId = row.getKey();
+			var columns = row.getValue();
 			var jEdge = new JsonObject();
 			for (Entry<ChannelAddress, JsonElement> column : columns.entrySet()) {
-				ChannelAddress channel = column.getKey();
-				JsonElement value = column.getValue();
+				var channel = column.getKey();
+				var value = column.getValue();
 				jEdge.add(channel.toString(), value);
 			}
 			j.add(edgeId, jEdge);

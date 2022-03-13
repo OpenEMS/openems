@@ -39,20 +39,20 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Default constructor for AbstractOpenemsModbusComponent.
-	 * 
+	 *
 	 * <p>
 	 * Automatically initializes (i.e. creates {@link Channel} instances for each
 	 * given ChannelId using the Channel-{@link Doc}.
-	 * 
+	 *
 	 * <p>
 	 * It is important to list all Channel-ID enums of all inherited
 	 * OpenEMS-Natures, i.e. for every OpenEMS Java interface you are implementing,
 	 * you need to list the interface' ChannelID-enum here like
 	 * Interface.ChannelId.values().
-	 * 
+	 *
 	 * <p>
 	 * Use as follows:
-	 * 
+	 *
 	 * <pre>
 	 * public YourPhantasticOpenemsComponent() {
 	 * 	super(//
@@ -60,17 +60,17 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * 			YourPhantasticOpenemsComponent.ChannelId.values());
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * Note: the separation in firstInitialChannelIds and furtherInitialChannelIds
 	 * is only there to enforce that calling the constructor cannot be forgotten.
 	 * This way it needs to be called with at least one parameter - which is always
 	 * at least "OpenemsComponent.ChannelId.values()". Just use it as if it was:
-	 * 
+	 *
 	 * <pre>
 	 * AbstractOpenemsComponent(ChannelId[]... channelIds)
 	 * </pre>
-	 * 
+	 *
 	 * @param firstInitialChannelIds   the Channel-IDs to initialize.
 	 * @param furtherInitialChannelIds the Channel-IDs to initialize.
 	 */
@@ -85,7 +85,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Call this method from Component implementations activate().
-	 * 
+	 *
 	 * @param context         ComponentContext of this component. Receive it from
 	 *                        parameter for @Activate
 	 * @param id              ID of this component. Typically 'config.id()'
@@ -116,7 +116,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			return true;
 		}
 		this.unitId = unitId;
-		BridgeModbus modbus = this.modbus.get();
+		var modbus = this.modbus.get();
 		if (this.isEnabled() && modbus != null) {
 			modbus.addProtocol(this.id(), this.getModbusProtocol());
 		}
@@ -130,7 +130,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Call this method from Component implementations activate().
-	 * 
+	 *
 	 * @param context         ComponentContext of this component. Receive it from
 	 *                        parameter for @Activate
 	 * @param id              ID of this component. Typically 'config.id()'
@@ -158,7 +158,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			return true;
 		}
 		this.unitId = unitId;
-		BridgeModbus modbus = this.modbus.get();
+		var modbus = this.modbus.get();
 		modbus.removeProtocol(this.id());
 		if (this.isEnabled() && modbus != null) {
 			modbus.addProtocol(this.id(), this.getModbusProtocol());
@@ -174,7 +174,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	@Override
 	protected void deactivate() {
 		super.deactivate();
-		BridgeModbus modbus = this.modbus.getAndSet(null);
+		var modbus = this.modbus.getAndSet(null);
 		if (modbus != null) {
 			modbus.removeProtocol(this.id());
 		}
@@ -182,18 +182,18 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Gets the Modbus Unit-ID.
-	 * 
+	 *
 	 * @return the Modbus Unit-ID
 	 */
 	public Integer getUnitId() {
 		return this.unitId;
 	}
 
-	private AtomicReference<BridgeModbus> modbus = new AtomicReference<BridgeModbus>(null);
+	private final AtomicReference<BridgeModbus> modbus = new AtomicReference<>(null);
 
 	/**
 	 * Set the Modbus bridge. Should be called by @Reference
-	 * 
+	 *
 	 * @param modbus the BridgeModbus Reference
 	 */
 	protected void setModbus(BridgeModbus modbus) {
@@ -202,7 +202,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Unset the Modbus bridge. Should be called by @Reference
-	 * 
+	 *
 	 * @param modbus the BridgeModbus Reference
 	 */
 	protected void unsetModbus(BridgeModbus modbus) {
@@ -214,7 +214,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Gets the Modbus-Bridge.
-	 * 
+	 *
 	 * @return the {@link BridgeModbus} - either {@link BridgeModbusSerial} or
 	 *         {@link BridgeModbusTcp}
 	 */
@@ -225,12 +225,12 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	/**
 	 * Gets the {@link ModbusProtocol}. Creates it via
 	 * {@link #defineModbusProtocol()} if it does not yet exist.
-	 * 
+	 *
 	 * @return the {@link ModbusProtocol}
 	 * @throws OpenemsException on error
 	 */
 	protected ModbusProtocol getModbusProtocol() throws OpenemsException {
-		ModbusProtocol protocol = this.protocol;
+		var protocol = this.protocol;
 		if (protocol != null) {
 			return protocol;
 		}
@@ -240,7 +240,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Defines the Modbus protocol.
-	 * 
+	 *
 	 * @return the ModbusProtocol
 	 * @throws OpenemsException on error
 	 */
@@ -253,7 +253,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	public class ChannelMapper<T extends AbstractModbusElement<?>> {
 
 		private final T element;
-		private Map<Channel<?>, ElementToChannelConverter> channelMaps = new HashMap<>();
+		private final Map<Channel<?>, ElementToChannelConverter> channelMaps = new HashMap<>();
 
 		public ChannelMapper(T element) {
 			this.element = element;
@@ -261,19 +261,19 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 		/**
 		 * Maps the given element 1-to-1 to the Channel identified by channelId.
-		 * 
+		 *
 		 * @param channelId the Channel-ID
 		 * @param converter the {@link ElementToChannelConverter}
 		 * @return the element parameter
 		 */
 		public ChannelMapper<T> m(io.openems.edge.common.channel.ChannelId channelId,
 				ElementToChannelConverter converter) {
-			return this.m(channelId, converter, new ChannelMetaInfo(element.getStartAddress()));
+			return this.m(channelId, converter, new ChannelMetaInfo(this.element.getStartAddress()));
 		}
 
 		/**
 		 * Maps the given element 1-to-1 to the Channel identified by channelId.
-		 * 
+		 *
 		 * @param channelId       the Channel-ID
 		 * @param converter       the {@link ElementToChannelConverter}
 		 * @param channelMetaInfo an object that holds meta information about the
@@ -282,7 +282,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		 */
 		public ChannelMapper<T> m(io.openems.edge.common.channel.ChannelId channelId,
 				ElementToChannelConverter converter, ChannelMetaInfo channelMetaInfo) {
-			Channel<?> channel = channel(channelId);
+			Channel<?> channel = AbstractOpenemsModbusComponent.this.channel(channelId);
 			channel.setMetaInfo(channelMetaInfo);
 			this.channelMaps.put(channel, converter);
 			return this;
@@ -291,7 +291,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		/**
 		 * Maps the given element to the Channel identified by channelId, applying the
 		 * given @link{ElementToChannelConverter}.
-		 * 
+		 *
 		 * @param channelId        the Channel-ID
 		 * @param elementToChannel the Element-To-Channel converter function for
 		 *                         {@link ReadTask}s
@@ -301,13 +301,13 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		 */
 		public ChannelMapper<T> m(io.openems.edge.common.channel.ChannelId channelId,
 				Function<Object, Object> elementToChannel, Function<Object, Object> channelToElement) {
-			ElementToChannelConverter converter = new ElementToChannelConverter(elementToChannel, channelToElement);
+			var converter = new ElementToChannelConverter(elementToChannel, channelToElement);
 			return this.m(channelId, converter);
 		}
 
 		/**
 		 * Builds the {@link ChannelMapper}.
-		 * 
+		 *
 		 * @return the {@link ChannelMapper}
 		 */
 		public T build() {
@@ -337,8 +337,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 				if (channel instanceof WriteChannel<?>) {
 					((WriteChannel<?>) channel).onSetNextWrite(value -> {
 						// dynamically get the Converter; this allows the converter to be changed
-						ElementToChannelConverter converter = this.channelMaps.get(channel);
-						Object convertedValue = converter.channelToElement(value);
+						var converter = this.channelMaps.get(channel);
+						var convertedValue = converter.channelToElement(value);
 						if (this.element instanceof ModbusRegisterElement) {
 							try {
 								((ModbusRegisterElement<?>) this.element)
@@ -380,18 +380,18 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	/**
 	 * Creates a ChannelMapper that can be used with builder pattern inside the
 	 * protocol definition.
-	 * 
+	 *
 	 * @param <T>     the type of the {@link AbstractModbusElement}d
 	 * @param element the ModbusElement
 	 * @return a {@link ChannelMapper}
 	 */
 	protected final <T extends AbstractModbusElement<?>> ChannelMapper<T> m(T element) {
-		return new ChannelMapper<T>(element);
+		return new ChannelMapper<>(element);
 	}
 
 	/**
 	 * Maps the given BitsWordElement.
-	 * 
+	 *
 	 * @param bitsWordElement the ModbusElement
 	 * @return the element parameter
 	 */
@@ -401,7 +401,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Maps the given element 1-to-1 to the Channel identified by channelId.
-	 * 
+	 *
 	 * @param <T>       the type of the {@link AbstractModbusElement}d
 	 * @param channelId the Channel-ID
 	 * @param element   the ModbusElement
@@ -414,7 +414,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Maps the given element 1-to-1 to the Channel identified by channelId.
-	 * 
+	 *
 	 * @param <T>             the type of the {@link AbstractModbusElement}d
 	 * @param channelId       the Channel-ID
 	 * @param element         the ModbusElement
@@ -430,7 +430,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	/**
 	 * Maps the given element to the Channel identified by channelId, applying the
 	 * given @link{ElementToChannelConverter}.
-	 * 
+	 *
 	 * @param <T>       the type of the {@link AbstractModbusElement}d
 	 * @param channelId the Channel-ID
 	 * @param element   the ModbusElement
@@ -439,7 +439,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element, ElementToChannelConverter converter) {
-		return new ChannelMapper<T>(element) //
+		return new ChannelMapper<>(element) //
 				.m(channelId, converter) //
 				.build();
 	}
@@ -447,7 +447,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	/**
 	 * Maps the given element to the Channel identified by channelId, applying the
 	 * given @link{ElementToChannelConverter}.
-	 * 
+	 *
 	 * @param <T>             the type of the {@link AbstractModbusElement}d
 	 * @param channelId       the Channel-ID
 	 * @param element         the ModbusElement
@@ -458,7 +458,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	protected final <T extends AbstractModbusElement<?>> T m(io.openems.edge.common.channel.ChannelId channelId,
 			T element, ElementToChannelConverter converter, ChannelMetaInfo channelMetaInfo) {
-		return new ChannelMapper<T>(element) //
+		return new ChannelMapper<>(element) //
 				.m(channelId, converter, channelMetaInfo) //
 				.build();
 	}

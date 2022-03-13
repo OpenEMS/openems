@@ -86,6 +86,7 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter implements SunSpecP
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -95,10 +96,10 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter implements SunSpecP
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

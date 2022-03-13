@@ -65,6 +65,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 		this.port = config.port();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -85,8 +86,8 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 
 	@Override
 	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
-		TCPMasterConnection connection = this.getModbusConnection();
-		ModbusTCPTransaction transaction = new ModbusTCPTransaction(connection);
+		var connection = this.getModbusConnection();
+		var transaction = new ModbusTCPTransaction(connection);
 		transaction.setRetries(AbstractModbusBridge.DEFAULT_RETRIES);
 		return transaction;
 	}
@@ -98,7 +99,7 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 			/*
 			 * create new connection
 			 */
-			TCPMasterConnection connection = new TCPMasterConnection(this.getIpAddress());
+			var connection = new TCPMasterConnection(this.getIpAddress());
 			connection.setPort(this.port);
 			this._connection = connection;
 		}
@@ -114,8 +115,9 @@ public class BridgeModbusTcpImpl extends AbstractModbusBridge
 		return this._connection;
 	}
 
+	@Override
 	public InetAddress getIpAddress() {
-		return ipAddress;
+		return this.ipAddress;
 	}
 
 	public void setIpAddress(InetAddress ipAddress) {

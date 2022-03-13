@@ -13,9 +13,9 @@ import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 
 /**
  * Wraps a JSON-RPC Response to "get24HoursPrediction" Request.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -39,9 +39,9 @@ public class Get24HoursPredictionResponse extends JsonrpcResponseSuccess {
 
 	@Override
 	public JsonObject getResult() {
-		JsonObject j = new JsonObject();
+		var j = new JsonObject();
 		for (Entry<ChannelAddress, Prediction24Hours> entry : this.predictions.entrySet()) {
-			JsonArray values = new JsonArray();
+			var values = new JsonArray();
 			for (Integer value : entry.getValue().getValues()) {
 				values.add(value);
 			}
@@ -52,7 +52,7 @@ public class Get24HoursPredictionResponse extends JsonrpcResponseSuccess {
 
 	/**
 	 * Gets the {@link Prediction24Hours}s per {@link ChannelAddress}.
-	 * 
+	 *
 	 * @return a map of Predictions
 	 */
 	public Map<ChannelAddress, Prediction24Hours> getPredictions() {

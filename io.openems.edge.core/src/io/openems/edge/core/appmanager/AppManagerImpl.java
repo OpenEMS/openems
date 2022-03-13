@@ -4,14 +4,12 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
@@ -96,7 +94,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	}
 
 	private synchronized void applyConfig(Config config) {
-		String apps = config.apps();
+		var apps = config.apps();
 		if (apps.isBlank()) {
 			apps = "[]"; // default to empty array
 		}
@@ -111,6 +109,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -119,7 +118,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Parses the configured apps to a List of {@link OpenemsAppInstance}s.
-	 * 
+	 *
 	 * @param apps the app configuration from Config.json as {@link JsonArray}
 	 * @return List of {@link OpenemsAppInstance}s
 	 * @throws OpenemsNamedException on parse error
@@ -175,7 +174,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handles a {@link GetAppsRequest}.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the {@link GetAppsRequest}
 	 * @return the Future JSON-RPC Response
@@ -189,7 +188,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handles {@link GetAppAssistant}.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the {@link GetAppAssistant} Request
 	 * @return the Future JSON-RPC Response
@@ -208,7 +207,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handles {@link GetAppInstances}.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the {@link GetAppInstances} Request
 	 * @return the Future JSON-RPC Response
@@ -224,7 +223,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handles {@link AddAppInstance}.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the {@link AddAppInstance} Request
 	 * @return the Future JSON-RPC Response
@@ -233,7 +232,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	private CompletableFuture<JsonrpcResponseSuccess> handleAddAppInstanceRequest(User user,
 			AddAppInstance.Request request) throws OpenemsNamedException {
 		// Create new list of Apps
-		final var newApps = new ArrayList<OpenemsAppInstance>(this.instantiatedApps);
+		final var newApps = new ArrayList<>(this.instantiatedApps);
 		var instanceId = UUID.randomUUID();
 		var app = new OpenemsAppInstance(request.appId, instanceId, request.properties);
 		newApps.add(app);
@@ -251,7 +250,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handles {@link UpdateAppInstance}.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the {@link UpdateAppInstance} Request
 	 * @return the Future JSON-RPC Response
@@ -293,15 +292,15 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Reconfigure myself to persist the actual App configuration.
-	 * 
+	 *
 	 * @param user the executing user
 	 * @param apps a list of {@link OpenemsAppInstance}s
 	 * @throws IOException on error
 	 */
 	private void updateAppManagerConfiguration(User user, List<OpenemsAppInstance> apps) throws IOException {
-		String factoryPid = this.serviceFactoryPid();
-		final Configuration config = this.cm.getConfiguration(factoryPid, null);
-		Dictionary<String, Object> properties = config.getProperties();
+		var factoryPid = this.serviceFactoryPid();
+		final var config = this.cm.getConfiguration(factoryPid, null);
+		var properties = config.getProperties();
 		if (properties == null) {
 			// No configuration existing yet -> create new configuration
 			properties = new Hashtable<>();

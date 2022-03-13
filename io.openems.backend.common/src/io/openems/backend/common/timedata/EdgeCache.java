@@ -32,7 +32,7 @@ public class EdgeCache {
 
 	/**
 	 * Gets the channel value from cache.
-	 * 
+	 *
 	 * @param address the {@link ChannelAddress} of the channel
 	 * @return the value; empty if it is not in cache
 	 */
@@ -42,15 +42,15 @@ public class EdgeCache {
 
 	/**
 	 * Updates the 'incoming data' with the data from the cache.
-	 * 
+	 *
 	 * @param edgeId        the Edge-ID
 	 * @param incomingDatas the incoming data
 	 */
 	public synchronized void complementDataFromCache(String edgeId,
 			SortedMap<Long, Map<ChannelAddress, JsonElement>> incomingDatas) {
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : incomingDatas.entrySet()) {
-			Long incomingTimestamp = entry.getKey();
-			Map<ChannelAddress, JsonElement> incomingData = entry.getValue();
+			var incomingTimestamp = entry.getKey();
+			var incomingData = entry.getValue();
 
 			// Check if cache should be applied
 			if (incomingTimestamp < this.cacheTimestamp) {

@@ -4,10 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.List;
 
 import org.junit.Test;
-import org.w3c.dom.Document;
 
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
@@ -55,7 +53,7 @@ public class WagoTest {
 
 	@Test
 	public void test() throws Exception {
-		Wago sut = new Wago();
+		var sut = new Wago();
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -68,16 +66,16 @@ public class WagoTest {
 		;
 
 		InputStream dummyXml = new ByteArrayInputStream(EA_CONFIG.getBytes());
-		Document doc = Wago.parseXmlToDocument(dummyXml);
+		var doc = Wago.parseXmlToDocument(dummyXml);
 
-		List<FieldbusModule> modules = sut.parseXml(doc);
+		var modules = sut.parseXml(doc);
 		assertEquals(Fieldbus5xxDO.class, modules.get(0).getClass());
 		assertEquals(Fieldbus523RO1Ch.class, modules.get(1).getClass());
 
 		sut.createProtocolFromModules(modules);
 
 		{
-			List<ReadTask> readTasks = sut.protocol.getReadTasksManager().getAllTasks();
+			var readTasks = sut.protocol.getReadTasksManager().getAllTasks();
 			ReadTask t;
 			{
 				t = readTasks.get(0);
@@ -94,7 +92,7 @@ public class WagoTest {
 		}
 
 		{
-			List<WriteTask> writeTasks = sut.protocol.getWriteTasksManager().getAllTasks();
+			var writeTasks = sut.protocol.getWriteTasksManager().getAllTasks();
 			System.out.println(writeTasks);
 			WriteTask t;
 			{

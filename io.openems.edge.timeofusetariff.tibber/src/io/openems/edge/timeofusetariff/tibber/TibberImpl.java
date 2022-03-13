@@ -24,7 +24,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -39,7 +38,6 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -55,7 +53,7 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 
 	private Config config = null;
 
-	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>>(
+	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
 			ImmutableSortedMap.of());
 
 	private ZonedDateTime updateTimeStamp = null;
@@ -65,35 +63,22 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 		/*
 		 * Update Map of prices
 		 */
-		OkHttpClient client = new OkHttpClient();
-		MediaType mediaType = MediaType.parse("application/json");
-		RequestBody body = RequestBody.create(mediaType, JsonUtils.buildJsonObject() //
+		var client = new OkHttpClient();
+		var mediaType = MediaType.parse("application/json");
+		var body = RequestBody.create(mediaType, JsonUtils.buildJsonObject() //
 				.addProperty("query", //
-						"{\n"
-						+ "  viewer {\n"
-						+ "    homes {\n"
-						+ "      currentSubscription{\n"
-						+ "        priceInfo{\n"
-						+ "          today {\n"
-						+ "            total\n"
-						+ "            startsAt\n"
-						+ "          }\n"
-						+ "          tomorrow {\n"
-						+ "            total\n"
-						+ "            startsAt\n"
-						+ "          }\n"
-						+ "        }\n"
-						+ "      }\n"
-						+ "    }\n"
-						+ "  }\n"
-						+ "}" + "") //
+						"{\n" + "  viewer {\n" + "    homes {\n" + "      currentSubscription{\n"
+								+ "        priceInfo{\n" + "          today {\n" + "            total\n"
+								+ "            startsAt\n" + "          }\n" + "          tomorrow {\n"
+								+ "            total\n" + "            startsAt\n" + "          }\n" + "        }\n"
+								+ "      }\n" + "    }\n" + "  }\n" + "}" + "") //
 				.build().toString());
-		Request request = new Request.Builder() //
+		var request = new Request.Builder() //
 				.url(TIBBER_API_URL) //
 				.header("Authorization", this.config.accessToken()).post(body) //
 				.build();
 		int httpStatusCode;
-		try (Response response = client.newCall(request).execute()) {
+		try (var response = client.newCall(request).execute()) {
 			httpStatusCode = response.code();
 
 			if (!response.isSuccessful()) {
@@ -116,14 +101,14 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 		/*
 		 * Schedule next price update for 2 pm
 		 */
-		ZonedDateTime now = ZonedDateTime.now();
-		ZonedDateTime nextRun = now.withHour(14).truncatedTo(ChronoUnit.HOURS);
+		var now = ZonedDateTime.now();
+		var nextRun = now.withHour(14).truncatedTo(ChronoUnit.HOURS);
 		if (now.isAfter(nextRun)) {
 			nextRun = nextRun.plusDays(1);
 		}
 
-		Duration duration = Duration.between(now, nextRun);
-		long delay = duration.getSeconds();
+		var duration = Duration.between(now, nextRun);
+		var delay = duration.getSeconds();
 
 		this.executor.schedule(this.task, delay, TimeUnit.SECONDS);
 	};
@@ -149,6 +134,7 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 		this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -168,29 +154,29 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 
 	/**
 	 * Parse the Tibber JSON to the Price Map.
-	 * 
+	 *
 	 * @param jsonData the Tibber JSON
 	 * @return the Price Map
 	 * @throws OpenemsNamedException on error
 	 */
 	public static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String jsonData) throws OpenemsNamedException {
-		TreeMap<ZonedDateTime, Float> result = new TreeMap<>();
+		var result = new TreeMap<ZonedDateTime, Float>();
 
 		if (!jsonData.isEmpty()) {
 
-			JsonObject line = JsonUtils.parseToJsonObject(jsonData);
-			JsonArray homes = JsonUtils.getAsJsonObject(line, "data") //
+			var line = JsonUtils.parseToJsonObject(jsonData);
+			var homes = JsonUtils.getAsJsonObject(line, "data") //
 					.getAsJsonObject("viewer") //
 					.getAsJsonArray("homes");
 
 			for (JsonElement home : homes) {
 
-				JsonObject priceInfo = JsonUtils.getAsJsonObject(home, "currentSubscription") //
+				var priceInfo = JsonUtils.getAsJsonObject(home, "currentSubscription") //
 						.getAsJsonObject("priceInfo");
 
 				// Price info for today and tomorrow.
-				JsonArray today = JsonUtils.getAsJsonArray(priceInfo, "today");
-				JsonArray tomorrow = JsonUtils.getAsJsonArray(priceInfo, "tomorrow");
+				var today = JsonUtils.getAsJsonArray(priceInfo, "today");
+				var tomorrow = JsonUtils.getAsJsonArray(priceInfo, "tomorrow");
 
 				// Adding to an array to avoid individual variables for individual for loops.
 				JsonArray[] days = { today, tomorrow };
@@ -198,8 +184,8 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 				// parse the arrays for price and time stamps.
 				for (JsonArray day : days) {
 					for (JsonElement element : day) {
-						float marketPrice = JsonUtils.getAsFloat(element, "total") * 1000;
-						ZonedDateTime startTime = ZonedDateTime
+						var marketPrice = JsonUtils.getAsFloat(element, "total") * 1000;
+						var startTime = ZonedDateTime
 								.parse(JsonUtils.getAsString(element, "startsAt"), DateTimeFormatter.ISO_DATE_TIME)
 								.withZoneSameInstant(ZoneId.systemDefault());
 						// Adding the values in the Map.

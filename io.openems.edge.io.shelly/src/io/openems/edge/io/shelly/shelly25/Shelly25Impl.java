@@ -1,7 +1,6 @@
 package io.openems.edge.io.shelly.shelly25;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -14,9 +13,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -62,6 +58,7 @@ public class Shelly25Impl extends AbstractOpenemsComponent
 		this.shellyApi = new ShellyApi(config.ip());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -74,11 +71,11 @@ public class Shelly25Impl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		StringBuilder b = new StringBuilder();
-		int i = 1;
+		var b = new StringBuilder();
+		var i = 1;
 		for (WriteChannel<Boolean> channel : this.digitalOutputChannels) {
 			String valueText;
-			Optional<Boolean> valueOpt = channel.value().asOptional();
+			var valueOpt = channel.value().asOptional();
 			if (valueOpt.isPresent()) {
 				valueText = valueOpt.get() ? "x" : "-";
 			} else {
@@ -118,11 +115,11 @@ public class Shelly25Impl extends AbstractOpenemsComponent
 		Boolean relay1IsOn;
 		Boolean relay2IsOn;
 		try {
-			JsonObject json = this.shellyApi.getStatus();
-			JsonArray relays = JsonUtils.getAsJsonArray(json, "relays");
-			JsonObject relay1 = JsonUtils.getAsJsonObject(relays.get(0));
+			var json = this.shellyApi.getStatus();
+			var relays = JsonUtils.getAsJsonArray(json, "relays");
+			var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
 			relay1IsOn = JsonUtils.getAsBoolean(relay1, "ison");
-			JsonObject relay2 = JsonUtils.getAsJsonObject(relays.get(1));
+			var relay2 = JsonUtils.getAsJsonObject(relays.get(1));
 			relay2IsOn = JsonUtils.getAsBoolean(relay2, "ison");
 
 			this._setSlaveCommunicationFailed(false);
@@ -152,8 +149,8 @@ public class Shelly25Impl extends AbstractOpenemsComponent
 	}
 
 	private void executeWrite(BooleanWriteChannel channel, int index) throws OpenemsNamedException {
-		Boolean readValue = channel.value().get();
-		Optional<Boolean> writeValue = channel.getNextWriteValueAndReset();
+		var readValue = channel.value().get();
+		var writeValue = channel.getNextWriteValueAndReset();
 		if (!writeValue.isPresent()) {
 			// no write value
 			return;

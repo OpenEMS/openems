@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ess.activepowervoltagecharacteristic;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -19,12 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.linecharacteristic.PolyLine;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -78,6 +75,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 		this.pByUCharacteristics = new PolyLine("voltageRatio", "power", config.lineConfig());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -85,7 +83,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		GridMode gridMode = this.ess.getGridMode();
+		var gridMode = this.ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -101,7 +99,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 
 		// Ratio between current voltage and nominal voltage
 		final Float voltageRatio;
-		Value<Integer> gridVoltage = this.meter.getVoltage();
+		var gridVoltage = this.meter.getVoltage();
 		if (gridVoltage.isDefined()) {
 			voltageRatio = gridVoltage.get() / (this.config.nominalVoltage() * 1000);
 		} else {
@@ -113,8 +111,8 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 		}
 
 		// Do NOT change Set Power If it Does not exceed the hysteresis time
-		Clock clock = this.componentManager.getClock();
-		LocalDateTime now = LocalDateTime.now(clock);
+		var clock = this.componentManager.getClock();
+		var now = LocalDateTime.now(clock);
 		if (Duration.between(this.lastSetPowerTime, now).getSeconds() < this.config.waitForHysteresis()) {
 			return;
 		}
@@ -125,7 +123,7 @@ public class ActivePowerVoltageCharacteristicImpl extends AbstractOpenemsCompone
 		if (this.pByUCharacteristics == null) {
 			power = null;
 		} else {
-			Double p = this.pByUCharacteristics.getValue(voltageRatio);
+			var p = this.pByUCharacteristics.getValue(voltageRatio);
 			if (p == null) {
 				power = null;
 			} else {

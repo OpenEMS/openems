@@ -15,7 +15,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -68,6 +67,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -81,7 +81,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode();
+		var gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -98,23 +98,23 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		 */
 		int gridPower;
 		if (meter instanceof AsymmetricMeter) {
-			AsymmetricMeter asymmetricMeter = (AsymmetricMeter) meter;
+			var asymmetricMeter = (AsymmetricMeter) meter;
 
 			int gridPowerL1 = asymmetricMeter.getActivePowerL1().getOrError();
 			int gridPowerL2 = asymmetricMeter.getActivePowerL2().getOrError();
 			int gridPowerL3 = asymmetricMeter.getActivePowerL3().getOrError();
 
-			int maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
+			var maxPowerOnPhase = Math.max(Math.max(gridPowerL1, gridPowerL2), gridPowerL3);
 			gridPower = maxPowerOnPhase * 3;
 
 		} else {
 			gridPower = meter.getActivePower().getOrError();
 		}
-		int effectiveGridPower = gridPower + ess.getActivePower().getOrError();
+		var effectiveGridPower = gridPower + ess.getActivePower().getOrError();
 
 		int calculatedPower;
-		int wholePeakShavingPower = this.config.peakShavingPower() * 3;
-		int wholeRechargePower = this.config.rechargePower() * 3;
+		var wholePeakShavingPower = this.config.peakShavingPower() * 3;
+		var wholeRechargePower = this.config.rechargePower() * 3;
 		if (effectiveGridPower >= wholePeakShavingPower) {
 
 			// Peak-Shaving

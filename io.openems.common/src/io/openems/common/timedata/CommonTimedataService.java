@@ -28,10 +28,10 @@ public interface CommonTimedataService {
 	 */
 	public default QueryHistoricTimeseriesExportXlsxResponse handleQueryHistoricTimeseriesExportXlxsRequest(
 			String edgeId, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> powerData = this.queryHistoricData(edgeId,
+		var powerData = this.queryHistoricData(edgeId,
 				request.getFromDate(), request.getToDate(), QueryHistoricTimeseriesExportXlsxResponse.POWER_CHANNELS,
 				15 * 60 /* 15 Minutes */);
-		SortedMap<ChannelAddress, JsonElement> energyData = this.queryHistoricEnergy(edgeId, request.getFromDate(),
+		var energyData = this.queryHistoricEnergy(edgeId, request.getFromDate(),
 				request.getToDate(), QueryHistoricTimeseriesExportXlsxResponse.ENERGY_CHANNELS);
 
 		try {
@@ -50,7 +50,7 @@ public interface CommonTimedataService {
 	 * @return the resolution in seconds
 	 */
 	public static int calculateResolution(ZonedDateTime fromDate, ZonedDateTime toDate) {
-		int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
+		var days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
 		int resolution;
 		if (days <= 1) {
 			resolution = 5 * 60; // 5 Minutes
