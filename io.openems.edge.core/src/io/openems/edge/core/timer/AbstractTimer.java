@@ -45,7 +45,7 @@ public abstract class AbstractTimer extends AbstractOpenemsComponent implements 
 	 */
 	@Override
 	public void reset(String id, String identifier) {
-		ValueInitializedWrapper wrapper = this.getWrapper(id, identifier);
+		var wrapper = this.getWrapper(id, identifier);
 		if (wrapper != null) {
 			wrapper.setInitialized(false);
 		}

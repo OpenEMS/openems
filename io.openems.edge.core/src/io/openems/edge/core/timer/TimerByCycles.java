@@ -59,6 +59,7 @@ public class TimerByCycles extends AbstractTimer implements OpenemsComponent, Ev
 
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -75,21 +76,20 @@ public class TimerByCycles extends AbstractTimer implements OpenemsComponent, Ev
 	 */
 	@Override
 	public boolean checkIsTimeUp(String id, String identifier) {
-		ValueInitializedWrapper wrapper = super.getWrapper(id, identifier);
+		var wrapper = super.getWrapper(id, identifier);
 		if (wrapper.isInitialized()) {
 			return wrapper.getCounter().get() >= wrapper.getMaxValue();
-		} else {
-			wrapper.setInitialized(true);
-			wrapper.getCounter().set(1);
-			return false;
 		}
+		wrapper.setInitialized(true);
+		wrapper.getCounter().set(1);
+		return false;
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		if (event.getTopic().equals(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)) {
-			if (componentToIdentifierValueAndInitializedMap.size() > 0) {
-				componentToIdentifierValueAndInitializedMap.forEach((component, internalMap) -> {
+			if (this.componentToIdentifierValueAndInitializedMap.size() > 0) {
+				this.componentToIdentifierValueAndInitializedMap.forEach((component, internalMap) -> {
 					internalMap.forEach((entry, initializedWrapper) -> {
 						if (initializedWrapper.isInitialized()) {
 							initializedWrapper.getCounter().getAndIncrement();

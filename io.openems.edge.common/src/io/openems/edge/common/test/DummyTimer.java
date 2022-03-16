@@ -1,4 +1,4 @@
-package io.openems.edge.common.timer;
+package io.openems.edge.common.test;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -7,6 +7,9 @@ import java.util.Map;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.timer.Timer;
+import io.openems.edge.common.timer.TimerType;
+import io.openems.edge.common.timer.ValueInitializedWrapper;
 
 /**
  * A DummyTimer, provides BaseFunctionality for Unittests, that are using a
@@ -43,19 +46,17 @@ public class DummyTimer extends AbstractOpenemsComponent implements OpenemsCompo
 			wrapper = this.getWrapper(identifier);
 			if (wrapper.isInitialized()) {
 				return wrapper.getCounter().getAndIncrement() >= wrapper.getMaxValue();
-			} else {
-				wrapper.setInitialized(true);
-				wrapper.getCounter().set(1);
 			}
+			wrapper.setInitialized(true);
+			wrapper.getCounter().set(1);
 			return false;
 		case TIME:
 			wrapper = this.getWrapper(identifier);
 			if (wrapper.isInitialized()) {
 				return Instant.now().isAfter(wrapper.getInitialDateTime().get().plusSeconds(wrapper.getMaxValue()));
-			} else {
-				wrapper.setInitialized(true);
-				wrapper.getInitialDateTime().set(Instant.now());
 			}
+			wrapper.setInitialized(true);
+			wrapper.getInitialDateTime().set(Instant.now());
 			return false;
 		}
 		return true;
@@ -76,7 +77,7 @@ public class DummyTimer extends AbstractOpenemsComponent implements OpenemsCompo
 
 	@Override
 	public void reset(String id, String identifier) {
-		ValueInitializedWrapper wrapper = this.getWrapper(identifier);
+		var wrapper = this.getWrapper(identifier);
 		if (wrapper != null) {
 			wrapper.setInitialized(false);
 		}

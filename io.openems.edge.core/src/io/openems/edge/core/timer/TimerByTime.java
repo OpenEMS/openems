@@ -41,6 +41,7 @@ public class TimerByTime extends AbstractTimer implements OpenemsComponent {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -60,13 +61,12 @@ public class TimerByTime extends AbstractTimer implements OpenemsComponent {
 	 */
 	@Override
 	public boolean checkIsTimeUp(String id, String identifier) {
-		ValueInitializedWrapper wrapper = super.getWrapper(id, identifier);
+		var wrapper = super.getWrapper(id, identifier);
 		if (wrapper.isInitialized()) {
 			return Instant.now().isAfter(wrapper.getInitialDateTime().get().plusSeconds(wrapper.getMaxValue()));
-		} else {
-			wrapper.setInitialized(true);
-			wrapper.getInitialDateTime().set(Instant.now());
 		}
+		wrapper.setInitialized(true);
+		wrapper.getInitialDateTime().set(Instant.now());
 		return false;
 	}
 
