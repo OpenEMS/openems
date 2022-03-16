@@ -23,15 +23,21 @@ import io.openems.edge.common.timer.ValueInitializedWrapper;
  * {@link ValueInitializedWrapper#setInitialized(boolean)} (false)}
  */
 @Designate(ocd = TimerByTimeConfig.class, factory = true)
-@Component(name = "Timer.TimerByTime", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
-public class TimerByTimeImpl extends AbstractTimer implements OpenemsComponent {
+@Component(//
+		name = "Timer.ByTime", //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		immediate = true //
+)
+public class TimerByTime extends AbstractTimer implements OpenemsComponent {
 
-	public TimerByTimeImpl() {
-		super(ChannelId.values());
+	public TimerByTime() {
+		super(//
+				OpenemsComponent.ChannelId.values() //
+		);
 	}
 
 	@Activate
-	void activate(ComponentContext context, TimerByCountingConfig config) {
+	private void activate(ComponentContext context, TimerByCountingConfig config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 

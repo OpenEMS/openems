@@ -10,7 +10,7 @@ import io.openems.edge.common.timer.ValueInitializedWrapper;
 
 /**
  * The Abstract Timer. It provides basic methods that both Timer
- * {@link TimerByTimeImpl} and {@link TimerByCounting} use.
+ * {@link TimerByTime} and {@link TimerByCounting} use.
  */
 public abstract class AbstractTimer extends AbstractOpenemsComponent implements Timer {
 

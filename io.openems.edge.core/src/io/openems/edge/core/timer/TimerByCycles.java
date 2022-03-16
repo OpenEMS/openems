@@ -34,17 +34,22 @@ import io.openems.edge.common.timer.ValueInitializedWrapper;
  * cycles.
  */
 @Designate(ocd = TimerByCyclesConfig.class, factory = true)
-@Component(name = "Timer.TimerByCycles", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
-		+ "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
-
+@Component(//
+		name = "Timer.ByCycles", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+)
 public class TimerByCycles extends AbstractTimer implements OpenemsComponent, EventHandler {
 
 	public TimerByCycles() {
-		super(ChannelId.values());
+		super(//
+				OpenemsComponent.ChannelId.values() //
+		);
 	}
 
 	@Activate
-	void activate(ComponentContext context, TimerByCyclesConfig config) {
+	private void activate(ComponentContext context, TimerByCyclesConfig config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
