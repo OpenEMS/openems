@@ -1,0 +1,17 @@
+Bundle-Name: okttp
+Bundle-Description: A modern I/O API for Java  
+Bundle-DocURL: https://square.github.io/okio/
+Bundle-License: https://opensource.org/licenses/Apache-2.0
+Bundle-Version: 1.17.2
+
+Include-Resource: \
+	@okio-1.17.2.jar,\
+
+Export-Package: \
+	okio, \
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

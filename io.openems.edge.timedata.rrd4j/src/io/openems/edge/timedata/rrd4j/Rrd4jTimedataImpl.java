@@ -45,6 +45,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.CommonTimedataService;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -98,7 +99,6 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	@Override
 	@Deactivate
 	protected void deactivate() {
 		this.worker.deactivate();
@@ -107,7 +107,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		var timezone = fromDate.getZone();
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
@@ -125,14 +125,15 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 				}
 
 				var chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
-				var request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp, resolution);
+				var request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp,
+						resolution.toSeconds());
 
 				// Post-Process data
-				var result = postProcessData(request, resolution);
+				var result = postProcessData(request, resolution.toSeconds());
 				database.close();
 
 				for (var i = 0; i < result.length; i++) {
-					var timestamp = fromTimestamp + i * resolution;
+					var timestamp = fromTimestamp + (i * resolution.toSeconds());
 
 					// Prepare result table row
 					var timestampInstant = Instant.ofEpochSecond(timestamp);
@@ -170,17 +171,17 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Post-Process the received data.
-	 *
+	 * 
 	 * <p>
 	 * This mainly makes sure the data has the correct resolution.
-	 *
+	 * 
 	 * @param request    the RRD4j {@link FetchRequest}
 	 * @param resolution the resolution in seconds
 	 * @return the result array
 	 * @throws IOException              on error
 	 * @throws IllegalArgumentException on error
 	 */
-	protected static double[] postProcessData(FetchRequest request, int resolution)
+	protected static double[] postProcessData(FetchRequest request, long resolution)
 			throws IOException, IllegalArgumentException {
 		var data = request.fetchData();
 		var step = data.getStep();
@@ -217,7 +218,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 		} else if (step > resolution) {
 			// Split each entry to multiple values
-			var resultTimestamp = 0L;
+			var resultTimestamp = 0;
 			for (int i = 0, inputIndex = 0; i < result.length; i++) {
 				inputIndex = Math.min(input.length - 1, (int) (resultTimestamp / step));
 				resultTimestamp += resolution;
@@ -294,7 +295,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
 
@@ -303,7 +304,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		var fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
 		var toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
 
-		var nextStamp = fromTimestamp + resolution;
+		var nextStamp = fromTimestamp + resolution.toSeconds();
 		var timeStamp = fromTimestamp;
 
 		while (nextStamp <= toTimeStamp) {
@@ -320,11 +321,10 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 			table.put(dateTimeFrom, tableRow);
 
 			timeStamp = nextStamp;
-			nextStamp += resolution;
+			nextStamp += resolution.toSeconds();
 		}
 
 		return table;
-
 	}
 
 	@Override
@@ -355,11 +355,11 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the RRD4j database for the given Channel-Address.
-	 *
+	 * 
 	 * <p>
 	 * The predefined RRD4J archives match the requirements of
 	 * {@link CommonTimedataService#calculateResolution(ZonedDateTime, ZonedDateTime)}
-	 *
+	 * 
 	 * @param channelAddress the Channel-Address
 	 * @param startTime      the starttime for newly created RrdDbs
 	 * @return the RrdDb
@@ -381,7 +381,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Creates new DB
-	 *
+	 * 
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @param channelUnit    the {@link Unit} of the Channel
 	 * @param startTime      the timestamp of the newly added data
@@ -413,7 +413,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Gets an existing RrdDb.
-	 *
+	 * 
 	 * @param channelAddress the ChannelAddress
 	 * @return the RrdDb or null
 	 * @throws IOException        on error
@@ -467,7 +467,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	/**
 	 * Defines the datasource properties for a given Channel, i.e. min/max allowed
 	 * value and GAUGE vs. COUNTER type.
-	 *
+	 * 
 	 * @param channel the Channel
 	 * @return the {@link DsDef}
 	 */
@@ -521,7 +521,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Migrates between different versions of the OpenEMS-RRD4j Definition.
-	 *
+	 * 
 	 * @param database       the {@link RrdDb} database
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @param channelUnit    the {@link Unit} of the Channel

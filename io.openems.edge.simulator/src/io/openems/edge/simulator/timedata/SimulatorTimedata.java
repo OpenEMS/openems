@@ -26,6 +26,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -83,7 +84,7 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		try {
 			var data = CsvUtils.readCsvFile(this.getPath(), this.config.format(), 1);
@@ -100,7 +101,7 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 				result.put(time, timeMap);
 
 				// prepare next time + data
-				time = time.plusSeconds(resolution);
+				time = time.plusSeconds(resolution.toSeconds());
 				data.nextRecord();
 			}
 			return result;
@@ -128,7 +129,7 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for Simulator");
 	}
