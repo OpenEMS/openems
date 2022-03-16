@@ -1,9 +1,9 @@
 package io.openems.common.jsonrpc.request;
 
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.TimeZone;
 import java.util.TreeSet;
 
 import com.google.gson.JsonArray;
@@ -12,8 +12,8 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -31,12 +31,14 @@ import io.openems.common.utils.JsonUtils;
  *   "id": "UUID",
  *   "method": "queryHistoricTimeseriesEnergyPerPeriod",
  *   "params": {
- *     "timezone": Number,
  *     "fromDate": YYYY-MM-DD,
  *     "toDate": YYYY-MM-DD,
  *     "channels": ChannelAddress[],
- *     "resolution": Number
- *   }
+ *     "timezone": String,
+ *     "resolution": {
+ *       "value": Number,
+ *       "unit": {@link ChronoUnit}
+ *     }
  * }
  * </pre>
  */
@@ -55,11 +57,15 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 	 */
 	public static QueryHistoricTimeseriesEnergyPerPeriodRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		var p = r.getParams();
-		var timezoneDiff = JsonUtils.getAsInt(p, "timezone");
-		var timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
+		var timezone = TimeZone.getTimeZone(JsonUtils.getAsString(p, "timezone")).toZoneId();
 		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
 		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
-		var resolution = JsonUtils.getAsInt(p, "resolution");
+
+		var resolutionObj = JsonUtils.getAsJsonObject(p, "resolution");
+		var resolution = new Resolution(//
+				JsonUtils.getAsInt(resolutionObj, "value"), //
+				JsonUtils.getAsString(resolutionObj, "unit"));
+
 		var result = new QueryHistoricTimeseriesEnergyPerPeriodRequest(r, fromDate, toDate, resolution);
 		var channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
@@ -71,29 +77,24 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 
 	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
-	private final int timezoneDiff;
 	private final ZonedDateTime fromDate;
 	private final ZonedDateTime toDate;
 	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
-	private final int resolution;
+	private final Resolution resolution;
 
 	private QueryHistoricTimeseriesEnergyPerPeriodRequest(JsonrpcRequest request, ZonedDateTime fromDate,
-			ZonedDateTime toDate, int resolution) throws OpenemsNamedException {
+			ZonedDateTime toDate, Resolution resolution) throws OpenemsNamedException {
 		super(request, QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD);
 
-		DateUtils.assertSameTimezone(fromDate, toDate);
-		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.resolution = resolution;
 	}
 
-	public QueryHistoricTimeseriesEnergyPerPeriodRequest(ZonedDateTime fromDate, ZonedDateTime toDate, int resolution)
-			throws OpenemsNamedException {
+	public QueryHistoricTimeseriesEnergyPerPeriodRequest(ZonedDateTime fromDate, ZonedDateTime toDate,
+			Resolution resolution) throws OpenemsNamedException {
 		super(QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD);
 
-		DateUtils.assertSameTimezone(fromDate, toDate);
-		this.timezoneDiff = ZoneOffset.from(fromDate).getTotalSeconds();
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.resolution = resolution;
@@ -109,11 +110,14 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 		for (ChannelAddress address : this.channels) {
 			channels.add(address.toString());
 		}
-		return JsonUtils.buildJsonObject().addProperty("timezone", this.timezoneDiff) //
+		return JsonUtils.buildJsonObject() //
 				.addProperty("fromDate", QueryHistoricTimeseriesEnergyPerPeriodRequest.FORMAT.format(this.fromDate)) //
 				.addProperty("toDate", QueryHistoricTimeseriesEnergyPerPeriodRequest.FORMAT.format(this.toDate)) //
 				.add("channels", channels) //
-				.addProperty("resolution", this.resolution) //
+				.add("resolution", JsonUtils.buildJsonObject() //
+						.addProperty("unit", this.resolution.getUnit().name()) //
+						.addProperty("value", this.resolution.getValue()) //
+						.build()) //
 				.build();
 	}
 
@@ -149,7 +153,7 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 	 *
 	 * @return Resolution
 	 */
-	public int getResolution() {
+	public Resolution getResolution() {
 		return this.resolution;
 	}
 }

@@ -4,12 +4,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
-import org.influxdb.InfluxDBException.FieldTypeConflictException;
-import org.influxdb.dto.Point.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
+import com.influxdb.client.write.Point;
+import com.influxdb.exceptions.InfluxException;
 
 /**
  * Handles Influx FieldTypeConflictExceptions. This helper provides conversion
@@ -22,7 +22,7 @@ public class FieldTypeConflictHandler {
 
 	private final Logger log = LoggerFactory.getLogger(FieldTypeConflictHandler.class);
 	private final Influx parent;
-	private final ConcurrentHashMap<String, BiConsumer<Builder, JsonElement>> specialCaseFieldHandlers = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, BiConsumer<Point, JsonElement>> specialCaseFieldHandlers = new ConcurrentHashMap<>();
 
 	public FieldTypeConflictHandler(Influx parent) {
 		this.parent = parent;
@@ -34,7 +34,7 @@ public class FieldTypeConflictHandler {
 	 *
 	 * @param e the {@link FieldTypeConflictException}
 	 */
-	public synchronized void handleException(FieldTypeConflictException e) {
+	public synchronized void handleException(InfluxException e) {
 		var matcher = FieldTypeConflictHandler.FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(e.getMessage());
 		if (!matcher.find()) {
 			this.parent.logWarn(this.log, "Unable to add special field handler for message [" + e.getMessage() + "]");
@@ -49,7 +49,7 @@ public class FieldTypeConflictHandler {
 			return;
 		}
 
-		BiConsumer<Builder, JsonElement> handler = null;
+		BiConsumer<Point, JsonElement> handler = null;
 		switch (requiredType) {
 		case "string":
 			handler = (builder, jValue) -> {
@@ -171,7 +171,7 @@ public class FieldTypeConflictHandler {
 	 * @param field the Field
 	 * @return the handler or null
 	 */
-	public BiConsumer<Builder, JsonElement> getHandler(String field) {
+	public BiConsumer<Point, JsonElement> getHandler(String field) {
 		return this.specialCaseFieldHandlers.get(field);
 	}
 }
