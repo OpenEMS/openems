@@ -7,7 +7,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { Data, TooltipItem } from '../shared';
+import { Data, TooltipItem, Unit } from '../shared';
 
 @Component({
   selector: 'timeOfUseTariffDischargeChart',
@@ -46,7 +46,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
     this.colors = [];
     this.loading = true;
 
-    this.queryHistoricTimeseriesData(this.period.from, this.period.to, 900).then(response => {
+    this.queryHistoricTimeseriesData(this.period.from, this.period.to, { value: 15, unit: Unit.MINUTES }).then(response => {
       this.service.getConfig().then(config => {
         let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
@@ -250,8 +250,6 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   protected setLabel(config: EdgeConfig) {
     let options = this.createDefaultChartOptions();
     let translate = this.translate;
-
-    console.log('options: ', options);
 
     // Adds second y-axis to chart
     options.scales.yAxes.push({

@@ -40,19 +40,18 @@
 			<version>1.0.1</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
 			<groupId>com.squareup.moshi</groupId>
 			<artifactId>moshi</artifactId>
 			<version>1.12.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
 			<version>3.14.9</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
 			<version>3.14.9</version>
@@ -64,16 +63,28 @@
 			<version>1.17.2</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
-			<artifactId>converter-moshi</artifactId>
+			<artifactId>converter-gson</artifactId>
 			<version>2.9.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>retrofit</artifactId>
 			<version>2.9.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by com.influxdb: influxdb-client -->
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>converter-scalars</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by com.influxdb: influxdb-client -->
+			<groupId>io.gsonfire</groupId>
+			<artifactId>gson-fire</artifactId>
+			<version>1.8.5</version>
 		</dependency>
 		<dependency>
 			<!-- JavaBeans Activation Framework -->
@@ -216,9 +227,24 @@
 			<version>1.2.5</version>
 		</dependency>
 		<dependency>
-			<groupId>org.influxdb</groupId>
-			<artifactId>influxdb-java</artifactId>
-			<version>2.22</version>
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-java</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-core</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-utils</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.influxdb</groupId>
+			<artifactId>flux-dsl</artifactId>
+			<version>4.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>

@@ -5,12 +5,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-import org.influxdb.dto.Point;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -25,11 +21,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
+import com.influxdb.client.domain.WritePrecision;
+import com.influxdb.client.write.Point;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -77,12 +75,8 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.influxConnector = new InfluxConnector(config.ip(), config.port(), config.username(), config.password(),
 				config.database(), config.retentionPolicy(), config.isReadOnly(), //
-				(failedPoints, throwable) -> {
-					var pointsString = StreamSupport.stream(failedPoints.spliterator(), false)//
-							.map(Point::lineProtocol) //
-							.collect(Collectors.joining(","));
-					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage() + " for "
-							+ StringUtils.toShortString(pointsString, 100));
+				throwable -> {
+					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage());
 				});
 		this.config = config;
 	}
@@ -114,7 +108,7 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 
 		if (++this.cycleCount >= this.config.noOfCycles()) {
 			this.cycleCount = 0;
-			final var point = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, TimeUnit.MILLISECONDS);
+			final var point = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, WritePrecision.MS);
 			final var addedAtLeastOneChannelValue = new AtomicBoolean(false);
 
 			this.componentManager.getEnabledComponents().stream().filter(OpenemsComponent::isEnabled)
@@ -171,18 +165,17 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 
 			if (addedAtLeastOneChannelValue.get()) {
 				try {
-					this.influxConnector.write(point.build());
+					this.influxConnector.write(point);
 				} catch (OpenemsException e) {
 					this.logError(this.log, e.getMessage());
 				}
 			}
-
 		}
 	}
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();
@@ -199,7 +192,7 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();

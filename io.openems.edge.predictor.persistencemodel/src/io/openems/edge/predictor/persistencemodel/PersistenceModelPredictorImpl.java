@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
@@ -74,7 +75,7 @@ public class PersistenceModelPredictorImpl extends AbstractPredictor24Hours
 		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult;
 		try {
 			queryResult = this.timedata.queryHistoricData(null, fromDate, now, Sets.newHashSet(channelAddress),
-					900 /* seconds per 15 minutes */);
+					new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());
 			e.printStackTrace();

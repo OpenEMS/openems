@@ -48,6 +48,7 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.session.Role;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
@@ -485,7 +486,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		if (this.lastSimulation == null || this.lastSimulation.collectedData.isEmpty()) {
 			// return empty result
@@ -539,7 +540,7 @@ public class SimulatorApp extends AbstractOpenemsComponent
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		throw new NotImplementedException("QueryHistoryEnergyPerPeriod is not implemented for Simulator-App");
 	}

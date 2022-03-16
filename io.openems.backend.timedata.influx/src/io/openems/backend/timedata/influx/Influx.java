@@ -7,12 +7,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import org.influxdb.InfluxDBException.FieldTypeConflictException;
-import org.influxdb.dto.Point;
-import org.influxdb.dto.Point.Builder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -26,6 +22,9 @@ import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import com.influxdb.client.domain.WritePrecision;
+import com.influxdb.client.write.Point;
+import com.influxdb.exceptions.BadRequestException;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.Edge;
@@ -35,9 +34,9 @@ import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.SemanticVersion;
-import io.openems.common.utils.StringUtils;
 import io.openems.shared.influxdb.InfluxConnector;
 
 @Designate(ocd = Config.class, factory = false)
@@ -78,14 +77,12 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 		this.influxConnector = new InfluxConnector(config.url(), config.port(), config.username(), config.password(),
 				config.database(), config.retentionPolicy(), config.isReadOnly(), //
-				(failedPoints, throwable) -> {
-					if (throwable instanceof FieldTypeConflictException) {
-						this.fieldTypeConflictHandler.handleException((FieldTypeConflictException) throwable);
+				(throwable) -> {
+					if (throwable instanceof BadRequestException) {
+						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
 					} else {
-						this.logError(this.log,
-								"Unable to write to InfluxDB. " + throwable.getClass().getSimpleName() + ": "
-										+ throwable.getMessage() + " for "
-										+ StringUtils.toShortString(failedPoints.toString(), 100));
+						this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
+								+ ": " + throwable.getMessage());
 					}
 				});
 	}
@@ -142,15 +139,15 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 			var timestamp = dataEntry.getKey();
 			// this builds an InfluxDB record ("point") for a given timestamp
-			var builder = Point //
+			var point = Point //
 					.measurement(InfluxConnector.MEASUREMENT) //
-					.tag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
-					.time(timestamp, TimeUnit.MILLISECONDS);
+					.addTag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
+					.time(timestamp, WritePrecision.MS);
 			for (Entry<ChannelAddress, JsonElement> channelEntry : channelEntries) {
-				this.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
+				this.addValue(point, channelEntry.getKey().toString(), channelEntry.getValue());
 			}
-			if (builder.hasFields()) {
-				this.influxConnector.write(builder.build());
+			if (point.hasFields()) {
+				this.influxConnector.write(point);
 			}
 		}
 	}
@@ -180,7 +177,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		// parse the numeric EdgeId
 		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
@@ -198,7 +195,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		// parse the numeric EdgeId
 		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
@@ -213,7 +210,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param field   the field name
 	 * @param element the value
 	 */
-	private void addValue(Builder builder, String field, JsonElement element) {
+	private void addValue(Point builder, String field, JsonElement element) {
 		if (element == null || element.isJsonNull()) {
 			// do not add
 			return;
@@ -258,7 +255,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param value   the value, guaranteed to be not-null and not JsonNull.
 	 * @return true if field was handled; false otherwise
 	 */
-	private boolean specialCaseFieldHandling(Builder builder, String field, JsonElement value) {
+	private boolean specialCaseFieldHandling(Point builder, String field, JsonElement value) {
 		var handler = this.fieldTypeConflictHandler.getHandler(field);
 		if (handler == null) {
 			// no special handling exists for this field

@@ -13,6 +13,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -67,7 +68,7 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = new TreeMap<>();
 		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> entry : this.data.subMap(fromDate, toDate)
@@ -90,7 +91,7 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		// TODO Auto-generated method stub
 		throw new NotImplementedException("DummyTimedata.queryHistoricEnergyPerPeriod() is not implemented");
