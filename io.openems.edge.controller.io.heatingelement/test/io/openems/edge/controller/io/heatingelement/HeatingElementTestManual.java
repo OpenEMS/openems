@@ -11,17 +11,20 @@ import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.edge.controller.io.heatingelement.enums.Level;
+import io.openems.edge.controller.io.heatingelement.enums.Mode;
+import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.test.DummyInputOutput;
 
 public class HeatingElementTestManual {
 
-	private final static String CTRL_ID = "ctrl0";
-	private final static String IO_ID = "io0";
+	private static final String CTRL_ID = "ctrl0";
+	private static final String IO_ID = "io0";
 
-	private final static ChannelAddress IO_OUTPUT1 = new ChannelAddress(IO_ID, "InputOutput1");
-	private final static ChannelAddress IO_OUTPUT2 = new ChannelAddress(IO_ID, "InputOutput2");
-	private final static ChannelAddress IO_OUTPUT3 = new ChannelAddress(IO_ID, "InputOutput3");
+	private static final ChannelAddress IO_OUTPUT1 = new ChannelAddress(IO_ID, "InputOutput1");
+	private static final ChannelAddress IO_OUTPUT2 = new ChannelAddress(IO_ID, "InputOutput2");
+	private static final ChannelAddress IO_OUTPUT3 = new ChannelAddress(IO_ID, "InputOutput3");
 
 	private static ControllerTest prepareTest(Mode mode, Level level) throws OpenemsNamedException, Exception {
 		return new ControllerTest(new ControllerHeatingElementImpl()) //
