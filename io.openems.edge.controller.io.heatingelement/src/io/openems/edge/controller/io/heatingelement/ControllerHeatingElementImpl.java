@@ -11,6 +11,9 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +27,12 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.io.heatingelement.enums.Level;
+import io.openems.edge.controller.io.heatingelement.enums.Phase;
+import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.IO.HeatingElement", //
@@ -31,13 +40,32 @@ import io.openems.edge.controller.api.Controller;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
-		implements ControllerHeatingElement, Controller, OpenemsComponent {
+		implements ControllerHeatingElement, Controller, OpenemsComponent, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerHeatingElementImpl.class);
 
+	/**
+	 * Definitions for each phase.
+	 */
 	private final PhaseDef phase1;
 	private final PhaseDef phase2;
 	private final PhaseDef phase3;
+
+	/**
+	 * Cumulated active time for each level.
+	 */
+	private final CalculateActiveTime totalTimeLevel1 = new CalculateActiveTime(this,
+			ControllerHeatingElement.ChannelId.LEVEL1_CUMULATED_TIME);
+	private final CalculateActiveTime totalTimeLevel2 = new CalculateActiveTime(this,
+			ControllerHeatingElement.ChannelId.LEVEL2_CUMULATED_TIME);
+	private final CalculateActiveTime totalTimeLevel3 = new CalculateActiveTime(this,
+			ControllerHeatingElement.ChannelId.LEVEL3_CUMULATED_TIME);
+
+	// Current Level
+	private Level currentLevel = Level.UNDEFINED;
+
+	// Last Level change time, used for the hysteresis
+	private LocalDateTime lastLevelChange = LocalDateTime.MIN;
 
 	private Config config;
 
@@ -51,6 +79,9 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	@Reference
 	protected Sum sum;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	public ControllerHeatingElementImpl() throws OpenemsNamedException {
 		super(//
@@ -118,6 +149,8 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		this.channel(ControllerHeatingElement.ChannelId.LEVEL1_TIME).setNextValue(phase1Time - phase2Time);
 		this.channel(ControllerHeatingElement.ChannelId.LEVEL2_TIME).setNextValue(phase2Time - phase3Time);
 		this.channel(ControllerHeatingElement.ChannelId.LEVEL3_TIME).setNextValue(phase3Time);
+
+		this.updateCumulatedActiveTime();
 	}
 
 	/**
@@ -195,7 +228,6 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 		// Apply Level
 		this.applyLevel(targetLevel);
-
 	}
 
 	/**
@@ -212,6 +244,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	 * <li>in {@link WorkMode#NONE}: always return 0
 	 * </ul>
 	 *
+	 * @param config the component {@link Config}
 	 * @return the minimum total phase time [s]
 	 */
 	private static long calculateMinimumTotalPhaseTime(Config config) {
@@ -276,6 +309,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	public void applyLevel(Level level) throws IllegalArgumentException, OpenemsNamedException {
 		// Update Channel
 		this.channel(ControllerHeatingElement.ChannelId.LEVEL).setNextValue(level);
+		this.currentLevel = level;
 
 		// Set phases accordingly
 		switch (level) {
@@ -330,9 +364,6 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		return this.currentLevel;
 	}
 
-	private Level currentLevel = Level.UNDEFINED;
-	private LocalDateTime lastLevelChange = LocalDateTime.MIN;
-
 	/**
 	 * Gets the configured Power-per-Phase in [W].
 	 *
@@ -345,9 +376,8 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	/**
 	 * Helper function to switch an output if it was not switched before.
 	 *
-	 * @param value                The boolean value which must set on the output
-	 *                             channel address.
-	 * @param outputChannelAddress The address of the channel.
+	 * @param phase {@link Phase}
+	 * @param value The boolean value which must set on the output channel address.
 	 * @throws OpenemsNamedException    on error.
 	 * @throws IllegalArgumentException on error.
 	 */
@@ -379,5 +409,38 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		}
 		assert true; // can never happen
 		return null;
+	}
+
+	/**
+	 * Update the total time of the level depending on the current level.
+	 */
+	private void updateCumulatedActiveTime() {
+		var level1Active = false;
+		var level2Active = false;
+		var level3Active = false;
+
+		switch (this.currentLevel) {
+		case LEVEL_0:
+		case UNDEFINED:
+			break;
+		case LEVEL_1:
+			level1Active = true;
+			break;
+		case LEVEL_2:
+			level2Active = true;
+			break;
+		case LEVEL_3:
+			level3Active = true;
+			break;
+		}
+
+		this.totalTimeLevel1.update(level1Active);
+		this.totalTimeLevel2.update(level2Active);
+		this.totalTimeLevel3.update(level3Active);
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }
