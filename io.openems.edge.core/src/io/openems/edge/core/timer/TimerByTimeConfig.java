@@ -1,4 +1,4 @@
-package io.openems.edge.common.timer;
+package io.openems.edge.core.timer;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

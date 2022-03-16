@@ -1,8 +1,10 @@
-package io.openems.edge.common.timer;
+package io.openems.edge.core.timer;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.timer.Timer;
+
 import org.osgi.service.cm.ConfigurationException;
 
 import java.time.Instant;
