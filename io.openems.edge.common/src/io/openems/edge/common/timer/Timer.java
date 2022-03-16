@@ -15,6 +15,7 @@ import java.time.Instant;
  * possible to support "n" identifier.
  */
 public interface Timer {
+
 	/**
 	 * Resets the Timer for the Component calling this method. Multiple Timer per
 	 * config are possible.
@@ -22,7 +23,7 @@ public interface Timer {
 	 * @param id         the openemsComponent id
 	 * @param identifier the identifier the component uses
 	 */
-	void reset(String id, String identifier);
+	public void reset(String id, String identifier);
 
 	/**
 	 * Check if the Time for this Component is up.
@@ -31,14 +32,14 @@ public interface Timer {
 	 * @param identifier the identifier the component uses.
 	 * @return true if Time is up.
 	 */
-	boolean checkIsTimeUp(String id, String identifier);
+	public boolean checkIsTimeUp(String id, String identifier);
 
 	/**
 	 * Removes the Component from the Timer.
 	 *
 	 * @param id of the Component you want to remove
 	 */
-	void removeComponent(String id);
+	public void removeComponent(String id);
 
 	/**
 	 * Adds an Identifier to the Timer. An Identifier is a Unique Id within a
@@ -49,7 +50,7 @@ public interface Timer {
 	 * @param identifier the identifier
 	 * @param maxValue   the maxValue (max CycleTime or maxTime to wait)
 	 */
-	void addIdentifierToTimer(String id, String identifier, int maxValue);
+	public void addIdentifierToTimer(String id, String identifier, int maxValue);
 
 	/**
 	 * Overrides the Initial Time. Use with caution.
@@ -58,7 +59,7 @@ public interface Timer {
 	 * @param time           the new initial Time.
 	 * @param identifierSwap one of the identifier of the component.
 	 */
-	void setInitTime(String id, String identifierSwap, Instant time);
+	public void setInitTime(String id, String identifierSwap, Instant time);
 
 	/**
 	 * Overrides the Initial Time. Use with caution.
@@ -67,5 +68,5 @@ public interface Timer {
 	 * @param count          new initial SetPoint of the counter.
 	 * @param identifierSwap one of the identifier of the component.
 	 */
-	void setInitTime(String id, String identifierSwap, Integer count);
+	public void setInitTime(String id, String identifierSwap, Integer count);
 }

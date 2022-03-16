@@ -24,7 +24,7 @@ public abstract class AbstractTimer extends AbstractOpenemsComponent implements 
 	 * containing the maxCycle/Time value as an Int. and the Boolean if the
 	 * identifier was initialized or not. On reset set the boolean to false.
 	 */
-	Map<String, Map<String, ValueInitializedWrapper>> componentToIdentifierValueAndInitializedMap = new HashMap<>();
+	protected final Map<String, Map<String, ValueInitializedWrapper>> componentToIdentifierValueAndInitializedMap = new HashMap<>();
 
 	/**
 	 * Removes the Component from the Timer.
@@ -59,7 +59,7 @@ public abstract class AbstractTimer extends AbstractOpenemsComponent implements 
 	 * @param identifier the identifier asked for.
 	 * @return the {@link ValueInitializedWrapper}
 	 */
-	ValueInitializedWrapper getWrapper(String id, String identifier) {
+	protected ValueInitializedWrapper getWrapper(String id, String identifier) {
 		if (this.componentToIdentifierValueAndInitializedMap.containsKey(id)
 				&& this.componentToIdentifierValueAndInitializedMap.get(id).containsKey(identifier)) {
 			return this.componentToIdentifierValueAndInitializedMap.get(id).get(identifier);

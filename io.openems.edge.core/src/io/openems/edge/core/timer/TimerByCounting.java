@@ -52,7 +52,7 @@ public class TimerByCounting extends AbstractTimer implements OpenemsComponent {
 	}
 
 	@Modified
-	void modified(ComponentContext context, TimerByCountingConfig config) {
+	private void modified(ComponentContext context, TimerByCountingConfig config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 	}
 

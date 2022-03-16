@@ -27,7 +27,7 @@ public interface TimerHandler {
 	 * @throws OpenemsError.OpenemsNamedException if timer cannot be found
 	 * @throws ConfigurationException             if Id not an instance of Timer
 	 */
-	void addOneIdentifier(String identifier, String timer, int maxTime)
+	public void addOneIdentifier(String identifier, String timer, int maxTime)
 			throws OpenemsError.OpenemsNamedException, ConfigurationException;
 
 	/**
@@ -38,12 +38,12 @@ public interface TimerHandler {
 	 *                   component id, will be used to determine if the Time for the
 	 *                   identifier is up.
 	 */
-	void resetTimer(String identifier);
+	public void resetTimer(String identifier);
 
 	/**
 	 * Removes all identifier/the component from the timer.
 	 */
-	void removeComponent();
+	public void removeComponent();
 
 	/**
 	 * Checks if the Time is up equivalent to the
@@ -52,7 +52,7 @@ public interface TimerHandler {
 	 * @param identifier one of the identifier of the component.
 	 * @return true if Time is up.
 	 */
-	boolean checkTimeIsUp(String identifier);
+	public boolean checkTimeIsUp(String identifier);
 
 	/**
 	 * Overrides the Initial Time. Use with caution.
@@ -60,7 +60,7 @@ public interface TimerHandler {
 	 * @param time           the new initial Time.
 	 * @param identifierSwap one of the identifier of the component.
 	 */
-	void setInitialTime(Instant time, String identifierSwap);
+	public void setInitialTime(Instant time, String identifierSwap);
 
 	/**
 	 * Overrides the Initial Time. Use with caution.
@@ -68,5 +68,5 @@ public interface TimerHandler {
 	 * @param count          new initial SetPoint of the counter.
 	 * @param identifierSwap one of the identifier of the component.
 	 */
-	void setInitialTime(Integer count, String identifierSwap);
+	public void setInitialTime(Integer count, String identifierSwap);
 }
