@@ -52,7 +52,7 @@ public abstract class JsonrpcResponseSuccess extends JsonrpcResponse {
 
 	/**
 	 * Gets the result of this {@link JsonrpcResponseSuccess}.
-	 * 
+	 *
 	 * @return a JsonObject with the 'result' property of the response
 	 */
 	public abstract JsonObject getResult();

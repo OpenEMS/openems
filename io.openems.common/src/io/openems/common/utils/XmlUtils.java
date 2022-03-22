@@ -15,7 +15,7 @@ public class XmlUtils {
 
 	/**
 	 * Converts a {@link NamedNodeMap} to a string representative.
-	 * 
+	 *
 	 * @param attrs the {@link NamedNodeMap}
 	 * @return a string
 	 */
@@ -29,7 +29,7 @@ public class XmlUtils {
 
 	/**
 	 * Gets the Sub-Node of a {@link NamedNodeMap} with the given name.
-	 * 
+	 *
 	 * @param attrs the {@link NamedNodeMap}
 	 * @param name  the name of the Sub-Node
 	 * @return the {@link Node}
@@ -47,7 +47,7 @@ public class XmlUtils {
 	/**
 	 * Gets the value of a Sub-Node of a {@link NamedNodeMap} with the given name as
 	 * String.
-	 * 
+	 *
 	 * @param attrs the {@link NamedNodeMap}
 	 * @param name  the name of the Sub-Node
 	 * @return the value of the {@link Node}
@@ -65,7 +65,7 @@ public class XmlUtils {
 	/**
 	 * Gets the value of a Sub-Node of a {@link NamedNodeMap} with the given name as
 	 * String; otherwise the alternative value.
-	 * 
+	 *
 	 * @param attrs the {@link NamedNodeMap}
 	 * @param name  the name of the Sub-Node
 	 * @param def   the alternative value
@@ -83,7 +83,7 @@ public class XmlUtils {
 	/**
 	 * Gets the value of a Sub-Node of a {@link NamedNodeMap} with the given name as
 	 * Integer.
-	 * 
+	 *
 	 * @param attrs the {@link NamedNodeMap}
 	 * @param name  the name of the Sub-Node
 	 * @return the value of the {@link Node}
@@ -100,7 +100,7 @@ public class XmlUtils {
 	/**
 	 * Gets the value of a Sub-Node of a {@link NamedNodeMap} with the given name as
 	 * Integer; otherwise the alternative value.
-	 * 
+	 *
 	 * @param attrs the {@link NamedNodeMap}
 	 * @param name  the name of the Sub-Node
 	 * @param def   the alternative value
@@ -118,7 +118,7 @@ public class XmlUtils {
 	/**
 	 * Gets the value of a Sub-Node of a {@link NamedNodeMap} with the given name as
 	 * Enum.
-	 * 
+	 *
 	 * @param <E>      the type of the {@link Enum}
 	 * @param enumType the class of the {@link Enum}
 	 * @param attrs    the {@link NamedNodeMap}
@@ -130,7 +130,7 @@ public class XmlUtils {
 			throws OpenemsNamedException {
 		var element = XmlUtils.getAsString(attrs, name);
 		try {
-			return (E) Enum.valueOf(enumType, element.toUpperCase());
+			return Enum.valueOf(enumType, element.toUpperCase());
 		} catch (IllegalArgumentException e) {
 			throw new OpenemsException(e);
 		}
@@ -139,7 +139,7 @@ public class XmlUtils {
 	/**
 	 * Gets the value of a Sub-Node of a {@link NamedNodeMap} with the given name as
 	 * Enum; otherwise the alternative value.
-	 * 
+	 *
 	 * @param <E>      the type of the {@link Enum}
 	 * @param enumType the class of the {@link Enum}
 	 * @param attrs    the {@link NamedNodeMap}
@@ -159,7 +159,7 @@ public class XmlUtils {
 	/**
 	 * Gets the value of a Sub-Node of a {@link NamedNodeMap} with the given name as
 	 * Boolean.
-	 * 
+	 *
 	 * @param attrs the {@link NamedNodeMap}
 	 * @param name  the name of the Sub-Node
 	 * @return the value of the {@link Node}
@@ -173,7 +173,7 @@ public class XmlUtils {
 	/**
 	 * Gets the value of a Sub-Node of a {@link NamedNodeMap} with the given name as
 	 * Boolean; otherwise the alternative value.
-	 * 
+	 *
 	 * @param attrs the {@link NamedNodeMap}
 	 * @param name  the name of the Sub-Node
 	 * @param def   the alternative value
@@ -190,7 +190,7 @@ public class XmlUtils {
 
 	/**
 	 * Gets the Content of a {@link Node}.
-	 * 
+	 *
 	 * @param node the {@link Node}
 	 * @return the text content as string
 	 */
@@ -200,7 +200,7 @@ public class XmlUtils {
 
 	/**
 	 * Gets the Content of a {@link Node} as Integer.
-	 * 
+	 *
 	 * @param node the {@link Node}
 	 * @return the text content as string
 	 */

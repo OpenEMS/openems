@@ -30,7 +30,7 @@ public class SystemLogNotification extends JsonrpcNotification {
 
 	/**
 	 * Parses a {@link JsonrpcNotification} to a {@link SystemLogNotification}.
-	 * 
+	 *
 	 * @param n the {@link JsonrpcNotification}
 	 * @return the {@link SystemLogNotification}
 	 * @throws OpenemsNamedException on error
@@ -43,7 +43,7 @@ public class SystemLogNotification extends JsonrpcNotification {
 
 	/**
 	 * Creates a {@link SystemLogNotification} from a {@link PaxLoggingEvent}.
-	 * 
+	 *
 	 * @param event the {@link PaxLoggingEvent}
 	 * @return the {@link SystemLogNotification}
 	 */

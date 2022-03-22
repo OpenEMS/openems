@@ -35,7 +35,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Asserts that the User is authenticated within a timeout.
-	 * 
+	 *
 	 * @param message a identification message on error
 	 * @param timeout the timeout length
 	 * @param unit    the {@link TimeUnit} of the timeout
@@ -90,7 +90,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Asserts that the Edge-ID is present.
-	 * 
+	 *
 	 * @param message a identification message on error
 	 * @return the Edge-ID
 	 * @throws OpenemsException on error

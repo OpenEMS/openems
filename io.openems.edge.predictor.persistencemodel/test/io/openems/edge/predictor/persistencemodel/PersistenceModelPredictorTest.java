@@ -14,7 +14,6 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
-import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class PersistenceModelPredictorTest {
@@ -26,8 +25,8 @@ public class PersistenceModelPredictorTest {
 
 	@Test
 	public void test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(
-				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
 		int[] values = {
 				// Day 1
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 146, 348, 636, 1192, 2092, 2882, 3181,
@@ -42,13 +41,13 @@ public class PersistenceModelPredictorTest {
 				477, 501, 547, 589, 1067, 13304, 17367, 14825, 13654, 12545, 8371, 10468, 9810, 8537, 6228, 3758, 4131,
 				3572, 1698, 1017, 569, 188, 14, 2, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-		DummyTimedata timedata = new DummyTimedata(TIMEDATA_ID);
-		ZonedDateTime start = ZonedDateTime.of(2019, 12, 30, 0, 0, 0, 0, ZoneId.of("UTC"));
-		for (int i = 0; i < values.length; i++) {
+		var timedata = new DummyTimedata(TIMEDATA_ID);
+		var start = ZonedDateTime.of(2019, 12, 30, 0, 0, 0, 0, ZoneId.of("UTC"));
+		for (var i = 0; i < values.length; i++) {
 			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
 		}
 
-		PersistenceModelPredictorImpl sut = new PersistenceModelPredictorImpl();
+		var sut = new PersistenceModelPredictorImpl();
 
 		new ComponentTest(sut) //
 				.addReference("timedata", timedata) //
@@ -58,8 +57,8 @@ public class PersistenceModelPredictorTest {
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()) //
 						.build());
 
-		Prediction24Hours prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
-		Integer[] p = prediction.getValues();
+		var prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
+		var p = prediction.getValues();
 
 		assertEquals((Integer) 0, p[0]);
 		assertEquals((Integer) 3, p[20]);

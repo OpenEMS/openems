@@ -64,6 +64,7 @@ public class EssLinearPowerBandImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

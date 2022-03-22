@@ -1,6 +1,7 @@
 package io.openems.edge.ess.core.power.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.math3.optim.linear.LinearConstraint;
@@ -14,7 +15,7 @@ public class LinearSolverUtil {
 
 	/**
 	 * Gets all Constraints converted to Linear Constraints.
-	 * 
+	 *
 	 * @param coefficients the data object
 	 * @param constraints  a list of Constraints
 	 * @return a list of LinearConstraints
@@ -24,7 +25,7 @@ public class LinearSolverUtil {
 		List<LinearConstraint> result = new ArrayList<>();
 		for (Constraint c : constraints) {
 			if (c.getValue().isPresent()) {
-				double[] cos = generateEmptyCoefficientsArray(coefficients.getNoOfCoefficients());
+				var cos = generateEmptyCoefficientsArray(coefficients.getNoOfCoefficients());
 				for (LinearCoefficient co : c.getCoefficients()) {
 					// TODO verify, that ESS is enabled
 					cos[co.getCoefficient().getIndex()] = co.getValue();
@@ -49,7 +50,7 @@ public class LinearSolverUtil {
 
 	/**
 	 * Gets an empty coefficients array required for linear solver.
-	 * 
+	 *
 	 * @param length the length of the array
 	 * @return an array of '0' coefficients
 	 */
@@ -59,15 +60,13 @@ public class LinearSolverUtil {
 
 	/**
 	 * Gets the linear objective function in the form 1*a + 1*b + 1*c + ...
-	 * 
+	 *
 	 * @param noOfCoefficients the number of coefficients of the objective function
 	 * @return a {@link LinearObjectiveFunction}
 	 */
 	public static LinearObjectiveFunction getDefaultObjectiveFunction(int noOfCoefficients) {
-		double[] cos = LinearSolverUtil.generateEmptyCoefficientsArray(noOfCoefficients);
-		for (int i = 0; i < cos.length; i++) {
-			cos[i] = 1;
-		}
+		var cos = LinearSolverUtil.generateEmptyCoefficientsArray(noOfCoefficients);
+		Arrays.fill(cos, 1);
 		return new LinearObjectiveFunction(cos, 0);
 	}
 }

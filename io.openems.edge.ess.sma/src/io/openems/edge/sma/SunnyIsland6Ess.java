@@ -71,6 +71,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 		this._setMaxApparentPower(SunnyIsland6Ess.MAX_APPARENT_POWER);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -86,6 +87,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 		SinglePhaseEss.initializeCopyPhaseChannel(this, this.phase);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -111,7 +113,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ModbusProtocol protocol = new ModbusProtocol(this, //
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(30051, Priority.ONCE, //
 						m(SiChannelId.DEVICE_CLASS, new UnsignedDoublewordElement(30051)), //
 						m(SiChannelId.DEVICE_TYPE, new UnsignedDoublewordElement(30053)).debug(), //
@@ -997,9 +999,7 @@ public class SunnyIsland6Ess extends AbstractOpenemsModbusComponent implements M
 				new FC16WriteRegistersTask(43090, //
 						m(SiChannelId.GRID_GUARD_CODE, new UnsignedDoublewordElement(43090))), //
 				new FC16WriteRegistersTask(40705, m(SiChannelId.MIN_SOC_POWER_ON, new UnsignedDoublewordElement(40705)), //
-						m(SiChannelId.MIN_SOC_POWER_OFF, new UnsignedDoublewordElement(40707)))); //
-
-		return protocol;
+						m(SiChannelId.MIN_SOC_POWER_OFF, new UnsignedDoublewordElement(40707))));
 	}
 
 	@Override

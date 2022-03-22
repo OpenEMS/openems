@@ -49,7 +49,7 @@ public class BoschBpts5HybridEss extends AbstractOpenemsComponent implements Sym
 				SymmetricEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this._setCapacity(CAPACITY); // TODO: get from read worker
+		this._setCapacity(this.CAPACITY); // TODO: get from read worker
 	}
 
 	@Activate
@@ -64,6 +64,7 @@ public class BoschBpts5HybridEss extends AbstractOpenemsComponent implements Sym
 		this.core.setEss(this);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.core != null) {

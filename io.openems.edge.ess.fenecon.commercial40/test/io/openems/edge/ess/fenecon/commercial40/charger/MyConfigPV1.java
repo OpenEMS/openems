@@ -42,7 +42,7 @@ public class MyConfigPV1 extends AbstractComponentConfig implements ConfigPV1 {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

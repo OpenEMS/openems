@@ -50,6 +50,7 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -82,6 +83,7 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -145,7 +147,7 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

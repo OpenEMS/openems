@@ -24,7 +24,7 @@ public interface SinglePhaseEss extends AsymmetricEss {
 
 	/**
 	 * Gets the Phase this ESS is connected to.
-	 * 
+	 *
 	 * @return
 	 */
 	public SinglePhase getPhase();
@@ -32,7 +32,7 @@ public interface SinglePhaseEss extends AsymmetricEss {
 	/**
 	 * Initializes Channel listeners. Copies the Active-Power Phase-Channel value to
 	 * Active-Power Channel.
-	 * 
+	 *
 	 * @param ess
 	 * @param phase
 	 */

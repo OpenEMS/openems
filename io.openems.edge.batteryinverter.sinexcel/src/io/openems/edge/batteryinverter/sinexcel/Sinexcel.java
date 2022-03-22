@@ -1,7 +1,5 @@
 package io.openems.edge.batteryinverter.sinexcel;
 
-import java.util.Optional;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
@@ -107,18 +105,16 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		INVERTER_GRID_MODE(Doc.of(OpenemsType.BOOLEAN) //
 				.text("On Grid") //
 				.onInit(c -> { //
-					BooleanReadChannel channel = (BooleanReadChannel) c;
-					Sinexcel self = (Sinexcel) channel.getComponent();
+					var channel = (BooleanReadChannel) c;
+					var self = (Sinexcel) channel.getComponent();
 					channel.onChange((oldValue, newValue) -> {
-						Optional<Boolean> value = newValue.asOptional();
+						var value = newValue.asOptional();
 						if (!value.isPresent()) {
 							self._setGridMode(GridMode.UNDEFINED);
+						} else if (value.get()) {
+							self._setGridMode(GridMode.ON_GRID);
 						} else {
-							if (value.get()) {
-								self._setGridMode(GridMode.ON_GRID);
-							} else {
-								self._setGridMode(GridMode.OFF_GRID);
-							}
+							self._setGridMode(GridMode.OFF_GRID);
 						}
 					});
 				})),
@@ -365,7 +361,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		COS_PHI(Doc.of(OpenemsType.FLOAT) //
 				.accessMode(AccessMode.READ_ONLY)), //
 
-		// TODO delete later, just for info whats inside ;)
+		// TODO delete later, just for info what's inside ;)
 		REACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_ONLY)), //
 
@@ -844,7 +840,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 
 	/**
 	 * Sets a the On-Grid-Mode. See {@link ChannelId#SET_ON_GRID_MODE}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -872,7 +868,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 
 	/**
 	 * Sets a the Off-Grid-Mode. See {@link ChannelId#SET_OFF_GRID_MODE}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -891,7 +887,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 
 	/**
 	 * Sends a START command to the inverter. See {@link ChannelId#START_INVERTER}.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setStartInverter() throws OpenemsNamedException {
@@ -909,7 +905,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 
 	/**
 	 * Sends a STOP command to the inverter. See {@link ChannelId#STOP_INVERTER}.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setStopInverter() throws OpenemsNamedException {

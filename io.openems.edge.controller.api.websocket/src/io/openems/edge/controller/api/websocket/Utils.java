@@ -11,7 +11,7 @@ import io.openems.common.session.Role;
 public class Utils {
 	/**
 	 * Gets the EdgeMetadata for one Edge.
-	 * 
+	 *
 	 * @param role the {@link Role} for this Edge
 	 * @return a list of {@link EdgeMetadata}s
 	 */

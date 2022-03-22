@@ -57,6 +57,7 @@ public class AsymmetricFixActivePower extends AbstractOpenemsComponent implement
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -73,7 +74,7 @@ public class AsymmetricFixActivePower extends AbstractOpenemsComponent implement
 
 	private void addConstraint(ManagedAsymmetricEss ess, Phase phase, int power) throws OpenemsException {
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, phase, Pwr.ACTIVE, power);
+		var calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, phase, Pwr.ACTIVE, power);
 
 		/*
 		 * set result

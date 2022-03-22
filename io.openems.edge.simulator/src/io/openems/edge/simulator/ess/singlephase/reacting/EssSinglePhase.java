@@ -65,6 +65,7 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -107,6 +108,7 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 		this._setGridMode(config.gridMode());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -154,8 +156,8 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 		/*
 		 * calculate State of charge
 		 */
-		float watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
-		float socChange = watthours / this.config.capacity();
+		var watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
+		var socChange = watthours / this.config.capacity();
 		this.soc -= socChange;
 		if (this.soc > 100) {
 			this.soc = 100;
@@ -249,7 +251,7 @@ public class EssSinglePhase extends AbstractOpenemsComponent
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateChargeEnergy.update(null);

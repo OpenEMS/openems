@@ -12,22 +12,22 @@ import com.google.common.collect.Multimaps;
 
 /**
  * Manages a number of {@link TasksManager}s.
- * 
+ *
  * <p>
  * A useful application for MetaTasksManager is to provide a list of Tasks that
  * need to be handled on an OpenEMS Cycle run.
- * 
+ *
  * @param <T>
  */
 public class MetaTasksManager<T extends ManagedTask> {
 
 	private final Multimap<String, TasksManager<T>> tasksManagers = Multimaps
 			.synchronizedListMultimap(ArrayListMultimap.create());
-	private Map<Priority, Queue<T>> nextTasks;
+	private final Map<Priority, Queue<T>> nextTasks;
 
 	public MetaTasksManager() {
 		// initialize Queues for next tasks
-		EnumMap<Priority, Queue<T>> nextTasks = new EnumMap<>(Priority.class);
+		var nextTasks = new EnumMap<Priority, Queue<T>>(Priority.class);
 		for (Priority priority : Priority.values()) {
 			nextTasks.put(priority, new LinkedList<>());
 		}
@@ -36,7 +36,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 
 	/**
 	 * Adds a TasksManager.
-	 * 
+	 *
 	 * @param sourceId a source identifier
 	 * @param task     the TasksManager
 	 */
@@ -46,7 +46,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 
 	/**
 	 * Removes a TasksManager.
-	 * 
+	 *
 	 * @param sourceId a source identifier
 	 * @param task     the TasksManager
 	 */
@@ -56,7 +56,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 
 	/**
 	 * Removes all TasksManagers with the given Source-ID.
-	 * 
+	 *
 	 * @param sourceId a source identifier
 	 */
 	public synchronized void removeTasksManager(String sourceId) {
@@ -65,11 +65,11 @@ public class MetaTasksManager<T extends ManagedTask> {
 
 	/**
 	 * Gets one task that with the given Priority sequentially.
-	 * 
+	 *
 	 * @return the next task; null if there are no tasks with the given Priority
 	 */
 	public synchronized T getOneTask(Priority priority) {
-		Queue<T> tasks = this.nextTasks.get(priority);
+		var tasks = this.nextTasks.get(priority);
 		if (tasks.isEmpty()) {
 			// refill the queue
 			for (TasksManager<T> tasksManager : this.tasksManagers.values()) {
@@ -83,7 +83,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 
 	/**
 	 * Gets all Tasks with the given Priority by their Source-ID.
-	 * 
+	 *
 	 * @param priority the priority
 	 * @return a list of tasks
 	 */
@@ -97,7 +97,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 
 	/**
 	 * Gets all Tasks with by their Source-ID.
-	 * 
+	 *
 	 * @param priority the priority
 	 * @return a list of tasks
 	 */
@@ -111,7 +111,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 
 	/**
 	 * Does this {@link TasksManager} have any Tasks?.
-	 * 
+	 *
 	 * @return true if there are Tasks
 	 */
 	public boolean hasTasks() {

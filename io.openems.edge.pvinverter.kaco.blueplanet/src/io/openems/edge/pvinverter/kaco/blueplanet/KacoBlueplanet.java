@@ -85,6 +85,7 @@ public class KacoBlueplanet extends AbstractSunSpecPvInverter implements SunSpec
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -94,10 +95,10 @@ public class KacoBlueplanet extends AbstractSunSpecPvInverter implements SunSpec
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
-			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

@@ -66,8 +66,9 @@ public class DeviceMonitorEvent extends EventObject {
 	DeviceMonitorEvent(int eventType, AbstractDeviceMonitor source, DSPortAdapter adapter, Vector<Long> addresses) {
 		super(source);
 
-		if (eventType != ARRIVAL && eventType != DEPARTURE)
+		if (eventType != ARRIVAL && eventType != DEPARTURE) {
 			throw new IllegalArgumentException("Invalid event type: " + eventType);
+		}
 		this.eventType = eventType;
 		this.monitor = source;
 		this.adapter = adapter;
@@ -116,8 +117,8 @@ public class DeviceMonitorEvent extends EventObject {
 	 * @return the OneWireContainer for the address at the specified index
 	 */
 	public OneWireContainer getContainerAt(int index) {
-		Long longAddress = (Long) this.vDeviceAddress.elementAt(index);
-		return AbstractDeviceMonitor.getDeviceContainer(adapter, longAddress);
+		var longAddress = this.vDeviceAddress.elementAt(index);
+		return AbstractDeviceMonitor.getDeviceContainer(this.adapter, longAddress);
 	}
 
 	/**
@@ -126,7 +127,7 @@ public class DeviceMonitorEvent extends EventObject {
 	 * @return the Path object for the device at the specified index
 	 */
 	public OWPath getPathForContainerAt(int index) {
-		Long longAddress = (Long) this.vDeviceAddress.elementAt(index);
+		var longAddress = this.vDeviceAddress.elementAt(index);
 		return this.monitor.getDevicePath(longAddress);
 	}
 
@@ -136,7 +137,7 @@ public class DeviceMonitorEvent extends EventObject {
 	 * @return the device address at the specified index
 	 */
 	public long getAddressAsLongAt(int index) {
-		return ((Long) this.vDeviceAddress.elementAt(index)).longValue();
+		return this.vDeviceAddress.elementAt(index).longValue();
 	}
 
 	/**
@@ -145,7 +146,7 @@ public class DeviceMonitorEvent extends EventObject {
 	 * @return the device address at the specified index
 	 */
 	public byte[] getAddressAt(int index) {
-		return Address.toByteArray(getAddressAsLongAt(index));
+		return Address.toByteArray(this.getAddressAsLongAt(index));
 	}
 
 	/**
@@ -154,6 +155,6 @@ public class DeviceMonitorEvent extends EventObject {
 	 * @return the device address at the specified index
 	 */
 	public String getAddressAsStringAt(int index) {
-		return Address.toString(getAddressAsLongAt(index));
+		return Address.toString(this.getAddressAsLongAt(index));
 	}
 }

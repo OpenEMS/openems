@@ -9,8 +9,8 @@ public class ConversionTest {
 	@Test
 	public void testShortConversions() {
 
-		int v1 = 0;
-		Short result = ModbusUtils.convert(v1, 0);
+		var v1 = 0;
+		var result = ModbusUtils.convert(v1, 0);
 		Short expected = 0;
 		assertEquals(expected, result);
 

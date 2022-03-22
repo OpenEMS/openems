@@ -1,7 +1,6 @@
 package io.openems.edge.evcs.keba.kecontact;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
@@ -51,7 +49,7 @@ public class WriteHandler implements Runnable {
 
 	/**
 	 * Sets the display text from SET_DISPLAY channel.
-	 * 
+	 *
 	 * <p>
 	 * Note:
 	 * <ul>
@@ -62,9 +60,9 @@ public class WriteHandler implements Runnable {
 	 */
 	private void setDisplay() {
 		WriteChannel<String> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_DISPLAY_TEXT);
-		Optional<String> valueOpt = channel.getNextWriteValueAndReset();
+		var valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
-			String display = valueOpt.get();
+			var display = valueOpt.get();
 			if (display.length() > 23) {
 				display = display.substring(0, 23);
 			}
@@ -73,7 +71,7 @@ public class WriteHandler implements Runnable {
 
 				this.parent.logInfoInDebugmode(this.log, "Setting KEBA KeContact display text to [" + display + "]");
 
-				boolean sentSuccessfully = parent.send("display 0 0 0 0 " + display);
+				var sentSuccessfully = this.parent.send("display 0 0 0 0 " + display);
 				if (sentSuccessfully) {
 					this.nextDisplayWrite = LocalDateTime.now().plusSeconds(WRITE_DISPLAY_INTERVAL_SECONDS);
 					this.lastDisplay = display;
@@ -87,7 +85,7 @@ public class WriteHandler implements Runnable {
 
 	/**
 	 * Sets the current from SET_CHARGE_POWER channel.
-	 * 
+	 *
 	 * <p>
 	 * Allowed loading current are between 6000mA and 63000mA. Invalid values are
 	 * discarded. The value is also depending on the DIP-switch settings and the
@@ -103,11 +101,11 @@ public class WriteHandler implements Runnable {
 
 			// Check current set_charge_power_limit write value
 			WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
-			Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+			var valueOpt = channel.getNextWriteValueAndReset();
 			if (valueOpt.isPresent()) {
 
-				Integer power = valueOpt.get();
-				Value<Integer> phases = this.parent.getPhases();
+				var power = valueOpt.get();
+				var phases = this.parent.getPhases();
 				Integer current = power * 1000 / phases.orElse(3) /* e.g. 3 phases */ / 230; /* voltage */
 				// limits the charging value because KEBA knows only values between 6000 and
 				// 63000
@@ -120,7 +118,7 @@ public class WriteHandler implements Runnable {
 
 				if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
 
-					this.parent.logInfoInDebugmode(log, "Setting KEBA " + this.parent.alias() + " current to ["
+					this.parent.logInfoInDebugmode(this.log, "Setting KEBA " + this.parent.alias() + " current to ["
 							+ current + " A] - calculated from [" + power + " W] by " + phases.orElse(3) + " Phase");
 
 					this.setTarget(current, power);
@@ -132,7 +130,7 @@ public class WriteHandler implements Runnable {
 			} catch (OpenemsNamedException e) {
 				e.printStackTrace();
 			}
-			this.parent.logInfoInDebugmode(log, "Maximum energy limit reached");
+			this.parent.logInfoInDebugmode(this.log, "Maximum energy limit reached");
 			this.parent._setStatus(Status.ENERGY_LIMIT_REACHED);
 
 			if (!this.lastCurrent.equals(0) || this.parent.getChargePower().orElse(0) != 0) {
@@ -143,19 +141,19 @@ public class WriteHandler implements Runnable {
 
 	/**
 	 * Set current target to the charger.
-	 * 
+	 *
 	 * @param current current target in mA
 	 * @param power   current target in W
 	 */
 	private void setTarget(int current, int power) {
 		try {
 			Channel<Integer> currPower = this.parent.channel(KebaChannelId.ACTUAL_POWER);
-			this.parent.setDisplayText((currPower.value().orElse(0) / 1000) + "W");
+			this.parent.setDisplayText(currPower.value().orElse(0) / 1000 + "W");
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
 
-		boolean sentSuccessfully = parent.send("currtime " + current + " 1");
+		var sentSuccessfully = this.parent.send("currtime " + current + " 1");
 		if (sentSuccessfully) {
 			this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 			this.lastCurrent = current;
@@ -172,10 +170,10 @@ public class WriteHandler implements Runnable {
 
 		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
 
-		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+		var valueOpt = channel.getNextWriteValueAndReset();
 
 		if (valueOpt.isPresent()) {
-			Integer energyLimit = valueOpt.get();
+			var energyLimit = valueOpt.get();
 
 			// Set if the energy target to set changed
 			if (!energyLimit.equals(this.lastEnergySession)) {

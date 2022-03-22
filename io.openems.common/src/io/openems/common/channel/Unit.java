@@ -262,7 +262,7 @@ public enum Unit {
 
 	/**
 	 * Gets the value in its base unit, e.g. converts [kW] to [W].
-	 * 
+	 *
 	 * @param value the value
 	 * @return the converted value
 	 */
@@ -276,11 +276,11 @@ public enum Unit {
 
 	/**
 	 * Formats the value in the given type.
-	 * 
+	 *
 	 * <p>
 	 * For most cases this adds the unit symbol to the value, like "123 kW".
 	 * Booleans are converted to "ON" or "OFF".
-	 * 
+	 *
 	 * @param value the value {@link Object}
 	 * @param type  the {@link OpenemsType}
 	 * @return the formatted value as String

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,7 +22,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -58,18 +58,18 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	/**
 	 * Gets the current network configuration for systemd-networkd.
-	 * 
+	 *
 	 * @return the current network configuration
 	 * @throws OpenemsException on error
 	 */
 	@Override
 	public NetworkConfiguration getNetworkConfiguration() throws OpenemsNamedException {
-		File path = Paths.get(NETWORK_BASE_PATH).toFile();
+		var path = Paths.get(NETWORK_BASE_PATH).toFile();
 		if (!path.exists()) {
 			throw new OpenemsException("Base-Path [" + path + "] does not exist.");
 		}
 
-		TreeMap<String, NetworkInterface<?>> interfaces = new TreeMap<>();
+		var interfaces = new TreeMap<String, NetworkInterface<?>>();
 
 		for (final File file : path.listFiles()) {
 			/*
@@ -82,7 +82,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				/*
 				 * Parse the content of the network configuration file
 				 */
-				List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.US_ASCII);
+				var lines = Files.readAllLines(file.toPath(), StandardCharsets.US_ASCII);
 				NetworkInterface<File> networkInterface = parseSystemdNetworkdConfigurationFile(lines, file);
 
 				// check for null value
@@ -101,7 +101,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	/**
 	 * Handles a SetNetworkConfigRequest for systemd-networkd.
-	 * 
+	 *
 	 * @param oldNetworkConfiguration the current/old network configuration
 	 * @param request                 the JSON-RPC request
 	 * @throws OpenemsException on error
@@ -109,8 +109,8 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	@Override
 	public void handleSetNetworkConfigRequest(NetworkConfiguration oldNetworkConfiguration,
 			SetNetworkConfigRequest request) throws OpenemsNamedException {
-		boolean isChanged = false;
-		List<NetworkInterface<?>> networkInterfaces = request.getNetworkInterface();
+		var isChanged = false;
+		var networkInterfaces = request.getNetworkInterface();
 		for (NetworkInterface<?> networkInterface : networkInterfaces) {
 			NetworkInterface<?> iface = oldNetworkConfiguration.getInterfaces().get(networkInterface.getName());
 			if (iface == null) {
@@ -130,8 +130,8 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		IOException writeException = null;
 		for (Entry<String, NetworkInterface<?>> entry : oldNetworkConfiguration.getInterfaces().entrySet()) {
 			NetworkInterface<?> iface = entry.getValue();
-			File file = (File) iface.getAttachment();
-			List<String> lines = this.toFileFormat(iface);
+			var file = (File) iface.getAttachment();
+			var lines = this.toFileFormat(iface);
 			try {
 				Files.write(file.toPath(), lines, StandardCharsets.US_ASCII);
 			} catch (IOException e) {
@@ -152,7 +152,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	/**
 	 * Helper function to match a String in the configuration file.
-	 * 
+	 *
 	 * @param pattern  the regular expression pattern
 	 * @param line     the line of the file
 	 * @param callback the callback that should get called
@@ -160,7 +160,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	 */
 	private static void onMatchString(Pattern pattern, String line,
 			ThrowingConsumer<String, OpenemsNamedException> callback) throws OpenemsNamedException {
-		Matcher matcher = pattern.matcher(line);
+		var matcher = pattern.matcher(line);
 		if (matcher.find() && matcher.groupCount() > 0) {
 			callback.accept(matcher.group(1));
 		}
@@ -168,7 +168,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	/**
 	 * Helper function to match an Inet4Address in the configuration file.
-	 * 
+	 *
 	 * @param pattern  the regular expression pattern
 	 * @param line     the line of the file
 	 * @param callback the callback that should get called
@@ -178,7 +178,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			ThrowingConsumer<Inet4Address, OpenemsNamedException> callback) throws OpenemsNamedException {
 		onMatchString(pattern, line, property -> {
 			try {
-				callback.accept((Inet4Address) Inet4Address.getByName(property));
+				callback.accept((Inet4Address) InetAddress.getByName(property));
 			} catch (UnknownHostException e) {
 				throw new OpenemsException("Unable to parse IPv4 address [" + property + "]: " + e.getMessage());
 			}
@@ -187,7 +187,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	/**
 	 * Converts the NetworkInterface object to systemd-networkd file format.
-	 * 
+	 *
 	 * @param iface the input network interface configuration
 	 * @return a list of strings for writing it to a file
 	 */
@@ -221,7 +221,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	@Override
 	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteCommandRequest(
 			ExecuteSystemCommandRequest request) {
-		CompletableFuture<ExecuteSystemCommandResponse> result = new CompletableFuture<>();
+		var result = new CompletableFuture<ExecuteSystemCommandResponse>();
 
 		try {
 			Process proc;
@@ -255,7 +255,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				/*
 				 * run in background
 				 */
-				String[] stdout = new String[] { //
+				String[] stdout = { //
 						"Command [" + request.getCommand() + "] executed in background...", //
 						"Check system logs for more information." };
 				result.complete(new ExecuteSystemCommandResponse(request.getId(), stdout, new String[0], 0));
@@ -273,7 +273,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 							proc.destroy();
 						}
 
-						List<String> stdout = stdoutFuture.get(1, TimeUnit.SECONDS);
+						var stdout = stdoutFuture.get(1, TimeUnit.SECONDS);
 						stderr.addAll(stderrFuture.get(1, TimeUnit.SECONDS));
 						result.complete(new ExecuteSystemCommandResponse(request.getId(), //
 								stdout.toArray(new String[stdout.size()]), //
@@ -340,10 +340,9 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		try {
 			if (!Files.exists(UDEV_PATH)) {
 				return "";
-			} else {
-				List<String> lines = Files.readAllLines(UDEV_PATH, StandardCharsets.US_ASCII);
-				return String.join("\n", lines);
 			}
+			var lines = Files.readAllLines(UDEV_PATH, StandardCharsets.US_ASCII);
+			return String.join("\n", lines);
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to read file [" + UDEV_PATH + "]: " + e.getMessage());
 		}
@@ -361,12 +360,12 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 
 	/**
 	 * Parses a Systemd-Networkd configuration file.
-	 * 
+	 *
 	 * <p>
 	 * See <a href=
 	 * "https://man7.org/linux/man-pages/man5/systemd.network.5.html">systemd.network.5</a>
 	 * man page
-	 * 
+	 *
 	 * @param <A>        the type of the attachment
 	 * @param lines      the lines to parse
 	 * @param attachment to be added as an attachment to the
@@ -376,17 +375,14 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	 */
 	protected static <A> NetworkInterface<A> parseSystemdNetworkdConfigurationFile(List<String> lines, A attachment)
 			throws OpenemsNamedException {
-		Block currentBlock = Block.UNDEFINED;
-		final AtomicReference<String> name = new AtomicReference<>();
-		final AtomicReference<ConfigurationProperty<Boolean>> dhcp = new AtomicReference<>(
+		var currentBlock = Block.UNDEFINED;
+		final var name = new AtomicReference<String>();
+		final var dhcp = new AtomicReference<ConfigurationProperty<Boolean>>(ConfigurationProperty.asNotSet());
+		final var linkLocalAddressing = new AtomicReference<ConfigurationProperty<Boolean>>(
 				ConfigurationProperty.asNotSet());
-		final AtomicReference<ConfigurationProperty<Boolean>> linkLocalAddressing = new AtomicReference<>(
-				ConfigurationProperty.asNotSet());
-		final AtomicReference<ConfigurationProperty<Inet4Address>> gateway = new AtomicReference<>(
-				ConfigurationProperty.asNotSet());
-		final AtomicReference<ConfigurationProperty<Inet4Address>> dns = new AtomicReference<>(
-				ConfigurationProperty.asNotSet());
-		final AtomicReference<ConfigurationProperty<Set<Inet4AddressWithNetmask>>> addresses = new AtomicReference<>(
+		final var gateway = new AtomicReference<ConfigurationProperty<Inet4Address>>(ConfigurationProperty.asNotSet());
+		final var dns = new AtomicReference<ConfigurationProperty<Inet4Address>>(ConfigurationProperty.asNotSet());
+		final var addresses = new AtomicReference<ConfigurationProperty<Set<Inet4AddressWithNetmask>>>(
 				ConfigurationProperty.asNotSet());
 
 		for (String line : lines) {
@@ -420,7 +416,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				break;
 			case NETWORK:
 				onMatchString(NETWORK_ADDRESS, line, property -> {
-					Set<Inet4AddressWithNetmask> content = addresses.get().getValue();
+					var content = addresses.get().getValue();
 					if (content == null) {
 						content = new HashSet<>();
 					}
@@ -444,7 +440,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				break;
 			}
 		}
-		return new NetworkInterface<A>(name.get(), //
+		return new NetworkInterface<>(name.get(), //
 				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), attachment);
 	}
 

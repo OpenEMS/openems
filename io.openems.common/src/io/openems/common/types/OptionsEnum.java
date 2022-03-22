@@ -9,21 +9,21 @@ public interface OptionsEnum {
 	 *
 	 * @return the int representation
 	 */
-	int getValue();
+	public int getValue();
 
 	/**
 	 * Gets this enums String representation.
 	 *
 	 * @return the String representation
 	 */
-	String getName();
+	public String getName();
 
 	/**
 	 * Gets the enum that is used for 'UNDEFINED' values.
 	 *
 	 * @return the UNDEFINED enum
 	 */
-	OptionsEnum getUndefined();
+	public OptionsEnum getUndefined();
 
 	/**
 	 * Gets the name in CamelCase format.

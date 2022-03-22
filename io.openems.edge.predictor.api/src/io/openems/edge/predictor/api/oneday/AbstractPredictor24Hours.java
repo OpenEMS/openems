@@ -23,7 +23,7 @@ public abstract class AbstractPredictor24Hours extends AbstractOpenemsComponent
 	}
 
 	private final Map<ChannelAddress, PredictionContainer> predictions = new HashMap<>();
-	private ChannelAddress[] channelAddresses = new ChannelAddress[0];
+	private ChannelAddress[] channelAddresses = {};
 
 	protected abstract ClockProvider getClockProvider();
 
@@ -34,6 +34,7 @@ public abstract class AbstractPredictor24Hours extends AbstractOpenemsComponent
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
 
+	@Override
 	protected final void activate(ComponentContext context, String id, String alias, boolean enabled) {
 		throw new IllegalArgumentException("use the other activate method!");
 	}
@@ -41,8 +42,8 @@ public abstract class AbstractPredictor24Hours extends AbstractOpenemsComponent
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
 			String[] channelAddresses) throws OpenemsNamedException {
 		super.activate(context, id, alias, enabled);
-		ChannelAddress[] channelAddressesArray = new ChannelAddress[channelAddresses.length];
-		for (int i = 0; i < channelAddresses.length; i++) {
+		var channelAddressesArray = new ChannelAddress[channelAddresses.length];
+		for (var i = 0; i < channelAddresses.length; i++) {
 			channelAddressesArray[i] = ChannelAddress.fromString(channelAddresses[i]);
 		}
 		this.channelAddresses = channelAddressesArray;
@@ -55,15 +56,15 @@ public abstract class AbstractPredictor24Hours extends AbstractOpenemsComponent
 
 	@Override
 	public Prediction24Hours get24HoursPrediction(ChannelAddress channelAddress) {
-		ZonedDateTime now = roundZonedDateTimeDownTo15Minutes(ZonedDateTime.now(this.getClockProvider().getClock()));
-		PredictionContainer container = this.predictions.get(channelAddress);
+		var now = roundZonedDateTimeDownTo15Minutes(ZonedDateTime.now(this.getClockProvider().getClock()));
+		var container = this.predictions.get(channelAddress);
 		if (container == null) {
 			container = new PredictionContainer();
 			this.predictions.put(channelAddress, container);
 		}
 		if (container.latestPredictionTimestamp == null || now.isAfter(container.latestPredictionTimestamp)) {
 			// Create new prediction
-			Prediction24Hours prediction = this.createNewPrediction(channelAddress);
+			var prediction = this.createNewPrediction(channelAddress);
 			container.latestPrediction = prediction;
 			container.latestPredictionTimestamp = now;
 		} else {
@@ -74,12 +75,12 @@ public abstract class AbstractPredictor24Hours extends AbstractOpenemsComponent
 
 	/**
 	 * Rounds a {@link ZonedDateTime} down to 15 minutes.
-	 * 
+	 *
 	 * @param d the {@link ZonedDateTime}
 	 * @return the rounded result
 	 */
 	private static ZonedDateTime roundZonedDateTimeDownTo15Minutes(ZonedDateTime d) {
-		int minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
+		var minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
 		return d.with(ChronoField.NANO_OF_DAY, 0).plus(minuteOfDay / 15 * 15, ChronoUnit.MINUTES);
 	}
 

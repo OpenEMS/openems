@@ -37,7 +37,7 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 
 	/**
 	 * Parses a JSON String to a {@link JsonrpcResponseError}.
-	 * 
+	 *
 	 * @param json the JSON String
 	 * @return the {@link JsonrpcResponseError}
 	 * @throws OpenemsNamedException on error
@@ -48,7 +48,7 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 
 	/**
 	 * Parses a {@link JsonObject} to a {@link JsonrpcResponseError}.
-	 * 
+	 *
 	 * @param j the {@link JsonObject}
 	 * @return the {@link JsonrpcResponseError}
 	 * @throws OpenemsNamedException on error
@@ -136,7 +136,7 @@ public class JsonrpcResponseError extends JsonrpcResponse {
 
 	/**
 	 * Gets the error message parameters as Object array.
-	 * 
+	 *
 	 * @return the array of error message parameters
 	 */
 	public Object[] getParamsAsObjectArray() {

@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
@@ -75,6 +76,7 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 				this.config.channelAddresses());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -88,16 +90,16 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 	@Override
 	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
 
-		ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock());
+		var now = ZonedDateTime.now(this.componentManager.getClock());
 		// From now time to Last 4 weeks
-		ZonedDateTime fromDate = now.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
+		var fromDate = now.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
 
 		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult;
 
 		// Query database
 		try {
 			queryResult = this.timedata.queryHistoricData(null, fromDate, now, Sets.newHashSet(channelAddress),
-					900 /* seconds per 15 minutes */);
+					new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());
 			e.printStackTrace();
@@ -106,32 +108,30 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 
 		// Extract data
 		List<Integer> result = queryResult.values().stream() //
-				.map(m -> m.values()) //
+				.map(SortedMap::values) //
 				// extract JsonElement values as flat stream
 				.flatMap(Collection::stream) //
 				// convert JsonElement to Integer
 				.map(v -> {
 					if (v.isJsonNull()) {
 						return (Integer) null;
-					} else {
-						return v.getAsInt();
 					}
+					return v.getAsInt();
 				})
 				// get as Array
 				.collect(Collectors.toList());
 
 		// Num of Data per day
 		// TODO change this variable based on the resolution which is 900 in query
-		int numOfDataPerDay = 96;
+		var numOfDataPerDay = 96;
 
-		List<List<Integer>> mainData = getSlicedArrayList(result, numOfDataPerDay);
+		var mainData = getSlicedArrayList(result, numOfDataPerDay);
 
 		// Getting the indexes of the last four similar days
-		List<List<Integer>> lastFourSimilarDays = getCorrectIndexes(mainData, NUM_OF_DAYS_OF_WEEK,
-				PREDCTION_FOR_ONE_DAY);
+		var lastFourSimilarDays = getCorrectIndexes(mainData, NUM_OF_DAYS_OF_WEEK, PREDCTION_FOR_ONE_DAY);
 
 		// Getting the average predictions
-		List<Integer> nextOneDayPredictions = getAverage(lastFourSimilarDays);		
+		var nextOneDayPredictions = getAverage(lastFourSimilarDays);
 
 		return new Prediction24Hours(nextOneDayPredictions.stream().toArray(Integer[]::new));
 	}
@@ -139,14 +139,14 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 	/**
 	 * This methods takes a List of integers and returns a 2dimension List of
 	 * integers, specific to correct days.
-	 * 
+	 *
 	 * @param arrlist array list of all data.
 	 * @param n       number of data per day.
 	 * @return 2dimension array list
 	 */
 	private static List<List<Integer>> getSlicedArrayList(List<Integer> arrlist, int n) {
-		List<List<Integer>> twoDimensionalArrayList = new ArrayList<List<Integer>>();
-		for (int i = 0; i < arrlist.size(); i = i + n) {
+		List<List<Integer>> twoDimensionalArrayList = new ArrayList<>();
+		for (var i = 0; i < arrlist.size(); i = i + n) {
 			twoDimensionalArrayList.add(arrlist.subList(i, i + n));
 		}
 		return twoDimensionalArrayList;
@@ -155,17 +155,17 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 
 	/**
 	 * This methods get the average of data based on the indexes.
-	 * 
+	 *
 	 * @param twoDimensionalArrayList The actual data.
 	 * @return Average values of the last four days.
 	 */
 	private static List<Integer> getAverage(List<List<Integer>> twoDimensionalArrayList) {
-		List<Integer> averageList = new ArrayList<Integer>();
-		int rows = twoDimensionalArrayList.size();
-		int cols = twoDimensionalArrayList.get(0).size();
-		for (int i = 0; i < cols; i++) {
-			int sumRow = 0;
-			for (int j = 0; j < rows; j++) {
+		List<Integer> averageList = new ArrayList<>();
+		var rows = twoDimensionalArrayList.size();
+		var cols = twoDimensionalArrayList.get(0).size();
+		for (var i = 0; i < cols; i++) {
+			var sumRow = 0;
+			for (var j = 0; j < rows; j++) {
 				if (twoDimensionalArrayList.get(j).get(i) != null) {
 					sumRow += twoDimensionalArrayList.get(j).get(i);
 				}
@@ -178,7 +178,7 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 
 	/**
 	 * Data manipulation, to get the proper indexes.
-	 * 
+	 *
 	 * @param mainData      all data points.
 	 * @param numDaysOfWeek total number of days of week.
 	 * @param whichDay      current actual day.
@@ -186,9 +186,9 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 	 */
 	private static List<List<Integer>> getCorrectIndexes(List<List<Integer>> mainData, int numDaysOfWeek,
 			int whichDay) {
-		List<Integer> indexes = new ArrayList<Integer>();
-		List<List<Integer>> days = new ArrayList<List<Integer>>();
-		for (int i = 0; i < mainData.size(); i++) {
+		List<Integer> indexes = new ArrayList<>();
+		List<List<Integer>> days = new ArrayList<>();
+		for (var i = 0; i < mainData.size(); i++) {
 			if (isMember(whichDay, numDaysOfWeek, i)) {
 				indexes.add(i);
 			}
@@ -204,17 +204,17 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 
 	/**
 	 * Check if the day belongs to correct day.
-	 * 
+	 *
 	 * @param whichDay      current actual day.
 	 * @param numDaysOfWeek total number of days of week.
 	 * @param nthTerm       nthterm
-	 * @return boolean value to represent is value memeber of correct day
+	 * @return boolean value to represent is value member of correct day
 	 */
 	private static boolean isMember(int whichDay, int numDaysOfWeek, int nthTerm) {
 		if (numDaysOfWeek == 0) {
-			return (nthTerm == whichDay);
+			return nthTerm == whichDay;
 		}
-		return ((nthTerm - whichDay) % numDaysOfWeek == 0 && (nthTerm - whichDay) / numDaysOfWeek >= 0);
+		return (nthTerm - whichDay) % numDaysOfWeek == 0 && (nthTerm - whichDay) / numDaysOfWeek >= 0;
 
 	}
 

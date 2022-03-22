@@ -6,7 +6,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 
 /**
  * Wraps a JSON-RPC Request to query the available OneWire devices.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",

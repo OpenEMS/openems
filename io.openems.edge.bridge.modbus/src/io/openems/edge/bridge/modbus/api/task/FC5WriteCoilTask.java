@@ -1,12 +1,9 @@
 package io.openems.edge.bridge.modbus.api.task;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.WriteCoilRequest;
 import com.ghgande.j2mod.modbus.msg.WriteCoilResponse;
 
@@ -29,10 +26,10 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 
 	@Override
 	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
-		int noOfWrittenCoils = 0;
+		var noOfWrittenCoils = 0;
 		ModbusElement<?> element = this.getElements()[0];
 		if (element instanceof ModbusCoilElement) {
-			Optional<Boolean> valueOpt = ((ModbusCoilElement) element).getNextWriteValueAndReset();
+			var valueOpt = ((ModbusCoilElement) element).getNextWriteValueAndReset();
 			if (valueOpt.isPresent()) {
 				// found value -> write
 				boolean value = valueOpt.get();
@@ -56,15 +53,15 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 				}
 			}
 		} else {
-			log.warn("Unable to execute Write for ModbusElement [" + element + "]: No ModbusCoilElement!");
+			this.log.warn("Unable to execute Write for ModbusElement [" + element + "]: No ModbusCoilElement!");
 		}
 		return noOfWrittenCoils;
 	}
 
 	private void writeCoil(AbstractModbusBridge bridge, int unitId, int startAddress, boolean value)
 			throws OpenemsException, ModbusException {
-		WriteCoilRequest request = new WriteCoilRequest(startAddress, value);
-		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
+		var request = new WriteCoilRequest(startAddress, value);
+		var response = Utils.getResponse(request, unitId, bridge);
 
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {

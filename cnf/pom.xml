@@ -27,12 +27,12 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.8.9</version>
+			<version>2.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>31.0.1-jre</version>
+			<version>31.1-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -40,19 +40,18 @@
 			<version>1.0.1</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
 			<groupId>com.squareup.moshi</groupId>
 			<artifactId>moshi</artifactId>
 			<version>1.12.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
 			<version>3.14.9</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
 			<version>3.14.9</version>
@@ -64,16 +63,28 @@
 			<version>1.17.2</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
-			<artifactId>converter-moshi</artifactId>
+			<artifactId>converter-gson</artifactId>
 			<version>2.9.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by org.influxdb: influxdb-java -->
+			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>retrofit</artifactId>
 			<version>2.9.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by com.influxdb: influxdb-client -->
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>converter-scalars</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+		<dependency>
+			<!-- Used by com.influxdb: influxdb-client -->
+			<groupId>io.gsonfire</groupId>
+			<artifactId>gson-fire</artifactId>
+			<version>1.8.5</version>
 		</dependency>
 		<dependency>
 			<!-- JavaBeans Activation Framework -->
@@ -216,9 +227,24 @@
 			<version>1.2.5</version>
 		</dependency>
 		<dependency>
-			<groupId>org.influxdb</groupId>
-			<artifactId>influxdb-java</artifactId>
-			<version>2.22</version>
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-java</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-core</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-utils</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.influxdb</groupId>
+			<artifactId>flux-dsl</artifactId>
+			<version>4.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
@@ -275,7 +301,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.3.2</version>
+			<version>42.3.3</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
@@ -286,12 +312,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.35</version>
+			<version>1.7.36</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.35</version>
+			<version>1.7.36</version>
 		</dependency>
 	</dependencies>
 </project>

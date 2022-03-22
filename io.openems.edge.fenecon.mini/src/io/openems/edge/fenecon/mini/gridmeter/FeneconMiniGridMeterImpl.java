@@ -57,6 +57,7 @@ public class FeneconMiniGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -79,6 +80,7 @@ public class FeneconMiniGridMeterImpl extends AbstractOpenemsModbusComponent imp
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -133,7 +135,7 @@ public class FeneconMiniGridMeterImpl extends AbstractOpenemsModbusComponent imp
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

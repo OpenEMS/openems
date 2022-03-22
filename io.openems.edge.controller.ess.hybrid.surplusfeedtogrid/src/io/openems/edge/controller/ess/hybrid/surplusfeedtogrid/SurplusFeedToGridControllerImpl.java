@@ -54,6 +54,7 @@ public class SurplusFeedToGridControllerImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -61,7 +62,7 @@ public class SurplusFeedToGridControllerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		Integer surplusPower = this.ess.getSurplusPower();
+		var surplusPower = this.ess.getSurplusPower();
 
 		// No surplus power by Ess? -> stop
 		if (surplusPower == null) {
@@ -69,10 +70,10 @@ public class SurplusFeedToGridControllerImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		ManagedSymmetricEss managedEss = (ManagedSymmetricEss) this.ess;
+		var managedEss = (ManagedSymmetricEss) this.ess;
 
 		// Get maximum possible surplus feed-in power
-		int maxDischargePower = managedEss.getPower().getMaxPower(managedEss, Phase.ALL, Pwr.ACTIVE);
+		var maxDischargePower = managedEss.getPower().getMaxPower(managedEss, Phase.ALL, Pwr.ACTIVE);
 
 		// Is surplus power limited by a higher priority Controller? -> set info state
 		final int minDischargePower;

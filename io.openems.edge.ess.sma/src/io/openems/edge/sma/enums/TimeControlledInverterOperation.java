@@ -6,7 +6,7 @@ public enum TimeControlledInverterOperation implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	YES(1129, "Yes"), //
 	NO(1130, "No");
-	
+
 	private final int value;
 	private final String name;
 
@@ -17,12 +17,12 @@ public enum TimeControlledInverterOperation implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

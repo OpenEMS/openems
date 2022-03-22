@@ -116,14 +116,6 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  */
 @SuppressWarnings({ "unused" })
 public class OneWireContainer37 extends OneWireContainer implements PasswordContainer {
-	// enables/disables debugging
-	private static final boolean DEBUG = false;
-
-	// when reading a page, the memory bank may throw a crc exception if the device
-	// is sampling or starts sampling during the read. This value sets how many
-	// times the device retries before passing the exception on to the application.
-	private static final int MAX_READ_RETRY_CNT = 15;
-
 	// the length of the Read-Only and Read/Write password registers
 	private static final int PASSWORD_LENGTH = 8;
 
@@ -135,13 +127,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	private MemoryBankNVCRCPW register = null;
 
 	// Maxim/Maxim Integrated Products Part number
-	private String partNumber = "DS1977";
-
-	// Letter appended at end of partNumber (S/H/L/T)
-	private char partLetter = '0';
-
-	// should we check the speed
-	private boolean doSpeedEnable = true;
+	private final String partNumber = "DS1977";
 
 	/**
 	 * The current password for readingfrom this device.
@@ -164,7 +150,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	// used to 'disable' passwords
 	private static final byte DISABLE_BYTE = 0x00;
 
-	private String descriptionString = "Rugged, self-sufficient 1-Wire device that, once setup can "
+	private final String descriptionString = "Rugged, self-sufficient 1-Wire device that, once setup can "
 			+ "store 32KB of password protected memory with a read only " + "and a read/write password.";
 
 // *****************************************************************************
@@ -228,10 +214,8 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *      OneWireContainer37(DSPortAdapter,String)
 	 */
 	public OneWireContainer37() {
-		super();
-
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -250,7 +234,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -269,7 +253,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -288,7 +272,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 		super(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -299,11 +283,12 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @param newAddress    address of this 1-Wire device
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, byte[] newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -314,11 +299,12 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @param newAddress    address of this 1-Wire device
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, long newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 	/**
@@ -329,11 +315,12 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @param newAddress    address of this 1-Wire device
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, String newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
 		// initialize the memory banks
-		initMem();
+		this.initMem();
 	}
 
 // *****************************************************************************
@@ -348,15 +335,16 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> v = new Vector<>(3);
+		var v = new Vector<MemoryBank>(3);
 
-		v.addElement(scratch);
-		v.addElement(userDataMemory);
-		v.addElement(register);
+		v.addElement(this.scratch);
+		v.addElement(this.userDataMemory);
+		v.addElement(this.register);
 
 		return v.elements();
 	}
@@ -367,6 +355,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @return maximum speed
 	 * @see DSPortAdapter#setSpeed
 	 */
+	@Override
 	public int getMaxSpeed() {
 		return DSPortAdapter.SPEED_OVERDRIVE;
 	}
@@ -377,8 +366,9 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
-		return partNumber;
+		return this.partNumber;
 	}
 
 	/**
@@ -388,6 +378,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return the alternate names for this iButton or 1-Wire device
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "";
 	}
@@ -398,8 +389,9 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
-		return descriptionString;
+		return this.descriptionString;
 	}
 
 	/**
@@ -418,7 +410,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @see OneWireContainer#doSpeed()
 	 */
 	public synchronized void setSpeedCheck(boolean doSpeedCheck) {
-		doSpeedEnable = doSpeedCheck;
+		var doSpeedEnable = doSpeedCheck;
 	}
 
 // *****************************************************************************
@@ -434,6 +426,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @throws OneWireException
 	 */
+	@Override
 	public int getReadOnlyPasswordLength() throws OneWireException {
 		return PASSWORD_LENGTH;
 	}
@@ -445,6 +438,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @throws OneWireException
 	 */
+	@Override
 	public int getReadWritePasswordLength() throws OneWireException {
 		return PASSWORD_LENGTH;
 	}
@@ -456,6 +450,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @throws OneWireException
 	 */
+	@Override
 	public int getWriteOnlyPasswordLength() throws OneWireException {
 		throw new OneWireException("The DS1977 does not have a write password.");
 	}
@@ -465,6 +460,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return the address of the read only password
 	 */
+	@Override
 	public int getReadOnlyPasswordAddress() throws OneWireException {
 		return READ_ACCESS_PASSWORD;
 	}
@@ -474,6 +470,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return the address of the read/write password
 	 */
+	@Override
 	public int getReadWritePasswordAddress() throws OneWireException {
 		return READ_WRITE_ACCESS_PASSWORD;
 	}
@@ -483,6 +480,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return the address of the write only password
 	 */
+	@Override
 	public int getWriteOnlyPasswordAddress() throws OneWireException {
 		throw new OneWireException("The DS1977 does not have a write password.");
 	}
@@ -492,6 +490,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return if the device has a read only password
 	 */
+	@Override
 	public boolean hasReadOnlyPassword() {
 		return true;
 	}
@@ -501,6 +500,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return if the device has a read/write password
 	 */
+	@Override
 	public boolean hasReadWritePassword() {
 		return true;
 	}
@@ -510,6 +510,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return if the device has a write only password
 	 */
+	@Override
 	public boolean hasWriteOnlyPassword() {
 		return false;
 	}
@@ -521,8 +522,9 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @throws OneWireException
 	 */
+	@Override
 	public boolean getDeviceReadOnlyPasswordEnable() throws OneWireException {
-		return readOnlyPasswordEnabled;
+		return this.readOnlyPasswordEnabled;
 	}
 
 	/**
@@ -532,8 +534,9 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @throws OneWireException
 	 */
+	@Override
 	public boolean getDeviceReadWritePasswordEnable() throws OneWireException {
-		return readWritePasswordEnabled;
+		return this.readWritePasswordEnabled;
 	}
 
 	/**
@@ -543,6 +546,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @throws OneWireException
 	 */
+	@Override
 	public boolean getDeviceWriteOnlyPasswordEnable() throws OneWireException {
 		throw new OneWireException("The DS1977 does not have a Write Only Password.");
 	}
@@ -557,6 +561,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @return <code>true</code> if the device has the capability to enable one type
 	 *         of password while leaving another type disabled.
 	 */
+	@Override
 	public boolean hasSinglePasswordEnable() {
 		return false;
 	}
@@ -588,8 +593,9 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @param enableAll if <code>true</code>, all passwords are enabled. Otherwise,
 	 *                  all passwords are disabled.
 	 */
+	@Override
 	public void setDevicePasswordEnableAll(boolean enableAll) throws OneWireException, OneWireIOException {
-		setDevicePasswordEnable(enableAll, enableAll, false);
+		this.setDevicePasswordEnable(enableAll, enableAll, false);
 	}
 
 	/**
@@ -609,11 +615,13 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *                 into the devices register.
 	 * @param offset   the offset to start copying the 8 bytes from the array
 	 */
+	@Override
 	public void setDeviceReadOnlyPassword(byte[] password, int offset) throws OneWireException, OneWireIOException {
-		register.write(READ_ACCESS_PASSWORD & 0x3F, password, offset, 8);
+		this.register.write(READ_ACCESS_PASSWORD & 0x3F, password, offset, 8);
 
-		if (verifyPassword(password, offset, READ_ONLY_PWD))
-			setContainerReadOnlyPassword(password, offset);
+		if (this.verifyPassword(password, offset, READ_ONLY_PWD)) {
+			this.setContainerReadOnlyPassword(password, offset);
+		}
 	}
 
 	/**
@@ -626,11 +634,13 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *                 copied into the devices register.
 	 * @param offset   the offset to start copying the 8 bytes from the array
 	 */
+	@Override
 	public void setDeviceReadWritePassword(byte[] password, int offset) throws OneWireException, OneWireIOException {
-		register.write(READ_WRITE_ACCESS_PASSWORD & 0x3F, password, offset, 8);
+		this.register.write(READ_WRITE_ACCESS_PASSWORD & 0x3F, password, offset, 8);
 
-		if (verifyPassword(password, offset, READ_WRITE_PWD))
-			setContainerReadWritePassword(password, offset);
+		if (this.verifyPassword(password, offset, READ_WRITE_PWD)) {
+			this.setContainerReadWritePassword(password, offset);
+		}
 	}
 
 	/**
@@ -643,6 +653,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *                 copied into the devices register.
 	 * @param offset   the offset to start copying the 8 bytes from the array
 	 */
+	@Override
 	public void setDeviceWriteOnlyPassword(byte[] password, int offset) throws OneWireException, OneWireIOException {
 		throw new OneWireException("The DS1977 does not have a write only password.");
 	}
@@ -666,30 +677,35 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *               subsequent read and write operations will require that the
 	 *               passwords for the container are set.
 	 */
+	@Override
 	public void setDevicePasswordEnable(boolean enableReadOnly, boolean enableReadWrite, boolean enableWriteOnly)
 			throws OneWireException, OneWireIOException {
-		if (enableWriteOnly)
+		if (enableWriteOnly) {
 			throw new OneWireException("The DS1922 does not have a write only password.");
+		}
 
-		if (!isContainerReadOnlyPasswordSet() && enableReadOnly)
+		if (!this.isContainerReadOnlyPasswordSet() && enableReadOnly) {
 			throw new OneWireException("Container Read Password is not set");
-		if (!isContainerReadWritePasswordSet())
+		}
+		if (!this.isContainerReadWritePasswordSet()) {
 			throw new OneWireException("Container Read/Write Password is not set");
-		if (enableReadOnly != enableReadWrite)
+		}
+		if (enableReadOnly != enableReadWrite) {
 			throw new OneWireException("Both read only and read/write passwords " + "will both be disable or enabled");
+		}
 
 		// must write both passwords for this to work
-		byte[] enableCommand = new byte[1];
-		enableCommand[0] = (enableReadWrite ? ENABLE_BYTE : DISABLE_BYTE);
+		var enableCommand = new byte[1];
+		enableCommand[0] = enableReadWrite ? ENABLE_BYTE : DISABLE_BYTE;
 
-		register.write(PASSWORD_CONTROL_REGISTER & 0x3F, enableCommand, 0, 1);
+		this.register.write(PASSWORD_CONTROL_REGISTER & 0x3F, enableCommand, 0, 1);
 
 		if (enableReadOnly) {
-			readOnlyPasswordEnabled = true;
-			readWritePasswordEnabled = true;
+			this.readOnlyPasswordEnabled = true;
+			this.readWritePasswordEnabled = true;
 		} else {
-			readOnlyPasswordEnabled = false;
-			readWritePasswordEnabled = false;
+			this.readOnlyPasswordEnabled = false;
+			this.readWritePasswordEnabled = false;
 		}
 	}
 
@@ -702,9 +718,10 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @param password New 8-byte value of container's read password.
 	 * @param offset   Index to start copying the password from the array.
 	 */
+	@Override
 	public void setContainerReadOnlyPassword(byte[] password, int offset) throws OneWireException {
-		System.arraycopy(password, offset, readPassword, 0, PASSWORD_LENGTH);
-		readPasswordSet = true;
+		System.arraycopy(password, offset, this.readPassword, 0, PASSWORD_LENGTH);
+		this.readPasswordSet = true;
 	}
 
 	/**
@@ -714,8 +731,9 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @param password Holds the 8-byte value of container's read password.
 	 * @param offset   Index to start copying the password into the array.
 	 */
+	@Override
 	public void getContainerReadOnlyPassword(byte[] password, int offset) throws OneWireException {
-		System.arraycopy(readPassword, 0, password, offset, PASSWORD_LENGTH);
+		System.arraycopy(this.readPassword, 0, password, offset, PASSWORD_LENGTH);
 	}
 
 	/**
@@ -725,8 +743,9 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 *
 	 * @return <code>true</code> if the container's read password has been set
 	 */
+	@Override
 	public boolean isContainerReadOnlyPasswordSet() throws OneWireException {
-		return readPasswordSet;
+		return this.readPasswordSet;
 	}
 
 	/**
@@ -739,9 +758,10 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @param password New 8-byte value of container's read/write password.
 	 * @param offset   Index to start copying the password from the array.
 	 */
+	@Override
 	public void setContainerReadWritePassword(byte[] password, int offset) throws OneWireException {
-		System.arraycopy(password, offset, readWritePassword, 0, 8);
-		readWritePasswordSet = true;
+		System.arraycopy(password, offset, this.readWritePassword, 0, 8);
+		this.readWritePasswordSet = true;
 	}
 
 	/**
@@ -751,8 +771,9 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @param password Holds the 8-byte value of container's read/write password.
 	 * @param offset   Index to start copying the password into the array.
 	 */
+	@Override
 	public void getContainerReadWritePassword(byte[] password, int offset) throws OneWireException {
-		System.arraycopy(readWritePassword, 0, password, offset, PASSWORD_LENGTH);
+		System.arraycopy(this.readWritePassword, 0, password, offset, PASSWORD_LENGTH);
 	}
 
 	/**
@@ -763,8 +784,9 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @return <code>true</code> if the container's read/write password has been
 	 *         set.
 	 */
+	@Override
 	public boolean isContainerReadWritePasswordSet() throws OneWireException {
-		return readWritePasswordSet;
+		return this.readWritePasswordSet;
 	}
 
 	/**
@@ -777,6 +799,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @param password New 8-byte value of container's read/write password.
 	 * @param offset   Index to start copying the password from the array.
 	 */
+	@Override
 	public void setContainerWriteOnlyPassword(byte[] password, int offset) throws OneWireException {
 		throw new OneWireException("The DS1977 does not have a write only password.");
 	}
@@ -788,6 +811,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @param password Holds the 8-byte value of container's read/write password.
 	 * @param offset   Index to start copying the password into the array.
 	 */
+	@Override
 	public void getContainerWriteOnlyPassword(byte[] password, int offset) throws OneWireException {
 		throw new OneWireException("The DS1977 does not have a write only password.");
 	}
@@ -800,37 +824,38 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 * @return <code>true</code> if the container's read/write password has been
 	 *         set.
 	 */
+	@Override
 	public boolean isContainerWriteOnlyPasswordSet() throws OneWireException {
 		throw new OneWireException("The DS1977 does not have a write only password.");
 	}
 
 	public boolean verifyPassword(byte[] password, int offset, int type) throws OneWireException, OneWireIOException {
-		byte[] raw_buf = new byte[15];
-		int addr = ((type == READ_ONLY_PWD) ? READ_ACCESS_PASSWORD : READ_WRITE_ACCESS_PASSWORD);
+		var raw_buf = new byte[15];
+		var addr = type == READ_ONLY_PWD ? READ_ACCESS_PASSWORD : READ_WRITE_ACCESS_PASSWORD;
 
 		// command, address, offset, password (except last byte)
 		raw_buf[0] = VERIFY_PSW_COMMAND;
 		raw_buf[1] = (byte) (addr & 0xFF);
-		raw_buf[2] = (byte) (((addr & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[2] = (byte) ((addr & 0xFFFF) >>> 8 & 0xFF);
 
 		System.arraycopy(password, offset, raw_buf, 3, 8);
 
 		// send block (check copy indication complete)
-		register.ib.adapter.dataBlock(raw_buf, 0, 10);
+		this.register.ib.adapter.dataBlock(raw_buf, 0, 10);
 
-		if (register.ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE)) {
+		if (this.register.ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE)) {
 
 			// send last byte of password and enable strong pullup
-			register.ib.adapter.putByte(raw_buf[11]);
+			this.register.ib.adapter.putByte(raw_buf[11]);
 
 			// delay for read to complete
 			msWait(5);
 
 			// turn off strong pullup
-			register.ib.adapter.setPowerNormal();
+			this.register.ib.adapter.setPowerNormal();
 
 			// read the confirmation byte
-			if (register.ib.adapter.getByte() != 0xAA) {
+			if (this.register.ib.adapter.getByte() != 0xAA) {
 				return false;
 			}
 
@@ -851,36 +876,36 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	 */
 	private void initMem() {
 		// scratchpad
-		scratch = new MemoryBankScratchCRCPW(this);
-		scratch.pageLength = 64;
-		scratch.size = 64;
-		scratch.numberPages = 1;
-		scratch.maxPacketDataLength = 61;
-		scratch.enablePower = true;
+		this.scratch = new MemoryBankScratchCRCPW(this);
+		this.scratch.pageLength = 64;
+		this.scratch.size = 64;
+		this.scratch.numberPages = 1;
+		this.scratch.maxPacketDataLength = 61;
+		this.scratch.enablePower = true;
 
 		// User Data Memory
-		userDataMemory = new MemoryBankNVCRCPW(this, scratch);
-		userDataMemory.numberPages = 511;
-		userDataMemory.size = 32704;
-		userDataMemory.pageLength = 64;
-		userDataMemory.maxPacketDataLength = 61;
-		userDataMemory.bankDescription = "Data Memory";
-		userDataMemory.startPhysicalAddress = 0x0000;
-		userDataMemory.generalPurposeMemory = true;
-		userDataMemory.readOnly = false;
-		userDataMemory.readWrite = true;
-		userDataMemory.enablePower = true;
+		this.userDataMemory = new MemoryBankNVCRCPW(this, this.scratch);
+		this.userDataMemory.numberPages = 511;
+		this.userDataMemory.size = 32704;
+		this.userDataMemory.pageLength = 64;
+		this.userDataMemory.maxPacketDataLength = 61;
+		this.userDataMemory.bankDescription = "Data Memory";
+		this.userDataMemory.startPhysicalAddress = 0x0000;
+		this.userDataMemory.generalPurposeMemory = true;
+		this.userDataMemory.readOnly = false;
+		this.userDataMemory.readWrite = true;
+		this.userDataMemory.enablePower = true;
 
 		// Register
-		register = new MemoryBankNVCRCPW(this, scratch);
-		register.numberPages = 1;
-		register.size = 64;
-		register.pageLength = 64;
-		register.maxPacketDataLength = 61;
-		register.bankDescription = "Register control";
-		register.startPhysicalAddress = 0x7FC0;
-		register.generalPurposeMemory = false;
-		register.enablePower = true;
+		this.register = new MemoryBankNVCRCPW(this, this.scratch);
+		this.register.numberPages = 1;
+		this.register.size = 64;
+		this.register.pageLength = 64;
+		this.register.maxPacketDataLength = 61;
+		this.register.bankDescription = "Register control";
+		this.register.startPhysicalAddress = 0x7FC0;
+		this.register.generalPurposeMemory = false;
+		this.register.enablePower = true;
 	}
 
 	/**
@@ -890,7 +915,7 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException ie) {
-			;
+
 		}
 	}
 
