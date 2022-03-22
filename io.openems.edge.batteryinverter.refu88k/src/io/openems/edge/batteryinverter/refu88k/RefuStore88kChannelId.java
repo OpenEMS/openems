@@ -8,8 +8,8 @@ import io.openems.edge.batteryinverter.refu88k.enums.Conn;
 import io.openems.edge.batteryinverter.refu88k.enums.DerTyp;
 import io.openems.edge.batteryinverter.refu88k.enums.LocRemCtl;
 import io.openems.edge.batteryinverter.refu88k.enums.OperatingState;
-import io.openems.edge.batteryinverter.refu88k.enums.OutPFSetEna;
-import io.openems.edge.batteryinverter.refu88k.enums.PCSSetOperation;
+import io.openems.edge.batteryinverter.refu88k.enums.OutPfSetEna;
+import io.openems.edge.batteryinverter.refu88k.enums.PcsSetOperation;
 import io.openems.edge.batteryinverter.refu88k.enums.VArPctEna;
 import io.openems.edge.batteryinverter.refu88k.enums.VendorOperatingState;
 import io.openems.edge.batteryinverter.refu88k.enums.WMaxLimEna;
@@ -168,7 +168,7 @@ public enum RefuStore88kChannelId implements ChannelId {
 	W_MAX_LIM_PCT(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), // % WMax
 	W_MAX_LIM_ENA(Doc.of(WMaxLimEna.values()).accessMode(AccessMode.READ_WRITE)), //
 	OUT_PF_SET(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), // // cos()
-	OUT_PF_SET_ENA(Doc.of(OutPFSetEna.values())), //
+	OUT_PF_SET_ENA(Doc.of(OutPfSetEna.values())), //
 	VAR_W_MAX_PCT(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), // // % WMax
 	VAR_PCT_ENA(Doc.of(VArPctEna.values()).accessMode(AccessMode.READ_WRITE)), //
 	W_MAX_LIM_PCT_SF(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_ONLY)), //
@@ -204,7 +204,7 @@ public enum RefuStore88kChannelId implements ChannelId {
 	LOC_REM_CTL(Doc.of(LocRemCtl.values()).accessMode(AccessMode.READ_WRITE)), //
 	PCS_HB(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
 	CONTROLLER_HB(Doc.of(OpenemsType.INTEGER).unit(Unit.NONE).accessMode(AccessMode.READ_WRITE)), //
-	PCS_SET_OPERATION(Doc.of(PCSSetOperation.values()).accessMode(AccessMode.READ_WRITE)), //
+	PCS_SET_OPERATION(Doc.of(PcsSetOperation.values()).accessMode(AccessMode.READ_WRITE)), //
 	MAX_BAT_A_CHA(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //
 	MAX_BAT_A_DISCHA(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //
 	MAX_A(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)), //

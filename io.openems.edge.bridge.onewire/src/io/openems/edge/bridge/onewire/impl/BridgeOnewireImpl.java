@@ -53,6 +53,7 @@ public class BridgeOnewireImpl extends AbstractOpenemsComponent implements Bridg
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.taskWorker != null) {

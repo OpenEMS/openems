@@ -72,6 +72,7 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -92,6 +93,7 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

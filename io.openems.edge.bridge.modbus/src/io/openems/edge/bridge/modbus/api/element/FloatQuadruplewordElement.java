@@ -1,8 +1,8 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import io.openems.common.types.OpenemsType;
-
 import java.nio.ByteBuffer;
+
+import io.openems.common.types.OpenemsType;
 
 /**
  * A FloatQuadruplewordElement represents a Float value in an
@@ -19,10 +19,12 @@ public class FloatQuadruplewordElement extends AbstractQuadrupleWordElement<Floa
 		return this;
 	}
 
+	@Override
 	protected Double fromByteBuffer(ByteBuffer buff) {
 		return Double.valueOf(buff.getDouble());
 	}
 
+	@Override
 	protected ByteBuffer toByteBuffer(ByteBuffer buff, Double value) {
 		return buff.putDouble(value.doubleValue());
 	}

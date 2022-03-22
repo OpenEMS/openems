@@ -45,13 +45,14 @@ public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 
 	/**
 	 * Sets the Access-Mode for the Channel.
-	 * 
+	 *
 	 * <p>
 	 * This is validated on construction of the Channel by
 	 * {@link AbstractReadChannel}
-	 * 
+	 *
 	 * @return myself
 	 */
+	@Override
 	public OpenemsTypeDoc<T> accessMode(AccessMode accessMode) {
 		super.accessMode(accessMode);
 		return this;
@@ -64,7 +65,7 @@ public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 
 	/**
 	 * Unit. Default: none
-	 * 
+	 *
 	 * @param unit the Unit
 	 * @return myself
 	 */
@@ -75,7 +76,7 @@ public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 
 	/**
 	 * Gets the Unit.
-	 * 
+	 *
 	 * @return the unit
 	 */
 	@Override

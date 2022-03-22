@@ -167,7 +167,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 	/**
 	 * Sends a {@link JsonrpcMessage}.
-	 * 
+	 *
 	 * @param message the {@link JsonrpcMessage}
 	 * @throws OpenemsException on error, e.g. if the websocket is not connected
 	 */

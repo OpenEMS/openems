@@ -7,7 +7,7 @@ import io.openems.edge.common.type.TypeUtils;
 
 public class ModbusRecordUint32 extends ModbusRecordConstant {
 
-	public final static byte[] UNDEFINED_VALUE = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+	public final static byte[] UNDEFINED_VALUE = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
 	public final static int BYTE_LENGTH = 4;
 
@@ -20,7 +20,8 @@ public class ModbusRecordUint32 extends ModbusRecordConstant {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordUInt32 [value=" + value + "/0x" + Integer.toHexString(value) + ", type=" + getType() + "]";
+		return "ModbusRecordUInt32 [value=" + this.value + "/0x" + Integer.toHexString(this.value) + ", type="
+				+ this.getType() + "]";
 	}
 
 	public static byte[] toByteArray(int value) {
@@ -28,17 +29,16 @@ public class ModbusRecordUint32 extends ModbusRecordConstant {
 	}
 
 	public static byte[] toByteArray(Object value) {
-		if (value == null || (value instanceof io.openems.common.types.OptionsEnum
-				&& ((io.openems.common.types.OptionsEnum) value).isUndefined())) {
+		if (value == null || value instanceof io.openems.common.types.OptionsEnum
+				&& ((io.openems.common.types.OptionsEnum) value).isUndefined()) {
 			return UNDEFINED_VALUE;
-		} else {
-			return toByteArray((int) TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		}
+		return toByteArray((int) TypeUtils.getAsType(OpenemsType.INTEGER, value));
 	}
 
 	@Override
 	public String getValueDescription() {
-		return this.value != null ? Integer.toString(this.value) : "";
+		return this.value != null ? "\"" + Integer.toString(this.value) + "\"" : "";
 	}
 
 }

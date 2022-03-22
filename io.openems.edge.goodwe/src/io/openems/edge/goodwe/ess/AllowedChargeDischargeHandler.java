@@ -21,24 +21,24 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 	/**
 	 * Calculates AllowedChargePower and AllowedDischargePower and sets the
 	 * Channels.
-	 * 
+	 *
 	 * @param clockProvider a {@link ClockProvider}
 	 */
 	public void accept(ClockProvider clockProvider) {
 		IntegerReadChannel bmsChargeImaxChannel = parent.channel(GoodWe.ChannelId.BMS_CHARGE_IMAX);
-		Integer bmsChargeImax = bmsChargeImaxChannel.value().get();
+		var bmsChargeImax = bmsChargeImaxChannel.value().get();
 		IntegerReadChannel bmsDischargeImaxChannel = parent.channel(GoodWe.ChannelId.BMS_DISCHARGE_IMAX);
-		Integer bmsDischargeImax = bmsDischargeImaxChannel.value().get();
+		var bmsDischargeImax = bmsDischargeImaxChannel.value().get();
 		IntegerReadChannel wbmsVoltageChannel = parent.channel(GoodWe.ChannelId.WBMS_VOLTAGE);
-		Integer wbmsVoltage = wbmsVoltageChannel.value().get();
+		var wbmsVoltage = wbmsVoltageChannel.value().get();
 		this.calculateAllowedChargeDischargePower(clockProvider, true, bmsChargeImax, bmsDischargeImax, wbmsVoltage);
 
 		// Battery limits
-		int batteryAllowedChargePower = Math.round(this.lastBatteryAllowedChargePower);
-		int batteryAllowedDischargePower = Math.round(this.lastBatteryAllowedDischargePower);
+		var batteryAllowedChargePower = Math.round(this.lastBatteryAllowedChargePower);
+		var batteryAllowedDischargePower = Math.round(this.lastBatteryAllowedDischargePower);
 
 		// PV-Production
-		int pvProduction = Math.max(//
+		var pvProduction = Math.max(//
 				TypeUtils.orElse(//
 						TypeUtils.subtract(this.parent.getActivePower().get(), this.parent.getDcDischargePower().get()), //
 						0),

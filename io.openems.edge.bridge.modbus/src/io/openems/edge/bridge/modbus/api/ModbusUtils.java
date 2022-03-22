@@ -14,7 +14,7 @@ public class ModbusUtils {
 
 	/**
 	 * Reads given Element once from Modbus.
-	 * 
+	 *
 	 * @param <T>             the Type of the element
 	 * @param modbusProtocol  the {@link ModbusProtocol}, that is linked with a
 	 *                        {@link BridgeModbus}
@@ -27,7 +27,7 @@ public class ModbusUtils {
 	public static <T> CompletableFuture<T> readELementOnce(ModbusProtocol modbusProtocol,
 			AbstractModbusElement<T> element, boolean tryAgainOnError) throws OpenemsException {
 		// Prepare result
-		final CompletableFuture<T> result = new CompletableFuture<T>();
+		final var result = new CompletableFuture<T>();
 
 		// Activate task
 		final Task task = new FC3ReadRegistersTask(element.getStartAddress(), Priority.HIGH, element);
@@ -38,9 +38,8 @@ public class ModbusUtils {
 			if (value == null) {
 				if (tryAgainOnError) {
 					return;
-				} else {
-					result.complete(null);
 				}
+				result.complete(null);
 			}
 			// do not try again
 			modbusProtocol.removeTask(task);
@@ -52,20 +51,20 @@ public class ModbusUtils {
 
 	/**
 	 * Converts upper/lower bytes to Short.
-	 * 
+	 *
 	 * @param value      the int value
 	 * @param upperBytes 1 = upper two bytes, 0 = lower two bytes
 	 * @return the Short
 	 */
 	public static Short convert(int value, int upperBytes) {
-		ByteBuffer b = ByteBuffer.allocate(4);
+		var b = ByteBuffer.allocate(4);
 		b.order(ByteOrder.LITTLE_ENDIAN);
 		b.putInt(value);
 
-		byte byte0 = b.get(upperBytes * 2);
-		byte byte1 = b.get(upperBytes * 2 + 1);
+		var byte0 = b.get(upperBytes * 2);
+		var byte1 = b.get(upperBytes * 2 + 1);
 
-		ByteBuffer shortBuf = ByteBuffer.allocate(2);
+		var shortBuf = ByteBuffer.allocate(2);
 		shortBuf.order(ByteOrder.LITTLE_ENDIAN);
 		shortBuf.put(0, byte0);
 		shortBuf.put(1, byte1);

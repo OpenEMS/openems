@@ -93,6 +93,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -102,7 +103,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.essId);
 
-		int power = getPower(ess);
+		var power = this.getPower(ess);
 		this.applyPower(ess, power);
 	}
 
@@ -110,20 +111,21 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * Gets the current ActivePower.
-	 * 
+	 *
 	 * @return
 	 */
 	private int getPower(ManagedSymmetricEss ess) {
-		LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
+		var now = LocalDateTime.now(this.componentManager.getClock());
 		if (this.isHighLoadTimeslot(now)) {
 			/*
 			 * We are in a High-Load period -> discharge
 			 */
 			// reset charge state
 			this.chargeState = ChargeState.NORMAL;
-			this.logInfo(log, "Within High-Load timeslot. Discharge with [" + this.dischargePower + "]");
+			this.logInfo(this.log, "Within High-Load timeslot. Discharge with [" + this.dischargePower + "]");
 			return this.dischargePower;
-		} else if (this.isHighLoadTimeslot(now.plusMinutes(FORCE_CHARGE_MINUTES))) {
+		}
+		if (this.isHighLoadTimeslot(now.plusMinutes(FORCE_CHARGE_MINUTES))) {
 			/*
 			 * We are soon going to be in High-Load period -> activate FORCE_CHARGE mode
 			 */
@@ -137,10 +139,10 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 			/*
 			 * charge with configured charge-power
 			 */
-			this.logInfo(log, "Outside High-Load timeslot. Charge with [" + this.chargePower + "]");
-			int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+			this.logInfo(this.log, "Outside High-Load timeslot. Charge with [" + this.chargePower + "]");
+			var minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
 			if (minPower >= 0) {
-				this.logInfo(log, "Min-Power [" + minPower + " >= 0]. Switch to Charge-Hystereses state.");
+				this.logInfo(this.log, "Min-Power [" + minPower + " >= 0]. Switch to Charge-Hystereses state.");
 				// activate Charge-hysteresis if no charge power (i.e. >= 0) is allowed
 				this.chargeState = ChargeState.HYSTERESIS;
 			}
@@ -150,9 +152,9 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 			/*
 			 * block charging till configured hysteresisSoc
 			 */
-			this.logInfo(log, "Outside High-Load timeslot. Charge-Hysteresis-Mode: Block charging.");
+			this.logInfo(this.log, "Outside High-Load timeslot. Charge-Hysteresis-Mode: Block charging.");
 			if (ess.getSoc().orElse(0) <= this.hysteresisSoc) {
-				this.logInfo(log, "SoC [" + ess.getSoc().orElse(0) + " <= " + this.hysteresisSoc
+				this.logInfo(this.log, "SoC [" + ess.getSoc().orElse(0) + " <= " + this.hysteresisSoc
 						+ "]. Switch to Charge-Normal state.");
 				this.chargeState = ChargeState.NORMAL;
 			}
@@ -162,7 +164,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 			/*
 			 * force full charging just before the high-load timeslot starts
 			 */
-			this.logInfo(log, "Just before High-Load timeslot. Charge with [" + this.chargePower + "]");
+			this.logInfo(this.log, "Just before High-Load timeslot. Charge with [" + this.chargePower + "]");
 			return this.chargePower;
 		}
 		// we should never come here...
@@ -171,7 +173,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * Is the current time in a high-load timeslot?
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean isHighLoadTimeslot(LocalDateTime dateTime) {
@@ -190,7 +192,7 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * Is 'dateTime' within the ActiveWeekdayFilter?
-	 * 
+	 *
 	 * @param activeDayFilter
 	 * @param dateTime
 	 * @return
@@ -209,70 +211,68 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	protected static boolean isActiveDate(LocalDate startDate, LocalDate endDate, LocalDateTime dateTime) {
-		LocalDate date = dateTime.toLocalDate();
+		var date = dateTime.toLocalDate();
 		return !(date.isBefore(startDate) || date.isAfter(endDate));
 	}
 
 	/**
 	 * Is the time of 'dateTime' within startTime and endTime?
-	 * 
+	 *
 	 * @param startTime
 	 * @param endTime
 	 * @param dateTime
 	 * @return
 	 */
 	protected static boolean isActiveTime(LocalTime startTime, LocalTime endTime, LocalDateTime dateTime) {
-		LocalTime time = dateTime.toLocalTime();
+		var time = dateTime.toLocalTime();
 		return !(time.isBefore(startTime) || time.isAfter(endTime));
 	}
 
 	/**
 	 * Converts a string to a LocalDate.
-	 * 
+	 *
 	 * @param date
 	 * @return
 	 */
 	protected static LocalDate convertDate(String date) {
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
-		LocalDate localDate = LocalDate.parse(date, dateTimeFormatter);
-		return localDate;
+		var dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+		return LocalDate.parse(date, dateTimeFormatter);
 	}
 
 	/**
 	 * Converts a string to a LocalTime.
-	 * 
+	 *
 	 * @param time
 	 * @return
 	 */
 	protected static LocalTime convertTime(String time) {
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
-		LocalTime localDate = LocalTime.parse(time, dateTimeFormatter);
-		return localDate;
+		var dateTimeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
+		return LocalTime.parse(time, dateTimeFormatter);
 	}
 
 	/**
 	 * Is 'dateTime' a Saturday or Sunday?
-	 * 
+	 *
 	 * @param dateTime
 	 * @return
 	 */
 	protected static boolean isWeekend(LocalDateTime dateTime) {
-		DayOfWeek dayOfWeek = dateTime.getDayOfWeek();
-		return (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY);
+		var dayOfWeek = dateTime.getDayOfWeek();
+		return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
 	}
 
 	/**
 	 * Applies the power constraint on the Ess
-	 * 
+	 *
 	 * @param activePower
 	 * @throws OpenemsException
 	 */
 	private void applyPower(ManagedSymmetricEss ess, int activePower) throws OpenemsException {
 		// adjust value so that it fits into Min/MaxActivePower
-		int calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
+		var calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
 				activePower);
 		if (calculatedPower != activePower) {
-			this.logInfo(log, "- Applying [" + calculatedPower + " W] instead of [" + activePower + "] W");
+			this.logInfo(this.log, "- Applying [" + calculatedPower + " W] instead of [" + activePower + "] W");
 		}
 
 		// set result

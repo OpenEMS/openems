@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.google.gson.JsonArray;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 
@@ -13,7 +11,7 @@ public class PolyLineTest {
 
 	@Test
 	public void test() throws OpenemsNamedException {
-		JsonArray lineConfig = JsonUtils.buildJsonArray()//
+		var lineConfig = JsonUtils.buildJsonArray()//
 				.add(JsonUtils.buildJsonObject()//
 						.addProperty("xCoord", 0.9) //
 						.addProperty("yCoord", 60) //
@@ -32,7 +30,7 @@ public class PolyLineTest {
 						.build() //
 				).build();
 
-		PolyLine polyline = new PolyLine("xCoord", "yCoord", lineConfig);
+		var polyline = new PolyLine("xCoord", "yCoord", lineConfig);
 
 		// exactly first
 		assertEquals(60f, polyline.getValue(0.9), 0.00001);
@@ -52,9 +50,9 @@ public class PolyLineTest {
 
 	@Test
 	public void testEmpty() throws OpenemsNamedException {
-		JsonArray lineConfig = JsonUtils.buildJsonArray().build();
+		var lineConfig = JsonUtils.buildJsonArray().build();
 
-		PolyLine polyline = new PolyLine("xCoord", "yCoord", lineConfig);
+		var polyline = new PolyLine("xCoord", "yCoord", lineConfig);
 
 		// exactly first
 		assertEquals(null, polyline.getValue(0.9));

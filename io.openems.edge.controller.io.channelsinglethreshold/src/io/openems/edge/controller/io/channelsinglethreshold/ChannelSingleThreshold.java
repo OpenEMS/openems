@@ -27,7 +27,7 @@ public interface ChannelSingleThreshold extends Controller, OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#AWAITING_HYSTERESIS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getAwaitingHysteresisChannel() {
@@ -36,7 +36,7 @@ public interface ChannelSingleThreshold extends Controller, OpenemsComponent {
 
 	/**
 	 * Gets the Run-Failed State. See {@link ChannelId#AWAITING_HYSTERESIS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getAwaitingHysteresis() {
@@ -46,7 +46,7 @@ public interface ChannelSingleThreshold extends Controller, OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#AWAITING_HYSTERESIS} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setAwaitingHysteresis(boolean value) {

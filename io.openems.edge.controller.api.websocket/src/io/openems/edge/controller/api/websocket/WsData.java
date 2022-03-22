@@ -36,7 +36,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Sets the Session Token.
-	 * 
+	 *
 	 * @param sessionToken the Session Token
 	 */
 	public void setSessionToken(String sessionToken) {
@@ -45,7 +45,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Gets the Session Token.
-	 * 
+	 *
 	 * @return the Session Token
 	 */
 	public String getSessionToken() {
@@ -54,7 +54,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Sets the {@link User}.
-	 * 
+	 *
 	 * @param user the {@link User}
 	 */
 	public void setUser(User user) {
@@ -70,7 +70,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Gets the {@link User}.
-	 * 
+	 *
 	 * @return the {@link Optional} {@link User}
 	 */
 	public Optional<User> getUser() {
@@ -79,7 +79,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Throws an exception if the User is not authenticated.
-	 * 
+	 *
 	 * @param resource a resource identifier; used for the exception
 	 * @return the current {@link User}
 	 * @throws OpenemsNamedException if the current Role privileges are less
@@ -87,16 +87,15 @@ public class WsData extends io.openems.common.websocket.WsData {
 	public User assertUserIsAuthenticated(String resource) throws OpenemsNamedException {
 		if (this.getUser().isPresent()) {
 			return this.getUser().get();
-		} else {
-			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
-					.exception("Session [" + this.getSessionToken() + "]. Ignoring [" + resource + "]");
 		}
+		throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
+				.exception("Session [" + this.getSessionToken() + "]. Ignoring [" + resource + "]");
 	}
 
 	/**
 	 * Gets the {@link SubscribedChannelsWorker} to take care of subscribe to
 	 * CurrentData.
-	 * 
+	 *
 	 * @return the {@link SubscribedChannelsWorker}
 	 */
 	public SubscribedChannelsWorker getSubscribedChannelsWorker() {

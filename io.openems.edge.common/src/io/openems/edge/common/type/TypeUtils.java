@@ -19,7 +19,7 @@ public class TypeUtils {
 
 	/**
 	 * Converts and casts a Object to a given type.
-	 * 
+	 *
 	 * @param <T>   the Type for implicit casting of the result
 	 * @param type  the type as {@link OpenemsType}
 	 * @param value the value as {@link Object}
@@ -48,9 +48,8 @@ public class TypeUtils {
 		if (type != OpenemsType.STRING && value != null && value.getClass().isArray()) {
 			if (Array.getLength(value) == 1) {
 				return TypeUtils.getAsType(type, Array.get(value, 0));
-			} else {
-				return null;
 			}
+			return null;
 		}
 
 		switch (type) {
@@ -58,7 +57,8 @@ public class TypeUtils {
 			if (value == null) {
 				return (T) (Boolean) value;
 
-			} else if (value instanceof Boolean) {
+			}
+			if (value instanceof Boolean) {
 				return (T) (Boolean) value;
 
 			} else if (value instanceof Short) {
@@ -77,7 +77,7 @@ public class TypeUtils {
 				return (T) ((Double) value == 0 ? Boolean.FALSE : Boolean.TRUE);
 
 			} else if (value instanceof String) {
-				String stringValue = (String) value;
+				var stringValue = (String) value;
 				if (stringValue.isEmpty()) {
 					return null;
 				} else if (stringValue.equalsIgnoreCase("false")) {
@@ -94,9 +94,10 @@ public class TypeUtils {
 			if (value == null) {
 				return (T) (Short) value;
 
-			} else if (value instanceof Boolean) {
+			}
+			if (value instanceof Boolean) {
 				boolean boolValue = (Boolean) value;
-				return (T) Short.valueOf((boolValue ? (short) 1 : (short) 0));
+				return (T) Short.valueOf(boolValue ? (short) 1 : (short) 0);
 
 			} else if (value instanceof Short) {
 				return (T) (Short) value;
@@ -121,7 +122,7 @@ public class TypeUtils {
 
 			} else if (value instanceof Float) {
 				float floatValue = (Float) value;
-				int intValue = Math.round(floatValue);
+				var intValue = Math.round(floatValue);
 				if (intValue >= Short.MIN_VALUE && intValue <= Short.MAX_VALUE) {
 					return (T) Short.valueOf((short) intValue);
 				} else {
@@ -131,7 +132,7 @@ public class TypeUtils {
 
 			} else if (value instanceof Double) {
 				double doubleValue = (Double) value;
-				long longValue = Math.round(doubleValue);
+				var longValue = Math.round(doubleValue);
 				if (longValue >= Short.MIN_VALUE && longValue <= Short.MAX_VALUE) {
 					return (T) Short.valueOf((short) longValue);
 				} else {
@@ -140,7 +141,7 @@ public class TypeUtils {
 				}
 
 			} else if (value instanceof String) {
-				String stringValue = (String) value;
+				var stringValue = (String) value;
 				if (stringValue.isEmpty()) {
 					return null;
 				}
@@ -154,11 +155,12 @@ public class TypeUtils {
 
 		case INTEGER:
 			if (value == null) {
-				return (T) ((Integer) value);
+				return (T) (Integer) value;
 
-			} else if (value instanceof Boolean) {
+			}
+			if (value instanceof Boolean) {
 				boolean boolValue = (Boolean) value;
-				return (T) Integer.valueOf((boolValue ? 1 : 0));
+				return (T) Integer.valueOf(boolValue ? 1 : 0);
 
 			} else if (value instanceof Short) {
 				return (T) Integer.valueOf((Short) value);
@@ -186,7 +188,7 @@ public class TypeUtils {
 
 			} else if (value instanceof Double) {
 				double doubleValue = (Double) value;
-				long longValue = Math.round(doubleValue);
+				var longValue = Math.round(doubleValue);
 				if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
 					return (T) Integer.valueOf((int) longValue);
 				} else {
@@ -195,7 +197,7 @@ public class TypeUtils {
 				}
 
 			} else if (value instanceof String) {
-				String stringValue = (String) value;
+				var stringValue = (String) value;
 				if (stringValue.isEmpty()) {
 					return null;
 				}
@@ -211,9 +213,10 @@ public class TypeUtils {
 			if (value == null) {
 				return (T) (Long) value;
 
-			} else if (value instanceof Boolean) {
+			}
+			if (value instanceof Boolean) {
 				boolean boolValue = (Boolean) value;
-				return (T) Long.valueOf((boolValue ? 1L : 0L));
+				return (T) Long.valueOf(boolValue ? 1L : 0L);
 
 			} else if (value instanceof Short) {
 				return (T) (Long) ((Short) value).longValue();
@@ -235,16 +238,16 @@ public class TypeUtils {
 
 			} else if (value instanceof Double) {
 				double doubleValue = (Double) value;
-				long longValue = Math.round(doubleValue);
+				var longValue = Math.round(doubleValue);
 				if (longValue >= Long.MIN_VALUE && longValue <= Long.MAX_VALUE) {
-					return (T) Long.valueOf((long) longValue);
+					return (T) Long.valueOf(longValue);
 				} else {
 					throw new IllegalArgumentException(
 							"Cannot convert. Double [" + value + "] is not fitting in Long range.");
 				}
 
 			} else if (value instanceof String) {
-				String stringValue = (String) value;
+				var stringValue = (String) value;
 				if (stringValue.isEmpty()) {
 					return null;
 				}
@@ -260,9 +263,10 @@ public class TypeUtils {
 			if (value == null) {
 				return (T) (Float) value;
 
-			} else if (value instanceof Boolean) {
+			}
+			if (value instanceof Boolean) {
 				boolean boolValue = (Boolean) value;
-				return (T) Float.valueOf((boolValue ? 1f : 0f));
+				return (T) Float.valueOf(boolValue ? 1f : 0f);
 
 			} else if (value instanceof Short) {
 				return (T) (Float) ((Short) value).floatValue();
@@ -279,10 +283,10 @@ public class TypeUtils {
 			} else if (value instanceof Double) {
 				// Returns the value of this Double as a float after a narrowing primitive
 				// conversion.
-				return (T) (Float) Float.valueOf(((Double) value).floatValue());
+				return (T) Float.valueOf(((Double) value).floatValue());
 
 			} else if (value instanceof String) {
-				String stringValue = (String) value;
+				var stringValue = (String) value;
 				if (stringValue.isEmpty()) {
 					return null;
 				}
@@ -298,9 +302,10 @@ public class TypeUtils {
 			if (value == null) {
 				return (T) (Double) value;
 
-			} else if (value instanceof Boolean) {
+			}
+			if (value instanceof Boolean) {
 				boolean boolValue = (Boolean) value;
-				return (T) Double.valueOf((boolValue ? 1L : 0L));
+				return (T) Double.valueOf(boolValue ? 1L : 0L);
 
 			} else if (value instanceof Short) {
 				return (T) Double.valueOf((Short) value);
@@ -318,7 +323,7 @@ public class TypeUtils {
 				return (T) (Double) value;
 
 			} else if (value instanceof String) {
-				String stringValue = (String) value;
+				var stringValue = (String) value;
 				if (stringValue.isEmpty()) {
 					return null;
 				}
@@ -332,9 +337,10 @@ public class TypeUtils {
 
 		case STRING:
 			if (value == null) {
-				return (T) ((String) value);
+				return (T) (String) value;
 
-			} else if (value instanceof Object[]) {
+			}
+			if (value instanceof Object[]) {
 				return (T) Arrays.deepToString((Object[]) value);
 
 			} else if (value.getClass().isArray()) {
@@ -370,7 +376,7 @@ public class TypeUtils {
 
 	/**
 	 * Gets the value of the given type as {@link JsonElement}.
-	 * 
+	 *
 	 * @param type          the type as {@link OpenemsType}
 	 * @param originalValue the value
 	 * @return the converted value
@@ -379,10 +385,10 @@ public class TypeUtils {
 		if (originalValue == null) {
 			return JsonNull.INSTANCE;
 		}
-		Object value = TypeUtils.getAsType(type, originalValue);
+		var value = TypeUtils.getAsType(type, originalValue);
 		switch (type) {
 		case BOOLEAN:
-			return new JsonPrimitive(((Boolean) value) ? 1 : 0);
+			return new JsonPrimitive((Boolean) value ? 1 : 0);
 		case SHORT:
 			return new JsonPrimitive((Short) value);
 		case INTEGER:
@@ -402,7 +408,7 @@ public class TypeUtils {
 	/**
 	 * Safely add Integers. If one of them is null it is considered '0'. If all of
 	 * them are null, 'null' is returned.
-	 * 
+	 *
 	 * @param values the {@link Integer} values
 	 * @return the sum
 	 */
@@ -424,7 +430,7 @@ public class TypeUtils {
 	/**
 	 * Safely add Longs. If one of them is null it is considered '0'. If all of them
 	 * are null, 'null' is returned.
-	 * 
+	 *
 	 * @param values the {@link Long} values
 	 * @return the sum
 	 */
@@ -445,13 +451,13 @@ public class TypeUtils {
 
 	/**
 	 * Safely subtract Integers.
-	 * 
+	 *
 	 * <ul>
 	 * <li>if minuend is null -&gt; result is null
 	 * <li>if subtrahend is null -&gt; result is minuend
 	 * <li>if both are null -&gt; result is null
 	 * </ul>
-	 * 
+	 *
 	 * @param minuend    the minuend of the subtraction
 	 * @param subtrahend the subtrahend of the subtraction
 	 * @return the result, possibly null
@@ -468,13 +474,13 @@ public class TypeUtils {
 
 	/**
 	 * Safely subtract Longs.
-	 * 
+	 *
 	 * <ul>
 	 * <li>if minuend is null -&gt; result is null
 	 * <li>if subtrahend is null -&gt; result is minuend
 	 * <li>if both are null -&gt; result is null
 	 * </ul>
-	 * 
+	 *
 	 * @param minuend    the minuend of the subtraction
 	 * @param subtrahend the subtrahend of the subtraction
 	 * @return the result, possibly null
@@ -491,7 +497,7 @@ public class TypeUtils {
 
 	/**
 	 * Safely multiply Integers.
-	 * 
+	 *
 	 * @param factors the factors of the multiplication
 	 * @return the result, possibly null if all factors are null
 	 */
@@ -508,8 +514,26 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely multiply Floats.
+	 *
+	 * @param factors the factors of the multiplication
+	 * @return the result, possibly null if all factors are null
+	 */
+	public static Float multiply(Float... factors) {
+		Float result = null;
+		for (var factor : factors) {
+			if (result == null) {
+				result = factor;
+			} else if (factor != null) {
+				result *= factor;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely multiply Doubles.
-	 * 
+	 *
 	 * @param factors the factors of the multiplication
 	 * @return the result, possibly null if all factors are null
 	 */
@@ -527,11 +551,11 @@ public class TypeUtils {
 
 	/**
 	 * Safely divides Integers.
-	 * 
+	 *
 	 * <ul>
 	 * <li>if dividend is null -&gt; result is null
 	 * </ul>
-	 * 
+	 *
 	 * @param dividend the dividend of the division
 	 * @param divisor  the divisor of the division
 	 * @return the result, possibly null
@@ -545,11 +569,11 @@ public class TypeUtils {
 
 	/**
 	 * Safely divides Longs.
-	 * 
+	 *
 	 * <ul>
 	 * <li>if dividend is null -&gt; result is null
 	 * </ul>
-	 * 
+	 *
 	 * @param dividend the dividend of the division
 	 * @param divisor  the divisor of the division
 	 * @return the result, possibly null
@@ -563,7 +587,7 @@ public class TypeUtils {
 
 	/**
 	 * Safely finds the max value of all values.
-	 * 
+	 *
 	 * @param values the {@link Integer} values
 	 * @return the max value; or null if all values are null
 	 */
@@ -582,8 +606,28 @@ public class TypeUtils {
 	}
 
 	/**
+	 * Safely finds the max value of all values.
+	 *
+	 * @param values the {@link Float} values
+	 * @return the max value; or null if all values are null
+	 */
+	public static Float max(Float... values) {
+		Float result = null;
+		for (var value : values) {
+			if (value != null) {
+				if (result == null) {
+					result = value;
+				} else {
+					result = Math.max(result, value);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Safely finds the min value of all values.
-	 * 
+	 *
 	 * @param values the {@link Integer} values
 	 * @return the min value; or null if all values are null
 	 */
@@ -601,7 +645,7 @@ public class TypeUtils {
 
 	/**
 	 * Safely finds the min value of all values.
-	 * 
+	 *
 	 * @param values the {@link Double} values
 	 * @return the min value; or null if all values are null
 	 */
@@ -621,13 +665,13 @@ public class TypeUtils {
 
 	/**
 	 * Safely finds the average value of all values.
-	 * 
+	 *
 	 * @param values the {@link Integer} values
 	 * @return the average value; or null if all values are null
 	 */
 	public static Float average(Integer... values) {
-		int count = 0;
-		float sum = 0.f;
+		var count = 0;
+		var sum = 0.f;
 		for (Integer value : values) {
 			if (value != null) {
 				count++;
@@ -642,20 +686,19 @@ public class TypeUtils {
 
 	/**
 	 * Safely finds the average value of all values.
-	 * 
+	 *
 	 * @param values the double values
 	 * @return the average value; or Double.NaN if all values are invalid.
 	 */
 	public static double average(double... values) {
-		int count = 0;
-		double sum = 0.;
+		var count = 0;
+		var sum = 0.;
 		for (double value : values) {
 			if (Double.isNaN(value)) {
 				continue;
-			} else {
-				count++;
-				sum += value;
 			}
+			count++;
+			sum += value;
 		}
 		if (count == 0) {
 			return Double.NaN;
@@ -666,22 +709,21 @@ public class TypeUtils {
 	/**
 	 * Safely finds the average value of all values and rounds the result to an
 	 * Integer using {@link Math#round(float)}.
-	 * 
+	 *
 	 * @param values the {@link Integer} values
 	 * @return the rounded average value; or null if all values are null
 	 */
 	public static Integer averageRounded(Integer... values) {
-		Float result = average(values);
+		var result = average(values);
 		if (result == null) {
 			return null;
-		} else {
-			return Math.round(result);
 		}
+		return Math.round(result);
 	}
 
 	/**
 	 * Throws an descriptive exception if the object is null.
-	 * 
+	 *
 	 * @param description text that is added to the exception
 	 * @param objects     the objects
 	 * @throws IllegalArgumentException if any object is null
@@ -696,35 +738,33 @@ public class TypeUtils {
 
 	/**
 	 * Safely convert from {@link Integer} to {@link Double}.
-	 * 
+	 *
 	 * @param value the Integer value, possibly null
 	 * @return the Double value, possibly null
 	 */
 	public static Double toDouble(Integer value) {
 		if (value == null) {
-			return (Double) null;
-		} else {
-			return Double.valueOf(value);
+			return null;
 		}
+		return Double.valueOf(value);
 	}
 
 	/**
 	 * Safely convert from {@link Float} to {@link Double}.
-	 * 
+	 *
 	 * @param value the Float value, possibly null
 	 * @return the Double value, possibly null
 	 */
 	public static Double toDouble(Float value) {
 		if (value == null) {
-			return (Double) null;
-		} else {
-			return Double.valueOf(value);
+			return null;
 		}
+		return Double.valueOf(value);
 	}
 
 	/**
 	 * Returns the 'alternativeValue' if the 'nullableValue' is null.
-	 * 
+	 *
 	 * @param <T>              the Type for implicit casting
 	 * @param nullableValue    the value, can be null
 	 * @param alternativeValue the alternative value
@@ -733,14 +773,13 @@ public class TypeUtils {
 	public static <T> T orElse(T nullableValue, T alternativeValue) {
 		if (nullableValue != null) {
 			return nullableValue;
-		} else {
-			return alternativeValue;
 		}
+		return alternativeValue;
 	}
 
 	/**
 	 * Fits a value within a lower and upper boundary.
-	 * 
+	 *
 	 * @param lowLimit  the lower boundary
 	 * @param highLimit the upper boundary
 	 * @param value     the actual value
@@ -760,8 +799,7 @@ public class TypeUtils {
 	public static Integer abs(Integer value) {
 		if (value == null) {
 			return null;
-		} else {
-			return Math.abs(value);
 		}
+		return Math.abs(value);
 	}
 }

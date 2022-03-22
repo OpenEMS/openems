@@ -48,7 +48,8 @@ export abstract class AbstractHistoryWidget {
      * @param ws       the websocket
     */
     protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
-        let resolution = calculateResolution(this.service, fromDate, toDate);
+
+        let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {

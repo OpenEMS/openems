@@ -7,10 +7,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -34,7 +32,6 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
 import io.openems.common.OpenemsConstants;
@@ -52,7 +49,6 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Factory;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ClockProvider;
@@ -130,6 +126,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -163,18 +160,17 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		final List<String> logs = new ArrayList<String>();
+		final List<String> logs = new ArrayList<>();
 		for (ComponentManagerWorker worker : this.workers) {
-			String message = worker.debugLog();
+			var message = worker.debugLog();
 			if (message != null) {
 				logs.add(message);
 			}
 		}
 		if (logs.isEmpty()) {
 			return null;
-		} else {
-			return String.join("|", logs);
 		}
+		return String.join("|", logs);
 	}
 
 	@Override
@@ -221,7 +217,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handles a {@link GetEdgeConfigRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link GetEdgeConfigRequest}
 	 * @return the Future JSON-RPC Response
@@ -229,14 +225,14 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
 			GetEdgeConfigRequest request) throws OpenemsNamedException {
-		EdgeConfig config = this.getEdgeConfig();
-		GetEdgeConfigResponse response = new GetEdgeConfigResponse(request.getId(), config);
+		var config = this.getEdgeConfig();
+		var response = new GetEdgeConfigResponse(request.getId(), config);
 		return CompletableFuture.completedFuture(response);
 	}
 
 	/**
 	 * Handles a {@link CreateComponentConfigRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link CreateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
@@ -292,7 +288,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		// Create map with configuration attributes
 		Dictionary<String, Object> properties = new Hashtable<>();
 		for (Property property : request.getProperties()) {
-			Object value = JsonUtils.getAsBestType(property.getValue());
+			var value = JsonUtils.getAsBestType(property.getValue());
 			if (value instanceof Object[] && ((Object[]) value).length == 0) {
 				value = new String[0];
 			}
@@ -312,7 +308,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handles a {@link UpdateComponentConfigRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link UpdateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
@@ -320,18 +316,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	protected CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
 			UpdateComponentConfigRequest request) throws OpenemsNamedException {
-		Configuration config = this.getExistingConfigForId(request.getComponentId());
+		var config = this.getExistingConfigForId(request.getComponentId());
 
 		// Create map with changed configuration attributes
-		Dictionary<String, Object> properties = config.getProperties();
+		var properties = config.getProperties();
 		if (properties == null) {
 			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(),
 					config.getPid() + ": Properties is 'null'");
 		}
 
 		// Reset all target properties to avoid missing old references
-		for (Enumeration<String> k = properties.keys(); k.hasMoreElements();) {
-			String property = k.nextElement();
+		for (var k = properties.keys(); k.hasMoreElements();) {
+			var property = k.nextElement();
 			if (property.endsWith(".target")) {
 				properties.put(property, "(enabled=true)");
 			}
@@ -340,13 +336,13 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		for (Property property : request.getProperties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
 			if (!EdgeConfig.ignorePropertyKey(property.getName())) {
-				JsonElement jValue = property.getValue();
+				var jValue = property.getValue();
 				if (jValue == null || jValue == JsonNull.INSTANCE) {
 					// Remove NULL property
 					properties.remove(property.getName());
 				} else {
 					// Add updated Property
-					Object value = JsonUtils.getAsBestType(property.getValue());
+					var value = JsonUtils.getAsBestType(property.getValue());
 					if (value instanceof Object[] && ((Object[]) value).length == 0) {
 						value = new String[0];
 					}
@@ -368,7 +364,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handles a {@link DeleteComponentConfigRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link DeleteComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
@@ -376,7 +372,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	protected CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
 			DeleteComponentConfigRequest request) throws OpenemsNamedException {
-		Configuration config = this.getExistingConfigForId(request.getComponentId());
+		var config = this.getExistingConfigForId(request.getComponentId());
 
 		try {
 			config.delete();
@@ -390,7 +386,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handles a {@link ChannelExportXlsxRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link ChannelExportXlsxRequest}
 	 * @return the Future JSON-RPC Response
@@ -399,7 +395,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	protected CompletableFuture<JsonrpcResponseSuccess> handleChannelExportXlsxRequest(User user,
 			ChannelExportXlsxRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("ChannelExportXlsxRequest", Role.ADMIN);
-		OpenemsComponent component = this.getComponent(request.getComponentId());
+		var component = this.getComponent(request.getComponentId());
 		if (component == null) {
 			throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(request.getComponentId());
 		}
@@ -409,7 +405,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	/**
 	 * Updates the Configuration from the given Properties and adds some meta
 	 * information.
-	 * 
+	 *
 	 * @param user       the {@link User}
 	 * @param config     the Configuration object
 	 * @param properties the properties
@@ -432,7 +428,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	/**
 	 * Gets the ConfigAdmin Configuration for the OpenEMS Component with the given
 	 * Component-ID.
-	 * 
+	 *
 	 * @param componentId the Component-ID
 	 * @return the Configuration
 	 * @throws OpenemsNamedException on error
@@ -449,7 +445,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		if (configs.isEmpty()) {
 			// Maybe this is a Singleton?
-			String factoryPid = this.getComponent(componentId).serviceFactoryPid();
+			var factoryPid = this.getComponent(componentId).serviceFactoryPid();
 			try {
 				return this.cm.getConfiguration(factoryPid, null);
 			} catch (IOException e) {
@@ -470,7 +466,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	/**
 	 * Extends the ConfigurationAdmin 'listConfigurations' method by additionally
 	 * searching through Factory default values.
-	 * 
+	 *
 	 * @param componentId the Component-ID
 	 * @return an array of Configurations
 	 * @throws InvalidSyntaxException on error
@@ -478,23 +474,23 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 */
 	private List<Configuration> listConfigurations(String componentId) throws IOException, InvalidSyntaxException {
 		List<Configuration> result = new ArrayList<>();
-		Configuration[] configs = this.cm.listConfigurations(null);
+		var configs = this.cm.listConfigurations(null);
 		if (configs == null) {
 			return result;
 		}
 
 		for (Configuration config : configs) {
-			Object id = config.getProperties().get("id");
+			var id = config.getProperties().get("id");
 			if (id != null) {
 				// Configuration has an 'id' property
-				if (id instanceof String && componentId.equals((String) id)) {
+				if (id instanceof String && componentId.equals(id)) {
 					// 'id' property matches
 					result.add(config);
 				}
 
 			} else {
 				// compare default value for property 'id'
-				String factoryPid = config.getFactoryPid();
+				var factoryPid = config.getFactoryPid();
 				if (factoryPid == null) {
 					// Singleton?
 					factoryPid = config.getPid();
@@ -502,11 +498,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 						continue;
 					}
 				}
-				Factory factory = this.getEdgeConfig().getFactories().get(factoryPid);
+				var factory = this.getEdgeConfig().getFactories().get(factoryPid);
 				if (factory == null) {
 					continue;
 				}
-				Optional<String> defaultValue = JsonUtils.getAsOptionalString(factory.getPropertyDefaultValue("id"));
+				var defaultValue = JsonUtils.getAsOptionalString(factory.getPropertyDefaultValue("id"));
 				if (defaultValue.isPresent() && componentId.equals(defaultValue.get())) {
 					result.add(config);
 				}
@@ -529,12 +525,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public Clock getClock() {
-		ClockProvider clockProvider = this.clockProvider;
+		var clockProvider = this.clockProvider;
 		if (clockProvider != null) {
 			return clockProvider.getClock();
-		} else {
-			return Clock.systemDefaultZone();
 		}
+		return Clock.systemDefaultZone();
 	}
 
 }

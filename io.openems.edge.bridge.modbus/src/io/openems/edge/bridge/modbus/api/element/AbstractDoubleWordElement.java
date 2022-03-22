@@ -29,9 +29,10 @@ public abstract class AbstractDoubleWordElement<E, T> extends AbstractModbusRegi
 
 	/**
 	 * Gets an instance of the correct subclass of myself.
-	 * 
+	 *
 	 * @return myself
 	 */
+	@Override
 	protected abstract E self();
 
 	@Override
@@ -42,8 +43,8 @@ public abstract class AbstractDoubleWordElement<E, T> extends AbstractModbusRegi
 	@Override
 	protected final void _setInputRegisters(InputRegister... registers) {
 		// fill buffer
-		ByteBuffer buff = ByteBuffer.allocate(4).order(this.getByteOrder());
-		if (wordOrder == WordOrder.MSWLSW) {
+		var buff = ByteBuffer.allocate(4).order(this.getByteOrder());
+		if (this.wordOrder == WordOrder.MSWLSW) {
 			buff.put(registers[0].toBytes());
 			buff.put(registers[1].toBytes());
 		} else {
@@ -52,14 +53,14 @@ public abstract class AbstractDoubleWordElement<E, T> extends AbstractModbusRegi
 		}
 		buff.rewind();
 		// convert registers to Long
-		T value = fromByteBuffer(buff);
+		var value = this.fromByteBuffer(buff);
 		// set value
 		super.setValue(value);
 	}
 
 	/**
 	 * Converts a 4-byte ByteBuffer to the the current OpenemsType.
-	 * 
+	 *
 	 * @param buff the ByteBuffer
 	 * @return an instance of the given OpenemsType
 	 */
@@ -69,12 +70,12 @@ public abstract class AbstractDoubleWordElement<E, T> extends AbstractModbusRegi
 	public final void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException {
 		if (valueOpt.isPresent()) {
 			if (this.isDebug()) {
-				log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
+				this.log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
 			}
-			ByteBuffer buff = ByteBuffer.allocate(4).order(this.getByteOrder());
+			var buff = ByteBuffer.allocate(4).order(this.getByteOrder());
 			buff = this.toByteBuffer(buff, valueOpt.get());
-			byte[] b = buff.array();
-			if (wordOrder == WordOrder.MSWLSW) {
+			var b = buff.array();
+			if (this.wordOrder == WordOrder.MSWLSW) {
 				this.setNextWriteValueRegisters(Optional.of(new Register[] { //
 						new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) }));
 			} else {
@@ -89,7 +90,7 @@ public abstract class AbstractDoubleWordElement<E, T> extends AbstractModbusRegi
 
 	/**
 	 * Converts the current OpenemsType to a 4-byte ByteBuffer.
-	 * 
+	 *
 	 * @param buff  the target ByteBuffer
 	 * @param value an instance of the given OpenemsType
 	 * @return the ByteBuffer
@@ -99,7 +100,7 @@ public abstract class AbstractDoubleWordElement<E, T> extends AbstractModbusRegi
 	/**
 	 * Sets the Word-Order. Default is "MSWLSW" - "Most Significant Word; Least
 	 * Significant Word". See http://www.simplymodbus.ca/FAQ.htm#Order.
-	 * 
+	 *
 	 * @param wordOrder the new Word-Order
 	 * @return myself
 	 */

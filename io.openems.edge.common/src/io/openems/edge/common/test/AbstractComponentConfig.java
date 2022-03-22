@@ -48,7 +48,7 @@ public class AbstractComponentConfig {
 	/**
 	 * Gets the configuration attributes in a format suitable for
 	 * {@link ConfigurationAdmin} properties.
-	 * 
+	 *
 	 * @return the properties
 	 * @throws IllegalAccessException    on error
 	 * @throws IllegalArgumentException  on error
@@ -84,8 +84,8 @@ public class AbstractComponentConfig {
 				continue;
 			}
 
-			String key = method.getName().replace("_", ".");
-			Object value = method.invoke(this);
+			var key = method.getName().replace("_", ".");
+			var value = method.invoke(this);
 			if (value == null) {
 				throw new IllegalArgumentException("Configuration for [" + key + "] is null");
 			}

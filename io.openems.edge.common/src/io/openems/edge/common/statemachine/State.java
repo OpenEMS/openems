@@ -12,17 +12,17 @@ public interface State<STATE extends State<STATE>> extends OptionsEnum {
 
 	/**
 	 * Gets all the available States.
-	 * 
+	 *
 	 * <p>
 	 * If used inside a 'State' enum, just implement this method using
-	 * 
+	 *
 	 * <pre>
 	 * &#64;Override
 	 * public State[] getStates() {
 	 * 	return State.values();
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @return an array of States, as provided by an enum.
 	 */
 	public STATE[] getStates();

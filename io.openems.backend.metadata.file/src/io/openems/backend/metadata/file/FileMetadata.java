@@ -176,10 +176,10 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 			// parse to JSON
 			try {
-				JsonElement config = JsonUtils.parse(sb.toString());
-				JsonObject jEdges = JsonUtils.getAsJsonObject(config, "edges");
+				var config = JsonUtils.parse(sb.toString());
+				var jEdges = JsonUtils.getAsJsonObject(config, "edges");
 				for (Entry<String, JsonElement> entry : jEdges.entrySet()) {
-					JsonObject edge = JsonUtils.getAsJsonObject(entry.getValue());
+					var edge = JsonUtils.getAsJsonObject(entry.getValue());
 					edges.add(new MyEdge(//
 							entry.getKey(), // Edge-ID
 							JsonUtils.getAsString(edge, "apikey"), //

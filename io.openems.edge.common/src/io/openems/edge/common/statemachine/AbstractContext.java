@@ -17,7 +17,7 @@ public class AbstractContext<PARENT extends OpenemsComponent> {
 
 	/**
 	 * Constructs an {@link AbstractContext}.
-	 * 
+	 *
 	 * @param parent the parent {@link OpenemsComponent}. This is used to provide
 	 *               useful logging.
 	 */
@@ -27,7 +27,7 @@ public class AbstractContext<PARENT extends OpenemsComponent> {
 
 	/**
 	 * Gets the parent {@link OpenemsComponent}.
-	 * 
+	 *
 	 * @return the parent
 	 */
 	public PARENT getParent() {
@@ -36,7 +36,7 @@ public class AbstractContext<PARENT extends OpenemsComponent> {
 
 	/**
 	 * Log a debug message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger instance
 	 * @param message the message
 	 */
@@ -46,7 +46,7 @@ public class AbstractContext<PARENT extends OpenemsComponent> {
 
 	/**
 	 * Log an info message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger instance
 	 * @param message the message
 	 */
@@ -56,7 +56,7 @@ public class AbstractContext<PARENT extends OpenemsComponent> {
 
 	/**
 	 * Log a warn message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger instance
 	 * @param message the message
 	 */
@@ -66,7 +66,7 @@ public class AbstractContext<PARENT extends OpenemsComponent> {
 
 	/**
 	 * Log an error message including the Component ID.
-	 * 
+	 *
 	 * @param log     the Logger instance
 	 * @param message the message
 	 */

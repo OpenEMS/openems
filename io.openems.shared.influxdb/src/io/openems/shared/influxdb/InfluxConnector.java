@@ -1,45 +1,43 @@
 package io.openems.shared.influxdb;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-import org.influxdb.BatchOptions;
-import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBException;
-import org.influxdb.InfluxDBFactory;
-import org.influxdb.InfluxDBIOException;
-import org.influxdb.dto.Point;
-import org.influxdb.dto.Query;
-import org.influxdb.dto.QueryResult;
-import org.influxdb.dto.QueryResult.Result;
-import org.influxdb.dto.QueryResult.Series;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
+import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.InfluxDBClientFactory;
+import com.influxdb.client.InfluxDBClientOptions;
+import com.influxdb.client.WriteApi;
+import com.influxdb.client.WriteOptions;
+import com.influxdb.client.write.Point;
+import com.influxdb.client.write.events.BackpressureEvent;
+import com.influxdb.client.write.events.WriteErrorEvent;
+import com.influxdb.exceptions.InfluxException;
+import com.influxdb.query.FluxRecord;
+import com.influxdb.query.FluxTable;
+import com.influxdb.query.dsl.Flux;
+import com.influxdb.query.dsl.functions.restriction.Restrictions;
 
 import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
-import io.openems.common.utils.ThreadPoolUtils;
+import io.reactivex.BackpressureOverflowStrategy;
 import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
@@ -51,10 +49,6 @@ public class InfluxConnector {
 	private static final int READ_TIMEOUT = 60; // [s]
 	private static final int WRITE_TIMEOUT = 10; // [s]
 
-	private static final int EXECUTOR_MIN_THREADS = 1;
-	private static final int EXECUTOR_MAX_THREADS = 50;
-	private static final int EXECUTOR_QUEUE_SIZE = 100;
-
 	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
 	private final String ip;
@@ -64,31 +58,25 @@ public class InfluxConnector {
 	private final String database;
 	private final String retentionPolicy;
 	private final boolean isReadOnly;
-	private final BiConsumer<Iterable<Point>, Throwable> onWriteError;
-	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
-			TimeUnit.SECONDS, //
-			new ArrayBlockingQueue<>(EXECUTOR_QUEUE_SIZE), //
-			new ThreadFactoryBuilder().setNameFormat("InfluxConnector-%d").build(), //
-			new ThreadPoolExecutor.DiscardPolicy());
-	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
+	private final Consumer<Throwable> onWriteError;
 
 	/**
 	 * The Constructor.
-	 * 
-	 * @param ip           IP-Address of the InfluxDB-Server
-	 * @param port         Port of the InfluxDB-Server
-	 * @param username     The username
-	 * @param password     The password
-	 * @param database     The database name. If it does not exist, it will be
-	 *                     created
-	 * @param isReadOnly   If true, a 'Read-Only-Mode' is activated, where no data
-	 *                     is actually written to the database
-	 * @param onWriteError A callback for write-errors, i.e. '(failedPoints,
-	 *                     throwable) -&gt; {}'
+	 *
+	 * @param ip              IP-Address of the InfluxDB-Server
+	 * @param port            Port of the InfluxDB-Server
+	 * @param username        The username
+	 * @param password        The password
+	 * @param database        The database name. If it does not exist, it will be
+	 *                        created
+	 * @param retentionPolicy For the InfluxDB database setting
+	 * @param isReadOnly      If true, a 'Read-Only-Mode' is activated, where no
+	 *                        data is actually written to the database
+	 * @param onWriteError    A callback for write-errors, i.e. '(failedPoints,
+	 *                        throwable) -&gt; {}'
 	 */
 	public InfluxConnector(String ip, int port, String username, String password, String database,
-			String retentionPolicy, boolean isReadOnly, BiConsumer<Iterable<Point>, Throwable> onWriteError) {
-		super();
+			String retentionPolicy, boolean isReadOnly, Consumer<Throwable> onWriteError) {
 		this.ip = ip;
 		this.port = port;
 		this.username = username;
@@ -97,18 +85,10 @@ public class InfluxConnector {
 		this.retentionPolicy = retentionPolicy;
 		this.isReadOnly = isReadOnly;
 		this.onWriteError = onWriteError;
-		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			int queueSize = this.executor.getQueue().size();
-			this.log.info(String.format("[monitor] Pool: %d, Active: %d, Pending: %d, Completed: %d %s",
-					this.executor.getPoolSize(), //
-					this.executor.getActiveCount(), //
-					this.executor.getQueue().size(), //
-					this.executor.getCompletedTaskCount(), //
-					(queueSize == EXECUTOR_QUEUE_SIZE) ? "!!!BACKPRESSURE!!!" : "")); //
-		}, 10, 10, TimeUnit.SECONDS);
 	}
 
-	private InfluxDB _influxDB = null;
+	private InfluxDBClient _influxDB = null;
+	private WriteApi _writeApi = null;
 
 	public String getDatabase() {
 		return this.database;
@@ -116,39 +96,65 @@ public class InfluxConnector {
 
 	/**
 	 * Get InfluxDB Connection.
-	 * 
+	 *
 	 * @return the {@link InfluxDB} connection
 	 */
-	private InfluxDB getConnection() {
+	private synchronized InfluxDBClient getConnection() {
 		if (this._influxDB == null) {
-			OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient().newBuilder() //
+			var okHttpClientBuilder = new OkHttpClient().newBuilder() //
 					.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS) //
 					.readTimeout(READ_TIMEOUT, TimeUnit.SECONDS) //
 					.writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS);
-			InfluxDB influxDB = InfluxDBFactory.connect("http://" + this.ip + ":" + this.port, this.username,
-					this.password, okHttpClientBuilder);
-			try {
-				influxDB.query(new Query("CREATE DATABASE " + this.database, ""));
-			} catch (InfluxDBException e) {
-				log.warn("InfluxDB-Exception: " + e.getMessage());
-			}
-			influxDB.setDatabase(this.database);
-			influxDB.setRetentionPolicy(this.retentionPolicy);
-			influxDB.enableBatch(BatchOptions.DEFAULTS //
-					.precision(TimeUnit.MILLISECONDS) //
-					.flushDuration(1_000 /* milliseconds */) //
-					.jitterDuration(1_000 /* milliseconds */) //
-					.actions(1_000 /* entries */) //
-					.bufferLimit(1_000_000 /* entries */) //
-					.exceptionHandler(this.onWriteError));
-			this._influxDB = influxDB;
+
+			// copied options from InfluxDBClientFactory.createV1
+			// to set timeout
+			var options = InfluxDBClientOptions.builder() //
+					.url("http://" + this.ip + ":" + this.port) //
+					.org("-") //
+					.authenticateToken(String.format("%s:%s", this.username == null ? "" : this.username, //
+							this.password == null ? "" : String.valueOf(this.password)).toCharArray()) //
+					.bucket(String.format("%s/%s", this.database,
+							this.retentionPolicy == null ? "" : this.retentionPolicy)) //
+					.okHttpClient(okHttpClientBuilder) //
+					.build();
+
+			this._influxDB = InfluxDBClientFactory.create(options);
 		}
 		return this._influxDB;
 	}
 
+	/**
+	 * Get InfluxDB write api.
+	 *
+	 * @return the {@link WriteApi}
+	 */
+	private synchronized WriteApi getWriteApi() {
+		if (this._writeApi == null) {
+			var writeOptions = WriteOptions.builder() //
+					.jitterInterval(1_000 /* milliseconds */) //
+					.bufferLimit(2 /* entries */) //
+					.backpressureStrategy(BackpressureOverflowStrategy.DROP_OLDEST) //
+					.build();
+
+			var writeApi = this.getConnection().makeWriteApi(writeOptions);
+
+			// add listeners
+			writeApi.listenEvents(BackpressureEvent.class, event -> {
+				this.log.info("!!!BACKPRESSURE!!!");
+			});
+			writeApi.listenEvents(WriteErrorEvent.class, event -> {
+				this.onWriteError.accept(event.getThrowable());
+			});
+
+			this._writeApi = writeApi;
+		}
+		return this._writeApi;
+	}
+
+	/**
+	 * Close current {@link InfluxDBClient}.
+	 */
 	public void deactivate() {
-		// Shutdown executor
-		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 		if (this._influxDB != null) {
 			this._influxDB.close();
 		}
@@ -188,33 +194,39 @@ public class InfluxConnector {
 	private final RandomLimit queryLimit = new RandomLimit();
 
 	/**
-	 * Copied from backend.timedata.influx.provider.
-	 * 
-	 * @param query the Query
-	 * @return the {@link QueryResult}
+	 * Execute given {@link Flux} query.
+	 *
+	 * @param query {@link Flux} to execute
+	 * @return Result from database as {@link List} of {@link FluxTable}
 	 * @throws OpenemsException on error
 	 */
-	public QueryResult executeQuery(String query) throws OpenemsException {
+	public List<FluxTable> executeQuery(Flux query) throws OpenemsException {
+		return this.executeQuery(query.toString());
+	}
+
+	/**
+	 * Execute given query.
+	 *
+	 * @param query to execute
+	 * @return Result from database as {@link List} of {@link FluxTable}
+	 * @throws OpenemsException on error
+	 */
+	public List<FluxTable> executeQuery(String query) throws OpenemsException {
 		if (Math.random() < this.queryLimit.getLimit()) {
 			throw new OpenemsException(
 					"InfluxDB read is temporarily blocked [" + this.queryLimit + "]. Query: " + query);
 		}
 
-		InfluxDB influxDB = this.getConnection();
+		var influxDB = this.getConnection();
 
 		// Parse result
-		QueryResult queryResult;
+		List<FluxTable> queryResult;
 		try {
-			queryResult = influxDB.query(new Query(query, this.database), TimeUnit.MILLISECONDS);
+			queryResult = influxDB.getQueryApi().query(query);
 		} catch (RuntimeException e) {
 			this.queryLimit.increase();
 			this.log.error("InfluxDB query runtime error. Query: " + query + ", Error: " + e.getMessage());
 			throw new OpenemsException(e.getMessage());
-		}
-		if (queryResult.hasError()) {
-			this.queryLimit.increase();
-			this.log.error("InfluxDB query error. Query: " + query + ", Error: " + queryResult.getError());
-			throw new OpenemsException(queryResult.getError());
 		}
 		this.queryLimit.decrease();
 		return queryResult;
@@ -222,7 +234,7 @@ public class InfluxConnector {
 
 	/**
 	 * Queries historic energy.
-	 * 
+	 *
 	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
 	 * @param fromDate     the From-Date
 	 * @param toDate       the To-Date
@@ -239,37 +251,41 @@ public class InfluxConnector {
 
 		// handle empty call
 		if (channels.isEmpty()) {
-			return new TreeMap<ChannelAddress, JsonElement>();
+			return new TreeMap<>();
 		}
 
-		// Prepare query string
-		StringBuilder b = new StringBuilder("SELECT ");
-		b.append(InfluxConnector.toChannelAddressStringEnergy(channels));
-		b.append(" FROM data WHERE ");
+		// prepare query
+		var builder = new StringBuilder() //
+				.append("data = from(bucket: \"").append(this.database).append("\")") //
+
+				.append("|> range(start: ").append(fromDate.toInstant()) //
+				.append(", stop: ").append(toDate.toInstant()).append(")") //
+				.append("|> filter(fn: (r) => r._measurement == \"").append(MEASUREMENT).append("\")");
+
 		if (influxEdgeId.isPresent()) {
-			b.append(OpenemsOEM.INFLUXDB_TAG + " = '" + influxEdgeId.get() + "' AND ");
+			builder.append("|> filter(fn: (r) => r.fems == \"" + influxEdgeId.get() + "\")");
 		}
-		b.append("time > ");
-		b.append(String.valueOf(fromDate.toEpochSecond()));
-		b.append("s");
-		b.append(" AND time < ");
-		b.append(String.valueOf(toDate.toEpochSecond()));
-		b.append("s");
-		String query = b.toString();
+
+		builder //
+				.append("|> filter(fn : (r) => ") //
+				.append(InfluxConnector.toChannelAddressFieldList(channels).toString()) //
+				.append(")")
+
+				.append("first = data |> first()") //
+				.append("last = data |> last()") //
+				.append("union(tables: [first, last])") //
+				.append("|> difference()");
+		var query = builder.toString();
 
 		// Execute query
-		QueryResult queryResult = this.executeQuery(query);
+		var queryResult = this.executeQuery(query);
 
-		// Prepare result
-		SortedMap<ChannelAddress, JsonElement> result = InfluxConnector.convertHistoricEnergyResult(query, queryResult,
-				fromDate.getZone());
-
-		return result;
+		return InfluxConnector.convertHistoricEnergyResult(query, queryResult);
 	}
 
 	/**
 	 * Queries historic energy per period.
-	 * 
+	 *
 	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
 	 * @param fromDate     the From-Date
 	 * @param toDate       the To-Date
@@ -280,10 +296,17 @@ public class InfluxConnector {
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(
 			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
-			int resolution) throws OpenemsNamedException {
+			Resolution resolution) throws OpenemsNamedException {
 		if (Math.random() * 4 < this.queryLimit.getLimit()) {
 			throw new OpenemsException("InfluxDB read is temporarily blocked for Energy values [" + this.queryLimit
 					+ "]. Edge [" + influxEdgeId + "] FromDate [" + fromDate + "] ToDate [" + toDate + "]");
+		}
+
+		if (resolution.getUnit().equals(ChronoUnit.MONTHS)) {
+			fromDate = fromDate.with(TemporalAdjusters.firstDayOfMonth());
+			if (!toDate.equals(toDate.with(TemporalAdjusters.firstDayOfMonth()))) {
+				toDate = toDate.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1);
+			}
 		}
 
 		// handle empty call
@@ -291,37 +314,27 @@ public class InfluxConnector {
 			return new TreeMap<>();
 		}
 
-		// Prepare query string
-		StringBuilder b = new StringBuilder("SELECT ");
-		b.append(InfluxConnector.toChannelAddressStringNonNegativeDifferenceLast(channels));
-		b.append(" FROM data WHERE ");
+		// prepare query
+		Flux flux = Flux.from(this.database) //
+				.range(fromDate.toInstant(), toDate.toInstant()) //
+				.filter(Restrictions.measurement().equal(MEASUREMENT));
+
 		if (influxEdgeId.isPresent()) {
-			b.append(OpenemsOEM.INFLUXDB_TAG + " = '" + influxEdgeId.get() + "' AND ");
+			flux = flux.filter(Restrictions.tag(OpenemsOEM.INFLUXDB_TAG).equal(influxEdgeId.get().toString()));
 		}
-		b.append("time > ");
-		b.append(String.valueOf(fromDate.toEpochSecond()));
-		b.append("s");
-		b.append(" AND time < ");
-		b.append(String.valueOf(toDate.toEpochSecond()));
-		b.append("s");
-		b.append(" GROUP BY time(");
-		b.append(resolution);
-		b.append("s) fill(null)");
-		String query = b.toString();
 
-		// Execute query
-		QueryResult queryResult = this.executeQuery(query);
+		flux = flux.filter(InfluxConnector.toChannelAddressFieldList(channels)) //
+				.aggregateWindow(resolution.getValue(), resolution.getUnit(), "last") //
+				.difference(true);
 
-		// Prepare result
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = InfluxConnector
-				.convertHistoricDataQueryResult(queryResult, fromDate.getZone());
+		var queryResult = this.executeQuery(flux);
 
-		return result;
+		return InfluxConnector.convertHistoricDataQueryResult(queryResult, fromDate, resolution);
 	}
 
 	/**
 	 * Queries historic data.
-	 * 
+	 *
 	 * @param influxEdgeId the unique, numeric Edge-ID; or Empty to query all Edges
 	 * @param fromDate     the From-Date
 	 * @param toDate       the To-Date
@@ -332,197 +345,160 @@ public class InfluxConnector {
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(
 			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
-			int resolution) throws OpenemsNamedException {
-		// Prepare query string
-		StringBuilder query = new StringBuilder("SELECT ");
-		query.append(InfluxConnector.toChannelAddressStringData(channels));
-		query.append(" FROM data WHERE ");
+			Resolution resolution) throws OpenemsNamedException {
+
+		// remove 5 minutes to prevent shifted timeline
+		var fromInstant = fromDate.toInstant().minus(5, ChronoUnit.MINUTES);
+
+		// prepare query
+		Flux flux = Flux.from(this.database) //
+				.range(fromInstant, toDate.toInstant()) //
+				.filter(Restrictions.measurement().equal(MEASUREMENT));
+
 		if (influxEdgeId.isPresent()) {
-			query.append(OpenemsOEM.INFLUXDB_TAG + " = '" + influxEdgeId.get() + "' AND ");
+			flux = flux.filter(Restrictions.tag(OpenemsOEM.INFLUXDB_TAG).equal(influxEdgeId.get().toString()));
 		}
-		query.append("time > ");
-		query.append(String.valueOf(fromDate.toEpochSecond()));
-		query.append("s");
-		query.append(" AND time < ");
-		query.append(String.valueOf(toDate.toEpochSecond()));
-		query.append("s");
-		query.append(" GROUP BY time(");
-		query.append(resolution);
-		query.append("s) fill(null)");
+
+		flux = flux.filter(InfluxConnector.toChannelAddressFieldList(channels)) //
+				.aggregateWindow(resolution.getValue(), resolution.getUnit(), "mean");
 
 		// Execute query
-		QueryResult queryResult = this.executeQuery(query.toString());
+		var queryResult = this.executeQuery(flux);
 
-		// Prepare result
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = InfluxConnector
-				.convertHistoricDataQueryResult(queryResult, fromDate.getZone());
-
-		return result;
+		return InfluxConnector.convertHistoricDataQueryResult(queryResult, fromDate, resolution);
 	}
 
 	/**
 	 * Converts the QueryResult of a Historic-Data query to a properly typed Table.
-	 * 
+	 *
 	 * @param queryResult the Query-Result
+	 * @param fromDate    start date from query
+	 * @param resolution  {@link Resolution} to revert InfluxDB offset
 	 * @return the historic data as Map
 	 * @throws OpenemsException on error
 	 */
 	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> convertHistoricDataQueryResult(
-			QueryResult queryResult, ZoneId timezone) throws OpenemsNamedException {
+			List<FluxTable> queryResult, ZonedDateTime fromDate, Resolution resolution) throws OpenemsNamedException {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
-		for (Result result : queryResult.getResults()) {
-			List<Series> seriess = result.getSeries();
-			if (seriess != null) {
-				for (Series series : seriess) {
-					// create ChannelAddress index
-					ArrayList<ChannelAddress> addressIndex = new ArrayList<>();
-					for (String column : series.getColumns()) {
-						if (column.equals("time")) {
-							continue;
-						}
-						addressIndex.add(ChannelAddress.fromString(column));
-					}
 
-					// add all data
-					for (List<Object> values : series.getValues()) {
-						SortedMap<ChannelAddress, JsonElement> tableRow = new TreeMap<>();
-						// get timestamp
-						Instant timestampInstant = Instant.ofEpochMilli((long) ((Double) values.get(0)).doubleValue());
-						ZonedDateTime timestamp = ZonedDateTime.ofInstant(timestampInstant, timezone);
-						for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
-							// Note: ignoring index '0' here as it is the 'timestamp'
-							ChannelAddress address = addressIndex.get(columnIndex);
-							Object valueObj = values.get(columnIndex + 1);
-							JsonElement value;
-							if (valueObj == null) {
-								value = JsonNull.INSTANCE;
-							} else if (valueObj instanceof Number) {
-								value = new JsonPrimitive((Number) valueObj);
-							} else {
-								value = new JsonPrimitive(valueObj.toString());
-							}
-							tableRow.put(address, value);
-						}
-						table.put(timestamp, tableRow);
-					}
+		for (FluxTable fluxTable : queryResult) {
+			for (FluxRecord record : fluxTable.getRecords()) {
+				var timestamp = ZonedDateTime.ofInstant(record.getTime(), fromDate.getZone());
+
+				// ignore first timestamp is before from date
+				if (timestamp.isBefore(fromDate)) {
+					continue;
 				}
+				timestamp = resolution.revertInfluxDBOffset(timestamp);
+
+				var valueObj = record.getValue();
+				final JsonElement value;
+				if (valueObj == null) {
+					value = JsonNull.INSTANCE;
+				} else if (valueObj instanceof Number) {
+					value = new JsonPrimitive((Number) valueObj);
+				} else {
+					value = new JsonPrimitive(valueObj.toString());
+				}
+
+				var channelAddresss = ChannelAddress.fromString(record.getField());
+
+				var row = table.get(timestamp);
+				if (row == null) {
+					row = new TreeMap<>();
+				}
+				row.put(channelAddresss, value);
+
+				table.put(timestamp, row);
 			}
 		}
+
 		return table;
 	}
 
 	/**
 	 * Converts the QueryResult of a Historic-Energy query to a properly typed Map.
-	 * 
+	 *
+	 * @param query       was executed
 	 * @param queryResult the Query-Result
 	 * @return the historic energy as Map
 	 * @throws OpenemsException on error
 	 */
 	private static SortedMap<ChannelAddress, JsonElement> convertHistoricEnergyResult(String query,
-			QueryResult queryResult, ZoneId timezone) throws OpenemsNamedException {
+			List<FluxTable> queryResult) throws OpenemsNamedException {
 		SortedMap<ChannelAddress, JsonElement> map = new TreeMap<>();
-		for (Result result : queryResult.getResults()) {
-			List<Series> seriess = result.getSeries();
-			if (seriess != null) {
-				for (Series series : seriess) {
-					// create ChannelAddress index
-					ArrayList<ChannelAddress> addressIndex = new ArrayList<>();
-					for (String column : series.getColumns()) {
-						if (column.equals("time")) {
-							continue;
-						}
-						addressIndex.add(ChannelAddress.fromString(column));
-					}
 
-					// add all data
-					for (List<Object> values : series.getValues()) {
-						for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
-							// Note: ignoring index '0' here as it is the 'timestamp'
-							ChannelAddress address = addressIndex.get(columnIndex);
-							Object valueObj = values.get(columnIndex + 1);
-							JsonElement value;
-							if (valueObj == null) {
-								value = JsonNull.INSTANCE;
-							} else if (valueObj instanceof Number) {
-								Number number = (Number) valueObj;
-								if (number.intValue() < 0) {
-									// do not consider negative values
-									LOG.warn("Got negative Energy value [" + number + "] for query: " + query);
-									value = JsonNull.INSTANCE;
-								} else {
-									value = new JsonPrimitive(number);
-								}
-							} else {
-								value = new JsonPrimitive(valueObj.toString());
-							}
-							map.put(address, value);
-						}
+		for (FluxTable fluxTable : queryResult) {
+			for (FluxRecord record : fluxTable.getRecords()) {
+
+				var valueObj = record.getValue();
+				final JsonElement value;
+				if (valueObj == null) {
+					value = JsonNull.INSTANCE;
+				} else if (valueObj instanceof Number) {
+					var number = (Number) valueObj;
+					if (number.intValue() < 0) {
+						// do not consider negative values
+						LOG.warn("Got negative Energy value [" + number + "] for query: " + query);
+						value = JsonNull.INSTANCE;
+					} else {
+						value = new JsonPrimitive(number);
 					}
+				} else {
+					value = new JsonPrimitive(valueObj.toString());
 				}
+
+				var channelAddresss = ChannelAddress.fromString(record.getField());
+
+				map.put(channelAddresss, value);
 			}
 		}
 
-		{
-			// Check if all values are null
-			boolean areAllValuesNull = true;
-			for (JsonElement value : map.values()) {
-				if (!value.isJsonNull()) {
-					areAllValuesNull = false;
-					break;
-				}
+		// Check if all values are null
+		var areAllValuesNull = true;
+		for (JsonElement value : map.values()) {
+			if (!value.isJsonNull()) {
+				areAllValuesNull = false;
+				break;
 			}
-			if (areAllValuesNull) {
-				throw new OpenemsException("Energy values are not available for query: " + query);
-			}
+		}
+		if (areAllValuesNull) {
+			throw new OpenemsException("Energy values are not available for query: " + query);
 		}
 
 		return map;
 	}
 
-	protected static String toChannelAddressStringData(Set<ChannelAddress> channels) throws OpenemsException {
-		ArrayList<String> channelAddresses = new ArrayList<>();
-		for (ChannelAddress channel : channels) {
-			channelAddresses.add("MEAN(\"" + channel.toString() + "\") AS \"" + channel.toString() + "\"");
-		}
-		return String.join(", ", channelAddresses);
-	}
+	/**
+	 * Converts given {@link Set} of {@link ChannelAddress} to {@link Restrictions}
+	 * separated by or.
+	 *
+	 * @param channels {@link Set} of {@link ChannelAddress}
+	 * @return {@link Restrictions} separated by or
+	 */
+	private static Restrictions toChannelAddressFieldList(Set<ChannelAddress> channels) {
+		var restrictions = channels.stream() //
+				.map(channel -> Restrictions.field().equal(channel.toString())) //
+				.toArray(restriction -> new Restrictions[restriction]);
 
-	protected static String toChannelAddressStringEnergy(Set<ChannelAddress> channels) throws OpenemsException {
-		ArrayList<String> channelAddresses = new ArrayList<>();
-		for (ChannelAddress channel : channels) {
-			channelAddresses.add("LAST(\"" + channel.toString() + "\") - FIRST(\"" + channel.toString() + "\") AS \""
-					+ channel.toString() + "\"");
-		}
-		return String.join(", ", channelAddresses);
-	}
-
-	protected static String toChannelAddressStringNonNegativeDifferenceLast(Set<ChannelAddress> channels)
-			throws OpenemsException {
-		ArrayList<String> channelAddresses = new ArrayList<>();
-		for (ChannelAddress channel : channels) {
-			channelAddresses.add(
-					"NON_NEGATIVE_DIFFERENCE(LAST(\"" + channel.toString() + "\")) AS \"" + channel.toString() + "\"");
-		}
-		return String.join(", ", channelAddresses);
+		return Restrictions.or(restrictions);
 	}
 
 	/**
 	 * Actually write the Point to InfluxDB.
-	 * 
+	 *
 	 * @param point the InfluxDB Point
 	 * @throws OpenemsException on error
 	 */
 	public void write(Point point) throws OpenemsException {
 		if (this.isReadOnly) {
-			log.info("Read-Only-Mode is activated. Not writing points: "
-					+ StringUtils.toShortString(point.lineProtocol(), 100));
+			this.log.info("Read-Only-Mode is activated. Not writing points: "
+					+ StringUtils.toShortString(point.toLineProtocol(), 100));
 			return;
 		}
 		try {
-			this.executor.execute(() -> {
-				this.getConnection().write(point);
-			});
-		} catch (InfluxDBIOException e) {
+			this.getWriteApi().writePoint(point);
+		} catch (InfluxException e) {
 			throw new OpenemsException("Unable to write point: " + e.getMessage());
 		}
 	}

@@ -15,7 +15,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 
 import io.github.meiskalt7.jsonlogic.JsonLogic;
 import io.github.meiskalt7.jsonlogic.JsonLogicException;
@@ -77,6 +76,7 @@ public class JsonLogicController extends AbstractOpenemsComponent implements Con
 		this.recursivelyParseVars(JsonUtils.parse(config.rule()));
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -84,7 +84,7 @@ public class JsonLogicController extends AbstractOpenemsComponent implements Con
 
 	/**
 	 * Parse the JsonLogic rule and try to find "var" entries.
-	 * 
+	 *
 	 * @param json the JsonLogic rule
 	 * @throws OpenemsNamedException on error
 	 */
@@ -94,7 +94,7 @@ public class JsonLogicController extends AbstractOpenemsComponent implements Con
 			for (Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
 				// Is there any key "var"
 				if (entry.getKey().equals("var") && entry.getValue().isJsonPrimitive()) {
-					JsonPrimitive var = entry.getValue().getAsJsonPrimitive();
+					var var = entry.getValue().getAsJsonPrimitive();
 					if (var.isString()) {
 						// Parse as ChannelAddress and add to list
 						this.channelAddresses.add(ChannelAddress.fromString(var.getAsString()));
@@ -109,8 +109,6 @@ public class JsonLogicController extends AbstractOpenemsComponent implements Con
 				// Recursive call
 				this.recursivelyParseVars(entry);
 			}
-		} else {
-			return;
 		}
 	}
 
@@ -136,7 +134,7 @@ public class JsonLogicController extends AbstractOpenemsComponent implements Con
 		// Get Set-Channel requests
 		for (Object entry : result) {
 			List<?> request = (List<?>) entry;
-			ChannelAddress channelAddress = ChannelAddress.fromString((String) request.get(0));
+			var channelAddress = ChannelAddress.fromString((String) request.get(0));
 			WriteChannel<?> channel = this.componentManager.getChannel(channelAddress);
 			Object value = request.get(1);
 			channel.setNextWriteValueFromObject(value);
@@ -144,11 +142,11 @@ public class JsonLogicController extends AbstractOpenemsComponent implements Con
 	}
 }
 
-// TODO: once gson version 2.8.6 or higher is compatible with OSGi on Java 8: use json-logic library 
+// TODO: once gson version 2.8.6 or higher is compatible with OSGi on Java 8: use json-logic library
 // from maven instead of local file. Json-logic library on maven requires Gson 2.8.6; but Gson 2.8.6
 // is not compatible with OSGi on Java 8 as it has the wrong manifest headers.
 // See -> https://github.com/google/gson/issues/1601
-// This is why we are using a manually compiled jar here, based on the fork at 
+// This is why we are using a manually compiled jar here, based on the fork at
 // https://github.com/sfeilmeier/json-logic-java
 //
 // To revert back to official version, add to pom.xml:

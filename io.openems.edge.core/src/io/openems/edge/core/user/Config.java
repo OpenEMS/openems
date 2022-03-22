@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 /**
  * Configures the User Service.
- * 
+ *
  * By default the following passwords are set:
  * <ul>
  * <li>User admin: admin

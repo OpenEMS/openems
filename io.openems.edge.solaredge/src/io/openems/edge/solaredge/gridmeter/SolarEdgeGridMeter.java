@@ -68,6 +68,7 @@ public class SolarEdgeGridMeter extends AbstractSunSpecMeter
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -82,6 +83,7 @@ public class SolarEdgeGridMeter extends AbstractSunSpecMeter
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

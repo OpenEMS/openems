@@ -63,6 +63,7 @@ public class IoOffGridSwitch extends AbstractOpenemsComponent implements OffGrid
 		this.outputGroundingContactorChannelAddr = ChannelAddress.fromString(config.outputGroundingContactor());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -86,7 +87,7 @@ public class IoOffGridSwitch extends AbstractOpenemsComponent implements OffGrid
 	private void handleInput() {
 		this._setMainContactor(this.getInputChannel(this.inputMainContactorChannelAddr));
 
-		Boolean inputGridStatus = this.getInputChannel(this.inputGridStatusChannelAddr);
+		var inputGridStatus = this.getInputChannel(this.inputGridStatusChannelAddr);
 		if (inputGridStatus == null) {
 			this._setGridMode(GridMode.UNDEFINED);
 		} else if (inputGridStatus) {
@@ -100,7 +101,7 @@ public class IoOffGridSwitch extends AbstractOpenemsComponent implements OffGrid
 
 	/**
 	 * Read a Digital Input.
-	 * 
+	 *
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @return true, false or null
 	 */

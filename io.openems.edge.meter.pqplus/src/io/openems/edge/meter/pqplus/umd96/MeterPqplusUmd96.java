@@ -16,6 +16,7 @@ public interface MeterPqplusUmd96 extends SymmetricMeter, AsymmetricMeter, Modbu
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

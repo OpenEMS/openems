@@ -24,7 +24,7 @@ public interface EssDcCharger extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Maximum Ever Actual Power
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess DC Charger
 		 * <li>Type: Integer
@@ -38,7 +38,7 @@ public interface EssDcCharger extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Actual Power
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess DC Charger
 		 * <li>Type: Integer
@@ -55,7 +55,7 @@ public interface EssDcCharger extends OpenemsComponent {
 						 * Fill Max Actual Power channel
 						 */
 						if (value.asOptional().isPresent()) {
-							int newValue = (int) (Integer) value.get();
+							int newValue = (Integer) value.get();
 							Channel<Integer> maxActualPowerChannel = channel.getComponent()
 									.channel(ChannelId.MAX_ACTUAL_POWER);
 							int maxActualPower = maxActualPowerChannel.value().orElse(0);
@@ -70,7 +70,7 @@ public interface EssDcCharger extends OpenemsComponent {
 				})),
 		/**
 		 * Actual Energy
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
@@ -87,6 +87,7 @@ public interface EssDcCharger extends OpenemsComponent {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

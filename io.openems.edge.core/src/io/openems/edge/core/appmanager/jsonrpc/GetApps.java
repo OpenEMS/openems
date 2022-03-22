@@ -16,10 +16,10 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
 /**
  * Gets the available {@link OpenemsApp}s.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -28,10 +28,10 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
  *   "params": {}
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -41,7 +41,7 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
  *       "category": string (OpenemsAppCategory enum),
  *       "appId": string,
  *       "name": string,
- *       "image": string (base64), 
+ *       "image": string (base64),
  *       "instanceIds": UUID[],
  *     }]
  *   }
@@ -57,7 +57,7 @@ public class GetApps {
 
 		/**
 		 * Parses a generic {@link JsonrpcRequest} to a {@link Request}.
-		 * 
+		 *
 		 * @param r the {@link JsonrpcRequest}
 		 * @return the {@link GetAppsRequest}
 		 * @throws OpenemsNamedException on error

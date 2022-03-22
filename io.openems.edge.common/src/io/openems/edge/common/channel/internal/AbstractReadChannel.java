@@ -43,8 +43,8 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 		this.parent = parent;
 		this.channelId = channelId;
 		this.channelDoc = channelDoc;
-		this.nextValue = new Value<T>(this, null);
-		this.activeValue = new Value<T>(this, null);
+		this.nextValue = new Value<>(this, null);
+		this.activeValue = new Value<>(this, null);
 
 		// validate Type
 		if (!this.validateType(channelDoc.getType(), type)) {
@@ -99,7 +99,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	@Override
 	public void nextProcessImage() {
-		Value<T> oldValue = this.activeValue;
+		var oldValue = this.activeValue;
 		final boolean valueHasChanged;
 		if (oldValue == null && this.nextValue == null) {
 			valueHasChanged = false;
@@ -128,12 +128,13 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	/**
 	 * Sets the next value. Internal method. Do not call directly.
-	 * 
+	 *
 	 * @param value the next value
 	 */
+	@Override
 	@Deprecated
 	public void _setNextValue(T value) {
-		this.nextValue = new Value<T>(this, value);
+		this.nextValue = new Value<>(this, value);
 		if (this.channelDoc.isDebug()) {
 			this.log.info("Next value for [" + this.address() + "]: " + this.nextValue.asString());
 		}
@@ -149,7 +150,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	public Value<T> value() throws IllegalArgumentException {
 		switch (this.channelDoc.getAccessMode()) {
 		case WRITE_ONLY:
-			throw new IllegalArgumentException("Channel [" + this.channelId + "] is WRITE_ONLY.");
+			throw new IllegalArgumentException("Channel [" + this.channelId.id() + "] is WRITE_ONLY.");
 		case READ_ONLY:
 		case READ_WRITE:
 			break;
@@ -160,9 +161,10 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	@Override
 	public String toString() {
 		return "Channel [" //
-				+ "ID=" + this.channelId + ", " //
+				+ "ID=" + this.channelId.id() + ", " //
 				+ "type=" + this.type + ", " //
-				+ "activeValue=" + this.activeValue.asString() //
+				+ "activeValue=" + this.activeValue.asString() + ", "//
+				+ "access=" + this.channelDoc.getAccessMode() //
 				+ "]";
 	}
 
@@ -215,7 +217,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	/**
 	 * Validates the Type of the Channel.
-	 * 
+	 *
 	 * @param expected the expected Type
 	 * @param actual   the actual Type
 	 * @return true if validation ok
@@ -251,7 +253,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	/**
 	 * Gets the past values for this Channel.
-	 * 
+	 *
 	 * @return a map of recording time and historic value at that time
 	 */
 	@Override

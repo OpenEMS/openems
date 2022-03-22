@@ -79,7 +79,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected final ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ModbusProtocol protocol = new ModbusProtocol(this, //
+		var protocol = new ModbusProtocol(this, //
 
 				new FC3ReadRegistersTask(35001, Priority.LOW, //
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedWordElement(35001)), //
@@ -173,7 +173,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// implementation
 						new DummyRegisterElement(35121, 35135),
 						m(SymmetricEss.ChannelId.GRID_MODE, new UnsignedWordElement(35136), //
-								new ElementToChannelConverter((value) -> {
+								new ElementToChannelConverter(value -> {
 									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
 									if (intValue != null) {
 										switch (intValue) {
@@ -931,7 +931,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// default 100 kilo Ohm, to read or set Isolation protection threshold for the
 						// inverter
 						m(GoodWe.ChannelId.ISO_LIMIT, new UnsignedWordElement(45245)), //
-						// as default is deactivated, set "1" to activate LVRT functtion, Set "2" to
+						// as default is deactivated, set "1" to activate LVRT function, Set "2" to
 						// activate HVRT, The same as 45499
 						m(GoodWe.ChannelId.LVRT_HVRT, new UnsignedWordElement(45246))), //
 				new FC16WriteRegistersTask(45250, //
@@ -939,12 +939,12 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// user manual
 						m(GoodWe.ChannelId.PV_START_VOLTAGE, new UnsignedWordElement(45250),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						// as default is deactivated, set "1" to activate "Shadow Scan" functtion
+						// as default is deactivated, set "1" to activate "Shadow Scan" function
 						m(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE, new UnsignedWordElement(45251)), //
-						// as default is deactivated, set "1" to activate "Shadow Scan" functtion
+						// as default is deactivated, set "1" to activate "Shadow Scan" function
 						m(GoodWe.ChannelId.BACK_UP_ENABLE, new UnsignedWordElement(45252)), //
 						// Off-Grid Auto startup, as default is deactivated, set "1" to activate "Shadow
-						// Scan" functtion
+						// Scan" function
 						m(GoodWe.ChannelId.AUTO_START_BACKUP, new UnsignedWordElement(45253)), //
 						// As default is "0"
 						m(GoodWe.ChannelId.GRID_WAVE_CHECK_LEVEL, new UnsignedWordElement(45254)), //
@@ -1250,7 +1250,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						/**
 						 * Warning Codes (table 8-8).
-						 * 
+						 *
 						 * <ul>
 						 * <li>Bit 12-31 Reserved
 						 * <li>Bit 11: System High Temperature
@@ -1270,7 +1270,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.WBMS_WARNING_CODE, new UnsignedDoublewordElement(47911)), //
 						/**
 						 * Alarm Codes (table 8-7).
-						 * 
+						 *
 						 * <ul>
 						 * <li>Bit 16-31 Reserved
 						 * <li>Bit 15: Charge Over-Voltage Fault
@@ -1294,7 +1294,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.WBMS_ALARM_CODE, new UnsignedDoublewordElement(47913)), //
 						/**
 						 * BMS Status
-						 * 
+						 *
 						 * <ul>
 						 * <li>Bit 2: Stop Discharge
 						 * <li>Bit 1: Stop Charge
@@ -1762,7 +1762,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(47001), //
 						m(GoodWe.ChannelId.WMETER_CONNECT_CHECK_FLAG, new UnsignedWordElement(47002)), //
 						new DummyRegisterElement(47003, 47004), //
-						// Breakpoint Resume for Data transfering. Activated as default, time
+						// Breakpoint Resume for Data transferring. Activated as default, time
 						// interval 5
 						// minutes
 						m(GoodWe.ChannelId.LOG_DATA_ENABLE, new UnsignedWordElement(47005)), //
@@ -1778,7 +1778,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// 1: off, 2: on, 3: flash 1x, 4: flash 2x, 5: flash 4x
 						m(GoodWe.ChannelId.WIFI_LED_STATE, new UnsignedWordElement(47013)), //
 						m(GoodWe.ChannelId.COM_LED_STATE, new UnsignedWordElement(47014)), //
-						// 1:on 0:off ony for single phase Smart meter
+						// 1:on 0:off only for single phase Smart meter
 						m(GoodWe.ChannelId.METER_CT1_REVERSE_ENABLE, new UnsignedWordElement(47015)), //
 						m(GoodWe.ChannelId.ERROR_LOG_READ_PAGE, new UnsignedWordElement(47016)), //
 						// 1:on 0:off If not connect to Internet, please set 1
@@ -1858,7 +1858,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 					},
 					// channel -> element
 					value -> value));
-		} else if (this instanceof HybridManagedSymmetricBatteryInverter) {
+		}
+		if (this instanceof HybridManagedSymmetricBatteryInverter) {
 			return new DummyRegisterElement(address);
 		} else {
 			throw new NotImplementedException("Wrong implementation of AbstractGoodWe");
@@ -1878,7 +1879,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	/**
 	 * Gets the PV production from chargers ACTUAL_POWER. Returns null if the PV
 	 * production is not available.
-	 * 
+	 *
 	 * @return production power
 	 */
 	protected final Integer calculatePvProduction() {
@@ -1890,10 +1891,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	}
 
 	protected void updatePowerAndEnergyChannels() {
-		Integer productionPower = this.calculatePvProduction();
+		var productionPower = this.calculatePvProduction();
 		final Channel<Integer> pBattery1Channel = this.channel(GoodWe.ChannelId.P_BATTERY1);
-		Integer dcDischargePower = pBattery1Channel.value().get();
-		Integer acActivePower = TypeUtils.sum(productionPower, dcDischargePower);
+		var dcDischargePower = pBattery1Channel.value().get();
+		var acActivePower = TypeUtils.sum(productionPower, dcDischargePower);
 
 		/*
 		 * Update AC Active Power
@@ -1944,22 +1945,22 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Calculate and store Max-AC-Export and -Import channels.
-	 * 
+	 *
 	 * @param maxApparentPower the max apparent power
 	 */
 	protected void calculateMaxAcPower(int maxApparentPower) {
 		// Calculate and store Max-AC-Export and -Import for use in
 		// getStaticConstraints()
-		Integer maxDcChargePower = /* can be negative for force-discharge */
+		var maxDcChargePower = /* can be negative for force-discharge */
 				TypeUtils.multiply(//
 						/* Inverter Charge-Max-Current */ this.getWbmsChargeMaxCurrent().get(), //
 						/* Voltage */ this.getWbmsVoltage().orElse(0));
 		int pvProduction = TypeUtils.max(0, this.calculatePvProduction());
 
 		// Calculates Max-AC-Import and Max-AC-Export as positive numbers
-		Integer maxAcImport = TypeUtils.subtract(maxDcChargePower,
+		var maxAcImport = TypeUtils.subtract(maxDcChargePower,
 				TypeUtils.min(maxDcChargePower /* avoid negative number for `subtract` */, pvProduction));
-		Integer maxAcExport = TypeUtils.sum(//
+		var maxAcExport = TypeUtils.sum(//
 				/* Max DC-Discharge-Power */ TypeUtils.multiply(//
 						/* Inverter Discharge-Max-Current */ this.getWbmsDischargeMaxCurrent().get(), //
 						/* Voltage */ this.getWbmsVoltage().orElse(0)),
@@ -1976,7 +1977,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Gets Surplus Power.
-	 * 
+	 *
 	 * @return {@link Integer}
 	 */
 	public abstract Integer getSurplusPower();

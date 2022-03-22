@@ -61,6 +61,7 @@ public class SymmetricRandomPower extends AbstractOpenemsComponent implements Co
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -70,7 +71,7 @@ public class SymmetricRandomPower extends AbstractOpenemsComponent implements Co
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
-		int randomPower = ThreadLocalRandom.current().nextInt(this.config.minPower(), this.config.maxPower() + 1);
+		var randomPower = ThreadLocalRandom.current().nextInt(this.config.minPower(), this.config.maxPower() + 1);
 
 		// adjust value so that it fits into Min/MaxActivePower
 		randomPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE, randomPower);

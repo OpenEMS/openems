@@ -16,7 +16,7 @@ public class ManagedSymmetricEssTest extends AbstractComponentTest<ManagedSymmet
 
 	@Override
 	protected void onBeforeWrite() throws OpenemsNamedException {
-		ManagedSymmetricEss ess = this.getSut();
+		var ess = this.getSut();
 		int activePower = ess.getSetActivePowerEqualsChannel().getNextWriteValueAndReset().orElse(0);
 		int reactivePower = ess.getSetReactivePowerEqualsChannel().getNextWriteValueAndReset().orElse(0);
 

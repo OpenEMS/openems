@@ -66,12 +66,12 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * </UL>
  *
  * <H3>Usage</H3>
- * 
+ *
  * <DL>
  * <DD>
  * <H4>Example 1</H4> Read the OTP status of page 0 in the OTPMemoryBank
  * instance 'otp':
- * 
+ *
  * <PRE>
  *  <CODE>
  *  if (otp.canRedirectPage())
@@ -80,7 +80,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *     if (new_page != 0)
  *        System.out.println("Page 0 is redirected to " + new_page);
  *  }
- * 
+ *
  *  if (otp.canLockPage())
  *  {
  *     if (otp.isPageLocked(0))
@@ -97,12 +97,12 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *
  * <DD>
  * <H4>Example 1</H4> Lock all of the pages in the OTPMemoryBank instance 'otp':
- * 
+ *
  * <PRE>
  *  <CODE>
  *  if (otp.canLockPage())
  *  {
- *     // loop to lock each page  
+ *     // loop to lock each page
  *     for (int pg = 0; pg < otp.getNumberPages(); pg++)
  *     {
  *        otp.lockPage(pg);
@@ -160,7 +160,7 @@ public interface OTPMemoryBank extends PagedMemoryBank {
 	 *
 	 * @return <CODE> true </CODE> if this memory bank has pages that can be locked
 	 *         from being redirected to a new page
-	 * 
+	 *
 	 * @see #lockRedirectPage(int) lockRedirectPage
 	 * @see #isRedirectPageLocked(int) isRedirectPageLocked
 	 */

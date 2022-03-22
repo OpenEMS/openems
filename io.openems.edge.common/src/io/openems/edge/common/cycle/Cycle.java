@@ -19,7 +19,7 @@ public interface Cycle extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Actual, measured Cycle-Time in [ms].
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Cycle
 		 * <li>Type: Integer
@@ -29,7 +29,7 @@ public interface Cycle extends OpenemsComponent {
 				.unit(Unit.MILLISECONDS)),
 		/**
 		 * A configured Controller is not executed because it is disabled.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Cycle
 		 * <li>Type: State
@@ -43,6 +43,7 @@ public interface Cycle extends OpenemsComponent {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -118,7 +119,7 @@ public interface Cycle extends OpenemsComponent {
 
 	/**
 	 * Gets the duration of one global OpenEMS Cycle in [ms].
-	 * 
+	 *
 	 * @return the duration in milliseconds
 	 */
 	public int getCycleTime();

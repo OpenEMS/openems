@@ -31,7 +31,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.type = type;
 			return this;
 		}
-		
+
 		public Builder setInvert(boolean invert) {
 			this.invert = invert;
 			return this;
@@ -44,7 +44,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

@@ -3,7 +3,6 @@ package io.openems.edge.evcs.keba.kecontact;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -81,7 +80,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 		this.channel(KebaChannelId.ALIAS).setNextValue(config.alias());
 
-		this.ip = Inet4Address.getByName(config.ip().trim());
+		this.ip = InetAddress.getByName(config.ip().trim());
 
 		this.config = config;
 		this._setPowerPrecision(0.23);
@@ -101,6 +100,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -117,12 +117,12 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 			// Clear channels if the connection to the Charging Station has been lost
 			Channel<Boolean> connectionLostChannel = this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
-			Boolean connectionLost = connectionLostChannel.value().orElse(lastConnectionLostState);
-			if (connectionLost != lastConnectionLostState) {
+			var connectionLost = connectionLostChannel.value().orElse(this.lastConnectionLostState);
+			if (connectionLost != this.lastConnectionLostState) {
 				if (connectionLost) {
-					resetChannelValues();
+					this.resetChannelValues();
 				}
-				lastConnectionLostState = connectionLost;
+				this.lastConnectionLostState = connectionLost;
 			}
 
 			// handle writes
@@ -138,23 +138,17 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	 * @return true if sent
 	 */
 	protected boolean send(String s) {
-		byte[] raw = s.getBytes();
-		DatagramPacket packet = new DatagramPacket(raw, raw.length, ip, KebaKeContact.UDP_PORT);
-		DatagramSocket datagrammSocket = null;
-		try {
-			datagrammSocket = new DatagramSocket();
+		var raw = s.getBytes();
+		var packet = new DatagramPacket(raw, raw.length, this.ip, KebaKeContact.UDP_PORT);
+		try (DatagramSocket datagrammSocket = new DatagramSocket()) {
 			datagrammSocket.send(packet);
 			return true;
 		} catch (SocketException e) {
-			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + ip.getHostAddress()
+			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + this.ip.getHostAddress()
 					+ "]: " + e.getMessage());
 		} catch (IOException e) {
 			this.logError(this.log,
-					"Unable to send [" + s + "] UDP message to [" + ip.getHostAddress() + "]: " + e.getMessage());
-		} finally {
-			if (datagrammSocket != null) {
-				datagrammSocket.close();
-			}
+					"Unable to send [" + s + "] UDP message to [" + this.ip.getHostAddress() + "]: " + e.getMessage());
 		}
 		return false;
 	}
@@ -173,7 +167,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 	/**
 	 * Logs are displayed if the debug mode is configured
-	 * 
+	 *
 	 * @param log    Logger
 	 * @param string Text to display
 	 */
@@ -184,11 +178,11 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	public ReadWorker getReadWorker() {
-		return readWorker;
+		return this.readWorker;
 	}
 
 	public ReadHandler getReadHandler() {
-		return readHandler;
+		return this.readHandler;
 	}
 
 	/**

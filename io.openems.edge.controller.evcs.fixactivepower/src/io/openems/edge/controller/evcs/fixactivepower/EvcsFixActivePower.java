@@ -70,7 +70,7 @@ public class EvcsFixActivePower extends AbstractOpenemsComponent implements Cont
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
+		var now = LocalDateTime.now(this.componentManager.getClock());
 
 		// Execute only every ... minutes
 		if (this.lastRun.plusMinutes(RUN_EVERY_MINUTES).isAfter(now)) {

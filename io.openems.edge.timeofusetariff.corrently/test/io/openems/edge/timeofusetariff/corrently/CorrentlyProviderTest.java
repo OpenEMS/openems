@@ -17,7 +17,7 @@ public class CorrentlyProviderTest {
 
 	@Test
 	public void test() throws Exception {
-		CorrentlyImpl corrently = new CorrentlyImpl();
+		var corrently = new CorrentlyImpl();
 		new ComponentTest(corrently) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //

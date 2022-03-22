@@ -2,7 +2,6 @@ package io.openems.edge.controller.generic.jsonlogic;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")

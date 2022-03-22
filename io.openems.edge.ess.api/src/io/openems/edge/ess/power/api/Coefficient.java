@@ -20,18 +20,18 @@ public class Coefficient {
 	}
 
 	public int getIndex() {
-		return index;
+		return this.index;
 	}
 
 	public String getEssId() {
-		return essId;
+		return this.essId;
 	}
 
 	public Phase getPhase() {
-		return phase;
+		return this.phase;
 	}
 
 	public Pwr getPwr() {
-		return pwr;
+		return this.pwr;
 	}
 }

@@ -1,7 +1,5 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
-import java.util.Optional;
-
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
@@ -24,28 +22,28 @@ public interface EssFeneconCommercial40
 
 	/**
 	 * Gets the Modbus Unit-ID.
-	 * 
+	 *
 	 * @return the Unit-ID
 	 */
 	public Integer getUnitId();
 
 	/**
 	 * Gets the Modbus-Bridge Component-ID, i.e. "modbus0".
-	 * 
+	 *
 	 * @return the Component-ID
 	 */
 	public String getModbusBridgeId();
 
 	/**
 	 * Registers a Charger with this ESS.
-	 * 
+	 *
 	 * @param charger the Charger
 	 */
 	public void addCharger(EssDcChargerFeneconCommercial40 charger);
 
 	/**
 	 * Unregisters a Charger from this ESS.
-	 * 
+	 *
 	 * @param charger the Charger
 	 */
 	public void removeCharger(EssDcChargerFeneconCommercial40 charger);
@@ -89,8 +87,8 @@ public interface EssFeneconCommercial40
 					channel.onUpdate(newValue -> {
 						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
-						Optional<Integer> originalValue = newValue.asOptional();
-						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
+						var originalValue = newValue.asOptional();
+						var currentValue = currentValueChannel.value().asOptional();
 						int value;
 						if (!originalValue.isPresent() && !currentValue.isPresent()) {
 							value = 0;
@@ -112,8 +110,8 @@ public interface EssFeneconCommercial40
 					channel.onUpdate(newValue -> {
 						IntegerReadChannel currentValueChannel = channel.getComponent()
 								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
-						Optional<Integer> originalValue = newValue.asOptional();
-						Optional<Integer> currentValue = currentValueChannel.value().asOptional();
+						var originalValue = newValue.asOptional();
+						var currentValue = currentValueChannel.value().asOptional();
 						int value;
 						if (!originalValue.isPresent() && !currentValue.isPresent()) {
 							value = 0;

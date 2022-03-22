@@ -16,7 +16,7 @@ public class ChannelRecord {
 	/**
 	 * In this case you will request secondary address values. eg. manufacturer,
 	 * device id or meter type.
-	 * 
+	 *
 	 * @param channel  the Channel
 	 * @param dataType the dataType
 	 */
@@ -27,7 +27,7 @@ public class ChannelRecord {
 
 	/**
 	 * In this case you will request usage data.
-	 * 
+	 *
 	 * @param channel            the Channel
 	 * @param dataRecordPosition the dataRecordPosition
 	 */
@@ -37,7 +37,7 @@ public class ChannelRecord {
 	}
 
 	public Channel<?> getChannel() {
-		return channel;
+		return this.channel;
 	}
 
 	public void setChannelId(Channel<?> channel) {
@@ -45,7 +45,7 @@ public class ChannelRecord {
 	}
 
 	public int getdataRecordPosition() {
-		return dataRecordPosition;
+		return this.dataRecordPosition;
 	}
 
 	public void setdataRecordPosition(int dataRecordPosition) {

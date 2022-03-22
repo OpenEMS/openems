@@ -9,7 +9,7 @@ public abstract class Inverter {
 	 * Factory
 	 */
 	public static Inverter[] of(boolean symmetricMode, ManagedSymmetricEss ess, EssType essType) {
-		String essId = ess.id();
+		var essId = ess.id();
 		if (symmetricMode) {
 			// Symmetric Mode -> always return a symmetric ThreePhaseInverter
 			switch (essType) {
@@ -25,7 +25,7 @@ public abstract class Inverter {
 			// Asymmetric Mode
 			switch (essType) {
 			case SINGLE_PHASE:
-				Phase phase = ((ManagedSinglePhaseEss) ess).getPhase().getPowerApiPhase();
+				var phase = ((ManagedSinglePhaseEss) ess).getPhase().getPowerApiPhase();
 				return new Inverter[] { //
 						phase == Phase.L1 ? new SinglePhaseInverter(essId, Phase.L1)
 								: new DummyInverter(essId, Phase.L1),
@@ -100,9 +100,10 @@ public abstract class Inverter {
 	}
 
 	public int getLastActivePower() {
-		return lastActivePower;
+		return this.lastActivePower;
 	}
 
+	@Override
 	public String toString() {
 		return this.essId + this.phase.getSymbol();
 	}

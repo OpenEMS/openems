@@ -46,7 +46,7 @@ public class ShortWriteChannel extends ShortReadChannel implements WriteChannel<
 
 	/**
 	 * Internal method. Do not call directly.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Deprecated

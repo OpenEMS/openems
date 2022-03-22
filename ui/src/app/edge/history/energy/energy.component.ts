@@ -18,7 +18,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { calculateResolution, ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, setLabelVisible, TooltipItem } from './../shared';
+import { calculateResolution, ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, Resolution, setLabelVisible, TooltipItem, Unit } from './../shared';
 import { EnergyModalComponent } from './modal/modal.component';
 
 type EnergyChartLabels = {
@@ -111,6 +111,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.spinnerId = "energy-chart";
     this.service.setCurrentComponent('', this.route);
     this.service.startSpinner(this.spinnerId);
+
     this.platform.ready().then(() => {
       this.service.isSmartphoneResolutionSubject.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
         if (this.service.isKwhAllowed(this.edge)) {
@@ -132,11 +133,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
    * checks if kWh Chart is allowed to be shown
    */
   private isKwhChart(service: Service): boolean {
+    let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
     if (service.isKwhAllowed(this.edge) == true &&
-      differenceInDays(service.historyPeriod.to, service.historyPeriod.from) > 8 && service.isSmartphoneResolution == false) {
-      return true;
-    } else if (service.isKwhAllowed(this.edge) == true &&
-      differenceInDays(service.historyPeriod.to, service.historyPeriod.from) > 0 && service.isSmartphoneResolution == true) {
+      unit == Unit.DAYS || unit == Unit.MONTHS) {
       return true;
     }
     return false;
@@ -178,7 +177,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     this.chartType = "line";
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
-
 
       // convert labels
       let labels: Date[] = [];
@@ -789,31 +787,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     }
 
     // X-Axis for Chart: Calculate Time-Unit for normal sized window
-    let resolution = calculateResolution(this.service, this.period.from, this.period.to)
-    if (resolution <= (24 * 60 * 60)) { // 1 Day
-      options.scales.xAxes[0].time.unit = 'day';
-    } else if (resolution <= (7 * 24 * 60 * 60)) { // 1 Week
-      options.scales.xAxes[0].time.unit = 'week';
-    } else if (resolution <= (31 * 24 * 60 * 60)) { // 1 Month
-      options.scales.xAxes[0].time.unit = 'month';
-    }
+    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.service.historyPeriod.from, this.service.historyPeriod.to).timeFormat;
 
     options.scales.xAxes[0].bounds = 'ticks';
     options.scales.xAxes[0].stacked = true;
     options.scales.xAxes[0].offset = true;
-
-    // X-Axis for Chart: Calculate Time-Unit for Smartphone
-    if (this.service.isSmartphoneResolution == true && differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 20) {
-      if (this.service.periodString == 'year') {
-        options.scales.xAxes[0].time.unit = 'month';
-      } else if (this.service.periodString == 'month') {
-        options.scales.xAxes[0].time.unit = 'day';
-      }
-      options.scales.xAxes[0].ticks.source = 'auto';
-      options.scales.xAxes[0].ticks.maxTicksLimit = 12;
-    } else {
-      options.scales.xAxes[0].ticks.source = 'data';
-    }
+    options.scales.xAxes[0].ticks.source = 'data';
 
     // Y-Axis for Labels
     options.scales.yAxes[0].scaleLabel.labelString = "kWh";
@@ -821,9 +800,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     options.scales.yAxes[0].scaleLabel.fontSize = 11;
 
     //  +--------------------------------------------------------------------------------------------------+
-    //  ¦ EnergyChartLabels with kWh                                                                       ¦
-    //  +--------------------------------------------------------------------------------------------------¦
-    //  ¦ Production ¦ GridSell ¦ ChargePower ¦ DirectConsumption ¦ GridBuy ¦ DischargePower ¦ Consumption ¦
+    //  | EnergyChartLabels with kWh                                                                       |
+    //  +--------------------------------------------------------------------------------------------------|
+    //  | Production | GridSell | ChargePower | DirectConsumption | GridBuy | DischargePower | Consumption |
     //  +--------------------------------------------------------------------------------------------------+
     //      
     // this.translate is not available in legend methods
@@ -948,12 +927,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     //  
     // Tooltips
     // +-----------------------------------------+
-    // ¦Header ¦1    Date (Month | Day | Hour)   ¦
-    // ¦       ¦                                 ¦
-    // ¦       ¦2    Production / Consumption    ¦
-    // ¦       ¦                                 ¦
-    // +-------+---------------------------------¦
-    // ¦Content¦3    EnergyLabels[]              ¦
+    // |Header |1    Date (Month | Day | Hour)   |
+    // |       |                                 |
+    // |       |2    Production / Consumption    |
+    // |       |                                 |
+    // +-------+---------------------------------|
+    // |Content|3    EnergyLabels[]              |
     // +-----------------------------------------+
 
     // 3: EnergyLabels[]
@@ -1039,11 +1018,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     }
 
     //x-axis
-    if (differenceInDays(this.service.historyPeriod.to, this.service.historyPeriod.from) >= 5) {
-      options.scales.xAxes[0].time.unit = "day";
-    } else {
-      options.scales.xAxes[0].time.unit = "hour";
-    }
+    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.period.from, this.period.to).timeFormat;
 
     //y-axis
     options.scales.yAxes[0].id = "yAxis1"

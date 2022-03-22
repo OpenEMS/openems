@@ -1,4 +1,4 @@
-package io.openems.edge.controller.io.heatingelement;
+package io.openems.edge.controller.io.heatingelement.enums;
 
 import io.openems.common.types.OptionsEnum;
 

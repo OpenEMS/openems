@@ -7,7 +7,6 @@ import java.util.Map;
 import org.openmuc.jmbus.DecodingException;
 import org.openmuc.jmbus.MBusConnection;
 import org.openmuc.jmbus.MBusConnection.MBusSerialBuilder;
-import org.openmuc.jmbus.VariableDataStructure;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -61,6 +60,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 		this.builder = MBusConnection.newSerialBuilder(this.portName).setBaudrate(config.baudrate());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -80,6 +80,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 		}
 	}
 
+	@Override
 	public MBusConnection getmBusConnection() {
 		return this.mBusConnection;
 	}
@@ -94,7 +95,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 
 				for (MbusTask task : BridgeMbusImpl.this.tasks.values()) {
 					try {
-						VariableDataStructure data = task.getRequest();
+						var data = task.getRequest();
 						data.decode();
 						// "Before accessing elements of a variable data structure it has to be decoded
 						// using the decode method." ??
@@ -107,7 +108,7 @@ public class BridgeMbusImpl extends AbstractOpenemsComponent implements BridgeMb
 				BridgeMbusImpl.this.mBusConnection.close();
 			} catch (IOException e) {
 				BridgeMbusImpl.this.logError(BridgeMbusImpl.this.log,
-						"Connection via [" + portName + "] failed: " + e.getMessage());
+						"Connection via [" + BridgeMbusImpl.this.portName + "] failed: " + e.getMessage());
 			}
 		}
 	}

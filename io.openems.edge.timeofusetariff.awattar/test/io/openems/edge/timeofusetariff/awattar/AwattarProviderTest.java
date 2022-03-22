@@ -17,7 +17,7 @@ public class AwattarProviderTest {
 
 	@Test
 	public void test() throws Exception {
-		AwattarImpl awattar = new AwattarImpl();
+		var awattar = new AwattarImpl();
 		new ComponentTest(awattar) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //

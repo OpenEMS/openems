@@ -53,11 +53,13 @@ public class RestApiReadOnlyImpl extends AbstractRestApi
 				config.port(), config.connectionlimit());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
 
+	@Override
 	protected Timedata getTimedata() throws OpenemsException {
 		if (this.timedata != null) {
 			return this.timedata;
