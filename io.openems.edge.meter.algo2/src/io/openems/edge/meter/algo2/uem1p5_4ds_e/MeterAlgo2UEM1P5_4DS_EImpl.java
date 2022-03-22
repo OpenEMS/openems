@@ -288,7 +288,7 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 		
 		return "\n L:"
 				+ "\n - V1, V2, V3 - " + " " + this.getVoltageL1().asString() + " " + this.getVoltageL2().asString() + " " + this.getVoltageL3().asString()
-				+ "\n - V31, V32, V33  - " + this.getVoltageL12().asString() + " " + this.getVoltageL23().asString() + " " + this.getVoltageL31().asString()
+				+ "\n - V12, V23, V31  - " + this.getVoltageL12().asString() + " " + this.getVoltageL23().asString() + " " + this.getVoltageL31().asString()
 				+ "\n - VSys - " + this.getVoltageSys().asString()
 				+ "\n - A1, A2, A3  - " + this.getCurrentL1().asString() + " " + this.getCurrentL2().asString() + " " + this.getCurrentL3().asString()
 				+ "\n - AN  - " + this.getCurrentNeutral().asString()
@@ -300,14 +300,14 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 				// + "\n - PF1, PF2 - "  + this.getPowerFactorL1And2().asString()
 				// + "\n - PF3, PFSys  - " + this.getPowerFactorL3AndSys().asString()
 				
-				+ "\n - ACP1, ACP2, ACP3   - "  + ACP1 + " " + ACP2 + " " + ACP3
-				+ "\n - ACPSys (or L in example) - " + ACPSys
+				+ "\n - P1-ACP1, P2-ACP2, P3-ACP3   - "  + ACP1 + " " + ACP2 + " " + ACP3
+				+ "\n - PSig-ACPSys (or L in example) - " + ACPSys
 				
-				+ "\n - APP1, APP2, APP3   - "  + APP1 + " " + APP2 + " " + APP3
-				+ "\n - APPSys  - " + APPSys
+				+ "\n - S1-APP1, S2-APP2, S3-APP3   - "  + APP1 + " " + APP2 + " " + APP3
+				+ "\n - SSig-APPSys  - " + APPSys
 				
-				+ "\n - REP1, REP2, REP3   - "  + REP1 + " " + REP2 + " " + REP3
-				+ "\n - REPSys  - " + REPSys
+				+ "\n - Q1-REP1, Q2-REP2, Q3-REP3   - "  + REP1 + " " + REP2 + " " + REP3
+				+ "\n - QSig-REPSys  - " + REPSys
 				
 				
 				+ "\n - C - " + this.getActiveConsumptionEnergyChannel().toString()
