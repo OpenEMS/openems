@@ -347,6 +347,11 @@ public class InfluxConnector {
 			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
 			Resolution resolution) throws OpenemsNamedException {
 
+		// handle empty call
+		if (channels.isEmpty()) {
+			return new TreeMap<>();
+		}
+		
 		// remove 5 minutes to prevent shifted timeline
 		var fromInstant = fromDate.toInstant().minus(5, ChronoUnit.MINUTES);
 
