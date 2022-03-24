@@ -21,7 +21,6 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.WriteApi;
-import com.influxdb.client.WriteOptions;
 import com.influxdb.client.write.Point;
 import com.influxdb.client.write.events.BackpressureEvent;
 import com.influxdb.client.write.events.WriteErrorEvent;
@@ -37,7 +36,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
-import io.reactivex.BackpressureOverflowStrategy;
 import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
@@ -130,13 +128,9 @@ public class InfluxConnector {
 	 */
 	private synchronized WriteApi getWriteApi() {
 		if (this._writeApi == null) {
-			var writeOptions = WriteOptions.builder() //
-					.jitterInterval(1_000 /* milliseconds */) //
-					.bufferLimit(1_000_000 /* entries */) //
-					.backpressureStrategy(BackpressureOverflowStrategy.DROP_OLDEST) //
-					.build();
-
-			var writeApi = this.getConnection().makeWriteApi(writeOptions);
+			// Keep default WriteOptions from
+			// https://github.com/influxdata/influxdb-client-java/tree/master/client#writes
+			var writeApi = this.getConnection().makeWriteApi();
 
 			// add listeners
 			writeApi.listenEvents(BackpressureEvent.class, event -> {
