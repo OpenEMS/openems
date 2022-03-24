@@ -132,7 +132,7 @@ public class InfluxConnector {
 		if (this._writeApi == null) {
 			var writeOptions = WriteOptions.builder() //
 					.jitterInterval(1_000 /* milliseconds */) //
-					.bufferLimit(2 /* entries */) //
+					.bufferLimit(1_000_000 /* entries */) //
 					.backpressureStrategy(BackpressureOverflowStrategy.DROP_OLDEST) //
 					.build();
 
@@ -351,7 +351,7 @@ public class InfluxConnector {
 		if (channels.isEmpty()) {
 			return new TreeMap<>();
 		}
-		
+
 		// remove 5 minutes to prevent shifted timeline
 		var fromInstant = fromDate.toInstant().minus(5, ChronoUnit.MINUTES);
 
