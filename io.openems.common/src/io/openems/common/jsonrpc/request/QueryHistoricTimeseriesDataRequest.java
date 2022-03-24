@@ -1,5 +1,7 @@
 package io.openems.common.jsonrpc.request;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -52,16 +54,31 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 	 */
 	public static QueryHistoricTimeseriesDataRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		var p = r.getParams();
-		var timezone = TimeZone.getTimeZone(JsonUtils.getAsString(p, "timezone")).toZoneId();
+
+		var jTimezone = JsonUtils.getAsPrimitive(p, "timezone");
+		ZoneId timezone;
+		if (jTimezone.isNumber()) {
+			// For UI version before 2022.3.3
+			timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(JsonUtils.getAsInt(jTimezone) * -1));
+		} else {
+			timezone = TimeZone.getTimeZone(JsonUtils.getAsString(p, "timezone")).toZoneId();
+		}
+
 		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
 		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
 
 		final Optional<Resolution> resolution;
-		var resolutionObj = JsonUtils.getAsOptionalJsonObject(p, "resolution");
-		if (resolutionObj.isPresent()) {
-			var value = JsonUtils.getAsInt(resolutionObj.get(), "value");
-			var unit = JsonUtils.getAsString(resolutionObj.get(), "unit");
-			resolution = Optional.of(new Resolution(value, unit));
+		var jResolutionOpt = JsonUtils.getOptionalSubElement(p, "resolution");
+		if (jResolutionOpt.isPresent()) {
+			var jResolution = jResolutionOpt.get();
+			if (jResolution.isJsonPrimitive()) {
+				// For UI version before 2022.3.3
+				resolution = Optional.of(new Resolution(JsonUtils.getAsInt(jResolution), ChronoUnit.SECONDS));
+			} else {
+				var value = JsonUtils.getAsInt(jResolution, "value");
+				var unit = JsonUtils.getAsString(jResolution, "unit");
+				resolution = Optional.of(new Resolution(value, unit));
+			}
 		} else {
 			resolution = Optional.empty();
 		}
