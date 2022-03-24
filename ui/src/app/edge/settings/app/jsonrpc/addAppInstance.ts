@@ -10,6 +10,7 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
+ *   "alias" : "alias",
  *   "method": "addAppInstance",
  *   "params": {
  *     "appId": string,
@@ -40,6 +41,7 @@ export namespace AddAppInstance {
         public constructor(
             public readonly params: {
                 appId: string,
+                alias: string,
                 properties: {}
             }
         ) {

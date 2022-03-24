@@ -23,6 +23,7 @@ import { InstallationComponent } from './edge/installation/installation.componen
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
 import { IndexComponent as EdgeSettingsAppIndex } from './edge/settings/app/index.component';
 import { InstallAppComponent as EdgeSettingsAppInstall } from './edge/settings/app/install.component';
+import { SingleAppComponent as EdgeSettingsAppSingle } from './edge/settings/app/single.component';
 import { UpdateAppComponent as EdgeSettingsAppUpdate } from './edge/settings/app/update.component';
 import { AutoinstallerComponent as EdgeSettingsAutoinstallerComponent } from './edge/settings/autoinstaller/autoinstaller.component';
 import { ChannelsComponent as EdgeSettingsChannelsComponent } from './edge/settings/channels/channels.component';
@@ -93,6 +94,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/app', component: EdgeSettingsAppIndex },
   { path: 'device/:edgeId/settings/app/install/:appId', component: EdgeSettingsAppInstall },
   { path: 'device/:edgeId/settings/app/update/:appId', component: EdgeSettingsAppUpdate },
+  { path: 'device/:edgeId/settings/app/single/:appId', component: EdgeSettingsAppSingle },
   { path: 'demo', component: IndexComponent }
 ];
 

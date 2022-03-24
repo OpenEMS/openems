@@ -13,6 +13,7 @@ import { JsonrpcRequest } from "../../../../shared/jsonrpc/base";
  *   "method": "updateAppInstance",
  *   "params": {
  *     "instanceId": string (uuid),
+ *     "alias": "alias",
  *     "properties": {}
  *   }
  * }
@@ -38,6 +39,7 @@ export namespace UpdateAppInstance {
         public constructor(
             public readonly params: {
                 instanceId: string,
+                alias: string,
                 properties: {}
             }
         ) {
