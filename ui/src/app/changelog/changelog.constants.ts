@@ -30,12 +30,12 @@ export class Product {
     // TODO Umsetzung OEM-Links?
     // ESS
     public static readonly HOME = new Product('FENECON Home', 'https://fenecon.de/home/');
-    public static readonly PRO_HYBRID_10 = new Product('FENECON Pro Hybrid 10', 'https://fenecon.de/pro-hybrid-10-serie/');
-    public static readonly PRO_HYBRID_GW = new Product('FENECON Pro Hybrid GW', 'https://fenecon.de/pro-hybrid-gw-serie/');
-    public static readonly PRO_HYBRID_AC_GW = new Product('FENECON Pro Hybrid AC GW', 'https://fenecon.de/pro-ac-gw-serie/');
+    public static readonly PRO_HYBRID_10 = new Product('FENECON Pro Hybrid 10', 'https://fenecon.de/');
+    public static readonly PRO_HYBRID_GW = new Product('FENECON Pro Hybrid GW', 'https://fenecon.de/');
+    public static readonly PRO_HYBRID_AC_GW = new Product('FENECON Pro Hybrid AC GW', 'https://fenecon.de/');
     public static readonly COMMERCIAL_30 = new Product('FENECON Commercial 30', 'https://fenecon.de/fenecon-commercial-30-serie/');
     public static readonly COMMERCIAL_50 = new Product('FENECON Commercial 50', 'https://fenecon.de/fenecon-commercial-50-serie/');
-    public static readonly COMMERCIAL_BYD = new Product('FENECON Commercial BYD', 'https://fenecon.de/fenecon-commercial-byd-serie/');
+    public static readonly COMMERCIAL_BYD = new Product('FENECON Commercial BYD', 'https://fenecon.de/');
     public static readonly ALL_ESS = [Product.HOME, Product.PRO_HYBRID_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW, Product.COMMERCIAL_30, Product.COMMERCIAL_50, Product.COMMERCIAL_BYD];
     // Deprecated ESS
     public static readonly DESS = new Product('FENECON DESS', 'https://fenecon.de/produkte/#Heimspeicher');
@@ -50,7 +50,8 @@ export class Product {
     public static readonly FEMS_REST_JSON_API = new Product('FEMS-App REST/JSON-Api', 'https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_lesend');
     public static readonly FEMS_PV_KACO = new Product('FEMS-App KACO PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/');
     public static readonly FEMS_PV_SMA = new Product('FEMS-App SMA PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-sma-pv-wechselrichter/');
-    public static readonly FEMS_PV_FRONIUS = new Product('FEMS-App SMA PV-Wechselrichter', 'https://fenecon.de/fems-2-2/'); // TODO Add Product Page
+    public static readonly FEMS_PV_FRONIUS = new Product('FEMS-App Fronius PV-Wechselrichter', 'https://fenecon.de/fems-2-2/'); // TODO Add Product Page
+    public static readonly FEMS_PV_KOSTAL = new Product('FEMS-App Kostal PV-Wechselrichter', 'https://fenecon.de/fems-2-2/'); // TODO Add Product Page
     public static readonly FEMS_JANITZA_ZAEHLER = new Product('FEMS-App Janitza Zähler', 'https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/');
     public static readonly FEMS_PQ_PLUS_ZAEHLER = new Product('FEMS-App PQ-Plus Zähler', 'https://fenecon.de/fems/'); // TODO Add Product Page
     public static readonly FEMS_HEIZSTAB = new Product('FEMS-App Heizstab', 'https://fenecon.de/fems-2-2/fems-app-heizstab-6-kw/');
