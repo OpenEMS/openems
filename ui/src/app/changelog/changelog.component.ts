@@ -35,6 +35,12 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.3.4',
+        changes: [
+          Changelog.library(Library.INFLUXDB)
+        ]
+      },
+      {
         version: '2022.3.3',
         changes: [
           Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Responsive Größe des Eingabefensters, besser lesbare PV-Ausrichtung im IBN-Protokoll",
