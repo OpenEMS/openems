@@ -35,6 +35,7 @@ public class ModbusTcpApiReadOnlyImpl extends AbstractModbusTcpApi
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected Meta metaComponent = null;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addComponent(ModbusSlave component) {
 		super.addComponent(component);
@@ -58,6 +59,7 @@ public class ModbusTcpApiReadOnlyImpl extends AbstractModbusTcpApi
 				config.component_ids(), 0 /* no timeout */, config.port(), config.maxConcurrentConnections());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

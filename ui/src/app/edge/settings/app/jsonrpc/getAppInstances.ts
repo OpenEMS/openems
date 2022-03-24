@@ -24,6 +24,7 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
+ *   "alias": "alias",
  *   "result": {
  *     "instances": AppInstance[]
  *   }
@@ -59,6 +60,7 @@ export namespace GetAppInstances {
 
     export interface AppInstance {
         appId: string,
+        alias: string,
         instanceId: string,
         properties: {}
     }

@@ -1,7 +1,6 @@
 package io.openems.edge.predictor.persistencemodel;
 
 import io.openems.edge.common.test.AbstractComponentConfig;
-import io.openems.edge.predictor.persistencemodel.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -30,7 +29,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

@@ -13,10 +13,10 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 
 /**
  * Gets the App-Assistant for a {@link OpenemsApp}.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -27,10 +27,10 @@ import io.openems.edge.core.appmanager.OpenemsApp;
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -49,26 +49,26 @@ public class GetAppAssistant {
 
 		/**
 		 * Parses a generic {@link JsonrpcRequest} to a {@link GetAppAssistantRequest}.
-		 * 
+		 *
 		 * @param r the {@link JsonrpcRequest}
 		 * @return the {@link GetAppAssistantRequest}
 		 * @throws OpenemsNamedException on error
 		 */
 		public static Request from(JsonrpcRequest r) throws OpenemsNamedException {
-			JsonObject p = r.getParams();
-			String appId = JsonUtils.getAsString(p, "appId");
+			var p = r.getParams();
+			var appId = JsonUtils.getAsString(p, "appId");
 			return new Request(r, appId);
 		}
 
 		public final String appId;
 
-		public Request(String appId) {
-			super(METHOD);
+		public Request(JsonrpcRequest request, String appId) {
+			super(request, METHOD);
 			this.appId = appId;
 		}
 
-		public Request(JsonrpcRequest request, String appId) {
-			super(request, METHOD);
+		public Request(String appId) {
+			super(METHOD);
 			this.appId = appId;
 		}
 

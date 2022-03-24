@@ -19,12 +19,22 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *     "apps": {
+ *     "apps": [{
  *       "appId": string,
+ *       "category": {
+ *          "name": string,
+ *          "readableName": string
+ *       },
  *       "name": string,
+ *       "cardinality": string,
+ *       "status": {
+ *          "status": string,
+ *          "errorCompatibleMessages": string[],
+ *          "errorInstallableMessages": string[]
+ *       },
  *       "image: string (base64),
- *       "instanceIds": UUID[],
- *     }
+ *       "instanceIds": UUID[]
+ *     }]
  *   }
  * }
  * </pre>
@@ -54,10 +64,23 @@ export namespace GetApps {
     }
 
     export interface App {
-        category: 'INTEGRATED_SYSTEM',
+        categorys: Category[],
+        cardinality: 'SINGLE' | 'SINGLE_IN_CATEGORY' | 'MULTIPLE',
         appId: string,
         name: string,
         image: string,
+        status: Status,
         instanceIds: string[],
+    }
+
+    export interface Status {
+        name: 'INCOMPATIBLE' | 'COMPATIBLE' | 'INSTALLABLE',
+        errorCompatibleMessages: [],
+        errorInstallableMessages: []
+    }
+
+    export interface Category {
+        name: string,
+        readableName: string
     }
 }

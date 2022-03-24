@@ -51,6 +51,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -83,6 +84,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -146,7 +148,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

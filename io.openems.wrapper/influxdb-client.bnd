@@ -1,0 +1,44 @@
+Bundle-Name: influxdb-client
+Bundle-Description: The Java InfluxDB 2.0 Client
+Bundle-DocURL: https://github.com/influxdata/influxdb-client-client
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 4.1.0
+
+Include-Resource: \
+	@influxdb-client-core-5.0.0.jar,\
+	@influxdb-client-java-5.0.0.jar,\
+	@influxdb-client-utils-5.0.0.jar,\
+	@flux-dsl-5.0.0.jar,\
+
+Export-Package: \
+	com.influxdb,\
+	com.influxdb.annotations,\
+	com.influxdb.client,\
+	com.influxdb.client.domain,\
+	com.influxdb.client.internal,\
+	com.influxdb.client.service,\
+	com.influxdb.client.write,\
+	com.influxdb.client.write.events,\
+	com.influxdb.client.write.internal,\
+	com.influxdb.exceptions,\
+	com.influxdb.internal,\
+	com.influxdb.query,\
+	com.influxdb.query.dsl,\
+	com.influxdb.query.dsl.functions,\
+	com.influxdb.query.dsl.functions.properties,\
+	com.influxdb.query.dsl.functions.restriction,\
+	com.influxdb.query.exceptions,\
+	com.influxdb.query.internal,\
+
+Import-Package: \
+	okhttp3,\
+	retrofit2.converter.scalars;resolution:=optional,\
+	com.google.gson.internal.bind;resolution:=optional,\
+	com.google.gson.internal.bind.util;resolution:=optional,\
+	*
+	
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

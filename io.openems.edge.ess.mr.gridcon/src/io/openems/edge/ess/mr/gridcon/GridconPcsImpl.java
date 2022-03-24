@@ -135,10 +135,11 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		this.inverterCount = config.inverterCount();
 		this.efficiencyLossChargeFactor = config.efficiencyLossChargeFactor();
 		this.efficiencyLossDischargeFactor = config.efficiencyLossDischargeFactor();
-		;
 
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 
 		this.setBalancingMode(config.balancing_mode());
 		this.setFundamentalFrequencyMode(config.fundamental_frequency_mode());

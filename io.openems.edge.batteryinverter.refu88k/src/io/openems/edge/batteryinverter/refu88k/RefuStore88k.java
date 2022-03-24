@@ -5,7 +5,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.refu88k.enums.OperatingState;
-import io.openems.edge.batteryinverter.refu88k.enums.PCSSetOperation;
+import io.openems.edge.batteryinverter.refu88k.enums.PcsSetOperation;
 import io.openems.edge.batteryinverter.refu88k.statemachine.StateMachine;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -59,14 +59,14 @@ public interface RefuStore88k
 
 	/**
 	 * Gets the target Start/Stop mode from config or StartStop-Channel.
-	 * 
+	 *
 	 * @return {@link StartStop}
 	 */
 	public StartStop getStartStopTarget();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStartAttemptsChannel() {
@@ -75,7 +75,7 @@ public interface RefuStore88k
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_START_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStartAttempts() {
@@ -85,7 +85,7 @@ public interface RefuStore88k
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MAX_START_ATTEMPTS} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStartAttempts(Boolean value) {
@@ -94,7 +94,7 @@ public interface RefuStore88k
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getMaxStopAttemptsChannel() {
@@ -103,7 +103,7 @@ public interface RefuStore88k
 
 	/**
 	 * Gets the {@link StateChannel} for {@link ChannelId#MAX_STOP_ATTEMPTS}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getMaxStopAttempts() {
@@ -113,7 +113,7 @@ public interface RefuStore88k
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_STOP_ATTEMPTS}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxStopAttempts(Boolean value) {
@@ -121,51 +121,47 @@ public interface RefuStore88k
 	}
 
 	/**
-	 * 
-	 * Exit the STANDBY mode!
-	 * 
+	 * Exit the STANDBY mode.
+	 *
 	 * @throws OpenemsNamedException
-	 * 
+	 *
 	 */
 	public default void exitStandbyMode() throws OpenemsNamedException {
 		EnumWriteChannel pcsSetOperation = this.channel(RefuStore88kChannelId.PCS_SET_OPERATION);
-		pcsSetOperation.setNextWriteValue(PCSSetOperation.EXIT_STANDBY_MODE);
+		pcsSetOperation.setNextWriteValue(PcsSetOperation.EXIT_STANDBY_MODE);
 	}
 
 	/**
-	 * 
-	 * Enter the STARTED mode!
-	 * 
+	 * Enter the STARTED mode.
+	 *
 	 * @throws OpenemsNamedException
-	 * 
+	 *
 	 */
 	public default void enterStartedMode() throws OpenemsNamedException {
 		EnumWriteChannel pcsSetOperation = this.channel(RefuStore88kChannelId.PCS_SET_OPERATION);
-		pcsSetOperation.setNextWriteValue(PCSSetOperation.STOP_PCS);
+		pcsSetOperation.setNextWriteValue(PcsSetOperation.STOP_PCS);
 	}
 
 	/**
-	 * 
-	 * Enter the Throttled or MPPT mode!
-	 * 
+	 * Enter the Throttled or MPPT mode.
+	 *
 	 * @throws OpenemsNamedException
-	 * 
+	 *
 	 */
 	public default void enterThrottledMpptMode() throws OpenemsNamedException {
 		EnumWriteChannel pcsSetOperation = this.channel(RefuStore88kChannelId.PCS_SET_OPERATION);
-		pcsSetOperation.setNextWriteValue(PCSSetOperation.START_PCS);
+		pcsSetOperation.setNextWriteValue(PcsSetOperation.START_PCS);
 	}
 
 	/**
-	 * 
-	 * STOP the inverter by setting the power to zero and entering the STARTED mode!
-	 * 
+	 * STOP the inverter by setting the power to zero and entering the STARTED mode.
+	 *
 	 * @throws OpenemsNamedException
-	 * 
+	 *
 	 */
 	public default void stopInverter() throws OpenemsNamedException {
 		EnumWriteChannel pcsSetOperation = this.channel(RefuStore88kChannelId.PCS_SET_OPERATION);
-		pcsSetOperation.setNextWriteValue(PCSSetOperation.ENTER_STANDBY_MODE);
+		pcsSetOperation.setNextWriteValue(PcsSetOperation.ENTER_STANDBY_MODE);
 	}
 
 	public default String getSerialNumber() {

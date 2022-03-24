@@ -10,7 +10,7 @@ public enum Report {
 	}
 
 	public int getRequestSeconds() {
-		return requestSeconds;
+		return this.requestSeconds;
 	}
 
 	public void setRequestSeconds(int requestSeconds) {

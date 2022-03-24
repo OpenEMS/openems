@@ -77,7 +77,7 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 
 	/**
 	 * Set {@link ChannelId#SURPLUS_POWER} of this {@link DummyHybridEss}.
-	 * 
+	 *
 	 * @param value the surplus power
 	 * @return myself
 	 */
@@ -90,7 +90,7 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 	/**
 	 * Set {@link SymmetricEss.ChannelId#MAX_APPARENT_POWER} of this
 	 * {@link DummyHybridEss}.
-	 * 
+	 *
 	 * @param value the max apparent power
 	 * @return myself
 	 */
@@ -105,7 +105,7 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SURPLUS_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	private IntegerReadChannel getSurplusPowerChannel() {
@@ -115,7 +115,7 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#SURPLUS_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	private void _setSurplusPower(Integer value) {
@@ -124,7 +124,7 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the Dummy Surplus Power in [W]. See {@link ChannelId#SURPLUS_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value} or null
 	 */
 	@Override

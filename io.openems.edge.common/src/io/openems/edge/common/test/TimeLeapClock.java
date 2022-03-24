@@ -55,7 +55,7 @@ public class TimeLeapClock extends Clock {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof TimeLeapClock) {
-			TimeLeapClock other = (TimeLeapClock) obj;
+			var other = (TimeLeapClock) obj;
 			return this.instant.equals(other.instant) && this.zone.equals(other.zone);
 		}
 		return false;

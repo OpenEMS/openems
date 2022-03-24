@@ -46,7 +46,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 	/**
 	 * Construct an {@link AbstractWebsocketServer}.
-	 * 
+	 *
 	 * @param name      to identify this server
 	 * @param port      to listen on
 	 * @param poolSize  number of threads dedicated to handle the tasks
@@ -217,7 +217,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 5);
 
-		int tries = 3;
+		var tries = 3;
 		while (tries-- > 0) {
 			try {
 				this.ws.stop();

@@ -1,7 +1,5 @@
 package io.openems.edge.controller.api.websocket;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -120,7 +118,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 		}
 
 		// initialize Executor
-		String name = "Controller.Api.Websocket" + ":" + this.id();
+		var name = "Controller.Api.Websocket" + ":" + this.id();
 		this.executor = Executors.newScheduledThreadPool(10,
 				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
@@ -128,16 +126,17 @@ public class WebsocketApi extends AbstractOpenemsComponent
 		this.startServer(config.port(), POOL_SIZE, false);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 		this.stopServer();
-		ThreadPoolUtils.shutdownAndAwaitTermination(executor, 5);
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 	}
 
 	/**
 	 * Create and start new server.
-	 * 
+	 *
 	 * @param port      the port
 	 * @param poolSize  number of threads dedicated to handle the tasks
 	 * @param debugMode activate a regular debug log about the state of the tasks
@@ -178,17 +177,16 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the WebSocket connection attachment for a UI token.
-	 * 
+	 *
 	 * @param token the UI token
 	 * @return the WsData
 	 * @throws OpenemsNamedException if there is no connection with this token
 	 */
 	protected WsData getWsDataForTokenOrError(String token) throws OpenemsNamedException {
-		Collection<WebSocket> connections = this.server.getConnections();
-		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
-			WebSocket websocket = iter.next();
+		var connections = this.server.getConnections();
+		for (WebSocket websocket : connections) {
 			WsData wsData = websocket.getAttachment();
-			String thisToken = wsData.getSessionToken();
+			var thisToken = wsData.getSessionToken();
 			if (thisToken != null && thisToken.equals(token)) {
 				return wsData;
 			}
@@ -199,7 +197,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	/**
 	 * Handles a SubscribeSystemLogRequest by forwarding it to the
 	 * 'SystemLogHandler'.
-	 * 
+	 *
 	 * @param token   the UI token
 	 * @param request the SubscribeSystemLogRequest
 	 * @throws OpenemsNamedException on error
@@ -220,15 +218,15 @@ public class WebsocketApi extends AbstractOpenemsComponent
 				// No Connections? It's not required to build the EdgeConfig.
 				return;
 			}
-			EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
-			EdgeConfigNotification message = new EdgeConfigNotification(config);
+			var config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
+			var message = new EdgeConfigNotification(config);
 			this.server.broadcastMessage(new EdgeRpcNotification(WebsocketApi.EDGE_ID, message));
 		}
 	}
 
 	/**
 	 * Gets the Timedata service.
-	 * 
+	 *
 	 * @return the service
 	 * @throws OpenemsException if the timeservice is not available
 	 */

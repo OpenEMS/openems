@@ -21,7 +21,9 @@ export class InstallAppComponent implements OnInit {
   public fields: FormlyFieldConfig[] = null;
 
   private appId: string;
+  private appName: string;
   private edge: Edge = null;
+  private isInstalling: boolean;
 
   constructor(
     private route: ActivatedRoute,
@@ -36,14 +38,20 @@ export class InstallAppComponent implements OnInit {
     let appId = this.route.snapshot.params["appId"];
     this.appId = appId;
     this.service.setCurrentComponent("App " + appId, this.route).then(edge => {
-      this.edge = edge;
+      this.edge = edge
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
           componentId: "_appManager",
           payload: new GetAppAssistant.Request({ appId: appId })
         })).then(response => {
+
           let appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
+          // insert alias field into appAssistent fields
+          let aliasField = { key: "ALIAS", type: "input", templateOptions: { label: "Alias" }, defaultValue: appAssistant.alias };
+          appAssistant.fields.splice(0, 0, aliasField)
+
           this.fields = appAssistant.fields;
+          this.appName = appAssistant.name;
           this.model = {};
           this.form = new FormGroup({});
           this.service.stopSpinner(this.spinnerId);
@@ -57,17 +65,29 @@ export class InstallAppComponent implements OnInit {
   }
 
   public submit() {
+    // remove alias field from properties
+    let alias = this.form.value["ALIAS"]
+    const clonedFields = {};
+    for (let item in this.form.value) {
+      if (item != "ALIAS") {
+        clonedFields[item] = this.form.value[item]
+      }
+    }
+    this.isInstalling = true
     this.edge.sendRequest(this.websocket,
       new ComponentJsonApiRequest({
         componentId: "_appManager",
         payload: new AddAppInstance.Request({
           appId: this.appId,
-          properties: this.form.value
+          alias: alias,
+          properties: clonedFields
         })
       })).then(response => {
         this.form.markAsPristine();
+        this.isInstalling = false
         this.service.toast("Successfully installed App", 'success');
       }).catch(reason => {
+        this.isInstalling = false
         this.service.toast("Error installing App:" + reason.error.message, 'danger');
       });
   }

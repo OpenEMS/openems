@@ -68,33 +68,32 @@ public class SystemLogHandler {
 				// return this.parent.send(edgeId, request);
 			}
 
+		}
+		/*
+		 * End subscription
+		 */
+		boolean isAnySubscriptionForThisEdgeLeft;
+		synchronized (this.subscriptions) {
+			this.subscriptions.remove(edgeId, token);
+
+			isAnySubscriptionForThisEdgeLeft = this.subscriptions.containsKey(edgeId);
+		}
+
+		if (isAnySubscriptionForThisEdgeLeft) {
+			// announce success
+			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+
 		} else {
-			/*
-			 * End subscription
-			 */
-			boolean isAnySubscriptionForThisEdgeLeft;
-			synchronized (this.subscriptions) {
-				this.subscriptions.remove(edgeId, token);
-
-				isAnySubscriptionForThisEdgeLeft = this.subscriptions.containsKey(edgeId);
-			}
-
-			if (isAnySubscriptionForThisEdgeLeft) {
-				// announce success
-				return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
-
-			} else {
-				// send unsubscribe to Edge
-				return this.sendSubscribe(edgeId, user, request, false);
-				// return this.parent.send(edgeId, request);
-			}
+			// send unsubscribe to Edge
+			return this.sendSubscribe(edgeId, user, request, false);
+			// return this.parent.send(edgeId, request);
 		}
 	}
 
 	/**
 	 * Handles a {@link SystemLogNotification}, i.e. the replies to
 	 * {@link SubscribeSystemLogRequest}.
-	 * 
+	 *
 	 * @param edgeId       the Edge-ID
 	 * @param user         the {@link User}
 	 * @param notification the {@link SystemLogNotification}

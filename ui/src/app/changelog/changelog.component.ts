@@ -35,6 +35,19 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.3.3',
+        changes: [
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Responsive Größe des Eingabefensters, besser lesbare PV-Ausrichtung im IBN-Protokoll",
+          Changelog.product(Product.FEMS_HEIZSTAB) + "Kontinuierliche Aufsummierung der Betriebsstunden je Level",
+          Changelog.UI + "Fehlerbehebungen in der Darstellung der historischen Daten",
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Anpassungen für die neueste Batteriegeneration (Gen2)",
+          Changelog.product(Product.FEMS_PV_KOSTAL) + "Kompatibilität mit Kostal PV-Wechselrichtern. Getestet mit Kostal Plenticore 5.5 und Pico 5.5",
+          Changelog.library(Library.INFLUXDB),
+          { roleIsAtLeast: Role.ADMIN, change: "Zusammenlegung der FEMS System-Update Funktion, je nach installierter FEMS-Version" },
+          { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am FEMS App-Center (Beta-Test)" },
+        ]
+      },
+      {
         version: '2022.3.2',
         changes: [
           Changelog.UI

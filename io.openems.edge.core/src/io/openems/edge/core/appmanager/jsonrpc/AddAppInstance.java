@@ -12,10 +12,10 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
 /**
  * Adds an {@link OpenemsAppInstance}.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -27,10 +27,10 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -49,7 +49,7 @@ public class AddAppInstance {
 
 		/**
 		 * Parses a generic {@link JsonrpcRequest} to a {@link AddAppInstance}.
-		 * 
+		 *
 		 * @param r the {@link JsonrpcRequest}
 		 * @return the {@link AddAppInstance} Request
 		 * @throws OpenemsNamedException on error
@@ -57,22 +57,26 @@ public class AddAppInstance {
 		public static Request from(JsonrpcRequest r) throws OpenemsNamedException {
 			var p = r.getParams();
 			var appId = JsonUtils.getAsString(p, "appId");
+			var alias = JsonUtils.getAsString(p, "alias");
 			var properties = JsonUtils.getAsJsonObject(p, "properties");
-			return new Request(r, appId, properties);
+			return new Request(r, appId, alias, properties);
 		}
 
 		public final String appId;
+		public final String alias;
 		public final JsonObject properties;
 
-		public Request(String appId, JsonObject properties) {
-			super(METHOD);
+		private Request(JsonrpcRequest request, String appId, String alias, JsonObject properties) {
+			super(request, METHOD);
 			this.appId = appId;
+			this.alias = alias;
 			this.properties = properties;
 		}
 
-		private Request(JsonrpcRequest request, String appId, JsonObject properties) {
-			super(request, METHOD);
+		public Request(String appId, String alias, JsonObject properties) {
+			super(METHOD);
 			this.appId = appId;
+			this.alias = alias;
 			this.properties = properties;
 		}
 
@@ -80,6 +84,7 @@ public class AddAppInstance {
 		public JsonObject getParams() {
 			return JsonUtils.buildJsonObject() //
 					.addProperty("appId", this.appId) //
+					.addProperty("alias", this.alias) //
 					.add("properties", this.properties) //
 					.build();
 		}

@@ -53,7 +53,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 
 	/**
 	 * The JSON server.
-	 * 
+	 *
 	 * <p>
 	 * Responsible for the OCPP communication.
 	 */
@@ -80,7 +80,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	/**
 	 * Adds each Evcs component to a list and checks whether there is a matching
 	 * session.
-	 * 
+	 *
 	 * @param evcs new Evcs
 	 */
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
@@ -88,18 +88,18 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 		if (!(evcs instanceof AbstractOcppEvcsComponent) || evcs == null) {
 			return;
 		}
-		AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) evcs;
-		List<AbstractOcppEvcsComponent> presentEvcss = ocppEvcss.get(ocppEvcs.getConfiguredOcppId());
+		var ocppEvcs = (AbstractOcppEvcsComponent) evcs;
+		var presentEvcss = this.ocppEvcss.get(ocppEvcs.getConfiguredOcppId());
 
 		if (presentEvcss == null) {
-			List<AbstractOcppEvcsComponent> initEvcssArr = new ArrayList<AbstractOcppEvcsComponent>();
+			List<AbstractOcppEvcsComponent> initEvcssArr = new ArrayList<>();
 			initEvcssArr.add(ocppEvcs);
-			ocppEvcss.put(ocppEvcs.getConfiguredOcppId(), initEvcssArr);
+			this.ocppEvcss.put(ocppEvcs.getConfiguredOcppId(), initEvcssArr);
 		} else {
 			presentEvcss.add(ocppEvcs);
 		}
 
-		UUID sessionId = this.ocppSessions.get(ocppEvcs.getConfiguredOcppId());
+		var sessionId = this.ocppSessions.get(ocppEvcs.getConfiguredOcppId());
 		if (sessionId == null) {
 			return;
 		}
@@ -111,15 +111,15 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	/**
 	 * Removes the given Evcs component from the list and checks whether there is a
 	 * present session that should be removed.
-	 * 
+	 *
 	 * @param evcs Evcs that should be removed
 	 */
 	protected void removeEvcs(Evcs evcs) {
 		if (!(evcs instanceof AbstractOcppEvcsComponent) || evcs == null) {
 			return;
 		}
-		AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) evcs;
-		List<AbstractOcppEvcsComponent> evcss = this.activeEvcsSessions.get(ocppEvcs.getSessionId());
+		var ocppEvcs = (AbstractOcppEvcsComponent) evcs;
+		var evcss = this.activeEvcsSessions.get(ocppEvcs.getSessionId());
 		if (evcss != null) {
 			if (evcss.size() < 2) {
 				this.activeEvcsSessions.remove(ocppEvcs.getSessionId());

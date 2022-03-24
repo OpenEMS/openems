@@ -12,7 +12,8 @@ public enum EssType {
 	public static EssType getEssType(ManagedSymmetricEss ess) {
 		if (ess instanceof MetaEss) {
 			return META;
-		} else if (ess instanceof ManagedSinglePhaseEss) {
+		}
+		if (ess instanceof ManagedSinglePhaseEss) {
 			return EssType.SINGLE_PHASE;
 		} else if (ess instanceof ManagedAsymmetricEss) {
 			return EssType.ASYMMETRIC;

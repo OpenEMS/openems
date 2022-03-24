@@ -11,10 +11,10 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
 /**
  * Updates an {@link OpenemsAppInstance}..
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -26,10 +26,10 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -46,7 +46,7 @@ public class UpdateAppInstance {
 
 		/**
 		 * Parses a generic {@link JsonrpcRequest} to a {@link UpdateAppInstance}.
-		 * 
+		 *
 		 * @param r the {@link JsonrpcRequest}
 		 * @return the {@link UpdateAppInstance}
 		 * @throws OpenemsNamedException on error
@@ -54,21 +54,24 @@ public class UpdateAppInstance {
 		public static Request from(JsonrpcRequest r) throws OpenemsNamedException {
 			var p = r.getParams();
 			var instanceId = JsonUtils.getAsUUID(p, "instanceId");
+			var alias = JsonUtils.getAsString(p, "alias");
 			var properties = JsonUtils.getAsJsonObject(p, "properties");
-			return new Request(r, instanceId, properties);
+			return new Request(r, instanceId, alias, properties);
 		}
 
 		public final UUID instanceId;
+		public String alias;
 		public final JsonObject properties;
 
-		public Request(UUID instanceId, JsonObject properties) {
-			super(METHOD);
+		private Request(JsonrpcRequest request, UUID instanceId, String alias, JsonObject properties) {
+			super(request, METHOD);
 			this.instanceId = instanceId;
+			this.alias = alias;
 			this.properties = properties;
 		}
 
-		private Request(JsonrpcRequest request, UUID instanceId, JsonObject properties) {
-			super(request, METHOD);
+		public Request(UUID instanceId, JsonObject properties) {
+			super(METHOD);
 			this.instanceId = instanceId;
 			this.properties = properties;
 		}

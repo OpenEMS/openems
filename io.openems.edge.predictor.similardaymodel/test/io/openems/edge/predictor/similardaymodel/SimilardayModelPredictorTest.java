@@ -7,12 +7,13 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+
 import org.junit.Test;
+
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
-import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class SimilardayModelPredictorTest {
@@ -25,20 +26,20 @@ public class SimilardayModelPredictorTest {
 	@Test
 	public void test() throws Exception {
 
-		final TimeLeapClock clock = new TimeLeapClock(
-				Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
 
-		Integer[] values = Data.data;
-		Integer[] predictedValues = Data.predictedData;
+		var values = Data.data;
+		var predictedValues = Data.predictedData;
 
-		DummyTimedata timedata = new DummyTimedata(TIMEDATA_ID);
-		ZonedDateTime start = ZonedDateTime.of(2019, 12, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
+		var timedata = new DummyTimedata(TIMEDATA_ID);
+		var start = ZonedDateTime.of(2019, 12, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 
-		for (int i = 0; i < values.length; i++) {
+		for (var i = 0; i < values.length; i++) {
 			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
 		}
 
-		SimilarDayPredictorImpl sut = new SimilarDayPredictorImpl();
+		var sut = new SimilarDayPredictorImpl();
 
 		new ComponentTest(sut) //
 				.addReference("timedata", timedata) //
@@ -48,8 +49,8 @@ public class SimilardayModelPredictorTest {
 						.setNumOfWeeks(4) //
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()).build());
 
-		Prediction24Hours prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
-		Integer[] p = prediction.getValues();
+		var prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
+		var p = prediction.getValues();
 
 		assertEquals(predictedValues[0], p[0]);
 		assertEquals(predictedValues[48], p[48]);

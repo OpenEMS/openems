@@ -10,7 +10,7 @@ import java.util.Optional;
  * <li>Relationship (EQ, GEQ, LEQ) as given in constructor
  * <li>Value as given in constructor
  * <li>Setting each coefficient, i.e.
- * 
+ *
  * <pre>
  * y = 1*p1 + 0*q1 * + 1*p2 + 0*q1 +...
  * </pre>
@@ -37,7 +37,7 @@ public class Constraint {
 
 	/**
 	 * Creates an initially disabled Constraint
-	 * 
+	 *
 	 * @param coefficients
 	 * @param relationship
 	 */
@@ -60,12 +60,12 @@ public class Constraint {
 
 	@Override
 	public String toString() {
-		StringBuilder b = new StringBuilder();
+		var b = new StringBuilder();
 		b.append(String.format("%-30s", this.description));
 		for (LinearCoefficient c : this.coefficients) {
 			b.append(c.toString());
 		}
-		b.append(" " + relationship.toString() + " ");
+		b.append(" " + this.relationship.toString() + " ");
 		if (this.value.isPresent()) {
 			b.append(VALUE_FORMAT.format(this.value.get()));
 		} else {
@@ -79,11 +79,11 @@ public class Constraint {
 	}
 
 	public LinearCoefficient[] getCoefficients() {
-		return coefficients;
+		return this.coefficients;
 	}
 
 	public Relationship getRelationship() {
-		return relationship;
+		return this.relationship;
 	}
 
 	public Optional<Double> getValue() {

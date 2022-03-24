@@ -5,11 +5,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.common.startstop.StartStopConfig;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Battery-Inverter REFUstore88k", //
 		description = "Implements the REFUstore 88K Battery Inverter")
-public
-@interface Config {
+public @interface Config {
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "batteryInverter0";
 
@@ -27,7 +26,7 @@ public
 
 	@AttributeDefinition(name = "Time Limit", description = "Time no Power is applied")
 	int timeLimitNoPower() default 60;
-	
+
 	@AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
 	StartStopConfig startStop() default StartStopConfig.AUTO;
 

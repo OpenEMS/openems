@@ -28,7 +28,7 @@ public interface HardyBarth {
 		RAW_CHARGE_STATUS_PWM(Doc.of(OpenemsType.STRING), "secc", "port0", "ci", "charge", "pwm", "status"), //
 		/**
 		 * States of the Hardy Barth.
-		 * 
+		 *
 		 * <p>
 		 * <ul>
 		 * <li>A = Free (no EV connected)
@@ -70,24 +70,24 @@ public interface HardyBarth {
 				.text("No meter values available. The communication cable of the internal meter may be loose.")), //
 		RAW_METER_AVAILABLE(Doc.of(OpenemsType.BOOLEAN).onInit(channel -> {
 			((BooleanReadChannel) channel).onSetNextValue(value -> {
-				HardyBarthImpl hardyBarth = (HardyBarthImpl) channel.getComponent();
-				Boolean notAvailable = value.get() == null ? null : !value.get();
+				var hardyBarth = (HardyBarthImpl) channel.getComponent();
+				var notAvailable = value.get() == null ? null : !value.get();
 				hardyBarth.channel(HardyBarth.ChannelId.METER_NOT_AVAILABLE).setNextValue(notAvailable);
 			});
 		}), "secc", "port0", "metering", "meter", "available"), //
 
 		// METERING - POWER
-		RAW_ACTIVE_POWER_L1(Doc.of(OpenemsType.LONG).unit(Unit.WATT), (value) -> {
+		RAW_ACTIVE_POWER_L1(Doc.of(OpenemsType.LONG).unit(Unit.WATT), value -> {
 			Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, value);
 			return TypeUtils.getAsType(OpenemsType.LONG, TypeUtils.multiply(doubleValue, SCALE_FACTOR_MINUS_1));
 		}, "secc", "port0", "metering", "power", "active", "ac", "l1", "actual"), //
 
-		RAW_ACTIVE_POWER_L2(Doc.of(OpenemsType.LONG).unit(Unit.WATT), (value) -> {
+		RAW_ACTIVE_POWER_L2(Doc.of(OpenemsType.LONG).unit(Unit.WATT), value -> {
 			Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, value);
 			return TypeUtils.getAsType(OpenemsType.LONG, TypeUtils.multiply(doubleValue, SCALE_FACTOR_MINUS_1));
 		}, "secc", "port0", "metering", "power", "active", "ac", "l2", "actual"), //
 
-		RAW_ACTIVE_POWER_L3(Doc.of(OpenemsType.LONG).unit(Unit.WATT), (value) -> {
+		RAW_ACTIVE_POWER_L3(Doc.of(OpenemsType.LONG).unit(Unit.WATT), value -> {
 			Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, value);
 			return TypeUtils.getAsType(OpenemsType.LONG, TypeUtils.multiply(doubleValue, SCALE_FACTOR_MINUS_1));
 		}, "secc", "port0", "metering", "power", "active", "ac", "l2", "actual"), //
@@ -165,7 +165,7 @@ public interface HardyBarth {
 		protected final Function<Object, Object> converter;
 
 		private ChannelId(Doc doc, String... jsonPaths) {
-			this(doc, (value) -> value, jsonPaths);
+			this(doc, value -> value, jsonPaths);
 		}
 
 		private ChannelId(Doc doc, Function<Object, Object> converter, String... jsonPaths) {
@@ -181,7 +181,7 @@ public interface HardyBarth {
 
 		/**
 		 * Get the whole JSON path.
-		 * 
+		 *
 		 * @return Whole path.
 		 */
 		public String[] getJsonPaths() {

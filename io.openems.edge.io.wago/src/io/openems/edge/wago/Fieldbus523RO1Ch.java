@@ -19,20 +19,20 @@ public class Fieldbus523RO1Ch extends FieldbusModule {
 	private final BooleanReadChannel[] readChannels;
 
 	public Fieldbus523RO1Ch(Wago parent, int moduleCount, int coilOffset0, int coilOffset512) {
-		String id = ID_TEMPLATE + moduleCount;
+		var id = ID_TEMPLATE + moduleCount;
 
 		BooleanWriteChannel channel1;
 		{
-			OpenemsTypeDoc<Boolean> doc = new BooleanDoc() //
+			var doc = new BooleanDoc() //
 					.accessMode(AccessMode.READ_WRITE);
 			doc.persistencePriority(PersistencePriority.MEDIUM);
-			FieldbusChannelId channelId = new FieldbusChannelId(id, doc);
+			var channelId = new FieldbusChannelId(id, doc);
 			channel1 = (BooleanWriteChannel) parent.addChannel(channelId);
 		}
 		BooleanReadChannel channel2;
 		{
 			OpenemsTypeDoc<Boolean> doc = new BooleanDoc();
-			FieldbusChannelId channelId = new FieldbusChannelId(id + "_HAND", doc);
+			var channelId = new FieldbusChannelId(id + "_HAND", doc);
 			channel2 = parent.addChannel(channelId);
 		}
 		this.readChannels = new BooleanReadChannel[] { channel1, channel2 };

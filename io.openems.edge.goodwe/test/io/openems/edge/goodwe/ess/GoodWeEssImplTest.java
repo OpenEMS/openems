@@ -19,7 +19,7 @@ public class GoodWeEssImplTest {
 
 	@Test
 	public void testEt() throws Exception {
-		GoodWeEtCharger1 charger = new GoodWeEtCharger1();
+		var charger = new GoodWeEtCharger1();
 		new ComponentTest(charger) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -30,7 +30,7 @@ public class GoodWeEssImplTest {
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.build());
 
-		GoodWeEssImpl ess = new GoodWeEssImpl();
+		var ess = new GoodWeEssImpl();
 		ess.addCharger(charger);
 		new ManagedSymmetricEssTest(ess) //
 				.addReference("power", new DummyPower()) //
@@ -43,14 +43,14 @@ public class GoodWeEssImplTest {
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setCapacity(9_000) //
 						.setMaxBatteryPower(5_200) //
-						.setControlMode(ControlMode.SMART)
+						.setControlMode(ControlMode.SMART) //
 						.build()) //
 		;
 	}
 
 	@Test
 	public void testBt() throws Exception {
-		GoodWeEssImpl ess = new GoodWeEssImpl();
+		var ess = new GoodWeEssImpl();
 		new ManagedSymmetricEssTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
@@ -61,7 +61,7 @@ public class GoodWeEssImplTest {
 						.setModbusUnitId(GoodWeConstants.DEFAULT_UNIT_ID) //
 						.setCapacity(9_000) //
 						.setMaxBatteryPower(5_200) //
-						.setControlMode(ControlMode.SMART)
+						.setControlMode(ControlMode.SMART) //
 						.build()) //
 		;
 	}

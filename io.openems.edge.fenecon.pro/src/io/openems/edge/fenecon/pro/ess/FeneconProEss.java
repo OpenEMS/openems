@@ -103,6 +103,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 		this.getSetReactivePowerL3Channel().setNextWriteValue(reactivePowerL3);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -117,6 +118,7 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 		this.modbusBridgeId = config.modbus_id();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -152,9 +154,8 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 									if (soc > 95 && allowedCharge.value().orElse(-1) == 0
 											&& allowedDischarge.value().orElse(0) != 0) {
 										return 100;
-									} else {
-										return value;
 									}
+									return value;
 								}, // channel -> element
 								value -> value)), //
 						m(ProChannelId.BATTERY_VOLTAGE, new UnsignedWordElement(110),
@@ -557,13 +558,11 @@ public class FeneconProEss extends AbstractOpenemsModbusComponent implements Sym
 					this.logInfo(this.log, "Setting PCS-Mode to 'Remote'");
 					this.getPcsModeChannel().setNextWriteValue(PcsMode.REMOTE);
 				}
-			} else {
-				// If Mode is "Remote" and SetupMode is active
-				if (this.getSetupMode() == SetupMode.ON) {
-					// Deactivate SetupMode
-					this.logInfo(this.log, "Deactivating Setup-Mode");
-					this.getSetupModeChannel().setNextWriteValue(SetupMode.OFF);
-				}
+			} else // If Mode is "Remote" and SetupMode is active
+			if (this.getSetupMode() == SetupMode.ON) {
+				// Deactivate SetupMode
+				this.logInfo(this.log, "Deactivating Setup-Mode");
+				this.getSetupModeChannel().setNextWriteValue(SetupMode.OFF);
 			}
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, "Unable to activate Remote-Mode: " + e.getMessage());

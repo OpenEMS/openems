@@ -24,7 +24,7 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 		/**
 		 * Holds the maximum possible apparent power. This value is defined by the
 		 * inverter limitations.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: SymmetricPvInverter
 		 * <li>Type: Integer
@@ -37,7 +37,7 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
 		 * Read/Set Active Power Limit.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: PV-Inverter Symmetric
 		 * <li>Type: Integer
@@ -61,6 +61,7 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -68,9 +69,10 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 
 	/**
 	 * Gets the type of this Meter.
-	 * 
+	 *
 	 * @return the MeterType
 	 */
+	@Override
 	default MeterType getMeterType() {
 		return MeterType.PRODUCTION;
 	}
@@ -154,7 +156,7 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 
 	/**
 	 * Sets the Active Power Limit in [W]. See {@link ChannelId#ACTIVE_POWER_LIMIT}.
-	 * 
+	 *
 	 * @return the Channel
 	 * @throws OpenemsNamedException on error
 	 */
@@ -164,7 +166,7 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 
 	/**
 	 * Sets the Active Power Limit in [W]. See {@link ChannelId#ACTIVE_POWER_LIMIT}.
-	 * 
+	 *
 	 * @return the Channel
 	 * @throws OpenemsNamedException on error
 	 */

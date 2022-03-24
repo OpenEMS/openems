@@ -14,6 +14,7 @@ public interface SimulatedThermometer extends Thermometer, OpenemsComponent {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

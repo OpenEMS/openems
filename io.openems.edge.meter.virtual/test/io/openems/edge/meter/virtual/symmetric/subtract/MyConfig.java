@@ -26,7 +26,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.type = type;
 			return this;
 		}
-		
+
 		public Builder setAddToSum(boolean addToSum) {
 			this.addToSum = addToSum;
 			return this;
@@ -49,7 +49,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

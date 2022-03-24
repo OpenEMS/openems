@@ -18,7 +18,7 @@ public interface Controller extends OpenemsComponent {
 
 	/**
 	 * Executes the Controller logic.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	public void run() throws OpenemsNamedException;
@@ -42,7 +42,7 @@ public interface Controller extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#RUN_FAILED}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getRunFailedChannel() {
@@ -51,7 +51,7 @@ public interface Controller extends OpenemsComponent {
 
 	/**
 	 * Gets the Run-Failed State. See {@link ChannelId#RUN_FAILED}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getRunFailed() {
@@ -61,7 +61,7 @@ public interface Controller extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#RUN_FAILED}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setRunFailed(boolean value) {

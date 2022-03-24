@@ -26,7 +26,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 		// Discharge without feeding to grid (just like in Balancing Controller)
 		int gridPower = context.sum.getGridActivePower().getOrError();
 		int essPower = context.ess.getActivePower().getOrError();
-		int setPower = gridPower + essPower;
+		var setPower = gridPower + essPower;
 		if (setPower < 0) {
 			// do not charge
 			setPower = 0;
@@ -44,7 +44,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 
 	/**
 	 * Handles the limitation of Discharge Power according to the specification.
-	 * 
+	 *
 	 * <ul>
 	 * <li>discharge like in Balancing (keep grid at 0)
 	 * <li>if discharge power > 70 %
@@ -96,7 +96,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 
 		/**
 		 * Applies the power limit.
-		 * 
+		 *
 		 * @param context  the {@link Context}
 		 * @param setPower the initial power setpoint
 		 * @return the new limit
@@ -110,7 +110,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 			// to 50 %
 			int maxApparentPower = context.ess.getMaxApparentPower().getOrError();
 			if (setPower > maxApparentPower * HIGH_POWER_THRESHOLD) {
-				Instant now = Instant.now(context.clock);
+				var now = Instant.now(context.clock);
 				if (this.highDischargePowerSince == null) {
 					this.highDischargePowerSince = now;
 				}
@@ -121,7 +121,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 
 			// Apply power limitation
 			if (this.isDischargePowerLimited) {
-				int limit = Math.round(maxApparentPower * POWER_LIMIT_FACTOR);
+				var limit = Math.round(maxApparentPower * POWER_LIMIT_FACTOR);
 				if (setPower > limit) {
 					setPower = limit;
 				}
@@ -133,7 +133,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 	/**
 	 * Wraps the evaluation of the next State after DISCHARGE according to the
 	 * specification.
-	 * 
+	 *
 	 * <ul>
 	 * <li>Production is higher than Consumption for more than 1 minute.
 	 * ({@link EvaluateNextStateHandler#MAX_PRODUCTION_HIGHER_THAN_CONSUMPTION_MINUTES})
@@ -167,7 +167,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 
 		/**
 		 * Gets the next State.
-		 * 
+		 *
 		 * @param context the {@link Context}
 		 * @return the next {@link State}.
 		 * @throws IllegalArgumentException on error
@@ -181,7 +181,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 			int production = context.sum.getProductionActivePower().orElse(0);
 			int consumption = context.sum.getConsumptionActivePower().orElse(0);
 			if (production > consumption) {
-				Instant now = Instant.now(context.clock);
+				var now = Instant.now(context.clock);
 				if (this.productionHigherThanConsumptionSince == null) {
 					this.productionHigherThanConsumptionSince = now;
 				}

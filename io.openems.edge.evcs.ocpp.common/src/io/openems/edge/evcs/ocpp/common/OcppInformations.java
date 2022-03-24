@@ -161,6 +161,6 @@ public enum OcppInformations {
 	}
 
 	public ChannelId getChannelId() {
-		return channelId;
+		return this.channelId;
 	}
 }

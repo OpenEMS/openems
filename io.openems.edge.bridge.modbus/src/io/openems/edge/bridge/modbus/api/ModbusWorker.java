@@ -3,7 +3,6 @@ package io.openems.edge.bridge.modbus.api;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -28,7 +27,7 @@ import io.openems.edge.common.taskmanager.Priority;
 /**
  * The ModbusWorker schedules the execution of all Modbus-Tasks, like reading
  * and writing modbus registers.
- * 
+ *
  * <p>
  * It tries to execute all Write-Tasks as early as possible (directly after the
  * TOPIC_CYCLE_EXECUTE_WRITE event) and all Read-Tasks as late as possible to
@@ -57,7 +56,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * This is called on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE cycle event.
 	 */
 	protected void onBeforeProcessImage() {
-		int cycleTime = this.parent.getCycle().getCycleTime();
+		var cycleTime = this.parent.getCycle().getCycleTime();
 		this.stopwatch.reset();
 		this.stopwatch.start();
 
@@ -69,27 +68,27 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 		// Collect the next read-tasks
 		List<ReadTask> nextReadTasks = new ArrayList<>();
-		ReadTask lowPriorityTask = this.getOneLowPriorityReadTask();
+		var lowPriorityTask = this.getOneLowPriorityReadTask();
 		if (lowPriorityTask != null) {
 			nextReadTasks.add(lowPriorityTask);
 		}
 		nextReadTasks.addAll(this.getAllHighPriorityReadTasks());
-		long readTasksDuration = 0;
+		var readTasksDuration = 0L;
 		for (ReadTask task : nextReadTasks) {
 			readTasksDuration += task.getExecuteDuration();
 		}
 
 		// collect the next write-tasks
-		long writeTasksDuration = 0;
-		List<WriteTask> nextWriteTasks = this.getAllWriteTasks();
+		var writeTasksDuration = 0L;
+		var nextWriteTasks = this.getAllWriteTasks();
 		for (WriteTask task : nextWriteTasks) {
 			writeTasksDuration += task.getExecuteDuration();
 		}
 
 		// plan the execution for the next cycles
-		long totalDuration = readTasksDuration + writeTasksDuration;
-		long totalDurationWithBuffer = totalDuration + TASK_DURATION_BUFFER;
-		long noOfRequiredCycles = ceilDiv(totalDurationWithBuffer, cycleTime);
+		var totalDuration = readTasksDuration + writeTasksDuration;
+		var totalDurationWithBuffer = totalDuration + TASK_DURATION_BUFFER;
+		var noOfRequiredCycles = ceilDiv(totalDurationWithBuffer, cycleTime);
 
 		// Set EXECUTION_DURATION channel
 		this.parent._setExecutionDuration(totalDuration);
@@ -101,8 +100,8 @@ public class ModbusWorker extends AbstractImmediateWorker {
 			this.parent._setCycleTimeIsTooShort(false);
 		}
 
-		long durationOfTasksBeforeExecuteWriteEvent = 0;
-		int noOfTasksBeforeExecuteWriteEvent = 0;
+		var durationOfTasksBeforeExecuteWriteEvent = 0L;
+		var noOfTasksBeforeExecuteWriteEvent = 0;
 		for (ReadTask task : nextReadTasks) {
 			if (durationOfTasksBeforeExecuteWriteEvent > this.durationBetweenBeforeProcessImageTillExecuteWrite) {
 				break;
@@ -118,8 +117,8 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		tasksQueue.addAll(nextWriteTasks);
 
 		// Add all read-tasks to the queue
-		for (int i = 0; i < nextReadTasks.size(); i++) {
-			ReadTask task = nextReadTasks.get(i);
+		for (var i = 0; i < nextReadTasks.size(); i++) {
+			var task = nextReadTasks.get(i);
 			if (i < noOfTasksBeforeExecuteWriteEvent) {
 				// this Task will be executed before ExecuteWrite event -> add it to the end of
 				// the queue
@@ -132,7 +131,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		}
 
 		// Add a waiting-task to the end of the queue
-		long waitTillStart = noOfRequiredCycles * cycleTime - totalDurationWithBuffer;
+		var waitTillStart = noOfRequiredCycles * cycleTime - totalDurationWithBuffer;
 		tasksQueue.addLast(new WaitTask(waitTillStart));
 
 		// Copy all Tasks to the global tasks-queue
@@ -155,7 +154,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 	@Override
 	protected void forever() throws InterruptedException {
-		Task task = this.tasksQueue.takeLast();
+		var task = this.tasksQueue.takeLast();
 
 		// If there are no tasks in the bridge, there will always be only one
 		// 'WaitTask'.
@@ -163,10 +162,10 @@ public class ModbusWorker extends AbstractImmediateWorker {
 			return;
 		}
 
-		ModbusComponent modbusComponent = task.getParent();
+		var modbusComponent = task.getParent();
 		try {
 			// execute the task
-			int noOfExecutedSubTasks = task.execute(this.parent);
+			var noOfExecutedSubTasks = task.execute(this.parent);
 
 			if (noOfExecutedSubTasks > 0) {
 				// no exception & at least one sub-task executed -> remove this component from
@@ -193,56 +192,52 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 	/**
 	 * Gets one Read-Tasks with priority Low or Once.
-	 * 
+	 *
 	 * @return a list of ReadTasks by Source-ID
 	 */
 	private ReadTask getOneLowPriorityReadTask() {
 		// Get next Priority ONCE task
-		ReadTask oncePriorityTask = this.readTasksManager.getOneTask(Priority.ONCE);
+		var oncePriorityTask = this.readTasksManager.getOneTask(Priority.ONCE);
 		if (oncePriorityTask != null && !oncePriorityTask.hasBeenExecuted()) {
 			return oncePriorityTask;
 
-		} else {
-			// No more Priority ONCE tasks available -> add Priority LOW task
-			ReadTask lowPriorityTask = this.readTasksManager.getOneTask(Priority.LOW);
-			if (lowPriorityTask != null) {
-				return lowPriorityTask;
-			}
 		}
-		return null;
+		// No more Priority ONCE tasks available -> add Priority LOW task
+		var lowPriorityTask = this.readTasksManager.getOneTask(Priority.LOW);
+		return lowPriorityTask;
 	}
 
 	/**
 	 * Gets all the High-Priority Read-Tasks.
-	 * 
+	 *
 	 * <p>
 	 * This checks if a device is listed as defective and - if it is - adds only one
 	 * ReadTask of this Source-Component to the queue
-	 * 
+	 *
 	 * @return a list of ReadTasks
 	 */
 	private List<ReadTask> getAllHighPriorityReadTasks() {
-		Multimap<String, ReadTask> tasks = this.readTasksManager.getAllTasksBySourceId(Priority.HIGH);
+		var tasks = this.readTasksManager.getAllTasksBySourceId(Priority.HIGH);
 		return this.filterDefectiveComponents(tasks);
 	}
 
 	/**
 	 * Gets the Write-Tasks by Source-ID.
-	 * 
+	 *
 	 * <p>
 	 * This checks if a device is listed as defective and - if it is - adds only one
 	 * WriteTask of this Source-Component to the queue
-	 * 
+	 *
 	 * @return a list of WriteTasks by Source-ID
 	 */
 	private List<WriteTask> getAllWriteTasks() {
-		Multimap<String, WriteTask> tasks = this.writeTasksManager.getAllTasksBySourceId();
+		var tasks = this.writeTasksManager.getAllTasksBySourceId();
 		return this.filterDefectiveComponents(tasks);
 	}
 
 	/**
 	 * Does this {@link ModbusWorker} have any Tasks?.
-	 * 
+	 *
 	 * @return true if there are Tasks
 	 */
 	private boolean hasTasks() {
@@ -253,7 +248,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * Filters a Multimap with Tasks by Component-ID. For Components that are known
 	 * to be defective, only one task is added; otherwise all tasks are added to the
 	 * result. The idea is to not execute tasks that are known to fail.
-	 * 
+	 *
 	 * @param <T>   the Task type
 	 * @param tasks Tasks by Component-ID
 	 * @return a list of filtered tasks
@@ -261,10 +256,10 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	private <T extends Task> List<T> filterDefectiveComponents(Multimap<String, T> tasks) {
 		List<T> result = new ArrayList<>();
 		for (Collection<T> tasksOfComponent : tasks.asMap().values()) {
-			Iterator<T> iterator = tasksOfComponent.iterator();
+			var iterator = tasksOfComponent.iterator();
 			if (iterator.hasNext()) {
-				T task = iterator.next(); // get first task
-				ModbusComponent modbusComponent = task.getParent();
+				var task = iterator.next(); // get first task
+				var modbusComponent = task.getParent();
 				if (modbusComponent.getModbusCommunicationFailed().get() == Boolean.TRUE) {
 					// Component is known to be erroneous -> add only one Task
 					result.add(task);
@@ -279,7 +274,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 	/**
 	 * Adds the protocol.
-	 * 
+	 *
 	 * @param sourceId Component-ID of the source
 	 * @param protocol the ModbusProtocol
 	 */
@@ -290,7 +285,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 	/**
 	 * Removes the protocol.
-	 * 
+	 *
 	 * @param sourceId Component-ID of the source
 	 */
 	public void removeProtocol(String sourceId) {
@@ -300,11 +295,11 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 	/**
 	 * This is a helper function. It calculates the opposite of Math.floorDiv().
-	 * 
+	 *
 	 * <p>
 	 * Source:
 	 * https://stackoverflow.com/questions/27643616/ceil-conterpart-for-math-floordiv-in-java
-	 * 
+	 *
 	 * @param x the dividend
 	 * @param y the divisor
 	 * @return the result of the division, rounded up

@@ -1,7 +1,5 @@
 package io.openems.edge.controller.io.alarm;
 
-import java.util.Optional;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -16,7 +14,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -66,6 +63,7 @@ public class IoAlarm extends AbstractOpenemsComponent implements Controller, Ope
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -73,10 +71,10 @@ public class IoAlarm extends AbstractOpenemsComponent implements Controller, Ope
 
 	@Override
 	public void run() throws IllegalArgumentException, OpenemsNamedException {
-		boolean setOutput = false;
+		var setOutput = false;
 
 		for (String channelAddress : this.config.inputChannelAddress()) {
-			StateChannel channel = this.componentManager.getChannel(ChannelAddress.fromString(channelAddress));
+			var channel = this.componentManager.getChannel(ChannelAddress.fromString(channelAddress));
 			// Reading the value of all input channels
 			boolean isStateChannelSet = TypeUtils.getAsType(OpenemsType.BOOLEAN, channel.value().getOrError());
 
@@ -90,7 +88,7 @@ public class IoAlarm extends AbstractOpenemsComponent implements Controller, Ope
 		// Set Output Channel
 		WriteChannel<Boolean> outputChannel = this.componentManager
 				.getChannel(ChannelAddress.fromString(this.config.outputChannelAddress()));
-		Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+		var currentValueOpt = outputChannel.value().asOptional();
 		if (!currentValueOpt.isPresent() || currentValueOpt.get() != setOutput) {
 			this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + setOutput + ".");
 			outputChannel.setNextWriteValue(setOutput);

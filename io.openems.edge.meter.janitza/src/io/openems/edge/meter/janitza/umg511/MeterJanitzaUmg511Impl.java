@@ -32,7 +32,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements the Janitza UMG 511 power analyzer.
- * 
+ *
  * <p>
  * https://www.janitza.de/betriebsanleitungen.html?file=files/download/manuals/current/UMG511/Modbus/janitza-mal-umg511-en.pdf
  */
@@ -65,6 +65,7 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -81,6 +82,7 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -93,7 +95,7 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
+		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(3845, Priority.HIGH, //
 						m(new FloatDoublewordElement(3845))
 								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3)//

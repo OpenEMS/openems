@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
 import io.openems.backend.b2bwebsocket.jsonrpc.notification.EdgesCurrentDataNotification;
@@ -131,7 +130,7 @@ public class SubscribedEdgesChannelsWorker {
 			user.assertEdgeRoleIsAtLeast("EdgesCurrentDataNotification", edgeId, Role.GUEST);
 
 			for (ChannelAddress channel : this.channels) {
-				Optional<JsonElement> value = this.parent.timeData.getChannelValue(edgeId, channel);
+				var value = this.parent.timeData.getChannelValue(edgeId, channel);
 				result.addValue(edgeId, channel, value.orElse(JsonNull.INSTANCE));
 			}
 		}

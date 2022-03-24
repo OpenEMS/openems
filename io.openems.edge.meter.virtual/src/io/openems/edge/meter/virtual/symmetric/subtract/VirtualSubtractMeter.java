@@ -71,6 +71,7 @@ public class VirtualSubtractMeter extends AbstractOpenemsComponent
 		this.channelManager.activate(this.minuend, this.subtrahends);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		this.channelManager.deactivate();

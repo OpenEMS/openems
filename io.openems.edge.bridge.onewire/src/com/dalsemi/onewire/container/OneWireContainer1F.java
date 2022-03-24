@@ -163,9 +163,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 *      super.setupContainer()
 	 */
 	public OneWireContainer1F() {
-		super();
-
-		clearActivityOnWrite = false;
+		this.clearActivityOnWrite = false;
 	}
 
 	/**
@@ -186,7 +184,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	public OneWireContainer1F(DSPortAdapter sourceAdapter, byte[] newAddress) {
 		super(sourceAdapter, newAddress);
 
-		clearActivityOnWrite = false;
+		this.clearActivityOnWrite = false;
 	}
 
 	/**
@@ -208,7 +206,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	public OneWireContainer1F(DSPortAdapter sourceAdapter, long newAddress) {
 		super(sourceAdapter, newAddress);
 
-		clearActivityOnWrite = false;
+		this.clearActivityOnWrite = false;
 	}
 
 	/**
@@ -230,7 +228,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	public OneWireContainer1F(DSPortAdapter sourceAdapter, String newAddress) {
 		super(sourceAdapter, newAddress);
 
-		clearActivityOnWrite = false;
+		this.clearActivityOnWrite = false;
 	}
 
 	// --------
@@ -243,6 +241,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 *
 	 * @return iButton or 1-Wire device name
 	 */
+	@Override
 	public String getName() {
 		return "DS2409";
 	}
@@ -254,6 +253,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 *
 	 * @return 1-Wire device alternate names
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "Coupler";
 	}
@@ -264,6 +264,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 *
 	 * @return device description
 	 */
+	@Override
 	public String getDescription() {
 		return "1-Wire Network Coupler with dual addressable " + "switches and a general purpose open drain control "
 				+ "output.  Provides a common ground for all connected"
@@ -286,7 +287,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 * @see OneWireContainer#doSpeed()
 	 */
 	public synchronized void setSpeedCheck(boolean doSpeedCheck) {
-		doSpeedEnable = doSpeedCheck;
+		this.doSpeedEnable = doSpeedCheck;
 	}
 
 	// --------
@@ -309,14 +310,16 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public byte[] readDevice() throws OneWireIOException, OneWireException {
-		byte[] ret_buf = new byte[4];
+		var ret_buf = new byte[4];
 
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
 		// read the status byte
-		byte[] tmp_buf = deviceOperation(READ_WRITE_STATUS_COMMAND, (byte) 0x00FF, 2);
+		var tmp_buf = this.deviceOperation(READ_WRITE_STATUS_COMMAND, (byte) 0x00FF, 2);
 
 		// extract the status byte
 		ret_buf[0] = tmp_buf[2];
@@ -339,19 +342,22 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException {
-		int extra = 0;
+		var extra = 0;
 		byte command, first_byte;
 		byte[] tmp_buf = null;
 
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
 		// check for both switches set to on
-		if ((Bit.arrayReadBit(MAIN_OFFSET, BITMAP_OFFSET, state) == 1)
-				&& (Bit.arrayReadBit(AUX_OFFSET, BITMAP_OFFSET, state) == 1)) {
-			if ((state[MAIN_OFFSET] != SWITCH_OFF) && (state[AUX_OFFSET] != SWITCH_OFF))
+		if (Bit.arrayReadBit(MAIN_OFFSET, BITMAP_OFFSET, state) == 1
+				&& Bit.arrayReadBit(AUX_OFFSET, BITMAP_OFFSET, state) == 1) {
+			if (state[MAIN_OFFSET] != SWITCH_OFF && state[AUX_OFFSET] != SWITCH_OFF) {
 				throw new OneWireException("Attempting to set both channels on, only single channel on at a time");
+			}
 		}
 
 		// check if need to set control
@@ -361,22 +367,24 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 			first_byte = 0;
 
 			// mode bit
-			if (Bit.arrayReadBit(7, STATUS_OFFSET, state) == 1)
+			if (Bit.arrayReadBit(7, STATUS_OFFSET, state) == 1) {
 				first_byte |= (byte) 0x20;
+			}
 
 			// Control output
-			if (Bit.arrayReadBit(6, STATUS_OFFSET, state) == 1)
+			if (Bit.arrayReadBit(6, STATUS_OFFSET, state) == 1) {
 				first_byte |= (byte) 0xC0;
+			}
 
-			tmp_buf = deviceOperation(READ_WRITE_STATUS_COMMAND, first_byte, 2);
-			state[0] = (byte) tmp_buf[2];
+			tmp_buf = this.deviceOperation(READ_WRITE_STATUS_COMMAND, first_byte, 2);
+			state[0] = tmp_buf[2];
 		}
 
 		// check for AUX state change
 		command = 0;
 
 		if (Bit.arrayReadBit(AUX_OFFSET, BITMAP_OFFSET, state) == 1) {
-			if ((state[AUX_OFFSET] == SWITCH_ON) || (state[AUX_OFFSET] == SWITCH_SMART)) {
+			if (state[AUX_OFFSET] == SWITCH_ON || state[AUX_OFFSET] == SWITCH_SMART) {
 				command = SMART_ON_AUX_COMMAND;
 				extra = 2;
 			} else {
@@ -400,18 +408,19 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 		}
 
 		// check if there are events to clear and not about to do clear anyway
-		if ((clearActivityOnWrite) && (command != ALL_LINES_OFF_COMMAND)) {
-			if ((Bit.arrayReadBit(4, STATUS_OFFSET, state) == 1) || (Bit.arrayReadBit(5, STATUS_OFFSET, state) == 1)) {
+		if (this.clearActivityOnWrite && command != ALL_LINES_OFF_COMMAND) {
+			if (Bit.arrayReadBit(4, STATUS_OFFSET, state) == 1 || Bit.arrayReadBit(5, STATUS_OFFSET, state) == 1) {
 
 				// clear the events
-				deviceOperation(ALL_LINES_OFF_COMMAND, (byte) 0xFF, 0);
+				this.deviceOperation(ALL_LINES_OFF_COMMAND, (byte) 0xFF, 0);
 
 				// set the channels back to the correct state
 				if (command == 0) {
-					if (Bit.arrayReadBit(0, STATUS_OFFSET, state) == 0)
+					if (Bit.arrayReadBit(0, STATUS_OFFSET, state) == 0) {
 						command = SMART_ON_MAIN_COMMAND;
-					else if (Bit.arrayReadBit(2, STATUS_OFFSET, state) == 0)
+					} else if (Bit.arrayReadBit(2, STATUS_OFFSET, state) == 0) {
 						command = SMART_ON_AUX_COMMAND;
+					}
 
 					extra = 2;
 				}
@@ -419,18 +428,20 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 		}
 
 		// check if there is a command to send
-		if (command != 0)
-			tmp_buf = deviceOperation(command, (byte) 0xFF, extra);
+		if (command != 0) {
+			tmp_buf = this.deviceOperation(command, (byte) 0xFF, extra);
+		}
 
 		// if doing a SMART_ON, then look at result data for presence
-		if ((command == SMART_ON_MAIN_COMMAND) || (command == SMART_ON_AUX_COMMAND)) {
+		if (command == SMART_ON_MAIN_COMMAND || command == SMART_ON_AUX_COMMAND) {
 			// devices on branch indicated if 3rd byte is 0
-			devicesOnBranch = (tmp_buf[2] == 0);
-		} else
-			devicesOnBranch = false;
+			this.devicesOnBranch = tmp_buf[2] == 0;
+		} else {
+			this.devicesOnBranch = false;
+		}
 
 		// clear clear activity on write
-		clearActivityOnWrite = false;
+		this.clearActivityOnWrite = false;
 
 		// clear the bitmap
 		state[BITMAP_OFFSET] = 0;
@@ -461,14 +472,16 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	public void dischargeLines(int time) throws OneWireIOException, OneWireException {
 
 		// Error checking
-		if (time < 100)
+		if (time < 100) {
 			time = 100;
+		}
 
-		if (doSpeedEnable)
-			doSpeed();
+		if (this.doSpeedEnable) {
+			this.doSpeed();
+		}
 
 		// discharge the lines
-		deviceOperation(DISCHARGE_COMMAND, (byte) 0xFF, 0);
+		this.deviceOperation(DISCHARGE_COMMAND, (byte) 0xFF, 0);
 
 		// wait for desired time and return.
 		try {
@@ -479,7 +492,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 		}
 
 		// clear the discharge
-		deviceOperation(READ_WRITE_STATUS_COMMAND, (byte) 0x00FF, 2);
+		this.deviceOperation(READ_WRITE_STATUS_COMMAND, (byte) 0x00FF, 2);
 	}
 
 	// --------
@@ -497,6 +510,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #getLatchState(int,byte[])
 	 */
+	@Override
 	public boolean isHighSideSwitch() {
 		return true;
 	}
@@ -511,6 +525,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 * @see #getSensedActivity(int,byte[])
 	 * @see #clearActivity()
 	 */
+	@Override
 	public boolean hasActivitySensing() {
 		return true;
 	}
@@ -524,6 +539,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #getLevel(int,byte[])
 	 */
+	@Override
 	public boolean hasLevelSensing() {
 		return true;
 	}
@@ -540,6 +556,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean hasSmartOn() {
 		return true;
 	}
@@ -555,6 +572,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 *
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean onlySingleChannelOn() {
 		return true;
 	}
@@ -576,6 +594,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 *
 	 * @return the number of channels for this device
 	 */
+	@Override
 	public int getNumberChannels(byte[] state) {
 		return 2;
 	}
@@ -597,8 +616,9 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #hasLevelSensing()
 	 */
+	@Override
 	public boolean getLevel(int channel, byte[] state) throws OneWireException {
-		return (Bit.arrayReadBit(1 + channel * 2, STATUS_OFFSET, state) == 1);
+		return Bit.arrayReadBit(1 + channel * 2, STATUS_OFFSET, state) == 1;
 	}
 
 	/**
@@ -618,8 +638,9 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 * @see #isHighSideSwitch()
 	 * @see #setLatchState(int,boolean,boolean,byte[])
 	 */
+	@Override
 	public boolean getLatchState(int channel, byte[] state) {
-		return (Bit.arrayReadBit(channel * 2, STATUS_OFFSET, state) == 0);
+		return Bit.arrayReadBit(channel * 2, STATUS_OFFSET, state) == 0;
 	}
 
 	/**
@@ -642,8 +663,9 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 * @see #hasActivitySensing()
 	 * @see #clearActivity()
 	 */
+	@Override
 	public boolean getSensedActivity(int channel, byte[] state) throws OneWireException {
-		return (Bit.arrayReadBit(4 + channel, STATUS_OFFSET, state) == 1);
+		return Bit.arrayReadBit(4 + channel, STATUS_OFFSET, state) == 1;
 	}
 
 	// --------
@@ -659,7 +681,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 * @return <code>true</code> if control mode is automatic
 	 */
 	public boolean isModeAuto(byte[] state) {
-		return (Bit.arrayReadBit(7, STATUS_OFFSET, state) == 0);
+		return Bit.arrayReadBit(7, STATUS_OFFSET, state) == 0;
 	}
 
 	/**
@@ -699,7 +721,7 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 * @return <code>true</code> if device detected on branch
 	 */
 	public boolean getLastSmartOnDeviceDetect() {
-		return devicesOnBranch;
+		return this.devicesOnBranch;
 	}
 
 	// --------
@@ -730,13 +752,15 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 * @see #getLatchState(int,byte[])
 	 * @see com.dalsemi.onewire.container.OneWireSensor#writeDevice(byte[])
 	 */
+	@Override
 	public void setLatchState(int channel, boolean latchState, boolean doSmart, byte[] state) {
 
 		// set the state flag
-		if (latchState)
-			state[channel + 1] = (byte) ((doSmart) ? SWITCH_SMART : SWITCH_ON);
-		else
+		if (latchState) {
+			state[channel + 1] = (byte) (doSmart ? SWITCH_SMART : SWITCH_ON);
+		} else {
 			state[channel + 1] = (byte) SWITCH_OFF;
+		}
 
 		// indicate in bitmap the the state has changed
 		Bit.arrayWriteBit(1, channel + 1, BITMAP_OFFSET, state);
@@ -752,8 +776,9 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 * @see com.dalsemi.onewire.container.OneWireSensor#readDevice()
 	 * @see #getSensedActivity(int,byte[])
 	 */
+	@Override
 	public void clearActivity() throws OneWireException {
-		clearActivityOnWrite = true;
+		this.clearActivityOnWrite = true;
 	}
 
 	// --------
@@ -771,17 +796,17 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 */
 	public void setModeAuto(boolean makeAuto, byte[] state) {
 		// set the bit
-		Bit.arrayWriteBit((makeAuto ? 0 : 1), 7, STATUS_OFFSET, state);
+		Bit.arrayWriteBit(makeAuto ? 0 : 1, 7, STATUS_OFFSET, state);
 
 		// indicate in bitmap the the state has changed
 		Bit.arrayWriteBit(1, STATUS_OFFSET, BITMAP_OFFSET, state);
 	}
 
 	/**
-	 * Sets the control pin channel association. This only makes sense if the control
-	 * pin is in automatic mode. The method <code>writeDevice(byte[])</code> must be
-	 * called to finalize changes to the device. Note that multiple 'set' methods
-	 * can be called before one call to <code>writeDevice(byte[])</code>.
+	 * Sets the control pin channel association. This only makes sense if the
+	 * control pin is in automatic mode. The method <code>writeDevice(byte[])</code>
+	 * must be called to finalize changes to the device. Note that multiple 'set'
+	 * methods can be called before one call to <code>writeDevice(byte[])</code>.
 	 *
 	 * @param channel channel to associate with control pin
 	 * @param state   current state of the device returned from
@@ -793,8 +818,9 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	public void setControlChannelAssociation(int channel, byte[] state) throws OneWireException {
 
 		// check for invalid mode
-		if (!isModeAuto(state))
+		if (!this.isModeAuto(state)) {
 			throw new OneWireException("Trying to set channel association in manual mode");
+		}
 
 		// set the bit
 		Bit.arrayWriteBit(channel, 6, STATUS_OFFSET, state);
@@ -817,11 +843,12 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 */
 	public void setControlData(boolean data, byte[] state) throws OneWireException {
 		// check for invalid mode
-		if (isModeAuto(state))
+		if (this.isModeAuto(state)) {
 			throw new OneWireException("Trying to set control data when control is in automatic mode");
+		}
 
 		// set the bit
-		Bit.arrayWriteBit((data ? 1 : 0), 6, STATUS_OFFSET, state);
+		Bit.arrayWriteBit(data ? 1 : 0, 6, STATUS_OFFSET, state);
 
 		// indicate in bitmap the the state has changed
 		Bit.arrayWriteBit(1, STATUS_OFFSET, BITMAP_OFFSET, state);
@@ -850,41 +877,41 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 	 */
 	private byte[] deviceOperation(byte command, byte sendByte, int extra) throws OneWireIOException, OneWireException {
 		OneWireIOException exc = null;
-		for (int attemptCounter = 2; attemptCounter > 0; attemptCounter--) {
+		for (var attemptCounter = 2; attemptCounter > 0; attemptCounter--) {
 			// Variables.
-			byte[] raw_buf = new byte[extra + 2];
+			var raw_buf = new byte[extra + 2];
 
 			// build block.
-			raw_buf[0] = (byte) command;
-			raw_buf[1] = (byte) sendByte;
+			raw_buf[0] = command;
+			raw_buf[1] = sendByte;
 
-			for (int i = 2; i < raw_buf.length; i++)
+			for (var i = 2; i < raw_buf.length; i++) {
 				raw_buf[i] = (byte) 0xFF;
+			}
 
 			// Select the device.
-			if (adapter.select(address)) {
-
-				// send the block
-				adapter.dataBlock(raw_buf, 0, raw_buf.length);
-
-				// verify
-				if (command == READ_WRITE_STATUS_COMMAND) {
-					if ((byte) raw_buf[raw_buf.length - 1] != (byte) raw_buf[raw_buf.length - 2]) {
-						if (exc == null)
-							exc = new OneWireIOException("OneWireContainer1F verify on command incorrect");
-						continue;
-					}
-				} else {
-					if ((byte) raw_buf[raw_buf.length - 1] != (byte) command) {
-						if (exc == null)
-							exc = new OneWireIOException("OneWireContainer1F verify on command incorrect");
-						continue;
-					}
-				}
-
-				return raw_buf;
-			} else
+			if (!this.adapter.select(this.address)) {
 				throw new OneWireIOException("OneWireContainer1F failure - Device not found.");
+			}
+			// send the block
+			this.adapter.dataBlock(raw_buf, 0, raw_buf.length);
+
+			// verify
+			if (command == READ_WRITE_STATUS_COMMAND) {
+				if (raw_buf[raw_buf.length - 1] != raw_buf[raw_buf.length - 2]) {
+					if (exc == null) {
+						exc = new OneWireIOException("OneWireContainer1F verify on command incorrect");
+					}
+					continue;
+				}
+			} else if (raw_buf[raw_buf.length - 1] != command) {
+				if (exc == null) {
+					exc = new OneWireIOException("OneWireContainer1F verify on command incorrect");
+				}
+				continue;
+			}
+
+			return raw_buf;
 		}
 		// get here after a few attempts
 		throw exc;

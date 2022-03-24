@@ -2,7 +2,6 @@ package io.openems.edge.core.sum;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -41,7 +40,7 @@ public class EnergyValuesHandler {
 	/**
 	 * Keeps the last energy values. This map is initially filled using the Timedata
 	 * service if it is available.
-	 * 
+	 *
 	 * <ul>
 	 * <li>no entry indicates that the value was not yet read
 	 * <li>null value indicates that there does no historic value exist
@@ -56,7 +55,7 @@ public class EnergyValuesHandler {
 
 	public void activate() {
 		this.scheduledFuture = this.executor.schedule(() -> {
-			Timedata timedata = this.parent.timedata;
+			var timedata = this.parent.timedata;
 			if (timedata == null) {
 				// no Timedata service available: fill lastEnergyValues map with nulls.
 				for (Sum.ChannelId channelId : ENERGY_CHANNEL_IDS) {
@@ -65,10 +64,10 @@ public class EnergyValuesHandler {
 			} else {
 				// Fill lastEnergyValues map with values from Timedata service
 				for (Sum.ChannelId channelId : ENERGY_CHANNEL_IDS) {
-					ChannelAddress channelAddress = new ChannelAddress("_sum", channelId.id());
+					var channelAddress = new ChannelAddress("_sum", channelId.id());
 					Long value = null;
 					try {
-						Optional<Object> latestValueOpt = this.parent.timedata.getLatestValue(channelAddress).get();
+						var latestValueOpt = this.parent.timedata.getLatestValue(channelAddress).get();
 						if (latestValueOpt.isPresent()) {
 							value = TypeUtils.getAsType(OpenemsType.LONG, latestValueOpt.get());
 						}
@@ -89,7 +88,7 @@ public class EnergyValuesHandler {
 
 	/**
 	 * Sets the value of the Channel if it is greater-or-equals the lastValue.
-	 * 
+	 *
 	 * @param channelId the Channel-Id
 	 * @param value     the energy value
 	 * @return the value that was set; might be null
@@ -101,7 +100,7 @@ public class EnergyValuesHandler {
 
 		} else if (value == null) {
 			// if value is null, replace it by last value
-			Long lastValue = this.lastEnergyValues.get(channelId);
+			var lastValue = this.lastEnergyValues.get(channelId);
 			value = lastValue;
 		}
 

@@ -2,7 +2,6 @@ package io.openems.edge.common.channel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -40,7 +39,7 @@ public class StateChannel extends AbstractReadChannel<AbstractDoc<Boolean>, Bool
 		@Override
 		public void accept(Channel<Boolean> channel) {
 			// Create shared onChangeCallback
-			final OpenemsComponent parent = channel.getComponent();
+			final var parent = channel.getComponent();
 			final BiConsumer<Value<Boolean>, Value<Boolean>> onChangeCallback = (oldValue, newValue) -> {
 				List<String> activeSourceStates = new ArrayList<>();
 				for (ChannelId sourceChannelId : this.sourceChannelIds) {
@@ -86,11 +85,11 @@ public class StateChannel extends AbstractReadChannel<AbstractDoc<Boolean>, Bool
 
 	/**
 	 * Gets the Level of this {@link StateChannel}.
-	 * 
+	 *
 	 * @return the level
 	 */
 	public Level getLevel() {
-		return level;
+		return this.level;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -112,7 +111,7 @@ public class StateChannel extends AbstractReadChannel<AbstractDoc<Boolean>, Bool
 			break;
 
 		case SAME_VALUES_IN_A_ROW_TO_CHANGE:
-			Optional<Boolean> currentValueOpt = this.value().asOptional();
+			var currentValueOpt = this.value().asOptional();
 			if (!currentValueOpt.isPresent()) {
 				super._setNextValue(value);
 				return;

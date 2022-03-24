@@ -1,8 +1,6 @@
 package io.openems.backend.core.jsonrpcrequesthandler;
 
-import java.time.ZonedDateTime;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -134,7 +132,7 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId, User user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> historicData = this.parent.timeData
+		var historicData = this.parent.timeData
 				.queryHistoricData(edgeId, request);
 
 		// JSON-RPC response
@@ -171,7 +169,7 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyPerPeriodRequest(String edgeId,
 			User user, QueryHistoricTimeseriesEnergyPerPeriodRequest request) throws OpenemsNamedException {
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = this.parent.timeData
+		var data = this.parent.timeData
 				.queryHistoricEnergyPerPeriod(//
 						edgeId, request.getFromDate(), request.getToDate(), request.getChannels(),
 						request.getResolution());

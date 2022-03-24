@@ -21,7 +21,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Active Power L1
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -37,7 +37,7 @@ public interface AsymmetricEss extends SymmetricEss {
 						+ "Negative values for charge; positive for discharge")),
 		/**
 		 * Active Power L2
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -53,7 +53,7 @@ public interface AsymmetricEss extends SymmetricEss {
 						+ "Negative values for charge; positive for discharge")),
 		/**
 		 * Active Power L3
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -69,7 +69,7 @@ public interface AsymmetricEss extends SymmetricEss {
 						+ "Negative values for charge; positive for discharge")),
 		/**
 		 * Reactive Power L1
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -82,7 +82,7 @@ public interface AsymmetricEss extends SymmetricEss {
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L2
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -95,7 +95,7 @@ public interface AsymmetricEss extends SymmetricEss {
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L3
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
 		 * <li>Type: Integer
@@ -365,7 +365,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	/**
 	 * Initializes Channel listeners to set the Active- and Reactive-Power Channel
 	 * value as the sum of L1 + L2 + L3.
-	 * 
+	 *
 	 * @param ess
 	 */
 	public static void initializePowerSumChannels(AsymmetricEss ess) {

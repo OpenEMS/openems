@@ -23,6 +23,8 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
+ *     "name": string,
+ *     "alias": string,
  *     "fields": []
  *   }
  * }
@@ -54,6 +56,8 @@ export namespace GetAppAssistant {
     }
 
     export interface AppAssistant {
+        name: string,
+        alias: string,
         fields: FormlyFieldConfig[],
     }
 

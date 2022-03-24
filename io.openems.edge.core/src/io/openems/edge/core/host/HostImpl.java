@@ -107,6 +107,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		this.usbConfigurationWorker.triggerNextRun();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		// Stop the Workers
@@ -147,7 +148,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 	/**
 	 * Handles a GetNetworkConfigRequest.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the GetNetworkConfigRequest
 	 * @return the Future JSON-RPC Response
@@ -156,14 +157,14 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetNetworkConfigRequest(User user,
 			GetNetworkConfigRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("handleGetNetworkConfigRequest", Role.OWNER);
-		NetworkConfiguration config = this.operatingSystem.getNetworkConfiguration();
-		GetNetworkConfigResponse response = new GetNetworkConfigResponse(request.getId(), config);
+		var config = this.operatingSystem.getNetworkConfiguration();
+		var response = new GetNetworkConfigResponse(request.getId(), config);
 		return CompletableFuture.completedFuture(response);
 	}
 
 	/**
 	 * Handles a SetNetworkConfigRequest.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the SetNetworkConfigRequest
 	 * @return the Future JSON-RPC Response
@@ -172,7 +173,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	private CompletableFuture<JsonrpcResponseSuccess> handleSetNetworkConfigRequest(User user,
 			SetNetworkConfigRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("handleSetNetworkConfigRequest", Role.OWNER);
-		NetworkConfiguration oldNetworkConfiguration = this.operatingSystem.getNetworkConfiguration();
+		var oldNetworkConfiguration = this.operatingSystem.getNetworkConfiguration();
 		this.operatingSystem.handleSetNetworkConfigRequest(oldNetworkConfiguration, request);
 
 		// Notify NetworkConfigurationWorker about the change
@@ -183,7 +184,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 	/**
 	 * Handles a {@link GetSystemUpdateStateRequest}.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the {@link GetSystemUpdateStateRequest}
 	 * @return the Future JSON-RPC Response
@@ -198,7 +199,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 	/**
 	 * Handles a {@link ExecuteSystemUpdateRequest}.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the {@link ExecuteSystemUpdateRequest}
 	 * @return the Future JSON-RPC Response
@@ -213,7 +214,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 	/**
 	 * Handles a ExecuteCommandRequest.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the ExecuteCommandRequest
 	 * @return the Future JSON-RPC Response
@@ -242,13 +243,13 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 
 	/**
 	 * Source: https://stackoverflow.com/a/28043703.
-	 * 
+	 *
 	 * @param execCommand the command
 	 * @return the parsed result
 	 * @throws IOException on error
 	 */
 	private static String execReadToString(String execCommand) throws IOException {
-		try (Scanner s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream()).useDelimiter("\\A")) {
+		try (var s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream()).useDelimiter("\\A")) {
 			return s.hasNext() ? s.next().trim() : "";
 		}
 	}

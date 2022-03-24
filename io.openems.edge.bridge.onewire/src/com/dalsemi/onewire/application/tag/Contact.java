@@ -41,13 +41,12 @@ public class Contact extends TaggedDevice implements TaggedSensor {
 	 * Creates an object for the device.
 	 */
 	public Contact() {
-		super();
 	}
 
 	/**
 	 * Creates an object for the device with the supplied address and device type
 	 * connected to the supplied port adapter.
-	 * 
+	 *
 	 * @param adapter    The adapter serving the sensor.
 	 * @param netAddress The 1-Wire network address of the sensor.
 	 */
@@ -58,16 +57,17 @@ public class Contact extends TaggedDevice implements TaggedSensor {
 	/**
 	 * The readSensor method returns the "max" string if the Sensor is present or
 	 * the "min" string if the Sensor is not present.
-	 * 
+	 *
 	 * @return The "max" string if sensor is present or "min" string if not.
 	 */
+	@Override
 	public String readSensor() throws OneWireException {
-		String returnString = "";
+		var returnString = "";
 
-		if (DeviceContainer.isPresent()) {
-			returnString = max;
+		if (this.DeviceContainer.isPresent()) {
+			returnString = this.max;
 		} else {
-			returnString = min;
+			returnString = this.min;
 		}
 		return returnString;
 	}

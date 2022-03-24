@@ -3,7 +3,6 @@ package io.openems.edge.controller.io.heatingelement;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -12,6 +11,9 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,12 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.io.heatingelement.enums.Level;
+import io.openems.edge.controller.io.heatingelement.enums.Phase;
+import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.IO.HeatingElement", //
@@ -32,13 +40,32 @@ import io.openems.edge.controller.api.Controller;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
-		implements ControllerHeatingElement, Controller, OpenemsComponent {
+		implements ControllerHeatingElement, Controller, OpenemsComponent, TimedataProvider {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerHeatingElementImpl.class);
 
+	/**
+	 * Definitions for each phase.
+	 */
 	private final PhaseDef phase1;
 	private final PhaseDef phase2;
 	private final PhaseDef phase3;
+
+	/**
+	 * Cumulated active time for each level.
+	 */
+	private final CalculateActiveTime totalTimeLevel1 = new CalculateActiveTime(this,
+			ControllerHeatingElement.ChannelId.LEVEL1_CUMULATED_TIME);
+	private final CalculateActiveTime totalTimeLevel2 = new CalculateActiveTime(this,
+			ControllerHeatingElement.ChannelId.LEVEL2_CUMULATED_TIME);
+	private final CalculateActiveTime totalTimeLevel3 = new CalculateActiveTime(this,
+			ControllerHeatingElement.ChannelId.LEVEL3_CUMULATED_TIME);
+
+	// Current Level
+	private Level currentLevel = Level.UNDEFINED;
+
+	// Last Level change time, used for the hysteresis
+	private LocalDateTime lastLevelChange = LocalDateTime.MIN;
 
 	private Config config;
 
@@ -52,6 +79,9 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	@Reference
 	protected Sum sum;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	public ControllerHeatingElementImpl() throws OpenemsNamedException {
 		super(//
@@ -76,6 +106,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		this.updateConfig(config);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -104,10 +135,10 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		}
 
 		// Calculate Phase Time
-		int phase1Time = (int) this.phase1.getTotalDuration().getSeconds();
-		int phase2Time = (int) this.phase2.getTotalDuration().getSeconds();
-		int phase3Time = (int) this.phase3.getTotalDuration().getSeconds();
-		int totalPhaseTime = phase1Time + phase2Time + phase3Time;
+		var phase1Time = (int) this.phase1.getTotalDuration().getSeconds();
+		var phase2Time = (int) this.phase2.getTotalDuration().getSeconds();
+		var phase3Time = (int) this.phase3.getTotalDuration().getSeconds();
+		var totalPhaseTime = phase1Time + phase2Time + phase3Time;
 
 		// Update Channels
 		this.channel(ControllerHeatingElement.ChannelId.PHASE1_TIME).setNextValue(phase1Time);
@@ -118,11 +149,13 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		this.channel(ControllerHeatingElement.ChannelId.LEVEL1_TIME).setNextValue(phase1Time - phase2Time);
 		this.channel(ControllerHeatingElement.ChannelId.LEVEL2_TIME).setNextValue(phase2Time - phase3Time);
 		this.channel(ControllerHeatingElement.ChannelId.LEVEL3_TIME).setNextValue(phase3Time);
+
+		this.updateCumulatedActiveTime();
 	}
 
 	/**
 	 * Handle Mode "Manual On".
-	 * 
+	 *
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
@@ -132,7 +165,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handle Mode "Manual Off".
-	 * 
+	 *
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
@@ -142,7 +175,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handle Mode "Automatic".
-	 * 
+	 *
 	 * @throws IllegalArgumentException on error.
 	 * @throws OpenemsNamedException    on error.
 	 */
@@ -160,8 +193,8 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		if (gridActivePower > 0) {
 			excessPower = 0;
 		} else {
-			excessPower = (gridActivePower * -1) - essDischargePower
-					+ (this.currentLevel.getValue() * this.config.powerPerPhase());
+			excessPower = gridActivePower * -1 - essDischargePower
+					+ this.currentLevel.getValue() * this.config.powerPerPhase();
 		}
 
 		// Calculate Level from excessPower
@@ -177,9 +210,9 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		}
 
 		// Do we need to force-heat?
-		LocalTime now = LocalTime.now(this.componentManager.getClock());
-		LocalTime configuredEndTime = LocalTime.parse(this.config.endTime());
-		LocalTime latestForceChargeStartTime = this.calculateLatestForceHeatingStartTime();
+		var now = LocalTime.now(this.componentManager.getClock());
+		var configuredEndTime = LocalTime.parse(this.config.endTime());
+		var latestForceChargeStartTime = this.calculateLatestForceHeatingStartTime();
 		if (now.isAfter(latestForceChargeStartTime) && now.isBefore(configuredEndTime)) {
 			if (targetLevel.getValue() < this.config.defaultLevel().getValue()) {
 				targetLevel = this.config.defaultLevel(); // force-heat with configured default level
@@ -195,12 +228,11 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 		// Apply Level
 		this.applyLevel(targetLevel);
-
 	}
 
 	/**
 	 * Calculates the minimum total phase time the user demands in [s].
-	 * 
+	 *
 	 * <ul>
 	 * <li>in {@link WorkMode#TIME}:
 	 * <ul>
@@ -211,7 +243,8 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	 * </ul>
 	 * <li>in {@link WorkMode#NONE}: always return 0
 	 * </ul>
-	 * 
+	 *
+	 * @param config the component {@link Config}
 	 * @return the minimum total phase time [s]
 	 */
 	private static long calculateMinimumTotalPhaseTime(Config config) {
@@ -232,44 +265,43 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		case NONE:
 			return 0;
 		}
-		assert (true);
+		assert true;
 		return 0;
 	}
 
 	/**
 	 * Calculates the time from when force-heating needs to start latest.
-	 * 
+	 *
 	 * @return the time, or {@link LocalTime#MAX} if no force-heating is required
 	 */
 	private LocalTime calculateLatestForceHeatingStartTime() {
-		long totalPhaseTime = this.phase1.getTotalDuration().getSeconds() //
+		var totalPhaseTime = this.phase1.getTotalDuration().getSeconds() //
 				+ this.phase2.getTotalDuration().getSeconds() //
 				+ this.phase3.getTotalDuration().getSeconds(); // [s]
-		long remainingTotalPhaseTime = this.minimumTotalPhaseTime - totalPhaseTime; // [s]
+		var remainingTotalPhaseTime = this.minimumTotalPhaseTime - totalPhaseTime; // [s]
 		if (remainingTotalPhaseTime < 0) {
 			return LocalTime.MAX;
-		} else {
-			LocalTime endTime = LocalTime.parse(this.config.endTime());
-			switch (this.config.defaultLevel()) {
-			case LEVEL_0:
-			case UNDEFINED:
-			case LEVEL_1:
-				// keep value
-				break;
-			case LEVEL_2:
-				remainingTotalPhaseTime /= 2;
-				break;
-			case LEVEL_3:
-				remainingTotalPhaseTime /= 3;
-				break;
-			}
-			return endTime.minusSeconds(remainingTotalPhaseTime);
 		}
+		var endTime = LocalTime.parse(this.config.endTime());
+		switch (this.config.defaultLevel()) {
+		case LEVEL_0:
+		case UNDEFINED:
+		case LEVEL_1:
+			// keep value
+			break;
+		case LEVEL_2:
+			remainingTotalPhaseTime /= 2;
+			break;
+		case LEVEL_3:
+			remainingTotalPhaseTime /= 3;
+			break;
+		}
+		return endTime.minusSeconds(remainingTotalPhaseTime);
 	}
 
 	/**
 	 * Switch on Phases according to selected {@link Level}.
-	 * 
+	 *
 	 * @param level the target Level
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsNamedException    on error
@@ -277,6 +309,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	public void applyLevel(Level level) throws IllegalArgumentException, OpenemsNamedException {
 		// Update Channel
 		this.channel(ControllerHeatingElement.ChannelId.LEVEL).setNextValue(level);
+		this.currentLevel = level;
 
 		// Set phases accordingly
 		switch (level) {
@@ -306,15 +339,15 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Applies the {@link #HYSTERESIS} to avoid too quick changes of Levels.
-	 * 
+	 *
 	 * @param targetLevel the target {@link Level}
 	 * @return the targetLevel if no hysteresis needs to be applied; the
 	 *         currentLevel if hysteresis is to be applied
 	 */
 	private Level applyHysteresis(Level targetLevel) {
 		if (this.currentLevel != targetLevel) {
-			LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
-			Duration hysteresis = Duration.ofSeconds(this.config.minimumSwitchingTime());
+			var now = LocalDateTime.now(this.componentManager.getClock());
+			var hysteresis = Duration.ofSeconds(this.config.minimumSwitchingTime());
 			if (this.lastLevelChange.plus(hysteresis).isBefore(now)) {
 				// no hysteresis applied
 				this.currentLevel = targetLevel;
@@ -331,12 +364,9 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		return this.currentLevel;
 	}
 
-	private Level currentLevel = Level.UNDEFINED;
-	private LocalDateTime lastLevelChange = LocalDateTime.MIN;
-
 	/**
 	 * Gets the configured Power-per-Phase in [W].
-	 * 
+	 *
 	 * @return power per phase
 	 */
 	protected int getPowerPerPhase() {
@@ -346,25 +376,24 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	/**
 	 * Helper function to switch an output if it was not switched before.
 	 *
-	 * @param value                The boolean value which must set on the output
-	 *                             channel address.
-	 * @param outputChannelAddress The address of the channel.
+	 * @param phase {@link Phase}
+	 * @param value The boolean value which must set on the output channel address.
 	 * @throws OpenemsNamedException    on error.
 	 * @throws IllegalArgumentException on error.
 	 */
 	protected void setOutput(Phase phase, boolean value) throws IllegalArgumentException, OpenemsNamedException {
-		ChannelAddress channelAddress = this.getChannelAddressForPhase(phase);
+		var channelAddress = this.getChannelAddressForPhase(phase);
 		WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(channelAddress);
-		Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+		var currentValueOpt = outputChannel.value().asOptional();
 		if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
-			this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + (value) + ".");
+			this.logInfo(this.log, "Set output [" + outputChannel.address() + "] " + value + ".");
 			outputChannel.setNextWriteValue(value);
 		}
 	}
 
 	/**
 	 * Gets the Output ChannelAddress for a given Phase.
-	 * 
+	 *
 	 * @param phase the Phase
 	 * @return the Output ChannelAddress
 	 * @throws OpenemsNamedException on error
@@ -378,7 +407,40 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		case L3:
 			return ChannelAddress.fromString(this.config.outputChannelPhaseL3());
 		}
-		assert (true); // can never happen
+		assert true; // can never happen
 		return null;
+	}
+
+	/**
+	 * Update the total time of the level depending on the current level.
+	 */
+	private void updateCumulatedActiveTime() {
+		var level1Active = false;
+		var level2Active = false;
+		var level3Active = false;
+
+		switch (this.currentLevel) {
+		case LEVEL_0:
+		case UNDEFINED:
+			break;
+		case LEVEL_1:
+			level1Active = true;
+			break;
+		case LEVEL_2:
+			level2Active = true;
+			break;
+		case LEVEL_3:
+			level3Active = true;
+			break;
+		}
+
+		this.totalTimeLevel1.update(level1Active);
+		this.totalTimeLevel2.update(level2Active);
+		this.totalTimeLevel3.update(level3Active);
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

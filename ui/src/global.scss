@@ -26,6 +26,22 @@
 @import "~@ionic/angular/css/flex-utils.css";
 @import "variables";
 
+formly-wrapper-ion-form-field, formly-input-serial-number,formly-field-ion-radio{
+    ion-label{
+    line-height: 1.2;
+    font-size: 0.6em;
+    span{
+        white-space: initial;
+        small{
+            white-space: initial;
+        }
+    }
+    slot{
+        white-space: initial;
+    }
+}
+}
+    
 .active {
     color: $primary-color;
 }

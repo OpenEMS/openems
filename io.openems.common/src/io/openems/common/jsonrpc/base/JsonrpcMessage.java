@@ -26,7 +26,7 @@ public abstract class JsonrpcMessage {
 
 	/**
 	 * Parses a JSON String to a {@link JsonrpcMessage}.
-	 * 
+	 *
 	 * @param json the JSON String
 	 * @return the {@link JsonrpcMessage}
 	 * @throws OpenemsNamedException on error
@@ -37,7 +37,7 @@ public abstract class JsonrpcMessage {
 
 	/**
 	 * Parses a {@link JsonObject} to a {@link JsonrpcMessage}.
-	 * 
+	 *
 	 * @param j the {@link JsonObject}
 	 * @return the {@link JsonrpcMessage}
 	 * @throws OpenemsNamedException on error
@@ -46,15 +46,15 @@ public abstract class JsonrpcMessage {
 		if (j.has("method") && j.has("params")) {
 			if (j.has("id")) {
 				return GenericJsonrpcRequest.from(j);
-			} else {
-				return GenericJsonrpcNotification.from(j);
 			}
+			return GenericJsonrpcNotification.from(j);
 
 		}
 		if (j.has("result")) {
 			return JsonrpcResponseSuccess.from(j);
 
-		} else if (j.has("error")) {
+		}
+		if (j.has("error")) {
 			return JsonrpcResponseError.from(j);
 		}
 		throw new OpenemsException(
@@ -63,7 +63,7 @@ public abstract class JsonrpcMessage {
 
 	/**
 	 * Gets the {@link JsonObject} representation of this {@link JsonrpcMessage}.
-	 * 
+	 *
 	 * @return a {@link JsonObject}
 	 */
 	public JsonObject toJsonObject() {
