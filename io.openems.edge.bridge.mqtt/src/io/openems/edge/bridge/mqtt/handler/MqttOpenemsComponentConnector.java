@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -140,6 +141,7 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
                     payloads, super.id(), createdByOsgi, this.mqttBridge.get(), mqttId, mqttType);
             List<Channel<?>> channels = new ArrayList<>(this.otherComponent.channels());
             channels.addAll(this.channels());
+            channels.sort(Comparator.comparing(a -> a.channelId().id()));
             this.mqttConfigurationComponent.update(ca.getConfiguration(this.servicePid(), "?"), CONFIGURATION_CHANNEL_IDENTIFICATION,
                     channels, length);
             if (!createdByOsgi && !pathForJson.trim().equals("")) {
