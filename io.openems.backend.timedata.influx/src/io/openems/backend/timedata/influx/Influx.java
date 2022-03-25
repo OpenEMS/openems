@@ -1,5 +1,6 @@
 package io.openems.backend.timedata.influx;
 
+import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,17 +67,15 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	private void activate(Config config) throws OpenemsException {
 		this.logInfo(this.log, "Activate [" //
 				+ "url=" + config.url() + ";"//
-				+ "port=" + config.port() + ";" //
-				+ "database=" + config.database() + ";"//
+				+ "bucket=" + config.bucket() + ";"//
 				+ "retentionPolicy=" + config.retentionPolicy() + ";"//
-				+ "username=" + config.username() + ";"//
-				+ "password=" + (config.password() != null ? "ok" : "NOT_SET") + ";"//
+				+ "apiKey=" + (config.apiKey() != null ? "ok" : "NOT_SET") + ";"//
 				+ "measurement=" + config.measurement() //
 				+ (config.isReadOnly() ? ";READ_ONLY_MODE" : "") //
 				+ "]");
 
-		this.influxConnector = new InfluxConnector(config.url(), config.port(), config.username(), config.password(),
-				config.database(), config.retentionPolicy(), config.isReadOnly(), //
+		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(), config.bucket(),
+				config.isReadOnly(), //
 				(throwable) -> {
 					if (throwable instanceof BadRequestException) {
 						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);

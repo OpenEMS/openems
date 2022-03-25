@@ -8,21 +8,18 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Configures the InfluxDB timedata provider")
 @interface Config {
 
-	@AttributeDefinition(name = "Database", description = "The database name")
-	String database();
-
-	@AttributeDefinition(name = "URL", description = "The InfluxDB server IP address")
+	@AttributeDefinition(name = "URL", description = "The InfluxDB URL. e.g.: http://ip:port")
 	String url();
 
-	@AttributeDefinition(name = "Port", description = "The InfluxDB server port")
-	int port() default 8086;
+	@AttributeDefinition(name = "Org", description = "The Organisation Id")
+	String org() default "-";
+	
+	@AttributeDefinition(name = "ApiKey", description = "The ApiKey or username:password")
+	String apiKey();
 
-	@AttributeDefinition(name = "Username", description = "The login username")
-	String username();
-
-	@AttributeDefinition(name = "Password", description = "The login password")
-	String password();
-
+	@AttributeDefinition(name = "Bucket", description = "The bucket name")
+	String bucket();
+	
 	@AttributeDefinition(name = "Measurement", description = "The InfluxDB measurement")
 	String measurement() default "data";
 
