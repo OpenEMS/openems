@@ -8,12 +8,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
@@ -21,6 +26,7 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.WriteApi;
+import com.influxdb.client.WriteOptions;
 import com.influxdb.client.write.Point;
 import com.influxdb.client.write.events.BackpressureEvent;
 import com.influxdb.client.write.events.WriteErrorEvent;
@@ -36,6 +42,8 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
+import io.openems.common.utils.ThreadPoolUtils;
+import io.reactivex.Scheduler;
 import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
@@ -47,6 +55,10 @@ public class InfluxConnector {
 	private static final int READ_TIMEOUT = 60; // [s]
 	private static final int WRITE_TIMEOUT = 10; // [s]
 
+	private static final int EXECUTOR_MIN_THREADS = 1;
+	private static final int EXECUTOR_MAX_THREADS = 50;
+	private static final int EXECUTOR_QUEUE_SIZE = 100;
+
 	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
 	private final String ip;
@@ -57,6 +69,13 @@ public class InfluxConnector {
 	private final String retentionPolicy;
 	private final boolean isReadOnly;
 	private final Consumer<Throwable> onWriteError;
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
+			TimeUnit.SECONDS, //
+			new ArrayBlockingQueue<>(EXECUTOR_QUEUE_SIZE), //
+			new ThreadFactoryBuilder().setNameFormat("InfluxConnector-%d").build(), //
+			new ThreadPoolExecutor.DiscardPolicy());
+	private final Scheduler writeScheduler = io.reactivex.schedulers.Schedulers.from(this.executor);
+	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	/**
 	 * The Constructor.
@@ -83,10 +102,29 @@ public class InfluxConnector {
 		this.retentionPolicy = retentionPolicy;
 		this.isReadOnly = isReadOnly;
 		this.onWriteError = onWriteError;
+		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
+			int queueSize = this.executor.getQueue().size();
+			this.log.info(new StringBuilder("[monitor] InfluxDB ") //
+					.append("Pool: ").append(this.executor.getPoolSize()).append(", ") //
+					.append("Active: ").append(this.executor.getActiveCount()).append(", ") //
+					.append("Pending: ").append(this.executor.getQueue().size()).append(", ") //
+					.append("Completed: ").append(this.executor.getCompletedTaskCount()).append(", ") //
+					.append((queueSize == EXECUTOR_QUEUE_SIZE) ? "!!!BACKPRESSURE!!!" : "") //
+					.toString());
+		}, 10, 10, TimeUnit.SECONDS);
 	}
 
-	private InfluxDBClient _influxDB = null;
-	private WriteApi _writeApi = null;
+	private static class InfluxConnection {
+		private final InfluxDBClient client;
+		private final WriteApi writeApi;
+
+		public InfluxConnection(InfluxDBClient client, WriteApi writeApi) {
+			this.client = client;
+			this.writeApi = writeApi;
+		}
+	}
+
+	private InfluxConnection influxConnection = null;
 
 	public String getDatabase() {
 		return this.database;
@@ -97,60 +135,58 @@ public class InfluxConnector {
 	 *
 	 * @return the {@link InfluxDB} connection
 	 */
-	private synchronized InfluxDBClient getConnection() {
-		if (this._influxDB == null) {
-			var okHttpClientBuilder = new OkHttpClient().newBuilder() //
-					.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS) //
-					.readTimeout(READ_TIMEOUT, TimeUnit.SECONDS) //
-					.writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS);
-
-			// copied options from InfluxDBClientFactory.createV1
-			// to set timeout
-			var options = InfluxDBClientOptions.builder() //
-					.url("http://" + this.ip + ":" + this.port) //
-					.org("-") //
-					.authenticateToken(String.format("%s:%s", this.username == null ? "" : this.username, //
-							this.password == null ? "" : String.valueOf(this.password)).toCharArray()) //
-					.bucket(String.format("%s/%s", this.database,
-							this.retentionPolicy == null ? "" : this.retentionPolicy)) //
-					.okHttpClient(okHttpClientBuilder) //
-					.build();
-
-			this._influxDB = InfluxDBClientFactory.create(options);
+	private synchronized InfluxConnection getInfluxConnection() {
+		if (this.influxConnection != null) {
+			// Use existing Singleton instance
+			return this.influxConnection;
 		}
-		return this._influxDB;
-	}
 
-	/**
-	 * Get InfluxDB write api.
-	 *
-	 * @return the {@link WriteApi}
-	 */
-	private synchronized WriteApi getWriteApi() {
-		if (this._writeApi == null) {
-			// Keep default WriteOptions from
-			// https://github.com/influxdata/influxdb-client-java/tree/master/client#writes
-			var writeApi = this.getConnection().makeWriteApi();
+		var okHttpClientBuilder = new OkHttpClient().newBuilder() //
+				.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS) //
+				.readTimeout(READ_TIMEOUT, TimeUnit.SECONDS) //
+				.writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS);
 
-			// add listeners
-			writeApi.listenEvents(BackpressureEvent.class, event -> {
-				this.log.info("!!!BACKPRESSURE!!!");
-			});
-			writeApi.listenEvents(WriteErrorEvent.class, event -> {
-				this.onWriteError.accept(event.getThrowable());
-			});
+		// copied options from InfluxDBClientFactory.createV1
+		// to set timeout
+		var options = InfluxDBClientOptions.builder() //
+				.url("http://" + this.ip + ":" + this.port) //
+				.org("-") //
+				.authenticateToken(String.format("%s:%s", this.username == null ? "" : this.username, //
+						this.password == null ? "" : String.valueOf(this.password)).toCharArray()) //
+				.bucket(String.format("%s/%s", this.database, this.retentionPolicy == null ? "" : this.retentionPolicy)) //
+				.okHttpClient(okHttpClientBuilder) //
+				.build();
 
-			this._writeApi = writeApi;
-		}
-		return this._writeApi;
+		var client = InfluxDBClientFactory.create(options);
+
+		// Keep default WriteOptions from
+		// https://github.com/influxdata/influxdb-client-java/tree/master/client#writes
+		var writeOptions = WriteOptions.builder() //
+				.writeScheduler(this.writeScheduler) //
+				.build();
+		var writeApi = client.makeWriteApi(writeOptions);
+
+		// add listeners
+		writeApi.listenEvents(BackpressureEvent.class, event -> {
+			this.log.info("!!!BACKPRESSURE!!!");
+		});
+		writeApi.listenEvents(WriteErrorEvent.class, event -> {
+			this.onWriteError.accept(event.getThrowable());
+		});
+
+		this.influxConnection = new InfluxConnection(client, writeApi);
+		return this.influxConnection;
 	}
 
 	/**
 	 * Close current {@link InfluxDBClient}.
 	 */
-	public void deactivate() {
-		if (this._influxDB != null) {
-			this._influxDB.close();
+	public synchronized void deactivate() {
+		this.writeScheduler.shutdown();
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
+		if (this.influxConnection != null) {
+			this.influxConnection.writeApi.close();
+			this.influxConnection.client.close();
 		}
 	}
 
@@ -211,12 +247,10 @@ public class InfluxConnector {
 					"InfluxDB read is temporarily blocked [" + this.queryLimit + "]. Query: " + query);
 		}
 
-		var influxDB = this.getConnection();
-
 		// Parse result
 		List<FluxTable> queryResult;
 		try {
-			queryResult = influxDB.getQueryApi().query(query);
+			queryResult = this.getInfluxConnection().client.getQueryApi().query(query);
 		} catch (RuntimeException e) {
 			this.queryLimit.increase();
 			this.log.error("InfluxDB query runtime error. Query: " + query + ", Error: " + e.getMessage());
@@ -489,16 +523,18 @@ public class InfluxConnector {
 	 * @param point the InfluxDB Point
 	 * @throws OpenemsException on error
 	 */
-	public void write(Point point) throws OpenemsException {
+	public void write(Point point) {
 		if (this.isReadOnly) {
 			this.log.info("Read-Only-Mode is activated. Not writing points: "
 					+ StringUtils.toShortString(point.toLineProtocol(), 100));
 			return;
 		}
-		try {
-			this.getWriteApi().writePoint(point);
-		} catch (InfluxException e) {
-			throw new OpenemsException("Unable to write point: " + e.getMessage());
-		}
+		this.executor.execute(() -> {
+			try {
+				this.getInfluxConnection().writeApi.writePoint(point);
+			} catch (InfluxException e) {
+				this.onWriteError.accept(e);
+			}
+		});
 	}
 }
