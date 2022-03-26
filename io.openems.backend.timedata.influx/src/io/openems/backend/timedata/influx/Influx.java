@@ -122,8 +122,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param data         the data
 	 * @throws OpenemsException on error
 	 */
-	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data)
-			throws OpenemsException {
+	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) {
 		var dataEntries = data.rowMap().entrySet();
 		if (dataEntries.isEmpty()) {
 			// no data to write

@@ -32,9 +32,6 @@ Export-Package: \
 
 Import-Package: \
 	okhttp3,\
-	retrofit2.converter.scalars;resolution:=optional,\
-	com.google.gson.internal.bind;resolution:=optional,\
-	com.google.gson.internal.bind.util;resolution:=optional,\
 	*
 	
 -dsannotations: *

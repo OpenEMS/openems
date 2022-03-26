@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
@@ -13,6 +16,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
@@ -25,6 +29,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -34,7 +39,8 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 )
 public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket {
 
-	// private final Logger log = LoggerFactory.getLogger(UiWebsocket.class);
+	private final Logger log = LoggerFactory.getLogger(UiWebsocket.class);
+	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	protected WebsocketServer server = null;
 
@@ -64,10 +70,17 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	private void activate(Config config) {
 		this.config = config;
 		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
+		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
+			this.log.info(new StringBuilder("[monitor] ") //
+					.append("UI-Connections: ") //
+					.append(this.server != null ? this.server.getConnections().size() : "initializing") //
+					.toString());
+		}, 10, 10, TimeUnit.SECONDS);
 	}
 
 	@Deactivate
 	private void deactivate() {
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.stopServer();
 	}
