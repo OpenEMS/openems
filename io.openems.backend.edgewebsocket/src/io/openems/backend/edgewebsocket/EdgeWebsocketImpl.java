@@ -1,6 +1,9 @@
 package io.openems.backend.edgewebsocket;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
@@ -29,6 +32,7 @@ import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
+import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -43,6 +47,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	private WebsocketServer server = null;
 
 	private final SystemLogHandler systemLogHandler;
+	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	@Reference
 	protected volatile Metadata metadata;
@@ -68,10 +73,17 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	private void activate(Config config) {
 		this.config = config;
 		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
+		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
+			this.log.info(new StringBuilder("[monitor] ") //
+					.append("Edge-Connections: ")
+					.append(this.server != null ? this.server.getConnections().size() : "initializing") //
+					.toString());
+		}, 10, 10, TimeUnit.SECONDS);
 	}
 
 	@Deactivate
 	private void deactivate() {
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.stopServer();
 	}
@@ -104,6 +116,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @return true if it is online
 	 */
 	protected boolean isOnline(String edgeId) {
+		if (this.server == null) {
+			return false;
+		}
 		return this.server.isOnline(edgeId);
 	}
 
@@ -157,6 +172,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @return the WebSocket connection
 	 */
 	private final WebSocket getWebSocketForEdgeId(String edgeId) {
+		if (this.server == null) {
+			return null;
+		}
 		for (WebSocket ws : this.server.getConnections()) {
 			WsData wsData = ws.getAttachment();
 			var wsEdgeIdOpt = wsData.getEdgeId();

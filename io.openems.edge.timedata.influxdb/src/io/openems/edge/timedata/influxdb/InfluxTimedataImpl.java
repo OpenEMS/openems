@@ -25,7 +25,6 @@ import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -164,11 +163,7 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 					});
 
 			if (addedAtLeastOneChannelValue.get()) {
-				try {
-					this.influxConnector.write(point);
-				} catch (OpenemsException e) {
-					this.logError(this.log, e.getMessage());
-				}
+				this.influxConnector.write(point);
 			}
 		}
 	}
