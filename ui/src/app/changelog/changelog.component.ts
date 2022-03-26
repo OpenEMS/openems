@@ -35,7 +35,7 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: '2022.3.4',
+        version: '2022.3.6',
         changes: [
           Changelog.library(Library.INFLUXDB)
         ]
