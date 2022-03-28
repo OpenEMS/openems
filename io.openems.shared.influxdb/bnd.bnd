@@ -8,8 +8,10 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common,\
 	io.openems.wrapper.influxdb-client,\
 	io.openems.wrapper.okhttp,\
+	io.openems.wrapper.retrofit2,\
 	io.projectreactor.reactor-core;version='3.3.13',\
 	javax.ws.rs-api;version='2.1.99',\
-	io.reactivex.rxjava2.rxjava
+	io.reactivex.rxjava2.rxjava,\
+
 -testpath: \
 	${testpath},\

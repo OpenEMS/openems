@@ -11,11 +11,13 @@ import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 public class ErrorHandler extends StateHandler<State, Context> {
 
 	private Instant entryAt = Instant.MIN;
+	private int startAttemptCounter = 0;
+	private final int WAIT_TIME_IN_SECONDS = 120;
 
 	@Override
 	protected void onEntry(Context context) throws OpenemsNamedException {
 		this.entryAt = Instant.now();
-
+		startAttemptCounter++;
 		// Try to stop systems
 		context.battery.setStartStop(StartStop.STOP);
 		context.batteryInverter.setStartStop(StartStop.STOP);
@@ -33,7 +35,8 @@ public class ErrorHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > 120) {
+		if (Duration.between(this.entryAt, Instant.now()).getSeconds() > WAIT_TIME_IN_SECONDS
+				* Math.pow(16, startAttemptCounter)) {
 			// Try again
 			return State.UNDEFINED;
 		}
