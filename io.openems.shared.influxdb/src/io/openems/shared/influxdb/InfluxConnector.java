@@ -79,9 +79,9 @@ public class InfluxConnector {
 	 * The Constructor.
 	 *
 	 * @param url          URL of the InfluxDB-Server (http://ip:port)
-	 * @param org          The Influx Organisation
-	 * @param apiKey       The apiKey or username:password
-	 * @param bucket       The bucket name.
+	 * @param org          The organisation; '-' for InfluxDB v1
+	 * @param apiKey       The apiKey; 'username:password' for InfluxDB v1
+	 * @param bucket       The bucket name; 'database/retentionPolicy' for InfluxDB v1
 	 * @param isReadOnly   If true, a 'Read-Only-Mode' is activated, where no data
 	 *                     is actually written to the database
 	 * @param onWriteError A callback for write-errors, i.e. '(failedPoints,
@@ -94,32 +94,6 @@ public class InfluxConnector {
 		this.apiKey = apiKey;
 		this.bucket = bucket;
 		this.isReadOnly = isReadOnly;
-		this.onWriteError = onWriteError;
-	}
-
-	/**
-	 * The Constructor (legacy).
-	 *
-	 * @param ip              IP-Address of the InfluxDB-Server
-	 * @param port            Port of the InfluxDB-Server
-	 * @param username        The username
-	 * @param password        The password
-	 * @param database        The database name. If it does not exist, it will be
-	 *                        created
-	 * @param retentionPolicy For the InfluxDB database setting
-	 * @param isReadOnly      If true, a 'Read-Only-Mode' is activated, where no
-	 *                        data is actually written to the database
-	 * @param onWriteError    A callback for write-errors, i.e. '(failedPoints,
-	 *                        throwable) -&gt; {}'
-	 */
-	public InfluxConnector(String ip, int port, String username, String password, String database,
-			String retentionPolicy, boolean readOnly, Consumer<Throwable> onWriteError) {
-		this.url = URI.create("http://" + ip + ":" + port);
-		this.org = "-";
-		this.apiKey = String.format("%s:%s", username == null ? "" : username,
-				password == null ? "" : String.valueOf(password));
-		this.bucket = String.format("%s/%s", database, retentionPolicy == null ? "" : retentionPolicy);
-		this.isReadOnly = readOnly;
 		this.onWriteError = onWriteError;
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
 			int queueSize = this.executor.getQueue().size();
@@ -144,10 +118,6 @@ public class InfluxConnector {
 	}
 
 	private InfluxConnection influxConnection = null;
-
-	public String getDatabase() {
-		return this.bucket;
-	}
 
 	/**
 	 * Get InfluxDB Connection.
