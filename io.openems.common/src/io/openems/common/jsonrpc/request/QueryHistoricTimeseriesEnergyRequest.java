@@ -1,5 +1,7 @@
 package io.openems.common.jsonrpc.request;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -57,7 +59,16 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 	 */
 	public static QueryHistoricTimeseriesEnergyRequest from(JsonrpcRequest r) throws OpenemsNamedException {
 		var p = r.getParams();
-		var timezone = TimeZone.getTimeZone(JsonUtils.getAsString(p, "timezone")).toZoneId();
+
+		var jTimezone = JsonUtils.getAsPrimitive(p, "timezone");
+		final ZoneId timezone;
+		if (jTimezone.isNumber()) {
+			// For UI version before 2022.4.0
+			timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(JsonUtils.getAsInt(jTimezone) * -1));
+		} else {
+			timezone = TimeZone.getTimeZone(JsonUtils.getAsString(p, "timezone")).toZoneId();
+		}
+
 		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
 		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
 		var result = new QueryHistoricTimeseriesEnergyRequest(r, fromDate, toDate);

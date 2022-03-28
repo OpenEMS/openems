@@ -1,12 +1,12 @@
 package io.openems.common.utils;
 
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -262,6 +262,20 @@ public class JsonUtils {
 		public JsonObjectBuilder addPropertyIfNotNull(String property, String value) {
 			if (value != null) {
 				this.j.addProperty(property, value);
+			}
+			return this;
+		}
+
+		/**
+		 * Call a method on a JsonObjectBuilder if an expression is true.
+		 *
+		 * @param expression     the expression
+		 * @param ifTrueCallback allows a lambda function on {@link JsonObjectBuilder}
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder onlyIf(boolean expression, Consumer<JsonObjectBuilder> ifTrueCallback) {
+			if (expression) {
+				ifTrueCallback.accept(this);
 			}
 			return this;
 		}
@@ -986,7 +1000,7 @@ public class JsonUtils {
 	 */
 	public static Inet4Address getAsInet4Address(JsonElement jElement) throws OpenemsNamedException {
 		try {
-			return (Inet4Address) InetAddress.getByName(getAsString(jElement));
+			return (Inet4Address) Inet4Address.getByName(getAsString(jElement));
 		} catch (UnknownHostException e) {
 			throw OpenemsError.JSON_NO_INET4ADDRESS.exception(jElement.toString().replace("%", "%%"));
 		}
@@ -1003,7 +1017,7 @@ public class JsonUtils {
 	 */
 	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement, String memberName) {
 		try {
-			return Optional.ofNullable((Inet4Address) InetAddress.getByName(getAsString(jElement, memberName)));
+			return Optional.ofNullable((Inet4Address) Inet4Address.getByName(getAsString(jElement, memberName)));
 		} catch (OpenemsNamedException | UnknownHostException e) {
 			return Optional.empty();
 		}
@@ -1465,6 +1479,8 @@ public class JsonUtils {
 	 * Pretty toString()-method for a {@link JsonElement}.
 	 *
 	 * @param j the {@link JsonElement}
+	 * @return a pretty string representing the {@link JsonElement} using
+	 *         {@link GsonBuilder#setPrettyPrinting()}
 	 */
 	public static String prettyToString(JsonElement j) {
 		return new GsonBuilder().setPrettyPrinting().create().toJson(j);
