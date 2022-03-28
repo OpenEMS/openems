@@ -1,5 +1,6 @@
 package io.openems.edge.timedata.influxdb;
 
+import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -72,12 +73,16 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.influxConnector = new InfluxConnector(config.ip(), config.port(), config.username(), config.password(),
-				config.database(), config.retentionPolicy(), config.isReadOnly(), //
-				throwable -> {
+		this.config = config;
+		if (!this.isEnabled()) {
+			return;
+		}
+
+		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(),
+				config.bucket(), config.isReadOnly(), //
+				(throwable) -> {
 					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage());
 				});
-		this.config = config;
 	}
 
 	@Override
