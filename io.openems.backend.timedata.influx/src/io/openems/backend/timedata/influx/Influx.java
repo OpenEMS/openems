@@ -64,18 +64,17 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	protected volatile Metadata metadata;
 
 	@Activate
-	private void activate(Config config) throws OpenemsException {
+	private void activate(Config config) throws OpenemsException, IllegalArgumentException {
 		this.logInfo(this.log, "Activate [" //
 				+ "url=" + config.url() + ";"//
 				+ "bucket=" + config.bucket() + ";"//
-				+ "retentionPolicy=" + config.retentionPolicy() + ";"//
 				+ "apiKey=" + (config.apiKey() != null ? "ok" : "NOT_SET") + ";"//
 				+ "measurement=" + config.measurement() //
 				+ (config.isReadOnly() ? ";READ_ONLY_MODE" : "") //
 				+ "]");
 
-		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(), config.bucket(),
-				config.isReadOnly(), //
+		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(),
+				config.bucket(), config.isReadOnly(), //
 				(throwable) -> {
 					if (throwable instanceof BadRequestException) {
 						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
