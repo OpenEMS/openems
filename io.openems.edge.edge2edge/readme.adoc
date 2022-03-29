@@ -1,0 +1,5 @@
+= Edge-2-Edge
+
+Enables Edge-to-Edge connection of devices from a slave OpenEMS Edge via Modbus. This requires `Controller Api Modbus/TCP Read-Write` to be active on the slave system.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.edge2edge[Source Code icon:github[]]
