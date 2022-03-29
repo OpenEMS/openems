@@ -61,9 +61,9 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 		var p = r.getParams();
 
 		var jTimezone = JsonUtils.getAsPrimitive(p, "timezone");
-		ZoneId timezone;
+		final ZoneId timezone;
 		if (jTimezone.isNumber()) {
-			// For UI version before 2022.3.3
+			// For UI version before 2022.4.0
 			timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(JsonUtils.getAsInt(jTimezone) * -1));
 		} else {
 			timezone = TimeZone.getTimeZone(JsonUtils.getAsString(p, "timezone")).toZoneId();
@@ -72,10 +72,10 @@ public class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
 		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
 		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
 
-		final Resolution resolution;
 		var jResolution = JsonUtils.getSubElement(p, "resolution");
+		final Resolution resolution;
 		if (jResolution.isJsonPrimitive()) {
-			// For UI version before 2022.3.3
+			// For UI version before 2022.4.0
 			resolution = new Resolution(JsonUtils.getAsInt(jResolution), ChronoUnit.SECONDS);
 		} else {
 			var value = JsonUtils.getAsInt(jResolution, "value");

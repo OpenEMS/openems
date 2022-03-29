@@ -1,5 +1,6 @@
 package io.openems.shared.influxdb;
 
+import java.net.URI;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
@@ -30,7 +31,6 @@ import com.influxdb.client.WriteOptions;
 import com.influxdb.client.write.Point;
 import com.influxdb.client.write.events.BackpressureEvent;
 import com.influxdb.client.write.events.WriteErrorEvent;
-import com.influxdb.exceptions.InfluxException;
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
 import com.influxdb.query.dsl.Flux;
@@ -61,12 +61,10 @@ public class InfluxConnector {
 
 	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
-	private final String ip;
-	private final int port;
-	private final String username;
-	private final String password;
-	private final String database;
-	private final String retentionPolicy;
+	private final URI url;
+	private final String org;
+	private final String apiKey;
+	private final String bucket;
 	private final boolean isReadOnly;
 	private final Consumer<Throwable> onWriteError;
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
@@ -80,26 +78,21 @@ public class InfluxConnector {
 	/**
 	 * The Constructor.
 	 *
-	 * @param ip              IP-Address of the InfluxDB-Server
-	 * @param port            Port of the InfluxDB-Server
-	 * @param username        The username
-	 * @param password        The password
-	 * @param database        The database name. If it does not exist, it will be
-	 *                        created
-	 * @param retentionPolicy For the InfluxDB database setting
-	 * @param isReadOnly      If true, a 'Read-Only-Mode' is activated, where no
-	 *                        data is actually written to the database
-	 * @param onWriteError    A callback for write-errors, i.e. '(failedPoints,
-	 *                        throwable) -&gt; {}'
+	 * @param url          URL of the InfluxDB-Server (http://ip:port)
+	 * @param org          The organisation; '-' for InfluxDB v1
+	 * @param apiKey       The apiKey; 'username:password' for InfluxDB v1
+	 * @param bucket       The bucket name; 'database/retentionPolicy' for InfluxDB v1
+	 * @param isReadOnly   If true, a 'Read-Only-Mode' is activated, where no data
+	 *                     is actually written to the database
+	 * @param onWriteError A callback for write-errors, i.e. '(failedPoints,
+	 *                     throwable) -&gt; {}'
 	 */
-	public InfluxConnector(String ip, int port, String username, String password, String database,
-			String retentionPolicy, boolean isReadOnly, Consumer<Throwable> onWriteError) {
-		this.ip = ip;
-		this.port = port;
-		this.username = username;
-		this.password = password;
-		this.database = database;
-		this.retentionPolicy = retentionPolicy;
+	public InfluxConnector(URI url, String org, String apiKey, String bucket, boolean isReadOnly,
+			Consumer<Throwable> onWriteError) {
+		this.url = url;
+		this.org = org;
+		this.apiKey = apiKey;
+		this.bucket = bucket;
 		this.isReadOnly = isReadOnly;
 		this.onWriteError = onWriteError;
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
@@ -126,10 +119,6 @@ public class InfluxConnector {
 
 	private InfluxConnection influxConnection = null;
 
-	public String getDatabase() {
-		return this.database;
-	}
-
 	/**
 	 * Get InfluxDB Connection.
 	 *
@@ -149,11 +138,10 @@ public class InfluxConnector {
 		// copied options from InfluxDBClientFactory.createV1
 		// to set timeout
 		var options = InfluxDBClientOptions.builder() //
-				.url("http://" + this.ip + ":" + this.port) //
-				.org("-") //
-				.authenticateToken(String.format("%s:%s", this.username == null ? "" : this.username, //
-						this.password == null ? "" : String.valueOf(this.password)).toCharArray()) //
-				.bucket(String.format("%s/%s", this.database, this.retentionPolicy == null ? "" : this.retentionPolicy)) //
+				.url(this.url.toString()) //
+				.org(org) //
+				.authenticateToken(String.format(this.apiKey).toCharArray()) //
+				.bucket(this.bucket) //
 				.okHttpClient(okHttpClientBuilder) //
 				.build();
 
@@ -284,7 +272,7 @@ public class InfluxConnector {
 
 		// prepare query
 		var builder = new StringBuilder() //
-				.append("data = from(bucket: \"").append(this.database).append("\")") //
+				.append("data = from(bucket: \"").append(this.bucket).append("\")") //
 
 				.append("|> range(start: ").append(fromDate.toInstant()) //
 				.append(", stop: ").append(toDate.toInstant()).append(")") //
@@ -343,7 +331,7 @@ public class InfluxConnector {
 		}
 
 		// prepare query
-		Flux flux = Flux.from(this.database) //
+		Flux flux = Flux.from(this.bucket) //
 				.range(fromDate.toInstant(), toDate.toInstant()) //
 				.filter(Restrictions.measurement().equal(MEASUREMENT));
 
@@ -384,7 +372,7 @@ public class InfluxConnector {
 		var fromInstant = fromDate.toInstant().minus(5, ChronoUnit.MINUTES);
 
 		// prepare query
-		Flux flux = Flux.from(this.database) //
+		Flux flux = Flux.from(this.bucket) //
 				.range(fromInstant, toDate.toInstant()) //
 				.filter(Restrictions.measurement().equal(MEASUREMENT));
 
@@ -529,12 +517,6 @@ public class InfluxConnector {
 					+ StringUtils.toShortString(point.toLineProtocol(), 100));
 			return;
 		}
-		this.executor.execute(() -> {
-			try {
-				this.getInfluxConnection().writeApi.writePoint(point);
-			} catch (InfluxException e) {
-				this.onWriteError.accept(e);
-			}
-		});
+		this.getInfluxConnection().writeApi.writePoint(point);
 	}
 }

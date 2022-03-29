@@ -61,9 +61,9 @@ public class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 		var p = r.getParams();
 
 		var jTimezone = JsonUtils.getAsPrimitive(p, "timezone");
-		ZoneId timezone;
+		final ZoneId timezone;
 		if (jTimezone.isNumber()) {
-			// For UI version before 2022.3.3
+			// For UI version before 2022.4.0
 			timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(JsonUtils.getAsInt(jTimezone) * -1));
 		} else {
 			timezone = TimeZone.getTimeZone(JsonUtils.getAsString(p, "timezone")).toZoneId();
