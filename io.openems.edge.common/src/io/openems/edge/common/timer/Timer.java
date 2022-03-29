@@ -69,4 +69,5 @@ public interface Timer {
 	 * @param identifierSwap one of the identifier of the component.
 	 */
 	public void setInitTime(String id, String identifierSwap, Integer count);
+
 }

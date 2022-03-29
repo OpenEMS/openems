@@ -1,11 +1,10 @@
 package io.openems.edge.core.timer;
 
-import java.time.Instant;
-
+import io.openems.edge.common.timer.Timer;
+import io.openems.edge.common.timer.TimerType;
 import org.osgi.service.cm.ConfigurationException;
 
-import io.openems.common.exceptions.OpenemsError;
-import io.openems.edge.common.timer.Timer;
+import java.time.Instant;
 
 /**
  * The TimerHandler Interface makes the use of Timer easier. OpenemsComponents,
@@ -22,13 +21,11 @@ public interface TimerHandler {
 	 * identifier->Timer.
 	 *
 	 * @param identifier 1 of n identifier a component can have.
-	 * @param timer      the Id of the {@link Timer} previously configured
+	 * @param timer      the {@link TimerType} of the {@link Timer} previously configured
 	 * @param maxTime    the max Allowed Time. (InitTime + MaxTime in Seconds)
-	 * @throws OpenemsError.OpenemsNamedException if timer cannot be found
 	 * @throws ConfigurationException             if Id not an instance of Timer
 	 */
-	public void addOneIdentifier(String identifier, String timer, int maxTime)
-			throws OpenemsError.OpenemsNamedException, ConfigurationException;
+	public void addOneIdentifier(String identifier, TimerType timer, int maxTime) throws ConfigurationException;
 
 	/**
 	 * Resets the Timer determined by the Identifier. This will call the
