@@ -131,9 +131,9 @@ public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTa
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		// return null if data is not yet available.
+		// return empty TimeOfUsePrices if data is not yet available.
 		if (this.updateTimeStamp == null) {
-			return null;
+			return TimeOfUsePrices.empty(ZonedDateTime.now());
 		}
 
 		return TimeOfUseTariffUtils.getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */,
@@ -150,27 +150,24 @@ public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTa
 	public static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String jsonData) throws OpenemsNamedException {
 		var result = new TreeMap<ZonedDateTime, Float>();
 
-		if (!jsonData.isEmpty()) {
+		var line = JsonUtils.parseToJsonObject(jsonData);
+		var data = JsonUtils.getAsJsonArray(line, "data");
 
-			var line = JsonUtils.parseToJsonObject(jsonData);
-			var data = JsonUtils.getAsJsonArray(line, "data");
+		for (JsonElement element : data) {
 
-			for (JsonElement element : data) {
+			var marketPrice = JsonUtils.getAsFloat(element, "marketprice");
+			var startTimestampLong = JsonUtils.getAsLong(element, "start_timestamp");
 
-				var marketPrice = JsonUtils.getAsFloat(element, "marketprice");
-				var startTimestampLong = JsonUtils.getAsLong(element, "start_timestamp");
+			// Converting Long time stamp to ZonedDateTime.
+			var startTimeStamp = ZonedDateTime //
+					.ofInstant(Instant.ofEpochMilli(startTimestampLong), ZoneId.systemDefault())
+					.truncatedTo(ChronoUnit.HOURS);
 
-				// Converting Long time stamp to ZonedDateTime.
-				var startTimeStamp = ZonedDateTime //
-						.ofInstant(Instant.ofEpochMilli(startTimestampLong), ZoneId.systemDefault())
-						.truncatedTo(ChronoUnit.HOURS);
-
-				// Adding the values in the Map.
-				result.put(startTimeStamp, marketPrice);
-				result.put(startTimeStamp.plusMinutes(15), marketPrice);
-				result.put(startTimeStamp.plusMinutes(30), marketPrice);
-				result.put(startTimeStamp.plusMinutes(45), marketPrice);
-			}
+			// Adding the values in the Map.
+			result.put(startTimeStamp, marketPrice);
+			result.put(startTimeStamp.plusMinutes(15), marketPrice);
+			result.put(startTimeStamp.plusMinutes(30), marketPrice);
+			result.put(startTimeStamp.plusMinutes(45), marketPrice);
 		}
 		return ImmutableSortedMap.copyOf(result);
 	}
