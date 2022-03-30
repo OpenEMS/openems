@@ -15,17 +15,11 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 
-/**
- * A DoubleWordElement has a size of two Modbus Registers or 32 bit.
- *
- * @param <E> the subclass of myself
- * @param <T> the target OpenemsType
- */
-public abstract class AbstractAlgo3Bytes<E, T> extends AbstractModbusRegisterElement<E, T> {
+public abstract class Algo3Word<E, T> extends AbstractModbusRegisterElement<E, T> {
 
-	private final Logger log = LoggerFactory.getLogger(AbstractAlgo3Bytes.class);
+	private final Logger log = LoggerFactory.getLogger(Algo3Word.class);
 
-	public AbstractAlgo3Bytes(OpenemsType type, int startAddress) {
+	public Algo3Word(OpenemsType type, int startAddress) {
 		super(type, startAddress);
 	}
 
@@ -128,5 +122,3 @@ public abstract class AbstractAlgo3Bytes<E, T> extends AbstractModbusRegisterEle
 	private WordOrder wordOrder = WordOrder.MSWLSW;
 
 }
-
-

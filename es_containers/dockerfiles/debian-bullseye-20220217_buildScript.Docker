@@ -1,0 +1,71 @@
+#
+# merge of howtos....
+# https://medium.com/hackernoon/install-java-in-docker-container-1d361e2e027e
+# https://askubuntu.com/questions/1375383/how-to-properly-install-temurin-jdk-with-update-alternatives
+# https://techviewleo.com/how-to-install-temurin-openjdk-on-debian/
+#
+# main repo for java is:
+#    https://github.com/adoptium
+#
+
+
+# original image
+FROM debian:bullseye
+
+# pre-reqs:
+# backports, nettools, wget and curl
+# default jdk is needed because ofsome packages (20220218 - to be checked)
+# gnupg and gnupg2 are needed for adding the temurin repo key
+# 
+RUN set -ex && \
+    echo 'deb http://deb.debian.org/debian bullseye-backports main' > /etc/apt/sources.list.d/bullseye-backports.list && \
+    apt update -y && \
+    apt install net-tools -y && \
+    apt install procps -y && \
+    apt install wget -y && \
+    apt install curl -y && \
+    apt upgrade && \
+    apt install default-jdk -y && \
+    cd root && \
+    wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public > temurinAptKey && \
+    apt install gnupg -y && \
+    apt install gnupg2 -y && \
+    apt-key add temurinAptKey
+
+# add adoptium to apt repos
+# remark: this is linux version agnostic...
+RUN echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list
+
+#
+# install relevant java pacakge (20220218 - verify group)
+RUN apt update && \
+    apt upgrade && \
+    apt install -t \
+      bullseye-backports \
+      temurin-8-jdk \
+      temurin-11-jdk \
+      ca-certificates-java -y
+
+#
+# java defaults to temurin
+# in manual mode:
+# update-alternatives --config java 
+RUN update-alternatives --set java  /usr/lib/jvm/temurin-11-jdk-amd64/bin/java
+
+      
+# ports for clients
+EXPOSE 8080-8085:8080-8085
+
+# folders
+RUN mkdir /usr/lib/openems
+RUN mkdir /etc/openems.d
+RUN if [ -d /etc/systemd/network ]; then echo "systemd network folder is present..." ; else echo "missing systemd network folder: creating..." ; mkdir /etc/systemd/network ; fi
+
+
+# now the jar on the image...
+COPY ./jars/edge.jar /usr/lib/openems/openems.jar
+
+
+# uncomment for autostarting edge
+# CMD ["java", "-jar", "/usr/lib/openems/openems.jar"]
+

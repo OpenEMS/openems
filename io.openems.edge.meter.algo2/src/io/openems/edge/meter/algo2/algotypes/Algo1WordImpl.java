@@ -1,22 +1,17 @@
 package io.openems.edge.meter.algo2.algotypes;
 
-import io.openems.common.types.OpenemsType;
-import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
-
 import java.nio.ByteBuffer;
 
-/**
- * A SignedDoublewordElement represents a Long value in an
- * {@link AbstractDoubleWordElement}.
- */
-public class Algo1Byte  extends AbstractAlgo1Byte<Algo1Byte , Long> {
+import io.openems.common.types.OpenemsType;
 
-	public Algo1Byte(int address) {
+public class Algo1WordImpl  extends Algo1Word<Algo1Word, Long> {
+
+	public Algo1WordImpl(int address) {
 		super(OpenemsType.LONG, address);
 	}
 
 	@Override
-	protected Algo1Byte  self() {
+	protected Algo1WordImpl self() {
 		return this;
 	}
 

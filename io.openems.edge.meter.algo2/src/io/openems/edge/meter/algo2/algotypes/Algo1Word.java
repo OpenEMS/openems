@@ -1,6 +1,5 @@
 package io.openems.edge.meter.algo2.algotypes;
 
-
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
@@ -16,19 +15,15 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 
-/**
- * A DoubleWordElement has a size of two Modbus Registers or 32 bit.
- *
- * @param <E> the subclass of myself
- * @param <T> the target OpenemsType
- */
-public abstract class AbstractAlgo1Byte<E, T> extends AbstractModbusRegisterElement<E, T> {
+public abstract class Algo1Word<E, T> extends AbstractModbusRegisterElement<E, T>  {
 
-	protected final Logger log = LoggerFactory.getLogger(AbstractAlgo3Bytes.class);
+	
+	protected final Logger log = LoggerFactory.getLogger(Algo1Word.class);
 
-	public AbstractAlgo1Byte(OpenemsType type, int startAddress) {
+	public Algo1Word(OpenemsType type, int startAddress) {
 		super(type, startAddress);
 	}
+
 
 	/**
 	 * Gets an instance of the correct subclass of myself.
@@ -116,7 +111,5 @@ public abstract class AbstractAlgo1Byte<E, T> extends AbstractModbusRegisterElem
 	}
 
 	private WordOrder wordOrder = WordOrder.MSWLSW;
-
+	
 }
-
-

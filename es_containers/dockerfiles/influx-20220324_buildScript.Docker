@@ -1,0 +1,61 @@
+
+#
+# ----------------------
+#
+# 20220324 - start (ES)
+#
+# https://www.influxdata.com/blog/running-influxdb-2-0-and-telegraf-using-docker/
+#
+# ----------------------
+#
+
+version: '3'
+services:
+  influxdb:
+    image: influxdb:latest
+    volumes:
+      # Mount for influxdb data directory and configuration
+      - D:/_MC/dev/youpower/docker/influxdb:/var/lib/influxdb2:rw
+    ports:
+      - "8086:8086"
+  # Use the influx cli to set up an influxdb instance. 
+  influxdb_cli:
+    links:
+      - influxdb
+    image: influxdb:latest
+    volumes:
+      # Mount for influxdb data directory and configuration
+      - D:/_MC/dev/youpower/docker/influxdb:/var/lib/influxdb2:rw
+      - D:/_MC/dev/youpower/docker/aaaConfs/certs/influxdb-selfsigned.crt:/etc/ssl/influxdb-selfsigned.crt:rw
+      - D:/_MC/dev/youpower/docker/aaaConfs/certs/influxdb-selfsigned.key:/etc/ssl/influxdb-selfsigned.key:rw
+    environment: 
+       # Use these same configurations parameters in your telegraf configuration, mytelegraf.conf.
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=chicco
+      - DOCKER_INFLUXDB_INIT_PASSWORD=polipo13org
+      - DOCKER_INFLUXDB_INIT_ORG=myorg
+      - DOCKER_INFLUXDB_INIT_BUCKET=mybucket
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=mytoken
+      - INFLUXD_TLS_CERT=/etc/ssl/influxdb-selfsigned.crt
+      - INFLUXD_TLS_KEY=/etc/ssl/influxdb-selfsigned.key
+    entrypoint: ["./entrypoint.sh"]
+    restart: on-failure:10
+    depends_on:
+      - influxdb
+  telegraf:
+    image: telegraf
+    links:
+      - influxdb
+    volumes:
+      # Mount for telegraf config
+      - D:/_MC/dev/youpower/docker/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+    env_file:
+      - D:/_MC/dev/youpower/docker/influxdb/influxv2.env
+    environment: 
+      - DOCKER_INFLUXDB_INIT_ORG=myorg
+      - DOCKER_INFLUXDB_INIT_BUCKET=mybucket
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=mytoken
+    depends_on:
+      - influxdb_cli
+volumes:
+  influxdb2:

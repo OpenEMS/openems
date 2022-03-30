@@ -23,9 +23,111 @@ import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave   {
+	
+	public static final int MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY_l1 = 0x0100; 
+	public static final int MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY_L2 = 0x0103; 
+	public static final int MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY_L3 = 0x0106; 
+	public static final int MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY = 0x0109; 
+	//
+	public static final int MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY_L1 = 0x010C; 
+	public static final int MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY_L2 = 0x010F; 
+	public static final int MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY_L3 = 0x0112; 
+	public static final int MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY = 0x0115; 
 
+	
+	
+	
+	public static final int MODBUSREG_SET1_SYSIMPORTEDACTIVEENERGY = 0x010C;
+	public static final int MODBUSREG_SET1_SYSEXPORTEDACTIVEENERGY = 0x011C; 
+	
+	public static final int MODBUSREG_SET0_REGSETINUSE = 0x0523; 
+	public static final int MODBUSREG_SET1_REGSETINUSE = 0x0538; 
+	
+	
+	
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 				
+		
+		
+		CUSTACTIVECONSUMPTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.NONE) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		CUSTACTIVECONSUMPTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.NONE) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		CUSTACTIVECONSUMPTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.NONE) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		CUSTACTIVECONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.NONE) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		
+		CUSTACTIVEPRODUCTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.NONE) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		CUSTACTIVEPRODUCTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.NONE) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		CUSTACTIVEPRODUCTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.NONE) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		CUSTACTIVEPRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.NONE) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		
+		
+		
+		/**
+		 * Active Power L1
+		 *
+		 * <ul>
+		 * <li>Interface: Meter Asymmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Consumption (power that is 'leaving the
+		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
+		 * the system')
+		 * </ul>
+		 */
+		CACTIVE_POWER_L1(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text(POWER_DOC_TEXT)), //
+		/**
+		 * Active Power L2
+		 *
+		 * <ul>
+		 * <li>Interface: Meter Asymmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Consumption (power that is 'leaving the
+		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
+		 * the system')
+		 * </ul>
+		 */
+		CACTIVE_POWER_L2(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text(POWER_DOC_TEXT)), //
+		/**
+		 * Active Power L3
+		 *
+		 * <ul>
+		 * <li>Interface: Meter Asymmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Consumption (power that is 'leaving the
+		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
+		 * the system')
+		 * </ul>
+		 */
+		CACTIVE_POWER_L3(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.text(POWER_DOC_TEXT)), //
+		
+		
+		
 		/**
 		 * Voltage L12
 		 * 
@@ -35,7 +137,7 @@ public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter,
 		 * <li>Unit: mV
 		 * </ul>
 		 */
-		VOLTAGE_L12(Doc.of(OpenemsType.INTEGER) //
+		VOLTAGE_L12(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.MILLIVOLT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
@@ -47,7 +149,7 @@ public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter,
 		 * <li>Unit: mV
 		 * </ul>
 		 */
-		VOLTAGE_L23(Doc.of(OpenemsType.INTEGER) //
+		VOLTAGE_L23(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.MILLIVOLT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
@@ -59,7 +161,7 @@ public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter,
 		 * <li>Unit: mV
 		 * </ul>
 		 */
-		VOLTAGE_L31(Doc.of(OpenemsType.INTEGER) //
+		VOLTAGE_L31(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.MILLIVOLT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
@@ -71,7 +173,7 @@ public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter,
 		 * <li>Unit: mV
 		 * </ul>
 		 */
-		VOLTAGE_SYS(Doc.of(OpenemsType.INTEGER) //
+		VOLTAGE_SYS(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.MILLIVOLT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		
@@ -279,7 +381,7 @@ public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter,
 				.persistencePriority(PersistencePriority.HIGH)),
 		
 		
-				
+
 		
 		
 		/**
