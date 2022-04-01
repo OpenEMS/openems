@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.AbstractUser;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
@@ -22,13 +23,14 @@ public class User extends AbstractUser {
 	/**
 	 * Constructs an {@link User}.
 	 *
-	 * @param id   the User-ID
-	 * @param name the name
-	 * @param role the {@link Role}; used as global Role and assigned to
-	 *             {@link User#DEFAULT_EDGE_ID}.
+	 * @param id       the User-ID
+	 * @param name     the name
+	 * @param language the {@link Language}
+	 * @param role     the {@link Role}; used as global Role and assigned to
+	 *                 {@link User#DEFAULT_EDGE_ID}.
 	 */
-	protected User(String id, String name, Role role) {
-		super(id, name, role, Maps.newTreeMap(ImmutableSortedMap.of(DEFAULT_EDGE_ID, role)));
+	protected User(String id, String name, Language language, Role role) {
+		super(id, name, language, role, Maps.newTreeMap(ImmutableSortedMap.of(DEFAULT_EDGE_ID, role)));
 	}
 
 	/**
@@ -60,6 +62,7 @@ public class User extends AbstractUser {
 	 * {
 	 *   "id": string,
 	 *   "name: string,
+	 *   "language"?: string,
 	 *   "role": string
 	 * }
 	 * </pre>
@@ -71,7 +74,8 @@ public class User extends AbstractUser {
 	public static User from(JsonObject j) throws OpenemsNamedException {
 		var id = JsonUtils.getAsString(j, "id");
 		var name = JsonUtils.getAsString(j, "name");
+		var language = Language.from(JsonUtils.getAsOptionalString(j, "language"));
 		var role = Role.getRole(JsonUtils.getAsString(j, "role"));
-		return new User(id, name, role);
+		return new User(id, name, language, role);
 	}
 }

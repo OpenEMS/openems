@@ -27,13 +27,20 @@ public abstract class AbstractUser {
 	private final Role globalRole;
 
 	/**
+	 * The {@link Language}.
+	 */
+	private Language language = Language.DEFAULT;
+
+	/**
 	 * Roles per Edge-ID.
 	 */
 	private final NavigableMap<String, Role> roles;
 
-	protected AbstractUser(String id, String name, Role globalRole, NavigableMap<String, Role> roles) {
+	protected AbstractUser(String id, String name, Language language, Role globalRole,
+			NavigableMap<String, Role> roles) {
 		this.id = id;
 		this.name = name;
+		this.language = language;
 		this.globalRole = globalRole;
 		this.roles = roles;
 	}
@@ -44,6 +51,24 @@ public abstract class AbstractUser {
 
 	public String getName() {
 		return this.name;
+	}
+
+	/**
+	 * Gets the user language.
+	 *
+	 * @return the language
+	 */
+	public Language getLanguage() {
+		return this.language;
+	}
+
+	/**
+	 * Sets the user language.
+	 * 
+	 * @param language the {@link Language}
+	 */
+	public void setLanguage(Language language) {
+		this.language = language;
 	}
 
 	/**

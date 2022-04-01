@@ -302,8 +302,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricTimeseriesExportXlxsRequest(User user,
 			QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
-		return CompletableFuture.completedFuture(this.parent.getTimedata()
-				.handleQueryHistoricTimeseriesExportXlxsRequest(null /* ignore Edge-ID */, request));
+		return CompletableFuture.completedFuture(
+				this.parent.getTimedata().handleQueryHistoricTimeseriesExportXlxsRequest(null /* ignore Edge-ID */,
+						request, user.getLanguage()));
 	}
 
 	/**
