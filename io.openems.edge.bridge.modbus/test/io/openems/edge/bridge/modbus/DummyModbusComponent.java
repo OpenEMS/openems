@@ -27,10 +27,10 @@ public abstract class DummyModbusComponent extends AbstractOpenemsModbusComponen
 			channel.nextProcessImage();
 		}
 		this.setModbus(bridge);
-		DummyComponentContext context = new DummyComponentContext();
+		var context = new DummyComponentContext();
 		context.addProperty(Constants.SERVICE_PID, Constants.SERVICE_PID);
-		DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
-		DummyConfiguration dummyConfiguration = new DummyConfiguration();
+		var cm = new DummyConfigurationAdmin();
+		var dummyConfiguration = new DummyConfiguration();
 		dummyConfiguration.addProperty("Modbus.target",
 				ConfigUtils.generateReferenceTargetFilter(Constants.SERVICE_PID, bridge.id()));
 		cm.addConfiguration(Constants.SERVICE_PID, dummyConfiguration);

@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -266,6 +267,20 @@ public class JsonUtils {
 		}
 
 		/**
+		 * Call a method on a JsonObjectBuilder if an expression is true.
+		 *
+		 * @param expression     the expression
+		 * @param ifTrueCallback allows a lambda function on {@link JsonObjectBuilder}
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder onlyIf(boolean expression, Consumer<JsonObjectBuilder> ifTrueCallback) {
+			if (expression) {
+				ifTrueCallback.accept(this);
+			}
+			return this;
+		}
+
+		/**
 		 * Return the built {@link JsonObject}.
 		 *
 		 * @return the {@link JsonObject}
@@ -342,8 +357,7 @@ public class JsonUtils {
 	public static JsonPrimitive getAsPrimitive(JsonElement jElement, String memberName) throws OpenemsNamedException {
 		var jSubElement = getSubElement(jElement, memberName);
 		if (!jSubElement.isJsonPrimitive()) {
-			throw OpenemsError.JSON_NO_PRIMITIVE_MEMBER.exception(memberName,
-					jElement.toString().replaceAll("%", "%%"));
+			throw OpenemsError.JSON_NO_PRIMITIVE_MEMBER.exception(memberName, jElement.toString().replace("%", "%%"));
 		}
 		return jSubElement.getAsJsonPrimitive();
 	}
@@ -506,7 +520,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonPrimitive} as {@link String}.
-	 * 
+	 *
 	 * @param jPrimitive the {@link JsonPrimitive}
 	 * @return the {@link String} value
 	 * @throws OpenemsNamedException on error
@@ -585,7 +599,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonPrimitive} as {@link Boolean}.
-	 * 
+	 *
 	 * @param jPrimitive the {@link JsonPrimitive}
 	 * @return the {@link Boolean} value
 	 * @throws OpenemsNamedException on error
@@ -598,7 +612,8 @@ public class JsonUtils {
 			var element = jPrimitive.getAsString();
 			if (element.equalsIgnoreCase("false")) {
 				return false;
-			} else if (element.equalsIgnoreCase("true")) {
+			}
+			if (element.equalsIgnoreCase("true")) {
 				return true;
 			}
 		}
@@ -607,7 +622,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonElement} as {@link Boolean}.
-	 * 
+	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Boolean} value
 	 * @throws OpenemsNamedException on error
@@ -648,7 +663,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonPrimitive} as short.
-	 * 
+	 *
 	 * @param jPrimitive the {@link JsonPrimitive}
 	 * @return the short value
 	 * @throws OpenemsNamedException on error
@@ -656,7 +671,8 @@ public class JsonUtils {
 	public static short getAsShort(JsonPrimitive jPrimitive) throws OpenemsNamedException {
 		if (jPrimitive.isNumber()) {
 			return jPrimitive.getAsShort();
-		} else if (jPrimitive.isString()) {
+		}
+		if (jPrimitive.isString()) {
 			var string = jPrimitive.getAsString();
 			return Short.parseShort(string);
 		}
@@ -665,7 +681,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonElement} as short.
-	 * 
+	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the short value
 	 * @throws OpenemsNamedException on error
@@ -688,7 +704,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonPrimitive} as int.
-	 * 
+	 *
 	 * @param jPrimitive the {@link JsonPrimitive}
 	 * @return the int value
 	 * @throws OpenemsNamedException on error
@@ -696,7 +712,8 @@ public class JsonUtils {
 	public static int getAsInt(JsonPrimitive jPrimitive) throws OpenemsNamedException {
 		if (jPrimitive.isNumber()) {
 			return jPrimitive.getAsInt();
-		} else if (jPrimitive.isString()) {
+		}
+		if (jPrimitive.isString()) {
 			var string = jPrimitive.getAsString();
 			return Integer.parseInt(string);
 		}
@@ -705,7 +722,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonElement} as int.
-	 * 
+	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the int value
 	 * @throws OpenemsNamedException on error
@@ -775,7 +792,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonPrimitive} as long.
-	 * 
+	 *
 	 * @param jPrimitive the {@link JsonPrimitive}
 	 * @return the long value
 	 * @throws OpenemsNamedException on error
@@ -783,7 +800,8 @@ public class JsonUtils {
 	public static long getAsLong(JsonPrimitive jPrimitive) throws OpenemsNamedException {
 		if (jPrimitive.isNumber()) {
 			return jPrimitive.getAsLong();
-		} else if (jPrimitive.isString()) {
+		}
+		if (jPrimitive.isString()) {
 			var string = jPrimitive.getAsString();
 			return Integer.parseInt(string);
 		}
@@ -792,7 +810,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonElement} as long.
-	 * 
+	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the long value
 	 * @throws OpenemsNamedException on error
@@ -831,7 +849,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonPrimitive} as {@link Float}.
-	 * 
+	 *
 	 * @param jPrimitive the {@link JsonPrimitive}
 	 * @return the {@link Float} value
 	 * @throws OpenemsNamedException on error
@@ -839,7 +857,8 @@ public class JsonUtils {
 	public static float getAsFloat(JsonPrimitive jPrimitive) throws OpenemsNamedException {
 		if (jPrimitive.isNumber()) {
 			return jPrimitive.getAsFloat();
-		} else if (jPrimitive.isString()) {
+		}
+		if (jPrimitive.isString()) {
 			var string = jPrimitive.getAsString();
 			return Float.parseFloat(string);
 		}
@@ -848,7 +867,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonElement} as {@link Float}.
-	 * 
+	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Float} value
 	 * @throws OpenemsNamedException on error
@@ -871,7 +890,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonPrimitive} as {@link Double}.
-	 * 
+	 *
 	 * @param jPrimitive the {@link JsonPrimitive}
 	 * @return the {@link Double} value
 	 * @throws OpenemsNamedException on error
@@ -879,7 +898,8 @@ public class JsonUtils {
 	public static double getAsDouble(JsonPrimitive jPrimitive) throws OpenemsNamedException {
 		if (jPrimitive.isNumber()) {
 			return jPrimitive.getAsDouble();
-		} else if (jPrimitive.isString()) {
+		}
+		if (jPrimitive.isString()) {
 			var string = jPrimitive.getAsString();
 			return Double.parseDouble(string);
 		}
@@ -888,7 +908,7 @@ public class JsonUtils {
 
 	/**
 	 * Gets the {@link JsonElement} as {@link Double}.
-	 * 
+	 *
 	 * @param jElement the {@link JsonElement}
 	 * @return the {@link Double} value
 	 * @throws OpenemsNamedException on error
@@ -922,7 +942,7 @@ public class JsonUtils {
 			throws OpenemsNamedException {
 		var element = getAsString(jElement);
 		try {
-			return (E) Enum.valueOf(enumType, element);
+			return Enum.valueOf(enumType, element);
 		} catch (IllegalArgumentException e) {
 			throw OpenemsError.JSON_NO_ENUM.exception(element);
 		}
@@ -942,7 +962,7 @@ public class JsonUtils {
 			throws OpenemsNamedException {
 		var element = getAsString(jElement, memberName);
 		try {
-			return (E) Enum.valueOf(enumType, element);
+			return Enum.valueOf(enumType, element);
 		} catch (IllegalArgumentException e) {
 			throw OpenemsError.JSON_NO_ENUM_MEMBER.exception(memberName, element);
 		}
@@ -1032,7 +1052,7 @@ public class JsonUtils {
 	// CHECKSTYLE:OFF
 	public static Optional<UUID> getAsOptionalUUID(JsonElement jElement, String memberName) {
 		// CHECKSTYLE:ON
-		Optional<String> uuid = getAsOptionalString(jElement, memberName);
+		var uuid = getAsOptionalString(jElement, memberName);
 		if (uuid.isPresent()) {
 			return Optional.ofNullable(UUID.fromString(uuid.get()));
 		}
@@ -1078,7 +1098,8 @@ public class JsonUtils {
 						result[i] = jA.get(i).getAsBoolean();
 					}
 					return result;
-				} else if (isInt) {
+				}
+				if (isInt) {
 					// convert to int array
 					var result = new int[jA.size()];
 					for (var i = 0; i < jA.size(); i++) {
@@ -1140,7 +1161,8 @@ public class JsonUtils {
 			 * Number
 			 */
 			return new JsonPrimitive((Number) value);
-		} else if (value instanceof String) {
+		}
+		if (value instanceof String) {
 			/*
 			 * String
 			 */
@@ -1263,7 +1285,8 @@ public class JsonUtils {
 				 */
 				return j.getAsInt();
 
-			} else if (Long.class.isAssignableFrom(type)) {
+			}
+			if (Long.class.isAssignableFrom(type)) {
 				/*
 				 * Asking for an Long
 				 */
@@ -1434,7 +1457,7 @@ public class JsonUtils {
 
 	/**
 	 * Parses a string to a {@link JsonArray}.
-	 * 
+	 *
 	 * @param string the String
 	 * @return the {@link JsonArray}
 	 * @throws OpenemsNamedException on error
@@ -1456,6 +1479,8 @@ public class JsonUtils {
 	 * Pretty toString()-method for a {@link JsonElement}.
 	 *
 	 * @param j the {@link JsonElement}
+	 * @return a pretty string representing the {@link JsonElement} using
+	 *         {@link GsonBuilder#setPrettyPrinting()}
 	 */
 	public static String prettyToString(JsonElement j) {
 		return new GsonBuilder().setPrettyPrinting().create().toJson(j);

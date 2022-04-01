@@ -2,7 +2,6 @@ package io.openems.edge.timeofusetariff.api.utils;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 
 import com.google.common.collect.ImmutableSortedMap;
@@ -13,7 +12,7 @@ public class TimeOfUseTariffUtils {
 
 	/**
 	 * Returns the Array of 24 hour [96 quarterly] electricity prices in EUR/MWh.
-	 * 
+	 *
 	 * @param clock           the {@link Clock}
 	 * @param priceMap        {@link ImmutableSortedMap} with quarterly Time stamps
 	 *                        and the price.
@@ -26,27 +25,37 @@ public class TimeOfUseTariffUtils {
 
 		// Returns the empty array if the map is empty.
 		if (priceMap.isEmpty()) {
-			return new TimeOfUsePrices(updateTimeStamp);
+			return TimeOfUsePrices.empty(updateTimeStamp);
 		}
 
-		ZonedDateTime now = getNowRoundedDownToMinutes(clock, 15);
+		var now = getNowRoundedDownToMinutes(clock, 15);
 		// Converts the map values to array.
 		// if the map size is less than 96, rest of the values will store as null.
-		final Float[] priceList = priceMap.tailMap(now).values().toArray(new Float[TimeOfUsePrices.NUMBER_OF_VALUES]);
+		final var priceList = priceMap.tailMap(now).values().toArray(new Float[TimeOfUsePrices.NUMBER_OF_VALUES]);
 
 		return new TimeOfUsePrices(updateTimeStamp, priceList);
 	}
 
 	/**
 	 * Gets 'now' from the Clock and rounds it down to required minutes.
-	 * 
+	 *
 	 * @param clock   the {@link Clock}
 	 * @param minutes the custom minutes to roundoff to.
 	 * @return the rounded result
 	 */
 	public static ZonedDateTime getNowRoundedDownToMinutes(Clock clock, int minutes) {
-		ZonedDateTime d = ZonedDateTime.now(clock);
-		int minuteOfDay = d.get(ChronoField.MINUTE_OF_DAY);
-		return d.with(ChronoField.NANO_OF_DAY, 0).plus(minuteOfDay / minutes * minutes, ChronoUnit.MINUTES);
+		var now = ZonedDateTime.now(clock);
+		return getNowRoundedDownToMinutes(now, minutes);
+	}
+
+	/**
+	 * Gets 'now' from the Clock and rounds it down to required minutes.
+	 *
+	 * @param clock   the {@link Clock}
+	 * @param minutes the custom minutes to roundoff to.
+	 * @return the rounded result
+	 */
+	public static ZonedDateTime getNowRoundedDownToMinutes(ZonedDateTime now, int minutes) {
+		return now.withMinute(now.getMinute() - now.getMinute() % minutes).truncatedTo(ChronoUnit.MINUTES);
 	}
 }

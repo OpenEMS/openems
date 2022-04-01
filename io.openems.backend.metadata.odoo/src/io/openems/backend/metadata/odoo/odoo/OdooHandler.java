@@ -27,7 +27,7 @@ import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 import io.openems.common.utils.PasswordUtils;
@@ -273,7 +273,7 @@ public class OdooHandler {
 		JsonUtils.getAsOptionalString(userJson, "lastname") //
 				.ifPresent(lastname -> fieldValues.put(Field.Partner.LASTNAME.id(), lastname));
 		JsonUtils.getAsOptionalString(userJson, "email") //
-				.ifPresent(email -> fieldValues.put(Field.Partner.EMAIL.id(), email));
+				.ifPresent(email -> fieldValues.put(Field.Partner.EMAIL.id(), email.toLowerCase()));
 		JsonUtils.getAsOptionalString(userJson, "phone") //
 				.ifPresent(phone -> fieldValues.put(Field.Partner.PHONE.id(), phone));
 
@@ -426,7 +426,8 @@ public class OdooHandler {
 
 		var protocolId = this.createSetupProtocol(setupProtocolJson, foundEdge[0], customerId, installerId);
 
-		var installer = OdooUtils.readOne(credentials, Field.Partner.ODOO_MODEL, installerId, Field.Partner.IS_COMPANY);
+		var installer = OdooUtils.readOne(this.credentials, Field.Partner.ODOO_MODEL, installerId,
+				Field.Partner.IS_COMPANY);
 		boolean isCompany = (boolean) installer.get("is_company");
 		if (!isCompany) {
 			Map<String, Object> fieldsToUpdate = new HashMap<>();
@@ -436,7 +437,8 @@ public class OdooHandler {
 					.ifPresent(lastname -> fieldsToUpdate.put(Field.Partner.LASTNAME.id(), lastname));
 
 			if (!fieldsToUpdate.isEmpty()) {
-				OdooUtils.write(credentials, Field.Partner.ODOO_MODEL, new Integer[] { installerId }, fieldsToUpdate);
+				OdooUtils.write(this.credentials, Field.Partner.ODOO_MODEL, new Integer[] { installerId },
+						fieldsToUpdate);
 			}
 		}
 
@@ -486,9 +488,9 @@ public class OdooHandler {
 		JsonUtils.getAsOptionalString(userJson, "lastname") //
 				.ifPresent(lastname -> customerFields.put(Field.Partner.LASTNAME.id(), lastname));
 
-		var email = JsonUtils.getAsString(userJson, "email");
-		JsonUtils.getAsOptionalString(userJson, "email") //
-				.ifPresent(mail -> customerFields.put(Field.Partner.EMAIL.id(), mail));
+		var email = JsonUtils.getAsString(userJson, "email").toLowerCase();
+		customerFields.put(Field.Partner.EMAIL.id(), email);
+
 		JsonUtils.getAsOptionalString(userJson, "phone") //
 				.ifPresent(phone -> customerFields.put(Field.Partner.PHONE.id(), phone));
 
@@ -525,7 +527,7 @@ public class OdooHandler {
 	 * @throws OpenemsException on error
 	 */
 	private void addTagToPartner(int userId) throws OpenemsException {
-		var tagId = OdooUtils.getObjectReference(credentials, "edge", "res_partner_category_created_via_ibn");
+		var tagId = OdooUtils.getObjectReference(this.credentials, "edge", "res_partner_category_created_via_ibn");
 		var partnerId = this.getOdooPartnerId(userId);
 
 		OdooUtils.write(this.credentials, Field.Partner.ODOO_MODEL, new Integer[] { partnerId },
@@ -559,7 +561,7 @@ public class OdooHandler {
 			JsonUtils.getAsOptionalString(location, "lastname") //
 					.ifPresent(lastname -> locationFields.put(Field.Partner.LASTNAME.id(), lastname));
 			JsonUtils.getAsOptionalString(location, "email") //
-					.ifPresent(mail -> locationFields.put(Field.Partner.EMAIL.id(), mail));
+					.ifPresent(mail -> locationFields.put(Field.Partner.EMAIL.id(), mail.toLowerCase()));
 			JsonUtils.getAsOptionalString(location, "phone") //
 					.ifPresent(phone -> locationFields.put(Field.Partner.PHONE.id(), phone));
 
@@ -720,7 +722,7 @@ public class OdooHandler {
 		if (!emailOpt.isPresent()) {
 			throw new OpenemsException("No email specified");
 		}
-		var email = emailOpt.get();
+		var email = emailOpt.get().toLowerCase();
 
 		int[] userFound = OdooUtils.search(this.credentials, Field.User.ODOO_MODEL, //
 				new Domain(Field.User.LOGIN, "=", email));
@@ -787,6 +789,7 @@ public class OdooHandler {
 		try {
 			OdooUtils.write(this.credentials, Field.User.ODOO_MODEL, new Integer[] { user.getOdooId() }, //
 					new FieldValue<>(Field.User.OPENEMS_LANGUAGE, language.name()));
+			user.setLanguage(language);
 		} catch (OpenemsNamedException ex) {
 			throw new OpenemsException("Unable to set language [" + language.name() + "] for current user", ex);
 		}

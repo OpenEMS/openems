@@ -22,7 +22,7 @@ public class OpenemsConstants {
 	 * <p>
 	 * This is the month of the release.
 	 */
-	public final static short VERSION_MINOR = 3;
+	public final static short VERSION_MINOR = 4;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -97,8 +97,6 @@ public class OpenemsConstants {
 	 * Note: this should be max. 32 ASCII characters long
 	 */
 	public static final String MANUFACTURER_EMS_SERIAL_NUMBER = "";
-
-	public static final String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 
 	/*
 	 * Constants for Component properties

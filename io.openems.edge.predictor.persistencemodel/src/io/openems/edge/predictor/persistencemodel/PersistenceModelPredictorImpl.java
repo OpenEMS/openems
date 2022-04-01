@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.ComponentManager;
@@ -59,6 +60,7 @@ public class PersistenceModelPredictorImpl extends AbstractPredictor24Hours
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.channelAddresses());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -66,14 +68,14 @@ public class PersistenceModelPredictorImpl extends AbstractPredictor24Hours
 
 	@Override
 	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
-		ZonedDateTime now = ZonedDateTime.now(this.componentManager.getClock());
-		ZonedDateTime fromDate = now.minus(1, ChronoUnit.DAYS);
+		var now = ZonedDateTime.now(this.componentManager.getClock());
+		var fromDate = now.minus(1, ChronoUnit.DAYS);
 
 		// Query database
 		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult;
 		try {
 			queryResult = this.timedata.queryHistoricData(null, fromDate, now, Sets.newHashSet(channelAddress),
-					900 /* seconds per 15 minutes */);
+					new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());
 			e.printStackTrace();
@@ -81,17 +83,16 @@ public class PersistenceModelPredictorImpl extends AbstractPredictor24Hours
 		}
 
 		// Extract data
-		Integer[] result = queryResult.values().stream() //
-				.map(m -> m.values()) //
+		var result = queryResult.values().stream() //
+				.map(SortedMap::values) //
 				// extract JsonElement values as flat stream
 				.flatMap(Collection::stream) //
 				// convert JsonElement to Integer
 				.map(v -> {
 					if (v.isJsonNull()) {
 						return (Integer) null;
-					} else {
-						return v.getAsInt();
 					}
+					return v.getAsInt();
 				})
 				// get as Array
 				.toArray(Integer[]::new);

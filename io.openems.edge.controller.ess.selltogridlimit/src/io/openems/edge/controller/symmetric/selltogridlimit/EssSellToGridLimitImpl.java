@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -67,6 +66,7 @@ public class EssSellToGridLimitImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -77,7 +77,7 @@ public class EssSellToGridLimitImpl extends AbstractOpenemsComponent
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = this.ess.getGridMode();
+		var gridMode = this.ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -96,7 +96,7 @@ public class EssSellToGridLimitImpl extends AbstractOpenemsComponent
 		if (gridPower * -1 > this.config.maximumSellToGridPower()) {
 
 			// Calculate actual limit for Ess
-			int essPowerLimit = gridPower + this.ess.getActivePower().getOrError()
+			var essPowerLimit = gridPower + this.ess.getActivePower().getOrError()
 					+ this.config.maximumSellToGridPower();
 
 			// Apply limit

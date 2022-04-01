@@ -20,10 +20,12 @@ public class UnsignedWordElement extends AbstractWordElement<UnsignedWordElement
 		return this;
 	}
 
+	@Override
 	protected Integer fromByteBuffer(ByteBuffer buff) {
 		return Short.toUnsignedInt(buff.getShort(0));
 	}
 
+	@Override
 	protected ByteBuffer toByteBuffer(ByteBuffer buff, Object object) {
 		Integer value = TypeUtils.getAsType(OpenemsType.INTEGER, object);
 		return buff.putShort(value.shortValue());

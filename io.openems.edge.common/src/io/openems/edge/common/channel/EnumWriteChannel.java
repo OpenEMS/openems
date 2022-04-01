@@ -49,7 +49,7 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 
 	/**
 	 * Updates the 'next' write value of Channel from an Enum-String value.
-	 * 
+	 *
 	 * @param value the name of the option as string
 	 * @throws OpenemsNamedException one error
 	 */
@@ -64,7 +64,7 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 
 	/**
 	 * Updates the 'next' write value of Channel from an Enum value.
-	 * 
+	 *
 	 * @param value the OptionsEnum value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -74,7 +74,7 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 
 	/**
 	 * Internal method. Do not call directly.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Deprecated

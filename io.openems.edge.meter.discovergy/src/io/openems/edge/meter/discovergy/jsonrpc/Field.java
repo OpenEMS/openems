@@ -23,7 +23,7 @@ public enum Field {
 	}
 
 	public String n() {
-		return name;
+		return this.name;
 	}
 
 }

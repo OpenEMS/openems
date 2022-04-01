@@ -22,9 +22,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -37,7 +35,6 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 import io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -51,7 +48,7 @@ public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTa
 
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>>(
+	private final AtomicReference<ImmutableSortedMap<ZonedDateTime, Float>> prices = new AtomicReference<>(
 			ImmutableSortedMap.of());
 
 	private ZonedDateTime updateTimeStamp = null;
@@ -61,14 +58,14 @@ public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTa
 		/*
 		 * Update Map of prices
 		 */
-		OkHttpClient client = new OkHttpClient();
-		Request request = new Request.Builder() //
+		var client = new OkHttpClient();
+		var request = new Request.Builder() //
 				.url(AWATTAR_API_URL) //
 				// aWATTar currently does not anymore require an Apikey.
 				// .header("Authorization", Credentials.basic(apikey, "")) //
 				.build();
 		int httpStatusCode;
-		try (Response response = client.newCall(request).execute()) {
+		try (var response = client.newCall(request).execute()) {
 			httpStatusCode = response.code();
 
 			if (!response.isSuccessful()) {
@@ -92,14 +89,14 @@ public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTa
 		/*
 		 * Schedule next price update for 2 pm
 		 */
-		ZonedDateTime now = ZonedDateTime.now();
-		ZonedDateTime nextRun = now.withHour(14).truncatedTo(ChronoUnit.HOURS);
+		var now = ZonedDateTime.now();
+		var nextRun = now.withHour(14).truncatedTo(ChronoUnit.HOURS);
 		if (now.isAfter(nextRun)) {
 			nextRun = nextRun.plusDays(1);
 		}
 
-		Duration duration = Duration.between(now, nextRun);
-		long delay = duration.getSeconds();
+		var duration = Duration.between(now, nextRun);
+		var delay = duration.getSeconds();
 
 		this.executor.schedule(this.task, delay, TimeUnit.SECONDS);
 	};
@@ -125,6 +122,7 @@ public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTa
 		this.executor.schedule(this.task, 0, TimeUnit.SECONDS);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -133,9 +131,9 @@ public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTa
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		// return null if data is not yet available.
+		// return empty TimeOfUsePrices if data is not yet available.
 		if (this.updateTimeStamp == null) {
-			return null;
+			return TimeOfUsePrices.empty(ZonedDateTime.now());
 		}
 
 		return TimeOfUseTariffUtils.getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */,
@@ -144,35 +142,32 @@ public class AwattarImpl extends AbstractOpenemsComponent implements TimeOfUseTa
 
 	/**
 	 * Parse the aWATTar JSON to the Price Map.
-	 * 
+	 *
 	 * @param jsonData the aWATTar JSON
 	 * @return the Price Map
 	 * @throws OpenemsNamedException on error
 	 */
 	public static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String jsonData) throws OpenemsNamedException {
-		TreeMap<ZonedDateTime, Float> result = new TreeMap<>();
+		var result = new TreeMap<ZonedDateTime, Float>();
 
-		if (!jsonData.isEmpty()) {
+		var line = JsonUtils.parseToJsonObject(jsonData);
+		var data = JsonUtils.getAsJsonArray(line, "data");
 
-			JsonObject line = JsonUtils.parseToJsonObject(jsonData);
-			JsonArray data = JsonUtils.getAsJsonArray(line, "data");
+		for (JsonElement element : data) {
 
-			for (JsonElement element : data) {
+			var marketPrice = JsonUtils.getAsFloat(element, "marketprice");
+			var startTimestampLong = JsonUtils.getAsLong(element, "start_timestamp");
 
-				float marketPrice = JsonUtils.getAsFloat(element, "marketprice");
-				long startTimestampLong = JsonUtils.getAsLong(element, "start_timestamp");
+			// Converting Long time stamp to ZonedDateTime.
+			var startTimeStamp = ZonedDateTime //
+					.ofInstant(Instant.ofEpochMilli(startTimestampLong), ZoneId.systemDefault())
+					.truncatedTo(ChronoUnit.HOURS);
 
-				// Converting Long time stamp to ZonedDateTime.
-				ZonedDateTime startTimeStamp = ZonedDateTime //
-						.ofInstant(Instant.ofEpochMilli(startTimestampLong), ZoneId.systemDefault())
-						.truncatedTo(ChronoUnit.HOURS);
-
-				// Adding the values in the Map.
-				result.put(startTimeStamp, marketPrice);
-				result.put(startTimeStamp.plusMinutes(15), marketPrice);
-				result.put(startTimeStamp.plusMinutes(30), marketPrice);
-				result.put(startTimeStamp.plusMinutes(45), marketPrice);
-			}
+			// Adding the values in the Map.
+			result.put(startTimeStamp, marketPrice);
+			result.put(startTimeStamp.plusMinutes(15), marketPrice);
+			result.put(startTimeStamp.plusMinutes(30), marketPrice);
+			result.put(startTimeStamp.plusMinutes(45), marketPrice);
 		}
 		return ImmutableSortedMap.copyOf(result);
 	}

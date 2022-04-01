@@ -1,19 +1,15 @@
 package io.openems.backend.timedata.influx;
 
+import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import org.influxdb.InfluxDBException.FieldTypeConflictException;
-import org.influxdb.dto.Point;
-import org.influxdb.dto.Point.Builder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -27,6 +23,9 @@ import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import com.influxdb.client.domain.WritePrecision;
+import com.influxdb.client.write.Point;
+import com.influxdb.exceptions.BadRequestException;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.Edge;
@@ -36,9 +35,9 @@ import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.SemanticVersion;
-import io.openems.common.utils.StringUtils;
 import io.openems.shared.influxdb.InfluxConnector;
 
 @Designate(ocd = Config.class, factory = false)
@@ -65,28 +64,23 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	protected volatile Metadata metadata;
 
 	@Activate
-	private void activate(Config config) throws OpenemsException {
+	private void activate(Config config) throws OpenemsException, IllegalArgumentException {
 		this.logInfo(this.log, "Activate [" //
 				+ "url=" + config.url() + ";"//
-				+ "port=" + config.port() + ";" //
-				+ "database=" + config.database() + ";"//
-				+ "retentionPolicy=" + config.retentionPolicy() + ";"//
-				+ "username=" + config.username() + ";"//
-				+ "password=" + (config.password() != null ? "ok" : "NOT_SET") + ";"//
+				+ "bucket=" + config.bucket() + ";"//
+				+ "apiKey=" + (config.apiKey() != null ? "ok" : "NOT_SET") + ";"//
 				+ "measurement=" + config.measurement() //
 				+ (config.isReadOnly() ? ";READ_ONLY_MODE" : "") //
 				+ "]");
 
-		this.influxConnector = new InfluxConnector(config.url(), config.port(), config.username(), config.password(),
-				config.database(), config.retentionPolicy(), config.isReadOnly(), //
-				(failedPoints, throwable) -> {
-					if (throwable instanceof FieldTypeConflictException) {
-						this.fieldTypeConflictHandler.handleException((FieldTypeConflictException) throwable);
+		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(),
+				config.bucket(), config.isReadOnly(), //
+				(throwable) -> {
+					if (throwable instanceof BadRequestException) {
+						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
 					} else {
-						this.logError(this.log,
-								"Unable to write to InfluxDB. " + throwable.getClass().getSimpleName() + ": "
-										+ throwable.getMessage() + " for "
-										+ StringUtils.toShortString(failedPoints.toString(), 100));
+						this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
+								+ ": " + throwable.getMessage());
 					}
 				});
 	}
@@ -126,42 +120,41 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param data         the data
 	 * @throws OpenemsException on error
 	 */
-	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data)
-			throws OpenemsException {
-		Set<Entry<Long, Map<ChannelAddress, JsonElement>>> dataEntries = data.rowMap().entrySet();
+	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) {
+		var dataEntries = data.rowMap().entrySet();
 		if (dataEntries.isEmpty()) {
 			// no data to write
 			return;
 		}
 
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> dataEntry : dataEntries) {
-			Set<Entry<ChannelAddress, JsonElement>> channelEntries = dataEntry.getValue().entrySet();
+			var channelEntries = dataEntry.getValue().entrySet();
 			if (channelEntries.isEmpty()) {
 				// no points to add
 				continue;
 			}
 
-			Long timestamp = dataEntry.getKey();
+			var timestamp = dataEntry.getKey();
 			// this builds an InfluxDB record ("point") for a given timestamp
-			var builder = Point //
+			var point = Point //
 					.measurement(InfluxConnector.MEASUREMENT) //
-					.tag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
-					.time(timestamp, TimeUnit.MILLISECONDS);
+					.addTag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
+					.time(timestamp, WritePrecision.MS);
 			for (Entry<ChannelAddress, JsonElement> channelEntry : channelEntries) {
-				this.addValue(builder, channelEntry.getKey().toString(), channelEntry.getValue());
+				this.addValue(point, channelEntry.getKey().toString(), channelEntry.getValue());
 			}
-			if (builder.hasFields()) {
-				this.influxConnector.write(builder.build());
+			if (point.hasFields()) {
+				this.influxConnector.write(point);
 			}
 		}
 	}
 
 	/**
 	 * Parses the number of an Edge from its name string.
-	 * 
+	 *
 	 * <p>
 	 * e.g. translates "edge0" to "0".
-	 * 
+	 *
 	 * @param name the edge name
 	 * @return the number
 	 * @throws OpenemsException on error
@@ -181,7 +174,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		// parse the numeric EdgeId
 		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
@@ -199,7 +192,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		// parse the numeric EdgeId
 		Optional<Integer> influxEdgeId = Optional.of(Influx.parseNumberFromName(edgeId));
@@ -214,7 +207,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param field   the field name
 	 * @param element the value
 	 */
-	private void addValue(Builder builder, String field, JsonElement element) {
+	private void addValue(Point builder, String field, JsonElement element) {
 		if (element == null || element.isJsonNull()) {
 			// do not add
 			return;
@@ -259,7 +252,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param value   the value, guaranteed to be not-null and not JsonNull.
 	 * @return true if field was handled; false otherwise
 	 */
-	private boolean specialCaseFieldHandling(Builder builder, String field, JsonElement value) {
+	private boolean specialCaseFieldHandling(Point builder, String field, JsonElement value) {
 		var handler = this.fieldTypeConflictHandler.getHandler(field);
 		if (handler == null) {
 			// no special handling exists for this field
@@ -306,7 +299,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 */
 	@Deprecated
 	private Optional<JsonElement> getCompatibilityChannelValue(ChannelFormula[] compatibility, EdgeCache cache) {
-		int value = 0;
+		var value = 0;
 		for (ChannelFormula formula : compatibility) {
 			switch (formula.getFunction()) {
 			case PLUS:
@@ -331,7 +324,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			switch (address.getChannelId()) {
 
 			case "EssSoc": {
-				List<String> ids = config.getComponentsImplementingNature("EssNature");
+				var ids = config.getComponentsImplementingNature("EssNature");
 				if (ids.size() > 0) {
 					// take first result
 					return new ChannelFormula[] {
@@ -341,11 +334,11 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			}
 
 			case "EssActivePower": {
-				List<String> asymmetricIds = config.getComponentsImplementingNature("AsymmetricEssNature");
-				List<String> symmetricIds = config.getComponentsImplementingNature("SymmetricEssNature");
+				var asymmetricIds = config.getComponentsImplementingNature("AsymmetricEssNature");
+				var symmetricIds = config.getComponentsImplementingNature("SymmetricEssNature");
 				symmetricIds.removeAll(asymmetricIds);
 				var result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
-				int i = 0;
+				var i = 0;
 				for (String id : asymmetricIds) {
 					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL1"));
 					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL2"));
@@ -413,18 +406,18 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 						ChannelFormula.class);
 
 			case "ProductionAcActivePower": {
-				List<String> ignoreIds = config.getComponentsImplementingNature("FeneconMiniConsumptionMeter");
+				var ignoreIds = config.getComponentsImplementingNature("FeneconMiniConsumptionMeter");
 				ignoreIds.add("meter0");
 
-				List<String> asymmetricIds = config.getComponentsImplementingNature("AsymmetricMeterNature");
+				var asymmetricIds = config.getComponentsImplementingNature("AsymmetricMeterNature");
 				asymmetricIds.removeAll(ignoreIds);
 
-				List<String> symmetricIds = config.getComponentsImplementingNature("SymmetricMeterNature");
+				var symmetricIds = config.getComponentsImplementingNature("SymmetricMeterNature");
 				symmetricIds.removeAll(ignoreIds);
 				symmetricIds.removeAll(asymmetricIds);
 
 				var result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
-				int i = 0;
+				var i = 0;
 				for (String id : asymmetricIds) {
 					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL1"));
 					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL2"));
@@ -437,9 +430,9 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 			}
 
 			case "ProductionDcActualPower": {
-				List<String> ids = config.getComponentsImplementingNature("ChargerNature");
+				var ids = config.getComponentsImplementingNature("ChargerNature");
 				var result = new ChannelFormula[ids.size()];
-				for (int i = 0; i < ids.size(); i++) {
+				for (var i = 0; i < ids.size(); i++) {
 					result[i] = new ChannelFormula(Function.PLUS, new ChannelAddress(ids.get(i), "ActualPower"));
 				}
 				return result;

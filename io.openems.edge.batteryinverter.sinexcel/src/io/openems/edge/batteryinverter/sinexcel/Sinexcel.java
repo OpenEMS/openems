@@ -1,8 +1,7 @@
 package io.openems.edge.batteryinverter.sinexcel;
 
-import java.util.Optional;
-
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -33,6 +32,7 @@ import io.openems.edge.batteryinverter.sinexcel.enums.SinglePhaseMode;
 import io.openems.edge.batteryinverter.sinexcel.enums.StartMode;
 import io.openems.edge.batteryinverter.sinexcel.enums.Switch;
 import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine.State;
+import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
@@ -104,21 +104,30 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 				.accessMode(AccessMode.READ_ONLY)), //
 		ALERT_STATUS(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY)), //
-		INVERTER_GRID_MODE(Doc.of(OpenemsType.BOOLEAN) //
+		BATTERY_INVERTER_STATE(new BooleanDoc() //
+				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE)//
+				.onInit(c -> { //
+					var channel = (BooleanReadChannel) c;
+					var self = (Sinexcel) channel.getComponent();
+					channel.onChange((oldValue, newValue) -> {
+						var value = newValue.asOptional();
+						self._setInverterState(value.orElse(null));
+					});
+				})), //
+		INVERTER_GRID_MODE(new BooleanDoc() //
+				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE) //
 				.text("On Grid") //
 				.onInit(c -> { //
-					BooleanReadChannel channel = (BooleanReadChannel) c;
-					Sinexcel self = (Sinexcel) channel.getComponent();
+					var channel = (BooleanReadChannel) c;
+					var self = (Sinexcel) channel.getComponent();
 					channel.onChange((oldValue, newValue) -> {
-						Optional<Boolean> value = newValue.asOptional();
+						var value = newValue.asOptional();
 						if (!value.isPresent()) {
 							self._setGridMode(GridMode.UNDEFINED);
+						} else if (value.get()) {
+							self._setGridMode(GridMode.ON_GRID);
 						} else {
-							if (value.get()) {
-								self._setGridMode(GridMode.ON_GRID);
-							} else {
-								self._setGridMode(GridMode.OFF_GRID);
-							}
+							self._setGridMode(GridMode.OFF_GRID);
 						}
 					});
 				})),
@@ -481,8 +490,8 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		// clear failure flag,when fault occurs, the system will stop and indicates
 		// fault.starting is invalid until the fault source is actually removed and this
 		// register is written 1. Reading back value makes no sense
-		CLEAR_FAILURE_COMMAND(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE)), //
+		CLEAR_FAILURE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.WRITE_ONLY)), //
 		// set the module to on grid mode. Reading back value makes no sense
 		SET_ON_GRID_MODE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -844,7 +853,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 
 	/**
 	 * Sets a the On-Grid-Mode. See {@link ChannelId#SET_ON_GRID_MODE}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -872,7 +881,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 
 	/**
 	 * Sets a the Off-Grid-Mode. See {@link ChannelId#SET_OFF_GRID_MODE}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -891,7 +900,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 
 	/**
 	 * Sends a START command to the inverter. See {@link ChannelId#START_INVERTER}.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setStartInverter() throws OpenemsNamedException {
@@ -909,10 +918,28 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 
 	/**
 	 * Sends a STOP command to the inverter. See {@link ChannelId#STOP_INVERTER}.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setStopInverter() throws OpenemsNamedException {
 		this.getStopInverterChannel().setNextWriteValue(true); // true = STOP
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CLEAR_FAILURE}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanWriteChannel getClearFailureChannel() {
+		return this.channel(ChannelId.CLEAR_FAILURE);
+	}
+
+	/**
+	 * Clear inverter failures. See {@link ChannelId#CLEAR_FAILURE}.
+	 *
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setClearFailure() throws OpenemsNamedException {
+		this.getClearFailureChannel().setNextWriteValue(true);
 	}
 }

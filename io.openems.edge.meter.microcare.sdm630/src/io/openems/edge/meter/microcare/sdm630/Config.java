@@ -2,6 +2,7 @@ package io.openems.edge.meter.microcare.sdm630;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
 import io.openems.edge.meter.api.MeterType;
 
 @ObjectClassDefinition(name = "Meter Microcare SDM 630", //

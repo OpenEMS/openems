@@ -3,7 +3,6 @@ package io.openems.edge.common.channel.calculate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +19,11 @@ public class CalculateLongSum {
 
 	/**
 	 * Adds a Channel-Value.
-	 * 
+	 *
 	 * @param channel the Channel
 	 */
 	public void addValue(Channel<Long> channel) {
-		Optional<Long> value = channel.value().asOptional();
+		var value = channel.value().asOptional();
 		if (value.isPresent()) {
 			try {
 				this.values.add(value.get());
@@ -38,7 +37,7 @@ public class CalculateLongSum {
 
 	/**
 	 * Calculates the sum.
-	 * 
+	 *
 	 * @return the sum or null
 	 * @throws NoSuchElementException on error
 	 */

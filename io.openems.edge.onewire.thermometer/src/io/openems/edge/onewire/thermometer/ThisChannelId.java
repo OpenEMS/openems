@@ -12,6 +12,7 @@ public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
 		this.doc = doc;
 	}
 
+	@Override
 	public Doc doc() {
 		return this.doc;
 	}

@@ -55,6 +55,7 @@ public class FeneconDessPvMeterImpl extends AbstractOpenemsModbusComponent imple
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -81,6 +82,7 @@ public class FeneconDessPvMeterImpl extends AbstractOpenemsModbusComponent imple
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -118,7 +120,7 @@ public class FeneconDessPvMeterImpl extends AbstractOpenemsModbusComponent imple
 				if (intValue == 0) {
 					return 0; // ignore '0'
 				}
-				return (intValue - 10_000); // apply delta of 10_000
+				return intValue - 10_000; // apply delta of 10_000
 			}, //
 
 			// channel -> element
@@ -138,7 +140,7 @@ public class FeneconDessPvMeterImpl extends AbstractOpenemsModbusComponent imple
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

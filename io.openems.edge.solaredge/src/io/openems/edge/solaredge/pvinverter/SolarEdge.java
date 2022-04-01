@@ -80,6 +80,7 @@ public class SolarEdge extends AbstractSunSpecPvInverter implements SunSpecPvInv
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -93,6 +94,7 @@ public class SolarEdge extends AbstractSunSpecPvInverter implements SunSpecPvInv
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

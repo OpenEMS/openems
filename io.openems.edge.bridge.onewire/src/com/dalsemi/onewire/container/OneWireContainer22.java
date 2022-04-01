@@ -96,7 +96,6 @@ public class OneWireContainer22 extends OneWireContainer28 implements Temperatur
 	 * @see #OneWireContainer22(DSPortAdapter,String)
 	 */
 	public OneWireContainer22() {
-		super();
 	}
 
 	/**
@@ -173,6 +172,7 @@ public class OneWireContainer22 extends OneWireContainer28 implements Temperatur
 	 *
 	 * @return this <code>OneWireContainer22</code> name
 	 */
+	@Override
 	public String getName() {
 		return "DS1822";
 	}
@@ -184,6 +184,7 @@ public class OneWireContainer22 extends OneWireContainer28 implements Temperatur
 	 *
 	 * @return this <code>OneWireContainer22</code> alternate names
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "";
 	}
@@ -194,6 +195,7 @@ public class OneWireContainer22 extends OneWireContainer28 implements Temperatur
 	 *
 	 * @return <code>OneWireContainer22</code> functional description
 	 */
+	@Override
 	public String getDescription() {
 		return "Digital thermometer measures temperatures from " + "-55C to 125C in 0.75 seconds (max).  +/- 2C "
 				+ "accuracy between -10C and 85C. Thermometer "

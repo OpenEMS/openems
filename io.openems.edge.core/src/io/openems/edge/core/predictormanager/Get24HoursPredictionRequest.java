@@ -14,7 +14,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Wraps a JSON-RPC Request to query a 24 Hours Prediction.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -33,14 +33,14 @@ public class Get24HoursPredictionRequest extends JsonrpcRequest {
 	/**
 	 * Create {@link Get24HoursPredictionRequest} from a template
 	 * {@link JsonrpcRequest}.
-	 * 
+	 *
 	 * @param r the template {@link JsonrpcRequest}
 	 * @return the {@link Get24HoursPredictionRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
 	public static Get24HoursPredictionRequest from(JsonrpcRequest r) throws OpenemsNamedException {
-		JsonObject p = r.getParams();
-		JsonArray cs = JsonUtils.getAsJsonArray(p, "channels");
+		var p = r.getParams();
+		var cs = JsonUtils.getAsJsonArray(p, "channels");
 		List<ChannelAddress> channels = new ArrayList<>();
 		for (JsonElement c : cs) {
 			channels.add(ChannelAddress.fromString(JsonUtils.getAsString(c)));
@@ -62,7 +62,7 @@ public class Get24HoursPredictionRequest extends JsonrpcRequest {
 
 	@Override
 	public JsonObject getParams() {
-		JsonArray channels = new JsonArray();
+		var channels = new JsonArray();
 		for (ChannelAddress channel : this.channels) {
 			channels.add(channel.toString());
 		}
@@ -73,7 +73,7 @@ public class Get24HoursPredictionRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the {@link ChannelAddress}es.
-	 * 
+	 *
 	 * @return a list of {@link ChannelAddress}
 	 */
 	public List<ChannelAddress> getChannels() {

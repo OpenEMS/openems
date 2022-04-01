@@ -49,7 +49,7 @@ public class RestHandler extends AbstractHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		try {
-			User user = this.authenticate(request);
+			var user = this.authenticate(request);
 
 			List<String> targets = Arrays.asList(//
 					target.substring(1) // remove leading '/'
@@ -59,7 +59,7 @@ public class RestHandler extends AbstractHandler {
 				throw new OpenemsException("Missing arguments to handle request");
 			}
 
-			String thisTarget = targets.get(0);
+			var thisTarget = targets.get(0);
 			switch (thisTarget) {
 			case "jsonrpc":
 				this.handleJsonRpc(user, baseRequest, request, response);
@@ -78,11 +78,11 @@ public class RestHandler extends AbstractHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	private User authenticate(HttpServletRequest request) throws OpenemsNamedException {
-		String authHeader = request.getHeader("Authorization");
+		var authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
 			var st = new StringTokenizer(authHeader);
 			if (st.hasMoreTokens()) {
-				String basic = st.nextToken();
+				var basic = st.nextToken();
 				if (basic.equalsIgnoreCase("Basic")) {
 					String credentials;
 					try {
@@ -90,7 +90,7 @@ public class RestHandler extends AbstractHandler {
 					} catch (UnsupportedEncodingException e) {
 						throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 					}
-					int p = credentials.indexOf(":");
+					var p = credentials.indexOf(":");
 					if (p != -1) {
 						var username = credentials.substring(0, p).trim();
 						var password = credentials.substring(p + 1).trim();

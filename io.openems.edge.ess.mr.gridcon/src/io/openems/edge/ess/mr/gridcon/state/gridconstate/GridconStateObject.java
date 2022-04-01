@@ -24,8 +24,7 @@ public interface GridconStateObject {
 	 * in this method everything should be executed what there is to do in this
 	 * state.
 	 * 
-	 * @param GridconSettings
-	 * * @throws OpenemsNamedException
+	 * @param GridconSettings * @throws OpenemsNamedException
 	 */
 	void act(GridconSettings gridconSettings) throws OpenemsNamedException;
 

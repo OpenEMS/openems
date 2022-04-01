@@ -9,7 +9,7 @@ public class AppAssistant {
 
 	/**
 	 * Creates an {@link AppAssistant} using a Builder.
-	 * 
+	 *
 	 * @return the {@link Builder}
 	 */
 	public static Builder create() {
@@ -28,7 +28,7 @@ public class AppAssistant {
 
 		/**
 		 * Sets the Fields.
-		 * 
+		 *
 		 * @param fields the fields
 		 * @return the {@link Builder}
 		 */
@@ -39,7 +39,7 @@ public class AppAssistant {
 
 		/**
 		 * Return the built {@link JsonArray}.
-		 * 
+		 *
 		 * @return the {@link JsonArray}
 		 */
 		public AppAssistant build() {
@@ -56,7 +56,7 @@ public class AppAssistant {
 
 	/**
 	 * Gets this {@link AppAssistant} as {@link JsonObject}.
-	 * 
+	 *
 	 * @return the {@link JsonObject}
 	 */
 	public JsonObject toJsonObject() {

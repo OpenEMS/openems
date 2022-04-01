@@ -1,6 +1,7 @@
 package io.openems.edge.core.host;
 
 import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Objects;
@@ -40,7 +41,6 @@ public class NetworkInterface<A> {
 		private final int netmask;
 
 		public Inet4AddressWithNetmask(Inet4Address inet4Address, int netmask) {
-			super();
 			this.inet4Address = inet4Address;
 			this.netmask = netmask;
 		}
@@ -52,15 +52,15 @@ public class NetworkInterface<A> {
 
 		/**
 		 * Parse a string in the form "192.168.100.100/24" to an IPv4 address.
-		 * 
+		 *
 		 * @param value the string
 		 * @return the new {@link Inet4AddressWithNetmask}
 		 * @throws OpenemsException on error
 		 */
 		public static Inet4AddressWithNetmask fromString(String value) throws OpenemsException {
-			String[] arr = value.split("/");
+			var arr = value.split("/");
 			try {
-				return new Inet4AddressWithNetmask((Inet4Address) Inet4Address.getByName(arr[0]),
+				return new Inet4AddressWithNetmask((Inet4Address) InetAddress.getByName(arr[0]),
 						Integer.parseInt(arr[1]));
 			} catch (NumberFormatException | UnknownHostException | IndexOutOfBoundsException e) {
 				throw new OpenemsException(
@@ -77,12 +77,13 @@ public class NetworkInterface<A> {
 		public boolean equals(Object obj) {
 			if (this == obj) {
 				return true;
-			} else if (obj == null) {
+			}
+			if (obj == null) {
 				return false;
-			} else if (getClass() != obj.getClass()) {
+			} else if (this.getClass() != obj.getClass()) {
 				return false;
 			} else {
-				Inet4AddressWithNetmask other = (Inet4AddressWithNetmask) obj;
+				var other = (Inet4AddressWithNetmask) obj;
 				return Objects.equals(this.toString(), other.toString());
 			}
 		}
@@ -90,7 +91,7 @@ public class NetworkInterface<A> {
 
 	/**
 	 * Parses a JsonObject to a {@link java.net.NetworkInterface} object.
-	 * 
+	 *
 	 * @param name the name of the network interface, e.g. "eth0"
 	 * @param j    the JsonObject
 	 * @return the new {@link java.net.NetworkInterface}
@@ -183,7 +184,7 @@ public class NetworkInterface<A> {
 
 	/**
 	 * Gets the network interface name.
-	 * 
+	 *
 	 * @return the name
 	 */
 	public String getName() {
@@ -192,7 +193,7 @@ public class NetworkInterface<A> {
 
 	/**
 	 * Gets the network interface DHCP option.
-	 * 
+	 *
 	 * @return the DHCP option; true for enabled; false for disabled
 	 */
 	public ConfigurationProperty<Boolean> getDhcp() {
@@ -201,7 +202,7 @@ public class NetworkInterface<A> {
 
 	/**
 	 * Gets the network interface LinkLocalAddressing option.
-	 * 
+	 *
 	 * @return the LinkLocalAddressing option; true for enabled; false for disabled
 	 */
 	public ConfigurationProperty<Boolean> getLinkLocalAddressing() {
@@ -210,7 +211,7 @@ public class NetworkInterface<A> {
 
 	/**
 	 * Gets the network interface Gateway.
-	 * 
+	 *
 	 * @return the Gateway
 	 */
 	public ConfigurationProperty<Inet4Address> getGateway() {
@@ -219,7 +220,7 @@ public class NetworkInterface<A> {
 
 	/**
 	 * Gets the network interface DNS server.
-	 * 
+	 *
 	 * @return the DNS server
 	 */
 	public ConfigurationProperty<Inet4Address> getDns() {
@@ -228,7 +229,7 @@ public class NetworkInterface<A> {
 
 	/**
 	 * Gets the network interface addresses.
-	 * 
+	 *
 	 * @return the addresses
 	 */
 	public ConfigurationProperty<Set<Inet4AddressWithNetmask>> getAddresses() {
@@ -237,11 +238,11 @@ public class NetworkInterface<A> {
 
 	/**
 	 * Gets the network interface attachment.
-	 * 
+	 *
 	 * <p>
 	 * An arbitrary attachment to this NetworkInterface. Can be used to store e.g. a
 	 * configuration file path.
-	 * 
+	 *
 	 * @return the attachment
 	 */
 	public A getAttachment() {
@@ -250,7 +251,7 @@ public class NetworkInterface<A> {
 
 	/**
 	 * Gets the configured addresses including the default addresses if any.
-	 * 
+	 *
 	 * @return all addresses
 	 */
 	public ConfigurationProperty<Set<Inet4AddressWithNetmask>> getAddressesIncludingDefaults() {
@@ -259,14 +260,13 @@ public class NetworkInterface<A> {
 			// add default eth0 network address
 			value.add(DEFAULT_ETH0_ADDRESS);
 			return ConfigurationProperty.of(value);
-		} else {
-			return this.addresses;
 		}
+		return this.addresses;
 	}
 
 	/**
 	 * Exports this NetworkInterface configuration as JSON.
-	 * 
+	 *
 	 * <pre>
 	 * {
 	 *   "dhcp": boolean,
@@ -276,11 +276,11 @@ public class NetworkInterface<A> {
 	 *   "addresses": string[]
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @return configuration as JSON
 	 */
 	public JsonObject toJson() {
-		JsonObject result = new JsonObject();
+		var result = new JsonObject();
 		if (this.dhcp.isSet()) {
 			result.addProperty("dhcp", this.dhcp.getValue());
 		}
@@ -294,7 +294,7 @@ public class NetworkInterface<A> {
 			result.addProperty("dns", this.dns.getValue().getHostAddress());
 		}
 		if (this.getAddresses().isSet()) {
-			JsonArray jAddresses = new JsonArray();
+			var jAddresses = new JsonArray();
 			for (Inet4AddressWithNetmask address : this.getAddresses().getValue()) {
 				jAddresses.add(address.toString());
 			}
@@ -306,12 +306,12 @@ public class NetworkInterface<A> {
 
 	/**
 	 * Updates the interface from a NetworkInterfaceChange object.
-	 * 
+	 *
 	 * @param change the object containing the changes
 	 * @return true if values changed
 	 */
 	public boolean updateFrom(NetworkInterface<?> change) {
-		boolean isChanged = false;
+		var isChanged = false;
 		if (change.getDhcp().isSet()) {
 			if (change.getDhcp() == null) {
 				this.dhcp = ConfigurationProperty.asNotSet();

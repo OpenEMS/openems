@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
@@ -22,6 +21,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -51,16 +51,16 @@ public class RestApiReadWriteImplTest {
 
 	@Test
 	public void test() throws OpenemsException, Exception {
-		final int port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
+		final var port = TestUtils.findRandomOpenPortOnAllLocalInterfaces();
 
-		RestApiReadWriteImpl sut = new RestApiReadWriteImpl();
-		ControllerTest test = new ControllerTest(sut) //
+		var sut = new RestApiReadWriteImpl();
+		var test = new ControllerTest(sut) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("userService", new DummyUserService(//
-						new DummyUser(GUEST, GUEST, Role.GUEST), //
-						new DummyUser(OWNER, OWNER, Role.OWNER), //
-						new DummyUser(INSTALLER, INSTALLER, Role.INSTALLER), //
-						new DummyUser(ADMIN, ADMIN, Role.ADMIN))) //
+						new DummyUser(GUEST, GUEST, Language.DEFAULT, Role.GUEST), //
+						new DummyUser(OWNER, OWNER, Language.DEFAULT, Role.OWNER), //
+						new DummyUser(INSTALLER, INSTALLER, Language.DEFAULT, Role.INSTALLER), //
+						new DummyUser(ADMIN, ADMIN, Language.DEFAULT, Role.ADMIN))) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addComponent(new DummyComponent(DUMMY_ID)) //
 				.activate(MyConfig.create() //
@@ -75,7 +75,7 @@ public class RestApiReadWriteImplTest {
 		 * /rest/channel/*
 		 */
 		// GET successful as GUEST
-		JsonElement channelGet = sendGetRequest(port, GUEST, "/rest/channel/dummy0/ReadChannel");
+		var channelGet = sendGetRequest(port, GUEST, "/rest/channel/dummy0/ReadChannel");
 		assertEquals(JsonUtils.buildJsonObject() //
 				.addProperty("address", "dummy0/ReadChannel") //
 				.addProperty("type", "INTEGER") //
@@ -86,10 +86,9 @@ public class RestApiReadWriteImplTest {
 				.build(), channelGet);
 
 		// POST successful as OWNER
-		JsonElement channelPost = sendPostRequest(port, OWNER, "/rest/channel/dummy0/WriteChannel",
-				JsonUtils.buildJsonObject() //
-						.addProperty("value", 4321) //
-						.build());
+		var channelPost = sendPostRequest(port, OWNER, "/rest/channel/dummy0/WriteChannel", JsonUtils.buildJsonObject() //
+				.addProperty("value", 4321) //
+				.build());
 		assertEquals(new JsonObject(), channelPost);
 		test //
 				.next(new TestCase() //
@@ -138,8 +137,8 @@ public class RestApiReadWriteImplTest {
 	private static JsonElement sendRequest(int port, String requestMethod, String password, String endpoint,
 			JsonObject request) throws OpenemsNamedException {
 		try {
-			URL url = new URL("http://127.0.0.1:" + port + endpoint);
-			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			var url = new URL("http://127.0.0.1:" + port + endpoint);
+			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestProperty("Authorization",
 					"Basic " + new String(Base64.getEncoder().encode(("x:" + password).getBytes())));
 			con.setRequestMethod(requestMethod);
@@ -149,17 +148,17 @@ public class RestApiReadWriteImplTest {
 			con.setReadTimeout(50000);
 			if (request != null) {
 				con.setDoOutput(true);
-				try (OutputStream os = con.getOutputStream()) {
-					byte[] input = request.toString().getBytes("utf-8");
+				try (var os = con.getOutputStream()) {
+					var input = request.toString().getBytes("utf-8");
 					os.write(input, 0, input.length);
 				}
 			}
 
-			int status = con.getResponseCode();
+			var status = con.getResponseCode();
 			String body;
-			try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+			try (var in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
 				// Read HTTP response
-				StringBuilder content = new StringBuilder();
+				var content = new StringBuilder();
 				String line;
 				while ((line = in.readLine()) != null) {
 					content.append(line);
@@ -170,9 +169,8 @@ public class RestApiReadWriteImplTest {
 			if (status < 300) {
 				// Parse response to JSON
 				return JsonUtils.parse(body);
-			} else {
-				throw new OpenemsException("Error while reading from API. Response code: " + status + ". " + body);
 			}
+			throw new OpenemsException("Error while reading from API. Response code: " + status + ". " + body);
 		} catch (OpenemsNamedException | IOException e) {
 			throw new OpenemsException(
 					"Unable to read from API. " + e.getClass().getSimpleName() + ": " + e.getMessage());

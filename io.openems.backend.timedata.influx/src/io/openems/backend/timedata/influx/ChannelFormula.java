@@ -28,14 +28,15 @@ public class ChannelFormula {
 
 	/**
 	 * Gets the Channel value.
-	 * 
+	 *
 	 * @param cache an {@link EdgeCache}
 	 * @return the value
 	 */
 	public int getValue(EdgeCache cache) {
 		if (this.address.isPresent()) {
 			return cache.getChannelValue(this.address.get()).orElse(new JsonPrimitive(0)).getAsInt();
-		} else if (this.staticValue.isPresent()) {
+		}
+		if (this.staticValue.isPresent()) {
 			return this.staticValue.get();
 		} else {
 			return 0;

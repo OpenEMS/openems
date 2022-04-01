@@ -10,7 +10,7 @@ public interface MetaEss extends SymmetricEss {
 	/**
 	 * Get the Component-IDs of energy storage systems that are handled by this
 	 * MetaEss.
-	 * 
+	 *
 	 * @return an array of Component-IDs
 	 */
 	public String[] getEssIds();

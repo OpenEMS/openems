@@ -3,9 +3,9 @@ package io.openems.edge.ess.byd.container;
 import io.openems.common.types.OptionsEnum;
 
 public enum SystemWorkmode implements OptionsEnum {
-	UNDEFINED(-1, "Undefined"), 
+	UNDEFINED(-1, "Undefined"), //
 	PQ_MODE(2, "PQ-mode");
-	
+
 	private final int value;
 	private final String name;
 
@@ -16,14 +16,14 @@ public enum SystemWorkmode implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
-	
+
 	@Override
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;

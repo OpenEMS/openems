@@ -16,7 +16,7 @@ public class EssDcChargerFeneconCommercial40ImplTest {
 
 	@Test
 	public void test() throws Exception {
-		EssFeneconCommercial40Impl ess = new EssFeneconCommercial40Impl();
+		var ess = new EssFeneconCommercial40Impl();
 		new ManagedSymmetricEssTest(ess) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

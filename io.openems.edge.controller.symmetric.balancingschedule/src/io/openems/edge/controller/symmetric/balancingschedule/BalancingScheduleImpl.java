@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.InvalidValueException;
@@ -38,7 +37,6 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -90,8 +88,8 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 		// parse Schedule
 		try {
 			if (!config.schedule().trim().isEmpty()) {
-				JsonElement scheduleElement = JsonUtils.parse(config.schedule());
-				JsonArray scheduleArray = JsonUtils.getAsJsonArray(scheduleElement);
+				var scheduleElement = JsonUtils.parse(config.schedule());
+				var scheduleArray = JsonUtils.getAsJsonArray(scheduleElement);
 				this.applySchedule(scheduleArray);
 			}
 			this._setScheduleParseFailed(false);
@@ -103,6 +101,7 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -110,7 +109,7 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Calculates required charge/discharge power.
-	 * 
+	 *
 	 * @throws InvalidValueException on error
 	 */
 	private int calculateRequiredPower(int offset) throws InvalidValueException {
@@ -124,20 +123,19 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 		/*
 		 * Get the current grid connection setpoint from the schedule
 		 */
-		Optional<Integer> gridConnSetPointOpt = this.getGridConnSetPoint();
+		var gridConnSetPointOpt = this.getGridConnSetPoint();
 		this._setGridActivePowerSetPoint(gridConnSetPointOpt.orElse(null));
-		if (gridConnSetPointOpt.isPresent()) {
-			this._setNoActiveSetpoint(false);
-		} else {
+		if (!gridConnSetPointOpt.isPresent()) {
 			this._setNoActiveSetpoint(true);
 			return;
 		}
+		this._setNoActiveSetpoint(false);
 		int gridConnSetPoint = gridConnSetPointOpt.get();
 
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = this.ess.getGridMode();
+		var gridMode = this.ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -152,7 +150,7 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 		/*
 		 * Calculates required charge/discharge power
 		 */
-		int calculatedPower = this.calculateRequiredPower(gridConnSetPoint);
+		var calculatedPower = this.calculateRequiredPower(gridConnSetPoint);
 
 		/*
 		 * set result
@@ -178,7 +176,7 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Handles a SetGridConnScheduleRequest.
-	 * 
+	 *
 	 * @param user    the User
 	 * @param request the SetGridConnScheduleRequest
 	 * @return the Future JSON-RPC Response
@@ -192,7 +190,7 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Parses the Schedule and applies it to this Controller.
-	 * 
+	 *
 	 * @param j the {@link JsonArray} with the Schedule
 	 * @throws OpenemsNamedException on error
 	 */
@@ -202,18 +200,18 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the currently valid GridConnSetPoint.
-	 * 
+	 *
 	 * @return the current setpoint.
 	 */
 	private Optional<Integer> getGridConnSetPoint() {
 		// Is the Grid Active-Power Set-Point currently overwritten using the channel?
-		Optional<Integer> setPointFromChannel = this.getGridActivePowerSetPointChannel().getNextWriteValueAndReset();
+		var setPointFromChannel = this.getGridActivePowerSetPointChannel().getNextWriteValueAndReset();
 		if (setPointFromChannel.isPresent()) {
 			// Yes -> use the channel value
 			return setPointFromChannel;
 		}
 		// No -> use the value from the Schedule
-		long now = ZonedDateTime.now(this.componentManager.getClock()).toEpochSecond();
+		var now = ZonedDateTime.now(this.componentManager.getClock()).toEpochSecond();
 		for (GridConnSchedule e : this.schedule) {
 			if (now >= e.getStartTimestamp() && now <= e.getStartTimestamp() + e.getDuration()) {
 				// -> this entry is valid!

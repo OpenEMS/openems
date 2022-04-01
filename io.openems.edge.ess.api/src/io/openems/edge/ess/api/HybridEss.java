@@ -21,7 +21,7 @@ public interface HybridEss extends SymmetricEss {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * DC Discharge Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: HybridEss
 		 * <li>Type: Integer
@@ -36,11 +36,11 @@ public interface HybridEss extends SymmetricEss {
 		DC_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT) //
-		),
+				.text("Actual AC-side battery discharge power of Energy Storage System. " //
+						+ "Negative values for charge; positive for discharge")),
 		/**
 		 * DC Charge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: HybridEss
 		 * <li>Type: Long
@@ -52,7 +52,7 @@ public interface HybridEss extends SymmetricEss {
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * DC Discharge Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: HybridEss
 		 * <li>Type: Long
@@ -79,20 +79,20 @@ public interface HybridEss extends SymmetricEss {
 	/**
 	 * Gets the Surplus Power of the {@link EssDcCharger}s of this
 	 * {@link HybridEss}.
-	 * 
+	 *
 	 * <p>
 	 * This value is usually calculated from the
 	 * {@link EssDcCharger#getActualPower()} when the battery is full. It is used by
 	 * the Ess.Hybrid.Surplus-Feed-To-Grid Controller to feed the surplus power to
 	 * grid.
-	 * 
+	 *
 	 * @return the surplus power, or 'null' if there is no surplus power
 	 */
 	public Integer getSurplusPower();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#DC_DISCHARGE_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getDcDischargePowerChannel() {
@@ -102,7 +102,7 @@ public interface HybridEss extends SymmetricEss {
 	/**
 	 * Gets the DC Discharge Power in [W]. Negative values for Charge; positive for
 	 * Discharge. See {@link ChannelId#DC_DISCHARGE_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getDcDischargePower() {
@@ -112,7 +112,7 @@ public interface HybridEss extends SymmetricEss {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#DC_DISCHARGE_POWER} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setDcDischargePower(Integer value) {

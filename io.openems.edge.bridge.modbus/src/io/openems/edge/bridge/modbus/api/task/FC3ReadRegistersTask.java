@@ -22,18 +22,17 @@ public class FC3ReadRegistersTask extends AbstractReadInputRegistersTask impleme
 
 	@Override
 	protected ModbusRequest getRequest() {
-		return new ReadMultipleRegistersRequest(getStartAddress(), getLength());
+		return new ReadMultipleRegistersRequest(this.getStartAddress(), this.getLength());
 	}
 
 	@Override
 	protected InputRegister[] handleResponse(ModbusResponse response) throws OpenemsException {
 		if (response instanceof ReadMultipleRegistersResponse) {
-			ReadMultipleRegistersResponse registersResponse = (ReadMultipleRegistersResponse) response;
+			var registersResponse = (ReadMultipleRegistersResponse) response;
 			return registersResponse.getRegisters();
-		} else {
-			throw new OpenemsException("Unexpected Modbus response. Expected [ReadMultipleRegistersResponse], got ["
-					+ response.getClass().getSimpleName() + "]");
 		}
+		throw new OpenemsException("Unexpected Modbus response. Expected [ReadMultipleRegistersResponse], got ["
+				+ response.getClass().getSimpleName() + "]");
 	}
 
 	@Override

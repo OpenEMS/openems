@@ -12,7 +12,7 @@ public abstract class StateHandler<STATE extends State<STATE>, CONTEXT> {
 
 	/**
 	 * Runs the main logic of StateMachine State and returns the next State.
-	 * 
+	 *
 	 * @param context the {@link CONTEXT}.
 	 * @return the next State
 	 */

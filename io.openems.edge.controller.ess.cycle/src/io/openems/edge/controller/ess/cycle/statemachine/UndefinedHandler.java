@@ -28,17 +28,17 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 
 	/**
 	 * Helper to activate the full cycle activated or not.
-	 * 
+	 *
 	 * @param context the {@link Context}
 	 * @return true if the Controller should be executed now
 	 * @throws OpenemsNamedException throws Openems Named Exception.
 	 */
 	private boolean initializeTime(Context context) throws OpenemsNamedException {
-		LocalTime time = LocalTime.now(context.componentManager.getClock());
+		var time = LocalTime.now(context.componentManager.getClock());
 		// TODO: it would be better to do the parsing of `startTime` once and not every
 		// Cycle/Second.
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-		LocalTime localTime = LocalTime.parse(context.config.startTime(), formatter);
+		var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		var localTime = LocalTime.parse(context.config.startTime(), formatter);
 		if (time.isAfter(localTime.minusSeconds(1))) {
 			if (time.isBefore(localTime.plusSeconds(59))) {
 				return true;
@@ -50,7 +50,7 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 	/**
 	 * Gets the configured {@link CycleOrder} or automatically derives it from the
 	 * ESS State-of-Charge.
-	 * 
+	 *
 	 * @param context the {@link Context}
 	 * @return the {@link CycleOrder}
 	 */
@@ -64,9 +64,8 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 			int soc = context.ess.getSoc().orElse(0); // defaults to START_WITH_DISCHARGE
 			if (soc < 50) {
 				return CycleOrder.START_WITH_DISCHARGE;
-			} else {
-				return CycleOrder.START_WITH_CHARGE;
 			}
+			return CycleOrder.START_WITH_CHARGE;
 		}
 		return CycleOrder.AUTO;
 	}

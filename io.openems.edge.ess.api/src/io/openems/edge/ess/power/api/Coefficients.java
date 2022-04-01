@@ -17,7 +17,7 @@ public class Coefficients {
 
 	/**
 	 * Initialize the Coefficients for the linear equation system.
-	 * 
+	 *
 	 * @param symmetricMode if activated, Coefficients are only added for Sum of all
 	 *                      Phases. Otherwise Coefficients for Sum and each Phase
 	 *                      are added.
@@ -26,7 +26,7 @@ public class Coefficients {
 	public synchronized void initialize(boolean symmetricMode, Set<String> essIds) {
 		this.coefficients.clear();
 		this.symmetricMode = symmetricMode;
-		int index = 0;
+		var index = 0;
 		for (String essId : essIds) {
 			if (symmetricMode) {
 				// Symmetric Mode

@@ -10,9 +10,9 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * JSON-RPC Response to "executeSystemCommand" Request.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -40,11 +40,11 @@ public class ExecuteSystemCommandResponse extends JsonrpcResponseSuccess {
 
 	@Override
 	public JsonObject getResult() {
-		JsonArray stdout = new JsonArray();
+		var stdout = new JsonArray();
 		for (String line : this.stdout) {
 			stdout.add(line);
 		}
-		JsonArray stderr = new JsonArray();
+		var stderr = new JsonArray();
 		for (String line : this.stderr) {
 			stderr.add(line);
 		}

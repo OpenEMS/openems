@@ -32,7 +32,7 @@ public interface TeslaPowerwall2Core extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getSlaveCommunicationFailedChannel() {
@@ -42,7 +42,7 @@ public interface TeslaPowerwall2Core extends OpenemsComponent {
 	/**
 	 * Gets the Slave Communication Failed State. See
 	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getSlaveCommunicationFailed() {
@@ -52,7 +52,7 @@ public interface TeslaPowerwall2Core extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setSlaveCommunicationFailed(boolean value) {

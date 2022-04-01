@@ -10,6 +10,6 @@ public enum Pwr {
 	}
 
 	public String getSymbol() {
-		return symbol;
+		return this.symbol;
 	}
 }

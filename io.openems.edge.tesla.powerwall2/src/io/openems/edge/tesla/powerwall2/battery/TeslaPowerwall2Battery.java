@@ -35,7 +35,7 @@ import io.openems.edge.tesla.powerwall2.core.TeslaPowerwall2Core;
 public class TeslaPowerwall2Battery extends AbstractOpenemsComponent
 		implements SymmetricEss, AsymmetricEss, SinglePhaseEss, OpenemsComponent {
 
-	private final int CAPACITY = 14_200;
+	private final static int CAPACITY = 14_200;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private TeslaPowerwall2Core core;
@@ -68,6 +68,7 @@ public class TeslaPowerwall2Battery extends AbstractOpenemsComponent
 		this.core.setBattery(this);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.core != null) {

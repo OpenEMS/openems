@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -88,6 +87,7 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -121,25 +121,25 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 
 	/**
 	 * Calculates the sum-value for each Channel.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	private void calculateChannelValues() throws OpenemsNamedException {
-		List<ManagedSymmetricPvInverter> pvInverters = this.getPvInverters();
+		var pvInverters = this.getPvInverters();
 
 		// SymmetricMeter
-		final CalculateAverage frequency = new CalculateAverage();
-		final CalculateIntegerSum minActivePower = new CalculateIntegerSum();
-		final CalculateIntegerSum maxActivePower = new CalculateIntegerSum();
-		final CalculateIntegerSum activePower = new CalculateIntegerSum();
-		final CalculateIntegerSum reactivePower = new CalculateIntegerSum();
-		final CalculateLongSum activeProductionEnergy = new CalculateLongSum();
-		final CalculateLongSum activeConsumptionEnergy = new CalculateLongSum();
-		final CalculateAverage voltage = new CalculateAverage();
-		final CalculateIntegerSum current = new CalculateIntegerSum();
+		final var frequency = new CalculateAverage();
+		final var minActivePower = new CalculateIntegerSum();
+		final var maxActivePower = new CalculateIntegerSum();
+		final var activePower = new CalculateIntegerSum();
+		final var reactivePower = new CalculateIntegerSum();
+		final var activeProductionEnergy = new CalculateLongSum();
+		final var activeConsumptionEnergy = new CalculateLongSum();
+		final var voltage = new CalculateAverage();
+		final var current = new CalculateIntegerSum();
 		// SymmetricPvInverter
-		final CalculateIntegerSum maxApparentPower = new CalculateIntegerSum();
-		final CalculateIntegerSum activePowerLimit = new CalculateIntegerSum();
+		final var maxApparentPower = new CalculateIntegerSum();
+		final var activePowerLimit = new CalculateIntegerSum();
 
 		for (ManagedSymmetricPvInverter pvInverter : pvInverters) {
 			// SymmetricMeter
@@ -173,14 +173,14 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 	}
 
 	private void distributePvLimit() throws OpenemsNamedException {
-		List<ManagedSymmetricPvInverter> pvInverters = this.getPvInverters();
+		var pvInverters = this.getPvInverters();
 
 		if (pvInverters.isEmpty()) {
 			// No PV inverters?
 			return;
 		}
 
-		Optional<Integer> activePowerLimitOpt = this.getActivePowerLimitChannel().getNextWriteValueAndReset();
+		var activePowerLimitOpt = this.getActivePowerLimitChannel().getNextWriteValueAndReset();
 		if (!activePowerLimitOpt.isPresent()) {
 			// no value given -> set all limits to undefined.
 			for (ManagedSymmetricPvInverter pvInverter : pvInverters) {
@@ -190,12 +190,12 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 		}
 
 		int activePowerLimit = activePowerLimitOpt.get();
-		int averageActivePowerLimit = activePowerLimit / pvInverters.size();
+		var averageActivePowerLimit = activePowerLimit / pvInverters.size();
 		Map<ManagedSymmetricPvInverter, Integer> values = new HashMap<>();
-		int toBeDistributed = 0;
+		var toBeDistributed = 0;
 		for (ManagedSymmetricPvInverter pvInverter : pvInverters) {
 			int maxPower = pvInverter.getMaxApparentPower().getOrError();
-			int power = averageActivePowerLimit;
+			var power = averageActivePowerLimit;
 			if (maxPower < power) {
 				toBeDistributed += power - maxPower;
 				power = maxPower;

@@ -18,20 +18,18 @@ public class ContinueWithDischargeHandler extends StateHandler<State, Context> {
 				// Wait for hysteresis
 				if (context.waitForChangeState(State.CONTINUE_WITH_DISCHARGE, State.COMPLETED_CYCLE)) {
 					return State.COMPLETED_CYCLE;
-				} else {
-					return State.CONTINUE_WITH_DISCHARGE;
 				}
+				return State.CONTINUE_WITH_DISCHARGE;
 			}
 		} else if (context.ess.getSoc().orElse(0) <= context.config.minSoc()) {
 			// Wait for hysteresis
 			if (context.waitForChangeState(State.CONTINUE_WITH_DISCHARGE, State.COMPLETED_CYCLE)) {
 				return State.COMPLETED_CYCLE;
-			} else {
-				return State.CONTINUE_WITH_DISCHARGE;
 			}
+			return State.CONTINUE_WITH_DISCHARGE;
 		}
 
-		int power = context.getDischargePower();
+		var power = context.getDischargePower();
 		context.logInfo(this.log, "CONTINUE DISCHARGE with [" + power + " W]" //
 				+ " Current Cycle [ " + context.getParent().getCompletedCycles() + "] " //
 				+ "out of " + context.config.totalCycleNumber() + "]");

@@ -9,7 +9,7 @@ public class ModbusSlaveTable {
 		this.natureTables = natureTables;
 
 		// calculate total length
-		int length = 0;
+		var length = 0;
 		for (ModbusSlaveNatureTable natureTable : natureTables) {
 			length += natureTable.getLength();
 		}
@@ -17,10 +17,10 @@ public class ModbusSlaveTable {
 	}
 
 	public int getLength() {
-		return length;
+		return this.length;
 	}
 
 	public ModbusSlaveNatureTable[] getNatureTables() {
-		return natureTables;
+		return this.natureTables;
 	}
 }

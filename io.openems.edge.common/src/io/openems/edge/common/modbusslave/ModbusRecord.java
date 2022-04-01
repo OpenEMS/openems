@@ -17,11 +17,11 @@ public abstract class ModbusRecord {
 	}
 
 	public int getOffset() {
-		return offset;
+		return this.offset;
 	}
 
 	public ModbusType getType() {
-		return type;
+		return this.type;
 	}
 
 	public void setComponentId(String componentId) {
@@ -29,7 +29,7 @@ public abstract class ModbusRecord {
 	}
 
 	public String getComponentId() {
-		return componentId;
+		return this.componentId;
 	}
 
 	public abstract String getName();

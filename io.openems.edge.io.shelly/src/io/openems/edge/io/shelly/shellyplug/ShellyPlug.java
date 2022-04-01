@@ -21,7 +21,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Holds writes to Relay Output for debugging.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: ShellyPlug
 		 * <li>Type: Boolean
@@ -31,7 +31,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 		DEBUG_RELAY(Doc.of(OpenemsType.BOOLEAN)), //
 		/**
 		 * Relay Output.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: ShellyPlug
 		 * <li>Type: Boolean
@@ -43,7 +43,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY))), //
 		/**
 		 * Active Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: ShellyPlug
 		 * <li>Type: Integer
@@ -54,7 +54,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 				.unit(Unit.WATT)),
 		/**
 		 * Slave Communication Failed Fault.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: ShellyPlug
 		 * <li>Type: State
@@ -68,6 +68,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -102,7 +103,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 
 	/**
 	 * Sets the Relay Output. See {@link ChannelId#RELAY}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -112,7 +113,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 
 	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getActivePowerChannel() {
@@ -122,7 +123,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 	/**
 	 * Gets the Active Power in [W]. Negative values for Charge; positive for
 	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getActivePower() {
@@ -132,7 +133,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setActivePower(Integer value) {
@@ -142,7 +143,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setActivePower(int value) {
@@ -151,7 +152,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getSlaveCommunicationFailedChannel() {
@@ -161,7 +162,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 	/**
 	 * Gets the Slave Communication Failed State. See
 	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getSlaveCommunicationFailed() {
@@ -171,7 +172,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setSlaveCommunicationFailed(boolean value) {

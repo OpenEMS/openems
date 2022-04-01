@@ -41,9 +41,9 @@ public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent
 
 	private BoschBpts5HybridReadWorker worker = null;
 
-	private AtomicReference<BoschBpts5HybridEss> ess = new AtomicReference<>();
-	private AtomicReference<BoschBpts5HybridPv> pv = new AtomicReference<>();
-	private AtomicReference<BoschBpts5HybridMeter> meter = new AtomicReference<>();
+	private final AtomicReference<BoschBpts5HybridEss> ess = new AtomicReference<>();
+	private final AtomicReference<BoschBpts5HybridPv> pv = new AtomicReference<>();
+	private final AtomicReference<BoschBpts5HybridMeter> meter = new AtomicReference<>();
 
 	public BoschBpts5HybridCoreImpl() {
 		super(//
@@ -54,10 +54,14 @@ public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws ConfigurationException, IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		if (!config.enabled()) {
+			return;
+		}
 		this.worker = new BoschBpts5HybridReadWorker(this, config.ipaddress(), config.interval());
 		this.worker.activate(config.id());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.worker != null) {
@@ -79,12 +83,14 @@ public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	public void setEss(BoschBpts5HybridEss boschBpts5HybridEss) {
 		this.ess.set(boschBpts5HybridEss);
 	}
 
+	@Override
 	public Optional<BoschBpts5HybridEss> getEss() {
-		return Optional.ofNullable(ess.get());
+		return Optional.ofNullable(this.ess.get());
 	}
 
 	@Override
@@ -94,7 +100,7 @@ public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent
 
 	@Override
 	public Optional<BoschBpts5HybridPv> getPv() {
-		return Optional.ofNullable(pv.get());
+		return Optional.ofNullable(this.pv.get());
 	}
 
 	@Override
@@ -104,6 +110,6 @@ public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent
 
 	@Override
 	public Optional<BoschBpts5HybridMeter> getMeter() {
-		return Optional.ofNullable(meter.get());
+		return Optional.ofNullable(this.meter.get());
 	}
 }

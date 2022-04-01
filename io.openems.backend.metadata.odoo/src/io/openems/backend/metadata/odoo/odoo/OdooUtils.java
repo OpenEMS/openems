@@ -194,7 +194,7 @@ public class OdooUtils {
 				.addProperty("method", "call") //
 				.add("params", JsonUtils.buildJsonObject() //
 						.addProperty("db", credentials.getDatabase()) //
-						.addProperty("login", username) //
+						.addProperty("login", username.toLowerCase()) //
 						.addProperty("password", password) //
 						.build()) //
 				.build();

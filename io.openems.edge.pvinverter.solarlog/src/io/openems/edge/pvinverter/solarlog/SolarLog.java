@@ -64,6 +64,7 @@ public interface SolarLog
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

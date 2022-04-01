@@ -65,7 +65,7 @@ public class DummyComponentManager implements ComponentManager {
 
 	/**
 	 * Specific for this Dummy implementation.
-	 * 
+	 *
 	 * @param component
 	 */
 	public DummyComponentManager addComponent(OpenemsComponent component) {
@@ -77,7 +77,7 @@ public class DummyComponentManager implements ComponentManager {
 
 	/**
 	 * Sets a {@link EdgeConfig} json.
-	 * 
+	 *
 	 * @param the {@link EdgeConfig} json
 	 */
 	public void setConfigJson(JsonObject json) {
@@ -86,15 +86,14 @@ public class DummyComponentManager implements ComponentManager {
 
 	@Override
 	public EdgeConfig getEdgeConfig() {
-		if (this.edgeConfigJson != null) {
-			try {
-				return EdgeConfig.fromJson(this.edgeConfigJson);
-			} catch (OpenemsNamedException e) {
-				e.printStackTrace();
-				throw new IllegalArgumentException(e.getMessage());
-			}
-		} else {
+		if (this.edgeConfigJson == null) {
 			return new EdgeConfig();
+		}
+		try {
+			return EdgeConfig.fromJson(this.edgeConfigJson);
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException(e.getMessage());
 		}
 	}
 
@@ -146,7 +145,7 @@ public class DummyComponentManager implements ComponentManager {
 
 	/**
 	 * Handles a {@link GetEdgeConfigRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link GetEdgeConfigRequest}
 	 * @return the Future JSON-RPC Response
@@ -154,8 +153,8 @@ public class DummyComponentManager implements ComponentManager {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
 			GetEdgeConfigRequest request) throws OpenemsNamedException {
-		EdgeConfig config = this.getEdgeConfig();
-		GetEdgeConfigResponse response = new GetEdgeConfigResponse(request.getId(), config);
+		var config = this.getEdgeConfig();
+		var response = new GetEdgeConfigResponse(request.getId(), config);
 		return CompletableFuture.completedFuture(response);
 	}
 

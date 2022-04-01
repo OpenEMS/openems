@@ -62,6 +62,9 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                     let datasets = [];
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
+                            if (!Object.keys(result.data).includes(channelAddress.toString())) {
+                                result.data[channelAddress.toString()] = [].fill(null);
+                            }
                             let component = config.getComponent(channelAddress.componentId);
                             let data = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
