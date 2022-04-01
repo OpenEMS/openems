@@ -35,7 +35,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -70,12 +70,13 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	private static final String USER_NAME = "Administrator";
 	private static final Role USER_GLOBAL_ROLE = Role.ADMIN;
 
+	private static Language LANGUAGE = Language.DE;
+
 	private final Logger log = LoggerFactory.getLogger(FileMetadata.class);
 	private final Map<String, MyEdge> edges = new HashMap<>();
 
 	private User user;
 	private String path = "";
-	private static Language LANGUAGE = Language.DE;
 
 	public FileMetadata() {
 		super("Metadata.File");
@@ -209,7 +210,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 	private static User generateUser() {
 		return new User(FileMetadata.USER_ID, FileMetadata.USER_NAME, UUID.randomUUID().toString(),
-				FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>(), FileMetadata.LANGUAGE.name());
+				FileMetadata.LANGUAGE, FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>());
 	}
 
 	@Override

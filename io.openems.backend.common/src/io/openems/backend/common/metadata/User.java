@@ -9,6 +9,7 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.response.AuthenticateResponse.EdgeMetadata;
 import io.openems.common.session.AbstractUser;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 
 /**
@@ -21,13 +22,10 @@ public class User extends AbstractUser {
 	 */
 	private final String token;
 
-	private final String language;
-
-	public User(String id, String name, String token, Role globalRole, NavigableMap<String, Role> roles,
-			String language) {
-		super(id, name, globalRole, roles);
+	public User(String id, String name, String token, Language language, Role globalRole,
+			NavigableMap<String, Role> roles) {
+		super(id, name, language, globalRole, roles);
 		this.token = token;
-		this.language = language;
 	}
 
 	/**
@@ -37,15 +35,6 @@ public class User extends AbstractUser {
 	 */
 	public String getToken() {
 		return this.token;
-	}
-
-	/**
-	 * Gets the user language.
-	 *
-	 * @return the language
-	 */
-	public String getLanguage() {
-		return this.language;
 	}
 
 	/**

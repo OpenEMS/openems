@@ -132,8 +132,7 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId, User user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		var historicData = this.parent.timeData
-				.queryHistoricData(edgeId, request);
+		var historicData = this.parent.timeData.queryHistoricData(edgeId, request);
 
 		// JSON-RPC response
 		return CompletableFuture
@@ -169,10 +168,8 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyPerPeriodRequest(String edgeId,
 			User user, QueryHistoricTimeseriesEnergyPerPeriodRequest request) throws OpenemsNamedException {
-		var data = this.parent.timeData
-				.queryHistoricEnergyPerPeriod(//
-						edgeId, request.getFromDate(), request.getToDate(), request.getChannels(),
-						request.getResolution());
+		var data = this.parent.timeData.queryHistoricEnergyPerPeriod(//
+				edgeId, request.getFromDate(), request.getToDate(), request.getChannels(), request.getResolution());
 
 		// JSON-RPC response
 		return CompletableFuture
@@ -190,8 +187,8 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricTimeseriesExportXlxsRequest(String edgeId,
 			User user, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
-		return CompletableFuture
-				.completedFuture(this.parent.timeData.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request));
+		return CompletableFuture.completedFuture(this.parent.timeData
+				.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request, user.getLanguage()));
 	}
 
 	/**
