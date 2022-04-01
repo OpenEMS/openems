@@ -32,10 +32,10 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 			break;
 		}
 
-		inverter.softStart(true);
+		inverter.setClearFailure();
 		inverter.setStartInverter();
 
-		if (inverter.getBatteryInverterState().get() == Boolean.TRUE) {
+		if (inverter.getInverterState().get() == Boolean.TRUE) {
 			// Inverter is ON
 			return State.RUNNING;
 		}

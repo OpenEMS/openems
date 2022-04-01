@@ -10,10 +10,9 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		final var inverter = context.getParent();
 
-		inverter.softStart(false);
 		inverter.setStopInverter();
 
-		if (inverter.getBatteryInverterState().get() == Boolean.FALSE) {
+		if (inverter.getInverterState().get() == Boolean.FALSE) {
 			// Inverter is OFF
 			return State.STOPPED;
 		}
