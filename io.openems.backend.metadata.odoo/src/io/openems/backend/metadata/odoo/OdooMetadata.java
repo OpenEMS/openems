@@ -28,7 +28,7 @@ import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
@@ -111,9 +111,9 @@ public class OdooMetadata extends AbstractMetadata implements Metadata {
 				JsonUtils.getAsString(jUser, "login"), //
 				JsonUtils.getAsString(jUser, "name"), //
 				sessionId, //
+				Language.from(JsonUtils.getAsString(jUser, "language")), //
 				Role.getRole(JsonUtils.getAsString(jUser, "global_role")), //
-				roles, //
-				JsonUtils.getAsString(jUser, "language"));
+				roles);
 
 		this.users.put(user.getId(), user);
 		return user;

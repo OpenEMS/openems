@@ -29,7 +29,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
@@ -77,7 +77,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		for (String edgeId : this.edges.keySet()) {
 			roles.put(edgeId, Role.ADMIN);
 		}
-		var user = new User(username, name, token, Role.ADMIN, roles, this.defaultLanguage.name());
+		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN, roles);
 		this.users.put(user.getId(), user);
 		return user;
 	}
