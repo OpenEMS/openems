@@ -11,7 +11,7 @@
     "@angular/platform-browser": "~13.3.0",
     "@angular/platform-browser-dynamic": "~13.3.0",
     "@angular/router": "~13.3.0",
-    "@angular/service-worker": "~13.3.0",
+    "@angular/service-worker": "~13.3.1",
     "@ngx-translate/core": "^14.0.0",
     "@ionic/angular": "^6.0.13",
     "@ngx-formly/core": "^6.0.0-next.9",
