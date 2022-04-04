@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "~13.3.0",
-    "@angular/common": "~13.3.0",
+    "@angular/common": "~13.3.1",
     "@angular/core": "~13.3.0",
     "@angular/forms": "~13.3.0",
     "@angular/platform-browser": "~13.3.0",
