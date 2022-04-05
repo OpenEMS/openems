@@ -27,7 +27,7 @@ import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 import io.openems.common.utils.PasswordUtils;
@@ -789,6 +789,7 @@ public class OdooHandler {
 		try {
 			OdooUtils.write(this.credentials, Field.User.ODOO_MODEL, new Integer[] { user.getOdooId() }, //
 					new FieldValue<>(Field.User.OPENEMS_LANGUAGE, language.name()));
+			user.setLanguage(language);
 		} catch (OpenemsNamedException ex) {
 			throw new OpenemsException("Unable to set language [" + language.name() + "] for current user", ex);
 		}

@@ -156,7 +156,7 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 				    		ElementToChannelConverter.DIRECT_1_TO_1), //
 					m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(0x10),
 					    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(AsymmetricMeter.ChannelId.CURRENT_L3, new SignedDoublewordElement(0x12),
+					m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0x12),
 						    ElementToChannelConverter.DIRECT_1_TO_1),
 					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_N, new SignedDoublewordElement(0x14),
 						    ElementToChannelConverter.DIRECT_1_TO_1),

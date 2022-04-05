@@ -20,6 +20,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.gson.JsonElement;
@@ -46,6 +48,7 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 
 	private static final String CORRENTLY_API_URL = "https://api.corrently.io/v2.0/gsi/marketdata?zipcode=";
 
+	private final Logger log = LoggerFactory.getLogger(CorrentlyImpl.class);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
 	private Config config = null;
@@ -79,7 +82,7 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 			this.updateTimeStamp = ZonedDateTime.now();
 
 		} catch (IOException | OpenemsNamedException e) {
-			e.printStackTrace();
+			this.logWarn(this.log, "Unable to Update Corrently Time-Of-Use Price: " + e.getMessage());
 			httpStatusCode = 0;
 		}
 
@@ -130,9 +133,9 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		// return null if data is not yet available.
+		// return empty TimeOfUsePrices if data is not yet available.
 		if (this.updateTimeStamp == null) {
-			return null;
+			return TimeOfUsePrices.empty(ZonedDateTime.now());
 		}
 
 		return TimeOfUseTariffUtils.getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */,
@@ -149,23 +152,20 @@ public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUse
 	public static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String jsonData) throws OpenemsNamedException {
 		var result = new TreeMap<ZonedDateTime, Float>();
 
-		if (!jsonData.isEmpty()) {
+		var line = JsonUtils.parseToJsonObject(jsonData);
+		var data = JsonUtils.getAsJsonArray(line, "data");
 
-			var line = JsonUtils.parseToJsonObject(jsonData);
-			var data = JsonUtils.getAsJsonArray(line, "data");
+		for (JsonElement element : data) {
 
-			for (JsonElement element : data) {
+			var marketPrice = JsonUtils.getAsFloat(element, "marketprice");
+			var startTimestampLong = JsonUtils.getAsLong(element, "start_timestamp");
 
-				var marketPrice = JsonUtils.getAsFloat(element, "marketprice");
-				var startTimestampLong = JsonUtils.getAsLong(element, "start_timestamp");
-
-				// Converting Long time stamp to ZonedDateTime.
-				var startTimeStamp = ZonedDateTime //
-						.ofInstant(Instant.ofEpochMilli(startTimestampLong), ZoneId.systemDefault())
-						.truncatedTo(ChronoUnit.MINUTES);
-				// Adding the values in the Map.
-				result.put(startTimeStamp, marketPrice);
-			}
+			// Converting Long time stamp to ZonedDateTime.
+			var startTimeStamp = ZonedDateTime //
+					.ofInstant(Instant.ofEpochMilli(startTimestampLong), ZoneId.systemDefault())
+					.truncatedTo(ChronoUnit.MINUTES);
+			// Adding the values in the Map.
+			result.put(startTimeStamp, marketPrice);
 		}
 		return ImmutableSortedMap.copyOf(result);
 	}

@@ -1,6 +1,7 @@
 package io.openems.edge.timeofusetariff.api;
 
 import java.time.ZonedDateTime;
+import java.util.stream.Stream;
 
 /**
  * Holds time of use prices for 24 h and the time when it is retrieved; //
@@ -12,6 +13,16 @@ import java.time.ZonedDateTime;
 public class TimeOfUsePrices {
 
 	public static final int NUMBER_OF_VALUES = 96;
+
+	/**
+	 * Factory method for an 'empty' {@link TimeOfUsePrices} object, i.e. all values
+	 * are 'null'.
+	 * 
+	 * @return an 'empty' {@link TimeOfUsePrices} object
+	 */
+	public static TimeOfUsePrices empty(ZonedDateTime updateTime) {
+		return new TimeOfUsePrices(updateTime);
+	}
 
 	private final ZonedDateTime updateTime;
 
@@ -53,4 +64,12 @@ public class TimeOfUsePrices {
 		return this.updateTime;
 	}
 
+	/**
+	 * Is this {@link TimeOfUsePrices} empty, i.e. every value is 'null'?.
+	 * 
+	 * @return true if all values are null; false otherwise
+	 */
+	public boolean isEmpty() {
+		return !Stream.of(this.values).anyMatch(v -> v != null);
+	}
 }

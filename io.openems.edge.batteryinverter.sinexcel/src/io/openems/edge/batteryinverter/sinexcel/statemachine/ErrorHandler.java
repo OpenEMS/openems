@@ -24,7 +24,6 @@ public class ErrorHandler extends StateHandler<State, Context> {
 
 		// Try to stop systems
 		final var inverter = context.getParent();
-		inverter.softStart(false);
 		inverter.setStopInverter();
 	}
 
@@ -40,7 +39,7 @@ public class ErrorHandler extends StateHandler<State, Context> {
 	}
 
 	private void setClearFailureCommand(Context context) throws OpenemsNamedException {
-		BooleanWriteChannel setClearFailureCmd = context.getParent().channel(Sinexcel.ChannelId.CLEAR_FAILURE_COMMAND);
+		BooleanWriteChannel setClearFailureCmd = context.getParent().channel(Sinexcel.ChannelId.CLEAR_FAILURE);
 		setClearFailureCmd.setNextWriteValue(true); // 1: true, other: illegal
 	}
 }

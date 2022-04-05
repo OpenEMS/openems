@@ -96,8 +96,8 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 	private List<ZonedDateTime> targetPeriods = new ArrayList<>();
 	private final TreeMap<ZonedDateTime, Float> quarterlyPricesMap = new TreeMap<>();
 	private TreeMap<ZonedDateTime, Integer> socWithoutLogic = new TreeMap<>();
-	private ZonedDateTime lastAccessedTime = ZonedDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
-	private ZonedDateTime lastUpdatePriceTime = ZonedDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault());
+	private ZonedDateTime lastAccessedTime = null;
+	private ZonedDateTime lastUpdatePriceTime = null;
 
 	public TimeOfUseTariffDischargeImpl() {
 		super(//
@@ -161,10 +161,11 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 		 * Every day, Prices are updated in API at a certain hour. we update the
 		 * predictions and the prices during those hour.
 		 *
-		 * gets the prices and predictions when the controller is restarted or //
+		 * Gets the prices and predictions when the controller is restarted or //
 		 * re-enabled in any time.
 		 */
-		if (prices != null && this.lastUpdatePriceTime.isBefore(prices.getUpdateTime())) {
+		if (!prices.isEmpty()
+				&& (this.lastUpdatePriceTime == null || this.lastUpdatePriceTime.isBefore(prices.getUpdateTime()))) {
 			// gets the prices, predictions and calculates the boundary space.
 			this.getBoundarySpace(now, prices);
 
@@ -191,7 +192,7 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 		if (this.boundarySpace != null && this.boundarySpace.isWithinBoundary(now)) {
 
 			// Runs every 15 minutes.
-			if (now.isAfter(this.lastAccessedTime)) {
+			if (this.lastAccessedTime == null || now.isAfter(this.lastAccessedTime)) {
 
 				var availableEnergy = this.getAvailableEnergy(now);
 				var remainingEnergy = this.getRemainingCapacity(availableEnergy, this.productionMap,

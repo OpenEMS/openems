@@ -189,7 +189,7 @@ public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter,
 		 * </ul>
 		 */
 		CURRENT_A1(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.MILLIAMPERE) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Ph2 Current.
@@ -201,7 +201,7 @@ public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter,
 		 * </ul>
 		 */
 		CURRENT_A2(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.MILLIAMPERE) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Ph3 Current.
@@ -213,7 +213,7 @@ public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter,
 		 * </ul>
 		 */
 		CURRENT_A3(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+				.unit(Unit.MILLIAMPERE) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Neutral Current.
