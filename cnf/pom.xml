@@ -164,7 +164,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.configadmin</artifactId>
-			<version>1.9.22</version>
+			<version>1.9.24</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix EventAdmin -->
