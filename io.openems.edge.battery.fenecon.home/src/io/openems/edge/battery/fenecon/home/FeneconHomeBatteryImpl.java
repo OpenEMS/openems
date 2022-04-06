@@ -9,6 +9,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -124,6 +125,12 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 		this.batteryProtection = BatteryProtection.create(this) //
 				.applyBatteryProtectionDefinition(new FeneconHomeBatteryProtection(), this.componentManager) //
 				.build();
+	}
+
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
 	}
 
 	@Override

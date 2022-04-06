@@ -81,6 +81,11 @@
 			<version>2.9.0</version>
 		</dependency>
 		<dependency>
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>adapter-rxjava2</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
 			<groupId>io.gsonfire</groupId>
 			<artifactId>gson-fire</artifactId>
@@ -159,7 +164,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.configadmin</artifactId>
-			<version>1.9.22</version>
+			<version>1.9.24</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix EventAdmin -->
@@ -229,22 +234,22 @@
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>4.1.0</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>4.1.0</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>4.1.0</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>flux-dsl</artifactId>
-			<version>4.1.0</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
