@@ -95,10 +95,6 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 	private final List<EdgeMetadata> edges;
 	private final Language language;
 
-	public AuthenticateResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges) {
-		this(id, token, user, edges, null /* TODO */);
-	}
-
 	public AuthenticateResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges, Language language) {
 		super(id);
 		this.token = token;

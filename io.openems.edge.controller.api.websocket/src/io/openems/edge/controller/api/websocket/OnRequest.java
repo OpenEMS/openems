@@ -36,6 +36,7 @@ import io.openems.common.jsonrpc.response.AuthenticateResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.websocket.SubscribedChannelsWorker;
@@ -232,7 +233,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] connected.");
 
 			return CompletableFuture.completedFuture(
-					new AuthenticateResponse(requestId, token, user, Utils.getEdgeMetadata(user.getRole())));
+					new AuthenticateResponse(requestId, token, user, Utils.getEdgeMetadata(user.getRole()), Language.DEFAULT));
 		}
 		wsData.unsetUser();
 		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
