@@ -156,20 +156,22 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 		
 		ModbusProtocol modbusProtocol = new ModbusProtocol(this);
 		
-		if (readEnablerMask.indexOf("[Vfloat]") >= 0) {
+		if (readEnablerMask.indexOf("[VFloat]") >= 0) {
 			modbusProtocol.addTask(
 				new FC3ReadRegistersTask(0x00, Priority.HIGH, //
-				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL1, new SignedDoublewordElement(0x00), 
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL1, new FloatDoublewordElement(0x00), 
 			    		ElementToChannelConverter.DIRECT_1_TO_1), //
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL2, new SignedDoublewordElement(0x02),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL2, new FloatDoublewordElement(0x02),
 					    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL3, new SignedDoublewordElement(0x04),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL3, new FloatDoublewordElement(0x04),
 						    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL12, new SignedDoublewordElement(0x06),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL12, new FloatDoublewordElement(0x06),
 						    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL23, new SignedDoublewordElement(0x08),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL23, new FloatDoublewordElement(0x08),
 						    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL31, new SignedDoublewordElement(0x0A),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL31, new FloatDoublewordElement(0x0A),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FSYS, new FloatDoublewordElement(0x0C),
 						    ElementToChannelConverter.DIRECT_1_TO_1)
 				)
 			);		
@@ -453,20 +455,20 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 			
 		}
 		if (readEnablerMask.indexOf("[AFloat]") >= 0) {
-			theMessage.append("\n int read - A1, A2, A3  - ");
+			theMessage.append("\n - A1, A2, A3  - ");
 			theMessage.append(this.getFCurrentL1().asString() + " " + this.getFCurrentL2().asString() + " " + this.getFCurrentL3().asString());
 			theMessage.append("\n - AN  - " + this.getFCurrentNeutral().asString());
 			theMessage.append("\n - ASys  - " + this.getFCurrentSys().asString());
 		}
 		if (readEnablerMask.indexOf("[PActiveFloat]") >= 0) {
-			double ACP1 = ((double) this.getFPowerActiveL1().asOptional().get())/100;
-			double ACP2 = ((double) this.getFPowerActiveL2().asOptional().get())/100;
-			double ACP3 = ((double) this.getFPowerActiveL3().asOptional().get())/100;
-			double ACPSys = ((double) this.getFPowerActiveSys().asOptional().get())/100;
+			double ACP1 = ((double) this.getFPowerActiveL1().asOptional().get());
+			double ACP2 = ((double) this.getFPowerActiveL2().asOptional().get());
+			double ACP3 = ((double) this.getFPowerActiveL3().asOptional().get());
+			double ACPSys = ((double) this.getFPowerActiveSys().asOptional().get());
 			
 			msgFormatter.format("\n\n - Active power  ACP1: %f, ACP2: %f, ACP3: %f"
-					, (float) ACP1/10000, (float) ACP2/10000, (float) ACP3/10000);
-			msgFormatter.format("\n - Total Active power ACPSys: %f", (float) ACPSys/10000);			
+					, (float) ACP1, (float) ACP2, (float) ACP3);
+			msgFormatter.format("\n - Total Active power ACPSys: %f", (float) ACPSys);			
 		}
 		if (readEnablerMask.indexOf("[EImportExportActiveFloat]") >= 0) {
 			float activeConsumptionEnergyL1 = this.getFActiveImportedEnergy_L1().asOptional().get();
@@ -475,9 +477,9 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 			float activeConsumptionEnergyL123 = activeConsumptionEnergyL1 + activeConsumptionEnergyL2 + activeConsumptionEnergyL3;
 			float activeConsumptionEnergy = this.getFActiveImportedEnergy_Sys().asOptional().get();
 			msgFormatter.format("\n - Active Imported Energy L1: %f, L2: %f, L3: %f"
-					, (float) activeConsumptionEnergyL1/10000, (float) activeConsumptionEnergyL2/10000, (float) activeConsumptionEnergyL3/10000);
+					, (float) activeConsumptionEnergyL1, (float) activeConsumptionEnergyL2, (float) activeConsumptionEnergyL3);
 			msgFormatter.format("\n - Total Active Imported Energy sum: %f, from meter: %f"
-					, (float) activeConsumptionEnergy/10000, (float) activeConsumptionEnergyL123/10000);			
+					, (float) activeConsumptionEnergy, (float) activeConsumptionEnergyL123);			
 			//
 			float activeProductionEnergyL1 = this.getFActiveExportedEnergy_L1().asOptional().get();
 			float activeProductionEnergyL2 = this.getFActiveExportedEnergy_L2().asOptional().get();
@@ -485,9 +487,9 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 			float activeProductionEnergyL123 = activeProductionEnergyL1 + activeProductionEnergyL2 + activeProductionEnergyL3;
 			float activeProductionEnergy = this.getFActiveExportedEnergy_Sys().asOptional().get();
 			msgFormatter.format("\n\n - Active Production Energy L1: %f, L2: %f, L3: %f"
-					, (float) activeProductionEnergyL1/10000, (float) activeProductionEnergyL2/10000, (float) activeProductionEnergyL3/10000);
+					, (float) activeProductionEnergyL1, (float) activeProductionEnergyL2, (float) activeProductionEnergyL3);
 			msgFormatter.format("\n - Total Active Production Energy %f, (%f)"
-					, (float) activeProductionEnergy/10000, (float) activeProductionEnergyL123/10000);
+					, (float) activeProductionEnergy, (float) activeProductionEnergyL123);
 			
 		}
 		
@@ -575,7 +577,7 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL31).value();
 	}
 	public Value<Float> getFVoltageSys() {
-		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FSYS).value();
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FSYS).value();
 	}
 	//
 	public Value<Float> getFCurrentL1() {

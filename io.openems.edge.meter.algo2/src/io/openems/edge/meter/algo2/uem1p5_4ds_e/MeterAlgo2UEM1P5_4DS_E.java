@@ -57,9 +57,6 @@ public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter,
 		VOLTAGE_FL3(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.VOLT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
-		CURRENT_FN(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.AMPERE) //
-				.persistencePriority(PersistencePriority.HIGH)),
 		
 		VOLTAGE_FL12(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.VOLT) //
@@ -70,7 +67,8 @@ public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter,
 		VOLTAGE_FL31(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.VOLT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
-		VOLTAGE_FSYS(Doc.of(OpenemsType.LONG) //
+
+		VOLTAGE_FSYS(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.VOLT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		
@@ -83,6 +81,10 @@ public interface MeterAlgo2UEM1P5_4DS_E extends SymmetricMeter, AsymmetricMeter,
 		CURRENT_FA3(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.AMPERE) //
 				.persistencePriority(PersistencePriority.HIGH)), //
+
+		CURRENT_FN(Doc.of(OpenemsType.FLOAT) //
+				.unit(Unit.AMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		CURRENT_FSYS(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.AMPERE) //
 				.persistencePriority(PersistencePriority.HIGH)),
