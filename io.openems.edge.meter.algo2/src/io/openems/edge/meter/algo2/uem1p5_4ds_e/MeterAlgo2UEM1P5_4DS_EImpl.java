@@ -31,11 +31,13 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.SignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -66,7 +68,28 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 		implements MeterAlgo2UEM1P5_4DS_E, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private MeterType meterType = MeterType.PRODUCTION;
+	public String readEnablerMask =	
+		"[VFloat]"
+		+ "[AFloat]"
+		+ "[PFactorFloat]" 
+		+ "[PActiveFloat]" 
+		+ "[PApparentFloat]" 
+		+ "[PReactiveFloat]"
+		+ "[FreqPhSeqFloat]"
+		+ "[EImportExportActiveFloat]"
+		
+		
 
+// olds ...
+//		+ "[CEnActProd]" 
+//		+ "[CEnActCons]" 
+//		+ "[PAct]"
+		// + "[AAlt]"
+		// + "[A]"
+		//+ "[VCross]"
+		//+ "[V]"
+		;
+	
 	/*
 	 * Invert power values
 	 */
@@ -130,161 +153,252 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		/*
-		 * We are using the FLOAT registers from the modbus table, because they are all
-		 * reachable within one ReadMultipleRegistersRequest.
-		 */
-		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(0, Priority.HIGH, //
-				    m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new SignedDoublewordElement(0), 
-			    		ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
-					m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new SignedDoublewordElement(2),
-					    ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-					m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new SignedDoublewordElement(4),
-					    ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
-					
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L12, new SignedDoublewordElement(6),
-						ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L23, new SignedDoublewordElement(8),
-						ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L31, new SignedDoublewordElement(0x0a),
-						ElementToChannelConverter.DIRECT_1_TO_1),
-				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_SYS, new SignedDoublewordElement(0x0C), 
-				    		ElementToChannelConverter.DIRECT_1_TO_1), //
-				    
-				    m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(0x0E), 
-				    		ElementToChannelConverter.DIRECT_1_TO_1), //
-					m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(0x10),
-					    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0x12),
-						    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_N, new SignedDoublewordElement(0x14),
-						    ElementToChannelConverter.DIRECT_1_TO_1),
-					
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_SYS, new SignedDoublewordElement(0x16),
-						    ElementToChannelConverter.DIRECT_1_TO_1) // ,
-					
-					// m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L1And2, new SignedDoublewordElement(0x18),
-					//	    ElementToChannelConverter.DIRECT_1_TO_1),
-					
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L1, /* new Algo1Byte(0x18) */ new UnsignedWordElement(0x18),
-//						    ElementToChannelConverter.DIRECT_1_TO_1),
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L2, /* new Algo1Byte(0x19) */ new UnsignedWordElement(0x19),
-//						    ElementToChannelConverter.DIRECT_1_TO_1),
-//					
-//					// m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L3AndSys, new SignedDoublewordElement(0x1A),
-//					//	    ElementToChannelConverter.DIRECT_1_TO_1),
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L3, /* new Algo1Byte(0x1A) */ new UnsignedWordElement(0x1A),
-//						    ElementToChannelConverter.DIRECT_1_TO_1),
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_SYS, /* new Algo1Byte(0x1B) */ new UnsignedWordElement(0x1B),
-//						    ElementToChannelConverter.DIRECT_1_TO_1),
-//					
-//					m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new Algo3Bytes(0x1c),
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//					m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new Algo3Bytes(0x1f), // 0x1F
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L3, new Algo3Bytes(0x22), //0x22
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)/*, ElementToChannelConverter.SCALE_FACTOR_MINUS_3 */),
-//					// new DummyRegisterElement(0x25, 0x27), 
-//					
-//					m(SymmetricMeter.ChannelId.ACTIVE_POWER, new Algo3Bytes(0x25), // 0x25
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//					
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_L1, new Algo3Bytes(0x28),
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_L2, new Algo3Bytes(0x2b), // 0x1F
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_L3, new Algo3Bytes(0x2e), //0x22
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_SYS, new Algo3Bytes(0x31), // 0x25
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//					
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER_L1,  new Algo3Bytes(0x34),
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER_L2, new Algo3Bytes(0x37), // 0x1F
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER_L3, new Algo3Bytes(0x3a), //0x22
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER, new Algo3Bytes(0x3d), // 0x25
-//							ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//					
-//					// new DummyRegisterElement(0x3d, 0x3F), 
-//						
-//					m(SymmetricMeter.ChannelId.FREQUENCY, new SignedDoublewordElement(0x40),
-//							ElementToChannelConverter.DIRECT_1_TO_1),
-//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.PHASE_SEQUENCE, new SignedDoublewordElement(0x42),
-//							ElementToChannelConverter.DIRECT_1_TO_1) // ,
-//						
-//
-//					//
-//					/*								m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(860),
-//															ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
-//													m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(862),
-//															ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
-//													m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(864),
-//															ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
-//													m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(866),
-//															ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
-//													m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(876),
-//															ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//													m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(878),
-//															ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//													m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(880),
-//															ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-//													m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(882),
-//															ElementToChannelConverter.INVERT_IF_TRUE(this.invert))));*/
-//																
-//					
-						
-						
-				)
-		);
 		
-		modbusProtocol.addTask(
-				new FC3ReadRegistersTask(0x1c, Priority.LOW, //
-						m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L1, new Algo3WordImpl(0x1c),
-						ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L2, new Algo3WordImpl(0x1f), // 0x1F
-						ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L3, new Algo3WordImpl(0x22), //0x22
-						ElementToChannelConverter.INVERT_IF_TRUE(this.invert)/*, ElementToChannelConverter.SCALE_FACTOR_MINUS_3 */),
-//				// new DummyRegisterElement(0x25, 0x27), 
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new Algo3WordImpl(0x25), // 0x25
-						ElementToChannelConverter.INVERT_IF_TRUE(this.invert))
+		ModbusProtocol modbusProtocol = new ModbusProtocol(this);
+		
+		if (readEnablerMask.indexOf("[Vfloat]") >= 0) {
+			modbusProtocol.addTask(
+				new FC3ReadRegistersTask(0x00, Priority.HIGH, //
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL1, new SignedDoublewordElement(0x00), 
+			    		ElementToChannelConverter.DIRECT_1_TO_1), //
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL2, new SignedDoublewordElement(0x02),
+					    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL3, new SignedDoublewordElement(0x04),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL12, new SignedDoublewordElement(0x06),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL23, new SignedDoublewordElement(0x08),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL31, new SignedDoublewordElement(0x0A),
+						    ElementToChannelConverter.DIRECT_1_TO_1)
+				)
+			);		
+		}
+		if (readEnablerMask.indexOf("[AFloat]") >= 0) {
+			modbusProtocol.addTask(
+				new FC3ReadRegistersTask(0x100E, Priority.HIGH, //
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FA1, new FloatDoublewordElement(0x100E), 
+				    		ElementToChannelConverter.DIRECT_1_TO_1), //
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FA2, new FloatDoublewordElement(0x1010),
+					    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FA3, new FloatDoublewordElement(0x1012),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FN, new FloatDoublewordElement(0x1014),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FSYS, new FloatDoublewordElement(0x1016),
+						    ElementToChannelConverter.DIRECT_1_TO_1) // ,
 				)
 			);
-
+		} 
+		if (readEnablerMask.indexOf("[PFactorFloat]") >= 0) {
+			modbusProtocol.addTask(
+				new FC3ReadRegistersTask(0x1018, Priority.HIGH, //
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWERFACTOR_FPF1, new FloatDoublewordElement(0x1018), 
+				    		ElementToChannelConverter.DIRECT_1_TO_1), //
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWERFACTOR_FPF2, new FloatDoublewordElement(0x101A),
+					    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWERFACTOR_FPF3, new FloatDoublewordElement(0x101C),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWERFACTOR_FPFSYS, new FloatDoublewordElement(0x101E),
+						    ElementToChannelConverter.DIRECT_1_TO_1)
+				)
+			);
+		} 
+		if (readEnablerMask.indexOf("[PActiveFloat]") >= 0) {
+			modbusProtocol.addTask(
+				new FC3ReadRegistersTask(0x1020, Priority.HIGH, //
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FP1, new FloatDoublewordElement(0x1020), 
+				    		ElementToChannelConverter.DIRECT_1_TO_1), //
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FP2, new FloatDoublewordElement(0x1022),
+					    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FP3, new FloatDoublewordElement(0x1024),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FPSYS, new FloatDoublewordElement(0x1026),
+						    ElementToChannelConverter.DIRECT_1_TO_1)
+				)
+			);
+		} 
+		if (readEnablerMask.indexOf("[PApparentFloat]") >= 0) {
+			modbusProtocol.addTask(
+				new FC3ReadRegistersTask(0x1028, Priority.HIGH, //
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FS1, new FloatDoublewordElement(0x1028), 
+				    		ElementToChannelConverter.DIRECT_1_TO_1), //
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FS2, new FloatDoublewordElement(0x102A),
+					    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FS3, new FloatDoublewordElement(0x102C),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FSSYS, new FloatDoublewordElement(0x102E),
+						    ElementToChannelConverter.DIRECT_1_TO_1)
+				)
+			);
+		} 
+		if (readEnablerMask.indexOf("[PReactiveFloat]") >= 0) {
+			modbusProtocol.addTask(
+				new FC3ReadRegistersTask(0x1030, Priority.HIGH, //
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FQ1, new FloatDoublewordElement(0x1030), 
+				    		ElementToChannelConverter.DIRECT_1_TO_1), //
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FQ2, new FloatDoublewordElement(0x1032),
+					    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FQ3, new FloatDoublewordElement(0x1034),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FQSYS, new FloatDoublewordElement(0x1036),
+						    ElementToChannelConverter.DIRECT_1_TO_1)
+				)
+			);
+		}
+		//
+		if (readEnablerMask.indexOf("[FreqPhSeqFloat]") >= 0) {
+			modbusProtocol.addTask(
+				new FC3ReadRegistersTask(0x1038, Priority.HIGH, //
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.FREQUENCY_FF, new FloatDoublewordElement(0x1038), 
+				    		ElementToChannelConverter.DIRECT_1_TO_1), //
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.PHASES_FSEQ, new FloatDoublewordElement(0x103A),
+					    ElementToChannelConverter.DIRECT_1_TO_1)
+				)
+			);
+		}
+		//
+		//
+		//
+		//
+		if (readEnablerMask.indexOf("[EImportExportActiveFloat]") >= 0) {
+			modbusProtocol.addTask(
+				new FC3ReadRegistersTask(0x1100, Priority.HIGH, //
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEACT1, new FloatDoublewordElement(0x1100), 
+				    		ElementToChannelConverter.DIRECT_1_TO_1), //
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEACT2, new FloatDoublewordElement(0x1102),
+					    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEACT3, new FloatDoublewordElement(0x1104),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEACTSYS, new FloatDoublewordElement(0x1106),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT1, new FloatDoublewordElement(0x1100), 
+				    		ElementToChannelConverter.DIRECT_1_TO_1), //
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT2, new FloatDoublewordElement(0x1102),
+					    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT3, new FloatDoublewordElement(0x1104),
+						    ElementToChannelConverter.DIRECT_1_TO_1),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACTSYS, new FloatDoublewordElement(0x1106),
+						    ElementToChannelConverter.DIRECT_1_TO_1)
+				)
+			);
+		}
 		
-		modbusProtocol.addTask(
-			new FC3ReadRegistersTask(MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY_l1, Priority.HIGH, //
-				m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L1, new Algo3WordImpl(MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY_l1),
-						ElementToChannelConverter.DIRECT_1_TO_1),
-				m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L2, new Algo3WordImpl(MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY_L2),
-						ElementToChannelConverter.DIRECT_1_TO_1),
-				m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L3, new Algo3WordImpl(MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY_L3),
-						ElementToChannelConverter.DIRECT_1_TO_1),
-				m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY, new Algo3WordImpl(MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY),
-						ElementToChannelConverter.DIRECT_1_TO_1),
-				
-				m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L1, new Algo3WordImpl(MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY_L1),
-						ElementToChannelConverter.DIRECT_1_TO_1),
-				m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L2, new Algo3WordImpl(MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY_L2),
-						ElementToChannelConverter.DIRECT_1_TO_1),
-				m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L3, new Algo3WordImpl(MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY_L3),
-						ElementToChannelConverter.DIRECT_1_TO_1),
-				m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY, new Algo3WordImpl(MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY),
-						ElementToChannelConverter.DIRECT_1_TO_1)
-			)
-		);
 		
 		
-		
-		
+		//
 		modbusProtocol.addTask(
 			new FC3ReadRegistersTask(MODBUSREG_SET0_REGSETINUSE, Priority.LOW, //
 				m(MeterAlgo2UEM1P5_4DS_E.ChannelId.METAS_COUNTER_REGSET_IN_USE, new UnsignedWordElement(MODBUSREG_SET0_REGSETINUSE))
 			)
 		);
+		
+		
+		
+//		if (readEnablerMask.indexOf("[V]") >= 0) {
+//			modbusProtocol.addTask(
+//				new FC3ReadRegistersTask(0x00, Priority.HIGH, //
+//				    m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new SignedDoublewordElement(0x00), 
+//			    		ElementToChannelConverter.SCALE_FACTOR_MINUS_3), //
+//					m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new SignedDoublewordElement(0x02),
+//					    ElementToChannelConverter.SCALE_FACTOR_MINUS_3),
+//					m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new SignedDoublewordElement(0x04),
+//					    ElementToChannelConverter.SCALE_FACTOR_MINUS_3)
+//				)
+//			);		
+//		}
+//		if (readEnablerMask.indexOf("[VCross]") >= 0) {
+//			modbusProtocol.addTask(
+//				new FC3ReadRegistersTask(0x06, Priority.HIGH, //
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L12, new SignedDoublewordElement(0x06),
+//						ElementToChannelConverter.DIRECT_1_TO_1),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L23, new SignedDoublewordElement(0x08),
+//						ElementToChannelConverter.DIRECT_1_TO_1),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L31, new SignedDoublewordElement(0x0A),
+//						ElementToChannelConverter.DIRECT_1_TO_1),
+//				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_SYS, new SignedDoublewordElement(0x0C), 
+//				    		ElementToChannelConverter.DIRECT_1_TO_1) //
+//				)
+//			);				    
+//		}
+//		// the following are mutually exclusive
+//		if (readEnablerMask.indexOf("[A]") >= 0) {
+//			modbusProtocol.addTask(
+//				new FC3ReadRegistersTask(0x0E, Priority.HIGH, //
+//				    m(AsymmetricMeter.ChannelId.CURRENT_L1, new SignedDoublewordElement(0x0E), 
+//				    		ElementToChannelConverter.DIRECT_1_TO_1), //
+//					m(AsymmetricMeter.ChannelId.CURRENT_L2, new SignedDoublewordElement(0x10),
+//					    ElementToChannelConverter.DIRECT_1_TO_1),
+//					m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0x12),
+//						    ElementToChannelConverter.DIRECT_1_TO_1),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_N, new SignedDoublewordElement(0x14),
+//						    ElementToChannelConverter.DIRECT_1_TO_1),
+//					
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_SYS, new SignedDoublewordElement(0x16),
+//						    ElementToChannelConverter.DIRECT_1_TO_1) // ,
+//				)
+//			);
+//		} else
+////		else if (readEnablerMask.indexOf("[AAlt]") >= 0) {
+////			modbusProtocol.addTask(
+////				new FC3ReadRegistersTask(0x0E, Priority.HIGH, //
+////				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_A1, new SignedDoublewordElement(0x0E), 
+////				    		ElementToChannelConverter.DIRECT_1_TO_1), //
+////					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_A2, new SignedDoublewordElement(0x10),
+////					    ElementToChannelConverter.DIRECT_1_TO_1),
+////					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_A3, new SignedDoublewordElement(0x12),
+////						    ElementToChannelConverter.DIRECT_1_TO_1),
+////					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_N, new SignedDoublewordElement(0x14),
+////						    ElementToChannelConverter.DIRECT_1_TO_1)
+////				)
+////			);
+////		}
+//		if (readEnablerMask.indexOf("[PAct]") >= 0) {
+//			modbusProtocol.addTask(
+//				new FC3ReadRegistersTask(0x1C, Priority.LOW, //
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L1, new Algo3WordImpl(0x1C),
+//					ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L2, new Algo3WordImpl(0x1F), // 0x1F
+//					ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L3, new Algo3WordImpl(0x22), //0x22
+//					ElementToChannelConverter.INVERT_IF_TRUE(this.invert)/*, ElementToChannelConverter.SCALE_FACTOR_MINUS_3 */),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER, new Algo3WordImpl(0x25), // 0x25
+//					ElementToChannelConverter.INVERT_IF_TRUE(this.invert))
+//				)
+//			);
+//		}
+//		if (readEnablerMask.indexOf("[CEnActCons]") >= 0) {
+//			modbusProtocol.addTask(
+//				new FC3ReadRegistersTask(MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY_l1, Priority.HIGH, //
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L1, new Algo3WordImpl(MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY_l1),
+//							ElementToChannelConverter.DIRECT_1_TO_1),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L2, new Algo3WordImpl(MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY_L2),
+//							ElementToChannelConverter.DIRECT_1_TO_1),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L3, new Algo3WordImpl(MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY_L3),
+//							ElementToChannelConverter.DIRECT_1_TO_1),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY, new Algo3WordImpl(MODBUSREG_SET0_SYSIMPORTEDACTIVEENERGY),
+//							ElementToChannelConverter.DIRECT_1_TO_1)
+//				)
+//			);
+//		}
+//		if (readEnablerMask.indexOf("[CEnActProd]") >= 0) {
+//			modbusProtocol.addTask(
+//					new FC3ReadRegistersTask(MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY_L1, Priority.HIGH, //
+//			
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L1, new Algo3WordImpl(MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY_L1),
+//							ElementToChannelConverter.DIRECT_1_TO_1),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L2, new Algo3WordImpl(MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY_L2),
+//							ElementToChannelConverter.DIRECT_1_TO_1),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L3, new Algo3WordImpl(MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY_L3),
+//							ElementToChannelConverter.DIRECT_1_TO_1),
+//					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY, new Algo3WordImpl(MODBUSREG_SET0_SYSEXPORTEDACTIVEENERGY),
+//							ElementToChannelConverter.DIRECT_1_TO_1)
+//				)
+//			);
+//		}
+		
+		
+		
 //
 //		if (this.config.invert()) {
 //			modbusProtocol.addTask(
@@ -313,66 +427,77 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 		// Send all output to the Appendable object theMessage
 		Formatter msgFormatter = new Formatter(theMessage, Locale.US);
 		//
-		theMessage.append("\n device: " + this.id());
-		//
 		long runningRegsSet = this.getRunningRegs().asOptional().get();
 		theMessage.append("\n - runningRegs " + runningRegsSet);
 		//
-		// --- 
-		theMessage.append("\n\n\n Energy values:\n");
-		//
-		long activeConsumptionEnergyL1 = this.getCustActiveConsumptionEnergy_L1().asOptional().get();
-		long activeConsumptionEnergyL2 = this.getCustActiveConsumptionEnergy_L2().asOptional().get();
-		long activeConsumptionEnergyL3 = this.getCustActiveConsumptionEnergy_L3().asOptional().get();
-		long activeConsumptionEnergyL123 = activeConsumptionEnergyL1 + activeConsumptionEnergyL2 + activeConsumptionEnergyL3;
-		long activeConsumptionEnergy = this.getCustActiveConsumptionEnergy().asOptional().get();
-		msgFormatter.format("\n - Active Consumption Energy L1: %f, L2: %f, L3: %f"
-				, (float) activeConsumptionEnergyL1/10000, (float) activeConsumptionEnergyL2/10000, (float) activeConsumptionEnergyL3/10000);
-		msgFormatter.format("\n - Total Active Consumption Energy %f, (%f)"
-				, (float) activeConsumptionEnergy/10000, (float) activeConsumptionEnergyL123/10000);
-		//
-		long activeProductionEnergyL1 = this.getCustActiveProductionEnergy_L1().asOptional().get();
-		long activeProductionEnergyL2 = this.getCustActiveProductionEnergy_L2().asOptional().get();
-		long activeProductionEnergyL3 = this.getCustActiveProductionEnergy_L3().asOptional().get();
-		long activeProductionEnergyL123 = activeProductionEnergyL1 + activeProductionEnergyL2 + activeProductionEnergyL3;
-		long activeProductionEnergy = this.getCustActiveProductionEnergy().asOptional().get();
-		msgFormatter.format("\n\n - Active Production Energy L1: %f, L2: %f, L3: %f"
-				, (float) activeProductionEnergyL1/10000, (float) activeProductionEnergyL2/10000, (float) activeProductionEnergyL3/10000);
-		msgFormatter.format("\n - Total Active Production Energy %f, (%f)"
-				, (float) activeProductionEnergy/10000, (float) activeProductionEnergyL123/10000);
 		//
 		//
 		//
-//		
-		double ACP1 = ((double) this.getCActivePowerL1().asOptional().get())/1000000;
-		double ACP2 = ((double) this.getCActivePowerL2().asOptional().get())/1000000;
-		double ACP3 = ((double) this.getCActivePowerL3().asOptional().get())/1000000;
-		double ACPSys = ((double) this.getActivePower().asOptional().get())/1000000;
+				
+		theMessage.append("\n********************************************");
+		theMessage.append("\n*                                          *");
+		theMessage.append("\n*        device id: " + this.id() +"                *");
+		theMessage.append("\n*                                          *");
+		msgFormatter.format("\n* runningRegs: %d                           *", runningRegsSet );
+		msgFormatter.format("\n* dump registers set: %s    	           *", readEnablerMask);	
+		theMessage.append("\n*                                          *");
+		theMessage.append("\n*                                          *");
+		theMessage.append("\n********************************************");
+		if (readEnablerMask.indexOf("[VFloat]") >= 0) {
+			//
+			theMessage.append("\n - V1, V2, V3 - ");
+			theMessage.append(this.getFVoltageL1().asString() + " " + this.getFVoltageL2().asString() + " " + this.getFVoltageL3().asString());			
+			theMessage.append("\n - VSys - " + this.getFVoltageSys().asString());
+			theMessage.append("\n - V12, V23, V31  - ");
+			theMessage.append(this.getFVoltageL12().asString() + " " + this.getFVoltageL23().asString() + " " + this.getFVoltageL31().asString());
+			
+		}
+		if (readEnablerMask.indexOf("[AFloat]") >= 0) {
+			theMessage.append("\n int read - A1, A2, A3  - ");
+			theMessage.append(this.getFCurrentL1().asString() + " " + this.getFCurrentL2().asString() + " " + this.getFCurrentL3().asString());
+			theMessage.append("\n - AN  - " + this.getFCurrentNeutral().asString());
+			theMessage.append("\n - ASys  - " + this.getFCurrentSys().asString());
+		}
+		if (readEnablerMask.indexOf("[PActiveFloat]") >= 0) {
+			double ACP1 = ((double) this.getFPowerActiveL1().asOptional().get())/100;
+			double ACP2 = ((double) this.getFPowerActiveL2().asOptional().get())/100;
+			double ACP3 = ((double) this.getFPowerActiveL3().asOptional().get())/100;
+			double ACPSys = ((double) this.getFPowerActiveSys().asOptional().get())/100;
+			
+			msgFormatter.format("\n\n - Active power  ACP1: %f, ACP2: %f, ACP3: %f"
+					, (float) ACP1/10000, (float) ACP2/10000, (float) ACP3/10000);
+			msgFormatter.format("\n - Total Active power ACPSys: %f", (float) ACPSys/10000);			
+		}
+		if (readEnablerMask.indexOf("[EImportExportActiveFloat]") >= 0) {
+			float activeConsumptionEnergyL1 = this.getFActiveImportedEnergy_L1().asOptional().get();
+			float activeConsumptionEnergyL2 = this.getFActiveImportedEnergy_L2().asOptional().get();
+			float activeConsumptionEnergyL3 = this.getFActiveImportedEnergy_L3().asOptional().get();
+			float activeConsumptionEnergyL123 = activeConsumptionEnergyL1 + activeConsumptionEnergyL2 + activeConsumptionEnergyL3;
+			float activeConsumptionEnergy = this.getFActiveImportedEnergy_Sys().asOptional().get();
+			msgFormatter.format("\n - Active Imported Energy L1: %f, L2: %f, L3: %f"
+					, (float) activeConsumptionEnergyL1/10000, (float) activeConsumptionEnergyL2/10000, (float) activeConsumptionEnergyL3/10000);
+			msgFormatter.format("\n - Total Active Imported Energy sum: %f, from meter: %f"
+					, (float) activeConsumptionEnergy/10000, (float) activeConsumptionEnergyL123/10000);			
+			//
+			float activeProductionEnergyL1 = this.getFActiveExportedEnergy_L1().asOptional().get();
+			float activeProductionEnergyL2 = this.getFActiveExportedEnergy_L2().asOptional().get();
+			float activeProductionEnergyL3 = this.getFActiveExportedEnergy_L3().asOptional().get();
+			float activeProductionEnergyL123 = activeProductionEnergyL1 + activeProductionEnergyL2 + activeProductionEnergyL3;
+			float activeProductionEnergy = this.getFActiveExportedEnergy_Sys().asOptional().get();
+			msgFormatter.format("\n\n - Active Production Energy L1: %f, L2: %f, L3: %f"
+					, (float) activeProductionEnergyL1/10000, (float) activeProductionEnergyL2/10000, (float) activeProductionEnergyL3/10000);
+			msgFormatter.format("\n - Total Active Production Energy %f, (%f)"
+					, (float) activeProductionEnergy/10000, (float) activeProductionEnergyL123/10000);
+			
+		}
 		
-		msgFormatter.format("\n\n - Active power  ACP1: %f, ACP2: %f, ACP3: %f"
-				, (float) ACP1/10000, (float) ACP2/10000, (float) ACP3/10000);
-		msgFormatter.format("\n - Total Active power ACPSys: %f", (float) ACPSys/10000);
-//		+ "\n - P1-ACP1, P2-ACP2, P3-ACP3   - "  + ACP1 + " " + ACP2 + " " + ACP3
-//		+ "\n - PSig-ACPSys (or L in example) - " + ACPSys
-		
-		
-		
-		theMessage.append("\n\n\n Volt and Amp values:\n");
 		//
-		theMessage.append("\n - V1, V2, V3 - ");
-		theMessage.append(this.getVoltageL1().asString() + " " + this.getVoltageL2().asString() + " " + this.getVoltageL3().asString());
 		//
-		theMessage.append("\n - V12, V23, V31  - ");
-		theMessage.append(this.getVoltageL12().asString() + " " + this.getVoltageL23().asString() + " " + this.getVoltageL31().asString());
 		//
-		theMessage.append("\n - VSys - " + this.getVoltageSys().asString());
 		//
-		theMessage.append("\n - A1, A2, A3  - ");
-		theMessage.append(this.getCurrentL1().asString() + " " + this.getCurrentL2().asString() + " " + this.getCurrentL3().asString());
 		//
-		theMessage.append("\n - AN  - " + this.getCurrentNeutral().asString());
 		//
-		theMessage.append("\n - ASys  - " + this.getCurrentSys().asString());
+		//
 		//
 		//
 		//
@@ -410,245 +535,419 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 //				+ "\n - P - " + this.getActiveProductionEnergyChannel().toString()
 		theMessage.append("\n");
 		
-		
+		msgFormatter.close();
 		return theMessage.toString();
 	}
 	
 	
-	/**
-	 * Gets the Channel for {@link ChannelId#VOLTAGE_L1}.
-	 *
-	 * @return the Channel
-	 */
 	//
-	public LongReadChannel getVoltageL12Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L12);
-	}
-	public Value<Long> getVoltageL12() {
-		return this.getVoltageL12Channel().value();
+	// generic ChannelId get LongReadChannel
+	public LongReadChannel getLongGenericChannel(io.openems.edge.common.channel.ChannelId theChannel) {
+		return this.channel(theChannel);
 	}
 	//
-	public LongReadChannel getVoltageL23Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L23);
-	}
-	public Value<Long> getVoltageL23() {
-		return this.getVoltageL23Channel().value();
-	}
-	//
-	public LongReadChannel getVoltageL31Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L31);
-	}
-	public Value<Long> getVoltageL31() {
-		return this.getVoltageL31Channel().value();
-	}
-	//
-	public LongReadChannel getVoltageSysChannel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_SYS);
-	}
-	public Value<Long> getVoltageSys() {
-		return this.getVoltageSysChannel().value();
-	}
-	//
-	//
-	//
-	public LongReadChannel getCurrentNeutralChannel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_N);
-	}
-	public Value<Long> getCurrentNeutral() {
-		return this.getCurrentNeutralChannel().value();
-	}
-	//
-	public LongReadChannel getCurrentSysChannel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_SYS);
-	}
-	public Value<Long> getCurrentSys() {
-		return this.getCurrentSysChannel().value();
-	}
-	//
-	//
-	//
-	public LongReadChannel getPowerFactorL1Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L1);
-	}
-	public Value<Long> getPowerFactorL1() {
-		return this.getPowerFactorL1Channel().value();
-	}
-	public LongReadChannel getPowerFactorL2Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L2);
-	}
-	public Value<Long> getPowerFactorL2() {
-		return this.getPowerFactorL2Channel().value();
-	}
-	
-	public LongReadChannel getPowerFactorL1And2Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L1And2);
-	}
-	public Value<Long> getPowerFactorL1And2() {
-		return this.getPowerFactorL1And2Channel().value();
-	}
-	
-	
-	public LongReadChannel getPowerFactorL3Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L3);
-	}
-	public Value<Long> getPowerFactorL3() {
-		return this.getPowerFactorL3Channel().value();
-	}
-	public LongReadChannel getPowerFactorSysChannel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_SYS);
-	}
-	public Value<Long> getPowerFactorSys() {
-		return this.getPowerFactorSysChannel().value();
+	// generic ChannelId get FloatReadChannel
+	public FloatReadChannel getFloatGenericChannel(io.openems.edge.common.channel.ChannelId theChannel) {
+		return this.channel(theChannel);
 	}
 	
 
-	public LongReadChannel getPowerFactorL3AndSysChannel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L3AndSys);
+	public Value<Float> getFVoltageL1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL1).value();
 	}
-	public Value<Long> getPowerFactorL3AndSys() {
-		return this.getPowerFactorL3AndSysChannel().value();
+	public Value<Float> getFVoltageL2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL2).value();
+	}
+	public Value<Float> getFVoltageL3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL3).value();
+	}
+	public Value<Float> getFCurrentNeutral() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FN).value();
+	}
+	//
+	public Value<Float> getFVoltageL12() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL12).value();
+	}
+	public Value<Float> getFVoltageL23() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL23).value();
+	}
+	public Value<Float> getFVoltageL31() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL31).value();
+	}
+	public Value<Float> getFVoltageSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FSYS).value();
+	}
+	//
+	public Value<Float> getFCurrentL1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FA1).value();
+	}
+	public Value<Float> getFCurrentL2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FA2).value();
+	}
+	public Value<Float> getFCurrentL3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FA3).value();
+	}
+	public Value<Float> getFCurrentSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_FSYS).value();
+	}
+	//
+	public Value<Float> getFPowerActiveL1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FP1).value();
+	}
+	public Value<Float> getFPowerActiveL2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FP2).value();
+	}
+	public Value<Float> getFPowerActiveL3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FP3).value();
+	}
+	public Value<Float> getFPowerActiveSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FPSYS).value();
+	}
+	//
+	public Value<Float> getFPowerApparentL1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FQ1).value();
+	}
+	public Value<Float> getFPowerApparentL2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FQ2).value();
+	}
+	public Value<Float> getFPowerApparentL3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FQ3).value();
+	}
+	public Value<Float> getFPowerApparentSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FQSYS).value();
+	}
+	//
+	public Value<Float> getFPowerReactiveL1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FS1).value();
+	}
+	public Value<Float> getFPowerReactiveL2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FS2).value();
+	}
+	public Value<Float> getFPowerReactiveL3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FS3).value();
+	}
+	public Value<Float> getFPowerReactiveSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FSSYS).value();
+	}
+	//
+	public Value<Float> getFPowerFactorL1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWERFACTOR_FPF1).value();
+	}
+	public Value<Float> getFPowerFactorL2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWERFACTOR_FPF2).value();
+	}
+	public Value<Float> getFPowerFactorL3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWERFACTOR_FPF3).value();
+	}
+	public Value<Float> getFPowerFactorSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWERFACTOR_FPFSYS).value();
+	}
+	//
+	public Value<Float> getFPhasesSequence() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWERFACTOR_FPF1).value();
+	}
+	public Value<Float> getFFrequency() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWERFACTOR_FPF2).value();
+	}
+	//
+	// ================================================================================================================
+	//
+	// imported energy components
+	//
+	// ACTIVE
+	public Value<Float> getFActiveImportedEnergy_L1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEACT1).value();
+	}
+	public Value<Float> getFActiveImportedEnergy_L2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEACT2).value();
+	}
+	public Value<Float> getFActiveImportedEnergy_L3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEACT3).value();
+	}
+	public Value<Float> getFActiveImportedEnergy_Sys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEACTSYS).value();
+	}
+	//
+	// APPARENT INDUCTIVE
+	public Value<Float> getFApparentImportedIndEnergy_L1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEAPPIND1).value();
+	}
+	public Value<Float> getFApparentImportedIndEnergy_L2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEAPPIND2).value();
+	}
+	public Value<Float> getFApparentImportedIndEnergy_L3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEAPPIND3).value();
+	}
+	public Value<Float> getFApparentImportedIndEnergy_LSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEAPPINDSYS).value();
+	}
+	// APPARENT CAPACITIVE
+	public Value<Float> getFApparentImportedCapEnergy_L1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEAPPCAP1).value();
+	}
+	public Value<Float> getFApparentImportedCapEnergy_L2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEAPPCAP2).value();
+	}
+	public Value<Float> getFApparentImportedCapEnergy_L3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEAPPCAP3).value();
+	}
+	public Value<Float> getFApparentImportedCapEnergy_LSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEAPPCAPSYS).value();
+	}
+	//
+	// REACTIVE INDUCTIVE
+	public Value<Float> getFReactiveImportedIndEnergy_L1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEREAIND1).value();
+	}
+	public Value<Float> getFReactiveImportedIndEnergy_L2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEREAIND2).value();
+	}
+	public Value<Float> getFReactiveImportedIndEnergy_L3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEREAIND3).value();
+	}
+	public Value<Float> getFReactiveImportedIndEnergy_LSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEREAINDSYS).value();
+	}
+	// REACTIVE CAPACITIVE
+	public Value<Float> getFReactiveImportedCapEnergy_L1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEREACAP1).value();
+	}
+	public Value<Float> getFReactiveImportedCapEnergy_L2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEREACAP2).value();
+	}
+	public Value<Float> getFReactiveImportedCapEnergy_L3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEREACAP3).value();
+	}
+	public Value<Float> getFReactiveImportedCapEnergy_LSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEREACAPSYS).value();
+	}
+	//
+	// ================================================================================================================
+	//
+	// exported energy components
+	//
+	// ACTIVE
+	public Value<Float> getFActiveExportedEnergy_L1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT1).value();
+	}
+	public Value<Float> getFActiveExportedEnergy_L2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT2).value();
+	}
+	public Value<Float> getFActiveExportedEnergy_L3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT3).value();
+	}
+	public Value<Float> getFActiveExportedEnergy_Sys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACTSYS).value();
+	}
+	//
+	// APPARENT INDUCTIVE
+	public Value<Float> getFApparentExportedIndEnergy_L1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEAPPIND1).value();
+	}
+	public Value<Float> getFApparentExportedIndEnergy_L2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEAPPIND2).value();
+	}
+	public Value<Float> getFApparentExportedIndEnergy_L3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEAPPIND3).value();
+	}
+	public Value<Float> getFApparentExportedIndEnergy_LSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEAPPINDSYS).value();
+	}
+	// APPARENT CAPACITIVE
+	public Value<Float> getFApparentExportedCapEnergy_L1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEAPPCAP1).value();
+	}
+	public Value<Float> getFApparentExportedCapEnergy_L2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEAPPCAP2).value();
+	}
+	public Value<Float> getFApparentExportedCapEnergy_L3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEAPPCAP3).value();
+	}
+	public Value<Float> getFApparentExportedCapEnergy_LSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEAPPCAPSYS).value();
+	}
+	//
+	// REACTIVE INDUCTIVE
+	public Value<Float> getFReactiveExportedIndEnergy_L1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEREAIND1).value();
+	}
+	public Value<Float> getFReactiveExportedIndEnergy_L2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEREAIND2).value();
+	}
+	public Value<Float> getFReactiveExportedIndEnergy_L3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEREAIND3).value();
+	}
+	public Value<Float> getFReactiveExportedIndEnergy_LSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEREAINDSYS).value();
+	}
+	// REACTIVE CAPACITIVE
+	public Value<Float> getFReactiveExportedCapEnergy_L1() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEREACAP1).value();
+	}
+	public Value<Float> getFReactiveExportedCapEnergy_L2() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEREACAP2).value();
+	}
+	public Value<Float> getFReactiveExportedCapEnergy_L3() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEREACAP3).value();
+	}
+	public Value<Float> getFReactiveExportedCapEnergy_LSys() {
+		return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEREACAPSYS).value();
 	}
 
-	//
-	//
-	//
-	public LongReadChannel getApparentPowerL1Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_L1);
-	}
-	public Value<Long> getApparentPowerL1() {
-		return this.getApparentPowerL1Channel().value();
-	}
-	public LongReadChannel getApparentPowerL2Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_L2);
-	}
-	public Value<Long> getApparentPowerL2() {
-		return this.getApparentPowerL2Channel().value();
-	}		
-	public LongReadChannel getApparentPowerL3Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_L3);
-	}
-	public Value<Long> getApparentPowerL3() {
-		return this.getApparentPowerL3Channel().value();
-	}
-	public LongReadChannel getApparentPowerSysChannel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_SYS);
-	}
-	public Value<Long> getApparentPowerSys() {
-		return this.getApparentPowerSysChannel().value();
-	}
 	
-	//
-	//
-	//
-	public LongReadChannel getCustReactivePowerL1Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER_L1);
-	}
-	public Value<Long> getCustReactivePowerL1() {
-		return this.getCustReactivePowerL1Channel().value();
-	}
-	public LongReadChannel getCustReactivePowerL2Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER_L2);
-	}
-	public Value<Long> getCustReactivePowerL2() {
-		return this.getCustReactivePowerL2Channel().value();
-	}
-	public LongReadChannel getCustReactivePowerL3Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER_L3);
-	}
-	public Value<Long> getCustReactivePowerL3() {
-		return this.getCustReactivePowerL3Channel().value();
-	}
-	public LongReadChannel getCustReactivePowerChannel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER);
-	}
-	public Value<Long> getCustReactivePower() {
-		return this.getCustReactivePowerChannel().value();
-	}
-
 	
-
-	
-	public LongReadChannel getCActivePowerL1Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L1);
-	}
-	public Value<Long> getCActivePowerL1() {
-		return this.getCActivePowerL1Channel().value();
-	}
-	public LongReadChannel getCActivePowerL2Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L2);
-	}
-	public Value<Long> getCActivePowerL2() {
-		return this.getCActivePowerL3Channel().value();
-	}
-	public LongReadChannel getCActivePowerL3Channel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L3);
-	}
-	public Value<Long> getCActivePowerL3() {
-		return this.getCActivePowerL3Channel().value();
-	}
-	
+	//public Value<Float> getFActiveExportedEnergy_L1() {
+//	return this.getFloatGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_FEACT1).value();
+//}
 
 	
 	
 	
 	
-	public LongReadChannel getCustActiveProductionEnergyChannel_L1() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L1);
-	}
-	public Value<Long> getCustActiveProductionEnergy_L1() {
-		return this.getCustActiveProductionEnergyChannel_L1().value();
-	}
-	public LongReadChannel getCustActiveProductionEnergyChannel_L2() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L2);
-	}
-	public Value<Long> getCustActiveProductionEnergy_L2() {
-		return this.getCustActiveProductionEnergyChannel_L2().value();
-	}
-	public LongReadChannel getCustActiveProductionEnergyChannel_L3() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L3);
-	}
-	public Value<Long> getCustActiveProductionEnergy_L3() {
-		return this.getCustActiveProductionEnergyChannel_L3().value();
-	}
-	public LongReadChannel getCustActiveProductionEnergyChannel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY);
-	}
-	public Value<Long> getCustActiveProductionEnergy() {
-		return this.getCustActiveProductionEnergyChannel().value();
-	}
 	
-	public LongReadChannel getCustActiveConsumptionEnergyChannel_L1() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L1);
-	}
-	public Value<Long> getCustActiveConsumptionEnergy_L1() {
-		return this.getCustActiveConsumptionEnergyChannel_L1().value();
-	}
-	public LongReadChannel getCustActiveConsumptionEnergyChannel_L2() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L2);
-	}
-	public Value<Long> getCustActiveConsumptionEnergy_L2() {
-		return this.getCustActiveConsumptionEnergyChannel_L2().value();
-	}
-	public LongReadChannel getCustActiveConsumptionEnergyChannel_L3() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L3);
-	}
-	public Value<Long> getCustActiveConsumptionEnergy_L3() {
-		return this.getCustActiveConsumptionEnergyChannel_L3().value();
-	}
-	public LongReadChannel getCustActiveConsumptionEnergyChannel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY);
-	}
-	public Value<Long> getCustActiveConsumptionEnergy() {
-		return this.getCustActiveConsumptionEnergyChannel().value();
-	}
+//	//
+//	public Value<Long> getVoltageL12() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L12).value();
+//	}
+//	public Value<Long> getVoltageL23() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L23).value();
+//	}
+//	public Value<Long> getVoltageL31() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_L31).value();
+//	}
+//	public Value<Long> getVoltageSys() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_SYS).value();
+//	}
+//	//
+//	//
+//	//
+//	public Value<Long> getCurrentNeutral() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_N).value();
+//	}
+//	public Value<Long> getCurrentSys() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_SYS).value();
+//	}
+//	//
+//	//
+//	//
+//	public Value<Long> getPowerFactorL1() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L1).value();
+//	}
+//	public Value<Long> getPowerFactorL2() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L2).value();
+//	}
+//	public Value<Long> getPowerFactorL3() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L3).value();
+//	}
+//	public Value<Long> getPowerFactorSys() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_SYS).value();
+//	}
+//	public Value<Long> getPowerFactorL1And2() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L1And2).value();
+//	}
+//	public Value<Long> getPowerFactorL3AndSys() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.POWER_FACTOR_L3AndSys).value();
+//	}
+//	//
+//	//
+//	//
+//	public Value<Long> getApparentPowerL1() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_L1).value();
+//	}
+//	public Value<Long> getApparentPowerL2() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_L2).value();
+//	}		
+//	public Value<Long> getApparentPowerL3() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_L3).value();
+//	}
+//	public Value<Long> getApparentPowerSys() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.APPARENT_POWER_SYS).value();
+//	}
+//	
+//	//
+//	//
+//	//
+//	public Value<Long> getCustReactivePowerL1() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER_L1).value();
+//	}
+//	public Value<Long> getCustReactivePowerL2() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER_L2).value();
+//	}
+//	public Value<Long> getCustReactivePowerL3() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER_L3).value();
+//	}
+//	public Value<Long> getCustReactivePower() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTREACTIVE_POWER).value();
+//	}
+//
+//	
+//	public Value<Long> getCCurrentL1() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_A1).value();
+//	}
+//	public Value<Long> getCCurrentL2() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_A2).value();
+//	}
+//	public Value<Long> getCCurrentL3() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_A3).value();
+//	}
+//	public Value<Long> getCCurrentN() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CURRENT_N).value();
+//	}
+
+
+
 	
 	
 	
-	public LongReadChannel getRunningRegsChannel() {
-		return this.channel(MeterAlgo2UEM1P5_4DS_E.ChannelId.METAS_COUNTER_REGSET_IN_USE);
-	}
+	
+	
+//	public Value<Long> getCActivePowerL1() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L1).value();
+//	}
+//	public Value<Long> getCActivePowerL2() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L2).value();
+//	}
+//	public Value<Long> getCActivePowerL3() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER_L3).value();
+//	}
+//	public Value<Long> getCActivePower() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CACTIVE_POWER).value();
+//	}
+//	
+//
+//	
+//	
+//	
+//	
+//	public Value<Long> getCustActiveProductionEnergy_L1() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L1).value();
+//	}
+//	public Value<Long> getCustActiveProductionEnergy_L2() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L2).value();
+//	}
+//	public Value<Long> getCustActiveProductionEnergy_L3() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY_L3).value();
+//	}
+//	public Value<Long> getCustActiveProductionEnergy() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVEPRODUCTION_ENERGY).value();
+//	}
+//	
+//	public Value<Long> getCustActiveConsumptionEnergy_L1() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L1).value();
+//	}
+//	public Value<Long> getCustActiveConsumptionEnergy_L2() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L2).value();
+//	}
+//	public Value<Long> getCustActiveConsumptionEnergy_L3() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY_L3).value();
+//	}
+//	public Value<Long> getCustActiveConsumptionEnergy() {
+//		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.CUSTACTIVECONSUMPTION_ENERGY).value();
+//	}
+	
+	
 	public Value<Long> getRunningRegs(){
-		return this.getRunningRegsChannel().value();
+		return this.getLongGenericChannel(MeterAlgo2UEM1P5_4DS_E.ChannelId.METAS_COUNTER_REGSET_IN_USE).value();
 	}
 	
 	
