@@ -461,35 +461,35 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 			theMessage.append("\n - ASys  - " + this.getFCurrentSys().asString());
 		}
 		if (readEnablerMask.indexOf("[PActiveFloat]") >= 0) {
-			double ACP1 = ((double) this.getFPowerActiveL1().asOptional().get());
-			double ACP2 = ((double) this.getFPowerActiveL2().asOptional().get());
-			double ACP3 = ((double) this.getFPowerActiveL3().asOptional().get());
-			double ACPSys = ((double) this.getFPowerActiveSys().asOptional().get());
+			double ACP1 = ((double) this.getFPowerActiveL1().asOptional().get())/1000;
+			double ACP2 = ((double) this.getFPowerActiveL2().asOptional().get())/1000;
+			double ACP3 = ((double) this.getFPowerActiveL3().asOptional().get())/1000;
+			double ACPSys = ((double) this.getFPowerActiveSys().asOptional().get())/1000;
 			
-			msgFormatter.format("\n\n - Active power  ACP1: %f, ACP2: %f, ACP3: %f"
+			msgFormatter.format("\n\n - Active power (KW)  ACP1: %f, ACP2: %f, ACP3: %f"
 					, (float) ACP1, (float) ACP2, (float) ACP3);
-			msgFormatter.format("\n - Total Active power ACPSys: %f", (float) ACPSys);			
+			msgFormatter.format("\n - Total Active power (KW) ACPSys: %f", (float) ACPSys);			
 		}
 		if (readEnablerMask.indexOf("[EImportExportActiveFloat]") >= 0) {
-			float activeConsumptionEnergyL1 = this.getFActiveImportedEnergy_L1().asOptional().get();
-			float activeConsumptionEnergyL2 = this.getFActiveImportedEnergy_L2().asOptional().get();
-			float activeConsumptionEnergyL3 = this.getFActiveImportedEnergy_L3().asOptional().get();
+			float activeConsumptionEnergyL1 = this.getFActiveImportedEnergy_L1().asOptional().get()/1000;
+			float activeConsumptionEnergyL2 = this.getFActiveImportedEnergy_L2().asOptional().get()/1000;
+			float activeConsumptionEnergyL3 = this.getFActiveImportedEnergy_L3().asOptional().get()/1000;
 			float activeConsumptionEnergyL123 = activeConsumptionEnergyL1 + activeConsumptionEnergyL2 + activeConsumptionEnergyL3;
-			float activeConsumptionEnergy = this.getFActiveImportedEnergy_Sys().asOptional().get();
-			msgFormatter.format("\n - Active Imported Energy L1: %f, L2: %f, L3: %f"
+			float activeConsumptionEnergy = this.getFActiveImportedEnergy_Sys().asOptional().get()/1000;
+			msgFormatter.format("\n - Active Imported Energy (KW) L1: %f, L2: %f, L3: %f"
 					, (float) activeConsumptionEnergyL1, (float) activeConsumptionEnergyL2, (float) activeConsumptionEnergyL3);
-			msgFormatter.format("\n - Total Active Imported Energy sum: %f, from meter: %f"
-					, (float) activeConsumptionEnergy, (float) activeConsumptionEnergyL123);			
+			msgFormatter.format("\n - Total Active Imported Energy sum (KW) : %f, from meter: %f"
+					, (float) activeConsumptionEnergyL123, (float) activeConsumptionEnergy);			
 			//
-			float activeProductionEnergyL1 = this.getFActiveExportedEnergy_L1().asOptional().get();
-			float activeProductionEnergyL2 = this.getFActiveExportedEnergy_L2().asOptional().get();
-			float activeProductionEnergyL3 = this.getFActiveExportedEnergy_L3().asOptional().get();
+			float activeProductionEnergyL1 = this.getFActiveExportedEnergy_L1().asOptional().get()/1000;
+			float activeProductionEnergyL2 = this.getFActiveExportedEnergy_L2().asOptional().get()/1000;
+			float activeProductionEnergyL3 = this.getFActiveExportedEnergy_L3().asOptional().get()/1000;
 			float activeProductionEnergyL123 = activeProductionEnergyL1 + activeProductionEnergyL2 + activeProductionEnergyL3;
-			float activeProductionEnergy = this.getFActiveExportedEnergy_Sys().asOptional().get();
-			msgFormatter.format("\n\n - Active Production Energy L1: %f, L2: %f, L3: %f"
+			float activeProductionEnergy = this.getFActiveExportedEnergy_Sys().asOptional().get()/1000;
+			msgFormatter.format("\n\n - Active Exported Energy (KW) L1: %f, L2: %f, L3: %f"
 					, (float) activeProductionEnergyL1, (float) activeProductionEnergyL2, (float) activeProductionEnergyL3);
-			msgFormatter.format("\n - Total Active Production Energy %f, (%f)"
-					, (float) activeProductionEnergy, (float) activeProductionEnergyL123);
+			msgFormatter.format("\n - Total Active Exported Energy sum (KW): %f ; from meter: %f"
+					, (float) activeProductionEnergyL123, (float) activeProductionEnergy);
 			
 		}
 		
