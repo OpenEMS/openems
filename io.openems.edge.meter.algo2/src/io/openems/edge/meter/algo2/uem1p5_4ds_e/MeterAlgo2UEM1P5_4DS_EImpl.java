@@ -272,13 +272,13 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 						    ElementToChannelConverter.DIRECT_1_TO_1),
 					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_IMP_FEACTSYS, new FloatDoublewordElement(0x1106),
 						    ElementToChannelConverter.DIRECT_1_TO_1),
-				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT1, new FloatDoublewordElement(0x1100), 
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT1, new FloatDoublewordElement(0x1108), 
 				    		ElementToChannelConverter.DIRECT_1_TO_1), //
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT2, new FloatDoublewordElement(0x1102),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT2, new FloatDoublewordElement(0x110A),
 					    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT3, new FloatDoublewordElement(0x1104),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACT3, new FloatDoublewordElement(0x110C),
 						    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACTSYS, new FloatDoublewordElement(0x1106),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.ENERGY_EXP_FEACTSYS, new FloatDoublewordElement(0x110E),
 						    ElementToChannelConverter.DIRECT_1_TO_1)
 				)
 			);
