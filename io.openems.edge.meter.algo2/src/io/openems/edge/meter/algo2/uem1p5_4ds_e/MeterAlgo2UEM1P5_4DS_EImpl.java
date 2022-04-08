@@ -158,20 +158,20 @@ public class MeterAlgo2UEM1P5_4DS_EImpl extends AbstractOpenemsModbusComponent
 		
 		if (readEnablerMask.indexOf("[VFloat]") >= 0) {
 			modbusProtocol.addTask(
-				new FC3ReadRegistersTask(0x00, Priority.HIGH, //
-				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL1, new FloatDoublewordElement(0x00), 
+				new FC3ReadRegistersTask(0x1000, Priority.HIGH, //
+				    m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL1, new FloatDoublewordElement(0x1000), 
 			    		ElementToChannelConverter.DIRECT_1_TO_1), //
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL2, new FloatDoublewordElement(0x02),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL2, new FloatDoublewordElement(0x1002),
 					    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL3, new FloatDoublewordElement(0x04),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL3, new FloatDoublewordElement(0x1004),
 						    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL12, new FloatDoublewordElement(0x06),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL12, new FloatDoublewordElement(0x1006),
 						    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL23, new FloatDoublewordElement(0x08),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL23, new FloatDoublewordElement(0x1008),
 						    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL31, new FloatDoublewordElement(0x0A),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FL31, new FloatDoublewordElement(0x100A),
 						    ElementToChannelConverter.DIRECT_1_TO_1),
-					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FSYS, new FloatDoublewordElement(0x0C),
+					m(MeterAlgo2UEM1P5_4DS_E.ChannelId.VOLTAGE_FSYS, new FloatDoublewordElement(0x100C),
 						    ElementToChannelConverter.DIRECT_1_TO_1)
 				)
 			);		
