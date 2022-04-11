@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.file;
+package io.openems.backend.metadata.edge.file;
 
 import io.openems.backend.common.metadata.Edge;
 import io.openems.common.channel.Level;
