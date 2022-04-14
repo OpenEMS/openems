@@ -299,9 +299,19 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 */
 	private int calculateDelayChargeAcLimit(int delayChargeMaxChargePower) {
 
-		// Calculate AC-Setpoint depending on the DC production
+		int essDischargePower = this.sum.getEssDischargePower().orElse(0);
 		int productionDcPower = this.sum.getProductionDcActualPower().orElse(0);
-		return productionDcPower - delayChargeMaxChargePower;
+		int essActivePower = this.sum.getEssActivePower().orElse(0);
+		
+		int inverterLosses = productionDcPower + essDischargePower - essActivePower;
+
+		// in case of missing data assume there are no losses.
+		if (inverterLosses < 0) {
+			inverterLosses = 0;
+		}
+		
+		// Calculate AC-Setpoint depending on the DC production & Inverter Losses
+		return productionDcPower - delayChargeMaxChargePower - inverterLosses;
 	}
 
 	/**
