@@ -121,21 +121,31 @@ public interface OffGridBatteryInverter
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#STATE_ON}.
+	 * Gets the Channel for {@link ChannelId#INVERTER_STATE}.
 	 *
 	 * @return the Channel
 	 */
-	public default BooleanReadChannel getBatteryInverterStateChannel() {
+	public default BooleanReadChannel getInverterStateChannel() {
 		return this.channel(ChannelId.INVERTER_STATE);
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for {@link ChannelId#STATE_ON}.
+	 * Gets the {@link StateChannel} for {@link ChannelId#INVERTER_STATE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getBatteryInverterState() {
-		return this.getBatteryInverterStateChannel().value();
+	public default Value<Boolean> getInverterState() {
+		return this.getInverterStateChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#INVERTER_STATE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setInverterState(Boolean value) {
+		this.getInverterStateChannel().setNextValue(value);
 	}
 
 	public static enum TargetGridMode {

@@ -2,6 +2,7 @@ package io.openems.edge.timeofusetariff.tibber;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.time.ZonedDateTime;
 import java.util.SortedMap;
@@ -154,11 +155,15 @@ public class TibberProviderTest {
 	}
 
 	@Test
-	public void emptyStringTest() throws OpenemsNamedException {
-		// Parsing with empty string
-		SortedMap<ZonedDateTime, Float> prices = TibberImpl.parsePrices("");
+	public void emptyStringTest() {
+		try {
+			// Parsing with empty string
+			TibberImpl.parsePrices("");
+		} catch (OpenemsNamedException e) {
+			// expected
+			return;
+		}
 
-		// To check if the map is empty.
-		assertTrue(prices.isEmpty());
+		fail("Expected Exception");
 	}
 }

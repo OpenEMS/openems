@@ -13,7 +13,7 @@ public class RunningHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
 		final var inverter = context.getParent();
 
-		if (inverter.hasFaults() || inverter.getBatteryInverterState().get() == Boolean.FALSE) {
+		if (inverter.hasFaults() || inverter.getInverterState().get() == Boolean.FALSE) {
 			return State.UNDEFINED;
 		}
 
@@ -23,8 +23,6 @@ public class RunningHandler extends StateHandler<State, Context> {
 		// Apply Active and Reactive Power Set-Points
 		this.applyPower(context);
 
-		inverter.softStart(true);
-		inverter.setStartInverter();
 		return State.RUNNING;
 	}
 
