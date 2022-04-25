@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subject, timer } from 'rxjs';
+import { Observable, Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { environment } from 'src/environments';
@@ -18,12 +18,16 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
   private static readonly SELECTOR = "systemUpdate";
 
   public readonly environment = environment;
-  public systemUpdateState: SystemUpdateState = null;
+  public systemUpdateState: SystemUpdateState = { unknown: {} };
   public readonly spinnerId: string = SystemUpdateComponent.SELECTOR;
   public showLog: boolean = false;
+  public readonly ESTIMATED_REBOOT_TIME = 600; // Seconds till the fems is restarted after update
 
   public edge: Edge = null;
   private ngUnsubscribe = new Subject<void>();
+  public restartTime: number = this.ESTIMATED_REBOOT_TIME;
+  public isEdgeRestarting: boolean = false;
+  public lastResult: SystemUpdateState = { unknown: {} }
 
   constructor(
     private route: ActivatedRoute,
@@ -62,16 +66,36 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
         let result = (response as GetSystemUpdateStateResponse).result;
         this.systemUpdateState = result;
         this.service.stopSpinner(this.spinnerId);
-
         // Stop regular check if there is no Update available
         if (result.updated || result.running?.percentCompleted == 100) {
           this.stopRefreshSystemUpdateState();
         }
-
-      }).catch(reason => {
-        console.error(reason.error);
-        this.service.toast("Error while executing system update: " + reason.error.message, 'danger');
+        this.lastResult = result;
+      }).catch(error => {
+        if (this.lastResult.running?.percentCompleted >= 98) {
+          this.startTimer()
+          this.service.toast("Das " + environment.edgeShortName + " wird nun neugestartet", 'success');
+          return
+        }
+        console.error(error);
+        this.service.toast("Error while executing system update: " + error.message, 'danger');
       });
+  }
+  startTimer() {
+    this.isEdgeRestarting = true;
+    let timeLeft = this.ESTIMATED_REBOOT_TIME;
+    let interval = setInterval(() => {
+      if (timeLeft >= 0) {
+        if (this.edge.isOnline) {
+          timeLeft = 0
+          this.restartTime = timeLeft;
+        } else {
+          this.restartTime = timeLeft--;
+        }
+      } else {
+        clearInterval(interval)
+      }
+    }, 1000)
   }
 
   public executeSystemUpdate() {
@@ -89,6 +113,9 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
 
       }).catch(reason => {
         console.error(reason.error);
+        if (this.lastResult.running?.percentCompleted >= 98) {
+          return
+        }
         this.service.toast("Error while executing system update: " + reason.error.message, 'danger');
       });
   }

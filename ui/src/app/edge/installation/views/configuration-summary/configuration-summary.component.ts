@@ -292,6 +292,6 @@ export class ConfigurationSummaryComponent implements OnInit {
   }
 
   public getCountryLabel(countryValue: string) {
-    return COUNTRY_OPTIONS.find((country) => { return country.value === countryValue }).label;
+    return COUNTRY_OPTIONS.find((country) => { return country.value === countryValue })?.label ?? "";
   }
 }
