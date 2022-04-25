@@ -1,5 +1,6 @@
 package io.openems.backend.timedata.influx;
 
+import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,20 +64,17 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	protected volatile Metadata metadata;
 
 	@Activate
-	private void activate(Config config) throws OpenemsException {
+	private void activate(Config config) throws OpenemsException, IllegalArgumentException {
 		this.logInfo(this.log, "Activate [" //
 				+ "url=" + config.url() + ";"//
-				+ "port=" + config.port() + ";" //
-				+ "database=" + config.database() + ";"//
-				+ "retentionPolicy=" + config.retentionPolicy() + ";"//
-				+ "username=" + config.username() + ";"//
-				+ "password=" + (config.password() != null ? "ok" : "NOT_SET") + ";"//
+				+ "bucket=" + config.bucket() + ";"//
+				+ "apiKey=" + (config.apiKey() != null ? "ok" : "NOT_SET") + ";"//
 				+ "measurement=" + config.measurement() //
 				+ (config.isReadOnly() ? ";READ_ONLY_MODE" : "") //
 				+ "]");
 
-		this.influxConnector = new InfluxConnector(config.url(), config.port(), config.username(), config.password(),
-				config.database(), config.retentionPolicy(), config.isReadOnly(), //
+		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(),
+				config.bucket(), config.isReadOnly(), //
 				(throwable) -> {
 					if (throwable instanceof BadRequestException) {
 						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
@@ -122,8 +120,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param data         the data
 	 * @throws OpenemsException on error
 	 */
-	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data)
-			throws OpenemsException {
+	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) {
 		var dataEntries = data.rowMap().entrySet();
 		if (dataEntries.isEmpty()) {
 			// no data to write

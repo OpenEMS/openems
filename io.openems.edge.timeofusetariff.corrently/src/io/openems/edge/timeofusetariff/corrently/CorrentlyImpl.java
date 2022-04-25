@@ -46,7 +46,7 @@ import okhttp3.Request;
 )
 public class CorrentlyImpl extends AbstractOpenemsComponent implements TimeOfUseTariff, OpenemsComponent, Corrently {
 
-	private static final String CORRENTLY_API_URL = "https://api.corrently.io/v2.0/gsi/marketdata?zipcode=";
+	private static final String CORRENTLY_API_URL = "https://api.corrently.io/v2.0/gsi/marketdata?zip=";
 
 	private final Logger log = LoggerFactory.getLogger(CorrentlyImpl.class);
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();

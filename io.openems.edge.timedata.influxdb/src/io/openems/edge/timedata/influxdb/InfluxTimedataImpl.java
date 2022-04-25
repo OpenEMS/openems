@@ -1,5 +1,6 @@
 package io.openems.edge.timedata.influxdb;
 
+import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -25,7 +26,6 @@ import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -73,12 +73,16 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.influxConnector = new InfluxConnector(config.ip(), config.port(), config.username(), config.password(),
-				config.database(), config.retentionPolicy(), config.isReadOnly(), //
-				throwable -> {
+		this.config = config;
+		if (!this.isEnabled()) {
+			return;
+		}
+
+		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(),
+				config.bucket(), config.isReadOnly(), //
+				(throwable) -> {
 					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage());
 				});
-		this.config = config;
 	}
 
 	@Override
@@ -164,11 +168,7 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 					});
 
 			if (addedAtLeastOneChannelValue.get()) {
-				try {
-					this.influxConnector.write(point);
-				} catch (OpenemsException e) {
-					this.logError(this.log, e.getMessage());
-				}
+				this.influxConnector.write(point);
 			}
 		}
 	}
