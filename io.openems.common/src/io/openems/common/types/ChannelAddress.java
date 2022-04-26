@@ -70,10 +70,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
+		if ((obj == null) || (this.getClass() != obj.getClass())) {
 			return false;
 		}
 		var other = (ChannelAddress) obj;

@@ -19,6 +19,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ import com.google.gson.JsonObject;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Edge.State;
+import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
@@ -77,6 +80,9 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 	private User user;
 	private String path = "";
+
+	@Reference
+	private EventAdmin eventAdmin;
 
 	public FileMetadata() {
 		super("Metadata.File");
@@ -182,6 +188,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 				for (Entry<String, JsonElement> entry : jEdges.entrySet()) {
 					var edge = JsonUtils.getAsJsonObject(entry.getValue());
 					edges.add(new MyEdge(//
+							this, //
 							entry.getKey(), // Edge-ID
 							JsonUtils.getAsString(edge, "apikey"), //
 							JsonUtils.getAsString(edge, "setuppassword"), //
@@ -246,6 +253,21 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	@Override
 	public void updateUserLanguage(User user, Language locale) throws OpenemsNamedException {
 		FileMetadata.LANGUAGE = locale;
+	}
+
+	@Override
+	public Optional<List<EdgeUser>> getUserToEdge(String edgeId) {
+		throw new IllegalArgumentException("FileMetadata.getUserToEdge() is not implemented");
+	}
+
+	@Override
+	public EventAdmin getEventAdmin() {
+		return this.eventAdmin;
+	}
+
+	@Override
+	public Optional<EdgeUser> getEdgeUserTo(String edgeId, String userId) {
+		return Optional.empty();
 	}
 
 }

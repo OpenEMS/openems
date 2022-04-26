@@ -7,8 +7,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -28,11 +28,12 @@ import io.openems.edge.ess.power.api.Power;
 @Component(//
 		name = "MR.Gridcon.Ongrid", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 public class EssGridconOnGrid extends EssGridcon
 		implements ManagedSymmetricEss, SymmetricEss, ModbusSlave, OpenemsComponent, EventHandler {
 

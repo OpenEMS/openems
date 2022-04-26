@@ -31,6 +31,7 @@ import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/sett
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
+import { AlertingComponent as EdgeSettingsAlerting } from './edge/settings/alerting/alerting.component';
 import { IndexComponent } from './index/index.component';
 import { UserComponent } from './user/user.component';
 
@@ -76,6 +77,16 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },
   { path: 'device/:edgeId/settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
+<<<<<<< HEAD
+=======
+  { path: 'device/:edgeId/settings/systemupdate.old', component: EdgeSettingsSystemUpdateOldComponent },
+  { path: 'device/:edgeId/settings/app', component: EdgeSettingsAppIndex },
+  { path: 'device/:edgeId/settings/app/install/:appId', component: EdgeSettingsAppInstall },
+  { path: 'device/:edgeId/settings/app/update/:appId', component: EdgeSettingsAppUpdate },
+  { path: 'device/:edgeId/settings/app/single/:appId', component: EdgeSettingsAppSingle },
+  { path: 'device/:edgeId/settings/alerting', component: EdgeSettingsAlerting },
+  { path: 'demo', component: IndexComponent }
+>>>>>>> eaed911e4c (Implement Negative Alerting (#211))
 ];
 
 export const appRoutingProviders: any[] = [

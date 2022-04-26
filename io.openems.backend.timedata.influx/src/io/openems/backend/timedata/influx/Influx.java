@@ -19,16 +19,13 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import com.influxdb.exceptions.BadRequestException;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.timedata.EdgeCache;
 import io.openems.backend.common.timedata.Timedata;
@@ -37,7 +34,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.SemanticVersion;
 import io.openems.shared.influxdb.InfluxConnector;
 
 @Designate(ocd = Config.class, factory = false)
@@ -208,11 +204,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	 * @param element the value
 	 */
 	private void addValue(Point builder, String field, JsonElement element) {
-		if (element == null || element.isJsonNull()) {
-			// do not add
-			return;
-		}
-		if (this.specialCaseFieldHandling(builder, field, element)) {
+		if (element == null || element.isJsonNull() || this.specialCaseFieldHandling(builder, field, element)) {
 			// already handled by special case handling
 			return;
 		}
@@ -273,196 +265,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		if (value.isPresent()) {
 			return value;
 		}
-		var edge = this.metadata.getEdge(edgeId);
-		if (!edge.isPresent()) {
-			return Optional.empty();
-		}
-		if (edge.get().getVersion().isAtLeast(new SemanticVersion(2018, 11, 0))) {
-			return Optional.empty();
-		}
-		// Old version: start compatibility mode
-		var compatibility = this.getCompatibilityFormula(edge.get(), address);
-		if (compatibility.length == 0) {
-			return Optional.empty();
-		}
-		// handle compatibility with elder OpenEMS Edge version
-		return this.getCompatibilityChannelValue(compatibility, cache);
-	}
-
-	/**
-	 * Handles compatibility with elder OpenEMS Edge version, e.g. calculate the
-	 * '_sum' Channels.
-	 *
-	 * @param compatibility the formula to calculate the channel value
-	 * @param cache         the EdgeCache
-	 * @return the value as an Optional
-	 */
-	@Deprecated
-	private Optional<JsonElement> getCompatibilityChannelValue(ChannelFormula[] compatibility, EdgeCache cache) {
-		var value = 0;
-		for (ChannelFormula formula : compatibility) {
-			switch (formula.getFunction()) {
-			case PLUS:
-				value += formula.getValue(cache);
-			}
-		}
-		return Optional.of(new JsonPrimitive(value));
-	}
-
-	/**
-	 * Gets the formula to calculate a '_sum' Channel value.
-	 *
-	 * @param edge    the Edge
-	 * @param address the ChannelAddress
-	 * @return the formula to calculate the channel value
-	 */
-	@Deprecated
-	private ChannelFormula[] getCompatibilityFormula(Edge edge, ChannelAddress address) {
-		var config = edge.getConfig();
-
-		if (address.getComponentId().equals("_sum")) {
-			switch (address.getChannelId()) {
-
-			case "EssSoc": {
-				var ids = config.getComponentsImplementingNature("EssNature");
-				if (ids.size() > 0) {
-					// take first result
-					return new ChannelFormula[] {
-							new ChannelFormula(Function.PLUS, new ChannelAddress(ids.get(0), "Soc")) };
-				}
-				return new ChannelFormula[0];
-			}
-
-			case "EssActivePower": {
-				var asymmetricIds = config.getComponentsImplementingNature("AsymmetricEssNature");
-				var symmetricIds = config.getComponentsImplementingNature("SymmetricEssNature");
-				symmetricIds.removeAll(asymmetricIds);
-				var result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
-				var i = 0;
-				for (String id : asymmetricIds) {
-					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL1"));
-					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL2"));
-					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL3"));
-				}
-				for (String id : symmetricIds) {
-					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePower"));
-				}
-				return result;
-			}
-
-			case "EssMaxApparentPower":
-				switch (edge.getProducttype()) {
-				case "Pro 9-12":
-				case "PRO Hybrid 9-10":
-					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, 9_000), //
-					};
-				case "Pro Hybrid 10-Serie":
-				case "Kostal PIKO + B-Box HV":
-					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, 10_000), //
-					};
-				case "MiniES 3-3":
-					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, 3_000), //
-					};
-				case "Commercial 50-Serie":
-					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, 50_000), //
-					};
-				case "COMMERCIAL 40-45":
-				case "INDUSTRIAL":
-				case "":
-					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, 40_000), //
-					};
-				default:
-					this.logWarn(this.log,
-							"No formula for " + address + " [" + edge.getId() + "|" + edge.getProducttype() + "]");
-					return new ChannelFormula[] { //
-							new ChannelFormula(Function.PLUS, 40_000) //
-					};
-				}
-
-			case "GridActivePower":
-				return new ChannelFormula[] { //
-						new ChannelFormula(Function.PLUS, new ChannelAddress("meter0", "ActivePower")) //
-				};
-
-			case "GridMinActivePower":
-				return new ChannelFormula[] { //
-						new ChannelFormula(Function.PLUS, new ChannelAddress("meter0", "minActivePower")) //
-				};
-
-			case "GridMaxActivePower":
-				return new ChannelFormula[] { //
-						new ChannelFormula(Function.PLUS, new ChannelAddress("meter0", "maxActivePower")) //
-				};
-
-			case "ProductionActivePower":
-				return ObjectArrays.concat(//
-						this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "ProductionAcActivePower")), //
-						this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "ProductionDcActualPower")), //
-						ChannelFormula.class);
-
-			case "ProductionAcActivePower": {
-				var ignoreIds = config.getComponentsImplementingNature("FeneconMiniConsumptionMeter");
-				ignoreIds.add("meter0");
-
-				var asymmetricIds = config.getComponentsImplementingNature("AsymmetricMeterNature");
-				asymmetricIds.removeAll(ignoreIds);
-
-				var symmetricIds = config.getComponentsImplementingNature("SymmetricMeterNature");
-				symmetricIds.removeAll(ignoreIds);
-				symmetricIds.removeAll(asymmetricIds);
-
-				var result = new ChannelFormula[asymmetricIds.size() * 3 + symmetricIds.size()];
-				var i = 0;
-				for (String id : asymmetricIds) {
-					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL1"));
-					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL2"));
-					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePowerL3"));
-				}
-				for (String id : symmetricIds) {
-					result[i++] = new ChannelFormula(Function.PLUS, new ChannelAddress(id, "ActivePower"));
-				}
-				return result;
-			}
-
-			case "ProductionDcActualPower": {
-				var ids = config.getComponentsImplementingNature("ChargerNature");
-				var result = new ChannelFormula[ids.size()];
-				for (var i = 0; i < ids.size(); i++) {
-					result[i] = new ChannelFormula(Function.PLUS, new ChannelAddress(ids.get(i), "ActualPower"));
-				}
-				return result;
-			}
-
-			case "ProductionMaxActivePower":
-				return new ChannelFormula[] { //
-						new ChannelFormula(Function.PLUS, new ChannelAddress("meter1", "maxActivePower")) //
-				};
-
-			case "ConsumptionActivePower":
-				return ObjectArrays.concat(//
-						ObjectArrays.concat(//
-								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "EssActivePower")), //
-								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "GridActivePower")), //
-								ChannelFormula.class),
-						this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "ProductionAcActivePower")), //
-						ChannelFormula.class);
-
-			case "ConsumptionMaxActivePower":
-				return ObjectArrays.concat(//
-						ObjectArrays.concat(//
-								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "EssMaxApparentPower")), //
-								this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "GridMaxActivePower")), //
-								ChannelFormula.class),
-						this.getCompatibilityFormula(edge, new ChannelAddress("_sum", "ProductionMaxActivePower")), //
-						ChannelFormula.class);
-			}
-		}
-		return new ChannelFormula[0];
+		return Optional.empty();
 	}
 
 	@Override
