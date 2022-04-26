@@ -151,10 +151,7 @@ public class SemanticVersion {
 		if (this == o) {
 			return true;
 		}
-		if (o == null) {
-			return false;
-		}
-		if (this.getClass() != o.getClass()) {
+		if ((o == null) || (this.getClass() != o.getClass())) {
 			return false;
 		}
 		var other = (SemanticVersion) o;

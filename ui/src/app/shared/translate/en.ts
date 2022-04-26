@@ -259,6 +259,7 @@ export const TRANSLATION = {
                         passedEndTime: 'End time of limited charging exceeded',
                         storageAlreadyFull: 'Memory already full',
                     },
+                    storageCapacity: 'Storagecapacity (only visible for admin)'
                 },
                 CHP: {
                     highThreshold: 'High Threshold',
@@ -430,6 +431,7 @@ export const TRANSLATION = {
                 simulator: 'Simulator',
                 systemExecute: 'Execute system command',
                 systemProfile: 'System Profile',
+                alerting: 'Alerting',
             },
             More: {
                 manualCommand: 'Manual command',
@@ -464,6 +466,11 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'New connection...',
                 newDevice: 'New device...',
+            },
+            Alerting: {
+                activate: 'Activate',
+                delay: 'Delay [min]',
+                save: 'Save',
             }
         }
     },

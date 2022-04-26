@@ -15,8 +15,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +46,12 @@ import io.openems.edge.ess.power.api.Relationship;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.OPTIONAL, //
 		property = { //
-				"enabled=true", //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+				"enabled=true" //
 		})
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+})
 public class PowerComponentImpl extends AbstractOpenemsComponent
 		implements PowerComponent, OpenemsComponent, EventHandler, Power {
 

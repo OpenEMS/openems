@@ -12,6 +12,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { SettingsComponent } from './settings.component';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
 import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
+import { AlertingComponent } from './alerting/alerting.component';
 
 @NgModule({
   imports: [
@@ -30,6 +31,7 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
     SettingsComponent,
     SystemExecuteComponent,
     SystemUpdateComponent,
+    AlertingComponent,
   ],
   entryComponents: [
   ]

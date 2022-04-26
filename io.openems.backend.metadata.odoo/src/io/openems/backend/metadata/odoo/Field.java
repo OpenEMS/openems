@@ -60,13 +60,13 @@ public interface Field {
 		PRODUCT_TYPE("producttype", true), //
 		OPENEMS_CONFIG("openems_config", true), //
 		OPENEMS_CONFIG_COMPONENTS("openems_config_components", false), //
-		LAST_MESSAGE("lastmessage", false), //
-		LAST_UPDATE("lastupdate", false), //
+		LAST_MESSAGE("lastmessage", true), //
+		LAST_UPDATE("lastupdate", true), //
 		OPENEMS_SUM_STATE("openems_sum_state_level", true), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
 		public static final String ODOO_MODEL = "openems.edge";
-		public static final String ODOO_TABLE = EdgeDevice.ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -120,7 +120,7 @@ public interface Field {
 		ACKNOWLEDGE_DAYS("acknowledge_days", false);
 
 		public static final String ODOO_MODEL = "openems.edge_status";
-		public static final String ODOO_TABLE = EdgeDeviceStatus.ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -170,7 +170,7 @@ public interface Field {
 		DETAILS("details", false);
 
 		public static final String ODOO_MODEL = "openems.openemsconfigupdate";
-		public static final String ODOO_TABLE = EdgeConfigUpdate.ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -215,12 +215,18 @@ public interface Field {
 	 * The EdgeDeviceUserRole-Model.
 	 */
 	public enum EdgeDeviceUserRole implements Field {
-		DEVICE_ID("edge_id", false), //
-		USER_ID("user_id", false), //
-		ROLE("role", false);
+		ID("id", true), //
+		DEVICE_ODOO_ID("edge_id", false), //
+		USER_ODOO_ID("user_id", true), //
+		ROLE("role", false), //
+
+		USER_ID("(SELECT login FROM res_users ru WHERE ru.id = user_id)", true), //
+
+		TIME_TO_WAIT("time_to_wait", true), //
+		LAST_NOTIFICATION("last_notification", true); //
 
 		public static final String ODOO_MODEL = "openems.edge_user_role";
-		public static final String ODOO_TABLE = EdgeDeviceUserRole.ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -426,7 +432,7 @@ public interface Field {
 		EDGE("edge_id", true);
 
 		public static final String ODOO_MODEL = "openems.setup_protocol";
-		public static final String ODOO_TABLE = SetupProtocol.ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -473,7 +479,7 @@ public interface Field {
 		LOT("lot_id", true);
 
 		public static final String ODOO_MODEL = "openems.setup_protocol_production_lot";
-		public static final String ODOO_TABLE = SetupProtocolProductionLot.ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -519,7 +525,7 @@ public interface Field {
 		SEQUENCE("sequence", true);
 
 		public static final String ODOO_MODEL = "openems.setup_protocol_item";
-		public static final String ODOO_TABLE = SetupProtocolItem.ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
