@@ -21,7 +21,6 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.component.ComponentConstants;
-import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -32,6 +31,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.event.EventBuilder;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
@@ -98,9 +98,9 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		}
 
 		if (wasConfigUpdated) {
-			Map<String, Object> attachment = new HashMap<>();
-			attachment.put(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY, this.cache);
-			this.parent.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CONFIG_UPDATE, attachment));
+			EventBuilder.from(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CONFIG_UPDATE) //
+					.addArg(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY, this.cache) //
+					.send();
 		}
 
 		return this.cache;

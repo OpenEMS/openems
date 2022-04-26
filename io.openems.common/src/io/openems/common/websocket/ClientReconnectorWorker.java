@@ -29,11 +29,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	@Override
 	protected void forever() throws InterruptedException {
 		var ws = this.parent.ws;
-		if (ws == null) {
-			return;
-		}
-
-		if (ws.getReadyState() == ReadyState.OPEN) {
+		if ((ws == null) || (ws.getReadyState() == ReadyState.OPEN)) {
 			return;
 		}
 

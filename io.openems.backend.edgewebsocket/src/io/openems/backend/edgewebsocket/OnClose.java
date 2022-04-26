@@ -30,6 +30,7 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 			if (edgeOpt.isPresent()) {
 				var isOnline = this.parent.isOnline(edgeId);
 				edgeOpt.get().setOnline(isOnline);
+
 			}
 
 		} else {

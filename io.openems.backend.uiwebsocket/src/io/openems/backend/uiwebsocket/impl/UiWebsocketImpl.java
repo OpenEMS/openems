@@ -1,19 +1,20 @@
 package io.openems.backend.uiwebsocket.impl;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,10 @@ import io.openems.common.utils.ThreadPoolUtils;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		immediate = true //
 )
-public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket {
+@EventTopics({ //
+		Metadata.Events.AFTER_IS_INITIALIZED //
+})
+public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(UiWebsocket.class);
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -62,14 +66,9 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 
 	private Config config;
 
-	private final Runnable startServerWhenMetadataIsInitialized = () -> {
-		this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
-	};
-
 	@Activate
 	private void activate(Config config) {
 		this.config = config;
-		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
 			this.log.info(new StringBuilder("[monitor] ") //
 					.append("UI-Connections: ") //
@@ -81,7 +80,6 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	@Deactivate
 	private void deactivate() {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
-		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.stopServer();
 	}
 
@@ -154,8 +152,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	 */
 	private WsData getWsDataForTokenOrError(String token) throws OpenemsNamedException {
 		var connections = this.server.getConnections();
-		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
-			var websocket = iter.next();
+		for (var websocket : connections) {
 			WsData wsData = websocket.getAttachment();
 			var thisToken = wsData.getToken();
 			if (thisToken.isPresent() && thisToken.get().equals(token)) {
@@ -175,8 +172,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	private List<WsData> getWsDatasForEdgeId(String edgeId) {
 		var result = new ArrayList<WsData>();
 		var connections = this.server.getConnections();
-		for (Iterator<WebSocket> iter = connections.iterator(); iter.hasNext();) {
-			var websocket = iter.next();
+		for (var websocket : connections) {
 			WsData wsData = websocket.getAttachment();
 			// get attachment User-ID
 			var userIdOpt = wsData.getUserId();
@@ -195,6 +191,15 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case Metadata.Events.AFTER_IS_INITIALIZED:
+			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+			break;
+		}
 	}
 
 }

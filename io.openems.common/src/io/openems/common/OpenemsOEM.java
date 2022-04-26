@@ -10,12 +10,12 @@ public class OpenemsOEM {
 	/*
 	 * General.
 	 */
-	public final static String MANUFACTURER = "FENECON GmbH";
+	public static final String MANUFACTURER = "FENECON GmbH";
 
 	/*
 	 * Backend-Api Controller
 	 */
-	public final static String BACKEND_API_URI = "wss://www1.fenecon.de:443/openems-backend2";
+	public static final String BACKEND_API_URI = "wss://www1.fenecon.de:443/openems-backend2";
 
 	/*
 	 * System-Update.

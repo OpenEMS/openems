@@ -22,8 +22,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
@@ -58,8 +58,11 @@ import io.openems.edge.timedata.api.Timedata;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Timedata.Rrd4j", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		implements Rrd4jTimedata, Timedata, OpenemsComponent, EventHandler {
 

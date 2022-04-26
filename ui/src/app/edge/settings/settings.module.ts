@@ -20,6 +20,7 @@ import { SettingsComponent } from './settings.component';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
 import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.component';
 import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
+import { AlertingComponent } from './alerting/alerting.component';
 
 @NgModule({
   imports: [
@@ -46,6 +47,7 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
     SystemExecuteComponent,
     SystemUpdateComponent,
     SystemUpdateOldComponent,
+    AlertingComponent,
   ],
   entryComponents: [
     EvcsInstallerComponent,
