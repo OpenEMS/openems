@@ -21,7 +21,7 @@ export class SystemUpdateComponent implements OnInit, OnDestroy {
   public systemUpdateState: SystemUpdateState = { unknown: {} };
   public readonly spinnerId: string = SystemUpdateComponent.SELECTOR;
   public showLog: boolean = false;
-  public readonly ESTIMATED_REBOOT_TIME = 600; // Seconds till the fems is restarted after update
+  public readonly ESTIMATED_REBOOT_TIME = 600; // Seconds till the openems service is restarted after update
 
   public edge: Edge = null;
   private ngUnsubscribe = new Subject<void>();
