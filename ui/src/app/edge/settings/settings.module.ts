@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from './../../shared/shared.module';
+import { AppModule } from './app/app.module';
 import { ChannelsComponent } from './channels/channels.component';
 import { IndexComponent as ComponentInstallIndexComponent } from './component/install/index.component';
 import { ComponentInstallComponent } from './component/install/install.component';
@@ -14,6 +15,7 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
 
 @NgModule({
   imports: [
+    AppModule,
     SharedModule,
   ],
   declarations: [
@@ -29,6 +31,7 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
     SystemExecuteComponent,
     SystemUpdateComponent,
   ],
-  entryComponents: []
+  entryComponents: [
+  ]
 })
 export class SettingsModule { }
