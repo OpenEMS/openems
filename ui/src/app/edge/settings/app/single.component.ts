@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
 import { GetApp } from './jsonrpc/getApp';
+import { GetAppDescriptor } from './jsonrpc/getAppDescriptor';
 import { GetApps } from './jsonrpc/getApps';
 
 @Component({
@@ -20,6 +22,12 @@ export class SingleAppComponent implements OnInit {
 
   private appId: string;
   private app: GetApps.App;
+  private descriptor: GetAppDescriptor.AppDescriptor;
+  private isXL = true;
+
+  // for stopping spinner when all responses are recieved
+  private readonly requestCount: number = 2;
+  private recievedResponse: number = 0;
 
   private edge: Edge = null;
 
@@ -28,21 +36,22 @@ export class SingleAppComponent implements OnInit {
     protected utils: Utils,
     private websocket: Websocket,
     private service: Service,
-    //private http: HttpClient
+    private sanitizer: DomSanitizer
   ) {
   }
 
   ngOnInit() {
     this.service.startSpinner(this.spinnerId);
+    this.updateIsXL();
     this.appId = this.route.snapshot.params["appId"];
     let appId = this.appId;
     this.service.setCurrentComponent("App " + appId, this.route).then(edge => {
       this.edge = edge;
 
+      // set appname, image ...
       if ('appId' in history.state) {
         this.setApp(history.state)
       } else {
-
         edge.sendRequest(this.websocket,
           new ComponentJsonApiRequest({
             componentId: "_appManager",
@@ -50,20 +59,56 @@ export class SingleAppComponent implements OnInit {
           })).then(response => {
             let app = (response as GetApp.Response).result.app;
             this.setApp(app)
-          })
-          .catch(reason => {
+          }).catch(reason => {
             console.error(reason.error);
             this.service.toast("Error while receiving App[" + appId + "]: " + reason.error.message, 'danger');
           });
-
       }
+      // set app descriptor
+      edge.sendRequest(this.websocket,
+        new ComponentJsonApiRequest({
+          componentId: "_appManager",
+          payload: new GetAppDescriptor.Request({ appId: appId })
+        })).then(response => {
+          let descriptor = (response as GetAppDescriptor.Response).result;
+          this.descriptor = GetAppDescriptor.postprocess(descriptor, this.sanitizer);
+        }).catch(reason => {
+          console.error(reason.error);
+          this.service.toast("Error while receiving AppDescriptor for App[" + appId + "]: " + reason.error.message, 'danger');
+        }).finally(() => {
+          this.increaseRecievedResponse();
+        });
     });
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    this.updateIsXL();
+  }
+
+  private updateIsXL() {
+    this.isXL = 1200 <= window.innerWidth;
+  }
+
+  private iFrameStyle() {
+    let styles = {
+      'height': (this.isXL) ? '100%' : window.innerHeight + 'px'
+    };
+    return styles;
   }
 
   private setApp(app: GetApps.App) {
     this.app = app;
     this.form = new FormGroup({});
-    this.service.stopSpinner(this.spinnerId);
+    this.increaseRecievedResponse();
+  }
+
+  private increaseRecievedResponse() {
+    this.recievedResponse++;
+    if (this.recievedResponse == this.requestCount) {
+      this.recievedResponse = 0;
+      this.service.stopSpinner(this.spinnerId);
+    }
   }
 
 }

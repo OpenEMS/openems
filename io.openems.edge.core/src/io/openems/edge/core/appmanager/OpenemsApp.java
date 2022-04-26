@@ -35,6 +35,13 @@ public interface OpenemsApp {
 	public String getAppId();
 
 	/**
+	 * Gets the {@link AppDescriptor} of the {@link OpenemsApp}.
+	 *
+	 * @return the {@link AppDescriptor}
+	 */
+	public AppDescriptor getAppDescriptor();
+
+	/**
 	 * Gets the {@link OpenemsAppCategory} of the {@link OpenemsApp}.
 	 *
 	 * @return the category's

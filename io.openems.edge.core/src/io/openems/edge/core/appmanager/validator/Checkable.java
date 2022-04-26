@@ -1,28 +1,8 @@
 package io.openems.edge.core.appmanager.validator;
 
+import java.util.Map;
+
 public interface Checkable {
-
-	public static class Or implements Checkable {
-
-		private final Checkable first;
-		private final Checkable second;
-
-		public Or(Checkable first, Checkable second) {
-			this.first = first;
-			this.second = second;
-		}
-
-		@Override
-		public boolean check() {
-			return this.first.check() || this.second.check();
-		}
-
-		@Override
-		public String getErrorMessage() {
-			return this.first.getErrorMessage() + " or " + this.second.getErrorMessage();
-		}
-
-	}
 
 	/**
 	 * Checks if the implemented task was successful or not.
@@ -39,14 +19,12 @@ public interface Checkable {
 	public String getErrorMessage();
 
 	/**
-	 * Gets a new {@link Checkable} which returns true if at least one of the
-	 * {@link Checkable} are true.
+	 * Sets the properties.
 	 *
-	 * @param checkable the other {@link Checkable}
-	 * @return a new {@link Checkable}
+	 * @param properties the properties to be set for the next check
 	 */
-	public default Checkable or(Checkable checkable) {
-		return new Or(this, checkable);
+	public default void setProperties(Map<String, ?> properties) {
+
 	}
 
 }

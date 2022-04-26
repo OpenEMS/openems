@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { environment } from 'src/environments';
@@ -18,6 +18,7 @@ export class IndexComponent {
 
   public installedApps: AppList = { name: "Installiert", appCategories: [] };
   public availableApps: AppList = { name: "Verfügbar", appCategories: [] };
+  // TODO incompatible apps should not be shown in the future
   public incompatibleApps: AppList = { name: "Incompatible", appCategories: [] };
 
   public appLists: AppList[] = [this.installedApps, this.availableApps, this.incompatibleApps];
@@ -49,6 +50,9 @@ export class IndexComponent {
           componentId: "_appManager",
           payload: new GetApps.Request()
         })).then(response => {
+
+          this.service.stopSpinner(this.spinnerId);
+
           this.apps = (response as GetApps.Response).result.apps;
 
           // init categories
@@ -62,7 +66,6 @@ export class IndexComponent {
           })
 
           this.updateSelection(null)
-          this.service.stopSpinner(this.spinnerId);
 
         }).catch(reason => {
           console.error(reason.error);

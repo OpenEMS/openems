@@ -75,8 +75,8 @@ export namespace GetApps {
 
     export interface Status {
         name: 'INCOMPATIBLE' | 'COMPATIBLE' | 'INSTALLABLE',
-        errorCompatibleMessages: [],
-        errorInstallableMessages: []
+        errorCompatibleMessages: string[],
+        errorInstallableMessages: string[]
     }
 
     export interface Category {

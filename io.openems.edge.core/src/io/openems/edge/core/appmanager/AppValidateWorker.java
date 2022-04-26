@@ -2,6 +2,7 @@ package io.openems.edge.core.appmanager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -126,7 +127,7 @@ public class AppValidateWorker extends AbstractWorker {
 		var instances = new ArrayList<>(this.parent.instantiatedApps);
 		for (OpenemsApp app : this.parent.availableApps) {
 			this.defectiveApps.remove(app.getAppId());
-			var removingInstances = new ArrayList<>();
+			var removingInstances = new LinkedList<>();
 			for (var instantiatedApp : instances) {
 				if (app.getAppId().equals(instantiatedApp.appId)) {
 					this.validateApp(app, instantiatedApp);

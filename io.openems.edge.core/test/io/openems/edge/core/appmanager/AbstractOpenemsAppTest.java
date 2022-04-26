@@ -10,8 +10,8 @@ public class AbstractOpenemsAppTest {
 
 	@Test
 	public void test() {
-		assertTrue(ComponentUtil.equals(new JsonPrimitive(true), new JsonPrimitive(true)));
-		assertTrue(ComponentUtil.equals(new JsonPrimitive(true), new JsonPrimitive("true")));
+		assertTrue(ComponentUtilImpl.equals(new JsonPrimitive(true), new JsonPrimitive(true)));
+		assertTrue(ComponentUtilImpl.equals(new JsonPrimitive(true), new JsonPrimitive("true")));
 	}
 
 }

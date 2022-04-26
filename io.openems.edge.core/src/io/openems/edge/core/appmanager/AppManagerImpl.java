@@ -2,14 +2,18 @@ package io.openems.edge.core.appmanager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -25,7 +29,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -48,10 +51,10 @@ import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.GetApp;
 import io.openems.edge.core.appmanager.jsonrpc.GetAppAssistant;
+import io.openems.edge.core.appmanager.jsonrpc.GetAppDescriptor;
 import io.openems.edge.core.appmanager.jsonrpc.GetAppInstances;
 import io.openems.edge.core.appmanager.jsonrpc.GetApps;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
-import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
 
 @Designate(ocd = Config.class, factory = false)
 @org.osgi.service.component.annotations.Component(//
@@ -73,6 +76,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	@Reference
 	protected ComponentManager componentManager;
 
+	@Reference
 	protected ComponentUtil componentUtil;
 
 	protected final List<OpenemsAppInstance> instantiatedApps = new ArrayList<>();
@@ -93,9 +97,17 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		this.componentUtil = new ComponentUtil(this.componentManager);
 		this.worker.activate(this.id());
 		this.applyConfig(config);
+	}
+
+	/**
+	 * Gets an unmodifiable list of the current instantiated apps.
+	 *
+	 * @return the list of instantiated apps
+	 */
+	public final List<OpenemsAppInstance> getInstantiatedApps() {
+		return Collections.unmodifiableList(this.instantiatedApps);
 	}
 
 	/**
@@ -161,7 +173,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void checkStatus(OpenemsApp openemsApp) throws OpenemsNamedException {
+	protected void checkStatus(OpenemsApp openemsApp) throws OpenemsNamedException {
 		var validator = openemsApp.getValidator();
 		var status = validator.getStatus();
 		switch (validator.getStatus()) {
@@ -179,39 +191,30 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	private void checkCardinality(OpenemsApp openemsApp) throws OpenemsNamedException {
-		switch (openemsApp.getCardinality()) {
-		case SINGLE:
-			if (this.instantiatedApps.stream().anyMatch(t -> t.appId.equals(openemsApp.getAppId()))) {
-				// only create one instance of this app
-				throw new OpenemsException("An instance of the app[" + openemsApp.getAppId() + "] is already created!");
-			}
-			break;
-		case SINGLE_IN_CATEGORY:
-			if (this.instantiatedApps.stream().anyMatch(t -> {
-				var app = this.findAppById(t.appId);
-				if (app.getCardinality() != OpenemsAppCardinality.SINGLE_IN_CATEGORY) {
-					return false;
-				}
-				return Arrays.stream(app.getCategorys())
-						.anyMatch(c -> Arrays.stream(openemsApp.getCategorys()).anyMatch(c2 -> c == c2));
-			})) {
-				// only create one instance with the same category of this app
-				throw new OpenemsException("An instance of an app with the same category["
-						+ openemsApp.getCategorys().toString() + "] is already created!");
-			}
-			break;
-		case MULTIPLE:
-			// any number of this app can be instantiated
-			break;
-		default:
-			throw new NotImplementedException("Usage " + openemsApp.getCardinality().name() + " is not implemented.");
-		}
-	}
-
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {
 		this.worker.configurationEvent(event);
+	}
+
+	private void foreachAppConfiguration(Consumer<AppConfiguration> consumer, UUID... excludingInstanceIds) {
+		for (var appInstance : this.instantiatedApps) {
+			var skipInstance = false;
+			for (var id : excludingInstanceIds) {
+				if (Objects.equals(id, appInstance.instanceId)) {
+					skipInstance = true;
+					break;
+				}
+			}
+			if (skipInstance) {
+				continue;
+			}
+			var app = this.findAppById(appInstance.appId);
+			try {
+				consumer.accept(app.getAppConfiguration(ConfigurationTarget.VALIDATE, appInstance.properties));
+			} catch (OpenemsNamedException e) {
+				// move to next app
+			}
+		}
 	}
 
 	private void createComponent(User user, Component comp) throws OpenemsNamedException {
@@ -278,7 +281,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @param id of the app
 	 * @return the found app
 	 */
-	private OpenemsApp findAppById(String id) {
+	public final OpenemsApp findAppById(String id) {
 		return this.availableApps.stream() //
 				.filter(t -> t.getAppId().equals(id)) //
 				.findFirst() //
@@ -305,7 +308,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 		final var replacableIds = this.getReplaceableComponentIds(app, newAppInstance.properties);
 
-		for (var comp : ComponentUtil.order(newAppConfig.components)) {
+		for (var comp : ComponentUtilImpl.order(newAppConfig.components)) {
 			// replace old id s with new ones
 			for (var entry : comp.getProperties().entrySet()) {
 				for (var replaceableId : replacableIds.entrySet()) {
@@ -379,22 +382,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 */
 	private List<Component> getOtherAppComponents(OpenemsAppInstance thisApp) {
 		List<Component> allOtherComponents = new ArrayList<>();
-		for (var instance : this.instantiatedApps) {
-			if (instance.equals(thisApp)) {
-				continue;
-			}
-			var app = this.availableApps.stream().filter(t -> t.getAppId().equals(instance.appId)).findFirst()
-					.orElse(null);
-			if (app == null) {
-				continue;
-			}
-			try {
-				allOtherComponents
-						.addAll(app.getAppConfiguration(ConfigurationTarget.DELETE, instance.properties).components);
-			} catch (OpenemsNamedException e) {
-				// move to next component
-			}
-		}
+		this.foreachAppConfiguration(c -> {
+			allOtherComponents.addAll(c.components);
+		}, thisApp.instanceId);
 		return allOtherComponents;
 	}
 
@@ -406,49 +396,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 */
 	private List<String> getOtherAppIps(OpenemsAppInstance thisApp) {
 		List<String> allOtherIps = new ArrayList<>();
-		for (var instance : this.instantiatedApps) {
-			if (instance.instanceId.equals(thisApp.instanceId)) {
-				continue;
-			}
-			var app = this.availableApps.stream().filter(t -> t.getAppId().equals(instance.appId)).findFirst()
-					.orElse(null);
-			if (app == null) {
-				continue;
-			}
-			try {
-				allOtherIps.addAll(app.getAppConfiguration(ConfigurationTarget.VALIDATE, instance.properties).ips);
-			} catch (OpenemsNamedException e) {
-				// move to next component
-			}
-		}
+		this.foreachAppConfiguration(c -> {
+			allOtherIps.addAll(c.ips);
+		}, thisApp.instanceId);
 		return allOtherIps;
-	}
-
-	/**
-	 * Gets ip s that are needed from the other {@link OpenemsAppInstance}s.
-	 *
-	 * @param thisApp the app which ip s should not be included
-	 * @return all needed ip s from the other apps
-	 */
-	private List<String> getOtherAppSchedulerIds(OpenemsAppInstance thisApp) {
-		List<String> allOtherSchedlerIds = new ArrayList<>();
-		for (var instance : this.instantiatedApps) {
-			if (instance.instanceId.equals(thisApp.instanceId)) {
-				continue;
-			}
-			var app = this.availableApps.stream().filter(t -> t.getAppId().equals(instance.appId)).findFirst()
-					.orElse(null);
-			if (app == null) {
-				continue;
-			}
-			try {
-				allOtherSchedlerIds.addAll(app.getAppConfiguration(ConfigurationTarget.VALIDATE,
-						instance.properties).schedulerExecutionOrder);
-			} catch (OpenemsNamedException e) {
-				// move to next component
-			}
-		}
-		return allOtherSchedlerIds;
 	}
 
 	/**
@@ -461,7 +412,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 *         key to put the next id
 	 * @throws OpenemsNamedException on error
 	 */
-	private Map<String, String> getReplaceableComponentIds(OpenemsApp app, JsonObject properties)
+	protected final Map<String, String> getReplaceableComponentIds(OpenemsApp app, JsonObject properties)
 			throws OpenemsNamedException {
 		final var prefix = "?_?_";
 		var config = app.getAppConfiguration(ConfigurationTarget.TEST, properties);
@@ -507,8 +458,6 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 		synchronized (this.instantiatedApps) {
 
-			this.checkCardinality(openemsApp);
-
 			this.checkStatus(openemsApp);
 
 			// create app instance
@@ -522,7 +471,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			} catch (ExecutionException | CancellationException | InterruptedException e) {
 				errors.add(e.getMessage());
 			}
-			if (completable.isCancelled() || completable.isCompletedExceptionally() || !errors.isEmpty()) {
+			if (!errors.isEmpty()) {
 				throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 			}
 			// Update App-Manager configuration
@@ -564,8 +513,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 					var deletedIds = this.deleteComponents(user, config.components,
 							this.getOtherAppComponents(instance));
 					deletedIds.addAll(config.schedulerExecutionOrder);
-					deletedIds.removeAll(this.getOtherAppSchedulerIds(instance));
-					this.removeIdsInSchedulerIfExisting(user, deletedIds);
+					this.componentUtil.removeIdsInSchedulerIfExisting(user, deletedIds);
 				} catch (OpenemsNamedException e) {
 					errors.add(e);
 				}
@@ -577,7 +525,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 					var ips = new ArrayList<>(config.ips);
 					ips.removeAll(this.getOtherAppIps(instance));
 					try {
-						this.removeStaticIpsIfExisting(user, ips);
+						this.componentUtil.updateHosts(user, null, ips);
 					} catch (OpenemsNamedException e) {
 						errors.add(e);
 					}
@@ -619,6 +567,25 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			if (request.appId.equals(app.getAppId())) {
 				return CompletableFuture
 						.completedFuture(new GetAppAssistant.Response(request.id, app.getAppAssistant()));
+			}
+		}
+		throw new OpenemsException("App-ID [" + request.appId + "] is unknown");
+	}
+
+	/**
+	 * Handles {@link GetAppDescriptor}.
+	 *
+	 * @param user    the User
+	 * @param request the {@link GetAppDescriptor} Request
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppDescriptorRequest(User user,
+			GetAppDescriptor.Request request) throws OpenemsNamedException {
+		for (var app : this.availableApps) {
+			if (request.appId.equals(app.getAppId())) {
+				return CompletableFuture
+						.completedFuture(new GetAppDescriptor.Response(request.id, app.getAppDescriptor()));
 			}
 		}
 		throw new OpenemsException("App-ID [" + request.appId + "] is unknown");
@@ -685,6 +652,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 		case GetAppAssistant.METHOD:
 			return this.handleGetAppAssistantRequest(user, GetAppAssistant.Request.from(request));
+
+		case GetAppDescriptor.METHOD:
+			return this.handleGetAppDescriptorRequest(user, GetAppDescriptor.Request.from(request));
 
 		case GetAppInstances.METHOD:
 			return this.handleGetAppInstancesRequest(user, GetAppInstances.Request.from(request));
@@ -787,7 +757,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException when the configuration can not be rewritten
 	 */
 	private void reconfigure(User user, Component myComp, Component actualComp) throws OpenemsNamedException {
-		if (ComponentUtil.isSameConfiguration(null, myComp, actualComp)) {
+		if (ComponentUtilImpl.isSameConfiguration(null, myComp, actualComp)) {
 			return;
 		}
 
@@ -798,51 +768,6 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		properties.add(new Property("alias", myComp.getAlias()));
 		var updateRequest = new UpdateComponentConfigRequest(actualComp.getId(), properties);
 		this.componentManager.handleJsonrpcRequest(user, updateRequest);
-	}
-
-	/**
-	 * removes the given id s from the scheduler if they exist in the scheduler.
-	 *
-	 * @param user       the executing user
-	 * @param removedIds the ip s that should be removed
-	 * @throws OpenemsNamedException on error
-	 */
-	private void removeIdsInSchedulerIfExisting(User user, List<String> removedIds) throws OpenemsNamedException {
-		if (removedIds == null || removedIds.isEmpty()) {
-			return;
-		}
-		// get current order
-		var schedulerComponents = this.componentManager.getEdgeConfig()
-				.getComponentsByFactory("Scheduler.AllAlphabetically");
-		var schedulerComponent = schedulerComponents.get(0);
-		var controllerIdsElement = schedulerComponent.getProperty("controllers.ids").orElse(new JsonArray());
-		var controllerIds = JsonUtils.getAsJsonArray(controllerIdsElement);
-
-		// remove id s
-		for (var id : removedIds) {
-			for (var i = 0; i < controllerIds.size(); i++) {
-				if (controllerIds.get(i).getAsString().equals(id)) {
-					controllerIds.remove(i);
-					break;
-				}
-			}
-		}
-
-		// update order
-		var updateRequest = new UpdateComponentConfigRequest(schedulerComponent.getId(),
-				Arrays.asList(new Property("controllers.ids", controllerIds)));
-		this.componentManager.handleJsonrpcRequest(user, updateRequest);
-	}
-
-	/**
-	 * removes the given ip s in the host configuration if they exist.
-	 *
-	 * @param user the executing user
-	 * @param ips  the ip s that should be removed
-	 * @throws OpenemsNamedException on error
-	 */
-	private void removeStaticIpsIfExisting(User user, List<String> ips) throws OpenemsNamedException {
-		this.updateHosts(user, null, ips);
 	}
 
 	/**
@@ -898,7 +823,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		// rewriting network configuration only works on Linux
 		if (!System.getProperty("os.name").startsWith("Windows")) {
 			try {
-				this.updateHosts(user, newAppConfig.ips, oldAppConfig != null ? oldAppConfig.ips : null);
+				this.componentUtil.updateHosts(user, newAppConfig.ips, oldAppConfig != null ? oldAppConfig.ips : null);
 			} catch (OpenemsNamedException e) {
 				var error = "Can not update Host Config";
 				errors.add(error);
@@ -916,7 +841,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 					var ips = new ArrayList<>(newAppConfig.ips);
 					ips.removeAll(this.getOtherAppIps(newAppInstance));
 					try {
-						this.removeStaticIpsIfExisting(user, ips);
+						this.componentUtil.updateHosts(user, null, ips);
 					} catch (OpenemsNamedException e) {
 						errors.add(e.getMessage());
 					}
@@ -926,9 +851,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 		// adds / updates components
 		var updatingComponents = CompletableFuture.runAsync(() -> {
-
+			var createdComponents = new LinkedList<Component>();
 			// create components
-			for (Component comp : ComponentUtil.order(newAppConfig.components)) {
+			for (Component comp : ComponentUtilImpl.order(newAppConfig.components)) {
 				/**
 				 * if comp already exists with same config as needed => use it. if comp exist
 				 * with different config and no other app needs it => rewrite settings. if comp
@@ -940,13 +865,24 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 					oldAppConfig.components.removeIf(t -> t.getId().equals(comp.getId()));
 				}
 				if (foundComponentWithSameId != null) {
-					if (ComponentUtil.isSameConfiguration(null, comp, foundComponentWithSameId)) {
+
+					var isSameConfigWithoutAlias = ComponentUtilImpl.isSameConfigurationWithoutAlias(null, comp,
+							foundComponentWithSameId);
+					var isSameConfig = isSameConfigWithoutAlias
+							&& comp.getAlias().equals(foundComponentWithSameId.getAlias());
+
+					if (isSameConfig) {
 						// same configuration so no reconfiguration needed
 						continue;
 					}
 
 					// check if it is my component
 					if (otherComponents.stream().anyMatch(t -> t.getId().equals(foundComponentWithSameId.getId()))) {
+						// not my component but only the alias changed
+						if (isSameConfigWithoutAlias) {
+							// TODO maybe warning if the alias can't be set
+							continue;
+						}
 						errors.add("Configuration of component with id '" + foundComponentWithSameId.getId()
 								+ "' can not be rewritten. Because the component belongs to another app.");
 						continue;
@@ -962,12 +898,36 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				// create new component
 				try {
 					this.createComponent(user, comp);
+					createdComponents.add(comp);
 				} catch (OpenemsNamedException e) {
 					var error = "Component[" + comp.getFactoryId() + "] cant be created!";
 					errors.add(error);
 					errors.add(e.getMessage());
 				}
 
+			}
+
+			// update scheduler
+			try {
+				var schedulerOrder = new ArrayList<>(newAppConfig.schedulerExecutionOrder);
+				// if another app needs this component for the scheduler now add it
+				if (createdComponents.isEmpty()) {
+					this.foreachAppConfiguration(c -> {
+
+						// if any component id is included
+						if (!createdComponents.stream().anyMatch(t -> c.schedulerExecutionOrder.contains(t.getId()))) {
+							return;
+						}
+
+						var temp = this.componentUtil.insertSchedulerOrder(schedulerOrder, c.schedulerExecutionOrder);
+						schedulerOrder.clear();
+						schedulerOrder.addAll(temp);
+
+					});
+				}
+				this.componentUtil.updateScheduler(user, schedulerOrder, createdComponents);
+			} catch (OpenemsNamedException e) {
+				errors.add("Can't update scheduler execute order. Message: " + e.getMessage());
 			}
 
 		});
@@ -978,12 +938,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			if (oldAppConfig != null) {
 				try {
 					var deletedIds = this.deleteComponents(user, oldAppConfig.components, otherComponents);
-					if (oldAppConfig != null) {
-						oldAppConfig.schedulerExecutionOrder.removeAll(newAppConfig.schedulerExecutionOrder);
-						deletedIds.addAll(oldAppConfig.schedulerExecutionOrder);
-					}
-					deletedIds.removeAll(this.getOtherAppSchedulerIds(newAppInstance));
-					this.removeIdsInSchedulerIfExisting(user, deletedIds);
+					oldAppConfig.schedulerExecutionOrder.removeAll(newAppConfig.schedulerExecutionOrder);
+					deletedIds.addAll(oldAppConfig.schedulerExecutionOrder);
+					this.componentUtil.removeIdsInSchedulerIfExisting(user, deletedIds);
 				} catch (OpenemsNamedException e) {
 					errors.add(e.getMessage());
 				}
@@ -999,138 +956,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			newAppInstance.properties.remove("ALIAS");
 		});
 
-		var updateSchedulerIdsOrder = CompletableFuture.runAsync(() -> {
-			try {
-				this.updateScheduler(user, newAppConfig.schedulerExecutionOrder);
-			} catch (OpenemsNamedException e) {
-				var error = "Scheduler cant be updated!";
-				errors.add(error);
-			}
-		});
-
-		return CompletableFuture.allOf(updatingComponents, updateSchedulerDeletingIds, updateSchedulerIdsOrder,
-				removingAlias);
-	}
-
-	/**
-	 * updates the host configuration deletes ip s that are in {@link oldIps} but
-	 * not in {@link ips} and adds ip s that are in {@link ips} but not in
-	 * {@link oldIps}.
-	 *
-	 * @param user   the executing user
-	 * @param ips    the ip s that should be in the configuration
-	 * @param oldIps the old ip s that were in the configuration
-	 * @throws OpenemsNamedException on error
-	 */
-	private void updateHosts(User user, List<String> ips, List<String> oldIps) throws OpenemsNamedException {
-		if ((ips == null || ips.isEmpty()) && (oldIps == null || oldIps.isEmpty())) {
-			return;
-		}
-		if (ips == null) {
-			ips = new ArrayList<>();
-		}
-		var errors = new ArrayList<String>();
-		List<String> deleteIps;
-		if (oldIps == null) {
-			deleteIps = new ArrayList<>();
-		} else {
-			deleteIps = new ArrayList<>(oldIps);
-			deleteIps.removeAll(ips);
-		}
-
-		// parse ip s
-		List<Inet4AddressWithNetmask> deleteIpAddresses = new ArrayList<>();
-		for (var ip : deleteIps) {
-			try {
-				deleteIpAddresses.add(Inet4AddressWithNetmask.fromString(ip));
-			} catch (OpenemsException e) {
-				errors.add("Ip '" + ip + "' can not be parsed.");
-			}
-		}
-
-		List<Inet4AddressWithNetmask> ipAddresses = new ArrayList<>(ips.size());
-		for (var ip : ips) {
-			try {
-				ipAddresses.add(Inet4AddressWithNetmask.fromString(ip));
-			} catch (OpenemsException e) {
-				errors.add("Ip '" + ip + "' can not be parsed.");
-			}
-		}
-
-		var interfaces = this.componentUtil.getInterfaces();
-		var eth0 = interfaces.stream().filter(t -> t.getName().equals("eth0")).findFirst().get();
-		if (eth0 == null) {
-			return;
-		}
-
-		// remove already added addresses
-		for (var address : eth0.getAddresses().getValue()) {
-			ipAddresses.remove(address);
-		}
-
-		// remove ip s from old configuration
-		eth0.getAddresses().getValue().removeAll(deleteIpAddresses);
-
-		// add ip s from new configuration
-		eth0.getAddresses().getValue().addAll(ipAddresses);
-
-		try {
-			this.componentUtil.updateInterfaces(user, interfaces);
-		} catch (OpenemsException e) {
-			errors.add(e.getMessage());
-		}
-
-		if (!errors.isEmpty()) {
-			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
-		}
-	}
-
-	/**
-	 * updates the execution order of the scheduler only adds or changes order of
-	 * the given id s.
-	 *
-	 * @param user                    the executing user
-	 * @param schedulerExecutionOrder the execution order
-	 * @throws OpenemsNamedException when the scheduler can not be updated
-	 */
-	private void updateScheduler(User user, List<String> schedulerExecutionOrder) throws OpenemsNamedException {
-		if (schedulerExecutionOrder == null || schedulerExecutionOrder.isEmpty()) {
-			return;
-		}
-		// get current order
-		var schedulerComponents = this.componentManager.getEdgeConfig()
-				.getComponentsByFactory("Scheduler.AllAlphabetically");
-		var schedulerComponent = schedulerComponents.get(0);
-		var controllerIdsElement = schedulerComponent.getProperty("controllers.ids").orElse(new JsonArray());
-		var controllerIds = JsonUtils.getAsJsonArray(controllerIdsElement);
-
-		// remove last empty field
-		if (controllerIds.size() >= 1 && controllerIds.get(controllerIds.size() - 1).getAsString().isBlank()) {
-			controllerIds.remove(controllerIds.size() - 1);
-		}
-
-		// place id s in right order
-		List<String> order = new ArrayList<>();
-		controllerIds.forEach(t -> order.add(t.getAsString()));
-		var index = 0;
-		for (String id : schedulerExecutionOrder) {
-			var idIndex = order.indexOf(id);
-			if (idIndex != -1) {
-				index = idIndex + 1;
-				continue;
-			}
-			order.add(index++, id);
-		}
-
-		var newControllerIds = new JsonArray();
-		for (var id : order) {
-			newControllerIds.add(id);
-		}
-
-		// update order
-		var updateRequest = new UpdateComponentConfigRequest(schedulerComponent.getId(),
-				Arrays.asList(new Property("controllers.ids", newControllerIds)));
-		this.componentManager.handleJsonrpcRequest(user, updateRequest);
+		return CompletableFuture.allOf(updatingComponents, updateSchedulerDeletingIds, removingAlias);
 	}
 
 }

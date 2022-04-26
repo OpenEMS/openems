@@ -21,12 +21,12 @@ public enum OpenemsAppCategory {
 	/**
 	 * Electric vehicle charging station.
 	 */
-	EVCS("E-Mobilit‰t"),
+	EVCS("E-Mobilit√§t"),
 
 	/**
 	 * Load control.
 	 */
-	HEAT("W‰rme"),
+	HEAT("W√§rme"),
 
 	/**
 	 * Hardware.
@@ -41,7 +41,12 @@ public enum OpenemsAppCategory {
 	/**
 	 * Meter.
 	 */
-	METER("Z‰hler");
+	METER("Z√§hler"),
+
+	/**
+	 * Apis.
+	 */
+	API("Schnittstellen");
 
 	private String readableName;
 

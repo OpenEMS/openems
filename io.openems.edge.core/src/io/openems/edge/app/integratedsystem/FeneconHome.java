@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -24,7 +25,11 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -50,7 +55,8 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
       "HAS_EMERGENCY_RESERVE":true,
       "EMERGENCY_RESERVE_ENABLED":true,
       "EMERGENCY_RESERVE_SOC":20
-    }
+    },
+    "appDescriptor": {}
   }
  * </pre>
  */
@@ -82,8 +88,15 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 	}
 
 	@Activate
-	public FeneconHome(@Reference ComponentManager componentManager, ComponentContext context) {
-		super(componentManager, context);
+	public FeneconHome(@Reference ComponentManager componentManager, ComponentContext context,
+			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+		super(componentManager, context, cm, componentUtil);
+	}
+
+	@Override
+	public AppDescriptor getAppDescriptor() {
+		return AppDescriptor.create() //
+				.build();
 	}
 
 	@Override
@@ -123,7 +136,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("logVerbosity", "NONE") //
 									.addProperty("invalidateElementsAfterReadErrors", 1) //
 									.build()),
-					new EdgeConfig.Component("meter0", "Netzz‰hler", "GoodWe.Grid-Meter", //
+					new EdgeConfig.Component("meter0", "Netzz√§hler", "GoodWe.Grid-Meter", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("modbus.id", modbusIdExternal) //
@@ -177,7 +190,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("sellToGridLimitEnabled", true) //
 									.addProperty("maximumSellToGridPower", maxFeedInPower) //
 									.build()),
-					new EdgeConfig.Component("ctrlEssSurplusFeedToGrid0", "‹berschusseinspeisung",
+					new EdgeConfig.Component("ctrlEssSurplusFeedToGrid0", "√úberschusseinspeisung",
 							"Controller.Ess.Hybrid.Surplus-Feed-To-Grid", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("ess.id", essId) //
@@ -193,7 +206,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			);
 
 			if (EnumUtils.getAsOptionalBoolean(p, Property.HAS_AC_METER).orElse(false)) {
-				components.add(new EdgeConfig.Component("meter1", "Netzz‰hler", "Meter.Socomec.Threephase", //
+				components.add(new EdgeConfig.Component("meter1", "Netzz√§hler", "Meter.Socomec.Threephase", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("enabled", true) //
 								.addProperty("modbus.id", modbusIdExternal) //
@@ -264,296 +277,68 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 		// Source https://formly.dev/examples/introduction
 		return AppAssistant.create(this.getName()) //
 				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonUtils.buildJsonObject() //
-								.addProperty("key", "SAFETY_COUNTRY") //
-								.addProperty("type", "select") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("label", "Battery-Inverter Safety Country") //
-										.addProperty("required", true) //
-										.add("options", JsonUtils.buildJsonArray() //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "Germany") //
-														.addProperty("value", "GERMANY") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "Austria") //
-														.addProperty("value", "AUSTRIA") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "Switzerland") //
-														.addProperty("value", "SWITZERLAND") //
-														.build()) //
+						.add(JsonFormlyUtil.buildSelect(Property.SAFETY_COUNTRY) //
+								.setLabel("Battery-Inverter Safety Country") //
+								.isRequired(true) //
+								.setOptions(JsonUtils.buildJsonArray() //
+										.add(JsonUtils.buildJsonObject() //
+												.addProperty("label", "Germany") //
+												.addProperty("value", "GERMANY") //
+												.build()) //
+										.add(JsonUtils.buildJsonObject() //
+												.addProperty("label", "Austria") //
+												.addProperty("value", "AUSTRIA") //
+												.build()) //
+										.add(JsonUtils.buildJsonObject() //
+												.addProperty("label", "Switzerland") //
+												.addProperty("value", "SWITZERLAND") //
 												.build()) //
 										.build()) //
-								.build()) //
-						.add(JsonUtils.buildJsonObject() //
-								.addProperty("key", "MAX_FEED_IN_POWER") //
-								.addProperty("type", "input") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("required", true) //
-										.addProperty("label", "Feed-In limitation [W]") //
-										.build()) //
-								.build()) //
-						.add(JsonUtils.buildJsonObject() //
-								.addProperty("key", "FEED_IN_SETTING") //
-								.addProperty("type", "select") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("label", "Feed-In Settings") //
-										.addProperty("required", true) //
-										.add("options", JsonUtils.buildJsonArray() //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "QU_ENABLE_CURVE") //
-														.addProperty("value", "QU_ENABLE_CURVE") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "PU_ENABLE_CURVE") //
-														.addProperty("value", "PU_ENABLE_CURVE") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_99") //
-														.addProperty("value", "LAGGING_0_99") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_98") //
-														.addProperty("value", "LAGGING_0_98") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_97") //
-														.addProperty("value", "LAGGING_0_97") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_96") //
-														.addProperty("value", "LAGGING_0_96") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_95") //
-														.addProperty("value", "LAGGING_0_95") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_94") //
-														.addProperty("value", "LAGGING_0_94") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_93") //
-														.addProperty("value", "LAGGING_0_93") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_92") //
-														.addProperty("value", "LAGGING_0_92") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_91") //
-														.addProperty("value", "LAGGING_0_91") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_90") //
-														.addProperty("value", "LAGGING_0_90") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_89") //
-														.addProperty("value", "LAGGING_0_89") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_88") //
-														.addProperty("value", "LAGGING_0_88") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_87") //
-														.addProperty("value", "LAGGING_0_87") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_86") //
-														.addProperty("value", "LAGGING_0_86") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_85") //
-														.addProperty("value", "LAGGING_0_85") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_84") //
-														.addProperty("value", "LAGGING_0_84") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_83") //
-														.addProperty("value", "LAGGING_0_83") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_82") //
-														.addProperty("value", "LAGGING_0_82") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_81") //
-														.addProperty("value", "LAGGING_0_81") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LAGGING_0_80") //
-														.addProperty("value", "LAGGING_0_80") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_80") //
-														.addProperty("value", "LEADING_0_80") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_81") //
-														.addProperty("value", "LEADING_0_81") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_82") //
-														.addProperty("value", "LEADING_0_82") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_83") //
-														.addProperty("value", "LEADING_0_83") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_84") //
-														.addProperty("value", "LEADING_0_84") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_85") //
-														.addProperty("value", "LEADING_0_85") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_86") //
-														.addProperty("value", "LEADING_0_86") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_87") //
-														.addProperty("value", "LEADING_0_87") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_88") //
-														.addProperty("value", "LEADING_0_88") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_89") //
-														.addProperty("value", "LEADING_0_89") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_90") //
-														.addProperty("value", "LEADING_0_90") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_91") //
-														.addProperty("value", "LEADING_0_91") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_92") //
-														.addProperty("value", "LEADING_0_92") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_93") //
-														.addProperty("value", "LEADING_0_93") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_94") //
-														.addProperty("value", "LEADING_0_94") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_95") //
-														.addProperty("value", "LEADING_0_95") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_96") //
-														.addProperty("value", "LEADING_0_96") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_97") //
-														.addProperty("value", "LEADING_0_97") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_98") //
-														.addProperty("value", "LEADING_0_98") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_0_99") //
-														.addProperty("value", "LEADING_0_99") //
-														.build()) //
-												.add(JsonUtils.buildJsonObject() //
-														.addProperty("label", "LEADING_1") //
-														.addProperty("value", "LEADING_1") //
-														.build()) //
-												.build()) //
-										.build()) //
-								.build()) //
-						.add(JsonUtils.buildJsonObject() //
-								.addProperty("key", "HAS_AC_METER") //
-								.addProperty("type", "checkbox") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("label", "Has AC meter (SOCOMEC)") //
-										.addProperty("required", true) //
-										.build()) //
-								.build()) //
-						.add(JsonUtils.buildJsonObject() //
-								.addProperty("key", "HAS_DC_PV1") //
-								.addProperty("type", "checkbox") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("label", "Has DC-PV 1 (MPPT 1)") //
-										.addProperty("required", true) //
-										.build()) //
-								.build()) //
-						.add(JsonUtils.buildJsonObject() //
-								.addProperty("key", "DC_PV1_ALIAS") //
-								.addProperty("type", "input") //
-								.addProperty("defaultValue", "DC-PV 1") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("label", "DC-PV 1 Alias") //
-										.build()) //
-								.add("expressionProperties", JsonUtils.buildJsonObject() //
-										.addProperty("templateOptions.required", "model.HAS_DC_PV1") //
-										.build()) //
-								.addProperty("hideExpression", "!model.HAS_DC_PV1") //
-								.build()) //
-						.add(JsonUtils.buildJsonObject() //
-								.addProperty("key", "HAS_DC_PV2") //
-								.addProperty("type", "checkbox") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("label", "Has DC-PV 2 (MPPT 2)") //
-										.addProperty("required", true) //
-										.build()) //
-								.build()) //
-						.add(JsonUtils.buildJsonObject() //
-								.addProperty("key", "DC_PV2_ALIAS") //
-								.addProperty("type", "input") //
-								.addProperty("defaultValue", "DC-PV 2") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("label", "DC-PV 2 Alias") //
-										.build()) //
-								.add("expressionProperties", JsonUtils.buildJsonObject() //
-										.addProperty("templateOptions.required", "model.HAS_DC_PV2") //
-										.build()) //
-								.addProperty("hideExpression", "!model.HAS_DC_PV2") //
-								.build()) //
-						.add(JsonUtils.buildJsonObject() //
-								.addProperty("key", "EMERGENCY_RESERVE_ENABLED") //
-								.addProperty("type", "checkbox") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("label", "Activate Emergency power supply") //
-										.addProperty("required", true) //
-										.build()) //
-								.build()) //
-						.add(JsonUtils.buildJsonObject() //
-								.addProperty("key", "HAS_EMERGENCY_RESERVE") //
-								.addProperty("type", "checkbox") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("label", "Activate Emergency Reserve Energy") //
-										.build()) //
-								.add("expressionProperties", JsonUtils.buildJsonObject() //
-										.addProperty("templateOptions.required", "model.EMERGENCY_RESERVE_ENABLED") //
-										.build()) //
-								.addProperty("hideExpression", "!model.EMERGENCY_RESERVE_ENABLED") //
-								.build()) //
-						.add(JsonUtils.buildJsonObject() //
-								.addProperty("key", "EMERGENCY_RESERVE_SOC") //
-								.addProperty("type", "input") //
-								.add("templateOptions", JsonUtils.buildJsonObject() //
-										.addProperty("label", "Emergency Reserve Energy (State-of-Charge)") //
-										.build()) //
-								.add("expressionProperties", JsonUtils.buildJsonObject() //
-										.addProperty("templateOptions.required", "model.HAS_EMERGENCY_RESERVE") //
-										.build()) //
-								.addProperty("hideExpression", "!model.HAS_EMERGENCY_RESERVE") //
-								.build()) //
+								.build())
+						.add(JsonFormlyUtil.buildInput(Property.MAX_FEED_IN_POWER) //
+								.setLabel("Feed-In limitation [W]") //
+								.isRequired(true) //
+								.setInputType(Type.NUMBER) //
+								.build())
+						.add(JsonFormlyUtil.buildSelect(Property.FEED_IN_SETTING) //
+								.setLabel("Feed-In Settings") //
+								.isRequired(true) //
+								.setOptions(this.getFeedInSettingsOptions(), t -> t, t -> t) //
+								.build())
+						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_AC_METER) //
+								.setLabel("Has AC meter (SOCOMEC)") //
+								.isRequired(true) //
+								.build())
+						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_DC_PV1) //
+								.setLabel("Has DC-PV 1 (MPPT 1)") //
+								.isRequired(true) //
+								.build())
+						.add(JsonFormlyUtil.buildInput(Property.DC_PV1_ALIAS) //
+								.setDefaultValue("DC-PV1") //
+								.setLabel("DC-PV 1 Alias") //
+								.onlyShowIfChecked(Property.HAS_DC_PV1) //
+								.build())
+						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_DC_PV2) //
+								.setLabel("Has DC-PV 2 (MPPT 2)") //
+								.isRequired(true) //
+								.build())
+						.add(JsonFormlyUtil.buildInput(Property.DC_PV2_ALIAS) //
+								.setDefaultValue("DC-PV 2") //
+								.setLabel("DC-PV 2 Alias") //
+								.onlyShowIfChecked(Property.HAS_DC_PV2) //
+								.build())
+						.add(JsonFormlyUtil.buildCheckbox(Property.EMERGENCY_RESERVE_ENABLED) //
+								.setLabel("Activate Emergency power supply") //
+								.isRequired(true) //
+								.build())
+						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_EMERGENCY_RESERVE) //
+								.setLabel("Activate Emergency Reserve Energy") //
+								.onlyShowIfChecked(Property.EMERGENCY_RESERVE_ENABLED) //
+								.build())
+						.add(JsonFormlyUtil.buildInput(Property.EMERGENCY_RESERVE_SOC) //
+								.setLabel("Emergency Reserve Energy (State-of-Charge)") //
+								.onlyShowIfChecked(Property.HAS_EMERGENCY_RESERVE) //
+								.build())
 						.build()) //
 				.build();
 	}
@@ -581,6 +366,22 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+	}
+
+	private List<String> getFeedInSettingsOptions() {
+		var options = new ArrayList<String>(45);
+		options.add("QU_ENABLE_CURVE");
+		options.add("PU_ENABLE_CURVE");
+		// LAGGING_0_99 - LAGGING_0_80
+		for (var i = 99; i >= 80; i--) {
+			options.add("LAGGING_0_" + Integer.toString(i));
+		}
+		// LEADING_0_80 - LEADING_0_99
+		for (var i = 80; i < 100; i++) {
+			options.add("LEADING_0_" + Integer.toString(i));
+		}
+		options.add("LEADING_1");
+		return options;
 	}
 
 }

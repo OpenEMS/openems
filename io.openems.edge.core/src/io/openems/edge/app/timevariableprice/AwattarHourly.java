@@ -3,6 +3,7 @@ package io.openems.edge.app.timevariableprice;
 import java.util.EnumMap;
 import java.util.List;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
@@ -20,6 +21,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -37,6 +40,10 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     "properties":{
     	"CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID": "ctrlEssTimeOfUseTariffDischarge0",
     	"TIME_OF_USE_TARIF_ID": "timeOfUseTariff0"
+    },
+    "appDescriptor": {
+    	"websiteUrl": <a href=
+"https://fenecon.de/fems-2-2/fems-app-awattar-hourly/">https://fenecon.de/fems-2-2/fems-app-awattar-hourly/</a>
     }
   }
  * </pre>
@@ -51,26 +58,27 @@ public class AwattarHourly extends AbstractOpenemsApp<Property> implements Opene
 	}
 
 	@Activate
-	public AwattarHourly(@Reference ComponentManager componentManager, ComponentContext context) {
-		super(componentManager, context);
+	public AwattarHourly(@Reference ComponentManager componentManager, ComponentContext context,
+			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+		super(componentManager, context, cm, componentUtil);
 	}
 
 	@Override
 	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p) -> {
 
-			var ctrlEssTimeOfUseTariffDischarge0 = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID,
+			var ctrlEssTimeOfUseTariffDischargeId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID,
 					"ctrlEssTimeOfUseTariffDischarge0");
 
-			var timeOfUseTariff0 = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID, "timeOfUseTariff0");
+			var timeOfUseTariffId = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID, "timeOfUseTariff0");
 
 			// TODO ess id may be changed
 			List<Component> comp = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischarge0, "aWATTar",
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, "aWATTar",
 							"Controller.Ess.Time-Of-Use-Tariff.Discharge", JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
 									.build()), //
-					new EdgeConfig.Component(timeOfUseTariff0, "timeOfUseTariff0", "TimeOfUseTariff.Awattar",
+					new EdgeConfig.Component(timeOfUseTariffId, "timeOfUseTariff0", "TimeOfUseTariff.Awattar",
 							JsonUtils.buildJsonObject() //
 									.build())//
 			);
@@ -80,7 +88,15 @@ public class AwattarHourly extends AbstractOpenemsApp<Property> implements Opene
 
 	@Override
 	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()).build();
+		return AppAssistant.create(this.getName()) //
+				.build();
+	}
+
+	@Override
+	public AppDescriptor getAppDescriptor() {
+		return AppDescriptor.create() //
+				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-awattar-hourly/") //
+				.build();
 	}
 
 	@Override

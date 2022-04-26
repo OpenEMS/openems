@@ -4,17 +4,24 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Map;
 
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+
+@Component(name = CheckHost.COMPONENT_NAME)
 public class CheckHost implements Checkable {
 
-	private final InetAddress host;
-	private final Integer port;
+	public static final String COMPONENT_NAME = "Validator.Checkable.CheckHost";
 
-	public CheckHost(String host) {
-		this(host, null);
+	private InetAddress host;
+	private Integer port;
+
+	@Activate
+	public CheckHost() {
 	}
 
-	public CheckHost(String host, Integer port) {
+	private void init(String host, Integer port) {
 		InetAddress tempIp = null;
 		try {
 			tempIp = InetAddress.getByName(host);
@@ -23,6 +30,13 @@ public class CheckHost implements Checkable {
 		}
 		this.host = tempIp;
 		this.port = port;
+	}
+
+	@Override
+	public void setProperties(Map<String, ?> properties) {
+		var host = (String) properties.get("host");
+		var port = (Integer) properties.get("port");
+		this.init(host, port);
 	}
 
 	@Override

@@ -1,7 +1,10 @@
 <header></header>
-<ion-content>
-  <ion-grid *ngIf="form">
-    <ion-row class="ion-justify-content-center">
+<ion-content style="height: 100%">
+
+  <ngx-spinner [name]="spinnerId"></ngx-spinner>
+
+  <ion-grid *ngIf="form" style="height: 100%">
+    <ion-row class="ion-justify-content-center" style="height: 100%">
 
       <ion-col size="12" size-xl="3">
         <form [formGroup]="form" (ngSubmit)="submit()">
@@ -43,9 +46,8 @@
           </ion-card>
         </form>
       </ion-col>
-      <ion-col size="12" size-xl="7">
-        <!-- TODO App Info -->
-        <iframe src="https://fenecon.de/fems-2-2/fems-app-heizstab/" width="100%" height="400%" name="appInfo"
+      <ion-col size="12" size-xl="7" *ngIf="descriptor != null && descriptor.websiteUrl">
+        <iframe [src]="descriptor.sanitizedWebsiteUrl" style=" width: 100%;" [ngStyle]="iFrameStyle()" name="appInfo"
           title="App-Info"></iframe>
       </ion-col>
 

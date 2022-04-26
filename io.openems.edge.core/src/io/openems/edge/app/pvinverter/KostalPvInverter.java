@@ -13,7 +13,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.pvinverter.KacoPvInverter.Property;
+import io.openems.edge.app.pvinverter.KostalPvInverter.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -27,29 +27,30 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 
 /**
- * Describes a App for Kaco PV-Inverter.
+ * Describes a App for Kostal PV-Inverter.
  *
  * <pre>
   {
-    "appId":"App.PvInverter.Kaco",
-    "alias":"KACO PV-Wechselrichter",
+    "appId":"App.PvInverter.Kostal",
+    "alias":"Kostal PV-Wechselrichter",
     "instanceId": UUID,
     "image": base64,
     "properties":{
     	"PV_INVERTER_ID": "pvInverter0",
     	"MODBUS_ID": "modbus0",
     	"IP": "192.168.178.85",
-    	"PORT": "502"
+    	"PORT": "502",
+    	"MODBUS_UNIT_ID": "71"
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/">https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/</a>
+"https://fenecon.de/fems-2-2/fems-app-kostal-pv-wechselrichter/">https://fenecon.de/fems-2-2/fems-app-kostal-pv-wechselrichter/</a>
     }
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.PvInverter.Kaco")
-public class KacoPvInverter extends AbstractPvInverter<Property> implements OpenemsApp {
+@org.osgi.service.component.annotations.Component(name = "App.PvInverter.Kostal")
+public class KostalPvInverter extends AbstractPvInverter<Property> implements OpenemsApp {
 
 	public static enum Property {
 		// Components
@@ -58,11 +59,13 @@ public class KacoPvInverter extends AbstractPvInverter<Property> implements Open
 		// User-Values
 		ALIAS, //
 		IP, // the ip for the modbus
-		PORT;
+		PORT, //
+		MODBUS_UNIT_ID;
+
 	}
 
 	@Activate
-	public KacoPvInverter(@Reference ComponentManager componentManager, ComponentContext context,
+	public KostalPvInverter(@Reference ComponentManager componentManager, ComponentContext context,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
 		super(componentManager, context, cm, componentUtil);
 	}
@@ -74,12 +77,15 @@ public class KacoPvInverter extends AbstractPvInverter<Property> implements Open
 			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName());
 			var ip = this.getValueOrDefault(p, Property.IP, "192.168.178.85");
 			var port = EnumUtils.getAsInt(p, Property.PORT);
+			var modbusUnitId = EnumUtils.getAsInt(p, Property.MODBUS_UNIT_ID);
 
 			var modbusId = this.getId(t, p, Property.MODBUS_ID, "modbus0");
 			var pvInverterId = this.getId(t, p, Property.PV_INVERTER_ID, "pvInverter0");
 
-			var factoryIdInverter = "PV-Inverter.KACO.blueplanet";
+			var factoryIdInverter = "PV-Inverter.Kostal";
 			var components = this.getComponents(factoryIdInverter, pvInverterId, modbusId, alias, ip, port);
+			var inverter = this.getComponentWithFactoryId(components, factoryIdInverter);
+			inverter.getProperties().put("modbusUnitId", JsonUtils.parse(Integer.toString(modbusUnitId)));
 
 			return new AppConfiguration(components);
 		};
@@ -104,6 +110,14 @@ public class KacoPvInverter extends AbstractPvInverter<Property> implements Open
 								.setMin(0) //
 								.isRequired(true) //
 								.build()) //
+						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
+								.setLabel("Modbus Unit-ID") //
+								.setDescription("The Unit-ID of the Modbus device.") //
+								.setInputType(Type.NUMBER) //
+								.setDefaultValue(71) //
+								.setMin(0) //
+								.isRequired(true) //
+								.build()) //
 						.build())
 				.build();
 	}
@@ -111,7 +125,7 @@ public class KacoPvInverter extends AbstractPvInverter<Property> implements Open
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/") //
+				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-kostal-pv-wechselrichter/") //
 				.build();
 	}
 
@@ -123,7 +137,7 @@ public class KacoPvInverter extends AbstractPvInverter<Property> implements Open
 
 	@Override
 	public String getName() {
-		return "KACO PV-Wechselrichter";
+		return "Kostal PV-Wechselrichter";
 	}
 
 	@Override
