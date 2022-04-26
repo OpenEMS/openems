@@ -60,7 +60,7 @@
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio</artifactId>
-			<version>1.17.2</version>
+			<version>3.1.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
