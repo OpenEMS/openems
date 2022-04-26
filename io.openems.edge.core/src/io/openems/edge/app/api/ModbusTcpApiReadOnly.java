@@ -74,7 +74,6 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsApp<Property> implement
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_lesend") //
 				.build();
 	}
 
@@ -85,8 +84,7 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsApp<Property> implement
 
 	@Override
 	public String getImage() {
-		// TODO image
-		return super.getTestImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package io.openems.edge.app.hardware;
+package io.openems.edge.app.timeofusetariff;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -16,7 +16,7 @@ import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.hardware.KMtronic8Channel.Property;
+import io.openems.edge.app.timeofusetariff.Tibber.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
@@ -25,43 +25,42 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
+import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 
 /**
- * Describes a App for KMtronic 8-Channel Relay.
+ * Describes a App for Tibber.
  *
  * <pre>
   {
-    "appId":"App.Hardware.KMtronic8Channel",
-    "alias":"FEMS Relais 8-Kanal",
+    "appId":"App.TimeOfUseTariff.Tibber",
+    "alias":"Tibber",
     "instanceId": UUID,
     "image": base64,
     "properties":{
-    	"IO_ID": "io0",
-    	"MODBUS_ID": "modbus10",
-    	"IP": "192.168.1.199"
+    	"CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID": "ctrlEssTimeOfUseTariffDischarge0",
+    	"TIME_OF_USE_TARIF_ID": "timeOfUseTariff0",
+    	"ACCESS_TOKEN": {token}
     },
-    "appDescriptor": {}
+    "appDescriptor": {
+    }
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.Hardware.KMtronic8Channel")
-public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements OpenemsApp {
+@org.osgi.service.component.annotations.Component(name = "App.TimeOfUseTariff.Tibber")
+public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
-		// Components
-		IO_ID, //
-		MODBUS_ID, //
-		// User-Values
-		ALIAS, //
-		IP;
+		CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID, //
+		TIME_OF_USE_TARIF_ID, //
+		ACCESS_TOKEN;
+
 	}
 
 	@Activate
-	public KMtronic8Channel(@Reference ComponentManager componentManager, ComponentContext context,
+	public Tibber(@Reference ComponentManager componentManager, ComponentContext context,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
 		super(componentManager, context, cm, componentUtil);
 	}
@@ -69,38 +68,43 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 	@Override
 	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p) -> {
+			var ctrlEssTimeOfUseTariffDischargeId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID,
+					"ctrlEssTimeOfUseTariffDischarge0");
 
-			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName());
-			var ip = this.getValueOrDefault(p, Property.IP, "192.168.1.199");
+			var timeOfUseTariffId = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID, "timeOfUseTariff0");
 
-			var modbusId = this.getId(t, p, Property.MODBUS_ID, "modbus10");
-			var ioId = this.getId(t, p, Property.IO_ID, "io1");
+			var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, "xxx");
 
+			// TODO ess id may be changed
 			List<Component> comp = Lists.newArrayList(//
-					new EdgeConfig.Component(ioId, alias, "IO.KMtronic", //
-							JsonUtils.buildJsonObject() //
-									.addProperty("modbus.id", modbusId) //
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, this.getName(),
+							"Controller.Ess.Time-Of-Use-Tariff.Discharge", JsonUtils.buildJsonObject() //
+									.addProperty("ess.id", "ess0") //
 									.build()), //
-					new EdgeConfig.Component(modbusId, "bridge", "Bridge.Modbus.Tcp", JsonUtils.buildJsonObject() //
-							.addProperty("ip", ip) //
-							.build())//
+					new EdgeConfig.Component(timeOfUseTariffId, "timeOfUseTariff0", "TimeOfUseTariff.Tibber",
+							JsonUtils.buildJsonObject() //
+									.onlyIf(t.isAddOrUpdate(), c -> c.addProperty("accessToken", accessToken)) //
+									.build())//
 			);
-			return new AppConfiguration(comp, null, Lists.newArrayList("192.168.1.198/28"));
+
+			// remove access token after use so it does not get saved
+			p.remove(Property.ACCESS_TOKEN);
+
+			return new AppConfiguration(comp, Lists.newArrayList("ctrlEssTimeOfUseTariffDischarge0", "ctrlBalancing0"));
 		};
 	}
 
 	@Override
 	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()) //
-				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildInput(Property.IP) //
-								.setLabel("IP-Address") //
-								.setDescription("The IP address of the Relay.") //
-								.setDefaultValue("192.168.1.199") //
+		return AppAssistant.create(this.getName()).fields(//
+				JsonUtils.buildJsonArray() //
+						.add(JsonFormlyUtil.buildInput(Property.ACCESS_TOKEN) //
+								.setLabel("Access token") //
+								.setDescription("Access token for the Tibber API.") //
+								.setInputType(Type.PASSWORD) //
 								.isRequired(true) //
-								.setValidation(Validation.IP) //
 								.build()) //
-						.build())
+						.build()) //
 				.build();
 	}
 
@@ -112,7 +116,7 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 
 	@Override
 	public OpenemsAppCategory[] getCategorys() {
-		return new OpenemsAppCategory[] { OpenemsAppCategory.HARDWARE };
+		return new OpenemsAppCategory[] { OpenemsAppCategory.TIME_OF_USE_TARIFF };
 	}
 
 	@Override
@@ -122,7 +126,7 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 
 	@Override
 	public String getName() {
-		return "FEMS Relais 8-Kanal";
+		return "Tibber";
 	}
 
 	@Override
@@ -132,7 +136,7 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.MULTIPLE;
+		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
 	}
 
 }

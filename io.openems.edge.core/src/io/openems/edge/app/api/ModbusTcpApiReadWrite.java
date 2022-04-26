@@ -104,7 +104,6 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-modbus-tcp-schreibzugriff-2/") //
 				.build();
 	}
 
@@ -115,8 +114,7 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 
 	@Override
 	public String getImage() {
-		// TODO image
-		return super.getTestImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override

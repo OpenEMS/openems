@@ -104,7 +104,6 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-multiladepunkt-eigenverbrauch-2/") //
 				.build();
 	}
 
@@ -115,8 +114,7 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 
 	@Override
 	public String getImage() {
-		// TODO image
-		return super.getTestImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override

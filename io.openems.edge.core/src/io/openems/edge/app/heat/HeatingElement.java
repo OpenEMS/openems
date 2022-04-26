@@ -121,7 +121,6 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-heizstab/") //
 				.build();
 	}
 
@@ -132,8 +131,7 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 
 	@Override
 	public String getImage() {
-		// TODO image
-		return super.getTestImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override

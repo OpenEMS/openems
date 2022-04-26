@@ -91,7 +91,6 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-rest-json-schreibzugriff-2/") //
 				.build();
 	}
 
@@ -102,8 +101,7 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 
 	@Override
 	public String getImage() {
-		// TODO image
-		return super.getTestImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override
