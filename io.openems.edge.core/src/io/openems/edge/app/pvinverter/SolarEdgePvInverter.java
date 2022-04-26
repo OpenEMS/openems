@@ -118,8 +118,7 @@ public class SolarEdgePvInverter extends AbstractPvInverter<Property> implements
 
 	@Override
 	public String getImage() {
-		// TODO image
-		return super.getImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override

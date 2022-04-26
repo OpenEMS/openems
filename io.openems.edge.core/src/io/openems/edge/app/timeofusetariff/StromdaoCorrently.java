@@ -1,6 +1,7 @@
-package io.openems.edge.app.evcs;
+package io.openems.edge.app.timeofusetariff;
 
 import java.util.EnumMap;
+import java.util.List;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -13,11 +14,11 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.evcs.EvcsCluster.Property;
+import io.openems.edge.app.timeofusetariff.StromdaoCorrently.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -30,57 +31,61 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 
 /**
- * Describes a evcs cluster.
+ * Describes a App for StromdaoCorrently.
  *
  * <pre>
   {
-    "appId":"App.Evcs.Cluster",
-    "alias":"Multiladepunkt-Management",
+    "appId":"App.TimeOfUseTariff.Stromdao",
+    "alias":"Stromdao Corrently",
     "instanceId": UUID,
     "image": base64,
     "properties":{
-      "EVCS_CLUSTER_ID": "evcsCluster0",
-      "EVCS_IDS": [ "evcs0", "evcs1", ...]
+    	"CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID": "ctrlEssTimeOfUseTariffDischarge0",
+    	"TIME_OF_USE_TARIF_ID": "timeOfUseTariff0",
+    	"ZIP_CODE": "12345678"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-multiladepunkt-eigenverbrauch-2/">https://fenecon.de/fems-2-2/fems-app-multiladepunkt-eigenverbrauch-2/</a>
     }
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.Evcs.Cluster")
-public class EvcsCluster extends AbstractOpenemsApp<Property> implements OpenemsApp {
+@org.osgi.service.component.annotations.Component(name = "App.TimeVariablePrice.Stromdao")
+public class StromdaoCorrently extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
-		ALIAS, //
-		EVCS_CLUSTER_ID, //
-		EVCS_IDS //
-		;
+		CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID, //
+		TIME_OF_USE_TARIF_ID, //
+		ZIP_CODE;
 	}
 
 	@Activate
-	public EvcsCluster(@Reference ComponentManager componentManager, ComponentContext componentContext,
+	public StromdaoCorrently(@Reference ComponentManager componentManager, ComponentContext context,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
-		super(componentManager, componentContext, cm, componentUtil);
+		super(componentManager, context, cm, componentUtil);
 	}
 
 	@Override
 	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p) -> {
+			var ctrlEssTimeOfUseTariffDischargeId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID,
+					"ctrlEssTimeOfUseTariffDischarge0");
 
-			var evcsClusterId = this.getId(t, p, Property.EVCS_CLUSTER_ID, "evcsCluster0");
+			var timeOfUseTariffId = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID, "timeOfUseTariff0");
 
-			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName());
+			var zipCode = EnumUtils.getAsString(p, Property.ZIP_CODE);
 
-			var ids = EnumUtils.getAsJsonArray(p, Property.EVCS_IDS);
-
-			var components = Lists.newArrayList(new EdgeConfig.Component(evcsClusterId, alias,
-					"Evcs.Cluster.PeakShaving", JsonUtils.buildJsonObject() //
-							.add("evcs.ids", ids) //
-							.build()));
-
-			return new AppConfiguration(components);
+			// TODO ess id may be changed
+			List<Component> comp = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, this.getName(),
+							"Controller.Ess.Time-Of-Use-Tariff.Discharge", JsonUtils.buildJsonObject() //
+									.addProperty("ess.id", "ess0") //
+									.build()), //
+					new EdgeConfig.Component(timeOfUseTariffId, "timeOfUseTariff0", "TimeOfUseTariff.Corrently",
+							JsonUtils.buildJsonObject() //
+									.addProperty("zipcode", zipCode) //
+									.build())//
+			);
+			return new AppConfiguration(comp, Lists.newArrayList("ctrlEssTimeOfUseTariffDischarge0", "ctrlBalancing0"));
 		};
 	}
 
@@ -88,29 +93,24 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 	public AppAssistant getAppAssistant() {
 		return AppAssistant.create(this.getName()) //
 				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildSelect(Property.EVCS_IDS).setLabel("EVCS-IDs") //
-								.setDescription("IDs of EVCS devices.") //
-								.setOptions(this.componentUtil.getEnabledComponentsOfStartingId("evcs"),
-										t -> t.alias() == null || t.alias().isEmpty() ? t.id()
-												: t.id() + ": " + t.alias(),
-										OpenemsComponent::id)
+						.add(JsonFormlyUtil.buildInput(Property.ZIP_CODE) //
+								.setLabel("ZIP Code") //
+								.setDescription("German ZIP Code of the location.") //
 								.isRequired(true) //
-								.isMulti(true) //
-								.build())
-						.build())
+								.build()) //
+						.build()) //
 				.build();
 	}
 
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-multiladepunkt-eigenverbrauch-2/") //
 				.build();
 	}
 
 	@Override
 	public OpenemsAppCategory[] getCategorys() {
-		return new OpenemsAppCategory[] { OpenemsAppCategory.EVCS };
+		return new OpenemsAppCategory[] { OpenemsAppCategory.TIME_OF_USE_TARIFF };
 	}
 
 	@Override
@@ -120,7 +120,7 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 
 	@Override
 	public String getName() {
-		return "Multiladepunkt-Management";
+		return "Stromdao Corrently";
 	}
 
 	@Override
@@ -130,7 +130,7 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE;
+		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
 	}
 
 }

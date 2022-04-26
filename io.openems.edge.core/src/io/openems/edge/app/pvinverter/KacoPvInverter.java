@@ -117,8 +117,7 @@ public class KacoPvInverter extends AbstractPvInverter<Property> implements Open
 
 	@Override
 	public String getImage() {
-		// TODO image
-		return super.getImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override

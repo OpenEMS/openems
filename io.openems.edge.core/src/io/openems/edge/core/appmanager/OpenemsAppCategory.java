@@ -14,9 +14,9 @@ public enum OpenemsAppCategory {
 	INTEGRATED_SYSTEM("Integrierte Systeme"),
 
 	/**
-	 * Time variable energy price.
+	 * Time of use energy tariff.
 	 */
-	TIME_VARIABLE_PRICE("Zeitvariable Stromtarife"),
+	TIME_OF_USE_TARIFF("Zeitvariable Stromtarife"),
 
 	/**
 	 * Electric vehicle charging station.

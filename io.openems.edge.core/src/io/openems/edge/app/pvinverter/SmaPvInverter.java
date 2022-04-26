@@ -132,8 +132,7 @@ public class SmaPvInverter extends AbstractPvInverter<Property> implements Opene
 
 	@Override
 	public String getImage() {
-		// TODO image
-		return super.getImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override

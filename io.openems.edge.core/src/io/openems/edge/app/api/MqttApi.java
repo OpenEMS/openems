@@ -114,8 +114,7 @@ public class MqttApi extends AbstractOpenemsApp<Property> implements OpenemsApp 
 
 	@Override
 	public String getImage() {
-		// TODO image
-		return super.getTestImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override

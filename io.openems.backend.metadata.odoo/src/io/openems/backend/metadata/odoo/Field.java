@@ -433,7 +433,7 @@ public interface Field {
 		FEMS("fems_device_id", true);
 
 		public static final String ODOO_MODEL = "fems.setup_protocol";
-		public static final String ODOO_TABLE = SetupProtocol.ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -480,7 +480,7 @@ public interface Field {
 		LOT("lot_id", true);
 
 		public static final String ODOO_MODEL = "fems.setup_protocol_production_lot";
-		public static final String ODOO_TABLE = SetupProtocolProductionLot.ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;
@@ -526,7 +526,7 @@ public interface Field {
 		SEQUENCE("sequence", true);
 
 		public static final String ODOO_MODEL = "fems.setup_protocol_item";
-		public static final String ODOO_TABLE = SetupProtocolItem.ODOO_MODEL.replace(".", "_");
+		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
 			private static int nextQueryIndex = 1;

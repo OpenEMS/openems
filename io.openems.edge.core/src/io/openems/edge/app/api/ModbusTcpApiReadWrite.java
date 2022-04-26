@@ -115,8 +115,7 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 
 	@Override
 	public String getImage() {
-		// TODO image
-		return super.getTestImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override

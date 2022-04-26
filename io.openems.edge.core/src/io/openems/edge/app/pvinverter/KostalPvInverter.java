@@ -131,8 +131,7 @@ public class KostalPvInverter extends AbstractPvInverter<Property> implements Op
 
 	@Override
 	public String getImage() {
-		// TODO image
-		return super.getImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override
