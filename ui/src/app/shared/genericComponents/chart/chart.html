@@ -1,7 +1,7 @@
 <ng-container *ngIf="edge">
     <ion-header>
         <ion-toolbar color="primary">
-            <ion-title translate>General.autarchy</ion-title>
+            <ion-title>{{title}}</ion-title>
             <ion-buttons slot="end">
                 <ion-button routerLink="/device/{{edge.id}}/history">
                     <ion-icon name="close-outline"></ion-icon>
@@ -14,15 +14,9 @@
             </ion-buttons>
         </ion-toolbar>
     </ion-header>
-    <ion-content>
+    <ion-content style="position: absolute;height: 87%; width: 100%; padding-bottom: 10%">
         <ion-card-content>
-            <table class="full_width">
-                <tr>
-                    <td style="width: 100%" class="ion-padding"></td>
-                </tr>
-            </table>
-            <autarchychart [period]="service.historyPeriod">
-            </autarchychart>
+            <ng-content></ng-content>
         </ion-card-content>
     </ion-content>
 </ng-container>
