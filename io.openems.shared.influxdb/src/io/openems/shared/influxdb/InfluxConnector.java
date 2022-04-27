@@ -81,7 +81,8 @@ public class InfluxConnector {
 	 * @param url          URL of the InfluxDB-Server (http://ip:port)
 	 * @param org          The organisation; '-' for InfluxDB v1
 	 * @param apiKey       The apiKey; 'username:password' for InfluxDB v1
-	 * @param bucket       The bucket name; 'database/retentionPolicy' for InfluxDB v1
+	 * @param bucket       The bucket name; 'database/retentionPolicy' for InfluxDB
+	 *                     v1
 	 * @param isReadOnly   If true, a 'Read-Only-Mode' is activated, where no data
 	 *                     is actually written to the database
 	 * @param onWriteError A callback for write-errors, i.e. '(failedPoints,
@@ -279,7 +280,7 @@ public class InfluxConnector {
 				.append("|> filter(fn: (r) => r._measurement == \"").append(MEASUREMENT).append("\")");
 
 		if (influxEdgeId.isPresent()) {
-			builder.append("|> filter(fn: (r) => r.edge == \"" + influxEdgeId.get() + "\")");
+			builder.append("|> filter(fn: (r) => r." + OpenemsOEM.INFLUXDB_TAG + " == \"" + influxEdgeId.get() + "\")");
 		}
 
 		builder //
