@@ -1,13 +1,12 @@
 package io.openems.edge.app.pvinverter;
 
 import java.util.EnumMap;
-import java.util.List;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -18,32 +17,38 @@ import io.openems.edge.app.pvinverter.SolarEdgePvInverter.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
+import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
-import io.openems.edge.core.appmanager.validator.Checkable;
 
 /**
- * Describes a App for AwattarHourly.
+ * Describes a App for SolarEdge PV-Inverter.
  *
  * <pre>
   {
-    "appId":"App.PvInverter.SolarEdgePvInverter",
-    "alias":"SMA PV-Wechselrichter",
+    "appId":"App.PvInverter.SolarEdge",
+    "alias":"SolarEdge PV-Wechselrichter",
     "instanceId": UUID,
     "image": base64,
     "properties":{
     	"PV_INVERTER_ID": "pvInverter0",
     	"MODBUS_ID": "modbus0",
     	"IP": "192.168.178.85",
-    	"PORT": "502",
-    	"MODBUS_UNIT_ID": "126"
+    	"PORT": "502"
+    },
+    "appDescriptor": {
+    	"websiteUrl": <a href=
+"https://fenecon.de/fems-2-2/fems-app-solaredge-pv-wechselrichter/">https://fenecon.de/fems-2-2/fems-app-solaredge-pv-wechselrichter/</a>
     }
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.PvInverter.SolarEdgePvInverter")
+@org.osgi.service.component.annotations.Component(name = "App.PvInverter.SolarEdge")
 public class SolarEdgePvInverter extends AbstractPvInverter<Property> implements OpenemsApp {
 
 	public static enum Property {
@@ -53,14 +58,14 @@ public class SolarEdgePvInverter extends AbstractPvInverter<Property> implements
 		// User-Values
 		ALIAS, //
 		IP, // the ip for the modbus
-		PORT, //
-		MODBUS_UNIT_ID;
+		PORT;
 
 	}
 
 	@Activate
-	public SolarEdgePvInverter(@Reference ComponentManager componentManager, ComponentContext context) {
-		super(componentManager, context);
+	public SolarEdgePvInverter(@Reference ComponentManager componentManager, ComponentContext context,
+			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+		super(componentManager, context, cm, componentUtil);
 	}
 
 	@Override
@@ -70,15 +75,12 @@ public class SolarEdgePvInverter extends AbstractPvInverter<Property> implements
 			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName());
 			var ip = this.getValueOrDefault(p, Property.IP, "192.168.178.85");
 			var port = EnumUtils.getAsInt(p, Property.PORT);
-			var modbusUnitId = EnumUtils.getAsInt(p, Property.MODBUS_UNIT_ID);
 
-			var modbus0 = this.getId(t, p, Property.MODBUS_ID, "modbus0");
-			var pvInverter0 = this.getId(t, p, Property.PV_INVERTER_ID, "pvInverter0");
+			var modbusId = this.getId(t, p, Property.MODBUS_ID, "modbus0");
+			var pvInverterId = this.getId(t, p, Property.PV_INVERTER_ID, "pvInverter0");
 
-			var factoryId = "PV-Inverter.Solarlog";
-			var components = this.getComponents(factoryId, pvInverter0, modbus0, alias, ip, port);
-			var inverter = this.getComponentWithFactoryId(components, factoryId);
-			inverter.getProperties().put("modbusUnitId", JsonUtils.parse(Integer.toString(modbusUnitId)));
+			var factoryIdInverter = "SolarEdge.PV-Inverter";
+			var components = this.getComponents(factoryIdInverter, pvInverterId, modbusId, alias, ip, port);
 
 			return new AppConfiguration(components);
 		};
@@ -88,16 +90,35 @@ public class SolarEdgePvInverter extends AbstractPvInverter<Property> implements
 	public AppAssistant getAppAssistant() {
 		return AppAssistant.create(this.getName()) //
 				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildInput(Property.IP, "192.168.178.85", true)) //
-						.add(JsonFormlyUtil.buildInput(Property.PORT, "502", true, true)) //
-						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID, "126", true, true)) //
+						.add(JsonFormlyUtil.buildInput(Property.IP) //
+								.setLabel("IP-Address") //
+								.setDescription("The IP address of the Pv-Inverter.") //
+								.setDefaultValue("192.168.178.85") //
+								.isRequired(true) //
+								.setValidation(Validation.IP) //
+								.build()) //
+						.add(JsonFormlyUtil.buildInput(Property.PORT) //
+								.setLabel("Port") //
+								.setDescription("The port of the Pv-Inverter.") //
+								.setInputType(Type.NUMBER) //
+								.setDefaultValue(502) //
+								.setMin(0) //
+								.isRequired(true) //
+								.build()) //
 						.build())
 				.build();
 	}
 
 	@Override
+	public AppDescriptor getAppDescriptor() {
+		return AppDescriptor.create() //
+				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-solaredge-pv-wechselrichter/") //
+				.build();
+	}
+
+	@Override
 	public String getImage() {
-		return super.getImage();
+		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override
@@ -113,11 +134,6 @@ public class SolarEdgePvInverter extends AbstractPvInverter<Property> implements
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.MULTIPLE;
-	}
-
-	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, List<Checkable>, OpenemsNamedException> installationValidation() {
-		return (t, p) -> Lists.newArrayList();
 	}
 
 }

@@ -81,7 +81,7 @@ public enum Unit {
 	 * Unit of Voltage [mV].
 	 */
 	MILLIVOLT("mV", VOLT, -3),
-	
+
 	/**
 	 * Unit of Voltage [uA]
 	 */

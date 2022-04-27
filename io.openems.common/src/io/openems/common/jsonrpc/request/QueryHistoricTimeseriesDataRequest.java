@@ -56,9 +56,9 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 		var p = r.getParams();
 
 		var jTimezone = JsonUtils.getAsPrimitive(p, "timezone");
-		ZoneId timezone;
+		final ZoneId timezone;
 		if (jTimezone.isNumber()) {
-			// For UI version before 2022.3.3
+			// For UI version before 2022.4.0
 			timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(JsonUtils.getAsInt(jTimezone) * -1));
 		} else {
 			timezone = TimeZone.getTimeZone(JsonUtils.getAsString(p, "timezone")).toZoneId();
@@ -67,12 +67,12 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
 		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
 
-		final Optional<Resolution> resolution;
 		var jResolutionOpt = JsonUtils.getOptionalSubElement(p, "resolution");
+		final Optional<Resolution> resolution;
 		if (jResolutionOpt.isPresent()) {
 			var jResolution = jResolutionOpt.get();
 			if (jResolution.isJsonPrimitive()) {
-				// For UI version before 2022.3.3
+				// For UI version before 2022.4.0
 				resolution = Optional.of(new Resolution(JsonUtils.getAsInt(jResolution), ChronoUnit.SECONDS));
 			} else {
 				var value = JsonUtils.getAsInt(jResolution, "value");

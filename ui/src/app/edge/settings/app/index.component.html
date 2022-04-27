@@ -23,7 +23,8 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" name="information-outline"></ion-icon>
-            <ion-label>Der App-Manager befindet sich aktuell in einer ersten Testversion.</ion-label>
+            <ion-label text-wrap>Der App-Manager befindet sich aktuell in einer ersten Testversion. Falls nicht alle
+              Apps angezeigt werden, muss evtl. die FEMS Version geupdatet werden.</ion-label>
           </ion-item>
         </ion-card>
       </ion-col>
@@ -78,7 +79,10 @@
                               <!-- TODO btn Aktivieren -> Installieren -> Deinstallieren -->
                               <p *ngIf="false">
                                 <small>Technischer Name: {{ app.appId }}</small><br />
-                                <small>Kategorie: {{ app.category }}</small><br />
+                                <small>Kategorie:
+                                  <a *ngFor="let c of app.categorys">
+                                    {{ c.readableName }}
+                                  </a></small><br />
                                 <small>Cardinality: {{ app.cardinality }}</small>
                               </p>
                               <div *ngIf="app.instanceIds.length == 0 && app.status.name != 'INSTALLABLE'">
@@ -120,7 +124,11 @@
                           <!-- TODO btn Aktivieren -> Installieren -> Deinstallieren -->
                           <p *ngIf="false">
                             <small>Technischer Name: {{ app.appId }}</small><br />
-                            <small>Kategorie: {{ app.category }}</small><br />
+                            <small>Kategorie:
+                              <a *ngFor="let c of app.categorys">
+                                {{ c.readableName }}
+                              </a>
+                            </small><br />
                             <small>Cardinality: {{ app.cardinality }}</small>
                           </p>
                           <div *ngIf="app.instanceIds.length == 0 && app.status.name != 'INSTALLABLE'">

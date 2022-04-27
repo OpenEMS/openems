@@ -445,6 +445,7 @@ export const TRANSLATION = {
                 simulator: 'Simulateur',
                 systemExecute: 'Exécutez une commande système',
                 systemProfile: 'System Profile',
+                alerting: 'Alerte',
             },
             More: {
                 manualCommand: 'Commande Manuelle',
@@ -479,7 +480,12 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'Nouvelle connexion...',
                 newDevice: 'Nouvel appareil...',
-            }
+            },
+            Alerting: {
+                activate: 'Activer',
+                delay: 'Retard [min]',
+                save: 'Enregistrer',
+            },
         },
         Service: {
             entireSystem: "système entier",

@@ -8,6 +8,7 @@ import java.util.Base64;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 
 /**
@@ -22,12 +23,14 @@ public class ManagedUser extends User {
 	private final byte[] password;
 	private final byte[] salt;
 
-	public ManagedUser(String id, String name, Role role, String passwordAsBase64, String saltAsBase64) {
-		this(id, name, role, Base64.getDecoder().decode(passwordAsBase64), Base64.getDecoder().decode(saltAsBase64));
+	public ManagedUser(String id, String name, Language language, Role role, String passwordAsBase64,
+			String saltAsBase64) {
+		this(id, name, language, role, Base64.getDecoder().decode(passwordAsBase64),
+				Base64.getDecoder().decode(saltAsBase64));
 	}
 
-	public ManagedUser(String id, String name, Role role, final byte[] password, final byte[] salt) {
-		super(id, name, role);
+	public ManagedUser(String id, String name, Language language, Role role, final byte[] password, final byte[] salt) {
+		super(id, name, language, role);
 		this.password = password;
 		this.salt = salt;
 	}

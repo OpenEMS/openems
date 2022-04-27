@@ -35,6 +35,22 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.4.1',
+        changes: [
+          Changelog.openems('2022.4.0'),
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + "Allgemeine Verbesserung",
+          Changelog.library(Library.INFLUXDB, Library.ANGULAR, Library.IONIC, Library.GRADLE, Library.APACHE_FELIX_CONFIGADMIN, Library.D3),
+          "Mehrsprachiger Excel-Export aus dem Online-Monitoring",
+          Changelog.product(Product.COMMERCIAL_30) + "Fehlerbehebungen und Berechnung von Energie-Werten",
+          Changelog.UI + "Verbesserung der Anzeige von Verbrauchs- und Erzeugungszählern",
+          Changelog.UI + "Refactoring der Charts für historische Daten",
+          Changelog.product(Product.FEMS_SDM630_ZAEHLER) + "Korrektur der Modbus-Register für Blindleistung",
+          { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am FEMS App-Center (Beta-Test)" },
+          { roleIsAtLeast: Role.ADMIN, change: "Benachrichtigung bei Ausfall eines FEMS (Beta-Test)" },
+          { roleIsAtLeast: Role.ADMIN, change: "Neues Werbewidget für direkte Anbindung eines KOSTAL PV-Wechselrichter" },
+        ]
+      },
+      {
         version: '2022.3.6',
         changes: [
           Changelog.library(Library.INFLUXDB)

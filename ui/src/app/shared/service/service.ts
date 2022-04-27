@@ -378,19 +378,6 @@ export class Service implements ErrorHandler {
   }
 
   /**
-   * Checks if this Edge is allowed to show kWh values
-   */
-  public isKwhAllowed(edge: Edge): boolean {
-    if (!edge) {
-      return false;
-    }
-    if (edge.isVersionAtLeast('2020.25')) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
    * checks if fems is allowed to show advertisement widget
    */
   public isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets, widgets: Widgets) {

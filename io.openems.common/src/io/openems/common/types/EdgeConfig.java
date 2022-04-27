@@ -332,9 +332,10 @@ public class EdgeConfig {
 		}
 
 		/**
-		 * Constructor with NO_SERVICE_PID, properties as JsonObject and no channels
+		 * Constructor with NO_SERVICE_PID, properties as JsonObject and no channels.
 		 *
 		 * @param id         the Component-ID
+		 * @param alias      the Alias
 		 * @param factoryId  the Factory-ID
 		 * @param properties the configuration properties
 		 */

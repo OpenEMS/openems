@@ -11,16 +11,16 @@
             Edge.History.week
         </ion-label>
     </ion-item>
-    <ion-item *ngIf="service.isKwhAllowed(edge) == true" mode="md" [class.active]="service.periodString == 'month'"
-        (click)="setPeriod('month')" class="ion-text-center" lines="none" button>
+    <ion-item mode="md" [class.active]="service.periodString == 'month'" (click)="setPeriod('month')"
+        class="ion-text-center" lines="none" button>
         <ion-label translate>
             Edge.History.month
         </ion-label>
     </ion-item>
 
     <!-- Show Year View for now only in Energy-Monitor-Chart -->
-    <ion-item *ngIf="service.isKwhAllowed(edge) == true" mode="md" [class.active]="service.periodString == 'year'"
-        class="ion-text-center" lines="none" button (click)="setPeriod('year')" class="ion-text-center">
+    <ion-item mode="md" [class.active]="service.periodString == 'year'" class="ion-text-center" lines="none" button
+        (click)="setPeriod('year')" class="ion-text-center">
         <ion-label translate>
             Edge.History.year
         </ion-label>

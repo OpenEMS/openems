@@ -13,6 +13,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.user.ManagedUser;
@@ -42,14 +43,16 @@ public class UserServiceImpl implements UserService {
 
 	@Activate
 	void activate(Config config) {
-		this.initializeUser("admin", "Admin", Role.ADMIN, config.adminPassword(), config.adminSalt());
+		this.initializeUser("admin", "Admin", Language.DEFAULT, Role.ADMIN, config.adminPassword(), config.adminSalt());
 		this.users.add(//
-				new ManagedUser("installer", "Installer", Role.INSTALLER, config.installerPassword(),
+				new ManagedUser("installer", "Installer", Language.DEFAULT, Role.INSTALLER, config.installerPassword(),
 						config.installerSalt()));
 		this.users.add(//
-				new ManagedUser("owner", "Owner", Role.OWNER, config.ownerPassword(), config.ownerSalt()));
+				new ManagedUser("owner", "Owner", Language.DEFAULT, Role.OWNER, config.ownerPassword(),
+						config.ownerSalt()));
 		this.users.add(//
-				new ManagedUser("guest", "Guest", Role.GUEST, config.guestPassword(), config.guestSalt()));
+				new ManagedUser("guest", "Guest", Language.DEFAULT, Role.GUEST, config.guestPassword(),
+						config.guestSalt()));
 	}
 
 	@Deactivate
@@ -92,11 +95,12 @@ public class UserServiceImpl implements UserService {
 	 * 
 	 * @param id       the user id, e.g. "admin"
 	 * @param name     a user name, e.g#. "Admin"
+	 * @param language the {@link Language}
 	 * @param role     the user {@link Role}
 	 * @param password the base64 hashed password
 	 * @param salt     the base64 hashed salt
 	 */
-	private void initializeUser(String id, String name, Role role, String password, String salt) {
+	private void initializeUser(String id, String name, Language language, Role role, String password, String salt) {
 		if (
 		// Is this a FEMS (i.e. no development environment)?
 		this.host.getHostname().orElse(host.getHostnameChannel().getNextValue().orElse("UNKNOWN")).startsWith("fems")
@@ -107,10 +111,10 @@ public class UserServiceImpl implements UserService {
 			byte[] generatedPassword = ManagedUser.hashPassword(UserServiceUtils.generatePassword(this.host, id, role),
 					generatedSalt, ManagedUser.ITERATIONS, ManagedUser.KEY_LENGTH);
 			this.users.add(//
-					new ManagedUser(id, name, role, generatedPassword, generatedSalt));
+					new ManagedUser(id, name, language, role, generatedPassword, generatedSalt));
 		} else {
 			this.users.add(//
-					new ManagedUser(id, name, role, password, salt));
+					new ManagedUser(id, name, language, role, password, salt));
 		}
 	}
 

@@ -12,6 +12,7 @@ export class ConfigurationSystemComponent implements OnInit {
 
   private static readonly SELECTOR = "configuration-system";
   private readonly LINK_HOME_MANUAL = "https://www.fenecon.de/download/home-anleitung/";
+  private readonly LINK_SYMPHON_E_MANUAL = "https://www.heckertsolar.com/wp-content/uploads/2022/03/Montage_und-Serviceanleitung-Symphon-E.pdf";
 
   @Input() public installationData: InstallationData;
 
@@ -79,6 +80,10 @@ export class ConfigurationSystemComponent implements OnInit {
   }
 
   public openManual() {
-    window.open(this.LINK_HOME_MANUAL);
+    if (environment.theme == 'Heckert') {
+      window.open(this.LINK_SYMPHON_E_MANUAL);
+    } else {
+      window.open(this.LINK_HOME_MANUAL);
+    }
   }
 }

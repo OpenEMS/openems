@@ -4,8 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
-import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { saveAs } from 'file-saver-es';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -18,7 +18,7 @@ import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { calculateResolution, ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, Resolution, setLabelVisible, TooltipItem, Unit } from './../shared';
+import { calculateResolution, ChartData, ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from './../shared';
 import { EnergyModalComponent } from './modal/modal.component';
 
 type EnergyChartLabels = {
@@ -114,9 +114,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
     this.platform.ready().then(() => {
       this.service.isSmartphoneResolutionSubject.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
-        if (this.service.isKwhAllowed(this.edge)) {
-          this.updateChart();
-        }
+        this.updateChart();
       })
     })
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
@@ -132,15 +130,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   /**
    * checks if kWh Chart is allowed to be shown
    */
-  private isKwhChart(service: Service): boolean {
+  private isBarChart(service: Service): boolean {
     let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
-    if (service.isKwhAllowed(this.edge) == true &&
-      unit == Unit.DAYS || unit == Unit.MONTHS) {
+    if (unit == Unit.DAYS || unit == Unit.MONTHS) {
       return true;
     }
     return false;
   }
-
 
   protected updateChart() {
     this.loading = true;
@@ -155,10 +151,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
         // Load Linechart or BarChart 
         this.generateLabels().then(chartLabels => {
-          if (this.isKwhChart(this.service) == false) {
-            this.loadLineChart(chartLabels);
-          } else if (this.isKwhChart(this.service) == true) {
+          if (this.isBarChart(this.service)) {
             this.loadBarChart(chartLabels, config);
+          } else {
+            this.loadLineChart(chartLabels);
           }
         })
       }).catch(reason => {
@@ -725,51 +721,47 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       }
 
       // Generate kWh labels
-      if (this.service.isKwhAllowed(this.edge) == true) {
-        this.getEnergyChannelAddresses(this.config).then(channelAddresses => {
-          this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
-            let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-            if ('_sum/ProductionActiveEnergy' in result.data && response.result.data["_sum/ProductionActiveEnergy"] != null) {
-              let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
-              labels.production += " " + this.unitpipe.transform(kwhProductionValue, "kWh").toString();
-            }
-            if ('_sum/GridBuyActiveEnergy' in result.data && response.result.data["_sum/GridBuyActiveEnergy"] != null) {
-              let kwhGridBuyValue = response.result.data["_sum/GridBuyActiveEnergy"];
-              labels.gridBuy += " " + this.unitpipe.transform(kwhGridBuyValue, "kWh").toString();
-            }
-            if ('_sum/GridSellActiveEnergy' in result.data && response.result.data["_sum/GridSellActiveEnergy"] != null) {
-              let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
-              labels.gridSell += " " + this.unitpipe.transform(kwhGridSellValue, "kWh").toString();
-            }
-            if ('_sum/EssDcChargeEnergy' in result.data && response.result.data["_sum/EssDcChargeEnergy"] != null) {
-              let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
-              labels.charge += " " + this.unitpipe.transform(kwhChargeValue, "kWh").toString();
-            }
-            if ('_sum/EssDcDischargeEnergy' in result.data && response.result.data["_sum/EssDcDischargeEnergy"] != null) {
-              let kwhDischargeValue = response.result.data["_sum/EssDcDischargeEnergy"];
-              labels.discharge += " " + this.unitpipe.transform(kwhDischargeValue, "kWh").toString();
-            }
-            if ('_sum/ConsumptionActiveEnergy' in result.data && response.result.data["_sum/ConsumptionActiveEnergy"] != null) {
-              let kwhConsumptionValue = response.result.data["_sum/ConsumptionActiveEnergy"];
-              labels.consumption += " " + this.unitpipe.transform(kwhConsumptionValue, "kWh").toString();
-            }
-            if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data
-              && response.result.data["_sum/ProductionActiveEnergy"] != null && response.result.data["_sum/EssDcChargeEnergy"] != null
-              && response.result.data["_sum/GridSellActiveEnergy"]) {
-              let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"]
-              let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
-              let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
-              let directConsumptionValue = kwhProductionValue - kwhGridSellValue - kwhChargeValue;
-              labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
-            }
-            resolve(labels)
-          }).catch(() => {
-            resolve(labels)
-          })
+      this.getEnergyChannelAddresses(this.config).then(channelAddresses => {
+        this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
+          let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+          if ('_sum/ProductionActiveEnergy' in result.data && response.result.data["_sum/ProductionActiveEnergy"] != null) {
+            let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
+            labels.production += " " + this.unitpipe.transform(kwhProductionValue, "kWh").toString();
+          }
+          if ('_sum/GridBuyActiveEnergy' in result.data && response.result.data["_sum/GridBuyActiveEnergy"] != null) {
+            let kwhGridBuyValue = response.result.data["_sum/GridBuyActiveEnergy"];
+            labels.gridBuy += " " + this.unitpipe.transform(kwhGridBuyValue, "kWh").toString();
+          }
+          if ('_sum/GridSellActiveEnergy' in result.data && response.result.data["_sum/GridSellActiveEnergy"] != null) {
+            let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
+            labels.gridSell += " " + this.unitpipe.transform(kwhGridSellValue, "kWh").toString();
+          }
+          if ('_sum/EssDcChargeEnergy' in result.data && response.result.data["_sum/EssDcChargeEnergy"] != null) {
+            let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
+            labels.charge += " " + this.unitpipe.transform(kwhChargeValue, "kWh").toString();
+          }
+          if ('_sum/EssDcDischargeEnergy' in result.data && response.result.data["_sum/EssDcDischargeEnergy"] != null) {
+            let kwhDischargeValue = response.result.data["_sum/EssDcDischargeEnergy"];
+            labels.discharge += " " + this.unitpipe.transform(kwhDischargeValue, "kWh").toString();
+          }
+          if ('_sum/ConsumptionActiveEnergy' in result.data && response.result.data["_sum/ConsumptionActiveEnergy"] != null) {
+            let kwhConsumptionValue = response.result.data["_sum/ConsumptionActiveEnergy"];
+            labels.consumption += " " + this.unitpipe.transform(kwhConsumptionValue, "kWh").toString();
+          }
+          if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data
+            && response.result.data["_sum/ProductionActiveEnergy"] != null && response.result.data["_sum/EssDcChargeEnergy"] != null
+            && response.result.data["_sum/GridSellActiveEnergy"]) {
+            let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"]
+            let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
+            let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
+            let directConsumptionValue = kwhProductionValue - kwhGridSellValue - kwhChargeValue;
+            labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
+          }
+          resolve(labels)
+        }).catch(() => {
+          resolve(labels)
         })
-      } else {
-        resolve(labels)
-      }
+      })
     })
   }
 

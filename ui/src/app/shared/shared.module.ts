@@ -18,7 +18,6 @@ import { RepeatTypeComponent } from './formly/repeat';
 import { Generic_ComponentsModule } from './genericComponents/genericComponents';
 import { HeaderComponent } from './header/header.component';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
-import { PickDateComponent } from './pickdate/pickdate.component';
 import { PipeModule } from './pipe/pipe';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
@@ -56,7 +55,6 @@ import { Language } from './translate/language';
     ChartOptionsComponent,
     HeaderComponent,
     PercentageBarComponent,
-    PickDateComponent,
     // formly
     InputTypeComponent,
     FormlyWrapperFormField,
@@ -82,7 +80,6 @@ import { Language } from './translate/language';
     ChartOptionsComponent,
     HeaderComponent,
     PercentageBarComponent,
-    PickDateComponent,
   ],
   providers: [
     appRoutingProviders,

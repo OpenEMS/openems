@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.odoo.odoo;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,6 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.Partner;
@@ -25,9 +29,10 @@ import io.openems.backend.metadata.odoo.Field.SetupProtocolItem;
 import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.OdooMetadata;
+import io.openems.backend.metadata.odoo.odoo.OdooUtils.SuccessResponseAndHeaders;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 import io.openems.common.utils.PasswordUtils;
@@ -57,6 +62,25 @@ public class OdooHandler {
 		} catch (OpenemsException e) {
 			this.parent.logError(this.log, "Unable to update Edge [" + edge.getId() + "] " //
 					+ "Odoo-ID [" + edge.getOdooId() + "] " //
+					+ "Fields [" + Stream.of(fieldValues).map(FieldValue::toString).collect(Collectors.joining(","))
+					+ "]: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Writes one field to Odoo EdgeUser model.
+	 *
+	 * @param edgeUser    the EdgeUser
+	 * @param fieldValues the FieldValues
+	 */
+	public void writeEdgeUser(EdgeUser edgeUser, FieldValue<?>... fieldValues) {
+		try {
+			OdooUtils.write(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL, new Integer[] { edgeUser.getId() },
+					fieldValues);
+		} catch (OpenemsException e) {
+			this.parent.logError(this.log, "Unable to update EdgeUser [" + edgeUser.getId() + "] " //
+					+ "Edge [" + edgeUser.getEdgeId() + "] " //
+					+ "User [" + edgeUser.getUserId() + "] " //
 					+ "Fields [" + Stream.of(fieldValues).map(FieldValue::toString).collect(Collectors.joining(","))
 					+ "]: " + e.getMessage());
 		}
@@ -134,16 +158,16 @@ public class OdooHandler {
 	 */
 	private void assignEdgeToUser(int userId, int edgeId, OdooUserRole userRole) throws OpenemsException {
 		int[] found = OdooUtils.search(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL,
-				new Domain(Field.EdgeDeviceUserRole.USER_ID, "=", userId),
-				new Domain(Field.EdgeDeviceUserRole.DEVICE_ID, "=", edgeId));
+				new Domain(Field.EdgeDeviceUserRole.USER_ODOO_ID, "=", userId),
+				new Domain(Field.EdgeDeviceUserRole.DEVICE_ODOO_ID, "=", edgeId));
 
 		if (found.length > 0) {
 			return;
 		}
 
 		OdooUtils.create(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL, //
-				new FieldValue<>(Field.EdgeDeviceUserRole.USER_ID, userId), //
-				new FieldValue<>(Field.EdgeDeviceUserRole.DEVICE_ID, edgeId), //
+				new FieldValue<>(Field.EdgeDeviceUserRole.USER_ODOO_ID, userId), //
+				new FieldValue<>(Field.EdgeDeviceUserRole.DEVICE_ODOO_ID, edgeId), //
 				new FieldValue<>(Field.EdgeDeviceUserRole.ROLE, userRole.getOdooRole()));
 	}
 
@@ -522,7 +546,7 @@ public class OdooHandler {
 
 	/**
 	 * Add the "Created via IBN" tag to the referenced partner for given user id.
-	 * 
+	 *
 	 * @param userId to get Odoo partner
 	 * @throws OpenemsException on error
 	 */
@@ -781,6 +805,31 @@ public class OdooHandler {
 	}
 
 	/**
+	 * Call Odoo api to send multiple notification mails via Odoo async.
+	 *
+	 * @param user Odoo deviceUser ids to send the mail
+	 * @param now  TimeStamp for last_notification field
+	 * @return {@link Future} of {@link SuccessResponseAndHeaders}
+	 * @throws OpenemsNamedException error
+	 */
+	public Future<SuccessResponseAndHeaders> sendNotificationMailAsync(List<EdgeUser> user, ZonedDateTime now)
+			throws OpenemsNamedException {
+		JsonArray arr = new JsonArray(user.size());
+		user.forEach(u -> {
+			arr.add(u.getId());
+		});
+		return OdooUtils.sendAdminJsonrpcRequestAsyc(this.credentials, "/openems_backend/send_alerting_email",
+				JsonUtils.buildJsonObject() //
+						.add("params", JsonUtils.buildJsonObject() //
+								.add("ids", arr) //
+								.addProperty("now", now //
+										.withZoneSameInstant(ZoneId.of("UTC")) //
+										.format(OdooUtils.DATETIME_FORMATTER)) //
+								.build()) //
+						.build());
+	}
+
+	/**
 	 * Update language for the given user.
 	 *
 	 * @param user     {@link MyUser} the current user
@@ -791,6 +840,7 @@ public class OdooHandler {
 		try {
 			OdooUtils.write(this.credentials, Field.User.ODOO_MODEL, new Integer[] { user.getOdooId() }, //
 					new FieldValue<>(Field.User.OPENEMS_LANGUAGE, language.name()));
+			user.setLanguage(language);
 		} catch (OpenemsNamedException ex) {
 			throw new OpenemsException("Unable to set language [" + language.name() + "] for current user", ex);
 		}

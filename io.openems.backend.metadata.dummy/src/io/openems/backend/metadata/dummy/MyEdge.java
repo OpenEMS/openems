@@ -9,9 +9,9 @@ public class MyEdge extends Edge {
 	private final String apikey;
 	private final String setupPassword;
 
-	public MyEdge(String id, String apikey, String setupPassword, String comment, State state, String version,
-			String producttype, Level sumState, EdgeConfig config) {
-		super(id, comment, state, version, producttype, sumState, config);
+	public MyEdge(DummyMetadata parent, String id, String apikey, String setupPassword, String comment, State state,
+			String version, String producttype, Level sumState, EdgeConfig config) {
+		super(parent, id, comment, state, version, producttype, sumState, config, null, null);
 		this.apikey = apikey;
 		this.setupPassword = setupPassword;
 	}

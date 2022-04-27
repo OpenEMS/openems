@@ -13,7 +13,6 @@ export class HasclassPipe implements PipeTransform {
       return false;
     }
     if (Array.isArray(param)) {
-      // console.log("ARR", param);
       let found: boolean = false;
       for (let element of param) {
         found = this.transform(element, classname);
@@ -23,13 +22,11 @@ export class HasclassPipe implements PipeTransform {
 
     } else if (typeof param === 'object') {
       if (param["class"] && param.class == classname) {
-        // console.log("CLASS", param.class);
         return true;
       }
 
       let found: boolean = false;
       for (let property in param) {
-        // console.log("PROP: ", property);
         found = this.transform(param[property], classname);
         if (found) break;
       }

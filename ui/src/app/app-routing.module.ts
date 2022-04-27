@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { ChangelogComponent } from './changelog/changelog.component';
-import { AutarchyChartOverviewComponent } from './edge/history/autarchy/autarchychartoverview/autarchychartoverview.component';
+import { AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
@@ -40,6 +40,7 @@ import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from './edge/settings/systemupdate.old/systemupdate.old.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
+import { AlertingComponent as EdgeSettingsAlerting } from './edge/settings/alerting/alerting.component';
 import { IndexComponent } from './index/index.component';
 import { UserComponent } from './user/user.component';
 
@@ -95,6 +96,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/app/install/:appId', component: EdgeSettingsAppInstall },
   { path: 'device/:edgeId/settings/app/update/:appId', component: EdgeSettingsAppUpdate },
   { path: 'device/:edgeId/settings/app/single/:appId', component: EdgeSettingsAppSingle },
+  { path: 'device/:edgeId/settings/alerting', component: EdgeSettingsAlerting },
   { path: 'demo', component: IndexComponent }
 ];
 

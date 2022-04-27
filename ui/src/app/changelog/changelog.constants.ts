@@ -54,6 +54,7 @@ export class Product {
     public static readonly FEMS_PV_KOSTAL = new Product('FEMS-App Kostal PV-Wechselrichter', 'https://fenecon.de/fems-2-2/'); // TODO Add Product Page
     public static readonly FEMS_JANITZA_ZAEHLER = new Product('FEMS-App Janitza Zähler', 'https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/');
     public static readonly FEMS_PQ_PLUS_ZAEHLER = new Product('FEMS-App PQ-Plus Zähler', 'https://fenecon.de/fems/'); // TODO Add Product Page
+    public static readonly FEMS_SDM630_ZAEHLER = new Product('FEMS-App SDM 630 Zähler', 'https://fenecon.de/fems/');
     public static readonly FEMS_HEIZSTAB = new Product('FEMS-App Heizstab', 'https://fenecon.de/fems-2-2/fems-app-heizstab-6-kw/');
     public static readonly FEMS_SCHWELLWERT_STEUERUNG = new Product('FEMS-App Schwellwertsteuerung', 'https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/');
     public static readonly FEMS_AWATTAR = new Product('FEMS-App Awattar HOURLY Deutschland', 'https://fenecon.de/fems-2-2/fems-app-awattar-hourly-deutschland-2/');

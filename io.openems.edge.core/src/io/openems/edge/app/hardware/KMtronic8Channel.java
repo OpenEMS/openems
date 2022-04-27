@@ -3,6 +3,7 @@ package io.openems.edge.app.hardware;
 import java.util.EnumMap;
 import java.util.List;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
@@ -20,14 +21,17 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 
 /**
- * Describes a App for AwattarHourly.
+ * Describes a App for KMtronic 8-Channel Relay.
  *
  * <pre>
   {
@@ -39,7 +43,8 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"IO_ID": "io0",
     	"MODBUS_ID": "modbus10",
     	"IP": "192.168.1.199"
-    }
+    },
+    "appDescriptor": {}
   }
  * </pre>
  */
@@ -56,8 +61,9 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 	}
 
 	@Activate
-	public KMtronic8Channel(@Reference ComponentManager componentManager, ComponentContext context) {
-		super(componentManager, context);
+	public KMtronic8Channel(@Reference ComponentManager componentManager, ComponentContext context,
+			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
+		super(componentManager, context, cm, componentUtil);
 	}
 
 	@Override
@@ -67,15 +73,15 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName());
 			var ip = this.getValueOrDefault(p, Property.IP, "192.168.1.199");
 
-			var modbus10 = this.getId(t, p, Property.MODBUS_ID, "modbus10");
-			var io1 = this.getId(t, p, Property.IO_ID, "io1");
+			var modbusId = this.getId(t, p, Property.MODBUS_ID, "modbus10");
+			var ioId = this.getId(t, p, Property.IO_ID, "io1");
 
 			List<Component> comp = Lists.newArrayList(//
-					new EdgeConfig.Component(io1, alias, "IO.KMtronic", //
+					new EdgeConfig.Component(ioId, alias, "IO.KMtronic", //
 							JsonUtils.buildJsonObject() //
-									.addProperty("modbus.id", modbus10) //
+									.addProperty("modbus.id", modbusId) //
 									.build()), //
-					new EdgeConfig.Component(modbus10, "bridge", "Bridge.Modbus.Tcp", JsonUtils.buildJsonObject() //
+					new EdgeConfig.Component(modbusId, "bridge", "Bridge.Modbus.Tcp", JsonUtils.buildJsonObject() //
 							.addProperty("ip", ip) //
 							.build())//
 			);
@@ -87,8 +93,20 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 	public AppAssistant getAppAssistant() {
 		return AppAssistant.create(this.getName()) //
 				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildInput(Property.IP, "192.168.1.199", false)) //
+						.add(JsonFormlyUtil.buildInput(Property.IP) //
+								.setLabel("IP-Address") //
+								.setDescription("The IP address of the Relay.") //
+								.setDefaultValue("192.168.1.199") //
+								.isRequired(true) //
+								.setValidation(Validation.IP) //
+								.build()) //
 						.build())
+				.build();
+	}
+
+	@Override
+	public AppDescriptor getAppDescriptor() {
+		return AppDescriptor.create() //
 				.build();
 	}
 

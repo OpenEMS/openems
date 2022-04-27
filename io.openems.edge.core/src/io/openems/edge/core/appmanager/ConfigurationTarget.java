@@ -29,4 +29,8 @@ public enum ConfigurationTarget {
 	public boolean isDeleteOrTest() {
 		return this == DELETE || this == TEST;
 	}
+
+	public boolean isAddOrUpdate() {
+		return this == ADD || this == UPDATE;
+	}
 }

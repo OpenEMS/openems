@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -21,8 +23,8 @@ import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.function.ThrowingFunction;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
@@ -30,13 +32,16 @@ import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
 public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implements OpenemsApp {
 
 	protected final ComponentManager componentManager;
+	protected final ConfigurationAdmin cm;
 	protected final ComponentContext componentContext;
 	protected final ComponentUtil componentUtil;
 
-	protected AbstractOpenemsApp(ComponentManager componentManager, ComponentContext componentContext) {
+	protected AbstractOpenemsApp(ComponentManager componentManager, ComponentContext componentContext,
+			ConfigurationAdmin cm, ComponentUtil componentUtil) {
 		this.componentManager = componentManager;
 		this.componentContext = componentContext;
-		this.componentUtil = new ComponentUtil(componentManager);
+		this.cm = cm;
+		this.componentUtil = componentUtil;
 	}
 
 	/**
@@ -66,25 +71,6 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining(";")));
 		}
-	}
-
-	/**
-	 * Builds an JsonArray of all available Relay Options.
-	 *
-	 * @return an JsonArray
-	 */
-	protected JsonArray buildAvailableRelayOptions() {
-		var options = JsonUtils.buildJsonArray();
-		for (var io : this.componentUtil.getAvailableRelays()) {
-			for (var relay : io.relays) {
-				options.add(JsonUtils.buildJsonObject() //
-						.addProperty("label", relay) //
-						.addProperty("value", relay) //
-						.build());
-			}
-		}
-
-		return options.build();
 	}
 
 	/**
@@ -141,8 +127,32 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	public AppConfiguration getAppConfiguration(ConfigurationTarget target, JsonObject config)
 			throws OpenemsNamedException {
 		var errors = new ArrayList<String>();
-		var c = this.configuration(errors, target,
-				this.convertToEnumMap(target != ConfigurationTarget.TEST ? errors : new ArrayList<>(), config));
+		var enumMap = this.convertToEnumMap(target != ConfigurationTarget.TEST ? errors : new ArrayList<>(), config);
+		var c = this.configuration(errors, target, enumMap);
+
+		// TODO remove and maybe add @AttributeDefinition above enums
+		// this is for removing passwords so they do not get saved
+		if (config.size() != enumMap.size()) {
+			// remove entries that got removed
+			var toRemoveKeys = new LinkedList<String>();
+			for (var configEntry : config.entrySet()) {
+				var key = configEntry.getKey();
+				var contains = false;
+				for (var entry : enumMap.entrySet()) {
+					if (entry.getKey().name().equals(key)) {
+						contains = true;
+						break;
+					}
+				}
+				if (!contains) {
+					toRemoveKeys.add(key);
+				}
+			}
+			for (var key : toRemoveKeys) {
+				config.remove(key);
+			}
+		}
+
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
@@ -152,10 +162,6 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	@Override
 	public String getAppId() {
 		return this.componentContext.getProperties().get(ComponentConstants.COMPONENT_NAME).toString();
-	}
-
-	protected List<Checkable> getCompatibleCheckables() {
-		return null;
 	}
 
 	/**
@@ -202,10 +208,6 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		return this.getValueOrDefault(map, p, defaultId);
 	}
 
-	protected List<Checkable> getInstallableCheckables() {
-		return null;
-	}
-
 	protected abstract Class<PROPERTY> getPropertyClass();
 
 	/**
@@ -239,7 +241,13 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	@Override
 	public final Validator getValidator() {
-		var validator = new Validator(this.getCompatibleCheckables(), this.getInstallableCheckables());
+		Map<String, Object> properties = new TreeMap<>();
+		properties.put("openemsApp", this);
+
+		// add check for cardinality for every app
+		var validator = this.getValidateBuilder().build();
+		validator.getInstallableCheckableNames().put(CheckCardinality.COMPONENT_NAME, properties);
+
 		if (this.installationValidation() != null) {
 			validator.setConfigurationValidation((t, u) -> {
 				var p = this.convertToEnumMap(new ArrayList<>(), u);
@@ -247,6 +255,10 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			});
 		}
 		return validator;
+	}
+
+	protected Validator.Builder getValidateBuilder() {
+		return Validator.create();
 	}
 
 	/**
@@ -295,11 +307,21 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		return false;
 	}
 
-	// validation
+	/**
+	 * The returning function gets called during app add or update. The returned
+	 * {@link Checkable}s are executed after setting the network configuration.
+	 *
+	 * <p>
+	 * e. g. the function can return a {@link Checkable} for checking if a device is
+	 * reachable via network.
+	 * </p>
+	 *
+	 * @return a factory function which returns {@link Checkable}s
+	 */
 	protected ThrowingBiFunction<//
 			ConfigurationTarget, // ADD, UPDATE, VALIDATE, DELETE or TEST
 			EnumMap<PROPERTY, JsonElement>, // configuration properties
-			List<Checkable>, // return value of the function
+			Map<String, Map<String, ?>>, // return value of the function
 			OpenemsNamedException> // Exception on error
 			installationValidation() {
 		return null;
@@ -337,7 +359,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 				continue;
 			}
 			// ALIAS is not really necessary to validate
-			ComponentUtil.isSameConfigurationWithoutAlias(errors, expectedComponent, actualComponent);
+			ComponentUtilImpl.isSameConfigurationWithoutAlias(errors, expectedComponent, actualComponent);
 		}
 
 		if (!missingComponents.isEmpty()) {
@@ -385,40 +407,23 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	 */
 	private void validateScheduler(ArrayList<String> errors, EdgeConfig actualEdgeConfig,
 			AppConfiguration expectedAppConfiguration) {
-		var schedulerComponents = actualEdgeConfig.getComponentsByFactory("Scheduler.AllAlphabetically");
-		if (schedulerComponents.isEmpty()) {
-			errors.add("Scheduler is missing");
-			return;
-		}
-		if (schedulerComponents.size() > 1) {
-			errors.add("More than one Scheduler configured");
-			return;
-		}
 
-		var schedulerComponent = schedulerComponents.get(0);
-		var controllerIdsElement = schedulerComponent.getProperty("controllers.ids").orElse(new JsonArray());
-		JsonArray controllerIds;
+		List<String> schedulerIds;
 		try {
-			controllerIds = JsonUtils.getAsJsonArray(controllerIdsElement);
+			schedulerIds = this.componentUtil.getSchedulerIds();
 		} catch (OpenemsNamedException e) {
-			errors.add("Undefined error in Scheduler: " + e.getMessage());
+			errors.add(e.getMessage());
 			return;
 		}
 
 		// Prepare Queue
-		var controllers = new LinkedList<>(expectedAppConfiguration.schedulerExecutionOrder);
+		var controllers = new LinkedList<>(this.componentUtil.removeIdsWhichNotExist(
+				expectedAppConfiguration.schedulerExecutionOrder, expectedAppConfiguration.components));
+
 		var nextControllerId = controllers.poll();
 
 		// Remove found Controllers from Queue in order
-		for (var controllerIdElement : controllerIds) {
-			String controllerId;
-			try {
-				controllerId = JsonUtils.getAsString(controllerIdElement);
-			} catch (OpenemsNamedException e) {
-				errors.add("Undefined error in Scheduler: " + e.getMessage());
-				continue;
-			}
-
+		for (var controllerId : schedulerIds) {
 			if (controllerId.equals(nextControllerId)) {
 				nextControllerId = controllers.poll();
 			}
@@ -427,5 +432,4 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			errors.add("Controller [" + nextControllerId + "] is not/wrongly configured in Scheduler");
 		}
 	}
-
 }

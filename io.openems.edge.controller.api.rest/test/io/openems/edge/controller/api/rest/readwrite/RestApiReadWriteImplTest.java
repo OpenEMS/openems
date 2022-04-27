@@ -21,6 +21,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -56,10 +57,10 @@ public class RestApiReadWriteImplTest {
 		var test = new ControllerTest(sut) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("userService", new DummyUserService(//
-						new DummyUser(GUEST, GUEST, Role.GUEST), //
-						new DummyUser(OWNER, OWNER, Role.OWNER), //
-						new DummyUser(INSTALLER, INSTALLER, Role.INSTALLER), //
-						new DummyUser(ADMIN, ADMIN, Role.ADMIN))) //
+						new DummyUser(GUEST, GUEST, Language.DEFAULT, Role.GUEST), //
+						new DummyUser(OWNER, OWNER, Language.DEFAULT, Role.OWNER), //
+						new DummyUser(INSTALLER, INSTALLER, Language.DEFAULT, Role.INSTALLER), //
+						new DummyUser(ADMIN, ADMIN, Language.DEFAULT, Role.ADMIN))) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addComponent(new DummyComponent(DUMMY_ID)) //
 				.activate(MyConfig.create() //

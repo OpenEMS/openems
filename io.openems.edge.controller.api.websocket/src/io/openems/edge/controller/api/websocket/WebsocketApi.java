@@ -18,8 +18,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
@@ -50,9 +50,11 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				"org.ops4j.pax.logging.appender.name=Controller.Api.Websocket", //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CONFIG_UPDATE //
+				"org.ops4j.pax.logging.appender.name=Controller.Api.Websocket" //
 		})
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CONFIG_UPDATE //
+})
 public class WebsocketApi extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent, PaxAppender, EventHandler {
 

@@ -1,3 +1,11 @@
+# Drone-CI
+# 
+# Um den Docker Container fuer build ('openems-build') zu aktualisieren:
+# - ssh auf docker
+# - cd /opt/fems/tools
+# - git pull
+# - bash drone-docker.sh
+
 pipeline:
   restore-cache:
     image: drillster/drone-volume-cache
@@ -9,12 +17,12 @@ pipeline:
       - cache:/cache
 
   build-ui:
-    image: node:16-alpine
+    image: node:16
     commands:
       - cd ui
       - npm ci --prefer-offline --cache /drone/.npm
       - sed --in-place s#/m/#/${DRONE_BRANCH}/#g angular.json
-      - node_modules/@angular/cli/bin/ng build -c "fenecon,fenecon-backend-prod,prod"
+      - node_modules/.bin/ng build -c "fenecon,fenecon-backend-prod,prod"
 
   build-java:
     when:

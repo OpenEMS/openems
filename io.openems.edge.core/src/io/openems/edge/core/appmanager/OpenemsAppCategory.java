@@ -14,19 +14,19 @@ public enum OpenemsAppCategory {
 	INTEGRATED_SYSTEM("Integrierte Systeme"),
 
 	/**
-	 * Time variable energy price.
+	 * Time of use energy tariff.
 	 */
-	TIME_VARIABLE_PRICE("Zeitvariable Stromtarife"),
+	TIME_OF_USE_TARIFF("Zeitvariable Stromtarife"),
 
 	/**
 	 * Electric vehicle charging station.
 	 */
-	EVCS("E-Mobilit‰t"),
+	EVCS("E-Mobilit√§t"),
 
 	/**
 	 * Load control.
 	 */
-	HEAT("W‰rme"),
+	HEAT("W√§rme"),
 
 	/**
 	 * Hardware.
@@ -41,7 +41,12 @@ public enum OpenemsAppCategory {
 	/**
 	 * Meter.
 	 */
-	METER("Z‰hler");
+	METER("Z√§hler"),
+
+	/**
+	 * Apis.
+	 */
+	API("Schnittstellen");
 
 	private String readableName;
 

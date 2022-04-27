@@ -1,5 +1,6 @@
 package io.openems.backend.uiwebsocket.impl;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -8,14 +9,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
+import io.openems.backend.common.jsonrpc.request.GetAlertingConfigRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.request.GetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.RegisterUserRequest;
+import io.openems.backend.common.jsonrpc.request.SetAlertingConfigRequest;
 import io.openems.backend.common.jsonrpc.request.SetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.SubmitSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
+import io.openems.backend.common.jsonrpc.response.GetAlertingConfigResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserInformationResponse;
+import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.User;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -89,6 +95,13 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case UpdateUserLanguageRequest.METHOD:
 			result = this.handleUpdateUserLanguageRequest(user, UpdateUserLanguageRequest.from(request));
 			break;
+		case GetAlertingConfigRequest.METHOD:
+			result = this.handleGetAlertingConfigRequest(user, GetAlertingConfigRequest.from(request));
+			break;
+		case SetAlertingConfigRequest.METHOD:
+			result = this.handleSetAlertingConfigRequest(user, SetAlertingConfigRequest.from(request));
+			break;
+
 		}
 
 		if (result != null) {
@@ -98,6 +111,49 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// forward to generic request handler
 		return this.parent.jsonRpcRequestHandler.handleRequest(this.parent.getName(), user, request);
+	}
+
+	private class AlertingException extends IllegalArgumentException {
+		private static final long serialVersionUID = 1427696037440674667L;
+
+		private AlertingException(String userId, String edgeId) {
+			super("settings_err:'" //
+					+ "There is no User [" + userId + "] in Edge [" + edgeId + "]!'");
+		}
+	}
+
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetAlertingConfigRequest(User user,
+			GetAlertingConfigRequest request) {
+		String edgeId = request.getEdgeId();
+		String userId = user.getId();
+
+		Optional<EdgeUser> edgeUser = this.parent.metadata.getEdgeUserTo(edgeId, userId);
+
+		if (edgeUser.isPresent()) {
+			return CompletableFuture.completedFuture(//
+					new GetAlertingConfigResponse(request.getId(), edgeUser.get().getTimeToWait()));
+		} else {
+			throw new AlertingException(userId, edgeId);
+		}
+	}
+
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleSetAlertingConfigRequest(User user,
+			SetAlertingConfigRequest request) throws NotImplementedException {
+		String edgeId = request.getEdgeId();
+		String userId = user.getId();
+		int timeToWait = request.getTimeToWait();
+
+		Optional<EdgeUser> edgeUser = this.parent.metadata.getEdgeUserTo(edgeId, userId);
+
+		if (edgeUser.isPresent()) {
+			EdgeUser userRole = edgeUser.get();
+			userRole.setTimeToWait(timeToWait);
+
+			return CompletableFuture.completedFuture(//
+					new GetAlertingConfigResponse(request.getId(), userRole.getTimeToWait()));
+		} else {
+			throw new AlertingException(userId, edgeId);
+		}
 	}
 
 	/**

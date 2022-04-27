@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { ChartData, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { differenceInDays, differenceInMinutes, endOfDay, startOfDay } from 'date-fns';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -270,8 +270,10 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
     } else if (days <= 31 && service.isSmartphoneResolution) {
         // Smartphone-View: show 31 days in daily view
         resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+
     } else if (days <= 90) {
         resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+
     } else if (days <= 144) {
         // >> show Days
         if (service.isSmartphoneResolution == true) {
@@ -279,6 +281,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         } else {
             resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
         }
+
     } else {
         // >> show Months
         resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
@@ -330,5 +333,37 @@ export enum Unit {
     HOURS = "Hours",
     DAYS = "Days",
     MONTHS = "Months",
-    YEARS = "Years"
+}
+
+export type ChartData = {
+    channel: {
+        name: string,
+        powerChannel: ChannelAddress,
+        energyChannel: ChannelAddress
+        filter?: ChannelFilter
+    }[],
+    displayValue: {
+        /** Name displayed in Label */
+        name: string,
+        /**  */
+        getValue: any,
+
+        hidden?: boolean,
+        /** color in rgb-Format */
+        color: string;
+    }[],
+    tooltip: {
+        /** Unit to be displayed as Tooltips unit */
+        unit: '%' | 'kWh' | 'kW',
+        /** Format of Number displayed */
+        formatNumber: string;
+    },
+    /** Name to be displayed on the left y-axis */
+    yAxisTitle: string,
+}
+// Should be renamed
+export enum ChannelFilter {
+    NOT_NULL,
+    NOT_NULL_OR_NEGATIVE,
+    NOT_NULL_OR_POSITIVE
 }

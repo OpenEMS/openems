@@ -1,6 +1,5 @@
 import { formatDate, formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
@@ -384,5 +383,39 @@ export class Utils {
     result = Math.min(result, 100);
 
     return result;
+  }
+
+  /**
+   * Calculate the Autarchy Rate
+   * 
+   * @param buyFromGrid the Buy-From-Grid power (GridActivePower)
+   * @param consumptionActivePower the Consumption Power (ConsumptionActivePower)
+   * @returns the Autarchy rate
+   */
+  public static calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number | null {
+    if (buyFromGrid != null && consumptionActivePower != null) {
+      if (consumptionActivePower <= 0) {
+        /* avoid divide by zero; consumption == 0 -> autarchy 100 % */
+        return 100;
+
+      } else {
+        return /* min 0 */ Math.max(0,
+        /* max 100 */ Math.min(100,
+          /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100
+        ));
+      }
+
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Rounds values between 0 and -1kW to 0
+   * 
+   * @param value the value to convert
+   */
+  public static roundSlightlyNegativeValues(value: number) {
+    return (value > -0.49 && value < 0) ? 0 : value;
   }
 }
