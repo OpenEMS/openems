@@ -20,7 +20,7 @@ export class AdvertisementComponent {
   public config: EdgeConfig;
   public environment = environment;
   public activeIndex: number;
-  public title: string = environment.edgeShortName + ' - App';
+  public title: string;
 
   public enableBtn: boolean = false;
   public disablePrevBtn: boolean = null;
@@ -48,6 +48,7 @@ export class AdvertisementComponent {
   ngOnInit() {
     this.slides.getActiveIndex().then((index: number) => {
       this.activeIndex = index;
+      this.title = this.advertWidgets.list[this.activeIndex].title ?? environment.edgeShortName + ' - App';
     });
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
@@ -75,7 +76,9 @@ export class AdvertisementComponent {
     this.slides.getActiveIndex().then((index: number) => {
       this.activeIndex = index;
     });
-    this.slides.update();
+    this.slides.update().then(() => {
+      this.title = this.advertWidgets.list[this.activeIndex].title ?? environment.edgeShortName + ' - App';
+    });
   }
 
   changeNextPrevButtons() {

@@ -1,5 +1,6 @@
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
+import { Service, Websocket } from '../shared';
 
 export enum WidgetClass {
     'Energymonitor',
@@ -47,7 +48,8 @@ export class Widget {
 }
 
 export class AdvertWidget {
-    name: string
+    name: string;
+    title?: string;
 }
 
 export enum advertisableWidgetNature {
@@ -68,9 +70,17 @@ export class AdvertWidgets {
         // Dont show home AdvertWidget for 'Homes'
         if (edge.producttype != 'home') {
             list.push(
-                { name: 'FENECON Home' }
+                {
+                    name: 'FENECON Home',
+                    title: 'FENECON Home'
+                }
             );
         }
+        list.push({
+            name: 'Kostal Pv Inverter',
+            title: 'FEMS App KOSTAL PV-Wechselrichter'
+        })
+
         return new AdvertWidgets(list);
     }
 

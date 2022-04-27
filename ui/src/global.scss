@@ -26,37 +26,47 @@
 @import "~@ionic/angular/css/flex-utils.css";
 @import "variables";
 
-formly-wrapper-ion-form-field, formly-input-serial-number,formly-field-ion-radio{
-    ion-label{
-    line-height: 1.2;
-    font-size: 0.6em;
-    span{
-        white-space: initial;
-        small{
+formly-wrapper-ion-form-field,
+formly-input-serial-number,
+formly-field-ion-radio {
+    ion-label {
+        line-height: 1.2;
+        font-size: 0.6em;
+
+        span {
+            white-space: initial;
+
+            small {
+                white-space: initial;
+            }
+        }
+
+        slot {
             white-space: initial;
         }
     }
-    slot{
-        white-space: initial;
-    }
 }
-}
-    
+
 .active {
     color: $primary-color;
 }
+
 .primary-color {
     fill: $primary-color;
 }
+
 .primary-color-contrast {
     fill: $primary-color-contrast;
 }
+
 .secondary-color {
     fill: $secondary-color;
 }
+
 .secondary-color-contrast {
     fill: $secondary-color-contrast;
 }
+
 html.ios {
     --ion-default-font: -apple-system, BlinkMacSystemFont, $font-family;
 }
@@ -78,6 +88,11 @@ html.md {
     justify-content: center !important;
     align-items: center !important;
     height: 100%;
+    padding: 0 1% 1% 0;
+}
+
+.white-space-initial {
+    white-space: initial !important;
 }
 
 ion-label {
@@ -153,26 +168,31 @@ formly-input-section {
 }
 
 // Added styles for alertController, because alertController doesn't take ionic default style
-.alertController{
-    .alert-head{
+.alertController {
+    .alert-head {
         text-align: center !important;
-        .alert-sub-title{
+
+        .alert-sub-title {
             font-size: large;
             font-weight: bold;
             color: $primary-color;
         }
     }
-            .alert-message{
-                text-align: center;
-            }
-    .alert-wrapper{
+
+    .alert-message {
+        text-align: center;
+    }
+
+    .alert-wrapper {
         width: 25% !important;
-        .alert-button-group{
+
+        .alert-button-group {
             justify-content: center;
             display: grid;
             grid-template-columns: auto auto;
             column-gap: 35%;
-            .alert-button{
+
+            .alert-button {
                 color: $primary-color;
                 font-size: small;
             }
@@ -181,12 +201,12 @@ formly-input-section {
 }
 
 :root {
-   
+
     // Used in GridOptimizedCharge & Heatingelement, because ion-picker is not accessible via ion-datetime tag
     ion-picker {
-    justify-content: center !important;
-    max-width: 100% !important;
-}
+        justify-content: center !important;
+        max-width: 100% !important;
+    }
 
     // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesn't work with global.scss
     // this class is used to get the same style like in a html table
@@ -217,8 +237,8 @@ formly-input-section {
         font-family: $font-family;
         font-size: 14px;
     }
-    
-    ion-toggle{
+
+    ion-toggle {
         --background-checked: var(--ion-color-primary-tint);
     }
 }
