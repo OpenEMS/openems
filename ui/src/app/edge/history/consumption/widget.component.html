@@ -7,7 +7,7 @@
     </ion-item>
     <ion-card-content>
         <table class="full_width">
-            <ng-container *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
+            <ng-container *ngIf="data && edge; else noData">
                 <ng-container *ngIf="evcsComponents.length == 0 && consumptionMeterComponents.length == 0">
                     <tr>
                         <td style="width:65%"></td>
