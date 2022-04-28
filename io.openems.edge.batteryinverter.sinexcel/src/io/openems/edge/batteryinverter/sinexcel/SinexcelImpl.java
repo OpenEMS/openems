@@ -59,6 +59,9 @@ import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -70,10 +73,19 @@ import io.openems.edge.ess.power.api.Relationship;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
-public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sinexcel, OffGridBatteryInverter,
-		ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, StartStoppable {
+public class SinexcelImpl extends AbstractOpenemsModbusComponent
+		implements Sinexcel, OffGridBatteryInverter, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter,
+		ModbusComponent, OpenemsComponent, TimedataProvider, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(SinexcelImpl.class);
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
+	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	public static final int MAX_APPARENT_POWER = 30_000;
 	public static final int DEFAULT_UNIT_ID = 1;
@@ -148,6 +160,9 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 
 		// Set Battery Limits
 		this.setBatteryLimits(battery);
+
+		// Calculate the Energy values from ActivePower.
+		this.calculateEnergy();
 
 		// Prepare Context
 		var context = new Context(this, this.config, this.targetGridMode.get(), setActivePower, setReactivePower);
@@ -475,10 +490,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 								ElementToChannelConverter.SCALE_FACTOR_1), //
 						m(Sinexcel.ChannelId.COS_PHI, new SignedWordElement(125),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY,
-								new UnsignedDoublewordElement(126), ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(128),
-								ElementToChannelConverter.SCALE_FACTOR_2), //
+						new DummyRegisterElement(126, 129), //
 						m(Sinexcel.ChannelId.REACTIVE_ENERGY, new UnsignedDoublewordElement(130),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(Sinexcel.ChannelId.TEMPERATURE_OF_AC_HEAT_SINK, new SignedWordElement(132)), //
@@ -1107,4 +1119,30 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent implements Sine
 				return value;
 			}, //
 			value -> value);
+
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		// Calculate Energy
+		var activePower = this.getActivePower().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateChargeEnergy.update(null);
+			this.calculateDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Buy-From-Grid
+			this.calculateChargeEnergy.update(0);
+			this.calculateDischargeEnergy.update(activePower);
+		} else {
+			// Sell-To-Grid
+			this.calculateChargeEnergy.update(activePower * -1);
+			this.calculateDischargeEnergy.update(0);
+		}
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 }
