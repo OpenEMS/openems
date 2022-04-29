@@ -247,8 +247,6 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 							this.channel(FeneconCommercialBattery.ChannelId.LOW_SELF_CONSUMPTION_STATUS)
 									.setNextValue((value & 0x200) >> 9);
 							this.channel(FeneconCommercialBattery.ChannelId.FAULT).setNextValue((value & 0x400) >> 10);
-							this.channel(FeneconCommercialBattery.ChannelId.WARNING)
-									.setNextValue((value & 0x800) >> 11);
 							this.channel(FeneconCommercialBattery.ChannelId.RUNNING)
 									.setNextValue((value & 0x1000) >> 12);
 							this.channel(FeneconCommercialBattery.ChannelId.EXTERNAL_COMMUNICATION_ONLY_UNDER_STANDBY)
@@ -326,10 +324,8 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 								.bit(12, FeneconCommercialBattery.ChannelId.STS_WARNING) //
 								.bit(13, FeneconCommercialBattery.ChannelId.PCS_TEMPERATURE_WARNING) //
 								.bit(14, FeneconCommercialBattery.ChannelId.PCS_OVER_TEMPERATURE) //
-								.bit(15, FeneconCommercialBattery.ChannelId.COMMUNICATION_STOP_CHARGING) //
 						), //
 						m(new BitsWordElement(2735, this) //
-								.bit(0, FeneconCommercialBattery.ChannelId.COMMUNICATION_STOP_DISCHARGING) //
 								.bit(1, FeneconCommercialBattery.ChannelId.OVER_TEMPERATURE_STOP_PCS) //
 								.bit(2, FeneconCommercialBattery.ChannelId.LOW_TEMPERATURE_STOP_PCS) //
 								.bit(3, FeneconCommercialBattery.ChannelId.OVER_CURRENT_STOP_CHARGING) //
@@ -602,8 +598,8 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 									.bit(5, generateTowerChannel(this, towerNum, "LOW_SOC_LEVEL_2", BOOLEAN, Unit.NONE)) //
 									.bit(7, generateTowerChannel(this, towerNum, "CELL_OVER_VOLTAGE_LEVEL_3",
 											Level.WARNING)) //
-									.bit(8, generateTowerChannel(this, towerNum, "CELL_LOW_VOLTAGE_LEVEL_3",
-											Level.WARNING)) //
+									.bit(8, generateTowerChannel(this, towerNum, "CELL_LOW_VOLTAGE_LEVEL_3", BOOLEAN,
+											Unit.NONE)) //
 									.bit(9, generateTowerChannel(this, towerNum, "CELL_OVER_TEMPERATURE_LEVEL_3",
 											Level.WARNING)) //
 									.bit(10, generateTowerChannel(this, towerNum, "CELL_LOW_TEMPERATURE_LEVEL_3",
@@ -614,7 +610,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 									.bit(13, generateTowerChannel(this, towerNum, "LOW_SOC_LEVEL_3", Level.WARNING))), //
 							m(generateTowerChannel(this, towerNum, "CURRENT_SCALE_5", OpenemsType.LONG,
 									Unit.MICROAMPERE), new UnsignedDoublewordElement(towerOffset + 52), SCALE_FACTOR_1)
-											.wordOrder(LSWMSW), //
+									.wordOrder(LSWMSW), //
 							m(generateTowerChannel(this, towerNum, "CURRENT_VALUES_AT_DIFFERENT_C_RATE_1",
 									OpenemsType.INTEGER, Unit.MICROAMPERE),
 									new SignedDoublewordElement(towerOffset + 54), SCALE_FACTOR_1).wordOrder(LSWMSW), //
@@ -1118,8 +1114,9 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 			batteryStartStopRelayChannel = this.componentManager
 					.getChannel(ChannelAddress.fromString(this.config.batteryStartStopRelay()));
 		} catch (IllegalArgumentException | OpenemsNamedException e1) {
-			this.logError(this.log,
-					"Setting BatteryStartStopRelay [" + this.config.batteryStartStopRelay() + "] failed: " + e1.getMessage());
+			this.logError(this.log, //
+					"Setting BatteryStartStopRelay [" + this.config.batteryStartStopRelay() + "] failed: "
+							+ e1.getMessage());
 			e1.printStackTrace();
 		}
 		// Prepare Context

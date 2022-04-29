@@ -234,8 +234,6 @@ public interface FeneconCommercialBattery extends Battery, StartStoppable, Opene
 				.text("Low self consumption status")), //
 		FAULT(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Fault")), //
-		WARNING(Doc.of(Level.WARNING) //
-				.text("Warning")), //
 		RUNNING(Doc.of(OpenemsType.BOOLEAN) //
 				.text("Running")), //
 		EXTERNAL_COMMUNICATION_ONLY_UNDER_STANDBY(Doc.of(Level.WARNING) //
@@ -363,10 +361,6 @@ public interface FeneconCommercialBattery extends Battery, StartStoppable, Opene
 				.text("Pcb temperature warning")), //
 		PCS_OVER_TEMPERATURE(Doc.of(Level.WARNING) //
 				.text("Pcs over Temperature")), //
-		COMMUNICATION_STOP_CHARGING(Doc.of(Level.WARNING) //
-				.text("Communication stop charging")), //
-		COMMUNICATION_STOP_DISCHARGING(Doc.of(Level.WARNING) //
-				.text("Communication stop discharging")), //
 		OVER_TEMPERATURE_STOP_PCS(Doc.of(Level.WARNING) //
 				.text("Over temperature stop PCS")), //
 		LOW_TEMPERATURE_STOP_PCS(Doc.of(Level.WARNING) //
