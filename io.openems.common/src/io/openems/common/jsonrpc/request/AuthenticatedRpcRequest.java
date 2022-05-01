@@ -47,11 +47,11 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 	 *                    {@link JsonObject} structure to a {@link AbstractUser}
 	 *
 	 *                    <pre>
-	 * {
-	 *   "id": string,
-	 *   "name": string,
-	 *   "role": {@link Role}
-	 * }
+	 *     {
+	 *       "id": string,
+	 *       "name": string,
+	 *       "role": {@link Role}
+	 *     }
 	 *                    </pre>
 	 *
 	 * @return the {@link AuthenticatedRpcRequest}

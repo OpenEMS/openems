@@ -407,6 +407,7 @@ export const TRANSLATION = {
                 simulator: 'Simulátor',
                 systemExecute: 'Spusťte příkaz systému',
                 systemProfile: 'Systémový Profil',
+                alerting: 'Upozornění',
             },
             More: {
                 manualCommand: 'Manuální příkaz ',
@@ -441,7 +442,12 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'Nové připojení...',
                 newDevice: 'Nové zařízení...',
-            }
+            },
+            Alerting: {
+                activate: 'Aktivace',
+                delay: 'Zpoždění [min]',
+                save: 'Uložit',
+            },
         },
         Service: {
             entireSystem: "Celý systém",

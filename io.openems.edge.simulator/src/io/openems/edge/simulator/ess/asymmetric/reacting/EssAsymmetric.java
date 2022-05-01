@@ -13,8 +13,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
@@ -39,10 +39,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.EssAsymmetric.Reacting", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAsymmetricEss, AsymmetricEss,
 		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 

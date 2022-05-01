@@ -279,7 +279,7 @@ public class InfluxConnector {
 				.append("|> filter(fn: (r) => r._measurement == \"").append(MEASUREMENT).append("\")");
 
 		if (influxEdgeId.isPresent()) {
-			builder.append("|> filter(fn: (r) => r.fems == \"" + influxEdgeId.get() + "\")");
+			builder.append("|> filter(fn: (r) => r.edge == \"" + influxEdgeId.get() + "\")");
 		}
 
 		builder //

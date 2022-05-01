@@ -14,8 +14,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -27,10 +27,11 @@ import io.openems.edge.tesla.powerwall2.battery.TeslaPowerwall2Battery;
 @Component(//
 		name = "Tesla.Powerwall2.Core", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 		implements TeslaPowerwall2Core, OpenemsComponent, EventHandler {
 
