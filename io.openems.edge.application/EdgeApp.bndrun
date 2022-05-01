@@ -75,6 +75,7 @@
 	bnd.identity;id='io.openems.edge.controller.evcs',\
 	bnd.identity;id='io.openems.edge.controller.evcs.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.generic.jsonlogic',\
+	bnd.identity;id='io.openems.edge.controller.heating.room',\
 	bnd.identity;id='io.openems.edge.controller.highloadtimeslot',\
 	bnd.identity;id='io.openems.edge.controller.io.alarm',\
 	bnd.identity;id='io.openems.edge.controller.io.channelsinglethreshold',\
@@ -216,6 +217,7 @@
 	io.openems.edge.controller.evcs;version=snapshot,\
 	io.openems.edge.controller.evcs.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.generic.jsonlogic;version=snapshot,\
+	io.openems.edge.controller.heating.room;version=snapshot,\
 	io.openems.edge.controller.highloadtimeslot;version=snapshot,\
 	io.openems.edge.controller.io.alarm;version=snapshot,\
 	io.openems.edge.controller.io.channelsinglethreshold;version=snapshot,\

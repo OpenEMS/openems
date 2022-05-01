@@ -1,0 +1,5 @@
+= Controller Heating Room
+
+Controls electric floor and infrared heating in a room
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.heating.room[Source Code icon:github[]]
