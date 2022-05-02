@@ -160,7 +160,7 @@
                                             Edge.Index.Widgets.Heatingelement.timeCountdown
                                         </td>
                                         <td style="width: 35%" class="align_right">
-                                            {{ forceStartAtSecondOfDay * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                                            {{ forceStartAtSecondOfDay | sectohour }}
                                         </td>
                                     </tr>
                                 </table>
