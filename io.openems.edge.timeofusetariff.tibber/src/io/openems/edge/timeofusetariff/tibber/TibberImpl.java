@@ -64,18 +64,29 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 		 * Update Map of prices
 		 */
 		var client = new OkHttpClient();
-		var mediaType = MediaType.parse("application/json");
-		var body = RequestBody.create(mediaType, JsonUtils.buildJsonObject() //
-				.addProperty("query", //
-						"{\n" + "  viewer {\n" + "    homes {\n" + "      currentSubscription{\n"
-								+ "        priceInfo{\n" + "          today {\n" + "            total\n"
-								+ "            startsAt\n" + "          }\n" + "          tomorrow {\n"
-								+ "            total\n" + "            startsAt\n" + "          }\n" + "        }\n"
-								+ "      }\n" + "    }\n" + "  }\n" + "}" + "") //
-				.build().toString());
 		var request = new Request.Builder() //
 				.url(TIBBER_API_URL) //
-				.header("Authorization", this.config.accessToken()).post(body) //
+				.header("Authorization", this.config.accessToken()) //
+				.post(RequestBody.create(JsonUtils.buildJsonObject() //
+						.addProperty("query", "{\n" //
+								+ "  viewer {\n" //
+								+ "    homes {\n" //
+								+ "      currentSubscription{\n" //
+								+ "        priceInfo{\n" //
+								+ "          today {\n" //
+								+ "            total\n" //
+								+ "            startsAt\n" //
+								+ "          }\n" //
+								+ "          tomorrow {\n" //
+								+ "            total\n" //
+								+ "            startsAt\n" //
+								+ "          }\n" //
+								+ "        }\n" //
+								+ "      }\n" //
+								+ "    }\n" //
+								+ "  }\n" //
+								+ "}") //
+						.build().toString(), MediaType.parse("application/json"))) //
 				.build();
 		int httpStatusCode;
 		try (var response = client.newCall(request).execute()) {

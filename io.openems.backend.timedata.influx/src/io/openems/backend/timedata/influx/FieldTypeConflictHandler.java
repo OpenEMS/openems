@@ -64,6 +64,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("batteryInverterA1/_PropertyTimeLimitNoPower", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA1/_PropertyWatchdoginterval", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA2/_PropertyActivateWatchdog", RequiredType.INTEGER);
+		this.createAndAddHandler("batteryInverterA2/_PropertyTimeLimitNoPower", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA3/_PropertyActivateWatchdog", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB1/_PropertyActivateWatchdog", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB1/_PropertyTimeLimitNoPower", RequiredType.INTEGER);
@@ -134,6 +135,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("ctrlApiRest0/_PropertyPort", RequiredType.STRING);
 		this.createAndAddHandler("ctrlApiRest1/_PropertyApiTimeout", RequiredType.STRING);
 		this.createAndAddHandler("ctrlApiRest1/_PropertyPort", RequiredType.STRING);
+		this.createAndAddHandler("ctrlBackend0/_PropertyNoOfCycles", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlBalancing0/_PropertyTargetGridSetpoint", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlBalancing1/_PropertyTargetGridSetpoint", RequiredType.STRING);
 		this.createAndAddHandler("ctrlChannelSingleThreshold0/_PropertyInvert", RequiredType.STRING);
