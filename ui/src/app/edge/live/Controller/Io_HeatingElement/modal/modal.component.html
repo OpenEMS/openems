@@ -104,16 +104,33 @@
                                 <ion-grid>
                                     <ion-row class="ion-justify-content-center">
                                         <ion-col size="6">
-                                            <ion-item lines="none" class="ion-text-end">
-                                                <ion-label>
-                                                    Endzeit:
-                                                </ion-label>
-                                                <ion-datetime [cancelText]="translate.instant('General.cancel')"
-                                                    [value]="component.properties.endTime"
-                                                    [doneText]="translate.instant('General.ok')"
-                                                    (ionChange)="updateEndTime($event)" displayFormat="HH:mm"
-                                                    pickerFormat="HH:mm">
-                                                </ion-datetime>
+
+                                            <ion-item lines="none">
+                                                <table style="width: 100%;padding-right: 15%; padding-left: 15%"
+                                                    class="ion-text-center">
+                                                    <tr>
+                                                        <td>
+                                                            <ion-text translate>
+                                                                Edge.Index.Widgets.GridOptimizedCharge.endTime
+                                                            </ion-text>:
+                                                        </td>
+                                                        <td>
+                                                            <ion-item button="true" id="open-date-input"
+                                                                *ngIf="formGroup">
+                                                                <ion-label> {{this.formGroup.controls["endTime"].value}}
+                                                                </ion-label>
+                                                                <ion-popover trigger="open-date-input"
+                                                                    show-backdrop="false" slot="end">
+                                                                    <ng-template>
+                                                                        <ion-datetime #popoverDatetime
+                                                                            presentation="time" displayFormat="HH:mm"
+                                                                            formControlName="endTime"></ion-datetime>
+                                                                    </ng-template>
+                                                                </ion-popover>
+                                                            </ion-item>
+                                                        </td>
+                                                    </tr>
+                                                </table>
                                             </ion-item>
                                         </ion-col>
                                         <ion-col size="6">
@@ -160,7 +177,7 @@
                                             Edge.Index.Widgets.Heatingelement.timeCountdown
                                         </td>
                                         <td style="width: 35%" class="align_right">
-                                            {{ forceStartAtSecondOfDay * 1000 | date:'H:mm':'UTC' }}&nbsp;h
+                                            {{ forceStartAtSecondOfDay | sectohour }}
                                         </td>
                                     </tr>
                                 </table>

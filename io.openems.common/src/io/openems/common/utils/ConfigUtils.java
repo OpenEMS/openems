@@ -1,5 +1,9 @@
 package io.openems.common.utils;
 
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class ConfigUtils {
 
 	private ConfigUtils() {
@@ -39,12 +43,15 @@ public class ConfigUtils {
 			targetBuilder.append("(!(service.pid=" + pid + "))");
 		}
 		// add filter for given Component-IDs
-		if (ids.length > 0) {
-			targetBuilder.append("(|");
-			for (String id : ids) {
-				targetBuilder.append("(id=" + id + ")");
-			}
-			targetBuilder.append(")");
+		String idsFilter = Stream.of(ids) //
+				.filter(Objects::nonNull) //
+				.map(id -> "(id=" + id + ")") //
+				.collect(Collectors.joining());
+		if (!idsFilter.isEmpty()) {
+			targetBuilder //
+					.append("(|") //
+					.append(idsFilter) //
+					.append(")");
 		}
 		targetBuilder.append(")");
 		return targetBuilder.toString();

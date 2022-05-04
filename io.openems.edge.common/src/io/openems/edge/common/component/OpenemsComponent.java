@@ -327,8 +327,45 @@ public interface OpenemsComponent {
 	 *         activate() method.
 	 */
 	public static boolean updateReferenceFilter(ConfigurationAdmin cm, String pid, String member, String... ids) {
+		final var filter = ConfigUtils.generateReferenceTargetFilter(pid, ids);
+		return updateReferenceFilterRaw(cm, pid, member, filter);
+	}
+
+	/**
+	 * Sets a target filter for a Declarative Service @Reference member.
+	 *
+	 * <p>
+	 * Use this method only if you know what you are doing. Usually you will want to
+	 * use the
+	 * {@link #updateReferenceFilter(ConfigurationAdmin, String, String, String...)}
+	 * method instead.
+	 *
+	 * <p>
+	 * Usage:
+	 *
+	 * <pre>
+	 * updateReferenceFilterRaw(config.service_pid(), "Controllers", "(enabled=true)");
+	 * </pre>
+	 *
+	 * @param cm     a ConfigurationAdmin instance. Get one using
+	 *
+	 *               <pre>
+	 *               &#64;Reference
+	 *               ConfigurationAdmin cm;
+	 *               </pre>
+	 *
+	 * @param pid    PID of the calling component (use 'config.service_pid()' or
+	 *               '(String)prop.get(Constants.SERVICE_PID)'; if null, PID filter
+	 *               is not added to the resulting target filter
+	 * @param member Name of the Method or Field with the Reference annotation, e.g.
+	 *
+	 * @param filter The filter attribute
+	 *
+	 * @return true if the filter was updated. You may use it to abort the
+	 *         activate() method.
+	 */
+	public static boolean updateReferenceFilterRaw(ConfigurationAdmin cm, String pid, String member, String filter) {
 		final var targetProperty = member + ".target";
-		final var requiredTarget = ConfigUtils.generateReferenceTargetFilter(pid, ids);
 		/*
 		 * read existing target filter
 		 */
@@ -336,12 +373,12 @@ public interface OpenemsComponent {
 		try {
 			c = cm.getConfiguration(pid, "?");
 			var properties = c.getProperties();
-			var existingTarget = (String) properties.get(targetProperty);
+			var existingFilter = (String) properties.get(targetProperty);
 			/*
 			 * update target filter if required
 			 */
-			if (!requiredTarget.equals(existingTarget)) {
-				properties.put(targetProperty, requiredTarget);
+			if (!filter.equals(existingFilter)) {
+				properties.put(targetProperty, filter);
 				c.update(properties);
 				return true;
 			}

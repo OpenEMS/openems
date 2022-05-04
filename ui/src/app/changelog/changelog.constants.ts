@@ -1,4 +1,5 @@
 import { environment } from "src/environments";
+import { Role } from "../shared/type/role";
 
 export class Changelog {
 
@@ -15,6 +16,10 @@ export class Changelog {
 
     public static openems(version: string) {
         return 'Update auf OpenEMS Version ' + version + '. Mehr Details auf ' + Changelog.link('Github', 'https://github.com/OpenEMS/openems/releases/tag/' + version);
+    }
+
+    public static openemsComponent(openemsComponent: OpenemsComponent, change: string) {
+        return { roleIsAtLeast: Role.ADMIN, change: Changelog.link(openemsComponent.name, openemsComponent.url) + ": " + change };
     }
 
     public static library(...libraries: Library[]) {
@@ -50,14 +55,11 @@ export class Product {
     public static readonly FEMS_REST_JSON_API = new Product('FEMS-App REST/JSON-Api', 'https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_lesend');
     public static readonly FEMS_PV_KACO = new Product('FEMS-App KACO PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/');
     public static readonly FEMS_PV_SMA = new Product('FEMS-App SMA PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-sma-pv-wechselrichter/');
-    public static readonly FEMS_PV_FRONIUS = new Product('FEMS-App Fronius PV-Wechselrichter', 'https://fenecon.de/fems-2-2/'); // TODO Add Product Page
     public static readonly FEMS_PV_KOSTAL = new Product('FEMS-App Kostal PV-Wechselrichter', 'https://fenecon.de/fems-2-2/'); // TODO Add Product Page
     public static readonly FEMS_JANITZA_ZAEHLER = new Product('FEMS-App Janitza Zähler', 'https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/');
-    public static readonly FEMS_PQ_PLUS_ZAEHLER = new Product('FEMS-App PQ-Plus Zähler', 'https://fenecon.de/fems/'); // TODO Add Product Page
-    public static readonly FEMS_SDM630_ZAEHLER = new Product('FEMS-App SDM 630 Zähler', 'https://fenecon.de/fems/');
     public static readonly FEMS_HEIZSTAB = new Product('FEMS-App Heizstab', 'https://fenecon.de/fems-2-2/fems-app-heizstab-6-kw/');
     public static readonly FEMS_SCHWELLWERT_STEUERUNG = new Product('FEMS-App Schwellwertsteuerung', 'https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/');
-    public static readonly FEMS_AWATTAR = new Product('FEMS-App Awattar HOURLY Deutschland', 'https://fenecon.de/fems-2-2/fems-app-awattar-hourly-deutschland-2/');
+    public static readonly FEMS_AWATTAR = new Product('FEMS-App Awattar HOURLY', 'https://fenecon.de/fems-2-2/fems-app-awattar-hourly/');
     public static readonly FEMS_CORRENTLY = new Product('FEMS-App STROMDAO Corrently', 'https://fenecon.de/fems/'); // TODO Add Product Page
     public static readonly FEMS_TIBBER = new Product('FEMS-App Tibber', 'https://fenecon.de/fems/'); // TODO Add Product Page
     public static readonly FEMS_ALL_TIME_OF_USE_TARIFF = [Product.FEMS_AWATTAR, Product.FEMS_CORRENTLY, Product.FEMS_TIBBER];
@@ -65,6 +67,16 @@ export class Product {
 
     // Industrial
     public static readonly INDUSTRIAL = new Product('FENECON Industrial-Serie', 'https://fenecon.de/industrial/');
+
+    // private to disallow creating other instances of this type
+    private constructor(public readonly name: string, public readonly url: any) {
+    }
+}
+
+export class OpenemsComponent {
+    public static readonly PQ_PLUS_ZAEHLER = new OpenemsComponent('PQ-Plus Zähler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus');
+    public static readonly SDM630_ZAEHLER = new OpenemsComponent('SDM 630 Zähler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.microcare.sdm630');
+    public static readonly PV_FRONIUS = new OpenemsComponent('Fronius PV-Wechselrichter', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.fronius');
 
     // private to disallow creating other instances of this type
     private constructor(public readonly name: string, public readonly url: any) {
