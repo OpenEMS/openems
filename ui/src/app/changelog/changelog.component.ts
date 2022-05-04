@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'src/environments';
 import { Service } from '../shared/shared';
 import { Role } from '../shared/type/role';
-import { Changelog, Library, Product } from './changelog.constants';
+import { Changelog, Library, OpenemsComponent, Product } from './changelog.constants';
 
 @Component({
   selector: 'changelog',
@@ -44,7 +44,7 @@ export class ChangelogComponent {
           Changelog.product(Product.COMMERCIAL_30) + "Fehlerbehebungen und Berechnung von Energie-Werten",
           Changelog.UI + "Verbesserung der Anzeige von Verbrauchs- und Erzeugungszählern",
           Changelog.UI + "Refactoring der Charts für historische Daten",
-          Changelog.product(Product.FEMS_SDM630_ZAEHLER) + "Korrektur der Modbus-Register für Blindleistung",
+          Changelog.openemsComponent(OpenemsComponent.SDM630_ZAEHLER, "Korrektur der Modbus-Register für Blindleistung"),
           { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am FEMS App-Center (Beta-Test)" },
           { roleIsAtLeast: Role.ADMIN, change: "Benachrichtigung bei Ausfall eines FEMS (Beta-Test)" },
           { roleIsAtLeast: Role.ADMIN, change: "Neues Werbewidget für direkte Anbindung eines KOSTAL PV-Wechselrichter" },
@@ -84,7 +84,7 @@ export class ChangelogComponent {
           Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + "Überarbeitung des Widgets im Online-Monitoring",
           Changelog.product(Product.PRO_HYBRID_10) + "Kompatibilität mit KACO Firmware Version 8 (nur lesend)",
           Changelog.product(Product.FEMS_MODBUS_TCP_API) + "Auslesen On-Grid-/Off-Grid-Modus + Überarbeitung der Beschreibungen in der Excel-Datei",
-          Changelog.product(Product.FEMS_PV_FRONIUS) + "Kompatibilität mit Fronius PV-Wechselrichtern. Getestet mit Fronius Symo",
+          Changelog.openemsComponent(OpenemsComponent.PV_FRONIUS, "Kompatibilität mit Fronius PV-Wechselrichtern. Getestet mit Fronius Symo"),
           Changelog.library(Library.SLF4J, Library.POSTGRESQL, Library.GSON, Library.GUAVA, Library.NGX_FORMLY),
         ]
       },
@@ -243,7 +243,7 @@ export class ChangelogComponent {
           Changelog.product(...Product.ALL_EVCS) + "Verbesserung der Kompatibilität mit nicht aktiv gesteuerten Stromspeichersytemen",
           Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent über das Online-Monitoring",
           Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + Changelog.GENERAL_OPTIMIZATION,
-          Changelog.product(Product.FEMS_PQ_PLUS_ZAEHLER) + "Kompatibilität mit PQ Plus UMD96",
+          Changelog.openemsComponent(OpenemsComponent.PQ_PLUS_ZAEHLER, "Kompatibilität mit PQ Plus UMD96"),
           "Fehlerbehebung in der Datenaufzeichnung phasengenauer Blindleistung",
           Changelog.library(Library.OSGI_UTIL_PROMISE, Library.OSGI_UTIL_FUNCTION, Library.POSTGRESQL, Library.GUAVA),
         ]
