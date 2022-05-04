@@ -35,6 +35,19 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.5.1',
+        changes: [
+          Changelog.openems('2022.5.0'),
+          Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG, Product.FEMS_HEIZSTAB) + "Korrektur der Anzeige des Betriebsstundenzählers in der historischen Darstellung",
+          Changelog.library(Library.INFLUXDB),
+          Changelog.UI + "Fehlerbehebung bei Konfiguration von Uhrzeiten",
+          { roleIsAtLeast: Role.ADMIN, change: "Soltaro-Batterien Version C: PreAlarmCellVoltageHigh und PreAlarmTotalVoltageHigh ausgeblendet" },
+          { roleIsAtLeast: Role.ADMIN, change: "Commercial Gen2-Batterie: Warning, CommunicationStopCharging, CommunicationStopDischarging ausgeblendet" },
+          { roleIsAtLeast: Role.ADMIN, change: "Verbesserung 'Virtual Subtract Meter'" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung an Schnittstelle FEMS Backend zu InfluxDB" }
+        ]
+      },
+      {
         version: '2022.4.1',
         changes: [
           Changelog.openems('2022.4.0'),
