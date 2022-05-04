@@ -57,14 +57,23 @@
                         </ion-text>:
                     </td>
                     <td>
-                        <ion-datetime lines="inset" [cancelText]="'General.cancel'| translate"
-                            [doneText]="'General.ok'| translate" formControlName="manualTargetTime"
-                            displayFormat="HH:mm" pickerFormat="HH:mm">
-                        </ion-datetime>
+                        <ion-item button="true" id="open-date-input" *ngIf="formGroup">
+                            <ion-label> {{this.formGroup.controls["manualTargetTime"].value |
+                                date:
+                                "HH:mm"}}
+                            </ion-label>
+                            <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
+                                <ng-template>
+                                    <ion-datetime #popoverDatetime presentation="time" displayFormat="HH:mm"
+                                        formControlName="manualTargetTime"></ion-datetime>
+                                </ng-template>
+                            </ion-popover>
+                        </ion-item>
                     </td>
                 </tr>
             </table>
         </ion-item>
+
     </ng-container>
 
     <!-- AUTOMATIC Mode -->

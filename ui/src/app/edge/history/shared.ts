@@ -210,7 +210,7 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
     // TODO get locale dynamically
     let decimalPipe = new DecimalPipe('de-DE')
     let startDate = startOfDay(new Date(queryResult.timestamps[0]));
-    let endDate = endOfDay(new Date(queryResult.timestamps[queryResult.timestamps.length - 1]));
+    let endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
     let activeSum = 0;
     queryResult.data[channel.toString()].forEach(value => {
         activeSum += value;
