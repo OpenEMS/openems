@@ -1,4 +1,4 @@
-package io.openems.edge.victron.meter;
+package io.openems.edge.victron.meter.acout;
 
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.Doc;

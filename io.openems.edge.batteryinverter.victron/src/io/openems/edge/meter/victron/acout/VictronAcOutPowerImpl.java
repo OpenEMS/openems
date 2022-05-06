@@ -1,4 +1,4 @@
-package io.openems.edge.victron.meter;
+package io.openems.edge.victron.meter.acout;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;

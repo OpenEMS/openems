@@ -1,4 +1,4 @@
-package io.openems.edge.meter.victron;
+package io.openems.edge.meter.victron.acout;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
