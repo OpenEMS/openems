@@ -1,0 +1,9 @@
+= Victron Battery Inverter
+
+Implementation of Victron Battery Inverter
+- tested with Victron Multiplus II
+Implemented Natures::
+- SymmetricEss
+- ManagedSymmetricEss
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.victron[Source Code icon:github[]]
