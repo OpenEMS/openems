@@ -68,7 +68,6 @@ public class VictronCANBusBatteryImpl extends AbstractOpenemsModbusComponent imp
 	}
 
 
-
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
