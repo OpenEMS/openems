@@ -31,31 +31,44 @@ import io.openems.edge.common.type.TypeUtils;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Ess.Victron.Battery.CAN", //
+		name = "Battery.Victron", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE) //
-public class VictronCANBusBatteryImpl extends AbstractOpenemsModbusComponent implements VictronBattery, 
-	ModbusComponent, OpenemsComponent {
+public class VictronCANBusBatteryImpl extends AbstractOpenemsModbusComponent implements Battery, VictronBattery,
+		ModbusComponent, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public VictronCANBusBatteryImpl() {
+	protected Config config;
+
+	public VictronCANBusBatteryImpl() throws OpenemsNamedException {
 		super(//
-				OpenemsComponent.ChannelId.values(), // 
+				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				Battery.ChannelId.values() //
+				Battery.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
+				VictronBattery.ChannelId.values() //
 		);
 	}
 	
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
+	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.config = config;
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
+				config.modbus_id())) {
 			return;
 		}
+		this.installListener();
 	}
-	
+
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+	}
+
+
+
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {

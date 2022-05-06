@@ -1,7 +1,9 @@
 = Victron Battery Inverter
 
 Implementation of Victron Battery Inverter
-- tested with Victron Multiplus II
+- tested with Victron Multiplus 2GX ESS
+
+
 Implemented Natures::
 - SymmetricEss
 - ManagedSymmetricEss
