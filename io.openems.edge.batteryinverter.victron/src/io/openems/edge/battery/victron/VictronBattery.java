@@ -4,17 +4,17 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
-import io.openems.edge.battery.victron.enums.ActiveInactive;
-import io.openems.edge.battery.victron.enums.Error;
-import io.openems.edge.battery.victron.enums.LowCellVoltageAlarm;
-import io.openems.edge.battery.victron.enums.OpenClosed;
-import io.openems.edge.battery.victron.enums.SystemSwitch;
-import io.openems.edge.battery.victron.enums.VictronState;
-import io.openems.edge.batteryinverter.victron.enums.Alarm;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.victron.enums.ActiveInactive;
+import io.openems.edge.victron.enums.Alarm;
+import io.openems.edge.victron.enums.Error;
+import io.openems.edge.victron.enums.LowCellVoltageAlarm;
+import io.openems.edge.victron.enums.OpenClosed;
+import io.openems.edge.victron.enums.SystemSwitch;
+import io.openems.edge.victron.enums.VictronState;
 
 public interface VictronBattery extends Battery, OpenemsComponent {
 	

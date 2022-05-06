@@ -6,7 +6,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.pvinverter.victron.enums.Position;
+import io.openems.edge.victron.enums.Position;
 
 public interface VictronPvInverter extends OpenemsComponent {
 
