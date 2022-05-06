@@ -1,7 +1,9 @@
 package io.openems.edge.ess.core.power.data;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Inverter;
@@ -30,6 +32,23 @@ public class WeightsUtil {
 		}
 	}
 
+	/**
+	 * Return the List of inverter and its Soc
+	 * @param inverters
+	 * @param esss
+	 * @return
+	 */
+	public static Map<Inverter, Integer> getSocList(List<Inverter> inverters, List<ManagedSymmetricEss> esss) {
+
+		Map<Inverter, Integer> InvSocMap = new HashMap<>();
+		for (Inverter inv : inverters) {
+			for (ManagedSymmetricEss ess : esss) {
+				InvSocMap.put(inv, ess.getSoc().get());
+			}
+		}
+		return InvSocMap;
+	}
+	
 	/**
 	 * Sorts the list of Inverters by their weights descending.
 	 *

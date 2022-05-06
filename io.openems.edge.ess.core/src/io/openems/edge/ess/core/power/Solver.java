@@ -26,6 +26,7 @@ import io.openems.edge.ess.core.power.optimizers.AddConstraintsForNotStrictlyDef
 import io.openems.edge.ess.core.power.optimizers.KeepAllEqual;
 import io.openems.edge.ess.core.power.optimizers.KeepTargetDirectionAndMaximizeInOrder;
 import io.openems.edge.ess.core.power.optimizers.MoveTowardsTarget;
+import io.openems.edge.ess.core.power.optimizers.OperateClusterAtMaximumEfficiency;
 import io.openems.edge.ess.core.power.optimizers.Optimizers;
 import io.openems.edge.ess.core.power.solver.ConstraintSolver;
 import io.openems.edge.ess.core.power.solver.PowerTuple;
@@ -185,6 +186,12 @@ public class Solver {
 						SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
 						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
 				break;
+				
+			case OPERATE_CLUSTER_AT_MAX_EFFICIENCY:
+				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints, 
+						SolverStrategy.OPERATE_CLUSTER_AT_MAX_EFFICIENCY,
+						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET,
+						SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL);
 			}
 
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
@@ -257,6 +264,8 @@ public class Solver {
 			case OPTIMIZE_BY_KEEPING_ALL_EQUAL:
 				solution = KeepAllEqual.apply(this.data.getCoefficients(), allInverters, allConstraints);
 				break;
+			case OPERATE_CLUSTER_AT_MAX_EFFICIENCY:
+				solution = OperateClusterAtMaximumEfficiency.apply(null, targetDirection, allInverters, targetInverters, allConstraints, this.data.getInverters(),this.data.getEsss());
 			}
 
 			if (solution != null) {

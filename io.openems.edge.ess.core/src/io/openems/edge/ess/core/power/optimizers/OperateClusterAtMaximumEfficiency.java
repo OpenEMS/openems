@@ -1,17 +1,75 @@
 package io.openems.edge.ess.core.power.optimizers;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.math3.optim.PointValuePair;
 
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.core.power.Data;
+import io.openems.edge.ess.core.power.data.TargetDirection;
 import io.openems.edge.ess.power.api.Inverter;
 
-
+import io.openems.edge.ess.power.api.Coefficients;
+import io.openems.edge.ess.power.api.Constraint;
+import io.openems.edge.ess.power.api.Inverter;
+import io.openems.edge.ess.power.api.LinearCoefficient;
+import io.openems.edge.ess.power.api.Pwr;
+import io.openems.edge.ess.power.api.Relationship;
 
 public class OperateClusterAtMaximumEfficiency {
 	
-	static class WeightsUtil {								// WeightsUtil.java
+	
+	
+	
+	public static PointValuePair apply(Coefficients coefficients, //
+			TargetDirection targetDirection, //
+			List<Inverter> allInverters, //
+			List<Inverter> targetInverters, //
+			List<Constraint> allConstraints, //
+			List<Inverter> invs, //
+			List<ManagedSymmetricEss> esss //
+			) {
 		
+		
+		Map<Inverter, Integer> InvSocMap = WeightsUtil.getSocList(invs, esss);
+		//{"key" : "value"}
+		
+		// {inv1, soc1}
+		// {inv2, soc2}
+		
+		var targetDifferenceSoc = Collections.max(InvSocMap.values()) -  Collections.min(InvSocMap.values());
+		
+		int n = 0;
+		for (Map.Entry<Inverter, Integer> entry : InvSocMap.entrySet()) {
+			System.out.println(entry.getKey() + ":" + entry.getValue());
+			
+			if (entry.getValue() <  targetDifferenceSoc) {
+				n = n+1;
+			}
+		}
+		
+		
+
+		// find maxLastActive + maxWeight
+		var maxLastActivePower = 0;
+		var sumWeights = 0;
+
+		//sortByWeights(allInverters);
+
+		// Get the targetDifferenceSoc 
+		// targetDifferenceSoc = Max soc - min Soc
+		// Make the List of Soc's
+
+		//InvSocMap = WeightsUtil.getSocList(allInverters, esss);
+
+		return null;
+	}
+	
+
+	static class WeightsUtil { // WeightsUtil.java
 
 		private static final int DEFAULT_WEIGHT = 50;
 		private static final float SORT_FACTOR = 0.3f; // why ??
@@ -33,6 +91,23 @@ public class OperateClusterAtMaximumEfficiency {
 				}
 				inv.setWeight(weight);
 			}
+		}
+
+		/**
+		 * Return the List of inverter and its Soc
+		 * @param inverters
+		 * @param esss
+		 * @return
+		 */
+		public static Map<Inverter, Integer> getSocList(List<Inverter> inverters, List<ManagedSymmetricEss> esss) {
+
+			Map<Inverter, Integer> InvSocMap = new HashMap<>();
+			for (Inverter inv : inverters) {
+				for (ManagedSymmetricEss ess : esss) {
+					InvSocMap.put(inv, ess.getSoc().get());
+				}
+			}
+			return InvSocMap;
 		}
 
 		/**
@@ -74,24 +149,18 @@ public class OperateClusterAtMaximumEfficiency {
 				}
 			}
 		}
+
 	}
 
-	
-/*
- * have to verify this sorting with simulators if possible
- * as we need resorting of the list every cycle, and 
- * invertersSortByWeights() what happens ? difference with this sorting 
- */
+	/*
+	 * have to verify this sorting with simulators if possible as we need resorting
+	 * of the list every cycle, and invertersSortByWeights() what happens ?
+	 * difference with this sorting
+	 */
 
-/*
- * ESS is what should be sorted within a cluster, logically
- * but we do it with Inverters in OpenEMS
- */
-	
-	
-	
-	
-	
-	
-	
+	/*
+	 * ESS is what should be sorted within a cluster, logically but we do it with
+	 * Inverters in OpenEMS
+	 */
+
 }
