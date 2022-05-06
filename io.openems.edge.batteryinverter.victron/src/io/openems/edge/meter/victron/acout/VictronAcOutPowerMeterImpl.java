@@ -1,4 +1,4 @@
-package io.openems.edge.victron.meter.acout;
+package io.openems.edge.meter.victron.acout;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -31,13 +31,13 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = ConfigAcOut.class, factory = true)
 @Component(//
-		name = "Meter.VictronAcOut", //
+		name = "Meter.Victron.AcOut", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
-		implements VictronAcOutPowerMeter, SymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
-	
+		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
+
 	private MeterType meterType = MeterType.CONSUMPTION_METERED;
 
 	/*
@@ -53,8 +53,7 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
-				VictronAcOutPowerMeter.ChannelId.values() //
+				AsymmetricMeter.ChannelId.values() //
 		);
 		AsymmetricMeter.initializePowerSumChannels(this);
 	}
@@ -90,7 +89,7 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
-		var modbusProtocol = new ModbusProtocol(this, //
+		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(23, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(23),
 								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.invert)),
@@ -98,8 +97,6 @@ public class VictronAcOutPowerMeterImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.invert)),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(25),
 								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.invert))));
-
-		return modbusProtocol;
 	}
 
 	@Override
