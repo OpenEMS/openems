@@ -92,8 +92,8 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
     private String mqttBroker;
     private String mqttClientId;
     private int keepAlive = 100;
-    private AtomicInteger executorCurrent = new AtomicInteger(10);
-    private static final int EXECUTOR_MAX = 90;
+    private final AtomicInteger executorCurrent = new AtomicInteger(10);
+    private static final int EXECUTOR_MAX = 20;
 
     private Instant initialTime;
     private boolean initialized;
@@ -459,7 +459,7 @@ public class MqttBridgeImpl extends AbstractOpenemsComponent implements OpenemsC
                         this.bridgePublisher = null;
                         this.executorCurrent.getAndAdd(5);
                     } else {
-                        this.executorCurrent.set(20);
+                        this.executorCurrent.set(5);
                     }
                     executorService.shutdownNow();
                 }
