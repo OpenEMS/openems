@@ -65,7 +65,7 @@ public interface Field {
 		OPENEMS_SUM_STATE("openems_sum_state_level", true), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
-		public static final String ODOO_MODEL = "openems.edge";
+		public static final String ODOO_MODEL = "openems.device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
