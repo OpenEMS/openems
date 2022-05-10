@@ -55,7 +55,6 @@ public interface Field {
 		SETUP_PASSWORD("setup_password", true), //
 		NAME("name", true), //
 		COMMENT("comment", true), //
-		STATE("state", true), //
 		OPENEMS_VERSION("openems_version", true), //
 		PRODUCT_TYPE("producttype", true), //
 		OPENEMS_CONFIG("openems_config", true), //
