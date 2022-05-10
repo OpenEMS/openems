@@ -224,7 +224,7 @@ public interface Field {
 		TIME_TO_WAIT("time_to_wait", true), //
 		LAST_NOTIFICATION("last_notification", true); //
 
-		public static final String ODOO_MODEL = "openems.edge_user_role";
+		public static final String ODOO_MODEL = "openems.device_user_role";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
