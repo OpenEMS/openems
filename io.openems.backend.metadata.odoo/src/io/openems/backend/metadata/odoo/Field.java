@@ -164,7 +164,7 @@ public interface Field {
 	 * The EdgeConfigUpdate-Model.
 	 */
 	public enum EdgeConfigUpdate implements Field {
-		DEVICE_ID("edge_id", false), //
+		DEVICE_ID("device_id", false), //
 		TEASER("teaser", false), //
 		DETAILS("details", false);
 
