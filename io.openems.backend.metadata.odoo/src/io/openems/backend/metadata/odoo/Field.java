@@ -55,7 +55,6 @@ public interface Field {
 		SETUP_PASSWORD("setup_password", true), //
 		NAME("name", true), //
 		COMMENT("comment", true), //
-		STATE("state", true), //
 		OPENEMS_VERSION("openems_version", true), //
 		PRODUCT_TYPE("producttype", true), //
 		OPENEMS_CONFIG("openems_config", true), //
@@ -65,7 +64,7 @@ public interface Field {
 		OPENEMS_SUM_STATE("openems_sum_state_level", true), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
-		public static final String ODOO_MODEL = "openems.edge";
+		public static final String ODOO_MODEL = "openems.device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -107,65 +106,10 @@ public interface Field {
 	}
 
 	/**
-	 * The EdgeDeviceStatus-Model.
-	 */
-	public enum EdgeDeviceStatus implements Field {
-		DEVICE_ID("edge_id", false), //
-		CHANNEL_ADDRESS("channel_address", false), //
-		LEVEL("level", true), //
-		COMPONENT_ID("component_id", true), //
-		CHANNEL_NAME("channel_name", true), //
-		LAST_APPEARANCE("last_appearance", false), //
-		LAST_ACKNOWLEDGE("last_acknowledge", false), //
-		ACKNOWLEDGE_DAYS("acknowledge_days", false);
-
-		public static final String ODOO_MODEL = "openems.edge_status";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
-
-		private static final class StaticFields {
-			private static int nextQueryIndex = 1;
-		}
-
-		private final int queryIndex;
-		private final String id;
-		/**
-		 * Holds information if this Field should be queried from and written to
-		 * Database.
-		 */
-		private final boolean query;
-
-		private EdgeDeviceStatus(String id, boolean query) {
-			this.id = id;
-			this.query = query;
-			if (query) {
-				this.queryIndex = StaticFields.nextQueryIndex++;
-			} else {
-				this.queryIndex = -1;
-			}
-		}
-
-		@Override
-		public String id() {
-			return this.id;
-		}
-
-		@Override
-		public int index() {
-			return this.queryIndex;
-		}
-
-		@Override
-		public boolean isQuery() {
-			return this.query;
-		}
-
-	}
-
-	/**
 	 * The EdgeConfigUpdate-Model.
 	 */
 	public enum EdgeConfigUpdate implements Field {
-		DEVICE_ID("edge_id", false), //
+		DEVICE_ID("device_id", false), //
 		TEASER("teaser", false), //
 		DETAILS("details", false);
 
@@ -216,7 +160,7 @@ public interface Field {
 	 */
 	public enum EdgeDeviceUserRole implements Field {
 		ID("id", true), //
-		DEVICE_ODOO_ID("edge_id", false), //
+		DEVICE_ODOO_ID("device_id", false), //
 		USER_ODOO_ID("user_id", true), //
 		ROLE("role", false), //
 
@@ -225,7 +169,7 @@ public interface Field {
 		TIME_TO_WAIT("time_to_wait", true), //
 		LAST_NOTIFICATION("last_notification", true); //
 
-		public static final String ODOO_MODEL = "openems.edge_user_role";
+		public static final String ODOO_MODEL = "openems.device_user_role";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
 
 		private static final class StaticFields {
@@ -429,7 +373,7 @@ public interface Field {
 		CUSTOMER("customer_id", true), //
 		DIFFERENT_LOCATION("different_location_id", true), //
 		INSTALLER("installer_id", true), //
-		EDGE("edge_id", true);
+		EDGE("device_id", true);
 
 		public static final String ODOO_MODEL = "openems.setup_protocol";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");

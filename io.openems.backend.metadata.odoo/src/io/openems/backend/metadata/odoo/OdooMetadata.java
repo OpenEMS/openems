@@ -30,10 +30,9 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.EdgeUser;
-import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.Mailer;
+import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
@@ -42,7 +41,6 @@ import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
 import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeStateActive;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateSumState;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
@@ -313,21 +311,10 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 			MyEdge edge = reader.getProperty(Edge.Events.OnSetOnline.EDGE);
 			boolean isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
 
+			// Set OpenEMS Is Connected in Odoo/Postgres
 			if (isOnline) {
-				// Set OpenEMS Is Connected in Odoo/Postgres
 				this.postgresHandler.getPeriodicWriteWorker().isOnline(edge);
-
-				if (edge.getState().equals(State.INACTIVE)) {
-					// Edge was Inactive -> Update state to active
-					this.logInfo(this.log,
-							"Mark Edge [" + edge.getId() + "] as ACTIVE. It was [" + edge.getState().name() + "]");
-					edge.setState(State.ACTIVE);
-					this.postgresHandler.getQueueWriteWorker();
-					var queueWriteWorker = this.postgresHandler.getQueueWriteWorker();
-					queueWriteWorker.addTask(new UpdateEdgeStateActive(edge.getOdooId()));
-				}
 			} else {
-				// Set OpenEMS Is Connected in Odoo/Postgres
 				this.postgresHandler.getPeriodicWriteWorker().isOffline(edge);
 			}
 		}
