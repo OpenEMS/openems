@@ -30,7 +30,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
@@ -193,7 +192,6 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 							JsonUtils.getAsString(edge, "apikey"), //
 							JsonUtils.getAsString(edge, "setuppassword"), //
 							JsonUtils.getAsString(edge, "comment"), //
-							State.ACTIVE, // State
 							"", // Version
 							"", // Product-Type
 							Level.OK, // Sum-State

@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.Field.EdgeDeviceUserRole;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
@@ -83,17 +82,6 @@ public class EdgeCache {
 			}
 		}
 
-		// State
-		var stateString = PgUtils.getAsStringOrElse(rs, EdgeDevice.STATE, State.INACTIVE.name());
-		State state;
-		try {
-			state = State.valueOf(stateString.toUpperCase().replace('-', '_'));
-		} catch (IllegalArgumentException e) {
-			this.parent.logWarn(this.log,
-					"Edge [" + edgeId + "]. Unable to get State from [" + stateString + "]: " + e.getMessage());
-			state = State.INACTIVE; // Default
-		}
-
 		// more simple fields
 		var comment = PgUtils.getAsStringOrElse(rs, EdgeDevice.COMMENT, "");
 		var version = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_VERSION, "");
@@ -106,15 +94,14 @@ public class EdgeCache {
 		var edge = this.edgeIdToEdge.get(edgeId);
 		if (edge == null) {
 			// This is new -> create instance of Edge
-			edge = new MyEdge(this.parent, odooId, edgeId, apikey, comment, state, version, productType, sumState,
-					config, lastMessage, lastUpdate);
+			edge = new MyEdge(this.parent, odooId, edgeId, apikey, comment, version, productType, sumState, config,
+					lastMessage, lastUpdate);
 			this.edgeIdToEdge.put(edgeId, edge);
 			this.odooIdToEdgeId.put(odooId, edgeId);
 			this.apikeyToEdgeId.put(apikey, edgeId);
 		} else {
 			// Edge exists -> update information
 			edge.setComment(comment);
-			edge.setState(state);
 			edge.setVersion(SemanticVersion.fromStringOrZero(version), false);
 			edge.setProducttype(productType);
 			edge.setSumState(sumState, false);
