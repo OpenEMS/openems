@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
@@ -41,6 +44,7 @@ import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.utils.StringUtils;
+import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -57,6 +61,8 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 
 	private final Logger log = LoggerFactory.getLogger(DummyMetadata.class);
 
+	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+	private final EventAdmin eventAdmin;
 	private final AtomicInteger nextUserId = new AtomicInteger(-1);
 	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
 
@@ -65,21 +71,21 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 
 	private Language defaultLanguage = Language.DE;
 
-	@Reference
-	private EventAdmin eventAdmin;
-
-	public DummyMetadata() {
-		super("Metadata.Dummy");
-		this.setInitialized();
-	}
-
 	@Activate
-	private void activate() {
+	public DummyMetadata(@Reference EventAdmin eventadmin) {
+		super("Metadata.Dummy");
+		this.eventAdmin = eventadmin;
 		this.logInfo(this.log, "Activate");
+
+		// Allow the services some time to settle
+		this.executor.schedule(() -> {
+			this.setInitialized();
+		}, 5, TimeUnit.SECONDS);
 	}
 
 	@Deactivate
 	private void deactivate() {
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
 		this.logInfo(this.log, "Deactivate");
 	}
 

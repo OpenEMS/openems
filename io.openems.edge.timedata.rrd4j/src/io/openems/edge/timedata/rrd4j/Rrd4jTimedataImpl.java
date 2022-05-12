@@ -489,6 +489,8 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		case KILOVOLT_AMPERE_REACTIVE:
 		case KILOWATT:
 		case MICROOHM:
+		case MICROAMPERE:
+		case MICROVOLT:
 		case MILLIAMPERE_HOURS:
 		case MILLIAMPERE:
 		case MILLIHERTZ:
