@@ -449,7 +449,23 @@ public class LeafletCoreImpl extends AbstractOpenemsModbusComponent implements O
                 }
                 response = responseBuilder.toString();
             } catch (IOException e) {
-                this.log.error("The Firmware is not Running!");
+                try {
+                    Process p = Runtime.getRuntime().exec("leafletbs -v");
+
+
+                    BufferedReader reader =
+                            new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+                    String line = "";
+                    StringBuilder responseBuilder = new StringBuilder();
+                    while ((line = reader.readLine()) != null) {
+                        responseBuilder.append(line);
+                    }
+                    response = responseBuilder.toString();
+                } catch (IOException ioException) {
+                    this.log.error("The Firmware is not Running!");
+                }
+
             }
             if (response.equals("") == false) {
                 String[] partOne = response.split("V");
