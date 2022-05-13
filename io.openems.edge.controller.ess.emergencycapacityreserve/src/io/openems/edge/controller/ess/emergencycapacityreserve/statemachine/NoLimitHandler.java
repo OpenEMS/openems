@@ -13,8 +13,8 @@ public class NoLimitHandler extends StateHandler<State, Context> {
 			context.setTargetPower(context.maxApparentPower);
 			context.setRampPower(context.maxApparentPower * 0.01);
 
-			int reserveSoc = context.reserveSoc;
-			Integer soc = context.soc;
+			var reserveSoc = context.reserveSoc;
+			var soc = context.soc;
 
 			// SoC is just above reserveSoC
 			if (soc <= reserveSoc + 1) {

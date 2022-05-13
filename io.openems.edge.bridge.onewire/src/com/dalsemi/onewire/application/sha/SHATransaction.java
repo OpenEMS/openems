@@ -103,7 +103,7 @@ public abstract class SHATransaction {
 	 * </p>
 	 */
 	protected SHATransaction() {
-		;
+
 	}
 
 	/**

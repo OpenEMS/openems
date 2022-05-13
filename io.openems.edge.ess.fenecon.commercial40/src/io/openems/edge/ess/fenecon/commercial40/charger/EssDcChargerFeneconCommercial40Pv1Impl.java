@@ -10,8 +10,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -28,10 +28,11 @@ import io.openems.edge.timedata.api.TimedataProvider;
 @Component(//
 		name = "Ess.Fenecon.Commercial40.PV1", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class EssDcChargerFeneconCommercial40Pv1Impl extends AbstractEssDcChargerFeneconCommercial40
 		implements EssDcChargerFeneconCommercial40, EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler,
 		TimedataProvider {
@@ -43,9 +44,9 @@ public class EssDcChargerFeneconCommercial40Pv1Impl extends AbstractEssDcCharger
 	private volatile Timedata timedata = null;
 
 	public EssDcChargerFeneconCommercial40Pv1Impl() {
-		super();
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -69,6 +70,7 @@ public class EssDcChargerFeneconCommercial40Pv1Impl extends AbstractEssDcCharger
 		this.ess.addCharger(this);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		this.ess.removeCharger(this);

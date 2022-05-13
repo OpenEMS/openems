@@ -16,8 +16,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +34,12 @@ import io.openems.edge.timedata.api.Timedata;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Api.MQTT", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CONFIG_UPDATE //
-		} //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CONFIG_UPDATE //
+})
 public class MqttApiControllerImpl extends AbstractOpenemsComponent
 		implements MqttApiController, Controller, OpenemsComponent, EventHandler {
 
@@ -83,6 +83,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 				});
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -125,7 +126,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 
 		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
 			// Send new EdgeConfig
-			EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
+			var config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
 			this.publish(MqttApiController.TOPIC_EDGE_CONFIG, config.toJson().toString(), //
 					1 /* QOS */, true /* retain */, new MqttProperties() /* no specific properties */);
 
@@ -137,14 +138,14 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Publish a message to a topic.
-	 * 
+	 *
 	 * @param subTopic the MQTT topic. The global MQTT Topic prefix is added in
 	 *                 front of this string
 	 * @param message  the message
 	 * @return true if message was successfully published; false otherwise
 	 */
 	protected boolean publish(String subTopic, MqttMessage message) {
-		IMqttClient mqttClient = this.mqttClient;
+		var mqttClient = this.mqttClient;
 		if (mqttClient == null) {
 			return false;
 		}
@@ -159,7 +160,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Publish a message to a topic.
-	 * 
+	 *
 	 * @param subTopic   the MQTT topic. The global MQTT Topic prefix is added in
 	 *                   front of this string
 	 * @param message    the message; internally translated to a UTF-8 byte array
@@ -169,7 +170,7 @@ public class MqttApiControllerImpl extends AbstractOpenemsComponent
 	 * @return true if message was successfully published; false otherwise
 	 */
 	protected boolean publish(String subTopic, String message, int qos, boolean retained, MqttProperties properties) {
-		MqttMessage msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8), qos, retained, properties);
+		var msg = new MqttMessage(message.getBytes(StandardCharsets.UTF_8), qos, retained, properties);
 		return this.publish(subTopic, msg);
 	}
 }

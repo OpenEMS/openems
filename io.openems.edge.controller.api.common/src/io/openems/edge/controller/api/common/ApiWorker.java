@@ -66,7 +66,7 @@ public class ApiWorker {
 	/**
 	 * Sets the Channel that should be used to log debug information about writes to
 	 * channels.
-	 * 
+	 *
 	 * @param logChannel a {@link StringReadChannel}
 	 */
 	public void setLogChannel(StringReadChannel logChannel) {
@@ -76,7 +76,7 @@ public class ApiWorker {
 	/**
 	 * Adds a value to the write-pipeline. The values are then set in the next
 	 * execution of {@link #run()}, until the timeout is reached.
-	 * 
+	 *
 	 * @param channel     the {@link WriteChannel}
 	 * @param writeObject the {@link WriteObject}
 	 */
@@ -99,7 +99,7 @@ public class ApiWorker {
 
 	/**
 	 * Adds a value via JSON-RPC {@link SetChannelValueRequest}.
-	 * 
+	 *
 	 * @param componentManager the {@link ComponentManager}
 	 * @param user             the authenticated {@link User}
 	 * @param request          the Request
@@ -171,7 +171,7 @@ public class ApiWorker {
 	/**
 	 * Sets the channels. This method is called by the run() method of the
 	 * Controller
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	public void run() throws OpenemsNamedException {
@@ -180,7 +180,7 @@ public class ApiWorker {
 		synchronized (this.values) {
 			for (Entry<WriteChannel<?>, WriteObject> entry : this.values.entrySet()) {
 				WriteChannel<?> channel = entry.getKey();
-				WriteObject writeObject = entry.getValue();
+				var writeObject = entry.getValue();
 				try {
 					OpenemsComponent.logInfo(this.parent, this.log,
 							"Set Channel [" + channel.address() + "] to Value [" + writeObject.valueToString() + "]");

@@ -34,24 +34,25 @@ import io.openems.edge.meter.api.SymmetricMeter;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 		} //
 )
-public class BoschBpts5HybridMeter extends AbstractOpenemsComponent implements SymmetricMeter, OpenemsComponent{
-	
+public class BoschBpts5HybridMeter extends AbstractOpenemsComponent implements SymmetricMeter, OpenemsComponent {
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private BoschBpts5HybridCore core;
-	
+
 	@Reference
 	private ConfigurationAdmin cm;
-	
+
 	public BoschBpts5HybridMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(),//
+				SymmetricMeter.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException, ConfigurationException, IOException {
+	void activate(ComponentContext context, Config config)
+			throws OpenemsNamedException, ConfigurationException, IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// update filter for 'core'
@@ -60,7 +61,8 @@ public class BoschBpts5HybridMeter extends AbstractOpenemsComponent implements S
 		}
 		this.core.setMeter(this);
 	}
-	
+
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.core != null) {

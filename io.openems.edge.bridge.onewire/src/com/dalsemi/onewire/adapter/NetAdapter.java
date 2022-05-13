@@ -161,14 +161,14 @@ import com.dalsemi.onewire.utils.Convert;
  * similar custom socket implementation) can be used by circumventing the
  * standard DSPortAdapter's <code>selectPort(String)</code> and using the
  * NetAdapter-specific <code>selectPort(Socket)</code>. For example:
- * 
+ *
  * <pre>
  * NetAdapter na = new NetAdapter();
  *
  * Socket secureSocket = // insert fancy secure socket implementation here
  *
  * na.selectPort(secureSocket);
- * 
+ *
  * <pre>
  * </P>
  *
@@ -223,9 +223,9 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 */
 	public NetAdapter() {
 		try {
-			resetSecret();
+			this.resetSecret();
 		} catch (Throwable t) {
-			setSecret(DEFAULT_SECRET);
+			this.setSecret(DEFAULT_SECRET);
 		}
 	}
 
@@ -238,8 +238,9 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	public void setSecret(String secret) {
 		if (secret != null) {
 			this.netAdapterSecret = secret.getBytes();
-		} else
-			resetSecret();
+		} else {
+			this.resetSecret();
+		}
 	}
 
 	/**
@@ -247,11 +248,12 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * there is one), or the default as defined by NetAdapterConstants.
 	 */
 	public void resetSecret() {
-		String secret = OneWireAccessProvider.getProperty("NetAdapter.Secret");
-		if (secret != null)
+		var secret = OneWireAccessProvider.getProperty("NetAdapter.Secret");
+		if (secret != null) {
 			this.netAdapterSecret = secret.getBytes();
-		else
+		} else {
 			this.netAdapterSecret = DEFAULT_SECRET.getBytes();
+		}
 	}
 
 	/**
@@ -262,7 +264,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * occurred and attempts a reconnect.
 	 */
 	private void checkReturnValue(Connection conn) throws IOException, OneWireException, OneWireIOException {
-		byte retVal = conn.input.readByte();
+		var retVal = conn.input.readByte();
 		if (retVal != RET_SUCCESS) {
 			// an error occurred
 			String errorMsg;
@@ -275,8 +277,8 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 
 				// that probably means we have a major communication error.
 				// better to disconnect and reconnect.
-				freePort();
-				selectPort(portNameForReconnect);
+				this.freePort();
+				this.selectPort(this.portNameForReconnect);
 			}
 
 			throw new OneWireIOException(errorMsg);
@@ -291,12 +293,12 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 */
 	public void pingHost() throws OneWireException, OneWireIOException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send beginExclusive command
-				conn.output.writeByte(CMD_PINGCONNECTION);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_PINGCONNECTION);
+				this.conn.output.flush();
 
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -316,9 +318,10 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public boolean adapterDetected() throws OneWireIOException, OneWireException {
-		synchronized (conn) {
-			return conn != EMPTY_CONNECTION && conn.sock != null;
+		synchronized (this.conn) {
+			return this.conn != EMPTY_CONNECTION && this.conn.sock != null;
 		}
 	}
 
@@ -329,6 +332,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *
 	 * @return <code>String</code> representation of the port adapter.
 	 */
+	@Override
 	public String getAdapterName() {
 		return "NetAdapter";
 	}
@@ -339,6 +343,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *
 	 * @return <code>String</code> description of the port type required.
 	 */
+	@Override
 	public String getPortTypeDescription() {
 		return "Network 'Hostname:Port'";
 	}
@@ -348,6 +353,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *
 	 * @return version string
 	 */
+	@Override
 	public String getClassVersion() {
 		return "" + versionUID;
 	}
@@ -365,52 +371,56 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @return <code>Enumeration</code> of type <code>String</code> that contains
 	 *         the port names
 	 */
+	@Override
 	public Enumeration<String> getPortNames() {
-		Vector<String> v = new Vector<>();
+		var v = new Vector<String>();
 
 		// figure out if multicast is enabled
-		if (multicastEnabled == null) {
+		if (this.multicastEnabled == null) {
 			String enabled = null;
 			try {
 				enabled = OneWireAccessProvider.getProperty("NetAdapter.MulticastEnabled");
 			} catch (Throwable t) {
-				;
+
 			}
-			if (enabled != null)
-				multicastEnabled = Boolean.valueOf(enabled);
-			else
-				multicastEnabled = Boolean.FALSE;
+			if (enabled != null) {
+				this.multicastEnabled = Boolean.valueOf(enabled);
+			} else {
+				this.multicastEnabled = Boolean.FALSE;
+			}
 		}
 
 		// if multicasting is enabled, we'll look for servers dynamically
 		// and add them to the list
-		if (multicastEnabled.booleanValue()) {
+		if (this.multicastEnabled.booleanValue()) {
 			// figure out what the datagram listen port is
-			if (datagramPort == -1) {
+			if (this.datagramPort == -1) {
 				String strPort = null;
 				try {
 					strPort = OneWireAccessProvider.getProperty("NetAdapter.MulticastPort");
 				} catch (Throwable t) {
-					;
+
 				}
-				if (strPort == null)
-					datagramPort = DEFAULT_MULTICAST_PORT;
-				else
-					datagramPort = Integer.parseInt(strPort);
+				if (strPort == null) {
+					this.datagramPort = DEFAULT_MULTICAST_PORT;
+				} else {
+					this.datagramPort = Integer.parseInt(strPort);
+				}
 			}
 
 			// figure out what the multicast group is
-			if (multicastGroup == null) {
+			if (this.multicastGroup == null) {
 				String group = null;
 				try {
 					group = OneWireAccessProvider.getProperty("NetAdapter.MulticastGroup");
 				} catch (Throwable t) {
-					;
+
 				}
-				if (group == null)
-					multicastGroup = DEFAULT_MULTICAST_GROUP;
-				else
-					multicastGroup = group;
+				if (group == null) {
+					this.multicastGroup = DEFAULT_MULTICAST_GROUP;
+				} else {
+					this.multicastGroup = group;
+				}
 			}
 
 			MulticastSocket socket = null;
@@ -418,39 +428,40 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 			try {
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 				if (DEBUG) {
-					System.out.println("DEBUG: Opening multicast on port: " + datagramPort);
-					System.out.println("DEBUG: joining group: " + multicastGroup);
+					System.out.println("DEBUG: Opening multicast on port: " + this.datagramPort);
+					System.out.println("DEBUG: joining group: " + this.multicastGroup);
 				}
 				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 
 				// create the multi-cast socket
-				socket = new MulticastSocket(datagramPort);
+				socket = new MulticastSocket(this.datagramPort);
 				// create the group's InetAddress
-				group = InetAddress.getByName(multicastGroup);
+				group = InetAddress.getByName(this.multicastGroup);
 				// join the group
 				socket.joinGroup(group);
 
 				// convert the versionUID to a byte[]
-				byte[] versionBytes = Convert.toByteArray(versionUID);
+				var versionBytes = Convert.toByteArray(versionUID);
 
 				// send a packet with the versionUID
-				DatagramPacket outPacket = new DatagramPacket(versionBytes, 4, group, datagramPort);
+				var outPacket = new DatagramPacket(versionBytes, 4, group, this.datagramPort);
 				socket.send(outPacket);
 
 				// set a timeout of 1/2 second for the receive
 				socket.setSoTimeout(500);
 
-				byte[] receiveBuffer = new byte[32];
+				var receiveBuffer = new byte[32];
 				for (;;) {
 					// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
-					if (DEBUG)
+					if (DEBUG) {
 						System.out.println("DEBUG: waiting for multicast packet");
+					}
 					// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
-					DatagramPacket inPacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+					var inPacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
 					socket.receive(inPacket);
 
-					int length = inPacket.getLength();
-					byte[] data = inPacket.getData();
+					var length = inPacket.getLength();
+					var data = inPacket.getData();
 					// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 					if (DEBUG) {
 						System.out.println("DEBUG: packet.length=" + length);
@@ -458,32 +469,33 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 					}
 					// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 					if (length == 5 && data[4] == (byte) 0xFF) {
-						int listenPort = Convert.toInt(data, 0, 4);
+						var listenPort = Convert.toInt(data, 0, 4);
 						v.addElement(inPacket.getAddress().getHostName() + ":" + listenPort);
 					}
 				}
 			} catch (Exception e) {
-				/* drain */;
+				/* drain */
 			} finally {
 				try {
 					socket.leaveGroup(group);
 					socket.close();
 				} catch (Exception e) {
-					/* drain */;
+					/* drain */
 				}
 			}
 		}
 
 		// get all servers from the properties file
-		String server = "";
+		var server = "";
 		try {
-			for (int i = 0; server != null; i++) {
+			for (var i = 0; server != null; i++) {
 				server = OneWireAccessProvider.getProperty("NetAdapter.host" + i);
-				if (server != null)
+				if (server != null) {
 					v.addElement(server);
+				}
 			}
 		} catch (Throwable t) {
-			;
+
 		}
 
 		return v.elements();
@@ -508,40 +520,42 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *                            with port.
 	 * @throws OneWireException   If port does not exist
 	 */
+	@Override
 	public boolean selectPort(String portName) throws OneWireIOException, OneWireException {
-		synchronized (conn) {
+		synchronized (this.conn) {
 			Socket s = null;
 			try {
-				int port = DEFAULT_PORT;
+				var port = DEFAULT_PORT;
 				// should be of the format "hostname:port" or hostname
-				int index = portName.indexOf(':');
+				var index = portName.indexOf(':');
 				if (index >= 0) {
-					int index2 = portName.indexOf(':', index + 1);
+					var index2 = portName.indexOf(':', index + 1);
 					if (index2 < 0) // no custom secret specified
 					{
 						port = Integer.parseInt(portName.substring(index + 1));
 						// reset the secret to default
-						resetSecret();
-						useCustomSecret = false;
+						this.resetSecret();
+						this.useCustomSecret = false;
 					} else {
 						// custom secret is specified
-						setSecret(portName.substring(index2 + 1));
-						useCustomSecret = true;
-						if (index < index2 - 1) // port number is specified
+						this.setSecret(portName.substring(index2 + 1));
+						this.useCustomSecret = true;
+						if (index < index2 - 1) {
 							port = Integer.parseInt(portName.substring(index + 1, index2));
+						}
 					}
 					portName = portName.substring(0, index);
 				} else {
 					// reset the secret
-					resetSecret();
-					useCustomSecret = false;
+					this.resetSecret();
+					this.useCustomSecret = false;
 				}
 				s = new Socket(portName, port);
 			} catch (IOException ioe) {
 				throw new OneWireIOException("Can't reach server: " + ioe.getMessage());
 			}
 
-			return selectPort(s);
+			return this.selectPort(s);
 		}
 	}
 
@@ -558,9 +572,9 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireException   If port does not exist
 	 */
 	public boolean selectPort(Socket sock) throws OneWireIOException, OneWireException {
-		boolean bSuccess = false;
-		synchronized (conn) {
-			Connection tmpConn = new Connection();
+		var bSuccess = false;
+		synchronized (this.conn) {
+			var tmpConn = new Connection();
 			tmpConn.sock = sock;
 
 			try {
@@ -572,7 +586,7 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 				}
 
 				// check host version
-				int hostVersionUID = tmpConn.input.readInt();
+				var hostVersionUID = tmpConn.input.readInt();
 
 				if (hostVersionUID == versionUID) {
 					// tell the server that the versionUID matched
@@ -581,18 +595,18 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 
 					// if the versionUID matches, we need to authenticate ourselves
 					// using the challenge from the server.
-					byte[] chlg = new byte[8];
+					var chlg = new byte[8];
 					tmpConn.input.read(chlg, 0, 8);
 
 					// compute the crc of the secret and the challenge
-					int crc = CRC16.compute(netAdapterSecret, 0);
+					var crc = CRC16.compute(this.netAdapterSecret, 0);
 					crc = CRC16.compute(chlg, crc);
 					// and send it back to the server
 					tmpConn.output.writeInt(crc);
 					tmpConn.output.flush();
 
 					// check to see if it matched
-					checkReturnValue(tmpConn);
+					this.checkReturnValue(tmpConn);
 
 					bSuccess = true;
 				} else {
@@ -606,8 +620,8 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 			}
 
 			if (bSuccess) {
-				portNameForReconnect = sock.getInetAddress().getHostName() + ":" + sock.getPort();
-				conn = tmpConn;
+				this.portNameForReconnect = sock.getInetAddress().getHostName() + ":" + sock.getPort();
+				this.conn = tmpConn;
 			}
 		}
 
@@ -622,13 +636,14 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *
 	 * @throws OneWireException If port does not exist
 	 */
+	@Override
 	public void freePort() throws OneWireException {
 		try {
-			synchronized (conn) {
-				conn.output.writeByte(CMD_CLOSECONNECTION);
-				conn.output.flush();
-				conn.sock.close();
-				conn = EMPTY_CONNECTION;
+			synchronized (this.conn) {
+				this.conn.output.writeByte(CMD_CLOSECONNECTION);
+				this.conn.output.flush();
+				this.conn.sock.close();
+				this.conn = EMPTY_CONNECTION;
 			}
 		} catch (Exception e) {
 			throw new OneWireException(COMM_FAILED + e.getMessage());
@@ -642,15 +657,18 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *
 	 * @throws OneWireException if valid port not yet selected
 	 */
+	@Override
 	public String getPortName() throws OneWireException {
-		synchronized (conn) {
-			if (!adapterDetected())
+		synchronized (this.conn) {
+			if (!this.adapterDetected()) {
 				return "Not Connected";
-			else if (useCustomSecret)
-				return conn.sock.getInetAddress().getHostName() + ":" + conn.sock.getPort() + ":"
+			}
+			if (this.useCustomSecret) {
+				return this.conn.sock.getInetAddress().getHostName() + ":" + this.conn.sock.getPort() + ":"
 						+ new String(this.netAdapterSecret);
-			else
-				return conn.sock.getInetAddress().getHostName() + ":" + conn.sock.getPort();
+			} else {
+				return this.conn.sock.getInetAddress().getHostName() + ":" + this.conn.sock.getPort();
+			}
 		}
 	}
 
@@ -663,18 +681,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canOverdrive() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send beginExclusive command
-				conn.output.writeByte(CMD_CANOVERDRIVE);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_CANOVERDRIVE);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next parameter should be the return from beginExclusive
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -690,18 +709,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canHyperdrive() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send beginExclusive command
-				conn.output.writeByte(CMD_CANHYPERDRIVE);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_CANHYPERDRIVE);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next parameter should be the return from beginExclusive
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -717,18 +737,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canFlex() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send beginExclusive command
-				conn.output.writeByte(CMD_CANFLEX);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_CANFLEX);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next parameter should be the return from beginExclusive
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -744,18 +765,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canProgram() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send beginExclusive command
-				conn.output.writeByte(CMD_CANPROGRAM);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_CANPROGRAM);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next parameter should be the return from beginExclusive
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -771,18 +793,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canDeliverPower() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send beginExclusive command
-				conn.output.writeByte(CMD_CANDELIVERPOWER);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_CANDELIVERPOWER);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next parameter should be the return from beginExclusive
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -801,18 +824,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canDeliverSmartPower() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send beginExclusive command
-				conn.output.writeByte(CMD_CANDELIVERSMARTPOWER);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_CANDELIVERSMARTPOWER);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next parameter should be the return from beginExclusive
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -828,18 +852,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canBreak() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send beginExclusive command
-				conn.output.writeByte(CMD_CANBREAK);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_CANBREAK);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next parameter should be the return from beginExclusive
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -860,18 +885,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean findFirstDevice() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send findFirstDevice command
-				conn.output.writeByte(CMD_FINDFIRSTDEVICE);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_FINDFIRSTDEVICE);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// return boolean from findFirstDevice
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -888,18 +914,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean findNextDevice() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send findNextDevice command
-				conn.output.writeByte(CMD_FINDNEXTDEVICE);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_FINDNEXTDEVICE);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// return boolean from findNextDevice
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -916,18 +943,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @param address An array to be filled with the current iButton address.
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void getAddress(byte[] address) {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send getAddress command
-				conn.output.writeByte(CMD_GETADDRESS);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_GETADDRESS);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// get the address
-				conn.input.read(address, 0, 8);
+				this.conn.input.read(address, 0, 8);
 			}
 		} catch (Exception e) {
 			/* drain */ }
@@ -941,15 +969,16 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *
 	 * @see #setNoResetSearch
 	 */
+	@Override
 	public void setSearchOnlyAlarmingDevices() {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send setSearchOnlyAlarmingDevices command
-				conn.output.writeByte(CMD_SETSEARCHONLYALARMINGDEVICES);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_SETSEARCHONLYALARMINGDEVICES);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (Exception e) {
 			/* drain */ }
@@ -960,15 +989,16 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * This feature is chiefly used with the DS2409 1-Wire coupler. The normal reset
 	 * before each search can be restored with the 'setSearchAllDevices()' method.
 	 */
+	@Override
 	public void setNoResetSearch() {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send setNoResetSearch command
-				conn.output.writeByte(CMD_SETNORESETSEARCH);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_SETNORESETSEARCH);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (Exception e) {
 			/* drain */ }
@@ -982,15 +1012,16 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *
 	 * @see #setNoResetSearch
 	 */
+	@Override
 	public void setSearchAllDevices() {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send setSearchAllDevices command
-				conn.output.writeByte(CMD_SETSEARCHALLDEVICES);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_SETSEARCHALLDEVICES);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (Exception e) {
 			/* drain */ }
@@ -1000,21 +1031,22 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * Removes any selectivity during a search for iButtons or 1-Wire devices by
 	 * family type. The unique address for each iButton and 1-Wire device contains a
 	 * family descriptor that indicates the capabilities of the device.
-	 * 
+	 *
 	 * @see #targetFamily
 	 * @see #targetFamily(byte[])
 	 * @see #excludeFamily
 	 * @see #excludeFamily(byte[])
 	 */
+	@Override
 	public void targetAllFamilies() {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send targetAllFamilies command
-				conn.output.writeByte(CMD_TARGETALLFAMILIES);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_TARGETALLFAMILIES);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (Exception e) {
 			/* drain */ }
@@ -1029,17 +1061,18 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @see com.dalsemi.onewire.utils.Address
 	 * @see #targetAllFamilies
 	 */
+	@Override
 	public void targetFamily(int family) {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send targetFamily command
-				conn.output.writeByte(CMD_TARGETFAMILY);
-				conn.output.writeInt(1);
-				conn.output.writeByte((byte) family);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_TARGETFAMILY);
+				this.conn.output.writeInt(1);
+				this.conn.output.writeByte((byte) family);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (Exception e) {
 			/* drain */ }
@@ -1054,17 +1087,18 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @see com.dalsemi.onewire.utils.Address
 	 * @see #targetAllFamilies
 	 */
+	@Override
 	public void targetFamily(byte family[]) {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send targetFamily command
-				conn.output.writeByte(CMD_TARGETFAMILY);
-				conn.output.writeInt(family.length);
-				conn.output.write(family, 0, family.length);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_TARGETFAMILY);
+				this.conn.output.writeInt(family.length);
+				this.conn.output.write(family, 0, family.length);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (Exception e) {
 			/* drain */ }
@@ -1079,17 +1113,18 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @see com.dalsemi.onewire.utils.Address
 	 * @see #targetAllFamilies
 	 */
+	@Override
 	public void excludeFamily(int family) {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send excludeFamily command
-				conn.output.writeByte(CMD_EXCLUDEFAMILY);
-				conn.output.writeInt(1);
-				conn.output.writeByte((byte) family);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_EXCLUDEFAMILY);
+				this.conn.output.writeInt(1);
+				this.conn.output.writeByte((byte) family);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (Exception e) {
 			/* drain */ }
@@ -1104,17 +1139,18 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @see com.dalsemi.onewire.utils.Address
 	 * @see #targetAllFamilies
 	 */
+	@Override
 	public void excludeFamily(byte family[]) {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send excludeFamily command
-				conn.output.writeByte(CMD_EXCLUDEFAMILY);
-				conn.output.writeInt(family.length);
-				conn.output.write(family, 0, family.length);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_EXCLUDEFAMILY);
+				this.conn.output.writeInt(family.length);
+				this.conn.output.write(family, 0, family.length);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (Exception e) {
 			/* drain */ }
@@ -1144,10 +1180,11 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *
 	 * @throws OneWireException on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean beginExclusive(boolean blocking) throws OneWireException {
 		boolean bGotLocalBlock = false, bGotServerBlock = false;
 		if (blocking) {
-			while (!beginExclusive()) {
+			while (!this.beginExclusive()) {
 				try {
 					Thread.sleep(50);
 				} catch (Exception e) {
@@ -1155,21 +1192,22 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 			}
 
 			bGotLocalBlock = true;
-		} else
-			bGotLocalBlock = beginExclusive();
+		} else {
+			bGotLocalBlock = this.beginExclusive();
+		}
 
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send beginExclusive command
-				conn.output.writeByte(CMD_BEGINEXCLUSIVE);
-				conn.output.writeBoolean(blocking);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_BEGINEXCLUSIVE);
+				this.conn.output.writeBoolean(blocking);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next parameter should be the return from beginExclusive
-				bGotServerBlock = conn.input.readBoolean();
+				bGotServerBlock = this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1193,10 +1231,10 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireException
 	 */
 	private boolean beginExclusive() throws OneWireException {
-		synchronized (currentThreadHash) {
-			if (currentThreadHash == NOT_OWNED) {
+		synchronized (this.currentThreadHash) {
+			if (this.currentThreadHash == NOT_OWNED) {
 				// not owned so take
-				currentThreadHash = Integer.valueOf(Thread.currentThread().hashCode());
+				this.currentThreadHash = Integer.valueOf(Thread.currentThread().hashCode());
 
 				// provided debug on standard out
 				if (DEBUG) {
@@ -1204,7 +1242,8 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 				}
 
 				return true;
-			} else if (currentThreadHash.intValue() == Thread.currentThread().hashCode()) {
+			}
+			if (this.currentThreadHash.intValue() == Thread.currentThread().hashCode()) {
 				// provided debug on standard out
 				if (DEBUG) {
 					System.out.println("beginExclusive, already owned by: " + Thread.currentThread().getName());
@@ -1224,23 +1263,25 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * dynamically marks the end of a critical section and should be used when
 	 * exclusive control is no longer needed.
 	 */
+	@Override
 	public void endExclusive() {
-		synchronized (currentThreadHash) {
+		synchronized (this.currentThreadHash) {
 			// if own then release
-			if (currentThreadHash != NOT_OWNED && currentThreadHash.intValue() == Thread.currentThread().hashCode()) {
+			if (this.currentThreadHash != NOT_OWNED
+					&& this.currentThreadHash.intValue() == Thread.currentThread().hashCode()) {
 				if (DEBUG) {
 					System.out.println("endExclusive, was owned by: " + Thread.currentThread().getName());
 				}
 
-				currentThreadHash = NOT_OWNED;
+				this.currentThreadHash = NOT_OWNED;
 				try {
-					synchronized (conn) {
+					synchronized (this.conn) {
 						// send endExclusive command
-						conn.output.writeByte(CMD_ENDEXCLUSIVE);
-						conn.output.flush();
+						this.conn.output.writeByte(CMD_ENDEXCLUSIVE);
+						this.conn.output.flush();
 
 						// check return value for success
-						checkReturnValue(conn);
+						this.checkReturnValue(this.conn);
 					}
 				} catch (Exception e) {
 					/* drain */ }
@@ -1271,18 +1312,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public int reset() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send reset command
-				conn.output.writeByte(CMD_RESET);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_RESET);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next parameter should be the return from reset
-				return conn.input.readInt();
+				return this.conn.input.readInt();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1297,17 +1339,18 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void putBit(boolean bitValue) throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send putBit command
-				conn.output.writeByte(CMD_PUTBIT);
+				this.conn.output.writeByte(CMD_PUTBIT);
 				// followed by the bit
-				conn.output.writeBoolean(bitValue);
-				conn.output.flush();
+				this.conn.output.writeBoolean(bitValue);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1322,18 +1365,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean getBit() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send getBit command
-				conn.output.writeByte(CMD_GETBIT);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_GETBIT);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next parameter should be the return from getBit
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1348,17 +1392,18 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void putByte(int byteValue) throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send putByte command
-				conn.output.writeByte(CMD_PUTBYTE);
+				this.conn.output.writeByte(CMD_PUTBYTE);
 				// followed by the byte
-				conn.output.writeByte(byteValue);
-				conn.output.flush();
+				this.conn.output.writeByte(byteValue);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1373,18 +1418,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public int getByte() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send getByte command
-				conn.output.writeByte(CMD_GETBYTE);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_GETBYTE);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next parameter should be the return from getByte
-				return conn.input.readByte() & 0x0FF;
+				return this.conn.input.readByte() & 0x0FF;
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1401,9 +1447,10 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public byte[] getBlock(int len) throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[len];
-		getBlock(buffer, 0, len);
+		var buffer = new byte[len];
+		this.getBlock(buffer, 0, len);
 		return buffer;
 	}
 
@@ -1417,8 +1464,9 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void getBlock(byte[] arr, int len) throws OneWireIOException, OneWireException {
-		getBlock(arr, 0, len);
+		this.getBlock(arr, 0, len);
 	}
 
 	/**
@@ -1432,20 +1480,21 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void getBlock(byte[] arr, int off, int len) throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send getBlock command
-				conn.output.writeByte(CMD_GETBLOCK);
+				this.conn.output.writeByte(CMD_GETBLOCK);
 				// followed by the number of bytes to get
-				conn.output.writeInt(len);
-				conn.output.flush();
+				this.conn.output.writeInt(len);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next should be the bytes
-				conn.input.readFully(arr, off, len);
+				this.conn.input.readFully(arr, off, len);
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1465,25 +1514,26 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void dataBlock(byte[] dataBlock, int off, int len) throws OneWireIOException, OneWireException {
 		if (DEBUG) {
 			System.out.println("DataBlock called for " + len + " bytes");
 		}
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send dataBlock command
-				conn.output.writeByte(CMD_DATABLOCK);
+				this.conn.output.writeByte(CMD_DATABLOCK);
 				// followed by the number of bytes to block
-				conn.output.writeInt(len);
+				this.conn.output.writeInt(len);
 				// followed by the bytes
-				conn.output.write(dataBlock, off, len);
-				conn.output.flush();
+				this.conn.output.write(dataBlock, off, len);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// next should be the bytes returned
-				conn.input.readFully(dataBlock, off, len);
+				this.conn.input.readFully(dataBlock, off, len);
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1522,17 +1572,18 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void setPowerDuration(int timeFactor) throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send setPowerDuration command
-				conn.output.writeByte(CMD_SETPOWERDURATION);
+				this.conn.output.writeByte(CMD_SETPOWERDURATION);
 				// followed by the timeFactor
-				conn.output.writeInt(timeFactor);
-				conn.output.flush();
+				this.conn.output.writeInt(timeFactor);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1566,20 +1617,21 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean startPowerDelivery(int changeCondition) throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send startPowerDelivery command
-				conn.output.writeByte(CMD_STARTPOWERDELIVERY);
+				this.conn.output.writeByte(CMD_STARTPOWERDELIVERY);
 				// followed by the changeCondition
-				conn.output.writeInt(changeCondition);
-				conn.output.flush();
+				this.conn.output.writeInt(changeCondition);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// and get the return value from startPowerDelivery
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1607,17 +1659,18 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void setProgramPulseDuration(int timeFactor) throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send setProgramPulseDuration command
-				conn.output.writeByte(CMD_SETPROGRAMPULSEDURATION);
+				this.conn.output.writeByte(CMD_SETPROGRAMPULSEDURATION);
 				// followed by the timeFactor
-				conn.output.writeInt(timeFactor);
-				conn.output.flush();
+				this.conn.output.writeInt(timeFactor);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1652,20 +1705,21 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter or the
 	 *                            adapter does not support this operation
 	 */
+	@Override
 	public boolean startProgramPulse(int changeCondition) throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send startProgramPulse command
-				conn.output.writeByte(CMD_STARTPROGRAMPULSE);
+				this.conn.output.writeByte(CMD_STARTPROGRAMPULSE);
 				// followed by the changeCondition
-				conn.output.writeInt(changeCondition);
-				conn.output.flush();
+				this.conn.output.writeInt(changeCondition);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// and get the return value from startPowerDelivery
-				return conn.input.readBoolean();
+				return this.conn.input.readBoolean();
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1681,15 +1735,16 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter or the
 	 *                            adapter does not support this operation
 	 */
+	@Override
 	public void startBreak() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send startBreak command
-				conn.output.writeByte(CMD_STARTBREAK);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_STARTBREAK);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED);
@@ -1707,15 +1762,16 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter or the
 	 *                            adapter does not support this operation
 	 */
+	@Override
 	public void setPowerNormal() throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send startBreak command
-				conn.output.writeByte(CMD_SETPOWERNORMAL);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_SETPOWERNORMAL);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1746,17 +1802,18 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter or the
 	 *                            adapter does not support this operation
 	 */
+	@Override
 	public void setSpeed(int speed) throws OneWireIOException, OneWireException {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send startBreak command
-				conn.output.writeByte(CMD_SETSPEED);
+				this.conn.output.writeByte(CMD_SETSPEED);
 				// followed by the speed
-				conn.output.writeInt(speed);
-				conn.output.flush();
+				this.conn.output.writeInt(speed);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 			}
 		} catch (IOException ioe) {
 			throw new OneWireException(COMM_FAILED + ioe.getMessage());
@@ -1779,18 +1836,19 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 	 *         <li>>3 future speeds
 	 *         </ul>
 	 */
+	@Override
 	public int getSpeed() {
 		try {
-			synchronized (conn) {
+			synchronized (this.conn) {
 				// send startBreak command
-				conn.output.writeByte(CMD_GETSPEED);
-				conn.output.flush();
+				this.conn.output.writeByte(CMD_GETSPEED);
+				this.conn.output.flush();
 
 				// check return value for success
-				checkReturnValue(conn);
+				this.checkReturnValue(this.conn);
 
 				// and return the return value from getSpeed()
-				return conn.input.readInt();
+				return this.conn.input.readInt();
 			}
 		} catch (Exception e) {
 			/* drain */

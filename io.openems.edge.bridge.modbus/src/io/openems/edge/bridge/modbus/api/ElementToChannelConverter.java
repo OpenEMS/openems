@@ -22,21 +22,21 @@ public class ElementToChannelConverter {
 
 	/**
 	 * Applies a scale factor of -1. Converts value [1] to [0.1].
-	 * 
+	 *
 	 * @see ElementToChannelScaleFactorConverter
 	 */
 	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_1 = new ElementToChannelScaleFactorConverter(-1);
 
 	/**
 	 * Applies a scale factor of -2. Converts value [1] to [0.01].
-	 * 
+	 *
 	 * @see ElementToChannelScaleFactorConverter
 	 */
 	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_2 = new ElementToChannelScaleFactorConverter(-2);
 
 	/**
 	 * Applies a scale factor of -3. Converts value [1] to [0.001].
-	 * 
+	 *
 	 * @see ElementToChannelScaleFactorConverter
 	 */
 	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_3 = new ElementToChannelScaleFactorConverter(-3);
@@ -57,21 +57,21 @@ public class ElementToChannelConverter {
 
 	/**
 	 * Applies a scale factor of 1. Converts value [1] to [10].
-	 * 
+	 *
 	 * @see ElementToChannelScaleFactorConverter
 	 */
 	public static final ElementToChannelConverter SCALE_FACTOR_1 = new ElementToChannelScaleFactorConverter(1);
 
 	/**
 	 * Applies a scale factor of 2. Converts value [1] to [100].
-	 * 
+	 *
 	 * @see ElementToChannelScaleFactorConverter
 	 */
 	public static final ElementToChannelConverter SCALE_FACTOR_2 = new ElementToChannelScaleFactorConverter(2);
 
 	/**
 	 * Applies a scale factor of 3. Converts value [1] to [1000].
-	 * 
+	 *
 	 * @see ElementToChannelScaleFactorConverter
 	 */
 	public static final ElementToChannelConverter SCALE_FACTOR_3 = new ElementToChannelScaleFactorConverter(3);
@@ -126,12 +126,12 @@ public class ElementToChannelConverter {
 	/**
 	 * Sets the value to 'zero' if parameter is true; otherwise
 	 * {@link #DIRECT_1_TO_1}.
-	 * 
+	 *
 	 * <ul>
 	 * <li>true: set zero
 	 * <li>false: apply {@link #DIRECT_1_TO_1}
 	 * </ul>
-	 * 
+	 *
 	 * @param setZero true to set to null
 	 * @return the {@link ElementToChannelConverter}
 	 */
@@ -144,19 +144,18 @@ public class ElementToChannelConverter {
 					value -> 0, //
 					// channel -> element
 					value -> 0);
-		} else {
-			return DIRECT_1_TO_1;
 		}
+		return DIRECT_1_TO_1;
 	}
 
 	/**
 	 * Converts depending on the given parameter.
-	 * 
+	 *
 	 * <ul>
 	 * <li>true: invert value
 	 * <li>false: keep value (1-to-1)
 	 * </ul>
-	 * 
+	 *
 	 * @param invert true if Converter should invert
 	 * @return the {@link ElementToChannelConverter}
 	 */
@@ -165,9 +164,8 @@ public class ElementToChannelConverter {
 		// CHECKSTYLE:ON
 		if (invert) {
 			return INVERT;
-		} else {
-			return DIRECT_1_TO_1;
 		}
+		return DIRECT_1_TO_1;
 	}
 
 	/**
@@ -259,7 +257,7 @@ public class ElementToChannelConverter {
 	/**
 	 * This constructs and back-and-forth converter from Element to Channel and
 	 * back.
-	 * 
+	 *
 	 * @param elementToChannel from Element to Channel
 	 * @param channelToElement from Channel to Element
 	 */
@@ -272,12 +270,12 @@ public class ElementToChannelConverter {
 	/**
 	 * This constructs a forward-only converter from Element to Channel.
 	 * Back-conversion throws an Exception.
-	 * 
+	 *
 	 * @param elementToChannel Element to Channel
 	 */
 	public ElementToChannelConverter(Function<Object, Object> elementToChannel) {
 		this.elementToChannel = elementToChannel;
-		this.channelToElement = (value) -> {
+		this.channelToElement = value -> {
 			throw new IllegalArgumentException("Backwards-Conversion for [" + value + "] is not implemented.");
 		};
 	}
@@ -285,7 +283,7 @@ public class ElementToChannelConverter {
 	/**
 	 * Convert an Element value to a Channel value. If the value can or should not
 	 * be converted, this method returns null.
-	 * 
+	 *
 	 * @param value the Element value
 	 * @return the converted value or null
 	 */
@@ -296,7 +294,7 @@ public class ElementToChannelConverter {
 	/**
 	 * Convert a Channel value to an Element value. If the value can or should not
 	 * be converted, this method returns null.
-	 * 
+	 *
 	 * @param value the Channel value
 	 * @return the converted value or null
 	 */

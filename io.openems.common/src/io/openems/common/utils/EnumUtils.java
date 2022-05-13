@@ -3,6 +3,7 @@ package io.openems.common.utils;
 import java.util.EnumMap;
 import java.util.Optional;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -13,7 +14,7 @@ public class EnumUtils {
 
 	/**
 	 * Gets the member of the {@link EnumMap} as {@link Optional} {@link Boolean}.
-	 * 
+	 *
 	 * @param <ENUM> the type of the EnumMap key
 	 * @param map    the {@link EnumMap}
 	 * @param member the member
@@ -31,7 +32,7 @@ public class EnumUtils {
 
 	/**
 	 * Gets the member of the {@link EnumMap} as {@link Optional} {@link String}.
-	 * 
+	 *
 	 * @param <ENUM> the type of the EnumMap key
 	 * @param map    the {@link EnumMap}
 	 * @param member the member
@@ -49,7 +50,7 @@ public class EnumUtils {
 
 	/**
 	 * Gets the member of the {@link EnumMap} as {@link JsonPrimitive}.
-	 * 
+	 *
 	 * @param <ENUM> the type of the EnumMap key
 	 * @param map    the {@link EnumMap}
 	 * @param member the member
@@ -58,13 +59,28 @@ public class EnumUtils {
 	 */
 	public static <ENUM extends Enum<ENUM>> JsonPrimitive getAsPrimitive(EnumMap<ENUM, JsonElement> map, ENUM member)
 			throws OpenemsNamedException {
-		JsonElement jSubElement = getSubElement(map, member);
+		var jSubElement = getSubElement(map, member);
 		return JsonUtils.getAsPrimitive(jSubElement);
 	}
 
 	/**
+	 * Gets the member of the {@link EnumMap} as {@link JsonArray}.
+	 *
+	 * @param <ENUM> the type of the EnumMap key
+	 * @param map    the {@link EnumMap}
+	 * @param member the member
+	 * @return the {@link JsonArray} value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static <ENUM extends Enum<ENUM>> JsonArray getAsJsonArray(EnumMap<ENUM, JsonElement> map, ENUM member)
+			throws OpenemsNamedException {
+		var jSubElement = getSubElement(map, member);
+		return JsonUtils.getAsJsonArray(jSubElement);
+	}
+
+	/**
 	 * Gets the member of the {@link EnumMap} as {@link Boolean}.
-	 * 
+	 *
 	 * @param <ENUM> the type of the EnumMap key
 	 * @param map    the {@link EnumMap}
 	 * @param member the member
@@ -78,7 +94,7 @@ public class EnumUtils {
 
 	/**
 	 * Gets the member of the {@link EnumMap} as {@link String}.
-	 * 
+	 *
 	 * @param <ENUM> the type of the EnumMap key
 	 * @param map    the {@link EnumMap}
 	 * @param member the member
@@ -92,7 +108,7 @@ public class EnumUtils {
 
 	/**
 	 * Gets the member of the {@link EnumMap} as {@link JsonElement}.
-	 * 
+	 *
 	 * @param <ENUM> the type of the EnumMap key
 	 * @param map    the {@link EnumMap}
 	 * @param member the member
@@ -103,14 +119,14 @@ public class EnumUtils {
 			throws OpenemsNamedException {
 		if (!map.containsKey(member)) {
 			throw OpenemsError.JSON_HAS_NO_MEMBER.exception(member,
-					StringUtils.toShortString(map.toString(), 100).replaceAll("%", "%%"));
+					StringUtils.toShortString(map.toString(), 100).replace("%", "%%"));
 		}
 		return map.get(member);
 	}
 
 	/**
 	 * Gets the member of the {@link EnumMap} as int.
-	 * 
+	 *
 	 * @param <ENUM> the type of the EnumMap key
 	 * @param map    the {@link EnumMap}
 	 * @param member the member
@@ -121,4 +137,5 @@ public class EnumUtils {
 			throws OpenemsNamedException {
 		return JsonUtils.getAsInt(getAsPrimitive(map, member));
 	}
+
 }

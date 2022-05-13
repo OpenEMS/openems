@@ -32,7 +32,7 @@ public class DailySchedulerImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
 		final DailyScheduler sut = new DailySchedulerImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //

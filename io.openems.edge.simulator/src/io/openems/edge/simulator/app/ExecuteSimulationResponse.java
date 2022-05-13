@@ -2,9 +2,9 @@ package io.openems.edge.simulator.app;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -15,7 +15,7 @@ import io.openems.common.types.ChannelAddress;
 
 /**
  * Represents a JSON-RPC Response for 'executeSimulation'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -48,20 +48,20 @@ public class ExecuteSimulationResponse extends JsonrpcResponseSuccess {
 
 	@Override
 	public JsonObject getResult() {
-		JsonObject result = new JsonObject();
+		var result = new JsonObject();
 
-		JsonArray timestamps = new JsonArray();
+		var timestamps = new JsonArray();
 		for (ZonedDateTime timestamp : this.data.keySet()) {
 			timestamps.add(timestamp.format(DateTimeFormatter.ISO_INSTANT));
 		}
 		result.add("timestamps", timestamps);
 
-		JsonObject data = new JsonObject();
+		var data = new JsonObject();
 		for (Entry<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> rowEntry : this.data.entrySet()) {
 			for (Entry<ChannelAddress, JsonElement> colEntry : rowEntry.getValue().entrySet()) {
-				String channelAddress = colEntry.getKey().toString();
-				JsonElement value = colEntry.getValue();
-				JsonElement channelValuesElement = data.get(channelAddress);
+				var channelAddress = colEntry.getKey().toString();
+				var value = colEntry.getValue();
+				var channelValuesElement = data.get(channelAddress);
 				JsonArray channelValues;
 				if (channelValuesElement != null) {
 					channelValues = channelValuesElement.getAsJsonArray();

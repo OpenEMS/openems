@@ -23,7 +23,7 @@ tasks:
       --disable-host-check
   - init: |
       mkdir /workspace/odoo && cd /workspace/odoo
-      git clone --depth=1 -b feature/gitpod https://github.com/OpenEMS/odoo-openems.git openems
+      git clone --depth=1 -b 12.0 https://github.com/OpenEMS/odoo-openems.git openems
       git clone --depth=1 -b 12.0 https://github.com/OCA/partner-contact
       git clone --depth=1 -b 12.0 https://github.com/OCA/web.git
       ln -s ./partner-contact/partner_firstname ./partner_firstname

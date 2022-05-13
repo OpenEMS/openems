@@ -227,6 +227,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Eindtijd van beperkt laden overschreden',
                         storageAlreadyFull: 'Geheugen al vol',
                     },
+                    storageCapacity: 'opslagcapaciteit (alleen zichtbaar voor admin)'
                 },
                 CHP: {
                     highThreshold: 'hoge drempel',
@@ -398,6 +399,7 @@ export const TRANSLATION = {
                 simulator: 'Simulator',
                 systemExecute: 'Voer systeemopdracht uit',
                 systemProfile: 'Systeemprofiel',
+                alerting: 'Waarschuwing',
             },
             More: {
                 manualCommand: 'Handmatig commando',
@@ -432,6 +434,11 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'Nieuwe verbinding...',
                 newDevice: 'Nieuw apparaat…',
+            },
+            Alerting: {
+                activate: 'Activeer',
+                delay: 'Vertraging [min]',
+                save: 'Save',
             }
         }
     },

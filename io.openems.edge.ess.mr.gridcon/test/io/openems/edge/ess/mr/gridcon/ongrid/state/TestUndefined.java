@@ -37,7 +37,7 @@ public class TestUndefined {
 	public final void testGetNextState() {
 		// without changes next state should be Undefined
 		assertEquals(GridconState.UNDEFINED, sut.getNextState());
-		
+
 	}
 
 	@Test

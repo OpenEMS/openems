@@ -15,10 +15,10 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
 /**
  * Gets the active instances of an {@link OpenemsApp}.
- * 
+ *
  * <p>
  * Request:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -29,10 +29,10 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
  *   }
  * }
  * </pre>
- * 
+ *
  * <p>
  * Response:
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -51,7 +51,7 @@ public class GetAppInstances {
 
 		/**
 		 * Parses a generic {@link JsonrpcRequest} to a {@link GetAppInstances}.
-		 * 
+		 *
 		 * @param r the {@link JsonrpcRequest}
 		 * @return the {@link GetAppInstances}
 		 * @throws OpenemsNamedException on error
@@ -64,13 +64,13 @@ public class GetAppInstances {
 
 		public final String appId;
 
-		public Request(String appId) {
-			super(METHOD);
+		private Request(JsonrpcRequest request, String appId) {
+			super(request, METHOD);
 			this.appId = appId;
 		}
 
-		private Request(JsonrpcRequest request, String appId) {
-			super(request, METHOD);
+		public Request(String appId) {
+			super(METHOD);
 			this.appId = appId;
 		}
 

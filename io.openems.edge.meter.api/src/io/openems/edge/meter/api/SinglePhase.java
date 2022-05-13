@@ -12,7 +12,7 @@ public enum SinglePhase {
 	}
 
 	public String getSymbol() {
-		return symbol;
+		return this.symbol;
 	}
 
 }

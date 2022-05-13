@@ -46,7 +46,7 @@ public class StringWriteChannel extends StringReadChannel implements WriteChanne
 
 	/**
 	 * Internal method. Do not call directly.
-	 * 
+	 *
 	 * @param value
 	 */
 	@Deprecated

@@ -18,7 +18,7 @@ import io.openems.edge.common.modbusslave.ModbusType;
 
 /**
  * Represents a Symmetric Meter.
- * 
+ *
  * <p>
  * <ul>
  * <li>Negative ActivePower and ConsumptionActivePower represent Consumption,
@@ -32,7 +32,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Frequency.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
@@ -45,7 +45,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Minimum Ever Active Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
@@ -59,7 +59,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Maximum Ever Active Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
@@ -73,7 +73,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
@@ -121,7 +121,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 
 		/**
 		 * Reactive Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
@@ -136,7 +136,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Active Production Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
@@ -148,7 +148,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Consumption Energy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
@@ -160,7 +160,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Voltage.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
@@ -172,7 +172,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Current.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Symmetric
 		 * <li>Type: Integer
@@ -189,6 +189,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -196,7 +197,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 
 	/**
 	 * Gets the type of this Meter.
-	 * 
+	 *
 	 * @return the MeterType
 	 */
 	MeterType getMeterType();
@@ -344,7 +345,7 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 * Gets the Active Power in [W]. Negative values for Consumption (power that is
 	 * 'leaving the system', e.g. feed-to-grid); positive for Production (power that
 	 * is 'entering the system'). See {@link ChannelId#ACTIVE_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getActivePower() {

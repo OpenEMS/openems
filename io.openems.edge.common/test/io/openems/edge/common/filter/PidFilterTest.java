@@ -19,7 +19,7 @@ public class PidFilterTest {
 
 	@Test
 	public void test() {
-		PidFilter p = new PidFilter(0.3, 0.3, 0);
+		var p = new PidFilter(0.3, 0.3, 0);
 		p.setLimits(-100000, 100000);
 		t(p, 0, 0, 0);
 		t(p, 0, 0, 0);
@@ -64,7 +64,7 @@ public class PidFilterTest {
 
 	@Test
 	public void testLimits() {
-		PidFilter p = new PidFilter(0.3, 0.3, 0);
+		var p = new PidFilter(0.3, 0.3, 0);
 		p.setLimits(-10000, 10000);
 		t(p, 0, 0, 0);
 		t(p, 0, 0, 0);
@@ -114,7 +114,7 @@ public class PidFilterTest {
 	 */
 	@Test
 	public void testPriority() {
-		PidFilter p = new PidFilter(0.3, 0.3, 0.1);
+		var p = new PidFilter(0.3, 0.3, 0.1);
 
 		// Cycle 1
 		p.setLimits(-1000, 1000); // set by FixActivePower

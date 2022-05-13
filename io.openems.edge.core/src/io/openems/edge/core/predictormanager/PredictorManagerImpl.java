@@ -71,6 +71,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -97,25 +98,24 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public Prediction24Hours get24HoursPrediction(ChannelAddress channelAddress) {
-		Predictor24Hours predictor = this.getPredictorBestMatch(channelAddress);
-		if (predictor == null) {
-			// No explicit predictor found
-			if (channelAddress.getComponentId().equals(Sum.SINGLETON_COMPONENT_ID)) {
-				// This is a Sum-Channel. Try to get predictions for each source channel.
-				Sum.ChannelId channelId = Sum.ChannelId.valueOf(
-						io.openems.edge.common.channel.ChannelId.channelIdCamelToUpper(channelAddress.getChannelId()));
-				return this.getPredictionSum(channelId);
-			} else {
-				return Prediction24Hours.EMPTY;
-			}
-		} else {
+		var predictor = this.getPredictorBestMatch(channelAddress);
+		if (predictor != null) {
 			return predictor.get24HoursPrediction(channelAddress);
+		}
+		// No explicit predictor found
+		if (channelAddress.getComponentId().equals(Sum.SINGLETON_COMPONENT_ID)) {
+			// This is a Sum-Channel. Try to get predictions for each source channel.
+			var channelId = Sum.ChannelId.valueOf(
+					io.openems.edge.common.channel.ChannelId.channelIdCamelToUpper(channelAddress.getChannelId()));
+			return this.getPredictionSum(channelId);
+		} else {
+			return Prediction24Hours.EMPTY;
 		}
 	}
 
 	/**
 	 * Gets the {@link Prediction24Hours} for a Sum-Channel.
-	 * 
+	 *
 	 * @param channelId the {@link Sum.ChannelId}
 	 * @return the {@link Prediction24Hours}
 	 */
@@ -167,9 +167,9 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 		case PRODUCTION_DC_ACTUAL_POWER: {
 			// Sum up "ActualPower" prediction of all EssDcChargers
 			List<EssDcCharger> chargers = this.componentManager.getEnabledComponentsOfType(EssDcCharger.class);
-			Prediction24Hours[] predictions = new Prediction24Hours[chargers.size()];
-			for (int i = 0; i < chargers.size(); i++) {
-				EssDcCharger charger = chargers.get(i);
+			var predictions = new Prediction24Hours[chargers.size()];
+			for (var i = 0; i < chargers.size(); i++) {
+				var charger = chargers.get(i);
 				predictions[i] = this.get24HoursPrediction(
 						new ChannelAddress(charger.id(), EssDcCharger.ChannelId.ACTUAL_POWER.id()));
 			}
@@ -193,9 +193,9 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 						// should never come here
 						return false;
 					}).collect(Collectors.toList());
-			Prediction24Hours[] predictions = new Prediction24Hours[meters.size()];
-			for (int i = 0; i < meters.size(); i++) {
-				SymmetricMeter meter = meters.get(i);
+			var predictions = new Prediction24Hours[meters.size()];
+			for (var i = 0; i < meters.size(); i++) {
+				var meter = meters.get(i);
 				predictions[i] = this.get24HoursPrediction(
 						new ChannelAddress(meter.id(), SymmetricMeter.ChannelId.ACTIVE_POWER.id()));
 			}
@@ -216,20 +216,21 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 	/**
 	 * Gets the best matching {@link Predictor24Hours} for the given
 	 * {@link ChannelAddress}.
-	 * 
+	 *
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @return the {@link Predictor24Hours} - or null if none matches
 	 */
 	private synchronized Predictor24Hours getPredictorBestMatch(ChannelAddress channelAddress) {
-		int bestMatchValue = -1;
+		var bestMatchValue = -1;
 		Predictor24Hours bestPredictor = null;
 		for (Predictor24Hours predictor : this.predictors) {
 			for (ChannelAddress pattern : predictor.getChannelAddresses()) {
-				int matchValue = ChannelAddress.match(channelAddress, pattern);
+				var matchValue = ChannelAddress.match(channelAddress, pattern);
 				if (matchValue == 0) {
 					// Exact match
 					return predictor;
-				} else if (matchValue > bestMatchValue) {
+				}
+				if (matchValue > bestMatchValue) {
 					bestMatchValue = matchValue;
 					bestPredictor = predictor;
 				}

@@ -1,6 +1,9 @@
 package io.openems.edge.controller.highloadtimeslot;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,10 +16,10 @@ public class ControllerSimpleTests {
 
 	@Test
 	public void testIsActiveDay() {
-		LocalDate startDate = LocalDate.of(2018, 11, 10);
-		LocalDate endDate = LocalDate.of(2018, 11, 12);
+		var startDate = LocalDate.of(2018, 11, 10);
+		var endDate = LocalDate.of(2018, 11, 12);
 
-		LocalDateTime currentDate = LocalDateTime.of(2018, 11, 9, 12, 0);
+		var currentDate = LocalDateTime.of(2018, 11, 9, 12, 0);
 		assertFalse(HighLoadTimeslot.isActiveDate(startDate, endDate, currentDate));
 
 		currentDate = LocalDateTime.of(2018, 11, 10, 12, 0);
@@ -34,10 +37,10 @@ public class ControllerSimpleTests {
 
 	@Test
 	public void testIsActiveTime() {
-		LocalTime startTime = LocalTime.of(8, 0);
-		LocalTime endTime = LocalTime.of(8, 10);
+		var startTime = LocalTime.of(8, 0);
+		var endTime = LocalTime.of(8, 10);
 
-		LocalDateTime currentDateTime = LocalDateTime.of(2018, 11, 11, 7, 59);
+		var currentDateTime = LocalDateTime.of(2018, 11, 11, 7, 59);
 		assertFalse(HighLoadTimeslot.isActiveTime(startTime, endTime, currentDateTime));
 
 		currentDateTime = LocalDateTime.of(2018, 11, 11, 8, 0);
@@ -58,8 +61,8 @@ public class ControllerSimpleTests {
 
 	@Test
 	public void testIsActiveWeekday() {
-		LocalDateTime currentDate = LocalDateTime.of(2018, 11, 5, 12, 0);
-		WeekdayFilter weekdayFilter = WeekdayFilter.ONLY_WEEKDAYS;
+		var currentDate = LocalDateTime.of(2018, 11, 5, 12, 0);
+		var weekdayFilter = WeekdayFilter.ONLY_WEEKDAYS;
 		assertTrue(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Monday
 
 		currentDate = LocalDateTime.of(2018, 11, 6, 12, 0);
@@ -83,8 +86,8 @@ public class ControllerSimpleTests {
 
 	@Test
 	public void testconvertDate() {
-		String dateString = "11.11.2018";
-		LocalDate expectedDate = LocalDate.of(2018, 11, 11);
+		var dateString = "11.11.2018";
+		var expectedDate = LocalDate.of(2018, 11, 11);
 		assertEquals(expectedDate, HighLoadTimeslot.convertDate(dateString));
 
 		dateString = "karlheinz";
@@ -118,8 +121,8 @@ public class ControllerSimpleTests {
 
 	@Test
 	public void testconvertTime() {
-		String timeString = "11:11";
-		LocalTime expectedTime = LocalTime.of(11, 11);
+		var timeString = "11:11";
+		var expectedTime = LocalTime.of(11, 11);
 		assertEquals(expectedTime, HighLoadTimeslot.convertTime(timeString));
 
 		timeString = "karlheinz";

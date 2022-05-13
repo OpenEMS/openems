@@ -11,35 +11,35 @@ public interface Task extends ManagedTask {
 
 	/**
 	 * Gets the ModbusElements.
-	 * 
+	 *
 	 * @return an array of ModbusElements
 	 */
 	ModbusElement<?>[] getElements();
 
 	/**
 	 * Gets the start Modbus register address.
-	 * 
+	 *
 	 * @return the address
 	 */
 	int getStartAddress();
 
 	/**
 	 * Gets the length from first to last Modbus register address.
-	 * 
+	 *
 	 * @return the address
 	 */
 	int getLength();
 
 	/**
 	 * Sets the parent.
-	 * 
+	 *
 	 * @param parent the parent {@link AbstractOpenemsModbusComponent}.
 	 */
 	void setParent(AbstractOpenemsModbusComponent parent);
 
 	/**
 	 * Gets the parent.
-	 * 
+	 *
 	 * @return the parent
 	 */
 	public ModbusComponent getParent();
@@ -53,7 +53,7 @@ public interface Task extends ManagedTask {
 	/**
 	 * Executes the tasks - i.e. sends the query of a ReadTask or writes a
 	 * WriteTask.
-	 * 
+	 *
 	 * @param bridge the Modbus-Bridge
 	 * @param <T>    the Modbus-Element
 	 * @throws OpenemsException on error
@@ -63,7 +63,7 @@ public interface Task extends ManagedTask {
 
 	/**
 	 * Gets whether this ReadTask has been successfully executed before.
-	 * 
+	 *
 	 * @return true if this Task has been executed successfully at least once
 	 */
 	boolean hasBeenExecuted();
@@ -71,7 +71,7 @@ public interface Task extends ManagedTask {
 	/**
 	 * Gets the execution duration of the last execution (successful or not not
 	 * successful) in [ms].
-	 * 
+	 *
 	 * @return the duration in [ms]
 	 */
 	long getExecuteDuration();

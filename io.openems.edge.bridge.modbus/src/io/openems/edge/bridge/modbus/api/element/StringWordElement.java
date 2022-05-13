@@ -25,7 +25,7 @@ public class StringWordElement extends AbstractModbusRegisterElement<StringWordE
 	private final Logger log = LoggerFactory.getLogger(AbstractWordElement.class);
 
 	protected ByteOrder byteOrder = DEFAULT_BYTE_ORDER;
-	private int length;
+	private final int length;
 
 	public StringWordElement(int startAddress, int length) {
 		super(OpenemsType.STRING, startAddress);
@@ -40,10 +40,10 @@ public class StringWordElement extends AbstractModbusRegisterElement<StringWordE
 	@Override
 	protected final void _setInputRegisters(InputRegister... registers) {
 		// convert registers
-		ByteBuffer buff = ByteBuffer.allocate(this.length * 2).order(getByteOrder());
+		var buff = ByteBuffer.allocate(this.length * 2).order(this.getByteOrder());
 		for (InputRegister r : registers) {
-			byte[] bs = r.toBytes();
-			for (int i = 0; i < bs.length; i++) {
+			var bs = r.toBytes();
+			for (var i = 0; i < bs.length; i++) {
 				if (bs[i] == 0) {
 					bs[i] = 32; // replace '0' with ASCII space
 				}
@@ -51,7 +51,7 @@ public class StringWordElement extends AbstractModbusRegisterElement<StringWordE
 			buff.put(bs);
 		}
 
-		String value = this.fromByteBuffer(buff);
+		var value = this.fromByteBuffer(buff);
 		// set value
 		super.setValue(value);
 	}
@@ -59,15 +59,15 @@ public class StringWordElement extends AbstractModbusRegisterElement<StringWordE
 	@Override
 	public void _setNextWriteValue(Optional<String> valueOpt) throws OpenemsException {
 		if (this.isDebug()) {
-			log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
+			this.log.info("Element [" + this + "] set next write value to [" + valueOpt.orElse(null) + "].");
 		}
 		if (valueOpt.isPresent()) {
-			ByteBuffer buff = ByteBuffer.allocate(2 * this.length).order(this.getByteOrder());
+			var buff = ByteBuffer.allocate(2 * this.length).order(this.getByteOrder());
 			buff = this.toByteBuffer(buff, valueOpt.get());
-			byte[] b = buff.array();
+			var b = buff.array();
 
-			Register[] registers = new Register[this.length];
-			for (int i = 0; i < this.length; i = i + 1) {
+			var registers = new Register[this.length];
+			for (var i = 0; i < this.length; i = i + 1) {
 				registers[i] = new SimpleRegister(b[i * 2], b[i * 2 + 1]);
 			}
 
@@ -83,8 +83,7 @@ public class StringWordElement extends AbstractModbusRegisterElement<StringWordE
 	}
 
 	protected ByteBuffer toByteBuffer(ByteBuffer buff, String value) {
-		ByteBuffer b = ByteBuffer.wrap(value.getBytes());
-		return b;
+		return ByteBuffer.wrap(value.getBytes());
 	}
 
 	@Override

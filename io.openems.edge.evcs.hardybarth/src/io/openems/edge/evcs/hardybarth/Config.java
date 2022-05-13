@@ -28,7 +28,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Maximum hardware current", description = "Maximum current of the Charger in mA.", required = true)
 	int maxHwCurrent() default 32000;
-	
+
 	String webconsole_configurationFactory_nameHint() default "EVCS Hardy Barth [{id}]";
 
 }

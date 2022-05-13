@@ -3,7 +3,6 @@ package io.openems.edge.bosch.bpts5hybrid.core;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-
 @ObjectClassDefinition(//
 		name = "Bosch BPT-S 5 Core", //
 		description = "Bosch BPT-S 5 Hybrid core component")
@@ -17,10 +16,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "IP-Address", description = "IPv4 address of the Bosch BPT-S 5 Hybrid")
 	String ipaddress() default "192.168.178.22";
-	
+
 	@AttributeDefinition(name = "Update Interval", description = "Update interval in seconds")
 	int interval() default 2;
 

@@ -83,8 +83,8 @@ public class EvcsControllerTest {
 		ENABLE_CHARGING = true;
 		CHARGE_MODE = ChargeMode.EXCESS_POWER;
 		PRIORITY = Priority.STORAGE;
-		final DummyHybridEss ess = new DummyHybridEss(ESS_ID);
-		final ControllerTest test = new ControllerTest(new EvcsController()) //
+		final var ess = new DummyHybridEss(ESS_ID);
+		final var test = new ControllerTest(new EvcsController()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
@@ -180,7 +180,7 @@ public class EvcsControllerTest {
 		DEFAULT_CHARGE_MIN_POWER = 30000;
 		FORCE_CHARGE_MIN_POWER = 30000;
 
-		DummyConfigurationAdmin cm = new DummyConfigurationAdmin();
+		var cm = new DummyConfigurationAdmin();
 		new ControllerTest(new EvcsController()) //
 				.addReference("cm", cm) //
 				.addReference("componentManager", new DummyComponentManager()) //

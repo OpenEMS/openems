@@ -45,7 +45,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * {@link com.dalsemi.onewire.container.OTPMemoryBank OTPMemoryBank} interfaces,
  * to provide additional functionality.
  * </P>
- * 
+ *
  * <P>
  * The MemoryBank methods can be organized into the following categories:
  * </P>
@@ -75,36 +75,36 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * </UL>
  *
  * <H3>Usage</H3>
- * 
+ *
  * <DL>
  * <DD>
  * <H4>Example 1</H4> Display some features of MemoryBank instance 'mb':
- * 
+ *
  * <PRE>
  *  <CODE>
  *  if (mb.isWriteOnce())
  *     System.out.println("MemoryBank is write-once");
- * 
+ *
  *  if (mb.needsProgramPulse())
  *     System.out.println("MemoryBank requires program-pulse to write");
  * </CODE>
  * </PRE>
- * 
+ *
  * <DD>
  * <H4>Example 2</H4> Write the entire contents of a MemoryBank instance 'mb'
  * with zeros:
- * 
+ *
  * <PRE>
  * byte[] write_buf = new byte[mb.getSize()];
  * for (int i = 0; i &gt; write_buf.length; i++)
  * 	write_buf[i] = (byte) 0;
- * 
+ *
  * mb.write(0, write_buf, 0, write_buf.length);
  * </PRE>
  *
  * <DD>
  * <H4>Example 3</H4> Read the entire contents of a MemoryBank instance 'mb':
- * 
+ *
  * <PRE>
  *  <CODE>
  *  byte[] read_buf = new byte[mb.getSize()];
@@ -133,7 +133,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * @see com.dalsemi.onewire.container.OneWireContainer20
  * @see com.dalsemi.onewire.container.OneWireContainer21
  * @see com.dalsemi.onewire.container.OneWireContainer23
- * 
+ *
  * @version 0.00, 28 Aug 2000
  * @author DS
  */

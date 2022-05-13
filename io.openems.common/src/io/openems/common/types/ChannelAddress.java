@@ -70,10 +70,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
+		if ((obj == null) || (this.getClass() != obj.getClass())) {
 			return false;
 		}
 		var other = (ChannelAddress) obj;
@@ -99,16 +96,18 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 	 * @return an integer value representing the degree of matching
 	 */
 	public static int match(ChannelAddress source, ChannelAddress pattern) {
-		int componentIdMatch = StringUtils.matchWildcard(source.componentId, pattern.componentId);
-		int channelIdMatch = StringUtils.matchWildcard(source.channelId, pattern.channelId);
+		var componentIdMatch = StringUtils.matchWildcard(source.componentId, pattern.componentId);
+		var channelIdMatch = StringUtils.matchWildcard(source.channelId, pattern.channelId);
 		if (componentIdMatch < 0 || channelIdMatch < 0) {
 			return -1;
-		} else if (componentIdMatch == 0 && channelIdMatch == 0) {
+		}
+		if (componentIdMatch == 0 && channelIdMatch == 0) {
 			return 0;
 		}
 		if (componentIdMatch == 0) {
 			return Integer.MAX_VALUE / 2 + channelIdMatch;
-		} else if (channelIdMatch == 0) {
+		}
+		if (channelIdMatch == 0) {
 			return Integer.MAX_VALUE / 2 + componentIdMatch;
 		} else {
 			return componentIdMatch + channelIdMatch;

@@ -75,7 +75,7 @@ public class OnRequestHandler implements Runnable {
 	/**
 	 * Simplifies a {@link JsonrpcMessage} by recursively removing unnecessary
 	 * elements "jsonrpc" and "id".
-	 * 
+	 *
 	 * @param j the {@link JsonrpcMessage#toJsonObject()}
 	 * @return a simplified {@link JsonObject}
 	 */

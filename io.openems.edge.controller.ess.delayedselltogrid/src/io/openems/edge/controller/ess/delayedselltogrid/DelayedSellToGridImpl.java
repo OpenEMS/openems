@@ -18,7 +18,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -71,6 +70,7 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -84,7 +84,7 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode();
+		var gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -98,7 +98,7 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 
 		int essPower = ess.getActivePower().getOrError();/* current charge/discharge Ess */
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		int gridPower = meter.getActivePower().getOrError() + essPower;
+		var gridPower = meter.getActivePower().getOrError() + essPower;
 
 		int calculatedPower;
 		if (gridPower <= -this.config.sellToGridPowerLimit()) {
@@ -107,7 +107,7 @@ public class DelayedSellToGridImpl extends AbstractOpenemsComponent
 			 */
 			calculatedPower = gridPower - (-this.config.sellToGridPowerLimit());
 
-		} else if (gridPower >= -this.config.continuousSellToGridPower()) { 
+		} else if (gridPower >= -this.config.continuousSellToGridPower()) {
 
 			/*
 			 * Continuous Sell To Grid

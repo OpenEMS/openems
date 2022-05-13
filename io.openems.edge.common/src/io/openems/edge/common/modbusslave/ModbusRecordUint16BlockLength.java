@@ -12,7 +12,7 @@ public class ModbusRecordUint16BlockLength extends ModbusRecordUint16 {
 	@Override
 	public String toString() {
 		return "ModbusRecordUint16BlockLength [blockName=" + this.blockName + ", value=" + this.value + "/0x"
-				+ Integer.toHexString(this.value) + ", type=" + getType() + "]";
+				+ Integer.toHexString(this.value) + ", type=" + this.getType() + "]";
 	}
 
 }

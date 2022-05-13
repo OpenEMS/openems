@@ -48,7 +48,7 @@ public class MyConfigTcp extends AbstractComponentConfig implements ConfigTcp {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

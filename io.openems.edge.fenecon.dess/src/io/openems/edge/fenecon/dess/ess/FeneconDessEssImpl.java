@@ -14,8 +14,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -48,10 +48,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "Fenecon.Dess.Ess", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implements FeneconDessEss, AsymmetricEss,
 		SymmetricEss, HybridEss, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
@@ -70,6 +71,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -104,6 +106,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -195,7 +198,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 		/*
 		 * Calculate AC Energy
 		 */
-		Integer acActivePower = this.getActivePowerChannel().getNextValue().get();
+		var acActivePower = this.getActivePowerChannel().getNextValue().get();
 		if (acActivePower == null) {
 			// Not available
 			this.calculateAcChargeEnergy.update(null);
@@ -212,7 +215,7 @@ public class FeneconDessEssImpl extends AbstractOpenemsModbusComponent implement
 		/*
 		 * Calculate DC Power and Energy
 		 */
-		Integer dcDischargePower = acActivePower;
+		var dcDischargePower = acActivePower;
 		for (EssDcCharger charger : this.chargers) {
 			dcDischargePower = TypeUtils.subtract(dcDischargePower,
 					charger.getActualPowerChannel().getNextValue().get());

@@ -6,7 +6,7 @@ import io.openems.edge.common.type.TypeUtils;
 
 /**
  * Holds a prediction for 24 h; one value per 15 minutes; 96 values in total.
- * 
+ *
  * <p>
  * Values have the same unit as the base Channel, i.e. if the Prediction relates
  * to _sum/ProductionGridActivePower, the value is in unit Watt and represents
@@ -21,26 +21,25 @@ public class Prediction24Hours {
 	/**
 	 * Holds a {@link Prediction24Hours} with all values null.
 	 */
-	public final static Prediction24Hours EMPTY = new Prediction24Hours(new Integer[0]);
+	public final static Prediction24Hours EMPTY = new Prediction24Hours();
 
 	/**
 	 * Sums up the given {@link Prediction24Hours}s. If any source value is null,
 	 * the result value is also null.
-	 * 
+	 *
 	 * @param predictions the given {@link Prediction24Hours}
 	 * @return a {@link Prediction24Hours} holding the sum of all predictions.
 	 */
 	public static Prediction24Hours sum(Prediction24Hours... predictions) {
-		final Integer[] sumValues = new Integer[NUMBER_OF_VALUES];
-		for (int i = 0; i < NUMBER_OF_VALUES; i++) {
+		final var sumValues = new Integer[NUMBER_OF_VALUES];
+		for (var i = 0; i < NUMBER_OF_VALUES; i++) {
 			Integer sumValue = null;
 			for (Prediction24Hours prediction : predictions) {
 				if (prediction.values[i] == null) {
 					sumValue = null;
 					break;
-				} else {
-					sumValue = TypeUtils.sum(sumValue, prediction.values[i]);
 				}
+				sumValue = TypeUtils.sum(sumValue, prediction.values[i]);
 			}
 			sumValues[i] = sumValue;
 		}
@@ -49,12 +48,11 @@ public class Prediction24Hours {
 
 	/**
 	 * Constructs a {@link Prediction24Hours}.
-	 * 
+	 *
 	 * @param values the 96 prediction values
 	 */
 	public Prediction24Hours(Integer... values) {
-		super();
-		for (int i = 0; i < NUMBER_OF_VALUES && i < values.length; i++) {
+		for (var i = 0; i < NUMBER_OF_VALUES && i < values.length; i++) {
 			this.values[i] = values[i];
 		}
 	}
@@ -65,7 +63,7 @@ public class Prediction24Hours {
 
 	@Override
 	public String toString() {
-		return "Prediction24Hours " + Arrays.toString(values);
+		return "Prediction24Hours " + Arrays.toString(this.values);
 	}
 
 }

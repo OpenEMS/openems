@@ -4,9 +4,9 @@ import io.openems.common.types.OptionsEnum;
 
 public enum GridType implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	THREE_PHASE_FOUR_WIRE(0, "3 Phase 4 Wire"),
+	THREE_PHASE_FOUR_WIRE(0, "3 Phase 4 Wire"), //
 	THREE_PHASE_THREE_WIRE(1, "3 Phase 3 Wire"); //
-	
+
 	private int value;
 	private String name;
 
@@ -17,12 +17,12 @@ public enum GridType implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

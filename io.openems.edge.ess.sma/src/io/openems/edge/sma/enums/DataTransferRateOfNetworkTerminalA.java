@@ -4,8 +4,8 @@ import io.openems.common.types.OptionsEnum;
 
 public enum DataTransferRateOfNetworkTerminalA implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	TEN_MBIT(1720,"10 MBit"),//
-	HUNDRED_MBIT(1721, "100 MBit"),//
+	TEN_MBIT(1720, "10 MBit"), //
+	HUNDRED_MBIT(1721, "100 MBit"), //
 	NOT_CONNECTED(1725, "Not Connected");
 
 	private final int value;
@@ -18,12 +18,12 @@ public enum DataTransferRateOfNetworkTerminalA implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

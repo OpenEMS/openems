@@ -34,10 +34,10 @@ public class CycleTest {
 
 	@Test
 	public void test() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2021-09-12T17:55:10.00Z"), ZoneOffset.UTC);
-		final DummyPower power = new DummyPower(10_000);
-		final DummyManagedSymmetricEss ess = new DummyManagedSymmetricEss(ESS_ID, power);
-		final ControllerTest test = new ControllerTest(new EssCycleImpl()) //
+		final var clock = new TimeLeapClock(Instant.parse("2021-09-12T17:55:10.00Z"), ZoneOffset.UTC);
+		final var power = new DummyPower(10_000);
+		final var ess = new DummyManagedSymmetricEss(ESS_ID, power);
+		final var test = new ControllerTest(new EssCycleImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ess) //

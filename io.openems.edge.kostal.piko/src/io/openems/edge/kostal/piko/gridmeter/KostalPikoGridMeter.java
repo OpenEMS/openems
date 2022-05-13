@@ -12,7 +12,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.common.channel.Doc;
@@ -29,15 +29,17 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, //
 				"type=GRID" //
 		})
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+})
 public class KostalPikoGridMeter extends AbstractOpenemsComponent implements SymmetricMeter, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	private AtomicReference<KostalPikoCore> core = new AtomicReference<>();
+	private final AtomicReference<KostalPikoCore> core = new AtomicReference<>();
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setCore(KostalPikoCore core) {
@@ -76,11 +78,12 @@ public class KostalPikoGridMeter extends AbstractOpenemsComponent implements Sym
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		// update filter for 'Core'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Core", config.core_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Core", config.core_id())) {
 			return;
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

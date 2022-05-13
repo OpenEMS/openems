@@ -3,7 +3,6 @@ package io.openems.edge.fenecon.mini.ess.statemachine;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.fenecon.mini.ess.DebugRunState;
-import io.openems.edge.fenecon.mini.ess.FeneconMiniEss;
 import io.openems.edge.fenecon.mini.ess.statemachine.StateMachine.State;
 
 public class WriteModeHandler extends StateHandler<State, Context> {
@@ -18,15 +17,15 @@ public class WriteModeHandler extends StateHandler<State, Context> {
 
 	/**
 	 * Applies the Active and Reactive Power Set-Points.
-	 * 
+	 *
 	 * @param context the {@link Context}
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyPower(Context context) throws OpenemsNamedException {
-		FeneconMiniEss ess = context.getParent();
+		var ess = context.getParent();
 
 		// Set correct Debug Run State
-		DebugRunState runState = ess.getDebugRunState();
+		var runState = ess.getDebugRunState();
 		if (context.setActivePower > 0 && runState != DebugRunState.DISCHARGE) {
 			ess.setDebugRunState(DebugRunState.DISCHARGE);
 		} else if (context.setActivePower < 0 && runState != DebugRunState.CHARGE) {
@@ -34,9 +33,9 @@ public class WriteModeHandler extends StateHandler<State, Context> {
 		}
 
 		// Adjust Active Power
-		int power = WriteModeHandler.adjustActivePower(context.setActivePower);
+		var power = WriteModeHandler.adjustActivePower(context.setActivePower);
 
-		int current = Math.round((power / 230F) * 1000); // [mA]
+		var current = Math.round(power / 230F * 1000); // [mA]
 
 		if (context.setActivePower >= 0) {
 			// Set Discharge & no Charge
@@ -60,14 +59,15 @@ public class WriteModeHandler extends StateHandler<State, Context> {
 	/**
 	 * Converts the ActivePower Set-Point to a value found by experimenting with the
 	 * system.
-	 * 
+	 *
 	 * @param p the Set-Point (negative for charge; positive for discharge)
 	 * @return the adjusted Set-Point (always positive)
 	 */
 	private static int adjustActivePower(int p) {
 		if (p == 0) {
 			return 0;
-		} else if (p > 0) {
+		}
+		if (p > 0) {
 			// discharge
 			if (p < 70) {
 				return 90;
@@ -87,7 +87,7 @@ public class WriteModeHandler extends StateHandler<State, Context> {
 				return 200;
 			} else {
 				float m = 75 / 2800;
-				float t = 125;
+				var t = 125F;
 				return Math.round(p + m * p + t);
 			}
 		}

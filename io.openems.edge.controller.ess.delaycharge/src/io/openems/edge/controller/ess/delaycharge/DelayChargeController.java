@@ -66,6 +66,7 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -76,10 +77,10 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 		// Get required variables
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 		int capacity = ess.getCapacity().getOrError();
-		int targetSecondOfDay = this.config.targetHour() * 3600;
+		var targetSecondOfDay = this.config.targetHour() * 3600;
 
 		// calculate remaining capacity in Ws
-		int remainingCapacity = capacity * (100 - ess.getSoc().getOrError()) * 36;
+		var remainingCapacity = capacity * (100 - ess.getSoc().getOrError()) * 36;
 
 		// No remaining capacity -> no restrictions
 		if (remainingCapacity < 0) {
@@ -88,7 +89,7 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 		}
 
 		// calculate remaining time
-		int remainingTime = targetSecondOfDay - currentSecondOfDay();
+		var remainingTime = targetSecondOfDay - this.currentSecondOfDay();
 
 		// We already passed the "target hour of day" -> no restrictions
 		if (remainingTime < 0) {
@@ -97,21 +98,21 @@ public class DelayChargeController extends AbstractOpenemsComponent implements C
 		}
 
 		// calculate charge power limit
-		int limit = remainingCapacity / remainingTime * -1;
+		var limit = remainingCapacity / remainingTime * -1;
 
 		// reduce limit to MaxApparentPower to avoid very high values in the last
 		// seconds
 		limit = Math.min(limit, ess.getMaxApparentPower().orElse(0));
 
 		// set ActiveLimit channel
-		setChannels(State.ACTIVE_LIMIT, limit * -1);
+		this.setChannels(State.ACTIVE_LIMIT, limit * -1);
 
 		// Set limitation for ChargePower
 		ess.setActivePowerGreaterOrEquals(limit);
 	}
 
 	private int currentSecondOfDay() {
-		LocalDateTime now = LocalDateTime.now(this.componentManager.getClock());
+		var now = LocalDateTime.now(this.componentManager.getClock());
 		return now.getHour() * 3600 + now.getMinute() * 60 + now.getSecond();
 	}
 

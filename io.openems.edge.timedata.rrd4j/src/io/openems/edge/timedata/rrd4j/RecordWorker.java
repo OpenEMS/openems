@@ -12,7 +12,6 @@ import java.util.function.ToDoubleFunction;
 import java.util.stream.DoubleStream;
 
 import org.rrd4j.core.RrdDb;
-import org.rrd4j.core.Sample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class RecordWorker extends AbstractImmediateWorker {
@@ -50,7 +49,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 	}
 
 	// Record queue
-	private LinkedBlockingQueue<Record> records = new LinkedBlockingQueue<>();
+	private final LinkedBlockingQueue<Record> records = new LinkedBlockingQueue<>();
 
 	// keeps the last recorded timestamp
 	private Instant lastTimestamp = Instant.MIN;
@@ -66,8 +65,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 	 * RRD4J.
 	 */
 	public void collectData() {
-		Instant timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS);
-		final LocalDateTime nextReadChannelValuesSince = LocalDateTime.now();
+		var timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+		final var nextReadChannelValuesSince = LocalDateTime.now();
 
 		// Increase CycleCount
 		this.cycleCount += 1;
@@ -93,7 +92,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
 			for (Channel<?> channel : component.channels()) {
-				Doc doc = channel.channelDoc();
+				var doc = channel.channelDoc();
 				if ( // Ignore Low-Priority Channels
 				doc.getPersistencePriority().isLowerThan(this.parent.persistencePriority)
 						// Ignore WRITE_ONLY Channels
@@ -103,14 +102,13 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 				ToDoubleFunction<? super Object> channelMapFunction = this
 						.getChannelMapFunction(channel.channelDoc().getType());
-				Function<DoubleStream, OptionalDouble> channelAggregateFunction = this
-						.getChannelAggregateFunction(channel.channelDoc().getUnit());
+				var channelAggregateFunction = this.getChannelAggregateFunction(channel.channelDoc().getUnit());
 
-				OptionalDouble value = channelAggregateFunction.apply(//
+				var value = channelAggregateFunction.apply(//
 						channel.getPastValues() //
 								.tailMap(this.readChannelValuesSince, false) // new values since last recording
 								.values().stream() //
-								.map(v -> v.get()) //
+								.map(Value::get) //
 								.filter(v -> v != null) // only not-null values
 								.mapToDouble(channelMapFunction) // convert to double
 				);
@@ -136,7 +134,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 	@Override
 	protected void forever() throws InterruptedException {
-		Record record = this.records.take();
+		var record = this.records.take();
 		RrdDb database = null;
 
 		try {
@@ -147,7 +145,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 				// YYY. Last update time was ZZZ, at least one second step is required".
 
 				// Add Sample to RRD4J
-				Sample sample = database.createSample(record.timestamp);
+				var sample = database.createSample(record.timestamp);
 				sample.setValue(0, record.value);
 				sample.update();
 			}
@@ -170,28 +168,15 @@ public class RecordWorker extends AbstractImmediateWorker {
 		}
 	}
 
-	private static final ToDoubleFunction<? super Object> MAP_BOOLEAN_TO_DOUBLE = (value) -> {
-		return (Boolean) value ? 1d : 0d;
-	};
+	private static final ToDoubleFunction<? super Object> MAP_BOOLEAN_TO_DOUBLE = value -> ((Boolean) value ? 1d : 0d);
 
-	private static final ToDoubleFunction<? super Object> MAP_SHORT_TO_DOUBLE = (value) -> {
-		return ((Short) value).doubleValue();
-	};
-	private static final ToDoubleFunction<? super Object> MAP_INTEGER_TO_DOUBLE = (value) -> {
-		return ((Integer) value).doubleValue();
-	};
-	private static final ToDoubleFunction<? super Object> MAP_LONG_TO_DOUBLE = (value) -> {
-		return ((Long) value).doubleValue();
-	};
-	private static final ToDoubleFunction<? super Object> MAP_FLOAT_TO_DOUBLE = (value) -> {
-		return ((Float) value).doubleValue();
-	};
-	private static final ToDoubleFunction<? super Object> MAP_DOUBLE_TO_DOUBLE = (value) -> {
-		return (Double) value;
-	};
-	private static final ToDoubleFunction<? super Object> MAP_TO_DOUBLE_NOT_SUPPORTED = (value) -> {
-		return 0d;
-	};
+	private static final ToDoubleFunction<? super Object> MAP_SHORT_TO_DOUBLE = value -> ((Short) value).doubleValue();
+	private static final ToDoubleFunction<? super Object> MAP_INTEGER_TO_DOUBLE = value -> ((Integer) value)
+			.doubleValue();
+	private static final ToDoubleFunction<? super Object> MAP_LONG_TO_DOUBLE = value -> ((Long) value).doubleValue();
+	private static final ToDoubleFunction<? super Object> MAP_FLOAT_TO_DOUBLE = value -> ((Float) value).doubleValue();
+	private static final ToDoubleFunction<? super Object> MAP_DOUBLE_TO_DOUBLE = value -> ((Double) value);
+	private static final ToDoubleFunction<? super Object> MAP_TO_DOUBLE_NOT_SUPPORTED = value -> 0d;
 
 	private ToDoubleFunction<? super Object> getChannelMapFunction(OpenemsType openemsType) {
 		switch (openemsType) {

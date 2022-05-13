@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 
 /**
  * Charging Property.
- * 
+ *
  * <p>
  * This class provides the charge power and the total energy of the meter of a
  * certain time stamp.
@@ -22,7 +22,7 @@ public class ChargingProperty {
 	}
 
 	public int getChargePower() {
-		return chargePower;
+		return this.chargePower;
 	}
 
 	public void setChargePower(int chargePower) {
@@ -30,7 +30,7 @@ public class ChargingProperty {
 	}
 
 	public double getTotalMeterEnergy() {
-		return totalMeterEnergy;
+		return this.totalMeterEnergy;
 	}
 
 	public void setTotalMeterEnergy(double totalMeterEnergy) {
@@ -38,7 +38,7 @@ public class ChargingProperty {
 	}
 
 	public ZonedDateTime getTimestamp() {
-		return timestamp;
+		return this.timestamp;
 	}
 
 	public void setTimestamp(ZonedDateTime timestamp) {

@@ -16,7 +16,7 @@ public enum ProChannelId implements io.openems.edge.common.channel.ChannelId {
 				// on each update set Grid-Mode channel
 				channel.onChange((oldValue, newValue) -> {
 					SystemState systemState = newValue.asEnum();
-					SymmetricEss parent = (SymmetricEss) channel.getComponent();
+					var parent = (SymmetricEss) channel.getComponent();
 					switch (systemState) {
 					case STANDBY:
 					case START:

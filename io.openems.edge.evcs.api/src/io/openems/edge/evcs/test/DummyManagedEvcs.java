@@ -13,7 +13,7 @@ public class DummyManagedEvcs extends AbstractOpenemsComponent implements Evcs, 
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param id id
 	 */
 	public DummyManagedEvcs(String id, EvcsPower evcsPower) {

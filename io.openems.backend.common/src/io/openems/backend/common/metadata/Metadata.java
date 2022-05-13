@@ -2,25 +2,27 @@ package io.openems.backend.common.metadata;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.osgi.annotation.versioning.ProviderType;
+import org.osgi.service.event.EventAdmin;
 
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.event.BackendEventConstants;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
+import io.openems.common.session.Language;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.Channel;
-import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 
 @ProviderType
@@ -36,20 +38,6 @@ public interface Metadata {
 	 * @return true if it is initialized
 	 */
 	public boolean isInitialized();
-
-	/**
-	 * See {@link #isInitialized()}.
-	 *
-	 * @param callback the callback on 'isInitialized'
-	 */
-	public void addOnIsInitializedListener(Runnable callback);
-
-	/**
-	 * See {@link #isInitialized()}.
-	 *
-	 * @param callback the callback on 'isInitialized'
-	 */
-	public void removeOnIsInitializedListener(Runnable callback);
 
 	/**
 	 * Authenticates the User by username and password.
@@ -84,6 +72,14 @@ public interface Metadata {
 	 * @return the Edge-ID or Empty
 	 */
 	public abstract Optional<String> getEdgeIdForApikey(String apikey);
+
+	/**
+	 * Get all EdgeUsers to EdgeID.
+	 *
+	 * @param edgeId the Edge-ID
+	 * @return the List of Users as Optional
+	 */
+	public abstract Optional<List<EdgeUser>> getUserToEdge(String edgeId);
 
 	/**
 	 * Get an Edge by its unique Edge-ID.
@@ -181,10 +177,10 @@ public interface Metadata {
 		// Sort active State-Channels by Level and Component-ID
 		var states = new HashMap<Level, HashMultimap<String, Channel>>();
 		for (Entry<ChannelAddress, Channel> entry : activeStateChannels.entrySet()) {
-			ChannelDetail detail = entry.getValue().getDetail();
+			var detail = entry.getValue().getDetail();
 			if (detail instanceof ChannelDetailState) {
 				var level = ((ChannelDetailState) detail).getLevel();
-				HashMultimap<String, Channel> channelsByComponent = states.get(level);
+				var channelsByComponent = states.get(level);
 				if (channelsByComponent == null) {
 					channelsByComponent = HashMultimap.create();
 					states.put(level, channelsByComponent);
@@ -278,4 +274,28 @@ public interface Metadata {
 	 */
 	public void updateUserLanguage(User user, Language language) throws OpenemsNamedException;
 
+	/**
+	 * Gets an EdgeUserRole to Edge and User.
+	 *
+	 * @param edgeId the Edge
+	 * @param userId the User
+	 * @return EdgeUser or null
+	 */
+	public Optional<EdgeUser> getEdgeUserTo(String edgeId, String userId);
+
+	/**
+	 * Returns an EventAdmin, used by Edge objects.
+	 *
+	 * @return {@link EventAdmin}
+	 */
+	public EventAdmin getEventAdmin();
+
+	/**
+	 * Defines Events a Metadata can throw.
+	 */
+	public static final class Events {
+		private static final String TOPIC_BASE = BackendEventConstants.TOPIC_BASE + "metadata/";
+
+		public static final String AFTER_IS_INITIALIZED = Events.TOPIC_BASE + "TOPIC_AFTER_IS_INITIALIZED";
+	}
 }

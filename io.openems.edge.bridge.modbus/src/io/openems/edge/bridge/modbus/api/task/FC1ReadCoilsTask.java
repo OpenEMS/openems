@@ -21,7 +21,7 @@ public class FC1ReadCoilsTask extends AbstractReadDigitalInputsTask implements R
 
 	@Override
 	protected BitVector getBitVector(ModbusResponse response) {
-		ReadCoilsResponse coilsResponse = (ReadCoilsResponse) response;
+		var coilsResponse = (ReadCoilsResponse) response;
 		return coilsResponse.getCoils();
 	}
 
@@ -32,7 +32,7 @@ public class FC1ReadCoilsTask extends AbstractReadDigitalInputsTask implements R
 
 	@Override
 	protected ModbusRequest getRequest() {
-		return new ReadCoilsRequest(getStartAddress(), getLength());
+		return new ReadCoilsRequest(this.getStartAddress(), this.getLength());
 	}
 
 	@Override

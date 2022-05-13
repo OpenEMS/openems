@@ -6,9 +6,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -22,18 +22,16 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
 import org.rrd4j.core.DsDef;
-import org.rrd4j.core.FetchData;
 import org.rrd4j.core.FetchRequest;
 import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDef;
 import org.rrd4j.core.RrdRandomAccessFileBackendFactory;
-import org.rrd4j.core.Sample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +45,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.CommonTimedataService;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -59,8 +58,11 @@ import io.openems.edge.timedata.api.Timedata;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Timedata.Rrd4j", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		implements Rrd4jTimedata, Timedata, OpenemsComponent, EventHandler {
 
@@ -108,15 +110,15 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
-		ZoneId timezone = fromDate.getZone();
+		var timezone = fromDate.getZone();
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
 
 		RrdDb database = null;
 		try {
-			long fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
-			long toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+			var fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+			var toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
 
 			for (ChannelAddress channelAddress : channels) {
 				Channel<?> channel = this.componentManager.getChannel(channelAddress);
@@ -125,27 +127,27 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 					continue; // not existing -> abort
 				}
 
-				ChannelDef chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
-				FetchRequest request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp,
-						resolution);
+				var chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
+				var request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp,
+						resolution.toSeconds());
 
 				// Post-Process data
-				double[] result = postProcessData(request, resolution);
+				var result = postProcessData(request, resolution.toSeconds());
 				database.close();
 
-				for (int i = 0; i < result.length; i++) {
-					long timestamp = fromTimestamp + (i * resolution);
+				for (var i = 0; i < result.length; i++) {
+					var timestamp = fromTimestamp + (i * resolution.toSeconds());
 
 					// Prepare result table row
-					Instant timestampInstant = Instant.ofEpochSecond(timestamp);
-					ZonedDateTime dateTime = ZonedDateTime.ofInstant(timestampInstant, ZoneOffset.UTC)
+					var timestampInstant = Instant.ofEpochSecond(timestamp);
+					var dateTime = ZonedDateTime.ofInstant(timestampInstant, ZoneOffset.UTC)
 							.withZoneSameInstant(timezone);
-					SortedMap<ChannelAddress, JsonElement> tableRow = table.get(dateTime);
+					var tableRow = table.get(dateTime);
 					if (tableRow == null) {
 						tableRow = new TreeMap<>();
 					}
 
-					double value = result[i];
+					var value = result[i];
 					if (Double.isNaN(value)) {
 						tableRow.put(channelAddress, JsonNull.INSTANCE);
 					} else {
@@ -182,17 +184,15 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	 * @throws IOException              on error
 	 * @throws IllegalArgumentException on error
 	 */
-	protected static double[] postProcessData(FetchRequest request, int resolution)
+	protected static double[] postProcessData(FetchRequest request, long resolution)
 			throws IOException, IllegalArgumentException {
-		FetchData data = request.fetchData();
-		long step = data.getStep();
-		double[] input = data.getValues()[0];
+		var data = request.fetchData();
+		var step = data.getStep();
+		var input = data.getValues()[0];
 
 		// Initialize result array
-		final double[] result = new double[(int) ((request.getFetchEnd() - request.getFetchStart()) / resolution)];
-		for (int i = 0; i < result.length; i++) {
-			result[i] = Double.NaN;
-		}
+		final var result = new double[(int) ((request.getFetchEnd() - request.getFetchStart()) / resolution)];
+		Arrays.fill(result, Double.NaN);
 
 		if (step < resolution) {
 			// Merge multiple entries to resolution
@@ -200,10 +200,10 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 				throw new IllegalArgumentException(
 						"Requested resolution [" + resolution + "] is not dividable by RRD4j Step [" + step + "]");
 			}
-			int merge = (int) (resolution / step);
-			double[] buffer = new double[merge];
-			for (int i = 1; i < input.length; i += merge) {
-				for (int j = 0; j < merge; j++) {
+			var merge = (int) (resolution / step);
+			var buffer = new double[merge];
+			for (var i = 1; i < input.length; i += merge) {
+				for (var j = 0; j < merge; j++) {
 					if (i + j < input.length) {
 						buffer[j] = input[i + j];
 					} else {
@@ -212,7 +212,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 				}
 
 				// put in result; avoid index rounding error
-				int resultIndex = (i - 1) / merge;
+				var resultIndex = (i - 1) / merge;
 				if (resultIndex >= result.length) {
 					break;
 				}
@@ -221,7 +221,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 		} else if (step > resolution) {
 			// Split each entry to multiple values
-			long resultTimestamp = 0;
+			var resultTimestamp = 0;
 			for (int i = 0, inputIndex = 0; i < result.length; i++) {
 				inputIndex = Math.min(input.length - 1, (int) (resultTimestamp / step));
 				resultTimestamp += resolution;
@@ -230,7 +230,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 		} else {
 			// Data already matches resolution
-			for (int i = 1; i < result.length + 1 && i < input.length; i++) {
+			for (var i = 1; i < result.length + 1 && i < input.length; i++) {
 				result[i - 1] = input[i];
 			}
 		}
@@ -241,8 +241,8 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		SortedMap<ChannelAddress, JsonElement> table = new TreeMap<>();
-		long fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
-		long toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+		var fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+		var toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
 
 		RrdDb database = null;
 		try {
@@ -254,14 +254,14 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 					continue; // not existing -> abort
 				}
 
-				ChannelDef chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
-				FetchRequest request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp);
-				FetchData data = request.fetchData();
+				var chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
+				var request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp);
+				var data = request.fetchData();
 				database.close();
 
 				// Find first and last energy value != null
-				double first = Double.NaN;
-				double last = Double.NaN;
+				var first = Double.NaN;
+				var last = Double.NaN;
 				for (Double tmp : data.getValues(0)) {
 					if (Double.isNaN(first) && !Double.isNaN(tmp)) {
 						first = tmp;
@@ -272,7 +272,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 				}
 
 				// Calculate difference between last and first value
-				double value = last - first;
+				var value = last - first;
 
 				if (Double.isNaN(value)) {
 					table.put(channelAddress, JsonNull.INSTANCE);
@@ -298,48 +298,45 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
 
-		ZoneId timezone = fromDate.getZone();
+		var timezone = fromDate.getZone();
 
-		long fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
-		long toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+		var fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
+		var toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
 
-		long nextStamp = fromTimestamp + resolution;
-		long timeStamp = fromTimestamp;
+		var nextStamp = fromTimestamp + resolution.toSeconds();
+		var timeStamp = fromTimestamp;
 
 		while (nextStamp <= toTimeStamp) {
 
-			Instant timestampInstantFrom = Instant.ofEpochSecond(timeStamp);
-			ZonedDateTime dateTimeFrom = ZonedDateTime.ofInstant(timestampInstantFrom, ZoneOffset.UTC)
+			var timestampInstantFrom = Instant.ofEpochSecond(timeStamp);
+			var dateTimeFrom = ZonedDateTime.ofInstant(timestampInstantFrom, ZoneOffset.UTC)
 					.withZoneSameInstant(timezone);
 
-			Instant timestampInstantTo = Instant.ofEpochSecond(nextStamp);
-			ZonedDateTime dateTimeTo = ZonedDateTime.ofInstant(timestampInstantTo, ZoneOffset.UTC)
-					.withZoneSameInstant(timezone);
+			var timestampInstantTo = Instant.ofEpochSecond(nextStamp);
+			var dateTimeTo = ZonedDateTime.ofInstant(timestampInstantTo, ZoneOffset.UTC).withZoneSameInstant(timezone);
 
-			SortedMap<ChannelAddress, JsonElement> tableRow = this.queryHistoricEnergy(null, dateTimeFrom, dateTimeTo,
-					channels);
+			var tableRow = this.queryHistoricEnergy(null, dateTimeFrom, dateTimeTo, channels);
 
 			table.put(dateTimeFrom, tableRow);
 
 			timeStamp = nextStamp;
-			nextStamp += resolution;
+			nextStamp += resolution.toSeconds();
 		}
 
 		return table;
-
 	}
 
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
 		// Prepare result
-		final CompletableFuture<Optional<Object>> result = new CompletableFuture<>();
+		final var result = new CompletableFuture<Optional<Object>>();
 
 		CompletableFuture.runAsync(() -> {
-			RrdDb database = this.getExistingRrdDb(channelAddress);
+			var database = this.getExistingRrdDb(channelAddress);
 			if (database == null) {
 				result.complete(Optional.empty());
 			}
@@ -374,19 +371,15 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	 */
 	protected synchronized RrdDb getRrdDb(ChannelAddress channelAddress, Unit channelUnit, long startTime)
 			throws IOException, URISyntaxException {
-		RrdDb rrdDb = this.getExistingRrdDb(channelAddress);
+		var rrdDb = this.getExistingRrdDb(channelAddress);
 		if (rrdDb != null) {
 			// Database exists
 
-			// Update database definition if required
-			rrdDb = this.updateRrdDbToLatestDefinition(rrdDb, channelAddress, channelUnit);
+			return this.updateRrdDbToLatestDefinition(rrdDb, channelAddress, channelUnit);
 
-			return rrdDb;
-
-		} else {
-			// Create new database
-			return this.createNewDb(channelAddress, channelUnit, startTime);
 		}
+		// Create new database
+		return this.createNewDb(channelAddress, channelUnit, startTime);
 	}
 
 	/**
@@ -399,8 +392,8 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	 */
 	private synchronized RrdDb createNewDb(ChannelAddress channelAddress, Unit channelUnit, long startTime)
 			throws IOException {
-		ChannelDef channelDef = this.getDsDefForChannel(channelUnit);
-		RrdDef rrdDef = new RrdDef(//
+		var channelDef = this.getDsDefForChannel(channelUnit);
+		var rrdDef = new RrdDef(//
 				this.getDbFile(channelAddress).toURI(), //
 				startTime, // Start-Time
 				DEFAULT_STEP_SECONDS // Step in [s], default: 300 = 5 minutes
@@ -430,7 +423,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	 * @throws URISyntaxException on error
 	 */
 	protected synchronized RrdDb getExistingRrdDb(ChannelAddress channelAddress) {
-		File file = this.getDbFile(channelAddress);
+		var file = this.getDbFile(channelAddress);
 		if (!file.exists()) {
 			return null;
 		}
@@ -447,7 +440,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	}
 
 	private File getDbFile(ChannelAddress channelAddress) {
-		File file = Paths.get(//
+		var file = Paths.get(//
 				OpenemsConstants.getOpenemsDataDir(), //
 				RRD4J_PATH, //
 				this.id(), //
@@ -540,44 +533,41 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	 */
 	private RrdDb updateRrdDbToLatestDefinition(RrdDb oldDb, ChannelAddress channelAddress, Unit channelUnit)
 			throws IOException {
-		if (oldDb.getArcCount() > 2 || oldDb.getRrdDef().getStep() == 60) {
-			/*
-			 * This is an old OpenEMS-RRD4j Definition -> migrate to latest version
-			 */
-			// Read data of last month
-			long lastTimestamp = oldDb.getLastUpdateTime();
-			long firstTimestamp = lastTimestamp - (60 /* minute */ * 60 /* hour */ * 24 /* day */ * 31 /* month */);
-			FetchRequest fetchRequest = oldDb.createFetchRequest(oldDb.getArchive(0).getConsolFun(), firstTimestamp,
-					lastTimestamp);
-			FetchData fetchData = fetchRequest.fetchData();
-			double[] values = postProcessData(fetchRequest, DEFAULT_HEARTBEAT_SECONDS);
-			if (fetchData.getTimestamps().length > 0) {
-				firstTimestamp = fetchData.getTimestamps()[0];
-			}
-			oldDb.close();
-
-			// Delete old file
-			Files.delete(Paths.get(oldDb.getCanonicalPath()));
-
-			// Create new database
-			RrdDb newDb = this.createNewDb(channelAddress, channelUnit, firstTimestamp - 1);
-
-			// Migrate data
-			Sample sample = newDb.createSample();
-			for (int i = 0; i < values.length; i++) {
-				sample.setTime(firstTimestamp + i * DEFAULT_HEARTBEAT_SECONDS);
-				sample.setValue(0, values[i]);
-				sample.update();
-			}
-
-			this.logInfo(this.log,
-					"Migrate RRD4j Database [" + channelAddress.toString() + "] to latest OpenEMS Definition");
-			return newDb;
-
-		} else {
+		if (oldDb.getArcCount() <= 2 && oldDb.getRrdDef().getStep() != 60) {
 			// No Update required
 			return oldDb;
 		}
+		/*
+		 * This is an old OpenEMS-RRD4j Definition -> migrate to latest version
+		 */
+		// Read data of last month
+		var lastTimestamp = oldDb.getLastUpdateTime();
+		var firstTimestamp = lastTimestamp - 60 /* minute */ * 60 /* hour */ * 24 /* day */ * 31;
+		var fetchRequest = oldDb.createFetchRequest(oldDb.getArchive(0).getConsolFun(), firstTimestamp, lastTimestamp);
+		var fetchData = fetchRequest.fetchData();
+		var values = postProcessData(fetchRequest, DEFAULT_HEARTBEAT_SECONDS);
+		if (fetchData.getTimestamps().length > 0) {
+			firstTimestamp = fetchData.getTimestamps()[0];
+		}
+		oldDb.close();
+
+		// Delete old file
+		Files.delete(Paths.get(oldDb.getCanonicalPath()));
+
+		// Create new database
+		var newDb = this.createNewDb(channelAddress, channelUnit, firstTimestamp - 1);
+
+		// Migrate data
+		var sample = newDb.createSample();
+		for (var i = 0; i < values.length; i++) {
+			sample.setTime(firstTimestamp + i * DEFAULT_HEARTBEAT_SECONDS);
+			sample.setValue(0, values[i]);
+			sample.update();
+		}
+
+		this.logInfo(this.log,
+				"Migrate RRD4j Database [" + channelAddress.toString() + "] to latest OpenEMS Definition");
+		return newDb;
 	}
 
 	@Override

@@ -11,8 +11,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +30,12 @@ import io.openems.edge.io.api.DigitalOutput;
 @Component(//
 		name = "IO.RevolutionPi.DigitalIO", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE//
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 		implements DigitalOutput, DigitalInput, OpenemsComponent, EventHandler {
 
@@ -120,9 +122,9 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 	private void readOutputFromHardwareOnce() {
 		// read all digital out pins also, because pins have already been initialized
 		// from outside
-		for (int idx = 0; idx < this.channelOut.length; idx++) {
+		for (var idx = 0; idx < this.channelOut.length; idx++) {
 			try {
-				boolean in = this.revPiHardware.getDataOut(idx + 1);
+				var in = this.revPiHardware.getDataOut(idx + 1);
 				this.channelOut[idx].setNextWriteValue(in);
 			} catch (Exception e) {
 				this.logError(this.log, "Unable to update channel values ex: " + e.getMessage());
@@ -133,9 +135,9 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 
 	private void updateDataInChannels() {
 		// read all digital in pins
-		for (int i = 0; i < this.channelIn.length; i++) {
+		for (var i = 0; i < this.channelIn.length; i++) {
 			try {
-				boolean in = getData(i);
+				var in = this.getData(i);
 				Optional<Boolean> inOpt = Optional.ofNullable(in);
 
 				if (this.channelIn[i].value().asOptional().equals(inOpt)) {
@@ -156,10 +158,10 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 	private void updateDataOutChannels() {
 
 		// write new state to digital out pins
-		for (int idx = 0; idx < this.channelOut.length; idx++) {
+		for (var idx = 0; idx < this.channelOut.length; idx++) {
 			try {
-				Optional<Boolean> readValue = this.channelOut[idx].value().asOptional();
-				Optional<Boolean> writeValue = this.channelOut[idx].getNextWriteValueAndReset();
+				var readValue = this.channelOut[idx].value().asOptional();
+				var writeValue = this.channelOut[idx].getNextWriteValueAndReset();
 				if (!writeValue.isPresent()) {
 					// no write value
 					continue;
@@ -195,6 +197,7 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		this.setAllOutput(false);
@@ -258,13 +261,13 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		StringBuilder b = new StringBuilder();
-		int i = 0;
+		var b = new StringBuilder();
+		var i = 0;
 		b.append("IN:");
 		for (BooleanReadChannel channel : this.channelIn) {
-			Optional<Boolean> valueOpt = channel.value().asOptional();
+			var valueOpt = channel.value().asOptional();
 			this.appendBool(b, valueOpt);
-			if ((i++) % 4 == 3) {
+			if (i++ % 4 == 3) {
 				b.append(" ");
 			}
 		}
@@ -274,9 +277,9 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 		this.channel(RevPiDioChannelId.DEBUG_OUT1);
 
 		for (BooleanReadChannel channel : this.channelOutDbg) {
-			Optional<Boolean> valueOpt = channel.value().asOptional();
+			var valueOpt = channel.value().asOptional();
 			this.appendBool(b, valueOpt);
-			if ((i++) % 4 == 3) {
+			if (i++ % 4 == 3) {
 				b.append(" ");
 			}
 		}

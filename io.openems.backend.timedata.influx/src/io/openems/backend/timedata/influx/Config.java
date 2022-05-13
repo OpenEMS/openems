@@ -8,26 +8,20 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Configures the InfluxDB timedata provider")
 @interface Config {
 
-	@AttributeDefinition(name = "Database", description = "The database name")
-	String database();
-
-	@AttributeDefinition(name = "URL", description = "The InfluxDB server IP address")
+	@AttributeDefinition(name = "URL", description = "The InfluxDB URL, e.g.: http://ip:port")
 	String url();
 
-	@AttributeDefinition(name = "Port", description = "The InfluxDB server port")
-	int port() default 8086;
+	@AttributeDefinition(name = "Org", description = "The Organisation; '-' for InfluxDB v1")
+	String org() default "-";
+	
+	@AttributeDefinition(name = "ApiKey", description = "The ApiKey; 'username:password' for InfluxDB v1")
+	String apiKey();
 
-	@AttributeDefinition(name = "Username", description = "The login username")
-	String username();
-
-	@AttributeDefinition(name = "Password", description = "The login password")
-	String password();
-
+	@AttributeDefinition(name = "Bucket", description = "The bucket name; 'database/retentionPolicy' for InfluxDB v1")
+	String bucket();
+	
 	@AttributeDefinition(name = "Measurement", description = "The InfluxDB measurement")
 	String measurement() default "data";
-
-	@AttributeDefinition(name = "Retention-Policy", description = "The InfluxDB retention policy")
-	String retentionPolicy() default "autogen";
 
 	@AttributeDefinition(name = "Read-Only mode", description = "Activates the read-only mode. Then no data is written to InfluxDB.")
 	boolean isReadOnly() default false;
