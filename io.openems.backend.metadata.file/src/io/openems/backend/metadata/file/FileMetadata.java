@@ -48,11 +48,11 @@ import io.openems.common.utils.JsonUtils;
  *
  * <pre>
  * {
- *   "edges": {
+ *   edges: {
  *     [edgeId: string]: {
- *       "comment": string,
- *       "apikey": string
- *       "setuppassword"?: string
+ *       comment: string,
+ *       apikey: string
+ *       setuppassword?: string
  *     }
  *   }
  * }
