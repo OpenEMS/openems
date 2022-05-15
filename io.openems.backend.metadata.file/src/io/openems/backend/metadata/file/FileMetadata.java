@@ -52,6 +52,7 @@ import io.openems.common.utils.JsonUtils;
  *     [edgeId: string]: {
  *       comment: string,
  *       apikey: string
+ *       setuppassword?: string
  *     }
  *   }
  * }
@@ -190,7 +191,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 							this, //
 							entry.getKey(), // Edge-ID
 							JsonUtils.getAsString(edge, "apikey"), //
-							JsonUtils.getAsString(edge, "setuppassword"), //
+							JsonUtils.getAsOptionalString(edge, "setuppassword").orElse(""), //
 							JsonUtils.getAsString(edge, "comment"), //
 							"", // Version
 							"", // Product-Type
