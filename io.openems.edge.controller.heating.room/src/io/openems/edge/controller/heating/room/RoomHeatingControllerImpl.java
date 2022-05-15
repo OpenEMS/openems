@@ -127,10 +127,10 @@ public class RoomHeatingControllerImpl extends AbstractOpenemsComponent
 		/*
 		 * Evaluate actual temperatures
 		 */
-		var floorActualOpt = this.floorThermometer.getTemperature();
-		var ambientActualOpt = this.ambientThermometer.getTemperature();
-		this._setFloorActual(floorActualOpt.get());
-		this._setAmbientActual(ambientActualOpt.get());
+		var floorActual = this.floorThermometer.getTemperature();
+		var ambientActual = this.ambientThermometer.getTemperature();
+		this._setFloorActual(floorActual.get());
+		this._setAmbientActual(ambientActual.get());
 
 		/*
 		 * Evaluate target temperatures
@@ -153,7 +153,7 @@ public class RoomHeatingControllerImpl extends AbstractOpenemsComponent
 
 		case OFF:
 		default:
-			// OFF; stop early
+			// OFF
 			floorTarget = null;
 			ambientTarget = null;
 		}
@@ -161,22 +161,11 @@ public class RoomHeatingControllerImpl extends AbstractOpenemsComponent
 		this._setAmbientTarget(ambientTarget);
 
 		/*
-		 * Switch off if state is unknown
-		 */
-		if (!floorActualOpt.isDefined() || floorTarget == null) {
-			this.switchFloorRelays(Switch.OFF);
-		}
-		if (!ambientActualOpt.isDefined() || ambientTarget == null) {
-			this.switchInfraredRelays(Switch.OFF);
-		}
-		var ambientActual = ambientActualOpt.get();
-		var floorActual = floorActualOpt.get();
-
-		/*
 		 * Control floor heating
 		 */
-		if (floorActual < floorTarget) {
-			if (this.config.hasExternalAmbientHeating() && ambientActual > ambientTarget) {
+		if (floorActual.isDefined() && floorTarget != null && floorActual.get() < floorTarget) {
+			if (this.config.hasExternalAmbientHeating() //
+					&& ambientActual.isDefined() && ambientTarget != null && ambientActual.get() > ambientTarget) {
 				// Switch Floor heating OFF if there is external heating in the room and ambient
 				// target temperature is already met
 				this.switchFloorRelays(Switch.OFF);
@@ -191,7 +180,7 @@ public class RoomHeatingControllerImpl extends AbstractOpenemsComponent
 		/*
 		 * Control infrared heating
 		 */
-		if (ambientActual < ambientTarget) {
+		if (ambientActual.isDefined() && ambientTarget != null && ambientActual.get() < ambientTarget) {
 			this.switchInfraredRelays(Switch.ON);
 		} else {
 			this.switchInfraredRelays(Switch.OFF);
