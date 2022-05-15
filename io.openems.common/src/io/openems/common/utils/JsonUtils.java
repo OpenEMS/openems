@@ -1133,7 +1133,8 @@ public class JsonUtils {
 			}
 			return j.getAsString();
 		} catch (Exception e) {
-			throw OpenemsError.JSON_PARSE_ELEMENT_FAILED.exception(j.toString().replace("%", "%%"),
+			throw OpenemsError.JSON_PARSE_ELEMENT_FAILED.exception(//
+					StringUtils.toShortString(j.toString().replace("%", "%%"), 100), //
 					e.getClass().getSimpleName(), e.getMessage());
 		}
 	}
@@ -1440,7 +1441,7 @@ public class JsonUtils {
 		try {
 			return JsonParser.parseString(string);
 		} catch (JsonParseException e) {
-			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), string);
+			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), StringUtils.toShortString(string, 100));
 		}
 	}
 
