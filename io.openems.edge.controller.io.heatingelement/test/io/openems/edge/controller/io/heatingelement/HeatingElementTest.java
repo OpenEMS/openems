@@ -11,23 +11,26 @@ import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.edge.controller.io.heatingelement.enums.Level;
+import io.openems.edge.controller.io.heatingelement.enums.Mode;
+import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.io.test.DummyInputOutput;
 
 public class HeatingElementTest {
 
-	private final static String CTRL_ID = "ctrl0";
-	private final static String IO_ID = "io0";
+	private static final String CTRL_ID = "ctrl0";
+	private static final String IO_ID = "io0";
 
-	private final static ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress("_sum", "GridActivePower");
+	private static final ChannelAddress SUM_GRID_ACTIVE_POWER = new ChannelAddress("_sum", "GridActivePower");
 
-	private final static ChannelAddress IO_OUTPUT1 = new ChannelAddress(IO_ID, "InputOutput1");
-	private final static ChannelAddress IO_OUTPUT2 = new ChannelAddress(IO_ID, "InputOutput2");
-	private final static ChannelAddress IO_OUTPUT3 = new ChannelAddress(IO_ID, "InputOutput3");
+	private static final ChannelAddress IO_OUTPUT1 = new ChannelAddress(IO_ID, "InputOutput1");
+	private static final ChannelAddress IO_OUTPUT2 = new ChannelAddress(IO_ID, "InputOutput2");
+	private static final ChannelAddress IO_OUTPUT3 = new ChannelAddress(IO_ID, "InputOutput3");
 
-	private final static ChannelAddress CTRL_PHASE1TIME = new ChannelAddress(CTRL_ID, "Phase1Time");
-	private final static ChannelAddress CTRL_PHASE2TIME = new ChannelAddress(CTRL_ID, "Phase2Time");
-	private final static ChannelAddress CTRL_PHASE3TIME = new ChannelAddress(CTRL_ID, "Phase3Time");
+	private static final ChannelAddress CTRL_PHASE1TIME = new ChannelAddress(CTRL_ID, "Phase1Time");
+	private static final ChannelAddress CTRL_PHASE2TIME = new ChannelAddress(CTRL_ID, "Phase2Time");
+	private static final ChannelAddress CTRL_PHASE3TIME = new ChannelAddress(CTRL_ID, "Phase3Time");
 
 	@Test
 	public void test() throws Exception {
@@ -51,7 +54,7 @@ public class HeatingElementTest {
 						.setMinimumSwitchingTime(60) //
 						.build()) //
 				.next(new TestCase() //
-										// Grid active power : 0, Excess power : 0,
+						// Grid active power : 0, Excess power : 0,
 						// from -> UNDEFINED --to--> LEVEL_0, no of relais = 0
 						.input(SUM_GRID_ACTIVE_POWER, 0) //
 						.output(IO_OUTPUT1, false) //

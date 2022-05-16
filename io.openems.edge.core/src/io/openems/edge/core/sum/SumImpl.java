@@ -135,7 +135,8 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final var essDcChargeEnergy = new CalculateLongSum();
 		final var essDcDischargeEnergy = new CalculateLongSum();
 		final var essCapacity = new CalculateIntegerSum();
-
+		final var essDcDischargePower = new CalculateIntegerSum();
+		
 		// Grid
 		final var gridActivePower = new CalculateIntegerSum();
 		final var gridActivePowerL1 = new CalculateIntegerSum();
@@ -156,6 +157,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final var productionMaxDcActualPower = new CalculateIntegerSum();
 		final var productionAcActiveEnergy = new CalculateLongSum();
 		final var productionDcActiveEnergy = new CalculateLongSum();
+		
 		// handling the corner-case of wrongly measured negative production, due to
 		// cabling errors, etc.
 		final var productionAcActiveEnergyNegative = new CalculateLongSum();
@@ -195,6 +197,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					var e = (HybridEss) ess;
 					essDcChargeEnergy.addValue(e.getDcChargeEnergyChannel());
 					essDcDischargeEnergy.addValue(e.getDcDischargeEnergyChannel());
+					essDcDischargePower.addValue(e.getDcDischargePowerChannel());
 				} else {
 					essDcChargeEnergy.addValue(ess.getActiveChargeEnergyChannel());
 					essDcDischargeEnergy.addValue(ess.getActiveDischargeEnergyChannel());
@@ -387,8 +390,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				Optional.ofNullable(enterTheSystem).orElse(0L) - Optional.ofNullable(leaveTheSystem).orElse(0L));
 
 		// Further calculated Channels
+		var essDischargePowerSum = essDcDischargePower.calculate();
 		this.getEssDischargePowerChannel()
-				.setNextValue(TypeUtils.subtract(essActivePowerSum, productionDcActualPowerSum));
+				.setNextValue(essDischargePowerSum);
 	}
 
 	/**

@@ -1,5 +1,4 @@
-
-package io.openems.edge.controller.io.heatingelement;
+package io.openems.edge.controller.io.heatingelement.enums;
 
 public enum WorkMode {
 	/**

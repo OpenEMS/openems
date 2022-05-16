@@ -3,6 +3,10 @@ package io.openems.edge.controller.io.heatingelement;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.controller.io.heatingelement.enums.Level;
+import io.openems.edge.controller.io.heatingelement.enums.Mode;
+import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
+
 @ObjectClassDefinition(//
 		name = "Controller IO Heating Element", //
 		description = "Controls a three-phase heating element via Relays, according to grid active power")

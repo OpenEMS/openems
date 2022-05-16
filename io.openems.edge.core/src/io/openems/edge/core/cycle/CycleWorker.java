@@ -1,15 +1,14 @@
 package io.openems.edge.core.cycle;
 
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
 
 import info.faljse.SDNotify.SDNotify;
+import io.openems.common.event.EventBuilder;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -48,8 +47,7 @@ public class CycleWorker extends AbstractWorker {
 			/*
 			 * Trigger BEFORE_PROCESS_IMAGE event
 			 */
-			this.parent.eventAdmin
-					.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>()));
+			EventBuilder.send(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE);
 
 			/*
 			 * Before Controllers start: switch to next process image for each channel
@@ -76,14 +74,12 @@ public class CycleWorker extends AbstractWorker {
 			/*
 			 * Trigger AFTER_PROCESS_IMAGE event
 			 */
-			this.parent.eventAdmin
-					.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, new HashMap<>()));
+			EventBuilder.send(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE);
 
 			/*
 			 * Trigger BEFORE_CONTROLLERS event
 			 */
-			this.parent.eventAdmin
-					.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, new HashMap<>()));
+			EventBuilder.send(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS);
 
 			var hasDisabledController = false;
 
@@ -150,23 +146,22 @@ public class CycleWorker extends AbstractWorker {
 			/*
 			 * Trigger AFTER_CONTROLLERS event
 			 */
-			this.parent.eventAdmin
-					.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, new HashMap<>()));
+			EventBuilder.send(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS);
 
 			/*
 			 * Trigger BEFORE_WRITE event
 			 */
-			this.parent.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE, new HashMap<>()));
+			EventBuilder.send(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE);
 
 			/*
 			 * Trigger EXECUTE_WRITE event
 			 */
-			this.parent.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, new HashMap<>()));
+			EventBuilder.send(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE);
 
 			/*
 			 * Trigger AFTER_WRITE event
 			 */
-			this.parent.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, new HashMap<>()));
+			EventBuilder.send(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE);
 
 		} catch (Throwable t) {
 			this.parent.logWarn(this.log,

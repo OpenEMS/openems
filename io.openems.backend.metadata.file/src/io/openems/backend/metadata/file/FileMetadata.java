@@ -19,6 +19,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,13 +31,14 @@ import com.google.gson.JsonObject;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Edge.State;
+import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -70,12 +73,16 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	private static final String USER_NAME = "Administrator";
 	private static final Role USER_GLOBAL_ROLE = Role.ADMIN;
 
+	private static Language LANGUAGE = Language.DE;
+
 	private final Logger log = LoggerFactory.getLogger(FileMetadata.class);
 	private final Map<String, MyEdge> edges = new HashMap<>();
 
 	private User user;
 	private String path = "";
-	private static Language LANGUAGE = Language.DE;
+
+	@Reference
+	private EventAdmin eventAdmin;
 
 	public FileMetadata() {
 		super("Metadata.File");
@@ -181,6 +188,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 				for (Entry<String, JsonElement> entry : jEdges.entrySet()) {
 					var edge = JsonUtils.getAsJsonObject(entry.getValue());
 					edges.add(new MyEdge(//
+							this, //
 							entry.getKey(), // Edge-ID
 							JsonUtils.getAsString(edge, "apikey"), //
 							JsonUtils.getAsString(edge, "setuppassword"), //
@@ -209,7 +217,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 
 	private static User generateUser() {
 		return new User(FileMetadata.USER_ID, FileMetadata.USER_NAME, UUID.randomUUID().toString(),
-				FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>(), FileMetadata.LANGUAGE.name());
+				FileMetadata.LANGUAGE, FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>());
 	}
 
 	@Override
@@ -245,6 +253,21 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 	@Override
 	public void updateUserLanguage(User user, Language locale) throws OpenemsNamedException {
 		FileMetadata.LANGUAGE = locale;
+	}
+
+	@Override
+	public Optional<List<EdgeUser>> getUserToEdge(String edgeId) {
+		throw new IllegalArgumentException("FileMetadata.getUserToEdge() is not implemented");
+	}
+
+	@Override
+	public EventAdmin getEventAdmin() {
+		return this.eventAdmin;
+	}
+
+	@Override
+	public Optional<EdgeUser> getEdgeUserTo(String edgeId, String userId) {
+		return Optional.empty();
 	}
 
 }

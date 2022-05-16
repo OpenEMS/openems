@@ -237,6 +237,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Heure de fin du chargement limité dépassée',
                         storageAlreadyFull: 'Mémoire déjà pleine',
                     },
+                    storageCapacity: 'capacité de stockage (visible seulement pour admin)'
                 },
                 CHP: {
                     highThreshold: 'Seuil Haut',
@@ -401,6 +402,7 @@ export const TRANSLATION = {
                 simulator: 'Simulateur',
                 systemExecute: 'Exécutez une commande système',
                 systemProfile: 'System Profile',
+                alerting: 'Alerte',
             },
             More: {
                 manualCommand: 'Commande Manuelle',
@@ -435,6 +437,11 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'Nouvelle connexion...',
                 newDevice: 'Nouvel appareil...',
+            },
+            Alerting: {
+                activate: 'Activer',
+                delay: 'Retard [min]',
+                save: 'Enregistrer',
             }
         }
     },

@@ -62,13 +62,13 @@ public class GetAppAssistant {
 
 		public final String appId;
 
-		public Request(String appId) {
-			super(METHOD);
+		public Request(JsonrpcRequest request, String appId) {
+			super(request, METHOD);
 			this.appId = appId;
 		}
 
-		public Request(JsonrpcRequest request, String appId) {
-			super(request, METHOD);
+		public Request(String appId) {
+			super(METHOD);
 			this.appId = appId;
 		}
 

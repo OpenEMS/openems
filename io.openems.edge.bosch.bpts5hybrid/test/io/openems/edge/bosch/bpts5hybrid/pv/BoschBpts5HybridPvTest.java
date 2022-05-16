@@ -18,6 +18,7 @@ public class BoschBpts5HybridPvTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(io.openems.edge.bosch.bpts5hybrid.core.MyConfig.create() //
 						.setId(CORE_ID) //
+						.setEnabled(false) //
 						.setIpaddress("127.0.0.1") //
 						.setInterval(2) //
 						.build()); //

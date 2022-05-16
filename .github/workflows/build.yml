@@ -59,7 +59,7 @@ jobs:
         run: |
           cd ui
           npm ci --prefer-offline --cache ~/.npm
-          node_modules/@angular/cli/bin/ng build -c "openems,openems-edge-prod,prod"
+          node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
 
       #
       # Is this a Tag? Prepare release assets and create a draft release

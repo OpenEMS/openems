@@ -54,6 +54,9 @@ public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws ConfigurationException, IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		if (!config.enabled()) {
+			return;
+		}
 		this.worker = new BoschBpts5HybridReadWorker(this, config.ipaddress(), config.interval());
 		this.worker.activate(config.id());
 	}

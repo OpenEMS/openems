@@ -53,7 +53,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                         otherEnergy += this.data[component.id + '/EnergyTotal'];
                     })
                     this.consumptionMeterComponents.forEach(component => {
-                        otherEnergy += this.data[component.id + '/ActiveProductionEnergy'];
+                        otherEnergy += (this.data[component.id + '/ActiveProductionEnergy'] ?? 0);
                     })
                     this.totalOtherEnergy = response.result.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
                 }).catch(() => {
