@@ -1,7 +1,9 @@
 package io.openems.edge.ess.core.power.data;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,20 +35,33 @@ public class WeightsUtil {
 	}
 
 	/**
-	 * Return the List of inverter and its Soc
-	 * @param inverters
+	 * get Inver and its Soc as a map
+	 * 
+	 * @param invs
 	 * @param esss
 	 * @return
 	 */
-	public static Map<Inverter, Integer> getSocList(List<Inverter> inverters, List<ManagedSymmetricEss> esss) {
 
-		Map<Inverter, Integer> InvSocMap = new HashMap<>();
-		for (Inverter inv : inverters) {
-			for (ManagedSymmetricEss ess : esss) {
-				InvSocMap.put(inv, ess.getSoc().get());
+	public static LinkedHashMap <Inverter, Integer> getInvAndSocMap(List<Inverter> invs, List<ManagedSymmetricEss> esss) {
+		List<ManagedSymmetricEss> updatesEss = new ArrayList<>();
+		LinkedHashMap <Inverter, Integer> InvSocMap = new LinkedHashMap <Inverter, Integer>();
+
+		// remove the Cluster
+		for (ManagedSymmetricEss ess : esss) {
+			if (ess.id() != "ess0") {
+				updatesEss.add(ess);
+			}
+		}
+
+		for (Inverter in : invs) {
+			for (ManagedSymmetricEss mE : updatesEss) {
+				if (in.getEssId() == mE.id()) {
+					InvSocMap.put(in, mE.getSoc().get());
+				}
 			}
 		}
 		return InvSocMap;
+
 	}
 	
 	/**
