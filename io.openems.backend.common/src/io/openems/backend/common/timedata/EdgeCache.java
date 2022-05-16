@@ -69,8 +69,8 @@ public class EdgeCache {
 					// Clear Cache
 					this.cacheData.clear();
 
-				} else if (incomingTimestamp < this.lastAppliedTimestamp + 60 * 1000) {
-					// Apply Cache only once every minute to throttle writes
+				} else if (incomingTimestamp < this.lastAppliedTimestamp + 2 * 60 * 1000) {
+					// Apply Cache only once every two minutes to throttle writes
 
 				} else {
 					// Apply Cache
