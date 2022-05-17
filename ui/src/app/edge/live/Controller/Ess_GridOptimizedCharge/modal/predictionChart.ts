@@ -7,6 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared/shared';
 import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from 'src/app/edge/history/shared';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
+import { Unit } from "src/app/edge/history/shared";
 
 @Component({
     selector: 'predictionChart',
@@ -18,6 +19,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
     @Input() edge: Edge;
     @Input() public component: EdgeConfig.Component;
     @Input() public targetEpochSeconds: number;
+    @Input() public chargeStartEpochSeconds: number;
 
     private static DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
 
@@ -50,7 +52,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         this.loading = true;
         this.colors = [];
 
-        this.queryHistoricTimeseriesData(PredictionChartComponent.DEFAULT_PERIOD.from, PredictionChartComponent.DEFAULT_PERIOD.to).then(response => {
+        this.queryHistoricTimeseriesData(PredictionChartComponent.DEFAULT_PERIOD.from, PredictionChartComponent.DEFAULT_PERIOD.to, { unit: Unit.MINUTES, value: 5 }).then(response => {
             let result = response.result;
             let datasets = [];
 
@@ -88,6 +90,19 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                 let targetTime = new Date(0);
                 targetTime.setUTCSeconds(this.targetEpochSeconds);
 
+                // Predicted charge start only used, if a value is present. There's no Channel for it in older Openems Versions.
+                let isChargeStartPresent = this.chargeStartEpochSeconds != null;
+                let chargeStartTime = new Date(0);
+                let chargeStartIndex = 0;
+                if (isChargeStartPresent) {
+                    chargeStartTime.setUTCSeconds(this.chargeStartEpochSeconds);
+                    let chargeStartHours = chargeStartTime.getHours();
+                    let chargeStartMinutes = chargeStartTime.getMinutes();
+
+                    // Calculate the index of the chargeStart
+                    chargeStartIndex = Math.trunc((chargeStartHours * 60 + chargeStartMinutes) / 5);
+                }
+
                 let dataSteps = 0;
                 let targetIndex = 0;
                 let predictedSocData = Array(288).fill(null);
@@ -105,8 +120,12 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     let remainingCapacity = 100 - startSoc;
 
                     // Calculate how much time is left in 5 min steps
-                    let remainingSteps = targetIndex - currIndex;
-
+                    let remainingSteps = 0;
+                    if (isChargeStartPresent) {
+                        remainingSteps = targetIndex - chargeStartIndex;
+                    } else {
+                        remainingSteps = targetIndex - currIndex;
+                    }
                     if (remainingSteps > 0) {
 
                         // Calculate how much percentage is needed in every time step (5 min)
@@ -115,6 +134,11 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                         // Set the data for the datasets 
                         let predictedSoc = startSoc - dataSteps;
                         for (let i = currIndex; i <= targetIndex; i++) {
+                            // Predicted SoC increases only after charge start time, when channel is not zero (e.g. for older versions).
+                            if (isChargeStartPresent && i < chargeStartIndex) {
+                                predictedSocData[i] = +(predictedSoc + dataSteps).toFixed(2)
+                                continue;
+                            }
                             predictedSoc = predictedSoc + dataSteps;
                             predictedSocData[i] = +predictedSoc.toFixed(2)
                         }

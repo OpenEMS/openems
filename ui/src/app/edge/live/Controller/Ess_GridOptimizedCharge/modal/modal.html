@@ -103,7 +103,8 @@
 
             <!-- Chart -->
             <predictionChart *ngIf="targetEpochSeconds != null" padding-bottom padding-top [refresh]="refreshChart"
-                [component]="component" [edge]="edge" [targetEpochSeconds]="targetEpochSeconds">
+                [component]="component" [edge]="edge" [targetEpochSeconds]="targetEpochSeconds"
+                [chargeStartEpochSeconds]="chargeStartEpochSeconds">
             </predictionChart>
             <oe-modal-horizontal-line></oe-modal-horizontal-line>
         </ng-container>

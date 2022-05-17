@@ -224,6 +224,7 @@ export const TRANSLATION = {
                     startTimeCharge: 'Start-Zeit Beladung',
                 },
                 GridOptimizedCharge: {
+                    chargingDelayed: 'Beladung verzögert',
                     considerGridFeedInLimit: 'Maximale Netzeinspeisung berücksichtigen',
                     endTime: 'Endzeit',
                     endTimeDescription: 'Die Beladung erfolgt nicht mit der Maximalleistung für wenige Stunden, sondern gleichmäßig über einen längeren Zeitraum.',
@@ -263,6 +264,7 @@ export const TRANSLATION = {
                     riskPropensity: 'Risikobereitschaft',
                     settingOnlyVisableForInstaller: 'Diese Einstellung ist nur für den Installateur sichtbar',
                     State: {
+                        avoidLowCharging: 'Geringe Beladung vermieden',
                         chargeLimitActive: 'Beladelimit aktiv',
                         endTimeNotCalculated: 'Endzeitpunkt nicht berechnet',
                         gridFeedInLimitationIsAvoided: 'Einspeisebegrenzung wird vermieden',

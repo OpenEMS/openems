@@ -224,6 +224,7 @@ export const TRANSLATION = {
                     startTimeCharge: 'Heure de début du chargement',
                 },
                 GridOptimizedCharge: {
+                    chargingDelayed: 'Chargement retardé',
                     considerGridFeedInLimit: 'Tenir compte de l\'injection maximale du réseau',
                     endTime: 'Heure de fin',
                     endTimeDescription: 'La charge n\'a pas lieu avec la quantité maximale pendant quelques heures, mais régulièrement sur une plus longue période de temps.',
@@ -263,6 +264,7 @@ export const TRANSLATION = {
                     riskPropensity: 'Propension au risque',
                     settingOnlyVisableForInstaller: 'Ce paramètre n\'est visible que par l\'installateur',
                     State: {
+                        avoidLowCharging: 'Faible charge évitée',
                         chargeLimitActive: 'Limite de chargement active',
                         endTimeNotCalculated: 'Heure de fin non calculée',
                         gridFeedInLimitationIsAvoided: 'La limitation Grid-Feed-in est évitée',

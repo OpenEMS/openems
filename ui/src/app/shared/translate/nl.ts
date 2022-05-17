@@ -214,6 +214,7 @@ export const TRANSLATION = {
                     relationError: 'De kostenlimiet moet groter zijn dan de ontladingslimiet',
                 },
                 GridOptimizedCharge: {
+                    chargingDelayed: 'Opladen vertraagd',
                     considerGridFeedInLimit: 'Houd rekening met de maximale teruglevering van het net',
                     endTime: 'Eindtijd',
                     endTimeDescription: 'Het opladen gebeurt niet met de maximale hoeveelheid voor een paar uur, maar gestaag over een langere periode.',
@@ -253,6 +254,7 @@ export const TRANSLATION = {
                     riskPropensity: 'Risicobereidheid',
                     settingOnlyVisableForInstaller: 'Deze instelling is alleen zichtbaar voor de installateur',
                     State: {
+                        avoidLowCharging: 'Laag opladen vermeden',
                         chargeLimitActive: 'Laadlimiet actief',
                         endTimeNotCalculated: 'Eindtijd niet berekend',
                         gridFeedInLimitationIsAvoided: 'Grid-Feed-in beperking wordt vermeden',

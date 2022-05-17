@@ -181,8 +181,8 @@ export const TRANSLATION = {
                 phasesInfo: 'For technical reasons, the sum of the individual phases can be slightly different from the total sum.',
                 selfconsumptionInfo: 'Self-consumption indicates the percentage of the currently generated output that can be used by direct consumption and storage load itself.',
                 twoWayInfoGrid: 'Negative values correspond to grid feed-in, Positive values correspond to mains supply',
-                InfoStorageForCharge: 'Negative values correspond to memory loading',
-                InfoStorageForDischarge: 'Positive values correspond to memory discharge',
+                InfoStorageForCharge: 'Negative values correspond to storage charging',
+                InfoStorageForDischarge: 'Positive values correspond to storage discharge',
                 Channeltreshold: {
                     output: 'Output'
                 },
@@ -223,6 +223,7 @@ export const TRANSLATION = {
                     startTimeCharge: 'Charge Start time',
                 },
                 GridOptimizedCharge: {
+                    chargingDelayed: 'Charging delayed',
                     considerGridFeedInLimit: 'Consider maximum grid feed-in',
                     endTime: 'End time',
                     endTimeDescription: 'The charging does not take place with the maximum amount for a few hours, but steadily over a longer period of time.',
@@ -262,6 +263,7 @@ export const TRANSLATION = {
                     riskPropensity: 'Risk propensity',
                     settingOnlyVisableForInstaller: 'This setting is only visible to the installer',
                     State: {
+                        avoidLowCharging: 'Low charging avoided',
                         chargeLimitActive: 'Charge limit active',
                         endTimeNotCalculated: 'End time not calculated',
                         gridFeedInLimitationIsAvoided: 'Grid-Feed-in limitation is avoided',
@@ -269,7 +271,7 @@ export const TRANSLATION = {
                         noLimitPossible: 'No limitation possible (restricted by controls with higher priority)',
                         notDefined: 'Not defined',
                         passedEndTime: 'End time of limited charging exceeded',
-                        storageAlreadyFull: 'Memory already full',
+                        storageAlreadyFull: 'Storage already full',
                     },
                     storageCapacity: 'Storagecapacity (only visible for admin)'
                 },
