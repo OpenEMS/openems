@@ -28,7 +28,10 @@ import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.sinexcel.enums.EnableDisable;
+import io.openems.edge.batteryinverter.sinexcel.enums.FrequencyLevel;
+import io.openems.edge.batteryinverter.sinexcel.enums.GridCodeSelection;
 import io.openems.edge.batteryinverter.sinexcel.enums.PowerRisingMode;
+import io.openems.edge.batteryinverter.sinexcel.enums.VoltageLevel;
 import io.openems.edge.batteryinverter.sinexcel.statemachine.Context;
 import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine;
 import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine.State;
@@ -46,6 +49,8 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -183,7 +188,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 	 * Updates the Channel if its current value is not equal to the new value.
 	 *
 	 * @param channelId Sinexcel Channel-Id
-	 * @param newValue  {@link OptionsEnum} value.
+	 * @param value     {@link OptionsEnum} value.
 	 * @throws IllegalArgumentException on error
 	 */
 	private void updateIfNotEqual(Sinexcel.ChannelId channelId, OptionsEnum value)
@@ -212,6 +217,37 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	private void updateIfNotEqual(Sinexcel.ChannelId channelId, VoltageLevel voltageLevel)
+			throws IllegalArgumentException, OpenemsNamedException {
+		IntegerWriteChannel channel = this.channel(channelId);
+		channel.setNextWriteValue(voltageLevel.getValue());
+	}
+
+	private void updateIfNotEqual(Sinexcel.ChannelId channelId, FrequencyLevel frequencyLevel)
+			throws IllegalArgumentException, OpenemsNamedException {
+		IntegerWriteChannel channel = this.channel(channelId);
+		channel.setNextWriteValue(frequencyLevel.getValue());
+	}
+
+	private void updateIfNotEqual(Sinexcel.ChannelId channelId, GridCodeSelection gridCodeSelection)
+			throws IllegalArgumentException, OpenemsNamedException {
+		IntegerWriteChannel channel = this.channel(channelId);
+		channel.setNextWriteValue(gridCodeSelection.getValue());
+	}
+
+	private void updateIfNotEqual(Sinexcel.ChannelId channelId, EnableDisable value)
+			throws IllegalArgumentException, OpenemsNamedException {
+		BooleanWriteChannel channel = this.channel(channelId);
+		switch (value) {
+		case ENABLE:
+			channel.setNextWriteValue(true);
+			break;
+		case DISABLE:
+			channel.setNextWriteValue(false);
+			break;
+		}
+	}
+
 	/**
 	 * Sets some default settings on the inverter, like Timeout.
 	 *
@@ -222,6 +258,18 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 		this.updateIfNotEqual(Sinexcel.ChannelId.BMS_TIMEOUT, DEFAULT_BMS_TIMEOUT);
 		this.updateIfNotEqual(Sinexcel.ChannelId.GRID_EXISTENCE_DETECTION_ON, DEFAULT_GRID_EXISTENCE_DETECTION_ON);
 		this.updateIfNotEqual(Sinexcel.ChannelId.POWER_RISING_MODE, DEFAULT_POWER_RISING_MODE);
+
+		switch (this.config.countryCode()) {
+		case AUSTRIA:
+		case GERMANY:
+		case SWITZERLAND:
+			this.updateIfNotEqual(Sinexcel.ChannelId.VOLTAGE_LEVEL, VoltageLevel.V_400);
+			this.updateIfNotEqual(Sinexcel.ChannelId.FREQUENCY_LEVEL, FrequencyLevel.HZ_50);
+			this.updateIfNotEqual(Sinexcel.ChannelId.GRID_CODE_SELECTION, GridCodeSelection.VDE);
+			break;
+		}
+
+		this.updateIfNotEqual(Sinexcel.ChannelId.INVERTER_WIRING_TOPOLOGY, this.config.emergencyPower());
 	}
 
 	/**
@@ -275,6 +323,11 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	/**
+	 * Gets the inverter start-stop target.
+	 * 
+	 * @return {@link StartStop}
+	 */
 	public StartStop getStartStopTarget() {
 		switch (this.config.startStop()) {
 		case AUTO:
@@ -490,9 +543,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_1), //
 						m(Sinexcel.ChannelId.COS_PHI, new SignedWordElement(125),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						new DummyRegisterElement(126, 129), //
-						m(Sinexcel.ChannelId.REACTIVE_ENERGY, new UnsignedDoublewordElement(130),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
+						new DummyRegisterElement(126, 131), //
 						m(Sinexcel.ChannelId.TEMPERATURE_OF_AC_HEAT_SINK, new SignedWordElement(132)), //
 						m(Sinexcel.ChannelId.DC_VOLTAGE_POSITIVE, new SignedWordElement(133),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -570,8 +621,8 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 				),
 
 				new FC3ReadRegistersTask(748, Priority.LOW, //
-						m(Sinexcel.ChannelId.OUTPUT_VOLTAGE_LEVEL, new UnsignedWordElement(748)), //
-						m(Sinexcel.ChannelId.OUTPUT_FREQUENCY_LEVEL, new UnsignedWordElement(749)), //
+						m(Sinexcel.ChannelId.VOLTAGE_LEVEL, new UnsignedWordElement(748)), //
+						m(Sinexcel.ChannelId.FREQUENCY_LEVEL, new UnsignedWordElement(749)), //
 						m(Sinexcel.ChannelId.INVERTER_WIRING_TOPOLOGY, new UnsignedWordElement(750)), //
 						new DummyRegisterElement(751),
 						m(Sinexcel.ChannelId.SWITCHING_DEVICE_ACCESS_SETTING, new UnsignedWordElement(752)), //
@@ -615,7 +666,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 						m(Sinexcel.ChannelId.GRID_EXISTENCE_DETECTION_ON, new UnsignedWordElement(797)), //
 						m(Sinexcel.ChannelId.NEUTRAL_FLOATING_DETECTION, new UnsignedWordElement(798)), //
 						m(Sinexcel.ChannelId.OFF_GRID_BLACKSTART_MODE, new UnsignedWordElement(799)), //
-						m(Sinexcel.ChannelId.GRID_CODE_SELCETION, new UnsignedWordElement(800)), //
+						m(Sinexcel.ChannelId.GRID_CODE_SELECTION, new UnsignedWordElement(800)), //
 						m(Sinexcel.ChannelId.GRID_CONNECTED_ACTIVE_CAPACITY_LIMITATION_FUNCTION,
 								new UnsignedWordElement(801)), //
 						m(Sinexcel.ChannelId.GRID_ACTIVE_POWER_CAPACITY_SETTING, new UnsignedWordElement(802)), //
@@ -900,7 +951,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 				new FC6WriteRegisterTask(799, //
 						m(Sinexcel.ChannelId.OFF_GRID_BLACKSTART_MODE, new UnsignedWordElement(799))),
 				new FC6WriteRegisterTask(800, //
-						m(Sinexcel.ChannelId.GRID_CODE_SELCETION, new UnsignedWordElement(800))),
+						m(Sinexcel.ChannelId.GRID_CODE_SELECTION, new UnsignedWordElement(800))),
 				new FC6WriteRegisterTask(801, //
 						m(Sinexcel.ChannelId.GRID_CONNECTED_ACTIVE_CAPACITY_LIMITATION_FUNCTION,
 								new UnsignedWordElement(801))),

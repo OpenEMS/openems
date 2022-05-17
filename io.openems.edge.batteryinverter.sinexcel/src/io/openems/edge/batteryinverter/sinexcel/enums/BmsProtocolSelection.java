@@ -2,16 +2,17 @@ package io.openems.edge.batteryinverter.sinexcel.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum OutputVoltageLevel implements OptionsEnum {
+public enum BmsProtocolSelection implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	V_380(0, " 380 V"), //
-	V_400(1, "400 V"), //
-	V_480(2, "480 V"); //
+	ENERGY_PORT(0, "EP"), //
+	ALPHA(1, "Alpha-Ess"), //
+	PYLONTECH(2, "Pylontech"), //
+	BMSER(3, "Bmser"); //
 
 	private final int value;
 	private final String name;
 
-	private OutputVoltageLevel(int value, String name) {
+	private BmsProtocolSelection(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
