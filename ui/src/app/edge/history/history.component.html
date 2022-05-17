@@ -2,22 +2,6 @@
 <ion-content>
   <ion-grid *ngIf="isTimedataAvailable && widgets">
     <ion-row>
-      <!-- Wartungsarbeiten -->
-      <ion-row class="ion-justify-content-center">
-        <ion-col size="12" size-md="8">
-          <ion-card>
-            <ion-card-content>
-              <ion-text class="ion-text-wrap">Derzeit finden Wartungsarbeiten an unseren Servern statt. Bis der Vorgang
-                vollständig abgeschlossen ist, werden zeitweise nicht alle historischen Daten im Online-Monitoring
-                dargestellt. Die Daten werden
-                allerdings im Hintergrund weiterhin aufgezeichnet. Die Darstellung im lokalen Monitoring am FEMS,
-                erreichbar über die lokale IP-Adresse in Ihrem Heimnetzwerk, ist davon nicht betroffen.
-              </ion-text>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-      </ion-row>
-
       <!-- Energymonitor Chart -->
       <ion-col size="12">
         <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
