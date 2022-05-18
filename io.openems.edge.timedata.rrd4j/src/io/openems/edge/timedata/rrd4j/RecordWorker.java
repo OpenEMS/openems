@@ -214,6 +214,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 		case KILOVOLT_AMPERE_REACTIVE:
 		case KILOWATT:
 		case MICROOHM:
+		case MICROAMPERE:
+		case MICROVOLT:
 		case MILLIAMPERE_HOURS:
 		case MILLIAMPERE:
 		case MILLIHERTZ:

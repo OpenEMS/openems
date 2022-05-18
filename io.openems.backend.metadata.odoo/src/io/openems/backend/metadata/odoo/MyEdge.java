@@ -11,10 +11,10 @@ public class MyEdge extends Edge {
 	private final int odooId;
 	private final String apikey;
 
-	public MyEdge(OdooMetadata parent, int odooId, String edgeId, String apikey, String comment, State state,
-			String version, String producttype, Level sumState, EdgeConfig config, ZonedDateTime lastMessage,
+	public MyEdge(OdooMetadata parent, int odooId, String edgeId, String apikey, String comment, String version,
+			String producttype, Level sumState, EdgeConfig config, ZonedDateTime lastMessage,
 			ZonedDateTime lastUpdate) {
-		super(parent, edgeId, comment, state, version, producttype, sumState, config, lastMessage, lastUpdate);
+		super(parent, edgeId, comment, version, producttype, sumState, config, lastMessage, lastUpdate);
 		this.apikey = apikey;
 		this.odooId = odooId;
 	}
