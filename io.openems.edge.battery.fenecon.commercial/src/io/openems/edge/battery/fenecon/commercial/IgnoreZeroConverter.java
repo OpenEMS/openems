@@ -36,16 +36,16 @@ public class IgnoreZeroConverter extends ElementToChannelConverter {
 			if (value == null) {
 				return null;
 			}
+			// If the battery is not started and the value is not zero -> return the value,
+			if (value instanceof Integer && (Integer) value != 0) {
+				return value;
+			}
+			if (value instanceof Long && (Long) value != 0L) {
+				return value;
+			}
 			// Is battery status not available or battery not started?
 			var isBatteryStarted = parent.getMasterStarted();
 			if (!isBatteryStarted.isDefined() || !isBatteryStarted.get()) {
-				return null;
-			}
-			// If the battery is not started and the value is zero -> ignore the value,
-			if (value instanceof Integer && (Integer) value == 0) {
-				return null;
-			}
-			if (value instanceof Long && (Long) value == 0) {
 				return null;
 			}
 			return value;

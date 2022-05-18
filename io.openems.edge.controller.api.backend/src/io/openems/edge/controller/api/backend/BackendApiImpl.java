@@ -1,11 +1,15 @@
 package io.openems.edge.controller.api.backend;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -103,6 +107,22 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		if (!this.isEnabled()) {
 			return;
 		}
+
+		/*
+		 * FEMS specific check for Apikey
+		 */
+		boolean wrongApikeyConfiguration = false;
+		if (!System.getProperty("os.name").startsWith("Windows") /* real FEMS device only */) {
+			try (Scanner scanner = new Scanner(Paths.get("/etc/fems"))) {
+				wrongApikeyConfiguration = !scanner.findAll("apikey=\"?(.*)\"?")//
+						.map(mr -> mr.group(1)) //
+						.anyMatch(fileApikey -> Objects.equals(fileApikey, config.apikey()));//
+			} catch (IOException e) {
+				wrongApikeyConfiguration = true;
+				this.log.warn("Unable to read apikey from /etc/fems: " + e.getMessage());
+			}
+		}
+		this.channel(BackendApi.ChannelId.WRONG_APIKEY_CONFIGURATION).setNextValue(wrongApikeyConfiguration);
 
 		// initialize Executor
 		var name = COMPONENT_NAME + ":" + this.id();

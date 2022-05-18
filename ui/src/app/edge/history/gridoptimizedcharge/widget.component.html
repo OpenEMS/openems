@@ -10,21 +10,24 @@
     <ng-container *ngIf="edge.currentData | async as currentData">
       <ion-card-content>
         <table class="full_width">
-          <tr>
-            <td style="width:65%" translate><span
-                translate>&nbsp;Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive</span>
+          <tr *ngIf="activeTimeAvoidLowCharging != null && activeTimeAvoidLowCharging > 59">
+            <td style="width:65%" translate>Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed</td>
+            <td style="width:35%" class="align_right">
+              {{ activeTimeAvoidLowCharging | sectohour }}
             </td>
+          <tr>
+          <tr *ngIf="activeTimeDelayCharge != null && activeTimeDelayCharge > 59">
+            <td style="width:65%" translate>Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive</td>
             <td style="width:35%" class="align_right">
               {{ activeTimeDelayCharge | sectohour }}
             </td>
           </tr>
-          <tr>
-            <td style="width:65%" translate><span
-                translate>&nbsp;Edge.Index.Widgets.GridOptimizedCharge.gridFeedInLimitationAvoided</span></td>
+          <tr *ngIf="activeTimeSellToGridLimit != null && activeTimeSellToGridLimit > 59">
+            <td style="width:65%" translate>Edge.Index.Widgets.GridOptimizedCharge.gridFeedInLimitationAvoided</td>
             <td style="width:35%" class="align_right">
               {{ activeTimeSellToGridLimit | sectohour }}
             </td>
-          </tr>
+          <tr>
         </table>
       </ion-card-content>
     </ng-container>

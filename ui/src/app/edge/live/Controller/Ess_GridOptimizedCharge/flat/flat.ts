@@ -60,10 +60,10 @@ export class Flat extends AbstractFlatWidget {
                 this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible')
                 break;
             case 5:
-                this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive')
-                break;
             case 7:
                 this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive')
+                break;
+            case 8: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed')
                 break;
         }
 

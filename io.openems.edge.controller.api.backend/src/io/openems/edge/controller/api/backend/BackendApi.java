@@ -23,8 +23,10 @@ public interface BackendApi extends Controller, OpenemsComponent, PaxAppender, E
 		LAST_SUCCESSFUL_RESEND(Doc.of(OpenemsType.LONG) //
 				// Make sure this is always persisted, as it is required for resending
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text("Latest timestamp of successfully resent data")) //
+				.text("Latest timestamp of successfully resent data")), //
 		// TODO: resend algorithm still needs to be implemented
+		WRONG_APIKEY_CONFIGURATION(Doc.of(Level.WARNING) //
+				.text("FEMS Apikey-Configurations do not match")), //
 		;
 
 		private final Doc doc;

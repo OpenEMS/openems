@@ -240,12 +240,13 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 
 	@Override
 	public InverterData getInverterData() {
-		if (!this.isConnected()) {
+		if (this.inverter == null || !this.isConnected()) {
 			return null;
 		}
-		if (this.inverter != null && this.inverter.dataReady()) {
-			this.inverter.refresh();
-		}
+		
+		// In some old systems the data was read only once
+		// if (this.inverter != null && this.inverter.dataReady()) {
+		this.inverter.refresh();
 		return this.inverter;
 	}
 

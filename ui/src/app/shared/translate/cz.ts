@@ -221,6 +221,7 @@ export const TRANSLATION = {
                     startTimeCharge: 'Čas zahájení načítání',
                 },
                 GridOptimizedCharge: {
+                    chargingDelayed: 'Zpožděné nabíjení',
                     considerGridFeedInLimit: 'Vezměte v úvahu maximální přívod sítě',
                     endTime: 'Čas ukončení',
                     endTimeDescription: 'Nabíjení neprobíhá maximálním množstvím po dobu několika hodin, ale stabilně po delší dobu.',
@@ -260,6 +261,7 @@ export const TRANSLATION = {
                     riskPropensity: 'Sklon k riziku',
                     settingOnlyVisableForInstaller: 'Toto nastavení je viditelné pouze pro instalačního technika',
                     State: {
+                        avoidLowCharging: 'Zamezení nízkého nabíjení',
                         chargeLimitActive: 'Aktivní limit načítání',
                         endTimeNotCalculated: 'Čas ukončení se nepočítá',
                         gridFeedInLimitationIsAvoided: 'Je vyloučeno omezení přívodu mřížky',

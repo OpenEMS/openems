@@ -43,8 +43,29 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 				.text("Delay-Charge power limitation.")), //
 
 		/**
+		 * Capacity left used for delayed charge.
+		 */
+		DELAY_CHARGE_CAPACITY_WITH_BUFFER_LEFT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS) //
+				.text("Capacity left.")), //
+
+		/**
+		 * Time left used for delayed charge.
+		 */
+		DELAY_CHARGE_TIME_LEFT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.SECONDS) //
+				.text("Capacity left.")), //
+
+		/**
+		 * Predicted energy left used for delayed charge.
+		 */
+		DELAY_CHARGE_PREDICTED_ENERGY_LEFT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS) //
+				.text("Predicted energy left.")), //
+
+		/**
 		 * Raw Delay-Charge without consideration of the last limits.
-		 *
+		 * 
 		 * <p>
 		 * This channel is used for debugging and to calculate the average for the
 		 * {@link ChannelId#DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT} channel.
@@ -62,7 +83,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Raw sell to grid limit charge power limitation.
-		 *
+		 * 
 		 * <p>
 		 * This value is negative for DC systems. Prefer
 		 * SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT for visualization.
@@ -73,7 +94,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Predicted target minute as minute of the day.
-		 *
+		 * 
 		 * <p>
 		 * Actual target minute calculated from prediction without buffer hours (for
 		 * automatic mode).
@@ -83,7 +104,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Predicted target minute adjusted with a buffer as minute of the day.
-		 *
+		 * 
 		 * <p>
 		 * Adjusted target minute calculated from prediction including the buffer hours
 		 * (for automatic mode).
@@ -93,7 +114,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Target minute as epoch seconds.
-		 *
+		 * 
 		 * <p>
 		 * Automatically set, when the original TARGET_MINUTE is set.
 		 */
@@ -102,7 +123,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Target minute as minute of the day.
-		 *
+		 * 
 		 * <p>
 		 * Target minute independent of the current mode Manual and Automatic.
 		 */
@@ -127,13 +148,28 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 
 		/**
 		 * Start time as epoch seconds of the current day.
-		 *
+		 * 
 		 * <p>
 		 * Keeps the time, when the production higher than the consumption for the first
 		 * time on the current day.
 		 */
 		START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
 				.text("Time when the production is higher than the consumption for the first time on the current day.")), //
+
+		/**
+		 * Predicted charge start time as epoch seconds of the current day.
+		 * 
+		 * <p>
+		 * Keeps the time, when the delayed charge will start on the current day.
+		 */
+		PREDICTED_CHARGE_START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
+				.text("Time when the delayed charge will start on the current day.")), //
+
+		/**
+		 * Debug Channel for the minimum charge power for delay Charge.
+		 */
+		DEBUG_DELAY_CHARGE_MINIMUM_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT) //
+				.text("Debug Channel for the minimum charge power for delay Charge.")),
 
 		/**
 		 * Info State Channel, if the delay charge limit would be negative.
@@ -164,6 +200,13 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 		 * Cumulated seconds of the state sell to grid limit.
 		 */
 		SELL_TO_GRID_LIMIT_TIME(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_SECONDS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Cumulated seconds of the state avoid low charging.
+		 */
+		AVOID_LOW_CHARGING_TIME(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.CUMULATED_SECONDS) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 
@@ -543,6 +586,7 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	 * {@link ChannelId#START_EPOCH_SECONDS} Channel.
 	 *
 	 * @param value the next value
+	 * @param clock clock
 	 */
 	public default void _setStartEpochSeconds(LocalTime value, Clock clock) {
 
@@ -560,6 +604,64 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	 */
 	public default void _setStartEpochSeconds(Long value) {
 		this.getStartEpochSecondsChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PREDICTED_CHARGE_START_EPOCH_SECONDS}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getPredictedChargeStartEpochSecondsChannel() {
+		return this.channel(ChannelId.PREDICTED_CHARGE_START_EPOCH_SECONDS);
+	}
+
+	/**
+	 * Gets the actual predicted charge start time of the Day. See
+	 * {@link ChannelId#PREDICTED_CHARGE_START_EPOCH_SECONDS}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getPredictedChargeStartEpochSeconds() {
+		return this.getPredictedChargeStartEpochSecondsChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PREDICTED_CHARGE_START_EPOCH_SECONDS} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPredictedChargeStartEpochSeconds(Long value) {
+		this.getPredictedChargeStartEpochSecondsChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_DELAY_CHARGE_MINIMUM_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugDelayChargeMinimumPowerChannel() {
+		return this.channel(ChannelId.DEBUG_DELAY_CHARGE_MINIMUM_POWER);
+	}
+
+	/**
+	 * Gets the information of the minimum delay charge power. See
+	 * {@link ChannelId#DEBUG_DELAY_CHARGE_MINIMUM_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugDelayChargeMinimumPower() {
+		return this.getDebugDelayChargeMinimumPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_DELAY_CHARGE_MINIMUM_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugDelayChargeMinimumPower(Integer value) {
+		this.getDebugDelayChargeMinimumPowerChannel().setNextValue(value);
 	}
 
 	/**

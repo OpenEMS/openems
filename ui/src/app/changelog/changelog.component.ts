@@ -35,6 +35,20 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.5.2',
+        changes: [
+          Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + "Allgemeine Verbesserungen; Sicherstellung einer minimalen Beladeleistung",
+          Changelog.product(Product.PRO_HYBRID_10) + "Kompatibilität mit KACO Firmware Version 8 (nur lesend)",
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Fehlerbehebung in der Anzeige bei Ladezustand 0 %",
+          Changelog.product(Product.COMMERCIAL_30) + "Verbesserung an Implementierung Sinexcel (Ländereinstellung, Notstrom)",
+          { roleIsAtLeast: Role.ADMIN, change: "Umbenennung SolarEdge PV-Inverter und Meter" },
+          { roleIsAtLeast: Role.ADMIN, change: "Prüfung auf Apikey (/etc/fems und Controller.Api.Backend) -> neuer Channel ctrlBackend0/WrongApikeyConfiguration" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung an Schnittstelle FEMS Backend zu InfluxDB" },
+          { roleIsAtLeast: Role.ADMIN, change: "FEMS-Authentifizierung am Backend: entferne Leerzeichen von Apikey" },
+          Changelog.library(Library.APACHE_FELIX_WEBCONSOLE),
+        ]
+      },
+      {
         version: '2022.5.1',
         changes: [
           Changelog.openems('2022.5.0'),

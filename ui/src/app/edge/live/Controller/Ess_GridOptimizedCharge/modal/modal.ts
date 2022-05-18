@@ -25,6 +25,7 @@ export class Modal extends AbstractModal {
     public targetMinute: number = null;
     public delayChargeMaximumChargeLimit: number = null;
     public targetEpochSeconds: number = null;
+    public chargeStartEpochSeconds: number = null;
 
     protected override getChannelAddresses(): ChannelAddress[] {
         this.refreshChart = false;
@@ -43,7 +44,8 @@ export class Modal extends AbstractModal {
             new ChannelAddress(this.component.id, "SellToGridLimitMinimumChargeLimit"),
             new ChannelAddress(this.component.id, "_PropertyMaximumSellToGridPower"),
             new ChannelAddress(this.component.id, "_PropertySellToGridLimitEnabled"),
-            new ChannelAddress(this.component.id, "TargetEpochSeconds")
+            new ChannelAddress(this.component.id, "TargetEpochSeconds"),
+            new ChannelAddress(this.component.id, "PredictedChargeStartEpochSeconds")
         )
         return channels
     }
@@ -82,6 +84,9 @@ export class Modal extends AbstractModal {
                 // Case 6: 'DISABLED' hides 'state-line', so no Message needed 
                 case 7: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive')
                     break;
+
+                case 8: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed')
+                    break;
             }
 
             // DelayCharge Maximum Charge Limit
@@ -103,6 +108,7 @@ export class Modal extends AbstractModal {
         this.targetMinute = currentData.thisComponent['TargetMinute'];
         this.delayChargeMaximumChargeLimit = currentData.thisComponent['DelayChargeMaximumChargeLimit'];
         this.targetEpochSeconds = currentData.thisComponent['TargetEpochSeconds'];
+        this.chargeStartEpochSeconds = currentData.thisComponent['PredictedChargeStartEpochSeconds'];
     }
 
     protected override getFormGroup(): FormGroup {
@@ -129,6 +135,7 @@ export enum DelayChargeState {
     NO_CHARGE_LIMIT = 5, // No active limitation
     DISABLED = 6, // Delay charge part is disabled
     NOT_STARTED = 7, // Delay charge was not started because there is no production or to less production
+    AVOID_LOW_CHARGING = 8, // Avoid charging with low power for more efficiency
 }
 
 export enum SellToGridLimitState {

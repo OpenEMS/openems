@@ -128,6 +128,8 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("bmsB4/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB4/_PropertyPendingTolerance", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB4/_PropertyStartUnsuccessfulDelay", RequiredType.INTEGER);
+		this.createAndAddHandler("ctrlApiModbusTcp0/_PropertyApiTimeout", RequiredType.INTEGER);
+		this.createAndAddHandler("ctrlApiModbusTcp0/_PropertyPort", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlApiModbusTcp1/_PropertyApiTimeout", RequiredType.STRING);
 		this.createAndAddHandler("ctrlApiModbusTcp1/_PropertyMaxConcurrentConnections", RequiredType.STRING);
 		this.createAndAddHandler("ctrlApiModbusTcp1/_PropertyPort", RequiredType.STRING);

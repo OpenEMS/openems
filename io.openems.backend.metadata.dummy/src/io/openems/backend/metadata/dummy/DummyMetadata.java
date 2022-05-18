@@ -31,7 +31,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
@@ -140,8 +139,8 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 			edgeId = "edge" + id;
 		}
 		setupPassword = edgeId;
-		var edge = new MyEdge(this, edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, State.ACTIVE, "", "",
-				Level.OK, new EdgeConfig());
+		var edge = new MyEdge(this, edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, "", "", Level.OK,
+				new EdgeConfig());
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);
 

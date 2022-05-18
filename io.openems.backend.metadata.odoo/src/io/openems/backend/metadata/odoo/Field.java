@@ -55,7 +55,6 @@ public interface Field {
 		SETUP_PASSWORD("setup_password", true), //
 		NAME("name", true), //
 		COMMENT("comment", true), //
-		STATE("state", true), //
 		OPENEMS_VERSION("openems_version", true), //
 		PRODUCT_TYPE("producttype", true), //
 		OPENEMS_CONFIG("openems_config", true), //
@@ -80,61 +79,6 @@ public interface Field {
 		private final boolean query;
 
 		private EdgeDevice(String id, boolean query) {
-			this.id = id;
-			this.query = query;
-			if (query) {
-				this.queryIndex = StaticFields.nextQueryIndex++;
-			} else {
-				this.queryIndex = -1;
-			}
-		}
-
-		@Override
-		public String id() {
-			return this.id;
-		}
-
-		@Override
-		public int index() {
-			return this.queryIndex;
-		}
-
-		@Override
-		public boolean isQuery() {
-			return this.query;
-		}
-
-	}
-
-	/**
-	 * The EdgeDeviceStatus-Model.
-	 */
-	public enum EdgeDeviceStatus implements Field {
-		DEVICE_ID("device_id", false), //
-		CHANNEL_ADDRESS("channel_address", false), //
-		LEVEL("level", true), //
-		COMPONENT_ID("component_id", true), //
-		CHANNEL_NAME("channel_name", true), //
-		LAST_APPEARANCE("last_appearance", false), //
-		LAST_ACKNOWLEDGE("last_acknowledge", false), //
-		ACKNOWLEDGE_DAYS("acknowledge_days", false);
-
-		public static final String ODOO_MODEL = "fems.device_status";
-		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
-
-		private static final class StaticFields {
-			private static int nextQueryIndex = 1;
-		}
-
-		private final int queryIndex;
-		private final String id;
-		/**
-		 * Holds information if this Field should be queried from and written to
-		 * Database.
-		 */
-		private final boolean query;
-
-		private EdgeDeviceStatus(String id, boolean query) {
 			this.id = id;
 			this.query = query;
 			if (query) {
