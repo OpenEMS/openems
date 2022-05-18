@@ -31,11 +31,11 @@
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
 	bnd.identity;id='io.openems.edge.battery.fenecon.home',\
+	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.batteryinverter.kaco.blueplanetgridsave',\
 	bnd.identity;id='io.openems.edge.batteryinverter.refu88k',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sinexcel',\
 	bnd.identity;id='io.openems.edge.batteryinverter.sunspec',\
-	bnd.identity;id='io.openems.edge.battery.soltaro',\
 	bnd.identity;id='io.openems.edge.bosch.bpts5hybrid',\
 	bnd.identity;id='io.openems.edge.bridge.mbus',\
 	bnd.identity;id='io.openems.edge.bridge.modbus',\
@@ -337,7 +337,7 @@
 	org.apache.felix.inventory;version='[1.1.0,1.1.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.1.30,2.1.31)',\
-	org.apache.felix.webconsole;version='[4.7.2,4.7.3)',\
+	org.apache.felix.webconsole;version='[4.8.0,4.8.1)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
 	org.jetbrains.kotlin.osgi-bundle;version='[1.6.21,1.6.22)',\
