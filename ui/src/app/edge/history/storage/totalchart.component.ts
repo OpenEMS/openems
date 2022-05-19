@@ -22,14 +22,13 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
-        super(service, translate);
+        super("storage-total-chart", service, translate);
     }
 
     ngOnInit() {
-        this.spinnerId = "storage-total-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -39,7 +38,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -77,7 +76,7 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
                             let component = config.getComponent(channelAddress.componentId);
-                            let data = result.data[channelAddress.toString()].map(value => {
+                            let data = result.data[channelAddress.toString()]?.map(value => {
                                 if (value == null) {
                                     return null
                                 } else {
@@ -174,17 +173,20 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                     });
                     this.datasets = datasets;
                     this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
+                    this.stopSpinner();
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

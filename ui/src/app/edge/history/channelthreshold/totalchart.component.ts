@@ -1,12 +1,12 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { ChannelAddress, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
   selector: 'channelthresholdTotalChart',
@@ -25,12 +25,11 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
     protected translate: TranslateService,
     private route: ActivatedRoute,
   ) {
-    super(service, translate);
+    super("channelthreshold-total-chart", service, translate);
   }
 
   ngOnInit() {
-    this.spinnerId = "channelthreshold-total-chart";
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.service.setCurrentComponent('', this.route);
   }
 
@@ -40,7 +39,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
 
   protected updateChart() {
     this.autoSubscribeChartRefresh();
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -89,7 +88,7 @@ export class ChannelthresholdTotalChartComponent extends AbstractHistoryChart im
         }
         this.datasets = datasets;
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+        this.stopSpinner();
       })
     }).catch(reason => {
       console.error(reason); // TODO error message

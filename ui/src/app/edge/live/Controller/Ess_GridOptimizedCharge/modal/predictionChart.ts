@@ -1,13 +1,12 @@
 
-import { ActivatedRoute, Data } from '@angular/router';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared/shared';
-import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from 'src/app/edge/history/shared';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
-import { Unit } from "src/app/edge/history/shared";
+import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem, Unit } from 'src/app/edge/history/shared';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared/shared';
 
 @Component({
     selector: 'predictionChart',
@@ -32,11 +31,10 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("prediction-chart", service, translate);
     }
 
     ngOnInit() {
-        this.spinnerId = "prediction-chart";
         this.service.startSpinner(this.spinnerId);
         this.service.setCurrentComponent('', this.route);
     }
@@ -198,6 +196,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
             this.datasets = datasets;
             this.loading = false;
             this.service.stopSpinner(this.spinnerId);
+
         }).catch(reason => {
             console.error(reason); // TODO error message 
             this.initializeChart();

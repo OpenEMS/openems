@@ -12,12 +12,14 @@ interface MyEdgeConfigComponent extends EdgeConfig.Component {
 })
 export class ServiceAssistantComponent {
 
+  public readonly spinnerId = "serviceAssistent";
+  public readonly servcieAssistantSpinnerId: string = "ServiceAssistentSpinner";
+
   public batteries: MyEdgeConfigComponent[];
   public edge: Edge;
   public config: EdgeConfig;
 
   private static readonly SELECTOR = "servcieAssistant";
-  public servcieAssistantSpinnerId: string = "ServiceAssistentSpinner";
 
   constructor(
     private route: ActivatedRoute,

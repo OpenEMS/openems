@@ -26,12 +26,11 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("production-charger-chart", service, translate);
     }
 
     ngOnInit() {
-        this.spinnerId = 'production-charger-chart';
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -41,7 +40,7 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -77,7 +76,8 @@ export class ProductionChargerChartComponent extends AbstractHistoryChart implem
             })
             this.datasets = datasets;
             this.loading = false;
-            this.service.stopSpinner(this.spinnerId);
+            this.stopSpinner();
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

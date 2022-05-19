@@ -51,7 +51,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   ngOnChanges() {
     this.updateChart();
-  };
+  }
 
   constructor(
     protected service: Service,
@@ -62,7 +62,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     private unitpipe: UnitvaluePipe,
     private platform: Platform
   ) {
-    super(service, translate);
+    super("energy-chart", service, translate);
   }
 
   // EXPORT WILL MOVE TO MODAL WHEN KWH ARE READY
@@ -108,9 +108,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
 
   ngOnInit() {
-    this.spinnerId = "energy-chart";
     this.service.setCurrentComponent('', this.route);
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
 
     this.platform.ready().then(() => {
       this.service.isSmartphoneResolutionSubject.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
@@ -140,7 +139,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
   protected updateChart() {
     this.loading = true;
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.autoSubscribeChartRefresh();
     this.service.getCurrentEdge().then(edge => {
       this.service.getConfig().then(config => {
@@ -379,7 +378,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
       this.datasets = datasets;
       this.loading = false;
-      this.service.stopSpinner(this.spinnerId);
+      this.stopSpinner();
+
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
@@ -645,7 +645,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         this.datasets = datasets;
         this.colors = [];
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+        this.stopSpinner();
       }).catch(() => {
         this.loadLineChart(chartLabels);
       })

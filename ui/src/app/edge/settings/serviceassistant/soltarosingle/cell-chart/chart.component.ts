@@ -1,12 +1,12 @@
 
-import { ActivatedRoute, Data } from '@angular/router';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ChannelAddress, Service, Utils } from 'src/app/shared/shared';
-import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from 'src/app/edge/history/shared';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
+import { ChartOptions, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from 'src/app/edge/history/shared';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Service, Utils } from 'src/app/shared/shared';
 import { ChannelChartDescription } from '../../abstractbattery.component';
 
 @Component({
@@ -30,12 +30,11 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("soltarocell-chart", service, translate);
     }
 
     ngOnInit() {
-        this.spinnerId = "soltarocell-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -46,7 +45,7 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
     protected updateChart() {
         this.refresh = false;
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(SoltaroCellChartComponent.DEFAULT_PERIOD.from, SoltaroCellChartComponent.DEFAULT_PERIOD.to).then(response => {
@@ -71,7 +70,6 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
                             return value;
                         }
                     });
-                    let currentValue = channel.datasets[channel.datasets.length - 1];
                     datasets.push({
                         label: channel.label,
                         data: channel.datasets,
@@ -86,7 +84,8 @@ export class SoltaroCellChartComponent extends AbstractHistoryChart implements O
 
             this.datasets = datasets;
             this.loading = false;
-            this.service.stopSpinner(this.spinnerId);
+            this.stopSpinner();
+
         }).catch(reason => {
             console.error(reason); // TODO error message 
             this.initializeChart();
