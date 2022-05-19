@@ -130,6 +130,19 @@ public interface ManagedEvcs extends Evcs {
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
+		 * Is true if the EVCS is supposed to Charge with a higher Priority.
+		 *
+		 * <ul>
+		 * <li>Interface: ManagedEvcs
+		 * <li>Readable
+		 * <li>Type: Boolean
+		 * </ul>
+		 */
+		IS_PRIORITY(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_ONLY) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
 		 * Sets a Text that is shown on the display of the EVCS.
 		 *
 		 * <p>
@@ -355,6 +368,35 @@ public interface ManagedEvcs extends Evcs {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#IS_CLUSTERED}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanReadChannel getIsPriorityChannel() {
+		return this.channel(ChannelId.IS_PRIORITY);
+	}
+
+	/**
+	 * Gets the Is true if the EVCS is in a EVCS-Cluster. See
+	 * {@link ChannelId#IS_CLUSTERED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getIsPriority() {
+		return this.getIsPriorityChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#IS_CLUSTERED}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setIsPriority(boolean value) {
+		this.getIsPriorityChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#SET_DISPLAY_TEXT}.
 	 *
 	 * @return the Channel
@@ -506,5 +548,15 @@ public interface ManagedEvcs extends Evcs {
 				.channel(1, ChannelId.SET_DISPLAY_TEXT, ModbusType.STRING16) //
 				.channel(17, ChannelId.SET_ENERGY_LIMIT, ModbusType.UINT16) //
 				.build();
+	}
+
+	/**
+	 * Return the Phase Configuration. Only Important if the Phases are physically swapped.
+	 * This should be overwritten by the Evcs Implementation.
+	 *
+	 * @return int[] of connected Phases (e.g. [1,2,3] or [3,1,2])
+	 */
+	public default int[] getPhaseConfiguration() {
+		return null;
 	}
 }
