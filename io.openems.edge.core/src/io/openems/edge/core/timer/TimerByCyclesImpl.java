@@ -2,6 +2,9 @@ package io.openems.edge.core.timer;
 
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.timer.Timer;
+import io.openems.edge.common.timer.TimerByCycles;
+import io.openems.edge.common.timer.ValueInitializedWrapper;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;

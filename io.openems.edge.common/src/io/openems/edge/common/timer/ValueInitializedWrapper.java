@@ -1,4 +1,4 @@
-package io.openems.edge.core.timer;
+package io.openems.edge.common.timer;
 
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;

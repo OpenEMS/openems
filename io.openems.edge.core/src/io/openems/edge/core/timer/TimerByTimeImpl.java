@@ -1,6 +1,9 @@
 package io.openems.edge.core.timer;
 
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.timer.Timer;
+import io.openems.edge.common.timer.TimerByTime;
+import io.openems.edge.common.timer.ValueInitializedWrapper;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

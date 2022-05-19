@@ -1,4 +1,4 @@
-package io.openems.edge.core.timer;
+package io.openems.edge.common.timer;
 
 /**
  * This is the Interface for a child implementation of the TimerByTime.

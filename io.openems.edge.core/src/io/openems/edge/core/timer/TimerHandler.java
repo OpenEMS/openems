@@ -1,5 +1,7 @@
 package io.openems.edge.core.timer;
 
+import io.openems.edge.common.timer.Timer;
+import io.openems.edge.common.timer.TimerType;
 import org.osgi.service.cm.ConfigurationException;
 
 import java.time.Instant;
