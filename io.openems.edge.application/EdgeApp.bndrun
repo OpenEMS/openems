@@ -101,6 +101,7 @@
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
+	bnd.identity;id='io.openems.edge.evcs.easee',\
 	bnd.identity;id='io.openems.edge.evcs.goe.chargerhome',\
 	bnd.identity;id='io.openems.edge.evcs.hardybarth',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
@@ -244,6 +245,7 @@
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	io.openems.edge.evcs.core;version=snapshot,\
+	io.openems.edge.evcs.easee;version=snapshot,\
 	io.openems.edge.evcs.goe.chargerhome;version=snapshot,\
 	io.openems.edge.evcs.hardybarth;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\

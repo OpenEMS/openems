@@ -6,9 +6,9 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
-	io.openems.edge.common,\
+	io.openems.edge.common;version=latest,\
 	io.openems.edge.evcs.api,\
-	io.openems.edge.core,\
+	io.openems.edge.core;version=latest,\
 
 -testpath: \
 	${testpath}
