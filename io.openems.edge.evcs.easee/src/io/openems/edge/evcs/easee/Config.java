@@ -45,9 +45,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(name = "circuitID", description = "ID of the circuit.")
     String circuitID() default "";
 
-    @AttributeDefinition(name = "timeTimerId", description = "Id of a Timer that uses Time.")
-    String timerTimeId() default "TimerByTime";
-
-
     String webconsole_configurationFactory_nameHint() default "Easee Evcs [{id}]";
 }

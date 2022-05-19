@@ -61,7 +61,6 @@ public class EaseeImpl extends AbstractOpenemsComponent implements OpenemsCompon
     private static final int EASEE_MINIMUM_HARDWARE_POWER = 6 * GridVoltage.V_230_HZ_50.getValue();
     private static final int EASEE_MAXIMUM_HARDWARE_POWER = 32 * GridVoltage.V_230_HZ_50.getValue();
 
-    private String timerId;
 
     public EaseeImpl() {
         super(OpenemsComponent.ChannelId.values(),
@@ -75,7 +74,6 @@ public class EaseeImpl extends AbstractOpenemsComponent implements OpenemsCompon
         this.minPower = config.minCurrent();
         this.maxPower = config.maxCurrent();
         this.phases = config.phases();
-        this.timerId = config.timerTimeId();
         if (!this.checkPhases()) {
             throw new ConfigurationException("Phase Configuration is not valid!", "Configuration must only contain 1,2 and 3.");
         }
@@ -195,16 +193,6 @@ public class EaseeImpl extends AbstractOpenemsComponent implements OpenemsCompon
         }
     }
 
-
-    /**
-     * Getter of the ID of the Configured OpenEms Timer.
-     * (Internal Method, only for EaseeBridge)
-     *
-     * @return TimerID as String
-     */
-    public String getTimerId() {
-        return this.timerId;
-    }
 
     /**
      * Getter for the ID of the Component.
