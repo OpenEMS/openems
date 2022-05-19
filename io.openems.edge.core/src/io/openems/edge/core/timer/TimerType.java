@@ -1,4 +1,4 @@
-package io.openems.edge.common.timer;
+package io.openems.edge.core.timer;
 
 /**
  * The TimerType. Determines what Type of Timer we have. Usually only needed by

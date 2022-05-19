@@ -1,8 +1,5 @@
 package io.openems.edge.core.timer;
 
-import io.openems.edge.common.timer.Timer;
-import io.openems.edge.common.timer.ValueInitializedWrapper;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;

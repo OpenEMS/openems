@@ -1,15 +1,12 @@
-package io.openems.edge.common.test;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+package io.openems.edge.core.timer;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.timer.Timer;
-import io.openems.edge.common.timer.TimerType;
-import io.openems.edge.common.timer.ValueInitializedWrapper;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A DummyTimer, provides BaseFunctionality for Unittests, that are using a
