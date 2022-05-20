@@ -486,6 +486,17 @@ export const TRANSLATION = {
                 delay: 'Retraso [min]',
                 save: 'Guardar',
             },
+            App: {
+                header: 'El App Manager se encuentra actualmente en una primera versión de prueba. Si no se muestran todas las aplicaciones, es posible que haya que actualizar la versión de FEMS.',
+                installed: 'Instalado',
+                available: 'Disponible',
+                incompatible: 'Incompatible',
+                buyApp: 'Comprar aplicación',
+                modifyApp: 'Modificar la aplicación',
+                createApp: 'Crear aplicación',
+                deleteApp: 'Eliminar la aplicación',
+                updateApp: 'Actualizar la aplicación',
+            },
         },
         Service: {
             entireSystem: "Sistema entero",

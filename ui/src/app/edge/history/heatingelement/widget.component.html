@@ -12,7 +12,7 @@
               Edge.History.activeDuration<span>&nbsp;Level 1</span>
             </td>
             <td style="width:35%" class="align_right">
-              {{ activeTimeOverPeriodLevel1 | sectohour }}
+              {{ activeTimeOverPeriodLevel1 | formatSecondsToDuration }}
             </td>
           </tr>
           <tr>
@@ -20,14 +20,14 @@
               Edge.History.activeDuration<span>&nbsp;Level 2</span>
             </td>
             <td style="width:35%" class="align_right">
-              {{ activeTimeOverPeriodLevel2 | sectohour }}
+              {{ activeTimeOverPeriodLevel2 | formatSecondsToDuration }}
             </td>
           </tr>
           <tr>
             <td style="width:65%" translate>
               Edge.History.activeDuration<span>&nbsp;Level 3</span></td>
             <td style="width:35%" class="align_right">
-              {{ activeTimeOverPeriodLevel3 | sectohour }}
+              {{ activeTimeOverPeriodLevel3 | formatSecondsToDuration }}
             </td>
           </tr>
         </table>

@@ -5,6 +5,7 @@ import org.osgi.service.component.ComponentContext;
 
 import com.google.gson.JsonArray;
 
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -23,18 +24,19 @@ public abstract class AbstractMeterApp<PROPERTY extends Enum<PROPERTY>> extends 
 		return new OpenemsAppCategory[] { OpenemsAppCategory.METER };
 	}
 
-	protected final JsonArray buildMeterOptions() {
+	protected final JsonArray buildMeterOptions(Language language) {
+		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
 		return JsonUtils.buildJsonArray() //
 				.add(JsonUtils.buildJsonObject() //
-						.addProperty("label", "Erzeugung/Production") //
+						.addProperty("label", bundle.getString("App.Meter.production")) //
 						.addProperty("value", "PRODUCTION") //
 						.build())
 				.add(JsonUtils.buildJsonObject() //
-						.addProperty("label", "Netzzähler/Grid-Meter") //
+						.addProperty("label", bundle.getString("App.Meter.gridMeter")) //
 						.addProperty("value", "GRID") //
 						.build())
 				.add(JsonUtils.buildJsonObject() //
-						.addProperty("label", "Verbrauchszähler/Consumption-Meter") //
+						.addProperty("label", bundle.getString("App.Meter.consumtionMeter")) //
 						.addProperty("value", "CONSUMPTION_METERED") //
 						.build())
 				.build();

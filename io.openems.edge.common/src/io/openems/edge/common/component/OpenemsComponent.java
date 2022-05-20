@@ -137,8 +137,8 @@ public interface OpenemsComponent {
 	 *
 	 * @param channelName the Channel-ID as a string
 	 * @param <T>         the expected typed Channel
-	 * @throws IllegalArgumentException on error
 	 * @return the Channel or throw Exception
+	 * @throws IllegalArgumentException on error
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends Channel<?>> T channel(String channelName) throws IllegalArgumentException {
@@ -400,6 +400,7 @@ public interface OpenemsComponent {
 	 * &#64;Designate(factory = false)
 	 * </pre>
 	 *
+	 * <p>
 	 * By design it is required for these Singleton Components to have a predefined
 	 * Component-ID, like '_cycle', '_sum', etc. This method makes sure the
 	 * Component-ID matches this predefined ID - and if not automatically adjusts
@@ -412,6 +413,7 @@ public interface OpenemsComponent {
 	 * &#64;Component(property = { "id=_cycle" })
 	 * </pre>
 	 *
+	 * <p>
 	 * for this purpose. Unfortunately this is not sufficient to have the 'id'
 	 * property listed in EdgeConfig, ConfigurationAdmin, etc. This is why this
 	 * workaround is required.

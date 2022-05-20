@@ -182,9 +182,6 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		this.resetChannelsAtMidnight();
 
-		Integer sellToGridLimitMinChargePower = null;
-		Integer delayChargeMaxChargePower = null;
-
 		// Check if the logic already started or should start
 		if (!this.getStartEpochSeconds().isDefined()) {
 
@@ -192,7 +189,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			IntegerReadChannel productionChannel = this.sum.getProductionActivePowerChannel();
 
 			// Check start if production not already reached the maximum sell to grid power
-			if (productionChannel.value().orElse(delayChargeMaxChargePower) < this.config.maximumSellToGridPower()) {
+			if (productionChannel.value().orElse(0) < this.config.maximumSellToGridPower()) {
 
 				/*
 				 * Calculate the average with the last 100 values of production and consumption
@@ -215,6 +212,9 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			this._setStartEpochSeconds(LocalTime.now(clock), clock);
 		}
 
+		Integer sellToGridLimitMinChargePower = null;
+		Integer delayChargeMaxChargePower = null;
+		
 		/*
 		 * Run the logic of the different modes, depending on the configuration
 		 */

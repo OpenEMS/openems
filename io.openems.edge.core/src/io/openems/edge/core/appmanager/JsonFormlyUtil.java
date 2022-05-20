@@ -5,13 +5,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 
 /**
  * Source https://formly.dev/examples/introduction.
@@ -132,6 +136,24 @@ public class JsonFormlyUtil {
 
 			return this.getSelf();
 		}
+		
+		public final T setDefaultValue(JsonElement defaultValue) {
+			if (defaultValue != null) {
+				this.jsonObject.add("defaultValue", defaultValue);
+			} else if (this.jsonObject.has("defaultValue")) {
+				this.jsonObject.remove("defaultValue");
+			}
+
+			return this.getSelf();
+		}
+
+		public final T setDefaultValueWithStringSupplier(Supplier<String> supplieDefaultValue) {
+			return this.setDefaultValue(supplieDefaultValue.get());
+		}
+
+		public final T setDefaultValueWithBooleanSupplier(Supplier<Boolean> supplieDefaultValue) {
+			return this.setDefaultValue(supplieDefaultValue.get());
+		}
 
 		public final T isRequired(boolean isRequired) {
 			if (isRequired) {
@@ -149,6 +171,20 @@ public class JsonFormlyUtil {
 
 		public final T setDescription(String description) {
 			this.templateOptions.addProperty("description", description);
+			return this.getSelf();
+		}
+
+		/**
+		 * Call a method on a FormlyBuilder if the expression is true.
+		 *
+		 * @param expression the expression
+		 * @param consumer   allows a lambda function on {@link FormlyBuilder}
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public T onlyIf(boolean expression, Consumer<T> consumer) {
+			if (expression) {
+				consumer.accept(this.getSelf());
+			}
 			return this.getSelf();
 		}
 
@@ -519,6 +555,10 @@ public class JsonFormlyUtil {
 						.build());
 			});
 			return this.setOptions(options.build());
+		}
+
+		public SelectBuilder setOptions(List<String> items) {
+			return this.setOptions(items, t -> t, t -> t);
 		}
 
 		public <T> SelectBuilder setOptions(List<T> items, Function<T, String> item2Label,

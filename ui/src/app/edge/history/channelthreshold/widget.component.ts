@@ -19,7 +19,7 @@ export class ChannelthresholdWidgetComponent extends AbstractHistoryWidget imple
 
     private static readonly SELECTOR = "channelthresholdWidget";
 
-    public activeTimeOverPeriod: string = null;
+    public activeSecondsOverPeriod: number = null;
     public edge: Edge = null;
 
     constructor(
@@ -53,7 +53,7 @@ export class ChannelthresholdWidgetComponent extends AbstractHistoryWidget imple
             let result = (response as QueryHistoricTimeseriesDataResponse).result;
             this.service.getConfig().then(config => {
                 let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-                this.activeTimeOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
+                this.activeSecondsOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
             })
         });
     };

@@ -35,6 +35,19 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.5.3',
+        changes: [
+          Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + "Fehlerbehebung wenn keine Produktion verfügbar ist",
+          Changelog.product(Product.FEMS_HEIZSTAB, Product.FEMS_SCHWELLWERT_STEUERUNG, Product.FEMS_BLOCKHEIZKRAFTWERK,
+            Product.FEMS_MANUELLE_RELAISSTEUERUNG, Product.FEMS_AWATTAR, Product.FEMS_TIBBER, Product.FEMS_CORRENTLY,
+            Product.FEMS_NETZDIENLICHE_BELADUNG)
+          + "Verbesserte Darstellung des aktiven Zeitraums in der Historie",
+          Changelog.library(Library.POSTGRESQL),
+          { roleIsAtLeast: Role.ADMIN, change: "Refactoring des Component-Managers" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI-Verbesserung am System-Update" },
+        ]
+      },
+      {
         version: '2022.5.2',
         changes: [
           Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + "Allgemeine Verbesserungen; Sicherstellung einer minimalen Beladeleistung",

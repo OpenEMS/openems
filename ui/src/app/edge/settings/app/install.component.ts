@@ -84,11 +84,11 @@ export class InstallAppComponent implements OnInit {
         })
       })).then(response => {
         this.form.markAsPristine();
-        this.isInstalling = false
         this.service.toast("Successfully installed App", 'success');
       }).catch(reason => {
-        this.isInstalling = false
         this.service.toast("Error installing App:" + reason.error.message, 'danger');
+      }).finally(() => {
+        this.isInstalling = false
       });
   }
 

@@ -353,10 +353,12 @@ export class Service implements ErrorHandler {
    */
   public startSpinner(selector: string) {
     this.spinner.show(selector, {
-      type: 'ball-clip-rotate-multiple',
+      type: "ball-clip-rotate-multiple",
       fullScreen: false,
-      bdColor: "rgba(0,0,0,0.5)"
-    });
+      bdColor: "rgba(0, 0, 0, 0.8)",
+      size: "medium",
+      color: "#fff"
+    })
   }
 
   /**
@@ -364,7 +366,7 @@ export class Service implements ErrorHandler {
    * @param selector selector for specific spinner
    */
   public stopSpinner(selector: string) {
-    this.spinner.hide(selector);
+    this.spinner.hide(selector)
   }
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {

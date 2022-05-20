@@ -9,8 +9,7 @@
       <ion-row class="ion-justify-content-center">
         <ion-col size="12" size-sm="8">
           <ion-card>
-            <ion-item lines="full" color="danger">
-              <ion-icon slot="start" name="alert-circle-outline" color="primary"></ion-icon>
+            <ion-item lines="full" color="primary">
               <ion-label>{{ edge.id }} ist nicht online!</ion-label>
             </ion-item>
 
@@ -22,7 +21,8 @@
               <ion-row>
                 Dies kann bis zu 10 min dauern.
               </ion-row>
-              <percentagebar [value]="100 - ((this.restartTime / ESTIMATED_REBOOT_TIME) * 100)"></percentagebar>
+
+              <ion-progress-bar type="indeterminate" style="margin-top: 1%"></ion-progress-bar>
             </ion-card-content>
           </ion-card>
         </ion-col>
@@ -51,7 +51,7 @@
                   Update State is unknown
                 -->
                 <ion-row>
-                  <ion-col>Update Status ist unbekannt</ion-col>
+                  <ion-col>Suche nach Updates...</ion-col>
                 </ion-row>
               </ng-container>
               <ng-container *ngIf="systemUpdateState.updated as state">
@@ -63,7 +63,9 @@
                   <ion-col>{{ state.version }}</ion-col>
                 </ion-row>
                 <ion-row>
-                  <ion-col>Das System ist auf dem aktuellsten Softwarestand</ion-col>
+                  <ion-col style="font-weight: bold; color: green;">Das System ist auf dem aktuellsten
+                    Softwarestand
+                  </ion-col>
                 </ion-row>
               </ng-container>
               <ng-container *ngIf="systemUpdateState.available as state">

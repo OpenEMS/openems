@@ -18,19 +18,18 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("production-total-chart", service, translate);
     }
 
     ngOnInit() {
-        this.spinnerId = 'production-total-chart';
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -40,7 +39,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -173,17 +172,20 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                     });
                     this.datasets = datasets;
                     this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
+                    this.stopSpinner();
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

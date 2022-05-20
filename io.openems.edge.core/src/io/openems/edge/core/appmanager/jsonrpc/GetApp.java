@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
@@ -95,7 +96,8 @@ public class GetApp {
 
 	public static class Response extends JsonrpcResponseSuccess {
 
-		private static JsonObject createAppObject(OpenemsApp app, List<OpenemsAppInstance> instantiatedApps) {
+		private static JsonObject createAppObject(OpenemsApp app, List<OpenemsAppInstance> instantiatedApps,
+				Language language) {
 
 			var instanceIds = JsonUtils.buildJsonArray();
 			for (var instantiatedApp : instantiatedApps) {
@@ -103,13 +105,13 @@ public class GetApp {
 			}
 			var categorys = JsonUtils.buildJsonArray().build();
 			for (var cat : app.getCategorys()) {
-				categorys.add(cat.toJsonObject());
+				categorys.add(cat.toJsonObject(language));
 			}
 			return JsonUtils.buildJsonObject() //
 					.add("categorys", categorys) //
 					.addProperty("cardinality", app.getCardinality().name()) //
 					.addProperty("appId", app.getAppId()) //
-					.addProperty("name", app.getName()) //
+					.addProperty("name", app.getName(language)) //
 					.addProperty("image", app.getImage()) //
 					.add("status", app.getValidator().toJsonObject()) //
 					.add("instanceIds", instanceIds.build()) //
@@ -118,9 +120,9 @@ public class GetApp {
 
 		private final JsonObject app;
 
-		public Response(UUID id, OpenemsApp app, List<OpenemsAppInstance> instantiatedApps) {
+		public Response(UUID id, OpenemsApp app, List<OpenemsAppInstance> instantiatedApps, Language language) {
 			super(id);
-			this.app = createAppObject(app, instantiatedApps);
+			this.app = createAppObject(app, instantiatedApps, language);
 		}
 
 		@Override
