@@ -124,16 +124,25 @@ function hyperInfluxQuery(theEdgeForThisMeas) {
 // Use a self-calling function so we can use async / await.
 
 (async () => {
+  //
+  // hello world....
   const poolResult = await pgLib.poolDemo();
   console.log("PG Time with pool: " + poolResult.rows[0]["now"]);
 
   const clientResult = await pgLib.clientDemo();
   console.log("PG Time with client: " + clientResult.rows[0]["now"]);
 
+  //
+  //
   // first of all, load read tasks list
   const readTasks = await pgLib.client(ypPgQueries.generateReadTasksQuery());
 
-
+  if (readTasks.rows.length === 0){
+    console.log("no read tasks");
+    return 0;
+  } else {
+    console.log(readTasks);
+  }
   // then for each read task, get meters list
   for (var xxx=0; xxx < readTasks.rows.length; xxx++) {
     const readTask = readTasks.rows[xxx];
@@ -141,13 +150,13 @@ function hyperInfluxQuery(theEdgeForThisMeas) {
     const measureDateStart = DateTime.fromJSDate(readTask["MeasureDateStart"]).toFormat('yyyy-MM-dd HH:mm:ss');
     const measureDateEnd = DateTime.fromJSDate(readTask["MeasureDateEnd"]).toFormat('yyyy-MM-dd HH:mm:ss');
     const idBillingLevel = readTask["MeterBillingLevelId"];
-    const idBillingLevelsSet = readTask["MeterBillingLevelsSetId"];
+    const idBillingLevelsSet = readTask["MeterBillingLevelSetId"];
     const billLevelForeignUid = readTask["BillLevelForeignUID"];
     const billLevelsSetForeignUid = readTask["BillLevelsSetForeignUID"];
     // get meters list
-    const theMeters = await pgLib.client(ypPgQueries.generateMetersReadingsFromReadTasksQuery(idBillingLevelsSet));
+    const theMeters = await pgLib.client(ypPgQueries.generateMetersReadingsFromReadTasksQuery(idBillingLevelsSet, idBillingLevel));
     // console.log(`Read Task ${xxx} :`, readTask);
-    console.log(`\n\n**** **** **** \n\n${xxx} - ReadTask Id: ${readTask['Id']} - MeterBillingLevelId ${readTask['MeterBillingLevelId']};`);
+    console.log(`\n\n**** **** **** \n\n${xxx} - ReadTask Id: ${readTask['Id']} - MeterBillingLevelId ${idBillingLevel}; - dateStart ${measureDateStart}; - dateEnd ${measureDateEnd};`);
     //
     // if we have data, we have to scan the meters list
     // in order to build the measuments Clusters
@@ -169,7 +178,9 @@ function hyperInfluxQuery(theEdgeForThisMeas) {
       measurementClusters.billLevelForeignUid = billLevelForeignUid;
       measurementClusters.billLevelsSetForeignUid = billLevelsSetForeignUid;
       measurementClusters.readings = {};
-      
+      //
+      //
+      // build up all the measurements containers
       for (var yyy=0; yyy < theMeters.rows.length; yyy++) {
         const theMeter = theMeters.rows[yyy];
         createOrUpdateEdgeContainer(theMeter, measurementClusters.readings, yyy);

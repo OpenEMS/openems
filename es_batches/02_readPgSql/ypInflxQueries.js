@@ -25,7 +25,9 @@ function generateGivenMetersInfluxDbQuery(metersFields, dateStart, dateEnd){
 	where 
 		time >= '${dateStart}' 
 	and 
-		time < '${dateEnd}'`;
+		time < '${dateEnd}'
+  tz('Europe/Zurich')
+    `;
   return Influx_queryReadMeterIntro;
 }
 

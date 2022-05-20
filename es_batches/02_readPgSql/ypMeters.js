@@ -161,7 +161,7 @@ function  buildMeterReadModes(theMeter){
 //
 // having an Influxdb time series, calculate the total energy used 
 //
-function buildTotalsForMeter(totalsContainer, theMeterWeAreBilling, timeSeries){
+function buildTotalsForMeter(totalsContainer, theMeterWeAreBilling, timeSeries, introMeterOnEdgeDescriptor, prodMeterOnEdgeDescriptor){
   /*
   // assign fieds for import and export and sign term
   //
@@ -204,8 +204,6 @@ function buildTotalsForMeter(totalsContainer, theMeterWeAreBilling, timeSeries){
 
 
   const billMeterOnEdgeDescriptor = buildMeterReadModes(theMeterWeAreBilling);
-  const introMeterOnEdgeDescriptor = buildMeterReadModes(totalsContainer.introductionMeter);
-  const prodMeterOnEdgeDescriptor = buildMeterReadModes(totalsContainer.productionMeter);
 
   //
   // loop through the results
@@ -217,48 +215,93 @@ function buildTotalsForMeter(totalsContainer, theMeterWeAreBilling, timeSeries){
   //
   // new buffers startup
   var totalBillPreviousStep = sumPartsOrWorkOnTotals(billMeterOnEdgeDescriptor, timeSeries[0]);
-  var totalIntroPreviousStep = sumPartsOrWorkOnTotals(introMeterOnEdgeDescriptor, timeSeries[0]);
-  var totalProdPreviousStep = sumPartsOrWorkOnTotals(prodMeterOnEdgeDescriptor, timeSeries[0]);
+  totalsContainer.KWHTotals.introAtStart = totalsContainer.KWHTotals.introAtStart ?? sumPartsOrWorkOnTotals(introMeterOnEdgeDescriptor, timeSeries[0]);
+  totalsContainer.KWHTotals.prodAtStart = totalsContainer.KWHTotals.prodAtStart ?? sumPartsOrWorkOnTotals(prodMeterOnEdgeDescriptor, timeSeries[0]);
   totalsContainer.KWHTotals.billingTotals[keyForThisMeterResult].billAtStart = totalBillPreviousStep;
-  totalsContainer.KWHTotals.introAtStart = totalIntroPreviousStep;
-  totalsContainer.KWHTotals.prodAtStart = totalProdPreviousStep;
-
   totalsContainer.KWHTotals.totalKWHBill_intro = 0;
   totalsContainer.KWHTotals.totalKWHBill_prod = 0;
 
+  totalsContainer.KWHTotals.introArray = totalsContainer.KWHTotals.introArray ?? [totalsContainer.KWHTotals.introAtStart];
+  totalsContainer.KWHTotals.prodArray = totalsContainer.KWHTotals.prodArray ?? [totalsContainer.KWHTotals.prodAtStart]; // Array(1).fill(-1);
+
   let lastRow = timeSeries[0];
-  for(var yyy = 1; yyy < timeSeries.length; yyy++) {
+  let yyy = 0;
+  for(yyy = 1; yyy < timeSeries.length; yyy++) {
+ 
     const theRow = timeSeries[yyy];
+    // console.log(`The Row:`,  theRow);
     // billing meter readings
     var totalBillAtThisStep = sumPartsOrWorkOnTotals(billMeterOnEdgeDescriptor, theRow);
-    var totalIntroAtThisStep = sumPartsOrWorkOnTotals(introMeterOnEdgeDescriptor, theRow);
-    var totalProdAtThisStep = sumPartsOrWorkOnTotals(prodMeterOnEdgeDescriptor, theRow);
+    totalsContainer.KWHTotals.introArray[yyy] = totalsContainer.KWHTotals.introArray[yyy] ?? sumPartsOrWorkOnTotals(introMeterOnEdgeDescriptor, theRow);
+    totalsContainer.KWHTotals.prodArray[yyy] = totalsContainer.KWHTotals.prodArray[yyy] ?? sumPartsOrWorkOnTotals(prodMeterOnEdgeDescriptor, theRow);
     //
     // eval intro
-    totalsContainer.KWHTotals.totalKWHImport_intro = totalIntroAtThisStep.consumption - totalIntroPreviousStep.consumption;
-    totalsContainer.KWHTotals.totalKWHImport_prod = totalIntroAtThisStep.production - totalIntroPreviousStep.production;
+    totalsContainer.KWHTotals.totalKWHImport_intro = totalsContainer.KWHTotals.introArray[yyy].consumption - totalsContainer.KWHTotals.introArray[yyy - 1].consumption;
+    totalsContainer.KWHTotals.totalKWHImport_prod = totalsContainer.KWHTotals.introArray[yyy].production - totalsContainer.KWHTotals.introArray[yyy - 1].production;
     //
-    totalsContainer.KWHTotals.totalKWHExport_intro = totalProdAtThisStep.consumption - totalProdPreviousStep.consumption;
-    totalsContainer.KWHTotals.totalKWHExport_prod = totalProdAtThisStep.production - totalProdPreviousStep.production;
+    totalsContainer.KWHTotals.totalKWHExport_intro = totalsContainer.KWHTotals.prodArray[yyy].consumption - totalsContainer.KWHTotals.prodArray[yyy - 1].consumption;
+    totalsContainer.KWHTotals.totalKWHExport_prod = totalsContainer.KWHTotals.prodArray[yyy].production - totalsContainer.KWHTotals.prodArray[yyy - 1].production;
+    //
+    //
+    // evaluate how much power from the solar panels goes to the users and how much goes to the grid....
+    let totalSolarPowerToUsers = totalsContainer.KWHTotals.totalKWHExport_prod - totalsContainer.KWHTotals.totalKWHImport_prod;
+    //
+    // this is the part of energy (active) we give back to the grid
+    // is not used here, but could be interesting to log it....
+    let totalSolarPowerToGrid = totalsContainer.KWHTotals.totalKWHExport_prod - totalSolarPowerToUsers;
+    // .. and is supposed to be equal to the following
+    let assertForExportedEnergyToGrid = totalsContainer.KWHTotals.totalKWHImport_prod - totalSolarPowerToGrid;
+    if (assertForExportedEnergyToGrid > 0.01) {
+      console.log(`failed assert for \ntotalsContainer.KWHTotals.totalKWHImport_prod === totalSolarPowerToGrid\n Problem was at yyy= ${yyy}; row follows... `, theRow);
+    }
+    //
     //
     // some overall evals in this step between total imported and exported energy
     //
-    totalsContainer.KWHTotals.percentProdOverIntro_straight = totalsContainer.KWHTotals.totalKWHImport_intro != 0 
-                                                            ? totalsContainer.KWHTotals.totalKWHExport_prod / totalsContainer.KWHTotals.totalKWHImport_intro : 0;
-    totalsContainer.KWHTotals.percentProdOverIntro_reverse = totalsContainer.KWHTotals.totalKWHImport_prod != 0 
-                                                            ? totalsContainer.KWHTotals.totalKWHExport_intro / totalsContainer.KWHTotals.totalKWHImport_prod : 0;
+    // in the following two steps we calculate the percentage of solar and introduced power available to the users
+    //
+    // power for the user (solar + grid)
+    const totalPowerForUsers = totalSolarPowerToUsers + totalsContainer.KWHTotals.totalKWHImport_intro;
+    // total solar eneergy over total energy for users (normalized percentage)
+    totalsContainer.KWHTotals.percentIntroAndSolar4User_solar = totalPowerForUsers != 0 
+                                                            ? 
+                                                              totalSolarPowerToUsers / totalPowerForUsers 
+                                                            : 
+                                                              0;
+    // total introduced energy over total energy for users (normalized percentage)
+    totalsContainer.KWHTotals.percentIntroAndSolar4User_intro = totalPowerForUsers != 0 
+                                                            ? 
+                                                              totalsContainer.KWHTotals.totalKWHImport_intro / totalPowerForUsers
+                                                            : 
+                                                              0;
+                                                     
 
+    let assertForNormsPercs = (1 - totalsContainer.KWHTotals.percentIntroAndSolar4User_solar) - totalsContainer.KWHTotals.percentIntroAndSolar4User_intro;
+    if (
+          (assertForNormsPercs > 0.01) 
+          && (
+            (totalsContainer.KWHTotals.percentIntroAndSolar4User_solar != 0)
+            || 
+            (totalsContainer.KWHTotals.percentIntroAndSolar4User_intro != 0)
+          )
+      ) {
+      console.log(`failed assert for \n(1 - totalsContainer.KWHTotals.percentIntroAndSolar4User_solar) - totalsContainer.KWHTotals.percentIntroAndSolar4User_intro\n Problem was at yyy= ${yyy}; row follows... `, theRow);
+    }
+
+    if (yyy == 4000) {
+      console.log(`${yyy} 1 - quello : ==> ${1-totalsContainer.KWHTotals.percentIntroAndSolar4User_solar} ::: totalsContainer.KWHTotals.percentIntroAndSolar4User_intro`);
+    }
 
 
     // this billing meter levels...
     const thisStepBill_intro = totalBillAtThisStep.consumption - totalBillPreviousStep.consumption;
-    const thisStepBill_prod = totalBillAtThisStep.production - totalBillPreviousStep.production;;
+    const thisStepBill_prod = totalBillAtThisStep.production - totalBillPreviousStep.production;; // this is expected to be zero (unless the user puts some enrgy on the net....)
 
 
     // the result
     totalsContainer.KWHTotals.billingTotals[keyForThisMeterResult].totalKWHBill_intro += thisStepBill_intro;
-    totalsContainer.KWHTotals.billingTotals[keyForThisMeterResult].totalKWHBill_partFromProd += thisStepBill_intro * totalsContainer.KWHTotals.percentProdOverIntro_straight;
-    totalsContainer.KWHTotals.billingTotals[keyForThisMeterResult].totalKWHBill_partFromIntro += thisStepBill_intro * (1 - totalsContainer.KWHTotals.percentProdOverIntro_straight);
+    totalsContainer.KWHTotals.billingTotals[keyForThisMeterResult].totalKWHBill_partFromProd += thisStepBill_intro * totalsContainer.KWHTotals.percentIntroAndSolar4User_solar;
+    totalsContainer.KWHTotals.billingTotals[keyForThisMeterResult].totalKWHBill_partFromIntro += thisStepBill_intro * (1 - totalsContainer.KWHTotals.percentIntroAndSolar4User_solar);
     // should be always zero or near to zero
     totalsContainer.KWHTotals.billingTotals[keyForThisMeterResult].totalKWHBill_prod += thisStepBill_prod
 
@@ -266,15 +309,15 @@ function buildTotalsForMeter(totalsContainer, theMeterWeAreBilling, timeSeries){
 
     //
     // update offsets
-    totalBillPreviousStep = sumPartsOrWorkOnTotals(billMeterOnEdgeDescriptor, theRow);
-    totalIntroPreviousStep = sumPartsOrWorkOnTotals(introMeterOnEdgeDescriptor, theRow);
-    totalProdPreviousStep = sumPartsOrWorkOnTotals(prodMeterOnEdgeDescriptor, theRow);
+    totalBillPreviousStep = totalBillAtThisStep;
+    // totalIntroPreviousStep = sumPartsOrWorkOnTotals(introMeterOnEdgeDescriptor, theRow);
+    // totalProdPreviousStep = sumPartsOrWorkOnTotals(prodMeterOnEdgeDescriptor, theRow);
     lastRow = theRow;
   };
   // set foinal values as red from db at the end...
   totalsContainer.KWHTotals.billingTotals[keyForThisMeterResult].billAtEnd = totalBillPreviousStep;
-  totalsContainer.KWHTotals.introAtEnd = totalIntroPreviousStep;
-  totalsContainer.KWHTotals.prodAtEnd = totalProdPreviousStep;
+  totalsContainer.KWHTotals.introAtEnd = totalsContainer.KWHTotals.introArray[yyy-1] ;
+  totalsContainer.KWHTotals.prodAtEnd = totalsContainer.KWHTotals.prodArray[yyy-1];
 
   return 0;
 }
@@ -319,9 +362,12 @@ function buildTotals(theEdgeForThisMeas, result) {
   const billingMeters = theEdgeForThisMeas.billingMeters;
   theIntroMeter = theEdgeForThisMeas.introductionMeter;
   theProdsMeter = theEdgeForThisMeas.productionMeter;
+  const introMeterOnEdgeDescriptor = buildMeterReadModes(theIntroMeter);
+  const prodMeterOnEdgeDescriptor = buildMeterReadModes(theProdsMeter);
+
   for (xxx = 0; xxx < billingMeters.length; xxx++) {
     theMeterWeAreBilling = billingMeters[xxx];
-    buildTotalsForMeter(theEdgeForThisMeas, theMeterWeAreBilling, result);
+    buildTotalsForMeter(theEdgeForThisMeas, theMeterWeAreBilling, result, introMeterOnEdgeDescriptor, prodMeterOnEdgeDescriptor);
 
   }
 

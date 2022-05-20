@@ -18,7 +18,10 @@ function generateReadTasksQuery() {
 	WHERE
 		"MRTL"."Completed"=false
 	ORDER BY
-		"MRTL"."Id"
+    "MRTL"."MeterBillingLevelSetId",
+    "MRTL"."MeterBillingLevelId",
+    "MRTL"."MeasureDateStart",
+    "MRTL"."Id"
 	`;
   return queryReadTasks;
 }
@@ -27,15 +30,21 @@ function generateReadTasksQuery() {
 //
 //
 // list meters to be read in a given billing levels set
-function generateMetersReadingsFromReadTasksQuery(billingLevelsSetId) {
+function generateMetersReadingsFromReadTasksQuery(billingLevelsSetId, idBillingLevel) {
 
   const queryReadTasks = `
 	SELECT 
 		* 
 	FROM 
 		"youpower-meters"."MetersListForReading" "MLFR"
-	WHERE
+  JOIN 
+    "youpower-billingmeters"."MeterBillLevelsToMeterBillLevelsSets" "MBTMS"
+  ON 
+    "MBTMS"."MeterBillLevelsSetId" = "MLFR"."idbillinglevelsset"
+  WHERE
 		"MLFR"."idbillinglevelsset"=${billingLevelsSetId}
+  AND
+    "MBTMS"."MeterBillLevelId"=${idBillingLevel}
 	ORDER BY
 		"MLFR"."meterid"
 	`;
