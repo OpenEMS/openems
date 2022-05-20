@@ -59,6 +59,8 @@ export class Product {
     public static readonly FEMS_JANITZA_ZAEHLER = new Product('FEMS-App Janitza Zähler', 'https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/');
     public static readonly FEMS_HEIZSTAB = new Product('FEMS-App Heizstab', 'https://fenecon.de/fems-2-2/fems-app-heizstab-6-kw/');
     public static readonly FEMS_SCHWELLWERT_STEUERUNG = new Product('FEMS-App Schwellwertsteuerung', 'https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/');
+    public static readonly FEMS_BLOCKHEIZKRAFTWERK = new Product('FEMS-App Blockheizkraftwerk (BHKW)', 'https://fenecon.de/fems-2-2/fems-app-blockheizkraftwerk-bhkw/');
+    public static readonly FEMS_MANUELLE_RELAISSTEUERUNG = new Product('FEMS-App Manuelle Relaissteuerung', 'https://fenecon.de/fems-2-2/fems-app-manuelle-relaissteuerung/');
     public static readonly FEMS_AWATTAR = new Product('FEMS-App Awattar HOURLY', 'https://fenecon.de/fems-2-2/fems-app-awattar-hourly/');
     public static readonly FEMS_CORRENTLY = new Product('FEMS-App STROMDAO Corrently', 'https://fenecon.de/fems/'); // TODO Add Product Page
     public static readonly FEMS_TIBBER = new Product('FEMS-App Tibber', 'https://fenecon.de/fems/'); // TODO Add Product Page
