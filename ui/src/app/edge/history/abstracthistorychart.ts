@@ -1,7 +1,7 @@
 import { Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
-import { addDays, addMonths, differenceInDays, differenceInMonths } from 'date-fns';
+import { differenceInDays, differenceInMonths } from 'date-fns';
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
@@ -255,7 +255,7 @@ export abstract class AbstractHistoryChart {
      * @param selector selector for specific spinner
      */
     public stopSpinner() {
-        this.stopSpinner();
+        this.service.stopSpinner(this.spinnerId);
     }
 
 }

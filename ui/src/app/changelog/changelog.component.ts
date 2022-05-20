@@ -35,7 +35,7 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: '2022.5.3',
+        version: '2022.5.4',
         changes: [
           Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + "Fehlerbehebung wenn keine Produktion verfügbar ist",
           Changelog.product(Product.FEMS_HEIZSTAB, Product.FEMS_SCHWELLWERT_STEUERUNG, Product.FEMS_BLOCKHEIZKRAFTWERK,
