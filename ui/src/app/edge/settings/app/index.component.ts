@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { environment } from 'src/environments';
 import { Service, Websocket } from '../../../shared/shared';
@@ -16,10 +17,10 @@ export class IndexComponent {
 
   public apps: GetApps.App[] = [];
 
-  public installedApps: AppList = { name: "Installiert", appCategories: [] };
-  public availableApps: AppList = { name: "Verfügbar", appCategories: [] };
+  public installedApps: AppList = { name: this.translate.instant('Edge.Config.App.installed'), appCategories: [] };
+  public availableApps: AppList = { name: this.translate.instant('Edge.Config.App.available'), appCategories: [] };
   // TODO incompatible apps should not be shown in the future
-  public incompatibleApps: AppList = { name: "Incompatible", appCategories: [] };
+  public incompatibleApps: AppList = { name: this.translate.instant('Edge.Config.App.incompatible'), appCategories: [] };
 
   public appLists: AppList[] = [this.installedApps, this.availableApps, this.incompatibleApps];
 
@@ -29,6 +30,7 @@ export class IndexComponent {
     private route: ActivatedRoute,
     private service: Service,
     private websocket: Websocket,
+    private translate: TranslateService,
   ) {
   }
 

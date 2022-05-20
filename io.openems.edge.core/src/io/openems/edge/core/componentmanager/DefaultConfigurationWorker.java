@@ -131,42 +131,6 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		});
 
 		/*
-		 * Create Controller.Api.Rest.ReadOnly
-		 */
-		if (existingConfigs.stream().noneMatch(c -> //
-		// Check if either "Controller.Api.Rest.ReadOnly" or
-		// "Controller.Api.Rest.ReadWrite" exist
-		"Controller.Api.Rest.ReadOnly".equals(c.factoryPid) || "Controller.Api.Rest.ReadWrite".equals(c.factoryPid))) {
-			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
-			this.createConfiguration(defaultConfigurationFailed, "Controller.Api.Rest.ReadOnly", Arrays.asList(//
-					new Property("id", "ctrlApiRest0"), //
-					new Property("alias", ""), //
-					new Property("enabled", true), //
-					new Property("port", 8084), //
-					new Property("debugMode", false) //
-			));
-		}
-
-		/*
-		 * Create Controller.Api.Modbus.ReadOnly
-		 */
-		if (existingConfigs.stream().noneMatch(c -> //
-		// Check if either "Controller.Api.Rest.ReadOnly" or
-		// "Controller.Api.Rest.ReadWrite" exist
-		"Controller.Api.ModbusTcp.ReadOnly".equals(c.factoryPid)
-				|| "Controller.Api.ModbusTcp.ReadWrite".equals(c.factoryPid))) {
-			// if not -> create configuration for "Controller.Api.Rest.ReadOnly"
-			this.createConfiguration(defaultConfigurationFailed, "Controller.Api.ModbusTcp.ReadOnly", Arrays.asList(//
-					new Property("id", "ctrlApiModbusTcp0"), //
-					new Property("alias", ""), //
-					new Property("enabled", true), //
-					new Property("port", 502), //
-					new Property("component.ids", JsonUtils.buildJsonArray().add("_sum").build()), //
-					new Property("maxConcurrentConnections", 5) //
-			));
-		}
-
-		/*
 		 * Create Timedata.Rrd4j
 		 */
 		if (existingConfigs.stream().noneMatch(c -> //

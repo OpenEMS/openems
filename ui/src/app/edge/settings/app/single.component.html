@@ -18,16 +18,16 @@
                 <img *ngIf="app.image" [src]="app.image" />
               </div>
               <div>
-                <ion-button style="width: 100%;" disabled>App kaufen</ion-button>
+                <ion-button style="width: 100%;" disabled translate>Edge.Config.App.buyApp</ion-button>
               </div>
               <div>
                 <ion-button style="width: 100%;" [disabled]="app.instanceIds.length == 0"
-                  [routerLink]="['../../update', app.appId]">App bearbeiten</ion-button>
+                  [routerLink]="['../../update', app.appId]" translate>Edge.Config.App.modifyApp</ion-button>
               </div>
               <div>
                 <ion-button style="width: 100%;"
                   [disabled]="(app.cardinality != 'MULTIPLE' && app.instanceIds.length != 0) || app.status.name != 'INSTALLABLE'"
-                  [routerLink]="['../../install', app.appId]">App anlegen
+                  [routerLink]="['../../install', app.appId]" translate>Edge.Config.App.createApp
                   <!-- TODO later rename to 'aktivieren' -->
                 </ion-button>
               </div>

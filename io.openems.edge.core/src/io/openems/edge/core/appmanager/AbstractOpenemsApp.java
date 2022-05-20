@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.function.ThrowingFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.edge.common.component.ComponentManager;
@@ -51,9 +54,10 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	 *         from a {@link EnumMap} of configuration properties for a given
 	 *         {@link ConfigurationTarget}.
 	 */
-	protected abstract ThrowingBiFunction<//
+	protected abstract ThrowingTriFunction<//
 			ConfigurationTarget, // ADD, UPDATE, VALIDATE, DELETE or TEST
 			EnumMap<PROPERTY, JsonElement>, // configuration properties
+			Language, // the language
 			AppConfiguration, // return value of the function
 			OpenemsNamedException> // Exception on error
 			appConfigurationFactory();
@@ -78,13 +82,14 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	 *
 	 * @param errors              a collection of validation errors
 	 * @param configurationTarget the target of the configuration
+	 * @param language            the language of the configuration
 	 * @param properties          the configured App properties
 	 * @return the {@link AppConfiguration} or null
 	 */
 	private AppConfiguration configuration(ArrayList<String> errors, ConfigurationTarget configurationTarget,
-			EnumMap<PROPERTY, JsonElement> properties) {
+			Language language, EnumMap<PROPERTY, JsonElement> properties) {
 		try {
-			return this.appConfigurationFactory().apply(configurationTarget, properties);
+			return this.appConfigurationFactory().apply(configurationTarget, properties, language);
 		} catch (OpenemsNamedException e) {
 			errors.add(e.getMessage());
 			return null;
@@ -124,11 +129,11 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	}
 
 	@Override
-	public AppConfiguration getAppConfiguration(ConfigurationTarget target, JsonObject config)
+	public AppConfiguration getAppConfiguration(ConfigurationTarget target, JsonObject config, Language language)
 			throws OpenemsNamedException {
 		var errors = new ArrayList<String>();
 		var enumMap = this.convertToEnumMap(target != ConfigurationTarget.TEST ? errors : new ArrayList<>(), config);
-		var c = this.configuration(errors, target, enumMap);
+		var c = this.configuration(errors, target, language, enumMap);
 
 		// TODO remove and maybe add @AttributeDefinition above enums
 		// this is for removing passwords so they do not get saved
@@ -220,7 +225,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		final var errors = new ArrayList<String>();
 
 		final var properties = this.convertToEnumMap(errors, jProperties);
-		final var appConfiguration = this.configuration(errors, ConfigurationTarget.VALIDATE, properties);
+		final var appConfiguration = this.configuration(errors, ConfigurationTarget.VALIDATE, null, properties);
 		if (appConfiguration == null) {
 			return errors;
 		}
@@ -246,7 +251,9 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 		// add check for cardinality for every app
 		var validator = this.getValidateBuilder().build();
-		validator.getInstallableCheckableNames().put(CheckCardinality.COMPONENT_NAME, properties);
+
+		validator.getInstallableCheckableConfigs()
+				.add(new Validator.CheckableConfig(CheckCardinality.COMPONENT_NAME, properties));
 
 		if (this.installationValidation() != null) {
 			validator.setConfigurationValidation((t, u) -> {
@@ -358,7 +365,8 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 				missingComponents.add(componentId);
 				continue;
 			}
-			// ALIAS is not really necessary to validate
+			// ALIAS should not be validated because it can be different depending on the
+			// language
 			ComponentUtilImpl.isSameConfigurationWithoutAlias(errors, expectedComponent, actualComponent);
 		}
 
@@ -388,7 +396,18 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			var interfaces = this.componentUtil.getInterfaces();
 			var eth0 = interfaces.stream().filter(t -> t.getName().equals("eth0")).findFirst().get();
 			var eth0Adresses = eth0.getAddresses();
-			addresses.removeAll(eth0Adresses.getValue());
+
+			var availableAddresses = new LinkedList<Inet4AddressWithNetmask>();
+			for (var address : addresses) {
+				for (var eth0Address : eth0Adresses.getValue()) {
+					if (eth0Address.isInSameNetwork(address)) {
+						availableAddresses.add(address);
+						break;
+					}
+				}
+			}
+
+			addresses.removeAll(availableAddresses);
 			for (var address : addresses) {
 				errors.add("Address '" + address + "' is not added.");
 			}
@@ -432,4 +451,37 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			errors.add("Controller [" + nextControllerId + "] is not/wrongly configured in Scheduler");
 		}
 	}
+
+	@Override
+	public String getName(Language language) {
+		return AbstractOpenemsApp.getTranslation(language, this.getAppId() + ".Name");
+	}
+
+	protected static String getTranslation(Language language, String key) {
+		return getTranslationBundle(language).getString(key);
+	}
+
+	protected static ResourceBundle getTranslationBundle(Language language) {
+		if (language == null) {
+			language = Language.DEFAULT;
+		}
+		// TODO add language support
+		switch (language) {
+		case CZ:
+		case ES:
+		case FR:
+		case NL:
+			language = Language.EN;
+			break;
+		case DE:
+		case EN:
+			break;
+		}
+		return ResourceBundle.getBundle("io.openems.edge.core.appmanager.translation", language.getLocal());
+	}
+
+	protected static final Component getComponentWithFactoryId(List<Component> components, String factoryId) {
+		return components.stream().filter(t -> t.getFactoryId().equals(factoryId)).findFirst().orElse(null);
+	}
+
 }
