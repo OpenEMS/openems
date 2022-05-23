@@ -248,6 +248,16 @@ public interface Metadata {
 	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException;
 
 	/**
+	 * Return the Setup Protocol data as a JsonObject.
+	 * 
+	 * @param user   {@link User} the current user
+	 * @param edgeId the {@link Edge} ID to get the data
+	 * @return Setup Protocol as a JsonObject
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException;
+
+	/**
 	 * Submit the installation assistant protocol.
 	 *
 	 * @param user       {@link User} the current user
@@ -298,4 +308,5 @@ public interface Metadata {
 
 		public static final String AFTER_IS_INITIALIZED = Events.TOPIC_BASE + "TOPIC_AFTER_IS_INITIALIZED";
 	}
+
 }

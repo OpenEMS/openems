@@ -209,6 +209,11 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
+	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException {
+		throw new NotImplementedException("DummyMetadata.getSetupProtocolData() is not implemented");
+	}
+
+	@Override
 	public int submitSetupProtocol(User user, JsonObject jsonObject) {
 		throw new IllegalArgumentException("DummyMetadata.submitSetupProtocol() is not implemented");
 	}

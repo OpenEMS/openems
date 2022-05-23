@@ -239,6 +239,11 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	}
 
 	@Override
+	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException {
+		return this.odooHandler.getSetupProtocolData((MyUser) user, edgeId);
+	}
+
+	@Override
 	public int submitSetupProtocol(User user, JsonObject jsonObject) throws OpenemsNamedException {
 		return this.odooHandler.submitSetupProtocol((MyUser) user, jsonObject);
 	}
@@ -262,7 +267,6 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 		this.odooHandler.updateUserLanguage((MyUser) user, language);
 	}
 
-	@Override
 	public EventAdmin getEventAdmin() {
 		return this.eventAdmin;
 	}
