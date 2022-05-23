@@ -488,7 +488,7 @@ public class OdooHandler {
 				JsonUtils.buildJsonObject() //
 						.add("params", JsonUtils.buildJsonObject() //
 								.addProperty("setupProtocolId", protocolId) //
-								.addProperty("femsId", edgeId) //
+								.addProperty("edgeId", edgeId) //
 								.build()) //
 						.build());
 	}

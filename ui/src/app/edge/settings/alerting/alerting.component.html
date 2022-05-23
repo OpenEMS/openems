@@ -16,7 +16,8 @@
           <ion-card-content>
             <form (ngSubmit)="updateAlerting()">
               <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
-              <ion-button expand="block" type=" submit" color="primary" [disabled]="form.invalid" translate>
+              <ion-button expand="block" type=" submit" color="primary" [disabled]="form.invalid || noChanges"
+                translate>
                 Edge.Config.Alerting.save
               </ion-button>
             </form>
