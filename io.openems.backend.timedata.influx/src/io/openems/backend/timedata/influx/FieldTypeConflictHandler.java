@@ -65,11 +65,14 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("batteryInverterA1/_PropertyWatchdoginterval", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA2/_PropertyActivateWatchdog", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA2/_PropertyTimeLimitNoPower", RequiredType.INTEGER);
+		this.createAndAddHandler("batteryInverterA2/_PropertyWatchdoginterval", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA3/_PropertyActivateWatchdog", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB1/_PropertyActivateWatchdog", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB1/_PropertyTimeLimitNoPower", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB1/_PropertyWatchdoginterval", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB2/_PropertyActivateWatchdog", RequiredType.INTEGER);
+		this.createAndAddHandler("batteryInverterB2/_PropertyTimeLimitNoPower", RequiredType.INTEGER);
+		this.createAndAddHandler("batteryInverterB2/_PropertyWatchdoginterval", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB3/_PropertyActivateWatchdog", RequiredType.INTEGER);
 		this.createAndAddHandler("bms0/_PropertyWatchdog", RequiredType.STRING);
 		this.createAndAddHandler("bms1/_PropertyMaxAllowedCurrentDifference", RequiredType.INTEGER);
@@ -81,8 +84,10 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("bms7/_PropertyMaxAllowedCurrentDifference", RequiredType.INTEGER);
 		this.createAndAddHandler("bms7/_PropertyMaxAllowedVoltageDifference", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsA1/_PropertyErrorDelay", RequiredType.INTEGER);
+		this.createAndAddHandler("bmsA1/_PropertyMaxAllowedCellSocPct", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsA1/_PropertyMaxStartAttempts", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsA1/_PropertyMaxStartTime", RequiredType.INTEGER);
+		this.createAndAddHandler("bmsA1/_PropertyMinAllowedCellSocPct", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsA1/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsA1/_PropertyPendingTolerance", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsA1/_PropertyStartUnsuccessfulDelay", RequiredType.INTEGER);
@@ -105,8 +110,10 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("bmsA4/_PropertyPendingTolerance", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsA4/_PropertyStartUnsuccessfulDelay", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB1/_PropertyErrorDelay", RequiredType.INTEGER);
+		this.createAndAddHandler("bmsB1/_PropertyMaxAllowedCellSocPct", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB1/_PropertyMaxStartAttempts", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB1/_PropertyMaxStartTime", RequiredType.INTEGER);
+		this.createAndAddHandler("bmsB1/_PropertyMinAllowedCellSocPct", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB1/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB1/_PropertyPendingTolerance", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB1/_PropertyStartUnsuccessfulDelay", RequiredType.INTEGER);
@@ -128,16 +135,27 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("bmsB4/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB4/_PropertyPendingTolerance", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB4/_PropertyStartUnsuccessfulDelay", RequiredType.INTEGER);
+		this.createAndAddHandler("ctrlApiModbusTcp0/RunFailed", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlApiModbusTcp0/_PropertyApiTimeout", RequiredType.INTEGER);
+		this.createAndAddHandler("ctrlApiModbusTcp0/_PropertyApiTimeout", RequiredType.INTEGER);
+		this.createAndAddHandler("ctrlApiModbusTcp0/_PropertyMaxConcurrentConnections", RequiredType.INTEGER);
+		this.createAndAddHandler("ctrlApiModbusTcp0/_PropertyPort", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlApiModbusTcp0/_PropertyPort", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlApiModbusTcp1/_PropertyApiTimeout", RequiredType.STRING);
 		this.createAndAddHandler("ctrlApiModbusTcp1/_PropertyMaxConcurrentConnections", RequiredType.STRING);
 		this.createAndAddHandler("ctrlApiModbusTcp1/_PropertyPort", RequiredType.STRING);
+		this.createAndAddHandler("ctrlApiRest0/RunFailed", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlApiRest0/_PropertyApiTimeout", RequiredType.STRING);
 		this.createAndAddHandler("ctrlApiRest0/_PropertyPort", RequiredType.STRING);
 		this.createAndAddHandler("ctrlApiRest1/_PropertyApiTimeout", RequiredType.STRING);
 		this.createAndAddHandler("ctrlApiRest1/_PropertyPort", RequiredType.STRING);
+		this.createAndAddHandler("ctrlApiWebsocket0/RunFailed", RequiredType.INTEGER);
+		this.createAndAddHandler("ctrlBackend0/RunFailed", RequiredType.INTEGER);
+		this.createAndAddHandler("ctrlBackend0/UnableToSend", RequiredType.INTEGER);
+		this.createAndAddHandler("ctrlBackend0/_PropertyApiTimeout", RequiredType.INTEGER);
+		this.createAndAddHandler("ctrlBackend0/_PropertyDebugMode", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlBackend0/_PropertyNoOfCycles", RequiredType.INTEGER);
+		this.createAndAddHandler("ctrlBackend0/_PropertyProxyPort", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlBalancing0/_PropertyTargetGridSetpoint", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlBalancing1/_PropertyTargetGridSetpoint", RequiredType.STRING);
 		this.createAndAddHandler("ctrlChannelSingleThreshold0/_PropertyInvert", RequiredType.STRING);
@@ -204,6 +222,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("ctrlChannelSingleThreshold9/_PropertySwitchedLoadPower", RequiredType.STRING);
 		this.createAndAddHandler("ctrlChannelSingleThreshold9/_PropertyThreshold", RequiredType.STRING);
 		this.createAndAddHandler("ctrlChannelThreshold0/_PropertyInvert", RequiredType.STRING);
+		this.createAndAddHandler("ctrlDebugLog0/RunFailed", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlEmergencyCapacityReserve0/DebugRampPower", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlEmergencyCapacityReserve0/DebugTargetPower", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlEssSellToGridLimit0/_PropertyMaximumSellToGridPower", RequiredType.STRING);
@@ -306,9 +325,16 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("ctrlLimitUsableCapacity7/_PropertyForceChargeSoc", RequiredType.STRING);
 		this.createAndAddHandler("ctrlLimitUsableCapacity7/_PropertyStopChargeSoc", RequiredType.STRING);
 		this.createAndAddHandler("ctrlLimitUsableCapacity7/_PropertyStopDischargeSoc", RequiredType.STRING);
+		this.createAndAddHandler("ctrlLimitUsableCapacityA1/_PropertyAllowChargeSoc", RequiredType.STRING);
+		this.createAndAddHandler("ctrlLimitUsableCapacityA1/_PropertyStopChargeSoc", RequiredType.STRING);
+		this.createAndAddHandler("ctrlLimitUsableCapacityA2/_PropertyAllowChargeSoc", RequiredType.STRING);
+		this.createAndAddHandler("ctrlLimitUsableCapacityA2/_PropertyStopChargeSoc", RequiredType.STRING);
+		this.createAndAddHandler("ctrlLimitUsableCapacityA3/_PropertyAllowChargeSoc", RequiredType.STRING);
+		this.createAndAddHandler("ctrlLimitUsableCapacityA3/_PropertyStopChargeSoc", RequiredType.STRING);
 		this.createAndAddHandler("ctrlMVS0/DebugTargetGridSetpoint", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlPvInverterSellToGridLimit0/_PropertyMaximumSellToGridPower", RequiredType.STRING);
 		this.createAndAddHandler("ctrlPvInverterSellToGridLimit1/_PropertyMaximumSellToGridPower", RequiredType.STRING);
+		this.createAndAddHandler("ess0/ApplyPowerFailed", RequiredType.INTEGER);
 		this.createAndAddHandler("ess0/_PropertyInitialSoc", RequiredType.STRING);
 		this.createAndAddHandler("ess0/_PropertyMaxApparentPower", RequiredType.STRING);
 		this.createAndAddHandler("ess0/_PropertyMaxBatteryPower", RequiredType.STRING);
@@ -337,6 +363,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("io0/_PropertyModbusUnitId", RequiredType.STRING);
 		this.createAndAddHandler("kostalPiko1/_PropertyPort", RequiredType.STRING);
 		this.createAndAddHandler("kostalPiko1/_PropertyUnitID", RequiredType.STRING);
+		this.createAndAddHandler("meter0/_PropertyInvert", RequiredType.INTEGER);
 		this.createAndAddHandler("meter0/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("meter1/_PropertyInvert", RequiredType.INTEGER);
 		this.createAndAddHandler("meter1/_PropertyModbusUnitId", RequiredType.INTEGER);
@@ -680,6 +707,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("pvInverter9/S103TmpCab", RequiredType.INTEGER);
 		this.createAndAddHandler("pvInverter9/S103VAr", RequiredType.INTEGER);
 		this.createAndAddHandler("rrd4j0/_PropertyNoOfCycles", RequiredType.STRING);
+		this.createAndAddHandler("scheduler0/ControllerIsMissing", RequiredType.INTEGER);
 		this.createAndAddHandler("timeOfUseTariff0/_PropertyZipcode", RequiredType.INTEGER);
 	}
 
