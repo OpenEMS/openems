@@ -488,7 +488,7 @@ public class OdooHandler {
 				JsonUtils.buildJsonObject() //
 						.add("params", JsonUtils.buildJsonObject() //
 								.addProperty("setupProtocolId", protocolId) //
-								.addProperty("femsId", edgeId) //
+								.addProperty("edgeId", edgeId) //
 								.build()) //
 						.build());
 	}
@@ -698,6 +698,10 @@ public class OdooHandler {
 					.ifPresent(name -> setupProtocolItem.put("name", name));
 			JsonUtils.getAsOptionalString(item, "value") //
 					.ifPresent(value -> setupProtocolItem.put("value", value));
+			JsonUtils.getAsOptionalString(item, "view") //
+					.ifPresent(view -> setupProtocolItem.put("view", view));
+			JsonUtils.getAsOptionalString(item, "field") //
+					.ifPresent(field -> setupProtocolItem.put("field", field));
 
 			OdooUtils.create(this.credentials, Field.SetupProtocolItem.ODOO_MODEL, setupProtocolItem);
 		}
@@ -844,6 +848,29 @@ public class OdooHandler {
 		} catch (OpenemsNamedException ex) {
 			throw new OpenemsException("Unable to set language [" + language.name() + "] for current user", ex);
 		}
+	}
+
+	/**
+	 * Get latest Setup Protocol from Odoo or empty JsonObject if no protocol is
+	 * available.
+	 * 
+	 * @param user   {@link MyUser} the current user
+	 * @param edgeName the unique Edge name
+	 * @return the Setup Protocol as a JsonObject
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getSetupProtocolData(MyUser user, String edgeName) throws OpenemsNamedException {
+		// build request
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("edge_name", edgeName) //
+						.build()) //
+				.build();
+
+		// call odoo api
+		return JsonUtils.getAsJsonObject(
+				OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/get_latest_setup_protocol",
+						"session_id=" + user.getToken(), request).result);
 	}
 
 }

@@ -41,16 +41,45 @@ export class AlertingComponent implements OnInit {
       templateOptions: {
         label: this.translate.instant('Edge.Config.Alerting.activate'),
       },
+      parsers: [
+        (value) => {
+          if (value) {
+            if (this.alertingState.delay > AlertingComponent.MAX) {
+              this.alertingState.delay = AlertingComponent.MAX
+            } else if (this.alertingState.delay < AlertingComponent.MIN) {
+              this.alertingState.delay = AlertingComponent.MIN
+            }
+          }
+          return value
+        }
+      ],
     },
     {
       key: 'delay',
       type: 'input',
       templateOptions: {
         label: this.translate.instant('Edge.Config.Alerting.delay'),
+        description: "[" + AlertingComponent.MIN + ";" + AlertingComponent.MAX + "]",
         type: 'number',
+        required: true,
         min: AlertingComponent.MIN,
         max: AlertingComponent.MAX
       },
+      parsers: [
+        (value) => {
+          if (this.alertingState.isOn) {
+            if (value != "") {
+              if (value < 0) {
+                return 0;
+              } else {
+                return value
+              }
+              //value = Math.abs(value)
+            }
+          }
+          return value;
+        }
+      ],
       hideExpression: '!model.isOn',
     },
   ]
@@ -112,6 +141,9 @@ export class AlertingComponent implements OnInit {
 
         this.service.stopSpinner(this.spinnerId);
 
+        if (request instanceof SetAlertingConfigRequest) {
+          this.service.toast("Einstellungen übernommen", 'success')
+        }
       }).catch(reason => {
         if (reason.error.message.startsWith('settings_err:')) {
           this.alertingState = null;
@@ -138,8 +170,6 @@ export class AlertingComponent implements OnInit {
 
   @HostListener('keypress', ['$event'])
   onInput(event: any) {
-    console.log(event);
-
     const pattern = /[0-9]/; // without ., for integer only
     let inputChar = String.fromCharCode(event.which ? event.which : event.keyCode);
 
@@ -173,12 +203,6 @@ class AlertingSetting {
     return this._delay;
   }
   public set delay(val: number) {
-    val = Math.abs(val);
-    if (val < AlertingComponent.MIN) {
-      val = AlertingComponent.MIN;
-    } else if (val > AlertingComponent.MAX) {
-      val = AlertingComponent.MAX;
-    }
     this._delay = val;
   }
 

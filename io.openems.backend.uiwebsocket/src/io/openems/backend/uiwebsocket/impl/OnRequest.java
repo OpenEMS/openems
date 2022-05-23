@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
 import io.openems.backend.common.jsonrpc.request.GetAlertingConfigRequest;
+import io.openems.backend.common.jsonrpc.request.GetSetupProtocolDataRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.request.GetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.RegisterUserRequest;
@@ -101,7 +102,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case SetAlertingConfigRequest.METHOD:
 			result = this.handleSetAlertingConfigRequest(user, SetAlertingConfigRequest.from(request));
 			break;
-
+		case GetSetupProtocolDataRequest.METHOD:
+			result = this.handleGetSetupProtocolDataRequest(user, GetSetupProtocolDataRequest.from(request));
+			break;
 		}
 
 		if (result != null) {
@@ -436,11 +439,19 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<? extends JsonrpcResponseSuccess> handleUpdateUserLanguageRequest(User user,
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleUpdateUserLanguageRequest(User user,
 			UpdateUserLanguageRequest request) throws OpenemsNamedException {
 		this.parent.metadata.updateUserLanguage(user, request.getLanguage());
 
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleGetSetupProtocolDataRequest(User user,
+			GetSetupProtocolDataRequest request) throws OpenemsNamedException {
+		var latestProtocolJson = this.parent.metadata.getSetupProtocolData(user, request.getEdgeId());
+
+		return CompletableFuture
+				.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), latestProtocolJson));
 	}
 
 }

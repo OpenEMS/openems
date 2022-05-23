@@ -120,42 +120,54 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 			var fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
 			var toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
 
+			var errorCounter = 0;
 			for (ChannelAddress channelAddress : channels) {
-				Channel<?> channel = this.componentManager.getChannel(channelAddress);
-				database = this.getExistingRrdDb(channel.address());
-				if (database == null) {
-					continue; // not existing -> abort
-				}
+				try {
+					Channel<?> channel = this.componentManager.getChannel(channelAddress);
+					database = this.getExistingRrdDb(channel.address());
+					if (database == null) {
+						throw new OpenemsException("RRD4j Database for " + channelAddress + " is missing");
+					}
+					var chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
+					var request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp,
+							resolution.toSeconds());
 
-				var chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
-				var request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp,
-						resolution.toSeconds());
+					// Post-Process data
+					var result = postProcessData(request, resolution.toSeconds());
+					database.close();
 
-				// Post-Process data
-				var result = postProcessData(request, resolution.toSeconds());
-				database.close();
+					for (var i = 0; i < result.length; i++) {
+						var timestamp = fromTimestamp + (i * resolution.toSeconds());
 
-				for (var i = 0; i < result.length; i++) {
-					var timestamp = fromTimestamp + (i * resolution.toSeconds());
+						// Prepare result table row
+						var timestampInstant = Instant.ofEpochSecond(timestamp);
+						var dateTime = ZonedDateTime.ofInstant(timestampInstant, ZoneOffset.UTC)
+								.withZoneSameInstant(timezone);
+						var tableRow = table.get(dateTime);
+						if (tableRow == null) {
+							tableRow = new TreeMap<>();
+						}
 
-					// Prepare result table row
-					var timestampInstant = Instant.ofEpochSecond(timestamp);
-					var dateTime = ZonedDateTime.ofInstant(timestampInstant, ZoneOffset.UTC)
-							.withZoneSameInstant(timezone);
-					var tableRow = table.get(dateTime);
-					if (tableRow == null) {
-						tableRow = new TreeMap<>();
+						var value = result[i];
+						if (Double.isNaN(value)) {
+							tableRow.put(channelAddress, JsonNull.INSTANCE);
+						} else {
+							tableRow.put(channelAddress, new JsonPrimitive(value));
+						}
+
+						table.put(dateTime, tableRow);
 					}
 
-					var value = result[i];
-					if (Double.isNaN(value)) {
-						tableRow.put(channelAddress, JsonNull.INSTANCE);
-					} else {
-						tableRow.put(channelAddress, new JsonPrimitive(value));
-					}
-
-					table.put(dateTime, tableRow);
+				} catch (Exception e) {
+					this.logWarn(this.log, "Unable to query RRD4j: " + e.getMessage());
+					errorCounter++;
 				}
+			}
+
+			// If no Channel can be read successfully: throw exception; otherwise return the
+			// available data
+			if (errorCounter == channels.size()) {
+				throw new OpenemsException("No valid Channel available");
 			}
 
 		} catch (Exception e) {
@@ -246,40 +258,50 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 		RrdDb database = null;
 		try {
+			var errorCounter = 0;
 			for (ChannelAddress channelAddress : channels) {
-				Channel<?> channel = this.componentManager.getChannel(channelAddress);
-				database = this.getExistingRrdDb(channel.address());
-
-				if (database == null) {
-					continue; // not existing -> abort
-				}
-
-				var chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
-				var request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp);
-				var data = request.fetchData();
-				database.close();
-
-				// Find first and last energy value != null
-				var first = Double.NaN;
-				var last = Double.NaN;
-				for (Double tmp : data.getValues(0)) {
-					if (Double.isNaN(first) && !Double.isNaN(tmp)) {
-						first = tmp;
+				try {
+					Channel<?> channel = this.componentManager.getChannel(channelAddress);
+					database = this.getExistingRrdDb(channel.address());
+					if (database == null) {
+						throw new OpenemsException("RRD4j Database for " + channelAddress + " is missing");
 					}
-					if (!Double.isNaN(tmp)) {
-						last = tmp;
+
+					var chDef = this.getDsDefForChannel(channel.channelDoc().getUnit());
+					var request = database.createFetchRequest(chDef.consolFun, fromTimestamp, toTimeStamp);
+					var data = request.fetchData();
+					database.close();
+
+					// Find first and last energy value != null
+					var first = Double.NaN;
+					var last = Double.NaN;
+					for (Double tmp : data.getValues(0)) {
+						if (Double.isNaN(first) && !Double.isNaN(tmp)) {
+							first = tmp;
+						}
+						if (!Double.isNaN(tmp)) {
+							last = tmp;
+						}
 					}
+
+					// Calculate difference between last and first value
+					var value = last - first;
+
+					if (Double.isNaN(value)) {
+						table.put(channelAddress, JsonNull.INSTANCE);
+					} else {
+						table.put(channelAddress, new JsonPrimitive(value));
+					}
+				} catch (Exception e) {
+					this.logWarn(this.log, "Unable to query RRD4j: " + e.getMessage());
+					errorCounter++;
 				}
+			}
 
-				// Calculate difference between last and first value
-				var value = last - first;
-
-				if (Double.isNaN(value)) {
-					table.put(channelAddress, JsonNull.INSTANCE);
-				} else {
-					table.put(channelAddress, new JsonPrimitive(value));
-				}
-
+			// If no Channel can be read successfully: throw exception; otherwise return the
+			// available data
+			if (errorCounter == channels.size()) {
+				throw new OpenemsException("No valid Channel available");
 			}
 
 		} catch (Exception e) {
