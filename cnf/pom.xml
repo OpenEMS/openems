@@ -241,7 +241,7 @@
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>6.0.0</version>
+			<version>6.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
