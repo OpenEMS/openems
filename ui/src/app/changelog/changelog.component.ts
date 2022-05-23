@@ -35,6 +35,15 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.5.5',
+        changes: [
+          Changelog.UI + "Verbesserung des lokalen Monitorings für historische Daten",
+          Changelog.library(Library.APACHE_FELIX_WEBCONSOLE),
+          { roleIsAtLeast: Role.ADMIN, change: "URL für 'Passwort zurücksetzen' geändert" },
+          { roleIsAtLeast: Role.ADMIN, change: "Backend-Änderungen für Alerting und IBN-Assistent" },
+        ]
+      },
+      {
         version: '2022.5.4',
         changes: [
           Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + "Fehlerbehebung wenn keine Produktion verfügbar ist",
