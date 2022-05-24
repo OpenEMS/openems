@@ -16,6 +16,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
+	@AttributeDefinition(name = "Charging Priority", description = "Tick if the EVCS should charge with a higher priority.")
+	boolean priority() default false;
+
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 
@@ -24,6 +27,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Minimum power", description = "Minimum current of the Charger in mA.", required = true)
 	int minHwCurrent() default 6000;
+
+	@AttributeDefinition(name = "Phases", description = "If the Phases are physically swapped, change the order here.", required = true)
+	int[] phases() default {1,2,3};
 
 	String webconsole_configurationFactory_nameHint() default "EVCS KEBA KeContact [{id}]";
 }

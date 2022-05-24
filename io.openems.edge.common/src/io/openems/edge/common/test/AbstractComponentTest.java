@@ -3,6 +3,7 @@ package io.openems.edge.common.test;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
@@ -519,6 +520,39 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		this.addComponent(this.sut);
 		return this.self();
 	}
+	/**
+	 * Calls the 'modified()' method of the 'system-under-test'.
+	 *
+	 * <p>
+	 * If 'modified()' changes the configuration, the OSGi behavior is simulated by
+	 * calling 'deactivate()' and then again 'activate()'
+	 *
+	 * @param config the configuration
+	 * @return itself, to use as a builder
+	 * @throws Exception on error
+	 */
+	public SELF modified(AbstractComponentConfig config) throws Exception {
+		// Add the configuration to ConfigurationAdmin
+		for (Object object : this.references) {
+			if (object instanceof DummyConfigurationAdmin) {
+				DummyConfigurationAdmin cm = (DummyConfigurationAdmin) object;
+				cm.addConfig(config);
+			}
+		}
+
+		int configChangeCount = this.getConfigChangeCount();
+		this.callModified(config);
+
+		if (configChangeCount != this.getConfigChangeCount()) {
+			// deactivate + recursive call
+			this.callDeactivate();
+			this.activate(config);
+		}
+
+		// Now SUT can be added to the list, as it does have an ID now
+		this.addComponent(this.sut);
+		return this.self();
+	}
 
 	private int getConfigChangeCount() throws IOException, InvalidSyntaxException {
 		var result = 0;
@@ -570,6 +604,40 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			return;
 		}
 	}
+
+	private void callModified(AbstractComponentConfig config)
+			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		Class<?> clazz = this.sut.getClass();
+		Method[] methods = clazz.getDeclaredMethods();
+		for (Method method : methods) {
+			if (!method.getName().equals("modified")) {
+				continue;
+			}
+			Object[] args = new Object[method.getParameterCount()];
+			for (int i = 0; i < method.getParameterCount(); i++) {
+				Parameter parameter = method.getParameters()[i];
+				Object arg;
+
+				if (ComponentContext.class.isAssignableFrom(parameter.getType())) {
+					// ComponentContext
+					arg = DummyComponentContext.from(config);
+
+				} else if (parameter.getType().isInstance(config)) {
+					// Config
+					arg = config;
+
+				} else {
+					throw new IllegalArgumentException("Unknown modified() parameter " + parameter);
+
+				}
+				args[i] = arg;
+			}
+			method.setAccessible(true);
+			method.invoke(this.sut, args);
+			return;
+		}
+	}
+
 
 	private void callDeactivate() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {

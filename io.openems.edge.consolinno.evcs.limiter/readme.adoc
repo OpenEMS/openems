@@ -1,0 +1,20 @@
+= Consolinno EVCS Limiter
+
+This Component is designed to limit and balance the loads on the 3 Phases for an EVCS Cluster.
+Unlike the preexisting Implementation of this feature, this does not need a Battery as a buffer to function.
+
+Due to this Limitation the Controller has to turn off and severely limit the EVCS using the following strategy:
+     * 1. All Three Phases are over the Limit:
+     * 1.1 Three Phasers
+     * 1.2. Two Phasers IF Three Phasers don't exist / not enough to reduce at least one Phase
+     * 1.3 One Phasers IF neither Three nor Two Phasers exist / not enough to reduce at least one Phase
+     * 2. Two phases are over the Limit:
+     * 2.1 Two Phasers on both Phases over the Limit
+     * 2.2 One Phasers IF no Two Phasers of the above condition exist / not enough to reduce at least one Phase
+     * 2.3 Three Phasers IF neither Three nor Two Phasers of above condition exist / not enough to reduce at least one Phase
+     * 2.4 Two Phasers IF none of the above apply
+     * 3. One Phases is over the Limit:
+     * 3.1 One Phasers
+     * 3.2 Three Phasers IF no One Phasers exist / not enough to reduce at least one Phase
+     * 3.3 Two Phasers IF neither Three Phasers nor One Phasers exist / not enough to reduce at least one Phase
+

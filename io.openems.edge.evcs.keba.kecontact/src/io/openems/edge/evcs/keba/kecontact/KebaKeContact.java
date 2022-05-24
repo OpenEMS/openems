@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -36,6 +37,8 @@ import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
 
+import javax.naming.ConfigurationException;
+
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Evcs.Keba.KeContact", //
 		immediate = true, //
@@ -54,6 +57,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	private final ReadHandler readHandler = new ReadHandler(this);
 	private final WriteHandler writeHandler = new WriteHandler(this);
 	private Boolean lastConnectionLostState = false;
+	private int[] phaseOrder;
 
 	protected Config config;
 
@@ -78,7 +82,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	private InetAddress ip = null;
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws UnknownHostException {
+	void activate(ComponentContext context, Config config) throws UnknownHostException, ConfigurationException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.channel(KebaChannelId.ALIAS).setNextValue(config.alias());
@@ -86,6 +90,12 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		this.ip = InetAddress.getByName(config.ip().trim());
 
 		this.config = config;
+		this.phaseOrder = config.phases();
+
+		if (!this.checkPhases()) {
+			throw new ConfigurationException();
+		}
+
 		this._setPowerPrecision(0.23);
 
 		/*
@@ -101,6 +111,18 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		// start queryWorker
 		this.readWorker.activate(this.id() + "query");
 
+	}
+
+	/**
+	 * Checks if the configured Phase Array is valid.
+	 * In order to be valid, it has to contain each of the numbers 1,2,3 once.
+	 * (e.g [1,2,3]).
+	 *
+	 * @return true if the config is valid
+	 */
+	private boolean checkPhases() {
+		String phases = Arrays.toString(this.phaseOrder);
+		return phases.contains("1") && phases.contains("2") && phases.contains("3") && this.phaseOrder.length == 3;
 	}
 
 	@Override
@@ -234,15 +256,20 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				.channel(78, KebaChannelId.INPUT, ModbusType.UINT16)
 
 				// Report 3
-				.channel(79, KebaChannelId.VOLTAGE_L1, ModbusType.UINT16)
-				.channel(80, KebaChannelId.VOLTAGE_L2, ModbusType.UINT16)
-				.channel(81, KebaChannelId.VOLTAGE_L3, ModbusType.UINT16)
-				.channel(82, KebaChannelId.CURRENT_L1, ModbusType.UINT16)
-				.channel(83, KebaChannelId.CURRENT_L2, ModbusType.UINT16)
-				.channel(84, KebaChannelId.CURRENT_L3, ModbusType.UINT16)
+				.channel(78 + this.phaseOrder[0], KebaChannelId.VOLTAGE_L1, ModbusType.UINT16)
+				.channel(78 + this.phaseOrder[1], KebaChannelId.VOLTAGE_L2, ModbusType.UINT16)
+				.channel(78 + this.phaseOrder[2], KebaChannelId.VOLTAGE_L3, ModbusType.UINT16)
+				.channel(81 + this.phaseOrder[0], KebaChannelId.CURRENT_L1, ModbusType.UINT16)
+				.channel(81 + this.phaseOrder[1], KebaChannelId.CURRENT_L2, ModbusType.UINT16)
+				.channel(81 + this.phaseOrder[2], KebaChannelId.CURRENT_L3, ModbusType.UINT16)
 				.channel(85, KebaChannelId.ACTUAL_POWER, ModbusType.UINT16)
 				.channel(86, KebaChannelId.COS_PHI, ModbusType.UINT16).uint16Reserved(87)
 				.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16).build();
+	}
+
+	@Override
+	public int[] getPhaseConfiguration() {
+		return this.phaseOrder;
 	}
 
 	@Override

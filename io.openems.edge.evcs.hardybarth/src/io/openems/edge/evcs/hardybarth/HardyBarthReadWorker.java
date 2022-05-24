@@ -87,10 +87,9 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 		this.parent._setActiveConsumptionEnergy(activeConsumptionEnergy);
 
 		// PHASES
-		var powerL1 = (Long) this.getValueForChannel(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L1, json);
-		var powerL2 = (Long) this.getValueForChannel(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L2, json);
-		var powerL3 = (Long) this.getValueForChannel(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L3, json);
-
+		Double powerL1 = this.assignPhase(1, json);
+		Double powerL2 = this.assignPhase(2, json);
+		Double powerL3 = this.assignPhase(3, json);
 		Integer phases = null;
 		if (powerL1 != null && powerL2 != null && powerL3 != null) {
 
@@ -200,6 +199,33 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 	 */
 	private Object getValueForChannel(HardyBarth.ChannelId channelId, JsonElement json) {
 		return this.getValueFromJson(channelId, json, channelId.converter, channelId.getJsonPaths());
+	}
+
+	/**
+	 * Assigns phases based on the Config.
+	 *
+	 * @param phaseNumber Phase that has to be assigned
+	 * @param json JsonConfig
+	 * @return Assigned Phase
+	 */
+	private Double assignPhase(int phaseNumber, JsonElement json) {
+		int[] phases = this.parent.getPhaseConfiguration();
+		switch (phases[phaseNumber - 1]) {
+			case 1:
+				return (Double) this.getValueFromJson(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L1, json,
+						(value) -> Double.parseDouble(value.toString()) * 0.1, "secc", "port0", "metering", "power", "active",
+						"ac", "l1", "actual");
+			case 2:
+				return (Double) this.getValueFromJson(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L2, json,
+						(value) -> Double.parseDouble(value.toString()) * 0.1, "secc", "port0", "metering", "power", "active",
+						"ac", "l2", "actual");
+			case 3:
+				return (Double) this.getValueFromJson(HardyBarth.ChannelId.RAW_ACTIVE_POWER_L3, json,
+						(value) -> Double.parseDouble(value.toString()) * 0.1, "secc", "port0", "metering", "power", "active",
+						"ac", "l3", "actual");
+		}
+
+		return 0.d;
 	}
 
 	/**

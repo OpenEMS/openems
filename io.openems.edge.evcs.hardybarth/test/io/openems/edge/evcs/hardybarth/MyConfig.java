@@ -56,6 +56,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public boolean priority() {
+		return false;
+	}
+
+	@Override
 	public boolean debugMode() {
 		return false;
 	}
@@ -73,5 +78,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int maxHwCurrent() {
 		return this.builder.maxHwCurrent;
+	}
+
+	@Override
+	public int[] phases() {
+		return new int[]{1, 2, 3};
 	}
 }

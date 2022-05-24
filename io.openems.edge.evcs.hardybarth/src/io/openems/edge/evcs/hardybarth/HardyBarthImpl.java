@@ -1,5 +1,6 @@
 package io.openems.edge.evcs.hardybarth;
 
+import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -20,6 +21,8 @@ import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+
+import java.util.Arrays;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -46,6 +49,8 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 	// Master EVCS is responsible for RFID authentication (Not implemented for now)
 	protected boolean masterEvcs = true;
 
+	private int[] phaseOrder;
+
 	@Reference
 	private EvcsPower evcsPower;
 
@@ -59,13 +64,17 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	void activate(ComponentContext context, Config config) throws ConfigurationException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		this._setChargingType(ChargingType.AC);
 		this._setMinimumHardwarePower(config.minHwCurrent() / 1000 * 3 * 230);
 		this._setMaximumHardwarePower(config.maxHwCurrent() / 1000 * 3 * 230);
 		this._setPowerPrecision(230);
+		this.phaseOrder = config.phases();
+		if (!this.checkPhases()) {
+			throw new ConfigurationException("Phase Configuration is not valid!", "Configuration must only contain 1,2 and 3.");
+		}
 
 		if (config.enabled()) {
 			this.api = new HardyBarthApi(config.ip(), this);
@@ -74,6 +83,17 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 			this.readWorker.activate(config.id());
 			this.readWorker.triggerNextRun();
 		}
+	}
+	/**
+	 * Checks if the configured Phase Array is valid.
+	 * In order to be valid, it has to contain each of the numbers 1,2,3 once.
+	 * (e.g [1,2,3]).
+	 *
+	 * @return true if the config is valid
+	 */
+	private boolean checkPhases() {
+		String phases = Arrays.toString(this.phaseOrder);
+		return phases.contains("1") && phases.contains("2") && phases.contains("3") && this.phaseOrder.length == 3;
 	}
 
 	@Override
@@ -127,4 +147,10 @@ public class HardyBarthImpl extends AbstractOpenemsComponent
 	public EvcsPower getEvcsPower() {
 		return this.evcsPower;
 	}
+
+	@Override
+	public int[] getPhaseConfiguration() {
+		return this.phaseOrder;
+	}
+
 }
