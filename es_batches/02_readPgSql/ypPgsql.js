@@ -212,6 +212,11 @@ function hyperInfluxQuery(theEdgeForThisMeas) {
             theEdgeForThisMeas.KWHTotals = {
               totalKWHImport : 0,
               totalKWHExport : 0,
+              offsetMeter: {
+                totalBillingOffset_allParts: [],
+                totalBillingOffset_intro: [],
+                totalBillingOffset_prod: []
+              },
               billingTotals: {}
             };
             ypMeters.buildTotals(theEdgeForThisMeas, result);
@@ -224,33 +229,41 @@ function hyperInfluxQuery(theEdgeForThisMeas) {
             for (var keyyy in theEdgeForThisMeas.KWHTotals.billingTotals){
               const billedMeterReadData = theEdgeForThisMeas.KWHTotals.billingTotals[keyyy];
               const mitbill = billedMeterReadData.meter;
+              const valuesSource = 
+                  billedMeterReadData.meter.inOffsetFlag 
+                      ?
+                        billedMeterReadData.valuesInOffset
+                            :
+                        billedMeterReadData
+              ;
               const parametersQuery = [
                 
-                measureDateStart, 
-                measureDateEnd, 
-                readTaskId,
-                true, 
-
-                mitbill.meterid,
-                mitbill.MeterUid,
-                mitbill.userid,
-                mitbill.useruid,
-
-                measurementClusters.idBillingLevel,
-                measurementClusters.idBillingLevelsSet,
-                measurementClusters.billLevelForeignUid,
-                measurementClusters.billLevelsSetForeignUid,    
-                // billLevelForeignUid,
-                // billLevelsSetForeignUid,
-          
-                billedMeterReadData.totalKWHBill_intro, 0, 0, 0,
-
-                billedMeterReadData.totalKWHBill_prod, 0, 0, 0,
-
-                billedMeterReadData.totalKWHBill_intro,
-                billedMeterReadData.totalKWHBill_partFromProd, 
-                billedMeterReadData.totalKWHBill_partFromIntro
-              ];
+                  measureDateStart, 
+                  measureDateEnd, 
+                  readTaskId,
+                  true, 
+  
+                  mitbill.meterid,
+                  mitbill.MeterUid,
+                  mitbill.userid,
+                  mitbill.useruid,
+  
+                  measurementClusters.idBillingLevel,
+                  measurementClusters.idBillingLevelsSet,
+                  measurementClusters.billLevelForeignUid,
+                  measurementClusters.billLevelsSetForeignUid,    
+                  // billLevelForeignUid,
+                  // billLevelsSetForeignUid,
+            
+                  valuesSource.totalKWHBill_intro, 0, 0, 0,
+  
+                  valuesSource.totalKWHBill_prod, 0, 0, 0,
+  
+                  valuesSource.totalKWHBill_intro,
+                  valuesSource.totalKWHBill_partFromProd, 
+                  valuesSource.totalKWHBill_partFromIntro
+                ];
+              
               console.log(parametersQuery);
               ciccabc = await pgLib.client(
                 'CALL "youpower-billingmeters"."saveLectureFromMeter"($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)',
