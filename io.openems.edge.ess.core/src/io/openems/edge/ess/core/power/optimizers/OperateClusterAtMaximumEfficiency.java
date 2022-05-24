@@ -16,10 +16,19 @@ import io.openems.edge.ess.core.power.data.TargetDirection;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Inverter;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
 public class OperateClusterAtMaximumEfficiency {
+
+	static enum typeOfcluster {
+		Homogenous, Heterogenous
+	}
+
+	static enum operationMode {
+		one, two, three
+	}
 
 	public static PointValuePair apply(Coefficients coefficients, //
 			TargetDirection targetDirection, //
@@ -30,11 +39,17 @@ public class OperateClusterAtMaximumEfficiency {
 			List<ManagedSymmetricEss> esss //
 	) {
 
+		typeOfcluster type = null;
+		operationMode Om = null;
+		double setPower = 0d;
+		var PmaxDischarge = 0;
+		var PmaxCharge = 0;
+
 		for (var c : allConstraints) {
 			if (c.getCoefficients().length == 1 && c.getCoefficients()[0].getCoefficient().getPwr() == Pwr.ACTIVE
 					&& c.getRelationship() == Relationship.EQUALS) {
-				
-				var setPower = c.getValue();
+
+				setPower = c.getValue().get();
 				System.out.println(setPower);
 			}
 		}
@@ -45,41 +60,95 @@ public class OperateClusterAtMaximumEfficiency {
 		LinkedHashMap<Inverter, ManagedSymmetricEss> OnlyWantedInvEssMap = new LinkedHashMap<>();
 		System.out.println(InvSocMap);
 
-		int targetDifferenceSoc = Collections.max(InvSocMap.values()) - Collections.min(InvSocMap.values());
+		int differenceSoc = Collections.max(InvSocMap.values()) - Collections.min(InvSocMap.values());
 
-		// Get the reduced target inverters
-		List<Inverter> reducedTargetInverter = new ArrayList<Inverter>();
-
-		// int n = 0;
-		for (Map.Entry<Inverter, Integer> entry : InvSocMap.entrySet()) {
-			if (entry.getValue() < targetDifferenceSoc) {
-				OnlyWantedInvSocMap.put(entry.getKey(), entry.getValue());
-				reducedTargetInverter.add(entry.getKey());
-
-			}
+		if (differenceSoc > 5) {
+			type = typeOfcluster.Heterogenous;
+		} else {
+			type = typeOfcluster.Homogenous;
 		}
 
-		for (Map.Entry<Inverter, ManagedSymmetricEss> entry : InvEssMap.entrySet()) {
-			if (entry.getValue().getSoc().get() < targetDifferenceSoc) {
-				OnlyWantedInvEssMap.put(entry.getKey(), entry.getValue());
+		switch (type) {
+		case Heterogenous:
+			break;
+		case Homogenous:
+
+			// Get the reduced target inverters
+			List<Inverter> reducedTargetInverter = new ArrayList<Inverter>();
+
+//			// int n = 0;
+//			for (Map.Entry<Inverter, Integer> entry : InvSocMap.entrySet()) {
+//				if (entry.getValue() > differenceSoc) {
+//					OnlyWantedInvSocMap.put(entry.getKey(), entry.getValue());
+//					reducedTargetInverter.add(entry.getKey());
+//
+//				}
+//			}
+//
+			for (Map.Entry<Inverter, ManagedSymmetricEss> entry : InvEssMap.entrySet()) {
+				if (entry.getValue().getSoc().get() > differenceSoc) {
+					OnlyWantedInvEssMap.put(entry.getKey(), entry.getValue());
+				}
 			}
-		}
 
-		System.out.println(OnlyWantedInvSocMap);
-		System.out.println(OnlyWantedInvEssMap);
-
-		// calculate the Pmax based on the target direction
-		int PmaxInCharge = 0;
-		int PmaxInDischarge = 0;
-		switch (targetDirection) {
-		case CHARGE:
 			for (Map.Entry<Inverter, ManagedSymmetricEss> entry : OnlyWantedInvEssMap.entrySet()) {
 
+				var maxDischargePower = entry.getValue() //
+						.getPower() //
+						.getMaxPower(entry.getValue(), Phase.ALL, Pwr.ACTIVE);
+
+				System.out.println(" Discharge power of " + entry.getValue().id() + " is : " + maxDischargePower);
+
+				PmaxDischarge += maxDischargePower;
+
+				var maxChargePower = entry.getValue() //
+						.getPower() //
+						.getMinPower(entry.getValue(), Phase.ALL, Pwr.ACTIVE);
+
+				System.out.println(" Charge power of " + entry.getValue().id() + " is : " + maxChargePower);
+
+				PmaxCharge -= maxChargePower;
+
 			}
-			break;
-		case DISCHARGE:
-			break;
-		case KEEP_ZERO:
+			System.out.println(PmaxDischarge);
+			System.out.println(PmaxCharge);
+
+			switch (targetDirection) {
+			case CHARGE:
+				if (0 < setPower && //
+						setPower < (0.40 * ( Math.abs(PmaxCharge)   / OnlyWantedInvEssMap.size()))) { //
+					
+					Om = operationMode.one;
+				} else if ( (0.40 * (Math.abs(PmaxCharge) / OnlyWantedInvEssMap.size())) < setPower && //
+						setPower < Math.abs(PmaxCharge)) { //
+					
+					Om = operationMode.two;
+				} else { //
+					
+					Om = operationMode.three;
+				}
+
+				break;
+			case DISCHARGE:
+				
+				if (0 < setPower && //
+						setPower < (0.40 * (Math.abs(PmaxDischarge)    / OnlyWantedInvEssMap.size()))) {
+					Om = operationMode.one;
+				} else if ( (0.40 * ((Math.abs(PmaxDischarge) / OnlyWantedInvEssMap.size())) < setPower && setPower < Math.abs(PmaxDischarge))) {
+					Om = operationMode.two;
+				} else {
+					Om = operationMode.three;
+				}
+				
+				break;
+			case KEEP_ZERO:
+				break;
+
+			}
+
+			System.out.println(OnlyWantedInvSocMap);
+			System.out.println(OnlyWantedInvEssMap);
+
 			break;
 
 		}
