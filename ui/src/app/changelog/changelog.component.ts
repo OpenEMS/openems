@@ -35,6 +35,12 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.5.6',
+        changes: [
+          Changelog.UI
+        ]
+      },
+      {
         version: '2022.5.5',
         changes: [
           Changelog.UI + "Verbesserung des lokalen Monitorings für historische Daten",
