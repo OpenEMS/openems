@@ -11,6 +11,10 @@ const ypMeters = require("./ypMeters.js");
 
 const ypPgQueries = require("./ypPgQueries.js");
 const ypInflxQueries = require("./ypInflxQueries.js");
+
+
+const enableOffsetMode = true;
+
 //
 // ================================================================================================================================================================
 //
@@ -23,7 +27,42 @@ const ypInflxQueries = require("./ypInflxQueries.js");
 // ================================================================================================================================================================
 //
 
+//
+//TODO find another spot to shift
+// function to calculate kappa in the offset meter
+function calculateKappa(mitbill, timeStep, theEdgeForThisMeas){
+  const KWHTotals = theEdgeForThisMeas.KWHTotals;
 
+  for(kkk = timeStep; kkk < mitbill.steppi.length; kkk+=timeStep){
+
+    const kappo = {
+      "userPow_introTotal": 0,
+      "userPow_fromIntro": 0,
+      "userPow_fromProd": 0
+    };
+
+    //
+    // eval intro
+    const mainIntro_cons = KWHTotals.introArray[kkk].consumption - KWHTotals.introArray[kkk - timeStep].consumption;
+    const mainIntro_prod = KWHTotals.introArray[kkk].production - KWHTotals.introArray[kkk - timeStep].production;
+    //
+    // eval prod
+    const mainProd_prod = KWHTotals.prodArray[kkk].production - KWHTotals.prodArray[kkk - timeStep].production;
+    const mainprod_prod4users = mainProd_prod - mainIntro_prod;
+
+    //
+    // eval meter under offset ....
+    const totalKWHBill_intro = mainIntro_cons + mainprod_prod4users - KWHTotals.offsetMeter.totalBillingOffset_allParts[kkk];
+    const totalKWHBill_partFromIntro = mainIntro_cons - KWHTotals.offsetMeter.totalBillingOffset_intro[kkk];
+    const totalKWHBill_partFromProd = mainprod_prod4users - KWHTotals.offsetMeter.totalBillingOffset_prod[kkk];
+
+    kappo.userPow_introTotal = mitbill.steppi[kkk].thisStepBill_intro / (totalKWHBill_intro == 0 ? 1 : totalKWHBill_intro); 
+    kappo.userPow_fromIntro = mitbill.steppi[kkk].userPow_fromProd / (totalKWHBill_partFromIntro == 0 ? 1 : totalKWHBill_partFromIntro); 
+    kappo.userPow_fromProd = mitbill.steppi[kkk].userPow_fromIntro / (totalKWHBill_partFromProd == 0 ? 1 : totalKWHBill_partFromProd);
+    
+    KWHTotals.billingTotals["meter_" + mitbill.meterid].valuesInOffset.kappa[kkk] = kappo;
+  }
+}
 
 function getOrSaveMeasClusterOnClusters(measurementClustersReadings,meterContainer){
   measurementClustersReadings["edg_" + meterContainer.idedge] = measurementClustersReadings["edg_" + meterContainer.idedge] ?? 
@@ -43,8 +82,8 @@ function getOrSaveMeasClusterOnClusters(measurementClustersReadings,meterContain
 
 
     //
-    // in the next future something will be added
-    //
+    //  in the next future something will be added
+    // 
   };
   return measurementClustersReadings["edg_" + meterContainer.idedge];
 
@@ -132,7 +171,12 @@ function hyperInfluxQuery(theEdgeForThisMeas) {
   const clientResult = await pgLib.clientDemo();
   console.log("PG Time with client: " + clientResult.rows[0]["now"]);
 
+
   //
+  //this constant is number of mesurement intervals. 
+  // 2022.05.25 - bonde : this number times 5s - 
+  const timeStep = 180;
+  //3
   //
   // first of all, load read tasks list
   const readTasks = await pgLib.client(ypPgQueries.generateReadTasksQuery());
@@ -219,7 +263,7 @@ function hyperInfluxQuery(theEdgeForThisMeas) {
               },
               billingTotals: {}
             };
-            ypMeters.buildTotals(theEdgeForThisMeas, result);
+            ypMeters.buildTotals(theEdgeForThisMeas, result, timeStep);
             console.log(`\n\n\n ${theEdgeForThisMeas.influxDb} totals: `, theEdgeForThisMeas.KWHTotals);
             console.log("Going to insert data in the DB");
             let ciccabc = await pgLib.client(
@@ -229,8 +273,12 @@ function hyperInfluxQuery(theEdgeForThisMeas) {
             for (var keyyy in theEdgeForThisMeas.KWHTotals.billingTotals){
               const billedMeterReadData = theEdgeForThisMeas.KWHTotals.billingTotals[keyyy];
               const mitbill = billedMeterReadData.meter;
+              //TODO find another spot for this function
+              calculateKappa(mitbill, timeStep, theEdgeForThisMeas);
               const valuesSource = 
-                  billedMeterReadData.meter.inOffsetFlag 
+                  billedMeterReadData.meter.inOffsetFlag
+                     && 
+                     enableOffsetMode
                       ?
                         billedMeterReadData.valuesInOffset
                             :
