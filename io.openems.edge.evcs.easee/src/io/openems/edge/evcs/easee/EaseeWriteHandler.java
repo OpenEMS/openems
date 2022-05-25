@@ -1,6 +1,5 @@
 package io.openems.edge.evcs.easee;
 
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Status;
 

@@ -15,7 +15,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-
+    @SuppressWarnings("unused")
 /**
  * This Bridge will handle the communication with the Easee Cloud with its proprietary API.
  * https://developer.easee.cloud/docs/web-api-overview
@@ -36,7 +36,7 @@ public class EaseeBridge {
     private TimerHandler timer;
     private static final String DOWN_TIME = "Ping";
 
-    private boolean charging;
+	private boolean charging;
 
     private boolean connected;
     private String accessToken;
