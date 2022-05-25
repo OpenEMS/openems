@@ -1,17 +1,15 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AdvertisementComponent } from './advertisement.component';
-import { FeneconHomeComponent } from './feneconHome/feneconHome';
-import { KostalPvInverterComponent } from './kostalpvinverter/kostalpvinverter';
+import { GlsCrowdfunding } from './glsCrowdFunding/glscrowdfunding';
 
 @NgModule({
     imports: [
-        SharedModule,
+        SharedModule
     ],
     declarations: [
         AdvertisementComponent,
-        FeneconHomeComponent,
-        KostalPvInverterComponent
+        GlsCrowdfunding
     ],
     exports: [
         AdvertisementComponent

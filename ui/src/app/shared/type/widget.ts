@@ -67,18 +67,9 @@ export class AdvertWidgets {
 
         let list: AdvertWidget[] = [];
 
-        // Dont show home AdvertWidget for 'Homes'
-        if (edge.producttype != 'home') {
-            list.push(
-                {
-                    name: 'FENECON Home',
-                    title: 'FENECON Home'
-                }
-            );
-        }
         list.push({
-            name: 'Kostal Pv Inverter',
-            title: 'FEMS App KOSTAL PV-Wechselrichter'
+            name: 'GLS Crowdfunding',
+            title: 'Mach mit bei FENECON'
         })
 
         return new AdvertWidgets(list);
