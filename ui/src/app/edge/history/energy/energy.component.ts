@@ -1025,7 +1025,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       }
 
       let value = tooltipItem.yLabel;
-      if (label == translate.instant('General.soc')) {
+      if (label == translate.instant('General.soc').split(" ")[0]) {
         return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
       } else {
         return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
