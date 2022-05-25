@@ -58,9 +58,10 @@
                     </td>
                     <td>
                         <ion-item button="true" id="open-date-input" *ngIf="formGroup">
-                            <ion-label> {{this.formGroup.controls["manualTargetTime"].value |
-                                date:
-                                "HH:mm"}}
+                            <ion-label>
+                                {{this.formGroup.controls["manualTargetTime"].value.match("/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/")?
+                                (this.formGroup.controls["manualTargetTime"].value | date:
+                                "HH:mm") : this.formGroup.controls["manualTargetTime"].value}}
                             </ion-label>
                             <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
                                 <ng-template>

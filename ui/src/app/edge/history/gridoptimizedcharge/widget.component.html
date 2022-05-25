@@ -13,7 +13,7 @@
           <tr *ngIf="activeTimeAvoidLowCharging != null && activeTimeAvoidLowCharging > 59">
             <td style="width:65%" translate>Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed</td>
             <td style="width:35%" class="align_right">
-              {{ activeTimeAvoidLowCharging | sectohour }}
+              {{ activeTimeAvoidLowCharging | formatSecondsToDuration }}
             </td>
           <tr>
           <tr *ngIf="activeTimeDelayCharge != null && activeTimeDelayCharge > 59">
