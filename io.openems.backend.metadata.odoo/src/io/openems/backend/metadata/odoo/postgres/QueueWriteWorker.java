@@ -16,7 +16,6 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.postgres.task.DatabaseTask;
 import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
-import io.openems.backend.metadata.odoo.postgres.task.InsertOrUpdateDeviceStates;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
 import io.openems.common.utils.ThreadPoolUtils;
@@ -144,8 +143,6 @@ public class QueueWriteWorker {
 			AtomicInteger counter;
 			if (task instanceof InsertEdgeConfigUpdate) {
 				counter = this.countInsertEdgeConfigUpdateUp;
-			} else if (task instanceof InsertOrUpdateDeviceStates) {
-				counter = this.countInsertOrUpdateDeviceStateUp;
 			} else if (task instanceof UpdateEdgeConfig) {
 				counter = this.countUpdateEdgeConfigUp;
 			} else if (task instanceof UpdateEdgeProducttype) {
@@ -159,8 +156,6 @@ public class QueueWriteWorker {
 			AtomicInteger counter;
 			if (task instanceof InsertEdgeConfigUpdate) {
 				counter = this.countInsertEdgeConfigUpdateDown;
-			} else if (task instanceof InsertOrUpdateDeviceStates) {
-				counter = this.countInsertOrUpdateDeviceStateDown;
 			} else if (task instanceof UpdateEdgeConfig) {
 				counter = this.countUpdateEdgeConfigDown;
 			} else if (task instanceof UpdateEdgeProducttype) {

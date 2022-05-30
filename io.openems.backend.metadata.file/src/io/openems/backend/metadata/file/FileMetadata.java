@@ -30,7 +30,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Edge.State;
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
@@ -53,6 +52,7 @@ import io.openems.common.utils.JsonUtils;
  *     [edgeId: string]: {
  *       comment: string,
  *       apikey: string
+ *       setuppassword?: string
  *     }
  *   }
  * }
@@ -191,9 +191,8 @@ public class FileMetadata extends AbstractMetadata implements Metadata {
 							this, //
 							entry.getKey(), // Edge-ID
 							JsonUtils.getAsString(edge, "apikey"), //
-							JsonUtils.getAsString(edge, "setuppassword"), //
+							JsonUtils.getAsOptionalString(edge, "setuppassword").orElse(""), //
 							JsonUtils.getAsString(edge, "comment"), //
-							State.ACTIVE, // State
 							"", // Version
 							"", // Product-Type
 							Level.OK, // Sum-State

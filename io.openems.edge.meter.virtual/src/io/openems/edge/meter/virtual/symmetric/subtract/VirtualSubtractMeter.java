@@ -37,7 +37,7 @@ public class VirtualSubtractMeter extends AbstractOpenemsComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private OpenemsComponent minuend;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
@@ -58,8 +58,17 @@ public class VirtualSubtractMeter extends AbstractOpenemsComponent
 		this.config = config;
 
 		// update filter for 'minuend'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "minuend", config.minuend_id())) {
-			return;
+		if (config.minuend_id() == null || config.minuend_id().isBlank()) {
+			// assume zero values for minuend and set reference filter to something
+			// unresolvable
+			if (OpenemsComponent.updateReferenceFilterRaw(this.cm, this.servicePid(), "minuend", "(false)")) {
+				return;
+			}
+		} else {
+			// use given minuend meter or ess
+			if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "minuend", config.minuend_id())) {
+				return;
+			}
 		}
 
 		// update filter for 'subtrahends'
