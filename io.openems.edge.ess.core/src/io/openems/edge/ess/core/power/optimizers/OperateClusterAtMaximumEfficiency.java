@@ -16,18 +16,22 @@ import io.openems.edge.ess.core.power.data.TargetDirection;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Inverter;
+import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
 public class OperateClusterAtMaximumEfficiency {
 
-	static enum typeOfcluster {
-		Homogenous, Heterogenous
+	static enum TypeOfcluster {
+		HOMOGENOUS, //
+		HETEROGENOUS
 	}
 
-	static enum operationMode {
-		one, two, three
+	static enum OperationMode {
+		ONE, //
+		TWO, //
+		THREE
 	}
 
 	public static PointValuePair apply(Coefficients coefficients, //
@@ -39,121 +43,229 @@ public class OperateClusterAtMaximumEfficiency {
 			List<ManagedSymmetricEss> esss //
 	) {
 
-		typeOfcluster type = null;
-		operationMode Om = null;
-		double setPower = 0d;
-		var PmaxDischarge = 0;
-		var PmaxCharge = 0;
+		OperationMode Om = null;
 
-		for (var c : allConstraints) {
-			if (c.getCoefficients().length == 1 && c.getCoefficients()[0].getCoefficient().getPwr() == Pwr.ACTIVE
-					&& c.getRelationship() == Relationship.EQUALS) {
+//		var PmaxDischarge = 0;
+//		var PmaxCharge = 0;
+//		var PmaxCluster = 0;
+//		int targetSoc = 50;
+		List<Constraint> constraints = new ArrayList<>(allConstraints);
 
-				setPower = c.getValue().get();
-				System.out.println(setPower);
-			}
-		}
-
+		/*
+		 * The Power set value
+		 */
+		double powerSet = getThePowerWhichIsToBeSet(allConstraints);
+		/*
+		 * All of Inverter and its Soc map
+		 */
 		LinkedHashMap<Inverter, Integer> InvSocMap = WeightsUtil.getInvAndSocMap(invs, esss);
+		/*
+		 * All of Inverter and its Ess
+		 */
 		LinkedHashMap<Inverter, ManagedSymmetricEss> InvEssMap = WeightsUtil.getInvAndEssMap(invs, esss);
 		LinkedHashMap<Inverter, Integer> OnlyWantedInvSocMap = new LinkedHashMap<>();
 		LinkedHashMap<Inverter, ManagedSymmetricEss> OnlyWantedInvEssMap = new LinkedHashMap<>();
+		LinkedHashMap<Inverter, ManagedSymmetricEss> UnWantedInvEssMap = new LinkedHashMap<>();
+
 		System.out.println(InvSocMap);
 
-		int differenceSoc = Collections.max(InvSocMap.values()) - Collections.min(InvSocMap.values());
+		TypeOfcluster typeOfCluster = GetTheTypeOfCluster(InvSocMap);
 
-		if (differenceSoc > 5) {
-			type = typeOfcluster.Heterogenous;
-		} else {
-			type = typeOfcluster.Homogenous;
-		}
+		switch (typeOfCluster) {
+		case HETEROGENOUS:
 
-		switch (type) {
-		case Heterogenous:
 			break;
-		case Homogenous:
-
-			// Get the reduced target inverters
-			List<Inverter> reducedTargetInverter = new ArrayList<Inverter>();
-
-//			// int n = 0;
-//			for (Map.Entry<Inverter, Integer> entry : InvSocMap.entrySet()) {
-//				if (entry.getValue() > differenceSoc) {
-//					OnlyWantedInvSocMap.put(entry.getKey(), entry.getValue());
-//					reducedTargetInverter.add(entry.getKey());
-//
-//				}
-//			}
-//
-			for (Map.Entry<Inverter, ManagedSymmetricEss> entry : InvEssMap.entrySet()) {
-				if (entry.getValue().getSoc().get() > differenceSoc) {
-					OnlyWantedInvEssMap.put(entry.getKey(), entry.getValue());
-				}
-			}
-
-			for (Map.Entry<Inverter, ManagedSymmetricEss> entry : OnlyWantedInvEssMap.entrySet()) {
-
-				var maxDischargePower = entry.getValue() //
-						.getPower() //
-						.getMaxPower(entry.getValue(), Phase.ALL, Pwr.ACTIVE);
-
-				System.out.println(" Discharge power of " + entry.getValue().id() + " is : " + maxDischargePower);
-
-				PmaxDischarge += maxDischargePower;
-
-				var maxChargePower = entry.getValue() //
-						.getPower() //
-						.getMinPower(entry.getValue(), Phase.ALL, Pwr.ACTIVE);
-
-				System.out.println(" Charge power of " + entry.getValue().id() + " is : " + maxChargePower);
-
-				PmaxCharge -= maxChargePower;
-
-			}
-			System.out.println(PmaxDischarge);
-			System.out.println(PmaxCharge);
-
+		case HOMOGENOUS:
+			// Get the Target direction
 			switch (targetDirection) {
 			case CHARGE:
-				if (0 < setPower && //
-						setPower < (0.40 * ( Math.abs(PmaxCharge)   / OnlyWantedInvEssMap.size()))) { //
-					
-					Om = operationMode.one;
-				} else if ( (0.40 * (Math.abs(PmaxCharge) / OnlyWantedInvEssMap.size())) < setPower && //
-						setPower < Math.abs(PmaxCharge)) { //
-					
-					Om = operationMode.two;
-				} else { //
-					
-					Om = operationMode.three;
+				// get max apparent power, assumption all the inverters are same
+				var twetypercentofMaxKVA = InvEssMap.get(0).getMaxApparentPower().get() * 0.2;
+				var n = Math.floor(Math.abs(powerSet / twetypercentofMaxKVA));
+				List<Inverter> OnlyWantedInv = getListForCharging(InvEssMap, (int) n);
+
+				try {
+					var invA = OnlyWantedInv.get(0);
+					for (var j = 1; j < OnlyWantedInv.size(); j++) {
+						var invB = OnlyWantedInv.get(j);
+						constraints.add(new Constraint(
+								invA.toString() + "|" + invB.toString() + ": distribute ActivePower equally",
+								new LinearCoefficient[] {
+										new LinearCoefficient(
+												coefficients.of(invA.getEssId(), invA.getPhase(), Pwr.ACTIVE), 1),
+										new LinearCoefficient(
+												coefficients.of(invB.getEssId(), invB.getPhase(), Pwr.ACTIVE), -1) },
+								Relationship.EQUALS, 0));
+						constraints.add(new Constraint(
+								invA.toString() + "|" + invB.toString() + ": distribute ReactivePower equally",
+								new LinearCoefficient[] {
+										new LinearCoefficient(
+												coefficients.of(invA.getEssId(), invA.getPhase(), Pwr.REACTIVE), 1),
+										new LinearCoefficient(
+												coefficients.of(invB.getEssId(), invB.getPhase(), Pwr.REACTIVE), -1) },
+								Relationship.EQUALS, 0));
+					}
+				} catch (Exception e) {
+					return null;
 				}
 
 				break;
+
 			case DISCHARGE:
-				
-				if (0 < setPower && //
-						setPower < (0.40 * (Math.abs(PmaxDischarge)    / OnlyWantedInvEssMap.size()))) {
-					Om = operationMode.one;
-				} else if ( (0.40 * ((Math.abs(PmaxDischarge) / OnlyWantedInvEssMap.size())) < setPower && setPower < Math.abs(PmaxDischarge))) {
-					Om = operationMode.two;
-				} else {
-					Om = operationMode.three;
+
+				// get max apparent power, assumption all the inverters are same
+				twetypercentofMaxKVA = InvEssMap.get(0).getMaxApparentPower().get() * 0.2;
+				n = Math.floor(Math.abs(powerSet / twetypercentofMaxKVA));
+				OnlyWantedInv = getListForDisCharging(InvEssMap, (int) n);
+
+				try {
+					var invA = OnlyWantedInv.get(0);
+					for (var j = 1; j < OnlyWantedInv.size(); j++) {
+						var invB = OnlyWantedInv.get(j);
+						constraints.add(new Constraint(
+								invA.toString() + "|" + invB.toString() + ": distribute ActivePower equally",
+								new LinearCoefficient[] {
+										new LinearCoefficient(
+												coefficients.of(invA.getEssId(), invA.getPhase(), Pwr.ACTIVE), 1),
+										new LinearCoefficient(
+												coefficients.of(invB.getEssId(), invB.getPhase(), Pwr.ACTIVE), -1) },
+								Relationship.EQUALS, 0));
+						constraints.add(new Constraint(
+								invA.toString() + "|" + invB.toString() + ": distribute ReactivePower equally",
+								new LinearCoefficient[] {
+										new LinearCoefficient(
+												coefficients.of(invA.getEssId(), invA.getPhase(), Pwr.REACTIVE), 1),
+										new LinearCoefficient(
+												coefficients.of(invB.getEssId(), invB.getPhase(), Pwr.REACTIVE), -1) },
+								Relationship.EQUALS, 0));
+					}
+				} catch (Exception e) {
+					return null;
 				}
-				
-				break;
-			case KEEP_ZERO:
 				break;
 
+			case KEEP_ZERO:
+				// This of this later , this mainly has the removed inverters
+				// Use the unwanted ess
+
+				break;
 			}
 
-			System.out.println(OnlyWantedInvSocMap);
-			System.out.println(OnlyWantedInvEssMap);
+//			for (Map.Entry<Inverter, ManagedSymmetricEss> entry : InvEssMap.entrySet()) {
+//				if (entry.getValue().getSoc().get() > targetSoc) {
+//					OnlyWantedInvEssMap.put(entry.getKey(), entry.getValue());
+//				}
+//			}
 
-			break;
+//			switch (targetDirection) {
+//			case CHARGE:
+//
+//				if (0 < setPower && //
+//						setPower < (0.40 * (Math.abs(PmaxCharge) / OnlyWantedInvEssMap.size()))) { //
+//
+//					Om = operationMode.one;
+//				} else if ((0.40 * (Math.abs(PmaxCharge) / OnlyWantedInvEssMap.size())) < setPower && //
+//						setPower < Math.abs(PmaxCharge)) { //
+//
+//					Om = operationMode.two;
+//				} else { //
+//
+//					Om = operationMode.three;
+//				}
+//
+//				break;
+//			case DISCHARGE:
+//
+//				if (0 < setPower && //
+//						setPower < (0.40 * (Math.abs(PmaxDischarge) / OnlyWantedInvEssMap.size()))) {
+//					Om = operationMode.one;
+//				} else if ((0.40 * ((Math.abs(PmaxDischarge) / OnlyWantedInvEssMap.size())) < setPower
+//						&& setPower < Math.abs(PmaxDischarge))) {
+//					Om = operationMode.two;
+//				} else {
+//					Om = operationMode.three;
+//				}
+//
+//				break;
+//			case KEEP_ZERO:
+//				break;
+//
+//			}
+//
+//			System.out.println(OnlyWantedInvSocMap);
+//			System.out.println(OnlyWantedInvEssMap);
+//
+//			break;
 
 		}
 
 		return null;
+	}
+
+	private static TypeOfcluster GetTheTypeOfCluster(LinkedHashMap<Inverter, Integer> invSocMap) {
+		int differenceSoc = Collections.max(invSocMap.values()) - Collections.min(invSocMap.values());
+
+		if (differenceSoc > 5) {
+			return TypeOfcluster.HETEROGENOUS;
+		} else {
+			return TypeOfcluster.HOMOGENOUS;
+		}
+	}
+
+	private static double getThePowerWhichIsToBeSet(List<Constraint> allConstraints) {
+
+		for (var c : allConstraints) {
+			if (c.getCoefficients().length == 1 && //
+					c.getCoefficients()[0].getCoefficient().getPwr() == Pwr.ACTIVE && //
+					c.getRelationship() == Relationship.EQUALS) {
+
+				return c.getValue().get();
+
+			}
+		}
+		return 0d;
+	}
+
+	private static List<Inverter> getListForCharging(LinkedHashMap<Inverter, ManagedSymmetricEss> map, int i) {
+
+		List<Inverter> OnlyWantedInv = new ArrayList<Inverter>();
+		int sizeOfMap = map.size();
+
+		int x = sizeOfMap - i;
+		System.out.println(x);
+		int counter = 1;
+
+		for (Map.Entry<Inverter, ManagedSymmetricEss> entry : map.entrySet()) {
+			if (counter > x) {
+				// System.out.println("Key : " + entry.getKey() + " value : " +
+				// entry.getValue());
+
+				OnlyWantedInv.add(entry.getKey());
+
+			}
+			counter++;
+		}
+
+		return OnlyWantedInv;
+	}
+
+	private static List<Inverter> getListForDisCharging(LinkedHashMap<Inverter, ManagedSymmetricEss> map, int i) {
+
+		List<Inverter> OnlyWantedInv = new ArrayList<Inverter>();
+		int counter = 1;
+
+		for (Map.Entry<Inverter, ManagedSymmetricEss> entry : map.entrySet()) {
+			if (counter > i) {
+				// System.out.println("Key : " + entry.getKey() + " value : " +
+				// entry.getValue());
+
+				OnlyWantedInv.add(entry.getKey());
+
+			}
+			counter++;
+		}
+
+		return OnlyWantedInv;
 	}
 
 	static class WeightsUtil { // WeightsUtil.java
@@ -191,7 +303,7 @@ public class OperateClusterAtMaximumEfficiency {
 		public static LinkedHashMap<Inverter, Integer> getInvAndSocMap(List<Inverter> invs,
 				List<ManagedSymmetricEss> esss) {
 			List<ManagedSymmetricEss> updatesEss = new ArrayList<>();
-			LinkedHashMap<Inverter, Integer> InvSocMap = new LinkedHashMap<Inverter, Integer>();
+			LinkedHashMap<Inverter, Integer> InvSocMap = new LinkedHashMap<Inverter, Integer>(16, .75f, false);
 
 			// remove the Cluster
 			for (ManagedSymmetricEss ess : esss) {
@@ -222,12 +334,14 @@ public class OperateClusterAtMaximumEfficiency {
 		public static LinkedHashMap<Inverter, ManagedSymmetricEss> getInvAndEssMap(List<Inverter> invs,
 				List<ManagedSymmetricEss> esss) {
 			List<ManagedSymmetricEss> updatesEss = new ArrayList<>();
-			LinkedHashMap<Inverter, ManagedSymmetricEss> InvSocMap = new LinkedHashMap<Inverter, ManagedSymmetricEss>();
+			LinkedHashMap<Inverter, ManagedSymmetricEss> InvSocMap = new LinkedHashMap<Inverter, ManagedSymmetricEss>(
+					16, .75f, true);
 
 			// remove the Cluster
 			for (ManagedSymmetricEss ess : esss) {
 				if (ess.id() != "ess0") {
 					updatesEss.add(ess);
+
 				}
 			}
 
@@ -294,5 +408,21 @@ public class OperateClusterAtMaximumEfficiency {
 	 * ESS is what should be sorted within a cluster, logically but we do it with
 	 * Inverters in OpenEMS
 	 */
+
+//	var maxDischargePower = entry.getValue() //
+//			.getPower() //
+//			.getMaxPower(entry.getValue(), Phase.ALL, Pwr.ACTIVE);
+//
+//	System.out.println(" Discharge power of " + entry.getValue().id() + " is : " + maxDischargePower);
+//
+//	PmaxDischarge += maxDischargePower;
+//
+//	var maxChargePower = entry.getValue() //
+//			.getPower() //
+//			.getMinPower(entry.getValue(), Phase.ALL, Pwr.ACTIVE);
+//
+//	System.out.println(" Charge power of " + entry.getValue().id() + " is : " + maxChargePower);
+//
+//	PmaxCharge -= maxChargePower;
 
 }

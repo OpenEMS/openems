@@ -265,7 +265,7 @@ public class Solver {
 				solution = KeepAllEqual.apply(this.data.getCoefficients(), allInverters, allConstraints);
 				break;
 			case OPERATE_CLUSTER_AT_MAX_EFFICIENCY:
-				solution = OperateClusterAtMaximumEfficiency.apply(null, targetDirection, allInverters, targetInverters, allConstraints, this.data.getInverters(),this.data.getEsss());
+				solution = OperateClusterAtMaximumEfficiency.apply(this.data.getCoefficients(), targetDirection, allInverters, targetInverters, allConstraints, this.data.getInverters(),this.data.getEsss());
 			}
 
 			if (solution != null) {
