@@ -1,0 +1,5 @@
+= Timedata TimescaleDB
+
+OpenEMS Backend implementation for TimescaleDB: https://timescale.com
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.backend.timedata.timescaledb[Source Code icon:github[]]

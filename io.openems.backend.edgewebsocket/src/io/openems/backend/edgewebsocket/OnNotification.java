@@ -1,5 +1,6 @@
 package io.openems.backend.edgewebsocket;
 
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
@@ -7,6 +8,7 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 
 import io.openems.common.channel.Level;
@@ -89,6 +91,9 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		}
 	}
 
+	private static final HashSet<String> TIMESCALEDB_TEST = Sets.newHashSet("edge0" /* local test */, "fems888",
+			"fems4");
+
 	/**
 	 * Handles TimestampedDataNotification.
 	 *
@@ -104,6 +109,14 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			this.parent.timedata.write(edgeId, message.getData());
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
+		}
+
+		if (TIMESCALEDB_TEST.contains(edgeId)) {
+			try {
+				this.parent.timescale.write(edgeId, message.getData());
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			}
 		}
 
 		// Read some specific channels

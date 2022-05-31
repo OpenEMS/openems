@@ -26,6 +26,7 @@ import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
+import io.openems.backend.timedata.timescaledb.Timescaledb;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -67,6 +68,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile UiWebsocket uiWebsocket;
+
+	@Reference
+	protected volatile Timescaledb timescale;
 
 	public EdgeWebsocketImpl() {
 		super("Edge.Websocket");

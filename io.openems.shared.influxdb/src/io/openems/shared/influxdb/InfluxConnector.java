@@ -156,6 +156,11 @@ public class InfluxConnector {
 							}
 						});
 					}
+
+				} catch (InterruptedException e) {
+					this.log.info("MergePointsExecutor was interrupted");
+					break;
+
 				} catch (Throwable e) {
 					this.log.error("Unhandled Error in 'MergePointsExecutor': " + e.getClass().getName() + ". "
 							+ e.getMessage());
