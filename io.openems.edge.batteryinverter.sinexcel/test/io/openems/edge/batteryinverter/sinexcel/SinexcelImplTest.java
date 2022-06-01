@@ -12,6 +12,8 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter.TargetGridMode;
+import io.openems.edge.batteryinverter.sinexcel.enums.CountryCode;
+import io.openems.edge.batteryinverter.sinexcel.enums.EnableDisable;
 import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -69,6 +71,8 @@ public class SinexcelImplTest {
 						.setId(BATTERY_INVERTER_ID) //
 						.setStartStopConfig(StartStopConfig.START) //
 						.setModbusId(MODBUS_ID) //
+						.setCountryCode(CountryCode.GERMANY)//
+						.setEmergencyPower(EnableDisable.DISABLE)//
 						.build()) //
 				.next(new TestCase("first") //
 						.input(MAX_APPARENT_POWER, 50_000) //
@@ -104,6 +108,8 @@ public class SinexcelImplTest {
 						.setId(BATTERY_INVERTER_ID) //
 						.setStartStopConfig(StartStopConfig.START) //
 						.setModbusId(MODBUS_ID) //
+						.setCountryCode(CountryCode.GERMANY)//
+						.setEmergencyPower(EnableDisable.DISABLE)//
 						.build()) //
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.UNDEFINED)) //

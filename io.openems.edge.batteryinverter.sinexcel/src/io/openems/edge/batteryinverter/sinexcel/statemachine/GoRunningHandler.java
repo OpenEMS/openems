@@ -19,20 +19,17 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 		case GO_ON_GRID:
 			if (setOnGridMode == Boolean.FALSE || setOffGridMode == Boolean.TRUE) {
 				inverter.setOnGridMode(true);
-				inverter.setOffGridMode(false);
 				return State.GO_RUNNING;
 			}
 			break;
 		case GO_OFF_GRID:
 			if (setOnGridMode == Boolean.TRUE || setOffGridMode == Boolean.FALSE) {
-				inverter.setOnGridMode(false);
 				inverter.setOffGridMode(true);
 				return State.GO_RUNNING;
 			}
 			break;
 		}
 
-		inverter.setClearFailure();
 		inverter.setStartInverter();
 
 		if (inverter.getInverterState().get() == Boolean.TRUE) {

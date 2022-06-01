@@ -68,6 +68,67 @@ public class NetworkInterface<A> {
 			}
 		}
 
+		/**
+		 * Converts the netmask to a string address.
+		 *
+		 * <p>
+		 * e. g. Converts "/24" to "255.255.255.0"
+		 * </p>
+		 *
+		 * @return the netmask as a string
+		 */
+		public final String getNetmaskAsString() {
+			var netmaskString = new StringBuilder();
+
+			for (var i = 0; i < 4; i++) {
+				var blockSize = Math.min(8, this.netmask - 8 * i);
+				var number = 255;
+				if (blockSize != 8 && blockSize > 0) {
+					if (blockSize == 1) {
+						number -= 1;
+					}
+					for (var j = 0; j < 8 - blockSize; j++) {
+						number -= Math.pow(2, j);
+					}
+				} else if (blockSize <= 0) {
+					number = 0;
+				}
+
+				netmaskString.append(Integer.toString(number));
+				if (i != 3) {
+					netmaskString.append(".");
+				}
+			}
+
+			return netmaskString.toString();
+		}
+
+		/**
+		 * Determines if this address and the given address are in the same network.
+		 *
+		 * @param other the other {@link Inet4AddressWithNetmask}
+		 * @return true if they are in the same network
+		 */
+		public boolean isInSameNetwork(Inet4AddressWithNetmask other) {
+
+			var ipBytesFirst = this.inet4Address.getAddress();
+			var ipBytesSecond = other.inet4Address.getAddress();
+			byte[] maskBytes;
+			try {
+				maskBytes = InetAddress.getByName(this.getNetmaskAsString()).getAddress();
+			} catch (UnknownHostException e) {
+				return false;
+			}
+
+			for (var i = 0; i < ipBytesFirst.length; i++) {
+				if ((ipBytesFirst[i] & maskBytes[i]) != (ipBytesSecond[i] & maskBytes[i])) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
 		@Override
 		public int hashCode() {
 			return this.toString().hashCode();
@@ -80,7 +141,8 @@ public class NetworkInterface<A> {
 			}
 			if (obj == null) {
 				return false;
-			} else if (this.getClass() != obj.getClass()) {
+			}
+			if (this.getClass() != obj.getClass()) {
 				return false;
 			} else {
 				var other = (Inet4AddressWithNetmask) obj;
