@@ -59,7 +59,7 @@ public class InfluxConnector {
 	private static final int EXECUTOR_MAX_THREADS = 50;
 	private static final int EXECUTOR_QUEUE_SIZE = 500;
 	private static final int POINTS_QUEUE_SIZE = 1_000_000;
-	private static final int MAX_POINTS_PER_WRITE = 1000;
+	private static final int MAX_POINTS_PER_WRITE = 1_000;
 	private static final int MAX_AGGREGATE_WAIT = 10; // [s]
 
 	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
@@ -156,6 +156,11 @@ public class InfluxConnector {
 							}
 						});
 					}
+
+				} catch (InterruptedException e) {
+					this.log.info("MergePointsExecutor was interrupted");
+					break;
+
 				} catch (Throwable e) {
 					this.log.error("Unhandled Error in 'MergePointsExecutor': " + e.getClass().getName() + ". "
 							+ e.getMessage());
@@ -203,7 +208,9 @@ public class InfluxConnector {
 				.okHttpClient(okHttpClientBuilder) //
 				.build();
 
-		var client = InfluxDBClientFactory.create(options);
+		var client = InfluxDBClientFactory //
+				.create(options) //
+				.enableGzip();
 
 		// Keep default WriteOptions from
 		// https://github.com/influxdata/influxdb-client-java/tree/master/client#writes

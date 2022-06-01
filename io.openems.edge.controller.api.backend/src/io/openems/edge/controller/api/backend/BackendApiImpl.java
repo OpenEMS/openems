@@ -161,7 +161,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	@Override
 	protected void logWarn(Logger log, String message) {
-		super.logInfo(log, message);
+		super.logWarn(log, message);
 	}
 
 	/**

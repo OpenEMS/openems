@@ -1350,7 +1350,8 @@ public class JsonUtils {
 	 * @param j    the {@link JsonElement}
 	 * @return an Object of the given type
 	 */
-	public static Object getAsType(OpenemsType type, JsonElement j) throws OpenemsNamedException {
+	@SuppressWarnings("unchecked")
+	public static <T> T getAsType(OpenemsType type, JsonElement j) throws OpenemsNamedException {
 		if (j.isJsonNull()) {
 			return null;
 		}
@@ -1358,19 +1359,19 @@ public class JsonUtils {
 		if (j.isJsonPrimitive()) {
 			switch (type) {
 			case BOOLEAN:
-				return JsonUtils.getAsBoolean(j);
+				return (T) Boolean.valueOf(JsonUtils.getAsBoolean(j));
 			case DOUBLE:
-				return JsonUtils.getAsDouble(j);
+				return (T) Double.valueOf(JsonUtils.getAsDouble(j));
 			case FLOAT:
-				return JsonUtils.getAsFloat(j);
+				return (T) Float.valueOf(JsonUtils.getAsFloat(j));
 			case INTEGER:
-				return JsonUtils.getAsInt(j);
+				return (T) Integer.valueOf(JsonUtils.getAsInt(j));
 			case LONG:
-				return JsonUtils.getAsLong(j);
+				return (T) Long.valueOf(JsonUtils.getAsLong(j));
 			case SHORT:
-				return JsonUtils.getAsShort(j);
+				return (T) Short.valueOf(JsonUtils.getAsShort(j));
 			case STRING:
-				return JsonUtils.getAsString(j);
+				return (T) JsonUtils.getAsString(j);
 			}
 		}
 
@@ -1384,7 +1385,7 @@ public class JsonUtils {
 			case SHORT:
 				break;
 			case STRING:
-				return j.toString();
+				return (T) j.toString();
 			}
 		}
 
