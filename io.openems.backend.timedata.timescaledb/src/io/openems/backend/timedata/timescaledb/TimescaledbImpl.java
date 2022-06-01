@@ -115,7 +115,9 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent
 							}
 
 						} catch (Exception e) {
-							this.log.error("Unable to write Points: " + e.getMessage());
+							this.logError(this.log,
+									"Unable to write Points. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+							e.printStackTrace();
 
 						} finally {
 							// Close PreparedStatements (Connection is autoclosed)
