@@ -12,10 +12,10 @@ import io.openems.common.worker.AbstractWorker;
 
 public class ClientReconnectorWorker extends AbstractWorker {
 
-	private static final int MAX_WAIT_SECONDS = 120;
+	private static final int MAX_WAIT_SECONDS = 100;
 	private static final int MIN_WAIT_SECONDS = 10;
 
-	private static final long MIN_WAIT_SEONDCS_BETWEEN_RETRIES = new Random()
+	private static final long MIN_WAIT_SECONDS_BETWEEN_RETRIES = new Random()
 			.nextInt(ClientReconnectorWorker.MAX_WAIT_SECONDS) + ClientReconnectorWorker.MIN_WAIT_SECONDS;
 
 	private final Logger log = LoggerFactory.getLogger(ClientReconnectorWorker.class);
@@ -41,15 +41,17 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		}
 
 		var waitedSeconds = Duration.between(this.lastTry, now).getSeconds();
-		if (waitedSeconds < ClientReconnectorWorker.MIN_WAIT_SEONDCS_BETWEEN_RETRIES) {
+		if (waitedSeconds < ClientReconnectorWorker.MIN_WAIT_SECONDS_BETWEEN_RETRIES) {
 			this.parent.logInfo(this.log, "Waiting till next WebSocket reconnect ["
-					+ (ClientReconnectorWorker.MIN_WAIT_SEONDCS_BETWEEN_RETRIES - waitedSeconds) + "s]");
+					+ (ClientReconnectorWorker.MIN_WAIT_SECONDS_BETWEEN_RETRIES - waitedSeconds) + "s]");
 			return;
 		}
 		this.lastTry = now;
 
 		this.parent.logInfo(this.log, "Reconnecting WebSocket...");
 		ws.reconnectBlocking();
+		this.parent.logInfo(this.log,
+				"Reconnected WebSocket successfully [" + Duration.between(now, Instant.now()).toSeconds() + "s]");
 	}
 
 	@Override
