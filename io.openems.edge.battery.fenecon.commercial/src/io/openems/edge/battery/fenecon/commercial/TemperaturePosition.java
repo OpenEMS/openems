@@ -1,17 +1,17 @@
-package io.openems.edge.batteryinverter.sinexcel.enums;
+package io.openems.edge.battery.fenecon.commercial;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum OutputVoltageLevel implements OptionsEnum {
+public enum TemperaturePosition implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	V_380(0, " 380 V"), //
-	V_400(1, "400 V"), //
-	V_480(2, "480 V"); //
+	BALANCE_BOARD(0, "Balance Board"), //
+	TEMPERATURE_BOARD(1, "Temperature Board") //
+	;
 
 	private final int value;
 	private final String name;
 
-	private OutputVoltageLevel(int value, String name) {
+	private TemperaturePosition(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

@@ -28,12 +28,11 @@ import io.openems.backend.common.metadata.EdgeUser;
 public class ScheduleMessageServiceTest {
 
 	private static final AtomicBoolean actionHasTriggered = new AtomicBoolean(false);
-	
+
 	private static final Consumer<Message> action = (message) -> {
 		actionHasTriggered.set(true);
-		
-		long sek = ChronoUnit.SECONDS.between(
-				ZonedDateTime.now().withZoneSameInstant(ZoneId.systemDefault()), 
+
+		long sek = ChronoUnit.SECONDS.between(ZonedDateTime.now().withZoneSameInstant(ZoneId.systemDefault()),
 				message.getTimeStamp());
 		// within one second of tolerance
 		assertTrue("the test was " + sek + "sek off", sek < 1 && sek > -1);
@@ -52,8 +51,8 @@ public class ScheduleMessageServiceTest {
 		Edge test1 = this.getEdge(this.edge1Id);
 		test1.addUser(new EdgeUser(100, test1.getId(), "user1", 100, null));
 		test1.addUser(new EdgeUser(101, test1.getId(), "user2", 100, null));
-		test1.addUser(new EdgeUser(102, test1.getId(), "user3",  90, null));
-		test1.addUser(new EdgeUser(103, test1.getId(), "user4",  70, null));
+		test1.addUser(new EdgeUser(102, test1.getId(), "user3", 90, null));
+		test1.addUser(new EdgeUser(103, test1.getId(), "user4", 70, null));
 		// Test schedule test1
 		this.scheduleEdge(test1, service);
 		assertTrue(service.contains(test1.getId()));
@@ -63,9 +62,9 @@ public class ScheduleMessageServiceTest {
 	@Test
 	public void testBScheduleTask() {
 		Edge test2 = this.getEdge(this.edge2Id);
-		test2.addUser(new EdgeUser(200, test2.getId(), "user1",  0, null));
+		test2.addUser(new EdgeUser(200, test2.getId(), "user1", 0, null));
 		test2.addUser(new EdgeUser(201, test2.getId(), "user2", 90, null));
-		test2.addUser(new EdgeUser(202, test2.getId(), "user5",  1, null));
+		test2.addUser(new EdgeUser(202, test2.getId(), "user5", 1, null));
 		// Test that action of EdgeUser-200 doesn't auto trigger
 		// because a timeToWait=0 equals 'OFF'
 		assertFalse(actionHasTriggered.get());
@@ -73,7 +72,7 @@ public class ScheduleMessageServiceTest {
 		// Test schedule test2
 		this.scheduleEdge(test2, service);
 		assertTrue(service.contains(test2.getId()));
-		
+
 		// Test that action of EdgeUser-202 does trigger
 		try {
 			TimeUnit.SECONDS.sleep(2);
@@ -81,7 +80,7 @@ public class ScheduleMessageServiceTest {
 			e.printStackTrace();
 		}
 		assertTrue(actionHasTriggered.get());
-		
+
 		assertEquals(4, service.size());
 	}
 
@@ -116,7 +115,7 @@ public class ScheduleMessageServiceTest {
 	}
 
 	private Edge getEdge(String id) {
-		return new Edge(null, id, "", null, "", "", null, null, null, null);
+		return new Edge(null, id, "", null, "", null, null, null, null);
 	}
 
 }

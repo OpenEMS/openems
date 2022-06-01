@@ -63,10 +63,40 @@ public class DummyComponentManager implements ComponentManager {
 		return result;
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
+		if (SINGLETON_COMPONENT_ID.equals(componentId)) {
+			return (T) this;
+		}
+		for (var component : this.getEnabledComponents()) {
+			if (component.id().equals(componentId)) {
+				return (T) component;
+			}
+		}
+		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends OpenemsComponent> T getPossiblyDisabledComponent(String componentId)
+			throws OpenemsNamedException {
+		if (SINGLETON_COMPONENT_ID.equals(componentId)) {
+			return (T) this;
+		}
+		for (var component : this.getAllComponents()) {
+			if (component.id().equals(componentId)) {
+				return (T) component;
+			}
+		}
+		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
+	}
+
 	/**
 	 * Specific for this Dummy implementation.
 	 *
-	 * @param component
+	 * @param component the component that should be added
+	 * @return this
 	 */
 	public DummyComponentManager addComponent(OpenemsComponent component) {
 		if (component != this) {
@@ -78,7 +108,7 @@ public class DummyComponentManager implements ComponentManager {
 	/**
 	 * Sets a {@link EdgeConfig} json.
 	 *
-	 * @param the {@link EdgeConfig} json
+	 * @param json the {@link EdgeConfig} json
 	 */
 	public void setConfigJson(JsonObject json) {
 		this.edgeConfigJson = json;

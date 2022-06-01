@@ -56,7 +56,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	protected EventAdmin eventAdmin;
 
 	@Reference
-	protected Mailer notifier;
+	protected Mailer mailer;
 
 	public Alerting() {
 		super("Alerting");
@@ -129,47 +129,56 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	}
 
 	/**
-	 * send e-mail via notifier service.
+	 * send e-mail via mailer service.
 	 *
 	 * @param stamp at with mail send was initialized
-	 * @param user  list of recipents
+	 * @param user  list of recipients
 	 */
 	private void sendEmails(ZonedDateTime stamp, List<EdgeUser> user) {
 		// log to Console
 		this.logInfo(this.log, "send Email - to " + user.size() + " user");
-		this.notifier.sendAlertingMail(stamp, user);
+		this.mailer.sendAlertingMail(stamp, user);
 	}
 
 	/**
 	 * get TimeStamp of next notification or null if no notification is needed.
 	 *
 	 * @param edge thats involved
-	 * @param user that will recieve the mail
+	 * @param user that will receive the mail
 	 * @return Optional of ZonedDateTime
 	 */
 	private Optional<ZonedDateTime> getNotifyStamp(Edge edge, EdgeUser user) {
-		ZonedDateTime lastStamp = user.getLastNotification(ZoneId.systemDefault());
-		ZonedDateTime lastOnline = edge.getLastMessageTimestamp();
+		int timeToWait = user.getTimeToWait();
 
-		ZonedDateTime notifyStamp = null;
-		if (lastOnline == null) {
-			this.logDebug(this.log, "[" + edge.getId() + "] has no TimeStamp");
+		// timeToWait <= 0 equals OFF
+		if (timeToWait <= 0) {
+			return Optional.ofNullable(null);
 		} else {
-			int timeToWait = user.getTimeToWait();
-
-			// tmeToWait <= 0 equals OFF
-			if (timeToWait > 0) {
-				notifyStamp = lastOnline.withZoneSameInstant(ZoneId.systemDefault()) //
+			ZonedDateTime lastOnline = edge.getLastMessageTimestamp();
+			if (lastOnline == null) {
+				// If the System was never Online
+				this.logDebug(this.log, "[" + edge.getId() + "] has no TimeStamp");
+				return Optional.ofNullable(null);
+			} else {
+				// Last TimeStamp at which the Edge was Online
+				ZonedDateTime lastStamp = user.getLastNotification(ZoneId.systemDefault());
+				// The TimeStamp at which to send the notification
+				ZonedDateTime notifyStamp = lastOnline.withZoneSameInstant(ZoneId.systemDefault()) //
 						.plus(timeToWait, ChronoUnit.MINUTES);
-
+				// If Notification TimeStamp is before lastOnline => Mail was already sent
 				if (lastStamp != null && !notifyStamp.isAfter(lastStamp)) {
 					notifyStamp = null;
 				}
+				return Optional.ofNullable(notifyStamp);
 			}
 		}
-		return Optional.ofNullable(notifyStamp);
 	}
 
+	/**
+	 * Handler for when the Edge.OnSetOnline Event was thrown.
+	 *
+	 * @param reader Reader for Event parameters
+	 */
 	private void handleEdgeOnSetOnline(EventReader reader) {
 		boolean isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
 		Edge edge = reader.getProperty(Edge.Events.OnSetOnline.EDGE);
@@ -181,6 +190,11 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		}
 	}
 
+	/**
+	 * Hander for when the Metadata.AfterInitialize Event was thrown.
+	 *
+	 * @param reader EventReader for parameters
+	 */
 	private void handleMetadataAfterInitialize(EventReader reader) {
 		Executors.newSingleThreadScheduledExecutor().schedule(() -> {
 			this.checkMetadata();

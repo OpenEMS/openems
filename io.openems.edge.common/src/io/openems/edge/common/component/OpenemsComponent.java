@@ -137,8 +137,8 @@ public interface OpenemsComponent {
 	 *
 	 * @param channelName the Channel-ID as a string
 	 * @param <T>         the expected typed Channel
-	 * @throws IllegalArgumentException on error
 	 * @return the Channel or throw Exception
+	 * @throws IllegalArgumentException on error
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends Channel<?>> T channel(String channelName) throws IllegalArgumentException {
@@ -327,8 +327,45 @@ public interface OpenemsComponent {
 	 *         activate() method.
 	 */
 	public static boolean updateReferenceFilter(ConfigurationAdmin cm, String pid, String member, String... ids) {
+		final var filter = ConfigUtils.generateReferenceTargetFilter(pid, ids);
+		return updateReferenceFilterRaw(cm, pid, member, filter);
+	}
+
+	/**
+	 * Sets a target filter for a Declarative Service @Reference member.
+	 *
+	 * <p>
+	 * Use this method only if you know what you are doing. Usually you will want to
+	 * use the
+	 * {@link #updateReferenceFilter(ConfigurationAdmin, String, String, String...)}
+	 * method instead.
+	 *
+	 * <p>
+	 * Usage:
+	 *
+	 * <pre>
+	 * updateReferenceFilterRaw(config.service_pid(), "Controllers", "(enabled=true)");
+	 * </pre>
+	 *
+	 * @param cm     a ConfigurationAdmin instance. Get one using
+	 *
+	 *               <pre>
+	 *               &#64;Reference
+	 *               ConfigurationAdmin cm;
+	 *               </pre>
+	 *
+	 * @param pid    PID of the calling component (use 'config.service_pid()' or
+	 *               '(String)prop.get(Constants.SERVICE_PID)'; if null, PID filter
+	 *               is not added to the resulting target filter
+	 * @param member Name of the Method or Field with the Reference annotation, e.g.
+	 *
+	 * @param filter The filter attribute
+	 *
+	 * @return true if the filter was updated. You may use it to abort the
+	 *         activate() method.
+	 */
+	public static boolean updateReferenceFilterRaw(ConfigurationAdmin cm, String pid, String member, String filter) {
 		final var targetProperty = member + ".target";
-		final var requiredTarget = ConfigUtils.generateReferenceTargetFilter(pid, ids);
 		/*
 		 * read existing target filter
 		 */
@@ -336,12 +373,12 @@ public interface OpenemsComponent {
 		try {
 			c = cm.getConfiguration(pid, "?");
 			var properties = c.getProperties();
-			var existingTarget = (String) properties.get(targetProperty);
+			var existingFilter = (String) properties.get(targetProperty);
 			/*
 			 * update target filter if required
 			 */
-			if (!requiredTarget.equals(existingTarget)) {
-				properties.put(targetProperty, requiredTarget);
+			if (!filter.equals(existingFilter)) {
+				properties.put(targetProperty, filter);
 				c.update(properties);
 				return true;
 			}
@@ -363,6 +400,7 @@ public interface OpenemsComponent {
 	 * &#64;Designate(factory = false)
 	 * </pre>
 	 *
+	 * <p>
 	 * By design it is required for these Singleton Components to have a predefined
 	 * Component-ID, like '_cycle', '_sum', etc. This method makes sure the
 	 * Component-ID matches this predefined ID - and if not automatically adjusts
@@ -375,6 +413,7 @@ public interface OpenemsComponent {
 	 * &#64;Component(property = { "id=_cycle" })
 	 * </pre>
 	 *
+	 * <p>
 	 * for this purpose. Unfortunately this is not sufficient to have the 'id'
 	 * property listed in EdgeConfig, ConfigurationAdmin, etc. This is why this
 	 * workaround is required.

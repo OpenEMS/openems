@@ -24,13 +24,8 @@ public class Edge {
 	private final Logger log = LoggerFactory.getLogger(Edge.class);
 	private final Metadata parent;
 
-	public enum State {
-		ACTIVE, INACTIVE, TEST, INSTALLED_ON_STOCK, OFFLINE;
-	}
-
 	private final String id;
 	private String comment;
-	private State state;
 	private SemanticVersion version;
 	private String producttype;
 	private Level sumState;
@@ -41,11 +36,10 @@ public class Edge {
 
 	private final List<EdgeUser> user;
 
-	public Edge(Metadata parent, String id, String comment, State state, String version, String producttype,
-			Level sumState, EdgeConfig config, ZonedDateTime lastMessage, ZonedDateTime lastUpdate) {
+	public Edge(Metadata parent, String id, String comment, String version, String producttype, Level sumState,
+			EdgeConfig config, ZonedDateTime lastMessage, ZonedDateTime lastUpdate) {
 		this.id = id;
 		this.comment = comment;
-		this.state = state;
 		this.version = SemanticVersion.fromStringOrZero(version);
 		this.producttype = producttype;
 		this.sumState = sumState;
@@ -96,7 +90,6 @@ public class Edge {
 		return "Edge [" //
 				+ "id=" + this.id + ", " //
 				+ "comment=" + this.comment + ", " //
-				+ "state=" + this.state + ", " //
 				+ "version=" + this.version + ", " //
 				+ "producttype=" + this.producttype + ", " //
 				+ "deprecatedConfig=" + (this.config.toString().isEmpty() ? "NOT_SET" : "set") + ", " //
@@ -153,17 +146,6 @@ public class Edge {
 			}
 			this.config = config;
 		}
-	}
-
-	/*
-	 * State
-	 */
-	public void setState(State state) {
-		this.state = state;
-	}
-
-	public State getState() {
-		return this.state;
 	}
 
 	/**

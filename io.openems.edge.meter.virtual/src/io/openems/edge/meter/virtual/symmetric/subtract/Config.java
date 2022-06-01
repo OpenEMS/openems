@@ -25,7 +25,7 @@ import io.openems.edge.meter.api.MeterType;
 	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (=default), Consumption")
 	MeterType type() default MeterType.PRODUCTION;
 
-	@AttributeDefinition(name = "Minuend-ID", description = "Component-ID of the minuend")
+	@AttributeDefinition(name = "Minuend-ID", description = "Component-ID of the minuend; if empty '0' power is assumed")
 	String minuend_id();
 
 	@AttributeDefinition(name = "Subtrahends-IDs", description = "Component-IDs of the subtrahends")

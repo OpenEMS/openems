@@ -144,29 +144,32 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 				this.channel(ClusterVersionC.ChannelId.NUMBER_OF_TOWERS).setNextValue(numberOfTower);
 				this.channel(ClusterVersionC.ChannelId.NUMBER_OF_MODULES_PER_TOWER).setNextValue(numberOfModules);
 
+				// Avoid race-condition: fill local 'racks', then update Channels and only
+				// finally update global 'racks'
+				var racks = new TreeSet<Rack>();
 				if (numberOfTower > 0) {
-					this.racks.add(Rack.RACK_1);
+					racks.add(Rack.RACK_1);
 				}
 				if (numberOfTower > 1) {
-					this.racks.add(Rack.RACK_2);
+					racks.add(Rack.RACK_2);
 				}
 				if (numberOfTower > 2) {
-					this.racks.add(Rack.RACK_3);
+					racks.add(Rack.RACK_3);
 				}
 				if (numberOfTower > 3) {
-					this.racks.add(Rack.RACK_4);
+					racks.add(Rack.RACK_4);
 				}
 				if (numberOfTower > 4) {
-					this.racks.add(Rack.RACK_5);
+					racks.add(Rack.RACK_5);
 				}
-
 				try {
-					this.updateRackChannels(numberOfTower);
+					this.updateRackChannels(numberOfTower, racks);
 				} catch (OpenemsException e) {
 					this.logError(this.log,
 							"Error while updatingRackChannels(" + numberOfTower + "): " + e.getMessage());
 					e.printStackTrace();
 				}
+				this.racks.addAll(racks);
 			});
 		});
 
@@ -176,8 +179,8 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 
 	}
 
-	private void updateRackChannels(Integer numberOfModules) throws OpenemsException {
-		for (Rack r : this.racks) {
+	private void updateRackChannels(Integer numberOfModules, TreeSet<Rack> racks) throws OpenemsException {
+		for (Rack r : racks) {
 			try {
 				this.getModbusProtocol().addTasks(//
 
