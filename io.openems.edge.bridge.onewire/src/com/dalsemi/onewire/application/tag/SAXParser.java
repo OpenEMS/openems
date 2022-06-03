@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -192,3 +193,4 @@ public class SAXParser implements org.xml.sax.Parser {
 		this.parser.parse(systemID);
 	}
 }
+// CHECKSTYLE:ON

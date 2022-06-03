@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2004 Maxim Integrated Products, All Rights Reserved.
@@ -580,3 +581,4 @@ public class OneWireContainer {
 		return Address.toString(this.address) + " " + this.getName();
 	}
 }
+// CHECKSTYLE:ON

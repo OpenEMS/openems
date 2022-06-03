@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -1150,3 +1151,4 @@ public class DumbAdapter extends DSPortAdapter {
 		return true;
 	}
 }
+// CHECKSTYLE:ON

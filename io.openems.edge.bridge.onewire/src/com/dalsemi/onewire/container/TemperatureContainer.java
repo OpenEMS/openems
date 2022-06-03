@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -346,3 +347,4 @@ public interface TemperatureContainer extends OneWireSensor {
 	 */
 	public void setTemperatureResolution(double resolution, byte[] state) throws OneWireException;
 }
+// CHECKSTYLE:ON

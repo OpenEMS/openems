@@ -1858,4 +1858,4 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 		return -1;
 	}
 }
-//CHECKSTYLE:ON
+// CHECKSTYLE:ON

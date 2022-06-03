@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -106,3 +107,4 @@ public class DeviceMonitorException extends Exception {
 		return "Device Monitor Exception: " + this.exception.toString();
 	}
 }
+// CHECKSTYLE:ON
