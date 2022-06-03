@@ -58,6 +58,13 @@ public interface SinglePhaseMeter extends AsymmetricMeter {
 		}
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(SinglePhaseMeter.class, accessMode, 100) //
 				.build();

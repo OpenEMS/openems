@@ -220,10 +220,11 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the ModbusSlaveNatureTable.
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
 	 *
-	 * @param accessMode the {@link AccessMode}
-	 * @return ModbusSlaveNatureTable
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(Battery.class, accessMode, 100) //

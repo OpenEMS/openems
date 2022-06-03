@@ -120,6 +120,13 @@ public interface AsymmetricEss extends SymmetricEss {
 		}
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(AsymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //

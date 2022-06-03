@@ -67,14 +67,13 @@ public class QueryHistoricTimeseriesExportXlsxResponseTest {
 		try (var os = new ByteArrayOutputStream()) {
 			var workbook = new Workbook(os, "Historic data", null);
 			var ws = workbook.newWorksheet("Export");
-			
-			Locale currentLocale = new Locale("en","EN");
-			
-			var translationBundle = ResourceBundle
-			.getBundle("io.openems.common.jsonrpc.response.translation"
-			,currentLocale);
 
-			XlsxUtils.addBasicInfo(ws, "0", fromDate, toDate, translationBundle );
+			Locale currentLocale = new Locale("en", "EN");
+
+			var translationBundle = ResourceBundle.getBundle("io.openems.common.jsonrpc.response.translation",
+					currentLocale);
+
+			XlsxUtils.addBasicInfo(ws, "0", fromDate, toDate, translationBundle);
 			XlsxUtils.addEnergyData(ws, energyData, translationBundle);
 			XlsxUtils.addPowerData(ws, powerData, translationBundle);
 

@@ -15,6 +15,7 @@ public class CsvUtils {
 	 * @param filename  the name of the file in the java package
 	 * @param csvFormat the CSV-Format
 	 * @param factor    a multiplication factor to apply on the read number
+	 * @return a {@link DataContainer}
 	 * @throws IOException           on error
 	 * @throws NumberFormatException on error
 	 */
@@ -44,6 +45,7 @@ public class CsvUtils {
 	 * @param path      the path + filename of the CSV file
 	 * @param csvFormat the CSV-Format
 	 * @param factor    a multiplication factor to apply on the read number
+	 * @return a {@link DataContainer}
 	 * @throws IOException           on error
 	 * @throws NumberFormatException on error
 	 */
@@ -73,6 +75,7 @@ public class CsvUtils {
 	 * @param csv       the CSV content
 	 * @param csvFormat the CSV-Format
 	 * @param factor    a multiplication factor to apply on the read number
+	 * @return a {@link DataContainer}
 	 * @throws IOException           on error
 	 * @throws NumberFormatException on error
 	 */

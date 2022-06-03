@@ -210,6 +210,13 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				this.getModbusSlaveNatureTable(accessMode));
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 
 		return ModbusSlaveNatureTable.of(KebaKeContact.class, accessMode, 300) //

@@ -44,11 +44,11 @@ public class ChannelRecord {
 		this.channel = channel;
 	}
 
-	public int getdataRecordPosition() {
+	public int getDataRecordPosition() {
 		return this.dataRecordPosition;
 	}
 
-	public void setdataRecordPosition(int dataRecordPosition) {
+	public void setDataRecordPosition(int dataRecordPosition) {
 		this.dataRecordPosition = dataRecordPosition;
 	}
 

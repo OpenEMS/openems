@@ -50,7 +50,7 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 		OpenemsComponent, TimedataProvider, EventHandler, StartStoppable, ModbusSlave {
 
 	/**
-	 * Current Energy in the battery [Wms], based on SoC
+	 * Current Energy in the battery [Wms], based on SoC.
 	 */
 	private long energy = 0;
 
