@@ -290,8 +290,8 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			for (ChannelValue input : this.inputs) {
 				var component = components.get(input.address.getComponentId());
 				if (component == null) {
-					throw new IllegalArgumentException("On TestCase [" + this.description + "]: " + //
-							"the component [" + input.address.getComponentId() + "] " //
+					throw new IllegalArgumentException("On TestCase [" + this.description + "]: " //
+							+ "the component [" + input.address.getComponentId() + "] " //
 							+ "was not added to the OpenEMS Component test framework!");
 				}
 				Channel<?> channel = component.channel(input.address.getChannelId());

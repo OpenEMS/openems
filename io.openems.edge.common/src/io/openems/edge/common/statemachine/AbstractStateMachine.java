@@ -30,7 +30,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 	 * Initialize the State-Machine and set an initial State.
 	 *
 	 * <p>
-	 * TODO Note that for the initialState the {@link StateHandler#onEntry(Object)
+	 * TODO Note that for the initialState the {@link StateHandler#onEntry(Object)}
 	 * method is not called in the beginning.
 	 *
 	 * @param initialState the initial State
@@ -91,6 +91,7 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 	/**
 	 * Execute the StateMachine.
 	 *
+	 * @param context the Context object
 	 * @throws OpenemsNamedException on error
 	 */
 	public void run(CONTEXT context) throws OpenemsNamedException {

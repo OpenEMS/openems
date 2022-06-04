@@ -75,7 +75,7 @@ public class EnumWriteChannel extends EnumReadChannel implements WriteChannel<In
 	/**
 	 * Internal method. Do not call directly.
 	 *
-	 * @param value
+	 * @param value the value as Integer
 	 */
 	@Deprecated
 	@Override
