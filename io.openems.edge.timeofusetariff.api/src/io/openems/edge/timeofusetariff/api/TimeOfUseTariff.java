@@ -17,7 +17,7 @@ public interface TimeOfUseTariff {
 	 * E.g. if called at 10:05, the first value stands for 10:00 to 10:15; second
 	 * value for 10:15 to 10:30.
 	 *
-	 * @return the prices; {@link TimeOfUsePrices#empty(java.time.ZonedDateTime) if
+	 * @return the prices; {@link TimeOfUsePrices#empty(java.time.ZonedDateTime)} if
 	 *         no prices are known
 	 */
 	public TimeOfUsePrices getPrices();

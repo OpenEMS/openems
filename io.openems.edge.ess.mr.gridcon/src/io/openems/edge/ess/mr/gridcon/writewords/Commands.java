@@ -279,8 +279,8 @@ public class Commands {
 				+ "syncApproval=" + this.syncApproval + ", " //
 				+ "shortCircuitHandling=" + this.shortCircuitHandling + ", " //
 				+ "mode=" + this.mode + ", " //
-				+ "triggerSia=" + this.triggerSia + ", " + //
-				"fundamentalFrequencyMode=" + this.fundamentalFrequencyMode + ", " //
+				+ "triggerSia=" + this.triggerSia + ", " //
+				+ "fundamentalFrequencyMode=" + this.fundamentalFrequencyMode + ", " //
 				+ "balancingMode=" + this.balancingMode + ", " //
 				+ "harmonicCompensationMode=" + this.harmonicCompensationMode + ", " //
 				+ "errorCodeFeedback=" + this.errorCodeFeedback + ", " //

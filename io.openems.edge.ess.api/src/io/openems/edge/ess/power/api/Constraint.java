@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Creates a constraint with following settings:
+ * Creates a constraint with following settings:.
+ * 
+ * <p>
  * <ul>
  * <li>Relationship (EQ, GEQ, LEQ) as given in constructor
  * <li>Value as given in constructor
@@ -18,7 +20,7 @@ import java.util.Optional;
  */
 public class Constraint {
 
-	private final static DecimalFormat VALUE_FORMAT = new DecimalFormat("0.#");
+	private static final DecimalFormat VALUE_FORMAT = new DecimalFormat("0.#");
 
 	private final String description;
 	private final LinearCoefficient[] coefficients;
@@ -36,10 +38,11 @@ public class Constraint {
 	}
 
 	/**
-	 * Creates an initially disabled Constraint
+	 * Creates an initially disabled Constraint.
 	 *
-	 * @param coefficients
-	 * @param relationship
+	 * @param description  the description
+	 * @param coefficients array of {@link LinearCoefficient}s
+	 * @param relationship the {@link Relationship}
 	 */
 	public Constraint(String description, LinearCoefficient[] coefficients, Relationship relationship) {
 		this(description, coefficients, relationship, Optional.empty());
@@ -94,6 +97,9 @@ public class Constraint {
 		this.value = Optional.ofNullable(value);
 	}
 
+	/**
+	 * Disable this {@link Constraint}.
+	 */
 	public void disable() {
 		this.value = Optional.empty();
 	}

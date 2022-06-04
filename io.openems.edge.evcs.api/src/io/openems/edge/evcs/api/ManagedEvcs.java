@@ -21,6 +21,11 @@ import io.openems.edge.common.type.TypeUtils;
 @ProviderType
 public interface ManagedEvcs extends Evcs {
 
+	/**
+	 * Get the {@link EvcsPower}.
+	 * 
+	 * @return the {@link EvcsPower}
+	 */
 	public EvcsPower getEvcsPower();
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

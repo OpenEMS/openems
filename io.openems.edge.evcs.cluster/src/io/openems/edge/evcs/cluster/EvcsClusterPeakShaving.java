@@ -181,7 +181,6 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 	@Override
 	public int getMaximumPowerToDistribute() {
 
-		var allowedChargePower = 0;
 		var maxEssDischarge = 0;
 		var maxAvailableStoragePower = 0L;
 
@@ -214,7 +213,7 @@ public class EvcsClusterPeakShaving extends AbstractEvcsCluster implements Opene
 		// Current evcs charge power
 		int evcsCharge = this.getChargePower().orElse(0);
 
-		allowedChargePower = (int) (evcsCharge + maxAvailableStoragePower + maxAvailableGridPower);
+		var allowedChargePower = (int) (evcsCharge + maxAvailableStoragePower + maxAvailableGridPower);
 
 		this.logInfoInDebugmode(this.log, "Calculation of the maximum charge Power: EVCS Charge [" + evcsCharge
 				+ "]  +  Max. available storage power [" + maxAvailableStoragePower

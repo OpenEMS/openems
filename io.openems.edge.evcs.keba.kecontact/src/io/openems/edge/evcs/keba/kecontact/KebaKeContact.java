@@ -169,9 +169,9 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Logs are displayed if the debug mode is configured
+	 * Logs are displayed if the debug mode is configured.
 	 *
-	 * @param log    Logger
+	 * @param log    the {@link Logger}
 	 * @param string Text to display
 	 */
 	protected void logInfoInDebugmode(Logger log, String string) {

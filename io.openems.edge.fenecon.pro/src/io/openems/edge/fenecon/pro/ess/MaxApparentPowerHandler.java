@@ -18,7 +18,7 @@ public class MaxApparentPowerHandler {
 		this.parent = parent;
 	}
 
-	public void calculateMaxApparentPower() {
+	protected void calculateMaxApparentPower() {
 		var setPower = this.parent.getDebugSetActivePower().get();
 		var power = this.parent.getActivePower().get();
 		int oldMaxApparentPower = this.parent.getMaxApparentPower().orElse(FeneconProEss.MAX_APPARENT_POWER);

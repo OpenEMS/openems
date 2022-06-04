@@ -157,7 +157,7 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 	/**
 	 * Sets the Active Power Limit in [W]. See {@link ChannelId#ACTIVE_POWER_LIMIT}.
 	 *
-	 * @return the Channel
+	 * @param value the Integer value
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setActivePowerLimit(Integer value) throws OpenemsNamedException {
@@ -167,7 +167,7 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 	/**
 	 * Sets the Active Power Limit in [W]. See {@link ChannelId#ACTIVE_POWER_LIMIT}.
 	 *
-	 * @return the Channel
+	 * @param value the int value
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setActivePowerLimit(int value) throws OpenemsNamedException {

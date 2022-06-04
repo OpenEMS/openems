@@ -6,6 +6,9 @@ import static org.junit.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.junit.Ignore;
+import org.junit.Test;
+
 import com.ghgande.j2mod.modbus.facade.ModbusTCPMaster;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
@@ -28,7 +31,8 @@ public class ModbusTcpApiTest {
 		return master;
 	}
 
-	// @Test
+	@Ignore
+	@Test
 	public void testOpenemsHashCode() throws Exception {
 		var master = getMaster();
 		var registers = master.readInputRegisters(0, 1);
@@ -36,7 +40,8 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	// @Test
+	@Ignore
+	@Test
 	public void testVersion() throws Exception {
 		var master = getMaster();
 		var registers = master.readInputRegisters(2, 3);
@@ -53,7 +58,8 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	// @Test
+	@Ignore
+	@Test
 	public void testSumEssSocFC4() throws Exception {
 		var master = getMaster();
 		var registers = master.readInputRegisters(302, 1);
@@ -62,7 +68,8 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	// @Test
+	@Ignore
+	@Test
 	public void testSumStateOfChargeFC3() throws Exception {
 		var master = getMaster();
 		InputRegister[] registers = master.readMultipleRegisters(302, 1);
@@ -71,7 +78,8 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	// @Test
+	@Ignore
+	@Test
 	public void testWrite() throws Exception {
 		var bytes = ByteBuffer.allocate(4).putFloat(2500).array();
 		var master = getMaster();
@@ -82,7 +90,8 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	// @Test
+	@Ignore
+	@Test
 	public void testFloat32() throws Exception {
 		var master = getMaster();
 		var registers = master.readInputRegisters(884, 2);

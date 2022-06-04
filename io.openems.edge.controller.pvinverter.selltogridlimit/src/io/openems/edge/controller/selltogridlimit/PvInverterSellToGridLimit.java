@@ -19,10 +19,14 @@ import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.PvInverter.SellToGridLimit", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.PvInverter.SellToGridLimit", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
+	public static final double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -70,7 +74,7 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 	 * @param pvInverter the SymmetricPvInverter
 	 * @param meter      the Meter
 	 * @return the required power
-	 * @throws InvalidValueException
+	 * @throws InvalidValueException on error
 	 */
 	private int calculateRequiredPower(ManagedSymmetricPvInverter pvInverter, SymmetricMeter meter)
 			throws InvalidValueException {

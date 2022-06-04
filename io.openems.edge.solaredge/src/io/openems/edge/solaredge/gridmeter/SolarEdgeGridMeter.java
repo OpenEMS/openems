@@ -52,8 +52,8 @@ public class SolarEdgeGridMeter extends AbstractSunSpecMeter
 			.put(DefaultSunSpecModel.S_204, Priority.LOW) //
 			.build();
 
-	private final static int UNIT_ID = 1;
-	private final static int READ_FROM_MODBUS_BLOCK = 2;
+	private static final int UNIT_ID = 1;
+	private static final int READ_FROM_MODBUS_BLOCK = 2;
 
 	private Config config;
 

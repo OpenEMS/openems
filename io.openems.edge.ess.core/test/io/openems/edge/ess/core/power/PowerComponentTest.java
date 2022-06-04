@@ -45,7 +45,7 @@ public class PowerComponentTest {
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(PowerComponent.SINGLETON_SERVICE_PID);
 
-		var componentTest = new ComponentTest(powerComponent) //
+		final var componentTest = new ComponentTest(powerComponent) //
 				.addReference("cm", cm) //
 				.addReference("addEss", ess0) //
 				.activate(MyConfig.create() //
@@ -107,7 +107,7 @@ public class PowerComponentTest {
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(PowerComponent.SINGLETON_SERVICE_PID);
 
-		var componentTest = new ComponentTest(powerComponent) //
+		final var componentTest = new ComponentTest(powerComponent) //
 				.addReference("cm", cm) //
 				.addReference("addEss", ess0) //
 				.activate(MyConfig.create() //

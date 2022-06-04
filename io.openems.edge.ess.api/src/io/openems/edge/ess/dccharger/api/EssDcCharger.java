@@ -23,7 +23,7 @@ public interface EssDcCharger extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Maximum Ever Actual Power
+		 * Maximum Ever Actual Power.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess DC Charger
@@ -37,7 +37,7 @@ public interface EssDcCharger extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Actual Power
+		 * Actual Power.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess DC Charger
@@ -69,7 +69,7 @@ public interface EssDcCharger extends OpenemsComponent {
 					});
 				})),
 		/**
-		 * Actual Energy
+		 * Actual Energy.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric

@@ -35,24 +35,24 @@ public interface SinglePhaseMeter extends AsymmetricMeter {
 	 * Initializes Channel listeners. Copies the Active-Power Phase-Channel value to
 	 * Active-Power Channel.
 	 *
-	 * @param meter the AsymmetricMeter
-	 * @param phase the Phase
+	 * @param meter the {@link AsymmetricMeter}
+	 * @param phase the {@link SinglePhase}
 	 */
-	public static void initializeCopyPhaseChannel(AsymmetricMeter ess, SinglePhase phase) {
+	public static void initializeCopyPhaseChannel(AsymmetricMeter meter, SinglePhase phase) {
 		switch (phase) {
 		case L1:
-			ess.getActivePowerL1Channel().onSetNextValue(value -> {
-				ess._setActivePower(value.get());
+			meter.getActivePowerL1Channel().onSetNextValue(value -> {
+				meter._setActivePower(value.get());
 			});
 			break;
 		case L2:
-			ess.getActivePowerL2Channel().onSetNextValue(value -> {
-				ess._setActivePower(value.get());
+			meter.getActivePowerL2Channel().onSetNextValue(value -> {
+				meter._setActivePower(value.get());
 			});
 			break;
 		case L3:
-			ess.getActivePowerL3Channel().onSetNextValue(value -> {
-				ess._setActivePower(value.get());
+			meter.getActivePowerL3Channel().onSetNextValue(value -> {
+				meter._setActivePower(value.get());
 			});
 			break;
 		}

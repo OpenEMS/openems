@@ -113,8 +113,6 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 
 		var timedata = this.getTimedata();
 		var componentId = this.id();
-		if (timedata == null || componentId == null) {
-		}
 		timedata.getLatestValue(new ChannelAddress(componentId, "ActiveConstumptionEnergy"))
 				.thenAccept(totalEnergyOpt -> {
 
@@ -136,31 +134,31 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
-	public void newSession(OcppServer server, UUID sessionId) {
+	protected void newSession(OcppServer server, UUID sessionId) {
 		this.ocppServer = server;
 		this.sessionId = sessionId;
 		this._setStatus(Status.NOT_READY_FOR_CHARGING);
 		this._setChargingstationCommunicationFailed(false);
 	}
 
-	public void lostSession() {
+	protected void lostSession() {
 		this.ocppServer = null;
 		this.sessionId = null;
 		this._setStatus(Status.UNDEFINED);
 		this._setChargingstationCommunicationFailed(true);
 	}
 
-	public abstract Set<OcppInformations> getSupportedMeasurements();
+	protected abstract Set<OcppInformations> getSupportedMeasurements();
 
-	public abstract String getConfiguredOcppId();
+	protected abstract String getConfiguredOcppId();
 
-	public abstract Integer getConfiguredConnectorId();
+	protected abstract Integer getConfiguredConnectorId();
 
-	public abstract Integer getConfiguredMaximumHardwarePower();
+	protected abstract Integer getConfiguredMaximumHardwarePower();
 
-	public abstract Integer getConfiguredMinimumHardwarePower();
+	protected abstract Integer getConfiguredMinimumHardwarePower();
 
-	public abstract boolean returnsSessionEnergy();
+	protected abstract boolean returnsSessionEnergy();
 
 	/**
 	 * Required requests that should be sent after a connection was established.

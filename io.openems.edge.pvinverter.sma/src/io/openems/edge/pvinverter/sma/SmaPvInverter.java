@@ -72,7 +72,7 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter implements SunSpecP
 	// .put(DefaultSunSpecModel.S_129, Priority.LOW) // from 40751
 	// .put(DefaultSunSpecModel.S_130, Priority.LOW) // from 40813
 
-	private final static int READ_FROM_MODBUS_BLOCK = 1;
+	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -98,6 +98,7 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter implements SunSpecP
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
+			return;
 		}
 	}
 

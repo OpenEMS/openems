@@ -19,7 +19,7 @@ public class BoschBpts5HybridApiClient {
 	private static final String REQUEST_LOG_BOOK_VIEW = "&action=get.logbookview&page=0&id=&type=BATTERY&dtype=";
 	private static final String GET_VALUES_URL_PART = "/cgi-bin/ipcclient.fcgi?";
 	private static String BASE_URL;
-	private String wui_sid;
+	private String wuiSid;
 	private Integer pvLeistungWatt = Integer.valueOf(0);
 	private Integer soc = Integer.valueOf(0);
 	private Integer einspeisung = Integer.valueOf(0);
@@ -42,11 +42,11 @@ public class BoschBpts5HybridApiClient {
 		this.connect();
 	}
 
-	public void connect() {
+	protected void connect() {
 		try {
-			this.wui_sid = this.getWuiSidRequest();
+			this.wuiSid = this.getWuiSidRequest();
 		} catch (OpenemsNamedException e) {
-			this.wui_sid = "";
+			this.wuiSid = "";
 			e.printStackTrace();
 		}
 	}
@@ -77,8 +77,8 @@ public class BoschBpts5HybridApiClient {
 		return body.substring(index + 9, index + 9 + 15);
 	}
 
-	public void retreiveValues() throws OpenemsException {
-		var postRequest = this.httpClient.POST(BASE_URL + GET_VALUES_URL_PART + this.wui_sid);
+	protected void retreiveValues() throws OpenemsException {
+		var postRequest = this.httpClient.POST(BASE_URL + GET_VALUES_URL_PART + this.wuiSid);
 		postRequest.timeout(5, TimeUnit.SECONDS);
 		postRequest.header(HttpHeader.CONTENT_TYPE, "text/plain");
 		postRequest.content(new StringContentProvider(POST_REQUEST_DATA));
@@ -100,9 +100,9 @@ public class BoschBpts5HybridApiClient {
 		}
 	}
 
-	public int retreiveBatterieStatus() throws OpenemsException {
+	protected int retreiveBatterieStatus() throws OpenemsException {
 		try {
-			var response = this.httpClient.GET(BASE_URL + GET_VALUES_URL_PART + this.wui_sid + REQUEST_LOG_BOOK_VIEW);
+			var response = this.httpClient.GET(BASE_URL + GET_VALUES_URL_PART + this.wuiSid + REQUEST_LOG_BOOK_VIEW);
 
 			var status = response.getStatus();
 			if (status >= 300) {
@@ -132,19 +132,9 @@ public class BoschBpts5HybridApiClient {
 
 		var values = body.split("\\|");
 
-//		pvLeistungProzent = Integer.valueOf(values[1]);
-
 		this.pvLeistungWatt = this.parseWattValue(values[2]);
 
 		this.soc = Integer.valueOf(values[3]);
-
-//		autarkieGrad = Float.valueOf(values[5]).floatValue();
-
-//		currentOverallConsumption = parseWattValue(values[6]);
-
-//		gridStatusString = values[7];
-
-//		systemStatusString = values[9];
 
 		this.batterieLadeStrom = this.parseWattValue(values[10]);
 

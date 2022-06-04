@@ -93,8 +93,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case SubscribeSystemLogRequest.METHOD:
 			resultFuture = this.handleSubscribeSystemLogRequest(user, SubscribeSystemLogRequest.from(request));
 			break;
+			
 		case UpdateUserLanguageRequest.METHOD:
 			resultFuture = this.handleUpdateUserLanguageRequest(user, UpdateUserLanguageRequest.from(request));
+			break;
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);

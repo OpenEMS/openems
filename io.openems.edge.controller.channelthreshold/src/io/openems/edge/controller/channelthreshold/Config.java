@@ -3,7 +3,7 @@ package io.openems.edge.controller.channelthreshold;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Channel Threshold", //
 		description = "This controller switches a Digital Output channel ON, if the value of the input channel is within a configured threshold. This behaviour can be inverted using the 'invert' config option.")
 @interface Config {

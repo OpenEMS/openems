@@ -35,8 +35,8 @@ import io.openems.edge.evcs.api.EvcsPower;
 })
 public class EvcsPowerComponent extends AbstractOpenemsComponent implements OpenemsComponent, EvcsPower {
 
-	public final static String SINGLETON_SERVICE_PID = "Evcs.SlowPowerIncreaseFilter";
-	public final static String SINGLETON_COMPONENT_ID = "_evcsSlowPowerIncreaseFilter";
+	public static final String SINGLETON_SERVICE_PID = "Evcs.SlowPowerIncreaseFilter";
+	public static final String SINGLETON_COMPONENT_ID = "_evcsSlowPowerIncreaseFilter";
 
 	@Reference
 	private ConfigurationAdmin cm;

@@ -131,18 +131,16 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		}
 	}
 
-	private final static Function<Integer, Integer> DIVIDE_BY_THREE = value -> TypeUtils.divide(value, 3);
-	private final static BiFunction<Integer, Integer, Integer> INTEGER_MIN = TypeUtils::min;
-
-	private final static BiFunction<Integer, Integer, Integer> INTEGER_MAX = TypeUtils::max;
-
-	private final static BiFunction<Integer, Integer, Integer> INTEGER_SUM = TypeUtils::sum;
-
-	private final static BiFunction<Long, Long, Long> LONG_SUM = TypeUtils::sum;
+	private static final Function<Integer, Integer> DIVIDE_BY_THREE = value -> TypeUtils.divide(value, 3);
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_MIN = TypeUtils::min;
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_MAX = TypeUtils::max;
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_SUM = TypeUtils::sum;
+	private static final BiFunction<Long, Long, Long> LONG_SUM = TypeUtils::sum;
 
 	/**
 	 * Aggregate Channels of {@link SymmetricEss}s.
 	 *
+	 * @param <T>        the Channel Type
 	 * @param aggregator the aggregator function
 	 * @param esss       the List of {@link SymmetricEss}
 	 * @param channelId  the SymmetricEss.ChannelId
@@ -168,6 +166,7 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	/**
 	 * Aggregate Channels of {@link ManagedSymmetricEss}s.
 	 *
+	 * @param <T>        the Channel Type
 	 * @param aggregator the aggregator function
 	 * @param esss       the List of {@link SymmetricEss}
 	 * @param channelId  the SymmetricEss.ChannelId
@@ -197,10 +196,12 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	/**
 	 * Aggregate Channels of {@link AsymmetricEss}s.
 	 *
+	 * @param <T>                 the Channel Type
 	 * @param aggregator          the aggregator function
 	 * @param esss                the List of {@link SymmetricEss}
 	 * @param asymmetricChannelId the AsymmetricEss.ChannelId
-	 * @param asymmetricChannelId the fallback SymmetricEss.ChannelId; used for
+	 * @param divideFunction      the applied divide function
+	 * @param symmetricChannelId  the fallback SymmetricEss.ChannelId; used for
 	 *                            SymmetricEss and divided by 3
 	 */
 	private <T> void calculate(BiFunction<T, T, T> aggregator, List<SymmetricEss> esss,

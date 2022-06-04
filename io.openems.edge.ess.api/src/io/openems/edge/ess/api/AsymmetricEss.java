@@ -20,7 +20,7 @@ public interface AsymmetricEss extends SymmetricEss {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Active Power L1
+		 * Active Power L1.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
@@ -36,7 +36,7 @@ public interface AsymmetricEss extends SymmetricEss {
 						+ "Includes excess DC-PV production for hybrid inverters. " //
 						+ "Negative values for charge; positive for discharge")),
 		/**
-		 * Active Power L2
+		 * Active Power L2.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
@@ -52,7 +52,7 @@ public interface AsymmetricEss extends SymmetricEss {
 						+ "Includes excess DC-PV production for hybrid inverters. " //
 						+ "Negative values for charge; positive for discharge")),
 		/**
-		 * Active Power L3
+		 * Active Power L3.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
@@ -68,7 +68,7 @@ public interface AsymmetricEss extends SymmetricEss {
 						+ "Includes excess DC-PV production for hybrid inverters. " //
 						+ "Negative values for charge; positive for discharge")),
 		/**
-		 * Reactive Power L1
+		 * Reactive Power L1.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
@@ -81,7 +81,7 @@ public interface AsymmetricEss extends SymmetricEss {
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Reactive Power L2
+		 * Reactive Power L2.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
@@ -94,7 +94,7 @@ public interface AsymmetricEss extends SymmetricEss {
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Reactive Power L3
+		 * Reactive Power L3.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess Asymmetric
@@ -373,7 +373,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	 * Initializes Channel listeners to set the Active- and Reactive-Power Channel
 	 * value as the sum of L1 + L2 + L3.
 	 *
-	 * @param ess
+	 * @param ess the {@link AsymmetricEss}
 	 */
 	public static void initializePowerSumChannels(AsymmetricEss ess) {
 		// Active Power
