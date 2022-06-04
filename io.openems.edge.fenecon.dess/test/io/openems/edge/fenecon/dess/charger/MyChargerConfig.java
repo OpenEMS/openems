@@ -62,7 +62,7 @@ public class MyChargerConfig extends AbstractComponentConfig implements Config1,
 
 	@Override
 	public String ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.builder.modbusId);
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.builder.essId);
 	}
 
 }
