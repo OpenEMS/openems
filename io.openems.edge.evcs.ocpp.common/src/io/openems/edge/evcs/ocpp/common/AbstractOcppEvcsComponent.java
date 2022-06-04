@@ -134,31 +134,70 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
-	protected void newSession(OcppServer server, UUID sessionId) {
+	/**
+	 * New session started.
+	 * 
+	 * @param server    the {@link OcppServer}
+	 * @param sessionId the session {@link UUID}
+	 */
+	public void newSession(OcppServer server, UUID sessionId) {
 		this.ocppServer = server;
 		this.sessionId = sessionId;
 		this._setStatus(Status.NOT_READY_FOR_CHARGING);
 		this._setChargingstationCommunicationFailed(false);
 	}
 
-	protected void lostSession() {
+	/**
+	 * Session lost.
+	 */
+	public void lostSession() {
 		this.ocppServer = null;
 		this.sessionId = null;
 		this._setStatus(Status.UNDEFINED);
 		this._setChargingstationCommunicationFailed(true);
 	}
 
-	protected abstract Set<OcppInformations> getSupportedMeasurements();
+	/**
+	 * Get the supported measurements.
+	 * 
+	 * @return a Set of {@link OcppInformations}
+	 */
+	public abstract Set<OcppInformations> getSupportedMeasurements();
 
-	protected abstract String getConfiguredOcppId();
+	/**
+	 * Get configured OCPP-ID.
+	 * 
+	 * @return the OCPP-ID
+	 */
+	public abstract String getConfiguredOcppId();
 
-	protected abstract Integer getConfiguredConnectorId();
+	/**
+	 * Get configured Connector-ID.
+	 * 
+	 * @return the Connector-ID
+	 */
+	public abstract Integer getConfiguredConnectorId();
 
-	protected abstract Integer getConfiguredMaximumHardwarePower();
+	/**
+	 * Get configured maximum hardware power.
+	 * 
+	 * @return the maximum hardware power
+	 */
+	public abstract Integer getConfiguredMaximumHardwarePower();
 
-	protected abstract Integer getConfiguredMinimumHardwarePower();
+	/**
+	 * Get configured minimum hardware power.
+	 * 
+	 * @return the minimum hardware power
+	 */
+	public abstract Integer getConfiguredMinimumHardwarePower();
 
-	protected abstract boolean returnsSessionEnergy();
+	/**
+	 * Returns the Session Energy.
+	 * 
+	 * @return true if yes
+	 */
+	public abstract boolean returnsSessionEnergy();
 
 	/**
 	 * Required requests that should be sent after a connection was established.

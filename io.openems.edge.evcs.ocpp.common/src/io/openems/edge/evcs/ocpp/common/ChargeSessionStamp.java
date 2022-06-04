@@ -83,7 +83,10 @@ public class ChargeSessionStamp {
 		this.setChargeSessionStamp(time, energy);
 	}
 
-	protected void resetChargeSessionStampIfPresent() {
+	/**
+	 * Reset the Charge Session Timestamp.
+	 */
+	public void resetChargeSessionStampIfPresent() {
 		if (this.isChargeSessionStampPresent()) {
 			this.resetChargeSessionStamp();
 		}
