@@ -100,6 +100,11 @@ public abstract class AbstractTask implements Task {
 	 */
 	private boolean isDebug = false;
 
+	/**
+	 * Activate Debug-Mode.
+	 * 
+	 * @return myself
+	 */
 	public AbstractTask debug() {
 		this.isDebug = true;
 		return this;

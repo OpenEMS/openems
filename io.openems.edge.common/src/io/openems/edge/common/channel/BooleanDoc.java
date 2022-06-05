@@ -37,6 +37,13 @@ public class BooleanDoc extends OpenemsTypeDoc<Boolean> {
 	protected int debounce = 0;
 	protected Debounce debounceMode = null;
 
+	/**
+	 * Add a debounce before actually setting the channel value.
+	 * 
+	 * @param debounce     the debounce counter
+	 * @param debounceMode the {@link Debounce} mode
+	 * @return myself
+	 */
 	public BooleanDoc debounce(int debounce, Debounce debounceMode) {
 		this.debounce = debounce;
 		this.debounceMode = debounceMode;

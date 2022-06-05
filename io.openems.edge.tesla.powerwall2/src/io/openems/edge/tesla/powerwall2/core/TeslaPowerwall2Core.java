@@ -13,6 +13,11 @@ public interface TeslaPowerwall2Core extends OpenemsComponent {
 
 	public void setBattery(TeslaPowerwall2Battery battery);
 
+	/**
+	 * Gets the {@link TeslaPowerwall2Battery}.
+	 * 
+	 * @return the {@link TeslaPowerwall2Battery}
+	 */
 	public Optional<TeslaPowerwall2Battery> getBattery();
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

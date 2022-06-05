@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999 - 2001 Maxim Integrated Products, All Rights Reserved.
@@ -3223,3 +3224,4 @@ public class OneWireContainer21 extends OneWireContainer implements TemperatureC
 		this.setFlag(CONTROL_REGISTER, TIMER_ALARM_SEARCH_FLAG, alarmEnable, state);
 	}
 }
+// CHECKSTYLE:ON

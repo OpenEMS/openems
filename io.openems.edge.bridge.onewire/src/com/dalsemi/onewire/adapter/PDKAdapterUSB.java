@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 //---------------------------------------------------------------------------
 // Copyright (C) 2005 Maxim Integrated Products, All Rights Reserved.
 //
@@ -542,3 +543,4 @@ public class PDKAdapterUSB extends DSPortAdapter {
 	}
 
 }
+// CHECKSTYLE:ON

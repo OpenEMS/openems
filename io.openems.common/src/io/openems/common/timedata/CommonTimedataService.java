@@ -23,8 +23,9 @@ public interface CommonTimedataService {
 	 * Handles a {@link QueryHistoricTimeseriesExportXlxsRequest}. Exports historic
 	 * data to an Excel file.
 	 *
-	 * @param edgeId  the Edge-ID
-	 * @param request the {@link QueryHistoricTimeseriesExportXlxsRequest} request
+	 * @param edgeId   the Edge-ID
+	 * @param request  the {@link QueryHistoricTimeseriesExportXlxsRequest} request
+	 * @param language the {@link Language}
 	 * @return the {@link QueryHistoricTimeseriesExportXlsxResponse}
 	 * @throws OpenemsNamedException on error
 	 */

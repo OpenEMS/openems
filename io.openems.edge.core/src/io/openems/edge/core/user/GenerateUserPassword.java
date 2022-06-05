@@ -1,5 +1,6 @@
 package io.openems.edge.core.user;
 
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Splitter;
@@ -9,6 +10,12 @@ import io.openems.edge.common.host.DummyHost;
 
 public class GenerateUserPassword {
 
+	/**
+	 * Generate FEMS User Passwords.
+	 * 
+	 * @param args command line arguments
+	 * @throws IOException on error
+	 */
 	public static void main(String[] args) {
 		if (args.length != 2) {
 			System.err.println("Call with parameters!");

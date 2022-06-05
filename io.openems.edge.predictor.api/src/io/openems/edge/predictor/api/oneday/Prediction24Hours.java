@@ -14,14 +14,14 @@ import io.openems.edge.common.type.TypeUtils;
  */
 public class Prediction24Hours {
 
-	public final static int NUMBER_OF_VALUES = 96;
+	public static final int NUMBER_OF_VALUES = 96;
 
 	private final Integer[] values = new Integer[NUMBER_OF_VALUES];
 
 	/**
 	 * Holds a {@link Prediction24Hours} with all values null.
 	 */
-	public final static Prediction24Hours EMPTY = new Prediction24Hours();
+	public static final Prediction24Hours EMPTY = new Prediction24Hours();
 
 	/**
 	 * Sums up the given {@link Prediction24Hours}s. If any source value is null,

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -194,3 +195,4 @@ class MemoryBankScratchCRC extends MemoryBankScratchEx {
 		System.arraycopy(raw_buf, this.extraInfoLength + 1, readBuf, 0, this.pageLength);
 	}
 }
+// CHECKSTYLE:ON

@@ -23,7 +23,7 @@ import io.openems.edge.kostal.piko.ess.KostalPikoEss;
 import io.openems.edge.kostal.piko.gridmeter.KostalPikoGridMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Kostal.Piko.Core", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
@@ -34,8 +34,8 @@ import io.openems.edge.kostal.piko.gridmeter.KostalPikoGridMeter;
 public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 		implements KostalPikoCore, OpenemsComponent, EventHandler {
 
-	protected final static int MAX_ACTUAL_POWER = 6600;
-	protected final static int MAX_APPARENT_POWER = 6000;
+	protected static final int MAX_ACTUAL_POWER = 6600;
+	protected static final int MAX_APPARENT_POWER = 6000;
 	private final TasksManager<ReadTask> readTasksManager;
 	private SocketConnection socketConnection = null;
 	private Worker worker = null;
@@ -44,7 +44,7 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 	@Override
 	public void setEss(KostalPikoEss ess) {
 		this.ess = ess;
-		this.readTasksManager.addTasks( //
+		this.readTasksManager.addTasks(//
 				new ReadTask(ess, SymmetricEss.ChannelId.SOC, Priority.HIGH, FieldType.FLOAT, 0x02000705) //
 		);
 	}

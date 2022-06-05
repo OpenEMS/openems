@@ -35,7 +35,7 @@ import io.openems.edge.evcs.ocpp.common.OcppProfileType;
 import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Evcs.Ocpp.Abl", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
@@ -60,8 +60,8 @@ public class Abl extends AbstractOcppEvcsComponent
 	 * all of them, but in particular it is not supporting the information of the
 	 * current power.
 	 */
-	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<>( //
-			Arrays.asList( //
+	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<>(//
+			Arrays.asList(//
 					OcppInformations.values()) //
 	);
 
@@ -74,7 +74,7 @@ public class Abl extends AbstractOcppEvcsComponent
 	protected ComponentManager componentManager;
 
 	public Abl() {
-		super( //
+		super(//
 				PROFILE_TYPES, //
 				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
@@ -84,7 +84,7 @@ public class Abl extends AbstractOcppEvcsComponent
 	}
 
 	@Activate
-	public void activate(ComponentContext context, Config config) {
+	protected void activate(ComponentContext context, Config config) {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
@@ -134,7 +134,7 @@ public class Abl extends AbstractOcppEvcsComponent
 
 			int phases = evcs.getPhases().orElse(3);
 
-			var target = Math.round(chargePower / phases / 230.0) /* voltage */ ;
+			var target = Math.round(chargePower / phases / 230.0) /* voltage */;
 
 			var maxCurrent = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT) / phases / 230;
 			target = target > maxCurrent ? maxCurrent : target;

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -71,3 +72,4 @@ public class Bit {
 		return buf[nbyt + offset] >>> nbit & 0x01;
 	}
 }
+// CHECKSTYLE:ON

@@ -20,7 +20,6 @@ import io.openems.edge.common.type.TypeUtils;
  * provides convenience methods for retrieving it.
  *
  * <p>
- *
  * To get the actual value of a Channel using this object, typically one of the
  * following methods will fit:
  * <ul>
@@ -36,7 +35,10 @@ import io.openems.edge.common.type.TypeUtils;
  */
 public class Value<T> {
 
-	public final static String UNDEFINED_VALUE_STRING = "UNDEFINED";
+	/**
+	 * The String for UNDEFINED, i.e. 'null' value channels.
+	 */
+	public static final String UNDEFINED_VALUE_STRING = "UNDEFINED";
 
 	private final Channel<T> parent;
 	private final T value;
@@ -51,7 +53,7 @@ public class Value<T> {
 	/**
 	 * Gets the value as a formatted String with its unit. (Same as toString())
 	 *
-	 * @return
+	 * @return the value as formatted String
 	 */
 	public String asString() {
 		return this.toString();
@@ -74,9 +76,9 @@ public class Value<T> {
 	}
 
 	/**
-	 * Gets the value as a formatted String without its unit
+	 * Gets the value as a formatted String without its unit.
 	 *
-	 * @return
+	 * @return formatted string without unit
 	 */
 	public String asStringWithoutUnit() {
 		var value = this.get();
@@ -87,18 +89,19 @@ public class Value<T> {
 	}
 
 	/**
-	 * Gets the value or null
+	 * Gets the value or null.
 	 *
-	 * @return
+	 * @return the value
 	 */
 	public T get() {
 		return this.value;
 	}
 
 	/**
-	 * Gets the value or throws an Exception on null
+	 * Gets the value or throws an Exception on null.
 	 *
-	 * @return
+	 * @return the value; never null
+	 * @throws InvalidValueException if value is null
 	 */
 	public T getOrError() throws InvalidValueException {
 		var value = this.get();
@@ -111,7 +114,7 @@ public class Value<T> {
 	/**
 	 * Gets the value as an Optional.
 	 *
-	 * @return
+	 * @return the value as {@link Optional}
 	 */
 	public Optional<T> asOptional() {
 		return Optional.ofNullable(this.get());
@@ -131,7 +134,8 @@ public class Value<T> {
 	 * Gets the value or the given alternativeValue. This is short for
 	 * '.asOptional().or()'.
 	 *
-	 * @return
+	 * @param alternativeValue the alternative value
+	 * @return the value; or an alternative value if the value is null
 	 */
 	public T orElse(T alternativeValue) {
 		return Optional.ofNullable(this.get()).orElse(alternativeValue);
@@ -140,8 +144,8 @@ public class Value<T> {
 	/**
 	 * Gets the value as its String option. Enum options are converted to Strings.
 	 *
+	 * @return the String option of Enum values
 	 * @throws IllegalArgumentException no matching option existing
-	 * @return
 	 */
 	public String asOptionString() {
 		var enumDoc = this.isEnumValue();
@@ -159,9 +163,10 @@ public class Value<T> {
 
 	/**
 	 * Gets the value as its Enum option.
-	 *
+	 * 
+	 * @param <O> the {@link OptionsEnum} type
+	 * @return the Enum value
 	 * @throws IllegalArgumentException no matching Enum option existing
-	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public <O extends OptionsEnum> O asEnum() {
@@ -182,9 +187,9 @@ public class Value<T> {
 	}
 
 	/**
-	 * Gets the value in GSON JSON format
+	 * Gets the value in GSON JSON format.
 	 *
-	 * @return
+	 * @return the value as {@link JsonElement}
 	 */
 	public JsonElement asJson() {
 		return TypeUtils.getAsJson(this.parent.getType(), this.get());

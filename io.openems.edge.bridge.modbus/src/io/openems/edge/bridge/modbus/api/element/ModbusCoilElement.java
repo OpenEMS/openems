@@ -58,5 +58,10 @@ public interface ModbusCoilElement extends ModbusElement<Boolean> {
 		return valueOpt;
 	}
 
+	/**
+	 * Gets the next write value.
+	 * 
+	 * @return the Optional next write value
+	 */
 	public Optional<Boolean> getNextWriteValue();
 }

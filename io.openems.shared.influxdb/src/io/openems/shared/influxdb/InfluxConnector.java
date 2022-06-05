@@ -202,7 +202,7 @@ public class InfluxConnector {
 		// to set timeout
 		var options = InfluxDBClientOptions.builder() //
 				.url(this.url.toString()) //
-				.org(org) //
+				.org(this.org) //
 				.authenticateToken(String.format(this.apiKey).toCharArray()) //
 				.bucket(this.bucket) //
 				.okHttpClient(okHttpClientBuilder) //
@@ -463,7 +463,7 @@ public class InfluxConnector {
 				if (timestamp.isBefore(fromDate)) {
 					continue;
 				}
-				timestamp = resolution.revertInfluxDBOffset(timestamp);
+				timestamp = resolution.revertInfluxDbOffset(timestamp);
 
 				var valueObj = record.getValue();
 				final JsonElement value;

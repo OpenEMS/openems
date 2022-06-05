@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -840,3 +841,4 @@ class MemoryBankNV implements PagedMemoryBank {
 		throw new OneWireException("Read page with CRC and extra-info not supported by this memory bank");
 	}
 }
+// CHECKSTYLE:ON

@@ -64,7 +64,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	public static final int DEFAULT_PORT = 8075;
 
-	private final static int POOL_SIZE = 10;
+	private static final int POOL_SIZE = 10;
 
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 

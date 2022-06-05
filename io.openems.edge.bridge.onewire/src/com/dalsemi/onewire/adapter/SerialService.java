@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001-2003 Maxim Integrated Products, All Rights Reserved.
  *
@@ -798,3 +799,4 @@ public class SerialService implements SerialPortEventListener {
 		this.write(this.tempArray, 0, length);
 	}
 }
+// CHECKSTYLE:ON

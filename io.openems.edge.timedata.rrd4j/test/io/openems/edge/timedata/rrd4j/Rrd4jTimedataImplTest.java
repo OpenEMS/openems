@@ -17,7 +17,7 @@ import org.rrd4j.core.RrdMemoryBackendFactory;
 
 public class Rrd4jTimedataImplTest {
 
-	private final static Instant START = Instant.ofEpochSecond(1577836800L); /* starts at 1. January 2020 00:00:00 */
+	private static final Instant START = Instant.ofEpochSecond(1577836800L); /* starts at 1. January 2020 00:00:00 */
 
 	private static void addSample(RrdDb database, Instant instant, double value) throws IOException {
 		var sample = database.createSample(instant.getEpochSecond());

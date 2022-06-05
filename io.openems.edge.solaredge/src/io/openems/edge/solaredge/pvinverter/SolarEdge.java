@@ -46,8 +46,8 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 public class SolarEdge extends AbstractSunSpecPvInverter implements SunSpecPvInverter, ManagedSymmetricPvInverter,
 		SymmetricMeter, ModbusComponent, OpenemsComponent, EventHandler {
 
-	private final static int UNIT_ID = 1;
-	private final static int READ_FROM_MODBUS_BLOCK = 1;
+	private static final int UNIT_ID = 1;
+	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //

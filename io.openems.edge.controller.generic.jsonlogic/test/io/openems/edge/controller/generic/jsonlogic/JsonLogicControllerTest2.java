@@ -12,15 +12,15 @@ import io.openems.edge.io.test.DummyInputOutput;
 
 public class JsonLogicControllerTest2 {
 
-	private final static ChannelAddress SUM_PRODUCTION_POWER = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
+	private static final ChannelAddress SUM_PRODUCTION_POWER = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
 			Sum.ChannelId.PRODUCTION_ACTIVE_POWER.id());
-	private final static ChannelAddress SUM_SOC = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
+	private static final ChannelAddress SUM_SOC = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
 			Sum.ChannelId.ESS_SOC.id());
 
-	private final static String IO_ID = "io0";
-	private final static ChannelAddress INPUT0 = new ChannelAddress(IO_ID, "InputOutput0");
-	private final static ChannelAddress OUTPUT0 = new ChannelAddress(IO_ID, "InputOutput1");
-	private final static ChannelAddress OUTPUT1 = new ChannelAddress(IO_ID, "InputOutput2");
+	private static final String IO_ID = "io0";
+	private static final ChannelAddress INPUT0 = new ChannelAddress(IO_ID, "InputOutput0");
+	private static final ChannelAddress OUTPUT0 = new ChannelAddress(IO_ID, "InputOutput1");
+	private static final ChannelAddress OUTPUT1 = new ChannelAddress(IO_ID, "InputOutput2");
 
 	@Test
 	public void test() throws Exception {
@@ -29,102 +29,102 @@ public class JsonLogicControllerTest2 {
 				.addComponent(new DummySum()) //
 				.addComponent(new DummyInputOutput(IO_ID)) //
 				.activate(MyConfig.create() //
-						.setRule("{" + //
-								"    \"if\": [" + //
-								"        {" + //
-								"            \">\": [" + //
-								"                {" + //
-								"                    \"var\": \"" + SUM_PRODUCTION_POWER + "\"" + //
-								"                }," + //
-								"                2000" + //
-								"            ]" + //
-								"        }," + //
-								"        {" + //
-								"            \"if\": [" + //
-								"                {" + //
-								"                    \">\": [" + //
-								"                        {" + //
-								"                            \"var\": \"" + SUM_SOC + "\"" + //
-								"                        }," + //
-								"                        70" + //
-								"                    ]" + //
-								"                }," + //
-								"                {" + //
-								"                    \"if\": [" + //
-								"                        {" + //
-								"                            \"var\": \"" + INPUT0 + "\"" + //
-								"                        }," + //
-								"                        [" + //
-								"                        ]," + //
-								"                        {" + //
-								"                            \"if\": [" + //
-								"                                {" + //
-								"                                    \"var\": \"" + OUTPUT0 + "\"" + //
-								"                                }," + //
-								"                                [" + //
-								"                                    [" + //
-								"                                        \"" + OUTPUT0 + "\"," + //
-								"                                        false" + //
-								"                                    ]" + //
-								"                                ]," + //
-								"                                [" + //
-								"                                    [" + //
-								"                                        \"" + OUTPUT1 + "\"," + //
-								"                                        true" + //
-								"                                    ]" + //
-								"                                ]" + //
-								"                            ]" + //
-								"                        }" + //
-								"                    ]" + //
-								"                }," + //
-								"                [" + //
-								"                ]" + //
-								"            ]" + //
-								"        }," + //
-								"        {" + //
-								"            \"if\": [" + //
-								"                {" + //
-								"                    \"<\": [" + //
-								"                        {" + //
-								"                            \"var\": \"" + SUM_SOC + "\"" + //
-								"                        }," + //
-								"                        40" + //
-								"                    ]" + //
-								"                }," + //
-								"                {" + //
-								"                    \"if\": [" + //
-								"                        {" + //
-								"                            \"var\": \"" + INPUT0 + "\"" + //
-								"                        }," + //
-								"                        [" + //
-								"                        ]," + //
-								"                        {" + //
-								"                            \"if\": [" + //
-								"                                {" + //
-								"                                    \"var\": \"" + OUTPUT1 + "\"" + //
-								"                                }," + //
-								"                                [" + //
-								"                                    [" + //
-								"                                        \"" + OUTPUT1 + "\"," + //
-								"                                        false" + //
-								"                                    ]" + //
-								"                                ]," + //
-								"                                [" + //
-								"                                    [" + //
-								"                                        \"" + OUTPUT0 + "\"," + //
-								"                                        true" + //
-								"                                    ]" + //
-								"                                ]" + //
-								"                            ]" + //
-								"                        }" + //
-								"                    ]" + //
-								"                }," + //
-								"                [" + //
-								"                ]" + //
-								"            ]" + //
-								"        }" + //
-								"    ]" + //
-								"}") //
+						.setRule("{"//
+								+ "    \"if\": ["//
+								+ "        {"//
+								+ "            \">\": ["//
+								+ "                {"//
+								+ "                    \"var\": \"" + SUM_PRODUCTION_POWER + "\""//
+								+ "                },"//
+								+ "                2000"//
+								+ "            ]"//
+								+ "        },"//
+								+ "        {"//
+								+ "            \"if\": ["//
+								+ "                {"//
+								+ "                    \">\": ["//
+								+ "                        {"//
+								+ "                            \"var\": \"" + SUM_SOC + "\""//
+								+ "                        },"//
+								+ "                        70"//
+								+ "                    ]"//
+								+ "                },"//
+								+ "                {"//
+								+ "                    \"if\": ["//
+								+ "                        {"//
+								+ "                            \"var\": \"" + INPUT0 + "\""//
+								+ "                        },"//
+								+ "                        ["//
+								+ "                        ],"//
+								+ "                        {"//
+								+ "                            \"if\": ["//
+								+ "                                {"//
+								+ "                                    \"var\": \"" + OUTPUT0 + "\""//
+								+ "                                },"//
+								+ "                                ["//
+								+ "                                    ["//
+								+ "                                        \"" + OUTPUT0 + "\","//
+								+ "                                        false"//
+								+ "                                    ]"//
+								+ "                                ],"//
+								+ "                                ["//
+								+ "                                    ["//
+								+ "                                        \"" + OUTPUT1 + "\","//
+								+ "                                        true"//
+								+ "                                    ]"//
+								+ "                                ]"//
+								+ "                            ]"//
+								+ "                        }"//
+								+ "                    ]"//
+								+ "                },"//
+								+ "                ["//
+								+ "                ]"//
+								+ "            ]"//
+								+ "        },"//
+								+ "        {"//
+								+ "            \"if\": ["//
+								+ "                {"//
+								+ "                    \"<\": ["//
+								+ "                        {"//
+								+ "                            \"var\": \"" + SUM_SOC + "\""//
+								+ "                        },"//
+								+ "                        40"//
+								+ "                    ]"//
+								+ "                },"//
+								+ "                {"//
+								+ "                    \"if\": ["//
+								+ "                        {"//
+								+ "                            \"var\": \"" + INPUT0 + "\""//
+								+ "                        },"//
+								+ "                        ["//
+								+ "                        ],"//
+								+ "                        {"//
+								+ "                            \"if\": ["//
+								+ "                                {"//
+								+ "                                    \"var\": \"" + OUTPUT1 + "\""//
+								+ "                                },"//
+								+ "                                ["//
+								+ "                                    ["//
+								+ "                                        \"" + OUTPUT1 + "\","//
+								+ "                                        false"//
+								+ "                                    ]"//
+								+ "                                ],"//
+								+ "                                ["//
+								+ "                                    ["//
+								+ "                                        \"" + OUTPUT0 + "\","//
+								+ "                                        true"//
+								+ "                                    ]"//
+								+ "                                ]"//
+								+ "                            ]"//
+								+ "                        }"//
+								+ "                    ]"//
+								+ "                },"//
+								+ "                ["//
+								+ "                ]"//
+								+ "            ]"//
+								+ "        }"//
+								+ "    ]"//
+								+ "}") //
 						.build())
 				.next(new TestCase() //
 						.input(SUM_PRODUCTION_POWER, 2001) //

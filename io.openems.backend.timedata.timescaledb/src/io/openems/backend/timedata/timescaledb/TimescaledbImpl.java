@@ -150,7 +150,7 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent
 		this.dataSource.close();
 	}
 
-	// TODO @Override from Timedata
+	@Override
 	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
 		this.pointsQueue.addAll(data.cellSet().stream() //
 				.map(cell -> new Point(cell.getRowKey(), edgeId, cell.getColumnKey(), cell.getValue())) //

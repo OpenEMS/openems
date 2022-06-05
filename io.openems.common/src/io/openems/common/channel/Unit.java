@@ -83,7 +83,7 @@ public enum Unit {
 	MILLIVOLT("mV", VOLT, -3),
 
 	/**
-	 * Unit of Voltage [uA]
+	 * Unit of Voltage [uA].
 	 */
 	MICROVOLT("uA", VOLT, -6),
 
@@ -102,7 +102,7 @@ public enum Unit {
 	MILLIAMPERE("mA", AMPERE, -3),
 
 	/**
-	 * Unit of Current [uA]
+	 * Unit of Current [uA].
 	 */
 	MICROAMPERE("uA", AMPERE, -6),
 

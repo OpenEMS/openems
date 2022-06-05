@@ -53,6 +53,12 @@ public class EnergyValuesHandler {
 		this.parent = parent;
 	}
 
+	/**
+	 * Activate the {@link EnergyValuesHandler}.
+	 * 
+	 * <p>
+	 * Call this method in the @Activate method.
+	 */
 	public void activate() {
 		this.scheduledFuture = this.executor.schedule(() -> {
 			var timedata = this.parent.timedata;
@@ -80,6 +86,12 @@ public class EnergyValuesHandler {
 		}, INITIAL_DELAY, TimeUnit.SECONDS);
 	}
 
+	/**
+	 * Deactivate the {@link EnergyValuesHandler}.
+	 * 
+	 * <p>
+	 * Call this method in the @Deactivate method.
+	 */
 	public void deactivate() {
 		if (this.scheduledFuture != null) {
 			this.scheduledFuture.cancel(true);

@@ -16,7 +16,7 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
-	private final static float COMPARE_THRESHOLD = 0.0001F;
+	private static final float COMPARE_THRESHOLD = 0.0001F;
 
 	private final AbstractSunSpecPvInverter parent;
 

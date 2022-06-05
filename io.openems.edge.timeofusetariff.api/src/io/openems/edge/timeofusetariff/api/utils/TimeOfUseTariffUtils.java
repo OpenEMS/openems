@@ -51,7 +51,7 @@ public class TimeOfUseTariffUtils {
 	/**
 	 * Gets 'now' from the Clock and rounds it down to required minutes.
 	 *
-	 * @param clock   the {@link Clock}
+	 * @param now     the {@link ZonedDateTime}
 	 * @param minutes the custom minutes to roundoff to.
 	 * @return the rounded result
 	 */

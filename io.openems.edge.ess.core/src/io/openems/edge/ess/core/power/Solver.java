@@ -286,8 +286,7 @@ public class Solver {
 	/**
 	 * Send the final solution to each Inverter.
 	 *
-	 * @param finalSolution  a map of inverters to PowerTuples
-	 * @param allConstraints all Constraints
+	 * @param finalSolution a map of inverters to PowerTuples
 	 */
 	private void applySolution(Map<Inverter, PowerTuple> finalSolution) {
 		// store last value inside Inverter

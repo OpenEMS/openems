@@ -12,14 +12,29 @@ public interface KostalPikoCore {
 
 	public void setEss(KostalPikoEss ess);
 
+	/**
+	 * Unregister the {@link KostalPikoEss}.
+	 * 
+	 * @param ess the {@link KostalPikoEss}
+	 */
 	public void unsetEss(KostalPikoEss ess);
 
 	public void setCharger(KostalPikoCharger charger);
 
+	/**
+	 * Unregister the {@link KostalPikoCharger}.
+	 * 
+	 * @param charger the {@link KostalPikoCharger}
+	 */
 	public void unsetCharger(KostalPikoCharger charger);
 
 	public void setGridMeter(KostalPikoGridMeter charger);
 
+	/**
+	 * Unregister the {@link KostalPikoGridMeter}.
+	 * 
+	 * @param charger the {@link KostalPikoGridMeter}
+	 */
 	public void unsetGridMeter(KostalPikoGridMeter charger);
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

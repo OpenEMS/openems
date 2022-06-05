@@ -430,8 +430,8 @@ public class Schema {
 	 * Queries the existing data type mappings.
 	 * 
 	 * @param stmnt {@link Statement}
-	 * @throws SQLException on error
 	 * @return the Cache
+	 * @throws SQLException on error
 	 */
 	private static Map<String, Map<String, Map<String, ChannelMeta>>> queryTypes(Statement stmnt) throws SQLException {
 		var channels = new HashMap<String, Map<String, Map<String, ChannelMeta>>>();

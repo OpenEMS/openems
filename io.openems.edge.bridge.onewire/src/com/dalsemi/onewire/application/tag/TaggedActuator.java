@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -69,3 +70,4 @@ public interface TaggedActuator {
 	 */
 	public void initActuator() throws OneWireIOException, OneWireException;
 }
+// CHECKSTYLE:ON
