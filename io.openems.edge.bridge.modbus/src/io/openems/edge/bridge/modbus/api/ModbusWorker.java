@@ -56,7 +56,6 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * This is called on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE cycle event.
 	 */
 	protected void onBeforeProcessImage() {
-		var cycleTime = this.parent.getCycle().getCycleTime();
 		this.stopwatch.reset();
 		this.stopwatch.start();
 
@@ -88,6 +87,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		// plan the execution for the next cycles
 		var totalDuration = readTasksDuration + writeTasksDuration;
 		var totalDurationWithBuffer = totalDuration + TASK_DURATION_BUFFER;
+		var cycleTime = this.parent.getCycle().getCycleTime();
 		var noOfRequiredCycles = ceilDiv(totalDurationWithBuffer, cycleTime);
 
 		// Set EXECUTION_DURATION channel

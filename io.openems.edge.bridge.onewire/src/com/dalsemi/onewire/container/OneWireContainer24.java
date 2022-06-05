@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999 - 2001 Maxim Integrated Products, All Rights Reserved.
@@ -569,3 +570,4 @@ public class OneWireContainer24 extends OneWireContainer implements ClockContain
 		Bit.arrayWriteBit(runEnable ? 1 : 0, 2, CONTROL_OFFSET, state);
 	}
 }
+// CHECKSTYLE:ON

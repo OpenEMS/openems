@@ -27,7 +27,7 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.kostal.piko.core.api.KostalPikoCore;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Kostal.Piko.Charger", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //

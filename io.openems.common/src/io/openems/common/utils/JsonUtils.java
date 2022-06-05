@@ -1346,6 +1346,7 @@ public class JsonUtils {
 	/**
 	 * Gets a {@link JsonElement} as the given {@link OpenemsType}.
 	 *
+	 * @param <T>  the Type for implicit casting of the result
 	 * @param type the {@link OpenemsType}
 	 * @param j    the {@link JsonElement}
 	 * @return an Object of the given type

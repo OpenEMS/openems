@@ -23,7 +23,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.kostal.piko.core.api.KostalPikoCore;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Kostal.Piko.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //

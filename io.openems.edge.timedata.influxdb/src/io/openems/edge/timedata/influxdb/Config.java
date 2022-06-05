@@ -3,7 +3,7 @@ package io.openems.edge.timedata.influxdb;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Timedata InfluxDB", //
 		description = "This component persists all data to an InfluxDB timeseries database.")
 @interface Config {
@@ -22,13 +22,13 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Org", description = "The Organisation; '-' for InfluxDB v1")
 	String org() default "-";
-	
+
 	@AttributeDefinition(name = "ApiKey", description = "The ApiKey; 'username:password' for InfluxDB v1")
 	String apiKey();
 
 	@AttributeDefinition(name = "Bucket", description = "The bucket name; 'database/retentionPolicy' for InfluxDB v1")
 	String bucket();
-	
+
 	@AttributeDefinition(name = "No of Cycles", description = "How many Cycles till data is written to InfluxDB.")
 	int noOfCycles() default 1;
 

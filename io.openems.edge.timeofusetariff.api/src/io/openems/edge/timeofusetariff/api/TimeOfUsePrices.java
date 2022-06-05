@@ -18,6 +18,7 @@ public class TimeOfUsePrices {
 	 * Factory method for an 'empty' {@link TimeOfUsePrices} object, i.e. all values
 	 * are 'null'.
 	 * 
+	 * @param updateTime the update time as {@link ZonedDateTime}
 	 * @return an 'empty' {@link TimeOfUsePrices} object
 	 */
 	public static TimeOfUsePrices empty(ZonedDateTime updateTime) {

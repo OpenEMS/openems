@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2003 Maxim Integrated Products, All Rights Reserved.
  *
@@ -392,3 +393,4 @@ public interface PasswordContainer {
 
 	// -----------------------------------------------------------------
 }
+// CHECKSTYLE:ON

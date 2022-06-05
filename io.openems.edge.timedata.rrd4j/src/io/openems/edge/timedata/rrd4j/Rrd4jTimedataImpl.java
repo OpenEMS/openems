@@ -386,6 +386,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	 * {@link CommonTimedataService#calculateResolution(ZonedDateTime, ZonedDateTime)}
 	 * 
 	 * @param channelAddress the Channel-Address
+	 * @param channelUnit    the {@link Unit}
 	 * @param startTime      the starttime for newly created RrdDbs
 	 * @return the RrdDb
 	 * @throws IOException        on error
@@ -405,11 +406,12 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Creates new DB
+	 * Creates new DB.
 	 * 
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @param channelUnit    the {@link Unit} of the Channel
 	 * @param startTime      the timestamp of the newly added data
+	 * @return the {@link RrdDb}
 	 * @throws IOException on error
 	 */
 	private synchronized RrdDb createNewDb(ChannelAddress channelAddress, Unit channelUnit, long startTime)
@@ -493,7 +495,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	 * Defines the datasource properties for a given Channel, i.e. min/max allowed
 	 * value and GAUGE vs. COUNTER type.
 	 * 
-	 * @param channel the Channel
+	 * @param channelUnit the {@link Unit}
 	 * @return the {@link DsDef}
 	 */
 	private ChannelDef getDsDefForChannel(Unit channelUnit) {
@@ -549,7 +551,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 	/**
 	 * Migrates between different versions of the OpenEMS-RRD4j Definition.
 	 * 
-	 * @param database       the {@link RrdDb} database
+	 * @param oldDb          the old {@link RrdDb} database
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @param channelUnit    the {@link Unit} of the Channel
 	 * @return new {@link RrdDb}
@@ -569,7 +571,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		var firstTimestamp = lastTimestamp - 60 /* minute */ * 60 /* hour */ * 24 /* day */ * 31;
 		var fetchRequest = oldDb.createFetchRequest(oldDb.getArchive(0).getConsolFun(), firstTimestamp, lastTimestamp);
 		var fetchData = fetchRequest.fetchData();
-		var values = postProcessData(fetchRequest, DEFAULT_HEARTBEAT_SECONDS);
+		final var values = postProcessData(fetchRequest, DEFAULT_HEARTBEAT_SECONDS);
 		if (fetchData.getTimestamps().length > 0) {
 			firstTimestamp = fetchData.getTimestamps()[0];
 		}

@@ -174,30 +174,50 @@ public class ElementToChannelConverter {
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_1} and INVERT_IF_TRUE.
+	 * 
+	 * @param invert input value for {@link #INVERT_IF_TRUE(boolean)}
+	 * @return the {@link ElementToChannelConverterChain}
 	 */
+	// CHECKSTYLE:OFF
 	public static final ElementToChannelConverter SCALE_FACTOR_1_AND_INVERT_IF_TRUE(boolean invert) {
+		// CHECKSTYLE:ON
 		return new ElementToChannelConverterChain(SCALE_FACTOR_1, INVERT_IF_TRUE(invert));
 	}
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and INVERT_IF_TRUE.
+	 * 
+	 * @param invert input value for {@link #INVERT_IF_TRUE(boolean)}
+	 * @return the {@link ElementToChannelConverterChain}
 	 */
+	// CHECKSTYLE:OFF
 	public static final ElementToChannelConverter SCALE_FACTOR_2_AND_INVERT_IF_TRUE(boolean invert) {
+		// CHECKSTYLE:ON
 		return new ElementToChannelConverterChain(SCALE_FACTOR_2, INVERT_IF_TRUE(invert));
 	}
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_3} and INVERT_IF_TRUE.
+	 * 
+	 * @param invert input value for {@link #INVERT_IF_TRUE(boolean)}
+	 * @return the {@link ElementToChannelConverterChain}
 	 */
+	// CHECKSTYLE:OFF
 	public static final ElementToChannelConverter SCALE_FACTOR_3_AND_INVERT_IF_TRUE(boolean invert) {
+		// CHECKSTYLE:ON
 		return new ElementToChannelConverterChain(SCALE_FACTOR_3, INVERT_IF_TRUE(invert));
 	}
 
 	/**
 	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_MINUS_1} and
 	 * INVERT_IF_TRUE.
+	 * 
+	 * @param invert input value for {@link #INVERT_IF_TRUE(boolean)}
+	 * @return the {@link ElementToChannelConverterChain}
 	 */
+	// CHECKSTYLE:OFF
 	public static final ElementToChannelConverter SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(boolean invert) {
+		// CHECKSTYLE:ON
 		return new ElementToChannelConverterChain(SCALE_FACTOR_MINUS_1, INVERT_IF_TRUE(invert));
 	}
 

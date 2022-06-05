@@ -39,7 +39,7 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 
 	private final Logger log = LoggerFactory.getLogger(DebugDetailedLog.class);
 
-	private final int WIDTH_FIRST = 30;
+	private static final int WIDTH_FIRST = 30;
 
 	private final Set<String> finishedFirstRun = new HashSet<>();
 	private final Map<ChannelAddress, String> lastPrinted = new HashMap<>();
@@ -157,8 +157,7 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 							channelText += "WRITE_ONLY";
 						}
 						// Build complete line
-						var line = String.format("%-" + this.WIDTH_FIRST + "s : %s", channel.channelId().id(),
-								channelText);
+						var line = String.format("%-" + WIDTH_FIRST + "s : %s", channel.channelId().id(), channelText);
 						// Print the line only if is not equal to the last printed line
 						if (!this.lastPrinted.containsKey(channel.address())
 								|| !this.lastPrinted.get(channel.address()).equals(line)) {
@@ -208,7 +207,7 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 	}
 
 	private void log(String topic, String message) {
-		this.logInfo(this.log, String.format("%-" + this.WIDTH_FIRST + "s : %s", topic, message));
+		this.logInfo(this.log, String.format("%-" + WIDTH_FIRST + "s : %s", topic, message));
 	}
 
 	private static String reducePackageName(Class<?> clazz) {

@@ -14,6 +14,12 @@ import io.openems.edge.common.channel.StringDoc;
 
 public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 
+	/**
+	 * Gets the {@link OpenemsTypeDoc} for the given {@link OpenemsType}.
+	 * 
+	 * @param type the {@link OpenemsType}
+	 * @return the {@link OpenemsTypeDoc}
+	 */
 	public static OpenemsTypeDoc<?> of(OpenemsType type) {
 		switch (type) {
 		case BOOLEAN:

@@ -49,7 +49,7 @@ public class GetFieldNamesResponse extends JsonrpcResponseSuccess {
 	}
 
 	/**
-	 * Gets the {@link Field}s
+	 * Gets the {@link Field}s.
 	 *
 	 * @return a set of Fields
 	 */

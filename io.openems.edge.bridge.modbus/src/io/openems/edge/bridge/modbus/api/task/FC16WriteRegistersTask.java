@@ -21,8 +21,8 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 
 /**
- * Implements a Write Holding Registers abstractTask, using Modbus function code
- * 16 (http://www.simplymodbus.ca/FC16.htm)
+ * Implements a Write Holding Registers Task, using Modbus function code 16
+ * (http://www.simplymodbus.ca/FC16.htm).
  */
 public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 

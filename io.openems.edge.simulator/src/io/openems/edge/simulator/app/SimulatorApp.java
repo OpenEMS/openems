@@ -82,8 +82,8 @@ import io.openems.edge.timedata.api.Timedata;
 public class SimulatorApp extends AbstractOpenemsComponent
 		implements SimulatorDatasource, ClockProvider, OpenemsComponent, JsonApi, EventHandler, Timedata {
 
-	public final static String SINGLETON_SERVICE_PID = "Simulator.App";
-	public final static String SINGLETON_COMPONENT_ID = "_simulator";
+	public static final String SINGLETON_SERVICE_PID = "Simulator.App";
+	public static final String SINGLETON_COMPONENT_ID = "_simulator";
 
 	private static final long MILLISECONDS_BETWEEN_LOGS = 5_000;
 

@@ -443,9 +443,9 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	/**
 	 * Calculates the power depending on the last and current measured Energy.
 	 *
-	 * @param meterValueOld Last measured meter values.
-	 * @param currentEnergy Current measured Energy.
-	 * @param timestamp     Time when the current Energy was measured.
+	 * @param lastMeterValue Last measured meter values.
+	 * @param currentEnergy  Current measured Energy.
+	 * @param timestamp      Time when the current Energy was measured.
 	 * @return current power
 	 */
 	private int calculateChargePower(ChargingProperty lastMeterValue, double currentEnergy, ZonedDateTime timestamp) {

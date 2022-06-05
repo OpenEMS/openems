@@ -3,7 +3,7 @@ package io.openems.edge.pvinverter.cluster;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "PV-Inverter Cluster", //
 		description = "Combines several PV-Inverters to one.")
 @interface Config {

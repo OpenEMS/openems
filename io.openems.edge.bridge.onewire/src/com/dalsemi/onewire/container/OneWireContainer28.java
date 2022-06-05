@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -917,3 +918,4 @@ public class OneWireContainer28 extends OneWireContainer implements TemperatureC
 		return result;
 	}
 }
+// CHECKSTYLE:ON

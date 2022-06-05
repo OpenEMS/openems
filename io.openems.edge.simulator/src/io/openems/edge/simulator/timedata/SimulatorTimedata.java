@@ -97,7 +97,7 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 				// read Channel values
 				SortedMap<ChannelAddress, JsonElement> timeMap = new TreeMap<>();
 				for (ChannelAddress channel : channels) {
-					timeMap.put(channel, this.getValueAsJson(data, channel));
+					timeMap.put(channel, getValueAsJson(data, channel));
 				}
 
 				// add to result
@@ -121,7 +121,7 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 			var data = CsvUtils.readCsvFile(this.getPath(), this.config.format(), 1);
 			SortedMap<ChannelAddress, JsonElement> result = new TreeMap<>();
 			for (ChannelAddress channel : channels) {
-				result.put(channel, this.getValueAsJson(data, channel));
+				result.put(channel, getValueAsJson(data, channel));
 			}
 			return result;
 		} catch (NumberFormatException | IOException e) {
@@ -140,10 +140,11 @@ public class SimulatorTimedata extends AbstractOpenemsComponent implements Timed
 	/**
 	 * Gets the value of the record for the given Channel-Address as Json.
 	 *
+	 * @param data    the {@link DataContainer}
 	 * @param channel the {@link ChannelAddress}
 	 * @return the value as JsonElement
 	 */
-	private JsonElement getValueAsJson(DataContainer data, ChannelAddress channel) {
+	private static JsonElement getValueAsJson(DataContainer data, ChannelAddress channel) {
 		var value = data.getValue(channel.toString());
 		if (value.isPresent()) {
 			return new JsonPrimitive(value.get());

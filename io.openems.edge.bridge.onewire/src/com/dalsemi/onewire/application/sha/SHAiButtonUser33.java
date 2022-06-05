@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -864,3 +865,4 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	}
 
 }
+// CHECKSTYLE:ON

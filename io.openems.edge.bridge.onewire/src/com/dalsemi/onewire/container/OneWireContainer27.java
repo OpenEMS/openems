@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999 - 2001 Maxim Integrated Products, All Rights Reserved.
@@ -385,3 +386,4 @@ public class OneWireContainer27 extends OneWireContainer24 implements ClockConta
 	}
 
 }
+// CHECKSTYLE:ON

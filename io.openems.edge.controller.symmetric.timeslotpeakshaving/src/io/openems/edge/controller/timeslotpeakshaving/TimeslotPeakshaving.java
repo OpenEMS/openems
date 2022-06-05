@@ -112,7 +112,9 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	/**
 	 * Applies the power on the Ess.
 	 *
-	 * @param ess {@link ManagedSymmetricEss} where the power needs to be set
+	 * @param ess         {@link ManagedSymmetricEss} where the power needs to be
+	 *                    set
+	 * @param activePower the active power
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
@@ -124,6 +126,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	/**
 	 * Gets the current ActivePower.
 	 *
+	 * @param ess   the {@link ManagedSymmetricEss}
+	 * @param meter the {@link SymmetricMeter}
 	 * @return the currently valid active power, or null to set no power
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsException         on error
@@ -346,7 +350,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @param startTime the configured start time
 	 * @param endTime   the configured end time
 	 * @param dateTime  the time to be tested
-	 * @return
+	 * @return true if it is within startTime and endTime
 	 */
 	protected static boolean isActiveTime(LocalTime startTime, LocalTime endTime, LocalDateTime dateTime) {
 		var time = dateTime.toLocalTime();

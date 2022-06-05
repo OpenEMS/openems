@@ -14,6 +14,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.bridge.onewire.jsonrpc.GetDeviceResponse;
+import io.openems.edge.bridge.onewire.jsonrpc.GetDevicesRequest;
 
 public class OneWireTaskWorker extends AbstractImmediateWorker {
 
@@ -83,14 +84,31 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 		super.deactivate();
 	}
 
+	/**
+	 * Adds a Task.
+	 * 
+	 * @param task the task
+	 */
 	public void addTask(Consumer<DSPortAdapter> task) {
 		this.tasks.add(task);
 	}
 
+	/**
+	 * Removes a Task.
+	 * 
+	 * @param task the task
+	 */
 	public void removeTask(Consumer<DSPortAdapter> task) {
 		this.tasks.remove(task);
 	}
 
+	/**
+	 * Handles a {@link GetDevicesRequest}.
+	 * 
+	 * @param request the {@link JsonrpcRequest}
+	 * @return a {@link GetDeviceResponse}
+	 * @throws OpenemsException on error
+	 */
 	public synchronized GetDeviceResponse handleGetDevicesRequest(JsonrpcRequest request) throws OpenemsException {
 		var response = new GetDeviceResponse(request.getId());
 

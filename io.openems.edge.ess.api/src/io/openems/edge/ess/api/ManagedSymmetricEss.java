@@ -239,6 +239,13 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		}
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(ManagedSymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.ALLOWED_CHARGE_POWER, ModbusType.FLOAT32) //

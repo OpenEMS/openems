@@ -199,7 +199,8 @@ public class BitsWordElement extends UnsignedWordElement {
 			new IllegalArgumentException(
 					"The following BooleanWriteChannels have no Write-Value: " + channelsWithMissingWriteValue.stream() //
 							.map(ChannelAddress::toString) //
-							.collect(Collectors.joining(","))).printStackTrace();
+							.collect(Collectors.joining(",")))
+					.printStackTrace();
 			return Optional.empty();
 		}
 
@@ -220,9 +221,10 @@ public class BitsWordElement extends UnsignedWordElement {
 
 		// Log Debug
 		if (this.isDebug()) {
-			this.log.info("BitsWordElement [" + this + "]: next write value is to [" //
-					+ String.format("%16s", Integer.toBinaryString(result.getValue())).replace(' ', '0') + //
-					"/0x" + String.format("%4s", Integer.toHexString(result.getValue())).replace(' ', '0') + "].");
+			this.log.info("BitsWordElement [" + this + "]: " //
+					+ "next write value is ["
+					+ String.format("%16s", Integer.toBinaryString(result.getValue())).replace(' ', '0') //
+					+ "/0x" + String.format("%4s", Integer.toHexString(result.getValue())).replace(' ', '0') + "].");
 		}
 
 		return Optional.of(new Register[] { result });
