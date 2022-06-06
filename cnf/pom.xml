@@ -185,7 +185,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/framework/doc/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.framework</artifactId>
-			<version>7.0.3</version>
+			<version>7.0.5</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Inventory -->
