@@ -1,17 +1,17 @@
-<installation-view iconName="key-outline" header="Installateursschlüssel eingeben" (nextClicked)="onNextClicked()"
-  [isWaiting]="isWaiting || websocket.status !== 'online'" [isFirstView]="true">
+<installation-view iconName="key-outline" header="Installateursschlüssel eingeben" (nextClicked)="onNextClicked()" [isWaiting]="isWaiting || websocket.status !== 'online'" isFirstView="true">
 
-  <table class="full_width ion-text-center">
-    <tr>
-      <td>
-        <!-- [(ngModel)]="setupKey" - Two way binding is not working with keymask directive. The last letter in upper case, is not set to the setup key property-->
-        <input keyMask type="text" #setupKey style="width: 13em;" placeholder="XXXX-XXXX-XXXX-XXXX">
-      </td>
-    </tr>
-  </table>
+    <table class="full_width ion-text-center">
+        <tr>
+            <td>
+                <!-- [(ngModel)]="setupKey" - Two way binding is not working with keymask directive. The last letter in upper case, is not set to the setup key property-->
+                <input keyMask type="text" #setupKey style="width: 13em;" placeholder="XXXX-XXXX-XXXX-XXXX">
 
-  <ion-item lines="none" class="ion-padding-top">
-    <img src="assets/img/fenecon_home_label.JPG">
-  </ion-item>
+            </td>
+        </tr>
+    </table>
+
+    <ion-item lines="none" class="ion-padding-top">
+            <img src="assets/img/Home-Typenschild-web.jpg">
+    </ion-item>
 
 </installation-view>

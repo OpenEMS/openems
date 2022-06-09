@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { COUNTRY_OPTIONS, InstallationData } from '../../installation.component';
+import { Ibn } from '../../installation-systems/abstract-ibn';
+import { COUNTRY_OPTIONS } from '../../installation.component';
 
 @Component({
   selector: ProtocolSystemComponent.SELECTOR,
@@ -11,10 +12,11 @@ export class ProtocolSystemComponent implements OnInit {
 
   private static readonly SELECTOR = "protocol-system";
 
-  @Input() public installationData: InstallationData;
+  @Input() public ibn: Ibn;
 
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<InstallationData>();
+  @Output() public nextViewEvent = new EventEmitter<Ibn>();
+  @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
@@ -26,7 +28,7 @@ export class ProtocolSystemComponent implements OnInit {
 
     this.form = new FormGroup({});
     this.fields = this.generateFields();
-    this.model = this.installationData.location ?? {
+    this.model = this.ibn.location ?? {
       isEqualToCustomerData: false,
       isCorporateClient: false
     };
@@ -42,11 +44,9 @@ export class ProtocolSystemComponent implements OnInit {
     if (this.form.invalid) {
       return;
     }
-
-    this.installationData.location = this.model;
-
-    this.nextViewEvent.emit(this.installationData);
-
+    this.ibn.location = this.model;
+    this.setIbnEvent.emit(this.ibn);
+    this.nextViewEvent.emit();
   }
 
   public generateFields(): FormlyFieldConfig[] {

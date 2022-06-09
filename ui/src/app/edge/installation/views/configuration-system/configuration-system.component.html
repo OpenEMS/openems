@@ -1,13 +1,12 @@
-<installation-view iconName="settings-outline" header="Welches Speichersystem soll konfiguriert werden?"
-  (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()">
+<installation-view iconName="settings-outline" header="Welches Speichersystem soll konfiguriert werden?" (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()">
 
-  <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
 
-  <ion-item>
-    <ion-button (click)="openManual()">
-      <ion-label>Anleitung öffnen</ion-label>
-      <ion-icon name="open-outline" slot="start"></ion-icon>
-    </ion-button>
-  </ion-item>
+    <ion-item>
+        <ion-button (click)="openManual()">
+            <ion-label>Anleitung öffnen</ion-label>
+            <ion-icon name="open-outline" slot="start"></ion-icon>
+        </ion-button>
+    </ion-item>
 
 </installation-view>

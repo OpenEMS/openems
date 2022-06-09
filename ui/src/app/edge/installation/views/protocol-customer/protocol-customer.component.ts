@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { COUNTRY_OPTIONS, InstallationData } from '../../installation.component';
+import { Ibn } from '../../installation-systems/abstract-ibn';
+import { COUNTRY_OPTIONS } from '../../installation.component';
 
 @Component({
   selector: ProtocolCustomerComponent.SELECTOR,
@@ -9,12 +10,12 @@ import { COUNTRY_OPTIONS, InstallationData } from '../../installation.component'
 })
 export class ProtocolCustomerComponent implements OnInit {
 
-  private static readonly SELECTOR = "protocol-customer";
+  private static readonly SELECTOR = 'protocol-customer';
 
-  @Input() public installationData: InstallationData;
-
+  @Input() public ibn: Ibn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<InstallationData>();
+  @Output() public nextViewEvent = new EventEmitter<Ibn>();
+  @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
@@ -23,106 +24,98 @@ export class ProtocolCustomerComponent implements OnInit {
   constructor() { }
 
   public ngOnInit() {
-
     this.form = new FormGroup({});
     this.fields = this.getFields();
-    this.model = this.installationData.customer ?? {
+    this.model = this.ibn.customer ?? {
       isCorporateClient: false
     };
-
   }
 
   public onPreviousClicked() {
-
     this.previousViewEvent.emit();
-
   }
 
   public onNextClicked() {
-
     if (this.form.invalid) {
       return;
     }
-
-    this.installationData.customer = this.model;
-
-    this.nextViewEvent.emit(this.installationData);
-
+    this.ibn.customer = this.model;
+    this.setIbnEvent.emit(this.ibn);
+    this.nextViewEvent.emit();
   }
 
   public getFields(): FormlyFieldConfig[] {
 
-    let fields: FormlyFieldConfig[] = [];
-
+    const fields: FormlyFieldConfig[] = [];
     fields.push({
-      key: "isCorporateClient",
-      type: "checkbox",
+      key: 'isCorporateClient',
+      type: 'checkbox',
       templateOptions: {
-        label: "Firmenkunde?",
+        label: 'Firmenkunde?',
         required: true
       }
     });
 
     fields.push({
-      key: "companyName",
-      type: "input",
+      key: 'companyName',
+      type: 'input',
       templateOptions: {
-        label: "Firmenname",
+        label: 'Firmenname',
         required: true
       },
       hideExpression: model => !model.isCorporateClient
     });
 
     fields.push({
-      key: "lastName",
-      type: "input",
+      key: 'lastName',
+      type: 'input',
       templateOptions: {
-        label: "Nachname",
+        label: 'Nachname',
         required: true
       }
     });
 
     fields.push({
-      key: "firstName",
-      type: "input",
+      key: 'firstName',
+      type: 'input',
       templateOptions: {
-        label: "Vorname",
+        label: 'Vorname',
         required: true
       }
     });
 
     fields.push({
-      key: "street",
-      type: "input",
+      key: 'street',
+      type: 'input',
       templateOptions: {
-        label: "Straße / Hausnummer",
+        label: 'Straße / Hausnummer',
         required: true
       }
     });
 
     fields.push({
-      key: "zip",
-      type: "input",
+      key: 'zip',
+      type: 'input',
       templateOptions: {
-        label: "PLZ",
+        label: 'PLZ',
         required: true
       }
     });
 
     fields.push({
-      key: "city",
-      type: "input",
+      key: 'city',
+      type: 'input',
       templateOptions: {
-        label: "Ort",
+        label: 'Ort',
         required: true
       }
     });
 
     fields.push({
-      key: "country",
-      type: "select",
+      key: 'country',
+      type: 'select',
       templateOptions: {
-        label: "Land",
+        label: 'Land',
         required: true,
         options: COUNTRY_OPTIONS
       }
@@ -131,12 +124,12 @@ export class ProtocolCustomerComponent implements OnInit {
     fields.push({
       fieldGroup: [
         {
-          key: "email",
-          type: "input",
+          key: 'email',
+          type: 'input',
           templateOptions: {
-            type: "email",
-            label: "E-Mail-Adresse",
-            description: "zum Anlegen des persönlichen Zugangs",
+            type: 'email',
+            label: 'E-Mail-Adresse',
+            description: 'zum Anlegen des persönlichen Zugangs',
             required: true
           },
           validators: {
@@ -144,34 +137,31 @@ export class ProtocolCustomerComponent implements OnInit {
           }
         },
         {
-          key: "emailConfirm",
-          type: "input",
+          key: 'emailConfirm',
+          type: 'input',
           templateOptions: {
-            type: "email",
-            label: "E-Mail-Adresse",
-            description: "Wiederholen",
+            type: 'email',
+            label: 'E-Mail-Adresse',
+            description: 'Wiederholen',
             required: true
           }
         }
       ],
       validators: {
         validation: [
-          { name: "emailMatch", options: { errorPath: "emailConfirm" } },
+          { name: 'emailMatch', options: { errorPath: 'emailConfirm' } },
         ],
       }
     });
 
     fields.push({
-      key: "phone",
-      type: "input",
+      key: 'phone',
+      type: 'input',
       templateOptions: {
-        label: "Telefonnummer",
+        label: 'Telefonnummer',
         required: true
       }
     });
-
     return fields;
-
   }
-
 }

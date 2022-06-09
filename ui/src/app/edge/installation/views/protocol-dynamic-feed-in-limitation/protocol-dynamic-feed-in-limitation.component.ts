@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { InstallationData } from '../../installation.component';
+import { Ibn } from '../../installation-systems/abstract-ibn';
 
 export enum FeedInSetting {
   QuEnableCurve = "QU_ENABLE_CURVE",
@@ -60,10 +60,10 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
 
   private static readonly SELECTOR = "protocol-dynamic-feed-in-limitation";
 
-  @Input() public installationData: InstallationData;
-
+  @Input() public ibn: Ibn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<InstallationData>();
+  @Output() public nextViewEvent = new EventEmitter<Ibn>();
+  @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
@@ -74,7 +74,7 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
   public ngOnInit() {
     this.form = new FormGroup({});
     this.fields = this.getFields();
-    this.model = this.installationData.dynamicFeedInLimitation ?? {};
+    this.model = this.ibn.dynamicFeedInLimitation ?? {};
   }
 
   public onPreviousClicked() {
@@ -86,15 +86,15 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
       return;
     }
 
-    this.installationData.dynamicFeedInLimitation = this.model;
-    this.nextViewEvent.emit(this.installationData);
+    this.ibn.dynamicFeedInLimitation = this.model;
+    this.setIbnEvent.emit(this.ibn);
+    this.nextViewEvent.emit();
   }
 
   public getFields(): FormlyFieldConfig[] {
 
     let fields: FormlyFieldConfig[] = [];
-
-    let pv = this.installationData.pv;
+    let pv = this.ibn.pv;
     let totalPvPower: number = 0;
 
     totalPvPower += (pv.dc1.isSelected ? pv.dc1.value : 0);
