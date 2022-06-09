@@ -59,7 +59,7 @@ public class EdgeCache {
 	 * @throws SQLException     on error
 	 * @throws OpenemsException on error
 	 */
-	public synchronized MyEdge addOrUpate(ResultSet rs) throws SQLException, OpenemsException {
+	public synchronized MyEdge addOrUpdate(ResultSet rs) throws SQLException, OpenemsException {
 		// simple fields
 		var edgeId = PgUtils.getAsString(rs, EdgeDevice.NAME);
 		var odooId = PgUtils.getAsInt(rs, EdgeDevice.ID);

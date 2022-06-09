@@ -93,7 +93,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 				+ (config.pgPassword() != null ? "ok" : "NOT_SET") + "] " //
 				+ "Database [" + config.database() + "]");
 
-		this.odooHandler = new OdooHandler(this, config);
+		this.odooHandler = new OdooHandler(this, this.edgeCache, config);
 		this.postgresHandler = new PostgresHandler(this, this.edgeCache, config, () -> {
 			this.setInitialized();
 		});
