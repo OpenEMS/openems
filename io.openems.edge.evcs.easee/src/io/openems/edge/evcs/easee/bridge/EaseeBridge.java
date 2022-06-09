@@ -15,7 +15,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-    @SuppressWarnings("unused")
+
+@SuppressWarnings("unused")
 /**
  * This Bridge will handle the communication with the Easee Cloud with its proprietary API.
  * https://developer.easee.cloud/docs/web-api-overview
@@ -23,8 +24,8 @@ import java.nio.charset.StandardCharsets;
 
 public class EaseeBridge {
 
-    @Reference
-    TimerByTime timerByTime;
+
+    private TimerByTime timerByTime;
 
     private String chargerSerial;
     private String chargerId;
@@ -36,7 +37,7 @@ public class EaseeBridge {
     private TimerHandler timer;
     private static final String DOWN_TIME = "Ping";
 
-	private boolean charging;
+    private boolean charging;
 
     private boolean connected;
     private String accessToken;
@@ -47,13 +48,14 @@ public class EaseeBridge {
     private int lastChargingCurrent;
 
 
-    private static final  String BASE_URL = "https://api.easee.cloud/api";
+    private static final String BASE_URL = "https://api.easee.cloud/api";
     private static final String AUTHORIZATION_URL = BASE_URL + "/accounts/token";
     private static final String REFRESH_URL = BASE_URL + "/accounts/refresh_token";
+    private final String siteAndCircuitUrl;
     private String chargeUrl;
     private String powerUrl;
-    private final String resumeUrl;
-    private final String pauseUrl;
+    private String resumeUrl;
+    private String pauseUrl;
     private boolean firstRun = true;
     private Boolean lastPing = true;
     private int counter;
@@ -61,21 +63,22 @@ public class EaseeBridge {
     private float l2 = 0.f;
     private float l3 = 0.f;
 
-    public EaseeBridge(EaseeImpl parent, String chargerSerial, String chargerId, String circuitId, String siteId, String username, String password) {
+    public EaseeBridge(EaseeImpl parent, String chargerSerial, String username, String password, TimerByTime timerByTime) {
         this.parent = parent;
-        this.chargerId = chargerId;
         this.chargerSerial = chargerSerial;
-        this.circuitId = circuitId;
-        this.siteId = siteId;
         this.username = username;
         this.password = password;
+        this.timerByTime = timerByTime;
         this.connected = this.getAccessToken();
-        this.resumeUrl = BASE_URL + "/chargers/" + this.chargerId + "/commands/resume_charging";
-        this.pauseUrl = BASE_URL + "/chargers/" + this.chargerId + "/commands/pause_charging";
-        this.chargeUrl = BASE_URL + "/sites/" + this.siteId + "/circuits/" + this.circuitId + "/dynamicCurrent";
-        this.powerUrl = BASE_URL + "/chargers/" + this.chargerSerial + "/state";
+        this.siteAndCircuitUrl = BASE_URL + "/chargers/" + this.chargerSerial + "/site";
+        if (this.connected) {
+            this.resumeUrl = BASE_URL + "/chargers/" + this.chargerId + "/commands/resume_charging";
+            this.pauseUrl = BASE_URL + "/chargers/" + this.chargerId + "/commands/pause_charging";
+            this.chargeUrl = BASE_URL + "/sites/" + this.siteId + "/circuits/" + this.circuitId + "/dynamicCurrent";
+            this.powerUrl = BASE_URL + "/chargers/" + this.chargerSerial + "/state";
+        }
         try {
-            this.timer = new TimerHandlerImpl(this.parent.getSuperId(), timerByTime);
+            this.timer = new TimerHandlerImpl(this.parent.getSuperId(), this.timerByTime);
             this.timer.addOneIdentifier(DOWN_TIME, TimerType.TIME, 10);
         } catch (Exception e) {
             //This should not happen
@@ -216,6 +219,77 @@ public class EaseeBridge {
             }
         }
 
+    }
+
+    /**
+     * Retrieves the CircuitId, SiteId and ChargerBackplateId from the Cloud.
+     */
+    private void retrieveSiteAndCircuit() {
+        try {
+            HttpURLConnection connection = (HttpURLConnection) (new URL(this.siteAndCircuitUrl)).openConnection();
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-Type", "application/*+json");
+            connection.setRequestProperty("Authorization", this.authorizationHeader);
+            connection.setRequestMethod("GET");
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                BufferedReader br = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                this.solveSiteAndCircuitResponse(response.toString());
+            }
+        } catch (IOException e) {
+            //
+        }
+    }
+
+    /**
+     * Filters the useful information from the retrieveSiteAndCircuit Call to the Cloud.
+     *
+     * @param response from the retrieveSiteandCircuit Method
+     */
+    private void solveSiteAndCircuitResponse(String response) {
+        String[] responseArray = response.split("\"circuits\"");
+        String[] information = responseArray[1].split("\"chargers\"");
+        String[] siteAndCircuit = information[0].split(",");
+        String[] backplate = information[1].split(",");
+        String workString;
+        for (int n = 0; n < siteAndCircuit.length; n++) {
+            if (siteAndCircuit[n].contains("id")) {
+                workString = responseArray[n].replace("id", "");
+                workString = this.trimReturnString(workString);
+                this.circuitId = workString;
+            } else if (siteAndCircuit[n].contains("siteId")) {
+                workString = responseArray[n].replace("siteId", "");
+                workString = this.trimReturnString(workString);
+                this.siteId = workString;
+            }
+        }
+        for (int n = 0; n < backplate.length; n++) {
+            if (backplate[n].contains("id")) {
+                workString = responseArray[n].replace("id", "");
+                workString = this.trimReturnString(workString);
+                if (workString.equals(this.chargerSerial)) {
+                    for (int i = n; n < backplate.length; n++) {
+                        if (backplate[i].contains("backPlate")) {
+                            String[] inBetween = backplate[n].split(String.valueOf('{'));
+                            String[] backplateId = inBetween[1].split(",");
+                            for (int k = 0; k < 2; k++) {
+                                if (backplateId[k].contains("id")) {
+                                    workString = responseArray[n].replace("id", "");
+                                    workString = this.trimReturnString(workString);
+                                    this.chargerId = workString;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**

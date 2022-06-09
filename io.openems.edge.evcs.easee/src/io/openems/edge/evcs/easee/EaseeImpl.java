@@ -5,6 +5,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.timer.TimerByTime;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.GridVoltage;
@@ -49,6 +50,9 @@ public class EaseeImpl extends AbstractOpenemsComponent implements OpenemsCompon
     @Reference
     ConfigurationAdmin cm;
 
+    @Reference
+    TimerByTime timerByTime;
+
     private final Logger log = LoggerFactory.getLogger(EaseeImpl.class);
     private int minPower;
     private int maxPower;
@@ -92,7 +96,7 @@ public class EaseeImpl extends AbstractOpenemsComponent implements OpenemsCompon
         }
         this.readHandler = new EaseeReadHandler(this);
         this.writeHandler = new EaseeWriteHandler(this);
-        this.easeeBridge = new EaseeBridge(this,config.chargerSerial(), config.chargerID(), config.circuitID(), config.siteID(), config.username(), config.password());
+        this.easeeBridge = new EaseeBridge(this,config.chargerSerial(), config.username(), config.password(),timerByTime);
     }
 
 
