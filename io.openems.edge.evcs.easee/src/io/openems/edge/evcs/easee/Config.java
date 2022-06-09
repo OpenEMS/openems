@@ -33,17 +33,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(name = "Password", description = "Password of the easee Account", type = AttributeType.PASSWORD)
     String password() default "user";
 
-    @AttributeDefinition(name = "chargerID", description = "Backplate ID of the Charger.")
-    String chargerID() default "";
-
     @AttributeDefinition(name = "chargerSerial", description = "ID (Serial) of the Charger.")
     String chargerSerial() default "";
-
-    @AttributeDefinition(name = "siteID", description = "ID of the site.")
-    String siteID() default "";
-
-    @AttributeDefinition(name = "circuitID", description = "ID of the circuit.")
-    String circuitID() default "";
 
     String webconsole_configurationFactory_nameHint() default "Easee Evcs [{id}]";
 }
