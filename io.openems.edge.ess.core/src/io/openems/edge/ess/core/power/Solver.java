@@ -28,6 +28,7 @@ import io.openems.edge.ess.core.power.optimizers.KeepTargetDirectionAndMaximizeI
 import io.openems.edge.ess.core.power.optimizers.MoveTowardsTarget;
 import io.openems.edge.ess.core.power.optimizers.OperateClusterAtMaximumEfficiency;
 import io.openems.edge.ess.core.power.optimizers.Optimizers;
+import io.openems.edge.ess.core.power.optimizers.simpleClass;
 import io.openems.edge.ess.core.power.solver.ConstraintSolver;
 import io.openems.edge.ess.core.power.solver.PowerTuple;
 import io.openems.edge.ess.power.api.Constraint;
@@ -186,12 +187,18 @@ public class Solver {
 						SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
 						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET);
 				break;
+			case SIMPLE :
+				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
+						SolverStrategy.SIMPLE);
+				
 				
 			case OPERATE_CLUSTER_AT_MAX_EFFICIENCY:
 				solution = this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints, 
-						SolverStrategy.OPERATE_CLUSTER_AT_MAX_EFFICIENCY,
-						SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET,
-						SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL);
+						SolverStrategy.OPERATE_CLUSTER_AT_MAX_EFFICIENCY
+//						, SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET,
+//						SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL
+						
+						);
 			}
 
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
@@ -263,6 +270,10 @@ public class Solver {
 				break;
 			case OPTIMIZE_BY_KEEPING_ALL_EQUAL:
 				solution = KeepAllEqual.apply(this.data.getCoefficients(), allInverters, allConstraints);
+				break;
+			case SIMPLE:
+				solution = simpleClass.apply(this.data.getCoefficients(), targetDirection, allInverters, //
+						targetInverters, allConstraints, this.data.getInverters(),this.data.getEsss());
 				break;
 			case OPERATE_CLUSTER_AT_MAX_EFFICIENCY:
 				solution = OperateClusterAtMaximumEfficiency.apply(this.data.getCoefficients(), targetDirection, allInverters, targetInverters, allConstraints, this.data.getInverters(),this.data.getEsss());
