@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AdvertisementComponent } from './advertisement.component';
 import { GlsCrowdfunding } from './glsCrowdFunding/glscrowdfunding';
+import { GridOptimizedCharge } from './gridOptimizedCharge/gridOptimizedCharge';
 
 @NgModule({
     imports: [
@@ -9,7 +10,8 @@ import { GlsCrowdfunding } from './glsCrowdFunding/glscrowdfunding';
     ],
     declarations: [
         AdvertisementComponent,
-        GlsCrowdfunding
+        GlsCrowdfunding,
+        GridOptimizedCharge
     ],
     exports: [
         AdvertisementComponent

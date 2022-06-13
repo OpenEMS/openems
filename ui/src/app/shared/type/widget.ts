@@ -69,7 +69,12 @@ export class AdvertWidgets {
 
         list.push({
             name: 'GLS Crowdfunding',
-            title: 'Mach mit bei FENECON'
+            title: 'Mach mit bei FENECON',
+        })
+
+        list.push({
+            name: 'GridOptimizedCharge',
+            title: 'Neue Version jetzt online!',
         })
 
         return new AdvertWidgets(list);
