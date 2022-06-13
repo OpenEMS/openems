@@ -88,7 +88,6 @@ export abstract class AbstractHomeIbn extends Ibn {
         label: 'Maximale Einspeiseleistung',
         value: dynamicFeedInLimitation.maximumFeedInPower,
       },
-      { label: '', value: '' },
       {
         label: 'Schattenmanagement deaktiviert',
         value: this.batteryInverter?.shadowManagementDisabled ? 'ja' : 'nein',
@@ -244,19 +243,19 @@ export abstract class AbstractHomeIbn extends Ibn {
         value: dc1.value ? dc1.value.toString() : '',
       });
 
-      protocol.items.push({
+      dc1.orientation && protocol.items.push({
         category: 'DC-PV-Installation',
         name: 'Ausrichtung MPPT1',
         value: dc1.orientation,
       });
 
-      protocol.items.push({
+      dc1.moduleType && protocol.items.push({
         category: 'DC-PV-Installation',
         name: 'Modultyp MPPT1',
         value: dc1.moduleType,
       });
 
-      protocol.items.push({
+      dc1.modulesPerString && protocol.items.push({
         category: 'DC-PV-Installation',
         name: 'Anzahl PV-Module MPPT1',
         value: dc1.modulesPerString ? dc1.modulesPerString.toString() : '',
@@ -277,19 +276,19 @@ export abstract class AbstractHomeIbn extends Ibn {
         value: dc2.alias,
       });
 
-      protocol.items.push({
+      dc2.orientation && protocol.items.push({
         category: 'DC-PV-Installation',
         name: 'Ausrichtung MPPT2',
         value: dc2.orientation,
       });
 
-      protocol.items.push({
+      dc2.moduleType && protocol.items.push({
         category: 'DC-PV-Installation',
         name: 'Modultyp MPPT2',
         value: dc2.moduleType,
       });
 
-      protocol.items.push({
+      dc2.modulesPerString && protocol.items.push({
         category: 'DC-PV-Installation',
         name: 'Anzahl PV-Module MPPT2',
         value: dc2.modulesPerString ? dc2.modulesPerString.toString() : '',
@@ -336,19 +335,19 @@ export abstract class AbstractHomeIbn extends Ibn {
         value: element.value ? element.value.toString() : '',
       });
 
-      protocol.items.push({
+      element.orientation && protocol.items.push({
         category: 'Zusätzliche AC-Erzeuger',
         name: 'Ausrichtung ' + label,
         value: element.orientation,
       });
 
-      protocol.items.push({
+      element.moduleType && protocol.items.push({
         category: 'Zusätzliche AC-Erzeuger',
         name: 'Modultyp ' + label,
         value: element.moduleType,
       });
 
-      protocol.items.push({
+      element.modulesPerString && protocol.items.push({
         category: 'Zusätzliche AC-Erzeuger',
         name: 'Anzahl PV-Module ' + label,
         value: element.modulesPerString
@@ -356,13 +355,13 @@ export abstract class AbstractHomeIbn extends Ibn {
           : '',
       });
 
-      protocol.items.push({
+      element.meterType && protocol.items.push({
         category: 'Zusätzliche AC-Erzeuger',
         name: 'Zählertyp ' + label,
         value: element.meterType,
       });
 
-      protocol.items.push({
+      element.modbusCommunicationAddress && protocol.items.push({
         category: 'Zusätzliche AC-Erzeuger',
         name: 'Modbus Kommunikationsadresse ' + label,
         value: element.modbusCommunicationAddress

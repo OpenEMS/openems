@@ -79,11 +79,13 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     }
 
     // Initialize serial numbers object
-    this.ibn.battery.serialNumbers = {
-      tower0: [],
-      tower1: [],
-      tower2: []
-    };
+    this.ibn.battery = {
+      serialNumbers: {
+        tower0: [],
+        tower1: [],
+        tower2: []
+      }
+    }
 
     // Fill data from field into the ibn object
     let serialNumbers = this.ibn.battery.serialNumbers;

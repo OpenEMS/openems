@@ -35,7 +35,7 @@ export class ConfigurationSummaryComponent implements OnInit {
     this.fields = this.getFields();
     this.model = {};
 
-    this.generateTableData();
+    this.tableData = this.generateTableData();
   }
 
   public onPreviousClicked() {
@@ -90,9 +90,11 @@ export class ConfigurationSummaryComponent implements OnInit {
    * Collect all the data for summary.
    */
   public generateTableData() {
+    const tableData: { header: string; rows: ComponentData[] }[] = [];
+    const edgeData = this.edge.id;
     const generalData: ComponentData[] = [
       { label: 'Zeitpunkt der Installation', value: (new Date()).toLocaleString() },
-      { label: 'FEMS-Nummer', value: this.edge.id }
+      { label: 'FEMS-Nummer', value: edgeData }
     ];
 
     const lineSideMeterFuse = this.ibn.lineSideMeterFuse;
@@ -102,13 +104,13 @@ export class ConfigurationSummaryComponent implements OnInit {
       generalData.push({ label: 'Vorsicherung Hausanschlusszähler', value: lineSideMeterFuse.fixedValue });
     }
 
-    this.tableData.push({
+    tableData.push({
       header: 'Allgemein',
       rows: generalData
     });
 
     const installer = this.ibn.installer;
-    this.tableData.push({
+    tableData.push({
       header: 'Installateur',
       rows: [
         { label: 'Firma', value: installer.companyName },
@@ -125,7 +127,7 @@ export class ConfigurationSummaryComponent implements OnInit {
 
     const customer = this.ibn.customer;
     const customerData: ComponentData[] = customer.isCorporateClient ? [{ label: 'Firma', value: customer.companyName }] : [];
-    this.tableData.push({
+    tableData.push({
       header: 'Kunde',
       rows: customerData.concat([
         { label: 'Nachname', value: customer.lastName },
@@ -142,7 +144,7 @@ export class ConfigurationSummaryComponent implements OnInit {
     const location = this.ibn.location;
     const locationData: ComponentData[] = location.isCorporateClient ? [{ label: 'Firma', value: location.companyName }] : [];
     if (!location.isEqualToCustomerData) {
-      this.tableData.push({
+      tableData.push({
         header: 'Standort',
         rows: locationData.concat([
           { label: 'Nachname', value: location.lastName },
@@ -162,7 +164,7 @@ export class ConfigurationSummaryComponent implements OnInit {
       { label: 'Typ', value: this.ibn.type },
     );
 
-    this.tableData.push({
+    tableData.push({
       header: 'Batterie',
       rows: this.ibn.addCustomBatteryData(batteryData)
     });
@@ -177,7 +179,7 @@ export class ConfigurationSummaryComponent implements OnInit {
 
     batteryInverterData = this.ibn.addCustomBatteryInverterData(batteryInverterData);
     batteryInverterData.push({ label: 'Ländereinstellung', value: this.getCountryLabel(safetyCountry) });
-    this.tableData.push({
+    tableData.push({
       header: 'Wechselrichter',
       rows: batteryInverterData
     });
@@ -208,7 +210,7 @@ export class ConfigurationSummaryComponent implements OnInit {
     }
 
     if (pvData.length > 0) {
-      this.tableData.push({
+      tableData.push({
         header: 'Erzeuger',
         rows: pvData
       });
@@ -218,12 +220,13 @@ export class ConfigurationSummaryComponent implements OnInit {
       const selectedFreeApp: EmsApp = this.ibn.selectedFreeApp;
 
       if (selectedFreeApp.id !== EmsAppId.None) {
-        this.tableData.push({
+        tableData.push({
           header: 'Apps',
           rows: [{ label: 'Ihre gewählte kostenlose App', value: selectedFreeApp.alias }]
         });
       }
     }
+    return tableData;
   }
 
   /**

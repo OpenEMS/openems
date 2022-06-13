@@ -91,14 +91,14 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       templateOptions: {
         label: "Ausrichtung",
         options: [
-          { label: "Süd", value: "s" },
-          { label: "Südwest", value: "sw" },
-          { label: "West", value: "w" },
-          { label: "Südost", value: "so" },
-          { label: "Ost", value: "o" },
-          { label: "Nordwest", value: "nw" },
-          { label: "Nordost", value: "no" },
-          { label: "Nord", value: "n" },
+          { label: "Süd", value: "Sued" },
+          { label: "Südwest", value: "Suedwest" },
+          { label: "West", value: "West" },
+          { label: "Südost", value: "Suedost" },
+          { label: "Ost", value: "Ost" },
+          { label: "Nordwest", value: "Nordwest" },
+          { label: "Nordost", value: "Nordost" },
+          { label: "Nord", value: "Nord" },
           { label: "", value: undefined }
         ]
       }

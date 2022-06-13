@@ -2,8 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
+
 import { Ibn, View } from './installation-systems/abstract-ibn';
 import { GeneralIbn } from './installation-systems/general-ibn';
+import { HomeFeneconIbn } from './installation-systems/home-fenecon';
+import { HomeHeckertIbn } from './installation-systems/home-heckert';
 
 // 'type' especially to store Edge data to later store in Ibn.
 export type EdgeData = {
@@ -49,23 +52,39 @@ export class InstallationComponent implements OnInit {
     let ibn: Ibn = null;
     let viewIndex: number;
 
-    // Ibn data
+    // Load 'Ibn' and 'edge' If it is available from session storage.
     if (sessionStorage?.edge) {
       // Recreate edge object to provide the correct
       // functionality of it (the prototype can't be saved as JSON,
       // so it has to get instantiated here again)
+      const edgeString = JSON.parse(sessionStorage.getItem('edge'));
       this.edge = new Edge(
-        sessionStorage.edge.id,
-        sessionStorage.edge.comment,
-        sessionStorage.edge.producttype,
-        sessionStorage.edge.version,
-        sessionStorage.edge.role,
-        sessionStorage.edge.isOnline
+        edgeString.id,
+        edgeString.comment,
+        edgeString.producttype,
+        edgeString.version,
+        edgeString.role,
+        edgeString.isOnline
       );
 
       // Ibn is added in second view.
       if (sessionStorage.ibn) {
-        ibn = JSON.parse(sessionStorage.ibn);
+        const ibnString = JSON.parse(sessionStorage.getItem('ibn'));
+        const systemType = ibnString.type;
+
+        // Load the specific Ibn implementation. and copy to the indivual fileds.
+        // Copying the plain Json string does not recognize particular Ibn functions.
+        // So we have to mention what type of implementation it is.
+        // This is helpful particularly if installer does the refresh in between views.
+        ibn = this.getIbnType(systemType);
+        ibn.views = ibnString.views ?? [];
+        ibn.customer = ibnString.customer ?? {};
+        ibn.installer = ibnString.installer ?? {};
+        ibn.location = ibnString.location ?? {};
+        ibn.requiredControllerIds = ibnString.requiredControllerIds ?? [];
+        ibn.lineSideMeterFuse = ibnString.lineSideMeterFuse ?? {};
+        ibn.dynamicFeedInLimitation = ibnString.dynamicFeedInLimitation ?? {};
+        ibn.pv = ibnString.pv ?? {};
       }
     }
 
@@ -78,13 +97,13 @@ export class InstallationComponent implements OnInit {
       viewIndex = 0;
     }
 
+    // Load it in the global Ibn from local.
     this.ibn = ibn;
 
     // Load Ibn with 'General Ibn' data initially.
     if (this.ibn === null) {
       this.setIbnEvent(new GeneralIbn());
     }
-
     this.displayViewAtIndex(viewIndex);
   }
 
@@ -98,6 +117,20 @@ export class InstallationComponent implements OnInit {
 
     if (sessionStorage) {
       sessionStorage.setItem('ibn', JSON.stringify(this.ibn));
+    }
+  }
+
+  /**
+   * Retrieves the Ibn implementation specific to the system.
+   *
+   * @returns Specific Ibn object
+   */
+  public getIbnType(systemType: string): Ibn {
+    switch (systemType) {
+      case 'Fenecon-home':
+        return new HomeFeneconIbn();
+      case 'Heckert-home':
+        return new HomeHeckertIbn();
     }
   }
 
