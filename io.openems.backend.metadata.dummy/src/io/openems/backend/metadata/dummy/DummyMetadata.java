@@ -80,7 +80,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 		// Allow the services some time to settle
 		this.executor.schedule(() -> {
 			this.setInitialized();
-		}, 5, TimeUnit.SECONDS);
+		}, 10, TimeUnit.SECONDS);
 	}
 
 	@Deactivate

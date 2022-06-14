@@ -3,9 +3,16 @@ package io.openems.backend.timedata.timescaledb;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -26,6 +33,8 @@ import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.Sets;
 import com.google.common.collect.TreeBasedTable;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
@@ -33,16 +42,19 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.timedata.timescaledb.Schema.ChannelMeta;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.StringUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Timedata.TimescaleDB", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class TimescaledbImpl extends AbstractOpenemsBackendComponent
-		implements Timescaledb /* TODO implements Timedata */ {
+public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements Timescaledb {
 
 	private static final int EXECUTOR_MIN_THREADS = 10;
 	private static final int EXECUTOR_MAX_THREADS = 50;
@@ -53,6 +65,7 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent
 
 	private final Logger log = LoggerFactory.getLogger(TimescaledbImpl.class);
 	private final HikariDataSource dataSource;
+	private final boolean isReadOnly;
 	private final Schema schema;
 	private final BlockingQueue<Point> pointsQueue = new ArrayBlockingQueue<>(POINTS_QUEUE_SIZE);
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
@@ -67,11 +80,17 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent
 	public TimescaledbImpl(@Reference Metadata metadata, Config config) throws SQLException {
 		super("Timedata.TimescaleDB");
 
-		this.logInfo(this.log, "Activate [" + config.user() + (config.password() != null ? ":xxx" : "") + "@"
-				+ config.host() + ":" + config.port() + "/" + config.database() + "]");
+		this.logInfo(this.log, "Activate [" //
+				+ config.user() + (config.password() != null ? ":xxx" : "") //
+				+ "@" + config.host() + ":" + config.port() //
+				+ "/" + config.database() //
+				+ (config.isReadOnly() ? "|READ_ONLY_MODE" : "") //
+				+ "]");
 
-		this.dataSource = getDataSource(config.host(), config.port(), config.database(), config.user(),
-				config.password());
+		this.dataSource = getDataSource(//
+				config.host(), config.port(), config.database(), //
+				config.user(), config.password());
+		this.isReadOnly = config.isReadOnly();
 
 		this.schema = Schema.initialize(this.dataSource);
 
@@ -150,8 +169,20 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent
 		this.dataSource.close();
 	}
 
+	private static final HashSet<String> TIMESCALEDB_WRITE_TEST = //
+			Sets.newHashSet("edge0" /* local test */, "fems888", "fems4");
+
 	@Override
 	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
+		if (this.isReadOnly) {
+			this.log.info("Read-Only-Mode is activated. Not writing points: "
+					+ StringUtils.toShortString(data.toString(), 100));
+			return;
+		}
+		if (!TIMESCALEDB_WRITE_TEST.contains(edgeId)) {
+			// TODO remove eventually
+			return;
+		}
 		this.pointsQueue.addAll(data.cellSet().stream() //
 				.map(cell -> new Point(cell.getRowKey(), edgeId, cell.getColumnKey(), cell.getValue())) //
 				.collect(Collectors.toList()));
@@ -220,4 +251,129 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent
 				.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? "!!!POINTS BACKPRESSURE!!!" : "") //
 				.toString());
 	};
+
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
+			throws OpenemsNamedException {
+
+		// handle empty call
+		if (channels.isEmpty()) {
+			return new TreeMap<>();
+		}
+
+		var ids = getChannelIdsFromSchemaCache(this.schema, edgeId, channels);
+
+		// Build custom SQL for PreparedStatement
+		var sql = "SELECT" //
+				+ "    time_bucket_gapfill(" //
+				+ "        ?::interval," // [1] Resolution
+				+ "        data.time," //
+				+ "        start => ?," // [2] FromDate
+				+ "        finish => ?)," // [3] ToDate
+				+ "    data.channel_id," //
+				+ "    avg(data.avg) " // TODO will not work for STRING
+				+ "FROM data_integer_5m data " // TODO get table from Type
+				+ "WHERE" //
+				+ "    data.channel_id IN (" //
+				+ ids.keySet().stream() //
+						.map(c -> "?") // [3++] Channel-ID
+						.collect(Collectors.joining(",")) //
+				+ "    ) AND" //
+				+ "    data.time >= ? AND" // [n-1] FromDate
+				+ "    data.time < ? " // [n] ToDate
+				+ "GROUP BY 1,2";
+
+		TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> result = new TreeMap<>();
+
+		// Query the database
+		try (var con = this.dataSource.getConnection(); //
+				var pst = con.prepareStatement(sql)) {
+			// Fill PreparedStatement.
+
+			// Reference for Java 8 Date and Time classes with PostgreSQL:
+			// https://jdbc.postgresql.org/documentation/head/java8-date-time.html
+			var i = 1;
+			pst.setString(i++, resolution.toMinutes() + " minutes");
+			pst.setObject(i++, fromDate.toOffsetDateTime());
+			pst.setObject(i++, toDate.toOffsetDateTime());
+			for (var id : ids.keySet()) {
+				pst.setInt(i++, id);
+			}
+			pst.setObject(i++, fromDate.toOffsetDateTime());
+			pst.setObject(i++, toDate.toOffsetDateTime());
+
+			var rs = pst.executeQuery();
+			while (rs.next()) {
+				var time = rs.getObject(1, OffsetDateTime.class).atZoneSameInstant(fromDate.getZone());
+				var channelRecord = ids.get(rs.getInt(2));
+				var value = channelRecord.meta.type.parseValueFromResultSet(rs, 3);
+				var resultTime = result.computeIfAbsent(time, t -> new TreeMap<>());
+				resultTime.put(channelRecord.address, value);
+			}
+
+		} catch (SQLException e) {
+			this.logError(this.log, "Unable to query historic data: " + e.getMessage());
+			throw new OpenemsException("Error while querying historic data");
+		}
+		return result;
+	}
+
+	@Override
+	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		// TODO
+		return new TreeMap<ChannelAddress, JsonElement>();
+	}
+
+	@Override
+	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
+			throws OpenemsNamedException {
+		// TODO
+		return new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
+	}
+
+	@Override
+	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress) {
+		// TODO
+		return Optional.empty();
+	}
+
+	/**
+	 * Used for
+	 * {@link TimescaledbImpl#getChannelIdsFromSchemaCache(Schema, String, Set)}.
+	 */
+	private static class TemporaryChannelRecord {
+		public final ChannelAddress address;
+		public final ChannelMeta meta;
+
+		protected TemporaryChannelRecord(ChannelAddress address, ChannelMeta meta) {
+			this.address = address;
+			this.meta = meta;
+		}
+	}
+
+	/**
+	 * Gets the database Channel-IDs for the given ChannelAddresses from the Schema
+	 * Cache.
+	 * 
+	 * @param schema   the {@link Schema}
+	 * @param edgeId   the Edge-ID
+	 * @param channels a {@link Set} of {@link ChannelAddress}es
+	 * @return a map of Channel-IDs and {@link TemporaryChannelRecord} data objects
+	 */
+	private static ImmutableBiMap<Integer, TemporaryChannelRecord> getChannelIdsFromSchemaCache(Schema schema,
+			String edgeId, Set<ChannelAddress> channels) {
+		var builder = ImmutableBiMap.<Integer, TemporaryChannelRecord>builderWithExpectedSize(channels.size());
+		for (var channel : channels) {
+			var meta = schema.getChannelFromCache(edgeId, channel.getComponentId(), channel.getChannelId());
+			if (meta == null) {
+				// TODO Log
+				System.out.println("Missing Cache for " + channel);
+			}
+			builder.put(meta.id, new TemporaryChannelRecord(channel, meta));
+		}
+		return builder.build();
+	}
 }

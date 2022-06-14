@@ -63,14 +63,14 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	@Reference
 	protected volatile Timedata timedata;
 
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile Timescaledb timescale;
+
 	@Reference
 	protected volatile EventAdmin eventAdmin;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile UiWebsocket uiWebsocket;
-
-	@Reference
-	protected volatile Timescaledb timescale;
 
 	public EdgeWebsocketImpl() {
 		super("Edge.Websocket");

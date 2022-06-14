@@ -377,7 +377,7 @@ public class Schema {
 				+ "    value " + type.sqlDataType + " NULL" //
 				+ ");");
 		stmnt.execute("" //
-				+ "SELECT create_hypertable('" + type.tableRaw + "', 'time');");
+				+ "SELECT create_hypertable('" + type.tableRaw + "', 'time', chunk_time_interval => INTERVAL '2 day');");
 		stmnt.execute("" //
 				+ "CREATE INDEX ix_" + type.tableRaw + "_channel_time " //
 				+ "ON " + type.tableRaw + " (time, channel_id DESC);");

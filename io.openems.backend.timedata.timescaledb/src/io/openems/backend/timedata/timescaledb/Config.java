@@ -24,6 +24,9 @@ public @interface Config {
 	@AttributeDefinition(name = "Database", description = "The TimescaleDB/PostgresDB database name")
 	String database();
 
+	@AttributeDefinition(name = "Read-Only mode", description = "Activates the read-only mode. Then no data is written to TimescaleDB.")
+	boolean isReadOnly() default false;
+
 	String webconsole_configurationFactory_nameHint() default "Timedata.TimescaleDB";
 
 }

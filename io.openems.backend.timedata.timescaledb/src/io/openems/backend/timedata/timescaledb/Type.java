@@ -2,6 +2,7 @@ package io.openems.backend.timedata.timescaledb;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -13,16 +14,17 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.timedata.timescaledb.Schema.ChannelMeta;
 import io.openems.common.function.ThrowingBiConsumer;
+import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
 
 public enum Type {
 	INTEGER(1, "data_integer", "bigint" /* 8 bytes; covers Java byte, int and long */, //
-			new String[] { "avg", "min", "max" }, Handler.INTEGER), //
+			new String[] { "avg", "min", "max" }, AddValueToStatement.INTEGER, ParseValueFromResultSet.INTEGER), //
 	FLOAT(2, "data_float", "double precision" /* 8 bytes; covers Java float and double */, //
-			new String[] { "avg", "min", "max" }, Handler.FLOAT), //
+			new String[] { "avg", "min", "max" }, AddValueToStatement.FLOAT, ParseValueFromResultSet.FLOAT), //
 	STRING(3, "data_string", "text" /* variable-length character string */, //
-			new String[] { "max" }, Handler.STRING), //
+			new String[] { "max" }, AddValueToStatement.STRING, ParseValueFromResultSet.STRING), //
 	;
 
 	private static final int IDX_TIME = 1;
@@ -37,9 +39,11 @@ public enum Type {
 
 	private final String sqlInsert;
 	private final ThrowingBiConsumer<PreparedStatement, JsonElement, Exception> addValueToStatement;
+	private final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> parseValueFromResultSet;
 
 	private Type(int id, String prefix, String sqlDataType, String[] aggregateFunctions,
-			ThrowingBiConsumer<PreparedStatement, JsonElement, Exception> addValueToStatement) {
+			ThrowingBiConsumer<PreparedStatement, JsonElement, Exception> addValueToStatement,
+			ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> parseValueFromResultSet) {
 		this.id = id;
 		this.sqlDataType = sqlDataType;
 		this.tableRaw = prefix + "_raw";
@@ -47,6 +51,7 @@ public enum Type {
 		this.sqlInsert = "INSERT INTO " + this.tableRaw + " (time, channel_id, value) VALUES (?, ?, ?);";
 		this.aggregateFunctions = aggregateFunctions;
 		this.addValueToStatement = addValueToStatement;
+		this.parseValueFromResultSet = parseValueFromResultSet;
 	}
 
 	/**
@@ -75,6 +80,18 @@ public enum Type {
 		pst.setTimestamp(IDX_TIME, Timestamp.from(Instant.ofEpochMilli(point.timestamp)));
 		pst.setInt(IDX_CHANNEL_ID, channel.id);
 		this.addValueToStatement.accept(pst, point.value);
+	}
+
+	/**
+	 * Parses a value from a {@link ResultSet} to {@link JsonElement}.
+	 * 
+	 * @param rs          the {@link ResultSet}
+	 * @param columnIndex the first column is 1, the second is 2, ...
+	 * @return a {@link JsonElement}
+	 * @throws SQLException on error
+	 */
+	public JsonElement parseValueFromResultSet(ResultSet rs, int columnIndex) throws SQLException {
+		return this.parseValueFromResultSet.apply(rs, columnIndex);
 	}
 
 	/**
@@ -148,7 +165,7 @@ public enum Type {
 		return Type.STRING;
 	}
 
-	private static class Handler {
+	private static class AddValueToStatement {
 
 		/**
 		 * Parse a {@link JsonElement} value to 'bigint' and adds it to the
@@ -193,6 +210,24 @@ public enum Type {
 			} else {
 				pst.setObject(IDX_VALUE, null);
 			}
+		};
+	}
+
+	private static class ParseValueFromResultSet {
+
+		private static final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> INTEGER = (rs,
+				columnIndex) -> {
+			return new JsonPrimitive(rs.getLong(columnIndex));
+		};
+
+		private static final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> FLOAT = (rs,
+				columnIndex) -> {
+			return new JsonPrimitive(rs.getDouble(columnIndex));
+		};
+
+		private static final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> STRING = (rs,
+				columnIndex) -> {
+			return new JsonPrimitive(rs.getString(columnIndex));
 		};
 	}
 }
