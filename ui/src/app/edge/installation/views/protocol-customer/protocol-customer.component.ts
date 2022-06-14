@@ -53,7 +53,7 @@ export class ProtocolCustomerComponent implements OnInit {
       templateOptions: {
         label: 'Firmenkunde?',
         required: true
-      }
+      },
     });
 
     fields.push({
@@ -63,7 +63,7 @@ export class ProtocolCustomerComponent implements OnInit {
         label: 'Firmenname',
         required: true
       },
-      hideExpression: model => !model.isCorporateClient
+      hideExpression: model => !model.isCorporateClient,
     });
 
     fields.push({
@@ -72,7 +72,7 @@ export class ProtocolCustomerComponent implements OnInit {
       templateOptions: {
         label: 'Nachname',
         required: true
-      }
+      },
     });
 
     fields.push({

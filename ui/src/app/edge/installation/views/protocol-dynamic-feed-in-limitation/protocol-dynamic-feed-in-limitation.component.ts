@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, Validators } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Ibn } from '../../installation-systems/abstract-ibn';
 
@@ -114,7 +114,10 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
         required: true
       },
       parsers: [Number],
-      defaultValue: parseInt((totalPvPower * 0.7).toFixed(0))
+      defaultValue: parseInt((totalPvPower * 0.7).toFixed(0)),
+      validators: {
+        validation: ["onlyPositiveInteger"]
+      }
     });
 
     fields.push({

@@ -76,6 +76,9 @@ export class ConfigurationLineSideMeterFuseComponent implements OnInit {
         required: true
       },
       parsers: [Number],
+      validators: {
+        validation: ["onlyPositiveInteger"]
+      },
       hideExpression: model => model.fixedValue !== -1
     });
     return fields;

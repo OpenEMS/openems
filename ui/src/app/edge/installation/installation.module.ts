@@ -58,9 +58,17 @@ export function BatterySerialNumberValidator(control: FormControl): ValidationEr
   return /^\d{12}$/.test(control.value) ? null : { "batterySerialNumber": true };
 }
 
+export function OnlyPositiveIntegerValidator(control: FormControl): ValidationErrors {
+  return /^[0-9]+$/.test(control.value) ? null : { "onlyPositiveInteger": true }
+}
+
+
 //#endregion
 
 //#region Validator Messages
+export function OnlyPositiveIntegerValidatorMessage(err, field: FormlyFieldConfig) {
+  return `Nur ganze positive Zahlen sind erlaubt.`
+}
 
 export function RequiredValidatorMessage(err, field: FormlyFieldConfig) {
   return "Dies ist ein Pflichtfeld.";
@@ -110,6 +118,7 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
         { name: "boxSerialNumber", validation: BoxSerialNumberValidator },
         { name: "bmsBoxSerialNumber", validation: BmsBoxSerialNumberValidator },
         { name: "batterySerialNumber", validation: BatterySerialNumberValidator },
+        { name: "onlyPositiveInteger", validation: OnlyPositiveIntegerValidator },
       ],
       validationMessages: [
         { name: "required", message: RequiredValidatorMessage },
@@ -120,7 +129,8 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
         { name: "emsBoxSerialNumber", message: EmsBoxSerialNumberValidatorMessage },
         { name: "boxSerialNumber", message: BoxSerialNumberValidatorMessage },
         { name: "bmsBoxSerialNumber", message: BmsBoxSerialNumberValidatorMessage },
-        { name: "batterySerialNumber", message: BatterySerialNumberValidatorMessage }
+        { name: "batterySerialNumber", message: BatterySerialNumberValidatorMessage },
+        { name: "onlyPositiveInteger", message: OnlyPositiveIntegerValidatorMessage },
       ]
     }),
     SharedModule

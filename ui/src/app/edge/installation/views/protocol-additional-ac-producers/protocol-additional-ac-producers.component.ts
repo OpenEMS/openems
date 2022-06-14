@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, Validators } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Service, Utils } from 'src/app/shared/shared';
 import { Ibn } from '../../installation-systems/abstract-ibn';
@@ -82,7 +82,10 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
         min: 1000,
         required: true
       },
-      parsers: [Number]
+      parsers: [Number],
+      validators: {
+        validation: ["onlyPositiveInteger"]
+      }
     });
 
     fields.push({
@@ -120,7 +123,10 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
         type: "number",
         label: "Anzahl PV-Module"
       },
-      parsers: [Number]
+      parsers: [Number],
+      validators: {
+        validation: ["onlyPositiveInteger"]
+      }
     });
 
     fields.push({
@@ -147,11 +153,13 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
         min: 6
       },
       parsers: [Number],
+      validators: {
+        validation: ["onlyPositiveInteger"]
+      },
       defaultValue: 6
     });
 
     return fields;
-
   }
 
   public switchMode() {

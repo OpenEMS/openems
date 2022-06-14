@@ -123,6 +123,9 @@ export class ProtocolPv implements OnInit {
             required: true
           },
           parsers: [Number],
+          validators: {
+            validation: ["onlyPositiveInteger"]
+          },
           hideExpression: model => !model.isSelected
         },
         {
