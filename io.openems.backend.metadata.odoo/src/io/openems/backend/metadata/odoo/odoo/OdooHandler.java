@@ -474,7 +474,7 @@ public class OdooHandler {
 		try {
 			this.sendSetupProtocolMail(user, protocolId, edgeId);
 		} catch (OpenemsNamedException ex) {
-			this.log.warn("Unable to send email", ex);
+			this.log.warn("User [" + user.getId() + ":" + user.getName() + "] Unable to send email", ex);
 		}
 
 		return protocolId;

@@ -14,6 +14,7 @@ import io.openems.backend.common.jsonrpc.request.GetSetupProtocolDataRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.request.GetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.RegisterUserRequest;
+import io.openems.backend.common.jsonrpc.request.SendLogMessageRequest;
 import io.openems.backend.common.jsonrpc.request.SetAlertingConfigRequest;
 import io.openems.backend.common.jsonrpc.request.SetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.SubmitSetupProtocolRequest;
@@ -104,6 +105,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			break;
 		case GetSetupProtocolDataRequest.METHOD:
 			result = this.handleGetSetupProtocolDataRequest(user, GetSetupProtocolDataRequest.from(request));
+			break;
+		case SendLogMessageRequest.METHOD:
+			result = this.handleSendLogMessageRequest(user, SendLogMessageRequest.from(request));
 			break;
 		}
 
@@ -446,12 +450,52 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
+	/**
+	 * Handles a {@link GetSetupProtocolDataRequest}.
+	 * 
+	 * @param user    the {@link User}
+	 * @param request the {@link GetSetupProtocolDataRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleGetSetupProtocolDataRequest(User user,
 			GetSetupProtocolDataRequest request) throws OpenemsNamedException {
 		var latestProtocolJson = this.parent.metadata.getSetupProtocolData(user, request.getEdgeId());
 
 		return CompletableFuture
 				.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), latestProtocolJson));
+	}
+
+	/**
+	 * Handles a {@link SendLogMessageRequest}. Logs given message from request.
+	 * 
+	 * @param user    the {@link User}r
+	 * @param request the {@link SendLogMessageRequest}
+	 * @return the JSON-RPC Success Response Future
+	 */
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSendLogMessageRequest(User user,
+			SendLogMessageRequest request) {
+		var msg = "User [" + user.getId() + ":" + user.getName() + "] UI: " + request.getParams();
+
+		switch (request.getLevel()) {
+		case DEBUG:
+			this.log.debug(msg);
+			break;
+		case INFO:
+			this.log.info(msg);
+			break;
+		case WARNING:
+			this.log.warn(msg);
+			break;
+		case ERROR:
+			this.log.error(msg);
+			break;
+		default:
+			this.log.warn("Unable to log message with level [" + request.getLevel() + "]");
+			break;
+		}
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 }
