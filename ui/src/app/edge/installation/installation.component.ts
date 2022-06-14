@@ -1,255 +1,194 @@
-import { AcPv } from './views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DcPv } from './views/protocol-pv/protocol-pv.component';
-import { Edge, Service, Websocket } from 'src/app/shared/shared';
-import { FeedInSetting } from './views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
-import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { EmsApp } from './views/heckert-app-installer/heckert-app-installer.component';
-import { environment } from 'src/environments';
+import { Edge, Service, Websocket } from 'src/app/shared/shared';
+import { Role } from 'src/app/shared/type/role';
 
-enum View {
-  Completion,
-  ConfigurationEmergencyReserve,
-  ConfigurationExecute,
-  ConfigurationLineSideMeterFuse,
-  ConfigurationSummary,
-  ConfigurationSystem,
-  PreInstallation,
-  ProtocolAdditionalAcProducers,
-  ProtocolCustomer,
-  ProtocolDynamicFeedInLimitation,
-  ProtocolInstaller,
-  ProtocolPv,
-  ProtocolSerialNumbers,
-  ProtocolSystem,
-  HeckertAppInstaller
+import { Ibn, View } from './installation-systems/abstract-ibn';
+import { GeneralIbn } from './installation-systems/general-ibn';
+import { HomeFeneconIbn } from './installation-systems/home-fenecon';
+import { HomeHeckertIbn } from './installation-systems/home-heckert';
+
+// 'type' especially to store Edge data to later store in Ibn.
+export type EdgeData = {
+  id: string;
+  comment: string;
+  producttype: string;
+  version: string;
+  role: Role;
+  isOnline: boolean;
 };
 
-export type InstallationData = {
-  // pre-installation
-  edge?: Edge,
-
-  // protocol-installer
-  installer?: {
-    companyName: string,
-    lastName: string,
-    firstName: string,
-    street: string,
-    zip: string,
-    city: string,
-    country: string,
-    email: string,
-    phone: string
-  },
-
-  // protocol-customer
-  customer?: {
-    isCorporateClient: boolean,
-    companyName: string,
-    lastName: string,
-    firstName: string,
-    street: string,
-    zip: string,
-    city: string,
-    country: string,
-    email: string,
-    emailConfirm: string,
-    phone: string
-  },
-
-  // protocol-system
-  location?: {
-    isEqualToCustomerData: boolean,
-    isCorporateClient: boolean,
-    companyName: string,
-    lastName: string,
-    firstName: string,
-    street: string,
-    zip: string,
-    city: string,
-    country: string,
-    email?: string,
-    phone?: string
-  },
-  batteryInverter?: {
-    shadowManagementDisabled?: boolean
-  }
-  battery?: {
-    // configuration-system
-    type?: string,
-    // protocol-serial-numbers
-    serialNumbers?: {
-      tower0?: {
-        label: string,
-        value: string
-      }[],
-      tower1?: {
-        label: string,
-        value: string
-      }[],
-      tower2?: {
-        label: string,
-        value: string
-      }[]
-    },
-    // configuration-emergency-reserve
-    emergencyReserve?: {
-      isEnabled: boolean,
-      isReserveSocEnabled: boolean,
-      value: number
-    },
-  },
-
-  // configuration-line-side-meter-fuse
-  lineSideMeterFuse?: {
-    fixedValue: number,
-    otherValue: number
-  }
-
-  // protocol-dynamic-feed-in-limitation
-  dynamicFeedInLimitation?: {
-    maximumFeedInPower: number,
-    feedInSetting: FeedInSetting,
-    fixedPowerFactor: FeedInSetting
-  },
-
-  // protocol-pv
-  pv?: {
-    dc1?: DcPv,
-    dc2?: DcPv,
-    ac?: AcPv[]
-  }
-
-  // heckert-app-installer
-  selectedFreeApp?: EmsApp,
-
-  // configuration-summary
-  setupProtocol?: SetupProtocol
-
-  // protocol-serial-numbers
-  setupProtocolId?: string
-}
-
-export const COUNTRY_OPTIONS: { value: string, label: string }[] = [
-  { value: "de", label: "Deutschland" },
-  { value: "at", label: "Österreich" },
-  { value: "ch", label: "Schweiz" }
+export const COUNTRY_OPTIONS: { value: string; label: string }[] = [
+  { value: 'de', label: 'Deutschland' },
+  { value: 'at', label: 'Österreich' },
+  { value: 'ch', label: 'Schweiz' },
 ];
 
 @Component({
   selector: InstallationComponent.SELECTOR,
-  templateUrl: './installation.component.html'
+  templateUrl: './installation.component.html',
 })
-export class InstallationComponent implements OnInit, OnDestroy {
-  private static readonly SELECTOR = "installation";
+export class InstallationComponent implements OnInit {
+  private static readonly SELECTOR = 'installation';
 
-  public installationData: InstallationData;
-
+  public ibn: Ibn | null = null;
   public progressValue: number;
   public progressText: string;
-
   public edge: Edge = null;
-
-  public viewArrangement: View[] = [
-    View.PreInstallation,
-    View.ProtocolInstaller,
-    View.ProtocolCustomer,
-    View.ProtocolSystem,
-    View.ConfigurationSystem,
-    View.ConfigurationEmergencyReserve,
-    View.ConfigurationLineSideMeterFuse,
-    View.ProtocolPv,
-    View.ProtocolAdditionalAcProducers,
-    View.ProtocolDynamicFeedInLimitation,
-    View.HeckertAppInstaller,
-    View.ConfigurationSummary,
-    View.ConfigurationExecute,
-    View.ProtocolSerialNumbers,
-    View.Completion
-  ];
   public displayedView: View;
-  public view = View;
-
+  public readonly view = View;
   public spinnerId: string;
 
-  constructor(private service: Service, private router: Router, public websocket: Websocket) { }
+  constructor(
+    private service: Service,
+    private router: Router,
+    public websocket: Websocket
+  ) { }
 
   public ngOnInit() {
-    this.service.currentPageTitle = "Installation";
-
-    this.spinnerId = "installation-websocket-spinner";
+    this.service.currentPageTitle = 'Installation';
+    this.spinnerId = 'installation-websocket-spinner';
     this.service.startSpinner(this.spinnerId);
-
-    // Only show app-installer view for Heckert
-    if (environment.theme !== "Heckert") {
-      let viewIndex = this.viewArrangement.indexOf(View.HeckertAppInstaller);
-      this.viewArrangement.splice(viewIndex, 1);
-    }
-
-    let installationData: InstallationData;
+    let ibn: Ibn = null;
     let viewIndex: number;
 
-    // Determine installation data
-    if (sessionStorage && sessionStorage.installationData) {
-      installationData = JSON.parse(sessionStorage.installationData);
-
+    // Load 'Ibn' and 'edge' If it is available from session storage.
+    if (sessionStorage?.edge) {
       // Recreate edge object to provide the correct
       // functionality of it (the prototype can't be saved as JSON,
       // so it has to get instantiated here again)
-      installationData.edge = new Edge(
-        installationData.edge.id,
-        installationData.edge.comment,
-        installationData.edge.producttype,
-        installationData.edge.version,
-        installationData.edge.role,
-        installationData.edge.isOnline
+      const edgeString = JSON.parse(sessionStorage.getItem('edge'));
+      this.edge = new Edge(
+        edgeString.id,
+        edgeString.comment,
+        edgeString.producttype,
+        edgeString.version,
+        edgeString.role,
+        edgeString.isOnline
       );
-    } else {
-      installationData = {};
+
+      // Ibn is added in second view.
+      if (sessionStorage.ibn) {
+        const ibnString = JSON.parse(sessionStorage.getItem('ibn'));
+        const systemType = ibnString.type;
+
+        // Load the specific Ibn implementation. and copy to the indivual fileds.
+        // Copying the plain Json string does not recognize particular Ibn functions.
+        // So we have to mention what type of implementation it is.
+        // This is helpful particularly if installer does the refresh in between views.
+        ibn = this.getIbnType(systemType);
+        ibn.views = ibnString.views ?? [];
+        ibn.customer = ibnString.customer ?? {};
+        ibn.installer = ibnString.installer ?? {};
+        ibn.location = ibnString.location ?? {};
+        ibn.requiredControllerIds = ibnString.requiredControllerIds ?? [];
+        ibn.lineSideMeterFuse = ibnString.lineSideMeterFuse ?? {};
+        ibn.dynamicFeedInLimitation = ibnString.dynamicFeedInLimitation ?? {};
+        ibn.pv = ibnString.pv ?? {};
+      }
     }
 
     // Determine view index
-    if (sessionStorage && sessionStorage.viewIndex) {
-      viewIndex = parseInt(sessionStorage.viewIndex);
+    if (sessionStorage?.viewIndex) {
+      // 10 is given as radix parameter.
+      // 2 = binary, 8 = octal, 10 = decimal, 16 = hexadecimal.
+      viewIndex = parseInt(sessionStorage.viewIndex, 10);
     } else {
       viewIndex = 0;
     }
 
-    this.installationData = installationData;
+    // Load it in the global Ibn from local.
+    this.ibn = ibn;
+
+    // Load Ibn with 'General Ibn' data initially.
+    if (this.ibn === null) {
+      this.setIbnEvent(new GeneralIbn());
+    }
     this.displayViewAtIndex(viewIndex);
   }
 
-  ngOnDestroy() { }
+  /**
+   * Sets the Ibn value.
+   *
+   * @param ibn Ibn data specific to the system.
+   */
+  public setIbnEvent(ibn: Ibn) {
+    this.ibn = ibn;
 
-  public getViewIndex(view: View): number {
-    return this.viewArrangement.indexOf(view);
+    if (sessionStorage) {
+      sessionStorage.setItem('ibn', JSON.stringify(this.ibn));
+    }
   }
 
+  /**
+   * Retrieves the Ibn implementation specific to the system.
+   *
+   * @returns Specific Ibn object
+   */
+  public getIbnType(systemType: string): Ibn {
+    switch (systemType) {
+      case 'Fenecon-home':
+        return new HomeFeneconIbn();
+      case 'Heckert-home':
+        return new HomeHeckertIbn();
+    }
+  }
+
+  /**
+   * Sets the edge data to store in Ibn.
+   *
+   * @param edge the current edge data.
+   */
+  public setEdgeEvent(edge: EdgeData) {
+    this.edge = new Edge(
+      edge.id,
+      edge.comment,
+      edge.producttype,
+      edge.version,
+      edge.role,
+      edge.isOnline
+    );
+
+    if (sessionStorage) {
+      sessionStorage.setItem('edge', JSON.stringify(edge));
+    }
+  }
+
+  /**
+   * Determines the index of the current view in Ibn.
+   *
+   * @param view current view.
+   * @returns the index of the current view.
+   */
+  public getViewIndex(view: View): number {
+    return this.ibn.views.indexOf(view);
+  }
+
+  /**
+   * Displays the view based on the index.
+   *
+   * @param index index of the desired view.
+   */
   public displayViewAtIndex(index: number) {
-    let viewCount = this.viewArrangement.length;
-
+    const viewCount = this.ibn.views.length;
     if (index >= 0 && index < viewCount) {
-      this.displayedView = this.viewArrangement[index];
-
+      this.displayedView = this.ibn.views[index];
       this.progressValue = viewCount === 0 ? 0 : index / (viewCount - 1);
-      this.progressText = "Schritt " + (index + 1) + " von " + viewCount;
+      this.progressText = 'Schritt ' + (index + 1) + ' von ' + viewCount;
 
       if (sessionStorage) {
-        sessionStorage.setItem("viewIndex", index.toString());
+        sessionStorage.setItem('viewIndex', index.toString());
       }
+
       // When clicking next on the last view
     } else if (index === viewCount) {
-      // Explictly destroy the installation component 
-      this.ngOnDestroy();
-
       // Navigate to online monitoring of the edge
-      this.router.navigate(["device", this.installationData.edge.id]);
+      this.router.navigate(['device', this.edge.id]);
 
       // Clear session storage
       sessionStorage.clear();
     } else {
-      console.warn("The given view index is out of bounds.");
+      console.warn('The given view index is out of bounds.');
     }
   }
 
@@ -261,20 +200,9 @@ export class InstallationComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Displays the next view.
-   * 
-   * It is possible to pass an InstallationData-Object, which then
-   * will be saved in this class.
+   * Displays the Next view.
    */
-  public displayNextView(installationData?: InstallationData) {
-    if (installationData) {
-      this.installationData = installationData;
-
-      if (sessionStorage) {
-        sessionStorage.setItem("installationData", JSON.stringify(installationData));
-      }
-    }
-
+  public displayNextView() {
     this.displayViewAtIndex(this.getViewIndex(this.displayedView) + 1);
   }
 }

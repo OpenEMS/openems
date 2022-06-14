@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999 Maxim Integrated Products, All Rights Reserved.
  *
@@ -1080,3 +1081,4 @@ public class MemoryBankSHAEE implements PagedMemoryBank {
 	}
 
 }
+// CHECKSTYLE:ON

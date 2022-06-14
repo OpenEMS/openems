@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2003 Maxim Integrated Products, All Rights Reserved.
  *
@@ -920,3 +921,4 @@ public class OneWireContainer37 extends OneWireContainer implements PasswordCont
 	}
 
 }
+// CHECKSTYLE:ON

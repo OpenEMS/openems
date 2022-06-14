@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, Validators } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Service, Utils } from 'src/app/shared/shared';
-import { InstallationData } from '../../installation.component';
+import { Ibn } from '../../installation-systems/abstract-ibn';
 
 export type AcPv = {
   alias: string,
@@ -15,17 +15,16 @@ export type AcPv = {
 }
 
 @Component({
-  selector: ProtocolAdditionalAcProducersComponent.SELECTOR,
+  selector: "protocol-additional-ac-producers",
   templateUrl: './protocol-additional-ac-producers.component.html'
 })
 export class ProtocolAdditionalAcProducersComponent implements OnInit {
-  private static readonly SELECTOR = "protocol-additional-ac-producers";
   private readonly LINK_SOCOMEC_MANUAL = "https://www.fenecon.de/download/fems-app-socomec-zaehler/";
 
-  @Input() public installationData: InstallationData;
-
+  @Input() public ibn: Ibn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<InstallationData>();
+  @Output() public nextViewEvent = new EventEmitter<Ibn>();
+  @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
@@ -36,13 +35,13 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
   constructor(private service: Service) { }
 
   public ngOnInit() {
-    // Initialize AC Object
-    this.installationData.pv.ac ??= [];
 
+    // Initialize PV-Object
+    this.ibn.pv ??= {};
+    this.ibn.pv.ac ??= [];
     this.form = new FormGroup({});
     this.fields = this.getFields();
     this.model = {};
-
     this.insertModeEnabled = false;
   }
 
@@ -56,7 +55,8 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       return;
     }
 
-    this.nextViewEvent.emit(this.installationData);
+    this.setIbnEvent.emit(this.ibn);
+    this.nextViewEvent.emit();
   }
 
   public getFields(): FormlyFieldConfig[] {
@@ -82,7 +82,10 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
         min: 1000,
         required: true
       },
-      parsers: [Number]
+      parsers: [Number],
+      validators: {
+        validation: ["onlyPositiveInteger"]
+      }
     });
 
     fields.push({
@@ -91,14 +94,14 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       templateOptions: {
         label: "Ausrichtung",
         options: [
-          { label: "Süd", value: "s" },
-          { label: "Südwest", value: "sw" },
-          { label: "West", value: "w" },
-          { label: "Südost", value: "so" },
-          { label: "Ost", value: "o" },
-          { label: "Nordwest", value: "nw" },
-          { label: "Nordost", value: "no" },
-          { label: "Nord", value: "n" },
+          { label: "Süd", value: "Sued" },
+          { label: "Südwest", value: "Suedwest" },
+          { label: "West", value: "West" },
+          { label: "Südost", value: "Suedost" },
+          { label: "Ost", value: "Ost" },
+          { label: "Nordwest", value: "Nordwest" },
+          { label: "Nordost", value: "Nordost" },
+          { label: "Nord", value: "Nord" },
           { label: "", value: undefined }
         ]
       }
@@ -120,7 +123,10 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
         type: "number",
         label: "Anzahl PV-Module"
       },
-      parsers: [Number]
+      parsers: [Number],
+      validators: {
+        validation: ["onlyPositiveInteger"]
+      }
     });
 
     fields.push({
@@ -147,11 +153,13 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
         min: 6
       },
       parsers: [Number],
+      validators: {
+        validation: ["onlyPositiveInteger"]
+      },
       defaultValue: 6
     });
 
     return fields;
-
   }
 
   public switchMode() {
@@ -165,7 +173,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       }
 
       // Push data into array and reset the form
-      this.installationData.pv.ac.push(Utils.deepCopy(this.model));
+      this.ibn.pv.ac.push(Utils.deepCopy(this.model));
       this.form.reset();
 
     }
@@ -185,7 +193,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
   }
 
   public removeElement(element) {
-    let ac = this.installationData.pv.ac;
+    let ac = this.ibn.pv.ac;
     ac.splice(ac.indexOf(element), 1);
   }
 

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -396,3 +397,4 @@ public class OneWireContainer13 extends OneWireContainer {
 		return bank_vector.elements();
 	}
 }
+// CHECKSTYLE:ON

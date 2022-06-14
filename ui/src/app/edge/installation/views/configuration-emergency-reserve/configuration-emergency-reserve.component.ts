@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { InstallationData } from '../../installation.component';
+
+import { Ibn } from '../../installation-systems/abstract-ibn';
+import { HomeFeneconIbn } from '../../installation-systems/home-fenecon';
 
 @Component({
   selector: ConfigurationEmergencyReserveComponent.SELECTOR,
@@ -11,10 +13,11 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
 
   private static readonly SELECTOR = "configuration-emergency-reserve";
 
-  @Input() public installationData: InstallationData;
+  @Input() public ibn: HomeFeneconIbn;
 
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<InstallationData>();
+  @Output() public nextViewEvent = new EventEmitter<any>();
+  @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
@@ -26,7 +29,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
 
     this.form = new FormGroup({});
     this.fields = this.getFields();
-    this.model = this.installationData.battery.emergencyReserve ?? {
+    this.model = this.ibn.emergencyReserve ?? {
       isEnabled: true,
       value: 20,
       isReserveSocEnabled: false
@@ -44,9 +47,10 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       return;
     }
 
-    this.installationData.battery.emergencyReserve = this.model;
-    this.nextViewEvent.emit(this.installationData);
-
+    this.ibn.emergencyReserve = this.model;
+    this.setIbnEvent.emit(this.ibn);
+    this.ibn.setRequiredControllers();
+    this.nextViewEvent.emit();
   }
 
   public getFields(): FormlyFieldConfig[] {

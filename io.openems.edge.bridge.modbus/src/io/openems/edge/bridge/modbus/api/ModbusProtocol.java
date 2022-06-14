@@ -75,6 +75,11 @@ public class ModbusProtocol {
 		}
 	}
 
+	/**
+	 * Removes a Task from the Protocol.
+	 *
+	 * @param task the task
+	 */
 	public synchronized void removeTask(Task task) {
 		if (task instanceof ReadTask) {
 			this.readTaskManager.removeTask((ReadTask) task);
@@ -106,7 +111,7 @@ public class ModbusProtocol {
 	 * Checks a {@link Task} for plausibility.
 	 *
 	 * @param task the Task that should be checked
-	 * @throws OpenemsException
+	 * @throws OpenemsException on error
 	 */
 	private synchronized void checkTask(Task task) throws OpenemsException {
 		var address = task.getStartAddress();
@@ -121,6 +126,9 @@ public class ModbusProtocol {
 		}
 	}
 
+	/**
+	 * Deactivate the {@link ModbusProtocol}.
+	 */
 	public void deactivate() {
 		var readTasks = this.readTaskManager.getAllTasks();
 		for (ReadTask readTask : readTasks) {

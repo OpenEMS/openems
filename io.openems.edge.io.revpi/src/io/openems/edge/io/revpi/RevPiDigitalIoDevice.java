@@ -153,7 +153,7 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * NOTE data out will only be set if the channel value changes
+	 * NOTE data out will only be set if the channel value changes.
 	 */
 	private void updateDataOutChannels() {
 
@@ -241,7 +241,10 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * @brief reads the data either from the given DATA IN hardware port
+	 * Reads the data either from the given DATA IN hardware port.
+	 * 
+	 * @param idx the index
+	 * @return the data
 	 */
 	private boolean getData(int idx) throws IOException {
 		return this.revPiHardware.getDataIn(idx + 1);

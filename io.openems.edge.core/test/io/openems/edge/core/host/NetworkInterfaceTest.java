@@ -1,6 +1,8 @@
 package io.openems.edge.core.host;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -8,9 +10,9 @@ import org.junit.Test;
 import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
 
 public class NetworkInterfaceTest {
-	
-	private Inet4AddressWithNetmask inet4AddressWithNetmask;
-	
+
+	private static Inet4AddressWithNetmask inet4AddressWithNetmask;
+
 	@Before
 	public void beforeEach() throws Exception {
 		inet4AddressWithNetmask = Inet4AddressWithNetmask.fromString("192.168.178.1/24");
@@ -29,7 +31,7 @@ public class NetworkInterfaceTest {
 		assertEquals("255.255.0.0", Inet4AddressWithNetmask.fromString("192.168.178.1/16").getNetmaskAsString());
 		assertEquals("255.255.255.0", inet4AddressWithNetmask.getNetmaskAsString());
 	}
-	
+
 	@Test
 	public void testIsInSameNetwork() throws Exception {
 		assertTrue(inet4AddressWithNetmask.isInSameNetwork(Inet4AddressWithNetmask.fromString("192.168.178.2/24")));

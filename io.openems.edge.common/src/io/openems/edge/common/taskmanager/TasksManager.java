@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * A useful application for TasksManager is to provide a list of Tasks that need
  * to be handled on an OpenEMS Cycle run.
  *
- * @param <T>
+ * @param <T> the type of the actual {@link ManagedTask}
  */
 public class TasksManager<T extends ManagedTask> {
 
@@ -116,6 +116,15 @@ public class TasksManager<T extends ManagedTask> {
 	}
 
 	/**
+	 * Gets all Tasks.
+	 *
+	 * @return a list of all Tasks.
+	 */
+	public synchronized List<T> getAllTasks() {
+		return Collections.unmodifiableList(this.allTasks);
+	}
+
+	/**
 	 * Get all tasks with the given Priority.
 	 *
 	 * @param priority the Priority
@@ -164,15 +173,6 @@ public class TasksManager<T extends ManagedTask> {
 	}
 
 	/**
-	 * Gets all Tasks.
-	 *
-	 * @return a list of all Tasks.
-	 */
-	public synchronized List<T> getAllTasks() {
-		return Collections.unmodifiableList(this.allTasks);
-	}
-
-	/**
 	 * Gets tasks sequentially.
 	 *
 	 * @return the next task; null if there are no tasks
@@ -191,6 +191,7 @@ public class TasksManager<T extends ManagedTask> {
 	/**
 	 * Gets one task that is lower than the given Priority sequentially.
 	 *
+	 * @param priority the {@link Priority}
 	 * @return the next task; null if there are no tasks with the given Priority
 	 */
 	public synchronized T getOneTask(Priority priority) {

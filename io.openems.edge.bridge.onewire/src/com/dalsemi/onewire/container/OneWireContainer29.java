@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
@@ -793,3 +794,4 @@ public class OneWireContainer29 extends OneWireContainer implements SwitchContai
 		this.search.readWrite = true;
 	}
 }
+// CHECKSTYLE:ON

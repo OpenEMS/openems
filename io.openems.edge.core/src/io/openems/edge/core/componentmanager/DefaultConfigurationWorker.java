@@ -23,7 +23,6 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
-import io.openems.common.utils.JsonUtils;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
@@ -153,7 +152,8 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
 	/**
 	 * Apply upgrades to newer versions of OpenEMS Edge.
-	 * 
+	 *
+	 * @param existingConfigs     the existing {@link Config}s
 	 * @param configurationFailed the result of the configuration, updated on error
 	 */
 	private void migrateConfigurationsOnVersionUpgrade(List<Config> existingConfigs,
@@ -163,6 +163,9 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 
 	/**
 	 * Migrate to OpenEMS version 2020.11.5.
+	 * 
+	 * @param existingConfigs     the existing {@link Config}s
+	 * @param configurationFailed the result of the configuration, updated on error
 	 */
 	private void migrateConfigurationOnVersion_2020_11_5(List<Config> existingConfigs,
 			AtomicBoolean configurationFailed) {
@@ -171,10 +174,10 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		 */
 		// Threephase
 		existingConfigs.stream().filter(c -> c.componentId.isPresent() && (//
-		"Meter.SOCOMEC.DirisA10".equals(c.factoryPid) || //
-				"Meter.SOCOMEC.DirisA14".equals(c.factoryPid) || //
-				"Meter.SOCOMEC.DirisB30".equals(c.factoryPid) || //
-				"Meter.SOCOMEC.DirisE24".equals(c.factoryPid) //
+		"Meter.SOCOMEC.DirisA10".equals(c.factoryPid) //
+				|| "Meter.SOCOMEC.DirisA14".equals(c.factoryPid) //
+				|| "Meter.SOCOMEC.DirisB30".equals(c.factoryPid) //
+				|| "Meter.SOCOMEC.DirisE24".equals(c.factoryPid) //
 		)).forEach(c -> {
 			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
 			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);
@@ -196,8 +199,8 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 			));
 		});
 		// Singlephase
-		existingConfigs.stream().filter(c -> c.componentId.isPresent() && //
-				"Meter.SOCOMEC.CountisE24".equals(c.factoryPid)//
+		existingConfigs.stream().filter(c -> c.componentId.isPresent() //
+				&& "Meter.SOCOMEC.CountisE24".equals(c.factoryPid)//
 		).forEach(c -> {
 			String alias = DictionaryUtils.getAsOptionalString(c.properties, "alias").orElse("");
 			boolean enabled = DictionaryUtils.getAsOptionalBoolean(c.properties, "enabled").orElse(true);

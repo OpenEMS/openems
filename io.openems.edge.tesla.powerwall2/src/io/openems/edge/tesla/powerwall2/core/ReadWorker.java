@@ -26,8 +26,8 @@ import io.openems.common.worker.AbstractCycleWorker;
 
 public class ReadWorker extends AbstractCycleWorker {
 
-	private final String URL_SYSTEM_STATUS_SOE = "/system_status/soe";
-	private final String URL_METERS_AGGREGATES = "/meters/aggregates";
+	private static final String URL_SYSTEM_STATUS_SOE = "/system_status/soe";
+	private static final String URL_METERS_AGGREGATES = "/meters/aggregates";
 
 	private final TeslaPowerwall2CoreImpl parent;
 	private final String baseUrl;
@@ -66,10 +66,10 @@ public class ReadWorker extends AbstractCycleWorker {
 		this.parent.getBattery().ifPresent(battery -> {
 
 			try {
-				var soe = this.getResponse(this.URL_SYSTEM_STATUS_SOE);
+				var soe = this.getResponse(URL_SYSTEM_STATUS_SOE);
 				battery._setSoc(Math.round(JsonUtils.getAsFloat(soe, "percentage")));
 
-				var agg = this.getResponse(this.URL_METERS_AGGREGATES);
+				var agg = this.getResponse(URL_METERS_AGGREGATES);
 				var aggBattery = JsonUtils.getAsJsonObject(agg, "battery");
 				var essActivePower = JsonUtils.getAsFloat(aggBattery, "instant_power");
 				battery._setActivePower(Math.round(essActivePower));

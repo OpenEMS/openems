@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -676,3 +677,4 @@ public class OneWireContainer02 extends OneWireContainer {
 		codes[7][7] = (byte) 0xB3;
 	}
 }
+// CHECKSTYLE:ON

@@ -1,35 +1,35 @@
 <installation-view iconName="clipboard-outline" header="Zusätzliche AC-Erzeuger" (previousClicked)="onPreviousClicked()"
-  (nextClicked)="onNextClicked()">
+    (nextClicked)="onNextClicked()">
 
-  <formly-form *ngIf="insertModeEnabled" [form]="form" [fields]="fields" [model]="model"></formly-form>
+    <formly-form *ngIf="insertModeEnabled" [form]="form" [fields]="fields" [model]="model"></formly-form>
 
-  <ion-item lines="none">
-    <ion-button [disabled]="installationData.pv.ac.length >= 1" (click)="switchMode()" slot="start">
-      <ion-label>{{insertModeEnabled ? "Erzeuger speichern" : "Erzeuger hinzufügen"}}</ion-label>
-      <ion-icon [name]="insertModeEnabled ? 'save-outline':'add-outline'" slot="start"></ion-icon>
-    </ion-button>
-    <ion-button (click)="openManual()" slot="end">
-      <ion-label>Anleitung öffnen</ion-label>
-      <ion-icon name="open-outline" slot="start"></ion-icon>
-    </ion-button>
-  </ion-item>
+    <ion-item lines="none">
+        <ion-button [disabled]="ibn.pv.ac.length >= 1" (click)="switchMode()" slot="start">
+            <ion-label>{{insertModeEnabled ? "Erzeuger speichern" : "Erzeuger hinzufügen"}}</ion-label>
+            <ion-icon [name]="insertModeEnabled ? 'save-outline':'add-outline'" slot="start"></ion-icon>
+        </ion-button>
+        <ion-button (click)="openManual()" slot="end">
+            <ion-label>Anleitung öffnen</ion-label>
+            <ion-icon name="open-outline" slot="start"></ion-icon>
+        </ion-button>
+    </ion-item>
 
-  <ion-card *ngIf="installationData.pv.ac && installationData.pv.ac.length > 0">
-    <ion-card-content>
-      <ion-item *ngFor="let ac of installationData.pv.ac" lines="none">
-        <ion-item slot="start" lines="none">
-          <ion-button (click)="editElement(ac)" title="bearbeiten">
-            <ion-icon name="pencil-outline">
-            </ion-icon>
-          </ion-button>
-          <ion-button (click)="removeElement(ac)" title="entfernen">
-            <ion-icon name="trash-outline">
-            </ion-icon>
-          </ion-button>
-        </ion-item>
-        <div>{{ac.alias}}</div>
-      </ion-item>
-    </ion-card-content>
-  </ion-card>
+    <ion-card *ngIf="ibn.pv.ac?.length > 0">
+        <ion-card-content>
+            <ion-item *ngFor="let ac of ibn.pv.ac" lines="none">
+                <ion-item slot="start" lines="none">
+                    <ion-button (click)="editElement(ac)" title="bearbeiten">
+                        <ion-icon name="pencil-outline">
+                        </ion-icon>
+                    </ion-button>
+                    <ion-button (click)="removeElement(ac)" title="entfernen">
+                        <ion-icon name="trash-outline">
+                        </ion-icon>
+                    </ion-button>
+                </ion-item>
+                <div>{{ac.alias}}</div>
+            </ion-item>
+        </ion-card-content>
+    </ion-card>
 
 </installation-view>

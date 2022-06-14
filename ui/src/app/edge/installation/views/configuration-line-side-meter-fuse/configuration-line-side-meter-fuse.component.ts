@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { InstallationData } from '../../installation.component';
+
+import { Ibn } from '../../installation-systems/abstract-ibn';
 
 @Component({
   selector: ConfigurationLineSideMeterFuseComponent.SELECTOR,
@@ -11,10 +12,10 @@ export class ConfigurationLineSideMeterFuseComponent implements OnInit {
 
   private static readonly SELECTOR = "configuration-line-side-meter-fuse";
 
-  @Input() public installationData: InstallationData;
-
+  @Input() public ibn: Ibn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<InstallationData>();
+  @Output() public nextViewEvent = new EventEmitter<Ibn>();
+  @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
@@ -23,11 +24,9 @@ export class ConfigurationLineSideMeterFuseComponent implements OnInit {
   constructor() { }
 
   public ngOnInit() {
-
     this.form = new FormGroup({});
     this.fields = this.getFields();
-    this.model = this.installationData.lineSideMeterFuse ?? {};
-
+    this.model = this.ibn.lineSideMeterFuse ?? {};
   }
 
   public onPreviousClicked() {
@@ -40,8 +39,9 @@ export class ConfigurationLineSideMeterFuseComponent implements OnInit {
       return;
     }
 
-    this.installationData.lineSideMeterFuse = this.model;
-    this.nextViewEvent.emit(this.installationData);
+    this.ibn.lineSideMeterFuse = this.model;
+    this.setIbnEvent.emit(this.ibn);
+    this.nextViewEvent.emit();
   }
 
   public getFields(): FormlyFieldConfig[] {
@@ -76,11 +76,12 @@ export class ConfigurationLineSideMeterFuseComponent implements OnInit {
         required: true
       },
       parsers: [Number],
+      validators: {
+        validation: ["onlyPositiveInteger"]
+      },
       hideExpression: model => model.fixedValue !== -1
     });
-
     return fields;
-
   }
 
 }

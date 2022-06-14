@@ -102,7 +102,7 @@ public class RestApiReadWriteImplTest {
 					.build());
 			assertTrue(false);
 		} catch (OpenemsNamedException e) {
-
+			// ignore
 		}
 
 		/*
@@ -119,7 +119,7 @@ public class RestApiReadWriteImplTest {
 			sendPostRequest(port, GUEST, "/jsonrpc", new GetEdgeConfigRequest().toJsonObject());
 			assertTrue(false);
 		} catch (OpenemsNamedException e) {
-
+			// ignore
 		}
 
 		sut.deactivate();

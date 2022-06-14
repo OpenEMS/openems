@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Service } from 'src/app/shared/shared';
-import { InstallationData } from '../../installation.component';
+import { Ibn } from '../../installation-systems/abstract-ibn';
 
 export enum EmsAppId {
   HardyBarthSingle = "hardyBarthSingle",
@@ -27,13 +27,12 @@ export type EmsApp = {
 export class HeckertAppInstallerComponent implements OnInit {
   private static readonly SELECTOR = "heckert-app-installer";
 
-  @Input() public installationData: InstallationData;
-
+  @Input() public ibn: Ibn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<InstallationData>();
+  @Output() public nextViewEvent = new EventEmitter<Ibn>();
+  @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public apps: EmsApp[];
-
   public isHardyBarthVisible: boolean;
 
   constructor(
@@ -69,13 +68,15 @@ export class HeckertAppInstallerComponent implements OnInit {
     }
 
     // Save the id of the selected app and switch to next view
-    this.installationData.selectedFreeApp = selectedApp;
-    sessionStorage.setItem("installationData", JSON.stringify(this.installationData));
-    this.nextViewEvent.emit(this.installationData);
+    this.ibn.selectedFreeApp = selectedApp;
+    sessionStorage.setItem("ibn", JSON.stringify(this.ibn));
+    this.setIbnEvent.emit(this.ibn)
+    this.nextViewEvent.emit();
   }
 
   public onNextClicked() {
-    if (this.installationData.selectedFreeApp) {
+    if (this.ibn.selectedFreeApp) {
+      this.setIbnEvent.emit(this.ibn)
       this.nextViewEvent.emit();
     } else {
       this.service.toast(this.translate.instant('Edge.Installation.pleaseSelectOption'), 'danger');

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -1630,3 +1631,4 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 		System.out.println("NetAdapter Host Started");
 	}
 }
+// CHECKSTYLE:ON

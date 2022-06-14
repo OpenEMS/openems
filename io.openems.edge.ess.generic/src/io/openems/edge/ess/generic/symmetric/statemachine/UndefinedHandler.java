@@ -16,8 +16,8 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 		case START:
 			// force START
 			if (ess.hasFaults()) {
-				// TODO for OCTOBER: should we consider also Battery-Inverter and Battery Faults?
-				// TODO for OCTOBER: should the Modbus-Device also be on error, when then Modbus-Bridge is on
+				// TODO should we consider also Battery-Inverter and Battery Faults?
+				// TODO should the Modbus-Device also be on error, when then Modbus-Bridge is on
 				// error?
 
 				// Has Faults -> error handling

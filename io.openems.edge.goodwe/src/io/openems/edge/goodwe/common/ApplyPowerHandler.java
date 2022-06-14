@@ -146,9 +146,9 @@ public class ApplyPowerHandler {
 	 * If true warning channel SMART_MODE_NOT_WORKING_WITH_PID_FILTER set to true,
 	 * otherwise to false.
 	 *
-	 * @param goodWe      the GoodWe - either Battery-Inverter or ESS
-	 * @param controlMode the {@link ControlMode} to check SMART mode
-	 * @param pidEnabled  if PID filter is enabled
+	 * @param goodWe       the GoodWe - either Battery-Inverter or ESS
+	 * @param controlMode  the {@link ControlMode} to check SMART mode
+	 * @param isPidEnabled if PID filter is enabled
 	 */
 	private void checkControlModeWithActivePid(AbstractGoodWe goodWe, ControlMode controlMode, boolean isPidEnabled) {
 		var enableWarning = false;

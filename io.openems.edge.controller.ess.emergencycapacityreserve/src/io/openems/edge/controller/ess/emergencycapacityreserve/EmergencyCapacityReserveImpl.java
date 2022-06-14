@@ -51,12 +51,12 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 	private Config config;
 
 	/**
-	 * Minimum reserve SoC value in [%]
+	 * Minimum reserve SoC value in [%].
 	 */
 	private static final int reservSocMinValue = 5;
 
 	/**
-	 * Maximum reserve SoC value in [%]
+	 * Maximum reserve SoC value in [%].
 	 */
 	private static final int reservSocMaxValue = 100;
 

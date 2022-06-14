@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -624,3 +625,4 @@ public class OneWireContainer2C extends OneWireContainer implements Potentiomete
 		return 0x0ff & this.buffer[1];
 	}
 }
+// CHECKSTYLE:ON

@@ -47,6 +47,13 @@ formly-field-ion-radio {
     }
 }
 
+.margin-top {
+    ion-item {
+
+        margin-top: 2%;
+    }
+}
+
 .active {
     color: $primary-color;
 }

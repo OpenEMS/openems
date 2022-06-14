@@ -23,6 +23,7 @@ import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
 import { Language } from './translate/language';
+import { Logger } from './service/logger';
 
 @NgModule({
   imports: [
@@ -86,6 +87,7 @@ import { Language } from './translate/language';
     Service,
     Utils,
     Websocket,
+    Logger
   ]
 })
 

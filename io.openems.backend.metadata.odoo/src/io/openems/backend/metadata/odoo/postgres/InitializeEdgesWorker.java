@@ -81,7 +81,7 @@ public class InitializeEdgesWorker {
 					var edgeId = PgUtils.getAsString(rs, EdgeDevice.NAME);
 					var odooId = PgUtils.getAsInt(rs, EdgeDevice.ID);
 
-					self.parent.edgeCache.addOrUpate(rs);
+					self.parent.edgeCache.addOrUpdate(rs);
 
 					this.loadEdgeUserRoles(odooId, edgeId);
 				} catch (Exception e) {

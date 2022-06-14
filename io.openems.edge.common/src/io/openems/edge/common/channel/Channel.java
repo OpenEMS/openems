@@ -56,14 +56,14 @@ public interface Channel<T> {
 	/**
 	 * Gets the ChannelId of this Channel.
 	 *
-	 * @return
+	 * @return the ChannelId
 	 */
 	io.openems.edge.common.channel.ChannelId channelId();
 
 	/**
 	 * Gets the ChannelDoc of this Channel.
 	 *
-	 * @return
+	 * @return the ChannelDoc
 	 */
 	default Doc channelDoc() {
 		return this.channelId().doc();
@@ -72,14 +72,14 @@ public interface Channel<T> {
 	/**
 	 * Gets the OpenemsComponent this Channel belongs to.
 	 *
-	 * @return
+	 * @return the OpenemsComponent
 	 */
 	OpenemsComponent getComponent();
 
 	/**
 	 * Gets the address of this Channel.
 	 *
-	 * @return
+	 * @return the {@link ChannelAddress}
 	 */
 	ChannelAddress address();
 
@@ -92,7 +92,7 @@ public interface Channel<T> {
 	/**
 	 * Gets the type of this Channel, e.g. INTEGER, BOOLEAN,..
 	 *
-	 * @return
+	 * @return the {@link OpenemsType}
 	 */
 	OpenemsType getType();
 
@@ -158,6 +158,7 @@ public interface Channel<T> {
 	/**
 	 * Gets the currently active value, wrapped in a @{link Value}.
 	 *
+	 * @return the active value
 	 * @throws IllegalArgumentException if value cannot be access, e.g. because the
 	 *                                  Channel is Write-Only.
 	 */
@@ -174,6 +175,9 @@ public interface Channel<T> {
 	/**
 	 * Add an onUpdate callback. It is called, after the active value was updated by
 	 * nextProcessImage().
+	 * 
+	 * @param callback the callback
+	 * @return the same callback for fluent coding
 	 */
 	public Consumer<Value<T>> onUpdate(Consumer<Value<T>> callback);
 
@@ -190,6 +194,7 @@ public interface Channel<T> {
 	 * was set by nextProcessImage().
 	 *
 	 * @param callback old value and new value
+	 * @return the same callback for fluent coding
 	 */
 	public BiConsumer<Value<T>, Value<T>> onChange(BiConsumer<Value<T>, Value<T>> callback);
 

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2004 Maxim Integrated Products, All Rights Reserved.
@@ -268,3 +269,4 @@ public class Address {
 		return toLong(toByteArray(address));
 	}
 }
+// CHECKSTYLE:ON

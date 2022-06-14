@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -917,3 +918,4 @@ public class OneWireContainer1F extends OneWireContainer implements SwitchContai
 		throw exc;
 	}
 }
+// CHECKSTYLE:ON

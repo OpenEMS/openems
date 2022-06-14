@@ -12,6 +12,12 @@ import io.openems.edge.common.host.DummyHost;
 
 public class GenerateUserPasswordCsv {
 
+	/**
+	 * Generate FEMS User Passwords.
+	 * 
+	 * @param args command line arguments
+	 * @throws IOException on error
+	 */
 	public static void main(String[] args) throws IOException {
 		final String username = "admin";
 		final Role role = Role.getRole(username);

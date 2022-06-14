@@ -1,6 +1,6 @@
 import { Subscription } from "rxjs";
 import { filter } from "rxjs/operators";
-import { Websocket, EdgeConfig, Edge, ChannelAddress } from "src/app/shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Websocket } from "src/app/shared/shared";
 
 export enum ConfigurationMode {
     RemoveAndConfigure = "remove-and-configure",    // The component will be removed and then configured as specified
@@ -372,14 +372,9 @@ export class ComponentConfigurator {
      */
     private updateScheduler() {
         let scheduler: EdgeConfig.Component = this.config.getComponent("scheduler0");
-        let installationData = JSON.parse(sessionStorage.installationData);
+        let ibn = JSON.parse(sessionStorage.ibn);
 
-        let requiredControllerIds: string[];
-        if (installationData?.battery?.emergencyReserve?.isEnabled) {
-            requiredControllerIds = ["ctrlEmergencyCapacityReserve0", "ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0", "ctrlBalancing0"];
-        } else {
-            requiredControllerIds = ["ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0", "ctrlBalancing0"];
-        }
+        let requiredControllerIds: string[] = ibn.requiredControllerIds;
 
         if (!scheduler) {
             // If scheduler is not existing, it gets configured as required

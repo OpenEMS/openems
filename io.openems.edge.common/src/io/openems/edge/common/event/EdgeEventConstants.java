@@ -18,6 +18,7 @@ public final class EdgeEventConstants {
 	/**
 	 * BEFORE_PROCESS_IMAGE event
 	 *
+	 * <p>
 	 * allows to execute anything that is required to be executed before the current
 	 * processimage is built - i.e. channel.nextProcessImage() is called. The event
 	 * is executed synchronously.
@@ -27,6 +28,7 @@ public final class EdgeEventConstants {
 	/**
 	 * AFTER_PROCESS_IMAGE event
 	 *
+	 * <p>
 	 * allows to execute anything that is required to be executed after the current
 	 * processimage is built - i.e. channel.nextProcessImage() was called. The event
 	 * is executed synchronously.
@@ -36,6 +38,7 @@ public final class EdgeEventConstants {
 	/**
 	 * BEFORE_CONTROLLERS event
 	 *
+	 * <p>
 	 * allows to execute anything that is required to be executed before the
 	 * controllers are executed. The event is executed synchronously.
 	 */
@@ -43,7 +46,8 @@ public final class EdgeEventConstants {
 
 	/**
 	 * AFTER_CONTROLLERS event
-	 *
+	 * 
+	 * <p>
 	 * allows to execute anything that is required to be executed after the
 	 * controllers were executed. The event is executed synchronously.
 	 */
@@ -52,6 +56,7 @@ public final class EdgeEventConstants {
 	/**
 	 * BEFORE_WRITE event
 	 *
+	 * <p>
 	 * allows to execute anything that is required to be executed before the data is
 	 * actually written to the devices. The event is executed synchronously.
 	 */
@@ -60,6 +65,7 @@ public final class EdgeEventConstants {
 	/**
 	 * EXECUTE_WRITE event
 	 *
+	 * <p>
 	 * triggers to actually write the data to the devices. The event is executed
 	 * synchronously.
 	 */
@@ -68,6 +74,7 @@ public final class EdgeEventConstants {
 	/**
 	 * AFTER_WRITE event
 	 *
+	 * <p>
 	 * allows to execute anything that is required to be executed after the data was
 	 * actually written to the devices. The event is executed synchronously.
 	 */
@@ -82,6 +89,7 @@ public final class EdgeEventConstants {
 	/**
 	 * UPDATE event
 	 *
+	 * <p>
 	 * Called when the {@link EdgeConfig} was updated, e.g. because configuration
 	 * properties changed or Channels changed. The EdgeConfig object is sent with
 	 * the event - see {@value #TOPIC_CONFIG_UPDATE_KEY}. The event is executed

@@ -175,7 +175,9 @@ public class SendChannelValuesWorker {
 
 			} else {
 				// Actually use the kept 'lastSentValues'
+				// CHECKSTYLE:OFF
 				lastAllValues = this.parent.lastAllValues;
+				// CHECKSTYLE:ON
 			}
 
 			// Send changed values

@@ -106,6 +106,14 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			e.printStackTrace();
 		}
 
+		if (this.parent.timescale != null) {
+			try {
+				this.parent.timescale.write(edgeId, message.getData());
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			}
+		}
+
 		// Read some specific channels
 		var edge = this.parent.metadata.getEdgeOrError(edgeId);
 		for (Entry<String, JsonElement> entry : message.getParams().entrySet()) {

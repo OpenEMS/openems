@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -283,3 +284,4 @@ public interface HumidityContainer extends OneWireSensor {
 	public void setHumidityResolution(double resolution, byte[] state) throws OneWireException;
 
 }
+// CHECKSTYLE:ON

@@ -103,7 +103,10 @@ public class UserServiceImpl implements UserService {
 	private void initializeUser(String id, String name, Language language, Role role, String password, String salt) {
 		if (
 		// Is this a FEMS (i.e. no development environment)?
-		this.host.getHostname().orElse(host.getHostnameChannel().getNextValue().orElse("UNKNOWN")).startsWith("fems")
+		this.host.getHostname().orElse(//
+				this.host.getHostnameChannel().getNextValue().orElse(//
+						"UNKNOWN"))
+				.startsWith("fems")
 				// Does the password match the id (i.e. the password is insecure)?
 				&& ManagedUser.validatePassword(password, salt, role.toString().toLowerCase())) {
 			// -> yes. Replace with generated password.

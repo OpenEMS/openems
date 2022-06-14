@@ -12,7 +12,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
  */
 public class DummySymmetricMeter extends AbstractOpenemsComponent implements SymmetricMeter {
 
-	public final static int MAX_APPARENT_POWER = 10000;
+	public static final int MAX_APPARENT_POWER = 10000;
 
 	public DummySymmetricMeter(String id) {
 		super(//

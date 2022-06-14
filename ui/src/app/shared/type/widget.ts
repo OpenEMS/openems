@@ -69,7 +69,17 @@ export class AdvertWidgets {
 
         list.push({
             name: 'GLS Crowdfunding',
-            title: 'Mach mit bei FENECON'
+            title: 'Mach mit bei FENECON',
+        })
+
+        list.push({
+            name: 'GridOptimizedCharge',
+            title: 'Neue Version jetzt online!',
+        })
+
+        list.push({
+            name: 'Energiewende mit FEMS',
+            title: 'Energiewende mit FEMS - Wärme selbst erzeugen'
         })
 
         return new AdvertWidgets(list);

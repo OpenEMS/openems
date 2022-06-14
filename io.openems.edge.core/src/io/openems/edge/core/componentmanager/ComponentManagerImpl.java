@@ -169,7 +169,10 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the components via OSGi service reference.
-	 *
+	 * 
+	 * @param <T>    the class type
+	 * @param clazz  The class under whose name the service was registered. Must not
+	 *               be {@code null}.
 	 * @param filter the filter for the components
 	 * @return the components matching the filter
 	 */

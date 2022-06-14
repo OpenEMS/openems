@@ -3,11 +3,10 @@ import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
-import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
-import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
-import { ChannelAddress, Service, Websocket } from 'src/app/shared/shared';
-import { InstallationData } from '../../installation.component';
-import { FeedInSetting } from '../protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
+import { ChannelAddress, Edge, Service, Websocket } from 'src/app/shared/shared';
+import { Ibn } from '../../installation-systems/abstract-ibn';
+import { HomeFeneconIbn } from '../../installation-systems/home-fenecon';
+import { HomeHeckertIbn } from '../../installation-systems/home-heckert';
 
 @Component({
   selector: ProtocolSerialNumbersComponent.SELECTOR,
@@ -18,10 +17,12 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
   private readonly READ_TIMEOUT = 5000;
 
-  @Input() public installationData: InstallationData;
+  @Input() public ibn: HomeFeneconIbn | HomeHeckertIbn;
+  @Input() public edge: Edge;
 
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<InstallationData>();
+  @Output() public nextViewEvent = new EventEmitter<Ibn>();
+  @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public formSettings: FormGroup;
   public formTower0: FormGroup;
@@ -78,14 +79,16 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     }
 
     // Initialize serial numbers object
-    this.installationData.battery.serialNumbers = {
-      tower0: [],
-      tower1: [],
-      tower2: []
-    };
+    this.ibn.battery = {
+      serialNumbers: {
+        tower0: [],
+        tower1: [],
+        tower2: []
+      }
+    }
 
-    // Fill data from field into the installationData object
-    let serialNumbers = this.installationData.battery.serialNumbers;
+    // Fill data from field into the ibn object
+    let serialNumbers = this.ibn.battery.serialNumbers;
 
     serialNumbers.tower0 = this.extractSerialNumbers(this.fieldsTower0);
 
@@ -102,13 +105,13 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
     this.submitSetupProtocol().then((protocolId) => {
       this.service.toast("Das Protokoll wurde erfolgreich versendet.", "success");
-      this.installationData.setupProtocolId = protocolId;
+      this.ibn.setupProtocolId = protocolId;
     }).catch((reason) => {
       this.service.toast("Fehler beim Versenden des Protokolls.", "danger");
-      console.log(reason);
     }).finally(() => {
       this.isWaiting = false;
-      this.nextViewEvent.emit(this.installationData);
+      this.setIbnEvent.emit(this.ibn);
+      this.nextViewEvent.emit();
     });
   }
 
@@ -127,7 +130,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       let isResolved: boolean = false;
 
       // Edge-subscribe
-      this.installationData.edge.subscribeChannels(this.websocket, ProtocolSerialNumbersComponent.SELECTOR, [
+      this.edge.subscribeChannels(this.websocket, ProtocolSerialNumbersComponent.SELECTOR, [
         new ChannelAddress("battery0", "NumberOfTowers"),
         new ChannelAddress("battery0", "NumberOfModulesPerTower")
       ]);
@@ -136,7 +139,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       let stopOnRequest: Subject<void> = new Subject<void>();
 
       // Read tower and module numbers
-      this.installationData.edge.currentData.pipe(
+      this.edge.currentData.pipe(
         takeUntil(stopOnRequest),
         filter(currentData => currentData != null)
       ).subscribe((currentData) => {
@@ -160,7 +163,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
         // Unsubscribe to currentData and channels after timeout
         stopOnRequest.next();
         stopOnRequest.complete();
-        this.installationData.edge.unsubscribeChannels(this.websocket, ProtocolSerialNumbersComponent.SELECTOR);
+        this.edge.unsubscribeChannels(this.websocket, ProtocolSerialNumbersComponent.SELECTOR);
       }, this.READ_TIMEOUT);
     });
   }
@@ -181,13 +184,13 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       }
 
       // Edge-subscribe
-      this.installationData.edge.subscribeChannels(this.websocket, subscriptionId, Object.values(channelAddresses));
+      this.edge.subscribeChannels(this.websocket, subscriptionId, Object.values(channelAddresses));
 
       // Subject to stop the subscription to currentData
       let stopOnRequest: Subject<void> = new Subject<void>();
 
       // Read data
-      this.installationData.edge.currentData.pipe(
+      this.edge.currentData.pipe(
         takeUntil(stopOnRequest),
         filter(currentData => currentData != null)
       ).subscribe((currentData) => {
@@ -223,7 +226,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
         // Unsubscribe to currentData and channels after timeout
         stopOnRequest.next();
         stopOnRequest.complete();
-        this.installationData.edge.unsubscribeChannels(this.websocket, subscriptionId);
+        this.edge.unsubscribeChannels(this.websocket, subscriptionId);
       }, this.READ_TIMEOUT);
     });
   }
@@ -433,329 +436,6 @@ export class ProtocolSerialNumbersComponent implements OnInit {
    * @returns a promise promising a string that contains the protocol id
    */
   public submitSetupProtocol(): Promise<string> {
-    //#region Variables
-
-    let installationData = this.installationData;
-
-    let installer = installationData.installer;
-    let customer = installationData.customer;
-    let battery = installationData.battery;
-    let dynamicFeedInLimitation = installationData.dynamicFeedInLimitation;
-    let pv = installationData.pv;
-
-    let emergencyReserve = battery.emergencyReserve;
-    let lineSideMeterFuse = installationData.lineSideMeterFuse;
-    let serialNumbers = battery.serialNumbers;
-    let dc1 = pv.dc1;
-    let dc2 = pv.dc2;
-    let ac = pv.ac;
-
-    //#endregion
-
-    //#region Addresses & General
-
-    let installerObj: any = {
-      firstname: installer.firstName,
-      lastname: installer.lastName
-    }
-
-    let customerObj: any = {
-      firstname: customer.firstName,
-      lastname: customer.lastName,
-      email: customer.email,
-      phone: customer.phone,
-      address: {
-        street: customer.street,
-        city: customer.city,
-        zip: customer.zip,
-        country: customer.country
-      }
-    }
-
-    if (customer.isCorporateClient) {
-      customerObj.company = {
-        name: customer.companyName
-      }
-    }
-
-    let protocol: SetupProtocol = {
-      fems: {
-        id: this.installationData.edge.id
-      },
-      installer: installerObj,
-      customer: customerObj
-    };
-
-    // If location data is different to customer data, the location
-    // data gets sent too
-    if (!this.installationData.location.isEqualToCustomerData) {
-      let location = this.installationData.location;
-
-      protocol.location = {
-        firstname: location.firstName,
-        lastname: location.lastName,
-        email: location.email,
-        phone: location.phone,
-        address: {
-          street: location.street,
-          city: location.city,
-          zip: location.zip,
-          country: location.country
-        },
-        company: {
-          name: location.companyName
-        }
-      }
-    }
-
-    //#endregion
-
-    //#region Items
-
-    protocol.items = [];
-
-    //#region Emergency Reserve
-
-    protocol.items.push({
-      category: "Angaben zu Notstrom",
-      name: "Notstrom?",
-      value: emergencyReserve.isEnabled ? "ja" : "nein"
-    });
-
-    if (emergencyReserve.isEnabled) {
-      protocol.items.push({
-        category: "Angaben zu Notstrom",
-        name: "Notstromreserve [%]",
-        value: emergencyReserve.value ? emergencyReserve.value.toString() : ""
-      });
-    }
-
-    //#endregion
-
-    //#region Line Side Meter Fuse
-
-    let lineSideMeterFuseValue: number;
-
-    if (lineSideMeterFuse.fixedValue === -1) {
-      lineSideMeterFuseValue = lineSideMeterFuse.otherValue;
-    } else {
-      lineSideMeterFuseValue = lineSideMeterFuse.fixedValue;
-    }
-
-    protocol.items.push({
-      category: "Vorsicherung Hausanschlusszähler",
-      name: "Wert [A]",
-      value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : ""
-    });
-
-    //#endregion
-
-    //#region DC-PV
-
-    // DC-PV 1
-    if (dc1.isSelected) {
-      protocol.items.push({
-        category: "DC-PV-Installation",
-        name: "Alias MPPT1",
-        value: dc1.alias
-      });
-
-      protocol.items.push({
-        category: "DC-PV-Installation",
-        name: "Wert MPPT1 [Wp]",
-        value: dc1.value ? dc1.value.toString() : ""
-      });
-
-      protocol.items.push({
-        category: "DC-PV-Installation",
-        name: "Ausrichtung MPPT1",
-        value: dc1.orientation
-      });
-
-      protocol.items.push({
-        category: "DC-PV-Installation",
-        name: "Modultyp MPPT1",
-        value: dc1.moduleType
-      });
-
-      protocol.items.push({
-        category: "DC-PV-Installation",
-        name: "Anzahl PV-Module MPPT1",
-        value: dc1.modulesPerString ? dc1.modulesPerString.toString() : ""
-      });
-    }
-
-    // DC-PV 2
-    if (dc2.isSelected) {
-      protocol.items.push({
-        category: "DC-PV-Installation",
-        name: "Wert MPPT2 [Wp]",
-        value: dc2.value ? dc2.value.toString() : ""
-      });
-
-      protocol.items.push({
-        category: "DC-PV-Installation",
-        name: "Alias MPPT2",
-        value: dc2.alias
-      });
-
-      protocol.items.push({
-        category: "DC-PV-Installation",
-        name: "Ausrichtung MPPT2",
-        value: dc2.orientation
-      });
-
-      protocol.items.push({
-        category: "DC-PV-Installation",
-        name: "Modultyp MPPT2",
-        value: dc2.moduleType
-      });
-
-      protocol.items.push({
-        category: "DC-PV-Installation",
-        name: "Anzahl PV-Module MPPT2",
-        value: dc2.modulesPerString ? dc2.modulesPerString.toString() : ""
-      });
-    }
-
-    //#endregion
-
-    //#region Dynamic Feed In Limitation
-
-    protocol.items.push({
-      category: "Dynamische Begrenzung der Einspeisung",
-      name: "Maximale Einspeiseleistung [W]",
-      value: dynamicFeedInLimitation.maximumFeedInPower ? dynamicFeedInLimitation.maximumFeedInPower.toString() : ""
-    });
-
-    protocol.items.push({
-      category: "Dynamische Begrenzung der Einspeisung",
-      name: "Typ",
-      value: dynamicFeedInLimitation.feedInSetting
-    });
-
-    if (dynamicFeedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
-      protocol.items.push({
-        category: "Dynamische Begrenzung der Einspeisung",
-        name: "Cos φ Festwert",
-        value: dynamicFeedInLimitation.fixedPowerFactor
-      });
-    }
-
-    //#endregion
-
-    //#region AC-PV
-
-    for (let index = 0; index < ac.length; index++) {
-      let element = ac[index];
-      let label = "AC" + (index + 1);
-
-      protocol.items.push({
-        category: "Zusätzliche AC-Erzeuger",
-        name: "Alias " + label,
-        value: element.alias
-      });
-
-      protocol.items.push({
-        category: "Zusätzliche AC-Erzeuger",
-        name: "Wert " + label + " [Wp]",
-        value: element.value ? element.value.toString() : ""
-      });
-
-      protocol.items.push({
-        category: "Zusätzliche AC-Erzeuger",
-        name: "Ausrichtung " + label,
-        value: element.orientation
-      });
-
-      protocol.items.push({
-        category: "Zusätzliche AC-Erzeuger",
-        name: "Modultyp " + label,
-        value: element.moduleType
-      });
-
-      protocol.items.push({
-        category: "Zusätzliche AC-Erzeuger",
-        name: "Anzahl PV-Module " + label,
-        value: element.modulesPerString ? element.modulesPerString.toString() : ""
-      });
-
-      protocol.items.push({
-        category: "Zusätzliche AC-Erzeuger",
-        name: "Zählertyp " + label,
-        value: element.meterType
-      });
-
-      protocol.items.push({
-        category: "Zusätzliche AC-Erzeuger",
-        name: "Modbus Kommunikationsadresse " + label,
-        value: element.modbusCommunicationAddress ? element.modbusCommunicationAddress.toString() : ""
-      });
-    }
-
-    //#endregion
-
-    //#region FEMS
-
-    protocol.items.push({
-      category: "FEMS",
-      name: "FEMS Nummer",
-      value: installationData.edge.id
-    });
-
-    //#endregion
-
-    //#endregion
-
-    //#region Serial Numbers
-
-    protocol.lots = [];
-
-    // Speichersystemkomponenten
-    for (let serialNumber of serialNumbers.tower0) {
-      if (serialNumber.value !== null && serialNumber.value !== "") {
-        protocol.lots.push({
-          category: "Speichersystemkomponenten",
-          name: serialNumber.label + " Seriennummer",
-          serialNumber: serialNumber.value
-        });
-      }
-    }
-
-    // Batterieturm 2
-    for (let serialNumber of serialNumbers.tower1) {
-      if (serialNumber.value !== null && serialNumber.value !== "") {
-        protocol.lots.push({
-          category: "Batterieturm 2",
-          name: serialNumber.label + " Seriennummer",
-          serialNumber: serialNumber.value
-        });
-      }
-    }
-
-    // Batterieturm 3
-    for (let serialNumber of serialNumbers.tower2) {
-      if (serialNumber.value !== null && serialNumber.value !== "") {
-        protocol.lots.push({
-          category: "Batterieturm 3",
-          name: serialNumber.label + " Seriennummer",
-          serialNumber: serialNumber.value
-        });
-      }
-    }
-
-    //#endregion
-
-    //#region Send Request
-
-    return new Promise((resolve, reject) => {
-      this.websocket.sendRequest(new SubmitSetupProtocolRequest({ protocol: protocol })).then((response: JsonrpcResponseSuccess) => {
-        resolve(response.result["setupProtocolId"]);
-      }).catch((reason) => {
-        reject(reason);
-      });
-    });
-
-    //#endregion
+    return this.ibn.getProtocol(this.edge, this.websocket);
   }
 }

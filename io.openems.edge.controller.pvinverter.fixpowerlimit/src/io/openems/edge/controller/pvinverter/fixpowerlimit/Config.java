@@ -3,7 +3,7 @@ package io.openems.edge.controller.pvinverter.fixpowerlimit;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller PV-Inverter Fix Power Limit", //
 		description = "Defines a fixed power limitation to PV inverter.")
 @interface Config {

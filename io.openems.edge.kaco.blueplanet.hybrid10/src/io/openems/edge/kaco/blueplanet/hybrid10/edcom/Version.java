@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*
 *   EDCOM 8.1 is a java cross platform library for communication with 10kW
 *   hybrid Inverter (Katek Memmingen GmbH).
@@ -29,3 +30,4 @@ public class Version {
 
     public static final String pomversion = "v8.1";
 }
+// CHECKSTYLE:ON

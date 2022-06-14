@@ -8,6 +8,13 @@ import io.openems.common.utils.JsonUtils;
 
 public class DiscovergyMeter {
 
+	/**
+	 * Factory.
+	 * 
+	 * @param j the {@link JsonElement}
+	 * @return the {@link DiscovergyMeter}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static DiscovergyMeter fromJson(JsonElement j) throws OpenemsNamedException {
 		var meterId = JsonUtils.getAsString(j, "meterId");
 		// e.g. "ESY"
@@ -44,6 +51,13 @@ public class DiscovergyMeter {
 
 	public static class Location {
 
+		/**
+		 * Factory.
+		 * 
+		 * @param j the {@link JsonElement}
+		 * @return the {@link Location}
+		 * @throws OpenemsNamedException on error
+		 */
 		public static Location fromJson(JsonObject j) throws OpenemsNamedException {
 			var street = JsonUtils.getAsString(j, "street");
 			var streetNumber = JsonUtils.getAsString(j, "streetNumber");
@@ -67,6 +81,11 @@ public class DiscovergyMeter {
 			this.country = country;
 		}
 
+		/**
+		 * Converts to {@link JsonObject}.
+		 * 
+		 * @return the {@link JsonObject}
+		 */
 		public JsonObject toJson() {
 			return JsonUtils.buildJsonObject() //
 					.addProperty("street", this.street) //
@@ -122,6 +141,11 @@ public class DiscovergyMeter {
 				+ ", measurementType=" + this.measurementType + "]";
 	}
 
+	/**
+	 * Converts to {@link JsonObject}.
+	 * 
+	 * @return the {@link JsonObject}
+	 */
 	public JsonObject toJson() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("meterId", this.meterId) //

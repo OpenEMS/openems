@@ -1,7 +1,7 @@
 <ion-card>
     <ion-item lines="full" color="light">
         <ion-avatar slot="start">
-            <img src="assets/img/fems-app.png">
+            <img [src]="imageUrl">
         </ion-avatar>
         <ion-label class="white-space-initial">{{title}}
         </ion-label>
@@ -22,6 +22,14 @@
                 <ion-slide *ngSwitchCase="'GLS Crowdfunding'">
                     <glscrowdfunding>
                     </glscrowdfunding>
+                </ion-slide>
+
+                <ion-slide *ngSwitchCase="'GridOptimizedCharge'">
+                    <gridOptimizedCharge></gridOptimizedCharge>
+                </ion-slide>
+
+                <ion-slide *ngSwitchCase="'Energiewende mit FEMS'">
+                    <energyRevolution></energyRevolution>
                 </ion-slide>
 
             </ng-container>

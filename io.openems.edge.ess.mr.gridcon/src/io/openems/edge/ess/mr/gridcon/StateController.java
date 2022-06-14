@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 package io.openems.edge.ess.mr.gridcon;
 
 import java.util.HashMap;
@@ -84,3 +85,4 @@ public class StateController {
 	}
 
 }
+// CHECKSTYLE:ON

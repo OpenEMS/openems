@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { FormlyField, FormlyFieldConfig } from '@ngx-formly/core';
-import { InstallationData } from '../../installation.component';
+import { FormlyFieldConfig } from '@ngx-formly/core';
+import { Ibn } from '../../installation-systems/abstract-ibn';
+import { HomeFeneconIbn } from '../../installation-systems/home-fenecon';
+import { HomeHeckertIbn } from '../../installation-systems/home-heckert';
 
 export type DcPv = {
   isSelected: boolean,
@@ -13,24 +15,23 @@ export type DcPv = {
 }
 
 @Component({
-  selector: ProtocolPv.SELECTOR,
+  selector: "protocol-pv",
   templateUrl: './protocol-pv.component.html'
 })
 export class ProtocolPv implements OnInit {
 
-  private static readonly SELECTOR = "protocol-pv";
-
-  @Input() public installationData: InstallationData;
+  @Input() public ibn: HomeFeneconIbn | HomeHeckertIbn;
 
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<InstallationData>();
+  @Output() public nextViewEvent = new EventEmitter<Ibn>();
+  @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public forms: Array<{ formGroup: FormGroup, fields: FormlyFieldConfig[], model: any }> = new Array();
 
   public ngOnInit() {
 
     // Initialize PV-Object
-    this.installationData.pv ??= {};
+    this.ibn.pv ??= {};
     this.forms.push({
       formGroup: new FormGroup({}),
       fields: [],
@@ -47,13 +48,13 @@ export class ProtocolPv implements OnInit {
         model: {}
       })
 
-    this.forms[0].model = this.installationData.batteryInverter ?? {
+    this.forms[0].model = this.ibn.batteryInverter ?? {
       shadowManagementDisabled: false
     }
-    this.forms[1].model = this.installationData.pv.dc1 ?? {
+    this.forms[1].model = this.ibn.pv.dc1 ?? {
       isSelected: false
     };
-    this.forms[2].model = this.installationData.pv.dc2 ?? {
+    this.forms[2].model = this.ibn.pv.dc2 ?? {
       isSelected: false
     };
 
@@ -73,11 +74,12 @@ export class ProtocolPv implements OnInit {
       }
     }
 
-    this.installationData.batteryInverter = this.forms[0].model;
-    this.installationData.pv.dc1 = this.forms[1].model;
-    this.installationData.pv.dc2 = this.forms[2].model;
+    this.ibn.batteryInverter = this.forms[0].model;
+    this.ibn.pv.dc1 = this.forms[1].model;
+    this.ibn.pv.dc2 = this.forms[2].model;
 
-    this.nextViewEvent.emit(this.installationData);
+    this.setIbnEvent.emit(this.ibn);
+    this.nextViewEvent.emit();
   }
 
   public getFields(): void {
@@ -121,6 +123,9 @@ export class ProtocolPv implements OnInit {
             required: true
           },
           parsers: [Number],
+          validators: {
+            validation: ["onlyPositiveInteger"]
+          },
           hideExpression: model => !model.isSelected
         },
         {
@@ -163,5 +168,4 @@ export class ProtocolPv implements OnInit {
         })
     }
   }
-
 }

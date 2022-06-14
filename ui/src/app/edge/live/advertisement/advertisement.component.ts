@@ -21,6 +21,7 @@ export class AdvertisementComponent {
   public environment = environment;
   public activeIndex: number;
   public title: string;
+  public imageUrl: string = "assets/img/fems-app.png";
 
   public enableBtn: boolean = false;
   public disablePrevBtn: boolean = null;

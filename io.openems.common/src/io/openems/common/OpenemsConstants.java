@@ -1,10 +1,13 @@
 package io.openems.common;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Optional;
 
 import org.osgi.framework.Constants;
 
 import io.openems.common.types.SemanticVersion;
+import io.openems.common.utils.StringUtils;
 
 public class OpenemsConstants {
 
@@ -22,7 +25,7 @@ public class OpenemsConstants {
 	 * <p>
 	 * This is the month of the release.
 	 */
-	public final static short VERSION_MINOR = 5;
+	public static final short VERSION_MINOR = 6;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -31,7 +34,7 @@ public class OpenemsConstants {
 	 * This is always `0` for OpenEMS open source releases and reserved for private
 	 * distributions.
 	 */
-	public final static short VERSION_PATCH = 6;
+	public static final short VERSION_PATCH = 1;
 
 	/**
 	 * The additional version string.
@@ -96,7 +99,18 @@ public class OpenemsConstants {
 	 * <p>
 	 * Note: this should be max. 32 ASCII characters long
 	 */
-	public static final String MANUFACTURER_EMS_SERIAL_NUMBER = "";
+	public static final String MANUFACTURER_EMS_SERIAL_NUMBER;
+
+	static {
+		String mesn = "";
+		try {
+			mesn = InetAddress.getLocalHost().getHostName();
+			mesn = StringUtils.toShortString(mesn, 32);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		MANUFACTURER_EMS_SERIAL_NUMBER = mesn;
+	}
 
 	/*
 	 * Constants for Component properties

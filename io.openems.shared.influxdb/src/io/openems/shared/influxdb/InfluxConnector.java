@@ -156,6 +156,11 @@ public class InfluxConnector {
 							}
 						});
 					}
+
+				} catch (InterruptedException e) {
+					this.log.info("MergePointsExecutor was interrupted");
+					break;
+
 				} catch (Throwable e) {
 					this.log.error("Unhandled Error in 'MergePointsExecutor': " + e.getClass().getName() + ". "
 							+ e.getMessage());
@@ -197,7 +202,7 @@ public class InfluxConnector {
 		// to set timeout
 		var options = InfluxDBClientOptions.builder() //
 				.url(this.url.toString()) //
-				.org(org) //
+				.org(this.org) //
 				.authenticateToken(String.format(this.apiKey).toCharArray()) //
 				.bucket(this.bucket) //
 				.okHttpClient(okHttpClientBuilder) //
@@ -458,7 +463,7 @@ public class InfluxConnector {
 				if (timestamp.isBefore(fromDate)) {
 					continue;
 				}
-				timestamp = resolution.revertInfluxDBOffset(timestamp);
+				timestamp = resolution.revertInfluxDbOffset(timestamp);
 
 				var valueObj = record.getValue();
 				final JsonElement value;

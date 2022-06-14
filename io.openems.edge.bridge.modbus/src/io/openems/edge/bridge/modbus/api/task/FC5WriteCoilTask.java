@@ -13,8 +13,8 @@ import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
 /**
- * Implements a Write Single Coil abstractTask, using Modbus function code 5
- * (http://www.simplymodbus.ca/FC05.htm)
+ * Implements a Write Single Coil Task, using Modbus function code 5
+ * (http://www.simplymodbus.ca/FC05.htm).
  */
 public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 

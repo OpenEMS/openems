@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -421,3 +422,4 @@ public class MemoryBankNVCRCPW extends MemoryBankNVCRC {
 		}
 	}
 }
+// CHECKSTYLE:ON

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -1069,3 +1070,4 @@ class MemoryBankEEPROMblock implements OTPMemoryBank {
 	}
 
 }
+// CHECKSTYLE:ON

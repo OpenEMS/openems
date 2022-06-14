@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 package io.openems.edge.ess.mr.gridcon;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -165,3 +166,4 @@ public interface GridconPcs {
 
 	void setCosPhiSetPoint2(float cosPhiSetPoint2);
 }
+// CHECKSTYLE:ON

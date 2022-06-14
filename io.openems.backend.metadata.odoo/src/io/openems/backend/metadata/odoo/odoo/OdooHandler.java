@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.metadata.odoo.Config;
+import io.openems.backend.metadata.odoo.EdgeCache;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.Partner;
 import io.openems.backend.metadata.odoo.Field.SetupProtocol;
@@ -40,12 +41,14 @@ import io.openems.common.utils.PasswordUtils;
 public class OdooHandler {
 
 	protected final OdooMetadata parent;
+	private final EdgeCache edgeCache;
 
 	private final Logger log = LoggerFactory.getLogger(OdooHandler.class);
 	private final Credentials credentials;
 
-	public OdooHandler(OdooMetadata parent, Config config) {
+	public OdooHandler(OdooMetadata parent, EdgeCache edgeCache, Config config) {
 		this.parent = parent;
+		this.edgeCache = edgeCache;
 		this.credentials = Credentials.fromConfig(config);
 	}
 
@@ -450,6 +453,8 @@ public class OdooHandler {
 
 		var protocolId = this.createSetupProtocol(setupProtocolJson, foundEdge[0], customerId, installerId);
 
+		this.updateEdgeComment(userJson, edgeId, foundEdge[0]);
+
 		var installer = OdooUtils.readOne(this.credentials, Field.Partner.ODOO_MODEL, installerId,
 				Field.Partner.IS_COMPANY);
 		boolean isCompany = (boolean) installer.get("is_company");
@@ -469,10 +474,53 @@ public class OdooHandler {
 		try {
 			this.sendSetupProtocolMail(user, protocolId, edgeId);
 		} catch (OpenemsNamedException ex) {
-			this.log.warn("Unable to send email", ex);
+			this.log.warn("User [" + user.getId() + ":" + user.getName() + "] Unable to send email", ex);
 		}
 
 		return protocolId;
+	}
+
+	/**
+	 * Update the Odoo edge comment by customers firstname, lastname and city.
+	 * 
+	 * @param customer   json object to get customer information
+	 * @param edgeId     to update the comment
+	 * @param odooEdgeId Odoo edge id
+	 * @throws OpenemsNamedException on error
+	 */
+	private void updateEdgeComment(JsonObject customer, String edgeId, int odooEdgeId) throws OpenemsNamedException {
+		// build comment
+		var builder = new StringBuilder();
+		JsonUtils.getAsOptionalString(customer, "firstname") //
+				.ifPresent(firstname -> builder.append(firstname));
+		JsonUtils.getAsOptionalString(customer, "lastname") //
+				.ifPresent(lastname -> {
+					if (builder.length() > 0) {
+						builder.append(" ");
+					}
+					builder.append(lastname);
+				});
+		JsonUtils.getAsOptionalJsonObject(customer, "address") //
+				.ifPresent(address -> { //
+					JsonUtils.getAsOptionalString(address, "city") //
+							.ifPresent(city -> {
+								if (builder.length() > 0) {
+									builder.append(", ");
+								}
+								builder.append(city);
+							});
+				});
+		var comment = builder.toString();
+
+		// update comment for edge
+		OdooUtils.write(this.credentials, Field.EdgeDevice.ODOO_MODEL, new Integer[] { odooEdgeId },
+				new FieldValue<>(Field.EdgeDevice.COMMENT, comment));
+
+		// update edge cache
+		var edge = this.edgeCache.getEdgeFromEdgeId(edgeId);
+		if (edge != null) {
+			edge.setComment(comment);
+		}
 	}
 
 	/**
@@ -854,7 +902,7 @@ public class OdooHandler {
 	 * Get latest Setup Protocol from Odoo or empty JsonObject if no protocol is
 	 * available.
 	 * 
-	 * @param user   {@link MyUser} the current user
+	 * @param user     {@link MyUser} the current user
 	 * @param edgeName the unique Edge name
 	 * @return the Setup Protocol as a JsonObject
 	 * @throws OpenemsNamedException on error

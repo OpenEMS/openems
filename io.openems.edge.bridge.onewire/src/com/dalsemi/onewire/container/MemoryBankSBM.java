@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -604,3 +605,4 @@ class MemoryBankSBM implements MemoryBank {
 		}
 	}
 }
+// CHECKSTYLE:ON

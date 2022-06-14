@@ -35,6 +35,23 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.6.1',
+        changes: [
+          Changelog.openems('2022.6.0'),
+          Changelog.product(Product.FEMS_MODBUS_TCP_API) + "Auslesen der FEMS-Nummer über das Register 'Manufacturer EMS Serial Number' (Modbus-Addresse 85)",
+          Changelog.product(Product.FEMS_KEBA) + "Auslesen der über die DIP-Switches gesetzten Leistungslimitierung",
+          Changelog.product(Product.FEMS_PV_SMA) + "Unterstützung für einphasige SMA-Wechselrichter via SunSpec",
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent: Setze 'Vorname Nachname, Ort' als Beschreibung in der Übersicht",
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " (für Variante 'Cluster C')",
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung beim Senden von Daten an das Backend, wenn Component-IDs doppelt vorkommen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Anpassungen am IBN-Assistent: Vorbereitung für IBN-Assistent für Commercial-Serie" },
+          { roleIsAtLeast: Role.ADMIN, change: "Anpassungen am IBN-Assistent: Beschränke Eingabemöglichkeit auf positive Zahlen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Werbewidgets: Optimierung der netzdienlichen Beladung, Energiewende mit FEMS" },
+          { roleIsAtLeast: Role.ADMIN, change: "Vorarbeiten am Backend für Fehler-/Status-Lognachrichten aus dem UI" },
+          { roleIsAtLeast: Role.ADMIN, change: "FENECON Pro 9-12: Ausblenden von unnötigen Statusmeldungen" },
+        ]
+      },
+      {
         version: '2022.5.6',
         changes: [
           Changelog.UI
