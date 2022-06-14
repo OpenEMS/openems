@@ -77,6 +77,11 @@ export class AdvertWidgets {
             title: 'Neue Version jetzt online!',
         })
 
+        list.push({
+            name: 'Energiewende mit FEMS',
+            title: 'Energiewende mit FEMS - Wärme selbst erzeugen'
+        })
+
         return new AdvertWidgets(list);
     }
 
