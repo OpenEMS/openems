@@ -1,8 +1,8 @@
 # Drone-CI
 # 
 # Um den Docker Container fuer build ('openems-build') zu aktualisieren:
-# - ssh auf docker
-# - cd /opt/fems/tools
+# - ssh auf gitvm
+# - cd /root/fems/tools
 # - git pull
 # - bash drone-docker.sh
 
@@ -52,7 +52,7 @@ pipeline:
     rm: true
     source: ./ui/target
     strip_components: 3
-    target: /opt/docker/gitea/data/openems-ui-dev/html/${DRONE_COMMIT_BRANCH}
+    target: /opt/gitea/data/openems-ui-dev/html/${DRONE_COMMIT_BRANCH}
 
   rebuild-cache:
     image: drillster/drone-volume-cache
