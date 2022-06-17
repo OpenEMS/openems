@@ -44,7 +44,7 @@ pipeline:
 
   refresh-dev:
     image: appleboy/drone-scp
-    host: 10.0.0.11
+    host: 10.0.0.40
     user: fenecon-docs
     secrets: 
       - source: ssh_key_intranet 
