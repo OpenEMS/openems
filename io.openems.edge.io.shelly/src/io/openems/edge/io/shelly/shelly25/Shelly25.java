@@ -106,7 +106,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 	 *
 	 * @param value the next value
 	 */
-	public default void _setRelay1(boolean value) {
+	public default void _setRelay1(Boolean value) {
 		this.getRelay1Channel().setNextValue(value);
 	}
 
@@ -143,7 +143,7 @@ public interface Shelly25 extends DigitalOutput, OpenemsComponent, EventHandler 
 	 *
 	 * @param value the next value
 	 */
-	public default void _setRelay2(boolean value) {
+	public default void _setRelay2(Boolean value) {
 		this.getRelay2Channel().setNextValue(value);
 	}
 
