@@ -63,6 +63,16 @@ for D in *; do
 					touch ${D}/test/.gitignore
 				fi
 
+				# verify explicit encoding for Eclipse IDE; avoids 'Project has no explicit encoding set' warnings
+				if [ ! -f "./${D}/.settings/org.eclipse.core.resources.prefs" ]; then
+					echo "${D}/.settings/org.eclipse.core.resources.prefs -> missing"
+					mkdir "${D}/.settings"
+					cat <<EOT > "${D}/.settings/org.eclipse.core.resources.prefs"
+eclipse.preferences.version=1
+encoding/<project>=UTF-8
+EOT
+				fi
+
 				# Set default .classpath file
 				if [ -f "${D}/.classpath" ]; then
 					cat <<EOT > "${D}/.classpath"
@@ -79,11 +89,6 @@ for D in *; do
 	<classpathentry kind="output" path="bin"/>
 </classpath>
 EOT
-				fi
-
-				# Remove .settings directory
-				if [ -d "${D}/.settings" ]; then
-					rm -R "${D}/.settings"
 				fi
 
 				# Verify bnd.bnd file
