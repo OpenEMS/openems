@@ -193,7 +193,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	protected void checkStatus(OpenemsApp openemsApp) throws OpenemsNamedException {
+	protected static void checkStatus(OpenemsApp openemsApp) throws OpenemsNamedException {
 		var validator = openemsApp.getValidator();
 		var status = validator.getStatus();
 		switch (validator.getStatus()) {
@@ -231,7 +231,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 			try {
 				var app = this.findAppById(appInstance.appId);
+				appInstance.properties.addProperty("ALIAS", appInstance.alias);
 				consumer.accept(app.getAppConfiguration(ConfigurationTarget.VALIDATE, appInstance.properties, null));
+				appInstance.properties.remove("ALIAS");
 			} catch (OpenemsNamedException e) {
 				// move to next app
 			} catch (NoSuchElementException e) {
@@ -461,6 +463,14 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			allOtherIps.addAll(c.schedulerExecutionOrder);
 		}, thisApp.instanceId);
 		return allOtherIps;
+	}
+
+	public final List<AppConfiguration> getOtherAppConfigurations(UUID... ignoreIds) {
+		List<AppConfiguration> allOtherConfigs = new ArrayList<>(this.instantiatedApps.size());
+		this.foreachAppConfiguration(c -> {
+			allOtherConfigs.add(c);
+		}, ignoreIds);
+		return allOtherConfigs;
 	}
 
 	/**
@@ -761,32 +771,41 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateAppInstanceRequest(User user,
 			UpdateAppInstance.Request request) throws OpenemsNamedException {
-		OpenemsAppInstance newApp = null;
-		OpenemsAppInstance oldApp = null;
+
 		synchronized (this.instantiatedApps) {
+//			OpenemsAppInstance newApp = null;
+			OpenemsAppInstance oldApp = null;
+			OpenemsApp app = null;
 			try {
 				oldApp = this.findInstaceById(request.instanceId);
-				newApp = new OpenemsAppInstance(oldApp.appId, request.alias, request.instanceId, request.properties,
-						null);
+				app = this.findAppById(oldApp.appId);
+//				newApp = new OpenemsAppInstance(oldApp.appId, request.alias, request.instanceId, request.properties,
+//						null);
 			} catch (NoSuchElementException e) {
 				throw new OpenemsException("App-Instance-ID [" + request.instanceId + "] is unknown.");
 			}
 
-			var errors = this.reconfigurApp(user, oldApp, newApp);
+			var result = this.appHelper.updateApp(user, oldApp, request.properties, request.alias, app);
+
+//			var errors = this.reconfigurApp(user, oldApp, newApp);
 
 			// Update App-Manager configuration
 			try {
-				this.instantiatedApps.remove(oldApp);
-				this.instantiatedApps.add(newApp);
+				this.instantiatedApps.removeAll(result.deletedApps);
+				// replace old instances with new ones
+				this.instantiatedApps.removeAll(result.modifiedOrCreatedApps);
+				this.instantiatedApps.addAll(result.modifiedOrCreatedApps);
+//				this.instantiatedApps.remove(oldApp);
+//				this.instantiatedApps.add(newApp);
 				this.updateAppManagerConfiguration(user, this.instantiatedApps);
 			} catch (OpenemsNamedException e) {
 				throw new OpenemsException("Unable to update App-Manager configuration for ID [" + request.instanceId
 						+ "]: " + e.getMessage());
 			}
 
-			if (!errors.isEmpty()) {
-				throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
-			}
+//			if (!errors.isEmpty()) {
+//				throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
+//			}
 
 		}
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.id));

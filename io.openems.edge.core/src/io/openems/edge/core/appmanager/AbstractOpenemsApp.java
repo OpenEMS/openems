@@ -234,6 +234,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 		this.validateComponentConfigurations(errors, edgeConfig, appConfiguration);
 		this.validateScheduler(errors, edgeConfig, appConfiguration);
+		// TODO validate dependencies
 
 		// TODO remove 'if' if it works on windows
 		// changing network settings only works on linux

@@ -293,7 +293,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 					bundle.getString("App.PvSelfConsumption.GridOptimizedCharge.Name"), //
 					DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
 					DependencyDeclaration.UpdatePolicy.ALWAYS, //
-					DependencyDeclaration.DeletePolicy.ALWAYS, //
+					DependencyDeclaration.DeletePolicy.IF_MINE, //
 					JsonUtils.buildJsonObject() //
 							.addProperty(GridOptimizedCharge.Property.MAXIMUM_SELL_TO_GRID_POWER.name(), maxFeedInPower) //
 							.build()));

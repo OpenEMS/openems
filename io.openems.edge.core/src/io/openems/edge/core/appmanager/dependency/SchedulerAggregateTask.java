@@ -22,6 +22,7 @@ public class SchedulerAggregateTask implements AggregateTask {
 	private List<String> removeIds;
 
 	private List<EdgeConfig.Component> createdComponents;
+	private List<String> deletedComponents;
 
 	@Activate
 	public SchedulerAggregateTask(@Reference ComponentUtil componentUtil) {
@@ -32,33 +33,42 @@ public class SchedulerAggregateTask implements AggregateTask {
 
 	@Override
 	public void aggregate(AppConfiguration instance, AppConfiguration oldConfig) throws OpenemsNamedException {
-		order = componentUtil.insertSchedulerOrder(order, instance.schedulerExecutionOrder);
-
-		if (oldConfig == null) {
-			return;
+		if (instance != null) {
+			this.order = this.componentUtil.insertSchedulerOrder(this.order, instance.schedulerExecutionOrder);
 		}
-		var schedulerIdDiff = new ArrayList<>(oldConfig.schedulerExecutionOrder);
-		schedulerIdDiff.removeAll(instance.schedulerExecutionOrder);
-		removeIds.addAll(schedulerIdDiff);
+		if (oldConfig != null) {
+			var schedulerIdDiff = new ArrayList<>(oldConfig.schedulerExecutionOrder);
+			if (instance != null) {
+				schedulerIdDiff.removeAll(instance.schedulerExecutionOrder);
+			}
+			this.removeIds.addAll(schedulerIdDiff);
+		}
 	}
 
 	@Override
-	public void create(User user, List<EdgeConfig.Component> otherAppComponents) throws OpenemsNamedException {
-		order = componentUtil.insertSchedulerOrder(componentUtil.getSchedulerIds(), order);
-		componentUtil.updateScheduler(user, order, createdComponents);
-		
+	public void create(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
+		this.order = componentUtil.insertSchedulerOrder(componentUtil.getSchedulerIds(), this.order);
+		this.componentUtil.updateScheduler(user, this.order, createdComponents);
 
-		order = new LinkedList<>();
-		removeIds = new LinkedList<>();
+		this.order = new LinkedList<>();
 	}
 
 	@Override
-	public void delete(User user, List<EdgeConfig.Component> otherAppComponents) throws OpenemsNamedException {
+	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
+		this.removeIds.addAll(deletedComponents);
+		this.removeIds.removeAll(AppManagerAppHelperImpl.getSchedulerIdsFromConfigs(otherAppConfigurations));
 
+		this.componentUtil.removeIdsInSchedulerIfExisting(user, this.removeIds);
+
+		this.removeIds = new LinkedList<>();
 	}
-	
+
 	public final void setCreatedComponents(List<EdgeConfig.Component> createdComponents) {
 		this.createdComponents = createdComponents;
+	}
+
+	public final void setDeletedComponents(List<String> deletedComponents) {
+		this.deletedComponents = deletedComponents;
 	}
 
 }

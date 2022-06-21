@@ -8,6 +8,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl.UpdateValues;
 
 public interface AppManagerAppHelper {
 
@@ -32,7 +33,7 @@ public interface AppManagerAppHelper {
 	 * @returns a list of the replaced {@link OpenemsAppInstance}s
 	 * @throws OpenemsNamedException
 	 */
-	public List<OpenemsAppInstance> updateApp(User user, JsonObject properties, String alias, OpenemsApp app)
+	public UpdateValues updateApp(User user, OpenemsAppInstance oldInstance, JsonObject properties, String alias, OpenemsApp app)
 			throws OpenemsNamedException;
 
 	/**

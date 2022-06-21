@@ -43,20 +43,23 @@ public class ComponentAggregateTask implements AggregateTask {
 
 	@Override
 	public void aggregate(AppConfiguration config, AppConfiguration oldConfig) throws OpenemsNamedException {
-		this.components.addAll(config.components);
-
-		if (oldConfig == null) {
-			return;
+		if (config != null) {
+			this.components.addAll(config.components);
 		}
-		var componentDiff = new ArrayList<>(config.components);
-		componentDiff.removeIf(t -> oldConfig.components.stream().anyMatch(c -> c.getId().equals(t.getId())));
-		this.components2Delete.addAll(componentDiff);
+		if (oldConfig != null) {
+			var componentDiff = new ArrayList<>(oldConfig.components);
+			if (config != null) {
+				componentDiff.removeIf(t -> config.components.stream().anyMatch(c -> c.getId().equals(t.getId())));
+			}
+			this.components2Delete.addAll(componentDiff);
+		}
 	}
 
 	@Override
-	public void create(User user, List<EdgeConfig.Component> otherAppComponents) throws OpenemsNamedException {
+	public void create(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
 		this.createdComponents = new ArrayList<EdgeConfig.Component>(this.components.size());
 		var errors = new LinkedList<String>();
+		var otherAppComponents = AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigurations);
 		// create components
 		for (var comp : ComponentUtilImpl.order(this.components)) {
 			/**
@@ -100,7 +103,7 @@ public class ComponentAggregateTask implements AggregateTask {
 			// create new component
 			try {
 				this.createComponent(user, comp);
-				createdComponents.add(comp);
+				this.createdComponents.add(comp);
 			} catch (OpenemsNamedException e) {
 				var error = "Component[" + comp.getFactoryId() + "] cant be created!";
 				errors.add(error);
@@ -110,10 +113,9 @@ public class ComponentAggregateTask implements AggregateTask {
 		}
 
 		// delete components that were used from the old configurations
-		this.delete(user, this.components2Delete);
+		this.delete(user, otherAppConfigurations);
 
 		this.components = new LinkedList<>();
-		this.components2Delete = new LinkedList<>();
 	}
 
 	/**
@@ -125,12 +127,12 @@ public class ComponentAggregateTask implements AggregateTask {
 	 * @return the id s of the components that got deleted
 	 */
 	@Override
-	public void delete(User user, List<EdgeConfig.Component> notMyComponents) throws OpenemsNamedException {
-		this.deletedComponents = new ArrayList<>(this.components.size());
+	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
+		this.deletedComponents = new ArrayList<>(this.components2Delete.size());
 		List<String> errors = new ArrayList<>();
-
-		for (var comp : this.components) {
-			if (notMyComponents.stream().parallel().anyMatch(t -> t.getId().equals(comp.getId()))) {
+		var notMyComponents = AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigurations);
+		for (var comp : this.components2Delete) {
+			if (notMyComponents.stream().anyMatch(t -> t.getId().equals(comp.getId()))) {
 				continue;
 			}
 			var component = this.componentManager.getEdgeConfig().getComponent(comp.getId()).orElse(null);
@@ -153,7 +155,6 @@ public class ComponentAggregateTask implements AggregateTask {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
 
-		this.components = new LinkedList<>();
 		this.components2Delete = new LinkedList<>();
 	}
 
