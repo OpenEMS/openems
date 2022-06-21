@@ -55,7 +55,7 @@ public class OpenemsAppInstance {
 	public JsonObject toJsonObject() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("appId", this.appId) //
-				.addProperty("alias", this.alias) //
+				.addProperty("alias", this.alias != null ? this.alias : "") //
 				.addProperty("instanceId", this.instanceId.toString()) //
 				.add("properties", this.properties) // TODO define if the field is editable
 				.onlyIf(this.dependencies != null && !this.dependencies.isEmpty(), j -> j.add("dependencies", //

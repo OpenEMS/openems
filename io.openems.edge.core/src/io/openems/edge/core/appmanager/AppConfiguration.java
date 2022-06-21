@@ -16,6 +16,10 @@ public class AppConfiguration {
 
 	public final List<DependencyDeclaration> dependencies;
 
+	public AppConfiguration() {
+		this(null);
+	}
+
 	public AppConfiguration(List<Component> components) {
 		this(components, null);
 	}
@@ -30,7 +34,7 @@ public class AppConfiguration {
 
 	public AppConfiguration(List<Component> components, List<String> schedulerExecutionOrder, List<String> ips,
 			List<DependencyDeclaration> dependencies) {
-		this.components = components;
+		this.components = components != null ? components : new ArrayList<>();
 		this.schedulerExecutionOrder = schedulerExecutionOrder != null ? schedulerExecutionOrder : new ArrayList<>();
 		this.ips = ips != null ? ips : new ArrayList<>();
 		this.dependencies = dependencies != null ? dependencies : new ArrayList<>();

@@ -114,7 +114,15 @@ export class UpdateAppComponent implements OnInit {
           properties: clonedFields
         })
       })).then(response => {
-        this.service.toast("Successfully updated App", 'success');
+        var res = (response as UpdateAppInstance.Response);
+
+        if (res.result.warnings && res.result.warnings.length > 0) {
+          this.service.toast(res.result.warnings.join(";"), 'warning');
+        } else {
+          this.service.toast("Successfully updated App", 'success');
+        }
+        instance.properties = res.result.instance.properties
+        instance.properties["ALIAS"] = res.result.instance.alias
         instance.isUpdateting = false
       }).catch(reason => {
         this.service.toast("Error updating App:" + reason.error.message, 'danger');
@@ -131,11 +139,10 @@ export class UpdateAppComponent implements OnInit {
           instanceId: instance.instanceId
         })
       })).then(response => {
+        this.instances.splice(this.instances.indexOf(instance), 1)
         this.service.toast("Successfully deleted App", 'success');
       }).catch(reason => {
         this.service.toast("Error deleting App:" + reason.error.message, 'danger');
-      }).finally(() => {
-        this.instances.splice(this.instances.indexOf(instance), 1)
-      });
+      })
   }
 }

@@ -83,8 +83,20 @@ export class InstallAppComponent implements OnInit {
           properties: clonedFields
         })
       })).then(response => {
+        let result = (response as AddAppInstance.Response).result
+
+        if (result.instance) {
+          result.instanceId = result.instance.instanceId
+          this.model = result.instance.properties
+        }
+        if (result.warnings && result.warnings.length > 0) {
+          this.service.toast(result.warnings.join(";"), 'warning')
+        } else {
+          this.service.toast("Successfully installed App", 'success');
+        }
+
+
         this.form.markAsPristine();
-        this.service.toast("Successfully installed App", 'success');
       }).catch(reason => {
         this.service.toast("Error installing App:" + reason.error.message, 'danger');
       }).finally(() => {
