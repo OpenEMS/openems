@@ -25,6 +25,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.integratedsystem.FeneconHome.Property;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
+import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
@@ -118,7 +119,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			var modbusIdExternal = "modbus1";
 
 			var emergencyReserveEnabled = EnumUtils.getAsBoolean(p, Property.EMERGENCY_RESERVE_ENABLED);
-			var rippleControlReceiverActive = EnumUtils.getAsBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_ACTIV);
+			var rippleControlReceiverActive = EnumUtils.getAsOptionalBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_ACTIV)
+					.orElse(false);
 
 			// Battery-Inverter Settings
 			var safetyCountry = EnumUtils.getAsString(p, Property.SAFETY_COUNTRY);
@@ -213,16 +215,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 							"Controller.Ess.Hybrid.Surplus-Feed-To-Grid", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("ess.id", essId) //
-									.build()),
-					new EdgeConfig.Component("ctrlBalancing0",
-							bundle.getString(this.getAppId() + ".ctrlBalancing0.alias"),
-							"Controller.Symmetric.Balancing", JsonUtils.buildJsonObject() //
-									.addProperty("enabled", true) //
-									.addProperty("ess.id", essId) //
-									.addProperty("meter.id", "meter0") //
-									.addProperty("targetGridSetpoint", 0) //
-									.build())
-
+									.build()) //
 			);
 
 			if (EnumUtils.getAsOptionalBoolean(p, Property.HAS_DC_PV1).orElse(false)) {
@@ -282,30 +275,47 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			schedulerExecutionOrder.add("ctrlBalancing0");
 
 			var dependencies = Lists.newArrayList(new DependencyDeclaration("GRID_OPTIMIZED_CHARGE", //
-					"App.PvSelfConsumption.GridOptimizedCharge", //
-					bundle.getString("App.PvSelfConsumption.GridOptimizedCharge.Name"), //
 					DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
 					DependencyDeclaration.UpdatePolicy.ALWAYS, //
 					DependencyDeclaration.DeletePolicy.IF_MINE, //
 					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
 					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
-					JsonUtils.buildJsonObject() //
-							.addProperty(GridOptimizedCharge.Property.SELL_TO_GRID_LIMIT_ENABLED.name(),
-									!rippleControlReceiverActive) //
-							.addProperty(GridOptimizedCharge.Property.MAXIMUM_SELL_TO_GRID_POWER.name(), maxFeedInPower) //
-							.build()));
+					DependencyDeclaration.AppDependencyConfig.create() //
+							.setAppId("App.PvSelfConsumption.GridOptimizedCharge") //
+							.setProperties(JsonUtils.buildJsonObject() //
+									.addProperty(GridOptimizedCharge.Property.SELL_TO_GRID_LIMIT_ENABLED.name(),
+											!rippleControlReceiverActive) //
+									.addProperty(GridOptimizedCharge.Property.MAXIMUM_SELL_TO_GRID_POWER.name(),
+											maxFeedInPower) //
+									.build())
+							.build()),
+					new DependencyDeclaration("SELF_CONSUMTION_OPTIMIZATION", //
+							DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+							DependencyDeclaration.UpdatePolicy.NEVER, //
+							DependencyDeclaration.DeletePolicy.IF_MINE, //
+							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+							DependencyDeclaration.AppDependencyConfig.create() //
+									.setAppId("App.PvSelfConsumption.SelfConsumptionOptimization") //
+									.setProperties(JsonUtils.buildJsonObject() //
+											.addProperty(SelfConsumptionOptimization.Property.ESS_ID.name(), essId) //
+											.addProperty(SelfConsumptionOptimization.Property.METER_ID.name(), "meter0") //
+											.build())
+									.build()) //
+			);
 
 			if (EnumUtils.getAsOptionalBoolean(p, Property.HAS_AC_METER).orElse(false)) {
 				dependencies.add(new DependencyDeclaration("AC_METER", //
-						"App.Meter.Socomec", //
-						bundle.getString("App.PvSelfConsumption.GridOptimizedCharge.Name"), //
 						DependencyDeclaration.CreatePolicy.ALWAYS, //
 						DependencyDeclaration.UpdatePolicy.ALWAYS, //
 						DependencyDeclaration.DeletePolicy.IF_MINE, //
 						DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
 						DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
-						JsonUtils.buildJsonObject() //
-								.addProperty(SocomecMeter.Property.MODBUS_UNIT_ID.name(), 6) //
+						DependencyDeclaration.AppDependencyConfig.create() //
+								.setAppId("App.Meter.Socomec") //
+								.setProperties(JsonUtils.buildJsonObject() //
+										.addProperty(SocomecMeter.Property.MODBUS_UNIT_ID.name(), 6) //
+										.build())
 								.build()));
 			}
 
@@ -346,7 +356,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.setLabel(bundle.getString(this.getAppId() + ".rippleControlReceiver.label"))
 								.setDescription(
 										bundle.getString(this.getAppId() + ".rippleControlReceiver.description"))
-								.setDefaultValue(true) //
+								.setDefaultValue(false) //
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.MAX_FEED_IN_POWER) //
 								.setLabel(bundle.getString(this.getAppId() + ".feedInLimit.label")) //
@@ -428,6 +438,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 						.add(JsonFormlyUtil.buildInput(Property.EMERGENCY_RESERVE_SOC) //
 								.setLabel(bundle.getString(this.getAppId() + ".reserveEnergy.label")) //
 								.setInputType(Type.NUMBER) //
+								.setMin(0) //
+								.setMax(100) //
 								.onlyShowIfChecked(Property.HAS_EMERGENCY_RESERVE) //
 								.onlyIf(hasEmergencyReserve, f -> {
 									f.setDefaultValue(this.componentManager.getEdgeConfig()
