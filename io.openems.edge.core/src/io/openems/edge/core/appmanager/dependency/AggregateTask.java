@@ -10,11 +10,12 @@ public interface AggregateTask {
 
 //	public boolean shouldAggregate(DependencyConfig instance);
 
-	public void aggregate(AppConfiguration instance, AppConfiguration oldConfig) throws OpenemsNamedException;
+	public void aggregate(AppConfiguration instance, AppConfiguration oldConfig);
 
 	public void create(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException;
 
-//	public abstract void update() throws OpenemsException;
 	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException;
+
+	public void reset();
 
 }

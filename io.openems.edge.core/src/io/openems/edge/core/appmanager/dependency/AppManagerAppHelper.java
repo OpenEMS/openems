@@ -43,6 +43,6 @@ public interface AppManagerAppHelper {
 	 * @returns a list of the removed {@link OpenemsAppInstance}s
 	 * @throws OpenemsNamedException
 	 */
-	public List<OpenemsAppInstance> deleteApp(User user, OpenemsAppInstance instance) throws OpenemsNamedException;
+	public UpdateValues deleteApp(User user, OpenemsAppInstance instance) throws OpenemsNamedException;
 
 }

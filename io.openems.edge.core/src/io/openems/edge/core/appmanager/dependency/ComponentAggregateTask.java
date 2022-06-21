@@ -26,10 +26,10 @@ import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 @Component(name = "AppManager.AggregateTask.CreateComponents")
 public class ComponentAggregateTask implements AggregateTask {
 
+	private ComponentManager componentManager;
+
 	private List<EdgeConfig.Component> components;
 	private List<EdgeConfig.Component> components2Delete;
-
-	private ComponentManager componentManager;
 
 	private List<EdgeConfig.Component> createdComponents;
 	private List<String> deletedComponents;
@@ -37,12 +37,16 @@ public class ComponentAggregateTask implements AggregateTask {
 	@Activate
 	public ComponentAggregateTask(@Reference ComponentManager componentManager) {
 		this.componentManager = componentManager;
+	}
+
+	@Override
+	public void reset() {
 		this.components = new LinkedList<>();
 		this.components2Delete = new LinkedList<>();
 	}
 
 	@Override
-	public void aggregate(AppConfiguration config, AppConfiguration oldConfig) throws OpenemsNamedException {
+	public void aggregate(AppConfiguration config, AppConfiguration oldConfig) {
 		if (config != null) {
 			this.components.addAll(config.components);
 		}
@@ -112,10 +116,13 @@ public class ComponentAggregateTask implements AggregateTask {
 
 		}
 
+		if (!errors.isEmpty()) {
+			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
+		}
+
 		// delete components that were used from the old configurations
 		this.delete(user, otherAppConfigurations);
 
-		this.components = new LinkedList<>();
 	}
 
 	/**
@@ -154,8 +161,6 @@ public class ComponentAggregateTask implements AggregateTask {
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
-
-		this.components2Delete = new LinkedList<>();
 	}
 
 	private void createComponent(User user, EdgeConfig.Component comp) throws OpenemsNamedException {

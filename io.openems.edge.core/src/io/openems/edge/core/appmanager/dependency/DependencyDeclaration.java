@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 import com.google.common.base.Function;
 import com.google.gson.JsonObject;
 
-import io.openems.common.function.ThrowingTriFunction;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
 public class DependencyDeclaration {
@@ -21,12 +20,14 @@ public class DependencyDeclaration {
 	public final UpdatePolicy updatePolicy;
 	public final DeletePolicy deletePolicy;
 
+	public final DependencyDeletePolicy dependencyDeletePolicy;
+
 	// Dependency Supplier?
 	private final Supplier<String> supplierForAppId = null;
 	private final Function<List<OpenemsAppInstance>, String> supplierForInstanceIdFromExisting = null;
 
 	public DependencyDeclaration(String key, String appId, String alias, CreatePolicy createPolicy,
-			UpdatePolicy updatePolicy, DeletePolicy deletePolicy, JsonObject properties) {
+			UpdatePolicy updatePolicy, DeletePolicy deletePolicy, DependencyDeletePolicy dependencyDeletePolicy, JsonObject properties) {
 		this.key = key;
 		this.appId = appId;
 		this.alias = alias;
@@ -34,6 +35,7 @@ public class DependencyDeclaration {
 		this.createPolicy = createPolicy;
 		this.updatePolicy = updatePolicy;
 		this.deletePolicy = deletePolicy;
+		this.dependencyDeletePolicy = dependencyDeletePolicy;
 	}
 
 	public static enum CreatePolicy {
@@ -82,35 +84,63 @@ public class DependencyDeclaration {
 		NEVER(v -> false), //
 		;
 
-		private final Function<AllowedToUpdateValues, Boolean> isAllowedToUpdateFunction;
+		private final Function<AllowedToValues, Boolean> isAllowedToUpdateFunction;
 
-		private UpdatePolicy(Function<AllowedToUpdateValues, Boolean> isAllowedToUpdate) {
+		private UpdatePolicy(Function<AllowedToValues, Boolean> isAllowedToUpdate) {
 			this.isAllowedToUpdateFunction = isAllowedToUpdate;
 		}
 
 		public final boolean isAllowedToUpdate(List<OpenemsAppInstance> allInstances, OpenemsAppInstance parent,
 				OpenemsAppInstance app2Update) {
-			return this.isAllowedToUpdateFunction.apply(new AllowedToUpdateValues(allInstances, parent, app2Update));
+			return this.isAllowedToUpdateFunction.apply(new AllowedToValues(allInstances, parent, app2Update));
 		}
 
-		private static class AllowedToUpdateValues {
-			public final List<OpenemsAppInstance> allInstances;
-			public final OpenemsAppInstance parent;
-			public final OpenemsAppInstance app2Update;
-
-			public AllowedToUpdateValues(List<OpenemsAppInstance> allInstances, OpenemsAppInstance parent,
-					OpenemsAppInstance app2Update) {
-				this.allInstances = allInstances;
-				this.parent = parent;
-				this.app2Update = app2Update;
-			}
-		}
 	}
 
 	public static enum DeletePolicy {
-		ALWAYS, //
-		IF_MINE, //
-		NEVER, //
+		ALWAYS(v -> true), //
+		IF_MINE(v -> v.allInstances.stream()
+				.anyMatch(a -> !a.equals(v.parent) && a.dependencies != null
+						&& a.dependencies.stream().anyMatch(d -> d.instanceId.equals(v.app2Update.instanceId)))), //
+		NEVER(v -> false), //
+		;
+
+		private final Function<AllowedToValues, Boolean> isAllowedToDeleteFunction;
+
+		private DeletePolicy(Function<AllowedToValues, Boolean> isAllowedToDelete) {
+			this.isAllowedToDeleteFunction = isAllowedToDelete;
+		}
+
+		public final boolean isAllowedToDelete(List<OpenemsAppInstance> allInstances, OpenemsAppInstance parent,
+				OpenemsAppInstance app2Delete) {
+			return isAllowedToDeleteFunction.apply(new AllowedToValues(allInstances, parent, app2Delete));
+		}
+	}
+
+	private static class AllowedToValues {
+		public final List<OpenemsAppInstance> allInstances;
+		public final OpenemsAppInstance parent;
+		public final OpenemsAppInstance app2Update;
+
+		public AllowedToValues(List<OpenemsAppInstance> allInstances, OpenemsAppInstance parent,
+				OpenemsAppInstance app2Update) {
+			this.allInstances = allInstances;
+			this.parent = parent;
+			this.app2Update = app2Update;
+		}
+	}
+
+	// TODO
+	public static enum DependencyUpdatePolicy {
+		ALL, //
+		ONLY_NOT_CONFIGURED_PROPERTIES, //
+		NO_PROPERTIES, //
+		;
+	}
+
+	public static enum DependencyDeletePolicy {
+		NOT_ALLOWED, //
+		ALLOWED, //
 		;
 	}
 

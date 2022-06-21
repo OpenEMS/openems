@@ -25,12 +25,16 @@ public class StaticIpAggregateTask implements AggregateTask {
 	public StaticIpAggregateTask(@Reference ComponentUtil componentUtil) {
 		this.componentUtil = componentUtil;
 
+	}
+
+	@Override
+	public void reset() {
 		this.ips = new LinkedList<>();
 		this.ips2Delete = new LinkedList<>();
 	}
 
 	@Override
-	public void aggregate(AppConfiguration instance, AppConfiguration oldConfig) throws OpenemsNamedException {
+	public void aggregate(AppConfiguration instance, AppConfiguration oldConfig) {
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			return;
 		}
@@ -53,8 +57,6 @@ public class StaticIpAggregateTask implements AggregateTask {
 		}
 
 		this.componentUtil.updateHosts(user, ips, ips2Delete);
-
-		this.ips = new LinkedList<>();
 	}
 
 	@Override
@@ -64,8 +66,6 @@ public class StaticIpAggregateTask implements AggregateTask {
 		}
 		ips.removeAll(AppManagerAppHelperImpl.getStaticIpsFromConfigs(otherAppConfigurations));
 		this.componentUtil.updateHosts(user, null, ips2Delete);
-		this.ips2Delete = new LinkedList<>();
-
 	}
 
 }

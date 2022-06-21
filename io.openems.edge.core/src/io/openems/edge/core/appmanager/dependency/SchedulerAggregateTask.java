@@ -18,6 +18,7 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 public class SchedulerAggregateTask implements AggregateTask {
 
 	private ComponentUtil componentUtil;
+
 	private List<String> order;
 	private List<String> removeIds;
 
@@ -27,12 +28,16 @@ public class SchedulerAggregateTask implements AggregateTask {
 	@Activate
 	public SchedulerAggregateTask(@Reference ComponentUtil componentUtil) {
 		this.componentUtil = componentUtil;
+	}
+
+	@Override
+	public void reset() {
 		order = new LinkedList<>();
 		removeIds = new LinkedList<>();
 	}
 
 	@Override
-	public void aggregate(AppConfiguration instance, AppConfiguration oldConfig) throws OpenemsNamedException {
+	public void aggregate(AppConfiguration instance, AppConfiguration oldConfig) {
 		if (instance != null) {
 			this.order = this.componentUtil.insertSchedulerOrder(this.order, instance.schedulerExecutionOrder);
 		}
@@ -49,8 +54,6 @@ public class SchedulerAggregateTask implements AggregateTask {
 	public void create(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
 		this.order = componentUtil.insertSchedulerOrder(componentUtil.getSchedulerIds(), this.order);
 		this.componentUtil.updateScheduler(user, this.order, createdComponents);
-
-		this.order = new LinkedList<>();
 	}
 
 	@Override
@@ -59,8 +62,6 @@ public class SchedulerAggregateTask implements AggregateTask {
 		this.removeIds.removeAll(AppManagerAppHelperImpl.getSchedulerIdsFromConfigs(otherAppConfigurations));
 
 		this.componentUtil.removeIdsInSchedulerIfExisting(user, this.removeIds);
-
-		this.removeIds = new LinkedList<>();
 	}
 
 	public final void setCreatedComponents(List<EdgeConfig.Component> createdComponents) {

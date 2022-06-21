@@ -308,9 +308,9 @@ public class AppManagerImplTest {
 	@Test
 	public void testCheckCardinalityMultiple() throws Exception {
 		this.sut.instantiatedApps.add(new OpenemsAppInstance(this.kebaEvcsApp.getAppId(), "alias", UUID.randomUUID(),
-				JsonUtils.buildJsonObject().build()));
+				JsonUtils.buildJsonObject().build(), null));
 		this.sut.instantiatedApps.add(new OpenemsAppInstance(this.kebaEvcsApp.getAppId(), "alias", UUID.randomUUID(),
-				JsonUtils.buildJsonObject().build()));
+				JsonUtils.buildJsonObject().build(), null));
 		var checkable = new CheckCardinality(this.sut);
 		checkable.setProperties(new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("openemsApp", this.kebaEvcsApp) //
@@ -322,7 +322,7 @@ public class AppManagerImplTest {
 	@Test
 	public void testCheckCardinalitySingleInCategorie() throws Exception {
 		this.sut.instantiatedApps.add(new OpenemsAppInstance(this.awattarApp.getAppId(), "alias", UUID.randomUUID(),
-				JsonUtils.buildJsonObject().build()));
+				JsonUtils.buildJsonObject().build(), null));
 		var checkable = new CheckCardinality(this.sut);
 		checkable.setProperties(new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("openemsApp", this.stromdao) //

@@ -557,6 +557,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 //			}
 			// Update App-Manager configuration
 			try {
+				// replace old instances with new ones
+				this.instantiatedApps.removeAll(installedApps);
 				this.instantiatedApps.addAll(installedApps);
 				this.updateAppManagerConfiguration(user, this.instantiatedApps);
 			} catch (OpenemsNamedException e) {
@@ -586,7 +588,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.id));
 			}
 			List<OpenemsNamedException> errors = new Vector<>();
-			var removedApps = this.appHelper.deleteApp(user, instance);
+			var result = this.appHelper.deleteApp(user, instance);
 
 //			var app = this.findAppById(instance.appId);
 //
@@ -627,7 +629,11 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 //			}
 			try {
 //				this.instantiatedApps.remove(instance);
-				this.instantiatedApps.removeAll(removedApps);
+				this.instantiatedApps.removeAll(result.deletedApps);
+				
+				// replace modified apps
+				this.instantiatedApps.removeAll(result.modifiedOrCreatedApps);
+				this.instantiatedApps.addAll(result.modifiedOrCreatedApps);
 				this.updateAppManagerConfiguration(user, this.instantiatedApps);
 			} catch (OpenemsNamedException e) {
 				errors.add(new OpenemsException(e.toString()));

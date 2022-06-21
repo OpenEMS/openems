@@ -35,8 +35,8 @@ public class CheckHome implements Checkable {
 		// not every home has the home app installed but if a batterie of an home is
 		// installed its probably a home and so the app can be used.
 		// later there should only be checked if the home app is installed because if
-		// the configuration is wrong there may no home battery installed and so the app
-		// wouldn't be available even though it is a home
+		// the configuration is wrong there may be no home battery installed and so the
+		// app wouldn't be available even though it is a home
 		return !batteries.isEmpty() || !this.checkAppsNotInstalled.check();
 	}
 
