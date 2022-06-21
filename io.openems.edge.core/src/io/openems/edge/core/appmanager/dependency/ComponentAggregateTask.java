@@ -115,13 +115,16 @@ public class ComponentAggregateTask implements AggregateTask {
 			}
 
 		}
+		try {
+			// delete components that were used from the old configurations
+			this.delete(user, otherAppConfigurations);
+		} catch (OpenemsNamedException e) {
+			errors.add(e.getMessage());
+		}
 
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
-
-		// delete components that were used from the old configurations
-		this.delete(user, otherAppConfigurations);
 
 	}
 

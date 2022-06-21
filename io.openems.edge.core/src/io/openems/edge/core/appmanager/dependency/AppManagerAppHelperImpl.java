@@ -78,7 +78,10 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		// if also checking dependencies these may be inconsistent
 		// e. g. install HOME is requested it may have a dependency on a SOCOMEC Meter
 		// but the meter has a checkable that there has to be a HOME installed
-		AppManagerAppHelperImpl.checkStatus(app);
+		// maybe add temporary apps in this component
+		if (oldInstance == null) {
+			AppManagerAppHelperImpl.checkStatus(app);
+		}
 
 		final var language = user == null ? null : user.getLanguage();
 
@@ -97,7 +100,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			});
 		}
 
-		var modifiedOrCreatedApps = new LinkedList<OpenemsAppInstance>();
+		var modifiedOrCreatedApps = new ArrayList<OpenemsAppInstance>();
 		// update app and its dependencies
 		this.foreachDependency(app, alias, properties, ConfigurationTarget.UPDATE, language, dc -> {
 			ExistingDependencyConfig oldAppConfig = null;
@@ -166,14 +169,13 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 									}
 								}
 							} catch (OpenemsNamedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								errors.add(e.getMessage());
 							}
 						}
 					} else {
 						// create app
 						instanceId = UUID.randomUUID();
-						// TODO check if the created app can satisfy another app dependency
+						// check if the created app can satisfy another app dependency
 						for (var instance : this.getAppManagerImpl().getInstantiatedApps()) {
 							var neededDependency = this.getNeededDependencyTo(instance, dc.app.getAppId());
 							if (neededDependency == null) {
@@ -206,12 +208,9 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 								newAppInstance, AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigs),
 								language);
 
-						this.componentsTask.aggregate(newConfig, oldConfig);
-						this.schedulerTask.aggregate(newConfig, oldConfig);
-						this.staticIpTask.aggregate(newConfig, oldConfig);
+						this.aggregateAllTasks(newConfig, oldConfig);
 					} catch (OpenemsNamedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						errors.add(e.getMessage());
 					}
 					return true;
 				} else {
@@ -231,13 +230,10 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				var newAppConfig = this.getNewAppConfigWithReplacedIds(dc.app, oldAppConfig.instance, newAppInstance,
 						AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigs), language);
 
-				this.componentsTask.aggregate(newAppConfig, oldAppConfig.config);
-				this.schedulerTask.aggregate(newAppConfig, oldAppConfig.config);
-				this.staticIpTask.aggregate(newAppConfig, oldAppConfig.config);
+				this.aggregateAllTasks(newAppConfig, oldAppConfig.config);
 
 			} catch (OpenemsNamedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				errors.add(e.getMessage());
 			}
 
 			return true;
@@ -250,9 +246,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					dc.parentInstance, dc.instance)) {
 				continue;
 			}
-			this.componentsTask.aggregate(null, dc.config);
-			this.schedulerTask.aggregate(null, dc.config);
-			this.staticIpTask.aggregate(null, dc.config);
+			this.aggregateAllTasks(null, dc.config);
 		}
 
 		var ignoreInstances = new ArrayList<>(modifiedOrCreatedApps);
@@ -380,15 +374,14 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 			deletedInstances.add(dc.instance);
 
-			this.componentsTask.aggregate(null, dc.config);
-			this.schedulerTask.aggregate(null, dc.config);
-			this.staticIpTask.aggregate(null, dc.config);
+			this.aggregateAllTasks(null, dc.config);
 
 			return true;
 		});
 
 		var unmodifiedApps = this
-				.getAppsWithReferenceTo(deletedInstances.stream().map(t -> t.instanceId).toArray(UUID[]::new));
+				.getAppsWithReferenceTo(deletedInstances.stream().map(t -> t.instanceId).toArray(UUID[]::new)).stream()
+				.filter(a -> !deletedInstances.stream().anyMatch(t -> t.equals(a))).collect(Collectors.toList());
 
 		var modifiedApps = new ArrayList<OpenemsAppInstance>(unmodifiedApps.size());
 		for (var app : unmodifiedApps) {
@@ -426,6 +419,12 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				.filter(i -> i.dependencies.stream().anyMatch( //
 						d -> Arrays.stream(instanceIds).anyMatch(id -> id.equals(d.instanceId)))) //
 				.toList();
+	}
+
+	private final void aggregateAllTasks(AppConfiguration instance, AppConfiguration oldInstance) {
+		for (var task : tasks) {
+			task.aggregate(instance, oldInstance);
+		}
 	}
 
 	public final boolean isAllowedToDelete(OpenemsAppInstance instance, UUID... ignoreIds) {

@@ -194,6 +194,12 @@ public class JsonFormlyUtil {
 			return this.getSelf();
 		}
 
+		public final <PROPERTEY extends Enum<PROPERTEY>> T onlyShowIfNotChecked(PROPERTEY property) {
+			this.getExpressionProperties().addProperty("templateOptions.required", "!model." + property.name());
+			this.jsonObject.addProperty("hideExpression", "model." + property.name());
+			return this.getSelf();
+		}
+
 		public JsonObject build() {
 			this.jsonObject.add("templateOptions", this.templateOptions);
 			if (this.expressionProperties != null && this.expressionProperties.size() > 0) {

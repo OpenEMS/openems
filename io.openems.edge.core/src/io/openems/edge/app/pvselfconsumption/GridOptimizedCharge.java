@@ -1,6 +1,5 @@
 package io.openems.edge.app.pvselfconsumption;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -47,6 +46,7 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
     "instanceId": UUID,
     "image": base64,
     "properties":{
+    	"SELL_TO_GRID_LIMIT_ENABLED": true,
     	"CTRL_GRID_OPTIMIZED_CHARGE_ID": "ctrlGridOptimizedCharge0",
     	"MAXIMUM_SELL_TO_GRID_POWER": 10000
     },
@@ -63,6 +63,7 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 	public static enum Property {
 		// User values
 		ALIAS, //
+		SELL_TO_GRID_LIMIT_ENABLED, //
 		MAXIMUM_SELL_TO_GRID_POWER, //
 		// Components
 		CTRL_GRID_OPTIMIZED_CHARGE_ID;
@@ -84,20 +85,27 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
 
-			final var maximumSellToGridPower = EnumUtils.getAsInt(p, Property.MAXIMUM_SELL_TO_GRID_POWER);
+			final var sellToGridLimitEnabled = EnumUtils.getAsOptionalBoolean(p, Property.SELL_TO_GRID_LIMIT_ENABLED)
+					.orElse(true);
 
-			List<Component> comp = new ArrayList<>();
+			final int maximumSellToGridPower;
+			if (sellToGridLimitEnabled) {
+				maximumSellToGridPower = EnumUtils.getAsInt(p, Property.MAXIMUM_SELL_TO_GRID_POWER);
+			} else {
+				maximumSellToGridPower = 0;
+			}
 
-			comp.add(new EdgeConfig.Component(ctrlIoFixDigitalOutputId, alias, "Controller.Ess.GridOptimizedCharge",
-					JsonUtils.buildJsonObject() //
+			List<Component> comp = Lists.newArrayList(new EdgeConfig.Component(ctrlIoFixDigitalOutputId, alias,
+					"Controller.Ess.GridOptimizedCharge", JsonUtils.buildJsonObject() //
 							.addProperty("enabled", true) //
 							.onlyIf(t == ConfigurationTarget.ADD, //
 									j -> j.addProperty("ess.id", "ess0") //
 											.addProperty("meter.id", "meter0"))
-							.addProperty("sellToGridLimitEnabled", true) //
-							.addProperty("maximumSellToGridPower", maximumSellToGridPower) //
+							.addProperty("sellToGridLimitEnabled", sellToGridLimitEnabled) //
+							.onlyIf(sellToGridLimitEnabled,
+									o -> o.addProperty("maximumSellToGridPower", maximumSellToGridPower)) //
 							.build()));//
-			
+
 			var schedulerExecutionOrder = Lists.newArrayList("ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0");
 
 			return new AppConfiguration(comp, schedulerExecutionOrder);
@@ -109,10 +117,13 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
+						.add(JsonFormlyUtil.buildCheckbox(Property.SELL_TO_GRID_LIMIT_ENABLED) //
+								.build())
 						.add(JsonFormlyUtil.buildInput(Property.MAXIMUM_SELL_TO_GRID_POWER) //
 								.setInputType(Type.NUMBER) //
 								.isRequired(true) //
 								.setMin(0) //
+								.onlyShowIfChecked(Property.SELL_TO_GRID_LIMIT_ENABLED) //
 								.setLabel(bundle.getString(this.getAppId() + ".maximumSellToGridPower.label")) //
 								.setDescription(
 										bundle.getString(this.getAppId() + ".maximumSellToGridPower.description")) //

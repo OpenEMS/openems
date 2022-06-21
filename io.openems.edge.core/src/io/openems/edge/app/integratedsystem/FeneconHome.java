@@ -50,6 +50,7 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
     "image": base64,
     "properties":{
       "SAFETY_COUNTRY":"AUSTRIA",
+      "RIPPLE_CONTROL_RECEIVER_AKTIV":false,
       "MAX_FEED_IN_POWER":5000,
       "FEED_IN_SETTING":"PU_ENABLE_CURVE",
       "HAS_AC_METER":true,
@@ -73,6 +74,9 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 		SAFETY_COUNTRY, //
 		MAX_FEED_IN_POWER, //
 		FEED_IN_SETTING, //
+
+		// Rundsteuerempfänger
+		RIPPLE_CONTROL_RECEIVER_AKTIV, //
 
 		// External AC PV
 		HAS_AC_METER, //
@@ -101,6 +105,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
+				.setWebsiteUrl("https://fenecon.de/home/") //
 				.build();
 	}
 
@@ -113,10 +118,16 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			var modbusIdExternal = "modbus1";
 
 			var emergencyReserveEnabled = EnumUtils.getAsBoolean(p, Property.EMERGENCY_RESERVE_ENABLED);
+			var rippleControlReceiverActive = EnumUtils.getAsBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_AKTIV);
 
 			// Battery-Inverter Settings
 			var safetyCountry = EnumUtils.getAsString(p, Property.SAFETY_COUNTRY);
-			var maxFeedInPower = EnumUtils.getAsInt(p, Property.MAX_FEED_IN_POWER);
+			int maxFeedInPower;
+			if (!rippleControlReceiverActive) {
+				maxFeedInPower = EnumUtils.getAsInt(p, Property.MAX_FEED_IN_POWER);
+			} else {
+				maxFeedInPower = 0;
+			}
 			var feedInSetting = EnumUtils.getAsString(p, Property.FEED_IN_SETTING);
 
 			var bundle = AbstractOpenemsApp.getTranslationBundle(l);
@@ -178,7 +189,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("safetyCountry", safetyCountry) //
 									.addProperty("backupEnable", //
 											emergencyReserveEnabled ? "ENABLE" : "DISABLE") //
-									.addProperty("feedPowerEnable", "ENABLE") //
+									.addProperty("feedPowerEnable", rippleControlReceiverActive ? "DISABLE" : "ENABLE") //
 									.addProperty("feedPowerPara", maxFeedInPower) //
 									.addProperty("setfeedInPowerSettings", feedInSetting) //
 									.build()),
@@ -297,6 +308,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 					DependencyDeclaration.DeletePolicy.IF_MINE, //
 					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 					JsonUtils.buildJsonObject() //
+							.addProperty(GridOptimizedCharge.Property.SELL_TO_GRID_LIMIT_ENABLED.name(),
+									!rippleControlReceiverActive) //
 							.addProperty(GridOptimizedCharge.Property.MAXIMUM_SELL_TO_GRID_POWER.name(), maxFeedInPower) //
 							.build()));
 
@@ -346,13 +359,20 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									f.setDefaultValue(batteryInverter.get() //
 											.getProperty("safetyCountry").get().getAsString());
 								}).build())
+						.add(JsonFormlyUtil.buildCheckbox(Property.RIPPLE_CONTROL_RECEIVER_AKTIV) //
+								.setLabel(bundle.getString(this.getAppId() + ".rippleControlReceiver.label"))
+								.setDescription(
+										bundle.getString(this.getAppId() + ".rippleControlReceiver.description"))
+								.setDefaultValue(true) //
+								.build())
 						.add(JsonFormlyUtil.buildInput(Property.MAX_FEED_IN_POWER) //
 								.setLabel(bundle.getString(this.getAppId() + ".feedInLimit.label")) //
 								.isRequired(true) //
+								.onlyShowIfNotChecked(Property.RIPPLE_CONTROL_RECEIVER_AKTIV) //
 								.setInputType(Type.NUMBER) //
 								.onlyIf(batteryInverter.isPresent(), f -> {
 									f.setDefaultValue(batteryInverter.get() //
-											.getProperty("feedPowerPara").get().getAsNumber());
+											.getProperty("feedPowerPara").get());
 								}).build())
 						.add(JsonFormlyUtil.buildSelect(Property.FEED_IN_SETTING) //
 								.setLabel(bundle.getString(this.getAppId() + ".feedInSettings.label")) //

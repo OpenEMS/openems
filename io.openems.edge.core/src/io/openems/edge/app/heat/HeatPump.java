@@ -77,7 +77,7 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 			final var ctrlIoHeatPumpId = this.getId(t, p, Property.CTRL_IO_HEAT_PUMP_ID, "ctrlIoHeatPump0");
 
 			var outputChannel1 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_1, "io0/Relay2");
-			var outputChannel2 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_1, "io0/Relay3");
+			var outputChannel2 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_2, "io0/Relay3");
 
 			var comp = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlIoHeatPumpId, this.getName(l), "Controller.Io.HeatPump.SgReady",
