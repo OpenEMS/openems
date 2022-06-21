@@ -31,8 +31,6 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
-import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
-import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 
 /**
  * Describes a evcs cluster.
