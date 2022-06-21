@@ -5,7 +5,7 @@ import { ComponentData } from 'src/app/shared/type/componentData';
 
 import { ComponentConfigurator, ConfigurationMode } from '../views/configuration-execute/component-configurator';
 import { SafetyCountry } from '../views/configuration-execute/safety-country';
-import { FeedInSetting } from '../views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
+import { FeedInSetting, FeedInType } from '../views/protocol-feed-in-limitation/protocol-feed-in-limitation.component';
 import { Ibn } from './abstract-ibn';
 
 export type TowerData = {
@@ -81,26 +81,35 @@ export abstract class AbstractHomeIbn extends Ibn {
   }
 
   public addCustomBatteryInverterData(batteryInverterData: ComponentData[]) {
-    const dynamicFeedInLimitation = this.dynamicFeedInLimitation;
+    const feedInLimitation = this.feedInLimitation;
 
-    batteryInverterData.push(
-      {
-        label: 'Maximale Einspeiseleistung',
-        value: dynamicFeedInLimitation.maximumFeedInPower,
-      },
-      {
-        label: 'Schattenmanagement deaktiviert',
-        value: this.batteryInverter?.shadowManagementDisabled ? 'ja' : 'nein',
-      },
-      { label: 'Typ', value: dynamicFeedInLimitation.feedInSetting }
-    );
+    feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
+      ? batteryInverterData.push(
+        {
+          label: 'Maximale Einspeiseleistung',
+          value: feedInLimitation.maximumFeedInPower,
+        },
+        {
+          label: 'Schattenmanagement deaktiviert',
+          value: this.batteryInverter?.shadowManagementDisabled ? 'ja' : 'nein',
+        },
+        {
+          label: 'Typ',
+          value: feedInLimitation.feedInSetting ?? FeedInSetting.Undefined
+        }
+      )
+      : batteryInverterData.push(
+        {
+          label: "Rundsteuerempfänger aktiviert",
+          value: "ja"
+        })
 
     if (
-      dynamicFeedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor
+      feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor
     ) {
       batteryInverterData.push({
         label: 'Cos ɸ Festwert ',
-        value: dynamicFeedInLimitation.fixedPowerFactor,
+        value: feedInLimitation.fixedPowerFactor,
       });
     }
     return batteryInverterData;
@@ -139,7 +148,7 @@ export abstract class AbstractHomeIbn extends Ibn {
     const installer = this.installer;
     const customer = this.customer;
     const battery = this.battery;
-    const dynamicFeedInLimitation = this.dynamicFeedInLimitation;
+    const feedInLimitation = this.feedInLimitation;
     const pv = this.pv;
     const emergencyReserve = this.emergencyReserve;
     const lineSideMeterFuse = this.lineSideMeterFuse;
@@ -296,27 +305,43 @@ export abstract class AbstractHomeIbn extends Ibn {
     }
 
     protocol.items.push({
-      category: 'Dynamische Begrenzung der Einspeisung',
-      name: 'Maximale Einspeiseleistung [W]',
-      value: dynamicFeedInLimitation.maximumFeedInPower
-        ? dynamicFeedInLimitation.maximumFeedInPower.toString()
-        : '',
+      category: 'Einspeisemanagement',
+      name: 'Rundsteuerempfänger aktiviert?',
+      value: feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION
+        ? "ja"
+        : "nein"
     });
-
     protocol.items.push({
-      category: 'Dynamische Begrenzung der Einspeisung',
-      name: 'Typ',
-      value: dynamicFeedInLimitation.feedInSetting,
+      category: 'Einspeisemanagement',
+      name: 'Dynamische Begrenzung der Einspeisung aktiviert?',
+      value: feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
+        ? "ja"
+        : "nein"
     });
 
-    if (
-      dynamicFeedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor
-    ) {
+    if (feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION) {
       protocol.items.push({
-        category: 'Dynamische Begrenzung der Einspeisung',
-        name: 'Cos φ Festwert',
-        value: dynamicFeedInLimitation.fixedPowerFactor,
+        category: 'Einspeisemanagement',
+        name: 'Maximale Einspeiseleistung [W]',
+        value: feedInLimitation.maximumFeedInPower
+          ? feedInLimitation.maximumFeedInPower.toString()
+          : (0).toString(),
       });
+
+      protocol.items.push({
+        category: 'Einspeisemanagement',
+        name: 'Typ',
+        value: feedInLimitation.feedInSetting,
+      });
+
+      if (feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
+        protocol.items.push({
+          category: 'Einspeisemanagement',
+          name: 'Cos φ Festwert',
+          value: feedInLimitation.fixedPowerFactor,
+        });
+      }
+
     }
 
     for (let index = 0; index < ac.length; index++) {
@@ -511,13 +536,13 @@ export abstract class AbstractHomeIbn extends Ibn {
 
     // Determine feed-in-setting
     let feedInSetting: FeedInSetting;
-    const dynamicFeedInLimitation = this.dynamicFeedInLimitation;
+    const feedInLimitation = this.feedInLimitation;
     if (
-      dynamicFeedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor
+      feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor
     ) {
-      feedInSetting = dynamicFeedInLimitation.fixedPowerFactor;
+      feedInSetting = feedInLimitation.fixedPowerFactor;
     } else {
-      feedInSetting = dynamicFeedInLimitation.feedInSetting;
+      feedInSetting = feedInLimitation.feedInSetting;
     }
 
     // batteryInverter0
@@ -537,7 +562,7 @@ export abstract class AbstractHomeIbn extends Ibn {
         { name: 'feedPowerEnable', value: 'ENABLE' },
         {
           name: 'feedPowerPara',
-          value: dynamicFeedInLimitation.maximumFeedInPower,
+          value: feedInLimitation.maximumFeedInPower,
         },
         { name: 'setfeedInPowerSettings', value: feedInSetting },
         { name: 'emsPowerMode', value: 'UNDEFINED' },
@@ -651,7 +676,7 @@ export abstract class AbstractHomeIbn extends Ibn {
         { name: 'sellToGridLimitEnabled', value: true },
         {
           name: 'maximumSellToGridPower',
-          value: dynamicFeedInLimitation.maximumFeedInPower,
+          value: feedInLimitation.maximumFeedInPower,
         },
         { name: 'delayChargeRiskLevel', value: 'MEDIUM' },
         { name: 'mode', value: 'AUTOMATIC' },

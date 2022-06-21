@@ -126,7 +126,8 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       parsers: [Number],
       validators: {
         validation: ["onlyPositiveInteger"]
-      }
+      },
+      defaultValue: 0
     });
 
     fields.push({

@@ -17,7 +17,7 @@ export class HomeFeneconIbn extends AbstractHomeIbn {
             View.ConfigurationLineSideMeterFuse,
             View.ProtocolPv,
             View.ProtocolAdditionalAcProducers,
-            View.ProtocolDynamicFeedInLimitation,
+            View.ProtocolFeedInLimitation,
             View.ConfigurationSummary,
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,

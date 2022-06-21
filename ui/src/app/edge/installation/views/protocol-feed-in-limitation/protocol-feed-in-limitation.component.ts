@@ -1,9 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup, Validators } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { Service } from 'src/app/shared/shared';
 import { Ibn } from '../../installation-systems/abstract-ibn';
 
 export enum FeedInSetting {
+  Undefined = "Undefined",
   QuEnableCurve = "QU_ENABLE_CURVE",
   PuEnableCurve = "PU_ENABLE_CURVE",
   FixedPowerFactor = "FIXED_POWER_FACTOR",
@@ -53,12 +55,12 @@ export enum FeedInSetting {
 }
 
 @Component({
-  selector: ProtocolDynamicFeedInLimitation.SELECTOR,
-  templateUrl: './protocol-dynamic-feed-in-limitation.component.html'
+  selector: ProtocolFeedInLimitation.SELECTOR,
+  templateUrl: './protocol-feed-in-limitation.component.html'
 })
-export class ProtocolDynamicFeedInLimitation implements OnInit {
+export class ProtocolFeedInLimitation implements OnInit {
 
-  private static readonly SELECTOR = "protocol-dynamic-feed-in-limitation";
+  private static readonly SELECTOR = "protocol-feed-in-limitation";
 
   @Input() public ibn: Ibn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
@@ -66,15 +68,25 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
   @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public form: FormGroup;
-  public fields: FormlyFieldConfig[];
+  public fields: FormlyFieldConfig[] = [];
   public model;
+  public readonly FeedInType = FeedInType;
 
-  constructor() { }
+  constructor(
+    private service: Service
+  ) { }
 
   public ngOnInit() {
     this.form = new FormGroup({});
-    this.fields = this.getFields();
-    this.model = this.ibn.dynamicFeedInLimitation ?? {};
+    this.getFields();
+    this.model = this.ibn.feedInLimitation ??= {
+      feedInType: FeedInType.DYNAMIC_LIMITATION,
+      feedInSetting: FeedInSetting.Undefined,
+      maximumFeedInPower: 0,
+      fixedPowerFactor: FeedInSetting.Undefined
+    }
+
+    this.model.isManualProperlyFollowedAndRead = this.ibn.feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION;
   }
 
   public onPreviousClicked() {
@@ -86,25 +98,52 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
       return;
     }
 
-    this.ibn.dynamicFeedInLimitation = this.model;
+    this.ibn.feedInLimitation = {
+      feedInType: this.model.feedInType,
+      maximumFeedInPower: this.model.maximumFeedInPower,
+      feedInSetting: this.model.feedInSetting,
+      fixedPowerFactor: this.model.fixedPowerFactor
+    }
+
+    if (this.model.feedInType == FeedInType.DYNAMIC_LIMITATION) {
+      this.ibn.feedInLimitation.feedInSetting = this.model.feedInSetting,
+        this.ibn.feedInLimitation.fixedPowerFactor = this.model.fixedPowerFactor ?? FeedInSetting.Undefined,
+        this.ibn.feedInLimitation.maximumFeedInPower = this.model.maximumFeedInPower
+    }
     this.setIbnEvent.emit(this.ibn);
     this.nextViewEvent.emit();
   }
 
-  public getFields(): FormlyFieldConfig[] {
+  public getFields(): void {
 
-    let fields: FormlyFieldConfig[] = [];
     let pv = this.ibn.pv;
     let totalPvPower: number = 0;
 
     totalPvPower += (pv.dc1.isSelected ? pv.dc1.value : 0);
     totalPvPower += (pv.dc2.isSelected ? pv.dc2.value : 0);
 
-    for (let ac of pv.ac) {
-      totalPvPower += ac.value;
+    if (pv.ac) {
+      for (let ac of pv.ac) {
+        totalPvPower += ac.value ?? 0;
+      }
     }
 
-    fields.push({
+    this.fields.push({
+      key: "feedInType",
+      type: "select",
+      className: "white-space-initial",
+      templateOptions: {
+        label: "Typ",
+        placeholder: "Select Option",
+        options: [
+          { label: "Dynamische Begrenzung der Einspeisung (z.B. 70% Abregelung)", value: FeedInType.DYNAMIC_LIMITATION },
+          { label: "Rundsteuerempfänger (Externe Abregelung durch Netzbetreiber)", value: FeedInType.EXTERNAL_LIMITATION }
+        ],
+        required: true,
+      }
+    })
+
+    this.fields.push({
       key: "maximumFeedInPower",
       type: "input",
       templateOptions: {
@@ -115,12 +154,10 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
       },
       parsers: [Number],
       defaultValue: parseInt((totalPvPower * 0.7).toFixed(0)),
-      validators: {
-        validation: ["onlyPositiveInteger"]
-      }
+      hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION
     });
 
-    fields.push({
+    this.fields.push({
       key: "feedInSetting",
       type: "radio",
       templateOptions: {
@@ -132,10 +169,11 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
           { label: "Fester Verschiebungsfaktor Cos φ", value: FeedInSetting.FixedPowerFactor }
         ],
         required: true
-      }
+      },
+      hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION
     });
 
-    fields.push({
+    this.fields.push({
       key: "fixedPowerFactor",
       type: "select",
       templateOptions: {
@@ -190,8 +228,23 @@ export class ProtocolDynamicFeedInLimitation implements OnInit {
       hideExpression: model => model.feedInSetting !== FeedInSetting.FixedPowerFactor
     });
 
-    return fields;
-
+    this.fields.push({
+      key: "isManualProperlyFollowedAndRead",
+      type: "checkbox",
+      templateOptions: {
+        label: "Der Rundsteuerempfänger wurde lt. Anleitung ordnungsgemäß und vollständig installiert.",
+        required: true
+      },
+      hideExpression: model => model.feedInType != FeedInType.EXTERNAL_LIMITATION
+    });
   }
 
+  openManual() {
+    window.open("https://fenecon.de/download/16-anleitung-rundsteuerempfaenger-fenecon-home/")
+  }
+}
+
+export enum FeedInType {
+  DYNAMIC_LIMITATION,
+  EXTERNAL_LIMITATION
 }
