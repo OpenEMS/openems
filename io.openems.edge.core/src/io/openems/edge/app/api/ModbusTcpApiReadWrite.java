@@ -32,6 +32,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -78,8 +79,9 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.API_TIMEOUT) //
-								.setLabel(bundle.getString("App.Api.apiTimeout.label")) //
-								.setDescription(bundle.getString("App.Api.apiTimeout.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.label")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.description")) //
 								.setDefaultValue(60) //
 								.isRequired(true) //
 								.setInputType(Type.NUMBER) //
@@ -89,8 +91,10 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 						.add(JsonFormlyUtil.buildSelect(Property.COMPONENT_IDS) //
 								.isMulti(true) //
 								.isRequired(true) //
-								.setLabel(bundle.getString(this.getAppId() + ".componentIds.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".componentIds.description"))
+								.setLabel(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".componentIds.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".componentIds.description")) //
 								.setOptions(this.componentManager.getAllComponents(), t -> t.id() + ": " + t.alias(),
 										OpenemsComponent::id)
 								.setDefaultValue(JsonUtils.buildJsonArray().add("_sum").build()) //
