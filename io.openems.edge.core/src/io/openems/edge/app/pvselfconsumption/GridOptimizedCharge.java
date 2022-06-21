@@ -1,10 +1,9 @@
-package io.openems.edge.app.heat;
+package io.openems.edge.app.pvselfconsumption;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,8 +18,9 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
+import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.heat.CombinedHeatAndPower.Property;
+import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
@@ -28,58 +28,49 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.DefaultEnum;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.validator.CheckRelayCount;
+import io.openems.edge.core.appmanager.validator.CheckHome;
 import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.appmanager.validator.Validator.Builder;
 
 /**
- * Describes a App for a Heating Element.
+ * Describes a App for a Grid Optimized Charge.
  *
  * <pre>
   {
-    "appId":"App.Heat.CHP",
-    "alias":"Blockheizkraftwerk (BHKW)",
+    "appId":"App.PvSelfConsumption.GridOptimizedCharge",
+    "alias":"Netzdienliche Beladung",
     "instanceId": UUID,
     "image": base64,
     "properties":{
-    	"CTRL_CHP_SOC_ID": "ctrlChpSoc0",
-    	"OUTPUT_CHANNEL": "io0/Relay1"
+    	"CTRL_GRID_OPTIMIZED_CHARGE_ID": "ctrlGridOptimizedCharge0",
+    	"MAXIMUM_SELL_TO_GRID_POWER": 10000
     },
     "appDescriptor": {
+    	"websiteUrl": <a href=
+"https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/">https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/</a>
     }
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.Heat.CHP")
-public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implements OpenemsApp {
+@org.osgi.service.component.annotations.Component(name = "App.PvSelfConsumption.GridOptimizedCharge")
+public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property implements DefaultEnum {
+	public static enum Property {
 		// User values
-		ALIAS("Blockheizkraftwerk"), //
-		OUTPUT_CHANNEL("io0/Relay1"), //
+		ALIAS, //
+		MAXIMUM_SELL_TO_GRID_POWER, //
 		// Components
-		CTRL_CHP_SOC_ID("ctrlChpSoc0");
-
-		private final String defaultValue;
-
-		private Property(String defaultValue) {
-			this.defaultValue = defaultValue;
-		}
-
-		@Override
-		public String getDefaultValue() {
-			return this.defaultValue;
-		}
+		CTRL_GRID_OPTIMIZED_CHARGE_ID;
 
 	}
 
 	@Activate
-	public CombinedHeatAndPower(@Reference ComponentManager componentManager, ComponentContext componentContext,
+	public GridOptimizedCharge(@Reference ComponentManager componentManager, ComponentContext componentContext,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
 		super(componentManager, componentContext, cm, componentUtil);
 	}
@@ -87,19 +78,25 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
-			final var bhcId = this.getId(t, p, Property.CTRL_CHP_SOC_ID);
+
+			final var ctrlIoFixDigitalOutputId = this.getId(t, p, Property.CTRL_GRID_OPTIMIZED_CHARGE_ID,
+					"ctrlGridOptimizedCharge0");
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-			final var outputChannelAddress = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL);
+
+			final var maximumSellToGridPower = EnumUtils.getAsInt(p, Property.MAXIMUM_SELL_TO_GRID_POWER);
 
 			List<Component> comp = new ArrayList<>();
 
-			comp.add(new EdgeConfig.Component(bhcId, alias, "Controller.CHP.SoC", JsonUtils.buildJsonObject() //
-					.addProperty("inputChannelAddress", "_sum/EssSoc")
-					.addProperty("outputChannelAddress", outputChannelAddress) //
-					.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("lowThreshold", 20)) //
-					.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("highThreshold", 80)) //
-					.build()));//
+			comp.add(new EdgeConfig.Component(ctrlIoFixDigitalOutputId, alias, "Controller.Ess.GridOptimizedCharge",
+					JsonUtils.buildJsonObject() //
+							.addProperty("enabled", true) //
+							.onlyIf(t == ConfigurationTarget.ADD, //
+									j -> j.addProperty("ess.id", "ess0") //
+											.addProperty("meter.id", "meter0"))
+							.addProperty("sellToGridLimitEnabled", true) //
+							.addProperty("maximumSellToGridPower", maximumSellToGridPower) //
+							.build()));//
 
 			return new AppConfiguration(comp);
 		};
@@ -110,20 +107,13 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL) //
-								.setOptions(this.componentUtil.getAllRelays() //
-										.stream().map(r -> r.relays).flatMap(List::stream) //
-										.collect(Collectors.toList())) //
-								.setDefaultValueWithStringSupplier(() -> {
-									var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(),
-											new int[] { 1 }, new int[] { 1 });
-									if (relays == null) {
-										return Property.OUTPUT_CHANNEL.getDefaultValue();
-									}
-									return relays[0];
-								}) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannel.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannel.description")) //
+						.add(JsonFormlyUtil.buildInput(Property.MAXIMUM_SELL_TO_GRID_POWER) //
+								.setInputType(Type.NUMBER) //
+								.isRequired(true) //
+								.setMin(0) //
+								.setLabel(bundle.getString(this.getAppId() + ".maximumSellToGridPower.label")) //
+								.setDescription(
+										bundle.getString(this.getAppId() + ".maximumSellToGridPower.description")) //
 								.build())
 						.build())
 				.build();
@@ -136,18 +126,17 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
-		return new OpenemsAppCategory[] { OpenemsAppCategory.HEAT };
+	public Builder getValidateBuilder() {
+		return Validator.create() // TODO remove later when home has dependency
+				.setCompatibleCheckableConfigs(Lists.newArrayList(//
+						new Validator.CheckableConfig(CheckHome.COMPONENT_NAME, true,
+								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+										.build())));
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
-				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new Validator.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
-										.put("count", 1) //
-										.build())));
+	public OpenemsAppCategory[] getCategorys() {
+		return new OpenemsAppCategory[] { OpenemsAppCategory.PV_SELF_CONSUMPTION };
 	}
 
 	@Override

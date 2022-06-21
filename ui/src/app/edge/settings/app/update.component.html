@@ -14,12 +14,12 @@
               </formly-form>
               <ion-item>
                 <ion-button type="submit" color="primary"
-                  [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdateting">
-                  App aktualisieren
+                  [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdateting"
+                  translate> Edge.Config.App.updateApp
                 </ion-button>
                 <ion-button (click)="delete(varinstance)" color="primary"
-                  [disabled]="varinstance.isDeleting || varinstance.isUpdateting">
-                  App entfernen
+                  [disabled]="varinstance.isDeleting || varinstance.isUpdateting" translate>
+                  Edge.Config.App.deleteApp
                 </ion-button>
               </ion-item>
             </ion-card-content>

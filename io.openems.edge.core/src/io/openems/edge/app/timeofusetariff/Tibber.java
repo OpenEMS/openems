@@ -12,7 +12,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
@@ -66,8 +67,8 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 			var ctrlEssTimeOfUseTariffDischargeId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID,
 					"ctrlEssTimeOfUseTariffDischarge0");
 
@@ -77,11 +78,11 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 			// TODO ess id may be changed
 			List<Component> comp = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, this.getName(),
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, this.getName(l),
 							"Controller.Ess.Time-Of-Use-Tariff.Discharge", JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
 									.build()), //
-					new EdgeConfig.Component(timeOfUseTariffId, "timeOfUseTariff0", "TimeOfUseTariff.Tibber",
+					new EdgeConfig.Component(timeOfUseTariffId, this.getName(l), "TimeOfUseTariff.Tibber",
 							JsonUtils.buildJsonObject() //
 									.onlyIf(t.isAddOrUpdate(), c -> c.addProperty("accessToken", accessToken)) //
 									.build())//
@@ -95,12 +96,13 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()).fields(//
+	public AppAssistant getAppAssistant(Language language) {
+		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		return AppAssistant.create(this.getName(language)).fields(//
 				JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.ACCESS_TOKEN) //
-								.setLabel("Access token") //
-								.setDescription("Access token for the Tibber API.") //
+								.setLabel(bundle.getString(this.getAppId() + ".accessToken.label")) //
+								.setDescription(bundle.getString(this.getAppId() + ".accessToken.description")) //
 								.setInputType(Type.PASSWORD) //
 								.isRequired(true) //
 								.build()) //
@@ -117,16 +119,6 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 	@Override
 	public OpenemsAppCategory[] getCategorys() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TIME_OF_USE_TARIFF };
-	}
-
-	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
-	public String getName() {
-		return "Tibber";
 	}
 
 	@Override

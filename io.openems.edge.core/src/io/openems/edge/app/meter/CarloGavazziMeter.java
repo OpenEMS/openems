@@ -2,7 +2,6 @@ package io.openems.edge.app.meter;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.Map;
 import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -11,15 +10,18 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.meter.CarloGavazziMeter.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
@@ -74,14 +76,14 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 
 			// modbus id for connection to battery-inverter for a HOME
 			var modbusId = "modbus1";
 			var meterId = this.getId(t, p, Property.METER_ID, "meter1");
 
-			var alias = this.getValueOrDefault(p, Property.ALIAS, "PV");
+			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
 			var type = this.getValueOrDefault(p, Property.TYPE, "PRODUCTION");
 
 			var modbusUnitId = EnumUtils.getAsInt(p, Property.MODBUS_UNIT_ID);
@@ -100,16 +102,17 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()) //
+	public AppAssistant getAppAssistant(Language language) {
+		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildSelect(Property.TYPE) //
-								.setLabel("Mount Type") //
-								.setOptions(this.buildMeterOptions()) //
+								.setLabel(bundle.getString("App.Meter.mountType.label")) //
+								.setOptions(this.buildMeterOptions(language)) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
-								.setLabel("Modbus Unit-ID") //
-								.setDescription("The Unit-ID of the Modbus device.") //
+								.setLabel(bundle.getString("modbusUnitId")) //
+								.setDescription(bundle.getString("modbusUnitId.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(6) //
 								.setMin(0) //
@@ -128,21 +131,10 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 	@Override
 	public Builder getValidateBuilder() {
 		return Validator.create() //
-				.setCompatibleCheckableNames(new Validator.MapBuilder<>(new TreeMap<String, Map<String, ?>>()) //
-						.put(CheckHome.COMPONENT_NAME, //
+				.setCompatibleCheckableConfigs(Lists.newArrayList(//
+						new Validator.CheckableConfig(CheckHome.COMPONENT_NAME,
 								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
-										.build())
-						.build());
-	}
-
-	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
-	public String getName() {
-		return "Carlo Gavazzi Zähler";
+										.build())));
 	}
 
 	@Override

@@ -3,8 +3,8 @@ package io.openems.edge.app.heat;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -15,8 +15,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
@@ -29,6 +29,7 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.DefaultEnum;
+import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -46,7 +47,10 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
     "instanceId": UUID,
     "image": base64,
     "properties":{
-    	"CTRL_IO_HEATING_ELEMENT_ID": "ctrlIoHeatingElement0"
+    	"CTRL_IO_HEATING_ELEMENT_ID": "ctrlIoHeatingElement0",
+    	"OUTPUT_CHANNEL_PHASE_L1": "io0/Relay1",
+    	"OUTPUT_CHANNEL_PHASE_L2": "io0/Relay2",
+    	"OUTPUT_CHANNEL_PHASE_L3": "io0/Relay3"
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
@@ -61,9 +65,12 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 	public static enum Property implements DefaultEnum {
 		ALIAS("Heating Element App"), //
 		CTRL_IO_HEATING_ELEMENT_ID("ctrlIoHeatingElement0"), //
+		OUTPUT_CHANNEL_PHASE_L1("io0/Relay1"), //
+		OUTPUT_CHANNEL_PHASE_L2("io0/Relay2"), //
+		OUTPUT_CHANNEL_PHASE_L3("io0/Relay3"), //
 		;
 
-		private String defaultValue;
+		private final String defaultValue;
 
 		private Property(String defaultValue) {
 			this.defaultValue = defaultValue;
@@ -83,38 +90,58 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 
 			final var heatingElementId = this.getId(t, p, Property.CTRL_IO_HEATING_ELEMENT_ID);
 
-			final var alias = this.getValueOrDefault(p, Property.ALIAS);
+			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
+			final var outputChannelPhaseL1 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_PHASE_L1);
+			final var outputChannelPhaseL2 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_PHASE_L2);
+			final var outputChannelPhaseL3 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_PHASE_L3);
 
 			List<Component> comp = new ArrayList<>();
 			var jsonConfigBuilder = JsonUtils.buildJsonObject();
 
-			if (!t.isDeleteOrTest()) {
-				var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(heatingElementId),
-						new int[] { 1, 2, 3 }, new int[] { 4, 5, 6 });
-				if (relays == null) {
-					throw new OpenemsException("Not enought relays available!");
-				}
-
-				jsonConfigBuilder.addProperty("outputChannelPhaseL1", relays[0]) //
-						.addProperty("outputChannelPhaseL2", relays[1]) //
-						.addProperty("outputChannelPhaseL3", relays[2]); //
-			}
-
 			comp.add(new EdgeConfig.Component(heatingElementId, alias, "Controller.IO.HeatingElement",
-					jsonConfigBuilder.build()));//
+					jsonConfigBuilder.addProperty("outputChannelPhaseL1", outputChannelPhaseL1) //
+							.addProperty("outputChannelPhaseL2", outputChannelPhaseL2) //
+							.addProperty("outputChannelPhaseL3", outputChannelPhaseL3) //
+							.build()));//
 
 			return new AppConfiguration(comp);
 		};
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()) //
+	public AppAssistant getAppAssistant(Language language) {
+		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(), new int[] { 1, 2, 3 },
+				new int[] { 4, 5, 6 });
+		var options = this.componentUtil.getAllRelays() //
+				.stream().map(r -> r.relays).flatMap(List::stream) //
+				.collect(Collectors.toList());
+		return AppAssistant.create(this.getName(language)) //
+				.fields(JsonUtils.buildJsonArray() //
+						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_PHASE_L1) //
+								.setOptions(options) //
+								.onlyIf(relays != null, t -> t.setDefaultValue(relays[0])) //
+								.setLabel(bundle.getString(this.getAppId() + ".outputChannelPhaseL1.label"))
+								.setDescription(bundle.getString(this.getAppId() + ".outputChannelPhaseL1.description"))
+								.build())
+						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_PHASE_L2) //
+								.setOptions(options) //
+								.onlyIf(relays != null, t -> t.setDefaultValue(relays[1])) //
+								.setLabel(bundle.getString(this.getAppId() + ".outputChannelPhaseL2.label"))
+								.setDescription(bundle.getString(this.getAppId() + ".outputChannelPhaseL2.description"))
+								.build())
+						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_PHASE_L3) //
+								.setOptions(options) //
+								.onlyIf(relays != null, t -> t.setDefaultValue(relays[2])) //
+								.setLabel(bundle.getString(this.getAppId() + ".outputChannelPhaseL3.label"))
+								.setDescription(bundle.getString(this.getAppId() + ".outputChannelPhaseL3.description"))
+								.build())
+						.build())
 				.build();
 	}
 
@@ -130,24 +157,13 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 	}
 
 	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
 	public Builder getValidateBuilder() {
 		return Validator.create() //
-				.setInstallableCheckableNames(new Validator.MapBuilder<>(new TreeMap<String, Map<String, ?>>()) //
-						.put(CheckRelayCount.COMPONENT_NAME, //
+				.setInstallableCheckableConfigs(Lists.newArrayList(//
+						new Validator.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
 								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("count", 3) //
-										.build())
-						.build());
-	}
-
-	@Override
-	public String getName() {
-		return "Heizstab";
+										.build())));
 	}
 
 	@Override

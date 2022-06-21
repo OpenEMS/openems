@@ -5,6 +5,7 @@ import static io.openems.edge.core.appmanager.ConfigurationTarget.VALIDATE;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -16,7 +17,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
@@ -100,8 +102,9 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, //
+			AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 			var essId = "ess0";
 			var modbusIdInternal = "modbus0";
 			var modbusIdExternal = "modbus1";
@@ -113,9 +116,11 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			var maxFeedInPower = EnumUtils.getAsInt(p, Property.MAX_FEED_IN_POWER);
 			var feedInSetting = EnumUtils.getAsString(p, Property.FEED_IN_SETTING);
 
+			var bundle = AbstractOpenemsApp.getTranslationBundle(l);
 			var components = Lists.newArrayList(//
-					new EdgeConfig.Component(modbusIdInternal, "Kommunikation mit der Batterie", "Bridge.Modbus.Serial",
-							JsonUtils.buildJsonObject() //
+					new EdgeConfig.Component(modbusIdInternal,
+							bundle.getString(this.getAppId() + "." + modbusIdInternal + ".alias"),
+							"Bridge.Modbus.Serial", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("portName", "/dev/busUSB1") //
 									.addProperty("baudRate", 19200) //
@@ -123,9 +128,11 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("stopbits", "ONE") //
 									.addProperty("parity", "NONE") //
 									.addProperty("logVerbosity", "NONE") //
-									.addProperty("invalidateElementsAfterReadErrors", 1) //
-									.build()),
-					new EdgeConfig.Component(modbusIdExternal, "Kommunikation mit dem Batterie-Wechselrichter",
+									.onlyIf(t == ConfigurationTarget.ADD, //
+											j -> j.addProperty("invalidateElementsAfterReadErrors", 1) //
+			).build()),
+					new EdgeConfig.Component(modbusIdExternal,
+							bundle.getString(this.getAppId() + "." + modbusIdExternal + ".alias"),
 							"Bridge.Modbus.Serial", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("portName", "/dev/busUSB2") //
@@ -136,19 +143,22 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("logVerbosity", "NONE") //
 									.addProperty("invalidateElementsAfterReadErrors", 1) //
 									.build()),
-					new EdgeConfig.Component("meter0", "Netzzähler", "GoodWe.Grid-Meter", //
+					new EdgeConfig.Component("meter0", bundle.getString(this.getAppId() + ".meter0.alias"),
+							"GoodWe.Grid-Meter", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("modbus.id", modbusIdExternal) //
 									.addProperty("modbusUnitId", 247) //
 									.build()),
-					new EdgeConfig.Component("io0", "Relaisboard", "IO.KMtronic.4Port", //
+					new EdgeConfig.Component("io0", bundle.getString(this.getAppId() + ".io0.alias"),
+							"IO.KMtronic.4Port", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("modbus.id", modbusIdInternal) //
 									.addProperty("modbusUnitId", 2) //
 									.build()),
-					new EdgeConfig.Component("battery0", "Batterie", "Battery.Fenecon.Home", //
+					new EdgeConfig.Component("battery0", bundle.getString(this.getAppId() + ".battery0.alias"),
+							"Battery.Fenecon.Home", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("startStop", "AUTO") //
@@ -156,33 +166,36 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("modbusUnitId", 1) //
 									.addProperty("batteryStartUpRelay", "io0/Relay4") //
 									.build()),
-					new EdgeConfig.Component("batteryInverter0", "Batterie-Wechselrichter", "GoodWe.BatteryInverter",
-							JsonUtils.buildJsonObject() //
+					new EdgeConfig.Component("batteryInverter0",
+							bundle.getString(this.getAppId() + ".batteryInverter0.alias"), //
+							"GoodWe.BatteryInverter", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("modbus.id", modbusIdExternal) //
 									.addProperty("modbusUnitId", 247) //
 									.addProperty("safetyCountry", safetyCountry) //
-									.addProperty("backupEnable", emergencyReserveEnabled ? "ENABLE" : "DISABLE") //
+									.addProperty("backupEnable", //
+											emergencyReserveEnabled ? "ENABLE" : "DISABLE") //
 									.addProperty("feedPowerEnable", "ENABLE") //
 									.addProperty("feedPowerPara", maxFeedInPower) //
 									.addProperty("setfeedInPowerSettings", feedInSetting) //
 									.build()),
-					new EdgeConfig.Component(essId, "Speichersystem", "Ess.Generic.ManagedSymmetric",
-							JsonUtils.buildJsonObject() //
+					new EdgeConfig.Component(essId, bundle.getString(this.getAppId() + "." + essId + ".alias"),
+							"Ess.Generic.ManagedSymmetric", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("startStop", "START") //
 									.addProperty("batteryInverter.id", "batteryInverter0") //
 									.addProperty("battery.id", "battery0") //
 									.build()),
-					new EdgeConfig.Component("predictor0", "Prognose", "Predictor.PersistenceModel",
-							JsonUtils.buildJsonObject() //
+					new EdgeConfig.Component("predictor0", bundle.getString(this.getAppId() + ".predictor0.alias"),
+							"Predictor.PersistenceModel", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.add("channelAddresses", JsonUtils.buildJsonArray() //
 											.add("_sum/ProductionActivePower") //
 											.add("_sum/ConsumptionActivePower") //
 											.build()) //
 									.build()),
-					new EdgeConfig.Component("ctrlGridOptimizedCharge0", "Netzdienliche Beladung",
+					new EdgeConfig.Component("ctrlGridOptimizedCharge0",
+							bundle.getString("App.PvSelfConsumption.GridOptimizedCharge.Name"),
 							"Controller.Ess.GridOptimizedCharge", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("ess.id", essId) //
@@ -190,12 +203,14 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("sellToGridLimitEnabled", true) //
 									.addProperty("maximumSellToGridPower", maxFeedInPower) //
 									.build()),
-					new EdgeConfig.Component("ctrlEssSurplusFeedToGrid0", "Überschusseinspeisung",
+					new EdgeConfig.Component("ctrlEssSurplusFeedToGrid0",
+							bundle.getString(this.getAppId() + ".ctrlEssSurplusFeedToGrid0.alias"),
 							"Controller.Ess.Hybrid.Surplus-Feed-To-Grid", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("ess.id", essId) //
 									.build()),
-					new EdgeConfig.Component("ctrlBalancing0", "Eigenverbrauchsoptimierung",
+					new EdgeConfig.Component("ctrlBalancing0",
+							bundle.getString(this.getAppId() + ".ctrlBalancing0.alias"),
 							"Controller.Symmetric.Balancing", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("ess.id", essId) //
@@ -206,7 +221,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			);
 
 			if (EnumUtils.getAsOptionalBoolean(p, Property.HAS_AC_METER).orElse(false)) {
-				components.add(new EdgeConfig.Component("meter1", "Netzzähler", "Meter.Socomec.Threephase", //
+				components.add(new EdgeConfig.Component("meter1", bundle.getString(this.getAppId() + ".meter1.alias"),
+						"Meter.Socomec.Threephase", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("enabled", true) //
 								.addProperty("modbus.id", modbusIdExternal) //
@@ -238,7 +254,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 
 			var hasEmergencyReserve = EnumUtils.getAsOptionalBoolean(p, Property.HAS_EMERGENCY_RESERVE).orElse(false);
 			if (hasEmergencyReserve) {
-				components.add(new EdgeConfig.Component("meter2", "Notstromverbraucher", "GoodWe.EmergencyPowerMeter", //
+				components.add(new EdgeConfig.Component("meter2", bundle.getString(this.getAppId() + ".meter2.alias"),
+						"GoodWe.EmergencyPowerMeter", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("enabled", true) //
 								.addProperty("modbus.id", modbusIdExternal) //
@@ -247,7 +264,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 
 				var emergencyReserveSoc = EnumUtils.getAsInt(p, Property.EMERGENCY_RESERVE_SOC);
 				components.add(new EdgeConfig.Component("ctrlEmergencyCapacityReserve0",
-						"Ansteuerung der Notstromreserve", "Controller.Ess.EmergencyCapacityReserve", //
+						bundle.getString(this.getAppId() + ".ctrlEmergencyCapacityReserve0.alias"),
+						"Controller.Ess.EmergencyCapacityReserve", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("enabled", true) //
 								.addProperty("ess.id", essId) //
@@ -273,89 +291,129 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		// Source https://formly.dev/examples/introduction
-		return AppAssistant.create(this.getName()) //
+	public AppAssistant getAppAssistant(Language language) {
+		final var batteryInverter = this.getBatteryInverter();
+		final var hasEmergencyReserve = this.componentUtil.getComponent("ctrlEmergencyCapacityReserve0", //
+				"Controller.Ess.EmergencyCapacityReserve").isPresent();
+		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildSelect(Property.SAFETY_COUNTRY) //
-								.setLabel("Battery-Inverter Safety Country") //
+								.setLabel(bundle.getString(this.getAppId() + ".safetyCountry.label")) //
 								.isRequired(true) //
 								.setOptions(JsonUtils.buildJsonArray() //
 										.add(JsonUtils.buildJsonObject() //
-												.addProperty("label", "Germany") //
+												.addProperty("label", bundle.getString("germany")) //
 												.addProperty("value", "GERMANY") //
 												.build()) //
 										.add(JsonUtils.buildJsonObject() //
-												.addProperty("label", "Austria") //
+												.addProperty("label", bundle.getString("austria")) //
 												.addProperty("value", "AUSTRIA") //
 												.build()) //
 										.add(JsonUtils.buildJsonObject() //
-												.addProperty("label", "Switzerland") //
+												.addProperty("label", bundle.getString("switzerland")) //
 												.addProperty("value", "SWITZERLAND") //
 												.build()) //
 										.build()) //
-								.build())
+								.onlyIf(batteryInverter.isPresent(), f -> {
+									f.setDefaultValue(batteryInverter.get() //
+											.getProperty("safetyCountry").get().getAsString());
+								}).build())
 						.add(JsonFormlyUtil.buildInput(Property.MAX_FEED_IN_POWER) //
-								.setLabel("Feed-In limitation [W]") //
+								.setLabel(bundle.getString(this.getAppId() + ".feedInLimit.label")) //
 								.isRequired(true) //
 								.setInputType(Type.NUMBER) //
-								.build())
+								.onlyIf(batteryInverter.isPresent(), f -> {
+									f.setDefaultValue(batteryInverter.get() //
+											.getProperty("feedPowerPara").get().getAsNumber());
+								}).build())
 						.add(JsonFormlyUtil.buildSelect(Property.FEED_IN_SETTING) //
-								.setLabel("Feed-In Settings") //
+								.setLabel(bundle.getString(this.getAppId() + ".feedInSettings.label")) //
 								.isRequired(true) //
 								.setOptions(this.getFeedInSettingsOptions(), t -> t, t -> t) //
-								.build())
+								.onlyIf(batteryInverter.isPresent(), f -> {
+									f.setDefaultValue(batteryInverter.get() //
+											.getProperty("setfeedInPowerSettings") //
+											.get().getAsString());
+								}).build())
 						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_AC_METER) //
-								.setLabel("Has AC meter (SOCOMEC)") //
+								.setLabel(bundle.getString(this.getAppId() + ".hasAcMeterSocomec.label")) //
 								.isRequired(true) //
+								.setDefaultValue(this.componentUtil //
+										.getComponent("meter1", "Meter.Socomec.Threephase") //
+										.isPresent()) //
 								.build())
 						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_DC_PV1) //
-								.setLabel("Has DC-PV 1 (MPPT 1)") //
+								.setLabel(bundle.getString(this.getAppId() + ".hasDcPV1.label")) //
 								.isRequired(true) //
+								.setDefaultValue(this.componentUtil //
+										.getComponent("charger0", "GoodWe.Charger-PV1").isPresent())
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.DC_PV1_ALIAS) //
 								.setDefaultValue("DC-PV1") //
-								.setLabel("DC-PV 1 Alias") //
 								.onlyShowIfChecked(Property.HAS_DC_PV1) //
-								.build())
+								.setDefaultValueWithStringSupplier(() -> {
+									var charger = this.componentUtil //
+											.getComponent("charger0", "GoodWe.Charger-PV1");
+									if (charger.isEmpty()) {
+										return null;
+									}
+									return charger.get().getAlias();
+								}).build())
 						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_DC_PV2) //
-								.setLabel("Has DC-PV 2 (MPPT 2)") //
+								.setLabel(bundle.getString(this.getAppId() + ".hasDcPV2.label")) //
 								.isRequired(true) //
+								.setDefaultValue(this.componentUtil //
+										.getComponent("charger1", "GoodWe.Charger-PV2").isPresent())
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.DC_PV2_ALIAS) //
-								.setDefaultValue("DC-PV 2") //
 								.setLabel("DC-PV 2 Alias") //
 								.onlyShowIfChecked(Property.HAS_DC_PV2) //
-								.build())
+								.setDefaultValueWithStringSupplier(() -> {
+									var charger = this.componentUtil //
+											.getComponent("charger1", "GoodWe.Charger-PV2");
+									if (charger.isEmpty()) {
+										return null;
+									}
+									return charger.get().getAlias();
+								}).build())
 						.add(JsonFormlyUtil.buildCheckbox(Property.EMERGENCY_RESERVE_ENABLED) //
-								.setLabel("Activate Emergency power supply") //
+								.setLabel(bundle.getString(this.getAppId() + ".emergencyPowerSupply.label")) //
 								.isRequired(true) //
-								.build())
+								.onlyIf(batteryInverter.isPresent(), f -> {
+									f.setDefaultValue(batteryInverter.get().getProperty("backupEnable").get()
+											.getAsString().equals("ENABLE"));
+								}).build())
 						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_EMERGENCY_RESERVE) //
-								.setLabel("Activate Emergency Reserve Energy") //
+								.setLabel(bundle.getString(this.getAppId() + ".emergencyPowerEnergy.label")) //
+								.setDefaultValue(hasEmergencyReserve) //
 								.onlyShowIfChecked(Property.EMERGENCY_RESERVE_ENABLED) //
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.EMERGENCY_RESERVE_SOC) //
-								.setLabel("Emergency Reserve Energy (State-of-Charge)") //
+								.setLabel(bundle.getString(this.getAppId() + ".reserveEnergy.label")) //
+								.setInputType(Type.NUMBER) //
 								.onlyShowIfChecked(Property.HAS_EMERGENCY_RESERVE) //
-								.build())
+								.onlyIf(hasEmergencyReserve, f -> {
+									f.setDefaultValue(this.componentManager.getEdgeConfig()
+											.getComponent("ctrlEmergencyCapacityReserve0").get()
+											.getProperty("reserveSoc").get().getAsNumber());
+								}).build())
 						.build()) //
 				.build();
+	}
+
+	private final Optional<EdgeConfig.Component> getBatteryInverter() {
+		var batteryInverter = this.componentManager.getEdgeConfig().getComponent("batteryInverter0");
+		if (batteryInverter.isPresent() //
+				&& !batteryInverter.get().getFactoryId().equals("GoodWe.BatteryInverter")) {
+			batteryInverter = Optional.empty();
+		}
+		return batteryInverter;
 	}
 
 	@Override
 	public OpenemsAppCategory[] getCategorys() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.INTEGRATED_SYSTEM };
-	}
-
-	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
-	public String getName() {
-		return "FENECON Home";
 	}
 
 	@Override

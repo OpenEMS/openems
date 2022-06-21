@@ -1,72 +1,92 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.ResourceBundle;
+
 import com.google.gson.JsonObject;
 
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 
 public enum OpenemsAppCategory {
 
-	// TODO translation
-
 	/**
 	 * Integrated Systems.
 	 */
-	INTEGRATED_SYSTEM("Integrierte Systeme"),
+	INTEGRATED_SYSTEM("integratedSystems"),
 
 	/**
-	 * Time of use energy tariff.
+	 * Time variable energy price.
 	 */
-	TIME_OF_USE_TARIFF("Zeitvariable Stromtarife"),
+	TIME_OF_USE_TARIFF("timeOfUseTariff"),
 
 	/**
 	 * Electric vehicle charging station.
 	 */
-	EVCS("E-Mobilität"),
+	EVCS("evcs"),
 
 	/**
-	 * Load control.
+	 * Heat.
 	 */
-	HEAT("Wärme"),
+	HEAT("heat"),
+
+	/**
+	 * Load Control.
+	 */
+	LOAD_CONTROL("loadControl"),
 
 	/**
 	 * Hardware.
 	 */
-	HARDWARE("Hardware"),
+	HARDWARE("hardware"),
 
 	/**
 	 * PV-Inverter.
 	 */
-	PV_INVERTER("PV-Wechselrichter"),
+	PV_INVERTER("pvInverter"),
+
+	/**
+	 * PV self-consumption.
+	 */
+	PV_SELF_CONSUMPTION("pvSelfConsumption"),
 
 	/**
 	 * Meter.
 	 */
-	METER("Zähler"),
+	METER("meter"),
 
 	/**
 	 * Apis.
 	 */
-	API("Schnittstellen");
+	API("api");
 
-	private String readableName;
+	private String readableNameKey;
 
-	private OpenemsAppCategory(String readableName) {
-		this.readableName = readableName;
+	private OpenemsAppCategory(String readableNameKey) {
+		this.readableNameKey = readableNameKey;
 	}
 
-	public String getReadableName() {
-		return this.readableName;
+	/**
+	 * Gets the readable name in the specific language.
+	 *
+	 * @param language the language of the name
+	 * @return the name
+	 */
+	public String getReadableName(Language language) {
+		var translationBundle = ResourceBundle.getBundle("io.openems.edge.core.appmanager.translation",
+				language.getLocal());
+		return translationBundle.getString(this.readableNameKey);
 	}
 
 	/**
 	 * Creates a {@link JsonObject} of the {@link OpenemsAppCategory}.
 	 *
+	 * @param language the language of the readable name
 	 * @return the {@link JsonObject}
 	 */
-	public JsonObject toJsonObject() {
+	public JsonObject toJsonObject(Language language) {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("name", this.name()) //
-				.addProperty("readableName", this.getReadableName()) //
+				.addProperty("readableName", this.getReadableName(language)) //
 				.build();
 	}
 

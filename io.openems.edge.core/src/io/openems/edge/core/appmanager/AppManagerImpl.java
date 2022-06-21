@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.Vector;
@@ -21,6 +22,7 @@ import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
@@ -39,8 +41,9 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
-import io.openems.common.types.EdgeConfig.Component;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -55,9 +58,10 @@ import io.openems.edge.core.appmanager.jsonrpc.GetAppDescriptor;
 import io.openems.edge.core.appmanager.jsonrpc.GetAppInstances;
 import io.openems.edge.core.appmanager.jsonrpc.GetApps;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
+import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 
 @Designate(ocd = Config.class, factory = false)
-@org.osgi.service.component.annotations.Component(//
+@Component(//
 		name = AppManager.SINGLETON_SERVICE_PID, //
 		immediate = true, //
 		property = { //
@@ -67,9 +71,11 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		implements AppManager, OpenemsComponent, JsonApi, ConfigurationListener {
 
 	private final AppValidateWorker worker;
+	private final AppInstallWorker appInstallWorker;
 
 	@Reference
 	private ConfigurationAdmin cm;
+
 	@Reference
 	protected List<OpenemsApp> availableApps;
 
@@ -87,6 +93,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				AppManager.ChannelId.values() //
 		);
 		this.worker = new AppValidateWorker(this);
+		this.appInstallWorker = new AppInstallWorker(this);
 	}
 
 	@Activate
@@ -96,9 +103,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
+		this.applyConfig(config);
 
 		this.worker.activate(this.id());
-		this.applyConfig(config);
+		this.appInstallWorker.activate(this.id());
 	}
 
 	/**
@@ -208,22 +216,28 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			if (skipInstance) {
 				continue;
 			}
-			var app = this.findAppById(appInstance.appId);
+
 			try {
-				consumer.accept(app.getAppConfiguration(ConfigurationTarget.VALIDATE, appInstance.properties));
+				var app = this.findAppById(appInstance.appId);
+				consumer.accept(app.getAppConfiguration(ConfigurationTarget.VALIDATE, appInstance.properties, null));
 			} catch (OpenemsNamedException e) {
 				// move to next app
+			} catch (NoSuchElementException e) {
+				// app not found for instance
+				// this may happen if the app id gets refactored
+				// apps which app ids are not known are printed in debug log as 'UNKNOWAPPS'
 			}
 		}
 	}
 
-	private void createComponent(User user, Component comp) throws OpenemsNamedException {
+	private void createComponent(User user, EdgeConfig.Component comp) throws OpenemsNamedException {
 		List<Property> properties = comp.getProperties().entrySet().stream()
 				.map(t -> new Property(t.getKey(), t.getValue())).collect(Collectors.toList());
 		properties.add(new Property("id", comp.getId()));
 		properties.add(new Property("alias", comp.getAlias()));
 
-		this.componentManager.handleJsonrpcRequest(user,
+		// user can be null using internal method
+		((ComponentManagerImpl) this.componentManager).handleCreateComponentConfigRequest(user,
 				new CreateComponentConfigRequest(comp.getFactoryId(), properties));
 	}
 
@@ -232,6 +246,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	protected void deactivate() {
 		super.deactivate();
 		this.worker.deactivate();
+		this.appInstallWorker.deactivate();
 	}
 
 	@Override
@@ -247,8 +262,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @param notMyComponents other needed components from the other apps
 	 * @return the id s of the components that got deleted
 	 */
-	private List<String> deleteComponents(User user, List<Component> components, List<Component> notMyComponents)
-			throws OpenemsNamedException {
+	private List<String> deleteComponents(User user, List<EdgeConfig.Component> components,
+			List<EdgeConfig.Component> notMyComponents) throws OpenemsNamedException {
 		List<String> errors = new ArrayList<>();
 		List<String> deletedIds = new ArrayList<>();
 		for (var comp : components) {
@@ -262,7 +277,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			}
 
 			try {
-				this.componentManager.handleJsonrpcRequest(user, new DeleteComponentConfigRequest(comp.getId()));
+				// user can be null using internal method
+				((ComponentManagerImpl) this.componentManager).handleDeleteComponentConfigRequest(user,
+						new DeleteComponentConfigRequest(comp.getId()));
 				deletedIds.add(comp.getId());
 			} catch (OpenemsNamedException e) {
 				errors.add(e.toString());
@@ -281,7 +298,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @param id of the app
 	 * @return the found app
 	 */
-	public final OpenemsApp findAppById(String id) {
+	public final OpenemsApp findAppById(String id) throws NoSuchElementException {
 		return this.availableApps.stream() //
 				.filter(t -> t.getAppId().equals(id)) //
 				.findFirst() //
@@ -297,14 +314,16 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @param newAppInstance     the new {@link OpenemsAppInstance}
 	 * @param otherAppComponents the components that are used from the other
 	 *                           {@link OpenemsAppInstance}
+	 * @param language           the language of the new config
 	 * @return the AppConfiguration with the replaced ID s of the components
 	 * @throws OpenemsNamedException on error
 	 */
 	private AppConfiguration getNewAppConfigWithReplacedIds(OpenemsApp app, OpenemsAppInstance oldAppInstance,
-			OpenemsAppInstance newAppInstance, List<Component> otherAppComponents) throws OpenemsNamedException {
+			OpenemsAppInstance newAppInstance, List<EdgeConfig.Component> otherAppComponents, Language language)
+			throws OpenemsNamedException {
 
 		var target = oldAppInstance == null ? ConfigurationTarget.ADD : ConfigurationTarget.UPDATE;
-		var newAppConfig = app.getAppConfiguration(target, newAppInstance.properties);
+		var newAppConfig = app.getAppConfiguration(target, newAppInstance.properties, language);
 
 		final var replacableIds = this.getReplaceableComponentIds(app, newAppInstance.properties);
 
@@ -325,7 +344,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			var isNewComponent = true;
 			var id = comp.getId();
 			var canBeReplaced = replacableIds.containsKey(id);
-			Component foundComponent = null;
+			EdgeConfig.Component foundComponent = null;
 
 			// try to find a component with the necessary settings
 			if (canBeReplaced) {
@@ -371,7 +390,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				newAppInstance.properties.addProperty(replacableIds.get(comp.getId()), id);
 			}
 		}
-		return app.getAppConfiguration(target, newAppInstance.properties);
+		return app.getAppConfiguration(target, newAppInstance.properties, language);
 	}
 
 	/**
@@ -380,8 +399,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @param thisApp the app that components should not be included
 	 * @return all components from all app instances except the given thisApp
 	 */
-	private List<Component> getOtherAppComponents(OpenemsAppInstance thisApp) {
-		List<Component> allOtherComponents = new ArrayList<>();
+	private List<EdgeConfig.Component> getOtherAppComponents(OpenemsAppInstance thisApp) {
+		List<EdgeConfig.Component> allOtherComponents = new ArrayList<>();
 		this.foreachAppConfiguration(c -> {
 			allOtherComponents.addAll(c.components);
 		}, thisApp.instanceId);
@@ -403,6 +422,22 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	}
 
 	/**
+	 * Gets Scheduler Order s that are needed from the other
+	 * {@link OpenemsAppInstance}s. Every Id from the scheduler orders gets append
+	 * to the list.
+	 *
+	 * @param thisApp the app which ip s should not be included
+	 * @return all needed Scheduler Order s from the other apps
+	 */
+	private List<String> getOtherAppSchedulerOrders(OpenemsAppInstance thisApp) {
+		List<String> allOtherIps = new ArrayList<>();
+		this.foreachAppConfiguration(c -> {
+			allOtherIps.addAll(c.schedulerExecutionOrder);
+		}, thisApp.instanceId);
+		return allOtherIps;
+	}
+
+	/**
 	 * Gets the component id s that can be replaced.
 	 *
 	 * @param app        the components of which app
@@ -415,7 +450,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	protected final Map<String, String> getReplaceableComponentIds(OpenemsApp app, JsonObject properties)
 			throws OpenemsNamedException {
 		final var prefix = "?_?_";
-		var config = app.getAppConfiguration(ConfigurationTarget.TEST, properties);
+		var config = app.getAppConfiguration(ConfigurationTarget.TEST, properties, null);
 		var copyBuilder = JsonUtils.buildJsonObject();
 		for (var entry : properties.entrySet()) {
 			copyBuilder.add(entry.getKey(), entry.getValue());
@@ -424,7 +459,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			copyBuilder.addProperty(comp.getId(), prefix);
 		}
 		var copy = copyBuilder.build();
-		var configWithNewIds = app.getAppConfiguration(ConfigurationTarget.TEST, copy);
+		var configWithNewIds = app.getAppConfiguration(ConfigurationTarget.TEST, copy, null);
 		Map<String, String> replaceableComponentIds = new HashMap<>();
 		for (var comp : configWithNewIds.components) {
 			if (comp.getId().startsWith(prefix)) {
@@ -450,7 +485,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<JsonrpcResponseSuccess> handleAddAppInstanceRequest(User user,
+	protected CompletableFuture<JsonrpcResponseSuccess> handleAddAppInstanceRequest(User user,
 			AddAppInstance.Request request) throws OpenemsNamedException {
 		var instanceId = UUID.randomUUID();
 
@@ -505,7 +540,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.id));
 			}
 			var app = this.findAppById(instance.appId);
-			var config = app.getAppConfiguration(ConfigurationTarget.DELETE, instance.properties);
+
+			var config = app.getAppConfiguration(ConfigurationTarget.DELETE, instance.properties, null);
 			List<OpenemsNamedException> errors = new Vector<>();
 
 			var deleteComponents = CompletableFuture.runAsync(() -> {
@@ -513,6 +549,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 					var deletedIds = this.deleteComponents(user, config.components,
 							this.getOtherAppComponents(instance));
 					deletedIds.addAll(config.schedulerExecutionOrder);
+					// do not remove ids in scheduler from other apps
+					// e. g. Home has ctrlBalancing0 in scheduler
+					// and also KebaEvcs has the ctrlBalancing0 in the scheduler
+					deletedIds.removeAll(this.getOtherAppSchedulerOrders(instance));
 					this.componentUtil.removeIdsInSchedulerIfExisting(user, deletedIds);
 				} catch (OpenemsNamedException e) {
 					errors.add(e);
@@ -565,8 +605,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			GetAppAssistant.Request request) throws OpenemsNamedException {
 		for (var app : this.availableApps) {
 			if (request.appId.equals(app.getAppId())) {
-				return CompletableFuture
-						.completedFuture(new GetAppAssistant.Response(request.id, app.getAppAssistant()));
+				return CompletableFuture.completedFuture(
+						new GetAppAssistant.Response(request.id, app.getAppAssistant(user.getLanguage())));
 			}
 		}
 		throw new OpenemsException("App-ID [" + request.appId + "] is unknown");
@@ -620,7 +660,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		var app = this.availableApps.stream().filter(t -> t.getAppId().equals(request.appId)).findFirst().get();
 		var instances = this.instantiatedApps.stream().filter(t -> t.appId.equals(request.appId))
 				.collect(Collectors.toList());
-		return CompletableFuture.completedFuture(new GetApp.Response(request.id, app, instances));
+		return CompletableFuture.completedFuture(new GetApp.Response(request.id, app, instances, user.getLanguage()));
 	}
 
 	/**
@@ -633,8 +673,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppsRequest(User user, GetApps.Request request)
 			throws OpenemsNamedException {
-		return CompletableFuture
-				.completedFuture(new GetApps.Response(request.id, this.availableApps, this.instantiatedApps));
+		return CompletableFuture.completedFuture(
+				new GetApps.Response(request.id, this.availableApps, this.instantiatedApps, user.getLanguage()));
 	}
 
 	@Override
@@ -756,7 +796,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @param actualComp the actual component that exists
 	 * @throws OpenemsNamedException when the configuration can not be rewritten
 	 */
-	private void reconfigure(User user, Component myComp, Component actualComp) throws OpenemsNamedException {
+	private void reconfigure(User user, EdgeConfig.Component myComp, EdgeConfig.Component actualComp)
+			throws OpenemsNamedException {
 		if (ComponentUtilImpl.isSameConfiguration(null, myComp, actualComp)) {
 			return;
 		}
@@ -767,7 +808,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				.collect(Collectors.toList());
 		properties.add(new Property("alias", myComp.getAlias()));
 		var updateRequest = new UpdateComponentConfigRequest(actualComp.getId(), properties);
-		this.componentManager.handleJsonrpcRequest(user, updateRequest);
+		// user can be null using internal method
+		((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, updateRequest);
 	}
 
 	/**
@@ -780,7 +822,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	private void updateAppManagerConfiguration(User user, List<OpenemsAppInstance> apps) throws OpenemsNamedException {
 		var p = new Property("apps", getJsonAppsString(apps));
 		var updateRequest = new UpdateComponentConfigRequest(SINGLETON_COMPONENT_ID, Arrays.asList(p));
-		this.componentManager.handleJsonrpcRequest(user, updateRequest);
+		// user can be null using internal method
+		((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, updateRequest);
 	}
 
 	/**
@@ -802,11 +845,13 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		} else {
 			errors = errorList;
 		}
+		final var language = user != null ? user.getLanguage() : null;
 		AppConfiguration oldAppConfigTemp = null;
 		if (oldAppInstance != null) {
 			oldAppInstance.properties.addProperty("ALIAS", oldAppInstance.alias);
 			try {
-				oldAppConfigTemp = app.getAppConfiguration(ConfigurationTarget.VALIDATE, oldAppInstance.properties);
+				oldAppConfigTemp = app.getAppConfiguration(ConfigurationTarget.VALIDATE, oldAppInstance.properties,
+						language);
 			} catch (OpenemsNamedException ex) {
 				errors.add(ex.getMessage());
 			}
@@ -817,7 +862,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		newAppInstance.properties.addProperty("ALIAS", newAppInstance.alias);
 		final var otherComponents = this.getOtherAppComponents(newAppInstance);
 		final var newAppConfig = this.getNewAppConfigWithReplacedIds(app, oldAppInstance, newAppInstance,
-				otherComponents);
+				otherComponents, language);
 
 		// TODO remove 'if' if it works on windows
 		// rewriting network configuration only works on Linux
@@ -851,9 +896,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 		// adds / updates components
 		var updatingComponents = CompletableFuture.runAsync(() -> {
-			var createdComponents = new LinkedList<Component>();
+			var createdComponents = new LinkedList<EdgeConfig.Component>();
 			// create components
-			for (Component comp : ComponentUtilImpl.order(newAppConfig.components)) {
+			for (var comp : ComponentUtilImpl.order(newAppConfig.components)) {
 				/**
 				 * if comp already exists with same config as needed => use it. if comp exist
 				 * with different config and no other app needs it => rewrite settings. if comp

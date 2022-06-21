@@ -5,6 +5,7 @@ import org.osgi.service.component.ComponentConstants;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.validator.Validator;
 
 public interface OpenemsApp {
@@ -12,18 +13,20 @@ public interface OpenemsApp {
 	/**
 	 * Gets the {@link AppAssistant} for this {@link OpenemsApp}.
 	 *
+	 * @param language the language of the {@link AppAssistant}
 	 * @return the AppAssistant
 	 */
-	public AppAssistant getAppAssistant();
+	public AppAssistant getAppAssistant(Language language);
 
 	/**
 	 * Gets the {@link AppConfiguration} needed for the {@link OpenemsApp}.
 	 *
-	 * @param target the {@link ConfigurationTarget}
-	 * @param config the configured app 'properties'
+	 * @param target   the {@link ConfigurationTarget}
+	 * @param config   the configured app 'properties'
+	 * @param language the language of the configuration
 	 * @return the app Configuration
 	 */
-	public AppConfiguration getAppConfiguration(ConfigurationTarget target, JsonObject config)
+	public AppConfiguration getAppConfiguration(ConfigurationTarget target, JsonObject config, Language language)
 			throws OpenemsNamedException;
 
 	/**
@@ -58,9 +61,10 @@ public interface OpenemsApp {
 	/**
 	 * Gets the name of the {@link OpenemsApp}.
 	 *
+	 * @param language the language of the name
 	 * @return a human readable name
 	 */
-	public String getName();
+	public String getName(Language language);
 
 	/**
 	 * Gets the {@link OpenemsAppCardinality} of the {@link OpenemsApp}.

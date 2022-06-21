@@ -2,16 +2,15 @@ package io.openems.edge.core.appmanager.validator;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
@@ -25,10 +24,10 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 
 public class Validator {
 
-	private static final Logger LOG = Logger.getLogger(Validator.class.getName());
+	private static final Logger LOG = LoggerFactory.getLogger(Validator.class);
 
-	private final Map<String, Map<String, ?>> compatibleCheckableNames;
-	private final Map<String, Map<String, ?>> installableCheckableNames;
+	private final List<CheckableConfig> compatibleCheckableConfigs;
+	private final List<CheckableConfig> installableCheckableConfigs;
 
 	private ThrowingBiFunction<ConfigurationTarget, //
 			JsonObject, //
@@ -38,25 +37,60 @@ public class Validator {
 
 	public static final class Builder {
 
-		private Map<String, Map<String, ?>> compatibleCheckableNames;
-		private Map<String, Map<String, ?>> installableCheckableNames;
+		private List<CheckableConfig> compatibleCheckableConfigs;
+		private List<CheckableConfig> installableCheckableConfigs;
 
 		protected Builder() {
 
 		}
 
-		public Builder setCompatibleCheckableNames(Map<String, Map<String, ?>> compatibleCheckableNames) {
-			this.compatibleCheckableNames = compatibleCheckableNames;
+		public Builder setCompatibleCheckableConfigs(List<CheckableConfig> compatibleCheckableConfigs) {
+			this.compatibleCheckableConfigs = compatibleCheckableConfigs;
 			return this;
 		}
 
-		public Builder setInstallableCheckableNames(Map<String, Map<String, ?>> installableCheckableNames) {
-			this.installableCheckableNames = installableCheckableNames;
+		public Builder setInstallableCheckableConfigs(List<CheckableConfig> installableCheckableConfigs) {
+			this.installableCheckableConfigs = installableCheckableConfigs;
 			return this;
 		}
 
 		public Validator build() {
-			return new Validator(this.compatibleCheckableNames, this.installableCheckableNames);
+			return new Validator(this.compatibleCheckableConfigs, this.installableCheckableConfigs);
+		}
+
+	}
+
+	// TODO convert to record in java 17.
+	public static final class CheckableConfig {
+
+		private final String checkableComponentName;
+		private final boolean invertResult;
+		private final Map<String, ?> properties;
+
+		public CheckableConfig(String checkableComponentName, boolean invertResult, Map<String, ?> properties) {
+			this.checkableComponentName = checkableComponentName;
+			this.invertResult = invertResult;
+			this.properties = properties;
+		}
+
+		public CheckableConfig(String checkableComponentName, Map<String, ?> properties) {
+			this(checkableComponentName, false, properties);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (this.getClass() != obj.getClass()) {
+				return false;
+			}
+			var other = (CheckableConfig) obj;
+			return java.util.Objects.equals(this.checkableComponentName, other.checkableComponentName)
+					&& this.invertResult == other.invertResult;
 		}
 
 	}
@@ -95,15 +129,14 @@ public class Validator {
 		return new Builder();
 	}
 
-	protected Validator(Map<String, Map<String, ?>> compatibleCheckableNames,
-			Map<String, Map<String, ?>> installableCheckableNames) {
-		this.compatibleCheckableNames = compatibleCheckableNames != null //
-				? compatibleCheckableNames
-				: new HashMap<>();
-		this.installableCheckableNames = installableCheckableNames != null //
-				? installableCheckableNames
-				: new HashMap<>();
-
+	protected Validator(List<CheckableConfig> compatibleCheckableConfigs,
+			List<CheckableConfig> installableCheckableConfigs) {
+		this.compatibleCheckableConfigs = compatibleCheckableConfigs != null //
+				? compatibleCheckableConfigs
+				: Lists.newArrayList();
+		this.installableCheckableConfigs = installableCheckableConfigs != null //
+				? installableCheckableConfigs
+				: Lists.newArrayList();
 	}
 
 	/**
@@ -112,48 +145,54 @@ public class Validator {
 	 * @return the error messages
 	 */
 	public List<String> getErrorCompatibleMessages() {
-		return getErrorMessages(this.compatibleCheckableNames, false);
+		return getErrorMessages(this.compatibleCheckableConfigs, false);
 	}
 
 	/**
 	 * Gets the error messages for the given {@link Checkable}.
 	 *
-	 * @param checkableNames  the {@link Checkable} to be checked.
-	 * @param returnImmediate after the first checkable who returns false
+	 * @param checkableConfigs the {@link Checkable}s to be checked.
+	 * @param returnImmediate  after the first checkable who returns false
 	 * @return a list of errors
 	 */
-	private static List<String> getErrorMessages(Map<String, Map<String, ?>> checkableNames, boolean returnImmediate) {
-		if (checkableNames == null || checkableNames.isEmpty()) {
+	private static List<String> getErrorMessages(List<CheckableConfig> checkableConfigs, boolean returnImmediate) {
+		if (checkableConfigs.isEmpty()) {
 			return new ArrayList<>();
 		}
-		var errorMessages = new ArrayList<String>(checkableNames.size());
+		var errorMessages = new ArrayList<String>(checkableConfigs.size());
 		var bundleContext = FrameworkUtil.getBundle(Checkable.class).getBundleContext();
 		// build filter
 		var filterBuilder = new StringBuilder();
-		if (checkableNames.size() > 1) {
+		if (checkableConfigs.size() > 1) {
 			filterBuilder.append("(|");
 		}
-		checkableNames.entrySet().forEach(t -> filterBuilder.append("(component.name=" + t.getKey() + ")"));
-		if (checkableNames.size() > 1) {
+		checkableConfigs.forEach(t -> filterBuilder.append("(component.name=" + t.checkableComponentName + ")"));
+		if (checkableConfigs.size() > 1) {
 			filterBuilder.append(")");
 		}
 		try {
 			// get all service references
 			Collection<ServiceReference<Checkable>> serviceReferences = bundleContext
 					.getServiceReferences(Checkable.class, filterBuilder.toString());
-			var noneExistingCheckables = Lists.<String>newArrayList();
-			checkableNames.forEach((t, u) -> noneExistingCheckables.add(t));
+			var noneExistingCheckables = Lists.<CheckableConfig>newArrayList();
+			checkableConfigs.forEach(c -> noneExistingCheckables.add(c));
 			var isReturnedImmediate = false;
 			for (var reference : serviceReferences) {
 				var componentName = (String) reference.getProperty(OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME);
-				var properties = checkableNames.get(componentName);
+				var checkableConfig = checkableConfigs.stream()
+						.filter(c -> c.checkableComponentName.equals(componentName)).findFirst().orElse(null);
 				var checkable = bundleContext.getService(reference);
-				if (properties != null) {
-					checkable.setProperties(properties);
+				if (checkableConfig.properties != null) {
+					checkable.setProperties(checkableConfig.properties);
 				}
-				noneExistingCheckables.remove(componentName);
-				if (!checkable.check()) {
-					errorMessages.add(checkable.getErrorMessage());
+				noneExistingCheckables.removeIf(c -> c.equals(checkableConfig));
+				var result = checkable.check();
+				if (result == checkableConfig.invertResult) {
+					var errorMessage = checkable.getErrorMessage();
+					if (checkableConfig.invertResult) {
+						errorMessage = "Invert[" + errorMessage + "]";
+					}
+					errorMessages.add(errorMessage);
 					if (returnImmediate) {
 						isReturnedImmediate = true;
 						break;
@@ -162,8 +201,8 @@ public class Validator {
 			}
 
 			if (!noneExistingCheckables.isEmpty() && !isReturnedImmediate) {
-				LOG.log(Level.WARNING, "Checkables[" + noneExistingCheckables.stream().collect(Collectors.joining(";"))
-						+ "] are not found!");
+				LOG.warn("Checkables[" + noneExistingCheckables.stream().map(c -> c.checkableComponentName)
+						.collect(Collectors.joining(";")) + "] are not found!");
 			}
 
 			// free all service references
@@ -183,7 +222,7 @@ public class Validator {
 	 * @return the error messages
 	 */
 	public List<String> getErrorInstallableMessages() {
-		return getErrorMessages(this.installableCheckableNames, false);
+		return getErrorMessages(this.installableCheckableConfigs, false);
 	}
 
 	/**
@@ -192,10 +231,10 @@ public class Validator {
 	 * @return the Status
 	 */
 	public OpenemsAppStatus getStatus() {
-		if (!getErrorMessages(this.compatibleCheckableNames, true).isEmpty()) {
+		if (!getErrorMessages(this.compatibleCheckableConfigs, true).isEmpty()) {
 			return OpenemsAppStatus.INCOMPATIBLE;
 		}
-		if (!getErrorMessages(this.installableCheckableNames, true).isEmpty()) {
+		if (!getErrorMessages(this.installableCheckableConfigs, true).isEmpty()) {
 			return OpenemsAppStatus.COMPATIBLE;
 		}
 		return OpenemsAppStatus.INSTALLABLE;
@@ -243,18 +282,18 @@ public class Validator {
 		if (checkables == null) {
 			return;
 		}
-		var errors = getErrorMessages(this.compatibleCheckableNames, false);
+		var errors = getErrorMessages(this.compatibleCheckableConfigs, false);
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining(";")));
 		}
 	}
 
-	public Map<String, Map<String, ?>> getCompatibleCheckableNames() {
-		return this.compatibleCheckableNames;
+	public List<CheckableConfig> getCompatibleCheckableConfigs() {
+		return this.compatibleCheckableConfigs;
 	}
 
-	public Map<String, Map<String, ?>> getInstallableCheckableNames() {
-		return this.installableCheckableNames;
+	public List<CheckableConfig> getInstallableCheckableConfigs() {
+		return this.installableCheckableConfigs;
 	}
 
 }

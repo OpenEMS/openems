@@ -1,4 +1,4 @@
-package io.openems.edge.app.heat;
+package io.openems.edge.app.loadcontrol;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -19,8 +19,9 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
+import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.heat.CombinedHeatAndPower.Property;
+import io.openems.edge.app.loadcontrol.ThresholdControl.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
@@ -38,32 +39,34 @@ import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.appmanager.validator.Validator.Builder;
 
 /**
- * Describes a App for a Heating Element.
+ * Describes a App for a Threshold Controller.
  *
  * <pre>
   {
-    "appId":"App.Heat.CHP",
-    "alias":"Blockheizkraftwerk (BHKW)",
+    "appId":"App.LoadControl.ThresholdControl",
+    "alias":"Schwellwertsteuerung",
     "instanceId": UUID,
     "image": base64,
     "properties":{
-    	"CTRL_CHP_SOC_ID": "ctrlChpSoc0",
-    	"OUTPUT_CHANNEL": "io0/Relay1"
+    	"CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID": "ctrlIoChannelSingleThreshold0",
+    	"OUTPUT_CHANNELS":['io1/Relay1', 'io1/Relay2']
     },
     "appDescriptor": {
+    	"websiteUrl": <a href=
+"https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/">https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/</a>
     }
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.Heat.CHP")
-public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implements OpenemsApp {
+@org.osgi.service.component.annotations.Component(name = "App.LoadControl.ThresholdControl")
+public class ThresholdControl extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property implements DefaultEnum {
 		// User values
-		ALIAS("Blockheizkraftwerk"), //
-		OUTPUT_CHANNEL("io0/Relay1"), //
+		ALIAS("Schwellwertsteuerung"), //
+		OUTPUT_CHANNELS("['io0/Relay1']"), //
 		// Components
-		CTRL_CHP_SOC_ID("ctrlChpSoc0");
+		CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID("ctrlIoChannelSingleThreshold0");
 
 		private final String defaultValue;
 
@@ -79,7 +82,7 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Activate
-	public CombinedHeatAndPower(@Reference ComponentManager componentManager, ComponentContext componentContext,
+	public ThresholdControl(@Reference ComponentManager componentManager, ComponentContext componentContext,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
 		super(componentManager, componentContext, cm, componentUtil);
 	}
@@ -87,19 +90,22 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
-			final var bhcId = this.getId(t, p, Property.CTRL_CHP_SOC_ID);
+
+			final var ctrlIoChannelSingleThresholdId = this.getId(t, p, Property.CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID);
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-			final var outputChannelAddress = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL);
+
+			final var outputChannelAddress = EnumUtils.getAsJsonArray(p, Property.OUTPUT_CHANNELS);
 
 			List<Component> comp = new ArrayList<>();
 
-			comp.add(new EdgeConfig.Component(bhcId, alias, "Controller.CHP.SoC", JsonUtils.buildJsonObject() //
-					.addProperty("inputChannelAddress", "_sum/EssSoc")
-					.addProperty("outputChannelAddress", outputChannelAddress) //
-					.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("lowThreshold", 20)) //
-					.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("highThreshold", 80)) //
-					.build()));//
+			comp.add(new EdgeConfig.Component(ctrlIoChannelSingleThresholdId, alias,
+					"Controller.IO.ChannelSingleThreshold", JsonUtils.buildJsonObject() //
+							.onlyIf(t == ConfigurationTarget.ADD,
+									j -> j.addProperty("inputChannelAddress", "_sum/EssSoc"))
+							.add("outputChannelAddress", outputChannelAddress) //
+							.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("threshold", 50)) //
+							.build()));//
 
 			return new AppConfiguration(comp);
 		};
@@ -110,20 +116,19 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL) //
+						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNELS) //
+								.isMulti(true) //
 								.setOptions(this.componentUtil.getAllRelays() //
 										.stream().map(r -> r.relays).flatMap(List::stream) //
 										.collect(Collectors.toList())) //
 								.setDefaultValueWithStringSupplier(() -> {
 									var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(),
 											new int[] { 1 }, new int[] { 1 });
-									if (relays == null) {
-										return Property.OUTPUT_CHANNEL.getDefaultValue();
-									}
-									return relays[0];
+									return relays == null ? null : relays[0];
 								}) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannel.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannel.description")) //
+								.isRequired(true) //
+								.setLabel(bundle.getString(this.getAppId() + ".outputChannels.label")) //
+								.setDescription(bundle.getString(this.getAppId() + ".outputChannels.description")) //
 								.build())
 						.build())
 				.build();
@@ -137,7 +142,7 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 
 	@Override
 	public OpenemsAppCategory[] getCategorys() {
-		return new OpenemsAppCategory[] { OpenemsAppCategory.HEAT };
+		return new OpenemsAppCategory[] { OpenemsAppCategory.LOAD_CONTROL };
 	}
 
 	@Override
@@ -157,7 +162,7 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE;
+		return OpenemsAppCardinality.MULTIPLE;
 	}
 
 }

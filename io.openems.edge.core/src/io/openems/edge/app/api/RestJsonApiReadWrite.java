@@ -2,7 +2,6 @@ package io.openems.edge.app.api;
 
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -14,7 +13,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
@@ -32,7 +32,6 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
-import io.openems.edge.core.appmanager.validator.CheckNoComponentInstalledOfFactoryId;
 import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.appmanager.validator.Validator.Builder;
 
@@ -73,12 +72,13 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()) //
+	public AppAssistant getAppAssistant(Language language) {
+		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.API_TIMEOUT) //
-								.setLabel("Api-Timeout") //
-								.setDescription("Sets the timeout in seconds for updates on Channels set by this Api.")
+								.setLabel(bundle.getString("App.Api.apiTimeout.label")) //
+								.setDescription(bundle.getString("App.Api.apiTimeout.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(60) //
 								.setMin(30) //
@@ -100,30 +100,19 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
-	public String getName() {
-		return "Rest/JSON-Api Read-Write";
-	}
-
-	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE;
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
-
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 			var controllerId = this.getId(t, p, Property.CONTROLLER_ID, "ctrlApiRest0");
 
 			var apiTimeout = EnumUtils.getAsInt(p, Property.API_TIMEOUT);
 
 			List<EdgeConfig.Component> components = Lists.newArrayList(//
-					new EdgeConfig.Component(controllerId, this.getName(), "Controller.Api.Rest.ReadWrite",
+					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.Rest.ReadWrite",
 							JsonUtils.buildJsonObject() //
 									.addProperty("apiTimeout", apiTimeout) //
 									.build()));
@@ -135,22 +124,16 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	@Override
 	public Builder getValidateBuilder() {
 		return Validator.create() //
-				.setInstallableCheckableNames(new Validator.MapBuilder<>(new TreeMap<String, Map<String, ?>>()) //
-						.put(CheckAppsNotInstalled.COMPONENT_NAME, //
+				.setInstallableCheckableConfigs(Lists.newArrayList(//
+						new Validator.CheckableConfig(CheckAppsNotInstalled.COMPONENT_NAME,
 								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("appIds", new String[] { "App.Api.RestJson.ReadOnly" }) //
-										.build())
-						// TODO remove this if the free apps get created via App-Manager and an actual
-						// app instance gets created
-						.put(CheckNoComponentInstalledOfFactoryId.COMPONENT_NAME, //
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
-										.put("factorieId", "Controller.Api.Rest.ReadOnly") //
-										.build())
-						.build());
+										.build())));
 	}
 
 	@Override
 	protected Class<Property> getPropertyClass() {
 		return Property.class;
 	}
+
 }

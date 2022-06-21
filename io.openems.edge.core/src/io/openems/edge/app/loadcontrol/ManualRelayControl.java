@@ -1,4 +1,4 @@
-package io.openems.edge.app.heat;
+package io.openems.edge.app.loadcontrol;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -20,7 +20,7 @@ import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.heat.CombinedHeatAndPower.Property;
+import io.openems.edge.app.loadcontrol.ManualRelayControl.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
@@ -38,32 +38,34 @@ import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.appmanager.validator.Validator.Builder;
 
 /**
- * Describes a App for a Heating Element.
+ * Describes a App for a manual relay control.
  *
  * <pre>
   {
-    "appId":"App.Heat.CHP",
-    "alias":"Blockheizkraftwerk (BHKW)",
+    "appId":"App.LoadControl.ManualRelayControl",
+    "alias":"Manuelle Relaissteuerung",
     "instanceId": UUID,
     "image": base64,
     "properties":{
-    	"CTRL_CHP_SOC_ID": "ctrlChpSoc0",
-    	"OUTPUT_CHANNEL": "io0/Relay1"
+    	"CTRL_IO_FIX_DIGITAL_OUTPUT_ID": "ctrlIoFixDigitalOutput0",
+    	"OUTPUT_CHANNEL": "io1/Relay1"
     },
     "appDescriptor": {
+    	"websiteUrl": <a href=
+"https://fenecon.de/fems-2-2/fems-app-manuelle-relaissteuerung/">https://fenecon.de/fems-2-2/fems-app-manuelle-relaissteuerung/</a>
     }
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.Heat.CHP")
-public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implements OpenemsApp {
+@org.osgi.service.component.annotations.Component(name = "App.LoadControl.ManualRelayControl")
+public class ManualRelayControl extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property implements DefaultEnum {
 		// User values
-		ALIAS("Blockheizkraftwerk"), //
+		ALIAS("Manuelle Relaissteuerung"), //
 		OUTPUT_CHANNEL("io0/Relay1"), //
 		// Components
-		CTRL_CHP_SOC_ID("ctrlChpSoc0");
+		CTRL_IO_FIX_DIGITAL_OUTPUT_ID("ctrlIoFixDigitalOutput0");
 
 		private final String defaultValue;
 
@@ -79,7 +81,7 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Activate
-	public CombinedHeatAndPower(@Reference ComponentManager componentManager, ComponentContext componentContext,
+	public ManualRelayControl(@Reference ComponentManager componentManager, ComponentContext componentContext,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
 		super(componentManager, componentContext, cm, componentUtil);
 	}
@@ -87,19 +89,19 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
-			final var bhcId = this.getId(t, p, Property.CTRL_CHP_SOC_ID);
+
+			final var ctrlIoFixDigitalOutputId = this.getId(t, p, Property.CTRL_IO_FIX_DIGITAL_OUTPUT_ID);
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
+
 			final var outputChannelAddress = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL);
 
 			List<Component> comp = new ArrayList<>();
 
-			comp.add(new EdgeConfig.Component(bhcId, alias, "Controller.CHP.SoC", JsonUtils.buildJsonObject() //
-					.addProperty("inputChannelAddress", "_sum/EssSoc")
-					.addProperty("outputChannelAddress", outputChannelAddress) //
-					.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("lowThreshold", 20)) //
-					.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("highThreshold", 80)) //
-					.build()));//
+			comp.add(new EdgeConfig.Component(ctrlIoFixDigitalOutputId, alias, "Controller.Io.FixDigitalOutput",
+					JsonUtils.buildJsonObject() //
+							.addProperty("outputChannelAddress", outputChannelAddress) //
+							.build()));//
 
 			return new AppConfiguration(comp);
 		};
@@ -117,11 +119,9 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 								.setDefaultValueWithStringSupplier(() -> {
 									var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(),
 											new int[] { 1 }, new int[] { 1 });
-									if (relays == null) {
-										return Property.OUTPUT_CHANNEL.getDefaultValue();
-									}
-									return relays[0];
+									return relays == null ? null : relays[0];
 								}) //
+								.isRequired(true) //
 								.setLabel(bundle.getString(this.getAppId() + ".outputChannel.label")) //
 								.setDescription(bundle.getString(this.getAppId() + ".outputChannel.description")) //
 								.build())
@@ -137,7 +137,7 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 
 	@Override
 	public OpenemsAppCategory[] getCategorys() {
-		return new OpenemsAppCategory[] { OpenemsAppCategory.HEAT };
+		return new OpenemsAppCategory[] { OpenemsAppCategory.LOAD_CONTROL };
 	}
 
 	@Override
@@ -157,7 +157,7 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE;
+		return OpenemsAppCardinality.MULTIPLE;
 	}
 
 }
