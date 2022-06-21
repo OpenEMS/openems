@@ -33,6 +33,7 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.Validator;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
 
 public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implements OpenemsApp {
@@ -474,13 +475,34 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 		// check if exactly one app is available of the needed appId
 		for (var dependency : notRegisteredDependencies) {
-			var list = appManager.getInstantiatedApps().stream().filter(t -> t.appId.equals(dependency.appId))
-					.collect(Collectors.toList());
-			if (list.size() != 1) {
-				errors.add("Missing dependency  with Key[" + dependency.key + "] needed App[" + dependency.appId + "]");
-			} else {
-				checkProperties(errors, list.get(0).properties, neededDependencies, dependency.key);
+			List<String> minErrors = null;
+			for (var appConfig : dependency.appConfigs) {
+				var appConfigErrors = new LinkedList<String>();
+				if (appConfig.specificInstanceId != null) {
+					try {
+						var instance = appManager.findInstaceById(appConfig.specificInstanceId);
+						checkProperties(errors, instance.properties, appConfig, dependency.key);
+					} catch (NoSuchElementException e) {
+						appConfigErrors.add("Specific InstanceId[" + appConfig.specificInstanceId + "] not found!");
+					}
+				} else {
+
+					var list = appManager.getInstantiatedApps().stream().filter(t -> t.appId.equals(appConfig.appId))
+							.collect(Collectors.toList());
+					if (list.size() != 1) {
+						errors.add("Missing dependency with Key[" + dependency.key + "] needed App[" + appConfig.appId
+								+ "]");
+					} else {
+						checkProperties(errors, list.get(0).properties, appConfig, dependency.key);
+					}
+				}
+
+				if (minErrors == null || minErrors.size() > appConfigErrors.size()) {
+					minErrors = appConfigErrors;
+				}
 			}
+
+			errors.addAll(minErrors);
 		}
 
 		if (configDependencies == null) {
@@ -490,8 +512,30 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		for (var dependency : configDependencies) {
 			try {
 				var appInstance = appManager.findInstaceById(dependency.instanceId);
+				var dd = neededDependencies.stream().filter(d -> d.key.equals(dependency.key)).findAny();
+				if (dd.isEmpty()) {
+					errors.add("Can not get DependencyDeclaration of Dependency[" + dependency.key + "]");
+					continue;
+				}
+
+				// get app config
+				var appConfig = dd.get().appConfigs.stream() //
+						.filter(c -> c.specificInstanceId != null) //
+						.filter(c -> c.specificInstanceId.equals(appInstance.instanceId)).findAny();
+
+				if (appConfig.isEmpty()) {
+					appConfig = dd.get().appConfigs.stream() //
+							.filter(c -> c.appId != null) //
+							.filter(c -> c.appId.equals(appInstance.appId)).findAny();
+
+					if (appConfig.isEmpty()) {
+						errors.add("Can not get DependencyAppConfig of Dependency[" + dependency.key + "]");
+						continue;
+					}
+				}
+
 				// when available check properties
-				checkProperties(errors, appInstance.properties, neededDependencies, dependency.key);
+				checkProperties(errors, appInstance.properties, appConfig.get(), dependency.key);
 			} catch (NoSuchElementException e) {
 				errors.add("App with instance[" + dependency.instanceId + "] not available!");
 			}
@@ -499,13 +543,13 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	}
 
 	private static final void checkProperties(List<String> errors, JsonObject actualAppProperties,
-			List<DependencyDeclaration> neededDependencies, String dependecyKey) {
-		var subApp = neededDependencies.stream().filter(t -> t.key.equals(dependecyKey)).findFirst().orElse(null);
-		if (subApp == null) {
+			DependencyDeclaration.AppDependencyConfig appDependencyConfig, String dependecyKey) {
+		if (appDependencyConfig == null) {
 			errors.add("SubApp with Key[" + dependecyKey + "] not found!");
 			return;
 		}
-		for (var property : subApp.properties.entrySet()) {
+
+		for (var property : appDependencyConfig.properties.entrySet()) {
 			var actualValue = actualAppProperties.get(property.getKey());
 			if (actualValue == null) {
 				errors.add("Value for Key[" + property.getKey() + "] not found!");
