@@ -118,6 +118,9 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildCheckbox(Property.SELL_TO_GRID_LIMIT_ENABLED) //
+								.setLabel(bundle.getString(this.getAppId() + ".sellToGridLimitEnabled.label")) //
+								.setDescription(
+										bundle.getString(this.getAppId() + ".sellToGridLimitEnabled.description")) //
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.MAXIMUM_SELL_TO_GRID_POWER) //
 								.setInputType(Type.NUMBER) //

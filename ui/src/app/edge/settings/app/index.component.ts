@@ -15,6 +15,11 @@ export class IndexComponent {
   private static readonly SELECTOR = "appIndex";
   public readonly spinnerId: string = IndexComponent.SELECTOR;
 
+  /**
+   * e. g. if more than 4 apps are in a list the categories are displayed
+   */
+  private static readonly MAX_APPS_IN_LIST = 4;
+
   public apps: GetApps.App[] = [];
 
   public installedApps: AppList = { name: this.translate.instant('Edge.Config.App.installed'), appCategories: [] };
@@ -124,7 +129,7 @@ export class IndexComponent {
   }
 
   private showCategories(app: AppList) {
-    return this.sum(app) > 4
+    return this.sum(app) > IndexComponent.MAX_APPS_IN_LIST
   }
 
   private isEmpty(app: AppList) {

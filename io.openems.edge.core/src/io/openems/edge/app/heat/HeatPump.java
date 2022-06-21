@@ -30,6 +30,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.appmanager.validator.Validator.Builder;
@@ -85,7 +86,18 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 									.addProperty("outputChannel1", outputChannel1) //
 									.addProperty("outputChannel2", outputChannel2) //
 									.build()));
-			return new AppConfiguration(comp);
+
+			
+			// TODO dynamic app id for all relays
+			var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", "App.Hardware.KMtronic8Channel", "relay", //
+					DependencyDeclaration.CreatePolicy.NEVER, //
+					DependencyDeclaration.UpdatePolicy.NEVER, //
+					DependencyDeclaration.DeletePolicy.NEVER, //
+					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
+					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+					null));
+
+			return new AppConfiguration(comp, null, null, dependencies);
 		};
 	}
 

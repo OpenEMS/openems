@@ -2,7 +2,6 @@ package io.openems.edge.core.appmanager.dependency;
 
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
 
 import com.google.common.base.Function;
 import com.google.gson.JsonObject;
@@ -20,25 +19,36 @@ public class DependencyDeclaration {
 	public final UpdatePolicy updatePolicy;
 	public final DeletePolicy deletePolicy;
 
+	public final DependencyUpdatePolicy dependencyUpdatePolicy;
 	public final DependencyDeletePolicy dependencyDeletePolicy;
 
 	// Dependency Supplier?
-	private final Supplier<String> supplierForAppId = null;
-	private final Function<List<OpenemsAppInstance>, String> supplierForInstanceIdFromExisting = null;
+//	private final Supplier<String> supplierForAppId = null;
+//	private final Function<List<OpenemsAppInstance>, String> supplierForInstanceIdFromExisting = null;
 
 	public DependencyDeclaration(String key, String appId, String alias, CreatePolicy createPolicy,
-			UpdatePolicy updatePolicy, DeletePolicy deletePolicy, DependencyDeletePolicy dependencyDeletePolicy, JsonObject properties) {
+			UpdatePolicy updatePolicy, DeletePolicy deletePolicy, DependencyUpdatePolicy dependencyUpdatePolicy,
+			DependencyDeletePolicy dependencyDeletePolicy, JsonObject properties) {
 		this.key = key;
 		this.appId = appId;
 		this.alias = alias;
-		this.properties = properties;
+		this.properties = properties == null ? new JsonObject() : properties;
 		this.createPolicy = createPolicy;
 		this.updatePolicy = updatePolicy;
 		this.deletePolicy = deletePolicy;
+		this.dependencyUpdatePolicy = dependencyUpdatePolicy;
 		this.dependencyDeletePolicy = dependencyDeletePolicy;
 	}
 
+	/**
+	 * Defines if the dependency app should get created when creating the parent
+	 * app.
+	 */
 	public static enum CreatePolicy {
+		/**
+		 * TODO
+		 */
+		HAS_TO_EXIST((t, u) -> false), //
 
 		/**
 		 * Always creates the dependent app except an {@link OpenemsAppInstance} is
@@ -76,6 +86,9 @@ public class DependencyDeclaration {
 		}
 	}
 
+	/**
+	 * Defines if the dependency should get updated when updating the parent app.
+	 */
 	public static enum UpdatePolicy {
 		ALWAYS(v -> true), //
 		IF_MINE(v -> v.allInstances.stream()
@@ -97,11 +110,13 @@ public class DependencyDeclaration {
 
 	}
 
+	/**
+	 * Defines if the dependency app gets deleted when deleting its parent.
+	 */
 	public static enum DeletePolicy {
 		ALWAYS(v -> true), //
-		IF_MINE(v -> v.allInstances.stream()
-				.anyMatch(a -> !a.equals(v.parent) && a.dependencies != null
-						&& a.dependencies.stream().anyMatch(d -> d.instanceId.equals(v.app2Update.instanceId)))), //
+		IF_MINE(v -> !v.allInstances.stream().filter(a -> !a.equals(v.parent) && a.dependencies != null)
+				.anyMatch(a -> a.dependencies.stream().anyMatch(d -> d.instanceId.equals(v.app2Update.instanceId)))), //
 		NEVER(v -> false), //
 		;
 
@@ -113,7 +128,7 @@ public class DependencyDeclaration {
 
 		public final boolean isAllowedToDelete(List<OpenemsAppInstance> allInstances, OpenemsAppInstance parent,
 				OpenemsAppInstance app2Delete) {
-			return isAllowedToDeleteFunction.apply(new AllowedToValues(allInstances, parent, app2Delete));
+			return this.isAllowedToDeleteFunction.apply(new AllowedToValues(allInstances, parent, app2Delete));
 		}
 	}
 
@@ -132,12 +147,15 @@ public class DependencyDeclaration {
 
 	// TODO
 	public static enum DependencyUpdatePolicy {
-		ALL, //
-		ONLY_NOT_CONFIGURED_PROPERTIES, //
-		NO_PROPERTIES, //
+		ALLOW_ALL, //
+		ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+		ALLOW_NONE, //
 		;
 	}
 
+	/**
+	 * Defines if the user can delete an app which is a dependency of another app.
+	 */
 	public static enum DependencyDeletePolicy {
 		NOT_ALLOWED, //
 		ALLOWED, //

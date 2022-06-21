@@ -75,7 +75,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 		MAX_FEED_IN_POWER, //
 		FEED_IN_SETTING, //
 
-		// Rundsteuerempfänger
+		// (ger. Rundsteuerempfänger)
 		RIPPLE_CONTROL_RECEIVER_AKTIV, //
 
 		// External AC PV
@@ -208,15 +208,6 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 											.add("_sum/ConsumptionActivePower") //
 											.build()) //
 									.build()),
-//					new EdgeConfig.Component("ctrlGridOptimizedCharge0",
-//							bundle.getString("App.PvSelfConsumption.GridOptimizedCharge.Name"),
-//							"Controller.Ess.GridOptimizedCharge", JsonUtils.buildJsonObject() //
-//									.addProperty("enabled", true) //
-//									.addProperty("ess.id", essId) //
-//									.addProperty("meter.id", "meter0") //
-//									.addProperty("sellToGridLimitEnabled", true) //
-//									.addProperty("maximumSellToGridPower", maxFeedInPower) //
-//									.build()),
 					new EdgeConfig.Component("ctrlEssSurplusFeedToGrid0",
 							bundle.getString(this.getAppId() + ".ctrlEssSurplusFeedToGrid0.alias"),
 							"Controller.Ess.Hybrid.Surplus-Feed-To-Grid", JsonUtils.buildJsonObject() //
@@ -233,16 +224,6 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.build())
 
 			);
-
-//			if (EnumUtils.getAsOptionalBoolean(p, Property.HAS_AC_METER).orElse(false)) {
-//				components.add(new EdgeConfig.Component("meter1", bundle.getString(this.getAppId() + ".meter1.alias"),
-//						"Meter.Socomec.Threephase", //
-//						JsonUtils.buildJsonObject() //
-//								.addProperty("enabled", true) //
-//								.addProperty("modbus.id", modbusIdExternal) //
-//								.addProperty("modbusUnitId", 6) //
-//								.build()));
-//			}
 
 			if (EnumUtils.getAsOptionalBoolean(p, Property.HAS_DC_PV1).orElse(false)) {
 				var alias = EnumUtils.getAsOptionalString(p, Property.DC_PV1_ALIAS).orElse("DC-PV 1");
@@ -306,6 +287,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 					DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
 					DependencyDeclaration.UpdatePolicy.ALWAYS, //
 					DependencyDeclaration.DeletePolicy.IF_MINE, //
+					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
 					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 					JsonUtils.buildJsonObject() //
 							.addProperty(GridOptimizedCharge.Property.SELL_TO_GRID_LIMIT_ENABLED.name(),
@@ -319,13 +301,14 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 						bundle.getString("App.PvSelfConsumption.GridOptimizedCharge.Name"), //
 						DependencyDeclaration.CreatePolicy.ALWAYS, //
 						DependencyDeclaration.UpdatePolicy.ALWAYS, //
-						DependencyDeclaration.DeletePolicy.ALWAYS, //
+						DependencyDeclaration.DeletePolicy.IF_MINE, //
+						DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
 						DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 						JsonUtils.buildJsonObject() //
 								.addProperty(SocomecMeter.Property.MODBUS_UNIT_ID.name(), 6) //
 								.build()));
-
 			}
+
 			return new AppConfiguration(components, schedulerExecutionOrder, null, dependencies);
 		};
 	}
