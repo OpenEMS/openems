@@ -448,7 +448,7 @@ export const TRANSLATION = {
                 incompatible: 'Incompatible',
                 buyApp: 'Comprar aplicación',
                 modifyApp: 'Modificar la aplicación',
-                createApp: 'Crear aplicación',
+                createApp: 'Instalar la aplicación',
                 deleteApp: 'Eliminar la aplicación',
                 updateApp: 'Actualizar la aplicación',
                 errorInstallable: 'Errores de instalación',

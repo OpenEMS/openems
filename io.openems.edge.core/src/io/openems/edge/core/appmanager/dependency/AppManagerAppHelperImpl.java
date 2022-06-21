@@ -116,7 +116,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					var appConfig = this.getAppDependencyConfig(dependencyApp, dependencieDeclaration.appConfigs);
 
 					if (appConfig == null) {
-						// TODO can not get app config
 						continue;
 					}
 

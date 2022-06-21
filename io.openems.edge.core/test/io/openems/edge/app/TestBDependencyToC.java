@@ -29,6 +29,9 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration.AppDependencyConfig;
 
+/**
+ * Test app for testing dependencies.
+ */
 @Component(name = "App.Test.TestBDependencyToC")
 public class TestBDependencyToC extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
@@ -57,11 +60,6 @@ public class TestBDependencyToC extends AbstractOpenemsApp<Property> implements 
 	@Override
 	public OpenemsAppCategory[] getCategorys() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TEST };
-	}
-
-	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 	@Override

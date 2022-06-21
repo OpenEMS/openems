@@ -25,7 +25,7 @@ export class InstallAppComponent implements OnInit {
   private edge: Edge = null;
   private isInstalling: boolean;
 
-  constructor(
+  public constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
     private websocket: Websocket,
@@ -33,7 +33,7 @@ export class InstallAppComponent implements OnInit {
   ) {
   }
 
-  ngOnInit() {
+  public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     let appId = this.route.snapshot.params["appId"];
     this.appId = appId;
@@ -94,7 +94,6 @@ export class InstallAppComponent implements OnInit {
         } else {
           this.service.toast("Successfully installed App", 'success');
         }
-
 
         this.form.markAsPristine();
       }).catch(reason => {

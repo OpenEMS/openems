@@ -34,7 +34,7 @@ export class UpdateAppComponent implements OnInit {
 
   private appName: string;
 
-  constructor(
+  public constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
     private websocket: Websocket,
@@ -42,7 +42,7 @@ export class UpdateAppComponent implements OnInit {
   ) {
   }
 
-  ngOnInit() {
+  public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     let appId = this.route.snapshot.params["appId"];
     this.service.setCurrentComponent("App " + appId, this.route).then(edge => {

@@ -464,7 +464,7 @@ export const TRANSLATION = {
             incompatible: 'Nekompatibilní',
             buyApp: 'koupit aplikaci',
             modifyApp: 'upravit aplikaci',
-            createApp: 'vytvořit aplikaci',
+            createApp: 'Instalace aplikace',
             deleteApp: 'odstranit aplikaci',
             updateApp: 'aktualizace aplikace',
             errorInstallable: 'Chyby pÅ™i instalaci',

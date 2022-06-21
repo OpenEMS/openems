@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { timeout } from 'rxjs/operators';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { environment } from 'src/environments';
 import { Service, Websocket } from '../../../shared/shared';
@@ -16,7 +17,7 @@ export class IndexComponent {
   public readonly spinnerId: string = IndexComponent.SELECTOR;
 
   /**
-   * e. g. if more than 4 apps are in a list the categories are displayed
+   * e. g. if more than 4 apps are in a list the apps are displayed in their categories
    */
   private static readonly MAX_APPS_IN_LIST = 4;
 
@@ -31,7 +32,7 @@ export class IndexComponent {
 
   public categories = [];
 
-  constructor(
+  public constructor(
     private route: ActivatedRoute,
     private service: Service,
     private websocket: Websocket,
@@ -39,7 +40,7 @@ export class IndexComponent {
   ) {
   }
 
-  ionViewWillEnter() {
+  private ionViewWillEnter() {
     // gets always called when entering the page
     this.init()
   }
@@ -69,7 +70,6 @@ export class IndexComponent {
                 this.categories.push({ val: category, isChecked: true })
               }
             });
-
           })
 
           this.updateSelection(null)
@@ -81,7 +81,11 @@ export class IndexComponent {
     });
   }
 
-  public updateSelection(event) {
+  /**
+   * Updates the slected categories.
+   * @param event the event of a click on a 'ion-fab-list' to stop it from closing
+   */
+  private updateSelection(event) {
     if (event != null) {
       event.stopPropagation()
     }
@@ -98,7 +102,6 @@ export class IndexComponent {
         }
         return true
       })
-
     })
 
     sortedApps.forEach(a => {
