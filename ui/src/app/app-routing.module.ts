@@ -25,7 +25,6 @@ import { IndexComponent as EdgeSettingsAppIndex } from './edge/settings/app/inde
 import { InstallAppComponent as EdgeSettingsAppInstall } from './edge/settings/app/install.component';
 import { SingleAppComponent as EdgeSettingsAppSingle } from './edge/settings/app/single.component';
 import { UpdateAppComponent as EdgeSettingsAppUpdate } from './edge/settings/app/update.component';
-import { AutoinstallerComponent as EdgeSettingsAutoinstallerComponent } from './edge/settings/autoinstaller/autoinstaller.component';
 import { ChannelsComponent as EdgeSettingsChannelsComponent } from './edge/settings/channels/channels.component';
 import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent } from './edge/settings/component/install/index.component';
 import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentComponent } from './edge/settings/component/install/install.component';
@@ -83,7 +82,6 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/component.install/:factoryId', component: EdgeSettingsComponentInstallComponentComponent },
   { path: 'device/:edgeId/settings/component.update', component: EdgeSettingsComponentUpdateIndexComponentComponent },
   { path: 'device/:edgeId/settings/component.update/:componentId', component: EdgeSettingsComponentUpdateComponentComponent },
-  { path: 'device/:edgeId/settings/autoinstaller', component: EdgeSettingsAutoinstallerComponent },
   { path: 'device/:edgeId/settings/network', component: EdgeSettingsNetworkComponent },
   { path: 'device/:edgeId/settings/profile', component: EdgeSettingsProfileComponent },
   { path: 'device/:edgeId/settings/profile/:componentId', component: AliasUpdateComponent },
