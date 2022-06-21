@@ -106,6 +106,7 @@ public class SocomecMeter extends AbstractMeterApp<Property> implements OpenemsA
 						.add(JsonFormlyUtil.buildSelect(Property.TYPE) //
 								.setLabel(bundle.getString("App.Meter.mountType.label")) //
 								.setOptions(this.buildMeterOptions(language)) //
+								.setDefaultValue("PRODUCTION") //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
 								.setLabel(bundle.getString("modbusUnitId")) //

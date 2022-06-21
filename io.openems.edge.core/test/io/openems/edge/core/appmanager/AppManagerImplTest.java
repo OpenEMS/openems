@@ -8,9 +8,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,9 +20,12 @@ import org.osgi.service.component.ComponentContext;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.integratedsystem.FeneconHome;
+import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
+import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.common.host.Host;
@@ -30,8 +33,14 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentContext;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.core.appmanager.dependency.AggregateTask;
+import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
+import io.openems.edge.core.appmanager.dependency.ComponentAggregateTaskImpl;
+import io.openems.edge.core.appmanager.dependency.SchedulerAggregateTaskImpl;
+import io.openems.edge.core.appmanager.dependency.StaticIpAggregateTaskImpl;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.Validator;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public class AppManagerImplTest {
 
@@ -39,7 +48,12 @@ public class AppManagerImplTest {
 	private DummyComponentManager componentManger;
 	private ComponentUtil componentUtil;
 
+	private Validator validator = new DummyValidator();
+
 	private FeneconHome homeApp;
+	private GridOptimizedCharge gridOptimizedCharge;
+	private SelfConsumptionOptimization selfConsumptionOptimization;
+
 	private KebaEvcs kebaEvcsApp;
 	private AwattarHourly awattarApp;
 	private StromdaoCorrently stromdao;
@@ -49,12 +63,11 @@ public class AppManagerImplTest {
 	@Before
 	public void beforeEach() throws Exception {
 
-		this.cm = new DummyConfigurationAdmin();
-		this.cm.getOrCreateEmptyConfiguration(AppManager.SINGLETON_SERVICE_PID);
-
 		final var essId = "ess0";
 		final var modbusIdInternal = "modbus0";
 		final var modbusIdExternal = "modbus1";
+
+		final var meterId = "meter0";
 
 		final var emergencyReserveEnabled = false;
 
@@ -62,6 +75,9 @@ public class AppManagerImplTest {
 		final var safetyCountry = "AUSTRIA";
 		final var maxFeedInPower = 10000;
 		final var feedInSetting = "LAGGING_0_95";
+
+		this.cm = new DummyConfigurationAdmin();
+		this.cm.getOrCreateEmptyConfiguration(AppManager.SINGLETON_SERVICE_PID);
 
 		this.componentManger = new DummyComponentManager();
 		this.componentManger.setConfigJson(JsonUtils.buildJsonObject() //
@@ -94,7 +110,7 @@ public class AppManagerImplTest {
 										.addProperty("invalidateElementsAfterReadErrors", 1) //
 										.build()) //
 								.build()) //
-						.add("meter0", JsonUtils.buildJsonObject() //
+						.add(meterId, JsonUtils.buildJsonObject() //
 								.addProperty("factoryId", "GoodWe.Grid-Meter") //
 								.addProperty("alias", "Netzzähler") //
 								.add("properties", JsonUtils.buildJsonObject() //
@@ -230,6 +246,13 @@ public class AppManagerImplTest {
 
 		this.homeApp = new FeneconHome(this.componentManger, getComponentContext("App.FENECON.Home"), this.cm,
 				this.componentUtil);
+
+		this.gridOptimizedCharge = new GridOptimizedCharge(this.componentManger,
+				getComponentContext("App.PvSelfConsumption.GridOptimizedCharge"), this.cm, this.componentUtil);
+
+		this.selfConsumptionOptimization = new SelfConsumptionOptimization(this.componentManger,
+				getComponentContext("App.PvSelfConsumption.SelfConsumptionOptimization"), this.cm, this.componentUtil);
+
 		this.kebaEvcsApp = new KebaEvcs(this.componentManger, getComponentContext("App.Evcs.Keba"), this.cm,
 				this.componentUtil);
 		this.awattarApp = new AwattarHourly(this.componentManger, getComponentContext("App.TimeVariablePrice.Awattar"),
@@ -237,18 +260,28 @@ public class AppManagerImplTest {
 		this.stromdao = new StromdaoCorrently(this.componentManger,
 				getComponentContext("App.TimeVariablePrice.Stromdao"), this.cm, this.componentUtil);
 
+		AggregateTask.ComponentAggregateTask componentTask = new ComponentAggregateTaskImpl(this.componentManger);
+		AggregateTask.SchedulerAggregateTask schedulerTask = new SchedulerAggregateTaskImpl(componentTask,
+				this.componentUtil);
+		AggregateTask.StaticIpAggregateTask staticIpTask = new StaticIpAggregateTaskImpl(this.componentUtil);
+
+		var appManagerAppHelper = new AppManagerAppHelperImpl(this.componentManger, this.componentUtil, this.validator,
+				componentTask, schedulerTask, staticIpTask);
+
 		this.sut = new AppManagerImpl();
 		new ComponentTest(this.sut) //
 				.addReference("cm", this.cm) //
 				.addReference("componentManager", this.componentManger) //
+				.addReference("appHelper", appManagerAppHelper) //
 				.addReference("availableApps",
-						ImmutableList.of(this.homeApp, this.kebaEvcsApp, this.awattarApp, this.stromdao)) //
+						ImmutableList.of(this.homeApp, this.gridOptimizedCharge, this.selfConsumptionOptimization,
+								this.kebaEvcsApp, this.awattarApp, this.stromdao)) //
 				.activate(MyConfig.create() //
 						.setApps(JsonUtils.buildJsonArray() //
 								.add(JsonUtils.buildJsonObject() //
 										.addProperty("appId", "App.FENECON.Home") //
 										.addProperty("alias", "FENECON Home") //
-										.addProperty("instanceId", "ef13f394-1a3c-43ed-b726-ef1efaf23fdf") //
+										.addProperty("instanceId", UUID.randomUUID().toString()) //
 										.add("properties", JsonUtils.buildJsonObject() //
 												.addProperty("SAFETY_COUNTRY", safetyCountry) //
 												.addProperty("MAX_FEED_IN_POWER", maxFeedInPower) //
@@ -259,6 +292,24 @@ public class AppManagerImplTest {
 												.addProperty("EMERGENCY_RESERVE_ENABLED", emergencyReserveEnabled) //
 												.build()) //
 										.build()) //
+								.add(JsonUtils.buildJsonObject() //
+										.addProperty("appId", "App.PvSelfConsumption.GridOptimizedCharge") //
+										.addProperty("alias", "") //
+										.addProperty("instanceId", UUID.randomUUID().toString()) //
+										.add("properties", JsonUtils.buildJsonObject() //
+												.addProperty("SELL_TO_GRID_LIMIT_ENABLED", true) //
+												.addProperty("MAXIMUM_SELL_TO_GRID_POWER", maxFeedInPower) //
+												.build()) //
+										.build())
+								.add(JsonUtils.buildJsonObject() //
+										.addProperty("appId", "App.PvSelfConsumption.SelfConsumptionOptimization") //
+										.addProperty("alias", "") //
+										.addProperty("instanceId", UUID.randomUUID().toString()) //
+										.add("properties", JsonUtils.buildJsonObject() //
+												.addProperty("ESS_ID", essId) //
+												.addProperty("METER_ID", meterId) //
+												.build()) //
+										.build())
 								.build().toString()) //
 						.build());
 	}
@@ -268,7 +319,7 @@ public class AppManagerImplTest {
 		var worker = new AppValidateWorker(this.sut);
 		worker.validateApps();
 
-		assertEquals(this.sut.instantiatedApps.size(), 1);
+		assertEquals(this.sut.instantiatedApps.size(), 3);
 
 		// should not have found defective Apps
 		for (Entry<String, String> entry : worker.defectiveApps.entrySet()) {
@@ -281,15 +332,6 @@ public class AppManagerImplTest {
 		this.sut.getInstantiatedApps().add(null);
 	}
 
-//	@Test TODO
-//	public void testGetReplaceableComponentIds() throws Exception {
-//		var replaceableIds = this.sut.getReplaceableComponentIds(this.kebaEvcsApp, JsonUtils.buildJsonObject().build());
-//
-//		assertEquals(replaceableIds.size(), 2);
-//		assertEquals("EVCS_ID", replaceableIds.get("evcs0"));
-//		assertEquals("CTRL_EVCS_ID", replaceableIds.get("ctrlEvcs0"));
-//	}
-
 	@Test
 	public void testFindAppById() {
 		assertEquals(this.homeApp, this.sut.findAppById("App.FENECON.Home"));
@@ -297,12 +339,12 @@ public class AppManagerImplTest {
 
 	@Test
 	public void testCheckCardinalitySingle() throws Exception {
-		var checkable = new CheckCardinality(this.sut);
-		checkable.setProperties(new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+		var checkable = new CheckCardinality(this.sut, getComponentContext(CheckCardinality.COMPONENT_NAME));
+		checkable.setProperties(new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("openemsApp", this.homeApp) //
 				.build());
 		assertFalse(checkable.check());
-		assertNotNull(checkable.getErrorMessage());
+		assertNotNull(checkable.getErrorMessage(Language.DEFAULT));
 	}
 
 	@Test
@@ -311,24 +353,24 @@ public class AppManagerImplTest {
 				JsonUtils.buildJsonObject().build(), null));
 		this.sut.instantiatedApps.add(new OpenemsAppInstance(this.kebaEvcsApp.getAppId(), "alias", UUID.randomUUID(),
 				JsonUtils.buildJsonObject().build(), null));
-		var checkable = new CheckCardinality(this.sut);
-		checkable.setProperties(new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+		var checkable = new CheckCardinality(this.sut, getComponentContext(CheckCardinality.COMPONENT_NAME));
+		checkable.setProperties(new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("openemsApp", this.kebaEvcsApp) //
 				.build());
 		assertTrue(checkable.check());
-		assertNull(checkable.getErrorMessage());
+		assertNull(checkable.getErrorMessage(Language.DEFAULT));
 	}
 
 	@Test
 	public void testCheckCardinalitySingleInCategorie() throws Exception {
 		this.sut.instantiatedApps.add(new OpenemsAppInstance(this.awattarApp.getAppId(), "alias", UUID.randomUUID(),
 				JsonUtils.buildJsonObject().build(), null));
-		var checkable = new CheckCardinality(this.sut);
-		checkable.setProperties(new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+		var checkable = new CheckCardinality(this.sut, getComponentContext(CheckCardinality.COMPONENT_NAME));
+		checkable.setProperties(new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("openemsApp", this.stromdao) //
 				.build());
 		assertFalse(checkable.check());
-		assertNotNull(checkable.getErrorMessage());
+		assertNotNull(checkable.getErrorMessage(Language.DEFAULT));
 	}
 
 	private static ComponentContext getComponentContext(String appId) {
