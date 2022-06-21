@@ -31,7 +31,7 @@ export class SingleAppComponent implements OnInit {
 
   private edge: Edge = null;
 
-  constructor(
+  public constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
     private websocket: Websocket,
@@ -40,7 +40,7 @@ export class SingleAppComponent implements OnInit {
   ) {
   }
 
-  ngOnInit() {
+  public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     this.updateIsXL();
     this.appId = this.route.snapshot.params["appId"];
@@ -82,7 +82,7 @@ export class SingleAppComponent implements OnInit {
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event) {
+  private onResize(event) {
     this.updateIsXL();
   }
 

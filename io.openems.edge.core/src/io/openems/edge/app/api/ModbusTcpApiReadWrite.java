@@ -2,7 +2,6 @@ package io.openems.edge.app.api;
 
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -14,7 +13,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
@@ -32,10 +32,9 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
-import io.openems.edge.core.appmanager.validator.CheckNoComponentInstalledOfFactoryId;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for ReadWrite Modbus/TCP Api.
@@ -52,8 +51,7 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
     	"COMPONENT_IDS": ["_sum", ...]
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-modbus-tcp-schreibzugriff-2/">https://fenecon.de/fems-2-2/fems-app-modbus-tcp-schreibzugriff-2/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>
@@ -76,12 +74,14 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()) //
+	public AppAssistant getAppAssistant(Language language) {
+		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.API_TIMEOUT) //
-								.setLabel("Api-Timeout") //
-								.setDescription("Sets the timeout in seconds for updates on Channels set by this Api.")
+								.setLabel(TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.label")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.description")) //
 								.setDefaultValue(60) //
 								.isRequired(true) //
 								.setInputType(Type.NUMBER) //
@@ -91,11 +91,13 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 						.add(JsonFormlyUtil.buildSelect(Property.COMPONENT_IDS) //
 								.isMulti(true) //
 								.isRequired(true) //
-								.setLabel("Component-IDs") //
-								.setDescription("Components that should be made available via Modbus.")
+								.setLabel(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".componentIds.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".componentIds.description")) //
 								.setOptions(this.componentManager.getAllComponents(), t -> t.id() + ": " + t.alias(),
 										OpenemsComponent::id)
-								.setDefaultValue("_sum") //
+								.setDefaultValue(JsonUtils.buildJsonArray().add("_sum").build()) //
 								.build())
 						.build())
 				.build();
@@ -113,23 +115,13 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 	}
 
 	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
-	public String getName() {
-		return "Modbus/TCP-Api Read-Write";
-	}
-
-	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE;
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 
 			var controllerId = this.getId(t, p, Property.CONTROLLER_ID, "ctrlApiModbusTcp0");
 			var apiTimeout = EnumUtils.getAsInt(p, Property.API_TIMEOUT);
@@ -144,7 +136,7 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 			}
 
 			List<EdgeConfig.Component> components = Lists.newArrayList(//
-					new EdgeConfig.Component(controllerId, this.getName(), "Controller.Api.ModbusTcp.ReadWrite",
+					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.ModbusTcp.ReadWrite",
 							JsonUtils.buildJsonObject() //
 									.addProperty("apiTimeout", apiTimeout) //
 									.add("component.ids", controllerIds).build()));
@@ -154,20 +146,13 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
-				.setInstallableCheckableNames(new Validator.MapBuilder<>(new TreeMap<String, Map<String, ?>>()) //
-						.put(CheckAppsNotInstalled.COMPONENT_NAME, //
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+	protected io.openems.edge.core.appmanager.validator.ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setInstallableCheckableConfigs(
+						Lists.newArrayList(new ValidatorConfig.CheckableConfig(CheckAppsNotInstalled.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("appIds", new String[] { "App.Api.ModbusTcp.ReadOnly" }) //
-										.build())
-						// TODO remove this if the free apps get created via App-Manager and an actual
-						// app instance gets created
-						.put(CheckNoComponentInstalledOfFactoryId.COMPONENT_NAME, //
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
-										.put("factorieId", "Controller.Api.ModbusTcp.ReadOnly") //
-										.build())
-						.build());
+										.build())));
 	}
 
 	@Override

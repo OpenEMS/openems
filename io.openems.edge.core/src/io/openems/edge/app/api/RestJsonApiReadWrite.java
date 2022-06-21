@@ -2,7 +2,6 @@ package io.openems.edge.app.api;
 
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -14,7 +13,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
@@ -31,10 +31,9 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
-import io.openems.edge.core.appmanager.validator.CheckNoComponentInstalledOfFactoryId;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for ReadWrite Rest JSON Api.
@@ -50,8 +49,7 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
     	"API_TIMEOUT": 60
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-rest-json-schreibzugriff-2/">https://fenecon.de/fems-2-2/fems-app-rest-json-schreibzugriff-2/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>
@@ -73,12 +71,14 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()) //
+	public AppAssistant getAppAssistant(Language language) {
+		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.API_TIMEOUT) //
-								.setLabel("Api-Timeout") //
-								.setDescription("Sets the timeout in seconds for updates on Channels set by this Api.")
+								.setLabel(TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.label")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(60) //
 								.setMin(30) //
@@ -100,30 +100,19 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
-	public String getName() {
-		return "Rest/JSON-Api Read-Write";
-	}
-
-	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE;
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
-
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 			var controllerId = this.getId(t, p, Property.CONTROLLER_ID, "ctrlApiRest0");
 
 			var apiTimeout = EnumUtils.getAsInt(p, Property.API_TIMEOUT);
 
 			List<EdgeConfig.Component> components = Lists.newArrayList(//
-					new EdgeConfig.Component(controllerId, this.getName(), "Controller.Api.Rest.ReadWrite",
+					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.Rest.ReadWrite",
 							JsonUtils.buildJsonObject() //
 									.addProperty("apiTimeout", apiTimeout) //
 									.build()));
@@ -133,24 +122,18 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
-				.setInstallableCheckableNames(new Validator.MapBuilder<>(new TreeMap<String, Map<String, ?>>()) //
-						.put(CheckAppsNotInstalled.COMPONENT_NAME, //
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+	public ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setInstallableCheckableConfigs(Lists.newArrayList(//
+						new ValidatorConfig.CheckableConfig(CheckAppsNotInstalled.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("appIds", new String[] { "App.Api.RestJson.ReadOnly" }) //
-										.build())
-						// TODO remove this if the free apps get created via App-Manager and an actual
-						// app instance gets created
-						.put(CheckNoComponentInstalledOfFactoryId.COMPONENT_NAME, //
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
-										.put("factorieId", "Controller.Api.Rest.ReadOnly") //
-										.build())
-						.build());
+										.build())));
 	}
 
 	@Override
 	protected Class<Property> getPropertyClass() {
 		return Property.class;
 	}
+
 }

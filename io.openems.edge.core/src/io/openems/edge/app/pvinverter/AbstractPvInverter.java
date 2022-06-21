@@ -13,7 +13,6 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.ComponentUtil;
-import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 
 public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY>> extends AbstractOpenemsApp<PROPERTY> {
@@ -41,15 +40,6 @@ public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY>> extend
 						.addProperty("port", port) //
 						.build())//
 		);
-	}
-
-	protected final Component getComponentWithFactoryId(List<Component> components, String factoryId) {
-		return components.stream().filter(t -> t.getFactoryId().equals(factoryId)).findFirst().orElse(null);
-	}
-
-	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
 }

@@ -439,7 +439,20 @@ export const TRANSLATION = {
                 activate: 'Activeer',
                 delay: 'Vertraging [min]',
                 save: 'Save',
-            }
+            },
+            App: {
+                header: 'De App Manager bevindt zich momenteel in een eerste testversie. Als niet alle apps worden weergegeven, moet de FEMS-versie mogelijk worden bijgewerkt.',
+                installed: 'Geïnstalleerd',
+                available: 'Beschikbaar',
+                incompatible: 'Onverenigbaar',
+                buyApp: 'App kopen',
+                modifyApp: 'App wijzigen',
+                createApp: 'App installeren',
+                deleteApp: 'App verwijderen',
+                updateApp: 'App bijwerken',
+                errorInstallable: 'Installatiefouten',
+                errorCompatible: 'Compatibiliteitsfouten',
+            },
         }
     },
     About: {

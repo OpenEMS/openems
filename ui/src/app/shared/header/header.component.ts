@@ -113,6 +113,12 @@ export class HeaderComponent {
         if (file === 'live') {
             urlArray.pop();
         }
+
+        // fix url for App "settings/app/install" and "settings/app/update"
+        if (urlArray.slice(-3, -1).join('/') === "settings/app") {
+            urlArray.pop();
+        }
+
         // re-join the url
         backUrl = urlArray.join('/') || '/';
 

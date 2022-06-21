@@ -2,7 +2,6 @@ package io.openems.edge.app.api;
 
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -14,7 +13,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.RestJsonApiReadOnly.Property;
@@ -29,8 +29,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for ReadOnly Rest JSON Api.
@@ -45,8 +44,7 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
     	"CONTROLLER_ID": "ctrlApiRest0"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_lesend">https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_lesend</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>
@@ -66,8 +64,8 @@ public class RestJsonApiReadOnly extends AbstractOpenemsApp<Property> implements
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()) //
+	public AppAssistant getAppAssistant(Language language) {
+		return AppAssistant.create(this.getName(language)) //
 				.build();
 	}
 
@@ -83,28 +81,17 @@ public class RestJsonApiReadOnly extends AbstractOpenemsApp<Property> implements
 	}
 
 	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
-	public String getName() {
-		return "REST/JSON-Api Read-Only";
-	}
-
-	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE;
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
-
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 			var controllerId = this.getId(t, p, Property.CONTROLLER_ID, "ctrlApiRest0");
 
 			List<EdgeConfig.Component> components = Lists.newArrayList(//
-					new EdgeConfig.Component(controllerId, this.getName(), "Controller.Api.Rest.ReadOnly",
+					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.Rest.ReadOnly",
 							JsonUtils.buildJsonObject() //
 									.build()));
 
@@ -113,18 +100,18 @@ public class RestJsonApiReadOnly extends AbstractOpenemsApp<Property> implements
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
-				.setInstallableCheckableNames(new Validator.MapBuilder<>(new TreeMap<String, Map<String, ?>>()) //
-						.put(CheckAppsNotInstalled.COMPONENT_NAME, //
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+	public ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setInstallableCheckableConfigs(Lists.newArrayList(//
+						new ValidatorConfig.CheckableConfig(CheckAppsNotInstalled.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("appIds", new String[] { "App.Api.RestJson.ReadWrite" }) //
-										.build())
-						.build());
+										.build())));
 	}
 
 	@Override
 	protected Class<Property> getPropertyClass() {
 		return Property.class;
 	}
+
 }

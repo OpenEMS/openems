@@ -5,13 +5,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 
 /**
  * Source https://formly.dev/examples/introduction.
@@ -52,6 +56,17 @@ public class JsonFormlyUtil {
 	 */
 	public static <T extends Enum<T>> SelectBuilder buildSelect(T property) {
 		return new SelectBuilder(property);
+	}
+
+	/**
+	 * Creates a JsonObject Formly Repeat Builder for the given enum.
+	 *
+	 * @param <T>      the type of the enum
+	 * @param property the enum property
+	 * @return a {@link RepeatBuilder}
+	 */
+	public static <T extends Enum<T>> RepeatBuilder buildRepeat(T property) {
+		return new RepeatBuilder(property);
 	}
 
 	/**
@@ -98,8 +113,12 @@ public class JsonFormlyUtil {
 			return this.getSelf();
 		}
 
-		private final T setKey(String key) {
-			this.jsonObject.addProperty("key", key);
+		public final T setKey(String key) {
+			if (key != null) {
+				this.jsonObject.addProperty("key", key);
+			} else if (this.jsonObject.has("key")) {
+				this.jsonObject.remove("key");
+			}
 			return this.getSelf();
 		}
 
@@ -133,6 +152,24 @@ public class JsonFormlyUtil {
 			return this.getSelf();
 		}
 
+		public final T setDefaultValue(JsonElement defaultValue) {
+			if (defaultValue != null) {
+				this.jsonObject.add("defaultValue", defaultValue);
+			} else if (this.jsonObject.has("defaultValue")) {
+				this.jsonObject.remove("defaultValue");
+			}
+
+			return this.getSelf();
+		}
+
+		public final T setDefaultValueWithStringSupplier(Supplier<String> supplieDefaultValue) {
+			return this.setDefaultValue(supplieDefaultValue.get());
+		}
+
+		public final T setDefaultValueWithBooleanSupplier(Supplier<Boolean> supplieDefaultValue) {
+			return this.setDefaultValue(supplieDefaultValue.get());
+		}
+
 		public final T isRequired(boolean isRequired) {
 			if (isRequired) {
 				this.templateOptions.addProperty("required", isRequired);
@@ -143,7 +180,11 @@ public class JsonFormlyUtil {
 		}
 
 		public final T setLabel(String label) {
-			this.templateOptions.addProperty("label", label);
+			if (label != null) {
+				this.templateOptions.addProperty("label", label);
+			} else if (this.templateOptions.has("label")) {
+				this.templateOptions.remove("label");
+			}
 			return this.getSelf();
 		}
 
@@ -152,9 +193,29 @@ public class JsonFormlyUtil {
 			return this.getSelf();
 		}
 
+		/**
+		 * Call a method on a FormlyBuilder if the expression is true.
+		 *
+		 * @param expression the expression
+		 * @param consumer   allows a lambda function on {@link FormlyBuilder}
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public T onlyIf(boolean expression, Consumer<T> consumer) {
+			if (expression) {
+				consumer.accept(this.getSelf());
+			}
+			return this.getSelf();
+		}
+
 		public final <PROPERTEY extends Enum<PROPERTEY>> T onlyShowIfChecked(PROPERTEY property) {
 			this.getExpressionProperties().addProperty("templateOptions.required", "model." + property.name());
 			this.jsonObject.addProperty("hideExpression", "!model." + property.name());
+			return this.getSelf();
+		}
+
+		public final <PROPERTEY extends Enum<PROPERTEY>> T onlyShowIfNotChecked(PROPERTEY property) {
+			this.getExpressionProperties().addProperty("templateOptions.required", "!model." + property.name());
+			this.jsonObject.addProperty("hideExpression", "model." + property.name());
 			return this.getSelf();
 		}
 
@@ -521,6 +582,10 @@ public class JsonFormlyUtil {
 			return this.setOptions(options.build());
 		}
 
+		public SelectBuilder setOptions(List<String> items) {
+			return this.setOptions(items, t -> t, t -> t);
+		}
+
 		public <T> SelectBuilder setOptions(List<T> items, Function<T, String> item2Label,
 				Function<T, String> item2Value) {
 			var options = JsonUtils.buildJsonArray();
@@ -551,6 +616,67 @@ public class JsonFormlyUtil {
 		@Override
 		protected String getType() {
 			return "select";
+		}
+
+	}
+
+	/**
+	 * A Builder for a Formly Checkbox.
+	 *
+	 * <pre>
+	 * {
+	 * 	"key": "key",
+	 * 	"type": "repeat",
+	 * 	"templateOptions": {
+	 * 		"label": "label",
+	 * 		"required": true
+	 * 	},
+	 * 	"expressionProperties": {
+	 * 		"templateOptions.required": "model.PROPERTY"
+	 * 	},
+	 * 	"hideExpression": "!model.PROPERTY",
+	 * 	"defaultValue": "defaultValue"
+	 * }
+	 * </pre>
+	 *
+	 */
+	public static final class RepeatBuilder extends FormlyBuilder<RepeatBuilder> {
+
+		private JsonObject fieldArray;
+
+		private <PROPERTY extends Enum<PROPERTY>> RepeatBuilder(PROPERTY property) {
+			super(property);
+		}
+
+		private RepeatBuilder(DefaultEnum property) {
+			super(property);
+		}
+
+		public RepeatBuilder setAddText(String addText) {
+			if (addText != null && addText.isBlank()) {
+				this.templateOptions.addProperty("addText", addText);
+			} else if (this.templateOptions.has("addText")) {
+				this.templateOptions.remove("addText");
+			}
+			return this;
+		}
+
+		public RepeatBuilder setFieldArray(JsonObject object) {
+			this.fieldArray = object;
+			return this;
+		}
+
+		@Override
+		protected String getType() {
+			return "repeat";
+		}
+
+		@Override
+		public JsonObject build() {
+			if (this.fieldArray != null) {
+				this.jsonObject.add("fieldArray", this.fieldArray);
+			}
+			return super.build();
 		}
 
 	}

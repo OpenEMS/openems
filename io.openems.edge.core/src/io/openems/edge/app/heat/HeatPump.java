@@ -1,8 +1,9 @@
 package io.openems.edge.app.heat;
 
 import java.util.EnumMap;
-import java.util.Map;
+import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -13,8 +14,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.heat.HeatPump.Property;
@@ -25,12 +26,15 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for a Heat Pump.
@@ -42,11 +46,18 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
     "instanceId": UUID,
     "image": base64,
     "properties":{
-    	"CTRL_IO_HEAT_PUMP_ID": "ctrlIoHeatPump0"
+    	"CTRL_IO_HEAT_PUMP_ID": "ctrlIoHeatPump0",
+    	"OUTPUT_CHANNEL_1": "io0/Relay2",
+    	"OUTPUT_CHANNEL_2": "io0/Relay3"
     },
+    "dependencies": [
+    	{
+        	"key": "RELAY",
+        	"instanceId": UUID
+    	}
+    ],
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/">https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>
@@ -55,7 +66,10 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
 public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
-		CTRL_IO_HEAT_PUMP_ID;
+		CTRL_IO_HEAT_PUMP_ID, //
+		OUTPUT_CHANNEL_1, //
+		OUTPUT_CHANNEL_2;
+
 	}
 
 	@Activate
@@ -65,39 +79,70 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 			final var ctrlIoHeatPumpId = this.getId(t, p, Property.CTRL_IO_HEAT_PUMP_ID, "ctrlIoHeatPump0");
 
-			if (t.isDeleteOrTest()) {
-				var comp = Lists.newArrayList(//
-						new EdgeConfig.Component(ctrlIoHeatPumpId, this.getName(), "Controller.Io.HeatPump.SgReady",
-								JsonUtils.buildJsonObject() //
-										.build()));
-				return new AppConfiguration(comp);
-			}
-
-			var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(ctrlIoHeatPumpId), new int[] { 2, 3 },
-					new int[] { 2, 3 });
-			if (relays == null) {
-				throw new OpenemsException("Not enought relays available!");
-			}
-			var outputChannel1 = relays[0];
-			var outputChannel2 = relays[1];
+			var outputChannel1 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_1, "io0/Relay2");
+			var outputChannel2 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_2, "io0/Relay3");
 
 			var comp = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlIoHeatPumpId, this.getName(), "Controller.Io.HeatPump.SgReady",
+					new EdgeConfig.Component(ctrlIoHeatPumpId, this.getName(l), "Controller.Io.HeatPump.SgReady",
 							JsonUtils.buildJsonObject() //
 									.addProperty("outputChannel1", outputChannel1) //
 									.addProperty("outputChannel2", outputChannel2) //
 									.build()));
-			return new AppConfiguration(comp);
+
+			var componentIdOfRelay = outputChannel1.substring(0, outputChannel1.indexOf('/'));
+			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
+					componentIdOfRelay, this.getAppId());
+
+			if (appIdOfRelay == null) {
+				// relay may be created but not as a app
+				return new AppConfiguration(comp);
+			}
+
+			var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
+					DependencyDeclaration.CreatePolicy.NEVER, //
+					DependencyDeclaration.UpdatePolicy.NEVER, //
+					DependencyDeclaration.DeletePolicy.NEVER, //
+					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
+					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+					DependencyDeclaration.AppDependencyConfig.create() //
+							.setSpecificInstanceId(appIdOfRelay) //
+							.build()));
+
+			return new AppConfiguration(comp, null, null, dependencies);
 		};
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()) //
+	public AppAssistant getAppAssistant(Language language) {
+		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(), new int[] { 2, 3 },
+				new int[] { 2, 3 });
+		var options = this.componentUtil.getAllRelays() //
+				.stream().map(r -> r.relays).flatMap(List::stream) //
+				.collect(Collectors.toList());
+		return AppAssistant.create(this.getName(language)) //
+				.fields(JsonUtils.buildJsonArray() //
+						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_1) //
+								.setOptions(options) //
+								.onlyIf(relays != null, t -> t.setDefaultValue(relays[0])) //
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel1.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel1.description"))
+								.build())
+						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_2) //
+								.setOptions(options) //
+								.onlyIf(relays != null, t -> t.setDefaultValue(relays[1])) //
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel2.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel2.description"))
+								.build())
+						.build())
 				.build();
 	}
 
@@ -113,24 +158,13 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 	}
 
 	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
-				.setInstallableCheckableNames(new Validator.MapBuilder<>(new TreeMap<String, Map<String, ?>>()) //
-						.put(CheckRelayCount.COMPONENT_NAME, //
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+	public ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setInstallableCheckableConfigs(Lists.newArrayList(//
+						new ValidatorConfig.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("count", 2) //
-										.build())
-						.build());
-	}
-
-	@Override
-	public String getName() {
-		return "\"SG-Ready\" Wärmepumpe";
+										.build())));
 	}
 
 	@Override

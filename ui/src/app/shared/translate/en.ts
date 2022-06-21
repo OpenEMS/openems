@@ -471,7 +471,20 @@ export const TRANSLATION = {
                 activate: 'Activate',
                 delay: 'Delay [min]',
                 save: 'Save',
-            }
+            },
+            App: {
+                header: 'The App Manager is currently in a first test version. If not all apps are displayed, the FEMS version may need to be updated.',
+                installed: 'Installed',
+                available: 'Available',
+                incompatible: 'Incompatible',
+                buyApp: 'Buy app',
+                modifyApp: 'Modify app',
+                createApp: 'Install app',
+                deleteApp: 'Delete app',
+                updateApp: 'Update app',
+                errorInstallable: 'Installation errors',
+                errorCompatible: 'Compatibility errors',
+            },
         }
     },
     About: {
