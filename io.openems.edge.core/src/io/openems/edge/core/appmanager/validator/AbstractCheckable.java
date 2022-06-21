@@ -1,12 +1,12 @@
 package io.openems.edge.core.appmanager.validator;
 
-import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.common.session.Language;
+import io.openems.edge.core.appmanager.TranslationUtil;
 
 public abstract class AbstractCheckable implements Checkable {
 
@@ -22,6 +22,9 @@ public abstract class AbstractCheckable implements Checkable {
 	}
 
 	protected static String getTranslation(Language language, String key, Object... params) {
+		if (language == null) {
+			language = Language.DEFAULT;
+		}
 		// TODO translation
 		switch (language) {
 		case CZ:
@@ -37,9 +40,7 @@ public abstract class AbstractCheckable implements Checkable {
 
 		var translationBundle = ResourceBundle.getBundle("io.openems.edge.core.appmanager.validator.translation",
 				language.getLocal());
-		var errorMessage = translationBundle.getString(key);
-
-		return MessageFormat.format(errorMessage, params);
+		return TranslationUtil.getTranslation(translationBundle, key, params);
 	}
 
 }

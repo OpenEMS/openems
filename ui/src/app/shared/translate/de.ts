@@ -482,6 +482,8 @@ export const TRANSLATION = {
                 createApp: 'App anlegen',
                 deleteApp: 'App entfernen',
                 updateApp: 'App aktualisieren',
+                errorInstallable: 'Installierungs fehler',
+                errorCompatible: 'Kompatibilitäts fehler',
             },
         }
     },

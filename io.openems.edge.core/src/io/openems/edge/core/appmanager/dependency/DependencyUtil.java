@@ -1,7 +1,5 @@
 package io.openems.edge.core.appmanager.dependency;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import io.openems.edge.common.component.ComponentManager;
@@ -14,14 +12,14 @@ public class DependencyUtil {
 	/**
 	 * Temporary field to avoid endless loop.
 	 */
-	private static final Set<String> CURRENTLY_CALLING_APP_IDS = new HashSet<>();
+	private static boolean isCurrentlyRunning = false;
 
 	/**
 	 * Gets the instanceId of the first found app that has the given componentId in
 	 * its {@link AppConfiguration}.
 	 *
 	 * <p>
-	 * WARNING: when calling this inside an app configuration it can lead to an endless
+	 * NOTE: when calling this inside an app configuration it can lead to an endless
 	 * loop
 	 *
 	 * @param componentManager    a componentManager to get the appManager
@@ -31,19 +29,22 @@ public class DependencyUtil {
 	 */
 	public static final UUID getInstanceIdOfAppWhichHasComponent(ComponentManager componentManager, String componentId,
 			String currentlyCallingApp) {
-		var appManagerImpl = DependencyUtil.getAppManagerImpl(componentManager);
-		if (appManagerImpl == null) {
+		if (isCurrentlyRunning) {
 			return null;
 		}
-		CURRENTLY_CALLING_APP_IDS.add(currentlyCallingApp);
-		for (var entry : appManagerImpl.appConfigs(appManagerImpl.getInstantiatedApps(),
-				i -> !CURRENTLY_CALLING_APP_IDS.contains(i.appId))) {
+		isCurrentlyRunning = true;
+		var appManagerImpl = DependencyUtil.getAppManagerImpl(componentManager);
+		if (appManagerImpl == null) {
+			isCurrentlyRunning = false;
+			return null;
+		}
+		for (var entry : appManagerImpl.appConfigs()) {
 			if (entry.getValue().components.stream().anyMatch(c -> c.getId().equals(componentId))) {
-				CURRENTLY_CALLING_APP_IDS.remove(currentlyCallingApp);
+				isCurrentlyRunning = false;
 				return entry.getKey().instanceId;
 			}
 		}
-		CURRENTLY_CALLING_APP_IDS.remove(currentlyCallingApp);
+		isCurrentlyRunning = false;
 		return null;
 	}
 

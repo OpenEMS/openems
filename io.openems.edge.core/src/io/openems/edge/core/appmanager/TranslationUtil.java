@@ -8,7 +8,7 @@ public class TranslationUtil {
 
 	/**
 	 * Gets the value for the given key from the translationBundle.
-	 * 
+	 *
 	 * @param translationBundle the translation bundle
 	 * @param key               the key of the translation
 	 * @param params            the parameter of the translation

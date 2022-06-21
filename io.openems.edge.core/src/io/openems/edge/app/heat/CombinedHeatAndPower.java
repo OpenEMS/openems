@@ -52,6 +52,12 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"CTRL_CHP_SOC_ID": "ctrlChpSoc0",
     	"OUTPUT_CHANNEL": "io0/Relay1"
     },
+    "dependencies": [
+    	{
+        	"key": "RELAY",
+        	"instanceId": UUID
+    	}
+    ],
     "appDescriptor": {
     	"websiteUrl": URL
     }

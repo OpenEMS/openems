@@ -467,6 +467,8 @@ export const TRANSLATION = {
             createApp: 'vytvořit aplikaci',
             deleteApp: 'odstranit aplikaci',
             updateApp: 'aktualizace aplikace',
+            errorInstallable: 'Chyby pÅ™i instalaci',
+            errorCompatible: 'Chyby kompatibility',
         },
     },
     About: {

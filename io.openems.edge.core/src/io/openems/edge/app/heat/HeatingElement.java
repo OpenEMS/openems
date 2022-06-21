@@ -54,6 +54,12 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"OUTPUT_CHANNEL_PHASE_L2": "io0/Relay2",
     	"OUTPUT_CHANNEL_PHASE_L3": "io0/Relay3"
     },
+    "dependencies": [
+    	{
+        	"key": "RELAY",
+        	"instanceId": UUID
+    	}
+    ],
     "appDescriptor": {
     	"websiteUrl": URL
     }

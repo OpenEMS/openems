@@ -113,7 +113,7 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 
 	@Override
 	public String getErrorMessage(Language language) {
-		switch (errorType) {
+		switch (this.errorType) {
 		case SAME_APP:
 			return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckCardinality.Message.Single",
 					this.openemsApp.getAppId());

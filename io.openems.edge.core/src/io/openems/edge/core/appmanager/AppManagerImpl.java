@@ -209,6 +209,16 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * Gets an {@link Iterable} that loops thru every existing app instance and its
 	 * configuration.
 	 *
+	 * @return the {@link Iterable}
+	 */
+	public Iterable<Entry<OpenemsAppInstance, AppConfiguration>> appConfigs() {
+		return this.appConfigs(null);
+	}
+
+	/**
+	 * Gets an {@link Iterable} that loops thru every existing app instance and its
+	 * configuration.
+	 *
 	 * @param filter the filter that gets applied to the instances
 	 * @return the {@link Iterable}
 	 */

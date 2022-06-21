@@ -52,7 +52,7 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
     "image": base64,
     "properties":{
       "SAFETY_COUNTRY":"AUSTRIA",
-      "RIPPLE_CONTROL_RECEIVER_AKTIV":false,
+      "RIPPLE_CONTROL_RECEIVER_ACTIV":false,
       "MAX_FEED_IN_POWER":5000,
       "FEED_IN_SETTING":"PU_ENABLE_CURVE",
       "HAS_AC_METER":true,
@@ -64,6 +64,20 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
       "EMERGENCY_RESERVE_ENABLED":true,
       "EMERGENCY_RESERVE_SOC":20
     },
+    "dependencies": [
+    	{
+        	"key": "GRID_OPTIMIZED_CHARGE",
+        	"instanceId": UUID
+    	},
+    	{
+        	"key": "AC_METER",
+        	"instanceId": UUID
+    	},
+    	{
+        	"key": "SELF_CONSUMTION_OPTIMIZATION",
+        	"instanceId": UUID
+    	}
+    ],
     "appDescriptor": {
     	"websiteUrl": URL
     }
@@ -273,6 +287,20 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.build()));
 			}
 
+			var hasAcMeter = EnumUtils.getAsOptionalBoolean(p, Property.HAS_AC_METER).orElse(false);
+
+			// remove components that were in the old configuration but now are a dependency
+			if (t == ConfigurationTarget.DELETE) {
+				components.add(new EdgeConfig.Component("ctrlGridOptimizedCharge0", "",
+						"Controller.Ess.GridOptimizedCharge", JsonUtils.buildJsonObject().build()));
+				components.add(new EdgeConfig.Component("ctrlBalancing0", "", "Controller.Symmetric.Balancing",
+						JsonUtils.buildJsonObject().build()));
+				if (hasAcMeter) {
+					components.add(new EdgeConfig.Component("meter1", "", "Meter.Socomec.Threephase",
+							JsonUtils.buildJsonObject().build()));
+				}
+			}
+
 			/*
 			 * Set Execution Order for Scheduler.
 			 */
@@ -314,7 +342,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.build()) //
 			);
 
-			if (EnumUtils.getAsOptionalBoolean(p, Property.HAS_AC_METER).orElse(false)) {
+			if (hasAcMeter) {
 				dependencies.add(new DependencyDeclaration("AC_METER", //
 						DependencyDeclaration.CreatePolicy.ALWAYS, //
 						DependencyDeclaration.UpdatePolicy.ALWAYS, //

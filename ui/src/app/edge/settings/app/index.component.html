@@ -86,12 +86,12 @@
                               </p>
                               <div *ngIf="app.instanceIds.length == 0 && app.status.name != 'INSTALLABLE'">
                                 <div *ngIf="app.status.errorCompatibleMessages.length != 0 ">
-                                  <small>errorCompatibleMessages:</small><br />
+                                  <small translate>Edge.Config.App.errorCompatible</small><br />
                                   <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
                                     }}</small><br />
                                 </div>
                                 <div *ngIf="app.status.errorInstallableMessages.length != 0 ">
-                                  <small>errorInstallableMessages:</small><br />
+                                  <small translate>Edge.Config.App.errorInstallable</small><br />
                                   <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
                                     }}</small><br />
                                 </div>
@@ -132,12 +132,12 @@
                           </p>
                           <div *ngIf="app.instanceIds.length == 0 && app.status.name != 'INSTALLABLE'">
                             <div *ngIf="app.status.errorCompatibleMessages.length != 0 ">
-                              <small>errorCompatibleMessages:</small><br />
+                              <small translate>Edge.Config.App.errorCompatible</small><br />
                               <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
                                 }}</small><br />
                             </div>
                             <div *ngIf="app.status.errorInstallableMessages.length != 0 ">
-                              <small>errorInstallableMessages:</small><br />
+                              <small translate>Edge.Config.App.errorInstallable</small><br />
                               <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
                                 }}</small><br />
                             </div>

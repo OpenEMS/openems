@@ -450,6 +450,8 @@ export const TRANSLATION = {
                 createApp: 'App maken',
                 deleteApp: 'App verwijderen',
                 updateApp: 'App bijwerken',
+                errorInstallable: 'Installatiefouten',
+                errorCompatible: 'Compatibiliteitsfouten',
             },
         }
     },

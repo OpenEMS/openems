@@ -6,7 +6,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
-import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl.UpdateValues;
 
 public interface AppManagerAppHelper {
 
