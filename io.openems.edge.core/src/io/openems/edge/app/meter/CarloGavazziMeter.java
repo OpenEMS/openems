@@ -49,8 +49,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"MODBUS_UNIT_ID": 6
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-carlo-gavazzi-zaehler-2/">https://fenecon.de/fems-2-2/fems-app-carlo-gavazzi-zaehler-2/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

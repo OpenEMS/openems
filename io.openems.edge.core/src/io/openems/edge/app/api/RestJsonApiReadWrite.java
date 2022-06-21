@@ -48,8 +48,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"API_TIMEOUT": 60
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-rest-json-schreibzugriff-2/">https://fenecon.de/fems-2-2/fems-app-rest-json-schreibzugriff-2/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

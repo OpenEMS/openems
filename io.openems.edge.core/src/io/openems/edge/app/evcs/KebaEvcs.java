@@ -44,8 +44,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
       "IP":"192.168.25.11"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-keba-ladestation/">https://fenecon.de/fems-2-2/fems-app-keba-ladestation/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

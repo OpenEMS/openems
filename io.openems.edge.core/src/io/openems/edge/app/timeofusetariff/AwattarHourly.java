@@ -43,6 +43,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"TIME_OF_USE_TARIF_ID": "timeOfUseTariff0"
     },
     "appDescriptor": {
+    	"websiteUrl": URL
     }
   }
  * </pre>

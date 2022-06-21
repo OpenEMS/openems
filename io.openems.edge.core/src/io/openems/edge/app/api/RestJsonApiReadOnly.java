@@ -44,8 +44,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"CONTROLLER_ID": "ctrlApiRest0"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-modbus-tcp-lesend-2/">https://fenecon.de/fems-2-2/fems-app-modbus-tcp-lesend-2/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

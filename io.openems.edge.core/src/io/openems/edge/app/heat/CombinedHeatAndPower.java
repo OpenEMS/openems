@@ -52,6 +52,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"OUTPUT_CHANNEL": "io0/Relay1"
     },
     "appDescriptor": {
+    	"websiteUrl": URL
     }
   }
  * </pre>

@@ -45,7 +45,9 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"MODBUS_ID": "modbus10",
     	"IP": "192.168.1.199"
     },
-    "appDescriptor": {}
+    "appDescriptor": {
+    	"websiteUrl": URL
+    }
   }
  * </pre>
  */

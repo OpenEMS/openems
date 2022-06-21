@@ -47,8 +47,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
       "OCCP_CONNECTOR_IDENTIFIER": "1"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-ies-keywatt-ladestation-2/">https://fenecon.de/fems-2-2/fems-app-ies-keywatt-ladestation-2//</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

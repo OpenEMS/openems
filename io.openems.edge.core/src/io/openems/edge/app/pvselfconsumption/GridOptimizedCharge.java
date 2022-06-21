@@ -50,8 +50,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"MAXIMUM_SELL_TO_GRID_POWER": 10000
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/">https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

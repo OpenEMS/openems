@@ -46,6 +46,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"ACCESS_TOKEN": {token}
     },
     "appDescriptor": {
+    	"websiteUrl": URL
     }
   }
  * </pre>

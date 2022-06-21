@@ -50,8 +50,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"OUTPUT_CHANNEL": "io1/Relay1"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-manuelle-relaissteuerung/">https://fenecon.de/fems-2-2/fems-app-manuelle-relaissteuerung/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

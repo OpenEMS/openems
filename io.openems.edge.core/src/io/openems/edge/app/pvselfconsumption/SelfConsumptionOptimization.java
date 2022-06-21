@@ -47,8 +47,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
     	"METER_ID": "meter0"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-eigenverbrauchsoptimierung-2/">https://fenecon.de/fems-2-2/fems-app-eigenverbrauchsoptimierung-2//</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

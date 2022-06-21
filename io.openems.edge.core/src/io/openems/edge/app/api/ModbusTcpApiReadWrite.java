@@ -51,8 +51,7 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
     	"COMPONENT_IDS": ["_sum", ...]
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-modbus-tcp-schreibzugriff-2/">https://fenecon.de/fems-2-2/fems-app-modbus-tcp-schreibzugriff-2/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

@@ -63,7 +63,9 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
       "EMERGENCY_RESERVE_ENABLED":true,
       "EMERGENCY_RESERVE_SOC":20
     },
-    "appDescriptor": {}
+    "appDescriptor": {
+    	"websiteUrl": URL
+    }
   }
  * </pre>
  */

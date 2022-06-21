@@ -45,8 +45,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
     	"MODBUS_UNIT_ID": "126"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-sma-pv-wechselrichter/">https://fenecon.de/fems-2-2/fems-app-sma-pv-wechselrichter/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

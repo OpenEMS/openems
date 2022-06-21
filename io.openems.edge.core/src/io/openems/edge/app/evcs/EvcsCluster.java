@@ -45,8 +45,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
       "EVCS_IDS": [ "evcs0", "evcs1", ...]
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-multiladepunkt-eigenverbrauch-2/">https://fenecon.de/fems-2-2/fems-app-multiladepunkt-eigenverbrauch-2/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

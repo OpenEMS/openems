@@ -54,8 +54,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"OUTPUT_CHANNEL_PHASE_L3": "io0/Relay3"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-heizstab/">https://fenecon.de/fems-2-2/fems-app-heizstab/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

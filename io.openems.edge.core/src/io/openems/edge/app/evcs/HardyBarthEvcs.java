@@ -45,8 +45,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
       "IP":"192.168.25.30"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-app-echarge-hardy-barth-ladestation/">https://fenecon.de/fems-app-echarge-hardy-barth-ladestation/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

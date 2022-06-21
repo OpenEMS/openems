@@ -46,7 +46,9 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"CLIENT_ID": "edge0",
     	"URI": "tcp://localhost:1883"
     },
-    "appDescriptor": {}
+    "appDescriptor": {
+    	"websiteUrl": URL
+    }
   }
  * </pre>
  */

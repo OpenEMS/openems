@@ -57,8 +57,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"MODBUS_UNIT_ID": 1
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/">https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

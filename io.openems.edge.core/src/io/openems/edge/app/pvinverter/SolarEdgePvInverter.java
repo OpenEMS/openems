@@ -44,8 +44,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
     	"PORT": "502"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-solaredge-pv-wechselrichter/">https://fenecon.de/fems-2-2/fems-app-solaredge-pv-wechselrichter/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

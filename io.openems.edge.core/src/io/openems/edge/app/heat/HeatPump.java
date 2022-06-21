@@ -50,8 +50,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"OUTPUT_CHANNEL_2": "io0/Relay3"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/">https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>

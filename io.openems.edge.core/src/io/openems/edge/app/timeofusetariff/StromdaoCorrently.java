@@ -46,6 +46,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"ZIP_CODE": "12345678"
     },
     "appDescriptor": {
+    	"websiteUrl": URL
     }
   }
  * </pre>
