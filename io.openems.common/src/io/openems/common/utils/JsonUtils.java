@@ -5,12 +5,19 @@ import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
+import java.util.stream.Collector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -291,7 +298,43 @@ public class JsonUtils {
 
 	}
 
+	public static class JsonArrayCollector implements Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> {
+
+		@Override
+		public Set<Characteristics> characteristics() {
+			return Sets.<Characteristics>immutableEnumSet(Characteristics.UNORDERED);
+		}
+
+		@Override
+		public Supplier<JsonArrayBuilder> supplier() {
+			return JsonUtils::buildJsonArray;
+		}
+
+		@Override
+		public BiConsumer<JsonArrayBuilder, JsonElement> accumulator() {
+			return JsonUtils.JsonArrayBuilder::add;
+		}
+
+		@Override
+		public BinaryOperator<JsonArrayBuilder> combiner() {
+			return (t, u) -> {
+				u.build().forEach(j -> t.add(j));
+				return t;
+			};
+		}
+
+		@Override
+		public Function<JsonArrayBuilder, JsonArray> finisher() {
+			return JsonArrayBuilder::build;
+		}
+
+	}
+
 	private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
+
+	public static Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> toJsonArray() {
+		return new JsonUtils.JsonArrayCollector();
+	}
 
 	/**
 	 * Creates a JsonArray using a Builder.
