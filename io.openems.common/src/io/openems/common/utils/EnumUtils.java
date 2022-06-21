@@ -49,6 +49,24 @@ public class EnumUtils {
 	}
 
 	/**
+	 * Gets the member of the {@link EnumMap} as {@link Optional} {@link Integer}.
+	 *
+	 * @param <ENUM> the type of the EnumMap key
+	 * @param map    the {@link EnumMap}
+	 * @param member the member
+	 * @return the {@link Optional} {@link Integer} value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static <ENUM extends Enum<ENUM>> Optional<Integer> getAsOptionalInt(EnumMap<ENUM, JsonElement> map,
+			ENUM member) {
+		try {
+			return Optional.of(getAsInt(map, member));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
+	/**
 	 * Gets the member of the {@link EnumMap} as {@link JsonPrimitive}.
 	 *
 	 * @param <ENUM> the type of the EnumMap key

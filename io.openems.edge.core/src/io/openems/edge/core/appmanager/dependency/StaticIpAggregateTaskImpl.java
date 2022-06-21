@@ -16,6 +16,8 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 @Component
 public class StaticIpAggregateTaskImpl implements AggregateTask, AggregateTask.StaticIpAggregateTask {
 
+	private final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+
 	private final ComponentUtil componentUtil;
 
 	private List<String> ips;
@@ -35,7 +37,7 @@ public class StaticIpAggregateTaskImpl implements AggregateTask, AggregateTask.S
 
 	@Override
 	public void aggregate(AppConfiguration instance, AppConfiguration oldConfig) {
-		if (System.getProperty("os.name").startsWith("Windows")) {
+		if (this.isWindows) {
 			return;
 		}
 		if (instance != null) {
@@ -52,7 +54,7 @@ public class StaticIpAggregateTaskImpl implements AggregateTask, AggregateTask.S
 
 	@Override
 	public void create(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
-		if (System.getProperty("os.name").startsWith("Windows")) {
+		if (this.isWindows) {
 			return;
 		}
 

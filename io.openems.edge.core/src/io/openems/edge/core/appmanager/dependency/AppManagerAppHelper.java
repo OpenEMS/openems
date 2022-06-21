@@ -1,7 +1,5 @@
 package io.openems.edge.core.appmanager.dependency;
 
-import java.util.List;
-
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -22,7 +20,7 @@ public interface AppManagerAppHelper {
 	 * @return s a list of the created {@link OpenemsAppInstance}s
 	 * @throws OpenemsNamedException on error
 	 */
-	public List<OpenemsAppInstance> installApp(User user, JsonObject properties, String alias, OpenemsApp app)
+	public UpdateValues installApp(User user, JsonObject properties, String alias, OpenemsApp app)
 			throws OpenemsNamedException;
 
 	/**

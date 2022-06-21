@@ -77,6 +77,10 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 
 				var isSameConfigWithoutAlias = ComponentUtilImpl.isSameConfigurationWithoutAlias(null, comp,
 						foundComponentWithSameId);
+				if(isSameConfigWithoutAlias && comp.getAlias() == null) {
+					// alias == null => no update
+					continue;
+				}
 				var isSameConfig = isSameConfigWithoutAlias
 						&& comp.getAlias().equals(foundComponentWithSameId.getAlias());
 

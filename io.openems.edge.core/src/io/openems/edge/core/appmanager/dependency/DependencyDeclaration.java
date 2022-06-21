@@ -1,7 +1,11 @@
 package io.openems.edge.core.appmanager.dependency;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 import com.google.common.base.Function;
 import com.google.gson.JsonObject;
@@ -11,9 +15,9 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 public class DependencyDeclaration {
 
 	public final String key;
-	public final String appId;
-	public final String alias;
-	public final JsonObject properties;
+
+	// unmodifiableList
+	public final List<AppDependencyConfig> appConfigs;
 
 	public final CreatePolicy createPolicy;
 	public final UpdatePolicy updatePolicy;
@@ -22,23 +26,87 @@ public class DependencyDeclaration {
 	public final DependencyUpdatePolicy dependencyUpdatePolicy;
 	public final DependencyDeletePolicy dependencyDeletePolicy;
 
-	// Dependency Supplier?
-	// private final Supplier<String> supplierForAppId = null;
-	// private final Function<List<OpenemsAppInstance>, String>
-	// supplierForInstanceIdFromExisting = null;
-
-	public DependencyDeclaration(String key, String appId, String alias, CreatePolicy createPolicy,
-			UpdatePolicy updatePolicy, DeletePolicy deletePolicy, DependencyUpdatePolicy dependencyUpdatePolicy,
-			DependencyDeletePolicy dependencyDeletePolicy, JsonObject properties) {
+	public DependencyDeclaration(String key, CreatePolicy createPolicy, UpdatePolicy updatePolicy,
+			DeletePolicy deletePolicy, DependencyUpdatePolicy dependencyUpdatePolicy,
+			DependencyDeletePolicy dependencyDeletePolicy, AppDependencyConfig... appConfigs) {
 		this.key = key;
-		this.appId = appId;
-		this.alias = alias;
-		this.properties = properties == null ? new JsonObject() : properties;
+
+		if (appConfigs.length == 0) {
+			throw new IllegalArgumentException("There has to be atleast one 'appConfig'!");
+		}
+		// TODO check for duplicated appIds
+		this.appConfigs = Collections.unmodifiableList(Arrays.asList(appConfigs));
+
 		this.createPolicy = createPolicy;
 		this.updatePolicy = updatePolicy;
 		this.deletePolicy = deletePolicy;
 		this.dependencyUpdatePolicy = dependencyUpdatePolicy;
 		this.dependencyDeletePolicy = dependencyDeletePolicy;
+	}
+
+	public static class AppDependencyConfig {
+
+		// NOTE: must have either appId or specificInstanceId
+		public final String appId;
+		public final UUID specificInstanceId;
+		public final String alias;
+		public final JsonObject properties;
+
+		private AppDependencyConfig(String appId, UUID specificInstanceId, String alias, JsonObject properties) {
+			if (appId == null) {
+				throw new NullPointerException("'appId' of a AppDependencyConfig can't be null!");
+			}
+			this.appId = appId;
+			this.specificInstanceId = specificInstanceId;
+			this.alias = alias;
+			this.properties = properties == null ? new JsonObject() : properties;
+		}
+
+		public static Builder create() {
+			return new Builder();
+		}
+
+		public static final class Builder {
+			private String appId;
+			private UUID specificInstanceId;
+			private String alias;
+			private JsonObject properties;
+
+			public Builder() {
+			}
+
+			public Builder setAppId(String appId) {
+				this.appId = appId;
+				return this;
+			}
+
+			public Builder setSpecificInstanceId(UUID specificInstanceId) {
+				this.specificInstanceId = specificInstanceId;
+				return this;
+			}
+
+			public Builder setAlias(String alias) {
+				this.alias = alias;
+				return this;
+			}
+
+			public Builder setProperties(JsonObject properties) {
+				this.properties = properties;
+				return this;
+			}
+
+			public Builder onlyIf(boolean expression, Consumer<Builder> consumer) {
+				if (expression) {
+					consumer.accept(this);
+				}
+				return this;
+			}
+
+			public AppDependencyConfig build() {
+				return new AppDependencyConfig(this.appId, this.specificInstanceId, this.alias, this.properties);
+			}
+		}
+
 	}
 
 	/**
@@ -87,8 +155,9 @@ public class DependencyDeclaration {
 	 */
 	public static enum UpdatePolicy {
 		ALWAYS(v -> true), //
-		IF_MINE(v -> v.allInstances.stream()
-				.anyMatch(a -> !a.equals(v.parent) && a.dependencies != null
+		IF_MINE(v -> !v.allInstances.stream() //
+				.filter(i -> !i.equals(v.parent)) //
+				.anyMatch(a -> a.dependencies != null
 						&& a.dependencies.stream().anyMatch(d -> d.instanceId.equals(v.app2Update.instanceId)))), //
 		NEVER(v -> false), //
 		;
