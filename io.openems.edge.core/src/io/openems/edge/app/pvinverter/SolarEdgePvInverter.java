@@ -27,6 +27,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
+import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a App for SolarEdge PV-Inverter.
@@ -93,15 +94,16 @@ public class SolarEdgePvInverter extends AbstractPvInverter<Property> implements
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.IP) //
-								.setLabel(bundle.getString("ipAddress")) //
-								.setDescription(bundle.getString("App.PvInverter.ip.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
+								.setDescription(TranslationUtil.getTranslation(bundle, "App.PvInverter.ip.description")) //
 								.setDefaultValue("192.168.178.85") //
 								.isRequired(true) //
 								.setValidation(Validation.IP) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.PORT) //
-								.setLabel(bundle.getString("port")) //
-								.setDescription(bundle.getString("App.PvInverter.port.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "port")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, "App.PvInverter.port.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(502) //
 								.setMin(0) //

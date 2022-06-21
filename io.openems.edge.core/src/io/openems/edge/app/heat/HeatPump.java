@@ -30,6 +30,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
@@ -122,14 +123,18 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_1) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[0])) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannel1.label"))
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannel1.description"))
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel1.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel1.description"))
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_2) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[1])) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannel2.label"))
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannel2.description"))
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel2.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel2.description"))
 								.build())
 						.build())
 				.build();

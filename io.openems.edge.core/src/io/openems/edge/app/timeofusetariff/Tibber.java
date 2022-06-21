@@ -30,6 +30,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a App for Tibber.
@@ -102,8 +103,10 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 		return AppAssistant.create(this.getName(language)).fields(//
 				JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.ACCESS_TOKEN) //
-								.setLabel(bundle.getString(this.getAppId() + ".accessToken.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".accessToken.description")) //
+								.setLabel(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".accessToken.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".accessToken.description")) //
 								.setInputType(Type.PASSWORD) //
 								.isRequired(true) //
 								.build()) //

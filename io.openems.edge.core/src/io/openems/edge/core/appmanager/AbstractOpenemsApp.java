@@ -27,6 +27,7 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.dependency.Dependency;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
@@ -299,7 +300,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	protected String getValueOrDefault(EnumMap<PROPERTY, JsonElement> map, PROPERTY property, String defaultValue) {
 		var element = map.get(property);
 		if (element != null) {
-			return element.getAsString();
+			return JsonUtils.getAsOptionalString(element).orElse(defaultValue);
 		}
 		return defaultValue;
 	}
@@ -568,7 +569,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	}
 
 	protected static String getTranslation(Language language, String key) {
-		return getTranslationBundle(language).getString(key);
+		return TranslationUtil.getTranslation(getTranslationBundle(language), key);
 	}
 
 	protected static ResourceBundle getTranslationBundle(Language language) {

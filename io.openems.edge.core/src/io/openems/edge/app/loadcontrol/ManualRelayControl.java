@@ -33,6 +33,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -120,8 +121,10 @@ public class ManualRelayControl extends AbstractOpenemsApp<Property> implements 
 									return relays == null ? null : relays[0];
 								}) //
 								.isRequired(true) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannel.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannel.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel.description")) //
 								.build())
 						.build())
 				.build();

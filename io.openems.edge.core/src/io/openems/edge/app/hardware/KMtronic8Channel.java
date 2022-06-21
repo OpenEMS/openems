@@ -30,6 +30,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a App for KMtronic 8-Channel Relay.
@@ -99,8 +100,9 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.IP) //
-								.setLabel(bundle.getString("ipAddress")) //
-								.setDescription(bundle.getString(this.getAppId() + ".Ip.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".Ip.description")) //
 								.setDefaultValue("192.168.1.199") //
 								.isRequired(true) //
 								.setValidation(Validation.IP) //

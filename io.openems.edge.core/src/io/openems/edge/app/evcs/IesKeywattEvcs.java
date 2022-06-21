@@ -30,6 +30,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
+import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a IES Keywatt evcs App.
@@ -111,14 +112,17 @@ public class IesKeywattEvcs extends AbstractEvcsApp<Property> implements Openems
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.OCCP_CHARGE_POINT_IDENTIFIER) //
-								.setLabel(bundle.getString(this.getAppId() + ".chargepoint.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".chargepoint.description")) //
+								.setLabel(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".chargepoint.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".chargepoint.description")) //
 								.setDefaultValue(Property.OCCP_CHARGE_POINT_IDENTIFIER.getDefaultValue()) //
 								.isRequired(true) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.OCCP_CONNECTOR_IDENTIFIER) //
-								.setLabel(bundle.getString(this.getAppId() + ".connector.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".connector.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".connector.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".connector.description")) //
 								.setDefaultValue(Property.OCCP_CONNECTOR_IDENTIFIER.getDefaultValue()) //
 								.isRequired(true) //
 								.setInputType(Type.NUMBER) //

@@ -29,6 +29,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
+import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a Hardy Barth evcs App.
@@ -102,8 +103,9 @@ public class HardyBarthEvcs extends AbstractEvcsApp<Property> implements Openems
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.IP) //
-								.setLabel(bundle.getString("ipAddress")) //
-								.setDescription(bundle.getString(this.getAppId() + ".Ip.description"))
+								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".Ip.description"))
 								.setDefaultValue(Property.IP.getDefaultValue()) //
 								.isRequired(true) //
 								.setValidation(Validation.IP) //

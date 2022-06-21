@@ -30,6 +30,9 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 
 /**
  * Describes a evcs cluster.
@@ -92,7 +95,8 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildSelect(Property.EVCS_IDS) //
 								.setLabel("EVCS-IDs") //
-								.setDescription(bundle.getString(this.getAppId() + ".evcsIds.description")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".evcsIds.description")) //
 								.setOptions(this.componentUtil.getEnabledComponentsOfStartingId("evcs").stream()
 										.filter(t -> !t.id().startsWith("evcsCluster")).collect(Collectors.toList()),
 										t -> t.alias() == null || t.alias().isEmpty() ? t.id()

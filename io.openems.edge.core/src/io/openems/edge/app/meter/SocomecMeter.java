@@ -31,6 +31,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.validator.CheckHome;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -104,13 +105,13 @@ public class SocomecMeter extends AbstractMeterApp<Property> implements OpenemsA
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildSelect(Property.TYPE) //
-								.setLabel(bundle.getString("App.Meter.mountType.label")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "App.Meter.mountType.label")) //
 								.setOptions(this.buildMeterOptions(language)) //
 								.setDefaultValue("PRODUCTION") //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
-								.setLabel(bundle.getString("modbusUnitId")) //
-								.setDescription(bundle.getString("modbusUnitId.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
+								.setDescription(TranslationUtil.getTranslation(bundle, "modbusUnitId.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(6) //
 								.setMin(0) //

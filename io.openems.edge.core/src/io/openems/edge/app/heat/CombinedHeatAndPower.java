@@ -33,6 +33,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
@@ -144,8 +145,10 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 									}
 									return relays[0];
 								}) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannel.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannel.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel.description")) //
 								.build())
 						.build())
 				.build();

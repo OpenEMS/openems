@@ -30,6 +30,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.SymmetricMeter;
 
@@ -97,15 +98,17 @@ public class SelfConsumptionOptimization extends AbstractOpenemsApp<Property> im
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildSelect(Property.ESS_ID)//
-								.setLabel(bundle.getString(this.getAppId() + ".ess.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".ess.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".ess.label")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".ess.description")) //
 								.isRequired(true) //
 								.setOptions(this.componentManager.getEnabledComponentsOfType(ManagedSymmetricEss.class),
 										c -> c.id() + ": " + c.alias(), ManagedSymmetricEss::id) //
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.METER_ID)//
-								.setLabel(bundle.getString(this.getAppId() + ".meter.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".meter.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter.label")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter.description")) //
 								.isRequired(true) //
 								.setOptions(this.componentManager.getEnabledComponentsOfType(SymmetricMeter.class),
 										c -> c.id() + ": " + c.alias(), SymmetricMeter::id) //

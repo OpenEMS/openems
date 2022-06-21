@@ -31,6 +31,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a App for a Grid Optimized Charge.
@@ -113,18 +114,20 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildCheckbox(Property.SELL_TO_GRID_LIMIT_ENABLED) //
-								.setLabel(bundle.getString(this.getAppId() + ".sellToGridLimitEnabled.label")) //
-								.setDescription(
-										bundle.getString(this.getAppId() + ".sellToGridLimitEnabled.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".sellToGridLimitEnabled.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".sellToGridLimitEnabled.description")) //
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.MAXIMUM_SELL_TO_GRID_POWER) //
 								.setInputType(Type.NUMBER) //
 								.isRequired(true) //
 								.setMin(0) //
 								.onlyShowIfChecked(Property.SELL_TO_GRID_LIMIT_ENABLED) //
-								.setLabel(bundle.getString(this.getAppId() + ".maximumSellToGridPower.label")) //
-								.setDescription(
-										bundle.getString(this.getAppId() + ".maximumSellToGridPower.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".maximumSellToGridPower.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".maximumSellToGridPower.description")) //
 								.build())
 						.build())
 				.build();

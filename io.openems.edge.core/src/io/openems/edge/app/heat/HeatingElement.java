@@ -33,6 +33,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
@@ -145,20 +146,26 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_PHASE_L1) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[0])) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannelPhaseL1.label"))
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannelPhaseL1.description"))
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL1.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL1.description"))
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_PHASE_L2) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[1])) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannelPhaseL2.label"))
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannelPhaseL2.description"))
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL2.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL2.description"))
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_PHASE_L3) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[2])) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannelPhaseL3.label"))
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannelPhaseL3.description"))
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL3.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL3.description"))
 								.build())
 						.build())
 				.build();

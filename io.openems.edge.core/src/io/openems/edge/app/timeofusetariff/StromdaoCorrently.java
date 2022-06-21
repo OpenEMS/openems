@@ -30,6 +30,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a App for StromdaoCorrently.
@@ -97,8 +98,9 @@ public class StromdaoCorrently extends AbstractOpenemsApp<Property> implements O
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.ZIP_CODE) //
-								.setLabel(bundle.getString(this.getAppId() + ".zipCode.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".zipCode.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".zipCode.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".zipCode.description")) //
 								.isRequired(true) //
 								.build()) //
 						.build()) //

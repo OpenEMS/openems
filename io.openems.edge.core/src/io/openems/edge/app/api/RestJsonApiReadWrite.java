@@ -31,6 +31,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -75,8 +76,9 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.API_TIMEOUT) //
-								.setLabel(bundle.getString("App.Api.apiTimeout.label")) //
-								.setDescription(bundle.getString("App.Api.apiTimeout.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.label")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(60) //
 								.setMin(30) //
