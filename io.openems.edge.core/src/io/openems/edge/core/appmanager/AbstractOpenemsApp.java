@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -27,6 +28,8 @@ import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.dependency.Dependency;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.Validator;
@@ -221,7 +224,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	 * @param jProperties a JsonObject holding the App properties
 	 * @return a list of validation errors. Empty list says 'no errors'
 	 */
-	private List<String> getValidationErrors(JsonObject jProperties) {
+	private List<String> getValidationErrors(JsonObject jProperties, List<Dependency> dependecies) {
 		final var errors = new ArrayList<String>();
 
 		final var properties = this.convertToEnumMap(errors, jProperties);
@@ -234,7 +237,14 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 		this.validateComponentConfigurations(errors, edgeConfig, appConfiguration);
 		this.validateScheduler(errors, edgeConfig, appConfiguration);
-		// TODO validate dependencies
+
+		try {
+			var appManager = (AppManagerImpl) this.componentManager.getComponent(AppManager.SINGLETON_COMPONENT_ID);
+			this.validateDependecies(errors, dependecies, appConfiguration.dependencies, appManager);
+		} catch (OpenemsNamedException e) {
+			// AppManager not found
+			errors.add("No AppManager reachabel!");
+		}
 
 		// TODO remove 'if' if it works on windows
 		// changing network settings only works on linux
@@ -337,7 +347,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	@Override
 	public void validate(OpenemsAppInstance instance) throws OpenemsNamedException {
-		var errors = this.getValidationErrors(instance.properties);
+		var errors = this.getValidationErrors(instance.properties, instance.dependencies);
 		if (!errors.isEmpty()) {
 			var error = errors.stream().collect(Collectors.joining("|"));
 			throw new OpenemsException(error);
@@ -450,6 +460,62 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		}
 		if (nextControllerId != null) {
 			errors.add("Controller [" + nextControllerId + "] is not/wrongly configured in Scheduler");
+		}
+	}
+
+	private void validateDependecies(List<String> errors, List<Dependency> configDependencies,
+			List<DependencyDeclaration> neededDependencies, AppManagerImpl appManager) {
+
+		// find dependencies that are not in config
+		var notRegisteredDependencies = neededDependencies.stream().filter(
+				t -> configDependencies == null || !configDependencies.stream().anyMatch(o -> o.key.equals(t.key)))
+				.collect(Collectors.toList());
+
+		// check if exactly one app is available of the needed appId
+		for (var dependency : notRegisteredDependencies) {
+			var list = appManager.getInstantiatedApps().stream().filter(t -> t.appId.equals(dependency.appId))
+					.collect(Collectors.toList());
+			if (list.size() != 1) {
+				errors.add("Missing dependency  with Key[" + dependency.key + "] needed App[" + dependency.appId + "]");
+			} else {
+				checkProperties(errors, list.get(0).properties, neededDependencies, dependency.key);
+			}
+		}
+
+		if (configDependencies == null) {
+			return;
+		}
+		// check if dependency apps are available
+		for (var dependency : configDependencies) {
+			try {
+				var appInstance = appManager.findInstaceById(dependency.instanceId);
+				// when available check properties
+				checkProperties(errors, appInstance.properties, neededDependencies, dependency.key);
+			} catch (NoSuchElementException e) {
+				errors.add("App with instance[" + dependency.instanceId + "] not available!");
+			}
+		}
+	}
+
+	private static final void checkProperties(List<String> errors, JsonObject actualAppProperties,
+			List<DependencyDeclaration> neededDependencies, String dependecyKey) {
+		var subApp = neededDependencies.stream().filter(t -> t.key.equals(dependecyKey)).findFirst().orElse(null);
+		if (subApp == null) {
+			errors.add("SubApp with Key[" + dependecyKey + "] not found!");
+			return;
+		}
+		for (var property : subApp.properties.entrySet()) {
+			var actualValue = actualAppProperties.get(property.getKey());
+			if (actualValue == null) {
+				errors.add("Value for Key[" + property.getKey() + "] not found!");
+				continue;
+			}
+			var actual = actualValue.toString().replace("\"", "");
+			var needed = property.getValue().toString().replace("\"", "");
+			if (!actual.equals(needed)) {
+				errors.add("Value for Key[" + property.getKey() + "] does not match: expected[" + needed + "] actual["
+						+ actual + "]  !");
+			}
 		}
 	}
 
