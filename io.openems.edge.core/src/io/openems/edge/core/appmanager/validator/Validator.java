@@ -40,10 +40,11 @@ public interface Validator {
 	 * @return the Status
 	 */
 	public default OpenemsAppStatus getStatus(ValidatorConfig config) {
-		if (!this.getErrorMessages(config.getCompatibleCheckableConfigs(), null, true).isEmpty()) {
+		// language not need for status
+		if (!this.getErrorMessages(config.getCompatibleCheckableConfigs(), Language.DEFAULT, true).isEmpty()) {
 			return OpenemsAppStatus.INCOMPATIBLE;
 		}
-		if (!this.getErrorMessages(config.getInstallableCheckableConfigs(), null, true).isEmpty()) {
+		if (!this.getErrorMessages(config.getInstallableCheckableConfigs(), Language.DEFAULT, true).isEmpty()) {
 			return OpenemsAppStatus.COMPATIBLE;
 		}
 		return OpenemsAppStatus.INSTALLABLE;
@@ -76,7 +77,7 @@ public interface Validator {
 	 * @param returnImmediate  after the first checkable who returns false
 	 * @return a list of errors
 	 */
-	public abstract List<String> getErrorMessages(List<CheckableConfig> checkableConfigs, Language language,
+	public List<String> getErrorMessages(List<CheckableConfig> checkableConfigs, Language language,
 			boolean returnImmediate);
 
 }

@@ -63,8 +63,8 @@ public class CheckAppsNotInstalled extends AbstractCheckable implements Checkabl
 
 	@Override
 	public String getErrorMessage(Language language) {
-		return "Apps with ID[" + this.installedApps.stream().collect(Collectors.joining(", ")) + "] are installed!"
-				+ System.lineSeparator() + "Delete them to be able to install this App.";
+		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckAppsNotInstalled.Message",
+				this.installedApps.stream().collect(Collectors.joining(", ")));
 	}
 
 }

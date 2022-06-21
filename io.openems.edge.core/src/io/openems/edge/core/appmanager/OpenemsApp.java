@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
-import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public interface OpenemsApp {
@@ -75,9 +74,9 @@ public interface OpenemsApp {
 	public OpenemsAppCardinality getCardinality();
 
 	/**
-	 * Gets the {@link Validator} of this {@link OpenemsApp}.
+	 * Gets the {@link ValidatorConfig} of this {@link OpenemsApp}.
 	 *
-	 * @return the Validator
+	 * @return the ValidatorConfig
 	 */
 	public ValidatorConfig getValidatorConfig();
 

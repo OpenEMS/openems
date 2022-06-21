@@ -25,7 +25,17 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 	private final AppManager appManager;
 	private OpenemsApp openemsApp;
 
-	private String errorMessage = null;
+	private ErrorType errorType = ErrorType.NONE;
+	private String errorMessage;
+	private OpenemsAppCategory matchingCategory;
+
+	private static enum ErrorType {
+		SAME_CATEGORIE, //
+		SAME_APP, //
+		NONE, //
+		OTHER, //
+		;
+	}
 
 	@Activate
 	public CheckCardinality(@Reference AppManager appManager, ComponentContext componentContext) {
@@ -40,13 +50,16 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 
 	@Override
 	public boolean check() {
+		this.errorType = ErrorType.NONE;
 		this.errorMessage = null;
 		if (this.appManager == null) {
 			this.errorMessage = "App Manager not available!";
+			this.errorType = ErrorType.OTHER;
 			return false;
 		}
 		if (!(this.appManager instanceof AppManagerImpl)) {
 			this.errorMessage = "Wrong AppManager active!";
+			this.errorType = ErrorType.OTHER;
 			return false;
 		}
 		var appManagerImpl = (AppManagerImpl) this.appManager;
@@ -56,25 +69,23 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 		case SINGLE:
 			if (instantiatedApps.stream().anyMatch(t -> t.appId.equals(this.openemsApp.getAppId()))) {
 				// only create one instance of this app
-				this.errorMessage = "An instance of the app[" + this.openemsApp.getAppId() + "] is already created!";
+				this.errorType = ErrorType.SAME_APP;
 			}
 			break;
 		case SINGLE_IN_CATEGORY:
 			var matchedCategorie = this.getMatchingCategorie(appManagerImpl, instantiatedApps);
 			if (matchedCategorie != null) {
 				// only create one instance with the same category of this app
-				this.errorMessage = "An instance of an app with the same category[" + matchedCategorie.name()
-						+ "] is already created!";
+				this.matchingCategory = matchedCategorie;
+				this.errorType = ErrorType.SAME_CATEGORIE;
 			}
 			break;
 		case MULTIPLE:
 			// any number of this app can be instantiated
 			break;
-		default:
-			this.errorMessage = "Usage '" + this.openemsApp.getCardinality().name() + "' is not implemented.";
 		}
 
-		return this.errorMessage == null;
+		return this.errorType == ErrorType.NONE;
 	}
 
 	private OpenemsAppCategory getMatchingCategorie(AppManagerImpl appManager,
@@ -102,7 +113,20 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 
 	@Override
 	public String getErrorMessage(Language language) {
-		return this.errorMessage;
+		switch (errorType) {
+		case SAME_APP:
+			return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckCardinality.Message.Single",
+					this.openemsApp.getAppId());
+		case SAME_CATEGORIE:
+			return AbstractCheckable.getTranslation(language,
+					"Validator.Checkable.CheckCardinality.Message.SingleInCategorie",
+					this.matchingCategory.getReadableName(language));
+		case OTHER:
+			return this.errorMessage;
+		case NONE:
+			return null;
+		}
+		return null;
 	}
 
 }

@@ -143,6 +143,8 @@ export class UpdateAppComponent implements OnInit {
         this.service.toast("Successfully deleted App", 'success');
       }).catch(reason => {
         this.service.toast("Error deleting App:" + reason.error.message, 'danger');
+      }).finally(() => {
+        instance.isDeleting = false
       })
   }
 }

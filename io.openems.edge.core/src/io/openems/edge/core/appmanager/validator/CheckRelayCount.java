@@ -62,9 +62,7 @@ public class CheckRelayCount extends AbstractCheckable implements Checkable {
 
 	@Override
 	public String getErrorMessage(Language language) {
-		// TODO translation
-		return "There are not enough Relay ports available!" + System.lineSeparator()
-				+ "Install a Relay to be able to install this App.";
+		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckRelayCount.Message");
 	}
 
 }

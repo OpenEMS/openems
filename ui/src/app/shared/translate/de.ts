@@ -476,7 +476,7 @@ export const TRANSLATION = {
                 header: 'Der App-Manager befindet sich aktuell in einer ersten Testversion. Falls nicht alle Apps angezeigt werden, muss evtl. die FEMS Version geupdatet werden.',
                 installed: 'Installiert',
                 available: 'Verfügbar',
-                incompatible: 'Incompatible',
+                incompatible: 'Inkompatibel',
                 buyApp: 'App kaufen',
                 modifyApp: 'App bearbeiten',
                 createApp: 'App anlegen',

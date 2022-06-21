@@ -45,7 +45,7 @@ public class CheckHome extends AbstractCheckable implements Checkable {
 
 	@Override
 	public String getErrorMessage(Language language) {
-		return "No Home installed";
+		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckHome.Message");
 	}
 
 }

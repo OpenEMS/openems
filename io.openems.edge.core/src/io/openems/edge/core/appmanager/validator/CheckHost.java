@@ -69,12 +69,14 @@ public class CheckHost extends AbstractCheckable implements Checkable {
 
 	@Override
 	public String getErrorMessage(Language language) {
-		// TODO translation
-		var portMsg = this.port != null ? " on Port " + this.port : "";
-		if (this.host == null) {
-			return "IP '" + this.host.getHostAddress() + "'" + portMsg + " is not a valid IP-Address";
+		var address = this.host.getHostAddress();
+		if (this.port != null) {
+			address += ":" + this.port;
 		}
-		return "Device with IP '" + this.host.getHostAddress() + "'" + portMsg + " is not reachable!";
+		if (this.host == null) {
+			return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckHost.WrongIp", address);
+		}
+		return AbstractCheckable.getTranslation(language, "Validator.Checkable.CheckHost.NotReachable", address);
 	}
 
 }

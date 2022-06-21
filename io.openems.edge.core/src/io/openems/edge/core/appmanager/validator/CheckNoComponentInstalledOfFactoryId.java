@@ -38,8 +38,8 @@ public class CheckNoComponentInstalledOfFactoryId extends AbstractCheckable impl
 
 	@Override
 	public String getErrorMessage(Language language) {
-		return "Components with the FactorieID[" + this.factorieId + "] are installed!" + System.lineSeparator()
-				+ "Remove them to be able to install this app.";
+		return AbstractCheckable.getTranslation(language,
+				"Validator.Checkable.CheckNoComponentInstalledOfFactorieId.Message", this.factorieId);
 	}
 
 }
