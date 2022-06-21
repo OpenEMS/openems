@@ -101,14 +101,14 @@ public class SelfConsumptionOptimization extends AbstractOpenemsApp<Property> im
 								.setDescription(bundle.getString(this.getAppId() + ".ess.description")) //
 								.isRequired(true) //
 								.setOptions(this.componentManager.getEnabledComponentsOfType(ManagedSymmetricEss.class),
-										c -> c.id() + ": " + c.alias(), c -> c.id()) //
+										c -> c.id() + ": " + c.alias(), ManagedSymmetricEss::id) //
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.METER_ID)//
 								.setLabel(bundle.getString(this.getAppId() + ".meter.label")) //
 								.setDescription(bundle.getString(this.getAppId() + ".meter.description")) //
 								.isRequired(true) //
 								.setOptions(this.componentManager.getEnabledComponentsOfType(SymmetricMeter.class),
-										c -> c.id() + ": " + c.alias(), c -> c.id()) //
+										c -> c.id() + ": " + c.alias(), SymmetricMeter::id) //
 								.build())
 						.build())
 				.build();

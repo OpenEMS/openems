@@ -3,30 +3,12 @@ package io.openems.edge.core.appmanager.validator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Lists;
-import com.google.gson.JsonObject;
-
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiFunction;
-import io.openems.edge.core.appmanager.ConfigurationTarget;
 
 public class ValidatorConfig {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ValidatorConfig.class);
-
-	// TODO
-	private final List<CheckableConfig> preInstallCheckableConfigs = null;
 	private final List<CheckableConfig> compatibleCheckableConfigs;
 	private final List<CheckableConfig> installableCheckableConfigs;
-
-	private ThrowingBiFunction<ConfigurationTarget, //
-			JsonObject, //
-			Map<String, Map<String, ?>>, //
-			OpenemsNamedException> //
-	configurationValidation;
 
 	public static final class Builder {
 
@@ -130,15 +112,6 @@ public class ValidatorConfig {
 		this.installableCheckableConfigs = installableCheckableConfigs != null //
 				? installableCheckableConfigs
 				: Lists.newArrayList();
-	}
-
-	public void setConfigurationValidation(
-			ThrowingBiFunction<ConfigurationTarget, JsonObject, Map<String, Map<String, ?>>, OpenemsNamedException> configurationValidation) {
-		this.configurationValidation = configurationValidation;
-	}
-
-	public ThrowingBiFunction<ConfigurationTarget, JsonObject, Map<String, Map<String, ?>>, OpenemsNamedException> getConfigurationValidation() {
-		return configurationValidation;
 	}
 
 	public List<CheckableConfig> getCompatibleCheckableConfigs() {

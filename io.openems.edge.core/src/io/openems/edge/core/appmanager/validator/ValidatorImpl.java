@@ -29,7 +29,8 @@ public class ValidatorImpl implements Validator {
 	}
 
 	@Override
-	public List<String> getErrorMessages(List<CheckableConfig> checkableConfigs, boolean returnImmediate) {
+	public List<String> getErrorMessages(List<CheckableConfig> checkableConfigs, Language language,
+			boolean returnImmediate) {
 		if (checkableConfigs.isEmpty()) {
 			return new ArrayList<>();
 		}
@@ -64,7 +65,7 @@ public class ValidatorImpl implements Validator {
 				noneExistingCheckables.removeIf(c -> c.equals(checkableConfig));
 				var result = checkable.check();
 				if (result == checkableConfig.invertResult) {
-					var errorMessage = checkable.getErrorMessage(Language.DEFAULT);
+					var errorMessage = checkable.getErrorMessage(language);
 					if (checkableConfig.invertResult) {
 						errorMessage = "Invert[" + errorMessage + "]";
 					}

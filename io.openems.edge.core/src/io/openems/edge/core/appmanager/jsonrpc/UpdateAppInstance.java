@@ -38,7 +38,10 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
- *   "result": {}
+ *   "result": {
+ *     "instance": {@link OpenemsAppInstance#toJsonObject()}
+ *     "warnings": string[]
+ *   }
  * }
  * </pre>
  */
@@ -100,14 +103,14 @@ public class UpdateAppInstance {
 			super(id);
 			this.instance = instance;
 			this.warnings = warnings == null ? new JsonArray()
-					: warnings.stream().map(t -> new JsonPrimitive(t)).collect(JsonUtils.toJsonArray());
+					: warnings.stream().map(JsonPrimitive::new).collect(JsonUtils.toJsonArray());
 		}
 
 		@Override
 		public JsonObject getResult() {
 			return JsonUtils.buildJsonObject() //
-					.add("instance", instance.toJsonObject()) //
-					.add("warnings", warnings) //
+					.add("instance", this.instance.toJsonObject()) //
+					.add("warnings", this.warnings) //
 					.build();
 		}
 	}

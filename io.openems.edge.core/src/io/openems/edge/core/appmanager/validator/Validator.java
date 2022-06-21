@@ -1,15 +1,12 @@
 package io.openems.edge.core.appmanager.validator;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig.CheckableConfig;
 
 public interface Validator {
@@ -17,71 +14,56 @@ public interface Validator {
 	/**
 	 * Gets the error messages for compatibility.
 	 *
+	 * @param config   the config that gets validated
+	 * @param language the language of the errors
 	 * @return the error messages
 	 */
-	public default List<String> getErrorCompatibleMessages(ValidatorConfig config) {
-		return getErrorMessages(config.getCompatibleCheckableConfigs(), false);
+	public default List<String> getErrorCompatibleMessages(ValidatorConfig config, Language language) {
+		return this.getErrorMessages(config.getCompatibleCheckableConfigs(), language, false);
 	}
 
 	/**
 	 * Gets the error messages for installation.
 	 *
+	 * @param config   the config that gets validated
+	 * @param language the language of the errors
 	 * @return the error messages
 	 */
-	public default List<String> getErrorInstallableMessages(ValidatorConfig config) {
-		return getErrorMessages(config.getInstallableCheckableConfigs(), false);
-	}
-
-	/**
-	 * Validates the Configuration {@link Checkable}s.
-	 *
-	 * @param target     the target of the configuration
-	 * @param properties the configuration properties
-	 * @throws OpenemsNamedException on validation error
-	 */
-	public default void validateConfiguration(ValidatorConfig config, ConfigurationTarget target, JsonObject properties)
-			throws OpenemsNamedException {
-		if (config.getConfigurationValidation() == null) {
-			return;
-		}
-		var checkables = config.getConfigurationValidation().apply(target, properties);
-		if (checkables == null) {
-			return;
-		}
-		var errors = getErrorMessages(config.getCompatibleCheckableConfigs(), false);
-		if (!errors.isEmpty()) {
-			throw new OpenemsException(errors.stream().collect(Collectors.joining(";")));
-		}
+	public default List<String> getErrorInstallableMessages(ValidatorConfig config, Language language) {
+		return this.getErrorMessages(config.getInstallableCheckableConfigs(), language, false);
 	}
 
 	/**
 	 * Validates the {@link Checkable}s and gets the Status.
 	 *
+	 * @param config the config that gets validated
 	 * @return the Status
 	 */
 	public default OpenemsAppStatus getStatus(ValidatorConfig config) {
-		if (!this.getErrorMessages(config.getCompatibleCheckableConfigs(), true).isEmpty()) {
+		if (!this.getErrorMessages(config.getCompatibleCheckableConfigs(), null, true).isEmpty()) {
 			return OpenemsAppStatus.INCOMPATIBLE;
 		}
-		if (!this.getErrorMessages(config.getInstallableCheckableConfigs(), true).isEmpty()) {
+		if (!this.getErrorMessages(config.getInstallableCheckableConfigs(), null, true).isEmpty()) {
 			return OpenemsAppStatus.COMPATIBLE;
 		}
 		return OpenemsAppStatus.INSTALLABLE;
 	}
 
 	/**
-	 * Builds a {@link JsonObject} out of this {@link Validator}.
+	 * Builds a {@link JsonObject} out of the given {@link ValidatorConfig}.
 	 *
+	 * @param config   the config that gets validated
+	 * @param language the language of the errors
 	 * @return the {@link JsonObject}
 	 */
-	public default JsonObject toJsonObject(ValidatorConfig config) {
+	public default JsonObject toJsonObject(ValidatorConfig config, Language language) {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("name", this.getStatus(config).name()) //
 				.add("errorCompatibleMessages",
-						this.getErrorCompatibleMessages(config).stream().map(s -> new JsonPrimitive(s))
+						this.getErrorCompatibleMessages(config, language).stream().map(JsonPrimitive::new)
 								.collect(JsonUtils.toJsonArray())) //
 				.add("errorInstallableMessages",
-						this.getErrorInstallableMessages(config).stream().map(s -> new JsonPrimitive(s))
+						this.getErrorInstallableMessages(config, language).stream().map(JsonPrimitive::new)
 								.collect(JsonUtils.toJsonArray())) //
 				.build();
 	}
@@ -90,9 +72,11 @@ public interface Validator {
 	 * Gets the error messages for the given {@link Checkable}.
 	 *
 	 * @param checkableConfigs the {@link Checkable}s to be checked.
+	 * @param language         the language of the errors
 	 * @param returnImmediate  after the first checkable who returns false
 	 * @return a list of errors
 	 */
-	public abstract List<String> getErrorMessages(List<CheckableConfig> checkableConfigs, boolean returnImmediate);
+	public abstract List<String> getErrorMessages(List<CheckableConfig> checkableConfigs, Language language,
+			boolean returnImmediate);
 
 }

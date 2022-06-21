@@ -114,7 +114,7 @@ public class GetApp {
 					.addProperty("appId", app.getAppId()) //
 					.addProperty("name", app.getName(language)) //
 					.addProperty("image", app.getImage()) //
-					.add("status", validator.toJsonObject(app.getValidatorConfig())) //
+					.add("status", validator.toJsonObject(app.getValidatorConfig(), language)) //
 					.add("instanceIds", instanceIds.build()) //
 					.build();
 		}

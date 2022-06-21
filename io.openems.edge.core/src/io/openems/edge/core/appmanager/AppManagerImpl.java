@@ -196,10 +196,20 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	}
 
 	/**
+	 * Gets a filter for excluding instances.
+	 *
+	 * @param excludingInstanceIds the instances that should be excluded
+	 * @return the filter
+	 */
+	public static Predicate<? super OpenemsAppInstance> exludingInstanceIds(UUID... excludingInstanceIds) {
+		return i -> !Arrays.stream(excludingInstanceIds).anyMatch(id -> id.equals(i.instanceId));
+	}
+
+	/**
 	 * Gets an {@link Iterable} that loops thru every existing app instance and its
 	 * configuration.
 	 *
-	 * @param excludingInstanceIds the instance ids that that should be ignored
+	 * @param filter the filter that gets applied to the instances
 	 * @return the {@link Iterable}
 	 */
 	public Iterable<Entry<OpenemsAppInstance, AppConfiguration>> appConfigs(
@@ -207,16 +217,12 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		return this.appConfigs(this.instantiatedApps, filter);
 	}
 
-	public static Predicate<? super OpenemsAppInstance> exludingInstanceIds(UUID... excludingInstanceIds) {
-		return i -> !Arrays.stream(excludingInstanceIds).anyMatch(id -> id.equals(i.instanceId));
-	}
-
 	/**
 	 * Gets an {@link Iterable} that loops thru every instance and its
 	 * configuration.
 	 *
-	 * @param instances            the instances
-	 * @param excludingInstanceIds the instance ids that that should be ignored
+	 * @param instances the instances
+	 * @param filter    the filter that gets applied to the instances
 	 * @return the {@link Iterable}
 	 */
 	public Iterable<Entry<OpenemsAppInstance, AppConfiguration>> appConfigs(List<OpenemsAppInstance> instances,
@@ -233,8 +239,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * Gets an {@link Iterator} that loops thru every instance and its
 	 * configuration.
 	 *
-	 * @param instances            the instances
-	 * @param excludingInstanceIds the instance ids that that should be ignored
+	 * @param instances the instances
+	 * @param filter    the filter that gets applied to the instances
 	 * @return the {@link Iterator}
 	 */
 	private Iterator<Entry<OpenemsAppInstance, AppConfiguration>> appConfigIterator(List<OpenemsAppInstance> instances,
@@ -315,7 +321,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return s the instance
 	 * @throws NoSuchElementException if no instance is present
 	 */
-	public final OpenemsAppInstance findInstaceById(UUID uuid) throws NoSuchElementException {
+	public final OpenemsAppInstance findInstanceById(UUID uuid) throws NoSuchElementException {
 		return this.instantiatedApps.stream() //
 				.filter(t -> t.instanceId.equals(uuid)) //
 				.findFirst() //
@@ -383,7 +389,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 			final OpenemsAppInstance instance;
 			try {
-				instance = this.findInstaceById(request.instanceId);
+				instance = this.findInstanceById(request.instanceId);
 			} catch (NoSuchElementException e) {
 				return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.id));
 			}
@@ -471,7 +477,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		var instances = this.instantiatedApps.stream().filter(t -> t.appId.equals(request.appId))
 				.collect(Collectors.toList());
 		return CompletableFuture
-				.completedFuture(new GetApp.Response(request.id, app, instances, user.getLanguage(), validator));
+				.completedFuture(new GetApp.Response(request.id, app, instances, user.getLanguage(), this.validator));
 	}
 
 	/**
@@ -485,7 +491,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppsRequest(User user, GetApps.Request request)
 			throws OpenemsNamedException {
 		return CompletableFuture.completedFuture(new GetApps.Response(request.id, this.availableApps,
-				this.instantiatedApps, user.getLanguage(), validator));
+				this.instantiatedApps, user.getLanguage(), this.validator));
 	}
 
 	@Override
@@ -540,7 +546,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			OpenemsApp app = null;
 
 			try {
-				oldApp = this.findInstaceById(request.instanceId);
+				oldApp = this.findInstanceById(request.instanceId);
 				app = this.findAppById(oldApp.appId);
 			} catch (NoSuchElementException e) {
 				throw new OpenemsException("App-Instance-ID [" + request.instanceId + "] is unknown.");
@@ -559,7 +565,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				throw new OpenemsException("Unable to update App-Manager configuration for ID [" + request.instanceId
 						+ "]: " + e.getMessage());
 			}
-			var newInstance = this.findInstaceById(request.instanceId);
+			var newInstance = this.findInstanceById(request.instanceId);
 			return CompletableFuture
 					.completedFuture(new UpdateAppInstance.Response(request.id, newInstance, result.warnings));
 		}

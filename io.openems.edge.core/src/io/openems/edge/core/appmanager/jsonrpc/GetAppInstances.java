@@ -89,7 +89,7 @@ public class GetAppInstances {
 		public Response(UUID id, List<OpenemsAppInstance> instances) {
 			super(id);
 
-			this.instances = instances.stream().map(i -> i.toJsonObject()).collect(JsonUtils.toJsonArray());
+			this.instances = instances.stream().map(OpenemsAppInstance::toJsonObject).collect(JsonUtils.toJsonArray());
 		}
 
 		@Override

@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 import com.google.common.base.Function;
 import com.google.gson.JsonObject;
@@ -53,8 +52,9 @@ public class DependencyDeclaration {
 		public final JsonObject properties;
 
 		private AppDependencyConfig(String appId, UUID specificInstanceId, String alias, JsonObject properties) {
-			if (appId == null) {
-				throw new NullPointerException("'appId' of a AppDependencyConfig can't be null!");
+			if (appId == null && specificInstanceId == null) {
+				throw new NullPointerException(
+						"'appId' and 'specificInstanceId' of a AppDependencyConfig can't be both null!");
 			}
 			this.appId = appId;
 			this.specificInstanceId = specificInstanceId;
@@ -62,6 +62,11 @@ public class DependencyDeclaration {
 			this.properties = properties == null ? new JsonObject() : properties;
 		}
 
+		/**
+		 * Gets a {@link Builder} for an {@link AppDependencyConfig}.
+		 *
+		 * @return the builder
+		 */
 		public static Builder create() {
 			return new Builder();
 		}
@@ -92,13 +97,6 @@ public class DependencyDeclaration {
 
 			public Builder setProperties(JsonObject properties) {
 				this.properties = properties;
-				return this;
-			}
-
-			public Builder onlyIf(boolean expression, Consumer<Builder> consumer) {
-				if (expression) {
-					consumer.accept(this);
-				}
 				return this;
 			}
 
@@ -226,7 +224,9 @@ public class DependencyDeclaration {
 		}
 	}
 
-	// TODO
+	/**
+	 * Defines if the user can change properties of the dependency app.
+	 */
 	public static enum DependencyUpdatePolicy {
 		ALLOW_ALL, //
 		ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //

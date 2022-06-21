@@ -14,18 +14,19 @@ public class DependencyUtil {
 	/**
 	 * Temporary field to avoid endless loop.
 	 */
-	private static final Set<String> CURRENTLY_CALLING_APP_IDS = new HashSet<String>();
+	private static final Set<String> CURRENTLY_CALLING_APP_IDS = new HashSet<>();
 
 	/**
 	 * Gets the instanceId of the first found app that has the given componentId in
 	 * its {@link AppConfiguration}.
-	 * 
+	 *
 	 * <p>
-	 * WARN: when calling this inside an app configuration it can lead to an endless
+	 * WARNING: when calling this inside an app configuration it can lead to an endless
 	 * loop
-	 * 
-	 * @param componentManager a componentManager to get the appManager
-	 * @param componentId      the component id that the app should have
+	 *
+	 * @param componentManager    a componentManager to get the appManager
+	 * @param componentId         the component id that the app should have
+	 * @param currentlyCallingApp the app that is currently calling this methode
 	 * @return the found instanceId or null if no app has this component
 	 */
 	public static final UUID getInstanceIdOfAppWhichHasComponent(ComponentManager componentManager, String componentId,

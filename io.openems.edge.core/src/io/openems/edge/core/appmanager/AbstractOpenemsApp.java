@@ -32,7 +32,6 @@ import io.openems.edge.core.appmanager.dependency.Dependency;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.Checkable;
-import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
 
@@ -268,12 +267,6 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		validator.getInstallableCheckableConfigs()
 				.add(new ValidatorConfig.CheckableConfig(CheckCardinality.COMPONENT_NAME, properties));
 
-		if (this.installationValidation() != null) {
-			validator.setConfigurationValidation((t, u) -> {
-				var p = this.convertToEnumMap(new ArrayList<>(), u);
-				return this.installationValidation().apply(t, p);
-			});
-		}
 		return validator;
 	}
 
@@ -480,7 +473,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 				var appConfigErrors = new LinkedList<String>();
 				if (appConfig.specificInstanceId != null) {
 					try {
-						var instance = appManager.findInstaceById(appConfig.specificInstanceId);
+						var instance = appManager.findInstanceById(appConfig.specificInstanceId);
 						checkProperties(errors, instance.properties, appConfig, dependency.key);
 					} catch (NoSuchElementException e) {
 						appConfigErrors.add("Specific InstanceId[" + appConfig.specificInstanceId + "] not found!");
@@ -511,7 +504,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		// check if dependency apps are available
 		for (var dependency : configDependencies) {
 			try {
-				var appInstance = appManager.findInstaceById(dependency.instanceId);
+				var appInstance = appManager.findInstanceById(dependency.instanceId);
 				var dd = neededDependencies.stream().filter(d -> d.key.equals(dependency.key)).findAny();
 				if (dd.isEmpty()) {
 					errors.add("Can not get DependencyDeclaration of Dependency[" + dependency.key + "]");

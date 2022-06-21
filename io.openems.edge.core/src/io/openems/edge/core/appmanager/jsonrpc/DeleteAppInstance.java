@@ -37,7 +37,9 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
- *   "result": {}
+ *   "result": {
+ *   	"warnings": string[]
+ *   }
  * }
  * </pre>
  */
@@ -87,13 +89,13 @@ public class DeleteAppInstance {
 		public Response(UUID id, List<String> warnings) {
 			super(id);
 			this.warnings = warnings == null ? new JsonArray()
-					: warnings.stream().map(t -> new JsonPrimitive(t)).collect(JsonUtils.toJsonArray());
+					: warnings.stream().map(JsonPrimitive::new).collect(JsonUtils.toJsonArray());
 		}
 
 		@Override
 		public JsonObject getResult() {
 			return JsonUtils.buildJsonObject() //
-					.add("warnings", warnings) //
+					.add("warnings", this.warnings) //
 					.build();
 		}
 	}

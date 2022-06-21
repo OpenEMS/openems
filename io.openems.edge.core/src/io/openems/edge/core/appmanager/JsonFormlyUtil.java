@@ -673,7 +673,7 @@ public class JsonFormlyUtil {
 
 		@Override
 		public JsonObject build() {
-			if (fieldArray != null) {
+			if (this.fieldArray != null) {
 				this.jsonObject.add("fieldArray", this.fieldArray);
 			}
 			return super.build();
