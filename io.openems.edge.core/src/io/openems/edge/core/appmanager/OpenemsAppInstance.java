@@ -1,11 +1,13 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
 
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.core.appmanager.dependency.Dependency;
 
 /**
  * An {@link OpenemsAppInstance} is one instance of an {@link OpenemsApp} with a
@@ -17,12 +19,15 @@ public class OpenemsAppInstance {
 	public final String alias;
 	public final UUID instanceId;
 	public final JsonObject properties;
+	public final List<Dependency> dependencies;
 
-	public OpenemsAppInstance(String appId, String alias, UUID instanceId, JsonObject properties) {
+	public OpenemsAppInstance(String appId, String alias, UUID instanceId, JsonObject properties,
+			List<Dependency> dependencies) {
 		this.appId = appId;
 		this.alias = alias;
 		this.instanceId = instanceId;
 		this.properties = properties;
+		this.dependencies = dependencies;
 	}
 
 	@Override
@@ -53,6 +58,8 @@ public class OpenemsAppInstance {
 				.addProperty("alias", this.alias) //
 				.addProperty("instanceId", this.instanceId.toString()) //
 				.add("properties", this.properties) //
+				.onlyIf(dependencies != null && !dependencies.isEmpty(), j -> j.add("dependencies", //
+						dependencies.stream().map(t -> t.toJsonObject()).collect(JsonUtils.toJsonArray())))
 				.build();
 	}
 

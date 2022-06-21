@@ -23,6 +23,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.integratedsystem.FeneconHome.Property;
+import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
@@ -35,6 +36,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 
 /**
  * Describes a FENECON Home energy storage system.
@@ -194,15 +196,15 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 											.add("_sum/ConsumptionActivePower") //
 											.build()) //
 									.build()),
-					new EdgeConfig.Component("ctrlGridOptimizedCharge0",
-							bundle.getString("App.PvSelfConsumption.GridOptimizedCharge.Name"),
-							"Controller.Ess.GridOptimizedCharge", JsonUtils.buildJsonObject() //
-									.addProperty("enabled", true) //
-									.addProperty("ess.id", essId) //
-									.addProperty("meter.id", "meter0") //
-									.addProperty("sellToGridLimitEnabled", true) //
-									.addProperty("maximumSellToGridPower", maxFeedInPower) //
-									.build()),
+//					new EdgeConfig.Component("ctrlGridOptimizedCharge0",
+//							bundle.getString("App.PvSelfConsumption.GridOptimizedCharge.Name"),
+//							"Controller.Ess.GridOptimizedCharge", JsonUtils.buildJsonObject() //
+//									.addProperty("enabled", true) //
+//									.addProperty("ess.id", essId) //
+//									.addProperty("meter.id", "meter0") //
+//									.addProperty("sellToGridLimitEnabled", true) //
+//									.addProperty("maximumSellToGridPower", maxFeedInPower) //
+//									.build()),
 					new EdgeConfig.Component("ctrlEssSurplusFeedToGrid0",
 							bundle.getString(this.getAppId() + ".ctrlEssSurplusFeedToGrid0.alias"),
 							"Controller.Ess.Hybrid.Surplus-Feed-To-Grid", JsonUtils.buildJsonObject() //
@@ -286,7 +288,17 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			schedulerExecutionOrder.add("ctrlEssSurplusFeedToGrid0");
 			schedulerExecutionOrder.add("ctrlBalancing0");
 
-			return new AppConfiguration(components, schedulerExecutionOrder);
+			var dependencies = Lists.newArrayList(new DependencyDeclaration("GRID_OPTIMIZED_CHARGE", //
+					"App.PvSelfConsumption.GridOptimizedCharge", //
+					bundle.getString("App.PvSelfConsumption.GridOptimizedCharge.Name"), //
+					DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+					DependencyDeclaration.UpdatePolicy.ALWAYS, //
+					DependencyDeclaration.DeletePolicy.ALWAYS, //
+					JsonUtils.buildJsonObject() //
+							.addProperty(GridOptimizedCharge.Property.MAXIMUM_SELL_TO_GRID_POWER.name(), maxFeedInPower) //
+							.build()));
+
+			return new AppConfiguration(components, schedulerExecutionOrder, null, dependencies);
 		};
 	}
 
