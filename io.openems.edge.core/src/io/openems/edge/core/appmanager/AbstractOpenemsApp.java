@@ -72,7 +72,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		final List<String> errors = new ArrayList<>();
 		for (Checkable checkable : checkables) {
 			if (!checkable.check()) {
-				errors.add(checkable.getErrorMessage());
+				errors.add(checkable.getErrorMessage(Language.DEFAULT));
 			}
 		}
 		if (!errors.isEmpty()) {
@@ -257,7 +257,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	}
 
 	@Override
-	public final Validator getValidator() {
+	public final ValidatorConfig getValidatorConfig() {
 		Map<String, Object> properties = new TreeMap<>();
 		properties.put("openemsApp", this);
 
@@ -265,7 +265,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		var validator = this.getValidateBuilder().build();
 
 		validator.getInstallableCheckableConfigs()
-				.add(new Validator.CheckableConfig(CheckCardinality.COMPONENT_NAME, properties));
+				.add(new ValidatorConfig.CheckableConfig(CheckCardinality.COMPONENT_NAME, properties));
 
 		if (this.installationValidation() != null) {
 			validator.setConfigurationValidation((t, u) -> {
@@ -276,8 +276,8 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		return validator;
 	}
 
-	protected Validator.Builder getValidateBuilder() {
-		return Validator.create();
+	protected ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create();
 	}
 
 	/**

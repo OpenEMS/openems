@@ -33,9 +33,10 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for a RTU Heating Element.
@@ -109,7 +110,26 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 							.addProperty("outputChannelPhaseL3", outputChannelPhaseL3) //
 							.build()));//
 
-			return new AppConfiguration(comp);
+			var componentIdOfRelay = outputChannelPhaseL1.substring(0, outputChannelPhaseL1.indexOf('/'));
+			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
+					componentIdOfRelay, this.getAppId());
+
+			if (appIdOfRelay == null) {
+				// relay may be created but not as a app
+				return new AppConfiguration(comp);
+			}
+
+			var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
+					DependencyDeclaration.CreatePolicy.NEVER, //
+					DependencyDeclaration.UpdatePolicy.NEVER, //
+					DependencyDeclaration.DeletePolicy.NEVER, //
+					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
+					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+					DependencyDeclaration.AppDependencyConfig.create() //
+							.setSpecificInstanceId(appIdOfRelay) //
+							.build()));
+
+			return new AppConfiguration(comp, null, null, dependencies);
 		};
 	}
 
@@ -157,11 +177,11 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
+	public ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
 				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new Validator.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+						new ValidatorConfig.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("count", 3) //
 										.build())));
 	}

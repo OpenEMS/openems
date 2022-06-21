@@ -33,8 +33,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.validator.CheckHome;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for a Grid Optimized Charge.
@@ -139,15 +138,6 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
 				.build();
-	}
-
-	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() // TODO remove later when home has dependency
-				.setCompatibleCheckableConfigs(Lists.newArrayList(//
-						new Validator.CheckableConfig(CheckHome.COMPONENT_NAME, true,
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
-										.build())));
 	}
 
 	@Override

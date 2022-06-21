@@ -37,8 +37,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.validator.CheckHome;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for a Janitza meter.
@@ -164,11 +163,11 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
+	public ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
 				.setCompatibleCheckableConfigs(Lists.newArrayList(//
-						new Validator.CheckableConfig(CheckHome.COMPONENT_NAME,
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+						new ValidatorConfig.CheckableConfig(CheckHome.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.build())));
 	}
 

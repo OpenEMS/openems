@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.ComponentUtil;
 
 @Component(name = CheckRelayCount.COMPONENT_NAME)
-public class CheckRelayCount implements Checkable {
+public class CheckRelayCount extends AbstractCheckable implements Checkable {
 
 	public static final String COMPONENT_NAME = "Validator.Checkable.CheckRelayCount";
 
@@ -21,7 +23,8 @@ public class CheckRelayCount implements Checkable {
 	private int count;
 
 	@Activate
-	public CheckRelayCount(@Reference ComponentUtil openemsAppUtil) {
+	public CheckRelayCount(@Reference ComponentUtil openemsAppUtil, ComponentContext componentContext) {
+		super(componentContext);
 		this.openemsAppUtil = openemsAppUtil;
 	}
 
@@ -58,9 +61,10 @@ public class CheckRelayCount implements Checkable {
 	}
 
 	@Override
-	public String getErrorMessage() {
+	public String getErrorMessage(Language language) {
 		// TODO translation
-		return "There are not enough Relay ports available!";
+		return "There are not enough Relay ports available!" + System.lineSeparator()
+				+ "Install a Relay to be able to install this App.";
 	}
 
 }

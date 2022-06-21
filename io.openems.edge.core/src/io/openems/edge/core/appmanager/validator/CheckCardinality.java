@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.AppManager;
 import io.openems.edge.core.appmanager.AppManagerImpl;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -16,7 +18,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
 @Component(name = CheckCardinality.COMPONENT_NAME)
-public class CheckCardinality implements Checkable {
+public class CheckCardinality extends AbstractCheckable implements Checkable {
 
 	public static final String COMPONENT_NAME = "Validator.Checkable.CheckCardinality";
 
@@ -26,7 +28,8 @@ public class CheckCardinality implements Checkable {
 	private String errorMessage = null;
 
 	@Activate
-	public CheckCardinality(@Reference AppManager appManager) {
+	public CheckCardinality(@Reference AppManager appManager, ComponentContext componentContext) {
+		super(componentContext);
 		this.appManager = appManager;
 	}
 
@@ -98,7 +101,7 @@ public class CheckCardinality implements Checkable {
 	}
 
 	@Override
-	public String getErrorMessage() {
+	public String getErrorMessage(Language language) {
 		return this.errorMessage;
 	}
 

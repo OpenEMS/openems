@@ -5,15 +5,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.AppManager;
 import io.openems.edge.core.appmanager.AppManagerImpl;
 
 @Component(name = CheckAppsNotInstalled.COMPONENT_NAME)
-public class CheckAppsNotInstalled implements Checkable {
+public class CheckAppsNotInstalled extends AbstractCheckable implements Checkable {
 
 	public static final String COMPONENT_NAME = "Validator.Checkable.CheckAppsNotInstalled";
 
@@ -23,7 +25,8 @@ public class CheckAppsNotInstalled implements Checkable {
 	private List<String> installedApps = new LinkedList<>();
 
 	@Activate
-	public CheckAppsNotInstalled(@Reference AppManager appManager) {
+	public CheckAppsNotInstalled(@Reference AppManager appManager, ComponentContext componentContext) {
+		super(componentContext);
 		this.appManager = appManager;
 	}
 
@@ -35,14 +38,10 @@ public class CheckAppsNotInstalled implements Checkable {
 	@Override
 	public boolean check() {
 		this.installedApps = new LinkedList<>();
-		if (this.appManager == null) {
+		var appManagerImpl = this.getAppManagerImpl();
+		if (appManagerImpl == null) {
 			return false;
 		}
-		if (!(this.appManager instanceof AppManagerImpl)) {
-			return false;
-		}
-		var appManagerImpl = (AppManagerImpl) this.appManager;
-
 		var instances = appManagerImpl.getInstantiatedApps();
 		for (String item : this.appIds) {
 			if (instances.stream().anyMatch(t -> t.appId.equals(item))) {
@@ -52,8 +51,18 @@ public class CheckAppsNotInstalled implements Checkable {
 		return this.installedApps.isEmpty();
 	}
 
+	private AppManagerImpl getAppManagerImpl() {
+		if (this.appManager == null) {
+			return null;
+		}
+		if (!(this.appManager instanceof AppManagerImpl)) {
+			return null;
+		}
+		return (AppManagerImpl) this.appManager;
+	}
+
 	@Override
-	public String getErrorMessage() {
+	public String getErrorMessage(Language language) {
 		return "Apps with ID[" + this.installedApps.stream().collect(Collectors.joining(", ")) + "] are installed!"
 				+ System.lineSeparator() + "Delete them to be able to install this App.";
 	}

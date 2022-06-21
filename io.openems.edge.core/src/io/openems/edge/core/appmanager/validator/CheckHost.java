@@ -6,11 +6,14 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Map;
 
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
+import io.openems.common.session.Language;
+
 @Component(name = CheckHost.COMPONENT_NAME)
-public class CheckHost implements Checkable {
+public class CheckHost extends AbstractCheckable implements Checkable {
 
 	public static final String COMPONENT_NAME = "Validator.Checkable.CheckHost";
 
@@ -18,7 +21,8 @@ public class CheckHost implements Checkable {
 	private Integer port;
 
 	@Activate
-	public CheckHost() {
+	public CheckHost(ComponentContext componentContext) {
+		super(componentContext);
 	}
 
 	private void init(String host, Integer port) {
@@ -64,7 +68,7 @@ public class CheckHost implements Checkable {
 	}
 
 	@Override
-	public String getErrorMessage() {
+	public String getErrorMessage(Language language) {
 		// TODO translation
 		var portMsg = this.port != null ? " on Port " + this.port : "";
 		if (this.host == null) {

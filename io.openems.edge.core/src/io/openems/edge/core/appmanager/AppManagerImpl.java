@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -51,6 +52,7 @@ import io.openems.edge.core.appmanager.jsonrpc.GetAppDescriptor;
 import io.openems.edge.core.appmanager.jsonrpc.GetAppInstances;
 import io.openems.edge.core.appmanager.jsonrpc.GetApps;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
+import io.openems.edge.core.appmanager.validator.Validator;
 import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 
 @Designate(ocd = Config.class, factory = false)
@@ -80,6 +82,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 	@Reference
 	protected ComponentUtil componentUtil;
+
+	@Reference
+	protected Validator validator;
 
 	protected final List<OpenemsAppInstance> instantiatedApps = new ArrayList<>();
 
@@ -197,8 +202,13 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @param excludingInstanceIds the instance ids that that should be ignored
 	 * @return the {@link Iterable}
 	 */
-	public Iterable<Entry<OpenemsAppInstance, AppConfiguration>> appConfigs(UUID... excludingInstanceIds) {
-		return this.appConfigs(this.instantiatedApps, excludingInstanceIds);
+	public Iterable<Entry<OpenemsAppInstance, AppConfiguration>> appConfigs(
+			Predicate<? super OpenemsAppInstance> filter) {
+		return this.appConfigs(this.instantiatedApps, filter);
+	}
+
+	public static Predicate<? super OpenemsAppInstance> exludingInstanceIds(UUID... excludingInstanceIds) {
+		return i -> !Arrays.stream(excludingInstanceIds).anyMatch(id -> id.equals(i.instanceId));
 	}
 
 	/**
@@ -210,11 +220,11 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return the {@link Iterable}
 	 */
 	public Iterable<Entry<OpenemsAppInstance, AppConfiguration>> appConfigs(List<OpenemsAppInstance> instances,
-			UUID... excludingInstanceIds) {
+			Predicate<? super OpenemsAppInstance> filter) {
 		return new Iterable<>() {
 			@Override
 			public Iterator<Entry<OpenemsAppInstance, AppConfiguration>> iterator() {
-				return AppManagerImpl.this.appConfigIterator(instances, excludingInstanceIds);
+				return AppManagerImpl.this.appConfigIterator(instances, filter);
 			}
 		};
 	}
@@ -227,10 +237,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @param excludingInstanceIds the instance ids that that should be ignored
 	 * @return the {@link Iterator}
 	 */
-	public Iterator<Entry<OpenemsAppInstance, AppConfiguration>> appConfigIterator(List<OpenemsAppInstance> instances,
-			UUID... excludingInstanceIds) {
-		List<OpenemsAppInstance> actualInstances = instances.stream()
-				.filter(i -> !Arrays.stream(excludingInstanceIds).anyMatch(id -> id.equals(i.instanceId)))
+	private Iterator<Entry<OpenemsAppInstance, AppConfiguration>> appConfigIterator(List<OpenemsAppInstance> instances,
+			Predicate<? super OpenemsAppInstance> filter) {
+		List<OpenemsAppInstance> actualInstances = instances.stream().filter(i -> filter == null || filter.test(i)) //
 				.collect(Collectors.toList());
 		return new Iterator<>() {
 
@@ -322,7 +331,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 */
 	public final List<AppConfiguration> getOtherAppConfigurations(UUID... ignoreIds) {
 		List<AppConfiguration> allOtherConfigs = new ArrayList<>(this.instantiatedApps.size());
-		for (var entry : this.appConfigs(ignoreIds)) {
+		for (var entry : this.appConfigs(AppManagerImpl.exludingInstanceIds(ignoreIds))) {
 			allOtherConfigs.add(entry.getValue());
 		}
 		return allOtherConfigs;
@@ -336,28 +345,27 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	protected CompletableFuture<JsonrpcResponseSuccess> handleAddAppInstanceRequest(User user,
+	public CompletableFuture<JsonrpcResponseSuccess> handleAddAppInstanceRequest(User user,
 			AddAppInstance.Request request) throws OpenemsNamedException {
-		var instanceId = UUID.randomUUID();
-
 		var openemsApp = this.findAppById(request.appId);
 
 		synchronized (this.instantiatedApps) {
 
-			var installedApps = this.appHelper.installApp(user, request.properties, request.alias, openemsApp);
+			var installedValues = this.appHelper.installApp(user, request.properties, request.alias, openemsApp);
 
 			// Update App-Manager configuration
 			try {
 				// replace old instances with new ones
-				this.instantiatedApps.removeAll(installedApps);
-				this.instantiatedApps.addAll(installedApps);
+				this.instantiatedApps.removeAll(installedValues.modifiedOrCreatedApps);
+				this.instantiatedApps.addAll(installedValues.modifiedOrCreatedApps);
 				this.updateAppManagerConfiguration(user, this.instantiatedApps);
 			} catch (OpenemsNamedException e) {
 				throw new OpenemsException(
 						"AddAppInstance: unable to update App-Manager configuration: " + e.getMessage());
 			}
+			return CompletableFuture.completedFuture(
+					new AddAppInstance.Response(request.id, installedValues.rootInstance, installedValues.warnings));
 		}
-		return CompletableFuture.completedFuture(new AddAppInstance.Response(request.id, instanceId));
 	}
 
 	/**
@@ -368,7 +376,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return the request id
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<? extends JsonrpcResponseSuccess> handleDeleteAppInstanceRequest(User user,
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleDeleteAppInstanceRequest(User user,
 			DeleteAppInstance.Request request) throws OpenemsNamedException {
 
 		synchronized (this.instantiatedApps) {
@@ -392,10 +400,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				throw new OpenemsException("Unable to update App-Manager configuration for ID [" + request.instanceId
 						+ "]: " + e.getMessage());
 			}
-
+			return CompletableFuture.completedFuture(new DeleteAppInstance.Response(request.id, result.warnings));
 		}
-
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.id));
 	}
 
 	/**
@@ -464,7 +470,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		var app = this.availableApps.stream().filter(t -> t.getAppId().equals(request.appId)).findFirst().get();
 		var instances = this.instantiatedApps.stream().filter(t -> t.appId.equals(request.appId))
 				.collect(Collectors.toList());
-		return CompletableFuture.completedFuture(new GetApp.Response(request.id, app, instances, user.getLanguage()));
+		return CompletableFuture
+				.completedFuture(new GetApp.Response(request.id, app, instances, user.getLanguage(), validator));
 	}
 
 	/**
@@ -477,8 +484,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppsRequest(User user, GetApps.Request request)
 			throws OpenemsNamedException {
-		return CompletableFuture.completedFuture(
-				new GetApps.Response(request.id, this.availableApps, this.instantiatedApps, user.getLanguage()));
+		return CompletableFuture.completedFuture(new GetApps.Response(request.id, this.availableApps,
+				this.instantiatedApps, user.getLanguage(), validator));
 	}
 
 	@Override
@@ -552,8 +559,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				throw new OpenemsException("Unable to update App-Manager configuration for ID [" + request.instanceId
 						+ "]: " + e.getMessage());
 			}
+			var newInstance = this.findInstaceById(request.instanceId);
+			return CompletableFuture
+					.completedFuture(new UpdateAppInstance.Response(request.id, newInstance, result.warnings));
 		}
-		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.id));
 	}
 
 	@Modified
@@ -574,6 +583,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		var p = new Property("apps", getJsonAppsString(apps));
 		var updateRequest = new UpdateComponentConfigRequest(SINGLETON_COMPONENT_ID, Arrays.asList(p));
 		// user can be null using internal method
-		((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, updateRequest);
+		if (user == null) {
+			((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, updateRequest);
+		} else {
+			this.componentManager.handleJsonrpcRequest(user, updateRequest);
+		}
 	}
 }

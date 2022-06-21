@@ -2,15 +2,17 @@ package io.openems.edge.core.appmanager.validator;
 
 import java.util.TreeMap;
 
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import io.openems.common.OpenemsConstants;
+import io.openems.common.session.Language;
 import io.openems.edge.common.component.ComponentManager;
 
 @Component(name = CheckHome.COMPONENT_NAME)
-public class CheckHome implements Checkable {
+public class CheckHome extends AbstractCheckable implements Checkable {
 
 	public static final String COMPONENT_NAME = "Validator.Checkable.CheckHome";
 
@@ -18,9 +20,10 @@ public class CheckHome implements Checkable {
 	private final Checkable checkAppsNotInstalled;
 
 	@Activate
-	public CheckHome(@Reference ComponentManager componentManager,
+	public CheckHome(@Reference ComponentManager componentManager, ComponentContext componentContext,
 			@Reference(target = "(" + OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME + "="
 					+ CheckAppsNotInstalled.COMPONENT_NAME + ")") Checkable checkAppsNotInstalled) {
+		super(componentContext);
 		this.componentManager = componentManager;
 		this.checkAppsNotInstalled = checkAppsNotInstalled;
 	}
@@ -28,7 +31,7 @@ public class CheckHome implements Checkable {
 	@Override
 	public boolean check() {
 		var batteries = this.componentManager.getEdgeConfig().getComponentsByFactory("Battery.Fenecon.Home");
-		this.checkAppsNotInstalled.setProperties(new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+		this.checkAppsNotInstalled.setProperties(new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 				.put("appIds", new String[] { "App.FENECON.Home" }) //
 				.build());
 		// TODO remove check for batteries
@@ -41,7 +44,7 @@ public class CheckHome implements Checkable {
 	}
 
 	@Override
-	public String getErrorMessage() {
+	public String getErrorMessage(Language language) {
 		return "No Home installed";
 	}
 

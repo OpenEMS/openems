@@ -2,7 +2,11 @@ package io.openems.edge.core.appmanager.validator;
 
 import java.util.Map;
 
+import io.openems.common.session.Language;
+
 public interface Checkable {
+	
+	public String getComponentName();
 
 	/**
 	 * Checks if the implemented task was successful or not.
@@ -16,7 +20,7 @@ public interface Checkable {
 	 *
 	 * @return the message
 	 */
-	public String getErrorMessage();
+	public String getErrorMessage(Language language);
 
 	/**
 	 * Sets the properties.
