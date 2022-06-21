@@ -58,8 +58,8 @@ public class OpenemsAppInstance {
 				.addProperty("alias", this.alias) //
 				.addProperty("instanceId", this.instanceId.toString()) //
 				.add("properties", this.properties) // TODO define if the field is editable
-				.onlyIf(dependencies != null && !dependencies.isEmpty(), j -> j.add("dependencies", //
-						dependencies.stream().map(t -> t.toJsonObject()).collect(JsonUtils.toJsonArray())))
+				.onlyIf(this.dependencies != null && !this.dependencies.isEmpty(), j -> j.add("dependencies", //
+						this.dependencies.stream().map(Dependency::toJsonObject).collect(JsonUtils.toJsonArray())))
 				.build();
 	}
 

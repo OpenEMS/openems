@@ -11,7 +11,9 @@ public class DependencyConfig {
 
 	public final OpenemsApp app;
 	public final OpenemsApp parent;
-//	@Nullable if not a dependency of an app
+
+	// @Nullable
+	// if not a dependency of an app.
 	public final DependencyDeclaration sub;
 	public final AppConfiguration config;
 
@@ -22,7 +24,6 @@ public class DependencyConfig {
 
 	public DependencyConfig(OpenemsApp app, OpenemsApp parent, DependencyDeclaration sub, AppConfiguration config,
 			String alias, JsonObject properties, List<DependencyConfig> declarations) {
-		super();
 		this.app = app;
 		this.parent = parent;
 		this.sub = sub;

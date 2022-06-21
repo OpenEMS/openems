@@ -23,8 +23,9 @@ public class DependencyDeclaration {
 	public final DependencyDeletePolicy dependencyDeletePolicy;
 
 	// Dependency Supplier?
-//	private final Supplier<String> supplierForAppId = null;
-//	private final Function<List<OpenemsAppInstance>, String> supplierForInstanceIdFromExisting = null;
+	// private final Supplier<String> supplierForAppId = null;
+	// private final Function<List<OpenemsAppInstance>, String>
+	// supplierForInstanceIdFromExisting = null;
 
 	public DependencyDeclaration(String key, String appId, String alias, CreatePolicy createPolicy,
 			UpdatePolicy updatePolicy, DeletePolicy deletePolicy, DependencyUpdatePolicy dependencyUpdatePolicy,
@@ -45,11 +46,6 @@ public class DependencyDeclaration {
 	 * app.
 	 */
 	public static enum CreatePolicy {
-		/**
-		 * TODO
-		 */
-		HAS_TO_EXIST((t, u) -> false), //
-
 		/**
 		 * Always creates the dependent app except an {@link OpenemsAppInstance} is
 		 * already created and not a dependency of another app.
@@ -76,10 +72,10 @@ public class DependencyDeclaration {
 		/**
 		 * Determines if the app of the given appId is allowed to create. This does not
 		 * mean an existing app can't be used as the dependency.
-		 * 
+		 *
 		 * @param allInstances all app instances
 		 * @param appId        the appId
-		 * @returns true if the app is allowed to create
+		 * @return s true if the app is allowed to create
 		 */
 		public final boolean isAllowedToCreate(List<OpenemsAppInstance> allInstances, String appId) {
 			return this.isAllowedToCreateFunction.apply(allInstances, appId);
@@ -103,6 +99,14 @@ public class DependencyDeclaration {
 			this.isAllowedToUpdateFunction = isAllowedToUpdate;
 		}
 
+		/**
+		 * Determines if an {@link OpenemsAppInstance} is allowed to be updated.
+		 *
+		 * @param allInstances all {@link OpenemsAppInstance}
+		 * @param parent       the parent {@link OpenemsAppInstance}
+		 * @param app2Update   the {@link OpenemsAppInstance} to updated
+		 * @return true if the instance is allowed to be updated else false
+		 */
 		public final boolean isAllowedToUpdate(List<OpenemsAppInstance> allInstances, OpenemsAppInstance parent,
 				OpenemsAppInstance app2Update) {
 			return this.isAllowedToUpdateFunction.apply(new AllowedToValues(allInstances, parent, app2Update));
@@ -126,6 +130,14 @@ public class DependencyDeclaration {
 			this.isAllowedToDeleteFunction = isAllowedToDelete;
 		}
 
+		/**
+		 * Determines if an {@link OpenemsAppInstance} is allowed to be deleted.
+		 *
+		 * @param allInstances all {@link OpenemsAppInstance}
+		 * @param parent       the parent {@link OpenemsAppInstance}
+		 * @param app2Delete   the {@link OpenemsAppInstance} to delete
+		 * @return true if the instance is allowed to be deleted else false
+		 */
 		public final boolean isAllowedToDelete(List<OpenemsAppInstance> allInstances, OpenemsAppInstance parent,
 				OpenemsAppInstance app2Delete) {
 			return this.isAllowedToDeleteFunction.apply(new AllowedToValues(allInstances, parent, app2Delete));

@@ -23,10 +23,10 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtilImpl;
 import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 
-@Component(name = "AppManager.AggregateTask.CreateComponents")
-public class ComponentAggregateTask implements AggregateTask {
+@Component
+public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.ComponentAggregateTask {
 
-	private ComponentManager componentManager;
+	private final ComponentManager componentManager;
 
 	private List<EdgeConfig.Component> components;
 	private List<EdgeConfig.Component> components2Delete;
@@ -35,7 +35,7 @@ public class ComponentAggregateTask implements AggregateTask {
 	private List<String> deletedComponents;
 
 	@Activate
-	public ComponentAggregateTask(@Reference ComponentManager componentManager) {
+	public ComponentAggregateTaskImpl(@Reference ComponentManager componentManager) {
 		this.componentManager = componentManager;
 	}
 
@@ -61,7 +61,7 @@ public class ComponentAggregateTask implements AggregateTask {
 
 	@Override
 	public void create(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
-		this.createdComponents = new ArrayList<EdgeConfig.Component>(this.components.size());
+		this.createdComponents = new ArrayList<>(this.components.size());
 		var errors = new LinkedList<String>();
 		var otherAppComponents = AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigurations);
 		// create components
@@ -131,10 +131,8 @@ public class ComponentAggregateTask implements AggregateTask {
 	/**
 	 * deletes the given components only if they are not in notMyComponents.
 	 *
-	 * @param user            the executing user
-	 * @param components      the components that should be deleted
-	 * @param notMyComponents other needed components from the other apps
-	 * @return the id s of the components that got deleted
+	 * @param user                   the executing user
+	 * @param otherAppConfigurations the other {@link AppConfiguration}s
 	 */
 	@Override
 	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
@@ -202,10 +200,12 @@ public class ComponentAggregateTask implements AggregateTask {
 		((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, updateRequest);
 	}
 
+	@Override
 	public List<EdgeConfig.Component> getCreatedComponents() {
 		return Collections.unmodifiableList(this.createdComponents);
 	}
 
+	@Override
 	public List<String> getDeletedComponents() {
 		return Collections.unmodifiableList(this.deletedComponents);
 	}

@@ -7,12 +7,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -123,7 +121,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return formated apps string
 	 */
 	private static String getJsonAppsString(List<OpenemsAppInstance> apps) {
-		return JsonUtils.prettyToString(apps.stream().map(t -> t.toJsonObject()).collect(JsonUtils.toJsonArray()));
+		return JsonUtils
+				.prettyToString(apps.stream().map(OpenemsAppInstance::toJsonObject).collect(JsonUtils.toJsonArray()));
 	}
 
 	/**
@@ -150,7 +149,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			if (json.has("dependencies")) {
 				dependecies = new LinkedList<>();
 				var dependecyArray = json.get("dependencies").getAsJsonArray();
-				for (int i = 0; i < dependecyArray.size(); i++) {
+				for (var i = 0; i < dependecyArray.size(); i++) {
 					var dependecyJson = dependecyArray.get(i).getAsJsonObject();
 					var dependecy = new Dependency(dependecyJson.get("key").getAsString(),
 							JsonUtils.getAsUUID(dependecyJson, "instanceId"));
@@ -191,49 +190,60 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		this.worker.configurationEvent(event);
 	}
 
-	public void foreachAppConfiguration(BiConsumer<OpenemsAppInstance, AppConfiguration> consumer,
-			UUID... excludingInstanceIds) {
-		this.foreachAppConfiguration(this.instantiatedApps, consumer, excludingInstanceIds);
-	}
-
-	public void foreachAppConfiguration(List<OpenemsAppInstance> instances,
-			BiConsumer<OpenemsAppInstance, AppConfiguration> consumer, UUID... excludingInstanceIds) {
-		for (var entry : this.appConfigs(instances, excludingInstanceIds)) {
-			consumer.accept(entry.getKey(), entry.getValue());
-		}
-	}
-
+	/**
+	 * Gets an {@link Iterable} that loops thru every existing app instance and its
+	 * configuration.
+	 *
+	 * @param excludingInstanceIds the instance ids that that should be ignored
+	 * @return the {@link Iterable}
+	 */
 	public Iterable<Entry<OpenemsAppInstance, AppConfiguration>> appConfigs(UUID... excludingInstanceIds) {
 		return this.appConfigs(this.instantiatedApps, excludingInstanceIds);
 	}
 
+	/**
+	 * Gets an {@link Iterable} that loops thru every instance and its
+	 * configuration.
+	 *
+	 * @param instances            the instances
+	 * @param excludingInstanceIds the instance ids that that should be ignored
+	 * @return the {@link Iterable}
+	 */
 	public Iterable<Entry<OpenemsAppInstance, AppConfiguration>> appConfigs(List<OpenemsAppInstance> instances,
 			UUID... excludingInstanceIds) {
-		return new Iterable<Map.Entry<OpenemsAppInstance, AppConfiguration>>() {
+		return new Iterable<>() {
 			@Override
 			public Iterator<Entry<OpenemsAppInstance, AppConfiguration>> iterator() {
-				return appConfigIterator(instances, excludingInstanceIds);
+				return AppManagerImpl.this.appConfigIterator(instances, excludingInstanceIds);
 			}
 		};
 	}
 
+	/**
+	 * Gets an {@link Iterator} that loops thru every instance and its
+	 * configuration.
+	 *
+	 * @param instances            the instances
+	 * @param excludingInstanceIds the instance ids that that should be ignored
+	 * @return the {@link Iterator}
+	 */
 	public Iterator<Entry<OpenemsAppInstance, AppConfiguration>> appConfigIterator(List<OpenemsAppInstance> instances,
 			UUID... excludingInstanceIds) {
 		List<OpenemsAppInstance> actualInstances = instances.stream()
 				.filter(i -> !Arrays.stream(excludingInstanceIds).anyMatch(id -> id.equals(i.instanceId)))
 				.collect(Collectors.toList());
-		return new Iterator<Entry<OpenemsAppInstance, AppConfiguration>>() {
+		return new Iterator<>() {
 
-			private Iterator<OpenemsAppInstance> instanceIterator = actualInstances.iterator();
+			private final Iterator<OpenemsAppInstance> instanceIterator = actualInstances.iterator();
 
 			private OpenemsAppInstance nextInstance = null;
 			private AppConfiguration nextConfiguration = null;
 
 			@Override
 			public Entry<OpenemsAppInstance, AppConfiguration> next() {
-				var returnValue = new AbstractMap.SimpleEntry<>(nextInstance, nextConfiguration);
-				nextInstance = null;
-				nextConfiguration = null;
+				var returnValue = new AbstractMap.SimpleEntry<>(this.nextInstance, this.nextConfiguration);
+				this.nextInstance = null;
+				this.nextConfiguration = null;
 				return returnValue;
 			}
 
@@ -245,11 +255,11 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				this.nextInstance = this.instanceIterator.next();
 
 				try {
-					var app = findAppById(nextInstance.appId);
-					nextInstance.properties.addProperty("ALIAS", nextInstance.alias);
-					nextConfiguration = app.getAppConfiguration(ConfigurationTarget.VALIDATE, nextInstance.properties,
-							null);
-					nextInstance.properties.remove("ALIAS");
+					var app = AppManagerImpl.this.findAppById(this.nextInstance.appId);
+					this.nextInstance.properties.addProperty("ALIAS", this.nextInstance.alias);
+					this.nextConfiguration = app.getAppConfiguration(ConfigurationTarget.VALIDATE,
+							this.nextInstance.properties, null);
+					this.nextInstance.properties.remove("ALIAS");
 				} catch (OpenemsNamedException e) {
 					// move to next app
 				} catch (NoSuchElementException e) {
@@ -258,7 +268,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 					// apps which app ids are not known are printed in debug log as 'UNKNOWAPPS'
 				}
 
-				return nextConfiguration != null;
+				return this.nextConfiguration != null;
 			}
 		};
 	}
@@ -291,9 +301,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Finds the app instance with the matching id.
-	 * 
+	 *
 	 * @param uuid the id of the instance
-	 * @returns the instance
+	 * @return s the instance
 	 * @throws NoSuchElementException if no instance is present
 	 */
 	public final OpenemsAppInstance findInstaceById(UUID uuid) throws NoSuchElementException {
@@ -303,11 +313,18 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				.get();
 	}
 
+	/**
+	 * Gets all {@link AppConfiguration}s from the existing
+	 * {@link OpenemsAppInstance}s.
+	 *
+	 * @param ignoreIds the id's of the instances that should be ignored
+	 * @return the {@link AppConfiguration}s
+	 */
 	public final List<AppConfiguration> getOtherAppConfigurations(UUID... ignoreIds) {
 		List<AppConfiguration> allOtherConfigs = new ArrayList<>(this.instantiatedApps.size());
-		this.foreachAppConfiguration((i, c) -> {
-			allOtherConfigs.add(c);
-		}, ignoreIds);
+		for (var entry : this.appConfigs(ignoreIds)) {
+			allOtherConfigs.add(entry.getValue());
+		}
 		return allOtherConfigs;
 	}
 

@@ -76,7 +76,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 		FEED_IN_SETTING, //
 
 		// (ger. Rundsteuerempfänger)
-		RIPPLE_CONTROL_RECEIVER_AKTIV, //
+		RIPPLE_CONTROL_RECEIVER_ACTIV, //
 
 		// External AC PV
 		HAS_AC_METER, //
@@ -118,7 +118,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			var modbusIdExternal = "modbus1";
 
 			var emergencyReserveEnabled = EnumUtils.getAsBoolean(p, Property.EMERGENCY_RESERVE_ENABLED);
-			var rippleControlReceiverActive = EnumUtils.getAsBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_AKTIV);
+			var rippleControlReceiverActive = EnumUtils.getAsBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_ACTIV);
 
 			// Battery-Inverter Settings
 			var safetyCountry = EnumUtils.getAsString(p, Property.SAFETY_COUNTRY);
@@ -342,7 +342,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									f.setDefaultValue(batteryInverter.get() //
 											.getProperty("safetyCountry").get().getAsString());
 								}).build())
-						.add(JsonFormlyUtil.buildCheckbox(Property.RIPPLE_CONTROL_RECEIVER_AKTIV) //
+						.add(JsonFormlyUtil.buildCheckbox(Property.RIPPLE_CONTROL_RECEIVER_ACTIV) //
 								.setLabel(bundle.getString(this.getAppId() + ".rippleControlReceiver.label"))
 								.setDescription(
 										bundle.getString(this.getAppId() + ".rippleControlReceiver.description"))
@@ -351,7 +351,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 						.add(JsonFormlyUtil.buildInput(Property.MAX_FEED_IN_POWER) //
 								.setLabel(bundle.getString(this.getAppId() + ".feedInLimit.label")) //
 								.isRequired(true) //
-								.onlyShowIfNotChecked(Property.RIPPLE_CONTROL_RECEIVER_AKTIV) //
+								.onlyShowIfNotChecked(Property.RIPPLE_CONTROL_RECEIVER_ACTIV) //
 								.setInputType(Type.NUMBER) //
 								.onlyIf(batteryInverter.isPresent(), f -> {
 									f.setDefaultValue(batteryInverter.get() //
@@ -380,16 +380,19 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 										.getComponent("charger0", "GoodWe.Charger-PV1").isPresent())
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.DC_PV1_ALIAS) //
+								.setLabel("DC-PV 1 Alias") //
 								.setDefaultValue("DC-PV1") //
 								.onlyShowIfChecked(Property.HAS_DC_PV1) //
-								.setDefaultValueWithStringSupplier(() -> {
-									var charger = this.componentUtil //
-											.getComponent("charger0", "GoodWe.Charger-PV1");
-									if (charger.isEmpty()) {
-										return null;
-									}
-									return charger.get().getAlias();
-								}).build())
+								.onlyIf(this.componentUtil.getComponent("charger0", "GoodWe.Charger-PV1").isPresent(),
+										j -> j.setDefaultValueWithStringSupplier(() -> {
+											var charger = this.componentUtil //
+													.getComponent("charger0", "GoodWe.Charger-PV1");
+											if (charger.isEmpty()) {
+												return null;
+											}
+											return charger.get().getAlias();
+										}))
+								.build())
 						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_DC_PV2) //
 								.setLabel(bundle.getString(this.getAppId() + ".hasDcPV2.label")) //
 								.isRequired(true) //
@@ -398,15 +401,18 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.DC_PV2_ALIAS) //
 								.setLabel("DC-PV 2 Alias") //
+								.setDefaultValue("DC-PV2") //
 								.onlyShowIfChecked(Property.HAS_DC_PV2) //
-								.setDefaultValueWithStringSupplier(() -> {
-									var charger = this.componentUtil //
-											.getComponent("charger1", "GoodWe.Charger-PV2");
-									if (charger.isEmpty()) {
-										return null;
-									}
-									return charger.get().getAlias();
-								}).build())
+								.onlyIf(this.componentUtil.getComponent("charger1", "GoodWe.Charger-PV2").isPresent(),
+										j -> j.setDefaultValueWithStringSupplier(() -> {
+											var charger = this.componentUtil //
+													.getComponent("charger1", "GoodWe.Charger-PV2");
+											if (charger.isEmpty()) {
+												return null;
+											}
+											return charger.get().getAlias();
+										}))
+								.build())
 						.add(JsonFormlyUtil.buildCheckbox(Property.EMERGENCY_RESERVE_ENABLED) //
 								.setLabel(bundle.getString(this.getAppId() + ".emergencyPowerSupply.label")) //
 								.isRequired(true) //

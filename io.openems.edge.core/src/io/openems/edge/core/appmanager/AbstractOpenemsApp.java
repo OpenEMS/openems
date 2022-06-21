@@ -222,6 +222,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	 * Validate the App configuration.
 	 *
 	 * @param jProperties a JsonObject holding the App properties
+	 * @param dependecies the dependencies of the current instance
 	 * @return a list of validation errors. Empty list says 'no errors'
 	 */
 	private List<String> getValidationErrors(JsonObject jProperties, List<Dependency> dependecies) {

@@ -136,7 +136,7 @@ public class JsonFormlyUtil {
 
 			return this.getSelf();
 		}
-		
+
 		public final T setDefaultValue(JsonElement defaultValue) {
 			if (defaultValue != null) {
 				this.jsonObject.add("defaultValue", defaultValue);

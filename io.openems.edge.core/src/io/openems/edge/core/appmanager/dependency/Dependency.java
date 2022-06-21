@@ -10,7 +10,7 @@ import io.openems.edge.core.appmanager.AppManager;
 /**
  * Represents a dependency in the configuration of the {@link AppManager} of an
  * app.
- * 
+ *
  */
 public class Dependency {
 
@@ -23,10 +23,15 @@ public class Dependency {
 		this.instanceId = instanceId;
 	}
 
+	/**
+	 * Gets the {@link Dependency} as a {@link JsonObject}.
+	 *
+	 * @return the {@link JsonObject}
+	 */
 	public JsonObject toJsonObject() {
 		return JsonUtils.buildJsonObject() //
-				.addProperty("key", key) //
-				.addProperty("instanceId", instanceId.toString()) //
+				.addProperty("key", this.key) //
+				.addProperty("instanceId", this.instanceId.toString()) //
 				.build();
 	}
 

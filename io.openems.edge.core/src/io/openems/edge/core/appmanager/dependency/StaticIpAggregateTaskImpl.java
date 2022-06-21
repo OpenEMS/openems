@@ -13,8 +13,8 @@ import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtil;
 
-@Component(name = "AppManager.AggregateTask.StaticIpAggregateTask")
-public class StaticIpAggregateTask implements AggregateTask {
+@Component
+public class StaticIpAggregateTaskImpl implements AggregateTask, AggregateTask.StaticIpAggregateTask {
 
 	private final ComponentUtil componentUtil;
 
@@ -22,7 +22,7 @@ public class StaticIpAggregateTask implements AggregateTask {
 	private List<String> ips2Delete;
 
 	@Activate
-	public StaticIpAggregateTask(@Reference ComponentUtil componentUtil) {
+	public StaticIpAggregateTaskImpl(@Reference ComponentUtil componentUtil) {
 		this.componentUtil = componentUtil;
 
 	}
@@ -39,14 +39,14 @@ public class StaticIpAggregateTask implements AggregateTask {
 			return;
 		}
 		if (instance != null) {
-			ips.addAll(instance.ips);
+			this.ips.addAll(instance.ips);
 		}
 		if (oldConfig != null) {
 			var diff = new ArrayList<>(oldConfig.ips);
 			if (instance != null) {
 				diff.removeAll(instance.ips);
 			}
-			ips2Delete.addAll(diff);
+			this.ips2Delete.addAll(diff);
 		}
 	}
 
@@ -56,7 +56,7 @@ public class StaticIpAggregateTask implements AggregateTask {
 			return;
 		}
 
-		this.componentUtil.updateHosts(user, ips, ips2Delete);
+		this.componentUtil.updateHosts(user, this.ips, this.ips2Delete);
 	}
 
 	@Override
@@ -64,8 +64,8 @@ public class StaticIpAggregateTask implements AggregateTask {
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			return;
 		}
-		ips.removeAll(AppManagerAppHelperImpl.getStaticIpsFromConfigs(otherAppConfigurations));
-		this.componentUtil.updateHosts(user, null, ips2Delete);
+		this.ips.removeAll(AppManagerAppHelperImpl.getStaticIpsFromConfigs(otherAppConfigurations));
+		this.componentUtil.updateHosts(user, null, this.ips2Delete);
 	}
 
 }
