@@ -560,13 +560,14 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	public UpdateValues deleteApp(User user, OpenemsAppInstance instance) throws OpenemsNamedException {
 		this.resetTasks();
 
+		final var language = user == null ? null : user.getLanguage();
+		final var bundle = getTranslationBundle(language);
 		// check if the app is allowed to be delete
 		if (!this.isAllowedToDelete(instance)) {
-			throw new OpenemsException("App is not allowed to be deleted because of a dependency constraint!");
+			throw new OpenemsException(TranslationUtil.getTranslation(bundle, "appNotAllowedToBeDeleted"));
 		}
 
 		var deletedInstances = new LinkedList<OpenemsAppInstance>();
-		final var language = user == null ? null : user.getLanguage();
 		final var errors = new LinkedList<String>();
 
 		this.foreachExistingDependency(instance, ConfigurationTarget.DELETE, language, dc -> {
@@ -614,21 +615,24 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			// delete components
 			this.componentsTask.delete(user, otherAppConfigs);
 		} catch (OpenemsNamedException e) {
-			errors.add(e.getMessage());
+			this.log.error(e.getMessage());
+			errors.add(TranslationUtil.getTranslation(bundle, "canNotUpdateComponents"));
 		}
 
 		try {
 			// remove ids in scheduler
 			this.schedulerTask.delete(user, otherAppConfigs);
 		} catch (OpenemsNamedException e) {
-			errors.add(e.getMessage());
+			this.log.error(e.getMessage());
+			errors.add(TranslationUtil.getTranslation(bundle, "canNotUpdateScheduler"));
 		}
 
 		try {
 			// remove static ips
 			this.staticIpTask.delete(user, otherAppConfigs);
 		} catch (OpenemsNamedException e) {
-			errors.add(e.getMessage());
+			this.log.error(e.getMessage());
+			errors.add(TranslationUtil.getTranslation(bundle, "canNotUpdateStaticIps"));
 		}
 
 		if (!errors.isEmpty()) {

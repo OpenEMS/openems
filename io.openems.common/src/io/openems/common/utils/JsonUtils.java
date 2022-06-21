@@ -302,7 +302,7 @@ public class JsonUtils {
 
 		@Override
 		public Set<Characteristics> characteristics() {
-			return Sets.<Characteristics>immutableEnumSet(Characteristics.UNORDERED);
+			return Sets.<Characteristics>newHashSet().stream().collect(Sets.toImmutableEnumSet());
 		}
 
 		@Override
@@ -332,6 +332,11 @@ public class JsonUtils {
 
 	private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
 
+	/**
+	 * Returns a Collector that accumulates the input elements into a new JsonArray. 
+	 * 
+	 * @return a Collector which collects all the input elements into a JsonArray
+	 */
 	public static Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> toJsonArray() {
 		return new JsonUtils.JsonArrayCollector();
 	}
