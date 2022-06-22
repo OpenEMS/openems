@@ -11,6 +11,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -33,6 +36,7 @@ import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 import io.openems.edge.evcs.ocpp.common.OcppProfileType;
 import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
+import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -66,6 +70,9 @@ public class Abl extends AbstractOcppEvcsComponent
 	);
 
 	private Config config;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -186,5 +193,10 @@ public class Abl extends AbstractOcppEvcsComponent
 	@Override
 	public boolean returnsSessionEnergy() {
 		return false;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }
