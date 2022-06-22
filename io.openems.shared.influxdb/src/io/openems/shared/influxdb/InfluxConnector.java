@@ -224,6 +224,7 @@ public class InfluxConnector {
 	 * Close current {@link InfluxDBClient}.
 	 */
 	public synchronized void deactivate() {
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.mergePointsExecutor, 0);
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		if (this.influxConnection != null) {
