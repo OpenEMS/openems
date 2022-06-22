@@ -35,6 +35,21 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.6.4',
+        changes: [
+          Changelog.product(Product.HOME) + "Inbetriebnahmeassistent unterstützt die Einbindung eines Rundsteuerempfängers",
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Anpassungen für die neueste Batteriegeneration (Gen2)",
+          { roleIsAtLeast: Role.ADMIN, change: "Commercial Gen2-Batterie: Darstellung SoC zwischen 0 und 100 %; Anpassung der Parameter für die Batterie-Protection" },
+          { roleIsAtLeast: Role.ADMIN, change: "'App-Assistent' aus dem UI entfernt. Dieser wird vollständig ersetzt vom neuen App-Center" },
+          { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am App-Center" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung beim Setzen von Shelly Relais" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung beim Auslesen der FEMS-Nummber über die Modbus-TCP-Api" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung für via OCPP eingebundene Ladesäulen (ABL, IES KeyWatt)" },
+          { roleIsAtLeast: Role.ADMIN, change: "Alpha-Tests für neue Zeitreihendatenbank TimescaleDB; diese wird InfluxDB ablösen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Backend-Alerting: Anpassung der Benutzeroberfläche (Settings -> Alarmierung)" },
+        ]
+      },
+      {
         version: '2022.6.3',
         changes: [
           Changelog.product(Product.FEMS_PV_SMA) + "Fehlerbehebung bei der Unterstützung für einphasige SMA-Wechselrichter via SunSpec",
