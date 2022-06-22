@@ -482,8 +482,17 @@ export const TRANSLATION = {
             },
             Alerting: {
                 activate: 'Activeer',
-                delay: 'Vertraging [min]',
+                delay: 'Vertraging',
                 save: 'Save',
+                options: {
+                    15: '15 minuten',
+                    60: '1 uur',
+                    1440: '1 dag'
+                },
+                toast: {
+                    success: 'Goedgekeurde instellingen',
+                    error: 'Fout bij het laden van de instellingen'
+                },
             },
             App: {
                 header: 'De App Manager bevindt zich momenteel in een eerste testversie. Als niet alle apps worden weergegeven, moet de FEMS-versie mogelijk worden bijgewerkt.',

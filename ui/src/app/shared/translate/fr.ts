@@ -485,8 +485,17 @@ export const TRANSLATION = {
             },
             Alerting: {
                 activate: 'Activer',
-                delay: 'Retard [min]',
+                delay: 'Retard',
                 save: 'Enregistrer',
+                options: {
+                    15: '15 minutes',
+                    60: '1 heure',
+                    1440: '1 jour'
+                },
+                toast: {
+                    success: 'Paramètres adoptés',
+                    error: 'Erreur lors du chargement des paramètres'
+                },
             },
             App: {
                 header: 'L\'App Manager est actuellement dans une première version de test. Si toutes les applications ne sont pas affichées, il est possible que la version FEMS doive être mise à jour.',

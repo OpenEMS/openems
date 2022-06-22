@@ -1,7 +1,7 @@
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
@@ -72,8 +72,14 @@ export class Service implements ErrorHandler {
     translate.addLangs(Language.getLanguages());
     // this language will be used as a fallback when a translation isn't found in the current language
     translate.setDefaultLang(LanguageTag.DE);
+
     // initialize history period
     this.historyPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
+
+    // React on Language Change and update language
+    translate.onLangChange.subscribe((event: LangChangeEvent) => {
+      this.setLang(event.lang as LanguageTag);
+    });
   }
 
   /**

@@ -453,7 +453,7 @@ export const TRANSLATION = {
                 simulator: 'Simulator',
                 systemExecute: 'System-Befehl ausführen',
                 systemProfile: 'Anlagenprofil',
-                alerting: 'Alarmierung',
+                alerting: 'Benachrichtigung',
             },
             More: {
                 manualCommand: 'Manueller Befehl',
@@ -491,8 +491,17 @@ export const TRANSLATION = {
             },
             Alerting: {
                 activate: 'Aktivieren',
-                delay: 'Verzögerung [min]',
+                delay: 'Verzögerung',
                 save: 'Speichern',
+                options: {
+                    15: '15 Minuten',
+                    60: '1 Stunde',
+                    1440: '1 Tag'
+                },
+                toast: {
+                    success: 'Einstellungen übernommen',
+                    error: 'Fehler beim Laden der Einstellungen'
+                },
             },
             App: {
                 header: 'Der App-Manager befindet sich aktuell in einer ersten Testversion. Falls nicht alle Apps angezeigt werden, muss evtl. die FEMS Version geupdatet werden.',

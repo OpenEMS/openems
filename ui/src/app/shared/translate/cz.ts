@@ -489,8 +489,17 @@ export const TRANSLATION = {
             },
             Alerting: {
                 activate: 'Aktivace',
-                delay: 'Zpoždění [min]',
+                delay: 'Zpoždění',
                 save: 'Uložit',
+                options: {
+                    1: '15 minut',
+                    2: '1 hodina',
+                    3: '1 den'
+                },
+                toast: {
+                    success: 'Přijatá nastavení',
+                    error: 'Chyba při načítání nastavení'
+                },
             },
             App: {
                 header: 'Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi FEMS.',
