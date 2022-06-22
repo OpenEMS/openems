@@ -34,7 +34,7 @@ export class UpdateAppComponent implements OnInit {
 
   private appName: string;
 
-  constructor(
+  public constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
     private websocket: Websocket,
@@ -42,7 +42,7 @@ export class UpdateAppComponent implements OnInit {
   ) {
   }
 
-  ngOnInit() {
+  public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     let appId = this.route.snapshot.params["appId"];
     this.service.setCurrentComponent("App " + appId, this.route).then(edge => {
@@ -114,7 +114,15 @@ export class UpdateAppComponent implements OnInit {
           properties: clonedFields
         })
       })).then(response => {
-        this.service.toast("Successfully updated App", 'success');
+        var res = (response as UpdateAppInstance.Response);
+
+        if (res.result.warnings && res.result.warnings.length > 0) {
+          this.service.toast(res.result.warnings.join(";"), 'warning');
+        } else {
+          this.service.toast("Successfully updated App", 'success');
+        }
+        instance.properties = res.result.instance.properties
+        instance.properties["ALIAS"] = res.result.instance.alias
         instance.isUpdateting = false
       }).catch(reason => {
         this.service.toast("Error updating App:" + reason.error.message, 'danger');
@@ -131,11 +139,12 @@ export class UpdateAppComponent implements OnInit {
           instanceId: instance.instanceId
         })
       })).then(response => {
-        this.service.toast("Successfully deleted App", 'success');
         this.instances.splice(this.instances.indexOf(instance), 1)
+        this.service.toast("Successfully deleted App", 'success');
       }).catch(reason => {
         this.service.toast("Error deleting App:" + reason.error.message, 'danger');
-        this.instances.splice(this.instances.indexOf(instance), 1)
-      });
+      }).finally(() => {
+        instance.isDeleting = false
+      })
   }
 }

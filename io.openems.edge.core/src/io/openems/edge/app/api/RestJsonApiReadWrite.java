@@ -31,9 +31,9 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for ReadWrite Rest JSON Api.
@@ -77,8 +77,9 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.API_TIMEOUT) //
-								.setLabel(bundle.getString("App.Api.apiTimeout.label")) //
-								.setDescription(bundle.getString("App.Api.apiTimeout.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.label")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(60) //
 								.setMin(30) //
@@ -123,11 +124,11 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
+	public ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
 				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new Validator.CheckableConfig(CheckAppsNotInstalled.COMPONENT_NAME,
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+						new ValidatorConfig.CheckableConfig(CheckAppsNotInstalled.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("appIds", new String[] { "App.Api.RestJson.ReadOnly" }) //
 										.build())));
 	}

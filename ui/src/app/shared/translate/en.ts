@@ -501,9 +501,11 @@ export const TRANSLATION = {
                 incompatible: 'Incompatible',
                 buyApp: 'Buy app',
                 modifyApp: 'Modify app',
-                createApp: 'Create app',
+                createApp: 'Install app',
                 deleteApp: 'Delete app',
                 updateApp: 'Update app',
+                errorInstallable: 'Installation errors',
+                errorCompatible: 'Compatibility errors',
             },
         },
         Service: {

@@ -29,8 +29,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for ReadOnly Modbus/TCP Api.
@@ -46,7 +45,7 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_lesend">https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_lesend</a>
+"https://fenecon.de/fems-2-2/fems-app-modbus-tcp-lesend-2/">https://fenecon.de/fems-2-2/fems-app-modbus-tcp-lesend-2/</a>
     }
   }
  * </pre>
@@ -74,7 +73,7 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsApp<Property> implement
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_api_lesend") //
+				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-modbus-tcp-lesend-2/") //
 				.build();
 	}
 
@@ -104,11 +103,11 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
-				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new Validator.CheckableConfig(CheckAppsNotInstalled.COMPONENT_NAME,
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+	protected io.openems.edge.core.appmanager.validator.ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setInstallableCheckableConfigs(
+						Lists.newArrayList(new ValidatorConfig.CheckableConfig(CheckAppsNotInstalled.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("appIds", new String[] { "App.Api.ModbusTcp.ReadWrite" }) //
 										.build())));
 	}

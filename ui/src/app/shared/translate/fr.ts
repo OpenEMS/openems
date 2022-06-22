@@ -495,9 +495,11 @@ export const TRANSLATION = {
                 incompatible: 'Incompatibilité',
                 buyApp: 'Acheter l\'application',
                 modifyApp: 'Modifier l\'application',
-                createApp: 'Créer une application',
+                createApp: 'Installer l\'application',
                 deleteApp: 'Supprimer l\'application',
                 updateApp: 'Mise à jour de l\'application',
+                errorInstallable: 'Erreurs d\'installation',
+                errorCompatible: 'Erreurs de compatibilité',
             },
         },
         Service: {

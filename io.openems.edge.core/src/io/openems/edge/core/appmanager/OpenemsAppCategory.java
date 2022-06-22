@@ -57,7 +57,15 @@ public enum OpenemsAppCategory {
 	/**
 	 * Apis.
 	 */
-	API("api");
+	API("api"),
+
+	/**
+	 * Category for test apps.
+	 *
+	 * <p>
+	 * NOTE: Do not use this category for normal apps!
+	 */
+	TEST("test");
 
 	private String readableNameKey;
 
@@ -74,7 +82,7 @@ public enum OpenemsAppCategory {
 	public String getReadableName(Language language) {
 		var translationBundle = ResourceBundle.getBundle("io.openems.edge.core.appmanager.translation",
 				language.getLocal());
-		return translationBundle.getString(this.readableNameKey);
+		return TranslationUtil.getTranslation(translationBundle, this.readableNameKey);
 	}
 
 	/**

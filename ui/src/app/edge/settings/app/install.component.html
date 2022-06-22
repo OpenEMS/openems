@@ -13,7 +13,8 @@
             <ion-card-content>
               <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
               <ion-item>
-                <ion-button type="submit" color="primary" [disabled]="!(form.valid) || isInstalling">App installieren
+                <ion-button type="submit" color="primary" [disabled]="!(form.valid) || isInstalling" translate>
+                  Edge.Config.App.createApp
                 </ion-button>
               </ion-item>
             </ion-card-content>

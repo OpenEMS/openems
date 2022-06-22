@@ -25,7 +25,7 @@ export class InstallAppComponent implements OnInit {
   private edge: Edge = null;
   private isInstalling: boolean;
 
-  constructor(
+  public constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
     private websocket: Websocket,
@@ -33,7 +33,7 @@ export class InstallAppComponent implements OnInit {
   ) {
   }
 
-  ngOnInit() {
+  public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     let appId = this.route.snapshot.params["appId"];
     this.appId = appId;
@@ -83,8 +83,19 @@ export class InstallAppComponent implements OnInit {
           properties: clonedFields
         })
       })).then(response => {
+        let result = (response as AddAppInstance.Response).result
+
+        if (result.instance) {
+          result.instanceId = result.instance.instanceId
+          this.model = result.instance.properties
+        }
+        if (result.warnings && result.warnings.length > 0) {
+          this.service.toast(result.warnings.join(";"), 'warning')
+        } else {
+          this.service.toast("Successfully installed App", 'success');
+        }
+
         this.form.markAsPristine();
-        this.service.toast("Successfully installed App", 'success');
       }).catch(reason => {
         this.service.toast("Error installing App:" + reason.error.message, 'danger');
       }).finally(() => {

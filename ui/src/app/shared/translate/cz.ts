@@ -511,7 +511,20 @@ export const TRANSLATION = {
                 temperatures: "Teplota buňky",
                 insulation: "Izolace",
             }
-        }
+        },
+        App: {
+            header: 'Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi FEMS.',
+            installed: 'Nainstalováno',
+            available: 'Dostupné na',
+            incompatible: 'Nekompatibilní',
+            buyApp: 'koupit aplikaci',
+            modifyApp: 'upravit aplikaci',
+            createApp: 'Instalace aplikace',
+            deleteApp: 'odstranit aplikaci',
+            updateApp: 'aktualizace aplikace',
+            errorInstallable: 'Chyby pÅ™i instalaci',
+            errorCompatible: 'Chyby kompatibility',
+        },
     },
     About: {
         build: "Aktuální verze",

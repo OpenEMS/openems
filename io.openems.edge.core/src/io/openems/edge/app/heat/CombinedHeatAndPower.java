@@ -33,9 +33,11 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for a Heating Element.
@@ -50,6 +52,12 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
     	"CTRL_CHP_SOC_ID": "ctrlChpSoc0",
     	"OUTPUT_CHANNEL": "io0/Relay1"
     },
+    "dependencies": [
+    	{
+        	"key": "RELAY",
+        	"instanceId": UUID
+    	}
+    ],
     "appDescriptor": {
     	"websiteUrl": <a href=
 "https://fenecon.de/fems-2-2/fems-app-blockheizkraftwerk-bhkw/">https://fenecon.de/fems-2-2/fems-app-blockheizkraftwerk-bhkw/</a>
@@ -103,7 +111,27 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 					.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("highThreshold", 80)) //
 					.build()));//
 
-			return new AppConfiguration(comp);
+			var componentIdOfRelay = outputChannelAddress.substring(0, outputChannelAddress.indexOf('/'));
+
+			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
+					componentIdOfRelay, this.getAppId());
+
+			if (appIdOfRelay == null) {
+				// relay may be created but not as a app
+				return new AppConfiguration(comp);
+			}
+
+			var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
+					DependencyDeclaration.CreatePolicy.NEVER, //
+					DependencyDeclaration.UpdatePolicy.NEVER, //
+					DependencyDeclaration.DeletePolicy.NEVER, //
+					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
+					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+					DependencyDeclaration.AppDependencyConfig.create() //
+							.setSpecificInstanceId(appIdOfRelay) //
+							.build()));
+
+			return new AppConfiguration(comp, null, null, dependencies);
 		};
 	}
 
@@ -124,8 +152,10 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 									}
 									return relays[0];
 								}) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannel.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannel.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel.description")) //
 								.build())
 						.build())
 				.build();
@@ -144,11 +174,11 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
+	public ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
 				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new Validator.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+						new ValidatorConfig.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("count", 1) //
 										.build())));
 	}
