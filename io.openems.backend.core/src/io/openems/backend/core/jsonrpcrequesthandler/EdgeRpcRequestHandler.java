@@ -1,10 +1,7 @@
 package io.openems.backend.core.jsonrpcrequesthandler;
 
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-
-import com.google.gson.JsonElement;
 
 import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError;
@@ -27,7 +24,6 @@ import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyPerPeriodResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Role;
-import io.openems.common.types.ChannelAddress;
 
 public class EdgeRpcRequestHandler {
 
@@ -132,7 +128,9 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId, User user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		var historicData = this.parent.timeData.queryHistoricData(edgeId, request);
+		var timedata = this.parent.getTimedata(edgeId);
+
+		var historicData = timedata.queryHistoricData(edgeId, request);
 
 		// JSON-RPC response
 		return CompletableFuture
@@ -150,7 +148,9 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(String edgeId, User user,
 			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
-		Map<ChannelAddress, JsonElement> data = this.parent.timeData.queryHistoricEnergy(//
+		var timedata = this.parent.getTimedata(edgeId);
+
+		var data = timedata.queryHistoricEnergy(//
 				edgeId, request.getFromDate(), request.getToDate(), request.getChannels());
 
 		// JSON-RPC response
@@ -168,7 +168,9 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyPerPeriodRequest(String edgeId,
 			User user, QueryHistoricTimeseriesEnergyPerPeriodRequest request) throws OpenemsNamedException {
-		var data = this.parent.timeData.queryHistoricEnergyPerPeriod(//
+		var timedata = this.parent.getTimedata(edgeId);
+
+		var data = timedata.queryHistoricEnergyPerPeriod(//
 				edgeId, request.getFromDate(), request.getToDate(), request.getChannels(), request.getResolution());
 
 		// JSON-RPC response
@@ -187,8 +189,10 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricTimeseriesExportXlxsRequest(String edgeId,
 			User user, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
-		return CompletableFuture.completedFuture(this.parent.timeData
-				.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request, user.getLanguage()));
+		var timedata = this.parent.getTimedata(edgeId);
+
+		return CompletableFuture.completedFuture(
+				timedata.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request, user.getLanguage()));
 	}
 
 	/**

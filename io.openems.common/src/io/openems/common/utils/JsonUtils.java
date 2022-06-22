@@ -851,7 +851,7 @@ public class JsonUtils {
 		}
 		if (jPrimitive.isString()) {
 			var string = jPrimitive.getAsString();
-			return Integer.parseInt(string);
+			return Long.parseLong(string);
 		}
 		throw OpenemsError.JSON_NO_NUMBER.exception(jPrimitive.toString().replace("%", "%%"));
 	}

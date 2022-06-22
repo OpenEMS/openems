@@ -39,7 +39,10 @@ import io.openems.shared.influxdb.InfluxConnector;
 @Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Timedata.InfluxDB", //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				"service.ranking:Integer=1" // ranking order (highest first)
+		} //
 )
 public class Influx extends AbstractOpenemsBackendComponent implements Timedata {
 

@@ -42,6 +42,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.timedata.timescaledb.Schema.ChannelMeta;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -54,7 +55,7 @@ import io.openems.common.utils.StringUtils;
 		name = "Timedata.TimescaleDB", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements Timescaledb {
+public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements Timescaledb, Timedata {
 
 	private static final int EXECUTOR_MIN_THREADS = 10;
 	private static final int EXECUTOR_MAX_THREADS = 50;
@@ -66,6 +67,7 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 	private final Logger log = LoggerFactory.getLogger(TimescaledbImpl.class);
 	private final HikariDataSource dataSource;
 	private final boolean isReadOnly;
+	private final WriteConfig betaWriteConfig;
 	private final Schema schema;
 	private final BlockingQueue<Point> pointsQueue = new ArrayBlockingQueue<>(POINTS_QUEUE_SIZE);
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
@@ -91,6 +93,7 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 				config.host(), config.port(), config.database(), //
 				config.user(), config.password());
 		this.isReadOnly = config.isReadOnly();
+		this.betaWriteConfig = config.betaWriteConfig();
 
 		this.schema = Schema.initialize(this.dataSource);
 
@@ -120,20 +123,39 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 							}
 							// Add data from points to PreparedStatements
 							for (var point : points) {
-								var channel = this.schema.getChannel(point, con);
-								if (channel == null) {
-									continue;
+
+								try {
+									var channel = this.schema.getChannel(point, con);
+									if (channel == null) {
+										continue;
+									}
+									var pst = psts.get(channel.type);
+									channel.type.fillStatement(pst, point, channel);
+									pst.addBatch();
+								} catch (Exception e) {
+									this.logWarn(this.log, "Unable to add Point [" + point.edgeId + "/"
+											+ point.channelAddress + ":" + point.value + "]: " + e.getMessage());
 								}
-								var pst = psts.get(channel.type);
-								channel.type.fillStatement(pst, point, channel);
-								pst.addBatch();
+
 							}
 							// Execute all Batches
-							for (var pst : psts.values()) {
-								pst.executeBatch();
+							for (var entry : psts.entrySet()) {
+								try {
+									entry.getValue().executeBatch();
+								} catch (SQLException e) {
+									this.logWarn(this.log,
+											"Unable to write Batch [Type:" + entry.getKey() + "]: " + e.getMessage());
+								}
 							}
 
+						} catch (SQLException e) {
+							// 'Expected errors', e.g. PostgreSQL server stopped
+							// -> short error log
+							this.logError(this.log,
+									"Unable to write Points. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+
 						} catch (Exception e) {
+							// 'Unexpected errors' -> long stacktrace
 							this.logError(this.log,
 									"Unable to write Points. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 							e.printStackTrace();
@@ -179,9 +201,18 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 					+ StringUtils.toShortString(data.toString(), 100));
 			return;
 		}
-		if (!TIMESCALEDB_WRITE_TEST.contains(edgeId)) {
-			// TODO remove eventually
+
+		// TODO remove eventually
+		switch (this.betaWriteConfig) {
+		case NONE:
 			return;
+		case ONLY_A_FEW:
+			if (!TIMESCALEDB_WRITE_TEST.contains(edgeId)) {
+				return;
+			}
+			break;
+		case ALL:
+			break;
 		}
 		this.pointsQueue.addAll(data.cellSet().stream() //
 				.map(cell -> new Point(cell.getRowKey(), edgeId, cell.getColumnKey(), cell.getValue())) //

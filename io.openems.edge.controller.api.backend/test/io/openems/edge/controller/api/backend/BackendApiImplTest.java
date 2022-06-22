@@ -154,6 +154,7 @@ public class BackendApiImplTest {
 			org.junit.Assert.assertTrue(condition);
 		} catch (AssertionError e) {
 			System.err.println("AssertionError: " + e.getMessage());
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}
@@ -163,6 +164,7 @@ public class BackendApiImplTest {
 			org.junit.Assert.assertEquals(expected, actual);
 		} catch (AssertionError e) {
 			System.err.println("AssertionError: " + e.getMessage());
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}

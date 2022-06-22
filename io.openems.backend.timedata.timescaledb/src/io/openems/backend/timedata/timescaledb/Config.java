@@ -27,6 +27,8 @@ public @interface Config {
 	@AttributeDefinition(name = "Read-Only mode", description = "Activates the read-only mode. Then no data is written to TimescaleDB.")
 	boolean isReadOnly() default false;
 
+	WriteConfig betaWriteConfig() default WriteConfig.NONE;
+
 	String webconsole_configurationFactory_nameHint() default "Timedata.TimescaleDB";
 
 }
