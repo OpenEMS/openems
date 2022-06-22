@@ -49,6 +49,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
+import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -188,7 +189,12 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 	@Deactivate
 	private void deactivate() {
 		this.logInfo(this.log, "Deactivate");
-		this.dataSource.close();
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.mergePointsExecutor, 0);
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
+		if (this.dataSource != null) {
+			this.dataSource.close();
+		}
 	}
 
 	private static final HashSet<String> TIMESCALEDB_WRITE_TEST = //
