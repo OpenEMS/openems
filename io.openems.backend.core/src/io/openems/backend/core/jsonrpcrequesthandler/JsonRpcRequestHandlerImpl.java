@@ -6,10 +6,13 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,7 @@ import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse.EdgeInf
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.Timedata;
+import io.openems.backend.timedata.timescaledb.Timescaledb;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -37,6 +41,7 @@ import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 
+@Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Core.JsonRpcRequestHandler", //
 		immediate = true //
@@ -52,13 +57,47 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 	protected volatile Metadata metadata;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
-	protected volatile Timedata timeData;
+	private volatile Timedata timedata;
+
+	// TODO remove eventually
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timescaledb timescale;
 
 	private final EdgeRpcRequestHandler edgeRpcRequestHandler;
+	protected Config config;
 
 	public JsonRpcRequestHandlerImpl() {
 		super("Core.JsonRpcRequestHandler");
 		this.edgeRpcRequestHandler = new EdgeRpcRequestHandler(this);
+	}
+
+	@Activate
+	private void activate(Config config) {
+		this.updateConfig(config);
+	}
+
+	@Modified
+	private void modified(Config config) {
+		this.updateConfig(config);
+	}
+
+	private void updateConfig(Config config) {
+		this.config = config;
+	}
+
+	// TODO remove eventually
+	protected Timedata getTimedata(String edgeId) {
+		switch (this.config.betaReadConfig()) {
+		case ONLY_888:
+			if (edgeId.equals("fems888")) {
+				return this.timescale;
+			}
+			break;
+
+		case NONE:
+			break;
+		}
+		return this.timedata;
 	}
 
 	/**
@@ -144,7 +183,7 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 			}
 
 			for (ChannelAddress channel : request.getChannels()) {
-				var value = this.timeData.getChannelValue(edgeId, channel);
+				var value = this.timedata.getChannelValue(edgeId, channel);
 				response.addValue(edgeId, channel, value.orElse(JsonNull.INSTANCE));
 			}
 		}

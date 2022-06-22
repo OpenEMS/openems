@@ -30,9 +30,11 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for a Heat Pump.
@@ -48,6 +50,12 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
     	"OUTPUT_CHANNEL_1": "io0/Relay2",
     	"OUTPUT_CHANNEL_2": "io0/Relay3"
     },
+    "dependencies": [
+    	{
+        	"key": "RELAY",
+        	"instanceId": UUID
+    	}
+    ],
     "appDescriptor": {
     	"websiteUrl": <a href=
 "https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/">https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/</a>
@@ -77,7 +85,7 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 			final var ctrlIoHeatPumpId = this.getId(t, p, Property.CTRL_IO_HEAT_PUMP_ID, "ctrlIoHeatPump0");
 
 			var outputChannel1 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_1, "io0/Relay2");
-			var outputChannel2 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_1, "io0/Relay3");
+			var outputChannel2 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_2, "io0/Relay3");
 
 			var comp = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlIoHeatPumpId, this.getName(l), "Controller.Io.HeatPump.SgReady",
@@ -85,7 +93,27 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 									.addProperty("outputChannel1", outputChannel1) //
 									.addProperty("outputChannel2", outputChannel2) //
 									.build()));
-			return new AppConfiguration(comp);
+
+			var componentIdOfRelay = outputChannel1.substring(0, outputChannel1.indexOf('/'));
+			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
+					componentIdOfRelay, this.getAppId());
+
+			if (appIdOfRelay == null) {
+				// relay may be created but not as a app
+				return new AppConfiguration(comp);
+			}
+
+			var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
+					DependencyDeclaration.CreatePolicy.NEVER, //
+					DependencyDeclaration.UpdatePolicy.NEVER, //
+					DependencyDeclaration.DeletePolicy.NEVER, //
+					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
+					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+					DependencyDeclaration.AppDependencyConfig.create() //
+							.setSpecificInstanceId(appIdOfRelay) //
+							.build()));
+
+			return new AppConfiguration(comp, null, null, dependencies);
 		};
 	}
 
@@ -102,14 +130,18 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_1) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[0])) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannel1.label"))
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannel1.description"))
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel1.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel1.description"))
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_2) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[1])) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannel2.label"))
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannel2.description"))
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel2.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannel2.description"))
 								.build())
 						.build())
 				.build();
@@ -128,11 +160,11 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
+	public ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
 				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new Validator.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+						new ValidatorConfig.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("count", 2) //
 										.build())));
 	}

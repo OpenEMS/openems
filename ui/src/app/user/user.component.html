@@ -73,7 +73,7 @@
 
             <ion-item lines="none">
               <ion-button slot="start" (click)="enableAndDisableEditMode()"
-                [disabled]="isEditModeDisabled == false && !this.form?.formGroup?.dirty">
+                [disabled]="!isEditModeDisabled && !this.form?.formGroup?.dirty">
                 <ion-label>{{isEditModeDisabled ?'bearbeiten':'zurücksetzen'}}</ion-label>
                 <ion-icon name="pencil-outline" slot="end"></ion-icon>
               </ion-button>
@@ -109,8 +109,7 @@
             <p class="ion-padding" translate>About.build</p>
             <ul>
               <li>
-                <a target="_blank" href="https://github.com/OpenEMS/openems/releases/tag/2022.6.3">
-                  <span translate>About.build</span>: 2022.6.1-SNAPSHOT</a>
+                <a routerLinkActive="active" routerLink="/changelog">2022.6.4 (2022-06-22)</a>
               </li>
             </ul>
             <p class="ion-padding">Für Rückfragen und Anregungen zum Energiemanagement und unseren Produkten, wenden Sie
@@ -140,7 +139,7 @@
               </ion-select>
             </ion-item>
 
-            <ion-note class="ion-padding" *ngIf="environment.backend=='OpenEMS Edge'">
+            <ion-note class="ion-padding" *ngIf="environment.backend === 'OpenEMS Edge'">
               <small>
                 The language can not be changed permanently in the local online-monitoring for technical
                 reasons.</small>

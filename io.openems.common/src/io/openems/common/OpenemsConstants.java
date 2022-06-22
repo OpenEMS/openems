@@ -1,10 +1,14 @@
 package io.openems.common;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Optional;
+import java.util.Scanner;
 
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.StringUtils;
@@ -34,7 +38,7 @@ public class OpenemsConstants {
 	 * This is always `0` for OpenEMS open source releases and reserved for private
 	 * distributions.
 	 */
-	public static final short VERSION_PATCH = 3;
+	public static final short VERSION_PATCH = 4;
 
 	/**
 	 * The additional version string.
@@ -102,14 +106,22 @@ public class OpenemsConstants {
 	public static final String MANUFACTURER_EMS_SERIAL_NUMBER;
 
 	static {
+		Logger log = LoggerFactory.getLogger(OpenemsConstants.class);
+
 		String mesn = "";
-		try {
-			mesn = InetAddress.getLocalHost().getHostName();
-			mesn = StringUtils.toShortString(mesn, 32);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
+		try (Scanner s = new Scanner(Runtime.getRuntime().exec("hostname").getInputStream())) {
+			mesn = s.hasNext() ? s.next() : "";
+		} catch (IOException ioe) {
+			log.warn("Unable get hostname via OS-Command: " + ioe.getMessage());
+
+			try {
+				mesn = InetAddress.getLocalHost().getHostName();
+			} catch (UnknownHostException uhe) {
+				log.error("Unable get hostname via DNS-Lookup: " + uhe.getMessage());
+			}
 		}
-		MANUFACTURER_EMS_SERIAL_NUMBER = mesn;
+
+		MANUFACTURER_EMS_SERIAL_NUMBER = StringUtils.toShortString(mesn, 32);
 	}
 
 	/*

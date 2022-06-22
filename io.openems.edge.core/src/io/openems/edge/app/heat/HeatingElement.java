@@ -33,9 +33,11 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for a RTU Heating Element.
@@ -52,6 +54,12 @@ import io.openems.edge.core.appmanager.validator.Validator.Builder;
     	"OUTPUT_CHANNEL_PHASE_L2": "io0/Relay2",
     	"OUTPUT_CHANNEL_PHASE_L3": "io0/Relay3"
     },
+    "dependencies": [
+    	{
+        	"key": "RELAY",
+        	"instanceId": UUID
+    	}
+    ],
     "appDescriptor": {
     	"websiteUrl": <a href=
 "https://fenecon.de/fems-2-2/fems-app-heizstab/">https://fenecon.de/fems-2-2/fems-app-heizstab/</a>
@@ -109,7 +117,26 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 							.addProperty("outputChannelPhaseL3", outputChannelPhaseL3) //
 							.build()));//
 
-			return new AppConfiguration(comp);
+			var componentIdOfRelay = outputChannelPhaseL1.substring(0, outputChannelPhaseL1.indexOf('/'));
+			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
+					componentIdOfRelay, this.getAppId());
+
+			if (appIdOfRelay == null) {
+				// relay may be created but not as a app
+				return new AppConfiguration(comp);
+			}
+
+			var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
+					DependencyDeclaration.CreatePolicy.NEVER, //
+					DependencyDeclaration.UpdatePolicy.NEVER, //
+					DependencyDeclaration.DeletePolicy.NEVER, //
+					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
+					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+					DependencyDeclaration.AppDependencyConfig.create() //
+							.setSpecificInstanceId(appIdOfRelay) //
+							.build()));
+
+			return new AppConfiguration(comp, null, null, dependencies);
 		};
 	}
 
@@ -126,20 +153,26 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_PHASE_L1) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[0])) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannelPhaseL1.label"))
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannelPhaseL1.description"))
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL1.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL1.description"))
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_PHASE_L2) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[1])) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannelPhaseL2.label"))
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannelPhaseL2.description"))
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL2.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL2.description"))
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_PHASE_L3) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[2])) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannelPhaseL3.label"))
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannelPhaseL3.description"))
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL3.label"))
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannelPhaseL3.description"))
 								.build())
 						.build())
 				.build();
@@ -158,11 +191,11 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
+	public ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
 				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new Validator.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+						new ValidatorConfig.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("count", 3) //
 										.build())));
 	}

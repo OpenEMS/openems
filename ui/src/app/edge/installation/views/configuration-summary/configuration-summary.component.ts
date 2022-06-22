@@ -2,9 +2,9 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Edge, Service } from 'src/app/shared/shared';
-import { ComponentData } from 'src/app/shared/type/componentData';
 import { environment } from 'src/environments';
 
+import { ComponentData } from 'src/app/shared/type/componentData';
 import { Ibn } from '../../installation-systems/abstract-ibn';
 import { COUNTRY_OPTIONS } from '../../installation.component';
 import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
@@ -184,29 +184,31 @@ export class ConfigurationSummaryComponent implements OnInit {
       rows: batteryInverterData
     });
 
-    const pv = this.ibn.pv;
+    const pv = this.ibn.pv ?? {};
     let pvData: ComponentData[] = [];
 
     // DC
     pvData = this.ibn.addCustomPvData(pvData);
 
     // AC
-    let acNr = 1;
-    for (const ac of pv.ac) {
-      pvData = pvData.concat([
-        { label: 'Alias AC' + acNr, value: ac.alias },
-        { label: 'Wert AC' + acNr, value: ac.value }
-      ]);
+    if (pv.ac) {
+      let acNr = 1;
+      for (const ac of pv.ac) {
+        pvData = pvData.concat([
+          { label: 'Alias AC' + acNr, value: ac.alias },
+          { label: 'Wert AC' + acNr, value: ac.value }
+        ]);
 
-      if (ac.orientation) { pvData.push({ label: 'Ausrichtung AC' + acNr, value: ac.orientation }); }
-      if (ac.moduleType) { pvData.push({ label: 'Modultyp AC' + acNr, value: ac.moduleType }); }
-      if (ac.modulesPerString) { pvData.push({ label: 'Anzahl PV-Module AC' + acNr, value: ac.modulesPerString }); }
+        if (ac.orientation) { pvData.push({ label: 'Ausrichtung AC' + acNr, value: ac.orientation }); }
+        if (ac.moduleType) { pvData.push({ label: 'Modultyp AC' + acNr, value: ac.moduleType }); }
+        if (ac.modulesPerString) { pvData.push({ label: 'Anzahl PV-Module AC' + acNr, value: ac.modulesPerString }); }
 
-      pvData = pvData.concat([
-        { label: 'Zählertyp AC' + acNr, value: ac.meterType },
-        { label: 'Modbus Kommunikationsadresse AC' + acNr, value: ac.modbusCommunicationAddress }
-      ]);
-      acNr++;
+        pvData = pvData.concat([
+          { label: 'Zählertyp AC' + acNr, value: ac.meterType },
+          { label: 'Modbus Kommunikationsadresse AC' + acNr, value: ac.modbusCommunicationAddress }
+        ]);
+        acNr++;
+      }
     }
 
     if (pvData.length > 0) {

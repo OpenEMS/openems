@@ -34,9 +34,9 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for a Threshold Controller.
@@ -127,8 +127,10 @@ public class ThresholdControl extends AbstractOpenemsApp<Property> implements Op
 									return relays == null ? null : relays[0];
 								}) //
 								.isRequired(true) //
-								.setLabel(bundle.getString(this.getAppId() + ".outputChannels.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".outputChannels.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannels.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".outputChannels.description")) //
 								.build())
 						.build())
 				.build();
@@ -147,11 +149,11 @@ public class ThresholdControl extends AbstractOpenemsApp<Property> implements Op
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
+	public ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
 				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new Validator.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+						new ValidatorConfig.CheckableConfig(CheckRelayCount.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.put("count", 1) //
 										.build())));
 	}

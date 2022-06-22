@@ -14,7 +14,7 @@
         </ng-container>
 
         <!-- Shown when mode equals automatic -->
-        <oe-flat-widget-line *ngIf="mode == 'General.automatic'"
+        <oe-flat-widget-line *ngIf="mode === 'General.automatic'"
             [name]="'Edge.Index.Widgets.Heatingelement.timeCountdown' | translate"
             [channelAddress]="component.id + '/ForceStartAtSecondsOfDay'" [converter]="CONVERT_SECONDS_TO_DATE_FORMAT">
         </oe-flat-widget-line>

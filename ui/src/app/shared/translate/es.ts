@@ -483,8 +483,17 @@ export const TRANSLATION = {
             },
             Alerting: {
                 activate: 'Activar',
-                delay: 'Retraso [min]',
+                delay: 'Retraso',
                 save: 'Guardar',
+                options: {
+                    15: '15 minutos',
+                    60: '1 hora',
+                    1440: '1 día'
+                },
+                toast: {
+                    success: 'Ajustes adoptados',
+                    error: 'Error al cargar la configuración'
+                },
             },
             App: {
                 header: 'El App Manager se encuentra actualmente en una primera versión de prueba. Si no se muestran todas las aplicaciones, es posible que haya que actualizar la versión de FEMS.',
@@ -493,9 +502,11 @@ export const TRANSLATION = {
                 incompatible: 'Incompatible',
                 buyApp: 'Comprar aplicación',
                 modifyApp: 'Modificar la aplicación',
-                createApp: 'Crear aplicación',
+                createApp: 'Instalar la aplicación',
                 deleteApp: 'Eliminar la aplicación',
                 updateApp: 'Actualizar la aplicación',
+                errorInstallable: 'Errores de instalación',
+                errorCompatible: 'Errores de compatibilidad',
             },
         },
         Service: {

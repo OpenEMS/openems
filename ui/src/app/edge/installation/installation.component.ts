@@ -1,12 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { AcPv } from './views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DcPv } from './views/protocol-pv/protocol-pv.component';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
-import { Role } from 'src/app/shared/type/role';
+import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
+import { Router } from '@angular/router';
+import { EmsApp } from './views/heckert-app-installer/heckert-app-installer.component';
+import { environment } from 'src/environments';
 
 import { Ibn, View } from './installation-systems/abstract-ibn';
 import { GeneralIbn } from './installation-systems/general-ibn';
 import { HomeFeneconIbn } from './installation-systems/home-fenecon';
 import { HomeHeckertIbn } from './installation-systems/home-heckert';
+import { Role } from 'src/app/shared/type/role';
 
 // 'type' especially to store Edge data to later store in Ibn.
 export type EdgeData = {
@@ -83,7 +88,7 @@ export class InstallationComponent implements OnInit {
         ibn.location = ibnString.location ?? {};
         ibn.requiredControllerIds = ibnString.requiredControllerIds ?? [];
         ibn.lineSideMeterFuse = ibnString.lineSideMeterFuse ?? {};
-        ibn.dynamicFeedInLimitation = ibnString.dynamicFeedInLimitation ?? {};
+        ibn.feedInLimitation = ibnString.feedInLimitation ?? {};
         ibn.pv = ibnString.pv ?? {};
       }
     }

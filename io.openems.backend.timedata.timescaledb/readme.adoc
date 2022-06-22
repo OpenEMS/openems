@@ -23,6 +23,7 @@ timescaledb-tune --quiet --yes
 # Open port 5432
 vim /etc/postgresql/14/main/postgresql.conf
     listen_addresses = '*'
+    data_directory = '/opt/postgresql'
 vim /etc/postgresql/14/main/pg_hba.conf
     host    all             all              0.0.0.0/0                       md5
 

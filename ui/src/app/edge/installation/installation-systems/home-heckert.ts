@@ -27,7 +27,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
             View.ConfigurationLineSideMeterFuse,
             View.ProtocolPv,
             View.ProtocolAdditionalAcProducers,
-            View.ProtocolDynamicFeedInLimitation,
+            View.ProtocolFeedInLimitation,
             View.HeckertAppInstaller,
             View.ConfigurationSummary,
             View.ConfigurationExecute,

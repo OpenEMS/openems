@@ -14,6 +14,7 @@ import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import io.openems.edge.core.appmanager.validator.Validator;
 
 /**
  * Gets the available {@link OpenemsApp}s.
@@ -93,7 +94,7 @@ public class GetApps {
 	public static class Response extends JsonrpcResponseSuccess {
 
 		private static JsonArray createAppsArray(List<OpenemsApp> availableApps,
-				List<OpenemsAppInstance> instantiatedApps, Language language) {
+				List<OpenemsAppInstance> instantiatedApps, Language language, Validator validator) {
 			var result = JsonUtils.buildJsonArray();
 			for (var app : availableApps) {
 				// TODO don't show integrated systems for normal users
@@ -117,7 +118,7 @@ public class GetApps {
 						.addProperty("appId", app.getAppId()) //
 						.addProperty("name", app.getName(language)) //
 						.addProperty("image", app.getImage()) //
-						.add("status", app.getValidator().toJsonObject()) //
+						.add("status", validator.toJsonObject(app.getValidatorConfig(), language)) //
 						.add("instanceIds", instanceIds.build()) //
 						.build());
 			}
@@ -127,9 +128,9 @@ public class GetApps {
 		private final JsonArray apps;
 
 		public Response(UUID id, List<OpenemsApp> availableApps, List<OpenemsAppInstance> instantiatedApps,
-				Language language) {
+				Language language, Validator validator) {
 			super(id);
-			this.apps = createAppsArray(availableApps, instantiatedApps, language);
+			this.apps = createAppsArray(availableApps, instantiatedApps, language, validator);
 		}
 
 		@Override

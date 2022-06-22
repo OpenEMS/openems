@@ -489,8 +489,17 @@ export const TRANSLATION = {
             },
             Alerting: {
                 activate: 'Aktivace',
-                delay: 'Zpoždění [min]',
+                delay: 'Zpoždění',
                 save: 'Uložit',
+                options: {
+                    1: '15 minut',
+                    2: '1 hodina',
+                    3: '1 den'
+                },
+                toast: {
+                    success: 'Přijatá nastavení',
+                    error: 'Chyba při načítání nastavení'
+                },
             },
             App: {
                 header: 'Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi FEMS.',
@@ -511,7 +520,20 @@ export const TRANSLATION = {
                 temperatures: "Teplota buňky",
                 insulation: "Izolace",
             }
-        }
+        },
+        App: {
+            header: 'Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi FEMS.',
+            installed: 'Nainstalováno',
+            available: 'Dostupné na',
+            incompatible: 'Nekompatibilní',
+            buyApp: 'koupit aplikaci',
+            modifyApp: 'upravit aplikaci',
+            createApp: 'Instalace aplikace',
+            deleteApp: 'odstranit aplikaci',
+            updateApp: 'aktualizace aplikace',
+            errorInstallable: 'Chyby pÅ™i instalaci',
+            errorCompatible: 'Chyby kompatibility',
+        },
     },
     About: {
         build: "Aktuální verze",

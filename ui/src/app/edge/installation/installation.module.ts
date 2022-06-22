@@ -15,7 +15,7 @@ import { HeckertAppInstallerComponent } from "./views/heckert-app-installer/heck
 import { PreInstallationComponent } from "./views/pre-installation/pre-installation.component";
 import { ProtocolAdditionalAcProducersComponent } from "./views/protocol-additional-ac-producers/protocol-additional-ac-producers.component";
 import { ProtocolCustomerComponent } from "./views/protocol-customer/protocol-customer.component";
-import { ProtocolDynamicFeedInLimitation } from "./views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component";
+import { ProtocolFeedInLimitation } from "./views/protocol-feed-in-limitation/protocol-feed-in-limitation.component";
 import { ProtocolInstallerComponent } from "./views/protocol-installer/protocol-installer.component";
 import { ProtocolPv } from "./views/protocol-pv/protocol-pv.component";
 import { ProtocolSerialNumbersComponent } from "./views/protocol-serial-numbers/protocol-serial-numbers.component";
@@ -142,7 +142,7 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
     ConfigurationLineSideMeterFuseComponent,
     KeyMask,
     ProtocolCustomerComponent,
-    ProtocolDynamicFeedInLimitation,
+    ProtocolFeedInLimitation,
     ProtocolInstallerComponent,
     ProtocolSystemComponent,
     InstallationComponent,

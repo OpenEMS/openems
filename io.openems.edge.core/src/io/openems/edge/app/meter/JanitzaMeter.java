@@ -36,9 +36,9 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.validator.CheckHome;
-import io.openems.edge.core.appmanager.validator.Validator;
-import io.openems.edge.core.appmanager.validator.Validator.Builder;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for a Janitza meter.
@@ -129,25 +129,25 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildSelect(Property.MODEL) //
-								.setLabel(bundle.getString(this.getAppId() + ".productModel")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".productModel")) //
 								.isRequired(true) //
 								.setOptions(this.buildFactorieIdOptions()) //
 								.build()) //
 						.add(JsonFormlyUtil.buildSelect(Property.TYPE) //
-								.setLabel(bundle.getString("App.Meter.mountType.label")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "App.Meter.mountType.label")) //
 								.isRequired(true) //
 								.setOptions(this.buildMeterOptions(language)) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.IP) //
-								.setLabel(bundle.getString("ipAddress")) //
-								.setDescription(bundle.getString("App.Meter.ip.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
+								.setDescription(TranslationUtil.getTranslation(bundle, "App.Meter.ip.description")) //
 								.isRequired(true) //
 								.setDefaultValue("10.4.0.12") //
 								.setValidation(Validation.IP) //
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
-								.setLabel(bundle.getString("modbusUnitId")) //
-								.setDescription(bundle.getString("modbusUnitId.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
+								.setDescription(TranslationUtil.getTranslation(bundle, "modbusUnitId.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(1) //
 								.setMin(0) //
@@ -165,11 +165,11 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 	}
 
 	@Override
-	public Builder getValidateBuilder() {
-		return Validator.create() //
+	public ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
 				.setCompatibleCheckableConfigs(Lists.newArrayList(//
-						new Validator.CheckableConfig(CheckHome.COMPONENT_NAME,
-								new Validator.MapBuilder<>(new TreeMap<String, Object>()) //
+						new ValidatorConfig.CheckableConfig(CheckHome.COMPONENT_NAME,
+								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 										.build())));
 	}
 

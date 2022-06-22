@@ -29,6 +29,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a App for MQTT Api.
@@ -46,7 +47,9 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"CLIENT_ID": "edge0",
     	"URI": "tcp://localhost:1883"
     },
-    "appDescriptor": {}
+    "appDescriptor": {
+    	"websiteUrl": URL
+    }
   }
  * </pre>
  */
@@ -75,27 +78,31 @@ public class MqttApi extends AbstractOpenemsApp<Property> implements OpenemsApp 
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.USERNAME) //
-								.setLabel(bundle.getString("username")) //
-								.setDescription(bundle.getString(this.getAppId() + ".Username.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "username")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".Username.description")) //
 								.isRequired(true) //
 								.setMinLenght(3) //
 								.setMaxLenght(18) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.PASSWORD) //
-								.setLabel(bundle.getString("password")) //
-								.setDescription(bundle.getString(this.getAppId() + ".Password.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "password")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".Password.description")) //
 								.isRequired(true) //
 								.setInputType(Type.PASSWORD) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.CLIENT_ID) //
-								.setLabel(bundle.getString(this.getAppId() + ".EdgeId.label")) //
-								.setDescription(bundle.getString(this.getAppId() + ".EdgeId.description")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".EdgeId.label")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".EdgeId.description")) //
 								.setDefaultValue("edge0") //
 								.isRequired(true) //
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.URI) //
 								.setLabel("Uri") //
-								.setDescription(bundle.getString(this.getAppId() + ".Uri.description")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".Uri.description")) //
 								.setDefaultValue("tcp://localhost:1883") //
 								.isRequired(true) //
 								.build()) //

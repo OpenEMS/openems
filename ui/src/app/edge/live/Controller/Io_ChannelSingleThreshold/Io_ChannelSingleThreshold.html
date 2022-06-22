@@ -3,7 +3,7 @@
   <oe-flat-widget-line [name]="'General.state' | translate" [value]="state"></oe-flat-widget-line>
   <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode"></oe-flat-widget-line>
 
-  <ng-container *ngIf="modeValue == 'AUTOMATIC'">
+  <ng-container *ngIf="modeValue === 'AUTOMATIC'">
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.Singlethreshold.dependendOn' | translate" [value]="dependendOn"
       leftColumnWidth="20">
     </oe-flat-widget-line>

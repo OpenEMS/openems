@@ -28,7 +28,7 @@
                                                 *ngIf="getChannelAddress(component.id, channelDescription.channelName) as address">
                                                 <ng-container *ngIf="config.getChannel(address) as channelConfig">
 
-                                                    <ion-item *ngIf="channelConfig.accessMode != 'WO'">
+                                                    <ion-item *ngIf="channelConfig.accessMode !== 'WO'">
                                                         <ion-label>
                                                             {{channelDescription.description}}
                                                         </ion-label>
@@ -56,7 +56,7 @@
                                                                     )
                                                                 </ion-text>
                                                                 <!-- show value as string for enum values -->
-                                                                <ng-container *ngIf="channelConfig.category == 'ENUM'">
+                                                                <ng-container *ngIf="channelConfig.category === 'ENUM'">
                                                                     <ng-container
                                                                         *ngFor="let option of (channelConfig.options | keys)">
                                                                         <span
@@ -66,7 +66,7 @@
                                                                     </ng-container>
                                                                 </ng-container>
                                                                 <!-- show active/inactive string for StateChannels -->
-                                                                <ng-container *ngIf="channelConfig.category == 'STATE'">
+                                                                <ng-container *ngIf="channelConfig.category === 'STATE'">
                                                                     <span *ngIf="currentData[address.toString()] == 1">
                                                                         (State is SET)</span>
                                                                     <span *ngIf="currentData[address.toString()] == 0">
@@ -74,7 +74,7 @@
                                                                 </ng-container>
                                                                 <!-- show active/inactive string for StateChannels -->
                                                                 <ng-container
-                                                                    *ngIf="channelConfig.category == 'OPENEMS_TYPE' && channelConfig.type == 'BOOLEAN'">
+                                                                    *ngIf="channelConfig.category === 'OPENEMS_TYPE' && channelConfig.type === 'BOOLEAN'">
                                                                     <span
                                                                         *ngIf="currentData[address.toString()] == 1">(On)</span>
                                                                     <span
@@ -91,7 +91,7 @@
                                             </ng-container>
                                             <ng-container
                                                 *ngIf="!getChannelAddress(component.id, channelDescription.channelName) as address">
-                                                <ion-item *ngIf="channelConfig.accessMode != 'WO'">
+                                                <ion-item *ngIf="channelConfig.accessMode !== 'WO'">
                                                     <ion-label>
                                                         {{channelDescription.channelName}} nicht in {{component.id}}
                                                         vorhanden
@@ -100,7 +100,7 @@
                                             </ng-container>
                                         </ng-container>
                                         <ng-container
-                                            *ngIf="categorizedReadChannelDescriptions.category == 'Edge.Service.Cell.voltages'">
+                                            *ngIf="categorizedReadChannelDescriptions.category === 'Edge.Service.Cell.voltages'">
 
                                             <ion-item lines="none">
                                                 <ion-label> Gesamtchart:</ion-label>
@@ -202,7 +202,7 @@
                                                         </ion-item>
 
 
-                                                        <ion-item *ngIf="channelConfig.accessMode != 'WO'">
+                                                        <ion-item *ngIf="channelConfig.accessMode !== 'WO'">
                                                             <ion-label>Value
                                                             </ion-label>
                                                             <ion-text>
@@ -216,7 +216,7 @@
                                                                     {{ channelDescription.unit }}
                                                                 </ion-text>
                                                                 <!-- show value as string for enum values -->
-                                                                <ng-container *ngIf="channelConfig.category == 'ENUM'">
+                                                                <ng-container *ngIf="channelConfig.category === 'ENUM'">
                                                                     <ng-container
                                                                         *ngFor="let option of (channelConfig.options | keys)">
                                                                         <span
@@ -226,7 +226,7 @@
                                                                     </ng-container>
                                                                 </ng-container>
                                                                 <!-- show active/inactive string for StateChannels -->
-                                                                <ng-container *ngIf="channelConfig.category == 'STATE'">
+                                                                <ng-container *ngIf="channelConfig.category === 'STATE'">
                                                                     <span *ngIf="currentData[address.toString()] == 1">
                                                                         (State is SET)</span>
                                                                     <span *ngIf="currentData[address.toString()] == 0">
@@ -234,7 +234,7 @@
                                                                 </ng-container>
                                                                 <!-- show active/inactive string for StateChannels -->
                                                                 <ng-container
-                                                                    *ngIf="channelConfig.category == 'OPENEMS_TYPE' && channelConfig.type == 'BOOLEAN'">
+                                                                    *ngIf="channelConfig.category === 'OPENEMS_TYPE' && channelConfig.type === 'BOOLEAN'">
                                                                     <span
                                                                         *ngIf="currentData[address.toString()] == 1">(On)</span>
                                                                     <span
@@ -249,7 +249,7 @@
                                                             <ion-label>Set value
                                                             </ion-label>
                                                             <ng-container
-                                                                *ngIf="channelConfig.type == 'BOOLEAN'; else no_boolean">
+                                                                *ngIf="channelConfig.type === 'BOOLEAN'; else no_boolean">
                                                                 <!-- show Toggle for boolean value  -->
                                                                 <ion-toggle #valueToggle></ion-toggle>
                                                                 <ion-button

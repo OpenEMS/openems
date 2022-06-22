@@ -5,7 +5,7 @@ import { ComponentData } from 'src/app/shared/type/componentData';
 import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
 import { EmsApp } from '../views/heckert-app-installer/heckert-app-installer.component';
 import { AcPv } from '../views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
-import { FeedInSetting } from '../views/protocol-dynamic-feed-in-limitation/protocol-dynamic-feed-in-limitation.component';
+import { FeedInSetting, FeedInType } from '../views/protocol-feed-in-limitation/protocol-feed-in-limitation.component';
 import { DcPv } from '../views/protocol-pv/protocol-pv.component';
 
 export enum View {
@@ -18,7 +18,7 @@ export enum View {
   PreInstallation,
   ProtocolAdditionalAcProducers,
   ProtocolCustomer,
-  ProtocolDynamicFeedInLimitation,
+  ProtocolFeedInLimitation,
   ProtocolInstaller,
   ProtocolPv,
   ProtocolSerialNumbers,
@@ -81,10 +81,11 @@ export abstract class Ibn {
   };
 
   // protocol-dynamic-feed-in-limitation
-  public dynamicFeedInLimitation?: {
-    maximumFeedInPower: number;
-    feedInSetting: FeedInSetting;
-    fixedPowerFactor: FeedInSetting;
+  public feedInLimitation?: {
+    feedInType: FeedInType,
+    maximumFeedInPower?: number;
+    feedInSetting?: FeedInSetting;
+    fixedPowerFactor?: FeedInSetting;
   };
 
   // protocol-pv

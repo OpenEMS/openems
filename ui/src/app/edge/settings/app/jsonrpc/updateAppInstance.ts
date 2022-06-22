@@ -1,4 +1,6 @@
-import { JsonrpcRequest } from "../../../../shared/jsonrpc/base";
+import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
+import { GetAppInstances } from "./getAppInstances";
+import { GetApps } from "./getApps";
 
 /**
  * Updates an instance of an {@link OpenemsApp}.
@@ -44,6 +46,20 @@ export namespace UpdateAppInstance {
             }
         ) {
             super(METHOD, params);
+        }
+    }
+
+
+    export class Response extends JsonrpcResponseSuccess {
+
+        public constructor(
+            public readonly id: string,
+            public readonly result: {
+                instance: GetAppInstances.AppInstance,
+                warnings: String[]
+            }
+        ) {
+            super(id, result);
         }
     }
 

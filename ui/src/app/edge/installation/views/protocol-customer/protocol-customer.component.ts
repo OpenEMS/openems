@@ -52,7 +52,6 @@ export class ProtocolCustomerComponent implements OnInit {
       type: 'checkbox',
       templateOptions: {
         label: 'Firmenkunde?',
-        required: true
       },
     });
 

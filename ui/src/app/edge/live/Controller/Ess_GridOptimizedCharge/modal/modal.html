@@ -1,7 +1,7 @@
 <oe-modal [title]="component.alias"
     [toolbarButtons]="{url:'https://docs.fenecon.de/de/_/latest/fems/fems-app/includes/FEMS_App_Netzdienliche_Beladung.html', icon: {name: 'help-circle-outline'}}"
     [component]="component" [formGroup]="formGroup" *ngIf="isInitialized && formGroup">
-    <ng-container *ngIf="formGroup.value.mode !='OFF'">
+    <ng-container *ngIf="formGroup.value.mode !=='OFF'">
 
         <!-- SellToGridLimit or DelayCharge -->
         <oe-modal-line [name]="'General.state' | translate" [value]="state">
@@ -41,7 +41,7 @@
     </oe-modal-buttons>
 
     <!-- MANUAL Mode -->
-    <ng-container *ngIf="formGroup.value.mode == 'MANUAL'" [formGroup]="formGroup">
+    <ng-container *ngIf="formGroup.value.mode === 'MANUAL'" [formGroup]="formGroup">
 
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
@@ -78,7 +78,7 @@
     </ng-container>
 
     <!-- AUTOMATIC Mode -->
-    <ng-container *ngIf="formGroup.value.mode == 'AUTOMATIC'">
+    <ng-container *ngIf="formGroup.value.mode === 'AUTOMATIC'">
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
         <oe-modal-info-line
@@ -140,7 +140,7 @@
     </ng-container>
 
     <!-- OFF Mode -->
-    <oe-modal-info-line *ngIf="formGroup.value.mode == 'OFF'"
+    <oe-modal-info-line *ngIf="formGroup.value.mode === 'OFF'"
         [info]="'Edge.Index.Widgets.GridOptimizedCharge.gridOptimizedChargeDisabled'| translate">
     </oe-modal-info-line>
 

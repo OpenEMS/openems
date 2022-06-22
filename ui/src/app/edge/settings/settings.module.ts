@@ -1,12 +1,6 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from './../../shared/shared.module';
 import { AppModule } from './app/app.module';
-import { AutoinstallerComponent } from './autoinstaller/autoinstaller.component';
-import { EvcsInstallerComponent } from './autoinstaller/evcs/evcs.component';
-import { HeatingElementRtuInstallerComponent } from './autoinstaller/heatingelementrtu/heatingelementrtu.component';
-import { HeatingElementTcpInstallerComponent } from './autoinstaller/heatingelementtcp/heatingelementtcp.component';
-import { HeatingpumpTcpInstallerComponent } from './autoinstaller/heatingpumptcp/heatingpumptcp.component';
-import { ReadWriteModbusTCPInstallerComponent } from './autoinstaller/readwritemodbustcp/readwritemodbustcp.component';
 import { ChannelsComponent } from './channels/channels.component';
 import { IndexComponent as ComponentInstallIndexComponent } from './component/install/index.component';
 import { ComponentInstallComponent } from './component/install/install.component';
@@ -30,19 +24,13 @@ import { AlertingComponent } from './alerting/alerting.component';
   ],
   declarations: [
     AliasUpdateComponent,
-    AutoinstallerComponent,
     ChannelsComponent,
     ComponentInstallComponent,
     ComponentInstallIndexComponent,
     ComponentUpdateComponent,
     ComponentUpdateIndexComponent,
-    EvcsInstallerComponent,
-    HeatingElementRtuInstallerComponent,
-    HeatingElementTcpInstallerComponent,
-    HeatingpumpTcpInstallerComponent,
     NetworkComponent,
     ProfileComponent,
-    ReadWriteModbusTCPInstallerComponent,
     SettingsComponent,
     SystemExecuteComponent,
     SystemUpdateComponent,
@@ -50,11 +38,6 @@ import { AlertingComponent } from './alerting/alerting.component';
     AlertingComponent,
   ],
   entryComponents: [
-    EvcsInstallerComponent,
-    HeatingElementRtuInstallerComponent,
-    HeatingElementTcpInstallerComponent,
-    HeatingpumpTcpInstallerComponent,
-    ReadWriteModbusTCPInstallerComponent,
   ]
 })
 export class SettingsModule { }

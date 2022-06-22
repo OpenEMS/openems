@@ -16,7 +16,8 @@ public class ByteElement implements Consumer<Integer> {
 	}
 
 	public static enum Shifter {
-		SEPARATE_BITS_AS_6_AND_10_FOR_TWO_CHANNELS, SEPERATE_TO_TWO_8_BIT_CHANNELS, ONLY_ONE_CHANNEL
+		SEPARATE_BITS_AS_6_AND_10_FOR_TWO_CHANNELS, SEPERATE_TO_TWO_8_BIT_CHANNELS, ONLY_FIRST_CHANNEL,
+		ONLY_SECOND_CHANNEL
 	}
 
 	@Override
@@ -26,8 +27,11 @@ public class ByteElement implements Consumer<Integer> {
 		}
 
 		switch (this.shifter) {
-		case ONLY_ONE_CHANNEL:
+		case ONLY_FIRST_CHANNEL:
 			this.parent.channel(this.channels[0].id()).setNextValue(t & 0xff);
+			break;
+		case ONLY_SECOND_CHANNEL:
+			this.parent.channel(this.channels[0].id()).setNextValue((t & 0xff00) >> 8);
 			break;
 		case SEPARATE_BITS_AS_6_AND_10_FOR_TWO_CHANNELS:
 			this.parent.channel(this.channels[0].id()).setNextValue(t & 0x3f);
