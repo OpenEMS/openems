@@ -66,11 +66,13 @@ update_fems_branches() {
     git pull
 
     echo "# Update branch fems/develop"
-    git fetch openems develop
+    git checkout develop
+    git pull
 }
 
 merge_from_openems() {
     echo "# Merge from openems/develop"
+    git fetch openems develop
     git merge openems/develop --no-edit
 
     echo "# Push to fems/develop"
