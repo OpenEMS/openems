@@ -428,8 +428,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 									Channel<Integer> numberOfModulesPerTowerChannel = this
 											.channel(FeneconCommercialBattery.ChannelId.NUMBER_OF_MODULES_PER_TOWER);
 									var numberOfModulesPerTower = numberOfModulesPerTowerChannel.value();
-									if (!numberOfModulesPerTower.isDefined() || numberOfModulesPerTower == null
-											|| numberOfModulesPerTower.get() == 0) {
+									if (!numberOfModulesPerTower.isDefined() || numberOfModulesPerTower.get() == 0) {
 										return null;
 									}
 									return (int) value / numberOfModulesPerTower.get();
@@ -647,7 +646,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 									.bit(13, generateTowerChannel(this, towerNum, "LOW_SOC_LEVEL_3", Level.WARNING))), //
 							m(generateTowerChannel(this, towerNum, "CURRENT_SCALE_5", OpenemsType.LONG,
 									Unit.MICROAMPERE), new UnsignedDoublewordElement(towerOffset + 52), SCALE_FACTOR_1)
-											.wordOrder(LSWMSW), //
+									.wordOrder(LSWMSW), //
 							m(generateTowerChannel(this, towerNum, "CURRENT_VALUES_AT_DIFFERENT_C_RATE_1",
 									OpenemsType.INTEGER, Unit.MICROAMPERE),
 									new SignedDoublewordElement(towerOffset + 54), SCALE_FACTOR_1).wordOrder(LSWMSW), //
@@ -1138,22 +1137,30 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 		var batterySoc = batterySocChannel.value();
 		var batteryChargeMaxCurrent = this.getChargeMaxCurrent();
 		var batteryDischargeMaxCurrent = this.getDischargeMaxCurrent();
+		final Integer soc;
 		if (batterySoc.isDefined()) {
 			if (batteryDischargeMaxCurrent.isDefined() //
 					&& batterySoc.get() <= 4 //
 					&& batteryDischargeMaxCurrent.get() <= 0) {
 				// Make soc to 0 if it is less than 5 %
-				this._setSoc(0);
+				soc = 0;
+
 			} else if (batteryChargeMaxCurrent.isDefined() //
 					&& batterySoc.get() >= 98 //
 					&& batteryChargeMaxCurrent.get() <= 0) {
 				// Make soc to 100 if it is more than 97 %
-				this._setSoc(100);
+				soc = 100;
+
 			} else {
 				// Apply the normal Soc if it not in the above ranges.
-				this._setSoc(batterySoc.get());
+				soc = batterySoc.get();
 			}
+
+		} else {
+			// Original Battery-SoC is undefined
+			soc = null;
 		}
+		this._setSoc(soc);
 	}
 
 	@Override
