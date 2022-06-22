@@ -71,7 +71,7 @@
                     </ion-segment>
                 </ion-card-content>
                 <form [formGroup]="formGroup">
-                    <ng-container *ngIf="component.properties['mode'] == 'MANUAL_ON'">
+                    <ng-container *ngIf="component.properties['mode'] === 'MANUAL_ON'">
                         <ion-item lines="none">
                             <div style="font-size: 14px">Level:</div>
                             <ion-select formControlName="defaultLevel" [value]="component.properties['defaultLevel']"
@@ -83,9 +83,8 @@
                             </ion-select>
                         </ion-item>
                     </ng-container>
-                    <ng-container *ngIf="component.properties['mode'] == 'AUTOMATIC'">
-                        <ion-card-content [class.underline]="
-                        formGroup.value.workMode !='NONE'">
+                    <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC'">
+                        <ion-card-content [class.underline]="formGroup.value.workMode !=='NONE'">
                             <table class=" full_width">
                                 <tr>
                                     <td style="width: 65%">
@@ -93,13 +92,13 @@
                                     </td>
                                     <td style="width: 35%" class="align_right">
                                         <ion-toggle (ionChange)="switchAllowMinimumHeating($event)"
-                                            [checked]="formGroup.value.workMode != 'NONE'">
+                                            [checked]="formGroup.value.workMode !== 'NONE'">
                                         </ion-toggle>
                                     </td>
                                 </tr>
                             </table>
                         </ion-card-content>
-                        <ng-container *ngIf="formGroup.value.workMode != 'NONE'">
+                        <ng-container *ngIf="formGroup.value.workMode !== 'NONE'">
                             <ion-card-content class="underline ion-no-padding">
                                 <ion-grid>
                                     <ion-row class="ion-justify-content-center">

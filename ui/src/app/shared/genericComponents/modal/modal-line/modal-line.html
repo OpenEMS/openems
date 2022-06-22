@@ -14,7 +14,7 @@
 
         <!-- 'Input' Line, name and changeable value -->
         <ng-container *ngIf="formGroup">
-            <td style="width: 30%" class="align_right" *ngIf="controlType == 'INPUT'" [formGroup]="formGroup">
+            <td style="width: 30%" class="align_right" *ngIf="controlType === 'INPUT'" [formGroup]="formGroup">
                 <ion-item>
                     <ion-input class="regularFont" type="number" style="text-align: right;"
                         [formControlName]="controlName">
@@ -23,7 +23,7 @@
                 </ion-item>
             </td>
 
-            <td *ngIf="controlType == 'TOGGLE'" [formGroup]="formGroup"
+            <td *ngIf="controlType === 'TOGGLE'" [formGroup]="formGroup"
                 [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.7)': ''" class="align_right">
                 <ion-toggle [formControlName]="controlName">
                 </ion-toggle>

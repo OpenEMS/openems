@@ -53,7 +53,7 @@
 
               <ng-container *ngIf="config.components[widget.componentId].factoryId as factoryId">
                 <ng-container
-                  *ngIf="factoryId != 'Evcs.Cluster.PeakShaving' && factoryId != 'Evcs.Cluster.SelfConsumption'">
+                  *ngIf="factoryId !== 'Evcs.Cluster.PeakShaving' && factoryId !== 'Evcs.Cluster.SelfConsumption'">
                   <ion-col *ngSwitchCase="'io.openems.edge.evcs.api.Evcs'" size="12" size-lg="6" class="ion-no-padding">
                     <Controller_Evcs [componentId]="widget.componentId">
                     </Controller_Evcs>

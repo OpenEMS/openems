@@ -8,7 +8,7 @@
     </ion-item>
     <ion-card-content>
         <ion-list class="ion-text-center">
-            <ng-container *ngIf="edge?.producttype == 'home', else otherTypes">
+            <ng-container *ngIf="edge?.producttype === 'home', else otherTypes">
                 <ion-item>
                     <ion-label class="ion-text-wrap">
                         <h3>1.FEMS neu starten:</h3>

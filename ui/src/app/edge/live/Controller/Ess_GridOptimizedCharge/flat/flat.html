@@ -5,7 +5,7 @@
     <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode"
         [converter]="CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC"></oe-flat-widget-line>
 
-    <ng-container *ngIf="mode != 'OFF'">
+    <ng-container *ngIf="mode !== 'OFF'">
 
         <!--SellToGridLimit - Grid feed in limitation is avoided-->
         <ng-container *ngIf="isSellToGridLimitAvoided, else sellToGridLimitNotActiveTemp">

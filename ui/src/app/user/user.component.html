@@ -73,7 +73,7 @@
 
             <ion-item lines="none">
               <ion-button slot="start" (click)="enableAndDisableEditMode()"
-                [disabled]="isEditModeDisabled == false && !this.form?.formGroup?.dirty">
+                [disabled]="!isEditModeDisabled && !this.form?.formGroup?.dirty">
                 <ion-label>{{isEditModeDisabled ?'bearbeiten':'zurücksetzen'}}</ion-label>
                 <ion-icon name="pencil-outline" slot="end"></ion-icon>
               </ion-button>
@@ -140,7 +140,7 @@
               </ion-select>
             </ion-item>
 
-            <ion-note class="ion-padding" *ngIf="environment.backend=='OpenEMS Edge'">
+            <ion-note class="ion-padding" *ngIf="environment.backend === 'OpenEMS Edge'">
               <small>
                 The language can not be changed permanently in the local online-monitoring for technical
                 reasons.</small>

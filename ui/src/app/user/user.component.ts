@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { FormlyFieldConfig } from '@ngx-formly/core';
@@ -6,7 +6,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments';
 import { COUNTRY_OPTIONS } from '../edge/installation/installation.component';
 import { GetUserInformationRequest } from '../shared/jsonrpc/request/getUserInformationRequest';
-import { RegisterUserRequest } from '../shared/jsonrpc/request/registerUserRequest';
 import { SetUserInformationRequest } from '../shared/jsonrpc/request/setUserInformationRequest';
 import { UpdateUserLanguageRequest } from '../shared/jsonrpc/request/updateUserLanguageRequest';
 import { GetUserInformationResponse } from '../shared/jsonrpc/response/getUserInformationResponse';
@@ -24,10 +23,9 @@ type UserInformation = {
   country: string
 }
 @Component({
-  selector: 'user',
   templateUrl: './user.component.html'
 })
-export class UserComponent {
+export class UserComponent implements OnInit {
 
   public environment = environment;
 

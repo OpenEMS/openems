@@ -160,13 +160,13 @@
                                         </ion-item>
 
 
-                                        <ion-item *ngIf="channelConfig.accessMode != 'WO'">
+                                        <ion-item *ngIf="channelConfig.accessMode !== 'WO'">
                                             <ion-label style="font-size:small;">Value</ion-label>
                                             <ion-text style="font-size:small;">
                                                 <!-- show current value of Channel-->
                                                 {{ currentData[address.toString()] }} {{ channelConfig.unit }}
                                                 <!-- show value as string for enum values -->
-                                                <ng-container *ngIf="channelConfig.category == 'ENUM'">
+                                                <ng-container *ngIf="channelConfig.category === 'ENUM'">
                                                     <ng-container *ngFor="let option of (channelConfig.options | keys)">
                                                         <span *ngIf="option.value == currentData[address.toString()]">
                                                             ({{ option.key }})
@@ -174,7 +174,7 @@
                                                     </ng-container>
                                                 </ng-container>
                                                 <!-- show active/inactive string for StateChannels -->
-                                                <ng-container *ngIf="channelConfig.category == 'STATE'">
+                                                <ng-container *ngIf="channelConfig.category === 'STATE'">
                                                     <span *ngIf="currentData[address.toString()] == 1">(State is
                                                         SET)</span>
                                                     <span *ngIf="currentData[address.toString()] == 0">(State is not
@@ -182,7 +182,7 @@
                                                 </ng-container>
                                                 <!-- show active/inactive string for StateChannels -->
                                                 <ng-container
-                                                    *ngIf="channelConfig.category == 'OPENEMS_TYPE' && channelConfig.type == 'BOOLEAN'">
+                                                    *ngIf="channelConfig.category === 'OPENEMS_TYPE' && channelConfig.type === 'BOOLEAN'">
                                                     <span *ngIf="currentData[address.toString()] == 1">(On)</span>
                                                     <span *ngIf="currentData[address.toString()] == 0">(Off)</span>
                                                 </ng-container>
@@ -192,7 +192,7 @@
                                         <!-- show input field to write value for RW/RO channels -->
                                         <ion-item *ngIf="['RW', 'WO'].includes(channelConfig.accessMode)">
                                             <ion-label style="font-size:small;">Set value</ion-label>
-                                            <ng-container *ngIf="channelConfig.type == 'BOOLEAN'; else no_boolean">
+                                            <ng-container *ngIf="channelConfig.type === 'BOOLEAN'; else no_boolean">
                                                 <!-- show Toggle for boolean value  -->
                                                 <ion-toggle #valueToggle></ion-toggle>
                                                 <ion-button (click)="setChannelValue(address, valueToggle.checked)"

@@ -86,7 +86,7 @@
                 <ion-card class="ion-justify-content-center">
 
                   <ng-container *ngIf="(service.metadata | async)?.user as user">
-                    <ng-container *ngIf="(user.globalRole == 'installer' || user.globalRole == 'admin'), else others">
+                    <ng-container *ngIf="(user.globalRole === 'installer' || user.globalRole === 'admin'), else others">
                       <!-- No access to Edges -->
                       <ion-item color="warning" lines="full">
                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>

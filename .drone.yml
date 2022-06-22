@@ -23,6 +23,7 @@ pipeline:
       - npm ci --prefer-offline --cache /drone/.npm
       - sed --in-place s#/m/#/${DRONE_BRANCH}/#g angular.json
       - node_modules/.bin/ng build -c "fenecon,fenecon-backend-prod,prod"
+      #- node_modules/.bin/ng lint
 
   build-java:
     when:

@@ -61,7 +61,7 @@
             </ion-card-content>
 
             <!--Automatic Mode-->
-            <ng-container *ngIf="this.formGroup.controls['mode'].value == 'AUTOMATIC'">
+            <ng-container *ngIf="this.formGroup.controls['mode'].value === 'AUTOMATIC'">
                 <ion-card-content>
                     <table class="full_width">
                         <tr>
@@ -74,7 +74,7 @@
             </ng-container>
 
             <!--OFF Mode-->
-            <ng-container *ngIf="this.formGroup.controls['mode'].value == 'OFF'">
+            <ng-container *ngIf="this.formGroup.controls['mode'].value === 'OFF'">
                 <ng-container>
                     <ion-card-content>
                         <table class="full_width">
