@@ -143,13 +143,16 @@ public class OdooUtils {
 				// "arguments":["Access denied"],
 				var dataArguments = JsonUtils.getAsJsonArray(data, "arguments");
 				// "exception_type":"access_denied"
-				var dataExceptionType = code == 200 ? "n/a" : JsonUtils.getAsString(data, "exception_type");
+				var dataExceptionType = JsonUtils.getAsOptionalString(data, "exception_type");
+
 				switch (dataName) {
 				case "odoo.exceptions.AccessDenied":
 					throw new OpenemsException(
 							"Access Denied for Request [" + request.toString() + "] to URL [" + url + "]");
+
 				case "odoo.http.SessionExpiredException":
 					throw new OpenemsException("Session Expired for Request to URL [" + url + "]");
+
 				default:
 					var exception = "Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
 							+ dataMessage + ";" //
@@ -157,7 +160,7 @@ public class OdooUtils {
 							+ " Code [" + code + "]" //
 							+ " Message [" + message + "]" //
 							+ " Name [" + dataName + "]" //
-							+ " ExceptionType [" + dataExceptionType + "]" //
+							+ " ExceptionType [" + dataExceptionType.orElse("n/a") + "]" //
 							+ " Arguments [" + dataArguments + "]" //
 							+ " Debug [" + dataDebug + "]";
 					throw new OpenemsException(exception);
@@ -703,7 +706,7 @@ public class OdooUtils {
 		try {
 			connection = (HttpURLConnection) new URL(
 					credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + session)
-							.openConnection();
+					.openConnection();
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);
 			connection.setRequestMethod("GET");
