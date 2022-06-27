@@ -245,7 +245,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			this.validateDependecies(errors, dependecies, appConfiguration.dependencies, appManager);
 		} catch (OpenemsNamedException e) {
 			// AppManager not found
-			errors.add("No AppManager reachabel!");
+			errors.add("No AppManager reachable!");
 		}
 
 		// TODO remove 'if' if it works on windows
