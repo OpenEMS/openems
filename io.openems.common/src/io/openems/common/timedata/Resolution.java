@@ -58,13 +58,4 @@ public class Resolution {
 		return Duration.of(this.value, this.unit).toSeconds();
 	}
 
-	/**
-	 * Get given duration in minutes [m].
-	 *
-	 * @return Minutes
-	 */
-	public Long toMinutes() {
-		return Duration.of(this.value, this.unit).toMinutes();
-	}
-
 }

@@ -10,9 +10,11 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.timedata.timescaledb.Schema.ChannelMeta;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.types.OpenemsType;
@@ -20,11 +22,13 @@ import io.openems.common.utils.JsonUtils;
 
 public enum Type {
 	INTEGER(1, "data_integer", "bigint" /* 8 bytes; covers Java byte, int and long */, //
-			new String[] { "avg", "min", "max" }, AddValueToStatement.INTEGER, ParseValueFromResultSet.INTEGER), //
+			new String[] { "avg", "min", "max" }, AddValueToStatement.INTEGER, ParseValueFromResultSet.INTEGER,
+			Subtract.INTEGER), //
 	FLOAT(2, "data_float", "double precision" /* 8 bytes; covers Java float and double */, //
-			new String[] { "avg", "min", "max" }, AddValueToStatement.FLOAT, ParseValueFromResultSet.FLOAT), //
+			new String[] { "avg", "min", "max" }, AddValueToStatement.FLOAT, ParseValueFromResultSet.FLOAT,
+			Subtract.FLOAT), //
 	STRING(3, "data_string", "text" /* variable-length character string */, //
-			new String[] { "max" }, AddValueToStatement.STRING, ParseValueFromResultSet.STRING), //
+			new String[] { "max" }, AddValueToStatement.STRING, ParseValueFromResultSet.STRING, Subtract.STRING), //
 	;
 
 	private static final int IDX_TIME = 1;
@@ -35,23 +39,28 @@ public enum Type {
 	public final String sqlDataType;
 	public final String tableRaw;
 	public final String tableAggregate5m;
+	public final String defaultAggregateFunction; // defaults to first aggregateFunction
 	public final String[] aggregateFunctions;
 
 	private final String sqlInsert;
 	private final ThrowingBiConsumer<PreparedStatement, JsonElement, Exception> addValueToStatement;
 	private final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> parseValueFromResultSet;
+	private final ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> subtractFunction;
 
 	private Type(int id, String prefix, String sqlDataType, String[] aggregateFunctions,
 			ThrowingBiConsumer<PreparedStatement, JsonElement, Exception> addValueToStatement,
-			ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> parseValueFromResultSet) {
+			ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> parseValueFromResultSet,
+			ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> subtractFunction) {
 		this.id = id;
 		this.sqlDataType = sqlDataType;
 		this.tableRaw = prefix + "_raw";
 		this.tableAggregate5m = prefix + "_5m";
 		this.sqlInsert = "INSERT INTO " + this.tableRaw + " (time, channel_id, value) VALUES (?, ?, ?);";
 		this.aggregateFunctions = aggregateFunctions;
+		this.defaultAggregateFunction = aggregateFunctions[0];
 		this.addValueToStatement = addValueToStatement;
 		this.parseValueFromResultSet = parseValueFromResultSet;
+		this.subtractFunction = subtractFunction;
 	}
 
 	/**
@@ -92,6 +101,18 @@ public enum Type {
 	 */
 	public JsonElement parseValueFromResultSet(ResultSet rs, int columnIndex) throws SQLException {
 		return this.parseValueFromResultSet.apply(rs, columnIndex);
+	}
+
+	/**
+	 * Subtracts two values.
+	 * 
+	 * @param minuend    the minuend of the subtraction
+	 * @param subtrahend the subtrahend of the subtraction
+	 * @return the result, possibly null
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonElement subtract(JsonElement minuend, JsonElement subtrahend) throws OpenemsNamedException {
+		return this.subtractFunction.apply(minuend, subtrahend);
 	}
 
 	/**
@@ -217,17 +238,56 @@ public enum Type {
 
 		private static final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> INTEGER = (rs,
 				columnIndex) -> {
-			return new JsonPrimitive(rs.getLong(columnIndex));
+			var value = rs.getLong(columnIndex);
+			return rs.wasNull() ? JsonNull.INSTANCE : new JsonPrimitive(value);
 		};
 
 		private static final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> FLOAT = (rs,
 				columnIndex) -> {
-			return new JsonPrimitive(rs.getDouble(columnIndex));
+			var value = rs.getDouble(columnIndex);
+			return rs.wasNull() ? JsonNull.INSTANCE : new JsonPrimitive(value);
 		};
 
 		private static final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> STRING = (rs,
 				columnIndex) -> {
-			return new JsonPrimitive(rs.getString(columnIndex));
+			var value = rs.getString(columnIndex);
+			return rs.wasNull() ? JsonNull.INSTANCE : new JsonPrimitive(value);
+		};
+	}
+
+	private static class Subtract {
+
+		private static final ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> INTEGER = (
+				jA, jB) -> {
+			Long a = JsonUtils.getAsType(OpenemsType.LONG, jA);
+			Long b = JsonUtils.getAsType(OpenemsType.LONG, jB);
+			if (a != null && b != null) {
+				return new JsonPrimitive(a - b);
+			}
+			return JsonNull.INSTANCE;
+		};
+
+		private static final ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> FLOAT = (
+				jA, jB) -> {
+			Double a = JsonUtils.getAsType(OpenemsType.DOUBLE, jA);
+			Double b = JsonUtils.getAsType(OpenemsType.DOUBLE, jB);
+			if (a != null && b != null) {
+				return new JsonPrimitive(a - b);
+			}
+			return JsonNull.INSTANCE;
+		};
+
+		private static final ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> STRING = (
+				jA, jB) -> {
+			String a = JsonUtils.getAsType(OpenemsType.STRING, jA);
+			if (a != null && !a.isBlank()) {
+				return new JsonPrimitive(a);
+			}
+			String b = JsonUtils.getAsType(OpenemsType.STRING, jB);
+			if (b != null && !b.isBlank()) {
+				return new JsonPrimitive(b);
+			}
+			return JsonNull.INSTANCE;
 		};
 	}
 }

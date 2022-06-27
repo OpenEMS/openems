@@ -1427,6 +1427,10 @@ public class JsonUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getAsType(OpenemsType type, JsonElement j) throws OpenemsNamedException {
+		if (j == null) {
+			return null;
+		}
+
 		if (j.isJsonNull()) {
 			return null;
 		}

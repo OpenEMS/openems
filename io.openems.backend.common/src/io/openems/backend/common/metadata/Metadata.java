@@ -271,11 +271,11 @@ public interface Metadata {
 	/**
 	 * Register a user.
 	 *
-	 * @param jsonObject {@link JsonObject} that represents an user
-	 * @param oem        OEM name
+	 * @param user {@link JsonObject} that represents an user
+	 * @param oem  OEM name
 	 * @throws OpenemsNamedException on error
 	 */
-	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException;
+	public void registerUser(JsonObject user, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException;
 
 	/**
 	 * Update language from given user.
