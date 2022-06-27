@@ -537,16 +537,14 @@ export abstract class AbstractHomeIbn extends Ibn {
     // Determine feed-in-setting
     let feedInSetting: FeedInSetting;
     const feedInLimitation = this.feedInLimitation;
-    if (
-      feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor
-    ) {
+    if (feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
       feedInSetting = feedInLimitation.fixedPowerFactor;
     } else {
       feedInSetting = feedInLimitation.feedInSetting;
     }
 
     // batteryInverter0
-    componentConfigurator.add({
+    let goodweconfig = {
       factoryId: 'GoodWe.BatteryInverter',
       componentId: 'batteryInverter0',
       alias: 'Batterie-Wechselrichter',
@@ -560,11 +558,9 @@ export abstract class AbstractHomeIbn extends Ibn {
           value: this.emergencyReserve.isEnabled ? 'ENABLE' : 'DISABLE',
         },
         { name: 'feedPowerEnable', value: 'ENABLE' },
-        {
-          name: 'feedPowerPara',
-          value: feedInLimitation.maximumFeedInPower,
-        },
+
         { name: 'setfeedInPowerSettings', value: feedInSetting },
+
         { name: 'emsPowerMode', value: 'UNDEFINED' },
         { name: 'emsPowerSet', value: -1 },
         {
@@ -575,7 +571,14 @@ export abstract class AbstractHomeIbn extends Ibn {
         },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-    });
+    }
+
+    feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION && goodweconfig.properties.push({
+      name: 'feedPowerPara',
+      value: feedInLimitation.maximumFeedInPower,
+    })
+
+    componentConfigurator.add(goodweconfig);
 
     // meter1
     const acArray = this.pv.ac;
@@ -665,7 +668,7 @@ export abstract class AbstractHomeIbn extends Ibn {
     });
 
     // ctrlGridOptimizedCharge0
-    componentConfigurator.add({
+    let gridOptimizedCharge = {
       factoryId: 'Controller.Ess.GridOptimizedCharge',
       componentId: 'ctrlGridOptimizedCharge0',
       alias: 'Netzdienliche Beladung',
@@ -685,7 +688,13 @@ export abstract class AbstractHomeIbn extends Ibn {
         { name: 'sellToGridLimitRampPercentage', value: 2 },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
-    });
+    }
+
+    feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION && goodweconfig.properties.push({
+      name: 'maximumSellToGridPower',
+      value: feedInLimitation.maximumFeedInPower,
+    })
+    componentConfigurator.add(gridOptimizedCharge);
 
     // ctrlEssSurplusFeedToGrid0
     componentConfigurator.add({

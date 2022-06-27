@@ -1,11 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { Service } from 'src/app/shared/shared';
 import { Ibn } from '../../installation-systems/abstract-ibn';
 
 export enum FeedInSetting {
-  Undefined = "Undefined",
+  Undefined = "UNDEFINED",
   QuEnableCurve = "QU_ENABLE_CURVE",
   PuEnableCurve = "PU_ENABLE_CURVE",
   FixedPowerFactor = "FIXED_POWER_FACTOR",
@@ -71,21 +70,29 @@ export class ProtocolFeedInLimitation implements OnInit {
   public fields: FormlyFieldConfig[] = [];
   public model;
   public readonly FeedInType = FeedInType;
+  private totalPvPower: number = 0;
 
-  constructor(
-    private service: Service
-  ) { }
+  constructor() { }
 
   public ngOnInit() {
     this.form = new FormGroup({});
+    let pv = this.ibn.pv;
+
+    this.totalPvPower += (pv.dc1.isSelected ? pv.dc1.value : 0);
+    this.totalPvPower += (pv.dc2.isSelected ? pv.dc2.value : 0);
+
+    pv.ac.forEach(element => {
+      this.totalPvPower += element.value ?? 0
+    })
+
     this.getFields();
+
     this.model = this.ibn.feedInLimitation ??= {
       feedInType: FeedInType.DYNAMIC_LIMITATION,
-      feedInSetting: FeedInSetting.Undefined,
-      maximumFeedInPower: 0,
+      feedInSetting: FeedInSetting.QuEnableCurve,
       fixedPowerFactor: FeedInSetting.Undefined
     }
-
+    this.model.maximumFeedInPower = this.totalPvPower;
     this.model.isManualProperlyFollowedAndRead = this.ibn.feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION;
   }
 
@@ -100,33 +107,23 @@ export class ProtocolFeedInLimitation implements OnInit {
 
     this.ibn.feedInLimitation = {
       feedInType: this.model.feedInType,
-      maximumFeedInPower: this.model.maximumFeedInPower,
-      feedInSetting: this.model.feedInSetting,
+      feedInSetting: this.model.feedInSetting ?? FeedInSetting.Undefined,
       fixedPowerFactor: this.model.fixedPowerFactor
     }
 
     if (this.model.feedInType == FeedInType.DYNAMIC_LIMITATION) {
-      this.ibn.feedInLimitation.feedInSetting = this.model.feedInSetting,
+      this.ibn.feedInLimitation.feedInSetting = this.model.feedInSetting ?? FeedInSetting.Undefined,
         this.ibn.feedInLimitation.fixedPowerFactor = this.model.fixedPowerFactor ?? FeedInSetting.Undefined,
-        this.ibn.feedInLimitation.maximumFeedInPower = this.model.maximumFeedInPower
+        this.ibn.feedInLimitation.maximumFeedInPower = this.form.controls["maximumFeedInPower"]?.dirty ? this.form.controls["maximumFeedInPower"].value : this.totalPvPower;
+    } else {
+      this.ibn.feedInLimitation.maximumFeedInPower = this.form.controls["maximumFeedInPower"]?.dirty ? this.form.controls["maximumFeedInPower"].value : this.totalPvPower;
     }
+
     this.setIbnEvent.emit(this.ibn);
     this.nextViewEvent.emit();
   }
 
   public getFields(): void {
-
-    let pv = this.ibn.pv;
-    let totalPvPower: number = 0;
-
-    totalPvPower += (pv.dc1.isSelected ? pv.dc1.value : 0);
-    totalPvPower += (pv.dc2.isSelected ? pv.dc2.value : 0);
-
-    if (pv.ac) {
-      for (let ac of pv.ac) {
-        totalPvPower += ac.value ?? 0;
-      }
-    }
 
     this.fields.push({
       key: "feedInType",
@@ -153,7 +150,7 @@ export class ProtocolFeedInLimitation implements OnInit {
         required: true
       },
       parsers: [Number],
-      defaultValue: parseInt((totalPvPower * 0.7).toFixed(0)),
+      defaultValue: parseInt((this.totalPvPower * 0.7).toFixed(0)),
       hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION
     });
 
