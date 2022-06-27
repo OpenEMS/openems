@@ -47,4 +47,12 @@ public interface AppManagerAppHelper {
 	 */
 	public UpdateValues deleteApp(User user, OpenemsAppInstance instance) throws OpenemsNamedException;
 
+	/**
+	 * Only available during a call of one of the other methods.
+	 *
+	 * @return null if none of the other mehtods is currently running else the
+	 *         {@link TemporaryApps}
+	 */
+	public TemporaryApps getTemporaryApps();
+
 }
