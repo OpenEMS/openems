@@ -34,6 +34,7 @@ import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
+import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.NotImplementedException;
@@ -219,7 +220,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
-	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
 		throw new IllegalArgumentException("DummyMetadata.registerUser() is not implemented");
 	}
 

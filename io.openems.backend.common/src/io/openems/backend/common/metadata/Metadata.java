@@ -15,6 +15,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.event.BackendEventConstants;
+import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -271,9 +272,10 @@ public interface Metadata {
 	 * Register a user.
 	 *
 	 * @param jsonObject {@link JsonObject} that represents an user
+	 * @param oem        OEM name
 	 * @throws OpenemsNamedException on error
 	 */
-	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException;
+	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException;
 
 	/**
 	 * Update language from given user.

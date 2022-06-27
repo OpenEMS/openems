@@ -4,6 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { RegisterUserRequest } from 'src/app/shared/jsonrpc/request/registerUserRequest';
 import { Service, Websocket } from 'src/app/shared/shared';
+import { environment } from 'src/environments';
 
 @Component({
   selector: 'registration-modal',
@@ -68,7 +69,8 @@ export class RegistrationModalComponent implements OnInit {
         },
         subscribeNewsletter: this.formGroup.value.subscribeNewsletter,
         role: this.activeSegment
-      }
+      },
+      oem: environment.theme
     });
 
     let companyName = this.formGroup.value.companyName;

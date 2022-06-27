@@ -42,6 +42,7 @@ import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateSumState;
+import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -249,7 +250,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	}
 
 	@Override
-	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
 		final OdooUserRole role;
 
 		var roleOpt = JsonUtils.getAsOptionalString(jsonObject, "role");
@@ -259,7 +260,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 			role = OdooUserRole.OWNER;
 		}
 
-		this.odooHandler.registerUser(jsonObject, role);
+		this.odooHandler.registerUser(jsonObject, role, oem);
 	}
 
 	@Override

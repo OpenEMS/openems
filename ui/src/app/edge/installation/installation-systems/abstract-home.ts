@@ -2,6 +2,7 @@ import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { ComponentData } from 'src/app/shared/type/componentData';
+import { environment } from 'src/environments';
 
 import { ComponentConfigurator, ConfigurationMode } from '../views/configuration-execute/component-configurator';
 import { SafetyCountry } from '../views/configuration-execute/safety-country';
@@ -187,6 +188,7 @@ export abstract class AbstractHomeIbn extends Ibn {
       },
       installer: installerObj,
       customer: customerObj,
+      oem: environment.theme,
     };
 
     // If location data is different to customer data, the location

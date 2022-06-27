@@ -20,7 +20,8 @@ import { JsonrpcRequest } from "../base";
  *       "password": string,
  *       "confirmPassword": string,
  *       "subscribeNewsletter": boolean
- *     }
+ *     },
+ *     "oem" : string
  *   }
  * }
  * </pre>
@@ -49,7 +50,8 @@ export class RegisterUserRequest extends JsonrpcRequest {
                 },
                 subscribeNewsletter: boolean,
                 role: string
-            }
+            },
+            oem: string
         }
     ) {
         super(RegisterUserRequest.METHOD, params);

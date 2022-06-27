@@ -58,7 +58,8 @@ import io.openems.common.utils.JsonUtils;
  *         "category": string,
  *         "name": string,
  *         "value": string
- *       }]
+ *       }],
+ *       "oem": string
  *     }
  *   }
  * }
