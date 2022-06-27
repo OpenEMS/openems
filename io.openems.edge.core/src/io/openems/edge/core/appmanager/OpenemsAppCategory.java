@@ -60,8 +60,8 @@ public enum OpenemsAppCategory {
 	API("api"),
 
 	/**
-	 * Category for test apps. 
-	 * 
+	 * Category for test apps.
+	 *
 	 * <p>
 	 * NOTE: Do not use this category for normal apps!
 	 */
