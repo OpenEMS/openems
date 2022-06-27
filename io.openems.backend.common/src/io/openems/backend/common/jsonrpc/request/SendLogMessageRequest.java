@@ -60,7 +60,7 @@ public class SendLogMessageRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the log level as {@link Level}.
-	 * 
+	 *
 	 * @return the {@link Level}
 	 */
 	public Level getLevel() {
@@ -69,7 +69,7 @@ public class SendLogMessageRequest extends JsonrpcRequest {
 
 	/**
 	 * Gets the message to log.
-	 * 
+	 *
 	 * @return The message.
 	 */
 	public String getMsg() {

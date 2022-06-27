@@ -70,8 +70,9 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	private Consumer<Message> actionTimeout = (message) -> {
 		var timeStamp = message.getTimeStamp();
 		var listUser = message.getUser();
+		var edgeId = message.getEdgeId();
 
-		this.sendEmails(timeStamp, listUser);
+		this.sendEmails(timeStamp, listUser, edgeId);
 	};
 
 	@Activate
@@ -131,13 +132,14 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	/**
 	 * send e-mail via mailer service.
 	 *
-	 * @param stamp at with mail send was initialized
-	 * @param user  list of recipients
+	 * @param stamp  at with mail send was initialized
+	 * @param user   list of recipients
+	 * @param edgeId edge that went offline
 	 */
-	private void sendEmails(ZonedDateTime stamp, List<EdgeUser> user) {
+	private void sendEmails(ZonedDateTime stamp, List<EdgeUser> user, String edgeId) {
 		// log to Console
 		this.logInfo(this.log, "send Email - to " + user.size() + " user");
-		this.mailer.sendAlertingMail(stamp, user);
+		this.mailer.sendAlertingMail(stamp, user, edgeId);
 	}
 
 	/**

@@ -39,7 +39,7 @@ public class GetSetupProtocolDataRequest extends JsonrpcRequest {
 
 	/**
 	 * Get the {@link Edge} ID.
-	 * 
+	 *
 	 * @return the {@link Edge} ID
 	 */
 	public String getEdgeId() {

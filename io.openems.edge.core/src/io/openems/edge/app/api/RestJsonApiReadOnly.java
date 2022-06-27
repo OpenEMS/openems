@@ -2,7 +2,6 @@ package io.openems.edge.app.api;
 
 import java.util.EnumMap;
 import java.util.List;
-import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -16,6 +15,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.RestJsonApiReadOnly.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -28,8 +28,6 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
-import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for ReadOnly Rest JSON Api.
@@ -41,6 +39,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     "instanceId": UUID,
     "image": base64,
     "properties":{
+    	"ACTIVE": true,
     	"CONTROLLER_ID": "ctrlApiRest0"
     },
     "appDescriptor": {
@@ -55,7 +54,10 @@ public class RestJsonApiReadOnly extends AbstractOpenemsApp<Property> implements
 
 	public static enum Property {
 		// Components
-		CONTROLLER_ID;
+		CONTROLLER_ID, //
+		// Properties
+		ACTIVE, //
+		;
 	}
 
 	@Activate
@@ -90,6 +92,9 @@ public class RestJsonApiReadOnly extends AbstractOpenemsApp<Property> implements
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
+			if (!EnumUtils.getAsOptionalBoolean(p, Property.ACTIVE).orElse(true)) {
+				return new AppConfiguration();
+			}
 			var controllerId = this.getId(t, p, Property.CONTROLLER_ID, "ctrlApiRest0");
 
 			List<EdgeConfig.Component> components = Lists.newArrayList(//
@@ -99,16 +104,6 @@ public class RestJsonApiReadOnly extends AbstractOpenemsApp<Property> implements
 
 			return new AppConfiguration(components);
 		};
-	}
-
-	@Override
-	public ValidatorConfig.Builder getValidateBuilder() {
-		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new ValidatorConfig.CheckableConfig(CheckAppsNotInstalled.COMPONENT_NAME,
-								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
-										.put("appIds", new String[] { "App.Api.RestJson.ReadWrite" }) //
-										.build())));
 	}
 
 	@Override
