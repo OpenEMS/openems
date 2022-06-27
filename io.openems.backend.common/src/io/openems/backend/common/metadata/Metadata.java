@@ -249,7 +249,7 @@ public interface Metadata {
 
 	/**
 	 * Return the Setup Protocol data as a JsonObject.
-	 * 
+	 *
 	 * @param user   {@link User} the current user
 	 * @param edgeId the {@link Edge} ID to get the data
 	 * @return Setup Protocol as a JsonObject

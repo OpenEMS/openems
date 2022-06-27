@@ -482,7 +482,7 @@ public class OdooHandler {
 
 	/**
 	 * Update the Odoo edge comment by customers firstname, lastname and city.
-	 * 
+	 *
 	 * @param customer   json object to get customer information
 	 * @param edgeId     to update the comment
 	 * @param odooEdgeId Odoo edge id
@@ -859,13 +859,14 @@ public class OdooHandler {
 	/**
 	 * Call Odoo api to send multiple notification mails via Odoo async.
 	 *
-	 * @param user Odoo deviceUser ids to send the mail
-	 * @param now  TimeStamp for last_notification field
+	 * @param user   Odoo deviceUser ids to send the mail
+	 * @param now    TimeStamp for last_notification field
+	 * @param edgeId id of involved edge
 	 * @return {@link Future} of {@link SuccessResponseAndHeaders}
 	 * @throws OpenemsNamedException error
 	 */
-	public Future<SuccessResponseAndHeaders> sendNotificationMailAsync(List<EdgeUser> user, ZonedDateTime now)
-			throws OpenemsNamedException {
+	public Future<SuccessResponseAndHeaders> sendNotificationMailAsync(List<EdgeUser> user, ZonedDateTime now,
+			String edgeId) throws OpenemsNamedException {
 		JsonArray arr = new JsonArray(user.size());
 		user.forEach(u -> {
 			arr.add(u.getId());
@@ -877,6 +878,7 @@ public class OdooHandler {
 								.addProperty("now", now //
 										.withZoneSameInstant(ZoneId.of("UTC")) //
 										.format(OdooUtils.DATETIME_FORMATTER)) //
+								.addProperty("edgeId", edgeId) //
 								.build()) //
 						.build());
 	}
@@ -901,7 +903,7 @@ public class OdooHandler {
 	/**
 	 * Get latest Setup Protocol from Odoo or empty JsonObject if no protocol is
 	 * available.
-	 * 
+	 *
 	 * @param user     {@link MyUser} the current user
 	 * @param edgeName the unique Edge name
 	 * @return the Setup Protocol as a JsonObject

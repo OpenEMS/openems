@@ -267,6 +267,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 		this.odooHandler.updateUserLanguage((MyUser) user, language);
 	}
 
+	@Override
 	public EventAdmin getEventAdmin() {
 		return this.eventAdmin;
 	}
@@ -295,9 +296,9 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	}
 
 	@Override
-	public void sendAlertingMail(ZonedDateTime stamp, List<EdgeUser> user) {
+	public void sendAlertingMail(ZonedDateTime stamp, List<EdgeUser> user, String edgeId) {
 		try {
-			this.odooHandler.sendNotificationMailAsync(user, stamp);
+			this.odooHandler.sendNotificationMailAsync(user, stamp, edgeId);
 			user.forEach(u -> {
 				u.setLastNotification(stamp);
 			});
