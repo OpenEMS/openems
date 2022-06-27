@@ -35,6 +35,16 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.6.6',
+        changes: [
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          { roleIsAtLeast: Role.ADMIN, change: "Backend-Alerting: Übernahme der FEMS-Nummer und Anpassung UI" },
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Installation/Deinstallation von Read-Write-/Read-Only-Apps" },
+          { roleIsAtLeast: Role.ADMIN, change: "User-Registrierung: OEM-fähigkeit" },
+          { roleIsAtLeast: Role.ADMIN, change: "TimescaleDB: Weitere Entwicklungen; Test auf fems888" },
+        ]
+      },
+      {
         version: '2022.6.4',
         changes: [
           Changelog.product(Product.HOME) + "Inbetriebnahmeassistent unterstützt die Einbindung eines Rundsteuerempfängers",
