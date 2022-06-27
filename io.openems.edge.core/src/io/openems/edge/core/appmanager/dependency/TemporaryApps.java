@@ -13,6 +13,11 @@ public final class TemporaryApps {
 	public final List<OpenemsAppInstance> currentlyModifiedApps = new LinkedList<>();
 	public final List<OpenemsAppInstance> currentlyDeletingApps = new LinkedList<>();
 
+	/**
+	 * Gets a unmodifiable list of the apps that are currently creating or modified.
+	 * 
+	 * @return the apps
+	 */
 	public final List<OpenemsAppInstance> currentlyCreatingModifiedApps() {
 		var result = new ArrayList<OpenemsAppInstance>(this.currentlyCreatingApps.size() //
 				+ this.currentlyModifiedApps.size());

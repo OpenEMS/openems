@@ -112,7 +112,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		} catch (RuntimeException e) {
 			runtimeException = e;
 		}
-		var tempTemporarayApps = this.temporaryApps;
+		final var tempTemporarayApps = this.temporaryApps;
 		this.temporaryApps = null;
 		if (exception != null) {
 			throw exception;
@@ -556,10 +556,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	private DependencyDeclaration.AppDependencyConfig getAppDependencyConfig(OpenemsAppInstance instance,
 			List<DependencyDeclaration.AppDependencyConfig> appDependencyConfigs) {
 		for (var config : appDependencyConfigs) {
-			if (config.appId != null && config.appId.equals(instance.appId)) {
-				return config;
-			}
-			if (config.specificInstanceId.equals(instance.instanceId)) {
+			if (config.appId != null && config.appId.equals(instance.appId)
+					|| config.specificInstanceId.equals(instance.instanceId)) {
 				return config;
 			}
 		}
@@ -604,11 +602,9 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				}
 				// TODO when adding an app the current app can't be referenced
 				if (neededDependency.appConfigs.stream().filter(c -> c.appId != null)
-						.anyMatch(c -> c.appId.equals(appId))) {
-					return neededDependency;
-				}
-				if (neededDependency.appConfigs.stream().filter(c -> c.specificInstanceId != null)
-						.anyMatch(c -> c.specificInstanceId.equals(instance.instanceId))) {
+						.anyMatch(c -> c.appId.equals(appId))
+						|| neededDependency.appConfigs.stream().filter(c -> c.specificInstanceId != null)
+								.anyMatch(c -> c.specificInstanceId.equals(instance.instanceId))) {
 					return neededDependency;
 				}
 
@@ -679,6 +675,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 								return false;
 							}
 						}
+						break;
 					case ALWAYS:
 						break;
 					}
@@ -703,6 +700,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 									.stream().anyMatch(d -> d.instanceId.equals(dc.instance.instanceId)))) {
 						break;
 					}
+					deleteApp = false;
+					break;
 				case NEVER:
 					deleteApp = false;
 					break;
@@ -967,10 +966,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					var specificApp = this.getAppManagerImpl().findInstanceById(nextAppConfig.specificInstanceId);
 					dependencyApp = this.getAppManagerImpl().findAppById(specificApp.appId);
 				}
-				if (alreadyIteratedApps.contains(dependencyApp)) {
-					continue;
-				}
-				if (!includeDependency.apply(app, dependency)) {
+				if (alreadyIteratedApps.contains(dependencyApp) || !includeDependency.apply(app, dependency)) {
 					continue;
 				}
 
