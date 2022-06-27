@@ -11,12 +11,16 @@
               <span translate>Menu.settings</span>
               <!--span *ngIf="environment.backend == 'OpenEMS Backend'"> für {{ edge.id }}</span-->
             </ion-label>
+            <ion-button id="help-button" target="_blank" fill="clear" shape="round"
+              href="https://docs.fenecon.de/de/_/latest/fems/ui/settings.html#_benachrichtigung">
+              <ion-icon name="help-circle-outline" slot="icon-only" color="primary"></ion-icon>
+            </ion-button>
           </ion-item>
 
           <ion-card-content>
             <form (ngSubmit)="updateAlerting()">
               <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
-              <ion-button expand="block" type=" submit" color="primary" [disabled]="form.invalid || !model.isDirty"
+              <ion-button expand="block" type="submit" color="primary" [disabled]="form.invalid || !form.dirty"
                 translate>
                 Edge.Config.Alerting.save
               </ion-button>

@@ -92,6 +92,7 @@ export class AlertingComponent implements OnInit {
 
         if (this.options.updateInitialValue) {
           this.options.updateInitialValue();
+          this.options.resetModel();
         }
 
         if (request instanceof SetAlertingConfigRequest) {
@@ -122,7 +123,6 @@ export class AlertingComponent implements OnInit {
 class AlertingSetting {
   private _isOn: boolean = false;
   private _delay: number = 15;
-  private _isDirty: boolean = false;
 
   constructor(state?: AlertingState) {
     if (state != null) {
@@ -132,24 +132,15 @@ class AlertingSetting {
       val = Math.abs(val);
       if (AlertingComponent.OPTIONS.find(x => x === val) === undefined) {
         val = AlertingComponent.OPTIONS[0];
-        this.isDirty = true;
       }
       this._delay = val
     }
-  }
-
-  public get isDirty(): boolean {
-    return this._isDirty;
-  }
-  public set isDirty(val: boolean) {
-    this._isDirty = val;
   }
 
   public get isOn(): boolean {
     return this._isOn;
   }
   public set isOn(val: boolean) {
-    this.isDirty = true
     this._isOn = val;
   }
 
@@ -157,7 +148,6 @@ class AlertingSetting {
     return this._delay;
   }
   public set delay(val: number) {
-    this.isDirty = true;
     this._delay = Math.abs(val);
   }
 
