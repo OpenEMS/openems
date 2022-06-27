@@ -2,7 +2,6 @@ package io.openems.edge.app.api;
 
 import java.util.EnumMap;
 import java.util.List;
-import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -32,8 +31,7 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
-import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
-import io.openems.edge.core.appmanager.validator.ValidatorConfig;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 
 /**
  * Describes a App for ReadWrite Rest JSON Api.
@@ -119,18 +117,22 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 									.addProperty("apiTimeout", apiTimeout) //
 									.build()));
 
-			return new AppConfiguration(components);
-		};
-	}
+			var dependencies = Lists.newArrayList(new DependencyDeclaration("READ_ONLY", //
+					DependencyDeclaration.CreatePolicy.NEVER, //
+					DependencyDeclaration.UpdatePolicy.ALWAYS, //
+					DependencyDeclaration.DeletePolicy.NEVER, //
+					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+					DependencyDeclaration.DependencyDeletePolicy.ALLOWED, //
+					DependencyDeclaration.AppDependencyConfig.create() //
+							.setAppId("App.Api.RestJson.ReadOnly") //
+							.setProperties(JsonUtils.buildJsonObject() //
+									.addProperty(ModbusTcpApiReadOnly.Property.ACTIVE.name(),
+											t == ConfigurationTarget.DELETE) //
+									.build())
+							.build()));
 
-	@Override
-	public ValidatorConfig.Builder getValidateBuilder() {
-		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(Lists.newArrayList(//
-						new ValidatorConfig.CheckableConfig(CheckAppsNotInstalled.COMPONENT_NAME,
-								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
-										.put("appIds", new String[] { "App.Api.RestJson.ReadOnly" }) //
-										.build())));
+			return new AppConfiguration(components, null, null, dependencies);
+		};
 	}
 
 	@Override

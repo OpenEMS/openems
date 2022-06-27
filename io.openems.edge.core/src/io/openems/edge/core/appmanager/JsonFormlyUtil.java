@@ -342,7 +342,7 @@ public class JsonFormlyUtil {
 		}
 
 		public InputBuilder setPlaceholder(String placeholder) {
-			if (placeholder != null && placeholder.isBlank()) {
+			if (placeholder != null && !placeholder.isBlank()) {
 				this.templateOptions.addProperty("placeholder", placeholder);
 			} else if (this.templateOptions.has("placeholder")) {
 				this.templateOptions.remove("placeholder");
@@ -653,7 +653,7 @@ public class JsonFormlyUtil {
 		}
 
 		public RepeatBuilder setAddText(String addText) {
-			if (addText != null && addText.isBlank()) {
+			if (addText != null && !addText.isBlank()) {
 				this.templateOptions.addProperty("addText", addText);
 			} else if (this.templateOptions.has("addText")) {
 				this.templateOptions.remove("addText");

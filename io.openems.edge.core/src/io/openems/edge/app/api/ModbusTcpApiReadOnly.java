@@ -16,6 +16,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -41,6 +42,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     "instanceId": UUID,
     "image": base64,
     "properties":{
+    	"ACTIVE": true,
     	"CONTROLLER_ID": "ctrlApiModbusTcp0"
     },
     "appDescriptor": {
@@ -55,7 +57,10 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsApp<Property> implement
 
 	public static enum Property {
 		// Components
-		CONTROLLER_ID;
+		CONTROLLER_ID, //
+		// Properties
+		ACTIVE, //
+		;
 	}
 
 	@Activate
@@ -90,6 +95,9 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsApp<Property> implement
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
+			if (!EnumUtils.getAsOptionalBoolean(p, Property.ACTIVE).orElse(true)) {
+				return new AppConfiguration();
+			}
 
 			var controllerId = this.getId(t, p, Property.CONTROLLER_ID, "ctrlApiModbusTcp0");
 
