@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AdvertisementComponent } from './advertisement.component';
+import { Alerting } from './alerting/alerting';
 import { EnergyRevolutionWithFems } from './energyRevolutionWithFems/energyRevolutionWithFems';
 import { GlsCrowdfunding } from './glsCrowdFunding/glscrowdfunding';
 import { GridOptimizedCharge } from './gridOptimizedCharge/gridOptimizedCharge';
@@ -13,7 +14,8 @@ import { GridOptimizedCharge } from './gridOptimizedCharge/gridOptimizedCharge';
         AdvertisementComponent,
         GlsCrowdfunding,
         GridOptimizedCharge,
-        EnergyRevolutionWithFems
+        EnergyRevolutionWithFems,
+        Alerting
     ],
     exports: [
         AdvertisementComponent

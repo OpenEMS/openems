@@ -96,6 +96,10 @@ html.md {
     align-items: center !important;
     height: 100%;
     padding: 0 1% 1% 0;
+
+    .swiper-wrapper {
+        align-items: center;
+    }
 }
 
 .white-space-initial {

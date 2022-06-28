@@ -1,6 +1,6 @@
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
-import { Service, Websocket } from '../shared';
+import { Utils } from '../shared';
 
 export enum WidgetClass {
     'Energymonitor',
@@ -52,59 +52,44 @@ export class AdvertWidget {
     title?: string;
 }
 
-export enum advertisableWidgetNature {
-    'io.openems.edge.evcs.api.Evcs',
-}
-
-export enum advertisableWidgetProducttype {
-    //empty for now
-}
-
-
 export class AdvertWidgets {
 
     public static parseAdvertWidgets(edge: Edge, config: EdgeConfig) {
 
-        let list: AdvertWidget[] = [];
+        let list: AdvertWidget[] = [
+            {
+                name: 'GLS Crowdfunding',
+                title: 'Mach mit bei FENECON',
+            },
+            {
+                name: 'GridOptimizedCharge',
+                title: 'Neue Version jetzt online!',
+            },
+            {
+                name: 'Energiewende mit FEMS',
+                title: 'Energiewende mit FEMS - Wärme selbst erzeugen'
+            }
+        ];
 
-        list.push({
-            name: 'GLS Crowdfunding',
-            title: 'Mach mit bei FENECON',
-        })
+        let edgeIdNumber = parseInt(edge.id.match(/\D*(\d*)/)[1]);
 
-        list.push({
-            name: 'GridOptimizedCharge',
-            title: 'Neue Version jetzt online!',
-        })
+        if (edgeIdNumber >= 10000 && edgeIdNumber <= 10100 && edge.producttype == ProductType.HOME) {
+            list.push({
+                name: 'Alerting',
+                title: 'Neue Benachrichtigungsfunktion jetzt verfügbar!'
+            })
+        }
 
-        list.push({
-            name: 'Energiewende mit FEMS',
-            title: 'Energiewende mit FEMS - Wärme selbst erzeugen'
-        })
-
+        list = Utils.shuffleArray(list);
         return new AdvertWidgets(list);
     }
-
-    /**
-     * Names of Widgets.
-     */
-    public readonly names: string[] = [];
 
     private constructor(
         /**
          * List of all Widgets.
          */
         public readonly list: AdvertWidget[],
-    ) {
-        // fill names
-        for (let widget of list) {
-            let name: string = widget.name.toString();
-            if (!this.names.includes(name)) {
-                this.names.push(name);
-            }
-        }
-    }
-
+    ) { }
 }
 
 export class Widgets {
@@ -115,6 +100,7 @@ export class Widgets {
             .filter(v => typeof v === 'string')
             .filter(clazz => {
                 if (!edge.isVersionAtLeast('2018.8')) {
+
                     // no filter for deprecated versions
                     return true;
                 }
@@ -203,4 +189,8 @@ export class Widgets {
             }
         }
     }
+}
+
+export enum ProductType {
+    HOME = "home"
 }

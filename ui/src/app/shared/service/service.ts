@@ -387,20 +387,19 @@ export class Service implements ErrorHandler {
 
   /**
    * checks if fems is allowed to show advertisement widget
+   * 
+   * @param edge the edge
+   * @param advertWidgets the advertWidgets 
+   * @returns true if advertWidgets are allowed, false if not
    */
-  public isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets, widgets: Widgets) {
+  public isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets) {
+
     // Show adverts only for FENECON
     if (environment.theme != 'FENECON') {
       return false;
     }
 
-    if (advertWidgets.names.includes(edge.producttype) == true) {
-      return true;
-    }
-    if (widgets.names.includes('io.openems.edge.evcs.api.Evcs') == false || advertWidgets.names.includes('Heimatstrom') == true) {
-      return true;
-    }
-    return false;
+    return true;
   }
 
   /**

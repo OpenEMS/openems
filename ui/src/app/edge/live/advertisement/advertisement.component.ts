@@ -47,10 +47,12 @@ export class AdvertisementComponent {
   }
 
   ngOnInit() {
-    this.slides.getActiveIndex().then((index: number) => {
-      this.activeIndex = index;
-      this.title = this.advertWidgets.list[this.activeIndex].title ?? environment.edgeShortName + ' - App';
-    });
+
+    // Slide to random first view
+    this.slides.getActiveIndex().then(index => {
+      this.title = this.advertWidgets.list[index].title ?? environment.edgeShortName + ' - App';
+    })
+
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.edge = edge;
     })
