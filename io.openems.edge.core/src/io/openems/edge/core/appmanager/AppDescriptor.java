@@ -50,7 +50,8 @@ public class AppDescriptor {
 	 */
 	public JsonObject toJsonObject() {
 		return JsonUtils.buildJsonObject() //
-				.addPropertyIfNotNull("websiteUrl", this.websiteUrl).build();
+				.addPropertyIfNotNull("websiteUrl", this.websiteUrl) //
+				.build();
 	}
 
 }

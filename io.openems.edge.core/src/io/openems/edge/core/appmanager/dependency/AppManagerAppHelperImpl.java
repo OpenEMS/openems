@@ -965,6 +965,13 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				} else {
 					var specificApp = this.getAppManagerImpl().findInstanceById(nextAppConfig.specificInstanceId);
 					dependencyApp = this.getAppManagerImpl().findAppById(specificApp.appId);
+					// fill up properties of existing app to make sure the appConfig can be get
+					specificApp.properties.entrySet().forEach(entry -> {
+						if (nextAppConfig.properties.has(entry.getKey())) {
+							return;
+						}
+						nextAppConfig.properties.add(entry.getKey(), entry.getValue());
+					});
 				}
 				if (alreadyIteratedApps.contains(dependencyApp) || !includeDependency.apply(app, dependency)) {
 					continue;
