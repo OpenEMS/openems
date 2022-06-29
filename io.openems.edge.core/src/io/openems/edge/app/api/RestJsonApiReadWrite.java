@@ -46,6 +46,12 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
     	"CONTROLLER_ID": "ctrlApiRest0",
     	"API_TIMEOUT": 60
     },
+    "dependencies": [
+    	{
+        	"key": "READ_ONLY",
+        	"instanceId": UUID
+    	}
+    ],
     "appDescriptor": {
     	"websiteUrl": URL
     }
