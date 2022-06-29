@@ -947,7 +947,14 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		if (appConfig.alias != null) {
 			appConfig.properties.addProperty("ALIAS", appConfig.alias);
 		}
-		var config = app.getAppConfiguration(target, appConfig.properties, l);
+		AppConfiguration config;
+		try {
+			config = app.getAppConfiguration(target, appConfig.properties, l);
+		} catch (OpenemsNamedException e) {
+			// can not get config of app
+			e.printStackTrace();
+			return null;
+		}
 		if (appConfig.alias != null) {
 			appConfig.properties.remove("ALIAS");
 		}
