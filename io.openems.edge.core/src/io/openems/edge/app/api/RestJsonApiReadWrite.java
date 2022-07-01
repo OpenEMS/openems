@@ -46,6 +46,12 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
     	"CONTROLLER_ID": "ctrlApiRest0",
     	"API_TIMEOUT": 60
     },
+    "dependencies": [
+    	{
+        	"key": "READ_ONLY",
+        	"instanceId": UUID
+    	}
+    ],
     "appDescriptor": {
     	"websiteUrl": <a href=
 "https://fenecon.de/fems-2-2/fems-app-rest-json-schreibzugriff-2/">https://fenecon.de/fems-2-2/fems-app-rest-json-schreibzugriff-2/</a>

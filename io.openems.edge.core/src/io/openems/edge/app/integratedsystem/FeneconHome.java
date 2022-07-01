@@ -123,7 +123,6 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/home/") //
 				.build();
 	}
 
@@ -491,8 +490,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.setMax(100) //
 								.onlyShowIfChecked(Property.HAS_EMERGENCY_RESERVE) //
 								.onlyIf(hasEmergencyReserve, f -> {
-									f.setDefaultValue(this.componentManager.getEdgeConfig()
-											.getComponent("ctrlEmergencyCapacityReserve0").get()
+									f.setDefaultValue(this.componentUtil.getComponent("ctrlEmergencyCapacityReserve0", //
+											"Controller.Ess.EmergencyCapacityReserve").get()
 											.getProperty("reserveSoc").get().getAsNumber());
 								}).build())
 						.build()) //
