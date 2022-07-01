@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
@@ -479,3 +480,4 @@ public class OWFileInputStream extends InputStream {
 		return true;
 	}
 }
+// CHECKSTYLE:ON

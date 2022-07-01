@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -547,3 +548,4 @@ public class OneWireContainer05 extends OneWireContainer implements SwitchContai
 		throw new OneWireIOException("Failure to change DS2405 latch state");
 	}
 }
+// CHECKSTYLE:ON

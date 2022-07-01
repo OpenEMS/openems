@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -396,3 +397,4 @@ public interface MissionContainer extends ClockContainer {
 	 */
 	void setMissionAlarm(int channel, int alarmType, double threshold) throws OneWireException, OneWireIOException;
 }
+// CHECKSTYLE:ON

@@ -12,7 +12,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.common.collect.ImmutableMap;
@@ -36,9 +36,11 @@ import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 				"type=GRID" //
 		})
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class SolarEdgeGridMeter extends AbstractSunSpecMeter
 		implements AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent {
 
@@ -50,8 +52,8 @@ public class SolarEdgeGridMeter extends AbstractSunSpecMeter
 			.put(DefaultSunSpecModel.S_204, Priority.LOW) //
 			.build();
 
-	private final static int UNIT_ID = 1;
-	private final static int READ_FROM_MODBUS_BLOCK = 2;
+	private static final int UNIT_ID = 1;
+	private static final int READ_FROM_MODBUS_BLOCK = 2;
 
 	private Config config;
 

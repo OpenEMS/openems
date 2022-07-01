@@ -61,5 +61,10 @@ public interface ModbusRegisterElement<T> extends ModbusElement<T> {
 		return valueOpt;
 	}
 
+	/**
+	 * Gets the next write value.
+	 *
+	 * @return the next value as an Optional array of Registers
+	 */
 	public Optional<Register[]> getNextWriteValue();
 }

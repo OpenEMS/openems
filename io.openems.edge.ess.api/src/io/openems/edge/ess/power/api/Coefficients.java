@@ -45,6 +45,16 @@ public class Coefficients {
 		this.noOfCoefficients = index;
 	}
 
+	/**
+	 * Gets the {@link Coefficient} for the given Ess-ID, {@link Phase} and
+	 * {@link Pwr}.
+	 * 
+	 * @param essId the Ess-ID
+	 * @param phase the {@link Phase}
+	 * @param pwr   the {@link Pwr}
+	 * @return the {@link Coefficient}
+	 * @throws OpenemsException on error
+	 */
 	public Coefficient of(String essId, Phase phase, Pwr pwr) throws OpenemsException {
 		if (this.symmetricMode && phase != Phase.ALL) {
 			throw new OpenemsException("Symmetric-Mode is activated. Coefficients for [" + essId + "," + phase + ","

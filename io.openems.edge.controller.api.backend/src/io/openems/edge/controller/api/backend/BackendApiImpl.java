@@ -23,8 +23,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,10 +52,12 @@ import io.openems.edge.timedata.api.Timedata;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				"org.ops4j.pax.logging.appender.name=Controller.Api.Backend", //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CONFIG_UPDATE //
 		} //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CONFIG_UPDATE //
+})
 public class BackendApiImpl extends AbstractOpenemsComponent
 		implements BackendApi, Controller, OpenemsComponent, PaxAppender, EventHandler {
 
@@ -159,7 +161,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	@Override
 	protected void logWarn(Logger log, String message) {
-		super.logInfo(log, message);
+		super.logWarn(log, message);
 	}
 
 	/**

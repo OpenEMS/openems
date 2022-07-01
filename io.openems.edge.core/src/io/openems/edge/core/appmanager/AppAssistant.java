@@ -8,22 +8,24 @@ import io.openems.common.utils.JsonUtils;
 public class AppAssistant {
 
 	/**
-	 * Creates an {@link AppAssistant} using a Builder.
-	 *
-	 * @return the {@link Builder}
-	 */
-	public static Builder create() {
-		return new Builder();
-	}
-
-	/**
 	 * A temporary builder class for an {@link AppAssistant}.
 	 */
 	public static class Builder {
 
+		private String name;
+		private String alias;
 		private JsonArray fields = new JsonArray();
 
 		protected Builder() {
+		}
+
+		/**
+		 * Return the built {@link JsonArray}.
+		 *
+		 * @return the {@link JsonArray}
+		 */
+		public AppAssistant build() {
+			return new AppAssistant(this.name, this.alias, this.fields);
 		}
 
 		/**
@@ -38,19 +40,46 @@ public class AppAssistant {
 		}
 
 		/**
-		 * Return the built {@link JsonArray}.
+		 * Sets the alias.
 		 *
-		 * @return the {@link JsonArray}
+		 * @param alias the alias
+		 * @return the {@link Builder}
 		 */
-		public AppAssistant build() {
-			return new AppAssistant(this.fields);
+		public Builder setAlias(String alias) {
+			this.alias = alias;
+			return this;
+		}
+
+		/**
+		 * Sets the App name.
+		 *
+		 * @param name the app name
+		 * @return the {@link Builder}
+		 */
+		public Builder setAppName(String name) {
+			this.name = name;
+			return this;
 		}
 
 	}
 
-	private final JsonArray fields;
+	/**
+	 * Creates an {@link AppAssistant} using a Builder.
+	 *
+	 * @param appname the name of the app
+	 * @return the {@link Builder}
+	 */
+	public static Builder create(String appname) {
+		return new Builder().setAppName(appname);
+	}
 
-	private AppAssistant(JsonArray fields) {
+	public final String name;
+	public final String alias;
+	public final JsonArray fields;
+
+	private AppAssistant(String name, String alias, JsonArray fields) {
+		this.name = name;
+		this.alias = alias != null ? alias : name;
 		this.fields = fields;
 	}
 
@@ -61,6 +90,8 @@ public class AppAssistant {
 	 */
 	public JsonObject toJsonObject() {
 		return JsonUtils.buildJsonObject() //
+				.addProperty("name", this.name) //
+				.addProperty("alias", this.alias) //
 				.add("fields", this.fields) //
 				.build();
 	}

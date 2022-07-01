@@ -1,7 +1,7 @@
 package io.openems.edge.meter.api;
 
 /**
- * Defines the type of the Meter
+ * Defines the type of the Meter.
  */
 public enum MeterType {
 	/**
@@ -24,6 +24,7 @@ public enum MeterType {
 	 * Defines a Consumption-Meter that is metered, i.e. a meter that is measuring
 	 * an electric consumer like a heating-element or electric car.
 	 *
+	 * <p>
 	 * Note: Consumption is generally calculated using the data from Grid-Meter,
 	 * Production-Meter and charge/discharge of battery. The value of
 	 * CONSUMPTION_METERED is _not added_ to this calculated consumption as it is
@@ -34,6 +35,7 @@ public enum MeterType {
 	 * Defines a Consumption-Meter that is NOT metered, i.e. a meter that is
 	 * measuring an electric consumer like a heating-element or electric car.
 	 *
+	 * <p>
 	 * Note: Consumption is generally calculated using the data from Grid-Meter,
 	 * Production-Meter and charge/discharge of battery. The value of
 	 * CONSUMPTION_NOT_METERED is _added_ to this calculated consumption as it is

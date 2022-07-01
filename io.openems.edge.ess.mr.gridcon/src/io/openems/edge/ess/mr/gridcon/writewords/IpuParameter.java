@@ -1,3 +1,5 @@
+// CHECKSTYLE:OFF
+
 package io.openems.edge.ess.mr.gridcon.writewords;
 
 public class IpuParameter {
@@ -85,3 +87,4 @@ public class IpuParameter {
 		return sb.toString();
 	}
 }
+// CHECKSTYLE:ON

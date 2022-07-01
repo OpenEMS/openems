@@ -12,6 +12,10 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +44,10 @@ import io.openems.common.utils.ThreadPoolUtils;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		immediate = true //
 )
-public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket {
+@EventTopics({ //
+		Metadata.Events.AFTER_IS_INITIALIZED //
+})
+public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
 
@@ -55,6 +62,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	@Reference
 	protected volatile Timedata timedata;
 
+	@Reference
+	protected volatile EventAdmin eventAdmin;
+
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile UiWebsocket uiWebsocket;
 
@@ -65,14 +75,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	private Config config;
 
-	private final Runnable startServerWhenMetadataIsInitialized = () -> {
-		this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
-	};
-
 	@Activate
 	private void activate(Config config) {
 		this.config = config;
-		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
 			this.log.info(new StringBuilder("[monitor] ") //
 					.append("Edge-Connections: ")
@@ -84,7 +89,6 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	@Deactivate
 	private void deactivate() {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
-		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.stopServer();
 	}
 
@@ -210,5 +214,13 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 */
 	public void handleSystemLogNotification(String edgeId, SystemLogNotification notification) {
 		this.systemLogHandler.handleSystemLogNotification(edgeId, null, notification);
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case Metadata.Events.AFTER_IS_INITIALIZED:
+			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+		}
 	}
 }

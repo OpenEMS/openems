@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -441,3 +442,4 @@ public class OneWireContainer1D extends OneWireContainer {
 		throw new OneWireIOException("OneWireContainer1D-device not present");
 	}
 }
+// CHECKSTYLE:ON

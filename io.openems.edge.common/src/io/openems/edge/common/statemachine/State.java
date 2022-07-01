@@ -8,7 +8,9 @@ import io.openems.common.types.OptionsEnum;
  *
  * @param <STATE> the actual State type
  */
+// CHECKSTYLE:OFF
 public interface State<STATE extends State<STATE>> extends OptionsEnum {
+	// CHECKSTYLE:ON
 
 	/**
 	 * Gets all the available States.

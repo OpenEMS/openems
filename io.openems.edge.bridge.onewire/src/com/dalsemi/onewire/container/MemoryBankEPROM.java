@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -1482,3 +1483,4 @@ class MemoryBankEPROM implements OTPMemoryBank {
 		}
 	}
 }
+// CHECKSTYLE:ON

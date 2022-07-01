@@ -361,4 +361,13 @@ export class Utils {
 
     return result;
   }
+
+  /**
+   * Rounds values between 0 and -1kW to 0
+   * 
+   * @param value the value to convert
+   */
+  public static roundSlightlyNegativeValues(value: number) {
+    return (value > -0.49 && value < 0) ? 0 : value;
+  }
 }

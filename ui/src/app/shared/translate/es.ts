@@ -229,6 +229,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Se superó el tiempo de finalización de la carga limitada',
                         storageAlreadyFull: 'Memoria ya llena',
                     },
+                    storageCapacity: 'capacidad de almacenamiento (sólo visible para el administrador)'
                 },
                 CHP: {
                     highThreshold: 'Umbral alto',
@@ -399,6 +400,7 @@ export const TRANSLATION = {
                 simulator: 'Simulador',
                 systemExecute: 'Ejecutar comando del sistema',
                 systemProfile: 'Perfil del Sistema',
+                alerting: 'Alerta',
             },
             More: {
                 manualCommand: 'Comando manual',
@@ -433,7 +435,25 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'Nueva conexión...',
                 newDevice: 'Nuevo dispositivo...',
-            }
+            },
+            Alerting: {
+                activate: 'Activar',
+                delay: 'Retraso [min]',
+                save: 'Guardar',
+            },
+            App: {
+                header: 'El App Manager se encuentra actualmente en una primera versión de prueba. Si no se muestran todas las aplicaciones, es posible que haya que actualizar la versión de FEMS.',
+                installed: 'Instalado',
+                available: 'Disponible',
+                incompatible: 'Incompatible',
+                buyApp: 'Comprar aplicación',
+                modifyApp: 'Modificar la aplicación',
+                createApp: 'Instalar la aplicación',
+                deleteApp: 'Eliminar la aplicación',
+                updateApp: 'Actualizar la aplicación',
+                errorInstallable: 'Errores de instalación',
+                errorCompatible: 'Errores de compatibilidad',
+            },
         }
     },
     About: {

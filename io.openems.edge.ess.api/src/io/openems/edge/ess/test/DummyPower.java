@@ -48,6 +48,10 @@ public class DummyPower implements Power {
 	/**
 	 * Creates a {@link DummyPower} with unlimited MaxApparentPower and PID filter
 	 * with the given parameters.
+	 * 
+	 * @param p the proportional gain
+	 * @param i the integral gain
+	 * @param d the derivative gain
 	 */
 	public DummyPower(double p, double i, double d) {
 		this(Integer.MAX_VALUE, p, i, d);
@@ -56,11 +60,21 @@ public class DummyPower implements Power {
 	/**
 	 * Creates a {@link DummyPower} with given MaxApparentPower and PID filter with
 	 * the given parameters.
+	 * 
+	 * @param maxApparentPower the MaxApparentPower
+	 * @param p                the proportional gain
+	 * @param i                the integral gain
+	 * @param d                the derivative gain
 	 */
 	public DummyPower(int maxApparentPower, double p, double i, double d) {
 		this(maxApparentPower, new PidFilter(p, i, d));
 	}
 
+	/**
+	 * Registers a {@link ManagedSymmetricEss} with this {@link DummyPower}.
+	 * 
+	 * @param ess the {@link ManagedSymmetricEss}
+	 */
 	public void addEss(ManagedSymmetricEss ess) {
 		this.esss.add(ess);
 	}

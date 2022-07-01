@@ -20,8 +20,8 @@ import io.openems.edge.common.modbusslave.ModbusType;
  */
 public interface Sum extends OpenemsComponent {
 
-	public final static String SINGLETON_SERVICE_PID = "Core.Sum";
-	public final static String SINGLETON_COMPONENT_ID = "_sum";
+	public static final String SINGLETON_SERVICE_PID = "Core.Sum";
+	public static final String SINGLETON_COMPONENT_ID = "_sum";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -609,6 +609,13 @@ public interface Sum extends OpenemsComponent {
 	 */
 	public void updateChannelsBeforeProcessImage();
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(Sum.class, accessMode, 220) //
 				.channel(0, ChannelId.ESS_SOC, ModbusType.UINT16) //

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -331,3 +332,4 @@ public class MemoryBankScratchCRCPW extends MemoryBankScratchEx {
 		}
 	}
 }
+// CHECKSTYLE:ON

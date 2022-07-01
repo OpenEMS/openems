@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -1257,3 +1258,4 @@ public class NetAdapterHost implements Runnable, NetAdapterConstants {
 		// }
 	}
 }
+// CHECKSTYLE:ON

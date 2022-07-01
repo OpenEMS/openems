@@ -28,6 +28,11 @@ public class DummyPredictorManager extends AbstractOpenemsComponent implements P
 		super.activate(null, PredictorManager.SINGLETON_COMPONENT_ID, PredictorManager.SINGLETON_SERVICE_PID, true);
 	}
 
+	/**
+	 * Add a {@link Predictor24Hours}.
+	 * 
+	 * @param predictor the {@link Predictor24Hours}
+	 */
 	public void addPredictor(Predictor24Hours predictor) {
 		this.predictors.add(predictor);
 	}

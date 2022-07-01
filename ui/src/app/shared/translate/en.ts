@@ -259,6 +259,7 @@ export const TRANSLATION = {
                         passedEndTime: 'End time of limited charging exceeded',
                         storageAlreadyFull: 'Memory already full',
                     },
+                    storageCapacity: 'Storagecapacity (only visible for admin)'
                 },
                 CHP: {
                     highThreshold: 'High Threshold',
@@ -430,6 +431,7 @@ export const TRANSLATION = {
                 simulator: 'Simulator',
                 systemExecute: 'Execute system command',
                 systemProfile: 'System Profile',
+                alerting: 'Alerting',
             },
             More: {
                 manualCommand: 'Manual command',
@@ -464,7 +466,25 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'New connection...',
                 newDevice: 'New device...',
-            }
+            },
+            Alerting: {
+                activate: 'Activate',
+                delay: 'Delay [min]',
+                save: 'Save',
+            },
+            App: {
+                header: 'The App Manager is currently in a first test version. If not all apps are displayed, the FEMS version may need to be updated.',
+                installed: 'Installed',
+                available: 'Available',
+                incompatible: 'Incompatible',
+                buyApp: 'Buy app',
+                modifyApp: 'Modify app',
+                createApp: 'Install app',
+                deleteApp: 'Delete app',
+                updateApp: 'Update app',
+                errorInstallable: 'Installation errors',
+                errorCompatible: 'Compatibility errors',
+            },
         }
     },
     About: {

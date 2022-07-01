@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -134,3 +135,4 @@ public interface NetAdapterConstants {
 	 */
 	static final Connection EMPTY_CONNECTION = new Connection();
 }
+// CHECKSTYLE:ON

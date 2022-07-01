@@ -5,12 +5,19 @@ import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
+import java.util.stream.Collector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -291,7 +298,48 @@ public class JsonUtils {
 
 	}
 
+	public static class JsonArrayCollector implements Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> {
+
+		@Override
+		public Set<Characteristics> characteristics() {
+			return Sets.<Characteristics>newHashSet().stream().collect(Sets.toImmutableEnumSet());
+		}
+
+		@Override
+		public Supplier<JsonArrayBuilder> supplier() {
+			return JsonUtils::buildJsonArray;
+		}
+
+		@Override
+		public BiConsumer<JsonArrayBuilder, JsonElement> accumulator() {
+			return JsonUtils.JsonArrayBuilder::add;
+		}
+
+		@Override
+		public BinaryOperator<JsonArrayBuilder> combiner() {
+			return (t, u) -> {
+				u.build().forEach(j -> t.add(j));
+				return t;
+			};
+		}
+
+		@Override
+		public Function<JsonArrayBuilder, JsonArray> finisher() {
+			return JsonArrayBuilder::build;
+		}
+
+	}
+
 	private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
+
+	/**
+	 * Returns a Collector that accumulates the input elements into a new JsonArray. 
+	 * 
+	 * @return a Collector which collects all the input elements into a JsonArray
+	 */
+	public static Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> toJsonArray() {
+		return new JsonUtils.JsonArrayCollector();
+	}
 
 	/**
 	 * Creates a JsonArray using a Builder.
@@ -1133,7 +1181,8 @@ public class JsonUtils {
 			}
 			return j.getAsString();
 		} catch (Exception e) {
-			throw OpenemsError.JSON_PARSE_ELEMENT_FAILED.exception(j.toString().replace("%", "%%"),
+			throw OpenemsError.JSON_PARSE_ELEMENT_FAILED.exception(//
+					StringUtils.toShortString(j.toString().replace("%", "%%"), 100), //
 					e.getClass().getSimpleName(), e.getMessage());
 		}
 	}
@@ -1345,11 +1394,13 @@ public class JsonUtils {
 	/**
 	 * Gets a {@link JsonElement} as the given {@link OpenemsType}.
 	 *
+	 * @param <T>  the Type for implicit casting of the result
 	 * @param type the {@link OpenemsType}
 	 * @param j    the {@link JsonElement}
 	 * @return an Object of the given type
 	 */
-	public static Object getAsType(OpenemsType type, JsonElement j) throws OpenemsNamedException {
+	@SuppressWarnings("unchecked")
+	public static <T> T getAsType(OpenemsType type, JsonElement j) throws OpenemsNamedException {
 		if (j.isJsonNull()) {
 			return null;
 		}
@@ -1357,19 +1408,19 @@ public class JsonUtils {
 		if (j.isJsonPrimitive()) {
 			switch (type) {
 			case BOOLEAN:
-				return JsonUtils.getAsBoolean(j);
+				return (T) Boolean.valueOf(JsonUtils.getAsBoolean(j));
 			case DOUBLE:
-				return JsonUtils.getAsDouble(j);
+				return (T) Double.valueOf(JsonUtils.getAsDouble(j));
 			case FLOAT:
-				return JsonUtils.getAsFloat(j);
+				return (T) Float.valueOf(JsonUtils.getAsFloat(j));
 			case INTEGER:
-				return JsonUtils.getAsInt(j);
+				return (T) Integer.valueOf(JsonUtils.getAsInt(j));
 			case LONG:
-				return JsonUtils.getAsLong(j);
+				return (T) Long.valueOf(JsonUtils.getAsLong(j));
 			case SHORT:
-				return JsonUtils.getAsShort(j);
+				return (T) Short.valueOf(JsonUtils.getAsShort(j));
 			case STRING:
-				return JsonUtils.getAsString(j);
+				return (T) JsonUtils.getAsString(j);
 			}
 		}
 
@@ -1383,7 +1434,7 @@ public class JsonUtils {
 			case SHORT:
 				break;
 			case STRING:
-				return j.toString();
+				return (T) j.toString();
 			}
 		}
 
@@ -1440,7 +1491,7 @@ public class JsonUtils {
 		try {
 			return JsonParser.parseString(string);
 		} catch (JsonParseException e) {
-			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), string);
+			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), StringUtils.toShortString(string, 100));
 		}
 	}
 

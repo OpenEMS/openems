@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -85,3 +86,4 @@ public class Event extends TaggedDevice implements TaggedSensor {
 		return returnString;
 	}
 }
+// CHECKSTYLE:ON

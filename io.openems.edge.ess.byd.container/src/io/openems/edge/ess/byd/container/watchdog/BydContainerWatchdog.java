@@ -108,7 +108,7 @@ public class BydContainerWatchdog extends AbstractOpenemsComponent
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(BydContainerWatchdog.class, accessMode, 100) //
 						.channel(0, ChannelId.WATCHDOG, ModbusType.UINT16) //

@@ -3,7 +3,7 @@ package io.openems.edge.controller.asymmetric.phaserectification;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Phase-Rectification", //
 		description = "Sets the ess to the required activepower to get all three phases on the meter to the same level.")
 @interface Config {

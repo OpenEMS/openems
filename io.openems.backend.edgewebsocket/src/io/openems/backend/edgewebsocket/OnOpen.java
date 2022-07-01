@@ -31,7 +31,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			if (!apikeyOpt.isPresent()) {
 				throw new OpenemsException("Apikey is missing in handshake");
 			}
-			apikey = apikeyOpt.get();
+			apikey = apikeyOpt.get().trim();
 			wsData.setApikey(apikey);
 
 			// get edgeId for apikey

@@ -15,8 +15,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +42,11 @@ import io.openems.shared.influxdb.InfluxConnector;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Timedata.InfluxDB", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class InfluxTimedataImpl extends AbstractOpenemsComponent
 		implements InfluxTimedata, Timedata, OpenemsComponent, EventHandler {
 
@@ -82,6 +85,7 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 				config.bucket(), config.isReadOnly(), //
 				(throwable) -> {
 					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage());
+					return false; // do not retry
 				});
 	}
 

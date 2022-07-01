@@ -14,6 +14,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesExportXlxsRequest;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesExportXlsxResponse;
+import io.openems.common.session.Language;
 import io.openems.common.types.ChannelAddress;
 
 public interface CommonTimedataService {
@@ -22,13 +23,15 @@ public interface CommonTimedataService {
 	 * Handles a {@link QueryHistoricTimeseriesExportXlxsRequest}. Exports historic
 	 * data to an Excel file.
 	 *
-	 * @param edgeId  the Edge-ID
-	 * @param request the {@link QueryHistoricTimeseriesExportXlxsRequest} request
+	 * @param edgeId   the Edge-ID
+	 * @param request  the {@link QueryHistoricTimeseriesExportXlxsRequest} request
+	 * @param language the {@link Language}
 	 * @return the {@link QueryHistoricTimeseriesExportXlsxResponse}
 	 * @throws OpenemsNamedException on error
 	 */
 	public default QueryHistoricTimeseriesExportXlsxResponse handleQueryHistoricTimeseriesExportXlxsRequest(
-			String edgeId, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
+			String edgeId, QueryHistoricTimeseriesExportXlxsRequest request, Language language)
+			throws OpenemsNamedException {
 		var powerData = this.queryHistoricData(edgeId, request.getFromDate(), request.getToDate(),
 				QueryHistoricTimeseriesExportXlsxResponse.POWER_CHANNELS, new Resolution(15, ChronoUnit.MINUTES));
 
@@ -37,7 +40,7 @@ public interface CommonTimedataService {
 
 		try {
 			return new QueryHistoricTimeseriesExportXlsxResponse(request.getId(), edgeId, request.getFromDate(),
-					request.getToDate(), powerData, energyData);
+					request.getToDate(), powerData, energyData, language);
 		} catch (IOException e) {
 			throw new OpenemsException("QueryHistoricTimeseriesExportXlxsRequest failed: " + e.getMessage());
 		}

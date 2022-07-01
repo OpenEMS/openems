@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -517,3 +518,4 @@ public interface PagedMemoryBank extends MemoryBank {
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException;
 }
+// CHECKSTYLE:ON

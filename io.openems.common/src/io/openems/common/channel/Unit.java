@@ -82,6 +82,11 @@ public enum Unit {
 	 */
 	MILLIVOLT("mV", VOLT, -3),
 
+	/**
+	 * Unit of Voltage [uA].
+	 */
+	MICROVOLT("uA", VOLT, -6),
+
 	// ##########
 	// Current
 	// ##########
@@ -95,6 +100,11 @@ public enum Unit {
 	 * Unit of Current [mA].
 	 */
 	MILLIAMPERE("mA", AMPERE, -3),
+
+	/**
+	 * Unit of Current [uA].
+	 */
+	MICROAMPERE("uA", AMPERE, -6),
 
 	// ##########
 	// Electric Charge
@@ -295,8 +305,10 @@ public enum Unit {
 		case EUROS_PER_MEGAWATT_HOUR:
 		case HERTZ:
 		case MILLIAMPERE:
+		case MICROAMPERE:
 		case MILLIHERTZ:
 		case MILLIVOLT:
+		case MICROVOLT:
 		case PERCENT:
 		case VOLT:
 		case VOLT_AMPERE:

@@ -8,7 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String ess_id;
+		private String essId;
 		private int reserveSoc;
 		private boolean isReserveSocEnabled;
 
@@ -21,7 +21,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 
 		public Builder setEssId(String essId) {
-			this.ess_id = essId;
+			this.essId = essId;
 			return this;
 		}
 
@@ -59,7 +59,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String ess_id() {
-		return this.builder.ess_id;
+		return this.builder.essId;
 	}
 
 	@Override

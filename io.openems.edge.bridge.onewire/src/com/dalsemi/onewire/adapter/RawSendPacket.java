@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -63,3 +64,4 @@ class RawSendPacket {
 		this.returnLength = 0;
 	}
 }
+// CHECKSTYLE:ON

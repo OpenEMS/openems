@@ -3,6 +3,7 @@ package io.openems.common.utils;
 import java.util.EnumMap;
 import java.util.Optional;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -48,6 +49,24 @@ public class EnumUtils {
 	}
 
 	/**
+	 * Gets the member of the {@link EnumMap} as {@link Optional} {@link Integer}.
+	 *
+	 * @param <ENUM> the type of the EnumMap key
+	 * @param map    the {@link EnumMap}
+	 * @param member the member
+	 * @return the {@link Optional} {@link Integer} value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static <ENUM extends Enum<ENUM>> Optional<Integer> getAsOptionalInt(EnumMap<ENUM, JsonElement> map,
+			ENUM member) {
+		try {
+			return Optional.of(getAsInt(map, member));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
+	/**
 	 * Gets the member of the {@link EnumMap} as {@link JsonPrimitive}.
 	 *
 	 * @param <ENUM> the type of the EnumMap key
@@ -60,6 +79,21 @@ public class EnumUtils {
 			throws OpenemsNamedException {
 		var jSubElement = getSubElement(map, member);
 		return JsonUtils.getAsPrimitive(jSubElement);
+	}
+
+	/**
+	 * Gets the member of the {@link EnumMap} as {@link JsonArray}.
+	 *
+	 * @param <ENUM> the type of the EnumMap key
+	 * @param map    the {@link EnumMap}
+	 * @param member the member
+	 * @return the {@link JsonArray} value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static <ENUM extends Enum<ENUM>> JsonArray getAsJsonArray(EnumMap<ENUM, JsonElement> map, ENUM member)
+			throws OpenemsNamedException {
+		var jSubElement = getSubElement(map, member);
+		return JsonUtils.getAsJsonArray(jSubElement);
 	}
 
 	/**
@@ -121,4 +155,5 @@ public class EnumUtils {
 			throws OpenemsNamedException {
 		return JsonUtils.getAsInt(getAsPrimitive(map, member));
 	}
+
 }

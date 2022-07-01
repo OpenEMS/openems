@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -223,3 +224,4 @@ public class OneWireContainer22 extends OneWireContainer28 implements Temperatur
 	// --------
 
 }
+// CHECKSTYLE:ON

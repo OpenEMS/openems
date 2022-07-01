@@ -269,8 +269,8 @@ public class ReadHandler implements Consumer<String> {
 	 * @param dipSwitch2 Block two with eight dip-switches
 	 */
 	private void checkDipSwitchSettings(String dipSwitch1, String dipSwitch2) {
-		dipSwitch1 = this.hexStringToBinaryString(dipSwitch1);
-		dipSwitch2 = this.hexStringToBinaryString(dipSwitch2);
+		dipSwitch1 = hexStringToBinaryString(dipSwitch1);
+		dipSwitch2 = hexStringToBinaryString(dipSwitch2);
 
 		this.parent.channel(KebaChannelId.DIP_SWITCH_1).setNextValue(dipSwitch1);
 		this.parent.channel(KebaChannelId.DIP_SWITCH_2).setNextValue(dipSwitch2);
@@ -315,14 +315,19 @@ public class ReadHandler implements Consumer<String> {
 			break;
 		case "100":
 			hwLimit = 13;
+			break;
 		case "010":
 			hwLimit = 16;
+			break;
 		case "110":
 			hwLimit = 20;
+			break;
 		case "001":
 			hwLimit = 25;
+			break;
 		case "101":
 			hwLimit = 32;
+			break;
 		}
 		this.parent.channel(KebaChannelId.DIP_SWITCH_MAX_HW).setNextValue(hwLimit);
 	}
@@ -356,7 +361,7 @@ public class ReadHandler implements Consumer<String> {
 		this.parent.channel(channel).setNextValue(bool);
 	}
 
-	public String hexStringToBinaryString(String dipSwitches) {
+	protected static String hexStringToBinaryString(String dipSwitches) {
 		dipSwitches = dipSwitches.replace("0x", "");
 		var binaryString = new BigInteger(dipSwitches, 16).toString(2);
 		var length = binaryString.length();

@@ -19,6 +19,10 @@ import { SinglethresholdChartOverviewComponent } from './edge/history/singlethre
 import { StorageChartOverviewComponent } from './edge/history/storage/storagechartoverview/storagechartoverview.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
+import { IndexComponent as EdgeSettingsAppIndex } from './edge/settings/app/index.component';
+import { InstallAppComponent as EdgeSettingsAppInstall } from './edge/settings/app/install.component';
+import { SingleAppComponent as EdgeSettingsAppSingle } from './edge/settings/app/single.component';
+import { UpdateAppComponent as EdgeSettingsAppUpdate } from './edge/settings/app/update.component';
 import { ChannelsComponent as EdgeSettingsChannelsComponent } from './edge/settings/channels/channels.component';
 import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent } from './edge/settings/component/install/index.component';
 import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentComponent } from './edge/settings/component/install/install.component';
@@ -31,6 +35,7 @@ import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/sett
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
+import { AlertingComponent as EdgeSettingsAlerting } from './edge/settings/alerting/alerting.component';
 import { IndexComponent } from './index/index.component';
 import { UserComponent } from './user/user.component';
 
@@ -76,6 +81,11 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
   { path: 'device/:edgeId/settings/systemlog', component: EdgeSettingsSystemLogComponent },
   { path: 'device/:edgeId/settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
+  { path: 'device/:edgeId/settings/app', component: EdgeSettingsAppIndex },
+  { path: 'device/:edgeId/settings/app/install/:appId', component: EdgeSettingsAppInstall },
+  { path: 'device/:edgeId/settings/app/update/:appId', component: EdgeSettingsAppUpdate },
+  { path: 'device/:edgeId/settings/app/single/:appId', component: EdgeSettingsAppSingle },
+  { path: 'device/:edgeId/settings/alerting', component: EdgeSettingsAlerting },
 ];
 
 export const appRoutingProviders: any[] = [

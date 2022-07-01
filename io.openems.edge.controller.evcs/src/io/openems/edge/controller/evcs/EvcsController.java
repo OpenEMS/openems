@@ -150,6 +150,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			case READY_FOR_CHARGING:
 			case CHARGING_FINISHED:
 				this.evcs._setMaximumPower(null);
+				break;
 			case CHARGING:
 				break;
 			}
@@ -294,8 +295,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	/**
 	 * Calculate result depending on the current evcs power and grid power.
 	 *
-	 * @param evcs
-	 * @return
+	 * @param evcs the {@link ManagedEvcs}
+	 * @return the excess power
 	 */
 	private int calculateExcessPowerAfterEss(ManagedEvcs evcs) {
 		int buyFromGrid = this.sum.getGridActivePower().orElse(0);

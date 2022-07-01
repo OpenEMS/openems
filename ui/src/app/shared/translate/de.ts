@@ -232,17 +232,17 @@ export const TRANSLATION = {
                     medium: 'Mittel',
                     minimumCharge: 'Minimale Beladung',
                     RiskDescription: {
-                        Low: {
+                        LOW: {
                             functionDescription: 'Vergleichsweise frühzeitige Beladung des Speichers',
                             storageDescription: 'Höhere Wahrscheinlichkeit, dass der Speicher vollständig beladen wird',
                             pvCurtail: 'Geringere Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
                         },
-                        Medium: {
+                        MEDIUM: {
                             functionDescription: 'Vergleichsweise gleichmäßige Beladung des Speichers',
                             storageDescription: 'Hohe Wahrscheinlichkeit, dass der Speicher vollständig beladen wird',
                             pvCurtail: 'Hohe Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
                         },
-                        High: {
+                        HIGH: {
                             functionDescription: 'Vergleichsweise spätere Beladung des Speichers',
                             storageDescription: 'Geringere Wahrscheinlichkeit, dass der Speicher voll wird',
                             pvCurtail: 'Höhere Wahrscheinlichkeit, dass die Abregelung der PV-Anlage vermieden wird',
@@ -260,6 +260,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Endzeitpunkt der begrenzten Beladung überschritten',
                         storageAlreadyFull: 'Speicher bereits voll',
                     },
+                    storageCapacity: 'Speicherkapazität (nur sichtbar für admin)'
                 },
                 CHP: {
                     highThreshold: 'Oberer Schwellenwert',
@@ -430,6 +431,7 @@ export const TRANSLATION = {
                 simulator: 'Simulator',
                 systemExecute: 'System-Befehl ausführen',
                 systemProfile: 'Anlagenprofil',
+                alerting: 'Alarmierung',
             },
             More: {
                 manualCommand: 'Manueller Befehl',
@@ -464,7 +466,25 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'Neue Verbindung...',
                 newDevice: 'Neues Gerät...',
-            }
+            },
+            Alerting: {
+                activate: 'Aktivieren',
+                delay: 'Verzögerung [min]',
+                save: 'Speichern',
+            },
+            App: {
+                header: 'Der App-Manager befindet sich aktuell in einer ersten Testversion. Falls nicht alle Apps angezeigt werden, muss evtl. die FEMS Version geupdatet werden.',
+                installed: 'Installiert',
+                available: 'Verfügbar',
+                incompatible: 'Inkompatibel',
+                buyApp: 'App kaufen',
+                modifyApp: 'App bearbeiten',
+                createApp: 'App installieren',
+                deleteApp: 'App entfernen',
+                updateApp: 'App aktualisieren',
+                errorInstallable: 'Installierungs fehler',
+                errorCompatible: 'Kompatibilitäts fehler',
+            },
         }
     },
     About: {
