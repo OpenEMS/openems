@@ -50,8 +50,10 @@ public class DependencyDeclaration {
 		public final UUID specificInstanceId;
 		public final String alias;
 		public final JsonObject properties;
+		public final JsonObject initialProperties;
 
-		private AppDependencyConfig(String appId, UUID specificInstanceId, String alias, JsonObject properties) {
+		private AppDependencyConfig(String appId, UUID specificInstanceId, String alias, JsonObject properties,
+				JsonObject initialProperties) {
 			if (appId == null && specificInstanceId == null) {
 				throw new NullPointerException(
 						"'appId' and 'specificInstanceId' of a AppDependencyConfig can't be both null!");
@@ -60,6 +62,7 @@ public class DependencyDeclaration {
 			this.specificInstanceId = specificInstanceId;
 			this.alias = alias;
 			this.properties = properties == null ? new JsonObject() : properties;
+			this.initialProperties = initialProperties == null ? this.properties : initialProperties;
 		}
 
 		/**
@@ -76,6 +79,7 @@ public class DependencyDeclaration {
 			private UUID specificInstanceId;
 			private String alias;
 			private JsonObject properties;
+			private JsonObject initialProperties;
 
 			public Builder() {
 			}
@@ -95,13 +99,34 @@ public class DependencyDeclaration {
 				return this;
 			}
 
+			/**
+			 * The properties that are used to update the instance.
+			 * 
+			 * @param properties the properties
+			 * @return this
+			 */
 			public Builder setProperties(JsonObject properties) {
 				this.properties = properties;
 				return this;
 			}
 
+			/**
+			 * The properties that are used to firstly instantiate the app.
+			 * 
+			 * <p>
+			 * If not set the properties are used.
+			 * 
+			 * @param initialProperties the properties
+			 * @return this
+			 */
+			public Builder setInitialProperties(JsonObject initialProperties) {
+				this.initialProperties = initialProperties;
+				return this;
+			}
+
 			public AppDependencyConfig build() {
-				return new AppDependencyConfig(this.appId, this.specificInstanceId, this.alias, this.properties);
+				return new AppDependencyConfig(this.appId, this.specificInstanceId, this.alias, this.properties,
+						this.initialProperties);
 			}
 		}
 

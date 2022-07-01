@@ -97,9 +97,8 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 										this.getAppId() + ".evcsIds.description")) //
 								.setOptions(this.componentUtil.getEnabledComponentsOfStartingId("evcs").stream()
 										.filter(t -> !t.id().startsWith("evcsCluster")).collect(Collectors.toList()),
-										t -> t.alias() == null || t.alias().isEmpty() ? t.id()
-												: t.id() + ": " + t.alias(),
-										OpenemsComponent::id)
+										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
+										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE)
 								.isRequired(true) //
 								.isMulti(true) //
 								.build())

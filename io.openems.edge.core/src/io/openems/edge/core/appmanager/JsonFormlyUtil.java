@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
+import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * Source https://formly.dev/examples/introduction.
@@ -545,6 +546,10 @@ public class JsonFormlyUtil {
 	 *
 	 */
 	public static final class SelectBuilder extends FormlyBuilder<SelectBuilder> {
+
+		public static final Function<OpenemsComponent, String> DEFAULT_COMPONENT_2_LABEL = t -> t.alias() == null
+				|| t.alias().isEmpty() ? t.id() : t.id() + ": " + t.alias();
+		public static final Function<OpenemsComponent, String> DEFAULT_COMPONENT_2_VALUE = OpenemsComponent::id;
 
 		private <PROPERTY extends Enum<PROPERTY>> SelectBuilder(PROPERTY property) {
 			super(property);

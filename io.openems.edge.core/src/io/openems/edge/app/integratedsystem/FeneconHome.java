@@ -326,7 +326,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 											maxFeedInPower) //
 									.build())
 							.build()),
-					new DependencyDeclaration("SELF_CONSUMTION_OPTIMIZATION", //
+					new DependencyDeclaration("SELF_CONSUMPTION_OPTIMIZATION", //
 							DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
 							DependencyDeclaration.UpdatePolicy.NEVER, //
 							DependencyDeclaration.DeletePolicy.IF_MINE, //
@@ -350,8 +350,13 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 						DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 						DependencyDeclaration.AppDependencyConfig.create() //
 								.setAppId("App.Meter.Socomec") //
-								.setProperties(JsonUtils.buildJsonObject() //
+								.setInitialProperties(JsonUtils.buildJsonObject() //
+										.addProperty(SocomecMeter.Property.TYPE.name(), "PRODUCTION") //
+										.addProperty(SocomecMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
 										.addProperty(SocomecMeter.Property.MODBUS_UNIT_ID.name(), 6) //
+										.build())
+								.setProperties(JsonUtils.buildJsonObject() //
+										.addProperty(SocomecMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
 										.build())
 								.build()));
 			}
@@ -491,8 +496,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.onlyShowIfChecked(Property.HAS_EMERGENCY_RESERVE) //
 								.onlyIf(hasEmergencyReserve, f -> {
 									f.setDefaultValue(this.componentUtil.getComponent("ctrlEmergencyCapacityReserve0", //
-											"Controller.Ess.EmergencyCapacityReserve").get()
-											.getProperty("reserveSoc").get().getAsNumber());
+											"Controller.Ess.EmergencyCapacityReserve").get().getProperty("reserveSoc")
+											.get().getAsNumber());
 								}).build())
 						.build()) //
 				.build();

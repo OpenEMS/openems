@@ -64,6 +64,7 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 		// User-Values
 		ALIAS, //
 		TYPE, //
+		MODBUS_ID, //
 		MODBUS_UNIT_ID, //
 		;
 	}
@@ -78,8 +79,7 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
 
-			// modbus id for connection to battery-inverter for a HOME
-			var modbusId = "modbus1";
+			var modbusId = this.getValueOrDefault(p, Property.MODBUS_ID, "modbus1");
 			var meterId = this.getId(t, p, Property.METER_ID, "meter1");
 
 			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
@@ -108,6 +108,13 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 						.add(JsonFormlyUtil.buildSelect(Property.TYPE) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "App.Meter.mountType.label")) //
 								.setOptions(this.buildMeterOptions(language)) //
+								.build()) //
+						.add(JsonFormlyUtil.buildSelect(Property.MODBUS_ID) //
+								.setLabel(TranslationUtil.getTranslation(bundle, "modbusId")) //
+								.setDescription(TranslationUtil.getTranslation(bundle, "modbusId.description")) //
+								.setOptions(this.componentUtil.getEnabledComponentsOfStartingId("modbus"),
+										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
+										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //

@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +53,9 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private AppManager appManager;
+
 	private final ComponentManager componentManager;
 	private final ComponentUtil componentUtil;
 
@@ -63,8 +69,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	private final AggregateTask[] tasks;
 
 	private TemporaryApps temporaryApps;
-
-	// TODO maybe add temporary fields with currently installing apps
 
 	@Activate
 	public AppManagerAppHelperImpl(@Reference ComponentManager componentManager, @Reference ComponentUtil componentUtil,
@@ -138,6 +142,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			this.componentsTask.create(user, otherAppConfigs);
 		} catch (OpenemsNamedException e) {
 			this.log.error(e.getMessage());
+			e.printStackTrace();
 			errors.add(TranslationUtil.getTranslation(bundle, "canNotUpdateComponents"));
 		}
 
@@ -279,8 +284,14 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 						appId = instance.appId;
 						id = instance.instanceId;
 					}
-
-					this.temporaryApps.currentlyCreatingApps.add(new OpenemsAppInstance(appId, null, id, null, null));
+					try {
+						var tempApp = this.getAppManagerImpl().findAppById(config.appId);
+						tempApp.getAppConfiguration(ConfigurationTarget.ADD, config.initialProperties, language);
+						this.temporaryApps.currentlyCreatingApps
+								.add(new OpenemsAppInstance(appId, null, id, null, null));
+					} catch (NoSuchElementException | OpenemsNamedException ex) {
+						// app not found or config cant be get
+					}
 				}
 			}
 			return true;
@@ -344,9 +355,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 						}
 					}
 
-					var otherAppConfigs = this.getAppManagerImpl().getOtherAppConfigurations(this.temporaryApps
-							.currentlyCreatingModifiedApps().stream().map(t -> t.instanceId).toArray(UUID[]::new));
-
 					// create app or get as dependency
 					if (oldAppConfig == null) {
 						var neededApp = this.findNeededApp(dc.sub, dc.appDependencyConfig);
@@ -356,6 +364,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 						AppConfiguration oldConfig = null;
 						UUID instanceId;
 						OpenemsAppInstance oldInstanceOfCurrentApp = null;
+						JsonObject propertiesOfNewInstance;
 						var aliasOfNewInstance = dc.appDependencyConfig.alias;
 						if (neededApp.isPresent()) {
 							instanceId = neededApp.get().instanceId;
@@ -382,10 +391,13 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 									errors.add(TranslationUtil.getTranslation(bundle, "canNotGetAppConfiguration"));
 								}
 							}
+							propertiesOfNewInstance = dc.appDependencyConfig.properties;
 						} else {
 							var existing = this.temporaryApps.currentlyCreatingApps.stream()
-									.filter(t -> t.appId.equals(dc.app.getAppId())).findFirst();
+									.filter(t -> t.appId.equals(dc.app.getAppId())) //
+									.filter(t -> t.properties == null).findFirst();
 							instanceId = existing.get().instanceId;
+							propertiesOfNewInstance = dc.appDependencyConfig.initialProperties;
 							// use app name as default alias if not given
 							if (aliasOfNewInstance == null) {
 								aliasOfNewInstance = dc.app.getName(language);
@@ -455,7 +467,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 						}
 
 						var newAppInstance = new OpenemsAppInstance(dc.app.getAppId(), aliasOfNewInstance, instanceId,
-								dc.appDependencyConfig.properties, dependecies);
+								propertiesOfNewInstance, dependecies);
 						lastCreatedOrModifiedApp.setValue(newAppInstance);
 						if (neededApp.isPresent()) {
 							this.temporaryApps.currentlyModifiedApps.removeIf(t -> t.equals(newAppInstance));
@@ -467,6 +479,16 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 						dependencieInstances.put(dc, newAppInstance);
 						try {
+							var otherAppConfigs = this.getAppManagerImpl()
+									.getOtherAppConfigurations(newAppInstance.instanceId);
+
+							// add configurations from currently creating apps
+							for (var config : this.getAppManagerImpl().appConfigs(
+									this.temporaryApps.currentlyCreatingModifiedApps(),
+									AppManagerImpl.exludingInstanceIds(newAppInstance.instanceId))) {
+								otherAppConfigs.add(config.getValue());
+							}
+
 							var newConfig = this.getNewAppConfigWithReplacedIds(dc.app, oldInstanceOfCurrentApp,
 									newAppInstance, AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigs),
 									language);
@@ -524,6 +546,16 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					this.temporaryApps.currentlyModifiedApps.add(newAppInstance);
 
 					try {
+						var otherAppConfigs = this.getAppManagerImpl()
+								.getOtherAppConfigurations(newAppInstance.instanceId);
+
+						// add configurations from currently creating apps
+						for (var config : this.getAppManagerImpl().appConfigs(
+								this.temporaryApps.currentlyCreatingModifiedApps(),
+								AppManagerImpl.exludingInstanceIds(newAppInstance.instanceId))) {
+							otherAppConfigs.add(config.getValue());
+						}
+
 						var newAppConfig = this.getNewAppConfigWithReplacedIds(dc.app, oldAppConfig.instance,
 								newAppInstance, AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigs),
 								language);
@@ -949,7 +981,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		}
 		AppConfiguration config;
 		try {
-			config = app.getAppConfiguration(target, appConfig.properties, l);
+			config = app.getAppConfiguration(target, appConfig.initialProperties, l);
 		} catch (OpenemsNamedException e) {
 			// can not get config of app
 			e.printStackTrace();
@@ -980,7 +1012,9 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 						nextAppConfig.properties.add(entry.getKey(), entry.getValue());
 					});
 				}
-				if (alreadyIteratedApps.contains(dependencyApp) || !includeDependency.apply(app, dependency)) {
+
+				if (/* TODO alreadyIteratedApps.contains(dependencyApp) || */!includeDependency.apply(app,
+						dependency)) {
 					continue;
 				}
 
@@ -1220,6 +1254,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 			// try to find a component with the necessary settings
 			if (canBeReplaced) {
+				// TODO include currently creating components
 				foundComponent = this.componentUtil.getComponentByConfig(comp);
 				if (foundComponent != null) {
 					id = foundComponent.getId();
@@ -1242,6 +1277,18 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				// if the id is not already set and there is no component with the default id
 				// then use the default id
 				foundComponent = this.componentManager.getEdgeConfig().getComponent(comp.getId()).orElse(null);
+				if (foundComponent == null) {
+					// find component for currently creating apps
+					for (var entry : this.getAppManagerImpl()
+							.appConfigs(this.temporaryApps.currentlyCreatingModifiedApps(), null)) {
+						foundComponent = entry.getValue().components.stream()
+								.filter(t -> t.getId().equals(comp.getId())).findFirst().orElse(null);
+						if (foundComponent != null) {
+							break;
+						}
+
+					}
+				}
 				if (foundComponent == null) {
 					id = comp.getId();
 				} else {
@@ -1267,7 +1314,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	}
 
 	private final AppManagerImpl getAppManagerImpl() {
-		return (AppManagerImpl) this.componentManager.getEnabledComponentsOfType(AppManager.class).get(0);
+		return (AppManagerImpl) appManager;
 	}
 
 	private static ResourceBundle getTranslationBundle(Language language) {

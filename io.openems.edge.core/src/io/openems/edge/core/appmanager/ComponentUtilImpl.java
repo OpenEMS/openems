@@ -440,8 +440,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 	@Override
 	public Component getComponentByConfig(Component component) {
 		for (var comp : this.componentManager.getEdgeConfig().getComponentsByFactory(component.getFactoryId())) {
-			var errors = new ArrayList<String>();
-			if (ComponentUtilImpl.isSameConfigurationWithoutIdAndAlias(errors, component, comp)) {
+			if (ComponentUtilImpl.isSameConfigurationWithoutIdAndAlias(null, component, comp)) {
 				return comp;
 			}
 		}
