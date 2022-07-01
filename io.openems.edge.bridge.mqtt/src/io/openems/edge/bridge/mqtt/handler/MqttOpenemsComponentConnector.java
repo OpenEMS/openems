@@ -38,9 +38,13 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
     AtomicReference<MqttBridge> mqttBridge = new AtomicReference<>();
     OpenemsComponent otherComponent;
     String mqttBridgeId;
-    Instant initTime;
-    private static final int WAIT_SECONDS = 10;
-    private boolean initialized = false;
+    Instant initTimeReference;
+    private static final int WAIT_SECONDS_REFERENCE = 10;
+    private boolean initializedRenewReference = false;
+    protected boolean addChannelOnTheFly = false;
+    Instant initTimeChannel;
+    private static final int WAIT_SECONDS_CHANNEL = 120;
+    private boolean initializedChannel = false;
 
     MqttConfigurationComponent mqttConfigurationComponent;
 
@@ -129,13 +133,15 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
      * @param pathForJson       the Path for a local JSON File to configure this component.
      * @param payloadStyle      the PayloadStyle that was configured via OSGi.
      * @param configurationDone is the configuration Done -> set via OSGi -> one param to init.Tasks
+     * @param additionalChannelOnTheFly this is flag that tells the component it should update itself regularly since OpenEMS Channel might be added on the fly.
      * @throws IOException            if File is not found (Not thrown if Path is either "" or is configuredByOsgi)
      * @throws MqttException          if connection fails
      * @throws ConfigurationException if MqttBridge is not available or config itself is wrong.
      */
     void setConfiguration(MqttType mqttType, String[] subscriptionList, String[] publishList, String[] payloads,
                           boolean createdByOsgi, String mqttId, ConfigurationAdmin ca, int length,
-                          String pathForJson, String payloadStyle, boolean configurationDone) throws IOException, MqttException, ConfigurationException {
+                          String pathForJson, String payloadStyle, boolean configurationDone, boolean additionalChannelOnTheFly) throws IOException, MqttException, ConfigurationException {
+        this.addChannelOnTheFly = additionalChannelOnTheFly;
         if (this.mqttBridge.get() != null && this.mqttBridge.get().isEnabled()) {
             this.mqttConfigurationComponent = new MqttConfigurationComponentImpl(subscriptionList, publishList,
                     payloads, super.id(), createdByOsgi, this.mqttBridge.get(), mqttId, mqttType);
@@ -239,9 +245,9 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
      * @param cpm the ComponentManager.
      */
     protected void renewReferenceAndMqttConfigurationComponent(ComponentManager cpm) {
-        if (this.initialized) {
-            if (this.initTime != null && Instant.now().isAfter(this.initTime.plusSeconds(WAIT_SECONDS))) {
-                this.initialized = false;
+        if (this.initializedRenewReference) {
+            if (this.initTimeReference != null && Instant.now().isAfter(this.initTimeReference.plusSeconds(WAIT_SECONDS_REFERENCE))) {
+                this.initializedRenewReference = false;
                 try {
                     if (this.otherComponent != null && (this.otherComponent.isEnabled() == false || this.componentIsSame(cpm, this.otherComponent) == false)) {
                         this.otherComponent = cpm.getComponent(this.getOtherComponent().id());
@@ -258,13 +264,30 @@ public abstract class MqttOpenemsComponentConnector extends AbstractOpenemsCompo
                 }
             }
         } else {
-            this.initialized = true;
-            this.initTime = Instant.now();
+            this.initializedRenewReference = true;
+            this.initTimeReference = Instant.now();
         }
     }
 
     protected boolean componentIsSame(ComponentManager cpm, OpenemsComponent compareComponent) throws OpenemsError.OpenemsNamedException {
         OpenemsComponent registeredComponent = cpm.getComponent(compareComponent.id());
         return compareComponent.equals(registeredComponent);
+    }
+
+    protected void checkForMissingChannel(ConfigurationAdmin cm, int length) throws IOException {
+
+        if (this.initializedChannel) {
+            if (this.initTimeChannel != null && Instant.now().isAfter(this.initTimeChannel.plusSeconds(WAIT_SECONDS_CHANNEL))) {
+                this.initializedChannel = false;
+                List<Channel<?>> channels = new ArrayList<>(this.otherComponent.channels());
+                channels.addAll(this.channels());
+                channels.sort(Comparator.comparing(a -> a.channelId().id()));
+                this.mqttConfigurationComponent.update(cm.getConfiguration(this.servicePid(), "?"), CONFIGURATION_CHANNEL_IDENTIFICATION,
+                      channels, length);
+            }
+        } else {
+            this.initializedChannel = true;
+            this.initTimeChannel = Instant.now();
+        }
     }
 }

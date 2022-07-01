@@ -91,10 +91,7 @@ public class MqttTelemetryComponent extends MqttOpenemsComponentConnector implem
     private void configureMqtt(TelemetryComponentConfig config) throws MqttException, ConfigurationException, IOException, OpenemsError.OpenemsNamedException {
         if (this.isEnabled()) {
             super.setCorrespondingComponent(config.otherComponentId(), this.cpm);
-
-            super.setConfiguration(MqttType.TELEMETRY, config.subscriptionList(), config.publishList(),
-                    config.payloads(), config.createdByOsgi(), config.mqttId(), this.cm, config.channelIdList().length,
-                    config.pathForJson(), config.payloadStyle(), config.configurationDone());
+            this.updateConfiguration();
         }
     }
 
@@ -112,14 +109,24 @@ public class MqttTelemetryComponent extends MqttOpenemsComponentConnector implem
                         && (!this.mqttBridge.get().containsComponent(this.id()) || this.mqttConfigurationComponent == null)) {
                     this.mqttBridge.get().addMqttComponent(this.id(), this);
                     try {
-                        super.setConfiguration(MqttType.TELEMETRY, this.config.subscriptionList(), this.config.publishList(),
-                                this.config.payloads(), this.config.createdByOsgi(), this.config.mqttId(), this.cm, this.config.channelIdList().length,
-                                this.config.pathForJson(), this.config.payloadStyle(), this.config.configurationDone());
+                        this.updateConfiguration();
                     } catch (IOException | MqttException | ConfigurationException e) {
                         super.log.warn("Couldn't apply config for this mqttComponent");
+                    }
+                } else {
+                    try {
+                        super.checkForMissingChannel(this.cm, this.config.channelIdList().length);
+                    } catch (IOException e) {
+                        super.log.warn("Couldn't update Channel for : " + this.id());
                     }
                 }
             }
         }
+    }
+
+    private void updateConfiguration() throws ConfigurationException, MqttException, IOException {
+        super.setConfiguration(MqttType.TELEMETRY, this.config.subscriptionList(), this.config.publishList(),
+                this.config.payloads(), this.config.createdByOsgi(), this.config.mqttId(), this.cm, this.config.channelIdList().length,
+                this.config.pathForJson(), this.config.payloadStyle(), this.config.configurationDone(), this.config.componentAddsChannelOnTheFly());
     }
 }

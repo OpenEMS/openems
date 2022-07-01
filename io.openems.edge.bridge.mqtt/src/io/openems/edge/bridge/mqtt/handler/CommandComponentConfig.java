@@ -46,6 +46,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
     boolean configurationDone() default false;
 
+    @AttributeDefinition(name = "Missing Channel", description = "Some components add their Channel on the Fly. If you tick this, the Component checks on a regular basis if channels were added.")
+    boolean componentAddsChannelOnTheFly() default false;
+
+
     boolean enabled() default true;
     String webconsole_configurationFactory_nameHint() default "MqttCommandComponent [{id}]";
 }
