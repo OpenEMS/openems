@@ -285,11 +285,6 @@
 			<version>1.10.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.msgpack</groupId>
-			<artifactId>msgpack-core</artifactId>
-			<version>0.9.0</version>
-		</dependency>
-		<dependency>
 			<groupId>org.openmuc</groupId>
 			<artifactId>jmbus</artifactId>
 			<version>3.3.0</version>
