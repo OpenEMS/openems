@@ -145,7 +145,7 @@
 		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>
 			<artifactId>rxjava</artifactId>
-			<version>3.1.4</version>
+			<version>3.1.5</version>
 		</dependency>
 		<!-- javax -->
 		<dependency>
@@ -241,22 +241,22 @@
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>6.0.0</version>
+			<version>6.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>6.0.0</version>
+			<version>6.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>6.0.0</version>
+			<version>6.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>flux-dsl</artifactId>
-			<version>6.0.0</version>
+			<version>6.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
@@ -277,11 +277,6 @@
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.framework</artifactId>
 			<version>1.10.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.msgpack</groupId>
-			<artifactId>msgpack-core</artifactId>
-			<version>0.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmuc</groupId>
@@ -323,7 +318,7 @@
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>org.reactivestreams</groupId>
 			<artifactId>reactive-streams</artifactId>
-			<version>1.0.3</version>
+			<version>1.0.4</version>
 		</dependency>
 		<dependency>
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
