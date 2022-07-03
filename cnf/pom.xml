@@ -230,7 +230,7 @@
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.12.14</version>
+			<version>0.12.15</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -283,11 +283,6 @@
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.framework</artifactId>
 			<version>1.10.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.msgpack</groupId>
-			<artifactId>msgpack-core</artifactId>
-			<version>0.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmuc</groupId>
