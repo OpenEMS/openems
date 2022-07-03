@@ -79,7 +79,7 @@
 	io.openems.wrapper.retrofit-converter-gson;version=snapshot,\
 	io.openems.wrapper.retrofit-converter-scalars;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
-	io.reactivex.rxjava3.rxjava;version='[3.1.4,3.1.5)',\
+	io.reactivex.rxjava3.rxjava;version='[3.1.5,3.1.6)',\
 	org.apache.commons.commons-csv;version='[1.9.0,1.9.1)',\
 	org.apache.commons.commons-fileupload;version='[1.4.0,1.4.1)',\
 	org.apache.commons.commons-io;version='[2.8.0,2.8.1)',\
@@ -100,4 +100,4 @@
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
 	org.postgresql.jdbc;version='[42.3.5,42.3.6)',\
-	org.reactivestreams.reactive-streams;version='[1.0.3,1.0.4)'
+	reactive-streams;version='[1.0.4,1.0.5)'
