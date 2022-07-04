@@ -19,7 +19,6 @@ import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.EvcsCluster.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;

@@ -111,6 +111,9 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 		HAS_EMERGENCY_RESERVE, //
 		EMERGENCY_RESERVE_ENABLED, //
 		EMERGENCY_RESERVE_SOC, //
+
+		// Shadow management
+		SHADOW_MANAGEMENT_DISABLED, //
 		;
 	}
 
@@ -134,8 +137,12 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			var modbusIdInternal = "modbus0";
 			var modbusIdExternal = "modbus1";
 
-			var emergencyReserveEnabled = EnumUtils.getAsBoolean(p, Property.EMERGENCY_RESERVE_ENABLED);
+			var hasEmergencyReserve = EnumUtils.getAsOptionalBoolean(p, Property.HAS_EMERGENCY_RESERVE).orElse(false);
+			var emergencyReserveEnabled = EnumUtils.getAsOptionalBoolean(p, Property.EMERGENCY_RESERVE_ENABLED)
+					.orElse(false);
 			var rippleControlReceiverActive = EnumUtils.getAsOptionalBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_ACTIV)
+					.orElse(false);
+			var shadowManagmentDisabled = EnumUtils.getAsOptionalBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED)
 					.orElse(false);
 
 			// Battery-Inverter Settings
@@ -208,10 +215,11 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("modbusUnitId", 247) //
 									.addProperty("safetyCountry", safetyCountry) //
 									.addProperty("backupEnable", //
-											emergencyReserveEnabled ? "ENABLE" : "DISABLE") //
+											hasEmergencyReserve ? "ENABLE" : "DISABLE") //
 									.addProperty("feedPowerEnable", rippleControlReceiverActive ? "DISABLE" : "ENABLE") //
 									.addProperty("feedPowerPara", maxFeedInPower) //
 									.addProperty("setfeedInPowerSettings", feedInSetting) //
+									.addProperty("mpptForShadowEnable", shadowManagmentDisabled ? "DISABLE" : "ENABLE") //
 									.build()),
 					new EdgeConfig.Component(essId,
 							TranslationUtil.getTranslation(bundle, this.getAppId() + "." + essId + ".alias"),
@@ -261,7 +269,6 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.build()));
 			}
 
-			var hasEmergencyReserve = EnumUtils.getAsOptionalBoolean(p, Property.HAS_EMERGENCY_RESERVE).orElse(false);
 			if (hasEmergencyReserve) {
 				components.add(new EdgeConfig.Component("meter2",
 						TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter2.alias"),
@@ -473,7 +480,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 											return charger.get().getAlias();
 										}))
 								.build())
-						.add(JsonFormlyUtil.buildCheckbox(Property.EMERGENCY_RESERVE_ENABLED) //
+						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_EMERGENCY_RESERVE) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".emergencyPowerSupply.label")) //
 								.isRequired(true) //
@@ -481,11 +488,11 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									f.setDefaultValue(batteryInverter.get().getProperty("backupEnable").get()
 											.getAsString().equals("ENABLE"));
 								}).build())
-						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_EMERGENCY_RESERVE) //
+						.add(JsonFormlyUtil.buildCheckbox(Property.EMERGENCY_RESERVE_ENABLED) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".emergencyPowerEnergy.label")) //
 								.setDefaultValue(hasEmergencyReserve) //
-								.onlyShowIfChecked(Property.EMERGENCY_RESERVE_ENABLED) //
+								.onlyShowIfChecked(Property.HAS_EMERGENCY_RESERVE) //
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.EMERGENCY_RESERVE_SOC) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
@@ -493,12 +500,21 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.setInputType(Type.NUMBER) //
 								.setMin(0) //
 								.setMax(100) //
-								.onlyShowIfChecked(Property.HAS_EMERGENCY_RESERVE) //
-								.onlyIf(hasEmergencyReserve, f -> {
+								.setDefaultValue(5) //
+								.onlyShowIfChecked(Property.EMERGENCY_RESERVE_ENABLED) //
+								.onlyIf(hasEmergencyReserve, f -> { // TODO only gets shown when toggling the checkbox
+									// 'EMERGENCY_RESERVE_ENABLED' twice
 									f.setDefaultValue(this.componentUtil.getComponent("ctrlEmergencyCapacityReserve0", //
 											"Controller.Ess.EmergencyCapacityReserve").get().getProperty("reserveSoc")
 											.get().getAsNumber());
-								}).build())
+								}) //
+								.build())
+						.add(JsonFormlyUtil.buildCheckbox(Property.SHADOW_MANAGEMENT_DISABLED) //
+								.setLabel(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".shadowManagementDisabled.label")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".shadowManagementDisabled.description")) //
+								.build())
 						.build()) //
 				.build();
 	}

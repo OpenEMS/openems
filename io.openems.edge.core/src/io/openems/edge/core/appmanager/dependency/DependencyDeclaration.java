@@ -101,7 +101,7 @@ public class DependencyDeclaration {
 
 			/**
 			 * The properties that are used to update the instance.
-			 * 
+			 *
 			 * @param properties the properties
 			 * @return this
 			 */
@@ -112,10 +112,10 @@ public class DependencyDeclaration {
 
 			/**
 			 * The properties that are used to firstly instantiate the app.
-			 * 
+			 *
 			 * <p>
 			 * If not set the properties are used.
-			 * 
+			 *
 			 * @param initialProperties the properties
 			 * @return this
 			 */

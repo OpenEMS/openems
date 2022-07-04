@@ -125,7 +125,8 @@ public class AppManagerAppHelperImplTest {
 		var appManagerAppHelper = new AppManagerAppHelperImpl(this.componentManger, this.componentUtil, this.validator,
 				componentTask, schedulerTask, staticIpTask);
 
-		// use this so the appManagerAppHelper does not has to be a OpenemsComponent
+		// use this so the appManagerAppHelper does not has to be a OpenemsComponent and
+		// the attribute can still be private
 		ReflectionUtils.setAttribute(appManagerAppHelper.getClass(), appManagerAppHelper, "appManager", this.sut);
 
 		new ComponentTest(this.sut) //

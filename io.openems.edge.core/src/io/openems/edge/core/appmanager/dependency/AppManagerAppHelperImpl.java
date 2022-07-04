@@ -54,7 +54,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private AppManager appManager;
+	private volatile AppManager appManager;
 
 	private final ComponentManager componentManager;
 	private final ComponentUtil componentUtil;
@@ -1314,7 +1314,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	}
 
 	private final AppManagerImpl getAppManagerImpl() {
-		return (AppManagerImpl) appManager;
+		return (AppManagerImpl) this.appManager;
 	}
 
 	private static ResourceBundle getTranslationBundle(Language language) {
