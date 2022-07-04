@@ -4,7 +4,7 @@ package io.openems.edge.consolinno.evcs.limiter;
 import java.time.Instant;
 
 class EvcsOnHold {
-    private final int power;
+    private final int current;
     private final Instant timestamp;
     private final int phases;
     private boolean wantToCharge;
@@ -18,13 +18,13 @@ class EvcsOnHold {
      * @param phases    amount of phases the EVCS has
      */
     public EvcsOnHold(int power, Instant timestamp, int phases, boolean wantToCharge) {
-        this.power = power;
+        this.current = power;
         this.timestamp = timestamp;
         this.phases = phases;
     }
 
-    public int getPower() {
-        return this.power;
+    public int getCurrent() {
+        return this.current;
     }
 
     public Instant getTimestamp() {

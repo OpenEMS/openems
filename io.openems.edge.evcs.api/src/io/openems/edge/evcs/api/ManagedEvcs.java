@@ -557,6 +557,6 @@ public interface ManagedEvcs extends Evcs {
 	 * @return int[] of connected Phases (e.g. [1,2,3] or [3,1,2])
 	 */
 	public default int[] getPhaseConfiguration() {
-		return null;
+		return new int[]{1,2,3};
 	}
 }
