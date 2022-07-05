@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { Ibn } from '../../installation-systems/abstract-ibn';
+
+import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { COUNTRY_OPTIONS } from '../../installation.component';
 
 @Component({
@@ -12,11 +13,10 @@ export class ProtocolSystemComponent implements OnInit {
 
   private static readonly SELECTOR = "protocol-system";
 
-  @Input() public ibn: Ibn;
+  @Input() public ibn: AbstractIbn;
 
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<Ibn>();
-  @Output() public setIbnEvent = new EventEmitter<Ibn>();
+  @Output() public nextViewEvent = new EventEmitter<AbstractIbn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
@@ -45,8 +45,7 @@ export class ProtocolSystemComponent implements OnInit {
       return;
     }
     this.ibn.location = this.model;
-    this.setIbnEvent.emit(this.ibn);
-    this.nextViewEvent.emit();
+    this.nextViewEvent.emit(this.ibn);
   }
 
   public generateFields(): FormlyFieldConfig[] {
@@ -58,7 +57,6 @@ export class ProtocolSystemComponent implements OnInit {
       type: "checkbox",
       templateOptions: {
         label: "Entspricht der Speicherstandort der Kundenadresse?",
-        required: true
       }
     });
 
@@ -67,7 +65,6 @@ export class ProtocolSystemComponent implements OnInit {
       type: "checkbox",
       templateOptions: {
         label: "Firmenkunde?",
-        required: true
       },
       hideExpression: model => model.isEqualToCustomerData
     });
@@ -153,7 +150,8 @@ export class ProtocolSystemComponent implements OnInit {
           type: "input",
           templateOptions: {
             type: "email",
-            label: "E-Mail-Adresse"
+            label: "E-Mail-Adresse",
+            required: true
           },
           validators: {
             validation: [Validators.email]
@@ -165,7 +163,8 @@ export class ProtocolSystemComponent implements OnInit {
           templateOptions: {
             type: "email",
             label: "E-Mail-Adresse",
-            description: "Wiederholen"
+            description: "Wiederholen",
+            required: true
           }
         }
       ],
@@ -181,12 +180,11 @@ export class ProtocolSystemComponent implements OnInit {
       key: "phone",
       type: "input",
       templateOptions: {
-        label: "Telefonnummer"
+        label: "Telefonnummer",
+        required: true
       },
       hideExpression: model => model.isEqualToCustomerData
     });
-
     return fields;
   }
-
 }

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Service } from 'src/app/shared/shared';
-import { Ibn } from '../../installation-systems/abstract-ibn';
+import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 
 export enum EmsAppId {
   HardyBarthSingle = "hardyBarthSingle",
@@ -27,13 +27,12 @@ export type EmsApp = {
 export class HeckertAppInstallerComponent implements OnInit {
   private static readonly SELECTOR = "heckert-app-installer";
 
-  @Input() public ibn: Ibn;
+  @Input() public ibn: AbstractIbn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<Ibn>();
-  @Output() public setIbnEvent = new EventEmitter<Ibn>();
+  @Output() public nextViewEvent = new EventEmitter<AbstractIbn>();
 
   public apps: EmsApp[];
-  public isHardyBarthVisible: boolean;
+  public isHardyBarthVisible: boolean = false;
 
   constructor(
     private service: Service,
@@ -49,8 +48,6 @@ export class HeckertAppInstallerComponent implements OnInit {
       { id: EmsAppId.HeatPump, alias: "Wärmepumpe ''SG-Ready''" },
       { id: EmsAppId.None, alias: "später" }
     ];
-
-    this.isHardyBarthVisible = false;
   }
 
   public onPreviousClicked() {
@@ -70,14 +67,12 @@ export class HeckertAppInstallerComponent implements OnInit {
     // Save the id of the selected app and switch to next view
     this.ibn.selectedFreeApp = selectedApp;
     sessionStorage.setItem("ibn", JSON.stringify(this.ibn));
-    this.setIbnEvent.emit(this.ibn)
-    this.nextViewEvent.emit();
+    this.nextViewEvent.emit(this.ibn);
   }
 
   public onNextClicked() {
     if (this.ibn.selectedFreeApp) {
-      this.setIbnEvent.emit(this.ibn)
-      this.nextViewEvent.emit();
+      this.nextViewEvent.emit(this.ibn);
     } else {
       this.service.toast(this.translate.instant('Edge.Installation.pleaseSelectOption'), 'danger');
     }

@@ -4,7 +4,7 @@ import { saveAs } from 'file-saver-es';
 import { GetSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/getSetupProtocolRequest';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
-import { Ibn } from '../../installation-systems/abstract-ibn';
+import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 
 @Component({
   selector: CompletionComponent.SELECTOR,
@@ -14,7 +14,7 @@ export class CompletionComponent {
 
   private static readonly SELECTOR = "completion";
 
-  @Input() public ibn: Ibn;
+  @Input() public ibn: AbstractIbn;
   @Input() public edge: Edge;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
   @Output() public nextViewEvent: EventEmitter<any> = new EventEmitter();

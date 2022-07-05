@@ -1,11 +1,11 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { filter, take } from 'rxjs/operators';
 import { AddEdgeToUserRequest } from 'src/app/shared/jsonrpc/request/addEdgeToUserRequest';
 import { AddEdgeToUserResponse } from 'src/app/shared/jsonrpc/response/addEdgeToUserResponse';
-import { Service, Websocket } from 'src/app/shared/shared';
-import { Role } from 'src/app/shared/type/role';
-import { EdgeData } from '../../installation.component';
+import { Edge, Service, Websocket } from 'src/app/shared/shared';
+import { environment } from 'src/environments';
 
 @Component({
   selector: PreInstallationComponent.SELECTOR,
@@ -14,9 +14,9 @@ import { EdgeData } from '../../installation.component';
 export class PreInstallationComponent implements OnInit {
   private static readonly SELECTOR = 'pre-installation';
 
-  @Input() public edge: EdgeData;
+  public edge: Edge;
   @Output() public nextViewEvent = new EventEmitter();
-  @Output() public setEdgeEvent = new EventEmitter<EdgeData>();
+  @Output() public edgeChange = new EventEmitter<Edge>();
 
   @ViewChild('setupKey', { static: false })
   private setupKey: ElementRef;
@@ -25,11 +25,18 @@ export class PreInstallationComponent implements OnInit {
   public fields: FormlyFieldConfig[];
   public model;
   public isWaiting = false;
+  public image: string;
 
   constructor(private service: Service, public websocket: Websocket) { }
 
   public ngOnInit() {
     this.form = new FormGroup({});
+
+    if (environment.theme === 'Heckert') {
+      this.image = 'assets/img/Home-Typenschild-web.jpg';
+    } else {
+      this.image = 'assets/img/Home-Commercial-Installer-Key.png';
+    }
   }
 
   public onNextClicked() {
@@ -50,15 +57,13 @@ export class PreInstallationComponent implements OnInit {
           return;
         }
 
-        // Set edge
-        this.edge = {
-          id: edge.id,
-          comment: edge.comment,
-          producttype: edge.producttype,
-          version: edge.version,
-          role: Role.getRole('installer'),
-          isOnline: edge.online,
-        };
+        this.service.metadata
+          .pipe(
+            filter(metadata => metadata != null),
+            take(1))
+          .subscribe(metadata => {
+            this.edge = metadata.edges[edge.id];
+          });
 
         // Get metadata
         const metadata = this.service.metadata?.getValue();
@@ -67,6 +72,12 @@ export class PreInstallationComponent implements OnInit {
         if (!metadata) {
           return;
         }
+
+        // Add edge to metadata
+        metadata.edges[edge.id] = this.edge;
+
+        // Add to session Storage.
+        sessionStorage.setItem('edge', JSON.stringify(edge));
 
         // Update metadata
         this.service.metadata.next({
@@ -79,7 +90,8 @@ export class PreInstallationComponent implements OnInit {
           'Installation für ' + this.edge.id + ' gestartet.',
           'success'
         );
-        this.setEdgeEvent.emit(this.edge);
+
+        this.edgeChange.emit(this.edge);
         this.nextViewEvent.emit();
       })
       .catch((reason) => {

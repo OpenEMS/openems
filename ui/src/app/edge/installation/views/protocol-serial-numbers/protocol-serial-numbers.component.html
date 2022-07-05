@@ -25,38 +25,18 @@
             <ion-card-content>Vervollständigen Sie die Seriennummern, indem Sie die Platzhalter (mit "x" gekennzeichnet) durch die entsprechenden Zeichen ersetzen.</ion-card-content>
         </ion-card>
 
-        <ion-card>
-            <ion-card-header>
-                <ion-item>
-                    <ion-card-title>Speichersystemkomponenten</ion-card-title>
-                </ion-item>
-            </ion-card-header>
-            <ion-card-content>
-                <formly-form [form]="formTower0" [fields]="fieldsTower0" [model]="modelTower0"></formly-form>
-            </ion-card-content>
-        </ion-card>
-
-        <ion-card *ngIf="numberOfTowers >= 2">
-            <ion-card-header>
-                <ion-item>
-                    <ion-card-title class="ion-text-wrap">Batterieturm 2</ion-card-title>
-                </ion-item>
-            </ion-card-header>
-            <ion-card-content>
-                <formly-form [form]="formTower1" [fields]="fieldsTower1" [model]="modelTower1"></formly-form>
-            </ion-card-content>
-        </ion-card>
-
-        <ion-card *ngIf="numberOfTowers === 3">
-            <ion-card-header>
-                <ion-item>
-                    <ion-card-title class="ion-text-wrap">Batterieturm 3</ion-card-title>
-                </ion-item>
-            </ion-card-header>
-            <ion-card-content>
-                <formly-form [form]="formTower2" [fields]="fieldsTower2" [model]="modelTower2"></formly-form>
-            </ion-card-content>
-        </ion-card>
+        <ng-container *ngFor="let form of forms, let i = index">     
+            <ion-card>
+                <ion-card-header>
+                    <ion-item>
+                        <ion-card-title>{{form.header}}</ion-card-title>
+                    </ion-item>
+                </ion-card-header>
+                <ion-card-content>
+                    <formly-form [form]="form.formGroup" [fields]="form.fieldSettings" [model]="form.model"></formly-form>
+                </ion-card-content>
+            </ion-card>
+        </ng-container>
 
         <ion-card>
             <ion-card-content>Wenn Sie jetzt auf weiter klicken, wird das IBN-Protokoll automatisch an die FENECON GmbH übermittelt.

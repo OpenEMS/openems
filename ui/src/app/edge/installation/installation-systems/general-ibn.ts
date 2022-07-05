@@ -1,12 +1,20 @@
-import { AbstractHomeIbn } from './abstract-home';
-import { View } from './abstract-ibn';
+import { FormlyFieldConfig } from '@ngx-formly/core';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+import { ComponentData, SerialNumberFormData } from 'src/app/shared/type/componentData';
+import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
+import { AbstractIbn, View } from './abstract-ibn';
 
-export class GeneralIbn extends AbstractHomeIbn {
+export class GeneralIbn extends AbstractIbn {
+
+    public readonly id = 'general';
+
+    public showViewCount = false;
 
     constructor() {
         super([
             View.PreInstallation,
             View.ConfigurationSystem,
+            View.ConfigurationCommercialComponent,
             View.ProtocolInstaller,
             View.ProtocolCustomer,
             View.ProtocolSystem,
@@ -21,5 +29,48 @@ export class GeneralIbn extends AbstractHomeIbn {
             View.ProtocolSerialNumbers,
             View.Completion
         ]);
+    }
+
+    public getLineSideMeterFuseFields(): FormlyFieldConfig[] {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public getSettings(edge: Edge, websocket: Websocket): Promise<{ numberOfTowers: number; numberOfModulesPerTower: number; }> {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public getFields(towerNr: number, numberOfModulesPerTower: number): FormlyFieldConfig[] {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public getSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number): FormlyFieldConfig[] {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public fillForms(numberOfTowers: number, numberOfModulesPerTower: number, models: any, forms: SerialNumberFormData[]): SerialNumberFormData[] {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower?: number): Promise<Object> {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public getFeedInLimitFields(): FormlyFieldConfig[] {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service?: Service): ComponentConfigurator {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public getProtocol(edge: Edge, websocket: Websocket): Promise<string> {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public addCustomBatteryData(batteryData: ComponentData[]): ComponentData[] {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public addCustomBatteryInverterData(batteryInverterData: ComponentData[]): ComponentData[] {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public addCustomPvData(pvData: ComponentData[]): ComponentData[] {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public setRequiredControllers() {
+        throw new Error('This is General Ibn, Method not implemented.');
+    }
+    public setFeedInLimitsFields(model: any) {
+        throw new Error('This is General Ibn, Method not implemented.');
     }
 }

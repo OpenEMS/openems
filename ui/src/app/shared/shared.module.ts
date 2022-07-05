@@ -12,6 +12,7 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
 import { FormlyWrapperFormField } from './formly/form-field.wrapper';
+import { FormlySelectFieldWrapper } from './formly/formly-select-field.wrapper';
 import { InputTypeComponent } from './formly/input';
 import { FormlyInputSerialNumberWrapper as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
 import { RepeatTypeComponent } from './formly/repeat';
@@ -19,11 +20,11 @@ import { Generic_ComponentsModule } from './genericComponents/genericComponents'
 import { HeaderComponent } from './header/header.component';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PipeModule } from './pipe/pipe';
+import { Logger } from './service/logger';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
 import { Language } from './translate/language';
-import { Logger } from './service/logger';
 
 @NgModule({
   imports: [
@@ -41,7 +42,8 @@ import { Logger } from './service/logger';
     FormlyModule.forRoot({
       wrappers: [
         { name: 'form-field', component: FormlyWrapperFormField },
-        { name: "input-serial-number", component: FormlyWrapperInputSerialNumber }
+        { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
+        { name: 'formly-select-field-wrapper', component: FormlySelectFieldWrapper }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
@@ -61,6 +63,7 @@ import { Logger } from './service/logger';
     FormlyWrapperFormField,
     RepeatTypeComponent,
     FormlyWrapperInputSerialNumber,
+    FormlySelectFieldWrapper
   ],
   exports: [
     // modules

@@ -1,27 +1,13 @@
-import { AcPv } from './views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DcPv } from './views/protocol-pv/protocol-pv.component';
-import { Edge, Service, Websocket } from 'src/app/shared/shared';
-import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { EmsApp } from './views/heckert-app-installer/heckert-app-installer.component';
-import { environment } from 'src/environments';
-
-import { Ibn, View } from './installation-systems/abstract-ibn';
+import { Edge, Service, Websocket } from 'src/app/shared/shared';
+import { filter, take } from 'rxjs/operators';
+import { AbstractIbn, View } from './installation-systems/abstract-ibn';
 import { GeneralIbn } from './installation-systems/general-ibn';
-import { HomeFeneconIbn } from './installation-systems/home-fenecon';
-import { HomeHeckertIbn } from './installation-systems/home-heckert';
-import { Role } from 'src/app/shared/type/role';
-
-// 'type' especially to store Edge data to later store in Ibn.
-export type EdgeData = {
-  id: string;
-  comment: string;
-  producttype: string;
-  version: string;
-  role: Role;
-  isOnline: boolean;
-};
+import { HomeFeneconIbn } from './installation-systems/home/home-fenecon';
+import { Commercial30AnschlussIbn } from './installation-systems/commercial/commercial30-anschluss';
+import { Commercial30NetztrennIbn } from './installation-systems/commercial/commercial30-netztrenn';
+import { HomeHeckertIbn } from './installation-systems/home/home-heckert';
 
 export const COUNTRY_OPTIONS: { value: string; label: string }[] = [
   { value: 'de', label: 'Deutschland' },
@@ -36,7 +22,7 @@ export const COUNTRY_OPTIONS: { value: string; label: string }[] = [
 export class InstallationComponent implements OnInit {
   private static readonly SELECTOR = 'installation';
 
-  public ibn: Ibn | null = null;
+  public ibn: AbstractIbn | null = null;
   public progressValue: number;
   public progressText: string;
   public edge: Edge = null;
@@ -54,34 +40,33 @@ export class InstallationComponent implements OnInit {
     this.service.currentPageTitle = 'Installation';
     this.spinnerId = 'installation-websocket-spinner';
     this.service.startSpinner(this.spinnerId);
-    let ibn: Ibn = null;
+    let ibn: AbstractIbn = null;
     let viewIndex: number;
 
     // Load 'Ibn' and 'edge' If it is available from session storage.
     if (sessionStorage?.edge) {
-      // Recreate edge object to provide the correct
-      // functionality of it (the prototype can't be saved as JSON,
+
+      // The prototype can't be saved as JSON,
       // so it has to get instantiated here again)
       const edgeString = JSON.parse(sessionStorage.getItem('edge'));
-      this.edge = new Edge(
-        edgeString.id,
-        edgeString.comment,
-        edgeString.producttype,
-        edgeString.version,
-        edgeString.role,
-        edgeString.isOnline
-      );
+      this.service.metadata
+        .pipe(
+          filter(metadata => metadata != null),
+          take(1))
+        .subscribe(metadata => {
+          this.edge = metadata.edges[edgeString.id];
+        });
 
       // Ibn is added in second view.
       if (sessionStorage.ibn) {
         const ibnString = JSON.parse(sessionStorage.getItem('ibn'));
-        const systemType = ibnString.type;
+        const systemId = ibnString.id;
 
         // Load the specific Ibn implementation. and copy to the indivual fileds.
         // Copying the plain Json string does not recognize particular Ibn functions.
         // So we have to mention what type of implementation it is.
         // This is helpful particularly if installer does the refresh in between views.
-        ibn = this.getIbnType(systemType);
+        ibn = this.getIbnType(systemId);
         ibn.views = ibnString.views ?? [];
         ibn.customer = ibnString.customer ?? {};
         ibn.installer = ibnString.installer ?? {};
@@ -107,22 +92,9 @@ export class InstallationComponent implements OnInit {
 
     // Load Ibn with 'General Ibn' data initially.
     if (this.ibn === null) {
-      this.setIbnEvent(new GeneralIbn());
+      this.ibn = new GeneralIbn();
     }
     this.displayViewAtIndex(viewIndex);
-  }
-
-  /**
-   * Sets the Ibn value.
-   *
-   * @param ibn Ibn data specific to the system.
-   */
-  public setIbnEvent(ibn: Ibn) {
-    this.ibn = ibn;
-
-    if (sessionStorage) {
-      sessionStorage.setItem('ibn', JSON.stringify(this.ibn));
-    }
   }
 
   /**
@@ -130,32 +102,18 @@ export class InstallationComponent implements OnInit {
    *
    * @returns Specific Ibn object
    */
-  public getIbnType(systemType: string): Ibn {
-    switch (systemType) {
-      case 'Fenecon-home':
+  public getIbnType(systemId: string): AbstractIbn {
+    switch (systemId) {
+      case 'general':
+        return new GeneralIbn();
+      case 'home':
         return new HomeFeneconIbn();
-      case 'Heckert-home':
+      case 'heckert':
         return new HomeHeckertIbn();
-    }
-  }
-
-  /**
-   * Sets the edge data to store in Ibn.
-   *
-   * @param edge the current edge data.
-   */
-  public setEdgeEvent(edge: EdgeData) {
-    this.edge = new Edge(
-      edge.id,
-      edge.comment,
-      edge.producttype,
-      edge.version,
-      edge.role,
-      edge.isOnline
-    );
-
-    if (sessionStorage) {
-      sessionStorage.setItem('edge', JSON.stringify(edge));
+      case 'commercial-30-anschluss':
+        return new Commercial30AnschlussIbn();
+      case 'commercial-30-netztrennstelle':
+        return new Commercial30NetztrennIbn();
     }
   }
 
@@ -179,7 +137,11 @@ export class InstallationComponent implements OnInit {
     if (index >= 0 && index < viewCount) {
       this.displayedView = this.ibn.views[index];
       this.progressValue = viewCount === 0 ? 0 : index / (viewCount - 1);
-      this.progressText = 'Schritt ' + (index + 1) + ' von ' + viewCount;
+
+      // Till the initial system and components are selected show only current page number.
+      // The view count changes based on the components selected.
+      this.progressText = this.ibn.showViewCount ? 'Schritt ' + (index + 1) +
+        ' von ' + viewCount : 'Schritt ' + (index + 1);
 
       if (sessionStorage) {
         sessionStorage.setItem('viewIndex', index.toString());
@@ -201,13 +163,30 @@ export class InstallationComponent implements OnInit {
    * Displays the previous view.
    */
   public displayPreviousView() {
-    this.displayViewAtIndex(this.getViewIndex(this.displayedView) - 1);
+
+    if (this.displayedView === View.ProtocolInstaller) {
+
+      // Takes back to the view for selecting systems. So need to reset the Ibn as well.
+      this.displayViewAtIndex(this.getViewIndex(this.displayedView) - 1);
+      this.ibn = new GeneralIbn();
+    } else {
+      this.displayViewAtIndex(this.getViewIndex(this.displayedView) - 1);
+    }
   }
 
   /**
    * Displays the Next view.
    */
-  public displayNextView() {
+  public displayNextView(ibn?: AbstractIbn) {
+
+    // Stores the Ibn locally
+    if (ibn) {
+      this.ibn = ibn;
+      if (sessionStorage) {
+        sessionStorage.setItem('ibn', JSON.stringify(ibn));
+      }
+    }
+
     this.displayViewAtIndex(this.getViewIndex(this.displayedView) + 1);
   }
 }

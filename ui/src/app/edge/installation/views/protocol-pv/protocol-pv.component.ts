@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { Ibn } from '../../installation-systems/abstract-ibn';
-import { HomeFeneconIbn } from '../../installation-systems/home-fenecon';
-import { HomeHeckertIbn } from '../../installation-systems/home-heckert';
+import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { HomeFeneconIbn } from '../../installation-systems/home/home-fenecon';
+import { HomeHeckertIbn } from '../../installation-systems/home/home-heckert';
 
 export type DcPv = {
   isSelected: boolean,
@@ -23,8 +23,7 @@ export class ProtocolPv implements OnInit {
   @Input() public ibn: HomeFeneconIbn | HomeHeckertIbn;
 
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<Ibn>();
-  @Output() public setIbnEvent = new EventEmitter<Ibn>();
+  @Output() public nextViewEvent = new EventEmitter<AbstractIbn>();
 
   public forms: Array<{ formGroup: FormGroup, fields: FormlyFieldConfig[], model: any }> = new Array();
 
@@ -78,8 +77,7 @@ export class ProtocolPv implements OnInit {
     this.ibn.pv.dc1 = this.forms[1].model;
     this.ibn.pv.dc2 = this.forms[2].model;
 
-    this.setIbnEvent.emit(this.ibn);
-    this.nextViewEvent.emit();
+    this.nextViewEvent.emit(this.ibn);
   }
 
   public getFields(): void {

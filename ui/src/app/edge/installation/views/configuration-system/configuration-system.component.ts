@@ -1,11 +1,11 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { ComponentData } from 'src/app/shared/type/componentData';
 import { environment } from 'src/environments';
-import { Ibn } from '../../installation-systems/abstract-ibn';
-import { HomeFeneconIbn } from '../../installation-systems/home-fenecon';
-import { HomeHeckertIbn } from '../../installation-systems/home-heckert';
+import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { HomeFeneconIbn } from '../../installation-systems/home/home-fenecon';
+import { HomeHeckertIbn } from '../../installation-systems/home/home-heckert';
 
 @Component({
   selector: ConfigurationSystemComponent.SELECTOR,
@@ -14,14 +14,13 @@ import { HomeHeckertIbn } from '../../installation-systems/home-heckert';
 export class ConfigurationSystemComponent implements OnInit {
   private static readonly SELECTOR = 'configuration-system';
 
+  @Input() public ibn: AbstractIbn;
   @Output() public nextViewEvent = new EventEmitter();
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
   public model;
-  private ibn: Ibn;
 
   constructor() { }
 
@@ -50,7 +49,9 @@ export class ConfigurationSystemComponent implements OnInit {
       case 'FENECON':
       default:
         label = (
-          [{ value: 'fenecon-home', label: 'Fenecon Home' }]);
+          [{ value: 'home', label: 'FENECON Home' },
+          { value: 'commercial-30', label: 'FENECON Commercial 30' },
+          ]);
         break;
     }
 
@@ -75,10 +76,19 @@ export class ConfigurationSystemComponent implements OnInit {
    * Redirects to the appropriate url for system manual.
    */
   public openManual() {
-    if (environment.theme === 'Heckert') {
-      window.open('https://www.heckertsolar.com/wp-content/uploads/2022/03/Montage_und-Serviceanleitung-Symphon-E.pdf');
-    } else {
-      window.open('https://fenecon.de/wp-content/uploads/2022/02/V2022.01.27_DE_Montage-und_Serviceanleitung_Home.pdf');
+
+    const system = this.form.controls['type'].value;
+
+    switch (system) {
+      case 'heckert-home':
+        window.open('https://www.heckertsolar.com/wp-content/uploads/2022/03/Montage_und-Serviceanleitung-Symphon-E.pdf');
+        break;
+      case 'home':
+        window.open('https://fenecon.de/download/montage-und-serviceanleitung-feneconhome/?wpdmdl=17765&refresh=62a048d9acf401654671577');
+        break;
+      case 'commercial-30':
+        window.open('https://fenecon.de/downloadcenter-commercial-30/');
+        break;
     }
   }
 
@@ -86,12 +96,15 @@ export class ConfigurationSystemComponent implements OnInit {
    * Loads the appropriate Ibn object.
    */
   private setIbn() {
-    //TODO Add the switch case to add appropriate IBN.
-    if (this.form.controls['type'].value === 'heckert-home') {
-      this.setIbnEvent.emit(new HomeHeckertIbn());
-    } else {
-      this.setIbnEvent.emit(new HomeFeneconIbn());
+    const system = this.form.controls['type'].value;
+
+    switch (system) {
+      case 'heckert-home':
+        this.ibn = new HomeHeckertIbn();
+        break;
+      case 'home':
+        this.ibn = new HomeFeneconIbn();
+        break;
     }
-    this.ibn = new HomeFeneconIbn();
   }
 }

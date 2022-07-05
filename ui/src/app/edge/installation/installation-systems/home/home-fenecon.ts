@@ -1,10 +1,12 @@
 import { AbstractHomeIbn } from './abstract-home';
-import { View } from './abstract-ibn';
+import { View } from '../abstract-ibn';
 
 export class HomeFeneconIbn extends AbstractHomeIbn {
-    public type = 'Fenecon-home';
+    public readonly type = 'Fenecon-Home';
 
-    public manualLink = 'https://fenecon.de/wp-content/uploads/2022/02/V2022.01.27_DE_Montage-und_Serviceanleitung_Home.pdf';
+    public readonly id = 'home';
+
+    public readonly manualLink = 'https://fenecon.de/wp-content/uploads/2022/02/V2022.01.27_DE_Montage-und_Serviceanleitung_Home.pdf';
 
     constructor() {
         super([

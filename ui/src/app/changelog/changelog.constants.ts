@@ -55,8 +55,9 @@ export class Product {
     public static readonly FEMS_REST_JSON_API = new Product('FEMS-App REST/JSON-Api', 'https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_api_lesend');
     public static readonly FEMS_PV_KACO = new Product('FEMS-App KACO PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/');
     public static readonly FEMS_PV_SMA = new Product('FEMS-App SMA PV-Wechselrichter', 'https://fenecon.de/fems-2-2/fems-app-sma-pv-wechselrichter/');
-    public static readonly FEMS_PV_KOSTAL = new Product('FEMS-App Kostal PV-Wechselrichter', 'https://fenecon.de/fems-2-2/'); // TODO Add Product Page
-    public static readonly FEMS_JANITZA_ZAEHLER = new Product('FEMS-App Janitza Zähler', 'https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/');
+    public static readonly FEMS_PV_KOSTAL = new Product('FEMS-App Kostal PV-Wechselrichter', 'https://fenecon.de/fems/fems-app-kostal-pv-wechselrichter//');
+    public static readonly FEMS_PV_FRONIUS = new Product('FEMS-App Fronius PV-Wechselrichter', 'https://fenecon.de/fems/fems-app-fronius-pv-wechselrichter//');
+    public static readonly FEMS_JANITZA_ZAEHLER = new Product('FEMS-App Janitza Zähler', 'https://fenecon.de/fems/fems-app-janitza-zaehler/');
     public static readonly FEMS_HEIZSTAB = new Product('FEMS-App Heizstab', 'https://fenecon.de/fems-2-2/fems-app-heizstab-6-kw/');
     public static readonly FEMS_SCHWELLWERT_STEUERUNG = new Product('FEMS-App Schwellwertsteuerung', 'https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/');
     public static readonly FEMS_BLOCKHEIZKRAFTWERK = new Product('FEMS-App Blockheizkraftwerk (BHKW)', 'https://fenecon.de/fems-2-2/fems-app-blockheizkraftwerk-bhkw/');
@@ -114,6 +115,8 @@ export class Library {
     public static readonly POSTGRESQL = new Library('Postgresql', 'org.postgresql');
     public static readonly SLF4J = new Library('SLF4j', 'org.slf4j');
     public static readonly RRD4J = new Library('RRD4j', 'org.rrd4j');
+    public static readonly OKHTTP = new Library('OkHttp', 'com.squareup.okhttp3');
+    public static readonly OKIO = new Library('Okio', 'com.squareup.okio');
 
     // UI
     public static readonly ANGULAR = new Library('Angular', 'angular');

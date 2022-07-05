@@ -3,7 +3,7 @@
         <ion-avatar slot="start">
             <img [src]="imageUrl">
         </ion-avatar>
-        <ion-label class="white-space-initial">{{title}}
+        <ion-label class="white-space-initial" style="text-align: center">{{title}}
         </ion-label>
         <ion-buttons slot="end" *ngIf="enableBtn">
             <ion-button size="small" fill="clear" (click)="swipePrevious()" *ngIf="!disablePrevBtn">
@@ -18,7 +18,6 @@
         <ion-slides [options]="slideOpts" class="slides" #slides (ionSlidesDidLoad)="slidesDidLoad(slides)"
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
-
                 <ion-slide *ngSwitchCase="'GLS Crowdfunding'">
                     <glscrowdfunding>
                     </glscrowdfunding>
@@ -30,6 +29,10 @@
 
                 <ion-slide *ngSwitchCase="'Energiewende mit FEMS'">
                     <energyRevolution></energyRevolution>
+                </ion-slide>
+
+                <ion-slide *ngSwitchCase="'Alerting'">
+                    <alerting></alerting>
                 </ion-slide>
 
             </ng-container>

@@ -1,20 +1,21 @@
+import { GetNetworkConfigRequest } from 'src/app/edge/settings/network/getNetworkConfigRequest';
+import { GetNetworkConfigResponse } from 'src/app/edge/settings/network/getNetworkConfigResponse';
+import { SetNetworkConfigRequest } from 'src/app/edge/settings/network/setNetworkConfigRequest';
 import { Interface } from 'src/app/shared/interface/interface';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
-
-import { GetNetworkConfigRequest } from '../../settings/network/getNetworkConfigRequest';
-import { GetNetworkConfigResponse } from '../../settings/network/getNetworkConfigResponse';
-import { SetNetworkConfigRequest } from '../../settings/network/setNetworkConfigRequest';
-import { ComponentConfigurator, ConfigurationMode } from '../views/configuration-execute/component-configurator';
-import { EmsAppId } from '../views/heckert-app-installer/heckert-app-installer.component';
+import { Edge, EdgeConfig, Websocket, Service } from 'src/app/shared/shared';
+import { ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
+import { EmsAppId } from '../../views/heckert-app-installer/heckert-app-installer.component';
 import { AbstractHomeIbn } from './abstract-home';
-import { View } from './abstract-ibn';
+import { View } from '../abstract-ibn';
 
 export class HomeHeckertIbn extends AbstractHomeIbn {
 
-    public type = 'Heckert-home';
+    public readonly type = 'Symphon-E';
 
-    public manualLink = 'https://www.heckertsolar.com/wp-content/uploads/2022/03/Montage_und-Serviceanleitung-Symphon-E.pdf';
+    public readonly id = 'heckert';
+
+    public readonly manualLink = 'https://www.heckertsolar.com/wp-content/uploads/2022/03/Montage_und-Serviceanleitung-Symphon-E.pdf';
 
     constructor() {
         super([

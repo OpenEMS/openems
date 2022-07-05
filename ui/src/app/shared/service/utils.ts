@@ -418,4 +418,14 @@ export class Utils {
   public static roundSlightlyNegativeValues(value: number) {
     return (value > -0.49 && value < 0) ? 0 : value;
   }
+
+  /**
+   * Shuffles an array
+   * 
+   * @param array the array to be shuffled
+   * @returns the shuffled array
+   */
+  public static shuffleArray(array: any[]): any[] {
+    return array.sort(() => Math.random() - 0.5)
+  }
 }

@@ -8,6 +8,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
@@ -87,7 +88,7 @@ public class SmaPvInverter extends AbstractPvInverter<Property> implements Opene
 			var factoryIdInverter = "PV-Inverter.SMA.SunnyTripower";
 			var components = this.getComponents(factoryIdInverter, pvInverterId, modbusId, alias, ip, port);
 			var inverter = AbstractOpenemsApp.getComponentWithFactoryId(components, factoryIdInverter);
-			inverter.getProperties().put("modbusUnitId", JsonUtils.parse(Integer.toString(modbusUnitId)));
+			inverter.getProperties().put("modbusUnitId", new JsonPrimitive(modbusUnitId));
 
 			return new AppConfiguration(components);
 		};
