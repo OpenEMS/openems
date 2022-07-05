@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { Ibn } from '../../installation-systems/abstract-ibn';
+import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { COUNTRY_OPTIONS } from '../../installation.component';
 
 @Component({
@@ -12,10 +12,9 @@ export class ProtocolCustomerComponent implements OnInit {
 
   private static readonly SELECTOR = 'protocol-customer';
 
-  @Input() public ibn: Ibn;
+  @Input() public ibn: AbstractIbn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<Ibn>();
-  @Output() public setIbnEvent = new EventEmitter<Ibn>();
+  @Output() public nextViewEvent = new EventEmitter<AbstractIbn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
@@ -40,8 +39,7 @@ export class ProtocolCustomerComponent implements OnInit {
       return;
     }
     this.ibn.customer = this.model;
-    this.setIbnEvent.emit(this.ibn);
-    this.nextViewEvent.emit();
+    this.nextViewEvent.emit(this.ibn);
   }
 
   public getFields(): FormlyFieldConfig[] {

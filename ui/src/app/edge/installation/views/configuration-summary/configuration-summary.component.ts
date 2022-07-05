@@ -2,10 +2,9 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Edge, Service } from 'src/app/shared/shared';
-import { environment } from 'src/environments';
-
 import { ComponentData } from 'src/app/shared/type/componentData';
-import { Ibn } from '../../installation-systems/abstract-ibn';
+import { environment } from 'src/environments';
+import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { COUNTRY_OPTIONS } from '../../installation.component';
 import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
 
@@ -17,7 +16,7 @@ export class ConfigurationSummaryComponent implements OnInit {
 
   private static readonly SELECTOR = 'configuration-summary';
 
-  @Input() public ibn: Ibn;
+  @Input() public ibn: AbstractIbn;
   @Input() public edge: Edge;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
   @Output() public nextViewEvent = new EventEmitter<any>();
@@ -25,7 +24,6 @@ export class ConfigurationSummaryComponent implements OnInit {
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
   public model;
-
   public tableData: { header: string; rows: ComponentData[] }[] = [];
 
   constructor(private service: Service) { }
@@ -34,7 +32,6 @@ export class ConfigurationSummaryComponent implements OnInit {
     this.form = new FormGroup({});
     this.fields = this.getFields();
     this.model = {};
-
     this.tableData = this.generateTableData();
   }
 
@@ -97,11 +94,10 @@ export class ConfigurationSummaryComponent implements OnInit {
       { label: 'FEMS-Nummer', value: edgeData }
     ];
 
-    const lineSideMeterFuse = this.ibn.lineSideMeterFuse;
-    if (lineSideMeterFuse.fixedValue === -1) {
-      generalData.push({ label: 'Vorsicherung Hausanschlusszähler', value: lineSideMeterFuse.otherValue });
+    if (this.ibn.lineSideMeterFuse.otherValue) {
+      generalData.push({ label: this.ibn.lineSideMeterFuseTitle, value: this.ibn.lineSideMeterFuse.otherValue });
     } else {
-      generalData.push({ label: 'Vorsicherung Hausanschlusszähler', value: lineSideMeterFuse.fixedValue });
+      generalData.push({ label: this.ibn.lineSideMeterFuseTitle, value: this.ibn.lineSideMeterFuse.fixedValue });
     }
 
     tableData.push({
@@ -191,24 +187,22 @@ export class ConfigurationSummaryComponent implements OnInit {
     pvData = this.ibn.addCustomPvData(pvData);
 
     // AC
-    if (pv.ac) {
-      let acNr = 1;
-      for (const ac of pv.ac) {
-        pvData = pvData.concat([
-          { label: 'Alias AC' + acNr, value: ac.alias },
-          { label: 'Wert AC' + acNr, value: ac.value }
-        ]);
+    let acNr = 1;
+    for (const ac of pv.ac) {
+      pvData = pvData.concat([
+        { label: 'Alias AC' + acNr, value: ac.alias },
+        { label: 'Wert AC' + acNr, value: ac.value }
+      ]);
 
-        if (ac.orientation) { pvData.push({ label: 'Ausrichtung AC' + acNr, value: ac.orientation }); }
-        if (ac.moduleType) { pvData.push({ label: 'Modultyp AC' + acNr, value: ac.moduleType }); }
-        if (ac.modulesPerString) { pvData.push({ label: 'Anzahl PV-Module AC' + acNr, value: ac.modulesPerString }); }
+      if (ac.orientation) { pvData.push({ label: 'Ausrichtung AC' + acNr, value: ac.orientation }); }
+      if (ac.moduleType) { pvData.push({ label: 'Modultyp AC' + acNr, value: ac.moduleType }); }
+      if (ac.modulesPerString) { pvData.push({ label: 'Anzahl PV-Module AC' + acNr, value: ac.modulesPerString }); }
 
-        pvData = pvData.concat([
-          { label: 'Zählertyp AC' + acNr, value: ac.meterType },
-          { label: 'Modbus Kommunikationsadresse AC' + acNr, value: ac.modbusCommunicationAddress }
-        ]);
-        acNr++;
-      }
+      pvData = pvData.concat([
+        { label: 'Zählertyp AC' + acNr, value: ac.meterType },
+        { label: 'Modbus Kommunikationsadresse AC' + acNr, value: ac.modbusCommunicationAddress }
+      ]);
+      acNr++;
     }
 
     if (pvData.length > 0) {

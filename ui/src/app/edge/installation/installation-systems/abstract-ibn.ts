@@ -1,12 +1,12 @@
+import { FormGroup } from '@angular/forms';
+import { FormlyFieldConfig } from '@ngx-formly/core';
 import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
-import { ComponentData } from 'src/app/shared/type/componentData';
-
+import { ComponentData, SerialNumberFormData } from 'src/app/shared/type/componentData';
+import { FeedInType } from 'src/app/shared/type/feedinsettings';
 import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
 import { EmsApp } from '../views/heckert-app-installer/heckert-app-installer.component';
 import { AcPv } from '../views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
-import { FeedInSetting, FeedInType } from '../views/protocol-feed-in-limitation/protocol-feed-in-limitation.component';
-import { DcPv } from '../views/protocol-pv/protocol-pv.component';
 
 export enum View {
   Completion,
@@ -24,12 +24,23 @@ export enum View {
   ProtocolSerialNumbers,
   ProtocolSystem,
   HeckertAppInstaller,
-  ConfigurationFeaturesStorageSystemComponent,
+  ConfigurationFeaturesStorageSystem,
+  ConfigurationCommercialComponent
 }
 
-export abstract class Ibn {
+export type SerialNumberData = {
+  formGroup: FormGroup;
+  fieldSettings: FormlyFieldConfig[];
+  model: any;
+  header: string;
+};
+
+export abstract class AbstractIbn {
   // Battery type
-  public type: string;
+  public readonly type: string;
+
+  // Id
+  public readonly id: string;
 
   // protocol-installer
   public installer?: {
@@ -84,15 +95,24 @@ export abstract class Ibn {
   public feedInLimitation?: {
     feedInType: FeedInType,
     maximumFeedInPower?: number;
-    feedInSetting?: FeedInSetting;
-    fixedPowerFactor?: FeedInSetting;
   };
 
   // protocol-pv
   public pv?: {
-    dc1?: DcPv;
-    dc2?: DcPv;
     ac?: AcPv[];
+  };
+
+  // configuration-emergency-reserve
+  public emergencyReserve?: {
+    isEnabled: boolean;
+    isReserveSocEnabled: boolean;
+    minValue: number;
+    value: number;
+  };
+
+  // Protocol Serial Numbers.
+  public serialNumbers: {
+    modules: ComponentData[];
   };
 
   //Controller-Id's
@@ -113,7 +133,76 @@ export abstract class Ibn {
   // Url for system information
   public readonly manualLink: string;
 
+  // Title for line side meter fuse view.
+  public readonly lineSideMeterFuseTitle: string;
+
+  // Rundsteuerempfaenger manual in feed in limitation
+  public readonly showRundSteuerManual: boolean;
+
+  // Show view count along with Schritt number on top of page.
+  public showViewCount: boolean;
+
   constructor(public views: View[]) { }
+
+  /**
+   * Retrieves the fields for View Line side meter Fuse,
+   * which are different for Home and Commercial systems.
+   */
+  public abstract getLineSideMeterFuseFields(): FormlyFieldConfig[];
+
+  /**
+   * Returns the number of towers and modules per tower.
+   *
+   * @param edge the current edge.
+   * @param websocket the Websocket connection.
+   */
+  public abstract getSettings(edge: Edge, websocket: Websocket): Promise<{ numberOfTowers: number; numberOfModulesPerTower: number }>;
+
+  /**
+   * Returns the component fields for serial numbers based on system being installed.
+   *
+   * @param towerNr number of towers.
+   * @param numberOfModulesPerTower number of modules per tower.
+   */
+  public abstract getFields(towerNr: number, numberOfModulesPerTower: number): FormlyFieldConfig[];
+
+  /**
+   * Returns the fields to enter number of towers and modules, manually.
+   *
+   * @param numberOfModulesPerTower number of modules per tower.
+   * @param numberOfTowers number of towers.
+   */
+  public abstract getSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number): FormlyFieldConfig[];
+
+  /**
+   * Fills the entire fields.
+   *
+   * @param numberOfTowers number of towers.
+   * @param numberOfModulesPerTower number of modules per tower.
+   * @param models form specific data.
+   * @param forms Array of form data to display.
+   */
+  public abstract fillForms(
+    numberOfTowers: number,
+    numberOfModulesPerTower: number,
+    models: any,
+    forms: Array<SerialNumberFormData>): Array<SerialNumberFormData>;
+
+  /**
+   * Retrives the Serial numbers of the battery modules and components.
+   *
+   * @param towerNr number of towers.
+   * @param edge the current edge.
+   * @param websocket the Websocket connection.
+   * @param numberOfModulesPerTower number of modules per tower.
+   */
+  public abstract getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower?: number): Promise<Object>;
+
+  /**
+   * View Configuration Dynamic Feed-In limitation.
+   * Returns the fields for the views based on the system.
+   */
+  public abstract getFeedInLimitFields(): FormlyFieldConfig[];
 
   /**
    * View Configuration-execute.
@@ -168,4 +257,12 @@ export abstract class Ibn {
    * Returns the set of controller for updateScheduler in component configurator.
    */
   public abstract setRequiredControllers();
+
+  /**
+   * Returns the updated ibn after filling Dynamic-Feed-In-Limit fields from the model.
+   * 
+   * @param ibn The IBN.
+   * @param model the model containing the user input for the Dynamic-Feed-In-Limit fields.
+   */
+  public abstract setFeedInLimitsFields(model: any);
 }

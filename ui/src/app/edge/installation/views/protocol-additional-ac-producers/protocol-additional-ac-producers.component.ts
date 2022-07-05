@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup, Validators } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Service, Utils } from 'src/app/shared/shared';
-import { Ibn } from '../../installation-systems/abstract-ibn';
+import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 
 export type AcPv = {
   alias: string,
@@ -19,17 +19,14 @@ export type AcPv = {
   templateUrl: './protocol-additional-ac-producers.component.html'
 })
 export class ProtocolAdditionalAcProducersComponent implements OnInit {
-  private readonly LINK_SOCOMEC_MANUAL = "https://www.fenecon.de/download/fems-app-socomec-zaehler/";
 
-  @Input() public ibn: Ibn;
+  @Input() public ibn: AbstractIbn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<Ibn>();
-  @Output() public setIbnEvent = new EventEmitter<Ibn>();
+  @Output() public nextViewEvent = new EventEmitter<AbstractIbn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
   public model;
-
   public insertModeEnabled: boolean;
 
   constructor(private service: Service) { }
@@ -55,8 +52,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       return;
     }
 
-    this.setIbnEvent.emit(this.ibn);
-    this.nextViewEvent.emit();
+    this.nextViewEvent.emit(this.ibn);
   }
 
   public getFields(): FormlyFieldConfig[] {
@@ -199,6 +195,6 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
   }
 
   public openManual() {
-    window.open(this.LINK_SOCOMEC_MANUAL);
+    window.open('https://docs.fenecon.de/de/_/latest/_attachments/Benutzerhandbuecher/FEMS_App_Socomec_Zaehler_Benutzerhandbuch.pdf');
   }
 }

@@ -6,6 +6,7 @@ import { InstallationViewComponent } from "./installation-view/installation-view
 import { InstallationComponent } from "./installation.component";
 import { KeyMask } from "./keymask";
 import { CompletionComponent } from "./views/completion/completion.component";
+import { ConfigurationCommercialComponent } from "./views/configuration-commercial-component/configuration-commercial.component";
 import { ConfigurationEmergencyReserveComponent } from "./views/configuration-emergency-reserve/configuration-emergency-reserve.component";
 import { ConfigurationExecuteComponent } from "./views/configuration-execute/configuration-execute.component";
 import { ConfigurationLineSideMeterFuseComponent } from "./views/configuration-line-side-meter-fuse/configuration-line-side-meter-fuse.component";
@@ -22,11 +23,9 @@ import { ProtocolSerialNumbersComponent } from "./views/protocol-serial-numbers/
 import { ProtocolSystemComponent } from "./views/protocol-system/protocol-system.component";
 
 //#region Validators
-
 export function EmailMatchValidator(control: FormControl): ValidationErrors {
 
   const { email, emailConfirm } = control.value;
-
   if (email === emailConfirm) {
     return null;
   }
@@ -37,6 +36,11 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
 export function BatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
   // This validator checks the length of the value
   return /^.{16}$/.test(control.value) ? null : { "batteryInverterSerialNumber": true };
+}
+
+export function CommercialBatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
+  // This validator checks the length of the value
+  return /^.{10}$/.test(control.value) ? null : { "commercialBatteryInverterSerialNumber": true };
 }
 
 export function EmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
@@ -62,8 +66,14 @@ export function OnlyPositiveIntegerValidator(control: FormControl): ValidationEr
   return /^[0-9]+$/.test(control.value) ? null : { "onlyPositiveInteger": true }
 }
 
+export function CommercialBmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
+  return /^\d{10}$/.test(control.value) ? null : { "commercialBmsBoxSerialNumber": true };
+}
 
-//#endregion
+export function CommercialBatteryModuleSerialNumberValidator(control: FormControl): ValidationErrors {
+  // This validator only checks the value after the prefix
+  return /^\d{10}$/.test(control.value) ? null : { "commercialBatteryModuleSerialNumber": true };
+}
 
 //#region Validator Messages
 export function OnlyPositiveIntegerValidatorMessage(err, field: FormlyFieldConfig) {
@@ -90,6 +100,10 @@ export function BatteryInverterSerialNumberValidatorMessage(err, field: FormlyFi
   return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
 }
 
+export function CommercialBatteryInverterSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
+}
+
 export function EmsBoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
   return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
 }
@@ -103,10 +117,16 @@ export function BmsBoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig
 }
 
 export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 24 Ziffern.`;
+  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 12 Ziffern.`;
 }
 
-//#endregion
+export function CommercialBmsBoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 14 Ziffern.`;
+}
+
+export function CommercialBatteryModuleSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 10 Ziffern.`;
+}
 
 @NgModule({
   imports: [
@@ -119,6 +139,9 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
         { name: "bmsBoxSerialNumber", validation: BmsBoxSerialNumberValidator },
         { name: "batterySerialNumber", validation: BatterySerialNumberValidator },
         { name: "onlyPositiveInteger", validation: OnlyPositiveIntegerValidator },
+        { name: "commercialBmsBoxSerialNumber", validation: CommercialBmsBoxSerialNumberValidator },
+        { name: "commercialBatteryModuleSerialNumber", validation: CommercialBatteryModuleSerialNumberValidator },
+        { name: "commercialBatteryInverterSerialNumber", validation: CommercialBatteryInverterSerialNumberValidator }
       ],
       validationMessages: [
         { name: "required", message: RequiredValidatorMessage },
@@ -131,6 +154,9 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
         { name: "bmsBoxSerialNumber", message: BmsBoxSerialNumberValidatorMessage },
         { name: "batterySerialNumber", message: BatterySerialNumberValidatorMessage },
         { name: "onlyPositiveInteger", message: OnlyPositiveIntegerValidatorMessage },
+        { name: "commercialBmsBoxSerialNumber", message: CommercialBmsBoxSerialNumberValidatorMessage },
+        { name: "commercialBatteryModuleSerialNumber", message: CommercialBatteryModuleSerialNumberValidatorMessage },
+        { name: "commercialBatteryInverterSerialNumber", message: CommercialBatteryInverterSerialNumberValidatorMessage }
       ]
     }),
     SharedModule
@@ -153,7 +179,8 @@ export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfi
     ProtocolAdditionalAcProducersComponent,
     ConfigurationSummaryComponent,
     ProtocolSerialNumbersComponent,
-    HeckertAppInstallerComponent
+    HeckertAppInstallerComponent,
+    ConfigurationCommercialComponent
   ]
 })
 export class InstallationModule { }

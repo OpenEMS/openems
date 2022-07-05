@@ -4,8 +4,8 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { GetUserInformationRequest } from 'src/app/shared/jsonrpc/request/getUserInformationRequest';
 import { GetUserInformationResponse } from 'src/app/shared/jsonrpc/response/getUserInformationResponse';
 import { Service } from 'src/app/shared/shared';
-import { Ibn } from '../../installation-systems/abstract-ibn';
-import { COUNTRY_OPTIONS, EdgeData } from '../../installation.component';
+import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { COUNTRY_OPTIONS } from '../../installation.component';
 
 type UserInformation = {
   companyName: string;
@@ -26,16 +26,13 @@ type UserInformation = {
 export class ProtocolInstallerComponent implements OnInit {
   private static readonly SELECTOR = 'protocol-installer';
 
-  @Input() public ibn: Ibn;
+  @Input() public ibn: AbstractIbn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
-  @Output() public nextViewEvent = new EventEmitter<Ibn>();
-  @Output() public setIbnEvent = new EventEmitter<Ibn>();
-  @Output() public setEdgeEvent = new EventEmitter<EdgeData>();
+  @Output() public nextViewEvent = new EventEmitter<AbstractIbn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
   public model;
-
   public spinnerId: string;
 
   constructor(private service: Service) { }
@@ -52,6 +49,7 @@ export class ProtocolInstallerComponent implements OnInit {
   }
 
   public onPreviousClicked() {
+    this.ibn.showViewCount = false;
     this.previousViewEvent.emit();
   }
 
@@ -61,8 +59,7 @@ export class ProtocolInstallerComponent implements OnInit {
     }
 
     this.ibn.installer = this.model;
-    this.setIbnEvent.emit(this.ibn);
-    this.nextViewEvent.emit();
+    this.nextViewEvent.emit(this.ibn);
   }
 
   public getFields(): FormlyFieldConfig[] {

@@ -3,8 +3,7 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
-
-import { Ibn } from '../../installation-systems/abstract-ibn';
+import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { ComponentConfigurator, ConfigurationObject, ConfigurationState, FunctionState } from './component-configurator';
 
 @Component({
@@ -15,7 +14,7 @@ export class ConfigurationExecuteComponent implements OnInit {
 
   private static readonly SELECTOR = 'configuration-execute';
 
-  @Input() public ibn: Ibn;
+  @Input() public ibn: AbstractIbn;
   @Input() public edge: Edge;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
   @Output() public nextViewEvent: EventEmitter<any> = new EventEmitter();
@@ -48,16 +47,15 @@ export class ConfigurationExecuteComponent implements OnInit {
         });
       }
 
-      //#region Add objects to component configurator
-      if (environment.theme === 'Heckert') {
-        this.componentConfigurator = this.ibn.getComponentConfigurator(this.edge, config, this.websocket, this.service);
-      } else {
-        this.componentConfigurator = this.ibn.getComponentConfigurator(this.edge, config, this.websocket);
-      }
-      //#end-region
+      // Add objects to component configurator
+      this.componentConfigurator = this.ibn.getComponentConfigurator(this.edge, config, this.websocket, this.service);
 
       this.configurationObjectsToBeConfigured = this.componentConfigurator.getConfigurationObjectsToBeConfigured();
       this.isAnyConfigurationObjectPreConfigured = this.componentConfigurator.anyHasConfigurationState(ConfigurationState.PreConfigured);
+
+      // To update scheduler.
+      this.ibn.setRequiredControllers();
+      sessionStorage.setItem('ibn', JSON.stringify(this.ibn));
 
       // Auto-start configuration when no components pre-configured
       if (this.isAnyConfigurationObjectPreConfigured) {

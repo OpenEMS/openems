@@ -1,9 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-
-import { Ibn } from '../../installation-systems/abstract-ibn';
-import { HomeFeneconIbn } from '../../installation-systems/home-fenecon';
+import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 
 @Component({
   selector: ConfigurationEmergencyReserveComponent.SELECTOR,
@@ -13,11 +11,9 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
 
   private static readonly SELECTOR = "configuration-emergency-reserve";
 
-  @Input() public ibn: HomeFeneconIbn;
-
+  @Input() public ibn: AbstractIbn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
   @Output() public nextViewEvent = new EventEmitter<any>();
-  @Output() public setIbnEvent = new EventEmitter<Ibn>();
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
@@ -34,7 +30,6 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       value: 20,
       isReserveSocEnabled: false
     };
-
   }
 
   public onPreviousClicked() {
@@ -48,9 +43,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
     }
 
     this.ibn.emergencyReserve = this.model;
-    this.setIbnEvent.emit(this.ibn);
-    this.ibn.setRequiredControllers();
-    this.nextViewEvent.emit();
+    this.nextViewEvent.emit(this.ibn);
   }
 
   public getFields(): FormlyFieldConfig[] {
@@ -62,7 +55,6 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       type: "checkbox",
       templateOptions: {
         label: "Soll die Notstromfunktion aktiviert werden?",
-        required: true
       }
     });
 
@@ -71,7 +63,6 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       type: "toggle",
       templateOptions: {
         label: "Notstromreserve aktivieren?",
-        required: true,
       },
       hideExpression: model => !model.isEnabled
     });
@@ -83,7 +74,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
         label: "Wert [%]",
         description: "Aktuell: 20",
         required: true,
-        min: 5,
+        min: this.ibn.emergencyReserve.minValue,
         max: 100,
         attributes: {
           pin: "true"
@@ -93,9 +84,6 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       parsers: [Number],
       hideExpression: model => !model.isEnabled || !model.isReserveSocEnabled
     });
-
     return fields;
-
   }
-
 }

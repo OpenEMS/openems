@@ -1,4 +1,5 @@
-<installation-view iconName="key-outline" header="Installateursschlüssel eingeben" (nextClicked)="onNextClicked()" [isWaiting]="isWaiting || websocket.status !== 'online'" isFirstView="true">
+<installation-view iconName="key-outline" header="Installateursschlüssel eingeben" (nextClicked)="onNextClicked()"
+    [isWaiting]="isWaiting || websocket.status !== 'online'" isFirstView="true">
 
     <table class="full_width ion-text-center">
         <tr>
@@ -11,7 +12,7 @@
     </table>
 
     <ion-item lines="none" class="ion-padding-top">
-            <img src="assets/img/Home-Typenschild-web.jpg">
+        <img [src]="image">
     </ion-item>
 
 </installation-view>
