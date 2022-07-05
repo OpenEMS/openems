@@ -204,7 +204,7 @@
 		<dependency>
 			 <groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.servlet-api</artifactId>
-			<version>1.2.0</version>
+			<version>2.0.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Metatype Service -->
