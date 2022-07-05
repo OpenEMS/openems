@@ -6,12 +6,6 @@
 		readOnly=true; \
 		name="Maven Central"
 
--plugin.7.Local: \
-	aQute.bnd.deployer.repository.LocalIndexedRepo; \
-		name = Local; \
-		pretty = true; \
-		local = ${build}/local
-
 -plugin.8.Templates: \
 	aQute.bnd.deployer.repository.LocalIndexedRepo; \
 		name = Templates; \
