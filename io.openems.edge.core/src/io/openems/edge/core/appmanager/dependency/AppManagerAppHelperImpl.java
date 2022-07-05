@@ -1229,6 +1229,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			throws OpenemsNamedException {
 
 		var target = oldAppInstance == null ? ConfigurationTarget.ADD : ConfigurationTarget.UPDATE;
+
 		var newAppConfig = app.getAppConfiguration(target, newAppInstance.properties, language);
 
 		final var replacableIds = this.getReplaceableComponentIds(app, newAppInstance.properties);
@@ -1310,7 +1311,15 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				newAppInstance.properties.addProperty(replacableIds.get(comp.getId()), id);
 			}
 		}
-		return app.getAppConfiguration(target, newAppInstance.properties, language);
+
+		if (newAppInstance.alias != null) {
+			newAppInstance.properties.addProperty("ALIAS", newAppInstance.alias);
+		}
+		var result = app.getAppConfiguration(target, newAppInstance.properties, language);
+		if (newAppInstance.alias != null) {
+			newAppInstance.properties.remove("ALIAS");
+		}
+		return result;
 	}
 
 	private final AppManagerImpl getAppManagerImpl() {
