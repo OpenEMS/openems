@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -305,3 +306,4 @@ public interface OTPMemoryBank extends PagedMemoryBank {
 	 */
 	public boolean isRedirectPageLocked(int page) throws OneWireIOException, OneWireException;
 }
+// CHECKSTYLE:ON

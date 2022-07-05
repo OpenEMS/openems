@@ -39,7 +39,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	/**
 	 * Initial-Value. Default: none
 	 *
-	 * @param initialValue
+	 * @param initialValue the initial value as {@link OptionsEnum}
 	 * @return myself
 	 */
 	public EnumDoc initialValue(OptionsEnum initialValue) {
@@ -133,7 +133,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 
 	/**
 	 * Gets the name of the Option or 'UNDEFINED' if there is no option with that
-	 * value
+	 * value.
 	 *
 	 * @param value the integer value of the Option
 	 * @return the name of the Option as a String

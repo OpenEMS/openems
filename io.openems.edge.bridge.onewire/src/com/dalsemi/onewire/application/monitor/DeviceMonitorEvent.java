@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -158,3 +159,4 @@ public class DeviceMonitorEvent extends EventObject {
 		return Address.toString(this.getAddressAsLongAt(index));
 	}
 }
+// CHECKSTYLE:ON

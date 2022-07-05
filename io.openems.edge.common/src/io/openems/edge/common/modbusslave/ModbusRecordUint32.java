@@ -7,9 +7,9 @@ import io.openems.edge.common.type.TypeUtils;
 
 public class ModbusRecordUint32 extends ModbusRecordConstant {
 
-	public final static byte[] UNDEFINED_VALUE = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+	public static final  byte[] UNDEFINED_VALUE = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
-	public final static int BYTE_LENGTH = 4;
+	public static final int BYTE_LENGTH = 4;
 
 	protected final Integer value;
 
@@ -24,10 +24,22 @@ public class ModbusRecordUint32 extends ModbusRecordConstant {
 				+ this.getType() + "]";
 	}
 
+	/**
+	 * Convert to byte array.
+	 * 
+	 * @param value the value
+	 * @return the byte array
+	 */
 	public static byte[] toByteArray(int value) {
 		return ByteBuffer.allocate(BYTE_LENGTH).putInt(value).array();
 	}
 
+	/**
+	 * Convert to byte array.
+	 * 
+	 * @param value the value
+	 * @return the byte array
+	 */
 	public static byte[] toByteArray(Object value) {
 		if (value == null || value instanceof io.openems.common.types.OptionsEnum
 				&& ((io.openems.common.types.OptionsEnum) value).isUndefined()) {

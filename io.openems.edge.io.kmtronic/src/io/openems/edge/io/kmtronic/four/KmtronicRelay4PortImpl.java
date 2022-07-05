@@ -52,7 +52,7 @@ public class KmtronicRelay4PortImpl extends AbstractKmtronicRelay
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	protected void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -89,7 +89,7 @@ public class KmtronicRelay4PortImpl extends AbstractKmtronicRelay
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(KmtronicRelay4Port.class, accessMode, 100)//
 						.channel(0, KmtronicRelay4Port.ChannelId.RELAY_1, ModbusType.UINT16) //

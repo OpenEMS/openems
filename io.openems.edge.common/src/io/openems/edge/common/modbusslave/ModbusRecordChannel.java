@@ -61,8 +61,8 @@ public class ModbusRecordChannel extends ModbusRecord {
 	 * Evaluate the AccessMode from configured Modbus-Api-AccessMode and
 	 * Channel-AccessMode.
 	 *
-	 * @param channelId         the {@link ChannelId}
-	 * @param channelAccessMode the configured {@link AccessMode}
+	 * @param channelId           the {@link ChannelId}
+	 * @param modbusApiAccessMode the configured {@link AccessMode}
 	 * @return the actual {@link AccessMode}
 	 */
 	private static AccessMode evaluateActualAccessMode(ChannelId channelId, AccessMode modbusApiAccessMode) {
@@ -161,6 +161,11 @@ public class ModbusRecordChannel extends ModbusRecord {
 		return new byte[0];
 	}
 
+	/**
+	 * Add a onWriteValue callback.
+	 * 
+	 * @param onWriteValueCallback the callback
+	 */
 	public void onWriteValue(Consumer<Object> onWriteValueCallback) {
 		this.onWriteValueCallback = onWriteValueCallback;
 	}

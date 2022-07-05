@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -187,3 +188,4 @@ public class DeviceMonitor extends AbstractDeviceMonitor {
 		}
 	}
 }
+// CHECKSTYLE:ON

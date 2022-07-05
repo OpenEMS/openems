@@ -226,8 +226,8 @@ public class RestHandler extends AbstractHandler {
 		}
 
 		// Build list of all channels where components are enabled
-		var ComponentList = this.parent.getComponentManager().getEnabledComponents();
-		for (OpenemsComponent component : ComponentList) {
+		var componentList = this.parent.getComponentManager().getEnabledComponents();
+		for (OpenemsComponent component : componentList) {
 			// Loop over enabled ComponentIds, look for exact or RegExp match
 			if (this.matchesSafely(component.id(), channelAddress.getComponentId())) {
 				for (Channel<?> channel : component.channels()) {

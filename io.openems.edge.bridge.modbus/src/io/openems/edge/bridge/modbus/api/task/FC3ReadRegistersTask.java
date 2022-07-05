@@ -11,8 +11,8 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
 /**
- * Implements a Read Holding Register abstractTask, implementing Modbus function
- * code 3 (http://www.simplymodbus.ca/FC03.htm)
+ * Implements a Read Holding Register Task, implementing Modbus function code 3
+ * (http://www.simplymodbus.ca/FC03.htm).
  */
 public class FC3ReadRegistersTask extends AbstractReadInputRegistersTask implements ReadTask {
 

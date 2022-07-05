@@ -74,7 +74,7 @@ public interface ModbusElement<T> {
 	 * i.e. sets the value to 'UNDEFINED'/null. Applies the
 	 * 'invalidateElementsAfterReadErrors' config setting of the bridge.
 	 *
-	 * @param the {@link AbstractModbusBridge}
+	 * @param bridge the {@link AbstractModbusBridge}
 	 * @return true if Channel was invalidated
 	 */
 	public boolean invalidate(AbstractModbusBridge bridge);

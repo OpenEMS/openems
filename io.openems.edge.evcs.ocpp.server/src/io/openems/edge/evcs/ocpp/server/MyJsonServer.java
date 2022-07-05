@@ -73,8 +73,11 @@ public class MyJsonServer {
 	/**
 	 * Starting the OCPP Server. Responds to every connecting/disconnecting charging
 	 * station.
+	 * 
+	 * @param ip   the IP address
+	 * @param port the port
 	 */
-	public void activate(String ip, int port) {
+	protected void activate(String ip, int port) {
 
 		this.server.open(ip, port, new ServerEvents() {
 
@@ -127,7 +130,7 @@ public class MyJsonServer {
 		});
 	}
 
-	public void deactivate() {
+	protected void deactivate() {
 		this.server.close();
 	}
 

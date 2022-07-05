@@ -39,6 +39,16 @@ public enum Language {
 		}
 	}
 
+	/**
+	 * Get {@link Language} for given key of the language. If the language key does
+	 * not exist, {@link Language#EN} is returned as default. The given key is
+	 * removed all leading and trailing whitespaces and converts all characters to
+	 * upper case.
+	 *
+	 * @param languageKey to get the {@link Language}
+	 * @return the founded {@link Language} or throws an exception
+	 * @throws OpenemsException on error
+	 */
 	public static Language from(Optional<String> languageKey) throws OpenemsException {
 		if (languageKey.isPresent()) {
 			return Language.from(languageKey.get());

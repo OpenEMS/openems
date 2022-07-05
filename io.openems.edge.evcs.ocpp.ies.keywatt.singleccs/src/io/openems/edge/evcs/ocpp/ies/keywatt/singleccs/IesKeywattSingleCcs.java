@@ -78,7 +78,7 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 	}
 
 	@Activate
-	public void activate(ComponentContext context, Config config) {
+	protected void activate(ComponentContext context, Config config) {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 

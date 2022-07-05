@@ -65,7 +65,7 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 	protected ConfigurationAdmin cm;
 
 	/**
-	 * Subtracts 10.000 between Element and Channel
+	 * Subtracts 10.000 between Element and Channel.
 	 */
 	public static final ElementToChannelConverter MINUS_10000_CONVERTER = new ElementToChannelOffsetConverter(-10000);
 

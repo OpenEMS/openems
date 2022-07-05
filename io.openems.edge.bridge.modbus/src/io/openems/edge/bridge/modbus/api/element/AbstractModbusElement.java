@@ -116,6 +116,11 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	 */
 	private boolean isDebug = false;
 
+	/**
+	 * Activate Debug-Mode.
+	 * 
+	 * @return myself
+	 */
 	public AbstractModbusElement<T> debug() {
 		this.isDebug = true;
 		return this;

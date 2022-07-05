@@ -916,8 +916,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						// ADAS_WARNING_1_0
 						m(new BitsWordElement(0x3450, this) //
 								.bit(0, EssFeneconBydContainer.ChannelId.STATE_190) //
-						), //
-							// ADAS_WARNING_1_1
+						),
+						// ADAS_WARNING_1_1
 						m(new BitsWordElement(0x3451, this) //
 								.bit(3, EssFeneconBydContainer.ChannelId.STATE_203) //
 								.bit(4, EssFeneconBydContainer.ChannelId.STATE_191) //

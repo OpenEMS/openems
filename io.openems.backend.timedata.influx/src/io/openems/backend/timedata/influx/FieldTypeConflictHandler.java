@@ -74,8 +74,8 @@ public class FieldTypeConflictHandler {
 	 * 'requiredType'.
 	 * 
 	 * @param field        the field name, i.e. the Channel-Address
-	 * @param requiredType the {@link RequiredType
-	 * @return
+	 * @param requiredType the {@link RequiredType}
+	 * @return the Handler
 	 */
 	private BiConsumer<Point, JsonElement> createHandler(String field, RequiredType requiredType) {
 		switch (requiredType) {

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000,2001 Maxim Integrated Products, All Rights Reserved.
@@ -107,3 +108,4 @@ public class TAGParser {
 	/** Field handler */
 	private final TAGHandler handler;
 }
+// CHECKSTYLE:ON

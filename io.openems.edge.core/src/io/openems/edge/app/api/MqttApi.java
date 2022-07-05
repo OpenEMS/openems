@@ -11,7 +11,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
@@ -28,6 +29,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a App for MQTT Api.
@@ -45,11 +47,13 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"CLIENT_ID": "edge0",
     	"URI": "tcp://localhost:1883"
     },
-    "appDescriptor": {}
+    "appDescriptor": {
+    	"websiteUrl": URL
+    }
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.Api.Mqtt.ReadWrite")
+@org.osgi.service.component.annotations.Component(name = "App.Api.Mqtt")
 public class MqttApi extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
@@ -69,31 +73,36 @@ public class MqttApi extends AbstractOpenemsApp<Property> implements OpenemsApp 
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()) //
+	public AppAssistant getAppAssistant(Language language) {
+		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.USERNAME) //
-								.setDescription("Username for authentication at MQTT broker.") //
-								.setLabel("Username") //
+								.setLabel(TranslationUtil.getTranslation(bundle, "username")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".Username.description")) //
 								.isRequired(true) //
 								.setMinLenght(3) //
 								.setMaxLenght(18) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.PASSWORD) //
-								.setLabel("Password") //
-								.setDescription("Password for authentication at MQTT broker.") //
+								.setLabel(TranslationUtil.getTranslation(bundle, "password")) //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".Password.description")) //
 								.isRequired(true) //
 								.setInputType(Type.PASSWORD) //
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.CLIENT_ID) //
-								.setLabel("Client-ID") //
-								.setDescription("Client-ID for authentication at MQTT broker.") //
+								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".EdgeId.label")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".EdgeId.description")) //
 								.setDefaultValue("edge0") //
 								.isRequired(true) //
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.URI) //
 								.setLabel("Uri") //
-								.setDescription("The connection Uri to MQTT broker.") //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".Uri.description")) //
 								.setDefaultValue("tcp://localhost:1883") //
 								.isRequired(true) //
 								.build()) //
@@ -113,23 +122,13 @@ public class MqttApi extends AbstractOpenemsApp<Property> implements OpenemsApp 
 	}
 
 	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
-	public String getName() {
-		return "MQTT-Api";
-	}
-
-	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE;
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 
 			var clientId = this.getValueOrDefault(p, Property.CLIENT_ID, "edge0");
 			var uri = this.getValueOrDefault(p, Property.URI, "tcp://localhost:1883");
@@ -140,7 +139,7 @@ public class MqttApi extends AbstractOpenemsApp<Property> implements OpenemsApp 
 			var controllerId = this.getId(t, p, Property.CONTROLLER_ID, "ctrlControllerApiMqtt0");
 
 			var components = Lists.newArrayList(//
-					new EdgeConfig.Component(controllerId, this.getName(), "Controller.Api.MQTT",
+					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.MQTT",
 							JsonUtils.buildJsonObject() //
 									.addProperty("clientId", clientId) //
 									.addProperty("uri", uri) //

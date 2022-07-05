@@ -38,6 +38,12 @@ public class TimeLeapClock extends Clock {
 		return this.zone;
 	}
 
+	/**
+	 * Add a time leap to the {@link TimeLeapClock}.
+	 * 
+	 * @param amountToAdd the amount to add
+	 * @param unit        the {@link TemporalUnit}
+	 */
 	public void leap(long amountToAdd, TemporalUnit unit) {
 		this.instant = this.instant.plus(amountToAdd, unit);
 	}

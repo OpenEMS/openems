@@ -1,21 +1,29 @@
 package io.openems.edge.common.test;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -32,6 +40,8 @@ public class DummyComponentManager implements ComponentManager {
 	private final List<OpenemsComponent> components = new ArrayList<>();
 	private final Clock clock;
 	private JsonObject edgeConfigJson;
+
+	private ConfigurationAdmin configurationAdmin = null;
 
 	public DummyComponentManager() {
 		this(Clock.systemDefaultZone());
@@ -56,7 +66,7 @@ public class DummyComponentManager implements ComponentManager {
 	public <T extends OpenemsComponent> List<T> getEnabledComponentsOfType(Class<T> clazz) {
 		List<T> result = new ArrayList<>();
 		for (OpenemsComponent component : this.components) {
-			if (component.getClass().isInstance(clazz)) {
+			if (clazz.isInstance(component)) {
 				result.add((T) component);
 			}
 		}
@@ -167,6 +177,8 @@ public class DummyComponentManager implements ComponentManager {
 
 		case GetEdgeConfigRequest.METHOD:
 			return this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
+		case UpdateComponentConfigRequest.METHOD:
+			return this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
 
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
@@ -188,9 +200,33 @@ public class DummyComponentManager implements ComponentManager {
 		return CompletableFuture.completedFuture(response);
 	}
 
+	private CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
+			UpdateComponentConfigRequest request) throws OpenemsNamedException {
+		if (this.configurationAdmin == null) {
+			throw new OpenemsException("Can not update Component Config. ConfigurationAdmin is null!");
+		}
+		try {
+			for (var configuration : this.configurationAdmin.listConfigurations(request.getComponentId())) {
+				var properties = new Hashtable<String, JsonElement>();
+				for (var property : request.getProperties()) {
+					properties.put(property.getName(), property.getValue());
+				}
+				configuration.update(properties);
+				break;
+			}
+			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+		} catch (IOException | InvalidSyntaxException e) {
+			throw new OpenemsException("Can not update Component Config.");
+		}
+	}
+
 	@Override
 	public Clock getClock() {
 		return this.clock;
+	}
+
+	public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
+		this.configurationAdmin = configurationAdmin;
 	}
 
 }

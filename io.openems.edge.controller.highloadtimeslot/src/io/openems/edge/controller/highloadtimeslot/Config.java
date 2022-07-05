@@ -3,7 +3,7 @@ package io.openems.edge.controller.highloadtimeslot;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller High-Load Timeslot", //
 		description = "This controller discharges the storage system at a defined time with a defined load; charges within remaining time.")
 @interface Config {

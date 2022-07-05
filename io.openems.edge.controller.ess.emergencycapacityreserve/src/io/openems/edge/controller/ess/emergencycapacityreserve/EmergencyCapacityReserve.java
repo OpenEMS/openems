@@ -62,6 +62,11 @@ public interface EmergencyCapacityReserve extends Controller, OpenemsComponent {
 		}
 	}
 
+	/**
+	 * Gets the Configuration.
+	 * 
+	 * @return the {@link Config}
+	 */
 	public Config getConfig();
 
 	/**

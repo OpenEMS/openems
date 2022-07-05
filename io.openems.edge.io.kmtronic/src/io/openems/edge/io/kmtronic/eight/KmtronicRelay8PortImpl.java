@@ -97,7 +97,7 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(KmtronicRelay8Port.class, accessMode, 100)//
 						.channel(0, KmtronicRelay8Port.ChannelId.RELAY_1, ModbusType.UINT16) //

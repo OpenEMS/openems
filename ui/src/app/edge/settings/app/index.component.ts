@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { timeout } from 'rxjs/operators';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { environment } from 'src/environments';
 import { Service, Websocket } from '../../../shared/shared';
@@ -14,25 +16,31 @@ export class IndexComponent {
   private static readonly SELECTOR = "appIndex";
   public readonly spinnerId: string = IndexComponent.SELECTOR;
 
+  /**
+   * e. g. if more than 4 apps are in a list the apps are displayed in their categories
+   */
+  private static readonly MAX_APPS_IN_LIST = 4;
+
   public apps: GetApps.App[] = [];
 
-  public installedApps: AppList = { name: "Installiert", appCategories: [] };
-  public availableApps: AppList = { name: "Verfügbar", appCategories: [] };
+  public installedApps: AppList = { name: this.translate.instant('Edge.Config.App.installed'), appCategories: [] };
+  public availableApps: AppList = { name: this.translate.instant('Edge.Config.App.available'), appCategories: [] };
   // TODO incompatible apps should not be shown in the future
-  public incompatibleApps: AppList = { name: "Incompatible", appCategories: [] };
+  public incompatibleApps: AppList = { name: this.translate.instant('Edge.Config.App.incompatible'), appCategories: [] };
 
   public appLists: AppList[] = [this.installedApps, this.availableApps, this.incompatibleApps];
 
   public categories = [];
 
-  constructor(
+  public constructor(
     private route: ActivatedRoute,
     private service: Service,
     private websocket: Websocket,
+    private translate: TranslateService,
   ) {
   }
 
-  ionViewWillEnter() {
+  private ionViewWillEnter() {
     // gets always called when entering the page
     this.init()
   }
@@ -62,7 +70,6 @@ export class IndexComponent {
                 this.categories.push({ val: category, isChecked: true })
               }
             });
-
           })
 
           this.updateSelection(null)
@@ -74,7 +81,11 @@ export class IndexComponent {
     });
   }
 
-  public updateSelection(event) {
+  /**
+   * Updates the slected categories.
+   * @param event the event of a click on a 'ion-fab-list' to stop it from closing
+   */
+  private updateSelection(event) {
     if (event != null) {
       event.stopPropagation()
     }
@@ -91,7 +102,6 @@ export class IndexComponent {
         }
         return true
       })
-
     })
 
     sortedApps.forEach(a => {
@@ -122,7 +132,7 @@ export class IndexComponent {
   }
 
   private showCategories(app: AppList) {
-    return this.sum(app) > 4
+    return this.sum(app) > IndexComponent.MAX_APPS_IN_LIST
   }
 
   private isEmpty(app: AppList) {

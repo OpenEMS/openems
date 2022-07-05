@@ -1,6 +1,7 @@
 package io.openems.edge.core.appmanager;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
@@ -28,6 +29,14 @@ public interface ComponentUtil {
 	 * @return true if a component has the given String in its configuration
 	 */
 	public boolean anyComponentUses(String value, List<String> ignoreIds);
+
+	/**
+	 * Gets a list of current Relays. e. g. 'io0/Relay1'
+	 *
+	 * @return a list of Relays
+	 * @throws OpenemsNamedException on error
+	 */
+	public List<Relay> getAllRelays();
 
 	/**
 	 * Gets a list of currently available Relays of IOs which are not used by any
@@ -201,4 +210,12 @@ public interface ComponentUtil {
 	 */
 	public void updateHosts(User user, List<String> ips, List<String> oldIps) throws OpenemsNamedException;
 
+	/**
+	 * Gets an {@link Optional} of an {@link EdgeConfig.Component}.
+	 *
+	 * @param id        the id of the component
+	 * @param factoryId the factoryId of the component
+	 * @return the optional component
+	 */
+	public Optional<EdgeConfig.Component> getComponent(String id, String factoryId);
 }

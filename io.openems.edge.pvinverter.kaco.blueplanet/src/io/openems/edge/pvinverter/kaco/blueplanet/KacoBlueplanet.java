@@ -34,6 +34,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
+import io.openems.edge.pvinverter.sunspec.Phase;
 import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -45,7 +46,7 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
-	EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class KacoBlueplanet extends AbstractSunSpecPvInverter implements SunSpecPvInverter, ManagedSymmetricPvInverter,
 		ModbusComponent, SymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
@@ -70,8 +71,8 @@ public class KacoBlueplanet extends AbstractSunSpecPvInverter implements SunSpec
 	// .put(DefaultSunSpecModel.S_160, Priority.LOW) // from 40792
 	// .put(SunSpecModel.S_64204, Priority.LOW) // from 40842
 
-	private final static int UNIT_ID = 1;
-	private final static int READ_FROM_MODBUS_BLOCK = 1;
+	private static final int UNIT_ID = 1;
+	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -96,7 +97,8 @@ public class KacoBlueplanet extends AbstractSunSpecPvInverter implements SunSpec
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
+				config.modbus_id(), READ_FROM_MODBUS_BLOCK, Phase.ALL)) {
+			return;
 		}
 	}
 

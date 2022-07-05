@@ -55,7 +55,7 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config1 config) throws OpenemsException {
+	protected void activate(ComponentContext context, Config1 config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,
 				"Modbus", this.ess.getModbusBridgeId())) {
 			return;

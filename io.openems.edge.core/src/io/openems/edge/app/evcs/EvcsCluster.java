@@ -1,6 +1,7 @@
 package io.openems.edge.app.evcs;
 
 import java.util.EnumMap;
+import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -11,7 +12,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
@@ -28,6 +30,7 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a evcs cluster.
@@ -43,8 +46,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
       "EVCS_IDS": [ "evcs0", "evcs1", ...]
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-multiladepunkt-eigenverbrauch-2/">https://fenecon.de/fems-2-2/fems-app-multiladepunkt-eigenverbrauch-2/</a>
+    	"websiteUrl": URL
     }
   }
  * </pre>
@@ -66,18 +68,18 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 
 			var evcsClusterId = this.getId(t, p, Property.EVCS_CLUSTER_ID, "evcsCluster0");
 
-			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName());
+			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
 
 			var ids = EnumUtils.getAsJsonArray(p, Property.EVCS_IDS);
 
 			var components = Lists.newArrayList(new EdgeConfig.Component(evcsClusterId, alias,
 					"Evcs.Cluster.PeakShaving", JsonUtils.buildJsonObject() //
-							.add("evcs.ids", ids) //
+							.onlyIf(t.isAddOrUpdate(), j -> j.add("evcs.ids", ids)) //
 							.build()));
 
 			return new AppConfiguration(components);
@@ -85,12 +87,16 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()) //
+	public AppAssistant getAppAssistant(Language language) {
+		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildSelect(Property.EVCS_IDS).setLabel("EVCS-IDs") //
-								.setDescription("IDs of EVCS devices.") //
-								.setOptions(this.componentUtil.getEnabledComponentsOfStartingId("evcs"),
+						.add(JsonFormlyUtil.buildSelect(Property.EVCS_IDS) //
+								.setLabel("EVCS-IDs") //
+								.setDescription(TranslationUtil.getTranslation(bundle,
+										this.getAppId() + ".evcsIds.description")) //
+								.setOptions(this.componentUtil.getEnabledComponentsOfStartingId("evcs").stream()
+										.filter(t -> !t.id().startsWith("evcsCluster")).collect(Collectors.toList()),
 										t -> t.alias() == null || t.alias().isEmpty() ? t.id()
 												: t.id() + ": " + t.alias(),
 										OpenemsComponent::id)
@@ -110,16 +116,6 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 	@Override
 	public OpenemsAppCategory[] getCategorys() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.EVCS };
-	}
-
-	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
-	public String getName() {
-		return "Multiladepunkt-Management";
 	}
 
 	@Override

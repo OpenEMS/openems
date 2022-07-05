@@ -169,9 +169,9 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Logs are displayed if the debug mode is configured
+	 * Logs are displayed if the debug mode is configured.
 	 *
-	 * @param log    Logger
+	 * @param log    the {@link Logger}
 	 * @param string Text to display
 	 */
 	protected void logInfoInDebugmode(Logger log, String string) {
@@ -210,6 +210,13 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				this.getModbusSlaveNatureTable(accessMode));
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 
 		return ModbusSlaveNatureTable.of(KebaKeContact.class, accessMode, 300) //

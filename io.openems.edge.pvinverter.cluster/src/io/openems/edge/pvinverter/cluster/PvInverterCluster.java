@@ -38,7 +38,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "PvInverter.Cluster", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //

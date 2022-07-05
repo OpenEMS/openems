@@ -5,10 +5,11 @@ import java.util.function.Function;
 import io.openems.common.types.OpenemsType;
 
 public class StaticConverters {
+
 	/**
-	 * Converts only positive values from Element to Channel
+	 * Converts only positive values from Element to Channel.
 	 */
-	public final static Function<Object, Object> KEEP_POSITIVE = value -> {
+	public static final Function<Object, Object> KEEP_POSITIVE = value -> {
 		if (value == null) {
 			return null;
 		}
@@ -70,9 +71,9 @@ public class StaticConverters {
 	};
 
 	/**
-	 * Invert a value
+	 * Invert a value.
 	 */
-	public final static Function<Object, Object> INVERT = value -> {
+	public static final Function<Object, Object> INVERT = value -> {
 		if (value == null) {
 			return null;
 		}

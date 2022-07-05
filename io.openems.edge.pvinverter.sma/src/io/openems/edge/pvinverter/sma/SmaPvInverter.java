@@ -31,6 +31,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
@@ -48,10 +49,11 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class SmaPvInverter extends AbstractSunSpecPvInverter implements SunSpecPvInverter, ManagedSymmetricPvInverter,
-		SymmetricMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
+		SymmetricMeter, ModbusComponent, AsymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) // from 40002
+			.put(DefaultSunSpecModel.S_101, Priority.LOW) // from 40081
 			.put(DefaultSunSpecModel.S_103, Priority.HIGH) // from 40185
 			.put(DefaultSunSpecModel.S_120, Priority.LOW) // from 40237
 			.put(DefaultSunSpecModel.S_121, Priority.LOW) // from 40265
@@ -72,7 +74,7 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter implements SunSpecP
 	// .put(DefaultSunSpecModel.S_129, Priority.LOW) // from 40751
 	// .put(DefaultSunSpecModel.S_130, Priority.LOW) // from 40813
 
-	private final static int READ_FROM_MODBUS_BLOCK = 1;
+	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -83,6 +85,7 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter implements SunSpecP
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				SunSpecPvInverter.ChannelId.values() //
 		);
@@ -97,7 +100,8 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter implements SunSpecP
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
+				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK, config.phase())) {
+			return;
 		}
 	}
 

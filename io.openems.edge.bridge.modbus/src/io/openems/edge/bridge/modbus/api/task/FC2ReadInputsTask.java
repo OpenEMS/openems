@@ -10,8 +10,8 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.common.taskmanager.Priority;
 
 /**
- * Implements a Read Inputs abstractTask, implementing Modbus function code 2
- * (http://www.simplymodbus.ca/FC02.htm)
+ * Implements a Read Inputs Task, implementing Modbus function code 2
+ * (http://www.simplymodbus.ca/FC02.htm).
  */
 public class FC2ReadInputsTask extends AbstractReadDigitalInputsTask implements ReadTask {
 

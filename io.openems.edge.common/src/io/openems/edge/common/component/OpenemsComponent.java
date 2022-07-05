@@ -205,11 +205,11 @@ public interface OpenemsComponent {
 	}
 
 	/**
-	 * Used for Modbus/TCP Api Controller. Provides a modbus table for the Channels
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
 	 * of this Component.
 	 *
-	 * @param accessMode the {@link AccessMode} of the Controller
-	 * @return a {@link ModbusSlaveNatureTable}
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(OpenemsComponent.class, accessMode, 80) //

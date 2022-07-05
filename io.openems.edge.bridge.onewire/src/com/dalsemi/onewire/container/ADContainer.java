@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
@@ -474,3 +475,4 @@ public interface ADContainer extends OneWireSensor {
 	 */
 	public void setADRange(int channel, double range, byte[] state);
 }
+// CHECKSTYLE:ON
