@@ -174,10 +174,20 @@ public enum Type {
 				// Strings are parsed if they start with a number or minus
 				var s = p.getAsString();
 				if (DETECT_FLOAT_PATTERN.test(s)) {
-					return Type.FLOAT;
+					try {
+						Double.parseDouble(s); // try parsing to Double
+						return Type.FLOAT;
+					} catch (NumberFormatException e) {
+						return Type.STRING;
+					}
 
 				} else if (DETECT_INTEGER_PATTERN.test(s)) {
-					return Type.INTEGER;
+					try {
+						Long.parseLong(s); // try parsing to Long
+						return Type.INTEGER;
+					} catch (NumberFormatException e) {
+						return Type.STRING;
+					}
 				}
 				return Type.STRING;
 			}
