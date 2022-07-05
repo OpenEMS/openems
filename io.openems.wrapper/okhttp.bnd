@@ -41,6 +41,7 @@ Import-Package: \
 	org.openjsse.javax.net.ssl;resolution:=optional,\
 	org.openjsse.net.ssl;resolution:=optional,\
 	sun.security.ssl;resolution:=optional,\
+	okio,\
 	*
 
 -dsannotations: *
