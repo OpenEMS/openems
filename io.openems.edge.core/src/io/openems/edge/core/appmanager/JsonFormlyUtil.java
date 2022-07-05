@@ -591,7 +591,7 @@ public class JsonFormlyUtil {
 			return this.setOptions(items, t -> t, t -> t);
 		}
 
-		public <T> SelectBuilder setOptions(List<T> items, Function<T, String> item2Label,
+		public <T> SelectBuilder setOptions(List<? extends T> items, Function<T, String> item2Label,
 				Function<T, String> item2Value) {
 			var options = JsonUtils.buildJsonArray();
 			for (var item : items) {
