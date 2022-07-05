@@ -35,6 +35,18 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.7.1',
+        changes: [
+          Changelog.openems('2022.7.0'),
+          Changelog.product(Product.FEMS_PV_FRONIUS) + "Neue FEMS-App",
+          Changelog.product(Product.COMMERCIAL_30) + "Inbetriebnahmeassistent ist jetzt auch für Commercial 30 verfügbar",
+          Changelog.library(Library.INFLUXDB, Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY, Library.D3, Library.NGX_COOKIE_SERVICE,
+            Library.NGX_SPINNER, Library.FASTEXCEL, Library.OKHTTP, Library.OKIO, Library.POSTGRESQL, Library.JNA),
+          { roleIsAtLeast: Role.ADMIN, change: "Werbewidgets: Alerting" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei SunSpec 32-bit Registern" },
+        ]
+      },
+      {
         version: '2022.6.6',
         changes: [
           Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
