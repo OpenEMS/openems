@@ -73,9 +73,9 @@ public class AppAssistant {
 		return new Builder().setAppName(appname);
 	}
 
-	private final String name;
-	private final String alias;
-	private final JsonArray fields;
+	public final String name;
+	public final String alias;
+	public final JsonArray fields;
 
 	private AppAssistant(String name, String alias, JsonArray fields) {
 		this.name = name;

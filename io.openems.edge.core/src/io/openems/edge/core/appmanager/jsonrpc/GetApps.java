@@ -10,9 +10,11 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import io.openems.edge.core.appmanager.validator.Validator;
 
 /**
  * Gets the available {@link OpenemsApp}s.
@@ -92,7 +94,7 @@ public class GetApps {
 	public static class Response extends JsonrpcResponseSuccess {
 
 		private static JsonArray createAppsArray(List<OpenemsApp> availableApps,
-				List<OpenemsAppInstance> instantiatedApps) {
+				List<OpenemsAppInstance> instantiatedApps, Language language, Validator validator) {
 			var result = JsonUtils.buildJsonArray();
 			for (var app : availableApps) {
 				// TODO don't show integrated systems for normal users
@@ -108,15 +110,15 @@ public class GetApps {
 				}
 				var categorys = JsonUtils.buildJsonArray().build();
 				for (var cat : app.getCategorys()) {
-					categorys.add(cat.toJsonObject());
+					categorys.add(cat.toJsonObject(language));
 				}
 				result.add(JsonUtils.buildJsonObject() //
 						.add("categorys", categorys) //
 						.addProperty("cardinality", app.getCardinality().name()) //
 						.addProperty("appId", app.getAppId()) //
-						.addProperty("name", app.getName()) //
+						.addProperty("name", app.getName(language)) //
 						.addProperty("image", app.getImage()) //
-						.add("status", app.getValidator().toJsonObject()) //
+						.add("status", validator.toJsonObject(app.getValidatorConfig(), language)) //
 						.add("instanceIds", instanceIds.build()) //
 						.build());
 			}
@@ -125,9 +127,10 @@ public class GetApps {
 
 		private final JsonArray apps;
 
-		public Response(UUID id, List<OpenemsApp> availableApps, List<OpenemsAppInstance> instantiatedApps) {
+		public Response(UUID id, List<OpenemsApp> availableApps, List<OpenemsAppInstance> instantiatedApps,
+				Language language, Validator validator) {
 			super(id);
-			this.apps = createAppsArray(availableApps, instantiatedApps);
+			this.apps = createAppsArray(availableApps, instantiatedApps, language, validator);
 		}
 
 		@Override

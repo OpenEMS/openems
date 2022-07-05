@@ -23,8 +23,7 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" name="information-outline"></ion-icon>
-            <ion-label text-wrap>Der App-Manager befindet sich aktuell in einer ersten Testversion. Falls nicht alle
-              Apps angezeigt werden, muss evtl. die FEMS Version geupdatet werden.</ion-label>
+            <ion-label text-wrap translate>Edge.Config.App.header</ion-label>
           </ion-item>
         </ion-card>
       </ion-col>
@@ -87,12 +86,12 @@
                               </p>
                               <div *ngIf="app.instanceIds.length == 0 && app.status.name != 'INSTALLABLE'">
                                 <div *ngIf="app.status.errorCompatibleMessages.length != 0 ">
-                                  <small>errorCompatibleMessages:</small><br />
+                                  <small translate>Edge.Config.App.errorCompatible</small><br />
                                   <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
                                     }}</small><br />
                                 </div>
                                 <div *ngIf="app.status.errorInstallableMessages.length != 0 ">
-                                  <small>errorInstallableMessages:</small><br />
+                                  <small translate>Edge.Config.App.errorInstallable</small><br />
                                   <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
                                     }}</small><br />
                                 </div>
@@ -133,12 +132,12 @@
                           </p>
                           <div *ngIf="app.instanceIds.length == 0 && app.status.name != 'INSTALLABLE'">
                             <div *ngIf="app.status.errorCompatibleMessages.length != 0 ">
-                              <small>errorCompatibleMessages:</small><br />
+                              <small translate>Edge.Config.App.errorCompatible</small><br />
                               <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
                                 }}</small><br />
                             </div>
                             <div *ngIf="app.status.errorInstallableMessages.length != 0 ">
-                              <small>errorInstallableMessages:</small><br />
+                              <small translate>Edge.Config.App.errorInstallable</small><br />
                               <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
                                 }}</small><br />
                             </div>

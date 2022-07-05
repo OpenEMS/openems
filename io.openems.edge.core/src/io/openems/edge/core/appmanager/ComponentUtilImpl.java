@@ -10,6 +10,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -374,6 +375,21 @@ public class ComponentUtilImpl implements ComponentUtil {
 					}
 					return false;
 				});
+	}
+
+	@Override
+	public List<Relay> getAllRelays() {
+		List<DigitalOutput> allDigitalOutputs = this.getEnabledComponentsOfType(DigitalOutput.class);
+		List<Relay> relays = new LinkedList<>();
+		for (DigitalOutput digitalOutput : allDigitalOutputs) {
+			List<String> availableIos = new LinkedList<>();
+			for (var i = 0; i < digitalOutput.digitalOutputChannels().length; i++) {
+				var ioName = digitalOutput.id() + "/Relay" + (i + 1);
+				availableIos.add(ioName);
+			}
+			relays.add(new Relay(digitalOutput.id(), availableIos, digitalOutput.digitalOutputChannels().length));
+		}
+		return relays;
 	}
 
 	@Override
@@ -758,6 +774,15 @@ public class ComponentUtilImpl implements ComponentUtil {
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
+	}
+
+	@Override
+	public Optional<EdgeConfig.Component> getComponent(String id, String factoryId) {
+		var comp = this.componentManager.getEdgeConfig().getComponent(id);
+		if (comp.isEmpty() || !comp.get().getFactoryId().equals(factoryId)) {
+			return Optional.empty();
+		}
+		return comp;
 	}
 
 }

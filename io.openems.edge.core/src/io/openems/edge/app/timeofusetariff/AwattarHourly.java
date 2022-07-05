@@ -12,7 +12,8 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiFunction;
+import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
@@ -42,6 +43,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"TIME_OF_USE_TARIF_ID": "timeOfUseTariff0"
     },
     "appDescriptor": {
+    	"websiteUrl": URL
     }
   }
  * </pre>
@@ -62,8 +64,8 @@ public class AwattarHourly extends AbstractOpenemsApp<Property> implements Opene
 	}
 
 	@Override
-	protected ThrowingBiFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, p) -> {
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+		return (t, p, l) -> {
 
 			var ctrlEssTimeOfUseTariffDischargeId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID,
 					"ctrlEssTimeOfUseTariffDischarge0");
@@ -72,11 +74,11 @@ public class AwattarHourly extends AbstractOpenemsApp<Property> implements Opene
 
 			// TODO ess id may be changed
 			List<Component> comp = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, "aWATTar",
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, this.getName(l),
 							"Controller.Ess.Time-Of-Use-Tariff.Discharge", JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
 									.build()), //
-					new EdgeConfig.Component(timeOfUseTariffId, "timeOfUseTariff0", "TimeOfUseTariff.Awattar",
+					new EdgeConfig.Component(timeOfUseTariffId, this.getName(l), "TimeOfUseTariff.Awattar",
 							JsonUtils.buildJsonObject() //
 									.build())//
 			);
@@ -85,8 +87,8 @@ public class AwattarHourly extends AbstractOpenemsApp<Property> implements Opene
 	}
 
 	@Override
-	public AppAssistant getAppAssistant() {
-		return AppAssistant.create(this.getName()) //
+	public AppAssistant getAppAssistant(Language language) {
+		return AppAssistant.create(this.getName(language)) //
 				.build();
 	}
 
@@ -99,16 +101,6 @@ public class AwattarHourly extends AbstractOpenemsApp<Property> implements Opene
 	@Override
 	public OpenemsAppCategory[] getCategorys() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TIME_OF_USE_TARIFF };
-	}
-
-	@Override
-	public String getImage() {
-		return OpenemsApp.FALLBACK_IMAGE;
-	}
-
-	@Override
-	public String getName() {
-		return "Awattar HOURLY";
 	}
 
 	@Override
