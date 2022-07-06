@@ -135,6 +135,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("bmsB4/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB4/_PropertyPendingTolerance", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB4/_PropertyStartUnsuccessfulDelay", RequiredType.INTEGER);
+		this.createAndAddHandler("charger1/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlApiModbusTcp0/RunFailed", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlApiModbusTcp0/_PropertyApiTimeout", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlApiModbusTcp0/_PropertyApiTimeout", RequiredType.INTEGER);
@@ -729,6 +730,8 @@ public class FieldTypeConflictHandler {
 
 		if (this.specialCaseFieldHandlers.containsKey(field)) {
 			// Special handling had already been added.
+			this.parent.logWarn(this.log,
+					"Special field handler for message [" + e.getMessage() + "] is already existing");
 			return;
 		}
 

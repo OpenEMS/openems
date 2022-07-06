@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class InfluxConnector {
 	private final String apiKey;
 	private final String bucket;
 	private final boolean isReadOnly;
-	private final Function<Throwable, Boolean> onWriteError;
+	private final Consumer<Throwable> onWriteError;
 	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
 			TimeUnit.SECONDS, //
 			new ArrayBlockingQueue<>(EXECUTOR_QUEUE_SIZE), //
@@ -89,11 +89,10 @@ public class InfluxConnector {
 	 *                     v1
 	 * @param isReadOnly   If true, a 'Read-Only-Mode' is activated, where no data
 	 *                     is actually written to the database
-	 * @param onWriteError A function for write-errors; return true to retry writing
-	 *                     the {@link Point}s
+	 * @param onWriteError A consumer for write-errors
 	 */
 	public InfluxConnector(URI url, String org, String apiKey, String bucket, boolean isReadOnly,
-			Function<Throwable, Boolean> onWriteError) {
+			Consumer<Throwable> onWriteError) {
 		this.url = url;
 		this.org = org;
 		this.apiKey = apiKey;
@@ -149,10 +148,9 @@ public class InfluxConnector {
 							try {
 								this.getInfluxConnection().writeApi.writePoints(points);
 							} catch (Throwable t) {
-								if (this.onWriteError.apply(t)) {
-									// Retry
-									this.getInfluxConnection().writeApi.writePoints(points);
-								}
+								this.log.warn("Unable to write points: "
+										+ StringUtils.toShortString(points.toString(), 100) + "; " + t.getMessage());
+								this.onWriteError.accept(t);
 							}
 						});
 					}
