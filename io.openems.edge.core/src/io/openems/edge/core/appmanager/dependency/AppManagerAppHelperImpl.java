@@ -171,6 +171,9 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 	private UpdateValues updateAppInternal(User user, OpenemsAppInstance oldInstance, JsonObject properties,
 			String alias, OpenemsApp app) throws OpenemsNamedException {
+		if (properties == null) {
+			properties = new JsonObject();
+		}
 		// TODO maybe check for all apps
 		// if also checking dependencies these may be inconsistent
 		// e. g. install HOME is requested it may have a dependency on a SOCOMEC Meter
@@ -285,6 +288,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 						id = instance.instanceId;
 					}
 					try {
+						// check if an instance can be created
 						var tempApp = this.getAppManagerImpl().findAppById(config.appId);
 						tempApp.getAppConfiguration(ConfigurationTarget.ADD, config.initialProperties, language);
 						this.temporaryApps.currentlyCreatingApps
@@ -296,7 +300,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			}
 			return true;
 		};
-
 		final var lastCreatedOrModifiedApp = new MutableValue<OpenemsAppInstance>();
 		// update app and its dependencies
 		this.foreachDependency(app, alias, properties, ConfigurationTarget.UPDATE, language,
@@ -1280,8 +1283,9 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				foundComponent = this.componentManager.getEdgeConfig().getComponent(comp.getId()).orElse(null);
 				if (foundComponent == null) {
 					// find component for currently creating apps
-					for (var entry : this.getAppManagerImpl()
-							.appConfigs(this.temporaryApps.currentlyCreatingModifiedApps(), null)) {
+					for (var entry : this.getAppManagerImpl().appConfigs(
+							this.temporaryApps.currentlyCreatingModifiedApps(),
+							AppManagerImpl.exludingInstanceIds(newAppInstance.instanceId))) {
 						foundComponent = entry.getValue().components.stream()
 								.filter(t -> t.getId().equals(comp.getId())).findFirst().orElse(null);
 						if (foundComponent != null) {
@@ -1323,7 +1327,11 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	}
 
 	private final AppManagerImpl getAppManagerImpl() {
-		return (AppManagerImpl) this.appManager;
+		var appManagerImpl = this.appManager;
+		if (appManagerImpl == null) {
+			appManagerImpl = this.componentManager.getEnabledComponentsOfType(AppManager.class).get(0);
+		}
+		return (AppManagerImpl) appManagerImpl;
 	}
 
 	private static ResourceBundle getTranslationBundle(Language language) {

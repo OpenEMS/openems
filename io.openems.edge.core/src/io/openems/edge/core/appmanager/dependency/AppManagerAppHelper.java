@@ -50,7 +50,7 @@ public interface AppManagerAppHelper {
 	/**
 	 * Only available during a call of one of the other methods.
 	 *
-	 * @return null if none of the other mehtods is currently running else the
+	 * @return null if none of the other methods is currently running else the
 	 *         {@link TemporaryApps}
 	 */
 	public TemporaryApps getTemporaryApps();
