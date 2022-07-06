@@ -1298,8 +1298,9 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					id = comp.getId();
 				} else {
 					// replace number at the end and get the next available id
-					var nextAvailableId = this.componentUtil.getNextAvailableId(id.replaceAll("\\d+", ""),
-							otherAppComponents);
+					var baseName = id.replaceAll("\\d+", "");
+					var startingNumber = Integer.parseInt(id.replace(baseName, ""));
+					var nextAvailableId = this.componentUtil.getNextAvailableId(baseName, startingNumber, otherAppComponents);
 					if (!nextAvailableId.equals(id) && !canBeReplaced) {
 						// component can not be created because the id is already used
 						// and the id can not be set in the configuration
