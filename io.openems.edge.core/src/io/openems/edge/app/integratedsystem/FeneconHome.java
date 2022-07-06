@@ -148,12 +148,14 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			// Battery-Inverter Settings
 			var safetyCountry = EnumUtils.getAsString(p, Property.SAFETY_COUNTRY);
 			int maxFeedInPower;
+			String feedInSetting;
 			if (!rippleControlReceiverActive) {
 				maxFeedInPower = EnumUtils.getAsInt(p, Property.MAX_FEED_IN_POWER);
+				feedInSetting = EnumUtils.getAsString(p, Property.FEED_IN_SETTING);
 			} else {
 				maxFeedInPower = 0;
+				feedInSetting = "UNDEFINED";
 			}
-			var feedInSetting = EnumUtils.getAsString(p, Property.FEED_IN_SETTING);
 
 			var bundle = AbstractOpenemsApp.getTranslationBundle(l);
 			var components = Lists.newArrayList(//
@@ -426,6 +428,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".feedInSettings.label")) //
 								.isRequired(true) //
+								.onlyShowIfNotChecked(Property.RIPPLE_CONTROL_RECEIVER_ACTIV) //
 								.setOptions(this.getFeedInSettingsOptions(), t -> t, t -> t) //
 								.onlyIf(batteryInverter.isPresent(), f -> {
 									f.setDefaultValue(batteryInverter.get() //
