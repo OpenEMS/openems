@@ -1,7 +1,7 @@
 package io.openems.edge.sma;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.ess.api.SinglePhase;
 
 @SuppressWarnings("all")
