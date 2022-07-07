@@ -1,6 +1,6 @@
 package io.openems.edge.bosch.bpts5hybrid.core;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
