@@ -324,7 +324,7 @@ public class OdooHandler {
 		var address = addressOpt.get();
 
 		Map<String, Object> addressFields = new HashMap<>();
-		addressFields.put("type", "private");
+		addressFields.put("type", "contact");
 		JsonUtils.getAsOptionalString(address, "street") //
 				.ifPresent(street -> addressFields.put(Field.Partner.STREET.id(), street));
 		JsonUtils.getAsOptionalString(address, "zip") //
@@ -597,17 +597,19 @@ public class OdooHandler {
 	}
 
 	/**
-	 * Add the "Created via IBN" tag to the referenced partner for given user id.
+	 * Add tags to the referenced partner for given user id.
 	 *
 	 * @param userId to get Odoo partner
 	 * @throws OpenemsException on error
 	 */
 	private void addTagToPartner(int userId) throws OpenemsException {
-		var tagId = OdooUtils.getObjectReference(this.credentials, "fems", "res_partner_category_created_via_ibn");
+		var createdViaIbnTag = OdooUtils.getObjectReference(this.credentials, "fems", "res_partner_category_created_via_ibn");
+		var customerTag = OdooUtils.getObjectReference(this.credentials, "fems", "res_partner_category_customer");
+
 		var partnerId = this.getOdooPartnerId(userId);
 
 		OdooUtils.write(this.credentials, Field.Partner.ODOO_MODEL, new Integer[] { partnerId },
-				new FieldValue<>(Field.Partner.CATEGORY_ID, new Integer[] { tagId }));
+				new FieldValue<>(Field.Partner.CATEGORY_ID, new Integer[] { createdViaIbnTag, customerTag }));
 	}
 
 	/**
