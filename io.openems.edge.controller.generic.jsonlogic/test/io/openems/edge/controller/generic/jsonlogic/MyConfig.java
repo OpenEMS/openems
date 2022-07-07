@@ -1,8 +1,8 @@
 package io.openems.edge.controller.generic.jsonlogic;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

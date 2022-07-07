@@ -11,7 +11,7 @@ public class FieldTypeConflictHandlerTest {
 		var influx = new Influx();
 		var sut = new FieldTypeConflictHandler(influx);
 		assertTrue(sut.handleExceptionMessage("HTTP status code: 400; Message: partial write: field type conflict: " //
-				+ "input field \"batteryInverterA1/Dca\" on measurement \"data\" is type integer, " //
+				+ "input field \"foo/bar\" on measurement \"data\" is type integer, " //
 				+ "already exists as type float dropped=2"));
 	}
 

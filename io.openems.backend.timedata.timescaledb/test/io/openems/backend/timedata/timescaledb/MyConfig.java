@@ -1,6 +1,6 @@
 package io.openems.backend.timedata.timescaledb;
 
-import io.openems.backend.timedata.utils.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

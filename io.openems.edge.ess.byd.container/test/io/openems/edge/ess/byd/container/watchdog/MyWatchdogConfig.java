@@ -1,6 +1,6 @@
 package io.openems.edge.ess.byd.container.watchdog;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyWatchdogConfig extends AbstractComponentConfig implements Config {
