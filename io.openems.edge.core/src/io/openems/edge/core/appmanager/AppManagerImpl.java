@@ -372,7 +372,6 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	public CompletableFuture<JsonrpcResponseSuccess> handleAddAppInstanceRequest(User user,
 			AddAppInstance.Request request) throws OpenemsNamedException {
 		var openemsApp = this.findAppById(request.appId);
-
 		synchronized (this.instantiatedApps) {
 
 			var installedValues = this.appHelper.installApp(user, request.properties, request.alias, openemsApp);

@@ -94,8 +94,7 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 			// TODO which modbus should be used(new or already existing from home) only one
 			// meter installed so far.
 
-			// modbus id for connection to battery-inverter for a HOME
-			// var modbusId = "modbus1";
+			// modbusid for connection via tcp bridge
 			var modbusId = this.getId(t, p, Property.MODBUS_ID, "modbus2");
 
 			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));

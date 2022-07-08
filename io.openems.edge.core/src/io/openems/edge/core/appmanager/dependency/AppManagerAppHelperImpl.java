@@ -302,7 +302,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		};
 		final var lastCreatedOrModifiedApp = new MutableValue<OpenemsAppInstance>();
 		// update app and its dependencies
-		this.foreachDependency(app, alias, properties, ConfigurationTarget.UPDATE, language,
+		this.foreachDependency(errors, app, alias, properties, ConfigurationTarget.UPDATE, language,
 				this::determineDependencyConfig, includeDependency, dc -> {
 					// get old instance if existing
 					ExistingDependencyConfig oldAppConfig = null;
@@ -582,6 +582,14 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			}
 			this.aggregateAllTasks(null, dc.config);
 			this.temporaryApps.currentlyDeletingApps.add(dc.instance);
+		}
+
+		// remove temporary instances that couldn't be created
+		this.temporaryApps.currentlyCreatingApps.removeIf(t -> t.properties == null);
+		this.temporaryApps.currentlyModifiedApps.removeIf(t -> t.properties == null);
+
+		if (!errors.isEmpty()) {
+			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
 
 		return new UpdateValues(lastCreatedOrModifiedApp.getValue(), this.temporaryApps.currentlyCreatingModifiedApps(),
@@ -970,7 +978,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	 * @return s the last {@link DependencyConfig}
 	 * @throws OpenemsNamedException on error
 	 */
-	private DependencyConfig foreachDependency(OpenemsApp app, AppDependencyConfig appConfig,
+	private DependencyConfig foreachDependency(List<String> errors, OpenemsApp app, AppDependencyConfig appConfig,
 			ConfigurationTarget target, Function<DependencyConfig, Boolean> function, DependencyDeclaration sub,
 			Language l, OpenemsApp parent, Set<OpenemsApp> alreadyIteratedApps,
 			Function<List<AppDependencyConfig>, AppDependencyConfig> determineDependencyConfig,
@@ -982,16 +990,20 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		if (appConfig.alias != null) {
 			appConfig.properties.addProperty("ALIAS", appConfig.alias);
 		}
-		AppConfiguration config;
+		AppConfiguration config = null;
 		try {
 			config = app.getAppConfiguration(target, appConfig.initialProperties, l);
 		} catch (OpenemsNamedException e) {
 			// can not get config of app
-			e.printStackTrace();
-			return null;
+			this.log.error(e.getMessage());
+			errors.add(TranslationUtil.getTranslation(getTranslationBundle(l), "canNotGetAppConfigurationOfApp",
+					app.getName(l)));
 		}
 		if (appConfig.alias != null) {
 			appConfig.properties.remove("ALIAS");
+		}
+		if (config == null) {
+			return null;
 		}
 		var dependencies = new LinkedList<DependencyConfig>();
 		for (var dependency : config.dependencies) {
@@ -1021,8 +1033,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					continue;
 				}
 
-				var addingConfig = this.foreachDependency(dependencyApp, nextAppConfig, target, function, dependency, l,
-						app, alreadyIteratedApps, determineDependencyConfig, includeDependency);
+				var addingConfig = this.foreachDependency(errors, dependencyApp, nextAppConfig, target, function,
+						dependency, l, app, alreadyIteratedApps, determineDependencyConfig, includeDependency);
 				if (addingConfig != null) {
 					dependencies.add(addingConfig);
 				}
@@ -1039,7 +1051,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		return null;
 	}
 
-	private void foreachDependency(OpenemsApp app, String alias, JsonObject defaultProperties,
+	private void foreachDependency(List<String> errors, OpenemsApp app, String alias, JsonObject defaultProperties,
 			ConfigurationTarget target, Language l,
 			Function<List<AppDependencyConfig>, AppDependencyConfig> determineDependencyConfig,
 			BiFunction<OpenemsApp, DependencyDeclaration, Boolean> includeDependency,
@@ -1049,7 +1061,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				.setAlias(alias) //
 				.setProperties(defaultProperties) //
 				.build();
-		this.foreachDependency(app, appConfig, target, consumer, null, l, null, null, determineDependencyConfig,
+		this.foreachDependency(errors, app, appConfig, target, consumer, null, l, null, null, determineDependencyConfig,
 				includeDependency);
 	}
 
@@ -1300,7 +1312,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					// replace number at the end and get the next available id
 					var baseName = id.replaceAll("\\d+", "");
 					var startingNumber = Integer.parseInt(id.replace(baseName, ""));
-					var nextAvailableId = this.componentUtil.getNextAvailableId(baseName, startingNumber, otherAppComponents);
+					var nextAvailableId = this.componentUtil.getNextAvailableId(baseName, startingNumber,
+							otherAppComponents);
 					if (!nextAvailableId.equals(id) && !canBeReplaced) {
 						// component can not be created because the id is already used
 						// and the id can not be set in the configuration
