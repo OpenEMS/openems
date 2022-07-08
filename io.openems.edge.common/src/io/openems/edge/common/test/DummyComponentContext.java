@@ -10,6 +10,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.ComponentInstance;
 
+import io.openems.common.test.AbstractComponentConfig;
+
 /**
  * Simulates a {@link ComponentContext} for the OpenEMS Component test
  * framework.
