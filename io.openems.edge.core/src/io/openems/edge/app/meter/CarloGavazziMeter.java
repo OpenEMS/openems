@@ -135,15 +135,6 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 	}
 
 	@Override
-	public ValidatorConfig.Builder getValidateBuilder() {
-		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(Lists.newArrayList(//
-						new ValidatorConfig.CheckableConfig(CheckHome.COMPONENT_NAME,
-								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
-										.build())));
-	}
-
-	@Override
 	protected Class<Property> getPropertyClass() {
 		return Property.class;
 	}
