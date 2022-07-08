@@ -959,6 +959,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	 * <p>
 	 * Order bottom -> top.
 	 *
+	 * @param errors					the errors that occur during the call
 	 * @param app                       the app to be installed
 	 * @param appConfig                 the {@link AppDependencyConfig} of the
 	 *                                  current app

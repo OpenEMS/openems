@@ -380,9 +380,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 		final var batteryInverter = this.getBatteryInverter();
 		final var emergencyController = this.componentUtil.getComponent("ctrlEmergencyCapacityReserve0", //
 				"Controller.Ess.EmergencyCapacityReserve");
-		final var emergencyReserveEnabled = emergencyController
-				.map(EdgeConfig.Component::getProperties).map(t -> t.get("isReserveSocEnabled"))
-				.map(JsonElement::getAsBoolean).orElse(false);
+		final var emergencyReserveEnabled = emergencyController.map(EdgeConfig.Component::getProperties)
+				.map(t -> t.get("isReserveSocEnabled")).map(JsonElement::getAsBoolean).orElse(false);
 		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
@@ -509,9 +508,9 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.setMax(100) //
 								.setDefaultValue(5) //
 								.onlyShowIfChecked(Property.EMERGENCY_RESERVE_ENABLED) //
-								.onlyIf(emergencyReserveEnabled, f -> { // TODO only gets shown when toggling the
-																		// checkbox
-									// 'EMERGENCY_RESERVE_ENABLED' twice
+								// TODO only gets shown when toggling the checkbox 'EMERGENCY_RESERVE_ENABLED'
+								// twice
+								.onlyIf(emergencyReserveEnabled, f -> { //
 									f.setDefaultValue(
 											emergencyController.get().getProperty("reserveSoc").get().getAsNumber());
 								}) //
