@@ -119,7 +119,23 @@ public interface ComponentUtil {
 	 *                   to the componentManager
 	 * @return the id
 	 */
-	public String getNextAvailableId(String baseName, List<Component> components);
+	public default String getNextAvailableId(String baseName, List<Component> components) {
+		return this.getNextAvailableId(baseName, 0, components);
+	}
+
+	/**
+	 * Gets the next available id with the baseName starting with the given
+	 * startingNumber.
+	 *
+	 * @param baseName       like ess, meter without a number
+	 * @param startingNumber the number at the end of the id to start from
+	 * @param components     the used components from the other apps, because if the
+	 *                       user updates multiple instances very quickly and
+	 *                       components of the same type are created they are not
+	 *                       instantly added to the componentManager
+	 * @return the id
+	 */
+	public String getNextAvailableId(String baseName, int startingNumber, List<Component> components);
 
 	/**
 	 * Gets the preferred relays. If the default ports are are already taken the

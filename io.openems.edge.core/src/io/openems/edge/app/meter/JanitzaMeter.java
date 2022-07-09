@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -14,7 +13,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -37,8 +35,6 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.TranslationUtil;
-import io.openems.edge.core.appmanager.validator.CheckHome;
-import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for a Janitza meter.
@@ -94,8 +90,7 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 			// TODO which modbus should be used(new or already existing from home) only one
 			// meter installed so far.
 
-			// modbus id for connection to battery-inverter for a HOME
-			// var modbusId = "modbus1";
+			// modbusid for connection via tcp bridge
 			var modbusId = this.getId(t, p, Property.MODBUS_ID, "modbus2");
 
 			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
@@ -160,15 +155,6 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
 				.build();
-	}
-
-	@Override
-	public ValidatorConfig.Builder getValidateBuilder() {
-		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(Lists.newArrayList(//
-						new ValidatorConfig.CheckableConfig(CheckHome.COMPONENT_NAME,
-								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
-										.build())));
 	}
 
 	@Override

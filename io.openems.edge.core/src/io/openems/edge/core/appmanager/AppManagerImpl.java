@@ -274,23 +274,31 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 			@Override
 			public boolean hasNext() {
-				if (this.nextConfiguration == null && !this.instanceIterator.hasNext()) {
-					return false;
+				// value not obtained
+				if (this.nextConfiguration != null) {
+					return true;
 				}
-				this.nextInstance = this.instanceIterator.next();
+				while (this.instanceIterator.hasNext() && this.nextConfiguration == null) {
+					this.nextInstance = this.instanceIterator.next();
 
-				try {
-					var app = AppManagerImpl.this.findAppById(this.nextInstance.appId);
-					this.nextInstance.properties.addProperty("ALIAS", this.nextInstance.alias);
-					this.nextConfiguration = app.getAppConfiguration(ConfigurationTarget.VALIDATE,
-							this.nextInstance.properties, null);
-					this.nextInstance.properties.remove("ALIAS");
-				} catch (OpenemsNamedException e) {
-					// move to next app
-				} catch (NoSuchElementException e) {
-					// app not found for instance
-					// this may happen if the app id gets refactored
-					// apps which app ids are not known are printed in debug log as 'UNKNOWAPPS'
+					if (this.nextInstance.properties == null) {
+						continue;
+					}
+
+					try {
+						var app = AppManagerImpl.this.findAppById(this.nextInstance.appId);
+						this.nextInstance.properties.addProperty("ALIAS", this.nextInstance.alias);
+						this.nextConfiguration = app.getAppConfiguration(ConfigurationTarget.VALIDATE,
+								this.nextInstance.properties, null);
+					} catch (OpenemsNamedException e) {
+						// move to next app
+					} catch (NoSuchElementException e) {
+						// app not found for instance
+						// this may happen if the app id gets refactored
+						// apps which app ids are not known are printed in debug log as 'UNKNOWNAPPS'
+					} finally {
+						this.nextInstance.properties.remove("ALIAS");
+					}
 				}
 
 				return this.nextConfiguration != null;
@@ -364,7 +372,6 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	public CompletableFuture<JsonrpcResponseSuccess> handleAddAppInstanceRequest(User user,
 			AddAppInstance.Request request) throws OpenemsNamedException {
 		var openemsApp = this.findAppById(request.appId);
-
 		synchronized (this.instantiatedApps) {
 
 			var installedValues = this.appHelper.installApp(user, request.properties, request.alias, openemsApp);

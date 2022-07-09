@@ -103,7 +103,8 @@ public class SelfConsumptionOptimization extends AbstractOpenemsApp<Property> im
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".ess.description")) //
 								.isRequired(true) //
 								.setOptions(this.componentManager.getEnabledComponentsOfType(ManagedSymmetricEss.class),
-										c -> c.id() + ": " + c.alias(), ManagedSymmetricEss::id) //
+										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
+										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.METER_ID)//
 								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter.label")) //
@@ -111,7 +112,8 @@ public class SelfConsumptionOptimization extends AbstractOpenemsApp<Property> im
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter.description")) //
 								.isRequired(true) //
 								.setOptions(this.componentManager.getEnabledComponentsOfType(SymmetricMeter.class),
-										c -> c.id() + ": " + c.alias(), SymmetricMeter::id) //
+										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
+										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 								.build())
 						.build())
 				.build();
