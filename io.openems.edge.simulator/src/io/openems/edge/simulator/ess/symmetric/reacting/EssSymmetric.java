@@ -15,8 +15,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
@@ -29,6 +29,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -39,15 +41,16 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.EssSymmetric.Reacting", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
-public class EssSymmetric extends AbstractOpenemsComponent
-		implements ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
+public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSymmetricEss, SymmetricEss,
+		OpenemsComponent, TimedataProvider, EventHandler, StartStoppable, ModbusSlave {
 
 	/**
-	 * Current Energy in the battery [Wms], based on SoC
+	 * Current Energy in the battery [Wms], based on SoC.
 	 */
 	private long energy = 0;
 
@@ -61,6 +64,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -88,8 +92,8 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
-		this.energy = (long) (((double) config.capacity() /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
-				/ 100 /* [%] */) * this.config.initialSoc() /* [current SoC] */);
+		this.energy = (long) ((double) config.capacity() /* [Wh] */ * 3600 /* [Wsec] */ * 1000 /* [Wmsec] */
+				/ 100 * this.config.initialSoc() /* [current SoC] */);
 		this._setSoc(config.initialSoc());
 		this._setMaxApparentPower(config.maxApparentPower());
 		this._setAllowedChargePower(config.maxApparentPower() * -1);
@@ -98,6 +102,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		this._setCapacity(config.capacity());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -108,6 +113,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}
@@ -142,7 +148,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		/*
 		 * calculate State of charge
 		 */
-		Instant now = Instant.now(this.componentManager.getClock());
+		var now = Instant.now(this.componentManager.getClock());
 		final int soc;
 		if (this.lastTimestamp == null) {
 			// initial run
@@ -150,15 +156,15 @@ public class EssSymmetric extends AbstractOpenemsComponent
 
 		} else {
 			// calculate duration since last value
-			long duration /* [msec] */ = Duration.between(this.lastTimestamp, now).toMillis();
+			var duration /* [msec] */ = Duration.between(this.lastTimestamp, now).toMillis();
 
 			// calculate energy since last run in [Wh]
-			long energy /* [Wmsec] */ = this.getActivePower().orElse(0) /* [W] */ * duration /* [msec] */;
+			var energy /* [Wmsec] */ = this.getActivePower().orElse(0) /* [W] */ * duration /* [msec] */;
 
 			// Adding the energy to the initial energy.
 			this.energy -= energy;
 
-			double calculatedSoc = this.energy //
+			var calculatedSoc = this.energy //
 					/ (this.config.capacity() * 3600. /* [Wsec] */ * 1000 /* [Wmsec] */) //
 					* 100 /* [SoC] */;
 
@@ -217,7 +223,8 @@ public class EssSymmetric extends AbstractOpenemsComponent
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(EssSymmetric.class, accessMode, 300) //
+				StartStoppable.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(EssSymmetric.class, accessMode, 100) //
 						.build());
 	}
 
@@ -226,7 +233,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateChargeEnergy.update(null);
@@ -247,4 +254,8 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		return this.timedata;
 	}
 
+	@Override
+	public void setStartStop(StartStop value) {
+		this._setStartStop(value);
+	}
 }

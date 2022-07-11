@@ -10,12 +10,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Manages a number of {@link ManagedTask}s with different priorities.
- * 
+ *
  * <p>
  * A useful application for TasksManager is to provide a list of Tasks that need
  * to be handled on an OpenEMS Cycle run.
- * 
- * @param <T>
+ *
+ * @param <T> the type of the actual {@link ManagedTask}
  */
 public class TasksManager<T extends ManagedTask> {
 
@@ -29,7 +29,7 @@ public class TasksManager<T extends ManagedTask> {
 	private final Queue<T> nextOnceTasks = new LinkedList<>();
 
 	private int nextTaskIndex = 0;
-	private EnumMap<Priority, Integer> nextTaskIndexPerPriority = new EnumMap<>(Priority.class);
+	private final EnumMap<Priority, Integer> nextTaskIndexPerPriority = new EnumMap<>(Priority.class);
 
 	@SafeVarargs
 	public TasksManager(T... tasks) {
@@ -38,7 +38,7 @@ public class TasksManager<T extends ManagedTask> {
 
 	/**
 	 * Adds multiple Tasks.
-	 * 
+	 *
 	 * @param tasks an array of Tasks
 	 */
 	@SafeVarargs
@@ -50,7 +50,7 @@ public class TasksManager<T extends ManagedTask> {
 
 	/**
 	 * Adds multiple Tasks.
-	 * 
+	 *
 	 * @param tasks an array of Tasks
 	 */
 	public void addTasks(List<T> tasks) {
@@ -61,7 +61,7 @@ public class TasksManager<T extends ManagedTask> {
 
 	/**
 	 * Adds a Task, taking its Priority in consideration.
-	 * 
+	 *
 	 * @param task the Task
 	 */
 	public synchronized void addTask(T task) {
@@ -83,7 +83,7 @@ public class TasksManager<T extends ManagedTask> {
 
 	/**
 	 * Removes a Task.
-	 * 
+	 *
 	 * @param task the Task
 	 */
 	public synchronized void removeTask(T task) {
@@ -116,8 +116,17 @@ public class TasksManager<T extends ManagedTask> {
 	}
 
 	/**
+	 * Gets all Tasks.
+	 *
+	 * @return a list of all Tasks.
+	 */
+	public synchronized List<T> getAllTasks() {
+		return Collections.unmodifiableList(this.allTasks);
+	}
+
+	/**
 	 * Get all tasks with the given Priority.
-	 * 
+	 *
 	 * @param priority the Priority
 	 * @return a list of Tasks
 	 */
@@ -136,24 +145,19 @@ public class TasksManager<T extends ManagedTask> {
 
 	/**
 	 * Gets the next Tasks. This should normally be called once per Cycle.
-	 * 
+	 *
 	 * @return a list of Tasks.
 	 */
 	public synchronized List<T> getNextTasks() {
-		List<T> result = new ArrayList<>();
-		/*
-		 * Handle HIGH
-		 */
-		result.addAll(this.prioHighTasks);
-
+		List<T> result = new ArrayList<>(this.prioHighTasks);
 		/*
 		 * Handle LOW
 		 */
-		if (nextLowTasks.isEmpty()) {
+		if (this.nextLowTasks.isEmpty()) {
 			// Refill the 'nextLowTasks'. This happens every time the list is empty.
-			this.nextLowTasks.addAll(prioLowTasks);
+			this.nextLowTasks.addAll(this.prioLowTasks);
 		}
-		T task = nextLowTasks.poll();
+		var task = this.nextLowTasks.poll();
 		if (task != null) {
 			result.add(task);
 		}
@@ -161,7 +165,7 @@ public class TasksManager<T extends ManagedTask> {
 		/*
 		 * Handle ONCE
 		 */
-		task = nextOnceTasks.poll();
+		task = this.nextOnceTasks.poll();
 		if (task != null) {
 			result.add(task);
 		}
@@ -169,17 +173,8 @@ public class TasksManager<T extends ManagedTask> {
 	}
 
 	/**
-	 * Gets all Tasks.
-	 * 
-	 * @return a list of all Tasks.
-	 */
-	public synchronized List<T> getAllTasks() {
-		return Collections.unmodifiableList(this.allTasks);
-	}
-
-	/**
 	 * Gets tasks sequentially.
-	 * 
+	 *
 	 * @return the next task; null if there are no tasks
 	 */
 	public synchronized T getOneTask() {
@@ -195,15 +190,16 @@ public class TasksManager<T extends ManagedTask> {
 
 	/**
 	 * Gets one task that is lower than the given Priority sequentially.
-	 * 
+	 *
+	 * @param priority the {@link Priority}
 	 * @return the next task; null if there are no tasks with the given Priority
 	 */
 	public synchronized T getOneTask(Priority priority) {
-		List<T> tasks = this.getAllTasks(priority);
+		var tasks = this.getAllTasks(priority);
 		if (tasks.isEmpty()) {
 			return null;
 		}
-		Integer nextTaskIndex = this.nextTaskIndexPerPriority.get(priority);
+		var nextTaskIndex = this.nextTaskIndexPerPriority.get(priority);
 		if (nextTaskIndex == null) {
 			// start new
 			nextTaskIndex = 0;

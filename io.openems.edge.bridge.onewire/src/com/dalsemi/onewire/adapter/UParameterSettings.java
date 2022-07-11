@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -295,10 +296,11 @@ class UParameterSettings {
 	 * <p>
 	 */
 	public UParameterSettings() {
-		pullDownSlewRate = SLEWRATE_1p37Vus;
-		pulse12VoltTime = TIME12V_infinite;
-		pulse5VoltTime = TIME5V_infinite;
-		write1LowTime = WRITE1TIME_10us;
-		sampleOffsetTime = SAMPLEOFFSET_TIME_8us;
+		this.pullDownSlewRate = SLEWRATE_1p37Vus;
+		this.pulse12VoltTime = TIME12V_infinite;
+		this.pulse5VoltTime = TIME5V_infinite;
+		this.write1LowTime = WRITE1TIME_10us;
+		this.sampleOffsetTime = SAMPLEOFFSET_TIME_8us;
 	}
 }
+// CHECKSTYLE:ON

@@ -36,7 +36,7 @@ public class DummyController extends AbstractOpenemsComponent implements Control
 
 	/**
 	 * Set callback for applyPower() of this {@link DummyController}.
-	 * 
+	 *
 	 * @param callback the callback
 	 * @return myself
 	 */

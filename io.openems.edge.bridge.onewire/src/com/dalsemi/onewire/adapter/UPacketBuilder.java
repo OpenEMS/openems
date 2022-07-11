@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -143,7 +144,7 @@ class UPacketBuilder {
 	/**
 	 * The current state of the U brick, passed into constructor.
 	 */
-	private UAdapterState uState;
+	private final UAdapterState uState;
 
 	/**
 	 * The current current count for the number of return bytes from the packet
@@ -179,27 +180,28 @@ class UPacketBuilder {
 	public UPacketBuilder(UAdapterState startUState) {
 
 		// get a reference to the U state
-		uState = startUState;
+		this.uState = startUState;
 
 		// create the buffer for the data
-		packet = new RawSendPacket();
+		this.packet = new RawSendPacket();
 
 		// create the vector
-		packetsVector = new Vector<>();
+		this.packetsVector = new Vector<>();
 
 		// restart the packet to initialize
-		restart();
+		this.restart();
 
 		// Default on SunOS to bit-banging
-		bitsOnly = (System.getProperty("os.name").indexOf("SunOS") != -1);
+		this.bitsOnly = System.getProperty("os.name").indexOf("SunOS") != -1;
 
 		// check for a bits only property
-		String bits = OneWireAccessProvider.getProperty("onewire.serial.forcebitsonly");
+		var bits = OneWireAccessProvider.getProperty("onewire.serial.forcebitsonly");
 		if (bits != null) {
-			if (bits.indexOf("true") != -1)
-				bitsOnly = true;
-			else if (bits.indexOf("false") != -1)
-				bitsOnly = false;
+			if (bits.indexOf("true") != -1) {
+				this.bitsOnly = true;
+			} else if (bits.indexOf("false") != -1) {
+				this.bitsOnly = false;
+			}
 		}
 	}
 
@@ -213,15 +215,15 @@ class UPacketBuilder {
 	public void restart() {
 
 		// clear the vector list of packets
-		packetsVector.removeAllElements();
+		this.packetsVector.removeAllElements();
 
 		// truncate the packet to 0 length
-		packet.buffer.setLength(0);
+		this.packet.buffer.setLength(0);
 
-		packet.returnLength = 0;
+		this.packet.returnLength = 0;
 
 		// reset the return count
-		totalReturnLength = 0;
+		this.totalReturnLength = 0;
 	}
 
 	/**
@@ -231,10 +233,10 @@ class UPacketBuilder {
 	public void newPacket() {
 
 		// add the packet
-		packetsVector.addElement(packet);
+		this.packetsVector.addElement(this.packet);
 
 		// get a new packet
-		packet = new RawSendPacket();
+		this.packet = new RawSendPacket();
 	}
 
 	/**
@@ -245,10 +247,11 @@ class UPacketBuilder {
 	public Enumeration<RawSendPacket> getPackets() {
 
 		// put the last packet into the vector if it is non zero
-		if (packet.buffer.length() > 0)
-			newPacket();
+		if (this.packet.buffer.length() > 0) {
+			this.newPacket();
+		}
 
-		return packetsVector.elements();
+		return this.packetsVector.elements();
 	}
 
 	// --------
@@ -264,25 +267,27 @@ class UPacketBuilder {
 	public int oneWireReset() {
 
 		// set to command mode
-		setToCommandMode();
+		this.setToCommandMode();
 
 		// append the reset command at the current speed
-		packet.buffer.append((char) (FUNCTION_RESET | uState.uSpeedMode));
+		this.packet.buffer.append((char) (FUNCTION_RESET | this.uState.uSpeedMode));
 
 		// count this as a return
-		totalReturnLength++;
-		packet.returnLength++;
+		this.totalReturnLength++;
+		this.packet.returnLength++;
 
 		// check if not streaming resets
-		if (!uState.streamResets)
-			newPacket();
+		if (!this.uState.streamResets) {
+			this.newPacket();
+		}
 
 		// check for 2480 wait on extra bytes packet
-		if (uState.longAlarmCheck && ((uState.uSpeedMode == UAdapterState.USPEED_REGULAR)
-				|| (uState.uSpeedMode == UAdapterState.USPEED_FLEX)))
-			newPacket();
+		if (this.uState.longAlarmCheck && (this.uState.uSpeedMode == UAdapterState.USPEED_REGULAR
+				|| this.uState.uSpeedMode == UAdapterState.USPEED_FLEX)) {
+			this.newPacket();
+		}
 
-		return totalReturnLength - 1;
+		return this.totalReturnLength - 1;
 	}
 
 	/**
@@ -298,55 +303,60 @@ class UPacketBuilder {
 		int i, j;
 
 		// set to data mode
-		if (!bitsOnly)
-			setToDataMode();
+		if (!this.bitsOnly) {
+			this.setToDataMode();
+		}
 
 		// provide debug output
-		if (doDebugMessages)
+		if (doDebugMessages) {
 			System.out.println("DEBUG: UPacketbuilder-dataBytes[] length " + dataBytesValue.length);
+		}
 
 		// record the current count location
-		int ret_value = totalReturnLength;
+		var ret_value = this.totalReturnLength;
 
 		// check each byte to see if some need duplication
 		for (i = 0; i < dataBytesValue.length; i++) {
 			// convert the rest to OneWireIOExceptions
-			if (bitsOnly) {
+			if (this.bitsOnly) {
 				// change byte to bits
 				byte_value = dataBytesValue[i];
 				for (j = 0; j < 8; j++) {
-					dataBit(((byte_value & 0x01) == 0x01), false);
+					this.dataBit((byte_value & 0x01) == 0x01, false);
 					byte_value >>>= 1;
 				}
 			} else {
 				// append the data
-				packet.buffer.append(dataBytesValue[i]);
+				this.packet.buffer.append(dataBytesValue[i]);
 
 				// provide debug output
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("DEBUG: UPacketbuilder-dataBytes[] byte["
-							+ Integer.toHexString((int) dataBytesValue[i] & 0x00FF) + "]");
+							+ Integer.toHexString(dataBytesValue[i] & 0x00FF) + "]");
+				}
 
 				// check for duplicates needed for special characters
-				if (((char) (dataBytesValue[i] & 0x00FF) == UAdapterState.MODE_COMMAND)
-						|| (((char) (dataBytesValue[i] & 0x00FF) == UAdapterState.MODE_SPECIAL)
-								&& (uState.revision == UAdapterState.CHIP_VERSION1))) {
+				if ((char) (dataBytesValue[i] & 0x00FF) == UAdapterState.MODE_COMMAND
+						|| (char) (dataBytesValue[i] & 0x00FF) == UAdapterState.MODE_SPECIAL
+								&& this.uState.revision == UAdapterState.CHIP_VERSION1) {
 					// duplicate this data byte
-					packet.buffer.append(dataBytesValue[i]);
+					this.packet.buffer.append(dataBytesValue[i]);
 				}
 
 				// add to the return number of bytes
-				totalReturnLength++;
-				packet.returnLength++;
+				this.totalReturnLength++;
+				this.packet.returnLength++;
 
 				// provide debug output
-				if (doDebugMessages)
-					System.out.println("DEBUG: UPacketbuilder-dataBytes[] returnlength " + packet.returnLength
-							+ " bufferLength " + packet.buffer.length());
+				if (doDebugMessages) {
+					System.out.println("DEBUG: UPacketbuilder-dataBytes[] returnlength " + this.packet.returnLength
+							+ " bufferLength " + this.packet.buffer.length());
+				}
 
 				// check for packet too large or not streaming bytes
-				if ((packet.buffer.length() > MAX_BYTES_STREAMED) || !uState.streamBytes)
-					newPacket();
+				if (this.packet.buffer.length() > MAX_BYTES_STREAMED || !this.uState.streamBytes) {
+					this.newPacket();
+				}
 			}
 		}
 
@@ -364,12 +374,13 @@ class UPacketBuilder {
 	 *         operation
 	 */
 	public int dataBytes(byte[] dataBytesValue, int off, int len) {
-		char[] temp_ch = new char[len];
+		var temp_ch = new char[len];
 
-		for (int i = 0; i < len; i++)
+		for (var i = 0; i < len; i++) {
 			temp_ch[i] = (char) dataBytesValue[off + i];
+		}
 
-		return dataBytes(temp_ch);
+		return this.dataBytes(temp_ch);
 	}
 
 	/**
@@ -384,16 +395,16 @@ class UPacketBuilder {
 
 		// construct a temporary array of characters of length 1
 		// to use the dataBytes method
-		char[] temp_char_array = new char[1];
+		var temp_char_array = new char[1];
 
 		temp_char_array[0] = dataByteValue;
 
 		// provide debug output
-		if (doDebugMessages)
-			System.out.println(
-					"DEBUG: UPacketbuilder-dataBytes [" + Integer.toHexString((int) dataByteValue & 0x00FF) + "]");
+		if (doDebugMessages) {
+			System.out.println("DEBUG: UPacketbuilder-dataBytes [" + Integer.toHexString(dataByteValue & 0x00FF) + "]");
+		}
 
-		return dataBytes(temp_char_array);
+		return this.dataBytes(temp_char_array);
 	}
 
 	/**
@@ -409,13 +420,14 @@ class UPacketBuilder {
 		int offset, start_offset = 0;
 
 		// create a primed data byte by using bits with last one primed
-		for (int i = 0; i < 8; i++) {
-			offset = dataBit(((dataByteValue & 0x01) == 0x01), (i == 7));
+		for (var i = 0; i < 8; i++) {
+			offset = this.dataBit((dataByteValue & 0x01) == 0x01, i == 7);
 			dataByteValue >>>= 1;
 
 			// record the starting offset
-			if (i == 0)
+			if (i == 0) {
 				start_offset = offset;
+			}
 		}
 
 		return start_offset;
@@ -433,21 +445,22 @@ class UPacketBuilder {
 	public int dataBit(boolean dataBit, boolean strong5V) {
 
 		// set to command mode
-		setToCommandMode();
+		this.setToCommandMode();
 
 		// append the bit with polarity and strong5V options
-		packet.buffer.append((char) (FUNCTION_BIT | uState.uSpeedMode | ((dataBit) ? BIT_ONE : BIT_ZERO)
-				| ((strong5V) ? PRIME5V_TRUE : PRIME5V_FALSE)));
+		this.packet.buffer.append((char) (FUNCTION_BIT | this.uState.uSpeedMode | (dataBit ? BIT_ONE : BIT_ZERO)
+				| (strong5V ? PRIME5V_TRUE : PRIME5V_FALSE)));
 
 		// add to the return number of bytes
-		totalReturnLength++;
-		packet.returnLength++;
+		this.totalReturnLength++;
+		this.packet.returnLength++;
 
 		// check for packet too large or not streaming bits
-		if ((packet.buffer.length() > MAX_BYTES_STREAMED) || !uState.streamBits)
-			newPacket();
+		if (this.packet.buffer.length() > MAX_BYTES_STREAMED || !this.uState.streamBits) {
+			this.newPacket();
+		}
 
-		return (totalReturnLength - 1);
+		return this.totalReturnLength - 1;
 	}
 
 	/**
@@ -462,64 +475,66 @@ class UPacketBuilder {
 	public int search(OneWireState mState) {
 
 		// set to command mode
-		setToCommandMode();
+		this.setToCommandMode();
 
 		// search mode on
-		packet.buffer.append((char) (FUNCTION_SEARCHON | uState.uSpeedMode));
+		this.packet.buffer.append((char) (FUNCTION_SEARCHON | this.uState.uSpeedMode));
 
 		// set to data mode
-		setToDataMode();
+		this.setToDataMode();
 
 		// create the search sequence character array
-		char[] search_sequence = new char[16];
+		var search_sequence = new char[16];
 
 		// get a copy of the current ID
-		char[] id = new char[8];
+		var id = new char[8];
 
-		for (int i = 0; i < 8; i++)
+		for (var i = 0; i < 8; i++) {
 			id[i] = (char) (mState.ID[i] & 0xFF);
+		}
 
 		// clear the string
-		for (int i = 0; i < 16; i++)
+		for (var i = 0; i < 16; i++) {
 			search_sequence[i] = 0;
+		}
 
 		// provide debug output
-		if (doDebugMessages)
-			System.out.println("DEBUG: UPacketbuilder-search [" + Integer.toHexString((int) id.length) + "]");
+		if (doDebugMessages) {
+			System.out.println("DEBUG: UPacketbuilder-search [" + Integer.toHexString(id.length) + "]");
+		}
 
 		// only modify bits if not the first search
 		if (mState.searchLastDiscrepancy != 0xFF) {
 
 			// set the bits in the added buffer
-			for (int i = 0; i < 64; i++) {
+			for (var i = 0; i < 64; i++) {
 
 				// before last discrepancy (go direction based on ID)
-				if (i < (mState.searchLastDiscrepancy - 1))
-					bitWrite(search_sequence, (i * 2 + 1), bitRead(id, i));
-
-				// at last discrepancy (go 1's direction)
-				else if (i == (mState.searchLastDiscrepancy - 1))
-					bitWrite(search_sequence, (i * 2 + 1), true);
+				if (i < mState.searchLastDiscrepancy - 1) {
+					this.bitWrite(search_sequence, i * 2 + 1, this.bitRead(id, i));
+				} else if (i == mState.searchLastDiscrepancy - 1) {
+					this.bitWrite(search_sequence, i * 2 + 1, true);
+				}
 
 				// after last discrepancy so leave zeros
 			}
 		}
 
 		// remember this position
-		int return_position = totalReturnLength;
+		var return_position = this.totalReturnLength;
 
 		// add this sequence
-		packet.buffer.append(search_sequence);
+		this.packet.buffer.append(search_sequence);
 
 		// set to command mode
-		setToCommandMode();
+		this.setToCommandMode();
 
 		// search mode off
-		packet.buffer.append((char) (FUNCTION_SEARCHOFF | uState.uSpeedMode));
+		this.packet.buffer.append((char) (FUNCTION_SEARCHOFF | this.uState.uSpeedMode));
 
 		// add to the return number of bytes
-		totalReturnLength += 16;
-		packet.returnLength += 16;
+		this.totalReturnLength += 16;
+		this.packet.returnLength += 16;
 
 		return return_position;
 	}
@@ -530,10 +545,10 @@ class UPacketBuilder {
 	public void setSpeed() {
 
 		// set to command mode
-		setToCommandMode();
+		this.setToCommandMode();
 
 		// search mode off and change speed
-		packet.buffer.append((char) (FUNCTION_SEARCHOFF | uState.uSpeedMode));
+		this.packet.buffer.append((char) (FUNCTION_SEARCHOFF | this.uState.uSpeedMode));
 
 		// no return byte
 	}
@@ -546,13 +561,13 @@ class UPacketBuilder {
 	 * Set the U state to command mode.
 	 */
 	public void setToCommandMode() {
-		if (!uState.inCommandMode) {
+		if (!this.uState.inCommandMode) {
 
 			// append the command to switch
-			packet.buffer.append(UAdapterState.MODE_COMMAND);
+			this.packet.buffer.append(UAdapterState.MODE_COMMAND);
 
 			// switch the state
-			uState.inCommandMode = true;
+			this.uState.inCommandMode = true;
 		}
 	}
 
@@ -560,13 +575,13 @@ class UPacketBuilder {
 	 * Set the U state to data mode.
 	 */
 	public void setToDataMode() {
-		if (uState.inCommandMode) {
+		if (this.uState.inCommandMode) {
 
 			// append the command to switch
-			packet.buffer.append(UAdapterState.MODE_DATA);
+			this.packet.buffer.append(UAdapterState.MODE_DATA);
 
 			// switch the state
-			uState.inCommandMode = false;
+			this.uState.inCommandMode = false;
 		}
 	}
 
@@ -581,20 +596,21 @@ class UPacketBuilder {
 	public int getParameter(int parameter) {
 
 		// set to command mode
-		setToCommandMode();
+		this.setToCommandMode();
 
 		// append parameter get
-		packet.buffer.append((char) (CONFIG_MASK | parameter >> 3));
+		this.packet.buffer.append((char) (CONFIG_MASK | parameter >> 3));
 
 		// add to the return number of bytes
-		totalReturnLength++;
-		packet.returnLength++;
+		this.totalReturnLength++;
+		this.packet.returnLength++;
 
 		// check for packet too large
-		if (packet.buffer.length() > MAX_BYTES_STREAMED)
-			newPacket();
+		if (this.packet.buffer.length() > MAX_BYTES_STREAMED) {
+			this.newPacket();
+		}
 
-		return (totalReturnLength - 1);
+		return this.totalReturnLength - 1;
 	}
 
 	/**
@@ -609,20 +625,21 @@ class UPacketBuilder {
 	public int setParameter(char parameter, char parameterValue) {
 
 		// set to command mode
-		setToCommandMode();
+		this.setToCommandMode();
 
 		// append the parameter set with value
-		packet.buffer.append((char) ((CONFIG_MASK | parameter) | parameterValue));
+		this.packet.buffer.append((char) (CONFIG_MASK | parameter | parameterValue));
 
 		// add to the return number of bytes
-		totalReturnLength++;
-		packet.returnLength++;
+		this.totalReturnLength++;
+		this.packet.returnLength++;
 
 		// check for packet too large
-		if (packet.buffer.length() > MAX_BYTES_STREAMED)
-			newPacket();
+		if (this.packet.buffer.length() > MAX_BYTES_STREAMED) {
+			this.newPacket();
+		}
 
-		return (totalReturnLength - 1);
+		return this.totalReturnLength - 1;
 	}
 
 	/**
@@ -638,24 +655,25 @@ class UPacketBuilder {
 	public int sendCommand(char command, boolean expectResponse) {
 
 		// set to command mode
-		setToCommandMode();
+		this.setToCommandMode();
 
 		// append the parameter set with value
-		packet.buffer.append(command);
+		this.packet.buffer.append(command);
 
 		// check for response
 		if (expectResponse) {
 
 			// add to the return number of bytes
-			totalReturnLength++;
-			packet.returnLength++;
+			this.totalReturnLength++;
+			this.packet.returnLength++;
 		}
 
 		// check for packet too large
-		if (packet.buffer.length() > MAX_BYTES_STREAMED)
-			newPacket();
+		if (this.packet.buffer.length() > MAX_BYTES_STREAMED) {
+			this.newPacket();
+		}
 
-		return (totalReturnLength - 1);
+		return this.totalReturnLength - 1;
 	}
 
 	// --------
@@ -677,26 +695,29 @@ class UPacketBuilder {
 
 		for (i = 0; i < len; i++) {
 			// convert the rest to OneWireIOExceptions
-			if (bitsOnly) {
+			if (this.bitsOnly) {
 				temp_offset = responseOffset + 8 * i;
 
 				// provide debug output
-				if (doDebugMessages)
+				if (doDebugMessages) {
 					System.out.println("DEBUG: UPacketbuilder-interpretDataBytes[] responseOffset " + responseOffset
 							+ " offset " + offset + " lenbuf " + dataByteResponse.length);
+				}
 
 				// loop through and interpret each bit
 				result_byte = 0;
 				for (j = 0; j < 8; j++) {
 					result_byte = (char) (result_byte >>> 1);
 
-					if (interpretOneWireBit(dataByteResponse[temp_offset + j]))
+					if (this.interpretOneWireBit(dataByteResponse[temp_offset + j])) {
 						result_byte |= 0x80;
+					}
 				}
 
 				result[offset + i] = (byte) (result_byte & 0xFF);
-			} else
+			} else {
 				result[offset + i] = (byte) dataByteResponse[responseOffset + i];
+			}
 		}
 	}
 
@@ -710,46 +731,46 @@ class UPacketBuilder {
 	public int interpretOneWireReset(char resetResponse) {
 
 		// make sure the response byte structure is correct
-		if ((resetResponse & 0xC0) == 0xC0) {
-
-			// retrieve the chip version and program voltage state
-			uState.revision = (char) (UAdapterState.CHIP_VERSION_MASK & resetResponse);
-			uState.programVoltageAvailable = ((UAdapterState.PROGRAM_VOLTAGE_MASK & resetResponse) != 0);
-
-			// provide debug output
-			if (doDebugMessages)
-				System.out.println(
-						"DEBUG: UPacketbuilder-reset response " + Integer.toHexString((int) resetResponse & 0x00FF));
-
-			// convert the response byte to the OneWire reset result
-			switch (resetResponse & RESPONSE_RESET_MASK) {
-
-			case RESPONSE_RESET_SHORT:
-				return DSPortAdapter.RESET_SHORT;
-			case RESPONSE_RESET_PRESENCE:
-
-				// if in long alarm check, record this as a non alarm reset
-				if (uState.longAlarmCheck) {
-
-					// check if can give up checking
-					if (uState.lastAlarmCount++ > UAdapterState.MAX_ALARM_COUNT)
-						uState.longAlarmCheck = false;
-				}
-
-				return DSPortAdapter.RESET_PRESENCE;
-			case RESPONSE_RESET_ALARM:
-
-				// alarm presence so go into DS2480 long alarm check mode
-				uState.longAlarmCheck = true;
-				uState.lastAlarmCount = 0;
-
-				return DSPortAdapter.RESET_ALARM;
-			case RESPONSE_RESET_NOPRESENCE:
-			default:
-				return DSPortAdapter.RESET_NOPRESENCE;
-			}
-		} else
+		if ((resetResponse & 0xC0) != 0xC0) {
 			return DSPortAdapter.RESET_NOPRESENCE;
+		}
+		// retrieve the chip version and program voltage state
+		this.uState.revision = (char) (UAdapterState.CHIP_VERSION_MASK & resetResponse);
+		this.uState.programVoltageAvailable = (UAdapterState.PROGRAM_VOLTAGE_MASK & resetResponse) != 0;
+
+		// provide debug output
+		if (doDebugMessages) {
+			System.out.println("DEBUG: UPacketbuilder-reset response " + Integer.toHexString(resetResponse & 0x00FF));
+		}
+
+		// convert the response byte to the OneWire reset result
+		switch (resetResponse & RESPONSE_RESET_MASK) {
+
+		case RESPONSE_RESET_SHORT:
+			return DSPortAdapter.RESET_SHORT;
+		case RESPONSE_RESET_PRESENCE:
+
+			// if in long alarm check, record this as a non alarm reset
+			if (this.uState.longAlarmCheck) {
+
+				// check if can give up checking
+				if (this.uState.lastAlarmCount++ > UAdapterState.MAX_ALARM_COUNT) {
+					this.uState.longAlarmCheck = false;
+				}
+			}
+
+			return DSPortAdapter.RESET_PRESENCE;
+		case RESPONSE_RESET_ALARM:
+
+			// alarm presence so go into DS2480 long alarm check mode
+			this.uState.longAlarmCheck = true;
+			this.uState.lastAlarmCount = 0;
+
+			return DSPortAdapter.RESET_ALARM;
+		case RESPONSE_RESET_NOPRESENCE:
+		default:
+			return DSPortAdapter.RESET_NOPRESENCE;
+		}
 	}
 
 	/**
@@ -762,10 +783,10 @@ class UPacketBuilder {
 	public boolean interpretOneWireBit(char bitResponse) {
 
 		// interpret the bit
-		if ((bitResponse & RESPONSE_BIT_MASK) == RESPONSE_BIT_ONE)
+		if ((bitResponse & RESPONSE_BIT_MASK) == RESPONSE_BIT_ONE) {
 			return true;
-		else
-			return false;
+		}
+		return false;
 	}
 
 	/**
@@ -781,58 +802,59 @@ class UPacketBuilder {
 	 *         search results
 	 */
 	public boolean interpretSearch(OneWireState mState, char[] searchResponse, int responseOffset) {
-		char[] temp_id = new char[8];
+		var temp_id = new char[8];
 
 		// change byte offset to bit offset
-		int bit_offset = responseOffset * 8;
+		var bit_offset = responseOffset * 8;
 
 		// set the temp Last Descrep to none
-		int temp_last_descrepancy = 0xFF;
-		int temp_last_family_descrepancy = 0;
+		var temp_last_descrepancy = 0xFF;
+		var temp_last_family_descrepancy = 0;
 
 		// interpret the search response sequence
-		for (int i = 0; i < 64; i++) {
+		for (var i = 0; i < 64; i++) {
 
 			// get the SerialNum bit
-			bitWrite(temp_id, i, bitRead(searchResponse, (i * 2) + 1 + bit_offset));
+			this.bitWrite(temp_id, i, this.bitRead(searchResponse, i * 2 + 1 + bit_offset));
 
 			// check LastDiscrepancy
-			if (bitRead(searchResponse, i * 2 + bit_offset) && !bitRead(searchResponse, i * 2 + 1 + bit_offset)) {
+			if (this.bitRead(searchResponse, i * 2 + bit_offset)
+					&& !this.bitRead(searchResponse, i * 2 + 1 + bit_offset)) {
 				temp_last_descrepancy = i + 1;
 
 				// check LastFamilyDiscrepancy
-				if (i < 8)
+				if (i < 8) {
 					temp_last_family_descrepancy = i + 1;
+				}
 			}
 		}
 
 		// check
-		byte[] id = new byte[8];
+		var id = new byte[8];
 
-		for (int i = 0; i < 8; i++)
+		for (var i = 0; i < 8; i++) {
 			id[i] = (byte) temp_id[i];
+		}
 
 		// check results
-		if ((!Address.isValid(id)) || (temp_last_descrepancy == 63) || (temp_id[0] == 0))
+		if (!Address.isValid(id) || temp_last_descrepancy == 63 || temp_id[0] == 0) {
 			return false;
-
-		// successful search
-		else {
-
-			// check for lastone
-			if ((temp_last_descrepancy == mState.searchLastDiscrepancy) || (temp_last_descrepancy == 0xFF))
-				mState.searchLastDevice = true;
-
-			// copy the ID number to the buffer
-			for (int i = 0; i < 8; i++)
-				mState.ID[i] = (byte) temp_id[i];
-
-			// set the count
-			mState.searchLastDiscrepancy = temp_last_descrepancy;
-			mState.searchFamilyLastDiscrepancy = temp_last_family_descrepancy;
-
-			return true;
 		}
+		// check for lastone
+		if (temp_last_descrepancy == mState.searchLastDiscrepancy || temp_last_descrepancy == 0xFF) {
+			mState.searchLastDevice = true;
+		}
+
+		// copy the ID number to the buffer
+		for (var i = 0; i < 8; i++) {
+			mState.ID[i] = (byte) temp_id[i];
+		}
+
+		// set the count
+		mState.searchLastDiscrepancy = temp_last_descrepancy;
+		mState.searchFamilyLastDiscrepancy = temp_last_family_descrepancy;
+
+		return true;
 	}
 
 	/**
@@ -847,11 +869,12 @@ class UPacketBuilder {
 		char result_byte = 0;
 
 		// loop through and interpret each bit
-		for (int i = 0; i < 8; i++) {
+		for (var i = 0; i < 8; i++) {
 			result_byte = (char) (result_byte >>> 1);
 
-			if (interpretOneWireBit(primedDataResponse[responseOffset + i]))
+			if (this.interpretOneWireBit(primedDataResponse[responseOffset + i])) {
 				result_byte |= 0x80;
+			}
 		}
 
 		return (byte) (result_byte & 0xFF);
@@ -865,26 +888,29 @@ class UPacketBuilder {
 	 * Request the maximum rate to do an operation
 	 */
 	public static int getDesiredBaud(int operation, int owSpeed, int maxBaud) {
-		int baud = 9600;
+		var baud = 9600;
 
 		switch (operation) {
 
 		case OPERATION_BYTE:
-			if (owSpeed == DSPortAdapter.SPEED_OVERDRIVE)
+			if (owSpeed == DSPortAdapter.SPEED_OVERDRIVE) {
 				baud = 115200;
-			else
+			} else {
 				baud = 9600;
+			}
 			break;
 		case OPERATION_SEARCH:
-			if (owSpeed == DSPortAdapter.SPEED_OVERDRIVE)
+			if (owSpeed == DSPortAdapter.SPEED_OVERDRIVE) {
 				baud = 57600;
-			else
+			} else {
 				baud = 9600;
+			}
 			break;
 		}
 
-		if (baud > maxBaud)
+		if (baud > maxBaud) {
 			baud = maxBaud;
+		}
 
 		return baud;
 	}
@@ -901,10 +927,10 @@ class UPacketBuilder {
 	public boolean bitRead(char[] bitBuffer, int address) {
 		int byte_number, bit_number;
 
-		byte_number = (address / 8);
-		bit_number = address - (byte_number * 8);
+		byte_number = address / 8;
+		bit_number = address - byte_number * 8;
 
-		return (((char) ((bitBuffer[byte_number] >> bit_number) & 0x01)) == 0x01);
+		return (char) (bitBuffer[byte_number] >> bit_number & 0x01) == 0x01;
 	}
 
 	/**
@@ -918,12 +944,14 @@ class UPacketBuilder {
 	public void bitWrite(char[] bitBuffer, int address, boolean newBitState) {
 		int byte_number, bit_number;
 
-		byte_number = (address / 8);
-		bit_number = address - (byte_number * 8);
+		byte_number = address / 8;
+		bit_number = address - byte_number * 8;
 
-		if (newBitState)
+		if (newBitState) {
 			bitBuffer[byte_number] |= (char) (0x01 << bit_number);
-		else
-			bitBuffer[byte_number] &= (char) (~(0x01 << bit_number));
+		} else {
+			bitBuffer[byte_number] &= (char) ~(0x01 << bit_number);
+		}
 	}
 }
+// CHECKSTYLE:ON

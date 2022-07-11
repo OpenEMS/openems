@@ -1,7 +1,5 @@
 package io.openems.edge.controller.channelthreshold;
 
-import java.util.Optional;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -80,22 +78,23 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
 
 	/**
-	 * The current state in the State Machine
+	 * The current state in the State Machine.
 	 */
 	private State state = State.UNDEFINED;
 
 	/**
-	 * Should the hysteresis be applied on passing high threshold?
+	 * Should the hysteresis be applied on passing high threshold?.
 	 */
 	private boolean applyHighHysteresis = true;
 	/**
-	 * Should the hysteresis be applied on passing low threshold?
+	 * Should the hysteresis be applied on passing low threshold?.
 	 */
 	private boolean applyLowHysteresis = true;
 
@@ -153,18 +152,18 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 			 * Value is between low and high threshold -> always ON
 			 */
 			// evaluate if hysteresis is necessary
-			if (value >= this.lowThreshold + hysteresis) {
+			if (value >= this.lowThreshold + this.hysteresis) {
 				this.applyLowHysteresis = false; // do not apply low hysteresis anymore
 			}
-			if (value <= this.highThreshold - hysteresis) {
+			if (value <= this.highThreshold - this.hysteresis) {
 				this.applyHighHysteresis = false; // do not apply high hysteresis anymore
 			}
 
 			/*
 			 * Check LOW threshold
 			 */
-			if (applyLowHysteresis) {
-				if (value <= this.lowThreshold - hysteresis) {
+			if (this.applyLowHysteresis) {
+				if (value <= this.lowThreshold - this.hysteresis) {
 					// pass low with hysteresis
 					this.state = State.PASS_LOW_COMING_FROM_ABOVE;
 					break;
@@ -180,8 +179,8 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 			/*
 			 * Check HIGH threshold
 			 */
-			if (applyHighHysteresis) {
-				if (value >= this.highThreshold + hysteresis) {
+			if (this.applyHighHysteresis) {
+				if (value >= this.highThreshold + this.hysteresis) {
 					// pass high with hysteresis
 					this.state = State.PASS_HIGH_COMING_FROM_BELOW;
 					break;
@@ -238,9 +237,9 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * Switch the output ON.
-	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
+	 *
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
 	 */
 	private void on() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(true);
@@ -248,9 +247,9 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 
 	/**
 	 * Switch the output OFF.
-	 * 
-	 * @throws OpenemsNamedException
-	 * @throws IllegalArgumentException
+	 *
+	 * @throws OpenemsNamedException    on error
+	 * @throws IllegalArgumentException on error
 	 */
 	private void off() throws IllegalArgumentException, OpenemsNamedException {
 		this.setOutput(false);
@@ -267,11 +266,11 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 	private void setOutput(boolean value) throws IllegalArgumentException, OpenemsNamedException {
 		try {
 			WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(this.outputChannelAddress);
-			Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+			var currentValueOpt = outputChannel.value().asOptional();
 			if (!currentValueOpt.isPresent() || currentValueOpt.get() != (value ^ this.invertOutput)) {
 				this.logInfo(this.log, "Set output [" + outputChannel.address() + "] "
 						+ (value ^ this.invertOutput ? "ON" : "OFF") + ".");
-				outputChannel.setNextWriteValue(value ^ invertOutput);
+				outputChannel.setNextWriteValue(value ^ this.invertOutput);
 			}
 		} catch (OpenemsException e) {
 			this.logError(this.log, "Unable to set output: [" + this.outputChannelAddress + "] " + e.getMessage());

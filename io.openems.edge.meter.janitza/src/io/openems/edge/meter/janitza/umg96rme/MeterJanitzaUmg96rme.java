@@ -33,7 +33,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements the Janitza UMG 96RM-E power analyzer.
- * 
+ *
  * <p>
  * https://www.janitza.com/umg-96rm-e.html
  */
@@ -62,6 +62,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -78,6 +79,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -91,6 +93,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -107,7 +110,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 		 * We are using the FLOAT registers from the modbus table, because they are all
 		 * reachable within one ReadMultipleRegistersRequest.
 		 */
-		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
+		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(800, Priority.HIGH, //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(800),
 								ElementToChannelConverter.SCALE_FACTOR_3),

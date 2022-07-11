@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -64,7 +65,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @see #SHAiButtonUser18(SHAiButtonCopr)
 	 */
 	protected SHAiButtonUser18() {
-		;
+
 	}
 
 	/**
@@ -107,8 +108,9 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 		// and address
 		this.address = owc.getAddress();
 
-		if (!createServiceFile(owc, strServiceFilename, formatDevice))
+		if (!this.createServiceFile(owc, this.strServiceFilename, formatDevice)) {
 			throw new OneWireException("Failed to create service file.");
+		}
 
 		// save a copy of the binding code
 		copr.getBindCode(this.fullBindCode, 0);
@@ -118,12 +120,15 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 		this.fullBindCode[4] = (byte) this.accountPageNumber;
 		System.arraycopy(this.address, 0, this.fullBindCode, 5, 7);
 
-		if (!owc.installMasterSecret(accountPageNumber, authSecret, accountPageNumber & 7))
+		if (!owc.installMasterSecret(this.accountPageNumber, authSecret, this.accountPageNumber & 7)) {
 			throw new OneWireException("Install Master Secret failed");
+		}
 
 		// not in critical path, so getBindBlah() is okay.
-		if (!owc.bindSecretToiButton(accountPageNumber, copr.getBindData(), this.fullBindCode, accountPageNumber & 7))
+		if (!owc.bindSecretToiButton(this.accountPageNumber, copr.getBindData(), this.fullBindCode,
+				this.accountPageNumber & 7)) {
 			throw new OneWireException("Bind Secret to iButton failed");
+		}
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		if (DEBUG) {
@@ -131,8 +136,8 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 			IOHelper.writeLine("Initialized User");
 			IOHelper.writeLine("address");
 			IOHelper.writeBytesHex(owc.getAddress());
-			IOHelper.writeLine("serviceFilename: " + strServiceFilename);
-			IOHelper.writeLine("accountPageNumber: " + accountPageNumber);
+			IOHelper.writeLine("serviceFilename: " + this.strServiceFilename);
+			IOHelper.writeLine("accountPageNumber: " + this.accountPageNumber);
 			IOHelper.writeLine("authSecret");
 			IOHelper.writeBytesHex(authSecret);
 			IOHelper.writeLine("bindData");
@@ -188,10 +193,11 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 
 		System.arraycopy(fileName, 0, this.serviceFile, 0, 4);
 		// create string representation of service filename
-		this.strServiceFilename = new String(fileName) + "." + (int) fileNameExt;
+		this.strServiceFilename = new String(fileName) + "." + fileNameExt;
 
-		if (!createServiceFile(owc, strServiceFilename, formatDevice))
+		if (!this.createServiceFile(owc, this.strServiceFilename, formatDevice)) {
 			throw new OneWireException("Failed to create service file.");
+		}
 
 		// save a copy of the binding code
 		System.arraycopy(coprBindCode, 0, this.fullBindCode, 0, 7);
@@ -201,12 +207,15 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 		this.fullBindCode[4] = (byte) this.accountPageNumber;
 		System.arraycopy(this.address, 0, this.fullBindCode, 5, 7);
 
-		if (!owc.installMasterSecret(accountPageNumber, authSecret, accountPageNumber & 7))
+		if (!owc.installMasterSecret(this.accountPageNumber, authSecret, this.accountPageNumber & 7)) {
 			throw new OneWireException("Install Master Secret failed");
+		}
 
 		// not in critical path, so getBindBlah() is okay.
-		if (!owc.bindSecretToiButton(accountPageNumber, coprBindData, this.fullBindCode, accountPageNumber & 7))
+		if (!owc.bindSecretToiButton(this.accountPageNumber, coprBindData, this.fullBindCode,
+				this.accountPageNumber & 7)) {
 			throw new OneWireException("Bind Secret to iButton failed");
+		}
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		if (DEBUG) {
@@ -214,8 +223,8 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 			IOHelper.writeLine("Initialized User");
 			IOHelper.writeLine("address");
 			IOHelper.writeBytesHex(owc.getAddress());
-			IOHelper.writeLine("serviceFilename: " + strServiceFilename);
-			IOHelper.writeLine("accountPageNumber: " + accountPageNumber);
+			IOHelper.writeLine("serviceFilename: " + this.strServiceFilename);
+			IOHelper.writeLine("accountPageNumber: " + this.accountPageNumber);
 			IOHelper.writeLine("authSecret");
 			IOHelper.writeBytesHex(authSecret);
 			IOHelper.writeLine("bindCode");
@@ -254,8 +263,9 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 		this(copr);
 
 		// hold container reference and address
-		if (!setiButton18(owc))
+		if (!this.setiButton18(owc)) {
 			throw new OneWireException("Invalid SHA user");
+		}
 	}
 
 	/**
@@ -290,11 +300,12 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 
 		// create string representation of service filename
 		System.arraycopy(fileName, 0, this.serviceFile, 0, 4);
-		this.strServiceFilename = new String(fileName) + "." + (int) fileNameExt;
+		this.strServiceFilename = new String(fileName) + "." + fileNameExt;
 
 		// hold container reference and address
-		if (!setiButton18(owc))
+		if (!this.setiButton18(owc)) {
 			throw new OneWireException("Invalid SHA user");
+		}
 	}
 
 	/**
@@ -367,8 +378,9 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 		this.accountPageNumber = -1;
 
 		// make sure account info is properly setup
-		if (!checkAccountPageInfo(owc))
+		if (!this.checkAccountPageInfo(owc)) {
 			return false;
+		}
 
 		// setup the fullBindCode with rest of info
 		this.fullBindCode[4] = (byte) this.accountPageNumber;
@@ -380,8 +392,8 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 			IOHelper.writeLine("Loaded User");
 			IOHelper.writeLine("address");
 			IOHelper.writeBytesHex(owc.getAddress());
-			IOHelper.writeLine("accountPageNumber: " + accountPageNumber);
-			IOHelper.writeLine("serviceFilename: " + strServiceFilename);
+			IOHelper.writeLine("accountPageNumber: " + this.accountPageNumber);
+			IOHelper.writeLine("serviceFilename: " + this.strServiceFilename);
 			IOHelper.writeLine("------------------------------------");
 		}
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
@@ -410,17 +422,20 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public synchronized boolean setiButtonUser(DSPortAdapter adapter, byte[] address)
 			throws OneWireException, OneWireIOException {
-		if (this.ibc == null)
+		if (this.ibc == null) {
 			this.ibc = new OneWireContainer18();
+		}
 
 		this.ibc.setupContainer(adapter, address);
 
-		if (this.forceOverdrive)
+		if (this.forceOverdrive) {
 			this.ibc.setSpeed(DSPortAdapter.SPEED_OVERDRIVE, false);
+		}
 
-		return setiButton18(this.ibc);
+		return this.setiButton18(this.ibc);
 	}
 
 	/**
@@ -444,16 +459,19 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public synchronized boolean setiButtonUser(byte[] address) throws OneWireException, OneWireIOException {
-		if (this.ibc == null)
+		if (this.ibc == null) {
 			return false;
+		}
 
 		this.ibc.setupContainer(this.ibc.getAdapter(), address);
 
-		if (this.forceOverdrive)
+		if (this.forceOverdrive) {
 			this.ibc.setSpeed(DSPortAdapter.SPEED_OVERDRIVE, false);
+		}
 
-		return setiButton18(this.ibc);
+		return this.setiButton18(this.ibc);
 	}
 
 	// ***********************************************************************
@@ -478,26 +496,27 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public synchronized int getWriteCycleCounter() throws OneWireException, OneWireIOException {
 		if (this.writeCycleCounter < 0) {
 			// need to get the writeCycleCounter.
-			int wcc = -1;
+			var wcc = -1;
 
 			// don't worry, this should not happen in the critical path.
 			// so malloc-ing doesn't really matter
-			byte[] wcc_buffer = new byte[32];
+			var wcc_buffer = new byte[32];
 
 			// read the page, 19, containing the write-cycle counters
 			this.ibc.readMemoryPage(19, wcc_buffer, 0);
 
 			// get the offset into page for wcc
-			int offset = (this.accountPageNumber & 7) << 2;
+			var offset = (this.accountPageNumber & 7) << 2;
 
 			// convert the four bytes, lsb first, into an int
-			wcc = (wcc_buffer[offset + 3] & 0x0ff);
-			wcc = (wcc << 8) | (wcc_buffer[offset + 2] & 0x0ff);
-			wcc = (wcc << 8) | (wcc_buffer[offset + 1] & 0x0ff);
-			wcc = (wcc << 8) | (wcc_buffer[offset] & 0x0ff);
+			wcc = wcc_buffer[offset + 3] & 0x0ff;
+			wcc = wcc << 8 | wcc_buffer[offset + 2] & 0x0ff;
+			wcc = wcc << 8 | wcc_buffer[offset + 1] & 0x0ff;
+			wcc = wcc << 8 | wcc_buffer[offset] & 0x0ff;
 
 			this.writeCycleCounter = wcc;
 		}
@@ -510,8 +529,9 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 *
 	 * @return <code>true</code> if account page has write cycle counter.
 	 */
+	@Override
 	public synchronized boolean hasWriteCycleCounter() {
-		return (this.accountPageNumber > 7);
+		return this.accountPageNumber > 7;
 	}
 
 	/**
@@ -525,7 +545,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 *
 	 * <P>
 	 * For the DS1963S user iButton, the format of the full bind code is as follows:
-	 * 
+	 *
 	 * <PRE>
 	 *      (bindCode+0), (bindCode+1), (bindCode+2), (bindCode+3),
 	 *      (svcPageNum), (deviceAN+0), (deviceAN+1), (deviceAN+2),
@@ -540,6 +560,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 *                     available starting from the offset.
 	 * @param offset       the offset into fullBindCode where copying should begin.
 	 */
+	@Override
 	public void getFullBindCode(byte[] l_fullBindCode, int offset) {
 		System.arraycopy(this.fullBindCode, 0, l_fullBindCode, offset, 15);
 	}
@@ -554,6 +575,7 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @return byte indicating appropriate command for authenticating user
 	 *
 	 */
+	@Override
 	public byte getAuthorizationCommand() {
 		return OneWireContainer18.VALIDATE_DATA_PAGE;
 	}
@@ -578,20 +600,23 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public synchronized boolean writeAccountData(byte[] dataBuffer, int offset)
 			throws OneWireException, OneWireIOException {
 		// init local vars
-		OneWireContainer18 ibcL = this.ibc;
+		var ibcL = this.ibc;
 
 		// make sure account info is properly setup
-		if (!checkAccountPageInfo(ibcL))
+		if (!this.checkAccountPageInfo(ibcL)) {
 			return false;
+		}
 
-		int numBytes = Math.min(32, dataBuffer.length - offset);
+		var numBytes = Math.min(32, dataBuffer.length - offset);
 		System.arraycopy(dataBuffer, offset, this.accountData, 0, numBytes);
 		if (ibcL.writeDataPage(this.accountPageNumber, this.accountData)) {
-			if (this.writeCycleCounter >= 0)
+			if (this.writeCycleCounter >= 0) {
 				this.writeCycleCounter++;
+			}
 			return true;
 		}
 
@@ -623,13 +648,14 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public synchronized boolean readAccountData(byte[] dataBuffer, int offset)
 			throws OneWireException, OneWireIOException {
 		// init local vars
-		OneWireContainer18 ibcL = this.ibc;
+		var ibcL = this.ibc;
 
 		// make sure account info is properly setup
-		if (!checkAccountPageInfo(ibcL)) {
+		if (!this.checkAccountPageInfo(ibcL)) {
 			return false;
 		}
 
@@ -647,8 +673,8 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	}
 
 	// prevent malloc'ing in critical path
-	private byte[] readAccountData_rawData = new byte[42];
-	private byte[] readAccountData_scratchpad = new byte[32];
+	private final byte[] readAccountData_rawData = new byte[42];
+	private final byte[] readAccountData_scratchpad = new byte[32];
 
 	/**
 	 * <P>
@@ -684,12 +710,13 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public synchronized int readAccountData(byte[] chlg, int chlgStart, byte[] dataBuffer, int dataStart, byte[] mac,
 			int macStart) throws OneWireException, OneWireIOException {
 		// init local variables
-		OneWireContainer18 ibcL = this.ibc;
-		byte[] rawData = this.readAccountData_rawData;
-		byte[] scratchpad = this.readAccountData_scratchpad;
+		var ibcL = this.ibc;
+		var rawData = this.readAccountData_rawData;
+		var scratchpad = this.readAccountData_scratchpad;
 
 		// make sure account info is properly setup
 		if (this.accountPageNumber < 0) {
@@ -711,24 +738,24 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 				// + 4 bytes page counter
 				// + 4 bytes secret counter
 				// + 2 bytes CRC
-				boolean readOK = ibcL.readAuthenticatedPage(this.accountPageNumber, rawData, 0);
+				var readOK = ibcL.readAuthenticatedPage(this.accountPageNumber, rawData, 0);
 
 				// read the scratchpad for mac
-				int len = ibcL.readScratchPad(scratchpad, 0);
+				var len = ibcL.readScratchPad(scratchpad, 0);
 
 				// disable RESUME
 				ibcL.useResume(false);
 
-				if ((!readOK) || (len < 0)) {
+				if (!readOK || len < 0) {
 					// read authenticate failed
 					return -1;
 				}
 
 				// get the value of the write cycle counter
-				int wcc = (rawData[35] & 0x0ff);
-				wcc = (wcc << 8) | (rawData[34] & 0x0ff);
-				wcc = (wcc << 8) | (rawData[33] & 0x0ff);
-				wcc = (wcc << 8) | (rawData[32] & 0x0ff);
+				var wcc = rawData[35] & 0x0ff;
+				wcc = wcc << 8 | rawData[34] & 0x0ff;
+				wcc = wcc << 8 | rawData[33] & 0x0ff;
+				wcc = wcc << 8 | rawData[32] & 0x0ff;
 
 				// put the accountData in our local cache
 				System.arraycopy(rawData, 0, this.accountData, 0, 32);
@@ -768,3 +795,4 @@ public class SHAiButtonUser18 extends SHAiButtonUser {
 	}
 
 }
+// CHECKSTYLE:ON

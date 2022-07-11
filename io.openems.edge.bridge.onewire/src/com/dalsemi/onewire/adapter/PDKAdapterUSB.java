@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 //---------------------------------------------------------------------------
 // Copyright (C) 2005 Maxim Integrated Products, All Rights Reserved.
 //
@@ -40,7 +41,7 @@ public class PDKAdapterUSB extends DSPortAdapter {
 	private int port_handle = -1;
 	private String port_name = "";
 
-	private Object syncObj = new Object();
+	private final Object syncObj = new Object();
 	private static Object staticSyncObj = new Object();
 	private static boolean libLoaded = false;
 	private boolean inExclusive = false;
@@ -52,18 +53,19 @@ public class PDKAdapterUSB extends DSPortAdapter {
 				libLoaded = true;
 			}
 		}
-		inExclusive = false;
+		this.inExclusive = false;
 	}
 
 	private native int OpenPort(String port);
 
+	@Override
 	public boolean selectPort(String portName) throws OneWireIOException, OneWireException {
 		try {
-			int portnumber = Integer.parseInt(portName.substring(3));
-			port_handle = OpenPort("DS2490-" + portnumber);
-			port_name = portName;
-			inExclusive = false;
-			return port_handle != -1;
+			var portnumber = Integer.parseInt(portName.substring(3));
+			this.port_handle = this.OpenPort("DS2490-" + portnumber);
+			this.port_name = portName;
+			this.inExclusive = false;
+			return this.port_handle != -1;
 		} catch (Exception e) {
 			throw new OneWireException("Bad Portnumber: " + portName);
 		}
@@ -71,98 +73,116 @@ public class PDKAdapterUSB extends DSPortAdapter {
 
 	private native void ClosePort(int port);
 
+	@Override
 	public void freePort() throws OneWireException {
-		if (port_handle != -1) {
-			ClosePort(port_handle);
-			port_handle = -1;
-			port_name = "";
-			inExclusive = false;
+		if (this.port_handle != -1) {
+			this.ClosePort(this.port_handle);
+			this.port_handle = -1;
+			this.port_name = "";
+			this.inExclusive = false;
 		}
 	}
 
+	@Override
 	public String getAdapterName() {
 		return "DS9490";
 	}
 
+	@Override
 	public String getPortTypeDescription() {
 		return "USB Adapter with libUSB and PDK API";
 	}
 
+	@Override
 	public String getClassVersion() {
 		return "USB-Beta";
 	}
 
+	@Override
 	public Enumeration<String> getPortNames() {
-		java.util.Vector<String> v = new java.util.Vector<String>();
-		for (int i = 1; i < 15; i++)
+		var v = new java.util.Vector<String>();
+		for (var i = 1; i < 15; i++) {
 			v.addElement("USB" + i);
+		}
 		return v.elements();
 	}
 
+	@Override
 	public String getPortName() throws OneWireException {
-		return port_name;
+		return this.port_name;
 	}
 
 	private native boolean AdapterDetected(int portHandle);
 
+	@Override
 	public boolean adapterDetected() throws OneWireIOException, OneWireException {
-		if (port_handle != -1) {
-			return AdapterDetected(port_handle);
-		} else
-			throw new OneWireException("Port not selected");
+		if (this.port_handle != -1) {
+			return this.AdapterDetected(this.port_handle);
+		}
+		throw new OneWireException("Port not selected");
 	}
 
 	private native void GetAddress(int portHandle, byte[] address);
 
+	@Override
 	public void getAddress(byte[] address) {
-		if (port_handle != -1)
-			GetAddress(port_handle, address);
+		if (this.port_handle != -1) {
+			this.GetAddress(this.port_handle, address);
+		}
 	}
 
 	private native int Search(int portHandle, boolean find_first, boolean do_reset, boolean alarm_only);
 
+	@Override
 	public boolean findFirstDevice() throws OneWireIOException, OneWireException {
-		if (port_handle != -1) {
-			int ret = Search(port_handle, true, !searchNoReset, searchAlarmOnly);
-			if (ret == -1)
-				throw new OneWireException("Adapter communication error during search");
-			return ret == 1 ? true : false;
-		} else
+		if (this.port_handle == -1) {
 			throw new OneWireException("Port not selected");
+		}
+		var ret = this.Search(this.port_handle, true, !this.searchNoReset, this.searchAlarmOnly);
+		if (ret == -1) {
+			throw new OneWireException("Adapter communication error during search");
+		}
+		return ret == 1 == true;
 	}
 
+	@Override
 	public boolean findNextDevice() throws OneWireIOException, OneWireException {
-		if (port_handle != -1) {
-			int ret = Search(port_handle, false, !searchNoReset, searchAlarmOnly);
-			if (ret == -1)
-				throw new OneWireException("Adapter communication error during search");
-			return ret == 1 ? true : false;
-		} else
+		if (this.port_handle == -1) {
 			throw new OneWireException("Port not selected");
+		}
+		var ret = this.Search(this.port_handle, false, !this.searchNoReset, this.searchAlarmOnly);
+		if (ret == -1) {
+			throw new OneWireException("Adapter communication error during search");
+		}
+		return ret == 1 == true;
 	}
 
 	private boolean searchAlarmOnly = false;
 	private boolean searchNoReset = false;
 
+	@Override
 	public void setSearchOnlyAlarmingDevices() {
-		searchAlarmOnly = true;
+		this.searchAlarmOnly = true;
 	}
 
+	@Override
 	public void setNoResetSearch() {
-		searchNoReset = true;
+		this.searchNoReset = true;
 	}
 
+	@Override
 	public void setSearchAllDevices() {
-		searchAlarmOnly = false;
-		searchNoReset = false;
+		this.searchAlarmOnly = false;
+		this.searchNoReset = false;
 	}
 
+	@Override
 	public boolean beginExclusive(boolean blocking) throws OneWireException {
-		boolean gotExclusive = false;
+		var gotExclusive = false;
 		while (!gotExclusive && blocking) {
-			synchronized (syncObj) {
-				if (!inExclusive) {
-					inExclusive = true;
+			synchronized (this.syncObj) {
+				if (!this.inExclusive) {
+					this.inExclusive = true;
 					gotExclusive = true;
 				}
 			}
@@ -170,125 +190,139 @@ public class PDKAdapterUSB extends DSPortAdapter {
 		return false;
 	}
 
+	@Override
 	public void endExclusive() {
-		inExclusive = false;
+		this.inExclusive = false;
 	}
 
 	private native int TouchBit(int portHandle, int dataBit);
 
 	private native int TouchBitPower(int portHandle, int dataBit);
 
+	@Override
 	public void putBit(boolean dataBit) throws OneWireIOException, OneWireException {
-		if (port_handle != -1) {
-			int ret;
-			if (levelChangeOnNextBit && primedLevelValue == LEVEL_POWER_DELIVERY)
-				ret = TouchBitPower(port_handle, dataBit ? 1 : 0);
-			else
-				ret = TouchBit(port_handle, dataBit ? 1 : 0);
-			levelChangeOnNextBit = false;
-
-			if (ret == -1)
-				throw new OneWireIOException("1-Wire Adapter Communication Failed During Touchbit");
-			else if (ret != (dataBit ? 1 : 0))
-				throw new OneWireIOException("PutBit failed, echo did not match");
-		} else
+		if (this.port_handle == -1) {
 			throw new OneWireException("Port not selected");
+		}
+		int ret;
+		if (this.levelChangeOnNextBit && this.primedLevelValue == LEVEL_POWER_DELIVERY) {
+			ret = this.TouchBitPower(this.port_handle, dataBit ? 1 : 0);
+		} else {
+			ret = this.TouchBit(this.port_handle, dataBit ? 1 : 0);
+		}
+		this.levelChangeOnNextBit = false;
+
+		if (ret == -1) {
+			throw new OneWireIOException("1-Wire Adapter Communication Failed During Touchbit");
+		} else if (ret != (dataBit ? 1 : 0)) {
+			throw new OneWireIOException("PutBit failed, echo did not match");
+		}
 	}
 
+	@Override
 	public boolean getBit() throws OneWireIOException, OneWireException {
-		if (port_handle != -1) {
-			int ret;
-			if (levelChangeOnNextBit && primedLevelValue == LEVEL_POWER_DELIVERY)
-				ret = TouchBitPower(port_handle, 1);
-			else
-				ret = TouchBit(port_handle, 1);
-			levelChangeOnNextBit = false;
-
-			if (ret == 1)
-				return true;
-			else if (ret == 0)
-				return false;
-			else
-				throw new OneWireIOException("1-Wire Adapter Communication Failed During Touchbit");
-		} else
+		if (this.port_handle == -1) {
 			throw new OneWireException("Port not selected");
+		}
+		int ret;
+		if (this.levelChangeOnNextBit && this.primedLevelValue == LEVEL_POWER_DELIVERY) {
+			ret = this.TouchBitPower(this.port_handle, 1);
+		} else {
+			ret = this.TouchBit(this.port_handle, 1);
+		}
+		this.levelChangeOnNextBit = false;
+
+		if (ret == 1) {
+			return true;
+		} else if (ret == 0) {
+			return false;
+		} else {
+			throw new OneWireIOException("1-Wire Adapter Communication Failed During Touchbit");
+		}
 	}
 
 	private native int TouchByte(int portHandle, int dataByte);
 
 	private native int TouchBytePower(int portHandle, int dataByte);
 
+	@Override
 	public void putByte(int dataByte) throws OneWireIOException, OneWireException {
-		if (port_handle != -1) {
-			int ret;
-			if (levelChangeOnNextByte && primedLevelValue == LEVEL_POWER_DELIVERY)
-				ret = TouchBytePower(port_handle, dataByte);
-			else
-				ret = TouchByte(port_handle, dataByte);
-			levelChangeOnNextByte = false;
-
-// TODO non-functional
-//			if (ret == -1)
-//				throw new OneWireIOException("1-Wire Adapter Communication Failed During Touchbyte");
-//			else if (ret != dataByte)
-//				throw new OneWireIOException("PutByte failed, echo did not match");
-		} else
+		if (this.port_handle == -1) {
 			throw new OneWireException("Port not selected");
+		}
+		int ret;
+		if (this.levelChangeOnNextByte && this.primedLevelValue == LEVEL_POWER_DELIVERY) {
+			ret = this.TouchBytePower(this.port_handle, dataByte);
+		} else {
+			ret = this.TouchByte(this.port_handle, dataByte);
+		}
+		this.levelChangeOnNextByte = false;
 	}
 
+	@Override
 	public int getByte() throws OneWireIOException, OneWireException {
-		if (port_handle != -1) {
-			int ret;
-			if (levelChangeOnNextByte && primedLevelValue == LEVEL_POWER_DELIVERY)
-				ret = TouchBytePower(port_handle, 0x0FF);
-			else
-				ret = TouchByte(port_handle, 0x0FF);
-			levelChangeOnNextByte = false;
-
-			if (ret == -1)
-				throw new OneWireIOException("1-Wire Adapter Communication Failed During Touchbyte");
-			return ret;
-		} else
+		if (this.port_handle == -1) {
 			throw new OneWireException("Port not selected");
+		}
+		int ret;
+		if (this.levelChangeOnNextByte && this.primedLevelValue == LEVEL_POWER_DELIVERY) {
+			ret = this.TouchBytePower(this.port_handle, 0x0FF);
+		} else {
+			ret = this.TouchByte(this.port_handle, 0x0FF);
+		}
+		this.levelChangeOnNextByte = false;
+
+		if (ret == -1) {
+			throw new OneWireIOException("1-Wire Adapter Communication Failed During Touchbyte");
+		}
+		return ret;
 	}
 
+	@Override
 	public byte[] getBlock(int len) throws OneWireIOException, OneWireException {
-		byte[] buff = new byte[len];
-		getBlock(buff, 0, len);
+		var buff = new byte[len];
+		this.getBlock(buff, 0, len);
 		return buff;
 	}
 
+	@Override
 	public void getBlock(byte[] buff, int len) throws OneWireIOException, OneWireException {
-		getBlock(buff, 0, len);
+		this.getBlock(buff, 0, len);
 	}
 
+	@Override
 	public void getBlock(byte[] buff, int off, int len) throws OneWireIOException, OneWireException {
-		for (int i = 0; i < len; i++)
+		for (var i = 0; i < len; i++) {
 			buff[i + off] = (byte) 0xFF;
-		dataBlock(buff, off, len);
+		}
+		this.dataBlock(buff, off, len);
 	}
 
 	private native int DataBlock(int portHandle, byte[] buff, int off, int len);
 
+	@Override
 	public void dataBlock(byte[] buff, int off, int len) throws OneWireIOException, OneWireException {
-		if (port_handle != -1) {
-			int ret = DataBlock(port_handle, buff, off, len);
-			if (ret == -1)
-				throw new OneWireIOException("1-Wire Adapter Communication Failed During Reset");
-		} else
+		if (this.port_handle == -1) {
 			throw new OneWireException("Port not selected");
+		}
+		var ret = this.DataBlock(this.port_handle, buff, off, len);
+		if (ret == -1) {
+			throw new OneWireIOException("1-Wire Adapter Communication Failed During Reset");
+		}
 	}
 
 	private native int Reset(int portHandle);
 
+	@Override
 	public int reset() throws OneWireIOException, OneWireException {
-		if (port_handle != -1) {
-			int ret = Reset(port_handle);
-			if (ret == -1)
-				throw new OneWireIOException("1-Wire Adapter Communication Failed During Reset");
-			return ret;
-		} else
+		if (this.port_handle == -1) {
 			throw new OneWireException("Port not selected");
+		}
+		var ret = this.Reset(this.port_handle);
+		if (ret == -1) {
+			throw new OneWireIOException("1-Wire Adapter Communication Failed During Reset");
+		}
+		return ret;
 	}
 
 	// --------
@@ -309,6 +343,7 @@ public class PDKAdapterUSB extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canOverdrive() throws OneWireIOException, OneWireException {
 		return false;
 	}
@@ -322,6 +357,7 @@ public class PDKAdapterUSB extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canHyperdrive() throws OneWireIOException, OneWireException {
 		return false;
 	}
@@ -335,6 +371,7 @@ public class PDKAdapterUSB extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canFlex() throws OneWireIOException, OneWireException {
 		return false;
 	}
@@ -348,6 +385,7 @@ public class PDKAdapterUSB extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canProgram() throws OneWireIOException, OneWireException {
 		return false;
 	}
@@ -361,6 +399,7 @@ public class PDKAdapterUSB extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canDeliverPower() throws OneWireIOException, OneWireException {
 		return true;
 	}
@@ -377,6 +416,7 @@ public class PDKAdapterUSB extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canDeliverSmartPower() throws OneWireIOException, OneWireException {
 
 		// regardless of adapter, the class does not support it
@@ -392,6 +432,7 @@ public class PDKAdapterUSB extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error with the adapter
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean canBreak() throws OneWireIOException, OneWireException {
 		return false;
 	}
@@ -425,12 +466,13 @@ public class PDKAdapterUSB extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public void setPowerDuration(int timeFactor) throws OneWireIOException, OneWireException {
-		if (timeFactor != DELIVERY_INFINITE)
+		if (timeFactor != DELIVERY_INFINITE) {
 			throw new OneWireException(
 					"USerialAdapter-setPowerDuration, does not support this duration, infinite only");
-		else
-			levelTimeFactor = DELIVERY_INFINITE;
+		}
+		this.levelTimeFactor = DELIVERY_INFINITE;
 	}
 
 	int levelTimeFactor = DELIVERY_INFINITE;
@@ -465,35 +507,40 @@ public class PDKAdapterUSB extends DSPortAdapter {
 	 * @throws OneWireIOException on a 1-Wire communication error
 	 * @throws OneWireException   on a setup error with the 1-Wire adapter
 	 */
+	@Override
 	public boolean startPowerDelivery(int changeCondition) throws OneWireIOException, OneWireException {
-		if (changeCondition == CONDITION_AFTER_BIT) {
-			levelChangeOnNextBit = true;
-			primedLevelValue = LEVEL_POWER_DELIVERY;
+		switch (changeCondition) {
+		case CONDITION_AFTER_BIT:
+			this.levelChangeOnNextBit = true;
+			this.primedLevelValue = LEVEL_POWER_DELIVERY;
 			return true;
-		} else if (changeCondition == CONDITION_AFTER_BYTE) {
-			levelChangeOnNextByte = true;
-			primedLevelValue = LEVEL_POWER_DELIVERY;
+		case CONDITION_AFTER_BYTE:
+			this.levelChangeOnNextByte = true;
+			this.primedLevelValue = LEVEL_POWER_DELIVERY;
 			return true;
-		} else if (changeCondition == CONDITION_NOW) {
-			int ret = PowerLevel(port_handle, LEVEL_POWER_DELIVERY);
-
-			if (ret == 1)
+		case CONDITION_NOW:
+			var ret = this.PowerLevel(this.port_handle, LEVEL_POWER_DELIVERY);
+			if (ret == 1) {
 				return true;
-			else if (ret == 0)
+			} else if (ret == 0) {
 				return false;
-			else
+			} else {
 				throw new OneWireIOException("1-Wire Adapter Communication Failed");
-		} else
+			}
+		default:
 			throw new OneWireException("Invalid power delivery condition");
+		}
 	}
 
 	public native int PowerLevel(int portHandle, int newLevel);
 
+	@Override
 	public void setPowerNormal() {
-		levelChangeOnNextByte = false;
-		levelChangeOnNextBit = false;
-		primedLevelValue = LEVEL_NORMAL;
-		PowerLevel(port_handle, LEVEL_NORMAL);
+		this.levelChangeOnNextByte = false;
+		this.levelChangeOnNextBit = false;
+		this.primedLevelValue = LEVEL_NORMAL;
+		this.PowerLevel(this.port_handle, LEVEL_NORMAL);
 	}
 
 }
+// CHECKSTYLE:ON

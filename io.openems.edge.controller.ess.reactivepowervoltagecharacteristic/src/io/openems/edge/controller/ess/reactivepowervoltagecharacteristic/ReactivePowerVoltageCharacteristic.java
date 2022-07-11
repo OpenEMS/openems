@@ -30,7 +30,7 @@ public interface ReactivePowerVoltageCharacteristic extends Controller, OpenemsC
 
 	/**
 	 * Gets the Channel for {@link ChannelId#CALCULATED_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getCalculatedPowerChannel() {
@@ -40,7 +40,7 @@ public interface ReactivePowerVoltageCharacteristic extends Controller, OpenemsC
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CALCULATED_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setCalculatedPower(Integer value) {
@@ -49,7 +49,7 @@ public interface ReactivePowerVoltageCharacteristic extends Controller, OpenemsC
 
 	/**
 	 * Gets the Channel for {@link ChannelId#VOLTAGE_RATIO}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default FloatReadChannel getVoltageRatioChannel() {
@@ -59,7 +59,7 @@ public interface ReactivePowerVoltageCharacteristic extends Controller, OpenemsC
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE_RATIO}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setVoltageRatio(Float value) {

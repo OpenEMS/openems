@@ -112,13 +112,23 @@ export const TRANSLATION = {
         toEnergymonitor: 'Do Monitoringu energetických toků…',
         type: 'Typ:'
     },
+    Login: {
+        title: "Login",
+        preamble: "Pro přihlášení jako host zadejte své heslo nebo potvrďte výchozí zadání.",
+        passwordLabel: "Heslo",
+        passwordReset: "Obnovení hesla",
+        authenticationFailed: "Ověření se nezdařilo",
+    },
+    Register: {
+        title: "Vytvoření uživatelského účtu",
+    },
     Edge: {
         Index: {
 
             // TODO Translations
             EmergencyReserve: {
-                InfoForEmergencyReserveSlider: 'By activating the emergency power reserve, the value can be freely selected between 5% and 100%.',
-                emergencyReserve: 'Emergencyreserve',
+                InfoForEmergencyReserveSlider: 'Aktivací nouzové rezervy výkonu lze libovolně zvolit hodnotu mezi 5 % a 100 %.',
+                emergencyReserve: 'pohotovostní rezerva',
             },
             Energymonitor: {
                 activePower: 'Činný výkon',
@@ -326,7 +336,18 @@ export const TRANSLATION = {
                     switchOnRec: 'Doporučení k zapnutí',
                     switchOnRecShort: 'Doporučení',
                     undefined: 'Nedefinováno',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Aktuální cena',
+                    delayedDischarge: 'Opožděné propuštění',
+                    storageDischarge: 'Vybíjení ze skladu',
+                    State: {
+                        notStarted: 'Ovladač ještě nezačal ',
+                        delayed: 'Opožděné',
+                        allowsDischarge: 'Uvolněno',
+                        standby: 'Pohotovostní režim',
+                    },
+                },
             }
         },
         History: {
@@ -386,6 +407,7 @@ export const TRANSLATION = {
                 simulator: 'Simulátor',
                 systemExecute: 'Spusťte příkaz systému',
                 systemProfile: 'Systémový Profil',
+                alerting: 'Upozornění',
             },
             More: {
                 manualCommand: 'Manuální příkaz ',
@@ -420,7 +442,12 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'Nové připojení...',
                 newDevice: 'Nové zařízení...',
-            }
+            },
+            Alerting: {
+                activate: 'Aktivace',
+                delay: 'Zpoždění [min]',
+                save: 'Uložit',
+            },
         },
         Service: {
             entireSystem: "Celý systém",
@@ -429,7 +456,20 @@ export const TRANSLATION = {
                 temperatures: "Teplota buňky",
                 insulation: "Izolace",
             }
-        }
+        },
+        App: {
+            header: 'Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi FEMS.',
+            installed: 'Nainstalováno',
+            available: 'Dostupné na',
+            incompatible: 'Nekompatibilní',
+            buyApp: 'koupit aplikaci',
+            modifyApp: 'upravit aplikaci',
+            createApp: 'Instalace aplikace',
+            deleteApp: 'odstranit aplikaci',
+            updateApp: 'aktualizace aplikace',
+            errorInstallable: 'Chyby pÅ™i instalaci',
+            errorCompatible: 'Chyby kompatibility',
+        },
     },
     About: {
         build: "Aktuální verze",

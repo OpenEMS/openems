@@ -23,7 +23,7 @@ public class FeneconMiniEssImplTest {
 
 	/**
 	 * Tests activating write-mode when it was not activated before.
-	 * 
+	 *
 	 * @throws Exception on error
 	 */
 	@Test
@@ -64,7 +64,7 @@ public class FeneconMiniEssImplTest {
 
 	/**
 	 * Tests restarting with activated write-mode.
-	 * 
+	 *
 	 * @throws Exception on error
 	 */
 	@Test
@@ -92,7 +92,7 @@ public class FeneconMiniEssImplTest {
 
 	/**
 	 * Tests activating readonly-mode when it was not activated before.
-	 * 
+	 *
 	 * @throws Exception on error
 	 */
 	@Test
@@ -133,7 +133,7 @@ public class FeneconMiniEssImplTest {
 
 	/**
 	 * Tests restarting with activated readonly-mode.
-	 * 
+	 *
 	 * @throws Exception on error
 	 */
 	@Test

@@ -8,8 +8,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
@@ -33,9 +33,11 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component(//
 		name = "Meter.Gridcon", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE } //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 public class MeterGridcon extends AbstractOpenemsComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave, EventHandler {
 

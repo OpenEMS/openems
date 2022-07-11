@@ -35,7 +35,7 @@ import io.openems.edge.ess.api.SymmetricEss;
 )
 public class BoschBpts5HybridEss extends AbstractOpenemsComponent implements SymmetricEss, OpenemsComponent {
 
-	private final int CAPACITY = 8_800;
+	private static final int CAPACITY = 8_800;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private BoschBpts5HybridCore core;
@@ -64,6 +64,7 @@ public class BoschBpts5HybridEss extends AbstractOpenemsComponent implements Sym
 		this.core.setEss(this);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.core != null) {

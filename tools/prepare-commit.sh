@@ -63,13 +63,23 @@ for D in *; do
 					touch ${D}/test/.gitignore
 				fi
 
+				# verify explicit encoding for Eclipse IDE; avoids 'Project has no explicit encoding set' warnings
+				if [ ! -f "./${D}/.settings/org.eclipse.core.resources.prefs" ]; then
+					echo "${D}/.settings/org.eclipse.core.resources.prefs -> missing"
+					mkdir "${D}/.settings"
+					cat <<EOT > "${D}/.settings/org.eclipse.core.resources.prefs"
+eclipse.preferences.version=1
+encoding/<project>=UTF-8
+EOT
+				fi
+
 				# Set default .classpath file
 				if [ -f "${D}/.classpath" ]; then
 					cat <<EOT > "${D}/.classpath"
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test">
 		<attributes>
@@ -90,7 +100,7 @@ EOT
 					else
 						(
 							head -n $start "${D}/bnd.bnd"; # before 'buildpath'
-							head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | sort; # the 'buildpath'
+							head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | LC_COLLATE=C sort; # the 'buildpath'
 							tail -n +$(expr $end - 1) "${D}/bnd.bnd" # after 'buildpath'
 						) > "${D}/bnd.bnd.new"
 						if [ $? -eq 0 ]; then
@@ -113,7 +123,7 @@ done
 bndrun='io.openems.edge.application/EdgeApp.bndrun'
 head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
 echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j1',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
@@ -134,7 +144,7 @@ rm "$bndrun.new"
 bndrun='io.openems.backend.application/BackendApp.bndrun'
 head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
 echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j1',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.osgi.service.jdbc',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"

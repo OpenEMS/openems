@@ -1,7 +1,7 @@
 package io.openems.edge.meter.virtual.symmetric.subtract;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.meter.api.MeterType;
 
 @SuppressWarnings("all")
@@ -26,7 +26,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.type = type;
 			return this;
 		}
-		
+
 		public Builder setAddToSum(boolean addToSum) {
 			this.addToSum = addToSum;
 			return this;
@@ -49,7 +49,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

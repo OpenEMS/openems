@@ -3,6 +3,7 @@ package io.openems.edge.ess.fenecon.commercial40.charger;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -17,6 +18,9 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -24,14 +28,14 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 public abstract class AbstractEssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		implements EssDcChargerFeneconCommercial40, EssDcCharger, ModbusComponent, OpenemsComponent, TimedataProvider,
-		EventHandler {
+		EventHandler, ModbusSlave {
 
 	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
 			EssDcCharger.ChannelId.ACTUAL_ENERGY);
 
 	/**
 	 * Is this PV1 or PV2 charger?.
-	 * 
+	 *
 	 * @return true for PV1, false for PV2
 	 */
 	protected abstract boolean isPV1();
@@ -48,7 +52,7 @@ public abstract class AbstractEssDcChargerFeneconCommercial40 extends AbstractOp
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		ModbusProtocol protocol = new ModbusProtocol(this, //
+		var protocol = new ModbusProtocol(this, //
 				new FC16WriteRegistersTask(0x0503, //
 						m(EssDcChargerFeneconCommercial40.ChannelId.SET_PV_POWER_LIMIT, new UnsignedWordElement(0x0503),
 								ElementToChannelConverter.SCALE_FACTOR_2))); //
@@ -221,7 +225,7 @@ public abstract class AbstractEssDcChargerFeneconCommercial40 extends AbstractOp
 	 * Calculate the Energy values from ActivePower.
 	 */
 	private void calculateEnergy() {
-		Integer actualPower = this.getActualPower().get();
+		var actualPower = this.getActualPower().get();
 		if (actualPower == null) {
 			// Not available
 			this.calculateActualEnergy.update(null);
@@ -230,5 +234,14 @@ public abstract class AbstractEssDcChargerFeneconCommercial40 extends AbstractOp
 		} else {
 			this.calculateActualEnergy.update(0);
 		}
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				EssDcCharger.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(EssDcChargerFeneconCommercial40.class, accessMode, 100) //
+						.build());
 	}
 }

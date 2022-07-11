@@ -13,8 +13,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.Unit;
@@ -35,11 +35,12 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.NRCMeter.Acting", //
-		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class NrcMeter extends AbstractOpenemsComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
@@ -53,6 +54,7 @@ public class NrcMeter extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -82,6 +84,7 @@ public class NrcMeter extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -125,7 +128,7 @@ public class NrcMeter extends AbstractOpenemsComponent
 		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 		this._setActivePower(simulatedActivePower);
 
-		Integer simulatedActivePowerByThree = TypeUtils.divide(simulatedActivePower, 3);
+		var simulatedActivePowerByThree = TypeUtils.divide(simulatedActivePower, 3);
 		this._setActivePowerL1(simulatedActivePowerByThree);
 		this._setActivePowerL2(simulatedActivePowerByThree);
 		this._setActivePowerL3(simulatedActivePowerByThree);
@@ -141,7 +144,7 @@ public class NrcMeter extends AbstractOpenemsComponent
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

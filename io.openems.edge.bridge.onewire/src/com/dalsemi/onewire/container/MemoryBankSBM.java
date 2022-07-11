@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -150,27 +151,28 @@ class MemoryBankSBM implements MemoryBank {
 	 */
 	public MemoryBankSBM(OneWireContainer ibutton) {
 		// keep reference to ibutton where memory bank is
-		ib = ibutton;
+		this.ib = ibutton;
 
 		// initialize attributes of this memory bank - DEFAULT: DS2438 Status byte
-		bankDescription = "Status/Configuration";
-		generalPurposeMemory = false;
-		startPhysicalAddress = 0;
-		size = 1;
-		readWrite = true;
-		readOnly = false;
-		nonVolatile = true;
-		powerDelivery = true;
-		writeVerification = true;
+		this.bankDescription = "Status/Configuration";
+		this.generalPurposeMemory = false;
+		this.startPhysicalAddress = 0;
+		this.size = 1;
+		this.readWrite = true;
+		this.readOnly = false;
+		this.nonVolatile = true;
+		this.powerDelivery = true;
+		this.writeVerification = true;
 
 		// create the ffblock (used for faster 0xFF fills)
-		ffBlock = new byte[20];
+		this.ffBlock = new byte[20];
 
-		for (int i = 0; i < 20; i++)
-			ffBlock[i] = (byte) 0xFF;
+		for (var i = 0; i < 20; i++) {
+			this.ffBlock[i] = (byte) 0xFF;
+		}
 
 		// indicate speed has not been set
-		doSetSpeed = true;
+		this.doSetSpeed = true;
 	}
 
 	// --------
@@ -182,8 +184,9 @@ class MemoryBankSBM implements MemoryBank {
 	 *
 	 * @return String containing the memory bank description
 	 */
+	@Override
 	public String getBankDescription() {
-		return bankDescription;
+		return this.bankDescription;
 	}
 
 	/**
@@ -193,8 +196,9 @@ class MemoryBankSBM implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank is general purpose
 	 */
+	@Override
 	public boolean isGeneralPurposeMemory() {
-		return generalPurposeMemory;
+		return this.generalPurposeMemory;
 	}
 
 	/**
@@ -202,8 +206,9 @@ class MemoryBankSBM implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank is read/write
 	 */
+	@Override
 	public boolean isReadWrite() {
-		return readWrite;
+		return this.readWrite;
 	}
 
 	/**
@@ -212,6 +217,7 @@ class MemoryBankSBM implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be written once
 	 */
+	@Override
 	public boolean isWriteOnce() {
 		return false;
 	}
@@ -221,8 +227,9 @@ class MemoryBankSBM implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be read
 	 */
+	@Override
 	public boolean isReadOnly() {
-		return readOnly;
+		return this.readOnly;
 	}
 
 	/**
@@ -231,8 +238,9 @@ class MemoryBankSBM implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank non volatile.
 	 */
+	@Override
 	public boolean isNonVolatile() {
-		return nonVolatile;
+		return this.nonVolatile;
 	}
 
 	/**
@@ -242,6 +250,7 @@ class MemoryBankSBM implements MemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires a
 	 *         'ProgramPulse'.
 	 */
+	@Override
 	public boolean needsProgramPulse() {
 		return false;
 	}
@@ -253,8 +262,9 @@ class MemoryBankSBM implements MemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires
 	 *         'PowerDelivery'.
 	 */
+	@Override
 	public boolean needsPowerDelivery() {
-		return powerDelivery;
+		return this.powerDelivery;
 	}
 
 	/**
@@ -263,8 +273,9 @@ class MemoryBankSBM implements MemoryBank {
 	 *
 	 * @return physical starting address of this logical bank.
 	 */
+	@Override
 	public int getStartPhysicalAddress() {
-		return startPhysicalAddress;
+		return this.startPhysicalAddress;
 	}
 
 	/**
@@ -272,8 +283,9 @@ class MemoryBankSBM implements MemoryBank {
 	 *
 	 * @return memory bank size in bytes.
 	 */
+	@Override
 	public int getSize() {
-		return size;
+		return this.size;
 	}
 
 	/**
@@ -282,8 +294,9 @@ class MemoryBankSBM implements MemoryBank {
 	 * @param doReadVerf true (default) verify write in 'write' false, don't verify
 	 *                   write (used on Write-Once bit manipulation)
 	 */
+	@Override
 	public void setWriteVerification(boolean doReadVerf) {
-		writeVerification = doReadVerf;
+		this.writeVerification = doReadVerf;
 	}
 
 	// --------
@@ -312,34 +325,38 @@ class MemoryBankSBM implements MemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void read(int startAddr, boolean readContinue, byte[] readBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 		byte[] temp_buf;
 
 		// check for valid address
-		if ((startAddr < 0) || ((startAddr + len) > size))
+		if (startAddr < 0 || startAddr + len > this.size) {
 			throw new OneWireException("Read exceeds memory bank");
+		}
 
 		// check for zero length read (saves time)
-		if (len == 0)
+		if (len == 0) {
 			return;
+		}
 
 		// attempt to put device at max desired speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// translate the address into a page and offset
-		int page = (startAddr + startPhysicalAddress) / 8;
-		int page_offset = (startAddr + startPhysicalAddress) % 8;
-		int data_len = 8 - page_offset;
-		if (data_len > len)
+		var page = (startAddr + this.startPhysicalAddress) / 8;
+		var page_offset = (startAddr + this.startPhysicalAddress) % 8;
+		var data_len = 8 - page_offset;
+		if (data_len > len) {
 			data_len = len;
-		int page_cnt = 0;
-		int data_read = 0;
+		}
+		var page_cnt = 0;
+		var data_read = 0;
 
 		// loop while reading pages
 		while (data_read < len) {
 			// read a page
-			temp_buf = readRawPage(page + page_cnt);
+			temp_buf = this.readRawPage(page + page_cnt);
 
 			// copy contents to the readBuf
 			System.arraycopy(temp_buf, page_offset, readBuf, offset + data_read, data_len);
@@ -348,9 +365,10 @@ class MemoryBankSBM implements MemoryBank {
 			page_cnt++;
 			data_read += data_len;
 			page_offset = 0;
-			data_len = (len - data_read);
-			if (data_len > 8)
+			data_len = len - data_read;
+			if (data_len > 8) {
 				data_len = 8;
+			}
 		}
 	}
 
@@ -374,36 +392,40 @@ class MemoryBankSBM implements MemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void write(int startAddr, byte[] writeBuf, int offset, int len) throws OneWireIOException, OneWireException {
 		byte[] temp_buf;
 
 		// return if nothing to do
-		if (len == 0)
+		if (len == 0) {
 			return;
+		}
 
 		// check if power delivery is available
-		if (!ib.adapter.canDeliverPower())
+		if (!this.ib.adapter.canDeliverPower()) {
 			throw new OneWireException("Power delivery required but not available");
+		}
 
 		// attempt to put device at max desired speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// translate the address into a page and offset
-		int page = (startAddr + startPhysicalAddress) / 8;
-		int page_offset = (startAddr + startPhysicalAddress) % 8;
-		int data_len = 8 - page_offset;
-		if (data_len > len)
+		var page = (startAddr + this.startPhysicalAddress) / 8;
+		var page_offset = (startAddr + this.startPhysicalAddress) % 8;
+		var data_len = 8 - page_offset;
+		if (data_len > len) {
 			data_len = len;
-		int page_cnt = 0;
-		int data_written = 0;
-		byte[] page_buf = new byte[8];
+		}
+		var page_cnt = 0;
+		var data_written = 0;
+		var page_buf = new byte[8];
 
 		// loop while writing pages
 		while (data_written < len) {
 			// check if only writing part of page
 			// pre-fill write page buff with current page contents
-			if ((page_offset != 0) || (data_len != 8)) {
-				temp_buf = readRawPage(page + page_cnt);
+			if (page_offset != 0 || data_len != 8) {
+				temp_buf = this.readRawPage(page + page_cnt);
 				System.arraycopy(temp_buf, 0, page_buf, 0, 8);
 			}
 
@@ -411,15 +433,16 @@ class MemoryBankSBM implements MemoryBank {
 			System.arraycopy(writeBuf, offset + data_written, page_buf, page_offset, data_len);
 
 			// write the page
-			writeRawPage(page + page_cnt, page_buf, 0);
+			this.writeRawPage(page + page_cnt, page_buf, 0);
 
 			// increment counters
 			page_cnt++;
 			data_written += data_len;
 			page_offset = 0;
-			data_len = (len - data_written);
-			if (data_len > 8)
+			data_len = len - data_written;
+			if (data_len > 8) {
 				data_len = 8;
+			}
 		}
 	}
 
@@ -439,38 +462,40 @@ class MemoryBankSBM implements MemoryBank {
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	protected byte[] readRawPage(int page) throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[11];
-		byte[] result = new byte[8];
+		var buffer = new byte[11];
+		var result = new byte[8];
 		int crc8; // this device uses a crc 8
 
-		if (ib.adapter.select(ib.address)) {
-			/* recall memory to the scratchpad */
-			buffer[0] = RECALL_MEMORY_COMMAND;
-			buffer[1] = (byte) page;
-
-			ib.adapter.dataBlock(buffer, 0, 2);
-
-			/* perform the read scratchpad */
-			ib.adapter.select(ib.address);
-
-			buffer[0] = READ_SCRATCHPAD_COMMAND;
-			buffer[1] = (byte) page;
-
-			for (int i = 2; i < 11; i++)
-				buffer[i] = (byte) 0x0ff;
-
-			ib.adapter.dataBlock(buffer, 0, 11);
-
-			/* do the crc check */
-			crc8 = CRC8.compute(buffer, 2, 9);
-
-			if (crc8 != 0x0)
-				throw new OneWireIOException("Bad CRC during page read " + crc8);
-
-			// copy the data into the result
-			System.arraycopy(buffer, 2, result, 0, 8);
-		} else
+		if (!this.ib.adapter.select(this.ib.address)) {
 			throw new OneWireIOException("Device not found during read page.");
+		}
+		/* recall memory to the scratchpad */
+		buffer[0] = RECALL_MEMORY_COMMAND;
+		buffer[1] = (byte) page;
+
+		this.ib.adapter.dataBlock(buffer, 0, 2);
+
+		/* perform the read scratchpad */
+		this.ib.adapter.select(this.ib.address);
+
+		buffer[0] = READ_SCRATCHPAD_COMMAND;
+		buffer[1] = (byte) page;
+
+		for (var i = 2; i < 11; i++) {
+			buffer[i] = (byte) 0x0ff;
+		}
+
+		this.ib.adapter.dataBlock(buffer, 0, 11);
+
+		/* do the crc check */
+		crc8 = CRC8.compute(buffer, 2, 9);
+
+		if (crc8 != 0x0) {
+			throw new OneWireIOException("Bad CRC during page read " + crc8);
+		}
+
+		// copy the data into the result
+		System.arraycopy(buffer, 2, result, 0, 8);
 
 		return result;
 	}
@@ -491,38 +516,39 @@ class MemoryBankSBM implements MemoryBank {
 	 * @throws IllegalArgumentException Bad parameters passed
 	 */
 	protected void writeRawPage(int page, byte[] source, int offset) throws OneWireIOException, OneWireException {
-		byte[] buffer = new byte[12];
+		var buffer = new byte[12];
 		int crc8;
 
-		if (ib.adapter.select(ib.address)) {
+		if (this.ib.adapter.select(this.ib.address)) {
 			// write the page to the scratchpad first
 			buffer[0] = WRITE_SCRATCHPAD_COMMAND;
 			buffer[1] = (byte) page;
 
 			System.arraycopy(source, offset, buffer, 2, 8);
-			ib.adapter.dataBlock(buffer, 0, 10);
+			this.ib.adapter.dataBlock(buffer, 0, 10);
 
 			// read back the scrathpad
-			if (ib.adapter.select(ib.address)) {
+			if (this.ib.adapter.select(this.ib.address)) {
 				// write the page to the scratchpad first
 				buffer[0] = READ_SCRATCHPAD_COMMAND;
 				buffer[1] = (byte) page;
 
-				System.arraycopy(ffBlock, 0, buffer, 2, 9);
-				ib.adapter.dataBlock(buffer, 0, 11);
+				System.arraycopy(this.ffBlock, 0, buffer, 2, 9);
+				this.ib.adapter.dataBlock(buffer, 0, 11);
 
 				/* do the crc check */
 				crc8 = CRC8.compute(buffer, 2, 9);
 
-				if (crc8 != 0x0)
+				if (crc8 != 0x0) {
 					throw new OneWireIOException("Bad CRC during scratchpad read " + crc8);
+				}
 
 				// now copy that part of the scratchpad to memory
-				if (ib.adapter.select(ib.address)) {
+				if (this.ib.adapter.select(this.ib.address)) {
 					buffer[0] = COPY_SCRATCHPAD_COMMAND;
 					buffer[1] = (byte) page;
 
-					ib.adapter.dataBlock(buffer, 0, 2);
+					this.ib.adapter.dataBlock(buffer, 0, 2);
 
 					// give it some time to write
 					try {
@@ -531,8 +557,9 @@ class MemoryBankSBM implements MemoryBank {
 					}
 
 					// check the result
-					if ((byte) ib.adapter.getByte() != (byte) 0xFF)
+					if ((byte) this.ib.adapter.getByte() != (byte) 0xFF) {
 						throw new OneWireIOException("Copy scratchpad verification not found.");
+					}
 
 					return;
 				}
@@ -557,13 +584,13 @@ class MemoryBankSBM implements MemoryBank {
 		synchronized (this) {
 
 			// only check the speed
-			if (doSetSpeed) {
+			if (this.doSetSpeed) {
 
 				// attempt to set the correct speed and verify device present
-				ib.doSpeed();
+				this.ib.doSpeed();
 
 				// no exceptions so clear flag
-				doSetSpeed = false;
+				this.doSetSpeed = false;
 			}
 		}
 	}
@@ -574,7 +601,8 @@ class MemoryBankSBM implements MemoryBank {
 	 */
 	public void forceVerify() {
 		synchronized (this) {
-			doSetSpeed = true;
+			this.doSetSpeed = true;
 		}
 	}
 }
+// CHECKSTYLE:ON

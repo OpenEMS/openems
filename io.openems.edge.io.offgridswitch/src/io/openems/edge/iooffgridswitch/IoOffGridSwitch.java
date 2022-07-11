@@ -7,8 +7,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.common.base.Objects;
@@ -28,11 +28,11 @@ import io.openems.edge.ess.offgrid.api.OffGridSwitch;
 @Component(//
 		name = "Io.Off.Grid.Switch", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-		} //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 public class IoOffGridSwitch extends AbstractOpenemsComponent implements OffGridSwitch, OpenemsComponent, EventHandler {
 
 	private ChannelAddress inputMainContactorChannelAddr;
@@ -63,6 +63,7 @@ public class IoOffGridSwitch extends AbstractOpenemsComponent implements OffGrid
 		this.outputGroundingContactorChannelAddr = ChannelAddress.fromString(config.outputGroundingContactor());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -86,7 +87,7 @@ public class IoOffGridSwitch extends AbstractOpenemsComponent implements OffGrid
 	private void handleInput() {
 		this._setMainContactor(this.getInputChannel(this.inputMainContactorChannelAddr));
 
-		Boolean inputGridStatus = this.getInputChannel(this.inputGridStatusChannelAddr);
+		var inputGridStatus = this.getInputChannel(this.inputGridStatusChannelAddr);
 		if (inputGridStatus == null) {
 			this._setGridMode(GridMode.UNDEFINED);
 		} else if (inputGridStatus) {
@@ -100,7 +101,7 @@ public class IoOffGridSwitch extends AbstractOpenemsComponent implements OffGrid
 
 	/**
 	 * Read a Digital Input.
-	 * 
+	 *
 	 * @param channelAddress the {@link ChannelAddress}
 	 * @return true, false or null
 	 */

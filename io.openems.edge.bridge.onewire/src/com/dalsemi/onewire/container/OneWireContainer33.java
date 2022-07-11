@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999 Maxim Integrated Products, All Rights Reserved.
  *
@@ -122,7 +123,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * <DD>
  * <H4>Example 1</H4> Display some features of isMACValid where owd is an
  * instanceof OneWireContainer33 and bank is an instanceof PagedMemoryBank:
- * 
+ *
  * <PRE>
  *  <CODE>
  *  byte[] read_buf  = new byte [bank.getPageLength()];
@@ -167,28 +168,22 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * @version 0.00, 19 Dec 2000
  * @author JPE
  */
-@SuppressWarnings({ "unused" })
 public class OneWireContainer33 extends OneWireContainer {
-	// turns on extra debugging output in all 1-wire containers
-	private static final boolean DEBUG = false;
 
 	// --------
 	// -------- Static Final Variables
 	// --------
 
 	/** Private Secret */
-	private byte[] secret = new byte[8];
+	private final byte[] secret = new byte[8];
 
 	/** Challenge to use for the Read Authenticate Methods */
-	private byte[] challenge = new byte[3];
+	private final byte[] challenge = new byte[3];
 
 	/** The different memory banks for the container. */
 	private MemoryBankScratchSHAEE mbScratchpad;
 	private MemoryBankSHAEE memstatus;
 	private final MemoryBankSHAEE[] memoryPages = new MemoryBankSHAEE[4];
-
-	/** Buffer used to hold MAC for certain calls */
-	private byte[] MAC_buffer = new byte[20];
 
 	/** Flag to indicate if the secret has been set. */
 	protected boolean secretSet;
@@ -220,13 +215,11 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * using.
 	 */
 	public OneWireContainer33() {
-		super();
+		System.arraycopy(ffBlock, 0, this.secret, 0, 8);
+		System.arraycopy(ffBlock, 0, this.challenge, 0, 3);
 
-		System.arraycopy(ffBlock, 0, secret, 0, 8);
-		System.arraycopy(ffBlock, 0, challenge, 0, 3);
-
-		setAdapter = false;
-		container_check = false;
+		this.setAdapter = false;
+		this.container_check = false;
 	}
 
 	/**
@@ -240,12 +233,12 @@ public class OneWireContainer33 extends OneWireContainer {
 	public OneWireContainer33(DSPortAdapter sourceAdapter, byte[] newAddress) {
 		super(sourceAdapter, newAddress);
 
-		System.arraycopy(ffBlock, 0, secret, 0, 8);
-		System.arraycopy(ffBlock, 0, challenge, 0, 3);
+		System.arraycopy(ffBlock, 0, this.secret, 0, 8);
+		System.arraycopy(ffBlock, 0, this.challenge, 0, 3);
 
-		setAdapter = true;
-		container_check = false;
-		initmem();
+		this.setAdapter = true;
+		this.container_check = false;
+		this.initmem();
 	}
 
 	/**
@@ -259,12 +252,12 @@ public class OneWireContainer33 extends OneWireContainer {
 	public OneWireContainer33(DSPortAdapter sourceAdapter, long newAddress) {
 		super(sourceAdapter, newAddress);
 
-		System.arraycopy(ffBlock, 0, secret, 0, 8);
-		System.arraycopy(ffBlock, 0, challenge, 0, 3);
+		System.arraycopy(ffBlock, 0, this.secret, 0, 8);
+		System.arraycopy(ffBlock, 0, this.challenge, 0, 3);
 
-		setAdapter = true;
-		container_check = false;
-		initmem();
+		this.setAdapter = true;
+		this.container_check = false;
+		this.initmem();
 	}
 
 	/**
@@ -278,12 +271,12 @@ public class OneWireContainer33 extends OneWireContainer {
 	public OneWireContainer33(DSPortAdapter sourceAdapter, String newAddress) {
 		super(sourceAdapter, newAddress);
 
-		System.arraycopy(ffBlock, 0, secret, 0, 8);
-		System.arraycopy(ffBlock, 0, challenge, 0, 3);
+		System.arraycopy(ffBlock, 0, this.secret, 0, 8);
+		System.arraycopy(ffBlock, 0, this.challenge, 0, 3);
 
-		setAdapter = true;
-		container_check = false;
-		initmem();
+		this.setAdapter = true;
+		this.container_check = false;
+		this.initmem();
 	}
 
 	// --------
@@ -296,7 +289,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @return boolean telling weather an adapter has been set.
 	 */
 	protected boolean adapterSet() {
-		return setAdapter;
+		return this.setAdapter;
 	}
 
 	/**
@@ -307,13 +300,15 @@ public class OneWireContainer33 extends OneWireContainer {
 	 *                      iButton.
 	 * @param newAddress    address of this 1-Wire device
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, byte[] newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
-		if (!setAdapter)
-			initmem();
+		if (!this.setAdapter) {
+			this.initmem();
+		}
 
-		setAdapter = true;
+		this.setAdapter = true;
 	}
 
 	/**
@@ -324,13 +319,15 @@ public class OneWireContainer33 extends OneWireContainer {
 	 *                      iButton.
 	 * @param newAddress    address of this 1-Wire device
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, long newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
-		if (!setAdapter)
-			initmem();
+		if (!this.setAdapter) {
+			this.initmem();
+		}
 
-		setAdapter = true;
+		this.setAdapter = true;
 	}
 
 	/**
@@ -341,13 +338,15 @@ public class OneWireContainer33 extends OneWireContainer {
 	 *                      iButton.
 	 * @param newAddress    address of this 1-Wire device
 	 */
+	@Override
 	public void setupContainer(DSPortAdapter sourceAdapter, String newAddress) {
 		super.setupContainer(sourceAdapter, newAddress);
 
-		if (!setAdapter)
-			initmem();
+		if (!this.setAdapter) {
+			this.initmem();
+		}
 
-		setAdapter = true;
+		this.setAdapter = true;
 	}
 
 	/**
@@ -356,6 +355,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 *
 	 * @return string representation of the iButton name.
 	 */
+	@Override
 	public String getName() {
 		return "DS1961S";
 	}
@@ -367,6 +367,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 *
 	 * @return the alternate names for this iButton or 1-Wire device
 	 */
+	@Override
 	public String getAlternateNames() {
 		return "DS2432";
 	}
@@ -376,6 +377,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 *
 	 * @return string representation of the function description.
 	 */
+	@Override
 	public String getDescription() {
 		return "1K-Bit protected 1-Wire EEPROM with SHA-1 Engine.";
 	}
@@ -385,6 +387,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 *
 	 * @return max. communication speed.
 	 */
+	@Override
 	public int getMaxSpeed() {
 		return DSPortAdapter.SPEED_OVERDRIVE;
 	}
@@ -395,17 +398,18 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * MemoryBank}, {@link com.dalsemi.onewire.container.PagedMemoryBank
 	 * PagedMemoryBank}, and {@link com.dalsemi.onewire.container.OTPMemoryBank
 	 * OTPMemoryBank}.
-	 * 
+	 *
 	 * @return <CODE>Enumeration</CODE> of memory banks
 	 */
+	@Override
 	public Enumeration<MemoryBank> getMemoryBanks() {
-		Vector<MemoryBank> bank_vector = new Vector<>(4);
+		var bank_vector = new Vector<MemoryBank>(4);
 
-		bank_vector.addElement(mbScratchpad);
-		bank_vector.addElement(memoryPages[0]);
-		bank_vector.addElement(memoryPages[1]);
-		bank_vector.addElement(memoryPages[2]);
-		bank_vector.addElement(memstatus);
+		bank_vector.addElement(this.mbScratchpad);
+		bank_vector.addElement(this.memoryPages[0]);
+		bank_vector.addElement(this.memoryPages[1]);
+		bank_vector.addElement(this.memoryPages[2]);
+		bank_vector.addElement(this.memstatus);
 
 		return bank_vector.elements();
 	}
@@ -418,7 +422,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @return the instance of the Scratchpad memory bank
 	 */
 	public MemoryBankScratchSHAEE getScratchpadMemoryBank() {
-		return mbScratchpad;
+		return this.mbScratchpad;
 	}
 
 	/**
@@ -427,7 +431,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @return the instance of the Status page memory bank
 	 */
 	public MemoryBankSHAEE getStatusPageMemoryBank() {
-		return memstatus;
+		return this.memstatus;
 	}
 
 	/**
@@ -438,9 +442,10 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @return the instance of the memory bank for the specified page
 	 */
 	public MemoryBankSHAEE getMemoryBankForPage(int page) {
-		if (page == 3)
+		if (page == 3) {
 			page = 2;
-		return memoryPages[page];
+		}
+		return this.memoryPages[page];
 	}
 
 	/**
@@ -450,8 +455,8 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @param offset    index into array to copy the secret from
 	 */
 	public void setContainerSecret(byte[] newSecret, int offset) {
-		System.arraycopy(newSecret, offset, secret, 0, 8);
-		secretSet = true;
+		System.arraycopy(newSecret, offset, this.secret, 0, 8);
+		this.secretSet = true;
 	}
 
 	/**
@@ -461,7 +466,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @param offset    index into array to copy the secret to
 	 */
 	public void getContainerSecret(byte[] secretBuf, int offset) {
-		System.arraycopy(secret, 0, secretBuf, offset, 8);
+		System.arraycopy(this.secret, 0, secretBuf, offset, 8);
 	}
 
 	/**
@@ -476,7 +481,7 @@ public class OneWireContainer33 extends OneWireContainer {
 		// if(!container_check)
 		// container_check = this.checkStatus();
 
-		return (secretSet);
+		return this.secretSet;
 	}
 
 	/**
@@ -488,10 +493,11 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @throws OneWireException
 	 */
 	public boolean isSecretWriteProtected() throws OneWireIOException, OneWireException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
-		return secretProtected;
+		return this.secretProtected;
 	}
 
 	/**
@@ -500,7 +506,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @param challengeset Challenge for all the memory banks.
 	 */
 	public void setChallenge(byte[] challengeset, int offset) {
-		System.arraycopy(challengeset, offset, challenge, 0, 3);
+		System.arraycopy(challengeset, offset, this.challenge, 0, 3);
 	}
 
 	/**
@@ -509,7 +515,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @param get array of bytes containing the iButton challenge
 	 */
 	public void getChallenge(byte[] get, int offset) {
-		System.arraycopy(challenge, 0, get, offset, 3);
+		System.arraycopy(this.challenge, 0, get, offset, 3);
 	}
 
 	/**
@@ -521,42 +527,45 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @throws OneWireException
 	 */
 	public boolean isWriteProtectAllSet() throws OneWireIOException, OneWireException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
-		return memoryPages[2].readOnly;
+		return this.memoryPages[2].readOnly;
 	}
 
 	/**
 	 * Write protects the secret for the DS2432.
 	 */
 	public void writeProtectSecret() throws OneWireIOException, OneWireException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
 		// write protect secret
 		// - write status byte to address
 		// ((8h) + physical) = 88h
-		memstatus.write(8, ACTIVATION_BYTE, 0, 1);
+		this.memstatus.write(8, ACTIVATION_BYTE, 0, 1);
 
-		secretProtected = true;
+		this.secretProtected = true;
 	}
 
 	/**
 	 * Write protect pages 0 to 3
 	 */
 	public void writeProtectAll() throws OneWireIOException, OneWireException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
 		// write protect all pages
 		// - write status byte to address
 		// ((9h) + physical) = 89h
-		memstatus.write(9, ACTIVATION_BYTE, 0, 1);
+		this.memstatus.write(9, ACTIVATION_BYTE, 0, 1);
 
-		memoryPages[0].writeprotect();
-		memoryPages[1].writeprotect();
-		memoryPages[2].writeprotect();
+		this.memoryPages[0].writeprotect();
+		this.memoryPages[1].writeprotect();
+		this.memoryPages[2].writeprotect();
 	}
 
 	/**
@@ -564,15 +573,16 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * to once.
 	 */
 	public void setEPROMModePageOne() throws OneWireIOException, OneWireException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
 		// Enable EPROM mode for page 1.
 		// - write status byte to address
 		// ((12h) + physical) = 8Ch
-		memstatus.write(12, ACTIVATION_BYTE, 0, 1);
+		this.memstatus.write(12, ACTIVATION_BYTE, 0, 1);
 
-		memoryPages[1].setEPROM();
+		this.memoryPages[1].setEPROM();
 	}
 
 	/**
@@ -584,25 +594,27 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @throws OneWireException
 	 */
 	public boolean isPageOneEPROMmode() throws OneWireIOException, OneWireException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
-		return memoryPages[1].isWriteOnce();
+		return this.memoryPages[1].isWriteOnce();
 	}
 
 	/**
 	 * Write protect page zero only.
 	 */
 	public void writeProtectPageZero() throws OneWireIOException, OneWireException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
 		// Enable Write protection for page zero.
 		// - write status byte to address
 		// ((13h) + physical) = 8Dh
-		memstatus.write(13, ACTIVATION_BYTE, 0, 1);
+		this.memstatus.write(13, ACTIVATION_BYTE, 0, 1);
 
-		memoryPages[0].writeprotect();
+		this.memoryPages[0].writeprotect();
 	}
 
 	/**
@@ -614,10 +626,11 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @throws OneWireException
 	 */
 	public boolean isWriteProtectPageZeroSet() throws OneWireIOException, OneWireException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
-		return memoryPages[0].isReadOnly();
+		return this.memoryPages[0].isReadOnly();
 	}
 
 	/**
@@ -629,10 +642,11 @@ public class OneWireContainer33 extends OneWireContainer {
 	 */
 	public void computeNextSecret(int pageNum, byte[] partialsecret, int offset)
 			throws OneWireIOException, OneWireException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
-		mbScratchpad.computeNextSecret(pageNum * 32, partialsecret, offset);
+		this.mbScratchpad.computeNextSecret(pageNum * 32, partialsecret, offset);
 	}
 
 	/**
@@ -641,10 +655,11 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @param addr address of page to use for the next secret computation.
 	 */
 	public void computeNextSecret(int pageNum) throws OneWireIOException, OneWireException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
-		mbScratchpad.computeNextSecret(pageNum * 32);
+		this.mbScratchpad.computeNextSecret(pageNum * 32);
 	}
 
 	/**
@@ -656,10 +671,11 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @throws OneWireException
 	 */
 	public boolean loadFirstSecret(byte[] data, int offset) throws OneWireIOException, OneWireException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
-		mbScratchpad.loadFirstSecret(0x080, data, offset);
+		this.mbScratchpad.loadFirstSecret(0x080, data, offset);
 		return true;
 	}
 
@@ -676,19 +692,20 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @return <code>true</code> if refresh is successful.
 	 */
 	public boolean refreshPage(int page, int offset) throws OneWireException, OneWireIOException {
-		if (!container_check)
-			container_check = this.checkStatus();
+		if (!this.container_check) {
+			this.container_check = this.checkStatus();
+		}
 
-		int addr = page * 32 + offset;
+		var addr = page * 32 + offset;
 		try {
-			mbScratchpad.refreshScratchpad(addr);
+			this.mbScratchpad.refreshScratchpad(addr);
 		} catch (OneWireException owe) {
 			// only return false for the DS2432 devices
 			// which do not support this command
 			return false;
 		}
 
-		mbScratchpad.loadFirstSecret(addr);
+		this.mbScratchpad.loadFirstSecret(addr);
 		return true;
 	}
 
@@ -704,7 +721,8 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @return <code>true</code> if refresh is successful.
 	 */
 	public boolean refreshPage(int page) throws OneWireException, OneWireIOException {
-		return refreshPage(page, 0) && refreshPage(page, 8) && refreshPage(page, 16) && refreshPage(page, 24);
+		return this.refreshPage(page, 0) && this.refreshPage(page, 8) && this.refreshPage(page, 16)
+				&& this.refreshPage(page, 24);
 	}
 
 	/**
@@ -713,126 +731,127 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @return boolean saying the part has been checked or was checked.
 	 */
 	protected boolean checkStatus() throws OneWireIOException, OneWireException {
-		if (!container_check) {
-			byte[] mem = new byte[8];
+		if (!this.container_check) {
+			var mem = new byte[8];
 
-			memstatus.read(8, false, mem, 0, 8);
+			this.memstatus.read(8, false, mem, 0, 8);
 
-			if ((mem[0] == (byte) 0xAA) || (mem[0] == (byte) 0x55))
-				secretProtected = true;
-			else
-				secretProtected = false;
-
-			if (((mem[1] == (byte) 0xAA) || (mem[1] == (byte) 0x55))
-					|| ((mem[5] == (byte) 0xAA) || (mem[5] == (byte) 0x55))) {
-				memoryPages[0].readWrite = false;
-				memoryPages[0].readOnly = true;
+			if (mem[0] == (byte) 0xAA || mem[0] == (byte) 0x55) {
+				this.secretProtected = true;
 			} else {
-				memoryPages[0].readWrite = true;
-				memoryPages[0].readOnly = false;
+				this.secretProtected = false;
 			}
 
-			if ((mem[4] == (byte) 0xAA) || (mem[4] == (byte) 0x55))
-				memoryPages[1].writeOnce = true;
-			else
-				memoryPages[1].writeOnce = false;
-
-			if ((mem[1] == (byte) 0xAA) || (mem[1] == (byte) 0x55)) {
-				memoryPages[1].readWrite = false;
-				memoryPages[1].readOnly = true;
+			if (mem[1] == (byte) 0xAA || mem[1] == (byte) 0x55 || mem[5] == (byte) 0xAA || mem[5] == (byte) 0x55) {
+				this.memoryPages[0].readWrite = false;
+				this.memoryPages[0].readOnly = true;
 			} else {
-				memoryPages[1].readWrite = true;
-				memoryPages[1].readOnly = false;
+				this.memoryPages[0].readWrite = true;
+				this.memoryPages[0].readOnly = false;
 			}
 
-			if ((mem[1] == (byte) 0xAA) || (mem[1] == (byte) 0x55)) {
-				memoryPages[2].readWrite = false;
-				memoryPages[2].readOnly = true;
+			if (mem[4] == (byte) 0xAA || mem[4] == (byte) 0x55) {
+				this.memoryPages[1].writeOnce = true;
 			} else {
-				memoryPages[2].readWrite = true;
-				memoryPages[2].readOnly = false;
+				this.memoryPages[1].writeOnce = false;
 			}
 
-			memstatus.checked = true;
-			memoryPages[0].checked = true;
-			memoryPages[1].checked = true;
-			memoryPages[2].checked = true;
-			container_check = true;
+			if (mem[1] == (byte) 0xAA || mem[1] == (byte) 0x55) {
+				this.memoryPages[1].readWrite = false;
+				this.memoryPages[1].readOnly = true;
+			} else {
+				this.memoryPages[1].readWrite = true;
+				this.memoryPages[1].readOnly = false;
+			}
+
+			if (mem[1] == (byte) 0xAA || mem[1] == (byte) 0x55) {
+				this.memoryPages[2].readWrite = false;
+				this.memoryPages[2].readOnly = true;
+			} else {
+				this.memoryPages[2].readWrite = true;
+				this.memoryPages[2].readOnly = false;
+			}
+
+			this.memstatus.checked = true;
+			this.memoryPages[0].checked = true;
+			this.memoryPages[1].checked = true;
+			this.memoryPages[2].checked = true;
+			this.container_check = true;
 		}
 
-		return container_check;
+		return this.container_check;
 	}
 
 	/**
 	 * Initialize the memory banks and data associated with each.
 	 */
 	private void initmem() {
-		secretSet = false;
+		this.secretSet = false;
 
-		mbScratchpad = new MemoryBankScratchSHAEE(this);
+		this.mbScratchpad = new MemoryBankScratchSHAEE(this);
 
 		// Set memory bank variables for the status and secret page
-		memstatus = new MemoryBankSHAEE(this, mbScratchpad);
-		memstatus.bankDescription = "Status Page that contains the secret and the status.";
-		memstatus.generalPurposeMemory = true;
-		memstatus.startPhysicalAddress = 128;
-		memstatus.size = 32;
-		memstatus.numberPages = 1;
-		memstatus.pageLength = 32;
-		memstatus.maxPacketDataLength = 32 - 3;
-		memstatus.extraInfo = false;
-		memstatus.extraInfoLength = 20;
-		memstatus.readWrite = false;
-		memstatus.writeOnce = false;
-		memstatus.pageCRC = false;
-		memstatus.readOnly = false;
-		memstatus.checked = false;
+		this.memstatus = new MemoryBankSHAEE(this, this.mbScratchpad);
+		this.memstatus.bankDescription = "Status Page that contains the secret and the status.";
+		this.memstatus.generalPurposeMemory = true;
+		this.memstatus.startPhysicalAddress = 128;
+		this.memstatus.size = 32;
+		this.memstatus.numberPages = 1;
+		this.memstatus.pageLength = 32;
+		this.memstatus.maxPacketDataLength = 32 - 3;
+		this.memstatus.extraInfo = false;
+		this.memstatus.extraInfoLength = 20;
+		this.memstatus.readWrite = false;
+		this.memstatus.writeOnce = false;
+		this.memstatus.pageCRC = false;
+		this.memstatus.readOnly = false;
+		this.memstatus.checked = false;
 
 		// Set memory bank variables
-		memoryPages[0] = new MemoryBankSHAEE(this, mbScratchpad);
-		memoryPages[0].bankDescription = "Page Zero with write protection.";
-		memoryPages[0].generalPurposeMemory = true;
-		memoryPages[0].startPhysicalAddress = 0;
-		memoryPages[0].size = 32;
-		memoryPages[0].numberPages = 1;
-		memoryPages[0].pageLength = 32;
-		memoryPages[0].maxPacketDataLength = 32 - 3;
-		memoryPages[0].extraInfo = true;
-		memoryPages[0].extraInfoLength = 20;
-		memoryPages[0].writeOnce = false;
-		memoryPages[0].pageCRC = true;
-		memoryPages[0].checked = false;
+		this.memoryPages[0] = new MemoryBankSHAEE(this, this.mbScratchpad);
+		this.memoryPages[0].bankDescription = "Page Zero with write protection.";
+		this.memoryPages[0].generalPurposeMemory = true;
+		this.memoryPages[0].startPhysicalAddress = 0;
+		this.memoryPages[0].size = 32;
+		this.memoryPages[0].numberPages = 1;
+		this.memoryPages[0].pageLength = 32;
+		this.memoryPages[0].maxPacketDataLength = 32 - 3;
+		this.memoryPages[0].extraInfo = true;
+		this.memoryPages[0].extraInfoLength = 20;
+		this.memoryPages[0].writeOnce = false;
+		this.memoryPages[0].pageCRC = true;
+		this.memoryPages[0].checked = false;
 
 		// Set memory bank varialbes
-		memoryPages[1] = new MemoryBankSHAEE(this, mbScratchpad);
-		memoryPages[1].bankDescription = "Page One with EPROM mode and write protection.";
-		memoryPages[1].generalPurposeMemory = true;
-		memoryPages[1].startPhysicalAddress = 32;
-		memoryPages[1].size = 32;
-		memoryPages[1].numberPages = 1;
-		memoryPages[1].pageLength = 32;
-		memoryPages[1].maxPacketDataLength = 32 - 3;
-		memoryPages[1].extraInfo = true;
-		memoryPages[1].extraInfoLength = 20;
-		memoryPages[1].pageCRC = true;
-		memoryPages[1].checked = false;
+		this.memoryPages[1] = new MemoryBankSHAEE(this, this.mbScratchpad);
+		this.memoryPages[1].bankDescription = "Page One with EPROM mode and write protection.";
+		this.memoryPages[1].generalPurposeMemory = true;
+		this.memoryPages[1].startPhysicalAddress = 32;
+		this.memoryPages[1].size = 32;
+		this.memoryPages[1].numberPages = 1;
+		this.memoryPages[1].pageLength = 32;
+		this.memoryPages[1].maxPacketDataLength = 32 - 3;
+		this.memoryPages[1].extraInfo = true;
+		this.memoryPages[1].extraInfoLength = 20;
+		this.memoryPages[1].pageCRC = true;
+		this.memoryPages[1].checked = false;
 
 		// Set memory bank varialbes
-		memoryPages[2] = new MemoryBankSHAEE(this, mbScratchpad);
-		memoryPages[2].bankDescription = "Page Two and Three with write protection.";
-		memoryPages[2].generalPurposeMemory = true;
-		memoryPages[2].startPhysicalAddress = 64;
-		memoryPages[2].size = 64;
-		memoryPages[2].numberPages = 2;
-		memoryPages[2].pageLength = 32;
-		memoryPages[2].maxPacketDataLength = 32 - 3;
-		memoryPages[2].extraInfo = true;
-		memoryPages[2].extraInfoLength = 20;
-		memoryPages[2].writeOnce = false;
-		memoryPages[2].pageCRC = true;
-		memoryPages[2].checked = false;
+		this.memoryPages[2] = new MemoryBankSHAEE(this, this.mbScratchpad);
+		this.memoryPages[2].bankDescription = "Page Two and Three with write protection.";
+		this.memoryPages[2].generalPurposeMemory = true;
+		this.memoryPages[2].startPhysicalAddress = 64;
+		this.memoryPages[2].size = 64;
+		this.memoryPages[2].numberPages = 2;
+		this.memoryPages[2].pageLength = 32;
+		this.memoryPages[2].maxPacketDataLength = 32 - 3;
+		this.memoryPages[2].extraInfo = true;
+		this.memoryPages[2].extraInfoLength = 20;
+		this.memoryPages[2].writeOnce = false;
+		this.memoryPages[2].pageCRC = true;
+		this.memoryPages[2].checked = false;
 
-		memoryPages[3] = memoryPages[2];
+		this.memoryPages[3] = this.memoryPages[2];
 	}
 
 	/**
@@ -848,13 +867,13 @@ public class OneWireContainer33 extends OneWireContainer {
 	 */
 	public static boolean isMACValid(int addr, byte[] SerNum, byte[] memory, byte[] mac, byte[] challenge,
 			byte[] secret) {
-		byte[] MT = new byte[64];
+		var MT = new byte[64];
 
 		System.arraycopy(secret, 0, MT, 0, 4);
 		System.arraycopy(memory, 0, MT, 4, 32);
 		System.arraycopy(ffBlock, 0, MT, 36, 4);
 
-		MT[40] = (byte) (0x40 | (((addr) << 3) & 0x08) | (((addr) >>> 5) & 0x07));
+		MT[40] = (byte) (0x40 | addr << 3 & 0x08 | addr >>> 5 & 0x07);
 
 		System.arraycopy(SerNum, 0, MT, 41, 7);
 		System.arraycopy(secret, 4, MT, 48, 4);
@@ -862,18 +881,19 @@ public class OneWireContainer33 extends OneWireContainer {
 
 		// finish up with proper padding
 		MT[55] = (byte) 0x80;
-		for (int i = 56; i < 62; i++)
+		for (var i = 56; i < 62; i++) {
 			MT[i] = (byte) 0x00;
+		}
 		MT[62] = (byte) 0x01;
 		MT[63] = (byte) 0xB8;
 
-		int[] AtoE = new int[5];
+		var AtoE = new int[5];
 		com.dalsemi.onewire.utils.SHA.ComputeSHA(MT, AtoE);
 
-		int cnt = 0;
-		for (int i = 0; i < 5; i++) {
-			int temp = AtoE[4 - i];
-			for (int j = 0; j < 4; j++) {
+		var cnt = 0;
+		for (var i = 0; i < 5; i++) {
+			var temp = AtoE[4 - i];
+			for (var j = 0; j < 4; j++) {
 				if (mac[cnt++] != (byte) (temp & 0x0FF)) {
 					return false;
 				}
@@ -914,32 +934,34 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @see #bindSecretToiButton(int,byte[])
 	 */
 	public boolean installMasterSecret(int page, byte[] newSecret) throws OneWireIOException, OneWireException {
-		for (int i = 0; i < secret.length; i++)
-			secret[i] = 0x00;
-		if (loadFirstSecret(secret, 0)) {
-			if (newSecret.length == 0)
-				return false;
-
-			byte[] input_secret = null;
-			byte[] sp_buffer = new byte[8];
-			int secret_mod_length = newSecret.length % 47;
-
-			if (secret_mod_length == 0) // if the length of the secret is divisible by 40
-				input_secret = newSecret;
-			else {
-				input_secret = new byte[newSecret.length + (47 - secret_mod_length)];
-
-				System.arraycopy(newSecret, 0, input_secret, 0, newSecret.length);
-			}
-
-			for (int i = 0; i < input_secret.length; i += 47) {
-				writeDataPage(page, input_secret, i);
-				System.arraycopy(input_secret, i + 36, sp_buffer, 0, 8);
-				mbScratchpad.computeNextSecret(page * 32, sp_buffer, 0);
-			}
-			return true;
-		} else
+		for (var i = 0; i < this.secret.length; i++) {
+			this.secret[i] = 0x00;
+		}
+		if (!this.loadFirstSecret(this.secret, 0)) {
 			throw new OneWireException("Load first secret failed");
+		}
+		if (newSecret.length == 0) {
+			return false;
+		}
+
+		byte[] input_secret = null;
+		var sp_buffer = new byte[8];
+		var secret_mod_length = newSecret.length % 47;
+
+		if (secret_mod_length == 0) {
+			input_secret = newSecret;
+		} else {
+			input_secret = new byte[newSecret.length + 47 - secret_mod_length];
+
+			System.arraycopy(newSecret, 0, input_secret, 0, newSecret.length);
+		}
+
+		for (var i = 0; i < input_secret.length; i += 47) {
+			this.writeDataPage(page, input_secret, i);
+			System.arraycopy(input_secret, i + 36, sp_buffer, 0, 8);
+			this.mbScratchpad.computeNextSecret(page * 32, sp_buffer, 0);
+		}
+		return true;
 	}
 
 	/**
@@ -966,13 +988,14 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @see #installMasterSecret(int,byte[])
 	 */
 	public boolean bindSecretToiButton(int pageNum, byte[] bindData) throws OneWireIOException, OneWireException {
-		if (!writeDataPage(pageNum, bindData))
+		if (!this.writeDataPage(pageNum, bindData)) {
 			return false;
+		}
 
-		byte[] bind_code = new byte[8];
+		var bind_code = new byte[8];
 		bind_code[0] = (byte) pageNum;
-		System.arraycopy(address, 0, bind_code, 1, 7);
-		mbScratchpad.computeNextSecret(pageNum * 32, bind_code, 0);
+		System.arraycopy(this.address, 0, bind_code, 1, 7);
+		this.mbScratchpad.computeNextSecret(pageNum * 32, bind_code, 0);
 
 		return true;
 	}
@@ -998,7 +1021,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 */
 	public boolean writeDataPage(int targetPage, byte[] pageData) throws OneWireIOException, OneWireException {
 
-		return writeDataPage(targetPage, pageData, 0);
+		return this.writeDataPage(targetPage, pageData, 0);
 	}
 
 	/**
@@ -1023,10 +1046,11 @@ public class OneWireContainer33 extends OneWireContainer {
 	 */
 	public boolean writeDataPage(int targetPage, byte[] pageData, int offset)
 			throws OneWireIOException, OneWireException {
-		int addr = 0;
-		if (targetPage == 3)
+		var addr = 0;
+		if (targetPage == 3) {
 			addr = 32;
-		memoryPages[targetPage].write(addr, pageData, offset, 32);
+		}
+		this.memoryPages[targetPage].write(addr, pageData, offset, 32);
 		return true;
 	}
 
@@ -1063,8 +1087,8 @@ public class OneWireContainer33 extends OneWireContainer {
 	 */
 	public boolean writeScratchpad(int targetPage, int targetPageOffset, byte[] inputbuffer, int start, int length)
 			throws OneWireIOException, OneWireException {
-		int addr = (targetPage << 5) + targetPageOffset;
-		mbScratchpad.writeScratchpad(addr, inputbuffer, start, length);
+		var addr = (targetPage << 5) + targetPageOffset;
+		this.mbScratchpad.writeScratchpad(addr, inputbuffer, start, length);
 		return true;
 	}
 
@@ -1082,7 +1106,7 @@ public class OneWireContainer33 extends OneWireContainer {
 	 */
 	public void readScratchpad(byte[] scratchpad, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
-		mbScratchpad.readScratchpad(scratchpad, offset, 8, extraInfo);
+		this.mbScratchpad.readScratchpad(scratchpad, offset, 8, extraInfo);
 	}
 
 	/**
@@ -1099,8 +1123,8 @@ public class OneWireContainer33 extends OneWireContainer {
 	 */
 	public boolean copyScratchpad(int targetPage, int targetPageOffset, byte[] copy_auth, int authStart)
 			throws OneWireIOException, OneWireException {
-		int addr = (targetPage << 5) + targetPageOffset;
-		mbScratchpad.copyScratchpadWithMAC(addr, copy_auth, authStart);
+		var addr = (targetPage << 5) + targetPageOffset;
+		this.mbScratchpad.copyScratchpadWithMAC(addr, copy_auth, authStart);
 		return true;
 	}
 
@@ -1117,8 +1141,8 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @throws OneWireException
 	 */
 	public boolean copyScratchpad(int targetPage, int targetPageOffset) throws OneWireIOException, OneWireException {
-		int addr = (targetPage << 5) + targetPageOffset;
-		mbScratchpad.copyScratchpad(addr, 8);
+		var addr = (targetPage << 5) + targetPageOffset;
+		this.mbScratchpad.copyScratchpad(addr, 8);
 
 		return true;
 	}
@@ -1134,10 +1158,11 @@ public class OneWireContainer33 extends OneWireContainer {
 	 * @throws OneWireException
 	 */
 	public boolean readMemoryPage(int page, byte[] pageData, int offset) throws OneWireIOException, OneWireException {
-		int addr = 0;
-		if (page == 3)
+		var addr = 0;
+		if (page == 3) {
 			addr = 32;
-		memoryPages[page].read(addr, false, pageData, offset, 32);
+		}
+		this.memoryPages[page].read(addr, false, pageData, offset, 32);
 		return true;
 	}
 
@@ -1168,11 +1193,12 @@ public class OneWireContainer33 extends OneWireContainer {
 	 */
 	public boolean readAuthenticatedPage(int page, byte[] pagedata, int offset, byte[] computed_mac, int macStart)
 			throws OneWireIOException, OneWireException {
-		int mbPage = 0;
+		var mbPage = 0;
 		if (page == 3) {
 			mbPage = 1;
 			page = 2;
 		}
-		return memoryPages[page].readAuthenticatedPage(mbPage, pagedata, offset, computed_mac, macStart);
+		return this.memoryPages[page].readAuthenticatedPage(mbPage, pagedata, offset, computed_mac, macStart);
 	}
 }
+// CHECKSTYLE:ON

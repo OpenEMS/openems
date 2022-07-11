@@ -15,8 +15,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.common.channel.Doc;
@@ -38,9 +38,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 				"type=GRID" //
 		})
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class GridMeter extends AbstractOpenemsComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
@@ -53,6 +55,7 @@ public class GridMeter extends AbstractOpenemsComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -115,7 +118,7 @@ public class GridMeter extends AbstractOpenemsComponent
 		}
 	}
 
-	private final Consumer<Value<Integer>> updateChannelsCallback = (value) -> {
+	private final Consumer<Value<Integer>> updateChannelsCallback = value -> {
 		Integer sum = null;
 
 		for (ManagedSymmetricEss ess : this.symmetricEsss) {
@@ -143,7 +146,7 @@ public class GridMeter extends AbstractOpenemsComponent
 
 		this._setActivePower(sum);
 
-		Integer simulatedActivePowerByThree = TypeUtils.divide(sum, 3);
+		var simulatedActivePowerByThree = TypeUtils.divide(sum, 3);
 		this._setActivePowerL1(simulatedActivePowerByThree);
 		this._setActivePowerL2(simulatedActivePowerByThree);
 		this._setActivePowerL3(simulatedActivePowerByThree);
@@ -152,7 +155,8 @@ public class GridMeter extends AbstractOpenemsComponent
 	private static Integer add(Integer sum, Integer activePower) {
 		if (activePower == null && sum == null) {
 			return null;
-		} else if (activePower == null) {
+		}
+		if (activePower == null) {
 			return sum;
 		} else if (sum == null) {
 			return activePower;
@@ -164,7 +168,8 @@ public class GridMeter extends AbstractOpenemsComponent
 	private static Integer subtract(Integer sum, Integer activePower) {
 		if (activePower == null && sum == null) {
 			return null;
-		} else if (activePower == null) {
+		}
+		if (activePower == null) {
 			return sum;
 		} else if (sum == null) {
 			return activePower * -1;
@@ -178,6 +183,7 @@ public class GridMeter extends AbstractOpenemsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -207,7 +213,7 @@ public class GridMeter extends AbstractOpenemsComponent
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateProductionEnergy.update(null);

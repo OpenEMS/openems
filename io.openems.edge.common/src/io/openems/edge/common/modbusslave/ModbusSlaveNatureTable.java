@@ -2,6 +2,7 @@ package io.openems.edge.common.modbusslave;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.openems.common.channel.AccessMode;
@@ -23,17 +24,27 @@ public final class ModbusSlaveNatureTable {
 			this.length = length;
 		}
 
+		/**
+		 * Add a Channel to the {@link Builder}.
+		 * 
+		 * @param offset    the register address offset
+		 * @param channelId the {@link ChannelId}
+		 * @param type      the {@link ModbusType}
+		 * @return myself
+		 */
 		public Builder channel(int offset, ChannelId channelId, ModbusType type) {
-			AccessMode filter = this.accessModeFilter;
-			AccessMode channel = channelId.doc().getAccessMode();
+			var filter = this.accessModeFilter;
+			var channel = channelId.doc().getAccessMode();
 			if (
 			// Filter for READ_ONLY Channels
-			(filter == AccessMode.READ_ONLY && (channel == AccessMode.READ_ONLY || channel == AccessMode.READ_WRITE)) || //
-			// Filter for READ_WRITE channels -> allow all Channels
-					(filter == AccessMode.READ_WRITE) || //
+			filter == AccessMode.READ_ONLY && (channel == AccessMode.READ_ONLY || channel == AccessMode.READ_WRITE) //
+					||
+					// Filter for READ_WRITE channels -> allow all Channels
+					filter == AccessMode.READ_WRITE //
+					||
 					// Filter for WRITE_ONLY channels
-					(filter == AccessMode.WRITE_ONLY
-							&& (channel == AccessMode.WRITE_ONLY || channel == AccessMode.READ_WRITE))) {
+					filter == AccessMode.WRITE_ONLY
+							&& (channel == AccessMode.WRITE_ONLY || channel == AccessMode.READ_WRITE)) {
 				this.add(new ModbusRecordChannel(offset, type, channelId, filter));
 
 			} else {
@@ -48,6 +59,7 @@ public final class ModbusSlaveNatureTable {
 				case STRING16:
 					this.string16Reserved(offset);
 					break;
+				case ENUM16:
 				case UINT16:
 					this.uint16Reserved(offset);
 					break;
@@ -59,51 +71,127 @@ public final class ModbusSlaveNatureTable {
 			return this;
 		}
 
+		/**
+		 * Add a Unsigned Int 16 value to the {@link ModbusSlaveNatureTable}
+		 * {@link Builder}.
+		 * 
+		 * @param offset the address offset
+		 * @param name   the name of the register
+		 * @param value  the value
+		 * @return myself
+		 */
 		public Builder uint16(int offset, String name, short value) {
 			this.add(new ModbusRecordUint16(offset, name, value));
 			return this;
 		}
 
+		/**
+		 * Add a Unsigned Int 16 Hash value to the {@link ModbusSlaveNatureTable}
+		 * {@link Builder}.
+		 * 
+		 * @param offset the address offset
+		 * @param text   the value
+		 * @return myself
+		 */
 		public Builder uint16Hash(int offset, String text) {
 			this.add(new ModbusRecordUint16Hash(offset, text));
 			return this;
 		}
 
+		/**
+		 * Add a Unsigned Int 16 Reserved value to the {@link ModbusSlaveNatureTable}
+		 * {@link Builder}.
+		 * 
+		 * @param offset the address offset
+		 * @return myself
+		 */
 		public Builder uint16Reserved(int offset) {
 			this.add(new ModbusRecordUint16Reserved(offset));
 			return this;
 		}
 
+		/**
+		 * Add a Unsigned Int 32 Reserved value to the {@link ModbusSlaveNatureTable}
+		 * {@link Builder}.
+		 * 
+		 * @param offset the address offset
+		 * @return myself
+		 */
 		public Builder uint32Reserved(int offset) {
 			this.add(new ModbusRecordUint32Reserved(offset));
 			return this;
 		}
 
+		/**
+		 * Add a Float 32 value to the {@link ModbusSlaveNatureTable} {@link Builder}.
+		 * 
+		 * @param offset the address offset
+		 * @param name   the name of the register
+		 * @param value  the value
+		 * @return myself
+		 */
 		public Builder float32(int offset, String name, float value) {
 			this.add(new ModbusRecordFloat32(offset, name, value));
 			return this;
 		}
 
+		/**
+		 * Add a Float 32 Reserved value to the {@link ModbusSlaveNatureTable}
+		 * {@link Builder}.
+		 * 
+		 * @param offset the address offset
+		 * @return myself
+		 */
 		public Builder float32Reserved(int offset) {
 			this.add(new ModbusRecordFloat32Reserved(offset));
 			return this;
 		}
 
+		/**
+		 * Add a Float 64 value to the {@link ModbusSlaveNatureTable} {@link Builder}.
+		 * 
+		 * @param offset the address offset
+		 * @param name   the name of the register
+		 * @param value  the value
+		 * @return myself
+		 */
 		public Builder float64(int offset, String name, double value) {
 			this.add(new ModbusRecordFloat64(offset, name, value));
 			return this;
 		}
 
+		/**
+		 * Add a Float 64 Reserved value to the {@link ModbusSlaveNatureTable}
+		 * {@link Builder}.
+		 * 
+		 * @param offset the address offset
+		 * @return myself
+		 */
 		public Builder float64Reserved(int offset) {
 			this.add(new ModbusRecordFloat64Reserved(offset));
 			return this;
 		}
 
+		/**
+		 * Add a String 16 value to the {@link ModbusSlaveNatureTable} {@link Builder}.
+		 * 
+		 * @param offset the address offset
+		 * @param name   the name of the register
+		 * @param value  the value
+		 * @return myself
+		 */
 		public Builder string16(int offset, String name, String value) {
 			this.add(new ModbusRecordString16(offset, name, value));
 			return this;
 		}
 
+		/**
+		 * Add a String 16 Reserved value to the {@link ModbusSlaveNatureTable}
+		 * {@link Builder}.
+		 * 
+		 * @param offset the address offset
+		 * @return myself
+		 */
 		public Builder string16Reserved(int offset) {
 			this.add(new ModbusRecordString16Reserved(offset));
 			return this;
@@ -120,14 +208,21 @@ public final class ModbusSlaveNatureTable {
 		}
 
 		public ModbusSlaveNatureTable build() {
-			Collections.sort(this.maps, (m1, m2) -> {
-				return Integer.compare(m1.getOffset(), m2.getOffset());
-			});
-			return new ModbusSlaveNatureTable(nature, length, this.maps.toArray(new ModbusRecord[this.maps.size()]));
+			Collections.sort(this.maps, Comparator.comparing(ModbusRecord::getOffset));
+			return new ModbusSlaveNatureTable(this.nature, this.length,
+					this.maps.toArray(new ModbusRecord[this.maps.size()]));
 		}
 
 	}
 
+	/**
+	 * Builds a {@link ModbusSlaveNatureTable} {@link Builder}.
+	 * 
+	 * @param nature     the OpenEMS Nature {@link Class}
+	 * @param accessMode the {@link AccessMode}
+	 * @param length     the reserved total length
+	 * @return the {@link Builder}
+	 */
 	public static Builder of(Class<?> nature, AccessMode accessMode, int length) {
 		return new Builder(nature, accessMode, length);
 	}
@@ -143,14 +238,14 @@ public final class ModbusSlaveNatureTable {
 	}
 
 	public Class<?> getNature() {
-		return nature;
+		return this.nature;
 	}
 
 	public int getLength() {
-		return length;
+		return this.length;
 	}
 
 	public ModbusRecord[] getModbusRecords() {
-		return modbusRecords;
+		return this.modbusRecords;
 	}
 }

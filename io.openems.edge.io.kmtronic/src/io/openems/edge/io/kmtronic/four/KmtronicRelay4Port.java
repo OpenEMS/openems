@@ -14,8 +14,8 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Holds writes to Relay Output 1 for debugging
-		 * 
+		 * Holds writes to Relay Output 1 for debugging.
+		 *
 		 * <ul>
 		 * <li>Interface: KmtronicRelayOutput
 		 * <li>Type: Boolean
@@ -24,8 +24,8 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 		 */
 		DEBUG_RELAY_1(Doc.of(OpenemsType.BOOLEAN)), //
 		/**
-		 * Relay Output 1
-		 * 
+		 * Relay Output 1.
+		 *
 		 * <ul>
 		 * <li>Interface: KmtronicRelayOutput
 		 * <li>Type: Boolean
@@ -37,8 +37,8 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 				.persistencePriority(PersistencePriority.MEDIUM) //
 				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_1))), //
 		/**
-		 * Holds writes to Relay Output 2 for debugging
-		 * 
+		 * Holds writes to Relay Output 2 for debugging.
+		 *
 		 * <ul>
 		 * <li>Interface: KmtronicRelayOutput
 		 * <li>Type: Boolean
@@ -48,8 +48,8 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 		DEBUG_RELAY_2(Doc.of(OpenemsType.BOOLEAN) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
-		 * Relay Output 2
-		 * 
+		 * Relay Output 2.
+		 *
 		 * <ul>
 		 * <li>Interface: KmtronicRelayOutput
 		 * <li>Type: Boolean
@@ -61,8 +61,8 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 				.persistencePriority(PersistencePriority.MEDIUM) //
 				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_2))), //
 		/**
-		 * Holds writes to Relay Output 3 for debugging
-		 * 
+		 * Holds writes to Relay Output 3 for debugging.
+		 *
 		 * <ul>
 		 * <li>Interface: KmtronicRelayOutput
 		 * <li>Type: Boolean
@@ -72,8 +72,8 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 		DEBUG_RELAY_3(Doc.of(OpenemsType.BOOLEAN) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
-		 * Relay Output 3
-		 * 
+		 * Relay Output 3.
+		 *
 		 * <ul>
 		 * <li>Interface: KmtronicRelayOutput
 		 * <li>Type: Boolean
@@ -85,8 +85,8 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 				.persistencePriority(PersistencePriority.MEDIUM) //
 				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY_3))), //
 		/**
-		 * Holds writes to Relay Output 4 for debugging
-		 * 
+		 * Holds writes to Relay Output 4 for debugging.
+		 *
 		 * <ul>
 		 * <li>Interface: KmtronicRelayOutput
 		 * <li>Type: Boolean
@@ -96,8 +96,8 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 		DEBUG_RELAY_4(Doc.of(OpenemsType.BOOLEAN) //
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 		/**
-		 * Relay Output 4
-		 * 
+		 * Relay Output 4.
+		 *
 		 * <ul>
 		 * <li>Interface: KmtronicRelayOutput
 		 * <li>Type: Boolean
@@ -115,6 +115,7 @@ public interface KmtronicRelay4Port extends DigitalOutput, OpenemsComponent, Mod
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

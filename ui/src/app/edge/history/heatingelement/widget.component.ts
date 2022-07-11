@@ -18,9 +18,9 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
 
     public component: EdgeConfig.Component = null;
 
-    public activeTimeOverPeriodLevel1: number = null;
-    public activeTimeOverPeriodLevel2: number = null;
-    public activeTimeOverPeriodLevel3: number = null;
+    public activeTimeOverPeriodLevel1: number | null = null;
+    public activeTimeOverPeriodLevel2: number | null = null;
+    public activeTimeOverPeriodLevel3: number | null = null;
 
     public edge: Edge = null;
 
@@ -48,63 +48,27 @@ export class HeatingelementWidgetComponent extends AbstractHistoryWidget impleme
         this.updateValues();
     };
 
+    public getCumulativeValue(channeladdress: string, response: QueryHistoricTimeseriesDataResponse) {
+        let array = response.result.data[channeladdress];
+        let firstValue = array.find(el => el != null) ?? 0;
+        let lastValue = array.slice().reverse().find(el => el != null) ?? 0;
+        return lastValue - firstValue
+    }
+
     protected updateValues() {
         this.queryHistoricTimeseriesData(this.service.historyPeriod.from, this.service.historyPeriod.to).then(response => {
-            let result = (response as QueryHistoricTimeseriesDataResponse).result;
-
-            let level1Time = result.data[this.componentId + '/Level1Time'];
-            let level2Time = result.data[this.componentId + '/Level2Time'];
-            let level3Time = result.data[this.componentId + '/Level3Time'];
-
-            let lastValueLevel1 = null;
-            let lastValueLevel2 = null;
-            let lastValueLevel3 = null;
-
-            let sumLevel1 = 0;
-            let sumLevel2 = 0;
-            let sumLevel3 = 0;
-
-            for (let value of level1Time.slice().reverse()) {
-                if (value == null) {
-                    continue;
-                }
-                if (lastValueLevel1 == null || value > lastValueLevel1) {
-                    sumLevel1 += value;
-                }
-                lastValueLevel1 = value;
-            }
-            this.activeTimeOverPeriodLevel1 = sumLevel1;
-
-            for (let value of level2Time.slice().reverse()) {
-                if (value == null) {
-                    continue;
-                }
-                if (lastValueLevel2 == null || value > lastValueLevel2) {
-                    sumLevel2 += value;
-                }
-                lastValueLevel2 = value;
-            }
-            this.activeTimeOverPeriodLevel2 = sumLevel2;
-
-            for (let value of level3Time.slice().reverse()) {
-                if (value == null) {
-                    continue;
-                }
-                if (lastValueLevel3 == null || value > lastValueLevel3) {
-                    sumLevel3 += value;
-                }
-                lastValueLevel3 = value;
-            }
-            this.activeTimeOverPeriodLevel3 = sumLevel3;
+            this.activeTimeOverPeriodLevel1 = this.getCumulativeValue(this.componentId + '/Level1CumulatedTime', response);
+            this.activeTimeOverPeriodLevel2 = this.getCumulativeValue(this.componentId + '/Level2CumulatedTime', response);
+            this.activeTimeOverPeriodLevel3 = this.getCumulativeValue(this.componentId + '/Level3CumulatedTime', response);
         });
     };
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             let channeladdresses = [
-                new ChannelAddress(this.componentId, 'Level1Time'),
-                new ChannelAddress(this.componentId, 'Level2Time'),
-                new ChannelAddress(this.componentId, 'Level3Time'),
+                new ChannelAddress(this.componentId, 'Level1CumulatedTime'),
+                new ChannelAddress(this.componentId, 'Level2CumulatedTime'),
+                new ChannelAddress(this.componentId, 'Level3CumulatedTime')
             ];
             resolve(channeladdresses);
         });

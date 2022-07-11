@@ -15,7 +15,7 @@ public class BatteryInverterConstraint {
 	public final Relationship relationship;
 	public final double value;
 
-	public static BatteryInverterConstraint[] NO_CONSTRAINTS = new BatteryInverterConstraint[] {};
+	public static BatteryInverterConstraint[] NO_CONSTRAINTS = {};
 
 	public BatteryInverterConstraint(String description, Phase phase, Pwr pwr, Relationship relationship,
 			double value) {

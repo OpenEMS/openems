@@ -1,7 +1,7 @@
 package io.openems.edge.controller.ess.timeofusetariff.discharge;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -9,8 +9,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String essId;
+		public Mode mode;
 		private int maxStartHour;
 		private int maxEndHour;
+		public DelayDischargeRiskLevel delayDischargeRiskLevel;
 
 		private Builder() {
 		}
@@ -22,6 +24,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setEssId(String essId) {
 			this.essId = essId;
+			return this;
+		}
+
+		public Builder setMode(Mode mode) {
+			this.mode = mode;
 			return this;
 		}
 
@@ -38,11 +45,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
+
+		public Builder setDelayDischargeRiskLevel(DelayDischargeRiskLevel delayDischargeRiskLevel) {
+			this.delayDischargeRiskLevel = delayDischargeRiskLevel;
+			return this;
+		}
 	}
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -62,6 +74,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public Mode mode() {
+		return this.builder.mode;
+	}
+
+	@Override
 	public int maxStartHour() {
 		return this.builder.maxStartHour;
 	}
@@ -74,5 +91,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String ess_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
+	}
+
+	@Override
+	public DelayDischargeRiskLevel delayDischargeRiskLevel() {
+		return this.builder.delayDischargeRiskLevel;
 	}
 }

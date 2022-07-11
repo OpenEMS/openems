@@ -11,6 +11,9 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter;
+import io.openems.edge.batteryinverter.api.OffGridBatteryInverter.TargetGridMode;
+import io.openems.edge.batteryinverter.sinexcel.enums.CountryCode;
+import io.openems.edge.batteryinverter.sinexcel.enums.EnableDisable;
 import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine.State;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -28,12 +31,9 @@ public class SinexcelImplTest {
 	private static final String BATTERY_INVERTER_ID = "batteryInverter0";
 	private static final String BATTERY_ID = "battery0";
 	private static final String MODBUS_ID = "modbus0";
-
 	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(BATTERY_INVERTER_ID, "StateMachine");
-//	private static final ChannelAddress CLEAR_FAILURE_CMD = new ChannelAddress(BATTERY_INVERTER_ID, "ClearFailureCmd");
-//	private static final ChannelAddress SET_ON_GRID_MODE = new ChannelAddress(BATTERY_INVERTER_ID, "SetOnGridMode");
-//	private static final ChannelAddress SET_OFF_GRID_MODE = new ChannelAddress(BATTERY_INVERTER_ID, "SetOffGridMode");
-
+	private static final ChannelAddress SET_ON_GRID_MODE = new ChannelAddress(BATTERY_INVERTER_ID, "SetOnGridMode");
+	private static final ChannelAddress SET_OFF_GRID_MODE = new ChannelAddress(BATTERY_INVERTER_ID, "SetOffGridMode");
 	private static final ChannelAddress MAX_APPARENT_POWER = new ChannelAddress(BATTERY_INVERTER_ID, //
 			"MaxApparentPower");
 
@@ -60,8 +60,8 @@ public class SinexcelImplTest {
 
 	@Test
 	public void testStart() throws Exception {
-		final TimeLeapClock clock = new TimeLeapClock(
-				Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
 		new MyComponentTest(new SinexcelImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
@@ -71,6 +71,8 @@ public class SinexcelImplTest {
 						.setId(BATTERY_INVERTER_ID) //
 						.setStartStopConfig(StartStopConfig.START) //
 						.setModbusId(MODBUS_ID) //
+						.setCountryCode(CountryCode.GERMANY)//
+						.setEmergencyPower(EnableDisable.DISABLE)//
 						.build()) //
 				.next(new TestCase("first") //
 						.input(MAX_APPARENT_POWER, 50_000) //
@@ -91,28 +93,50 @@ public class SinexcelImplTest {
 				.next(new TestCase("Fifth") //
 						.output(STATE_MACHINE, State.GO_RUNNING));
 	}
-//
-//	@Test
-//	public void testOffGrid() throws Exception {
-//		final TimeLeapClock clock = new TimeLeapClock(
-//				Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */, ZoneOffset.UTC);
-//		new MyComponentTest(new SinexcelImpl()) //
-//				.addReference("cm", new DummyConfigurationAdmin()) //
-//				.addReference("componentManager", new DummyComponentManager(clock)) //
-//				.addReference("power", new DummyPower()) //
-//				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
-//				.activate(MyConfig.create() //
-//						.setId(BATTERY_INVERTER_ID) //
-//						.setStartStopConfig(StartStopConfig.START) //
-//						.setModbusId(MODBUS_ID) //
-//						.build()) //
-//				.next(new TestCase() //
-//						.output(STATE_MACHINE, State.UNDEFINED)) //
-//				.next(new TestCase() //
-//						.output(STATE_MACHINE, State.GO_RUNNING) //
-//						.output(CLEAR_FAILURE_CMD, true)) //
-//
-//		;
-//	}
+
+	@Test
+	public void testOffGrid() throws Exception {
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800L) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
+		var sut = new SinexcelImpl();
+		new MyComponentTest(sut) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("power", new DummyPower()) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.activate(MyConfig.create() //
+						.setId(BATTERY_INVERTER_ID) //
+						.setStartStopConfig(StartStopConfig.START) //
+						.setModbusId(MODBUS_ID) //
+						.setCountryCode(CountryCode.GERMANY)//
+						.setEmergencyPower(EnableDisable.DISABLE)//
+						.build()) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.GO_RUNNING)) //
+				.next(new TestCase()//
+						.input(SET_OFF_GRID_MODE, false) //
+						.input(SET_ON_GRID_MODE, true)) //
+				.next(new TestCase()//
+						.input(INVERTER_STATE, true))
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.RUNNING)) //
+				.next(new TestCase() //
+						.onExecuteControllersCallbacks(() -> sut.setTargetGridMode(TargetGridMode.GO_OFF_GRID))) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.UNDEFINED)) //
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.GO_RUNNING)) //
+				.next(new TestCase()//
+						.input(SET_OFF_GRID_MODE, true) //
+						.input(SET_ON_GRID_MODE, false)) //
+				.next(new TestCase()//
+						.input(INVERTER_STATE, true))
+				.next(new TestCase() //
+						.output(STATE_MACHINE, State.RUNNING)) //
+
+		;
+	}
 
 }

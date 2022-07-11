@@ -11,6 +11,7 @@ import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.AuthenticateWithPasswordRequest;
 import io.openems.common.jsonrpc.request.AuthenticateWithTokenRequest;
 import io.openems.common.session.AbstractUser;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
@@ -18,7 +19,7 @@ import io.openems.common.utils.JsonUtils;
 /**
  * Represents a JSON-RPC Response for {@link AuthenticateWithPasswordRequest} or
  * {@link AuthenticateWithTokenRequest}.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -37,23 +38,23 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 
 		/**
 		 * Converts a collection of EdgeMetadatas to a JsonArray.
-		 * 
+		 *
 		 * <pre>
 		 * [{
 		 *   "id": String,
 		 *   "comment": String,
-		 *   "producttype: String,
-		 *   "version: String,
-		 *   "role: "admin" | "installer" | "owner" | "guest",
-		 *   "isOnline: boolean
+		 *   "producttype": String,
+		 *   "version": String,
+		 *   "role": "admin" | "installer" | "owner" | "guest",
+		 *   "isOnline": boolean
 		 * }]
 		 * </pre>
-		 * 
+		 *
 		 * @param metadatas the EdgeMetadatas
 		 * @return a JsonArray
 		 */
 		public static JsonArray toJson(Collection<EdgeMetadata> metadatas) {
-			JsonArray result = new JsonArray();
+			var result = new JsonArray();
 			for (EdgeMetadata metadata : metadatas) {
 				result.add(metadata.toJsonObject());
 			}
@@ -92,13 +93,9 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 	private final String token;
 	private final AbstractUser user;
 	private final List<EdgeMetadata> edges;
-	private final String language;
+	private final Language language;
 
-	public AuthenticateResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges) {
-		this(id, token, user, edges, null);
-	}
-
-	public AuthenticateResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges, String language) {
+	public AuthenticateResponse(UUID id, String token, AbstractUser user, List<EdgeMetadata> edges, Language language) {
 		super(id);
 		this.token = token;
 		this.user = user;
@@ -117,7 +114,7 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 				.add("user", JsonUtils.buildJsonObject() //
 						.addProperty("id", this.user.getId()) //
 						.addProperty("name", this.user.getName()) //
-						.addProperty("language", this.language) //
+						.addProperty("language", this.language.name()) //
 						.add("globalRole", this.user.getGlobalRole().asJson()) //
 						.build()) //
 				.add("edges", EdgeMetadata.toJson(this.edges)) //

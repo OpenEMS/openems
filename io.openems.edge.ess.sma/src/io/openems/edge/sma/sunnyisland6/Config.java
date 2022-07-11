@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.ess.api.SinglePhase;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "ESS SMA SunnyIsland 6.0H", //
 		description = "Implements the SMA SunnyIsland 6.0H energy storage system.")
 @interface Config {

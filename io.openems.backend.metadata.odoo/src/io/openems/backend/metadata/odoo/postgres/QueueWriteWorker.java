@@ -16,7 +16,6 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.metadata.odoo.postgres.task.DatabaseTask;
 import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
-import io.openems.backend.metadata.odoo.postgres.task.InsertOrUpdateDeviceStates;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
 import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
 import io.openems.common.utils.ThreadPoolUtils;
@@ -47,7 +46,7 @@ public class QueueWriteWorker {
 		this.parent = parent;
 		this.dataSource = dataSource;
 
-		if (DEBUG_MODE) {
+		if (QueueWriteWorker.DEBUG_MODE) {
 			this.debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 		} else {
 			this.debugLogExecutor = null;
@@ -58,7 +57,7 @@ public class QueueWriteWorker {
 	 * Starts the {@link QueueWriteWorker}.
 	 */
 	public synchronized void start() {
-		if (DEBUG_MODE) {
+		if (QueueWriteWorker.DEBUG_MODE) {
 			this.initializeDebugLog();
 		}
 	}
@@ -74,16 +73,16 @@ public class QueueWriteWorker {
 
 	/**
 	 * Adds a {@link DatabaseTask} to the queue.
-	 * 
+	 *
 	 * @param task the {@link DatabaseTask}
 	 */
 	public void addTask(DatabaseTask task) {
-		if (DEBUG_MODE) {
+		if (QueueWriteWorker.DEBUG_MODE) {
 			this.count(task, true);
 		}
 
 		this.executor.execute(() -> {
-			if (DEBUG_MODE) {
+			if (QueueWriteWorker.DEBUG_MODE) {
 				this.count(task, false);
 			}
 
@@ -103,16 +102,16 @@ public class QueueWriteWorker {
 
 	private void initializeDebugLog() {
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			long totalTasks = this.executor.getTaskCount();
-			long completedTasks = this.executor.getCompletedTaskCount();
-			int countInsertEdgeConfigUpdateUp = this.countInsertEdgeConfigUpdateUp.get();
-			int countInsertEdgeConfigUpdateDown = this.countInsertEdgeConfigUpdateDown.get();
-			int countInsertOrUpdateDeviceStateUp = this.countInsertOrUpdateDeviceStateUp.get();
-			int countInsertOrUpdateDeviceStateDown = this.countInsertOrUpdateDeviceStateDown.get();
-			int countUpdateEdgeConfigUp = this.countUpdateEdgeConfigUp.get();
-			int countUpdateEdgeConfigDown = this.countUpdateEdgeConfigDown.get();
-			int countUpdateEdgeProducttypeUp = this.countUpdateEdgeProducttypeUp.get();
-			int countUpdateEdgeProducttypeDown = this.countUpdateEdgeProducttypeDown.get();
+			var totalTasks = this.executor.getTaskCount();
+			var completedTasks = this.executor.getCompletedTaskCount();
+			var countInsertEdgeConfigUpdateUp = this.countInsertEdgeConfigUpdateUp.get();
+			var countInsertEdgeConfigUpdateDown = this.countInsertEdgeConfigUpdateDown.get();
+			var countInsertOrUpdateDeviceStateUp = this.countInsertOrUpdateDeviceStateUp.get();
+			var countInsertOrUpdateDeviceStateDown = this.countInsertOrUpdateDeviceStateDown.get();
+			var countUpdateEdgeConfigUp = this.countUpdateEdgeConfigUp.get();
+			var countUpdateEdgeConfigDown = this.countUpdateEdgeConfigDown.get();
+			var countUpdateEdgeProducttypeUp = this.countUpdateEdgeProducttypeUp.get();
+			var countUpdateEdgeProducttypeDown = this.countUpdateEdgeProducttypeDown.get();
 
 			this.parent.logInfo(this.log, "QueueWriteWorker. " //
 					+ "Total tasks [" + totalTasks + "|" + completedTasks + "|" + (totalTasks - completedTasks) + "] " //
@@ -144,8 +143,6 @@ public class QueueWriteWorker {
 			AtomicInteger counter;
 			if (task instanceof InsertEdgeConfigUpdate) {
 				counter = this.countInsertEdgeConfigUpdateUp;
-			} else if (task instanceof InsertOrUpdateDeviceStates) {
-				counter = this.countInsertOrUpdateDeviceStateUp;
 			} else if (task instanceof UpdateEdgeConfig) {
 				counter = this.countUpdateEdgeConfigUp;
 			} else if (task instanceof UpdateEdgeProducttype) {
@@ -159,8 +156,6 @@ public class QueueWriteWorker {
 			AtomicInteger counter;
 			if (task instanceof InsertEdgeConfigUpdate) {
 				counter = this.countInsertEdgeConfigUpdateDown;
-			} else if (task instanceof InsertOrUpdateDeviceStates) {
-				counter = this.countInsertOrUpdateDeviceStateDown;
 			} else if (task instanceof UpdateEdgeConfig) {
 				counter = this.countUpdateEdgeConfigDown;
 			} else if (task instanceof UpdateEdgeProducttype) {

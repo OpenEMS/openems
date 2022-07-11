@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -77,9 +78,9 @@ class MemoryBankNVCRC extends MemoryBankNV {
 		super(ibutton, scratch);
 
 		// initialize attributes of this memory bank
-		pageAutoCRC = true;
-		readContinuePossible = true;
-		numVerifyBytes = 0;
+		this.pageAutoCRC = true;
+		this.readContinuePossible = true;
+		this.numVerifyBytes = 0;
 	}
 
 	// --------
@@ -107,11 +108,12 @@ class MemoryBankNVCRC extends MemoryBankNV {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
 
 		// all other pages
-		readPageCRC(page, readContinue, readBuf, offset, null, extraInfoLength);
+		this.readPageCRC(page, readContinue, readBuf, offset, null, this.extraInfoLength);
 	}
 
 	/**
@@ -137,14 +139,16 @@ class MemoryBankNVCRC extends MemoryBankNV {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 
 		// check if current bank is not scratchpad bank, or not page 0
-		if (!this.extraInfo)
+		if (!this.extraInfo) {
 			throw new OneWireException("Read extra information not supported on this memory bank");
+		}
 
-		readPageCRC(page, readContinue, readBuf, offset, extraInfo, extraInfoLength);
+		this.readPageCRC(page, readContinue, readBuf, offset, extraInfo, this.extraInfoLength);
 	}
 
 	/**
@@ -168,22 +172,23 @@ class MemoryBankNVCRC extends MemoryBankNV {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
-		byte[] raw_buf = new byte[pageLength];
+		var raw_buf = new byte[this.pageLength];
 
 		// read entire page with read page CRC
-		readPageCRC(page, readContinue, raw_buf, 0, extraInfo, extraInfoLength);
+		this.readPageCRC(page, readContinue, raw_buf, 0, extraInfo, this.extraInfoLength);
 
 		// check if length is realistic
-		if (raw_buf[0] > maxPacketDataLength) {
-			sp.forceVerify();
+		if (raw_buf[0] > this.maxPacketDataLength) {
+			this.sp.forceVerify();
 
 			throw new OneWireIOException("Invalid length in packet");
 		}
 
 		// verify the CRC is correct
-		int abs_page = (startPhysicalAddress / pageLength) + page;
+		var abs_page = this.startPhysicalAddress / this.pageLength + page;
 		if (CRC16.compute(raw_buf, 0, raw_buf[0] + 3, abs_page) == 0x0000B001) {
 
 			// extract the data out of the packet
@@ -191,11 +196,10 @@ class MemoryBankNVCRC extends MemoryBankNV {
 
 			// return the length
 			return raw_buf[0];
-		} else {
-			sp.forceVerify();
-
-			throw new OneWireIOException("Invalid CRC16 in packet read");
 		}
+		this.sp.forceVerify();
+
+		throw new OneWireIOException("Invalid CRC16 in packet read");
 	}
 
 	/**
@@ -214,9 +218,10 @@ class MemoryBankNVCRC extends MemoryBankNV {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		readPageCRC(page, readContinue, readBuf, offset, null, extraInfoLength);
+		this.readPageCRC(page, readContinue, readBuf, offset, null, this.extraInfoLength);
 	}
 
 	/**
@@ -238,9 +243,10 @@ class MemoryBankNVCRC extends MemoryBankNV {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
-		readPageCRC(page, readContinue, readBuf, offset, extraInfo, extraInfoLength);
+		this.readPageCRC(page, readContinue, readBuf, offset, extraInfo, this.extraInfoLength);
 	}
 
 	/**
@@ -264,27 +270,30 @@ class MemoryBankNVCRC extends MemoryBankNV {
 	 */
 	protected void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo,
 			int extraLength) throws OneWireIOException, OneWireException {
-		int last_crc = 0;
+		var last_crc = 0;
 		byte[] raw_buf;
 
 		// only needs to be implemented if supported by hardware
-		if (!pageAutoCRC)
+		if (!this.pageAutoCRC) {
 			throw new OneWireException("Read page with CRC not supported in this memory bank");
+		}
 
 		// attempt to put device at max desired speed
-		if (!readContinue)
-			sp.checkSpeed();
+		if (!readContinue) {
+			this.sp.checkSpeed();
+		}
 
 		// check if read exceeds memory
-		if (page > numberPages)
+		if (page > this.numberPages) {
 			throw new OneWireException("Read exceeds memory bank end");
+		}
 
 		// see if need to access the device
-		if (!readContinue || !readContinuePossible) {
+		if (!readContinue || !this.readContinuePossible) {
 
 			// select the device
-			if (!ib.adapter.select(ib.address)) {
-				sp.forceVerify();
+			if (!this.ib.adapter.select(this.ib.address)) {
+				this.sp.forceVerify();
 
 				throw new OneWireIOException("Device select failed");
 			}
@@ -293,38 +302,40 @@ class MemoryBankNVCRC extends MemoryBankNV {
 			raw_buf = new byte[3];
 			raw_buf[0] = READ_PAGE_WITH_CRC;
 
-			int addr = page * pageLength + startPhysicalAddress;
+			var addr = page * this.pageLength + this.startPhysicalAddress;
 
 			raw_buf[1] = (byte) (addr & 0xFF);
-			raw_buf[2] = (byte) (((addr & 0xFFFF) >>> 8) & 0xFF);
+			raw_buf[2] = (byte) ((addr & 0xFFFF) >>> 8 & 0xFF);
 
 			// perform CRC16 on first part
 			last_crc = CRC16.compute(raw_buf, 0, raw_buf.length, last_crc);
 
 			// do the first block for command, TA1, TA2
-			ib.adapter.dataBlock(raw_buf, 0, 3);
+			this.ib.adapter.dataBlock(raw_buf, 0, 3);
 		}
 
 		// pre-fill with 0xFF
-		raw_buf = new byte[pageLength + extraLength + 2 + numVerifyBytes];
+		raw_buf = new byte[this.pageLength + extraLength + 2 + this.numVerifyBytes];
 
-		System.arraycopy(ffBlock, 0, raw_buf, 0, raw_buf.length);
+		System.arraycopy(this.ffBlock, 0, raw_buf, 0, raw_buf.length);
 
 		// send block to read data + extra info? + crc
-		ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
+		this.ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
 
 		// check the CRC
-		if (CRC16.compute(raw_buf, 0, raw_buf.length - numVerifyBytes, last_crc) != 0x0000B001) {
-			sp.forceVerify();
+		if (CRC16.compute(raw_buf, 0, raw_buf.length - this.numVerifyBytes, last_crc) != 0x0000B001) {
+			this.sp.forceVerify();
 
 			throw new OneWireIOException("Invalid CRC16 read from device");
 		}
 
 		// extract the page data
-		System.arraycopy(raw_buf, 0, readBuf, offset, pageLength);
+		System.arraycopy(raw_buf, 0, readBuf, offset, this.pageLength);
 
 		// optional extract the extra info
-		if (extraInfo != null)
-			System.arraycopy(raw_buf, pageLength, extraInfo, 0, extraLength);
+		if (extraInfo != null) {
+			System.arraycopy(raw_buf, this.pageLength, extraInfo, 0, extraLength);
+		}
 	}
 }
+// CHECKSTYLE:ON

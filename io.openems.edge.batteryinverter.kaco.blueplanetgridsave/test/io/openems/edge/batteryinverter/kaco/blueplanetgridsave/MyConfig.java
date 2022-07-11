@@ -1,8 +1,8 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.startstop.StartStopConfig;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -35,7 +35,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.activateWatchdog = activateWatchdog;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -43,7 +43,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

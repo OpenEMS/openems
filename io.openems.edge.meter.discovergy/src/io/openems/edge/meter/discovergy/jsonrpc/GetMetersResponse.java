@@ -10,7 +10,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Response for 'getMeters'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -18,7 +18,7 @@ import io.openems.common.utils.JsonUtils;
  *   "result": {
  *     "meters": [
  *     	 {@link DiscovergyMeter#toJson()}
- *     ]   
+ *     ]
  *   }
  * }
  * </pre>

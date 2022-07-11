@@ -45,7 +45,6 @@ tmp/
 *.swp
 *~.nib
 local.properties
-.settings/
 .loadpath
 .recommenders
 
@@ -225,3 +224,7 @@ gradle-app.setting
 /tools/docker/openems-edge/build
 /tools/docker/openems-ui/build
 .atom-build.yml
+
+# OpenEMS temp files
+io.openems.edge.controller.api.mqtt/edge0
+io.openems.edge.application/c:/

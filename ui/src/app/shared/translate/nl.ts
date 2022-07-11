@@ -107,12 +107,21 @@ export const TRANSLATION = {
         toEnergymonitor: 'Naar Energiemonitor...',
         type: 'Type:'
     },
+    Login: {
+        title: "Login",
+        preamble: "Voer uw wachtwoord in of bevestig de standaard om in te loggen als gast.",
+        passwordLabel: "Wachtwoord",
+        passwordReset: "Wachtwoord opnieuw instellen",
+        authenticationFailed: "Authenticatie mislukt",
+    },
+    Register: {
+        title: "Gebruikersaccount aanmaken",
+    },
     Edge: {
         Index: {
-            // TODO Translations
             EmergencyReserve: {
-                InfoForEmergencyReserveSlider: 'By activating the emergency power reserve, the value can be freely selected between 5% and 100%.',
-                emergencyReserve: 'Emergencyreserve',
+                InfoForEmergencyReserveSlider: 'Door de noodstroomreserve te activeren, kan de waarde vrij worden gekozen tussen 5% en 100%.',
+                emergencyReserve: 'noodreserve',
             },
             Energymonitor: {
                 activePower: 'Actief vermogen',
@@ -218,6 +227,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Eindtijd van beperkt laden overschreden',
                         storageAlreadyFull: 'Geheugen al vol',
                     },
+                    storageCapacity: 'opslagcapaciteit (alleen zichtbaar voor admin)'
                 },
                 CHP: {
                     highThreshold: 'hoge drempel',
@@ -318,7 +328,18 @@ export const TRANSLATION = {
                     normalOperationShort: '',
                     switchOnComShort: '',
                     switchOnRecShort: '',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Huidige prijs',
+                    delayedDischarge: 'Vertraagd ontslag',
+                    storageDischarge: 'Opslag ontlading',
+                    State: {
+                        notStarted: 'De regelaar is nog niet gestart',
+                        delayed: 'Vertraagd',
+                        allowsDischarge: 'Vrijgegeven',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {
@@ -378,6 +399,7 @@ export const TRANSLATION = {
                 simulator: 'Simulator',
                 systemExecute: 'Voer systeemopdracht uit',
                 systemProfile: 'Systeemprofiel',
+                alerting: 'Waarschuwing',
             },
             More: {
                 manualCommand: 'Handmatig commando',
@@ -412,7 +434,25 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'Nieuwe verbinding...',
                 newDevice: 'Nieuw apparaat…',
-            }
+            },
+            Alerting: {
+                activate: 'Activeer',
+                delay: 'Vertraging [min]',
+                save: 'Save',
+            },
+            App: {
+                header: 'De App Manager bevindt zich momenteel in een eerste testversie. Als niet alle apps worden weergegeven, moet de FEMS-versie mogelijk worden bijgewerkt.',
+                installed: 'Geïnstalleerd',
+                available: 'Beschikbaar',
+                incompatible: 'Onverenigbaar',
+                buyApp: 'App kopen',
+                modifyApp: 'App wijzigen',
+                createApp: 'App installeren',
+                deleteApp: 'App verwijderen',
+                updateApp: 'App bijwerken',
+                errorInstallable: 'Installatiefouten',
+                errorCompatible: 'Compatibiliteitsfouten',
+            },
         }
     },
     About: {

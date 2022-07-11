@@ -8,10 +8,12 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
-public interface SolarLog extends ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler {
+public interface SolarLog
+		extends ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		LAST_UPDATE_TIME(Doc.of(OpenemsType.INTEGER) //
@@ -62,6 +64,7 @@ public interface SolarLog extends ManagedSymmetricPvInverter, SymmetricMeter, Op
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}

@@ -25,30 +25,30 @@ public class Protocol {
 		this.socketConnection = socketConnection;
 	}
 
-	public void execute(List<ReadTask> nextReadTasks) {
+	protected void execute(List<ReadTask> nextReadTasks) {
 		for (ReadTask task : nextReadTasks) {
 			try {
 				this.socketConnection.open();
 				Channel<?> channel = task.getComponent().channel(task.getChannelId());
 				switch (task.getFieldType()) {
 				case STRING:
-					channel.setNextValue(getStringValue(task.getAddress()));
+					channel.setNextValue(this.getStringValue(task.getAddress()));
 					break;
 				case INTEGER:
-					channel.setNextValue(getIntegerValue(task.getAddress()));
+					channel.setNextValue(this.getIntegerValue(task.getAddress()));
 					break;
 				case BOOLEAN:
-					channel.setNextValue(getBooleanValue(task.getAddress()));
+					channel.setNextValue(this.getBooleanValue(task.getAddress()));
 					break;
 				case INTEGER_UNSIGNED_BYTE:
-					channel.setNextValue(getIntegerFromUnsignedByte(task.getAddress()));
+					channel.setNextValue(this.getIntegerFromUnsignedByte(task.getAddress()));
 					break;
 				case FLOAT:
-					channel.setNextValue(getFloatValue(task.getAddress()));
+					channel.setNextValue(this.getFloatValue(task.getAddress()));
 					break;
 				}
 			} catch (OpenemsException e) {
-				log.warn("KOSTAL Protocol error. " + e.getClass().getSimpleName() + ": " + e.getMessage()
+				this.log.warn("KOSTAL Protocol error. " + e.getClass().getSimpleName() + ": " + e.getMessage()
 						+ " while executing " + task.toString());
 
 				this.parent.channel(ChannelId.UNABLE_TO_READ_DATA).setNextValue(true);
@@ -59,7 +59,7 @@ public class Protocol {
 	}
 
 	protected boolean getBooleanValue(int address) throws OpenemsException {
-		byte[] bytes = sendAndReceive(address);
+		var bytes = this.sendAndReceive(address);
 		if (bytes[0] == 1) {
 			return true;
 		}
@@ -67,18 +67,18 @@ public class Protocol {
 	}
 
 	protected int getIntegerFromUnsignedByte(int address) throws OpenemsException {
-		byte[] bytes = sendAndReceive(address);
-		return (int) ByteBuffer.wrap(bytes).get() & (0xFF);
+		var bytes = this.sendAndReceive(address);
+		return ByteBuffer.wrap(bytes).get() & 0xFF;
 	}
 
 	protected float getFloatValue(int address) throws OpenemsException {
-		byte[] bytes = sendAndReceive(address);
+		var bytes = this.sendAndReceive(address);
 		return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
 	}
 
 	protected int getIntegerValue(int address) throws OpenemsException {
-		byte[] bytes = sendAndReceive(address);
-		ByteBuffer b = ByteBuffer.allocate(4).putInt(0).order(ByteOrder.LITTLE_ENDIAN);
+		var bytes = this.sendAndReceive(address);
+		var b = ByteBuffer.allocate(4).putInt(0).order(ByteOrder.LITTLE_ENDIAN);
 		b.rewind();
 		b.put(bytes);
 		b.rewind();
@@ -86,46 +86,44 @@ public class Protocol {
 	}
 
 	protected String getStringValue(int address) throws OpenemsException {
-		String stringValue = "";
-		byte[] byi = sendAndReceive(address);
+		var stringValue = new StringBuilder();
+		var byi = this.sendAndReceive(address);
 		for (byte b : byi) {
 			if (b == 0) {
 				break;
 			}
-			stringValue += (char) b;
+			stringValue.append((char) b);
 		}
-		return stringValue.trim();
+		return stringValue.toString().trim();
 	}
 
 	private byte[] addressWithByteBuffer(int address) {
-		ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+		var byteBuffer = ByteBuffer.allocate(4);
 		byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-		byteBuffer.put((byte) ((address) & (0xff)));
-		byteBuffer.put((byte) (((address) >> 8) & (0xff)));
-		byteBuffer.put((byte) (((address) >> 16) & (0xff)));
-		byteBuffer.put((byte) (((address) >> 24) & (0xff)));
-		byte[] result = byteBuffer.array();
-		return result;
+		byteBuffer.put((byte) (address & 0xff));
+		byteBuffer.put((byte) (address >> 8 & 0xff));
+		byteBuffer.put((byte) (address >> 16 & 0xff));
+		byteBuffer.put((byte) (address >> 24 & 0xff));
+		return byteBuffer.array();
 	}
 
 	private byte[] sendAndReceive(int address) throws OpenemsException {
 
-		byte[] results = null;
 		/*
 		 * convert address to byte array
 		 */
-		byte[] result = addressWithByteBuffer(address);
+		var result = this.addressWithByteBuffer(address);
 
 		/*
 		 * Calculate Checksum
 		 */
-		byte checksum = calculateChecksumFromAddress(result);
+		var checksum = this.calculateChecksumFromAddress(result);
 		/*
 		 * Build Request
 		 */
-		byte[] request = new byte[] { 0x62, (byte) this.socketConnection.getUnitID(), 0x03,
-				(byte) this.socketConnection.getUnitID(), 0x00, (byte) 0xf0, Array.getByte(result, 0),
-				Array.getByte(result, 1), Array.getByte(result, 2), Array.getByte(result, 3), checksum, 0x00 };
+		byte[] request = { 0x62, this.socketConnection.getUnitID(), 0x03, this.socketConnection.getUnitID(), 0x00,
+				(byte) 0xf0, Array.getByte(result, 0), Array.getByte(result, 1), Array.getByte(result, 2),
+				Array.getByte(result, 3), checksum, 0x00 };
 		List<Byte> datasList = new ArrayList<>();
 		try {
 			/*
@@ -138,7 +136,7 @@ public class Protocol {
 			 * Receive
 			 */
 			while (this.socketConnection.getIn().available() > 0) {
-				byte data = (byte) this.socketConnection.getIn().read();
+				var data = (byte) this.socketConnection.getIn().read();
 				datasList.add(data);
 			}
 		} catch (IOException | InterruptedException e) {
@@ -147,23 +145,23 @@ public class Protocol {
 		if (datasList.isEmpty()) {
 			throw new OpenemsException("Could not receive any data");
 		}
-		byte[] datas = new byte[datasList.size()];
-		for (int i = 0; i < datasList.size(); i++) {
+		var datas = new byte[datasList.size()];
+		for (var i = 0; i < datasList.size(); i++) {
 			datas[i] = datasList.get(i);
 		}
 		/*
 		 * Verify Checksum of Reply
 		 */
-		boolean isChecksumOk = verifyChecksumOfReply(datas);
+		var isChecksumOk = this.verifyChecksumOfReply(datas);
 		if (!isChecksumOk) {
 			throw new OpenemsException("Checksum cannot be verified");
 		}
 		/*
 		 * Extract value
 		 */
-		results = new byte[datas.length - 7];
+		byte[] results = new byte[datas.length - 7];
 
-		for (int i = 5; i < datas.length - 2; i++) {
+		for (var i = 5; i < datas.length - 2; i++) {
 			results[i - 5] = datas[i];
 		}
 		/*
@@ -174,19 +172,19 @@ public class Protocol {
 
 	private byte calculateChecksumFromAddress(byte[] result) {
 		byte checksum = 0x00;
-		byte[] request = new byte[] { 0x62, (byte) this.socketConnection.getUnitID(), 0x03,
-				(byte) this.socketConnection.getUnitID(), Array.getByte(result, 0), 0x00, (byte) 0xf0,
-				Array.getByte(result, 1), Array.getByte(result, 2), Array.getByte(result, 3) };
-		for (int i = 0; i < request.length; i++) {
-			checksum -= request[i];
+		byte[] request = { 0x62, this.socketConnection.getUnitID(), 0x03, this.socketConnection.getUnitID(),
+				Array.getByte(result, 0), 0x00, (byte) 0xf0, Array.getByte(result, 1), Array.getByte(result, 2),
+				Array.getByte(result, 3) };
+		for (byte element : request) {
+			checksum -= element;
 		}
 		return checksum;
 	}
 
 	private boolean verifyChecksumOfReply(byte[] data) {
 		byte checksum = 0x00;
-		for (int i = 0; i < data.length; i++) {
-			checksum += data[i];
+		for (byte element : data) {
+			checksum += element;
 		}
 		return checksum == 0x00;
 	}

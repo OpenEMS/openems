@@ -1,7 +1,6 @@
 package io.openems.edge.evcs.goe.chargerhome;
 
 import java.net.UnknownHostException;
-import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -10,20 +9,16 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -36,8 +31,11 @@ import io.openems.edge.evcs.api.Status;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Evcs.Goe.ChargerHome", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
@@ -91,6 +89,7 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 		this.goeapi = new GoeApi(this);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -105,14 +104,14 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 
 			// handle writes
-			JsonObject json = this.goeapi.getStatus();
+			var json = this.goeapi.getStatus();
 			if (json == null) {
 				this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(true);
 
 			} else {
 				try {
 					// Is Active
-					int alw = JsonUtils.getAsInt(json, "alw");
+					var alw = JsonUtils.getAsInt(json, "alw");
 					if (alw == 1) {
 						this.isActive = true;
 					} else {
@@ -124,7 +123,7 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 					this.channel(GoeChannelId.FIRMWARE).setNextValue(JsonUtils.getAsString(json, "fwv"));
 
 					// Current status
-					int status = JsonUtils.getAsInt(json, "car");
+					var status = JsonUtils.getAsInt(json, "car");
 					this.channel(GoeChannelId.STATUS_GOE).setNextValue(status);
 					this.channel(Evcs.ChannelId.STATUS).setNextValue(this.convertGoeStatus(status));
 
@@ -132,22 +131,22 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 					this.activeCurrent = JsonUtils.getAsInt(json, "amp") * 1000;
 					this.channel(GoeChannelId.CURR_USER).setNextValue(this.activeCurrent);
 
-					JsonArray nrg = JsonUtils.getAsJsonArray(json, "nrg");
+					var nrg = JsonUtils.getAsJsonArray(json, "nrg");
 					this.channel(GoeChannelId.VOLTAGE_L1).setNextValue(JsonUtils.getAsInt(nrg, 0));
 					this.channel(GoeChannelId.VOLTAGE_L2).setNextValue(JsonUtils.getAsInt(nrg, 1));
 					this.channel(GoeChannelId.VOLTAGE_L3).setNextValue(JsonUtils.getAsInt(nrg, 2));
 					this.channel(GoeChannelId.CURRENT_L1).setNextValue(JsonUtils.getAsInt(nrg, 4) * 100);
 					this.channel(GoeChannelId.CURRENT_L2).setNextValue(JsonUtils.getAsInt(nrg, 5) * 100);
 					this.channel(GoeChannelId.CURRENT_L3).setNextValue(JsonUtils.getAsInt(nrg, 6) * 100);
-					int power = JsonUtils.getAsInt(nrg, 11);
+					var power = JsonUtils.getAsInt(nrg, 11);
 					this.channel(GoeChannelId.ACTUAL_POWER).setNextValue(power * 10);
 					this.channel(Evcs.ChannelId.CHARGE_POWER).setNextValue(power * 10);
 
-					int phases = this.convertGoePhase(JsonUtils.getAsInt(json, "pha"));
+					var phases = this.convertGoePhase(JsonUtils.getAsInt(json, "pha"));
 					this.channel(Evcs.ChannelId.PHASES).setNextValue(phases);
 
 					// Hardware limits
-					int cableCurrent = JsonUtils.getAsInt(json, "cbl") * 1000;
+					var cableCurrent = JsonUtils.getAsInt(json, "cbl") * 1000;
 					this.maxCurrent = cableCurrent > 0 && cableCurrent < this.config.maxHwCurrent() //
 							? cableCurrent //
 							: this.config.maxHwCurrent();
@@ -195,12 +194,12 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Converts the binary input into the amount of phases that are used to charge.
-	 * 
+	 *
 	 * @param phase binary phase input
 	 * @return amount of phases
 	 */
 	private int convertGoePhase(int phase) {
-		int phasen = (byte) phase & 0b00111000;
+		var phasen = (byte) phase & 0b00111000;
 		switch (phasen) {
 		case 8: // 0b00001000: Phase 1 is active
 			return 1;
@@ -215,7 +214,7 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Sets the current from SET_CHARGE_POWER channel.
-	 * 
+	 *
 	 * <p>
 	 * Possible charge currents are between MinCurrent and MaxCurrent. Values below
 	 * are set to zero and values above are set to the maximum.
@@ -226,9 +225,9 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 		// Check energy limit
 		if (energyLimit == 0 || energyLimit > this.getEnergySession().orElse(0)) {
 			WriteChannel<Integer> channel = this.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
-			Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+			var valueOpt = channel.getNextWriteValueAndReset();
 			if (valueOpt.isPresent()) {
-				Integer power = valueOpt.get();
+				var power = valueOpt.get();
 				Channel<Integer> minimumHardwarePowerChannel = this.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
 
 				// Charging under MINIMUM_HARDWARE_POWER isn't possible
@@ -238,7 +237,7 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 				} else {
 					this.goeapi.setActive(true);
 				}
-				Value<Integer> phases = this.getPhases();
+				var phases = this.getPhases();
 				Integer current = power * 1000 / phases.orElse(3) /* e.g. 3 phases */ / 230; /* voltage */
 
 				/*
@@ -251,7 +250,7 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 				if (current < this.minCurrent) {
 					current = this.minCurrent;
 				}
-				JsonObject result = this.goeapi.setCurrent(current);
+				var result = this.goeapi.setCurrent(current);
 				if (result.isJsonObject()) {
 					this._setSetChargePowerLimit(power);
 					this.debugLog(result.toString());
@@ -266,16 +265,16 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Sets the Energy Limit for this session from SET_ENERGY_SESSION channel.
-	 * 
+	 *
 	 * <p>
 	 * Allowed values for the command setenergy are 0; 1-65535 the value of the
 	 * command is 0.1 Wh. The charging station will charge till this limit.
 	 */
 	private void setEnergySession() {
 		WriteChannel<Integer> channel = this.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
-		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+		var valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
-			Integer energyTarget = valueOpt.get();
+			var energyTarget = valueOpt.get();
 			if (energyTarget < 0) {
 				return;
 			}
@@ -307,10 +306,10 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Debug Log.
-	 * 
+	 *
 	 * <p>
 	 * Logging only if the debug mode is enabled
-	 * 
+	 *
 	 * @param message text that should be logged
 	 */
 	public void debugLog(String message) {

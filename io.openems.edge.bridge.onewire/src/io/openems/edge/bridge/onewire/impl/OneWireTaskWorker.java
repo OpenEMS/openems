@@ -14,6 +14,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.bridge.onewire.jsonrpc.GetDeviceResponse;
+import io.openems.edge.bridge.onewire.jsonrpc.GetDevicesRequest;
 
 public class OneWireTaskWorker extends AbstractImmediateWorker {
 
@@ -47,7 +48,7 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 
 	/**
 	 * Gets the DSPortAdapter and opens the port.
-	 * 
+	 *
 	 * @return the DSPortAdapter
 	 * @throws OpenemsException on error
 	 */
@@ -55,17 +56,16 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 		if (this._adapter != null) {
 			return this._adapter;
 		}
-		PDKAdapterUSB adapter = new PDKAdapterUSB();
+		var adapter = new PDKAdapterUSB();
 		try {
 			if (adapter.selectPort(this.port)) {
 				this.parent._setUnableToSelectPortFault(false);
 				this._adapter = adapter;
 				return this._adapter;
 
-			} else {
-				this.parent._setUnableToSelectPortFault(true);
-				throw new OpenemsException("Unable to select port [" + this.port + "]");
 			}
+			this.parent._setUnableToSelectPortFault(true);
+			throw new OpenemsException("Unable to select port [" + this.port + "]");
 		} catch (IllegalArgumentException | OneWireException e) {
 			this.parent._setUnableToSelectPortFault(true);
 			throw new OpenemsException("Unable to select port [" + this.port + "]: " + e.getMessage());
@@ -84,18 +84,35 @@ public class OneWireTaskWorker extends AbstractImmediateWorker {
 		super.deactivate();
 	}
 
+	/**
+	 * Adds a Task.
+	 * 
+	 * @param task the task
+	 */
 	public void addTask(Consumer<DSPortAdapter> task) {
 		this.tasks.add(task);
 	}
 
+	/**
+	 * Removes a Task.
+	 * 
+	 * @param task the task
+	 */
 	public void removeTask(Consumer<DSPortAdapter> task) {
 		this.tasks.remove(task);
 	}
 
+	/**
+	 * Handles a {@link GetDevicesRequest}.
+	 * 
+	 * @param request the {@link JsonrpcRequest}
+	 * @return a {@link GetDeviceResponse}
+	 * @throws OpenemsException on error
+	 */
 	public synchronized GetDeviceResponse handleGetDevicesRequest(JsonrpcRequest request) throws OpenemsException {
-		GetDeviceResponse response = new GetDeviceResponse(request.getId());
+		var response = new GetDeviceResponse(request.getId());
 
-		DSPortAdapter adapter = this.getAdapter();
+		var adapter = this.getAdapter();
 		try {
 			while (adapter.findNextDevice()) {
 				response.addDevice(//

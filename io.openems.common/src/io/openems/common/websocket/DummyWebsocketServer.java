@@ -23,26 +23,56 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 		private Builder() {
 		}
 
+		/**
+		 * Sets the {@link OnOpen} callback.
+		 *
+		 * @param onOpen the callback
+		 * @return the {@link Builder}
+		 */
 		public DummyWebsocketServer.Builder onOpen(OnOpen onOpen) {
 			this.onOpen = onOpen;
 			return this;
 		}
 
+		/**
+		 * Sets the {@link OnRequest} callback.
+		 *
+		 * @param onRequest the callback
+		 * @return the {@link Builder}
+		 */
 		public DummyWebsocketServer.Builder onRequest(OnRequest onRequest) {
 			this.onRequest = onRequest;
 			return this;
 		}
 
+		/**
+		 * Sets the {@link OnNotification} callback.
+		 *
+		 * @param onNotification the callback
+		 * @return the {@link Builder}
+		 */
 		public DummyWebsocketServer.Builder onNotification(OnNotification onNotification) {
 			this.onNotification = onNotification;
 			return this;
 		}
 
+		/**
+		 * Sets the {@link OnError} callback.
+		 *
+		 * @param onError the callback
+		 * @return the {@link Builder}
+		 */
 		public DummyWebsocketServer.Builder onError(OnError onError) {
 			this.onError = onError;
 			return this;
 		}
 
+		/**
+		 * Sets the {@link OnClose} callback.
+		 *
+		 * @param onClose the callback
+		 * @return the {@link Builder}
+		 */
 		public DummyWebsocketServer.Builder onClose(OnClose onClose) {
 			this.onClose = onClose;
 			return this;
@@ -55,7 +85,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static DummyWebsocketServer.Builder create() {
@@ -79,17 +109,9 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 		return this.builder.onOpen;
 	}
 
-	public void withOnOpen(OnOpen onOpen) {
-		this.builder.onOpen = onOpen;
-	}
-
 	@Override
 	protected OnRequest getOnRequest() {
 		return this.builder.onRequest;
-	}
-
-	public void withOnRequest(OnRequest onRequest) {
-		this.builder.onRequest = onRequest;
 	}
 
 	@Override
@@ -97,26 +119,14 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 		return this.builder.onNotification;
 	}
 
-	public void withOnNotification(OnNotification onNotification) {
-		this.builder.onNotification = onNotification;
-	}
-
 	@Override
 	protected OnError getOnError() {
 		return this.builder.onError;
 	}
 
-	public void withOnError(OnError onError) {
-		this.builder.onError = onError;
-	}
-
 	@Override
 	protected OnClose getOnClose() {
 		return this.builder.onClose;
-	}
-
-	public void withOnClose(OnClose onClose) {
-		this.builder.onClose = onClose;
 	}
 
 	@Override
@@ -131,7 +141,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 	/**
 	 * Starts the {@link WebSocketServer} and waits.
-	 * 
+	 *
 	 * @return the dynamically assigned Port.
 	 * @throws InterruptedException on error
 	 */

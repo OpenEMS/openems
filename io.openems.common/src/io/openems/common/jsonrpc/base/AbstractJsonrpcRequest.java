@@ -7,7 +7,7 @@ import io.openems.common.utils.JsonUtils;
 /**
  * This represents a JsonrpcRequest. It could either be a {@link JsonrpcRequest}
  * or a {@link JsonrpcNotification}.
- * 
+ *
  * @see <a href="https://www.jsonrpc.org/specification">JSON-RPC
  *      specification</a>
  */
@@ -20,9 +20,14 @@ public abstract class AbstractJsonrpcRequest extends JsonrpcMessage {
 	}
 
 	public String getMethod() {
-		return method;
+		return this.method;
 	}
 
+	/**
+	 * Gets the params {@link JsonObject} of the {@link JsonrpcRequest}.
+	 *
+	 * @return the params as {@link JsonObject}
+	 */
 	public abstract JsonObject getParams();
 
 	@Override

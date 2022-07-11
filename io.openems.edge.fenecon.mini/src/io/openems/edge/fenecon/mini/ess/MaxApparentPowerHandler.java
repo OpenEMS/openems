@@ -18,9 +18,9 @@ public class MaxApparentPowerHandler {
 		this.parent = parent;
 	}
 
-	public void calculateMaxApparentPower() {
-		Integer setPower = this.parent.getDebugSetActivePower().get();
-		Integer power = this.parent.getActivePower().get();
+	protected void calculateMaxApparentPower() {
+		var setPower = this.parent.getDebugSetActivePower().get();
+		var power = this.parent.getActivePower().get();
 		int oldMaxApparentPower = this.parent.getMaxApparentPower().orElse(FeneconMiniEss.MAX_APPARENT_POWER);
 
 		if (setPower == null || power == null) {
@@ -32,8 +32,8 @@ public class MaxApparentPowerHandler {
 		/*
 		 * Evaluate if power and setPower are within delta.
 		 */
-		if (/* Discharge */ (setPower > 0 && setPower - MAX_DELTA > power) //
-				|| /* Charge */ (setPower < 0 && setPower + MAX_DELTA < power)) {
+		if (/* Discharge */ setPower > 0 && setPower - MAX_DELTA > power //
+				|| /* Charge */ setPower < 0 && setPower + MAX_DELTA < power) {
 			// Exceeded MaxDelta
 			this.exceededCounter++;
 			this.withinCounter = 0;

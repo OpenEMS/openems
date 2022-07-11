@@ -19,13 +19,13 @@ public class AllowedChargeDischargeHandlerTest {
 
 	@Test
 	public void testStart() throws Exception {
-		final GenericManagedSymmetricEssImpl ess = new GenericManagedSymmetricEssImpl();
-		final TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		final var ess = new GenericManagedSymmetricEssImpl();
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
 		final ClockProvider clockProvider = new DummyComponentManager(clock);
 		new ComponentTest(ess) //
 				.addReference("componentManager", clockProvider); //
 
-		AllowedChargeDischargeHandler sut = new AllowedChargeDischargeHandler(ess);
+		var sut = new AllowedChargeDischargeHandler(ess);
 
 		sut.calculateAllowedChargeDischargePower(clockProvider, false, null, null, null);
 		assertEquals(0, sut.lastBatteryAllowedChargePower, 0.001);
@@ -58,7 +58,7 @@ public class AllowedChargeDischargeHandlerTest {
 		assertEquals(675, sut.lastBatteryAllowedChargePower, 0.001);
 		assertEquals(0, sut.lastBatteryAllowedDischargePower, 0.001);
 
-		for (int i = 0; i < 15; i++) {
+		for (var i = 0; i < 15; i++) {
 			clock.leap(1, ChronoUnit.SECONDS);
 			sut.calculateAllowedChargeDischargePower(clockProvider, true, 9, 1, 500);
 		}

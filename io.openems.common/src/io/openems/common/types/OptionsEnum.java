@@ -6,31 +6,31 @@ public interface OptionsEnum {
 
 	/**
 	 * Gets this enums int representation.
-	 * 
+	 *
 	 * @return the int representation
 	 */
-	int getValue();
+	public int getValue();
 
 	/**
 	 * Gets this enums String representation.
-	 * 
+	 *
 	 * @return the String representation
 	 */
-	String getName();
+	public String getName();
 
 	/**
 	 * Gets the enum that is used for 'UNDEFINED' values.
-	 * 
+	 *
 	 * @return the UNDEFINED enum
 	 */
-	OptionsEnum getUndefined();
+	public OptionsEnum getUndefined();
 
 	/**
 	 * Gets the name in CamelCase format.
-	 * 
+	 *
 	 * <p>
 	 * If {@link #getName()} returns 'MY_VALUE' this method returns 'MyValue'.
-	 * 
+	 *
 	 * @return the Name in CamelCase format
 	 */
 	public default String asCamelCase() {
@@ -39,7 +39,7 @@ public interface OptionsEnum {
 
 	/**
 	 * Gets whether the current enum represents the 'UNDEFINED' value.
-	 * 
+	 *
 	 * @return true if this is the UNDEFINED enum
 	 */
 	public default boolean isUndefined() {

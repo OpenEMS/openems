@@ -3,11 +3,11 @@ package io.openems.edge.controller.asymmetric.balancingcosphi;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Balancing Cos-Phi Asymmetric", //
 		description = "Keeps the Grid meter on a defined Cos-Phi.")
 @interface Config {
-	
+
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ctrlBalancingCosPhi0";
 

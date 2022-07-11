@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -69,10 +70,10 @@ class MemoryBankScratchEE extends MemoryBankScratch {
 		super(ibutton);
 
 		// default copy scratchpad delay
-		COPY_DELAY_LEN = (byte) 5;
+		this.COPY_DELAY_LEN = (byte) 5;
 
 		// default ES mask for copy scratchpad
-		ES_MASK = 0;
+		this.ES_MASK = 0;
 	}
 
 	// --------
@@ -90,40 +91,41 @@ class MemoryBankScratchEE extends MemoryBankScratch {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void writeScratchpad(int startAddr, byte[] writeBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
-		boolean calcCRC = false;
+		var calcCRC = false;
 
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build block to send
-		byte[] raw_buf = new byte[37];
+		var raw_buf = new byte[37];
 
 		raw_buf[0] = WRITE_SCRATCHPAD_COMMAND;
 		raw_buf[1] = (byte) (startAddr & 0xFF);
-		raw_buf[2] = (byte) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[2] = (byte) ((startAddr & 0xFFFF) >>> 8 & 0xFF);
 
 		System.arraycopy(writeBuf, offset, raw_buf, 3, len);
 
 		// check if full page (can utilize CRC)
-		if (((startAddr + len) % pageLength) == 0) {
-			System.arraycopy(ffBlock, 0, raw_buf, len + 3, 2);
+		if ((startAddr + len) % this.pageLength == 0) {
+			System.arraycopy(this.ffBlock, 0, raw_buf, len + 3, 2);
 
 			calcCRC = true;
 		}
 
 		// send block, return result
-		ib.adapter.dataBlock(raw_buf, 0, len + 3 + ((calcCRC) ? 2 : 0));
+		this.ib.adapter.dataBlock(raw_buf, 0, len + 3 + (calcCRC ? 2 : 0));
 
 		// check crc
 		if (calcCRC) {
 			if (CRC16.compute(raw_buf, 0, len + 5, 0) != 0x0000B001) {
-				forceVerify();
+				this.forceVerify();
 
 				throw new OneWireIOException("Invalid CRC16 read from device");
 			}
@@ -139,57 +141,58 @@ class MemoryBankScratchEE extends MemoryBankScratch {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void copyScratchpad(int startAddr, int len) throws OneWireIOException, OneWireException {
 
 		// select the device
-		if (!ib.adapter.select(ib.address)) {
-			forceVerify();
+		if (!this.ib.adapter.select(this.ib.address)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Device select failed");
 		}
 
 		// build block to send
-		byte[] raw_buf = new byte[3];
+		var raw_buf = new byte[3];
 
-		raw_buf[0] = COPY_SCRATCHPAD_COMMAND;
+		raw_buf[0] = this.COPY_SCRATCHPAD_COMMAND;
 		raw_buf[1] = (byte) (startAddr & 0xFF);
-		raw_buf[2] = (byte) (((startAddr & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[2] = (byte) ((startAddr & 0xFFFF) >>> 8 & 0xFF);
 
 		// send block (command, address)
-		ib.adapter.dataBlock(raw_buf, 0, 3);
+		this.ib.adapter.dataBlock(raw_buf, 0, 3);
 
 		try {
 
 			// setup strong pullup
-			ib.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
-			ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+			this.ib.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
+			this.ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
 
 			// send the offset and start power delivery
-			ib.adapter.putByte((byte) (((startAddr + len - 1) & (pageLength - 1))) | ES_MASK);
+			this.ib.adapter.putByte((byte) (startAddr + len - 1 & this.pageLength - 1) | this.ES_MASK);
 
 			// delay for ms
-			Thread.sleep(COPY_DELAY_LEN);
+			Thread.sleep(this.COPY_DELAY_LEN);
 
 			// disable power
-			ib.adapter.setPowerNormal();
+			this.ib.adapter.setPowerNormal();
 
 			// check if complete
 			byte rslt = 0;
-			if (numVerificationBytes == 1)
-				rslt = (byte) ib.adapter.getByte();
-			else {
-				raw_buf = new byte[numVerificationBytes];
-				ib.adapter.getBlock(raw_buf, 0, numVerificationBytes);
-				rslt = raw_buf[numVerificationBytes - 1];
+			if (this.numVerificationBytes == 1) {
+				rslt = (byte) this.ib.adapter.getByte();
+			} else {
+				raw_buf = new byte[this.numVerificationBytes];
+				this.ib.adapter.getBlock(raw_buf, 0, this.numVerificationBytes);
+				rslt = raw_buf[this.numVerificationBytes - 1];
 			}
 
-			if (((byte) (rslt & 0x0F0) != (byte) 0xA0) && ((byte) (rslt & 0x0F0) != (byte) 0x50)) {
-				forceVerify();
+			if ((byte) (rslt & 0x0F0) != (byte) 0xA0 && (byte) (rslt & 0x0F0) != (byte) 0x50) {
+				this.forceVerify();
 
 				throw new OneWireIOException("Copy scratchpad complete not found");
 			}
 		} catch (InterruptedException e) {
 		}
-		;
 	}
 }
+// CHECKSTYLE:ON

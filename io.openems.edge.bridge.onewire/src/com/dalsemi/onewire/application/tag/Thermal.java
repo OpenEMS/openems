@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -42,13 +43,12 @@ public class Thermal extends TaggedDevice implements TaggedSensor {
 	 * Creates an object for the device.
 	 */
 	public Thermal() {
-		super();
 	}
 
 	/**
 	 * Creates an object for the device with the supplied address and device type
 	 * connected to the supplied port adapter.
-	 * 
+	 *
 	 * @param adapter    The adapter serving the sensor.
 	 * @param netAddress The 1-Wire network address of the sensor.
 	 */
@@ -63,13 +63,13 @@ public class Thermal extends TaggedDevice implements TaggedSensor {
 	 *
 	 *               @return String temperature in degrees Celsius
 	 */
+	@Override
 	public String readSensor() throws OneWireException {
-		String returnString = "";
 		double theTemperature;
-		TemperatureContainer tc = (TemperatureContainer) DeviceContainer;
+		var tc = (TemperatureContainer) this.DeviceContainer;
 
 		// read the device first before getting the temperature
-		byte[] state = tc.readDevice();
+		var state = tc.readDevice();
 
 		// perform a temperature conversion
 		tc.doTemperatureConvert(state);
@@ -81,11 +81,8 @@ public class Thermal extends TaggedDevice implements TaggedSensor {
 		theTemperature = tc.getTemperature(state);
 		// theTemperature = (double)(Math.round(theTemperature * 100))/100; // avoid
 		// Math for TINI?
-		theTemperature = roundDouble(theTemperature * 100) / 100;
-		// make string out of results
-		returnString = theTemperature + " C";
-
-		return returnString;
+		theTemperature = this.roundDouble(theTemperature * 100) / 100;
+		return theTemperature + " C";
 	}
 
 	/**
@@ -97,6 +94,7 @@ public class Thermal extends TaggedDevice implements TaggedSensor {
 	 * @return double rounded to the nearest digit in the "ones" position.
 	 */
 	private double roundDouble(double d) {
-		return (double) ((int) (d + ((d > 0) ? 0.5 : -0.5)));
+		return (int) (d + (d > 0 ? 0.5 : -0.5));
 	}
 }
+// CHECKSTYLE:ON

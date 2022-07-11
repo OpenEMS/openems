@@ -1,7 +1,6 @@
 package io.openems.edge.io.shelly.shellyplug;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -9,14 +8,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -31,10 +27,12 @@ import io.openems.edge.io.shelly.common.ShellyApi;
 @Component(//
 		name = "IO.Shelly.Plug", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE//
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class ShellyPlugImpl extends AbstractOpenemsComponent
 		implements ShellyPlug, DigitalOutput, OpenemsComponent, EventHandler {
 
@@ -60,6 +58,7 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 		this.shellyApi = new ShellyApi(config.ip());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -72,8 +71,8 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		StringBuilder b = new StringBuilder();
-		Optional<Boolean> valueOpt = this.getRelayChannel().value().asOptional();
+		var b = new StringBuilder();
+		var valueOpt = this.getRelayChannel().value().asOptional();
 		if (valueOpt.isPresent()) {
 			b.append(valueOpt.get() ? "On" : "Off");
 		} else {
@@ -108,12 +107,12 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 		Boolean relayIson = null;
 		Integer power = null;
 		try {
-			JsonObject json = this.shellyApi.getStatus();
-			JsonArray relays = JsonUtils.getAsJsonArray(json, "relays");
-			JsonObject relay1 = JsonUtils.getAsJsonObject(relays.get(0));
+			var json = this.shellyApi.getStatus();
+			var relays = JsonUtils.getAsJsonArray(json, "relays");
+			var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
 			relayIson = JsonUtils.getAsBoolean(relay1, "ison");
-			JsonArray meters = JsonUtils.getAsJsonArray(json, "meters");
-			JsonObject meter1 = JsonUtils.getAsJsonObject(meters.get(0));
+			var meters = JsonUtils.getAsJsonArray(json, "meters");
+			var meter1 = JsonUtils.getAsJsonObject(meters.get(0));
 			power = Math.round(JsonUtils.getAsFloat(meter1, "power"));
 
 			this._setSlaveCommunicationFailed(false);
@@ -140,8 +139,8 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 	}
 
 	private void executeWrite(BooleanWriteChannel channel, int index) throws OpenemsNamedException {
-		Boolean readValue = channel.value().get();
-		Optional<Boolean> writeValue = channel.getNextWriteValueAndReset();
+		var readValue = channel.value().get();
+		var writeValue = channel.getNextWriteValueAndReset();
 		if (!writeValue.isPresent()) {
 			// no write value
 			return;

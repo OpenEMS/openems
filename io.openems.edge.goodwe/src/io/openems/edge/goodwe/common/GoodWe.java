@@ -18,7 +18,6 @@ import io.openems.edge.goodwe.charger.GoodWeEtCharger1;
 import io.openems.edge.goodwe.charger.GoodWeEtCharger2;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.ArcSelfCheckStatus;
-import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
 import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ComMode;
@@ -34,7 +33,6 @@ import io.openems.edge.goodwe.common.enums.EnableCurve;
 import io.openems.edge.goodwe.common.enums.ExternalEmsFlag;
 import io.openems.edge.goodwe.common.enums.EzloggerProCommStatus;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
-import io.openems.edge.goodwe.common.enums.FeedPowerEnable;
 import io.openems.edge.goodwe.common.enums.GoodweGridMeterType;
 import io.openems.edge.goodwe.common.enums.GoodweType;
 import io.openems.edge.goodwe.common.enums.GridProtect;
@@ -45,7 +43,6 @@ import io.openems.edge.goodwe.common.enums.LoadRegulationIndex;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 import io.openems.edge.goodwe.common.enums.MeterConnectCheckFlag;
 import io.openems.edge.goodwe.common.enums.MeterConnectStatus;
-import io.openems.edge.goodwe.common.enums.MeterReverseEnable;
 import io.openems.edge.goodwe.common.enums.OperationMode;
 import io.openems.edge.goodwe.common.enums.OutputTypeAC;
 import io.openems.edge.goodwe.common.enums.PvMode;
@@ -60,14 +57,14 @@ public interface GoodWe extends OpenemsComponent {
 
 	/**
 	 * Registers a GoodWe Charger.
-	 * 
+	 *
 	 * @param charger either {@link GoodWeEtCharger1} or {@link GoodWeEtCharger2}
 	 */
 	public void addCharger(AbstractGoodWeEtCharger charger);
 
 	/**
 	 * Unregisters a GoodWe Charger.
-	 * 
+	 *
 	 * @param charger either {@link GoodWeEtCharger1} or {@link GoodWeEtCharger2}
 	 */
 	public void removeCharger(AbstractGoodWeEtCharger charger);
@@ -106,7 +103,7 @@ public interface GoodWe extends OpenemsComponent {
 
 		/**
 		 * Total Active Power Of Inverter.
-		 * 
+		 *
 		 * <p>
 		 * (If meter connection ok, it is meter power.If meter connection fail, it is
 		 * inverter on-grid port power)
@@ -339,7 +336,7 @@ public interface GoodWe extends OpenemsComponent {
 		STATE_51(Doc.of(Level.INFO).text("Battery lock")), //
 		STATE_52(Doc.of(Level.INFO).text("Discharge circuit fault")), //
 		STATE_53(Doc.of(Level.INFO).text("Charging circuit failure")), //
-		STATE_54(Doc.of(Level.INFO).text("Communication failure 2")), //
+		STATE_54(Doc.of(Level.INFO).text("Communication failure")), //
 		STATE_55(Doc.of(Level.INFO).text("Cell high temperature 3")), //
 		STATE_56(Doc.of(Level.INFO).text("Discharge under voltage 3")), //
 		STATE_57(Doc.of(Level.INFO).text("Charging under voltage 3")), //
@@ -407,7 +404,7 @@ public interface GoodWe extends OpenemsComponent {
 		STATE_113(Doc.of(Level.FAULT).text("Off-grid zero error")), //
 		STATE_114(Doc.of(Level.FAULT).text("Power fast retrack error")), //
 		STATE_115(Doc.of(Level.FAULT).text("Bypass relay switch error")), //
-		STATE_116(Doc.of(Level.FAULT).text("Backup load realy switch error")), //
+		STATE_116(Doc.of(Level.FAULT).text("Backup load relay switch error")), //
 
 		// Table 8-32 Inverter detailed status
 		STATE_117(Doc.of(Level.INFO).text("Over frequency curve running")), //
@@ -420,7 +417,7 @@ public interface GoodWe extends OpenemsComponent {
 		STATE_124(Doc.of(Level.INFO).text("Fixed PF is set")), //
 		STATE_125(Doc.of(Level.INFO).text("Fixed reactive power is set")), //
 		STATE_126(Doc.of(Level.INFO).text("Inverter over temp,derating curve operation")), //
-		STATE_127(Doc.of(Level.INFO).text("Australian DRED electricty sale status")), //
+		STATE_127(Doc.of(Level.INFO).text("Australian DRED electricity sale status")), //
 		STATE_128(Doc.of(Level.INFO).text("Australian DRED purchase status")), //
 		STATE_129(Doc.of(Level.INFO).text("Active power limit set")), //
 		STATE_130(Doc.of(Level.INFO).text("70 percent derating (Germany) has been opened")), //
@@ -520,11 +517,11 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		PV_START_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
-		ENABLE_MPPT4_SHADOW(Doc.of(OpenemsType.INTEGER) //
+		MPPT_FOR_SHADOW_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		BACK_UP_ENABLE(Doc.of(BackupEnable.values()) //
+		BACK_UP_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		AUTO_START_BACKUP(Doc.of(BackupEnable.values()) //
+		AUTO_START_BACKUP(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		GRID_WAVE_CHECK_LEVEL(Doc.of(GridWaveCheckLevel.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -605,7 +602,7 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.VOLT) //
 				.accessMode(AccessMode.READ_WRITE)),
 		BMS_OFFLINE_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+				.unit(Unit.PERCENT) //
 				.accessMode(AccessMode.READ_WRITE)),
 		CLEAR_BATTERY_SETTING(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.WRITE_ONLY)),
@@ -967,7 +964,7 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		COM_LED_STATE(Doc.of(LedState.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		METER_CT1_REVERSE_ENABLE(Doc.of(MeterReverseEnable.values()) //
+		METER_CT1_REVERSE_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		ERROR_LOG_READ_PAGE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -1022,7 +1019,7 @@ public interface GoodWe extends OpenemsComponent {
 		BMS_AVG_CHG_HOURS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.HOUR) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		FEED_POWER_ENABLE(Doc.of(FeedPowerEnable.values()) //
+		FEED_POWER_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
@@ -1362,7 +1359,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the BMS Charge-Max-Current in [A]. See
 	 * {@link ChannelId#BMS_CHARGE_MAX_CURRENT}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -1402,7 +1399,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the BMS Discharge-Max-Current in [A]. See
 	 * {@link ChannelId#BMS_DISCHARGE_MAX_CURRENT}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -1442,7 +1439,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the BMS Charge-Max-Voltage in [V]. See
 	 * {@link ChannelId#BMS_CHARGE_MAX_VOLTAGE}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -1482,7 +1479,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the BMS Discharge-Min-Voltage in [V]. See
 	 * {@link ChannelId#BMS_DISCHARGE_MIN_VOLTAGE}.
-	 * 
+	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
@@ -1548,7 +1545,7 @@ public interface GoodWe extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_AC_EXPORT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getMaxAcExportChannel() {
@@ -1558,7 +1555,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the Max AC-Export Power in [W]. Positive Values. See
 	 * {@link ChannelId#MAX_AC_EXPORT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getMaxAcExport() {
@@ -1568,7 +1565,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_AC_EXPORT}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxAcExport(Integer value) {
@@ -1577,7 +1574,7 @@ public interface GoodWe extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_AC_IMPORT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getMaxAcImportChannel() {
@@ -1587,7 +1584,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Gets the Max AC-Import Power in [W]. Negative Values. See
 	 * {@link ChannelId#MAX_AC_IMPORT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getMaxAcImport() {
@@ -1597,7 +1594,7 @@ public interface GoodWe extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_AC_IMPORT}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setMaxAcImport(Integer value) {

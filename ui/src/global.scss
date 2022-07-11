@@ -136,6 +136,34 @@ formly-input-section {
     flex: auto; // use all remaining space in a row
 }
 
+// Added styles for alertController, because alertController doesn't take ionic default style
+.alertController{
+    .alert-head{
+        text-align: center !important;
+        .alert-sub-title{
+            font-size: large;
+            font-weight: bold;
+            color: $primary-color;
+        }
+    }
+            .alert-message{
+                text-align: center;
+            }
+    .alert-wrapper{
+        width: 25% !important;
+        .alert-button-group{
+            justify-content: center;
+            display: grid;
+            grid-template-columns: auto auto;
+            column-gap: 35%;
+            .alert-button{
+                color: $primary-color;
+                font-size: small;
+            }
+        }
+    }
+}
+
 :root {
 
     /*

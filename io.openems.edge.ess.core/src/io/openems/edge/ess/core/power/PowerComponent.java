@@ -15,8 +15,8 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 
 public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 
-	public final static String SINGLETON_SERVICE_PID = "Ess.Power";
-	public final static String SINGLETON_COMPONENT_ID = "_power";
+	public static final String SINGLETON_SERVICE_PID = "Ess.Power";
+	public static final String SINGLETON_COMPONENT_ID = "_power";
 
 	public static final boolean DEFAULT_SYMMETRIC_MODE = true;
 	public static final boolean DEFAULT_DEBUG_MODE = false;
@@ -25,7 +25,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * The duration needed for solving the Power.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: PowerComponent
 		 * <li>Type: Integer
@@ -37,7 +37,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 				.unit(Unit.MILLISECONDS)),
 		/**
 		 * The eventually used solving strategy.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: PowerComponent
 		 * <li>Type: Integer
@@ -48,7 +48,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 		SOLVE_STRATEGY(Doc.of(SolverStrategy.values())),
 		/**
 		 * Whether the Power problem could be solved.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: PowerComponent
 		 * <li>Type: Boolean
@@ -57,7 +57,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 		NOT_SOLVED(Doc.of(Level.WARNING)),
 		/**
 		 * Gets set, when setting static Constraints failed.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: PowerComponent
 		 * <li>Type: Boolean
@@ -71,6 +71,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -78,7 +79,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#NOT_SOLVED}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getNotSolvedChannel() {
@@ -88,7 +89,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#NOT_SOLVED}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setNotSolved(boolean value) {
@@ -97,7 +98,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SOLVE_DURATION}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getSolveDurationChannel() {
@@ -107,7 +108,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#SOLVE_DURATION}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setSolveDuration(int value) {
@@ -116,7 +117,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SOLVE_STRATEGY}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default EnumReadChannel getSolveStrategyChannel() {
@@ -126,7 +127,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#SOLVE_STRATEGY}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setSolveStrategy(SolverStrategy value) {
@@ -135,7 +136,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#STATIC_CONSTRAINTS_FAILED}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getStaticConstraintsFailedChannel() {
@@ -145,7 +146,7 @@ public interface PowerComponent extends OpenemsComponent, EventHandler, Power {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#STATIC_CONSTRAINTS_FAILED} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setStaticConstraintsFailed(boolean value) {

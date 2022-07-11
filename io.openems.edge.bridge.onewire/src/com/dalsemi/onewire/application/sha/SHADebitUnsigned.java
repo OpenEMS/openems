@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -99,7 +100,7 @@ import com.dalsemi.onewire.utils.IOHelper;
  *
  * <P>
  * A typical use case for this class might be as follows:
- * 
+ *
  * <pre>
  * OneWireContainer18 coprOWC18 = new OneWireContainer18(adapter, address);
  *
@@ -171,10 +172,9 @@ import com.dalsemi.onewire.utils.IOHelper;
  * @version 1.00
  * @author SKH
  */
-@SuppressWarnings({ "unused" })
 public class SHADebitUnsigned extends SHATransaction {
 	/** Used for fast FF copy */
-	private static final byte[] ffBlock = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+	private static final byte[] ffBlock = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 			(byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
 	// ---------
@@ -228,7 +228,7 @@ public class SHADebitUnsigned extends SHATransaction {
 	// ---------
 	/** User apps should never call this */
 	protected SHADebitUnsigned() {
-		;
+
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class SHADebitUnsigned extends SHATransaction {
 	public SHADebitUnsigned(SHAiButtonCopr copr) {
 		super(copr);
 
-		resetParameters();
+		this.resetParameters();
 	}
 
 	/**
@@ -300,22 +300,23 @@ public class SHADebitUnsigned extends SHATransaction {
 	 * @see SHAiButtonUser#writeAccountData(byte[],int)
 	 * @see #getLastError()
 	 */
+	@Override
 	public boolean setupTransactionData(SHAiButtonUser user) throws OneWireException, OneWireIOException {
 		// clear any error
-		lastError = NO_ERROR;
+		this.lastError = NO_ERROR;
 
 		// not in critical path, so malloc'ing is okay
-		byte[] accountData = new byte[32];
+		var accountData = new byte[32];
 
-		return writeTransactionData(user, 0, this.initialAmount, accountData);
+		return this.writeTransactionData(user, 0, this.initialAmount, accountData);
 	}
 
 	// prevent malloc'ing in the critical path
-	private byte[] verifyUser_fullBindCode = new byte[15];
-	private byte[] verifyUser_scratchpad = new byte[32];
-	private byte[] verifyUser_accountData = new byte[32];
-	private byte[] verifyUser_mac = new byte[20];
-	private byte[] verifyUser_chlg = new byte[3];
+	private final byte[] verifyUser_fullBindCode = new byte[15];
+	private final byte[] verifyUser_scratchpad = new byte[32];
+	private final byte[] verifyUser_accountData = new byte[32];
+	private final byte[] verifyUser_mac = new byte[20];
+	private final byte[] verifyUser_chlg = new byte[3];
 
 	/**
 	 * <P>
@@ -342,23 +343,24 @@ public class SHADebitUnsigned extends SHATransaction {
 	 * @see SHAiButtonUser#readAccountData(byte[],int,byte[],int,byte[],int)
 	 * @see #getLastError()
 	 */
+	@Override
 	public synchronized boolean verifyUser(SHAiButtonUser user) throws OneWireException, OneWireIOException {
 		// clear any error
 		this.lastError = SHATransaction.NO_ERROR;
 
 		// local vars
-		byte[] fullBindCode = this.verifyUser_fullBindCode;
-		byte[] scratchpad = this.verifyUser_scratchpad;
-		byte[] accountData = this.verifyUser_accountData;
-		byte[] mac = this.verifyUser_mac;
-		byte[] chlg = this.verifyUser_chlg;
+		var fullBindCode = this.verifyUser_fullBindCode;
+		var scratchpad = this.verifyUser_scratchpad;
+		var accountData = this.verifyUser_accountData;
+		var mac = this.verifyUser_mac;
+		var chlg = this.verifyUser_chlg;
 
 		int wcc;
 
 		// Generate random challenge. This must be done on the
 		// coprocessor, otherwise flags aren't setup for VALIDATE_PAGE.
-		if (!copr.generateChallenge(0, chlg, 0)) {
-			lastError = COPR_COMPUTE_CHALLENGE_FAILED;
+		if (!this.copr.generateChallenge(0, chlg, 0)) {
+			this.lastError = COPR_COMPUTE_CHALLENGE_FAILED;
 			return false;
 		}
 
@@ -405,7 +407,8 @@ public class SHADebitUnsigned extends SHATransaction {
 		}
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//
 
-		if (!copr.verifyAuthentication(fullBindCode, accountData, scratchpad, mac, user.getAuthorizationCommand())) {
+		if (!this.copr.verifyAuthentication(fullBindCode, accountData, scratchpad, mac,
+				user.getAuthorizationCommand())) {
 			this.lastError = SHATransaction.COPROCESSOR_FAILURE;
 			return false;
 		}
@@ -414,7 +417,7 @@ public class SHADebitUnsigned extends SHATransaction {
 	}
 
 	// prevent malloc'ing in the critical path
-	private byte[] verifyData_accountData = new byte[32];
+	private final byte[] verifyData_accountData = new byte[32];
 
 	/**
 	 * <P>
@@ -447,11 +450,12 @@ public class SHADebitUnsigned extends SHATransaction {
 	 * @see SHAiButtonUser#readAccountData(byte[],int)
 	 * @see #getLastError()
 	 */
+	@Override
 	public synchronized boolean verifyTransactionData(SHAiButtonUser user) throws OneWireException, OneWireIOException {
 		// clear any error
 		this.lastError = NO_ERROR;
 
-		byte[] accountData = this.verifyData_accountData;
+		var accountData = this.verifyData_accountData;
 
 		// if verifyUser was called, this is a read of cached data
 		user.readAccountData(accountData, 0);
@@ -459,11 +463,12 @@ public class SHADebitUnsigned extends SHATransaction {
 		// verify the A-B data scheme is valid
 		boolean validPtr = false, validA = false, validB = false;
 
-		byte fileLength = accountData[I_FILE_LENGTH];
-		int crc16 = CRC16.compute(accountData, 0, fileLength + 3, user.getAccountPageNumber());
+		var fileLength = accountData[I_FILE_LENGTH];
+		var crc16 = CRC16.compute(accountData, 0, fileLength + 3, user.getAccountPageNumber());
 
-		if (fileLength == RECORD_A_LENGTH || fileLength == RECORD_B_LENGTH)
+		if (fileLength == RECORD_A_LENGTH || fileLength == RECORD_B_LENGTH) {
 			validPtr = true;
+		}
 
 		// was the crc of the file correct?
 		if (crc16 == 0xB001) {
@@ -495,19 +500,22 @@ public class SHADebitUnsigned extends SHATransaction {
 		// lets try Record A and check the crc
 		accountData[I_FILE_LENGTH] = RECORD_A_LENGTH;
 		crc16 = CRC16.compute(accountData, 0, RECORD_A_LENGTH + 3, user.getAccountPageNumber());
-		if (crc16 == 0xB001)
+		if (crc16 == 0xB001) {
 			validA = true;
+		}
 
 		// lets try Record B and check the crc
 		accountData[I_FILE_LENGTH] = RECORD_B_LENGTH;
 		crc16 = CRC16.compute(accountData, 0, RECORD_B_LENGTH + 3, user.getAccountPageNumber());
-		if (crc16 == 0xB001)
+		if (crc16 == 0xB001) {
 			validB = true;
+		}
 
 		if (validA && validB) {
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-			if (DEBUG)
+			if (DEBUG) {
 				System.out.println("Both A and B are valid");
+			}
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 			// Both A & B are valid! And we know that we can only
 			// get here if the pointer or the header was not valid.
@@ -517,39 +525,40 @@ public class SHADebitUnsigned extends SHATransaction {
 			accountData[I_FILE_LENGTH] = RECORD_A_LENGTH;
 		} else if (validA) {
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-			if (DEBUG)
+			if (DEBUG) {
 				System.out.println("A is valid not B");
+			}
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 			// B is invalid, A is valid. Means A is the last updated one,
 			// but B is the last known good value. The header was not updated
 			// to point to A before debit was aborted. Let's go with B
 			accountData[I_FILE_LENGTH] = RECORD_B_LENGTH;
-		} else if (validB) {
-			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-			if (DEBUG)
-				System.out.println("B is valid not A - impossible");
+		} else {
+			if (validB) {
+				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+				if (DEBUG) {
+					System.out.println("B is valid not A - impossible");
+				}
+			} else {
+				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+				if (DEBUG) {
+					System.out.println("Neither record has valid CRC");
+				}
+			}
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 			// A is invalid, B is valid. Should never ever happen. Something
 			// got completely hosed. What should happen here?
 			this.lastError = USER_BAD_ACCOUNT_DATA;
 			return false;
-		} else {
-			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-			if (DEBUG)
-				System.out.println("Neither record has valid CRC");
-			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-			// neither record contains a valid CRC. What should happen here?
-			// probably got weak bit in ptr record, no telling which way to go
-			this.lastError = USER_BAD_ACCOUNT_DATA;
-			return false;
 		}
 
 		// get the user's balance from accountData
-		int balance = -1;
-		if (accountData[I_FILE_LENGTH] == RECORD_A_LENGTH)
+		var balance = -1;
+		if (accountData[I_FILE_LENGTH] == RECORD_A_LENGTH) {
 			balance = Convert.toInt(accountData, I_BALANCE_A, 3);
-		else if (accountData[I_FILE_LENGTH] == RECORD_B_LENGTH)
+		} else if (accountData[I_FILE_LENGTH] == RECORD_B_LENGTH) {
 			balance = Convert.toInt(accountData, I_BALANCE_B, 3);
+		}
 
 		if (balance < 0) {
 			this.lastError = USER_BAD_ACCOUNT_DATA;
@@ -558,19 +567,20 @@ public class SHADebitUnsigned extends SHATransaction {
 
 		this.userBalance = balance;
 
-		int cnt = MAX_RETRY_CNT;
+		var cnt = MAX_RETRY_CNT;
 		do {
-			if (user.refreshDevice() && writeTransactionData(user, -1, balance, accountData))
+			if (user.refreshDevice() && this.writeTransactionData(user, -1, balance, accountData)) {
 				break;
+			}
 		} while (--cnt > 0);
 
 		return false;
 	}
 
 	// prevent malloc'ing in critical path
-	private byte[] executeTransaction_accountData = new byte[32];
-	private byte[] executeTransaction_oldAcctData = new byte[32];
-	private byte[] executeTransaction_newAcctData = new byte[32];
+	private final byte[] executeTransaction_accountData = new byte[32];
+	private final byte[] executeTransaction_oldAcctData = new byte[32];
+	private final byte[] executeTransaction_newAcctData = new byte[32];
 
 	/**
 	 * <P>
@@ -608,6 +618,7 @@ public class SHADebitUnsigned extends SHATransaction {
 	 * @see SHAiButtonUser#writeAccountData(byte[],int)
 	 * @see #getLastError()
 	 */
+	@Override
 	public synchronized boolean executeTransaction(SHAiButtonUser user, boolean verifySuccess)
 			throws OneWireException, OneWireIOException {
 		// clear any error
@@ -615,13 +626,13 @@ public class SHADebitUnsigned extends SHATransaction {
 
 		// init local vars
 		// holds the working copy of account data
-		byte[] accountData = this.executeTransaction_accountData;
+		var accountData = this.executeTransaction_accountData;
 		// holds the backup copy of account data before writing
-		byte[] oldAcctData = this.executeTransaction_oldAcctData;
+		var oldAcctData = this.executeTransaction_oldAcctData;
 		// holds the account data read back for checking
-		byte[] newAcctData = this.executeTransaction_newAcctData;
+		var newAcctData = this.executeTransaction_newAcctData;
 		// just make the transaction ID a random number, so it changes
-		int transID = rand.nextInt();
+		var transID = rand.nextInt();
 
 		// if verifyUser was called, this is a read of cached data
 		user.readAccountData(accountData, 0);
@@ -630,11 +641,12 @@ public class SHADebitUnsigned extends SHATransaction {
 		System.arraycopy(accountData, 0, oldAcctData, 0, 32);
 
 		// get the user's balance from accountData
-		int balance = -1;
-		if (accountData[I_FILE_LENGTH] == RECORD_A_LENGTH)
+		var balance = -1;
+		if (accountData[I_FILE_LENGTH] == RECORD_A_LENGTH) {
 			balance = Convert.toInt(accountData, I_BALANCE_A, 3);
-		else if (accountData[I_FILE_LENGTH] == RECORD_B_LENGTH)
+		} else if (accountData[I_FILE_LENGTH] == RECORD_B_LENGTH) {
 			balance = Convert.toInt(accountData, I_BALANCE_B, 3);
+		}
 
 		// if there are insufficient funds
 		if (this.debitAmount > balance) {
@@ -643,12 +655,12 @@ public class SHADebitUnsigned extends SHATransaction {
 		}
 
 		// update the user's balance
-		this.userBalance = (balance - this.debitAmount);
+		this.userBalance = balance - this.debitAmount;
 
 		// attempt to update the page
-		boolean success = false;
+		var success = false;
 		try {
-			success = writeTransactionData(user, transID, this.userBalance, accountData);
+			success = this.writeTransactionData(user, transID, this.userBalance, accountData);
 		} catch (Exception e) {
 			/* sink */ }
 
@@ -665,15 +677,15 @@ public class SHADebitUnsigned extends SHATransaction {
 				System.out.println(Convert.toHexString(oldAcctData, 0, 32, " "));
 			}
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-			boolean dataOK = false;
-			int cnt = MAX_RETRY_CNT;
+			var dataOK = false;
+			var cnt = MAX_RETRY_CNT;
 			do {
 				try {
 					// let's refresh the page
 					user.refreshDevice();
 					// calling verify user re-issues a challenge-response
 					// and reloads the cached account data in the user object.
-					if (verifyUser(user)) {
+					if (this.verifyUser(user)) {
 						// compare the user's account data against the working
 						// copy and the backup copy.
 						if (user.readAccountData(newAcctData, 0)) {
@@ -683,13 +695,13 @@ public class SHADebitUnsigned extends SHATransaction {
 								System.out.println(Convert.toHexString(newAcctData, 0, 32, " "));
 							}
 							// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-							boolean isOld = true;
-							boolean isCur = true;
-							for (int i = 0; i < 32 && (isOld || isCur); i++) {
+							var isOld = true;
+							var isCur = true;
+							for (var i = 0; i < 32 && (isOld || isCur); i++) {
 								// match the backup
-								isOld = isOld && (newAcctData[i] == oldAcctData[i]);
+								isOld = isOld && newAcctData[i] == oldAcctData[i];
 								// match the working copy
-								isCur = isCur && (newAcctData[i] == accountData[i]);
+								isCur = isCur && newAcctData[i] == accountData[i];
 							}
 							if (isOld) {
 								// if it matches the backup copy, we didn't write anything
@@ -700,29 +712,34 @@ public class SHADebitUnsigned extends SHATransaction {
 								dataOK = true;
 								success = true;
 							} else {
-								int cnt2 = MAX_RETRY_CNT;
+								var cnt2 = MAX_RETRY_CNT;
 								do {
 									// iBUTTON DATA IS TOTALLY HOSED
 									// keep trying to get account data on the button
 									try {
-										success = writeTransactionData(user, transID, this.userBalance, accountData);
+										success = this.writeTransactionData(user, transID, this.userBalance,
+												accountData);
 									} catch (OneWireIOException owioe) {
-										if (cnt2 == 0)
+										if (cnt2 == 0) {
 											throw owioe;
+										}
 									} catch (OneWireException owe) {
-										if (cnt2 == 0)
+										if (cnt2 == 0) {
 											throw owe;
+										}
 									}
 								} while (cnt2-- > 0 && !success);
 							}
 						}
 					}
 				} catch (OneWireIOException owioe) {
-					if (cnt == 0)
+					if (cnt == 0) {
 						throw owioe;
+					}
 				} catch (OneWireException owe) {
-					if (cnt == 0)
+					if (cnt == 0) {
 						throw owe;
+					}
 				}
 			} while (!dataOK && cnt-- > 0);
 
@@ -736,8 +753,6 @@ public class SHADebitUnsigned extends SHATransaction {
 		return success;
 	}
 
-	private byte[] writeTransactionData_scratchpad = new byte[32];
-
 	/**
 	 * Does the writing of transaction data to the user button as well as actually
 	 * signing the data with the coprocessor.
@@ -748,7 +763,7 @@ public class SHADebitUnsigned extends SHATransaction {
 	private final boolean writeTransactionData(SHAiButtonUser user, int transID, int balance, byte[] accountData)
 			throws OneWireException, OneWireIOException {
 		// init local vars
-		int acctPageNum = user.getAccountPageNumber();
+		var acctPageNum = user.getAccountPageNumber();
 
 		// data type code - dynamic: 0x00, static: 0x01
 		accountData[I_DATA_TYPE_CODE] = 0x01;
@@ -765,9 +780,10 @@ public class SHADebitUnsigned extends SHATransaction {
 
 		if (accountData[I_FILE_LENGTH] == RECORD_A_LENGTH) {
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-			if (DEBUG)
+			if (DEBUG) {
 				System.out.println("Was A, now using B");
-			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+				// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
+			}
 
 			// length of the TMEX file
 			accountData[I_FILE_LENGTH] = (byte) RECORD_B_LENGTH;
@@ -787,13 +803,14 @@ public class SHADebitUnsigned extends SHATransaction {
 			accountData[I_FILE_CRC16_B + 1] = 0x00;
 
 			// dump in the inverted CRC
-			int crc = ~CRC16.compute(accountData, 0, accountData[I_FILE_LENGTH] + 1, acctPageNum);
+			var crc = ~CRC16.compute(accountData, 0, accountData[I_FILE_LENGTH] + 1, acctPageNum);
 			accountData[I_FILE_CRC16_B + 0] = (byte) crc;
 			accountData[I_FILE_CRC16_B + 1] = (byte) (crc >> 8);
 		} else {
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
-			if (DEBUG)
+			if (DEBUG) {
 				System.out.println("Was B, now using A");
+			}
 			// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 			// length of the TMEX file
 			accountData[I_FILE_LENGTH] = (byte) RECORD_A_LENGTH;
@@ -813,7 +830,7 @@ public class SHADebitUnsigned extends SHATransaction {
 			accountData[I_FILE_CRC16_A + 1] = 0x00;
 
 			// dump in the inverted CRC
-			int crc = ~CRC16.compute(accountData, 0, accountData[I_FILE_LENGTH] + 1, acctPageNum);
+			var crc = ~CRC16.compute(accountData, 0, accountData[I_FILE_LENGTH] + 1, acctPageNum);
 			accountData[I_FILE_CRC16_A + 0] = (byte) crc;
 			accountData[I_FILE_CRC16_A + 1] = (byte) (crc >> 8);
 		}
@@ -831,11 +848,13 @@ public class SHADebitUnsigned extends SHATransaction {
 
 		// write it to the button
 		try {
-			if (user.writeAccountData(accountData, 0))
+			if (user.writeAccountData(accountData, 0)) {
 				return true;
+			}
 		} catch (OneWireException owe) {
-			if (DEBUG)
+			if (DEBUG) {
 				IOHelper.writeLine(owe);
+			}
 		}
 
 		this.lastError = SHATransaction.USER_WRITE_DATA_FAILED;
@@ -866,14 +885,15 @@ public class SHADebitUnsigned extends SHATransaction {
 	 *
 	 * @throws IllegalArgumentException if an invalid parameter type is requested.
 	 */
+	@Override
 	public synchronized int getParameter(int type) {
 		switch (type) {
 		case DEBIT_AMOUNT:
-			return debitAmount;
+			return this.debitAmount;
 		case INITIAL_AMOUNT:
-			return initialAmount;
+			return this.initialAmount;
 		case USER_BALANCE:
-			return userBalance;
+			return this.userBalance;
 		default:
 			return -1;
 		}
@@ -899,13 +919,14 @@ public class SHADebitUnsigned extends SHATransaction {
 	 *
 	 * @throws IllegalArgumentException if an invalid parameter type is requested.
 	 */
+	@Override
 	public synchronized boolean setParameter(int type, int param) {
 		switch (type) {
 		case DEBIT_AMOUNT:
-			debitAmount = param;
+			this.debitAmount = param;
 			break;
 		case INITIAL_AMOUNT:
-			initialAmount = param;
+			this.initialAmount = param;
 			break;
 		default:
 			return false;
@@ -918,9 +939,11 @@ public class SHADebitUnsigned extends SHATransaction {
 	 * Resets all transaction parameters to default values
 	 * </p>
 	 */
+	@Override
 	public synchronized void resetParameters() {
-		debitAmount = 50; // 50 cents
-		initialAmount = 90000; // 100 dollars
-		userBalance = 0; // 0 dollars
+		this.debitAmount = 50; // 50 cents
+		this.initialAmount = 90000; // 100 dollars
+		this.userBalance = 0; // 0 dollars
 	}
 }
+// CHECKSTYLE:ON

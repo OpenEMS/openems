@@ -11,21 +11,21 @@ import io.openems.edge.common.modbusslave.ModbusType;
 
 /**
  * Declares an OpenEMS Component as being able to get started and stopped.
- * 
+ *
  * <p>
  * A device or service inside OpenEMS that implements this OpenEMS Nature can be
  * started or stopped.
- * 
+ *
  * <p>
  * Implementing this Nature also requires the Component to have a configuration
  * property "startStop" of type {@link StartStopConfig} that overrides the logic
  * of the {@link StartStoppable#setStartStop(StartStop)} method:
- * 
+ *
  * <pre>
  * 	&#64;AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
  *	StartStopConfig startStop() default StartStopConfig.AUTO;
  * </pre>
- * 
+ *
  * <ul>
  * <li>if config is {@link StartStopConfig#START} -> always start
  * <li>if config is {@link StartStopConfig#STOP} -> always stop
@@ -39,7 +39,7 @@ public interface StartStoppable extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * Start/Stop.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: StartStoppable
 		 * <li>Type: {@link StartStop}
@@ -61,10 +61,10 @@ public interface StartStoppable extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the {@link ModbusSlaveNatureTable} for {@link StartStoppable} used by
-	 * the Modbus/TCP Slave API.
-	 * 
-	 * @param accessMode the {@link AccessMode}
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
@@ -75,7 +75,7 @@ public interface StartStoppable extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#START_STOP}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default Channel<StartStop> getStartStopChannel() {
@@ -85,7 +85,7 @@ public interface StartStoppable extends OpenemsComponent {
 	/**
 	 * Gets the current {@link StartStop} state of the {@link StartStoppable}
 	 * Component. See {@link ChannelId#START_STOP}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default StartStop getStartStop() {
@@ -94,14 +94,14 @@ public interface StartStoppable extends OpenemsComponent {
 
 	/**
 	 * Is this device or service started?.
-	 * 
+	 *
 	 * <ul>
 	 * <li>true - if (and only if) {@link ChannelId#START_STOP} is
 	 * {@link StartStop#START}
 	 * <li>false - if {@link ChannelId#START_STOP} is {@link StartStop#STOP} or
 	 * {@link StartStop#UNDEFINED}
 	 * </ul>
-	 * 
+	 *
 	 * @return true if started
 	 */
 	public default boolean isStarted() {
@@ -110,14 +110,14 @@ public interface StartStoppable extends OpenemsComponent {
 
 	/**
 	 * Is this device or service stopped?.
-	 * 
+	 *
 	 * <ul>
 	 * <li>true - if (and only if) {@link ChannelId#START_STOP} is
 	 * {@link StartStop#STOP}
 	 * <li>false - if {@link ChannelId#START_STOP} is {@link StartStop#START} or
 	 * {@link StartStop#UNDEFINED}
 	 * </ul>
-	 * 
+	 *
 	 * @return true if stopped
 	 */
 	public default boolean isStopped() {
@@ -127,7 +127,7 @@ public interface StartStoppable extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#START_STOP}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setStartStop(StartStop value) {
@@ -136,7 +136,7 @@ public interface StartStoppable extends OpenemsComponent {
 
 	/**
 	 * Starts or stops the device or service represented by this OpenEMS Component.
-	 * 
+	 *
 	 * @param value target {@link StartStop} state
 	 * @throws OpenemsNamedException on error
 	 */
@@ -144,10 +144,10 @@ public interface StartStoppable extends OpenemsComponent {
 
 	/**
 	 * Starts the device or service represented by this OpenEMS Component.
-	 * 
+	 *
 	 * <p>
 	 * This calls {@link #setStartStop(StartStop)} with {@link StartStop#START}.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void start() throws OpenemsNamedException {
@@ -156,10 +156,10 @@ public interface StartStoppable extends OpenemsComponent {
 
 	/**
 	 * Stops the device or service represented by this OpenEMS Component.
-	 * 
+	 *
 	 * <p>
 	 * This calls {@link #setStartStop(StartStop)} with {@link StartStop#STOP}.
-	 * 
+	 *
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void stop() throws OpenemsNamedException {

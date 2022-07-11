@@ -2,7 +2,6 @@ package io.openems.edge.evcs.cluster;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
@@ -20,7 +19,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.Status;
 
 public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 		implements OpenemsComponent, EventHandler, Evcs {
@@ -89,10 +87,10 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 	 * values of this clustered EVCS.
 	 */
 	private void calculateChannelValues() {
-		final CalculateIntegerSum chargePower = new CalculateIntegerSum();
-		final CalculateIntegerSum minHardwarePower = new CalculateIntegerSum();
-		final CalculateIntegerSum maxHardwarePowerOfAll = new CalculateIntegerSum();
-		final CalculateIntegerSum minPower = new CalculateIntegerSum();
+		final var chargePower = new CalculateIntegerSum();
+		final var minHardwarePower = new CalculateIntegerSum();
+		final var maxHardwarePowerOfAll = new CalculateIntegerSum();
+		final var minPower = new CalculateIntegerSum();
 
 		for (Evcs evcs : this.getSortedEvcss()) {
 			chargePower.addValue(evcs.getChargePowerChannel());
@@ -103,7 +101,7 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 
 		this._setChargePower(chargePower.calculate());
 		this._setMinimumHardwarePower(minHardwarePower.calculate());
-		Integer maximalUsedHardwarePower = maxHardwarePowerOfAll.calculate();
+		var maximalUsedHardwarePower = maxHardwarePowerOfAll.calculate();
 		if (maximalUsedHardwarePower == null) {
 			maximalUsedHardwarePower = this.getMaximumPowerToDistribute();
 		}
@@ -118,7 +116,7 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 	 */
 	protected void limitEvcss() {
 		try {
-			int totalPowerLimit = this.getMaximumPowerToDistribute();
+			var totalPowerLimit = this.getMaximumPowerToDistribute();
 			this.channel(ChannelId.MAXIMUM_POWER_TO_DISTRIBUTE).setNextValue(totalPowerLimit);
 
 			/*
@@ -134,7 +132,7 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 			this.logInfoInDebugmode(this.log, "Maximum total power to distribute: " + totalPowerLimit);
 
 			// Total Power that can be distributed to EVCSs minus the guaranteed power.
-			int totalPowerLeftMinusGuarantee = totalPowerLimit;
+			var totalPowerLeftMinusGuarantee = totalPowerLimit;
 
 			/*
 			 * Defines the active charging stations that are charging.
@@ -142,7 +140,7 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 			List<ManagedEvcs> activeEvcss = new ArrayList<>();
 			for (Evcs evcs : this.getSortedEvcss()) {
 				if (evcs instanceof ManagedEvcs) {
-					ManagedEvcs managedEvcs = (ManagedEvcs) evcs;
+					var managedEvcs = (ManagedEvcs) evcs;
 					int requestedPower = managedEvcs.getSetChargePowerRequestChannel().getNextWriteValue().orElse(0);
 
 					if (requestedPower <= 0) {
@@ -150,8 +148,8 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 						continue;
 					}
 
-					int guaranteedPower = getGuaranteedPower(managedEvcs);
-					Status status = managedEvcs.getStatus();
+					var guaranteedPower = this.getGuaranteedPower(managedEvcs);
+					var status = managedEvcs.getStatus();
 					switch (status) {
 					case CHARGING_FINISHED:
 						managedEvcs.setChargePowerLimit(requestedPower);
@@ -201,12 +199,12 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 				int guaranteedPower = evcs.getMinimumPowerChannel().getNextValue().orElse(0);
 
 				// Power left for the this EVCS including its guaranteed power
-				final int powerLeft = totalPowerLeftMinusGuarantee + guaranteedPower;
+				final var powerLeft = totalPowerLeftMinusGuarantee + guaranteedPower;
 
 				int maximumHardwareLimit = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT);
 
 				int nextChargePower;
-				Optional<Integer> requestedPower = evcs.getSetChargePowerRequestChannel().getNextWriteValue();
+				var requestedPower = evcs.getSetChargePowerRequestChannel().getNextWriteValue();
 
 				// Power requested by the controller
 				if (requestedPower.isPresent()) {
@@ -249,12 +247,12 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 
 	/**
 	 * Results the power that should be guaranteed for one EVCS.
-	 * 
+	 *
 	 * @param evcs EVCS whose limits should be used.
 	 * @return Guaranteed power that should/can be used.
 	 */
 	private int getGuaranteedPower(Evcs evcs) {
-		int minGuarantee = this.getMinimumChargePowerGuarantee();
+		var minGuarantee = this.getMinimumChargePowerGuarantee();
 		int minHW = evcs.getMinimumHardwarePower().orElse(minGuarantee);
 		int evcsMaxPower = evcs.getMaximumPower().orElse(evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT));
 		minGuarantee = evcsMaxPower > minGuarantee ? minGuarantee : evcsMaxPower;
@@ -263,44 +261,44 @@ public abstract class AbstractEvcsCluster extends AbstractOpenemsComponent
 
 	/**
 	 * Sorted list of the EVCSs in the cluster.
-	 * 
+	 *
 	 * <p>
 	 * List of EVCSs that should be considered in the cluster sorted by
 	 * prioritisation.
-	 * 
+	 *
 	 * @return Sorted EVCS list
 	 */
 	public abstract List<Evcs> getSortedEvcss();
 
 	/**
 	 * Maximum power to distribute.
-	 * 
+	 *
 	 * <p>
 	 * Calculate the maximum power to distribute, like excess power or excess power
 	 * + storage.
-	 * 
+	 *
 	 * @return Maximum Power in Watt
 	 */
 	public abstract int getMaximumPowerToDistribute();
 
 	/**
 	 * Guaranteed minimum charge power.
-	 * 
+	 *
 	 * <p>
 	 * Minimum charge power that will be used by every EV that is able to charge
 	 * with that minimum.
-	 * 
+	 *
 	 * @return Minimum guaranteed power in Watt
 	 */
 	public abstract int getMinimumChargePowerGuarantee();
 
 	/**
 	 * Debug mode.
-	 * 
+	 *
 	 * <p>
 	 * Logging a few important situations if this returns true. This value should be
 	 * given by the configuration by runtime.
-	 * 
+	 *
 	 * @return Debug mode or not
 	 */
 	public abstract boolean isDebugMode();

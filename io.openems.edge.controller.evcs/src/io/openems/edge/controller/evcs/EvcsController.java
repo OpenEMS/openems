@@ -2,8 +2,6 @@ package io.openems.edge.controller.evcs;
 
 import java.io.IOException;
 import java.time.Clock;
-import java.util.Dictionary;
-import java.util.Optional;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -34,7 +32,6 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.Status;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -94,10 +91,10 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 		this.config = config;
 
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "evcs", config.evcs_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcs", config.evcs_id())) {
 			return;
 		}
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "ess", config.ess_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
 		this.evcs._setMaximumPower(null);
@@ -130,7 +127,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			return;
 		}
 
-		adaptConfigToHardwareLimits();
+		this.adaptConfigToHardwareLimits();
 
 		this.evcs.setEnergyLimit(this.config.energySessionLimit());
 
@@ -139,7 +136,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		 */
 		if (isClustered) {
 
-			Status status = this.evcs.getStatus();
+			var status = this.evcs.getStatus();
 			switch (status) {
 			case ERROR:
 			case STARTING:
@@ -147,29 +144,30 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			case NOT_READY_FOR_CHARGING:
 			case ENERGY_LIMIT_REACHED:
 				this.evcs.setChargePowerRequest(0);
-				resetMinMaxChannels();
+				this.resetMinMaxChannels();
 				return;
 			case CHARGING_REJECTED:
 			case READY_FOR_CHARGING:
 			case CHARGING_FINISHED:
 				this.evcs._setMaximumPower(null);
+				break;
 			case CHARGING:
 				break;
 			}
 		}
 
-		int nextChargePower = 0;
-		int nextMinPower = 0;
+		var nextChargePower = 0;
+		var nextMinPower = 0;
 
 		/*
 		 * Calculates the next charging power depending on the charge mode
 		 */
-		switch (config.chargeMode()) {
+		switch (this.config.chargeMode()) {
 		case EXCESS_POWER:
 			/*
 			 * Get the next charge power depending on the priority.
 			 */
-			switch (config.priority()) {
+			switch (this.config.priority()) {
 			case CAR:
 				nextChargePower = this.calculateChargePowerFromExcessPower(this.evcs);
 				break;
@@ -184,19 +182,19 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				break;
 			}
 
-			Channel<Integer> minimumHardwarePowerChannel = evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
+			Channel<Integer> minimumHardwarePowerChannel = this.evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
 			if (nextChargePower < minimumHardwarePowerChannel.value()
 					.orElse(0)) { /* charging under 6A isn't possible */
 				nextChargePower = 0;
 			}
 
-			this.evcs._setMinimumPower(config.defaultChargeMinPower());
-			nextMinPower = config.defaultChargeMinPower();
+			this.evcs._setMinimumPower(this.config.defaultChargeMinPower());
+			nextMinPower = this.config.defaultChargeMinPower();
 			break;
 
 		case FORCE_CHARGE:
 			this.evcs._setMinimumPower(0);
-			nextChargePower = config.forceChargeMinPower() * this.evcs.getPhases().orElse(3);
+			nextChargePower = this.config.forceChargeMinPower() * this.evcs.getPhases().orElse(3);
 			break;
 		}
 
@@ -205,7 +203,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		}
 
 		// charging under minimum hardware power isn't possible
-		Channel<Integer> minimumHardwarePowerChannel = evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
+		Channel<Integer> minimumHardwarePowerChannel = this.evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
 		if (nextChargePower < minimumHardwarePowerChannel.value().orElse(0)) {
 			nextChargePower = 0;
 		}
@@ -223,7 +221,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			 */
 			if (this.chargingLowerThanTargetHandler.isLower(this.evcs)) {
 
-				Integer maximumPower = this.chargingLowerThanTargetHandler.getMaximumChargePower();
+				var maximumPower = this.chargingLowerThanTargetHandler.getMaximumChargePower();
 				if (maximumPower != null) {
 					this.evcs._setMaximumPower(maximumPower + CHARGE_POWER_BUFFER);
 					this.logDebug(this.log,
@@ -254,8 +252,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 * Resetting the minimum and maximum power channels.
 	 */
 	private void resetMinMaxChannels() {
-		evcs._setMinimumPower(0);
-		evcs._setMaximumPower(null);
+		this.evcs._setMinimumPower(0);
+		this.evcs._setMaximumPower(null);
 	}
 
 	/**
@@ -263,13 +261,13 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 */
 	private void adaptConfigToHardwareLimits() {
 
-		Optional<Integer> maxHardwareOpt = this.evcs.getMaximumHardwarePower().asOptional();
+		var maxHardwareOpt = this.evcs.getMaximumHardwarePower().asOptional();
 		if (maxHardwareOpt.isPresent()) {
 			int maxHW = maxHardwareOpt.get();
 			if (maxHW != 0) {
 				maxHW = (int) Math.ceil(maxHW / 100.0) * 100;
-				if (config.defaultChargeMinPower() > maxHW) {
-					configUpdate("defaultChargeMinPower", maxHW);
+				if (this.config.defaultChargeMinPower() > maxHW) {
+					this.configUpdate("defaultChargeMinPower", maxHW);
 				}
 			}
 		}
@@ -279,7 +277,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	/**
 	 * Calculates the next charging power, depending on the current PV production
 	 * and house consumption.
-	 * 
+	 *
 	 * @param evcs Electric Vehicle Charging Station
 	 * @return the available excess power for charging
 	 * @throws OpenemsNamedException on error
@@ -296,15 +294,15 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	/**
 	 * Calculate result depending on the current evcs power and grid power.
-	 * 
-	 * @param evcs
-	 * @return
+	 *
+	 * @param evcs the {@link ManagedEvcs}
+	 * @return the excess power
 	 */
 	private int calculateExcessPowerAfterEss(ManagedEvcs evcs) {
 		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
 		int evcsCharge = evcs.getChargePower().orElse(0);
 
-		int result = evcsCharge - buyFromGrid;
+		var result = evcsCharge - buyFromGrid;
 
 		// Add a buffer in Watt to have lower priority than the ess
 		result -= 200;
@@ -321,7 +319,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	/**
 	 * Updating the configuration property to given value.
-	 * 
+	 *
 	 * @param targetProperty Property that should be changed
 	 * @param requiredValue  Value that should be set
 	 */
@@ -329,21 +327,21 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 		Configuration c;
 		try {
-			String pid = this.servicePid();
+			var pid = this.servicePid();
 			if (pid.isEmpty()) {
-				this.logInfo(log, "PID of " + this.id() + " is Empty");
+				this.logInfo(this.log, "PID of " + this.id() + " is Empty");
 				return;
 			}
-			c = cm.getConfiguration(pid, "?");
-			Dictionary<String, Object> properties = c.getProperties();
-			Object target = properties.get(targetProperty);
-			String existingTarget = target.toString();
+			c = this.cm.getConfiguration(pid, "?");
+			var properties = c.getProperties();
+			var target = properties.get(targetProperty);
+			var existingTarget = target.toString();
 			if (!existingTarget.isEmpty()) {
 				properties.put(targetProperty, requiredValue);
 				c.update(properties);
 			}
 		} catch (IOException | SecurityException e) {
-			this.logError(log, "ERROR: " + e.getMessage());
+			this.logError(this.log, "ERROR: " + e.getMessage());
 		}
 	}
 

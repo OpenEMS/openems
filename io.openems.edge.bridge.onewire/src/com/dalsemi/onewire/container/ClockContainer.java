@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -69,7 +70,7 @@ import com.dalsemi.onewire.OneWireException;
  *     byte[] state = clockcontainer.readDevice();
  *     long current_time = clockcontainer.getClock(state);
  *     System.out.println("Current time is :"+(new Date(current_time)));
- *     
+ *
  *     long system_time = System.currentTimeMillis();
  *     clockcontainer.setClock(system_time,state);
  *     clockcontainer.writeDevice(state);
@@ -300,3 +301,4 @@ public interface ClockContainer extends OneWireSensor {
 	 */
 	public void setClockAlarmEnable(boolean alarmEnable, byte[] state) throws OneWireException;
 }
+// CHECKSTYLE:ON

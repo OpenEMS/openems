@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 2006 Maxim Integrated Products, All Rights Reserved.
@@ -40,7 +41,6 @@ import com.dalsemi.onewire.utils.CRC8;
  * @version 0.00, 15 October 2006
  * @author
  */
-@SuppressWarnings({ "unused" })
 class MemoryBankScratchTemp implements MemoryBank {
 	// --------
 	// --------Static Final Variables
@@ -66,14 +66,6 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 * Copy scratchpad command
 	 */
 	private static final byte COPY_SCRATCHPAD_COMMAND = (byte) 0x48;
-
-	/**
-	 * Write scratchpad command
-	 */
-	private static final byte WRITE_SCRATCHPAD_COMMAND = (byte) 0x4E;
-	// --------
-	// -------- Protected Variables for MemoryBank implementation
-	// --------
 
 	/**
 	 * Starting physical address in memory bank. Needed for different types of
@@ -157,28 +149,29 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 */
 	public MemoryBankScratchTemp(OneWireContainer ibutton) {
 		// keep reference to ibutton where memory bank is
-		ib = ibutton;
+		this.ib = ibutton;
 
 		// initialize attributes of this memory bank
 
-		bankDescription = "Temperature";
-		generalPurposeMemory = false;
-		startPhysicalAddress = 0;
-		size = 2;
-		readWrite = false;
-		readOnly = true;
-		nonVolatile = false;
-		powerDelivery = true;
-		writeVerification = false; // not needed here but required for MemoryBank implementation
+		this.bankDescription = "Temperature";
+		this.generalPurposeMemory = false;
+		this.startPhysicalAddress = 0;
+		this.size = 2;
+		this.readWrite = false;
+		this.readOnly = true;
+		this.nonVolatile = false;
+		this.powerDelivery = true;
+		this.writeVerification = false; // not needed here but required for MemoryBank implementation
 
 		// create the ffblock (used for faster 0xFF fills)
-		ffBlock = new byte[15];
+		this.ffBlock = new byte[15];
 
-		for (int i = 0; i < 15; i++)
-			ffBlock[i] = (byte) 0xFF;
+		for (var i = 0; i < 15; i++) {
+			this.ffBlock[i] = (byte) 0xFF;
+		}
 
 		// indicate speed has not been set
-		doSetSpeed = true;
+		this.doSetSpeed = true;
 	}
 
 	// --------
@@ -190,8 +183,9 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 *
 	 * @return String containing the memory bank description
 	 */
+	@Override
 	public String getBankDescription() {
-		return bankDescription;
+		return this.bankDescription;
 	}
 
 	/**
@@ -201,8 +195,9 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank is general purpose
 	 */
+	@Override
 	public boolean isGeneralPurposeMemory() {
-		return generalPurposeMemory;
+		return this.generalPurposeMemory;
 	}
 
 	/**
@@ -210,8 +205,9 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 *
 	 * @return memory bank size in bytes.
 	 */
+	@Override
 	public int getSize() {
-		return size;
+		return this.size;
 	}
 
 	/**
@@ -219,8 +215,9 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank is read/write
 	 */
+	@Override
 	public boolean isReadWrite() {
-		return readWrite;
+		return this.readWrite;
 	}
 
 	/**
@@ -229,6 +226,7 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be written once
 	 */
+	@Override
 	public boolean isWriteOnce() {
 		return false;
 	}
@@ -238,8 +236,9 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be read
 	 */
+	@Override
 	public boolean isReadOnly() {
-		return readOnly;
+		return this.readOnly;
 	}
 
 	/**
@@ -248,8 +247,9 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 *
 	 * @return 'true' if current memory bank non volatile.
 	 */
+	@Override
 	public boolean isNonVolatile() {
-		return nonVolatile;
+		return this.nonVolatile;
 	}
 
 	/**
@@ -259,6 +259,7 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires a
 	 *         'ProgramPulse'.
 	 */
+	@Override
 	public boolean needsProgramPulse() {
 		return false;
 	}
@@ -270,8 +271,9 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires
 	 *         'PowerDelivery'.
 	 */
+	@Override
 	public boolean needsPowerDelivery() {
-		return powerDelivery;
+		return this.powerDelivery;
 	}
 
 	/**
@@ -280,8 +282,9 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 *
 	 * @return physical starting address of this logical bank.
 	 */
+	@Override
 	public int getStartPhysicalAddress() {
-		return startPhysicalAddress;
+		return this.startPhysicalAddress;
 	}
 
 	/**
@@ -290,8 +293,9 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 * @param doReadVerf true (default) verify write in 'write' false, don't verify
 	 *                   write (used on Write-Once bit manipulation)
 	 */
+	@Override
 	public void setWriteVerification(boolean doReadVerf) {
-		writeVerification = doReadVerf;
+		this.writeVerification = doReadVerf;
 	}
 
 	// --------
@@ -317,29 +321,33 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void read(int startAddr, boolean readContinue, byte[] readBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 		byte[] temp_buf;
 
 		// check for valid address
-		if ((startAddr < 0) || ((startAddr + len) > size))
+		if (startAddr < 0 || startAddr + len > this.size) {
 			throw new OneWireException("Read exceeds memory bank");
+		}
 
 		// check for zero length read (saves time)
-		if (len == 0)
+		if (len == 0) {
 			return;
+		}
 
 		// attempt to put device at max desired speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// translate the address into a page_offset and offset
-		int page_offset = startAddr + startPhysicalAddress;
-		int data_len = 8 - page_offset;
-		if (data_len > len)
+		var page_offset = startAddr + this.startPhysicalAddress;
+		var data_len = 8 - page_offset;
+		if (data_len > len) {
 			data_len = len;
+		}
 
 		// read scratchpad
-		temp_buf = readScratchpad();
+		temp_buf = this.readScratchpad();
 
 		// copy contents to the readBuf
 		System.arraycopy(temp_buf, page_offset, readBuf, offset, data_len);
@@ -365,6 +373,7 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void write(int startAddr, byte[] writeBuf, int offset, int len) throws OneWireIOException, OneWireException {
 		byte[] temp_buf;
 
@@ -374,26 +383,28 @@ class MemoryBankScratchTemp implements MemoryBank {
 		// len = how many bytes to write
 
 		// return if nothing to do
-		if (len == 0)
+		if (len == 0) {
 			return;
+		}
 
 		// check if power delivery is available
-		if (!ib.adapter.canDeliverPower())
+		if (!this.ib.adapter.canDeliverPower()) {
 			throw new OneWireException("Power delivery required but not available");
+		}
 
 		// attempt to put device at max desired speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// since writing is a bit odd in that the startPhysicalAddress
 		// is off by 2 due to being able to read 9 bytes but only writing 3,
 		// let's correct...
 
 		// translate the address into a page offset
-		int page_offset = startAddr + startPhysicalAddress;
-		byte[] page_buf = new byte[3];
+		var page_offset = startAddr + this.startPhysicalAddress;
+		var page_buf = new byte[3];
 
 		// pre-fill buff with current page contents
-		temp_buf = readRecallScratchpad();
+		temp_buf = this.readRecallScratchpad();
 
 		// we have temp_buf, so now write the data we want changed to it.
 		System.arraycopy(writeBuf, offset, temp_buf, page_offset, len);
@@ -403,7 +414,7 @@ class MemoryBankScratchTemp implements MemoryBank {
 		System.arraycopy(temp_buf, 2, page_buf, 0, 3);
 
 		// write the page
-		writeScratchpad(page_buf);
+		this.writeScratchpad(page_buf);
 	}
 
 	// --------
@@ -421,11 +432,11 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 * @throws OneWireException   Could not find part
 	 */
 	protected byte[] readScratchpad() throws OneWireIOException, OneWireException {
-		byte[] send_block = new byte[10];
-		byte[] result_block = new byte[8];
+		var send_block = new byte[10];
+		var result_block = new byte[8];
 		int crc8; // this device uses a crc 8
 
-		if (ib.adapter.select(ib.address)) {
+		if (this.ib.adapter.select(this.ib.address)) {
 			/* recall memory to the scratchpad */
 			// ib.adapter.putByte(RECALL_MEMORY_COMMAND);
 
@@ -433,14 +444,15 @@ class MemoryBankScratchTemp implements MemoryBank {
 			// ib.adapter.select(ib.address);
 
 			/* read scratchpad command */
-			send_block[0] = (byte) READ_SCRATCHPAD_COMMAND;
+			send_block[0] = READ_SCRATCHPAD_COMMAND;
 
 			/* now add the read bytes for data bytes and crc8 */
-			for (int i = 1; i < 10; i++)
+			for (var i = 1; i < 10; i++) {
 				send_block[i] = (byte) 0xFF;
+			}
 
 			/* send the block */
-			ib.adapter.dataBlock(send_block, 0, send_block.length);
+			this.ib.adapter.dataBlock(send_block, 0, send_block.length);
 
 			/*
 			 * Now, send_block contains the 8-byte Scratchpad plus READ_SCRATCHPAD_COMMAND
@@ -450,13 +462,14 @@ class MemoryBankScratchTemp implements MemoryBank {
 
 			// see if CRC8 is correct
 			crc8 = CRC8.compute(send_block, 1, 9);
-			if (crc8 != 0)
+			if (crc8 != 0) {
 				throw new OneWireIOException("Bad CRC during page read " + crc8);
+			}
 
 			// copy the data into the result
 			System.arraycopy(send_block, 1, result_block, 0, 8);
 
-			return (result_block);
+			return result_block;
 		}
 
 		// device must not have been present
@@ -476,12 +489,12 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 */
 	protected byte[] readRecallScratchpad() throws OneWireIOException, OneWireException {
 		byte[] recallData;
-		if (ib.adapter.select(ib.address)) {
+		if (this.ib.adapter.select(this.ib.address)) {
 			// recall memory to the scratchpad
-			ib.adapter.putByte(RECALL_MEMORY_COMMAND);
+			this.ib.adapter.putByte(RECALL_MEMORY_COMMAND);
 			// read scratchpad
-			recallData = readScratchpad();
-			return (recallData);
+			recallData = this.readScratchpad();
+			return recallData;
 		}
 
 		// device must not have been present
@@ -510,12 +523,12 @@ class MemoryBankScratchTemp implements MemoryBank {
 	public void writeScratchpad(byte[] data) throws OneWireIOException, OneWireException {
 		/*
 		 * OneWireContainer42 ib42;
-		 * 
+		 *
 		 * ib42 = (OneWireContainer42) ib; ib42.writeScratchpad(data);
 		 */
 
 		// setup buffer to write to scratchpad
-		byte[] writeBuffer = new byte[4];
+		var writeBuffer = new byte[4];
 		// byte[] writeBuffer = new byte [6];
 		byte[] readBuffer;
 		// boolean vddSupplied = false;
@@ -531,18 +544,17 @@ class MemoryBankScratchTemp implements MemoryBank {
 		writeBuffer[3] = data[2];
 
 		// send command block to device
-		if (ib.adapter.select(ib.getAddressAsString())) {
-			ib.adapter.dataBlock(writeBuffer, 0, writeBuffer.length);
-		} else {
+		if (!this.ib.adapter.select(this.ib.getAddressAsString())) {
 
 			// device must not have been present
 			throw new OneWireIOException("Device not found on 1-Wire Network");
 		}
+		this.ib.adapter.dataBlock(writeBuffer, 0, writeBuffer.length);
 
 		// double check by reading scratchpad without recallEsquared
-		readBuffer = readScratchpad();
+		readBuffer = this.readScratchpad();
 
-		if ((readBuffer[2] != data[0]) || (readBuffer[3] != data[1]) || (readBuffer[4] != data[2])) {
+		if (readBuffer[2] != data[0] || readBuffer[3] != data[1] || readBuffer[4] != data[2]) {
 
 			// writing to scratchpad failed
 			throw new OneWireIOException("Error writing to scratchpad " + data[0] + " " + readBuffer[2] + " " + data[1]
@@ -550,50 +562,25 @@ class MemoryBankScratchTemp implements MemoryBank {
 		}
 
 		// second, let's copy the scratchpad.
-		if (ib.adapter.select(ib.getAddressAsString())) {
-
-			// apply the power delivery
-			ib.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
-			ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
-
-			// send the copy scratchpad command
-			ib.adapter.putByte(COPY_SCRATCHPAD_COMMAND);
-
-			// sleep for 10 milliseconds to allow copy to take place.
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-			}
-			;
-
-			// Turn power back to normal.
-			ib.adapter.setPowerNormal();
-		}
-
-		/*
-		 * 
-		 * // now copy scratchpad // second, let's copy the scratchpad. if
-		 * (ib.adapter.select(ib.getAddressAsString())) { // apply the power delivery
-		 * vddSupplied = isExternalPowerSupplied(); if (!vddSupplied) {
-		 * ib.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
-		 * ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE); }
-		 * 
-		 * // send the convert temperature command
-		 * ib.adapter.putByte(COPY_SCRATCHPAD_COMMAND);
-		 * 
-		 * // sleep for 10 milliseconds to allow copy to take place. try {
-		 * Thread.sleep(10); } catch (InterruptedException e){} ;
-		 * 
-		 * // Turn power back to normal. if (!vddSupplied) {
-		 * ib.adapter.setPowerNormal(); }
-		 * 
-		 * }
-		 */
-		else {
+		if (!this.ib.adapter.select(this.ib.getAddressAsString())) {
 			// device must not have been present
 			throw new OneWireIOException("Device not found on 1-Wire Network");
 		}
-		return;
+		// apply the power delivery
+		this.ib.adapter.setPowerDuration(DSPortAdapter.DELIVERY_INFINITE);
+		this.ib.adapter.startPowerDelivery(DSPortAdapter.CONDITION_AFTER_BYTE);
+
+		// send the copy scratchpad command
+		this.ib.adapter.putByte(COPY_SCRATCHPAD_COMMAND);
+
+		// sleep for 10 milliseconds to allow copy to take place.
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e) {
+		}
+
+		// Turn power back to normal.
+		this.ib.adapter.setPowerNormal();
 
 	}
 
@@ -613,23 +600,23 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 *                            adapter
 	 */
 	public boolean isExternalPowerSupplied() throws OneWireIOException, OneWireException {
-		int intresult = 0;
-		boolean result = false;
+		var intresult = 0;
+		var result = false;
 
 		// select the device
-		if (ib.adapter.select(ib.getAddress())) {
-			// send the "Read Power Supply" memory command
-			ib.adapter.putByte(READ_POWER_SUPPLY_COMMAND);
-
-			// read results
-			intresult = ib.adapter.getByte();
-		} else {
+		if (!this.ib.adapter.select(this.ib.getAddress())) {
 
 			// device must not have been present
 			throw new OneWireIOException("Device not found on 1-Wire Network");
 		}
-		if (intresult != 0x00)
+		// send the "Read Power Supply" memory command
+		this.ib.adapter.putByte(READ_POWER_SUPPLY_COMMAND);
+
+		// read results
+		intresult = this.ib.adapter.getByte();
+		if (intresult != 0x00) {
 			result = true; // reads 0xFF for true and 0x00 for false
+		}
 
 		return result;
 	}
@@ -649,13 +636,13 @@ class MemoryBankScratchTemp implements MemoryBank {
 		synchronized (this) {
 
 			// only check the speed
-			if (doSetSpeed) {
+			if (this.doSetSpeed) {
 
 				// attempt to set the correct speed and verify device present
-				ib.doSpeed();
+				this.ib.doSpeed();
 
 				// no exceptions so clear flag
-				doSetSpeed = false;
+				this.doSetSpeed = false;
 			}
 		}
 	}
@@ -666,8 +653,9 @@ class MemoryBankScratchTemp implements MemoryBank {
 	 */
 	public void forceVerify() {
 		synchronized (this) {
-			doSetSpeed = true;
+			this.doSetSpeed = true;
 		}
 	}
 
 }
+// CHECKSTYLE:ON

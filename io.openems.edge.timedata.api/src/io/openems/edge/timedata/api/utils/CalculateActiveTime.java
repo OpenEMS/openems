@@ -7,14 +7,13 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
 public class CalculateActiveTime {
 
 	/**
 	 * Available States.
-	 * 
+	 *
 	 * <p>
 	 * IMPLEMENTATION NOTE: we are using a custom StateMachine here and not the
 	 * generic implementation in 'io.openems.edge.common.statemachine', because one
@@ -65,7 +64,7 @@ public class CalculateActiveTime {
 
 	/**
 	 * Counts up the time channel if the given value is true.
-	 * 
+	 *
 	 * @param isActive boolean if the corresponding channel should be updated.
 	 */
 	public void update(boolean isActive) {
@@ -90,8 +89,8 @@ public class CalculateActiveTime {
 	}
 
 	private void initializeActiveTimeFromTimedata() {
-		Timedata timedata = this.timedataProvider.getTimedata();
-		String componentId = this.timedataProvider.id();
+		var timedata = this.timedataProvider.getTimedata();
+		var componentId = this.timedataProvider.id();
 		if (timedata == null || componentId == null) {
 			// Wait for Timedata service to appear or Component to be activated
 			this.state = State.TIMEDATA_QUERY_NOT_STARTED;
@@ -119,14 +118,14 @@ public class CalculateActiveTime {
 
 	/**
 	 * Calculate the active time.
-	 * 
-	 * @param isActive
+	 *
+	 * @param isActive currently active?
 	 */
 	private void calculateActiveTime(boolean isActive) {
 		if (this.lastTimestamp != null && this.lastStoredActiveTime != null && this.lastIsActive && isActive) {
 
 			// Calculate duration since last value
-			long duration /* [msec] */ = Duration.between(this.lastTimestamp, Instant.now()).toMillis();
+			var duration /* [msec] */ = Duration.between(this.lastTimestamp, Instant.now()).toMillis();
 
 			// Add to continuous cumulated time
 			this.continuousTime += duration;

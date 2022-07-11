@@ -22,7 +22,7 @@ public abstract class AbstractTask implements Task {
 	private final int startAddress;
 	private final Stopwatch stopwatch = Stopwatch.createUnstarted();
 
-	private ModbusElement<?>[] elements;
+	private final ModbusElement<?>[] elements;
 	private AbstractOpenemsModbusComponent parent = null; // this is always set by ModbusProtocol.addTask()
 	private boolean hasBeenExecutedSuccessfully = false;
 	private long lastExecuteDuration = DEFAULT_EXECUTION_DURATION; // initialize to some default
@@ -33,7 +33,7 @@ public abstract class AbstractTask implements Task {
 		for (ModbusElement<?> element : elements) {
 			element.setModbusTask(this);
 		}
-		int length = 0;
+		var length = 0;
 		for (ModbusElement<?> element : elements) {
 			length += element.getLength();
 		}
@@ -55,31 +55,33 @@ public abstract class AbstractTask implements Task {
 		return this.startAddress;
 	}
 
+	@Override
 	public void setParent(AbstractOpenemsModbusComponent parent) {
 		this.parent = parent;
 	}
 
 	@Override
 	public AbstractOpenemsModbusComponent getParent() {
-		return parent;
+		return this.parent;
 	}
 
 	/**
 	 * Executes the tasks - i.e. sends the query of a ReadTask or writes a
 	 * WriteTask.
-	 * 
+	 *
 	 * <p>
 	 * Internally the _execute()-method of the specific subclass gets called.
-	 * 
+	 *
 	 * @param bridge the Modbus-Bridge
 	 * @return the number of executed Sub-Tasks
 	 * @throws OpenemsException on error
 	 */
+	@Override
 	public final synchronized int execute(AbstractModbusBridge bridge) throws OpenemsException {
 		this.stopwatch.reset();
 		this.stopwatch.start();
 		try {
-			int noOfSubTasksExecuted = this._execute(bridge);
+			var noOfSubTasksExecuted = this._execute(bridge);
 
 			// no exception -> mark this task as successfully executed
 			this.hasBeenExecutedSuccessfully = true;
@@ -98,18 +100,23 @@ public abstract class AbstractTask implements Task {
 	 */
 	private boolean isDebug = false;
 
+	/**
+	 * Activate Debug-Mode.
+	 * 
+	 * @return myself
+	 */
 	public AbstractTask debug() {
 		this.isDebug = true;
 		return this;
 	}
 
 	public boolean isDebug() {
-		return isDebug;
+		return this.isDebug;
 	}
 
 	/**
 	 * Combines the global and local (via {@link #isDebug} log verbosity.
-	 * 
+	 *
 	 * @param bridge the parent Bridge
 	 * @return the combined LogVerbosity
 	 */
@@ -134,7 +141,7 @@ public abstract class AbstractTask implements Task {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		var sb = new StringBuilder();
 		sb.append(this.getActiondescription());
 		sb.append(" [");
 		sb.append(this.parent.id());
@@ -150,8 +157,9 @@ public abstract class AbstractTask implements Task {
 		return sb.toString();
 	}
 
+	@Override
 	public long getExecuteDuration() {
-		return lastExecuteDuration;
+		return this.lastExecuteDuration;
 	}
 
 	protected abstract String getActiondescription();

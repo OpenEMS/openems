@@ -11,7 +11,7 @@ public enum Report {
 
 	/**
 	 * Get requested seconds.
-	 * 
+	 *
 	 * @return seconds
 	 */
 	public int getRequestSeconds() {

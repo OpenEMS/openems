@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -46,6 +45,8 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	private final WebSocketServer ws;
 
 	/**
+	 * Construct an {@link AbstractWebsocketServer}.
+	 *
 	 * @param name      to identify this server
 	 * @param port      to listen on
 	 * @param poolSize  number of threads dedicated to handle the tasks
@@ -83,7 +84,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				T wsData = AbstractWebsocketServer.this.createWsData();
 				wsData.setWebsocket(ws);
 				ws.setAttachment(wsData);
-				JsonObject jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
+				var jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
 				AbstractWebsocketServer.this.execute(new OnOpenHandler(AbstractWebsocketServer.this, ws, jHandshake));
 			}
 
@@ -101,7 +102,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 					if (message instanceof JsonrpcRequest) {
 						AbstractWebsocketServer.this.execute(new OnRequestHandler(AbstractWebsocketServer.this, ws,
-								(JsonrpcRequest) message, (response) -> {
+								(JsonrpcRequest) message, response -> {
 									AbstractWebsocketServer.this.sendMessage(ws, response);
 								}));
 
@@ -139,6 +140,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		this.ws.setReuseAddr(true);
 	}
 
+	@Override
 	protected OnInternalError getOnInternalError() {
 		return (ex, wsDataString) -> {
 			if (ex instanceof BindException) {
@@ -148,7 +150,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			}
 			ex.printStackTrace();
 		};
-	};
+	}
 
 	public Collection<WebSocket> getConnections() {
 		return this.ws.getConnections();
@@ -156,7 +158,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 	/**
 	 * Sends a message to WebSocket.
-	 * 
+	 *
 	 * @param ws      the WebSocket
 	 * @param message the JSON-RPC Message
 	 */
@@ -166,7 +168,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 	/**
 	 * Broadcasts a message to all connected WebSockets.
-	 * 
+	 *
 	 * @param message the JSON-RPC Message
 	 */
 	public void broadcastMessage(JsonrpcMessage message) {
@@ -177,7 +179,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 	/**
 	 * Gets the port number that this server listens on.
-	 * 
+	 *
 	 * @return The port number.
 	 */
 	public int getPort() {
@@ -185,7 +187,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	}
 
 	/**
-	 * Starts the websocket server
+	 * Starts the websocket server.
 	 */
 	@Override
 	public void start() {
@@ -196,7 +198,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 	/**
 	 * Execute a {@link Runnable} using the shared {@link ExecutorService}.
-	 * 
+	 *
 	 * @param command the {@link Runnable}
 	 */
 	@Override
@@ -207,7 +209,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	}
 
 	/**
-	 * Stops the websocket server
+	 * Stops the websocket server.
 	 */
 	@Override
 	public void stop() {
@@ -215,7 +217,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 5);
 
-		int tries = 3;
+		var tries = 3;
 		while (tries-- > 0) {
 			try {
 				this.ws.stop();
@@ -235,10 +237,12 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	}
 
 	/**
-	 * Convert deprecated Non-JSON-RPC messages to JSON-RPC messages.
-	 * 
-	 * @param stringMessage
-	 * @return
+	 * Handle Non-JSON-RPC messages.
+	 *
+	 * @param stringMessage the message
+	 * @param e             the parse error
+	 * @return message converted to {@link JsonrpcMessage}
+	 * @throws OpenemsNamedException if conversion is not possible
 	 */
 	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsNamedException e)
 			throws OpenemsNamedException {
@@ -248,7 +252,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	/**
 	 * Wraps the shared {@link ScheduledThreadPoolExecutor} of this
 	 * {@link AbstractWebsocketServer}.
-	 * 
+	 *
 	 * @param command      see {@link ScheduledThreadPoolExecutor}
 	 * @param initialDelay see {@link ScheduledThreadPoolExecutor}
 	 * @param delay        see {@link ScheduledThreadPoolExecutor}

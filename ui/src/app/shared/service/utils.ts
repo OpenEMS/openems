@@ -2,6 +2,7 @@ import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { saveAs } from 'file-saver-es';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 
 export class Utils {
@@ -129,6 +130,12 @@ export class Utils {
     }
   }
 
+  public static getRandomInteger(min: number, max: number) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+
   /**
    * Safely rounds a - possibly 'null' - value: Math.round(v)
    * 
@@ -221,7 +228,7 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: any): string => {
-    return format(new Date(value * 1000), 'HH:mm:ss')
+    return new Date(value * 1000).toLocaleTimeString()
   }
 
   public static CONVERT_TO_PERCENT = (value: any): string => {
@@ -247,6 +254,40 @@ export class Utils {
   public static CONVERT_TO_KILO_WATTHOURS = (value: any): string => {
     return formatNumber(value / 1000, 'de', '1.0-1') + ' kWh'
   }
+
+  /**
+   * Converts states 'MANUAL_ON' and 'MANUAL_OFF' to translated strings.
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
+  public static CONVERT_MANUAL_ON_OFF = (translate: TranslateService) => {
+    return (value: DefaultTypes.ManualOnOff): string => {
+      if (value === 'MANUAL_ON') {
+        return translate.instant('General.on');
+      } else if (value === 'MANUAL_OFF') {
+        return translate.instant('General.off');
+      } else {
+        return '-';
+      }
+    }
+  }
+
+  /**
+   * Takes a power value and extracts the information if it represents Charge or Discharge.
+   * 
+   * @param translate the translate service
+   * @param power the power
+   * @returns an object with charge/discharge information and power value
+   */
+  public static convertChargeDischargePower(translate: TranslateService, power: number): { name: string, value: number } {
+    if (power >= 0) {
+      return { name: translate.instant('General.dischargePower'), value: power };
+    } else {
+      return { name: translate.instant('General.chargePower'), value: power * -1 };
+    }
+  }
+
   /**
    * Gets the image path for storage depending on State-of-Charge.
    * 
@@ -319,5 +360,14 @@ export class Utils {
     result = Math.min(result, 100);
 
     return result;
+  }
+
+  /**
+   * Rounds values between 0 and -1kW to 0
+   * 
+   * @param value the value to convert
+   */
+  public static roundSlightlyNegativeValues(value: number) {
+    return (value > -0.49 && value < 0) ? 0 : value;
   }
 }

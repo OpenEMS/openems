@@ -3,6 +3,7 @@ package io.openems.edge.goodwe.charger;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -13,14 +14,17 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
-public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusComponent
-		implements GoodWeEtCharger, EssDcCharger, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
+public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusComponent implements GoodWeEtCharger,
+		EssDcCharger, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	protected abstract GoodWe getEssOrBatteryInverter();
 
@@ -38,7 +42,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		final int startAddress = this.getStartAddress();
+		final var startAddress = this.getStartAddress();
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(startAddress, Priority.HIGH, //
 						m(GoodWeEtCharger.ChannelId.V, new UnsignedWordElement(startAddress), //
@@ -62,7 +66,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	 * Calculate the Energy values from ActivePower.
 	 */
 	private void calculateEnergy() {
-		Integer actualPower = this.getActualPower().get();
+		var actualPower = this.getActualPower().get();
 		if (actualPower == null) {
 			// Not available
 			this.calculateActualEnergy.update(null);
@@ -77,7 +81,7 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	 * Updates the 'Has-No-DC-PV' State Channel.
 	 */
 	private void updateState() {
-		GoodWe goodWe = this.getEssOrBatteryInverter();
+		var goodWe = this.getEssOrBatteryInverter();
 		Boolean hasNoDcPv = null;
 		if (goodWe != null) {
 			switch (goodWe.getGoodweType().getSeries()) {
@@ -101,4 +105,13 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 	}
 
 	protected abstract int getStartAddress();
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				EssDcCharger.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(GoodWeEtCharger.class, accessMode, 100) //
+						.build());
+	}
 }

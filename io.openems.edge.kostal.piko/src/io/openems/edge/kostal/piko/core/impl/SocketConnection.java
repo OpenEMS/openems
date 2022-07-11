@@ -29,15 +29,15 @@ public class SocketConnection {
 	}
 
 	public byte getUnitID() {
-		return unitID;
+		return this.unitID;
 	}
 
-	public void open() throws OpenemsException {
+	protected void open() throws OpenemsException {
 		if (this.socket != null && this.socket.isConnected()) {
 			return;
 		}
 		try {
-			Socket socket = new Socket(this.host, this.port);
+			var socket = new Socket(this.host, this.port);
 			this.out = socket.getOutputStream();
 			this.in = socket.getInputStream();
 			this.socket = socket;
@@ -46,15 +46,15 @@ public class SocketConnection {
 		}
 	}
 
-	public void close() {
-		if (in != null) {
+	protected void close() {
+		if (this.in != null) {
 			try {
 				this.in.close();
 			} catch (IOException e) {
 				this.log.error("In Stream Closed: " + e.getMessage());
 			}
 		}
-		if (out != null) {
+		if (this.out != null) {
 			try {
 				this.out.close();
 			} catch (IOException e) {
@@ -71,10 +71,10 @@ public class SocketConnection {
 	}
 
 	public OutputStream getOut() {
-		return out;
+		return this.out;
 	}
 
 	public InputStream getIn() {
-		return in;
+		return this.in;
 	}
 }

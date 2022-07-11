@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
@@ -184,7 +185,7 @@ import com.dalsemi.onewire.container.PagedMemoryBank;
  * <DL>
  * <DD>
  * <H4>Example 1</H4> Format the Filesystem of the 1-Wire device 'owd':
- * 
+ *
  * <PRE>
  *  <CODE>
  *   // create a 1-Wire file at root
@@ -220,7 +221,7 @@ import com.dalsemi.onewire.container.PagedMemoryBank;
  * <DD>
  * <H4>Example 2</H4> Make a multi-level directory structure on the 1-Wire
  * device 'owd':
- * 
+ *
  * <PRE>
  *  <CODE>
  *   OWFile owfile = new OWFile(owd, "/doc/text/temp");
@@ -290,7 +291,7 @@ public class OWFile {
 	 *                              <code>null</code>
 	 */
 	public OWFile(OneWireContainer owd, String pathname) {
-		fd = new OWFileDescriptor(owd, pathname);
+		this.fd = new OWFileDescriptor(owd, pathname);
 	}
 
 	/**
@@ -303,15 +304,15 @@ public class OWFile {
 	 * @param pathname A pathname string
 	 * @throws NullPointerException If the <code>pathname</code> argument is
 	 *                              <code>null</code>
-	 * 
+	 *
 	 *                              Change the OWFileDescriptor to accept only an
 	 *                              array of containers Change the local ref to be
 	 *                              an array Create a single array in constructors
 	 *                              with single passed owc
-	 * 
+	 *
 	 */
 	public OWFile(OneWireContainer[] owd, String pathname) {
-		fd = new OWFileDescriptor(owd, pathname);
+		this.fd = new OWFileDescriptor(owd, pathname);
 	}
 
 	/*
@@ -350,10 +351,11 @@ public class OWFile {
 	 * @throws NullPointerException If <code>child</code> is <code>null</code>
 	 */
 	public OWFile(OneWireContainer owd, String parent, String child) {
-		if (child == null)
+		if (child == null) {
 			throw new NullPointerException("child is null");
+		}
 
-		fd = new OWFileDescriptor(owd, parent + child);
+		this.fd = new OWFileDescriptor(owd, parent + child);
 	}
 
 	/**
@@ -382,17 +384,19 @@ public class OWFile {
 	 * @throws NullPointerException If <code>child</code> is <code>null</code>
 	 */
 	public OWFile(OWFile parent, String child) {
-		if (child == null)
+		if (child == null) {
 			throw new NullPointerException("child is null");
+		}
 
 		String new_path;
 
-		if (parent.getAbsolutePath().endsWith("/"))
+		if (parent.getAbsolutePath().endsWith("/")) {
 			new_path = parent.getAbsolutePath() + child;
-		else
+		} else {
 			new_path = parent.getAbsolutePath() + separator + child;
+		}
 
-		fd = new OWFileDescriptor(parent.getOneWireContainers(), new_path);
+		this.fd = new OWFileDescriptor(parent.getOneWireContainers(), new_path);
 	}
 
 	// --------
@@ -408,7 +412,7 @@ public class OWFile {
 	 *         or the empty string if this pathname's name sequence is empty
 	 */
 	public String getName() {
-		return fd.getName();
+		return this.fd.getName();
 	}
 
 	/**
@@ -426,7 +430,7 @@ public class OWFile {
 	 *         parent
 	 */
 	public String getParent() {
-		return fd.getParent();
+		return this.fd.getParent();
 	}
 
 	/**
@@ -444,7 +448,7 @@ public class OWFile {
 	 *         parent
 	 */
 	public OWFile getParentFile() {
-		return new OWFile(fd.getOneWireContainers(), fd.getParent());
+		return new OWFile(this.fd.getOneWireContainers(), this.fd.getParent());
 	}
 
 	/**
@@ -455,7 +459,7 @@ public class OWFile {
 	 * @return The string form of this abstract pathname
 	 */
 	public String getPath() {
-		return fd.getPath();
+		return this.fd.getPath();
 	}
 
 	// --------
@@ -499,7 +503,7 @@ public class OWFile {
 	 * @see java.io.File#isAbsolute()
 	 */
 	public String getAbsolutePath() {
-		return fd.getPath();
+		return this.fd.getPath();
 	}
 
 	/**
@@ -510,7 +514,7 @@ public class OWFile {
 	 *         this abstract pathname
 	 */
 	public OWFile getAbsoluteFile() {
-		return new OWFile(fd.getOneWireContainers(), fd.getPath());
+		return new OWFile(this.fd.getOneWireContainers(), this.fd.getPath());
 	}
 
 	/**
@@ -542,7 +546,7 @@ public class OWFile {
 	 * @since JDK1.1
 	 */
 	public String getCanonicalPath() throws IOException {
-		return fd.getPath();
+		return this.fd.getPath();
 	}
 
 	/**
@@ -557,7 +561,7 @@ public class OWFile {
 	 *                     filesystem queries
 	 */
 	public OWFile getCanonicalFile() throws IOException {
-		return new OWFile(fd.getOneWireContainers(), fd.getPath());
+		return new OWFile(this.fd.getOneWireContainers(), this.fd.getPath());
 	}
 
 	// --------
@@ -573,7 +577,7 @@ public class OWFile {
 	 *         <code>false</code> otherwise
 	 */
 	public boolean canRead() {
-		return fd.canRead();
+		return this.fd.canRead();
 	}
 
 	/**
@@ -586,7 +590,7 @@ public class OWFile {
 	 *
 	 */
 	public boolean canWrite() {
-		return fd.canWrite();
+		return this.fd.canWrite();
 	}
 
 	/**
@@ -597,7 +601,7 @@ public class OWFile {
 	 *
 	 */
 	public boolean exists() {
-		return fd.exists();
+		return this.fd.exists();
 	}
 
 	/**
@@ -608,7 +612,7 @@ public class OWFile {
 	 *         otherwise
 	 */
 	public boolean isDirectory() {
-		return fd.isDirectory();
+		return this.fd.isDirectory();
 	}
 
 	/**
@@ -622,7 +626,7 @@ public class OWFile {
 	 *         otherwise
 	 */
 	public boolean isFile() {
-		return fd.isFile();
+		return this.fd.isFile();
 	}
 
 	/**
@@ -637,7 +641,7 @@ public class OWFile {
 	 *         platform
 	 */
 	public boolean isHidden() {
-		return fd.isHidden();
+		return this.fd.isHidden();
 	}
 
 	/**
@@ -662,7 +666,7 @@ public class OWFile {
 	 *         or <code>0L</code> if the file does not exist
 	 */
 	public long length() {
-		return fd.length();
+		return this.fd.length();
 	}
 
 	// --------
@@ -683,7 +687,7 @@ public class OWFile {
 	 * @throws IOException If an I/O error occurred
 	 */
 	public boolean createNewFile() throws IOException {
-		return fd.createNewFile();
+		return this.fd.createNewFile();
 	}
 
 	/**
@@ -695,7 +699,7 @@ public class OWFile {
 	 *         successfully deleted; <code>false</code> otherwise
 	 */
 	public boolean delete() {
-		return fd.delete();
+		return this.fd.delete();
 	}
 
 	/**
@@ -720,10 +724,10 @@ public class OWFile {
 	 *         pathname does not denote a directory, or if an I/O error occurs.
 	 */
 	public String[] list() {
-		if (isFile() || !isDirectory())
+		if (this.isFile() || !this.isDirectory()) {
 			return null;
-		else
-			return fd.list();
+		}
+		return this.fd.list();
 	}
 
 	/**
@@ -754,27 +758,27 @@ public class OWFile {
 	 *         occurs.
 	 */
 	public OWFile[] listFiles() {
-		if (isFile() || !isDirectory())
+		if (this.isFile() || !this.isDirectory()) {
 			return null;
-		else {
-			String[] str_list;
-			OWFile[] file_list;
-			String new_path;
+		}
+		String[] str_list;
+		OWFile[] file_list;
+		String new_path;
 
-			str_list = fd.list();
-			file_list = new OWFile[str_list.length];
+		str_list = this.fd.list();
+		file_list = new OWFile[str_list.length];
 
-			for (int i = 0; i < str_list.length; i++) {
-				if ((fd.getPath() == null) || fd.getPath().endsWith("/"))
-					new_path = "/" + str_list[i];
-				else
-					new_path = fd.getPath() + separator + str_list[i];
-
-				file_list[i] = new OWFile(fd.getOneWireContainers(), new_path);
+		for (var i = 0; i < str_list.length; i++) {
+			if (this.fd.getPath() == null || this.fd.getPath().endsWith("/")) {
+				new_path = "/" + str_list[i];
+			} else {
+				new_path = this.fd.getPath() + separator + str_list[i];
 			}
 
-			return file_list;
+			file_list[i] = new OWFile(this.fd.getOneWireContainers(), new_path);
 		}
+
+		return file_list;
 	}
 
 	/**
@@ -785,7 +789,7 @@ public class OWFile {
 	 */
 	public boolean mkdir() {
 		try {
-			fd.create(false, true, false, -1, -1);
+			this.fd.create(false, true, false, -1, -1);
 
 			return true;
 		} catch (OWFileNotFoundException e) {
@@ -804,7 +808,7 @@ public class OWFile {
 	 */
 	public boolean mkdirs() {
 		try {
-			fd.create(false, true, true, -1, -1);
+			this.fd.create(false, true, true, -1, -1);
 
 			return true;
 		} catch (OWFileNotFoundException e) {
@@ -824,7 +828,7 @@ public class OWFile {
 	 *                              <code>null</code>
 	 */
 	public boolean renameTo(OWFile dest) {
-		return fd.renameTo(dest);
+		return this.fd.renameTo(dest);
 	}
 
 	/**
@@ -862,9 +866,7 @@ public class OWFile {
 	 *         <code>false</code> otherwise
 	 */
 	public boolean setReadOnly() {
-		boolean result = fd.setReadOnly();
-
-		return result;
+		return this.fd.setReadOnly();
 	}
 
 	// --------
@@ -909,7 +911,7 @@ public class OWFile {
 	 *         roots.
 	 */
 	public static OWFile[] listRoots(OneWireContainer owc) {
-		OWFile[] roots = new OWFile[1];
+		var roots = new OWFile[1];
 
 		roots[0] = new OWFile(owc, "/");
 
@@ -934,9 +936,9 @@ public class OWFile {
 	 *         is lexicographically - greater than the argument
 	 */
 	public int compareTo(OWFile pathname) {
-		OneWireContainer[] owd = fd.getOneWireContainers();
-		String this_path = owd[0].getAddressAsString() + getPath();
-		String compare_path = pathname.getOneWireContainer().getAddressAsString() + pathname.getPath();
+		var owd = this.fd.getOneWireContainers();
+		var this_path = owd[0].getAddressAsString() + this.getPath();
+		var compare_path = pathname.getOneWireContainer().getAddressAsString() + pathname.getPath();
 
 		return this_path.compareTo(compare_path);
 	}
@@ -961,7 +963,7 @@ public class OWFile {
 	 * @see java.lang.Comparable
 	 */
 	public int compareTo(Object o) {
-		return compareTo((OWFile) o);
+		return this.compareTo((OWFile) o);
 	}
 
 	/**
@@ -977,14 +979,17 @@ public class OWFile {
 	 * @return <code>true</code> if and only if the objects are the same;
 	 *         <code>false</code> otherwise
 	 */
+	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
+		if (obj == null) {
 			return false;
+		}
 
-		if (!(obj instanceof OWFile))
+		if (!(obj instanceof OWFile)) {
 			return false;
+		}
 
-		return (compareTo((OWFile) obj) == 0);
+		return this.compareTo((OWFile) obj) == 0;
 	}
 
 	/**
@@ -998,8 +1003,9 @@ public class OWFile {
 	 *
 	 * @return A hash code for this abstract pathname
 	 */
+	@Override
 	public int hashCode() {
-		return fd.getHashCode();
+		return this.fd.getHashCode();
 	}
 
 	/**
@@ -1008,8 +1014,9 @@ public class OWFile {
 	 *
 	 * @return The string form of this abstract pathname
 	 */
+	@Override
 	public String toString() {
-		return fd.getPath();
+		return this.fd.getPath();
 	}
 
 	// --------
@@ -1026,7 +1033,7 @@ public class OWFile {
 	 * @see com.dalsemi.onewire.application.file.OWFileDescriptor
 	 */
 	public OWFileDescriptor getFD() throws IOException {
-		return fd;
+		return this.fd;
 	}
 
 	/**
@@ -1037,7 +1044,7 @@ public class OWFile {
 	 * @return the OneWireContainer for this Filesystem
 	 */
 	public OneWireContainer getOneWireContainer() {
-		OneWireContainer[] owd = fd.getOneWireContainers();
+		var owd = this.fd.getOneWireContainers();
 		return owd[0];
 	}
 
@@ -1049,7 +1056,7 @@ public class OWFile {
 	 * @return the OneWireContainer(s) for this Filesystem
 	 */
 	public OneWireContainer[] getOneWireContainers() {
-		return fd.getOneWireContainers();
+		return this.fd.getOneWireContainers();
 	}
 
 	/**
@@ -1058,12 +1065,12 @@ public class OWFile {
 	 * <P>
 	 * <b>WARNING</b> this will remove any files/directories.
 	 * <P>
-	 * 
+	 *
 	 * @exception IOException if an I/O error occurs.
 	 */
 	public void format() throws IOException {
 		try {
-			fd.format();
+			this.fd.format();
 		} catch (OneWireException e) {
 			throw new IOException(e.toString());
 		}
@@ -1079,7 +1086,7 @@ public class OWFile {
 	 */
 	public int getFreeMemory() throws IOException {
 		try {
-			return fd.getFreeMemory();
+			return this.fd.getFreeMemory();
 		} catch (OneWireException e) {
 			throw new IOException(e.toString());
 		}
@@ -1092,9 +1099,9 @@ public class OWFile {
 	 * @exception IOException if an I/O error occurs.
 	 */
 	public void close() throws IOException {
-		fd.close();
+		this.fd.close();
 
-		fd = null;
+		this.fd = null;
 	}
 
 	/**
@@ -1106,14 +1113,15 @@ public class OWFile {
 	 * @exception IOException if an I/O error occurs.
 	 */
 	public int[] getPageList() throws IOException {
-		if (fd != null) {
-			if (!fd.exists())
-				return new int[0];
-		} else
+		if (this.fd == null) {
 			return new int[0];
+		}
+		if (!this.fd.exists()) {
+			return new int[0];
+		}
 
 		try {
-			return fd.getPageList();
+			return this.fd.getPageList();
 		} catch (OneWireException e) {
 			throw new IOException(e.toString());
 		}
@@ -1128,11 +1136,10 @@ public class OWFile {
 	 * @exception IOException if the file doesn't exist
 	 */
 	public int getStartPage() throws IOException {
-		if (fd != null && fd.exists()) {
-			return fd.getStartPage();
-		} else {
-			throw new FileNotFoundException();
+		if (this.fd != null && this.fd.exists()) {
+			return this.fd.getStartPage();
 		}
+		throw new FileNotFoundException();
 	}
 
 	/**
@@ -1142,13 +1149,14 @@ public class OWFile {
 	 * @return PagedMemoryBank for the specified page
 	 */
 	public PagedMemoryBank getMemoryBankForPage(int page) {
-		if (fd != null) {
-			if (!fd.exists())
-				return null;
-		} else
+		if (this.fd == null) {
 			return null;
+		}
+		if (!this.fd.exists()) {
+			return null;
+		}
 
-		return fd.getMemoryBankForPage(page);
+		return this.fd.getMemoryBankForPage(page);
 	}
 
 	/**
@@ -1159,13 +1167,14 @@ public class OWFile {
 	 * @return local page for the specified Filesystem page (memory bank specific)
 	 */
 	public int getLocalPage(int page) {
-		if (fd != null) {
-			if (!fd.exists())
-				return 0;
-		} else
+		if (this.fd == null) {
 			return 0;
+		}
+		if (!this.fd.exists()) {
+			return 0;
+		}
 
-		return fd.getLocalPage(page);
+		return this.fd.getLocalPage(page);
 	}
 
 	/**
@@ -1176,8 +1185,11 @@ public class OWFile {
 	 * @exception IOException if an I/O error occurs.
 	 * @see java.io.FileInputStream#close()
 	 */
+	@Override
 	protected void finalize() throws IOException {
-		if (fd != null)
-			fd.close();
+		if (this.fd != null) {
+			this.fd.close();
+		}
 	}
 }
+// CHECKSTYLE:ON

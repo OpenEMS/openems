@@ -29,7 +29,7 @@ public interface EssLinearPowerBand extends Controller, OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#TARGET_POWER}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default IntegerReadChannel getTargetPowerChannel() {
@@ -38,7 +38,7 @@ public interface EssLinearPowerBand extends Controller, OpenemsComponent {
 
 	/**
 	 * Gets the Target Power in [W]. See {@link ChannelId#TARGET_POWER}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getTargetPower() {
@@ -48,7 +48,7 @@ public interface EssLinearPowerBand extends Controller, OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#TARGET_POWER}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setTargetPower(Integer value) {

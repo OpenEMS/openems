@@ -2,7 +2,7 @@ package io.openems.common.worker;
 
 /**
  * Defines a generic Worker Thread.
- * 
+ *
  * <p>
  * The business logic of the Worker is inside the {@link #forever()} method. It
  * is executed always called immediately without any delay.

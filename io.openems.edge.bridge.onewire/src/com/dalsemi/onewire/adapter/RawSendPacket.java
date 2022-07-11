@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -44,7 +45,7 @@ class RawSendPacket {
 	/**
 	 * StringBuffer of bytes to send
 	 */
-	public StringBuffer buffer;
+	public StringBuilder buffer;
 
 	/**
 	 * Expected length of return packet
@@ -59,7 +60,8 @@ class RawSendPacket {
 	 * Construct and initiailize the raw send packet
 	 */
 	public RawSendPacket() {
-		buffer = new StringBuffer();
-		returnLength = 0;
+		this.buffer = new StringBuilder();
+		this.returnLength = 0;
 	}
 }
+// CHECKSTYLE:ON

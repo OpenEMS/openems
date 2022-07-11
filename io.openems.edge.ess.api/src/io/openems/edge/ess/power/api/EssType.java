@@ -9,10 +9,17 @@ public enum EssType {
 
 	META, SYMMETRIC, ASYMMETRIC, SINGLE_PHASE;
 
+	/**
+	 * Gets the {@link EssType} of the given {@link ManagedSymmetricEss}.
+	 * 
+	 * @param ess the {@link ManagedSymmetricEss}
+	 * @return the {@link EssType}
+	 */
 	public static EssType getEssType(ManagedSymmetricEss ess) {
 		if (ess instanceof MetaEss) {
 			return META;
-		} else if (ess instanceof ManagedSinglePhaseEss) {
+		}
+		if (ess instanceof ManagedSinglePhaseEss) {
 			return EssType.SINGLE_PHASE;
 		} else if (ess instanceof ManagedAsymmetricEss) {
 			return EssType.ASYMMETRIC;

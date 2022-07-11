@@ -29,15 +29,18 @@ public class SymmetricLimitActivePower extends AbstractOpenemsComponent implemen
 	private Config config;
 
 	/**
-	 * the configured Max Charge ActivePower
-	 * 
-	 * value is zero or negative
+	 * The configured Max Charge ActivePower.
+	 *
+	 * <p>
+	 * Value is zero or negative
 	 */
 	private int maxChargePower = 0;
+
 	/**
-	 * the configured Max Discharge ActivePower
-	 * 
-	 * value is zero or positive
+	 * The configured Max Discharge ActivePower.
+	 *
+	 * <p>
+	 * Value is zero or positive
 	 */
 	private int maxDischargePower = 0;
 
@@ -71,6 +74,7 @@ public class SymmetricLimitActivePower extends AbstractOpenemsComponent implemen
 		this.maxDischargePower = config.maxDischargePower();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -81,12 +85,12 @@ public class SymmetricLimitActivePower extends AbstractOpenemsComponent implemen
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
 		if (this.config.validatePowerConstraints()) {
-			
+
 			// adjust value so that it fits into Min/MaxActivePower
-			int maxPower = ess.getPower().getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
-			int minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
-			int calculatedMaxDischargePower = fitIntoMinMax(minPower, maxPower, this.maxDischargePower);
-			int calculatedMaxChargePower = fitIntoMinMax(minPower, maxPower, this.maxChargePower);
+			var maxPower = ess.getPower().getMaxPower(ess, Phase.ALL, Pwr.ACTIVE);
+			var minPower = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+			var calculatedMaxDischargePower = fitIntoMinMax(minPower, maxPower, this.maxDischargePower);
+			var calculatedMaxChargePower = fitIntoMinMax(minPower, maxPower, this.maxChargePower);
 
 			// set result
 			ess.addPowerConstraintAndValidate("SymmetricLimitActivePower", Phase.ALL, Pwr.ACTIVE,

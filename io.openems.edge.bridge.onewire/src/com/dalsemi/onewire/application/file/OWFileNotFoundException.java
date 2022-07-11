@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -45,7 +46,6 @@ public class OWFileNotFoundException extends java.io.IOException {
 	 * error detail message.
 	 */
 	public OWFileNotFoundException() {
-		super();
 	}
 
 	/**
@@ -58,3 +58,4 @@ public class OWFileNotFoundException extends java.io.IOException {
 		super(s);
 	}
 }
+// CHECKSTYLE:ON

@@ -130,7 +130,7 @@ export const TRANSLATION = {
             phone: "Phone number",
             email: "E-Mail",
             password: "Password",
-            confirmPassword: "Confirm password"
+            confirmPassword: "Confirm password",
         },
         button: "Create",
         errors: {
@@ -259,6 +259,7 @@ export const TRANSLATION = {
                         passedEndTime: 'End time of limited charging exceeded',
                         storageAlreadyFull: 'Memory already full',
                     },
+                    storageCapacity: 'Storagecapacity (only visible for admin)'
                 },
                 CHP: {
                     highThreshold: 'High Threshold',
@@ -359,7 +360,18 @@ export const TRANSLATION = {
                     switchOnRec: 'Switch-on recommendation',
                     switchOnRecShort: 'Recommendation',
                     undefined: 'Undefined',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Current price',
+                    delayedDischarge: 'Delayed Discharge',
+                    storageDischarge: 'Storage Discharge',
+                    State: {
+                        notStarted: 'Controller has not yet started',
+                        delayed: 'Delayed',
+                        allowsDischarge: 'Allows Discharge',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {
@@ -419,6 +431,7 @@ export const TRANSLATION = {
                 simulator: 'Simulator',
                 systemExecute: 'Execute system command',
                 systemProfile: 'System Profile',
+                alerting: 'Alerting',
             },
             More: {
                 manualCommand: 'Manual command',
@@ -453,7 +466,25 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'New connection...',
                 newDevice: 'New device...',
-            }
+            },
+            Alerting: {
+                activate: 'Activate',
+                delay: 'Delay [min]',
+                save: 'Save',
+            },
+            App: {
+                header: 'The App Manager is currently in a first test version. If not all apps are displayed, the FEMS version may need to be updated.',
+                installed: 'Installed',
+                available: 'Available',
+                incompatible: 'Incompatible',
+                buyApp: 'Buy app',
+                modifyApp: 'Modify app',
+                createApp: 'Install app',
+                deleteApp: 'Delete app',
+                updateApp: 'Update app',
+                errorInstallable: 'Installation errors',
+                errorCompatible: 'Compatibility errors',
+            },
         }
     },
     About: {

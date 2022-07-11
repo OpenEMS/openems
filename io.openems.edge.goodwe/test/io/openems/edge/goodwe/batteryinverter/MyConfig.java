@@ -1,11 +1,10 @@
 package io.openems.edge.goodwe.batteryinverter;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
-import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.ControlMode;
+import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
-import io.openems.edge.goodwe.common.enums.FeedPowerEnable;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
 @SuppressWarnings("all")
@@ -17,8 +16,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public String modbusId;
 		public int modbusUnitId;
 		public SafetyCountry safetyCountry;
-		public BackupEnable backupEnable;
-		public FeedPowerEnable feedPowerEnable;
+		public EnableDisable mpptForShadowEnable;
+		public EnableDisable backupEnable;
+		public EnableDisable feedPowerEnable;
 		public int feedPowerPara;
 		public FeedInPowerSettings feedInPowerSettings;
 
@@ -51,12 +51,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setBackupEnable(BackupEnable backupEnable) {
+		public Builder setMpptForShadowEnable(EnableDisable mpptForShadowEnable) {
+			this.mpptForShadowEnable = mpptForShadowEnable;
+			return this;
+		}
+
+		public Builder setBackupEnable(EnableDisable backupEnable) {
 			this.backupEnable = backupEnable;
 			return this;
 		}
 
-		public Builder setFeedPowerEnable(FeedPowerEnable feedPowerEnable) {
+		public Builder setFeedPowerEnable(EnableDisable feedPowerEnable) {
 			this.feedPowerEnable = feedPowerEnable;
 			return this;
 		}
@@ -78,7 +83,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -113,12 +118,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public BackupEnable backupEnable() {
+	public EnableDisable mpptForShadowEnable() {
+		return this.builder.mpptForShadowEnable;
+	}
+
+	@Override
+	public EnableDisable backupEnable() {
 		return this.builder.backupEnable;
 	}
 
 	@Override
-	public FeedPowerEnable feedPowerEnable() {
+	public EnableDisable feedPowerEnable() {
 		return this.builder.feedPowerEnable;
 	}
 

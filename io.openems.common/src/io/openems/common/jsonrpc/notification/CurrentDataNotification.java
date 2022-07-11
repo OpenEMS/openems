@@ -13,7 +13,7 @@ import io.openems.common.types.ChannelAddress;
 /**
  * Represents a JSON-RPC Notification for sending the current data of all
  * subscribed Channels.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -26,22 +26,28 @@ import io.openems.common.types.ChannelAddress;
  */
 public class CurrentDataNotification extends JsonrpcNotification {
 
-	public final static String METHOD = "currentData";
+	public static final String METHOD = "currentData";
 
 	private final Map<ChannelAddress, JsonElement> data = new HashMap<>();
 
 	public CurrentDataNotification() {
-		super(METHOD);
+		super(CurrentDataNotification.METHOD);
 	}
 
+	/**
+	 * Add a Channel value.
+	 *
+	 * @param channel the {@link ChannelAddress}
+	 * @param value   the value as {@link JsonElement}
+	 */
 	public void add(ChannelAddress channel, JsonElement value) {
 		this.data.put(channel, value);
 	}
 
 	@Override
 	public JsonObject getParams() {
-		JsonObject p = new JsonObject();
-		for (Entry<ChannelAddress, JsonElement> entry : data.entrySet()) {
+		var p = new JsonObject();
+		for (Entry<ChannelAddress, JsonElement> entry : this.data.entrySet()) {
 			p.add(entry.getKey().toString(), entry.getValue());
 		}
 		return p;

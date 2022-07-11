@@ -8,19 +8,19 @@ import org.slf4j.LoggerFactory;
 
 public class ThreadPoolUtils {
 
-	private final static Logger LOG = LoggerFactory.getLogger(ThreadPoolUtils.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ThreadPoolUtils.class);
 
 	private ThreadPoolUtils() {
 	}
 
 	/**
 	 * Shutdown a {@link ExecutorService}.
-	 * 
+	 *
 	 * <p>
 	 * Source:
 	 * https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html
-	 * 
-	 * @param executor       the {@link ExecutorService}
+	 *
+	 * @param pool           the {@link ExecutorService} pool
 	 * @param timeoutSeconds the applied timeout (is applied twice in the worst
 	 *                       case)
 	 */
@@ -35,7 +35,7 @@ public class ThreadPoolUtils {
 				pool.shutdownNow(); // Cancel currently executing tasks
 				// Wait a while for tasks to respond to being cancelled
 				if (!pool.awaitTermination(timeoutSeconds, TimeUnit.SECONDS)) {
-					LOG.warn("Pool did not terminate");
+					ThreadPoolUtils.LOG.warn("Pool did not terminate");
 				}
 			}
 		} catch (InterruptedException ie) {

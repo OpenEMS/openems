@@ -14,8 +14,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,11 +52,12 @@ import io.openems.edge.common.taskmanager.Priority;
 @Component(//
 		name = "Byd.BatteryBox.Commercial.C130", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implements BatteryBoxC130, Battery,
 		ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave, StartStoppable {
 
@@ -94,6 +95,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -112,16 +114,17 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 				.applyBatteryProtectionDefinition(new BatteryProtectionDefinitionBydC130(), this.componentManager) //
 				.build();
 
-		int maxVoltage = this.config.numberOfSlaves() * MAX_ALLOWED_VOLTAGE_PER_MODULE;
-		_setChargeMaxVoltage(maxVoltage);
+		var maxVoltage = this.config.numberOfSlaves() * MAX_ALLOWED_VOLTAGE_PER_MODULE;
+		this._setChargeMaxVoltage(maxVoltage);
 
-		int minVoltage = this.config.numberOfSlaves() * MIN_ALLOWED_VOLTAGE_PER_MODULE;
-		_setDischargeMinVoltage(minVoltage);
+		var minVoltage = this.config.numberOfSlaves() * MIN_ALLOWED_VOLTAGE_PER_MODULE;
+		this._setDischargeMinVoltage(minVoltage);
 
-		int capacity = (int) (this.config.numberOfSlaves() * CAPACITY_PER_MODULE);
-		_setCapacity(capacity);
+		var capacity = (int) (this.config.numberOfSlaves() * CAPACITY_PER_MODULE);
+		this._setCapacity(capacity);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -152,7 +155,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.config);
+		var context = new Context(this, this.config);
 
 		// Call the StateMachine
 		try {
@@ -193,7 +196,8 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 								.m(Battery.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_MINUS_1) // [A]
 								.build(), //
 						m(BatteryBoxC130.ChannelId.BATTERY_WORK_STATE, new UnsignedWordElement(0x2102)), //
-						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), m(new UnsignedWordElement(0x2104)) //
+						m(Battery.ChannelId.SOC, new UnsignedWordElement(0x2103)), //
+						m(new UnsignedWordElement(0x2104)) //
 								.m(BatteryBoxC130.ChannelId.CLUSTER_1_SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.m(Battery.ChannelId.SOH, ElementToChannelConverter.DIRECT_1_TO_1) // [%]
 								.build(), //
@@ -651,7 +655,7 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 		);
 	}
 
-	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
 	@Override
 	public void setStartStop(StartStop value) {
@@ -683,12 +687,12 @@ public class BatteryBoxC130Impl extends AbstractOpenemsModbusComponent implement
 
 	/*
 	 * Handle incompatibility with old hardware protocol.
-	 * 
+	 *
 	 * 'onRegister0x2100Update()' callback is called when register 0x2100 is read.
 	 */
 
 	private boolean isModbusProtocolInitialized = false;
-	private final Consumer<Integer> onRegister0x2100Update = (value) -> {
+	private final Consumer<Integer> onRegister0x2100Update = value -> {
 		if (value == null) {
 			// ignore invalid values; modbus bridge has no connection yet
 			return;

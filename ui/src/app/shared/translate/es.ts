@@ -95,7 +95,7 @@ export const TRANSLATION = {
         name: 'Nombre',
         overview: 'estudio OpenEMS',
         settings: 'Ajustes',
-        user: 'Usuario'
+        user: 'Usuario',
     },
     Index: {
         allConnected: 'Todas las conexiones establecidas.',
@@ -108,12 +108,21 @@ export const TRANSLATION = {
         toEnergymonitor: 'Al monitor de energía...',
         type: 'Tipo:'
     },
+    Login: {
+        title: "Login",
+        preamble: "Por favor, introduzca su contraseña o confirme la entrada por defecto para conectarse como invitado.",
+        passwordLabel: "Contraseña",
+        passwordReset: "Restablecer contraseña",
+        authenticationFailed: "Fallo de autentificación",
+    },
+    Register: {
+        title: "Crear una cuenta de usuario",
+    },
     Edge: {
         Index: {
-            // TODO Translations
             EmergencyReserve: {
-                InfoForEmergencyReserveSlider: 'By activating the emergency power reserve, the value can be freely selected between 5% and 100%.',
-                emergencyReserve: 'Emergencyreserve',
+                InfoForEmergencyReserveSlider: 'Al activar la reserva de energía de emergencia, el valor puede seleccionarse libremente entre el 5% y el 100%.',
+                emergencyReserve: 'reserva de emergencia',
             },
             Energymonitor: {
                 activePower: 'Potencia de salida',
@@ -220,6 +229,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Se superó el tiempo de finalización de la carga limitada',
                         storageAlreadyFull: 'Memoria ya llena',
                     },
+                    storageCapacity: 'capacidad de almacenamiento (sólo visible para el administrador)'
                 },
                 CHP: {
                     highThreshold: 'Umbral alto',
@@ -320,7 +330,18 @@ export const TRANSLATION = {
                     normalOperationShort: 'Normal',
                     switchOnComShort: 'Mando',
                     switchOnRecShort: 'Recomendación',
-                }
+                },
+                TimeOfUseTariff: {
+                    currentTariff: 'Precio actual',
+                    delayedDischarge: 'Retraso en el alta',
+                    storageDischarge: 'Descarga de almacenamiento',
+                    State: {
+                        notStarted: 'El controlador aún no se ha iniciado ',
+                        delayed: 'Retraso',
+                        allowsDischarge: 'Liberado',
+                        standby: 'Standby',
+                    },
+                },
             }
         },
         History: {
@@ -379,6 +400,7 @@ export const TRANSLATION = {
                 simulator: 'Simulador',
                 systemExecute: 'Ejecutar comando del sistema',
                 systemProfile: 'Perfil del Sistema',
+                alerting: 'Alerta',
             },
             More: {
                 manualCommand: 'Comando manual',
@@ -413,7 +435,25 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'Nueva conexión...',
                 newDevice: 'Nuevo dispositivo...',
-            }
+            },
+            Alerting: {
+                activate: 'Activar',
+                delay: 'Retraso [min]',
+                save: 'Guardar',
+            },
+            App: {
+                header: 'El App Manager se encuentra actualmente en una primera versión de prueba. Si no se muestran todas las aplicaciones, es posible que haya que actualizar la versión de FEMS.',
+                installed: 'Instalado',
+                available: 'Disponible',
+                incompatible: 'Incompatible',
+                buyApp: 'Comprar aplicación',
+                modifyApp: 'Modificar la aplicación',
+                createApp: 'Instalar la aplicación',
+                deleteApp: 'Eliminar la aplicación',
+                updateApp: 'Actualizar la aplicación',
+                errorInstallable: 'Errores de instalación',
+                errorCompatible: 'Errores de compatibilidad',
+            },
         }
     },
     About: {

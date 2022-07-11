@@ -15,8 +15,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +46,12 @@ import io.openems.edge.ess.power.api.Relationship;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.OPTIONAL, //
 		property = { //
-				"enabled=true", //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+				"enabled=true" //
 		})
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+})
 public class PowerComponentImpl extends AbstractOpenemsComponent
 		implements PowerComponent, OpenemsComponent, EventHandler, Power {
 
@@ -72,7 +74,7 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 				PowerComponent.ChannelId.values() //
 		);
 		this.data = new Data();
-		this.data.onStaticConstraintsFailed(value -> this._setStaticConstraintsFailed(value));
+		this.data.onStaticConstraintsFailed(this::_setStaticConstraintsFailed);
 
 		this.solver = new Solver(this.data);
 		this.solver.onSolved((isSolved, duration, strategy) -> {
@@ -91,6 +93,7 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 		this.updateConfig(config);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -148,7 +151,7 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 		} catch (OpenemsException e) {
 			this.data.removeConstraint(constraint);
 			if (this.debugMode) {
-				List<Constraint> allConstraints = this.data.getConstraintsForAllInverters();
+				var allConstraints = this.data.getConstraintsForAllInverters();
 				LogUtil.debugLogConstraints(this.log, "Unable to validate with following constraints:", allConstraints);
 				this.logWarn(this.log, "Failed to add Constraint: " + constraint);
 			}
@@ -198,19 +201,16 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 			this.logError(this.log, "Unable to get Constraints " + e.getMessage());
 			return 0;
 		}
-		double power = CalculatePowerExtrema.from(this.data.getCoefficients(), allConstraints, ess.id(), phase, pwr,
-				goal);
-		if (power > Integer.MIN_VALUE && power < Integer.MAX_VALUE) {
-			if (goal == GoalType.MAXIMIZE) {
-				return (int) Math.floor(power);
-			} else {
-				return (int) Math.ceil(power);
-			}
-		} else {
+		var power = CalculatePowerExtrema.from(this.data.getCoefficients(), allConstraints, ess.id(), phase, pwr, goal);
+		if (power <= Integer.MIN_VALUE || power >= Integer.MAX_VALUE) {
 			this.logError(this.log, goal.name() + " Power for [" + ess.toString() + "," + phase.toString() + ","
 					+ pwr.toString() + "=" + power + "] is out of bounds. Returning '0'");
 			return 0;
 		}
+		if (goal == GoalType.MAXIMIZE) {
+			return (int) Math.floor(power);
+		}
+		return (int) Math.ceil(power);
 	}
 
 	@Override
@@ -227,7 +227,7 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Gets the Ess component with the given ID.
-	 * 
+	 *
 	 * @param essId the component ID of Ess
 	 * @return an Ess instance
 	 */
@@ -247,7 +247,7 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Is Debug-Mode activated?.
-	 * 
+	 *
 	 * @return true if is activated
 	 */
 	public boolean isDebugMode() {

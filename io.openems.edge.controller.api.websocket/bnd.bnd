@@ -5,12 +5,12 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
+	Java-WebSocket,\
 	io.openems.common,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.edge.controller.api.common,\
 	io.openems.edge.timedata.api,\
-	Java-WebSocket;version=1.4.1,\
 	org.ops4j.pax.logging.pax-logging-api
 
 -testpath: \

@@ -41,6 +41,7 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -58,6 +59,7 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -95,7 +97,7 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
+		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(KmtronicRelay8Port.class, accessMode, 100)//
 						.channel(0, KmtronicRelay8Port.ChannelId.RELAY_1, ModbusType.UINT16) //

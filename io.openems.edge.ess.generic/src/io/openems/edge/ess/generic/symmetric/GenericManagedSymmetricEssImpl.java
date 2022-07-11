@@ -11,8 +11,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +42,11 @@ import io.openems.edge.ess.power.api.Power;
 @Component(//
 		name = "Ess.Generic.ManagedSymmetric", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		} //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+})
 public class GenericManagedSymmetricEssImpl
 		extends AbstractGenericManagedEss<GenericManagedSymmetricEss, Battery, ManagedSymmetricBatteryInverter>
 		implements GenericManagedSymmetricEss, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
@@ -94,6 +94,7 @@ public class GenericManagedSymmetricEssImpl
 				config.battery_id(), config.startStop());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -109,7 +110,7 @@ public class GenericManagedSymmetricEssImpl
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		Context context = new Context(this, this.getBattery(), this.getBatteryInverter());
+		var context = new Context(this, this.getBattery(), this.getBatteryInverter());
 
 		// Call the StateMachine
 		try {
@@ -160,9 +161,8 @@ public class GenericManagedSymmetricEssImpl
 	public Integer getSurplusPower() {
 		if (this.batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
 			return ((HybridManagedSymmetricBatteryInverter) this.batteryInverter).getSurplusPower();
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	@Override

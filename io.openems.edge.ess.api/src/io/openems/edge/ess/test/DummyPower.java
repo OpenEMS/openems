@@ -18,7 +18,7 @@ import io.openems.edge.ess.power.api.Relationship;
 public class DummyPower implements Power {
 
 	private final PidFilter pidFilter;
-	private List<ManagedSymmetricEss> esss = new ArrayList<>();
+	private final List<ManagedSymmetricEss> esss = new ArrayList<>();
 
 	private int maxApparentPower;
 
@@ -33,7 +33,7 @@ public class DummyPower implements Power {
 	/**
 	 * Creates a {@link DummyPower} with given MaxApparentPower and disabled PID
 	 * filter.
-	 * 
+	 *
 	 * @param maxApparentPower the MaxApparentPower
 	 */
 	public DummyPower(int maxApparentPower) {
@@ -48,6 +48,10 @@ public class DummyPower implements Power {
 	/**
 	 * Creates a {@link DummyPower} with unlimited MaxApparentPower and PID filter
 	 * with the given parameters.
+	 * 
+	 * @param p the proportional gain
+	 * @param i the integral gain
+	 * @param d the derivative gain
 	 */
 	public DummyPower(double p, double i, double d) {
 		this(Integer.MAX_VALUE, p, i, d);
@@ -56,11 +60,21 @@ public class DummyPower implements Power {
 	/**
 	 * Creates a {@link DummyPower} with given MaxApparentPower and PID filter with
 	 * the given parameters.
+	 * 
+	 * @param maxApparentPower the MaxApparentPower
+	 * @param p                the proportional gain
+	 * @param i                the integral gain
+	 * @param d                the derivative gain
 	 */
 	public DummyPower(int maxApparentPower, double p, double i, double d) {
 		this(maxApparentPower, new PidFilter(p, i, d));
 	}
 
+	/**
+	 * Registers a {@link ManagedSymmetricEss} with this {@link DummyPower}.
+	 * 
+	 * @param ess the {@link ManagedSymmetricEss}
+	 */
 	public void addEss(ManagedSymmetricEss ess) {
 		this.esss.add(ess);
 	}
@@ -92,7 +106,7 @@ public class DummyPower implements Power {
 
 	@Override
 	public int getMaxPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-		int result = this.maxApparentPower;
+		var result = this.maxApparentPower;
 		for (ManagedSymmetricEss e : this.esss) {
 			result = TypeUtils.min(result, e.getMaxApparentPower().get(), e.getAllowedDischargePower().get());
 		}
@@ -101,7 +115,7 @@ public class DummyPower implements Power {
 
 	@Override
 	public int getMinPower(ManagedSymmetricEss ess, Phase phase, Pwr pwr) {
-		int result = this.maxApparentPower;
+		var result = this.maxApparentPower;
 		for (ManagedSymmetricEss e : this.esss) {
 			result = TypeUtils.min(result, e.getMaxApparentPower().get(),
 					TypeUtils.multiply(e.getAllowedChargePower().get(), -1));

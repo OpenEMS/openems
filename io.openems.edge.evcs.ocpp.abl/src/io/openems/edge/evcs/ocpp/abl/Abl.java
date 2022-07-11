@@ -12,8 +12,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import eu.chargetime.ocpp.model.Request;
@@ -35,14 +35,15 @@ import io.openems.edge.evcs.ocpp.common.OcppProfileType;
 import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Evcs.Ocpp.Abl", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class Abl extends AbstractOcppEvcsComponent
 		implements Evcs, MeasuringEvcs, ManagedEvcs, OpenemsComponent, EventHandler {
 
@@ -59,8 +60,8 @@ public class Abl extends AbstractOcppEvcsComponent
 	 * all of them, but in particular it is not supporting the information of the
 	 * current power.
 	 */
-	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<OcppInformations>( //
-			Arrays.asList( //
+	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<>(//
+			Arrays.asList(//
 					OcppInformations.values()) //
 	);
 
@@ -73,7 +74,7 @@ public class Abl extends AbstractOcppEvcsComponent
 	protected ComponentManager componentManager;
 
 	public Abl() {
-		super( //
+		super(//
 				PROFILE_TYPES, //
 				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
@@ -83,7 +84,7 @@ public class Abl extends AbstractOcppEvcsComponent
 	}
 
 	@Activate
-	public void activate(ComponentContext context, Config config) {
+	protected void activate(ComponentContext context, Config config) {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
@@ -127,36 +128,31 @@ public class Abl extends AbstractOcppEvcsComponent
 	public OcppStandardRequests getStandardRequests() {
 		AbstractOcppEvcsComponent evcs = this;
 
-		return new OcppStandardRequests() {
+		return chargePower -> {
 
-			@Override
-			public Request setChargePowerLimit(int chargePower) {
+			var request = new DataTransferRequest("ABL");
 
-				DataTransferRequest request = new DataTransferRequest("ABL");
+			int phases = evcs.getPhases().orElse(3);
 
-				int phases = evcs.getPhases().orElse(3);
+			var target = Math.round(chargePower / phases / 230.0) /* voltage */;
 
-				long target = Math.round(chargePower / phases / 230.0) /* voltage */ ;
+			var maxCurrent = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT) / phases / 230;
+			target = target > maxCurrent ? maxCurrent : target;
 
-				int maxCurrent = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT) / phases / 230;
-				target = target > maxCurrent ? maxCurrent : target;
-
-				request.setMessageId("SetLimit");
-				request.setData("logicalid=" + config.limitId() + ";value=" + String.valueOf(target));
-				return request;
-			}
+			request.setMessageId("SetLimit");
+			request.setData("logicalid=" + Abl.this.config.limitId() + ";value=" + String.valueOf(target));
+			return request;
 		};
 	}
 
 	@Override
 	public List<Request> getRequiredRequestsAfterConnection() {
-		List<Request> requests = new ArrayList<Request>();
+		List<Request> requests = new ArrayList<>();
 
-		ChangeConfigurationRequest setMeterValueSampleInterval = new ChangeConfigurationRequest(
-				"MeterValueSampleInterval", "10");
+		var setMeterValueSampleInterval = new ChangeConfigurationRequest("MeterValueSampleInterval", "10");
 		requests.add(setMeterValueSampleInterval);
 
-		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest("MeterValuesSampledData",
+		var setMeterValueSampledData = new ChangeConfigurationRequest("MeterValuesSampledData",
 				"Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,Temperature");
 		requests.add(setMeterValueSampledData);
 
@@ -165,17 +161,17 @@ public class Abl extends AbstractOcppEvcsComponent
 
 	@Override
 	public List<Request> getRequiredRequestsDuringConnection() {
-		List<Request> requests = new ArrayList<Request>();
+		List<Request> requests = new ArrayList<>();
 
-		TriggerMessageRequest requestMeterValues = new TriggerMessageRequest(TriggerMessageRequestType.MeterValues);
+		var requestMeterValues = new TriggerMessageRequest(TriggerMessageRequestType.MeterValues);
 		requestMeterValues.setConnectorId(this.getConfiguredConnectorId());
 		requests.add(requestMeterValues);
 
-		TriggerMessageRequest requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
+		var requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
 		requestStatus.setConnectorId(this.getConfiguredConnectorId());
 		requests.add(requestStatus);
 
-		ChangeConfigurationRequest setMeterValueSampledData = new ChangeConfigurationRequest("MeterValuesSampledData",
+		var setMeterValueSampledData = new ChangeConfigurationRequest("MeterValuesSampledData",
 				"Energy.Active.Import.Register,Current.Import,Voltage,Power.Active.Import,Temperature");
 		requests.add(setMeterValueSampledData);
 

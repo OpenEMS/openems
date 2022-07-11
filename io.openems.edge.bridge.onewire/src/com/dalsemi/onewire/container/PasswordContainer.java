@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2003 Maxim Integrated Products, All Rights Reserved.
  *
@@ -35,7 +36,7 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * to the device, or both. These interface methods will allow you to set the
  * passwords on the device, enable/disable the passwords on the device, and set
  * the passwords for the API to use when interacting with the device.
- * 
+ *
  * @version 1.00, 8 Aug 2003
  * @author shughes, JPE
  */
@@ -44,21 +45,21 @@ public interface PasswordContainer {
 
 	/**
 	 * Returns the length in bytes of the Read-Only password.
-	 * 
+	 *
 	 * @return the length in bytes of the Read-Only password.
 	 */
 	public int getReadOnlyPasswordLength() throws OneWireException;
 
 	/**
 	 * Returns the length in bytes of the Read/Write password.
-	 * 
+	 *
 	 * @return the length in bytes of the Read/Write password.
 	 */
 	public int getReadWritePasswordLength() throws OneWireException;
 
 	/**
 	 * Returns the length in bytes of the Write-Only password.
-	 * 
+	 *
 	 * @return the length in bytes of the Write-Only password.
 	 */
 	public int getWriteOnlyPasswordLength() throws OneWireException;
@@ -68,7 +69,7 @@ public interface PasswordContainer {
 	/**
 	 * Returns the absolute address of the memory location where the Read-Only
 	 * password is written.
-	 * 
+	 *
 	 * @return the absolute address of the memory location where the Read-Only
 	 *         password is written.
 	 */
@@ -77,7 +78,7 @@ public interface PasswordContainer {
 	/**
 	 * Returns the absolute address of the memory location where the Read/Write
 	 * password is written.
-	 * 
+	 *
 	 * @return the absolute address of the memory location where the Read/Write
 	 *         password is written.
 	 */
@@ -86,7 +87,7 @@ public interface PasswordContainer {
 	/**
 	 * Returns the absolute address of the memory location where the Write-Only
 	 * password is written.
-	 * 
+	 *
 	 * @return the absolute address of the memory location where the Write-Only
 	 *         password is written.
 	 */
@@ -98,7 +99,7 @@ public interface PasswordContainer {
 	 * Returns true if this device has a Read-Only password. If false, all other
 	 * functions dealing with the Read-Only password will throw an exception if
 	 * called.
-	 * 
+	 *
 	 * @return <code>true</code> if this device has a Read-Only password.
 	 */
 	public boolean hasReadOnlyPassword();
@@ -107,7 +108,7 @@ public interface PasswordContainer {
 	 * Returns true if this device has a Read/Write password. If false, all other
 	 * functions dealing with the Read/Write password will throw an exception if
 	 * called.
-	 * 
+	 *
 	 * @return <code>true</code> if this device has a Read/Write password.
 	 */
 	public boolean hasReadWritePassword();
@@ -116,7 +117,7 @@ public interface PasswordContainer {
 	 * Returns true if this device has a Write-Only password. If false, all other
 	 * functions dealing with the Write-Only password will throw an exception if
 	 * called.
-	 * 
+	 *
 	 * @return <code>true</code> if this device has a Write-Only password.
 	 */
 	public boolean hasWriteOnlyPassword();
@@ -125,7 +126,7 @@ public interface PasswordContainer {
 
 	/**
 	 * Returns true if the device's Read-Only password has been enabled.
-	 * 
+	 *
 	 * @return <code>true</code> if the device's Read-Only password has been
 	 *         enabled.
 	 */
@@ -133,7 +134,7 @@ public interface PasswordContainer {
 
 	/**
 	 * Returns true if the device's Read/Write password has been enabled.
-	 * 
+	 *
 	 * @return <code>true</code> if the device's Read/Write password has been
 	 *         enabled.
 	 */
@@ -141,7 +142,7 @@ public interface PasswordContainer {
 
 	/**
 	 * Returns true if the device's Write-Only password has been enabled.
-	 * 
+	 *
 	 * @return <code>true</code> if the device's Write-Only password has been
 	 *         enabled.
 	 */
@@ -155,7 +156,7 @@ public interface PasswordContainer {
 	 * password protection and Write-Only password protection, this method indicates
 	 * whether or not you can enable Read-Only protection while leaving the
 	 * Write-Only protection disabled.
-	 * 
+	 *
 	 * @return <code>true</code> if the device has the capability to enable one type
 	 *         of password while leaving another type disabled.
 	 */
@@ -169,13 +170,13 @@ public interface PasswordContainer {
 	 * enable particular types of passwords. Otherwise, this method will throw an
 	 * exception if all supported types are not enabled.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * For this to be successful, either write-protect passwords must be disabled,
 	 * or the write-protect password(s) for this container must be set and must
 	 * match the value of the write-protect password(s) in the device's register.
 	 * </p>
-	 * 
+	 *
 	 * @param enableReadOnly  if <code>true</code> Read-Only passwords will be
 	 *                        enabled.
 	 * @param enableReadWrite if <code>true</code> Read/Write passwords will be
@@ -192,17 +193,17 @@ public interface PasswordContainer {
 	 * type of password (Read-Only, Write-Only, or Read/Write), all passwords will
 	 * be enabled. This function is equivalent to the following:
 	 * <code> owc41.setDevicePasswordEnable(
-	 *                    owc41.hasReadOnlyPassword(), 
+	 *                    owc41.hasReadOnlyPassword(),
 	 *                    owc41.hasReadWritePassword(),
 	 *                    owc41.hasWriteOnlyPassword() ); </code>
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * For this to be successful, either write-protect passwords must be disabled,
 	 * or the write-protect password(s) for this container must be set and must
 	 * match the value of the write-protect password(s) in the device's register.
 	 * </p>
-	 * 
+	 *
 	 * @param enableAll if <code>true</code>, all passwords are enabled. Otherwise,
 	 *                  all passwords are disabled.
 	 */
@@ -216,13 +217,13 @@ public interface PasswordContainer {
 	 * that this function does not enable the password, just writes the value to the
 	 * appropriate memory location.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * For this to be successful, either write-protect passwords must be disabled,
 	 * or the write-protect password(s) for this container must be set and must
 	 * match the value of the write-protect password(s) in the device's register.
 	 * </p>
-	 * 
+	 *
 	 * @param password the new password to be written to the device's Read-Only
 	 *                 password register. Length must be
 	 *                 <code>(offset + getReadOnlyPasswordLength)</code>
@@ -236,13 +237,13 @@ public interface PasswordContainer {
 	 * that this function does not enable the password, just writes the value to the
 	 * appropriate memory location.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * For this to be successful, either write-protect passwords must be disabled,
 	 * or the write-protect password(s) for this container must be set and must
 	 * match the value of the write-protect password(s) in the device's register.
 	 * </p>
-	 * 
+	 *
 	 * @param password the new password to be written to the device's Read-Write
 	 *                 password register. Length must be
 	 *                 <code>(offset + getReadWritePasswordLength)</code>
@@ -256,13 +257,13 @@ public interface PasswordContainer {
 	 * that this function does not enable the password, just writes the value to the
 	 * appropriate memory location.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * For this to be successful, either write-protect passwords must be disabled,
 	 * or the write-protect password(s) for this container must be set and must
 	 * match the value of the write-protect password(s) in the device's register.
 	 * </p>
-	 * 
+	 *
 	 * @param password the new password to be written to the device's Write-Only
 	 *                 password register. Length must be
 	 *                 <code>(offset + getWriteOnlyPasswordLength)</code>
@@ -277,7 +278,7 @@ public interface PasswordContainer {
 	 * memory. This password is not written to the device's Read-Only password
 	 * register. It is the password used by the software for interacting with the
 	 * device only.
-	 * 
+	 *
 	 * @param password the new password to be used by the API when reading from the
 	 *                 device's memory. Length must be
 	 *                 <code>(offset + getReadOnlyPasswordLength)</code>
@@ -290,7 +291,7 @@ public interface PasswordContainer {
 	 * the device's memory. This password is not written to the device's Read/Write
 	 * password register. It is the password used by the software for interacting
 	 * with the device only.
-	 * 
+	 *
 	 * @param password the new password to be used by the API when reading from or
 	 *                 writing to the device's memory. Length must be
 	 *                 <code>(offset + getReadWritePasswordLength)</code>
@@ -303,7 +304,7 @@ public interface PasswordContainer {
 	 * memory. This password is not written to the device's Write-Only password
 	 * register. It is the password used by the software for interacting with the
 	 * device only.
-	 * 
+	 *
 	 * @param password the new password to be used by the API when writing to the
 	 *                 device's memory. Length must be
 	 *                 <code>(offset + getWriteOnlyPasswordLength)</code>
@@ -318,7 +319,7 @@ public interface PasswordContainer {
 	 * memory has been set. The return value is not affected by whether or not the
 	 * read password of the container actually matches the value in the device's
 	 * password register.
-	 * 
+	 *
 	 * @return <code>true</code> if the password used by the API for reading from
 	 *         the device's memory has been set.
 	 */
@@ -329,7 +330,7 @@ public interface PasswordContainer {
 	 * the device's memory has been set. The return value is not affected by whether
 	 * or not the read/write password of the container actually matches the value in
 	 * the device's password register.
-	 * 
+	 *
 	 * @return <code>true</code> if the password used by the API for reading from or
 	 *         writing to the device's memory has been set.
 	 */
@@ -340,7 +341,7 @@ public interface PasswordContainer {
 	 * memory has been set. The return value is not affected by whether or not the
 	 * write password of the container actually matches the value in the device's
 	 * password register.
-	 * 
+	 *
 	 * @return <code>true</code> if the password used by the API for writing to the
 	 *         device's memory has been set.
 	 */
@@ -354,7 +355,7 @@ public interface PasswordContainer {
 	 * register. It is the password used by the software for interacting with the
 	 * device only and must have been set using the
 	 * <code>setContainerReadOnlyPassword</code> method.
-	 * 
+	 *
 	 * @param password array for holding the password that is used by the API when
 	 *                 reading from the device's memory. Length must be
 	 *                 <code>(offset + getWriteOnlyPasswordLength)</code>
@@ -368,7 +369,7 @@ public interface PasswordContainer {
 	 * password register. It is the password used by the software for interacting
 	 * with the device only and must have been set using the
 	 * <code>setContainerReadWritePassword</code> method.
-	 * 
+	 *
 	 * @param password array for holding the password that is used by the API when
 	 *                 reading from or writing to the device's memory. Length must
 	 *                 be <code>(offset + getReadWritePasswordLength)</code>
@@ -382,7 +383,7 @@ public interface PasswordContainer {
 	 * register. It is the password used by the software for interacting with the
 	 * device only and must have been set using the
 	 * <code>setContainerWriteOnlyPassword</code> method.
-	 * 
+	 *
 	 * @param password array for holding the password that is used by the API when
 	 *                 writing to the device's memory. Length must be
 	 *                 <code>(offset + getWriteOnlyPasswordLength)</code>
@@ -392,3 +393,4 @@ public interface PasswordContainer {
 
 	// -----------------------------------------------------------------
 }
+// CHECKSTYLE:ON

@@ -26,6 +26,7 @@ import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -44,10 +45,9 @@ import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
-import io.openems.edge.goodwe.common.enums.BackupEnable;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
-import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
+import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -90,6 +90,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	private Config config;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -113,6 +114,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.applyConfig(config);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -142,19 +144,17 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	/**
 	 * Apply the configuration on Activate and Modified.
-	 * 
+	 *
 	 * <p>
 	 * Feed In Power Setting consist of: Installed inverter country, feeding method:
 	 * whether according to the power factor or power and frequency. In addition, it
 	 * consist backup power availability.
-	 * 
+	 *
 	 * @param config Configuration parameters.
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyConfig(Config config) throws OpenemsNamedException {
 		this.config = config;
-
-		// TODO write values only if update is required
 
 		// (0x00) 'General Mode: Self use' instead of (0x01) 'Off-grid Mode', (0x02)
 		// 'Backup Mode' or (0x03) 'Economic Mode'.
@@ -162,6 +162,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 		// country setting
 		this.writeToChannel(GoodWe.ChannelId.SAFETY_COUNTRY_CODE, config.safetyCountry());
+
+		// Mppt Shadow enable / disable
+		this.writeToChannel(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE, config.mpptForShadowEnable());
 
 		// Backup Power on / off
 		this.writeToChannel(GoodWe.ChannelId.BACK_UP_ENABLE, config.backupEnable());
@@ -180,7 +183,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		this.writeToChannel(GoodWe.ChannelId.ENABLE_CURVE_PU, EnableCurve.DISABLE);
 
 		// Feed-in settings
-		FeedInPowerSettings setFeedInPowerSettings = config.setfeedInPowerSettings();
+		var setFeedInPowerSettings = config.setfeedInPowerSettings();
 		switch (setFeedInPowerSettings) {
 		case UNDEFINED:
 			break;
@@ -194,7 +197,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			this.writeToChannel(GoodWe.ChannelId.V3_VOLTAGE, 237);
 			this.writeToChannel(GoodWe.ChannelId.V3_VALUE, 0);
 			this.writeToChannel(GoodWe.ChannelId.V4_VOLTAGE, 247);
-			this.writeToChannel(GoodWe.ChannelId.V4_VALUE, 65009);
+			this.writeToChannel(GoodWe.ChannelId.V4_VALUE, -526);
 			break;
 		case PU_ENABLE_CURVE:
 			this.writeToChannel(GoodWe.ChannelId.A_POINT_POWER, 2000);
@@ -248,17 +251,15 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 			if (setFeedInPowerSettings.fixedPowerFactor == null) {
 				throw new IllegalArgumentException(
 						"Feed-In-Power-Setting [" + setFeedInPowerSettings + "] has no fixed power factor");
-			} else {
-				this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR,
-						config.setfeedInPowerSettings().fixedPowerFactor);
 			}
+			this.writeToChannel(GoodWe.ChannelId.FIXED_POWER_FACTOR, config.setfeedInPowerSettings().fixedPowerFactor);
 			break;
 		}
 	}
 
 	/**
 	 * Sets the Battery Limits.
-	 * 
+	 *
 	 * @param battery linked {@link Battery}.
 	 * @throws OpenemsNamedException on error
 	 */
@@ -268,38 +269,40 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		 * Make sure PV-Master registers are correct, because they define the overall
 		 * min/max limits.
 		 */
-		Value<Integer> bmsChargeMaxCurrent = this.getBmsChargeMaxCurrent();
-		Value<Integer> bmsDischargeMaxCurrent = this.getBmsDischargeMaxCurrent();
-		Value<Integer> bmsChargeMaxVoltage = this.getBmsChargeMaxVoltage();
-		Value<Integer> bmsDischargeMinVoltage = this.getBmsDischargeMinVoltage();
+		var bmsChargeMaxCurrent = this.getBmsChargeMaxCurrent();
+		var bmsDischargeMaxCurrent = this.getBmsDischargeMaxCurrent();
+		var bmsChargeMaxVoltage = this.getBmsChargeMaxVoltage();
+		var bmsDischargeMinVoltage = this.getBmsDischargeMinVoltage();
 
 		Channel<Integer> bmsSocUnderMinChannel = this.channel(GoodWe.ChannelId.BMS_SOC_UNDER_MIN);
-		Value<Integer> bmsSocUnderMin = bmsSocUnderMinChannel.value();
+		var bmsSocUnderMin = bmsSocUnderMinChannel.value();
 		Channel<Integer> bmsOfflineSocUnderMinChannel = this.channel(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN);
-		Value<Integer> bmsOfflineSocUnderMin = bmsOfflineSocUnderMinChannel.value();
+		var bmsOfflineSocUnderMin = bmsOfflineSocUnderMinChannel.value();
 
-		Integer setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
+		var setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
 		Integer setChargeMaxCurrent = MAX_DC_CURRENT;
 		Integer setDischargeMaxCurrent = MAX_DC_CURRENT;
-		Integer setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(0);
-		Integer setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(0);
+		var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(0);
+		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(0);
 		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
 		Integer setOfflineSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
-		if ((bmsChargeMaxCurrent.isDefined() && !Objects.equals(bmsChargeMaxCurrent.get(), setChargeMaxCurrent))
-				|| (bmsDischargeMaxCurrent.isDefined()
-						&& !Objects.equals(bmsDischargeMaxCurrent.get(), setDischargeMaxCurrent))
-				|| (bmsSocUnderMin.isDefined() && !Objects.equals(bmsSocUnderMin.get(), setSocUnderMin))) {
+		if (bmsChargeMaxCurrent.isDefined() && !Objects.equals(bmsChargeMaxCurrent.get(), setChargeMaxCurrent)
+				|| bmsDischargeMaxCurrent.isDefined()
+						&& !Objects.equals(bmsDischargeMaxCurrent.get(), setDischargeMaxCurrent)
+				|| bmsSocUnderMin.isDefined() && !Objects.equals(bmsSocUnderMin.get(), setSocUnderMin)
+				|| bmsOfflineSocUnderMin.isDefined()
+						&& !Objects.equals(bmsOfflineSocUnderMin.get(), setOfflineSocUnderMin)) {
 			// Update is required
 			this.logInfo(this.log, "Update for PV-Master BMS Registers is required." //
 					+ " Voltages" //
-					+ " [Discharge" + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
-					+ " [Charge" + bmsChargeMaxVoltage + " -> " + setChargeMaxVoltage + "]" //
+					+ " [Discharge " + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
+					+ " [Charge " + bmsChargeMaxVoltage.get() + " -> " + setChargeMaxVoltage + "]" //
 					+ " Currents " //
 					+ " [Charge " + bmsChargeMaxCurrent.get() + " -> " + setChargeMaxCurrent + "]" //
 					+ " [Discharge " + bmsDischargeMaxCurrent.get() + " -> " + setDischargeMaxCurrent + "]" //
-					+ " MinSoc " //
-					+ " [" + bmsSocUnderMin.get() + " -> " + setSocUnderMin + "] " //
-					+ " [" + bmsOfflineSocUnderMin.get() + " -> " + setOfflineSocUnderMin + "]");
+					+ " MinSoc [" //
+					+ " [On-Grid " + bmsSocUnderMin.get() + " -> " + setSocUnderMin + "] " //
+					+ " [Off-Grid " + bmsOfflineSocUnderMin.get() + " -> " + setOfflineSocUnderMin + "]");
 
 			this.writeToChannel(GoodWe.ChannelId.BATTERY_PROTOCOL_ARM, 287); // EMS-Mode
 
@@ -355,6 +358,19 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		channel.setNextWriteValue(value);
 	}
 
+	private void writeToChannel(GoodWe.ChannelId channelId, EnableDisable value)
+			throws IllegalArgumentException, OpenemsNamedException {
+		BooleanWriteChannel channel = this.channel(channelId);
+		switch (value) {
+		case ENABLE:
+			channel.setNextWriteValue(true);
+			break;
+		case DISABLE:
+			channel.setNextWriteValue(false);
+			break;
+		}
+	}
+
 	private void writeToChannel(GoodWe.ChannelId channelId, Integer value)
 			throws IllegalArgumentException, OpenemsNamedException {
 		IntegerWriteChannel channel = this.channel(channelId);
@@ -385,19 +401,24 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 		}
 
 		// Is DC PV Production available?
-		Integer productionPower = this.calculatePvProduction();
+		var productionPower = this.calculatePvProduction();
 		if (productionPower == null || productionPower <= 0) {
 			return null;
 		}
 
 		// Reduce PV Production power by DC max charge power
 		IntegerReadChannel wbmsVoltageChannel = this.channel(GoodWe.ChannelId.WBMS_VOLTAGE);
-		int surplusPower = productionPower //
+		var surplusPower = productionPower //
 				/* Charge-Max-Current */ - this.getBmsChargeMaxCurrent().orElse(0) //
 						/* Battery Voltage */ * wbmsVoltageChannel.value().orElse(0);
 
-		// Must be positive
-		return Math.max(surplusPower, 0);
+		if (surplusPower <= 0) {
+			// PV Production is less than the maximum charge power -> no surplus power
+			return null;
+		}
+
+		// Surplus power is always positive here
+		return surplusPower;
 	}
 
 	@Override
@@ -443,7 +464,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe
 
 	@Override
 	public boolean isOffGridPossible() {
-		return this.config.backupEnable().equals(BackupEnable.ENABLE);
+		return this.config.backupEnable().equals(EnableDisable.ENABLE);
 	}
 
 }

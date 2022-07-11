@@ -7,6 +7,12 @@ import io.openems.backend.metadata.odoo.Config;
  */
 public class Credentials {
 
+	/**
+	 * Creates {@link Credentials} from a {@link Config}uration.
+	 *
+	 * @param config the configuration
+	 * @return a new {@link Credentials} object
+	 */
 	public static Credentials fromConfig(Config config) {
 		return new Credentials(//
 				config.pgHost(), config.pgPort(), config.pgUser(), config.pgPassword(), config.database());

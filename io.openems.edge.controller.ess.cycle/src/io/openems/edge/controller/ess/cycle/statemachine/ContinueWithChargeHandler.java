@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
-import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 public class ContinueWithChargeHandler extends StateHandler<State, Context> {
 
@@ -14,28 +13,26 @@ public class ContinueWithChargeHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) throws IllegalArgumentException, OpenemsNamedException {
-		final ManagedSymmetricEss ess = context.ess;
+		final var ess = context.ess;
 
 		if (context.config.maxSoc() > 99) {
 			if (context.maxChargePower == 0) {
 				// Wait for hysteresis
 				if (context.waitForChangeState(State.CONTINUE_WITH_CHARGE, State.COMPLETED_CYCLE)) {
 					return State.COMPLETED_CYCLE;
-				} else {
-					return State.CONTINUE_WITH_CHARGE;
 				}
+				return State.CONTINUE_WITH_CHARGE;
 			}
 		} else if (ess.getSoc().orElse(0) >= context.config.maxSoc()) {
 			// Wait for hysteresis
 			if (context.waitForChangeState(State.CONTINUE_WITH_CHARGE, State.COMPLETED_CYCLE)) {
 				return State.COMPLETED_CYCLE;
-			} else {
-				return State.CONTINUE_WITH_CHARGE;
 			}
+			return State.CONTINUE_WITH_CHARGE;
 		}
 
 		// get max charge/discharge power
-		int power = context.getChargePower();
+		var power = context.getChargePower();
 		context.logInfo(this.log, "CONTINUE CHARGE with [" + power + " W]" //
 				+ " Current Cycle [ " + context.getParent().getCompletedCycles() + "] " //
 				+ "out of " + context.config.totalCycleNumber() + "]");

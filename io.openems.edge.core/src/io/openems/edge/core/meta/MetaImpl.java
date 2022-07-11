@@ -42,6 +42,7 @@ public class MetaImpl extends AbstractOpenemsComponent implements Meta, OpenemsC
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

@@ -1,7 +1,7 @@
 package io.openems.edge.goodwe.charger;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements ConfigPV1, ConfigPV2 {
@@ -38,7 +38,7 @@ public class MyConfig extends AbstractComponentConfig implements ConfigPV1, Conf
 
 		/**
 		 * Builds the Config.
-		 * 
+		 *
 		 * @return the Config
 		 */
 		public MyConfig build() {
@@ -48,7 +48,7 @@ public class MyConfig extends AbstractComponentConfig implements ConfigPV1, Conf
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

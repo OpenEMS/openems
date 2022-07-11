@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2007 Maxim Integrated Products, All Rights Reserved.
@@ -54,7 +55,7 @@ import com.dalsemi.onewire.adapter.TMEXAdapter;
  * <DD>
  * <H4>Example 1</H4> Get an instance of the default 1-Wire adapter. The adapter
  * will be ready to use if no exceptions are thrown.
- * 
+ *
  * <PRE>
  *  <CODE>
  *  try
@@ -77,7 +78,7 @@ import com.dalsemi.onewire.adapter.TMEXAdapter;
  * <DL>
  * <DD>
  * <H4>Example 2</H4> Enumerate through the available adapters and ports.
- * 
+ *
  * <PRE>
  *  <CODE>
  *  DSPortAdapter adapter;
@@ -112,7 +113,7 @@ import com.dalsemi.onewire.adapter.TMEXAdapter;
  * <DD>
  * <H4>Example 3</H4> Display the default adapter name and port without getting
  * an instance of the adapter.
- * 
+ *
  * <PRE>
  *  <CODE>
  *  System.out.println("Default Adapter: " +
@@ -128,13 +129,7 @@ import com.dalsemi.onewire.adapter.TMEXAdapter;
  * @version 0.00, 30 August 2000
  * @author DS
  */
-@SuppressWarnings({ "unused" })
 public class OneWireAccessProvider {
-
-	/**
-	 * Smart default port
-	 */
-	private static String smartDefaultPort = "COM1";
 
 	/**
 	 * Override adapter variables
@@ -188,28 +183,28 @@ public class OneWireAccessProvider {
 	 * @return <code>Enumeration</code> of <code>DSPortAdapters</code> in the system
 	 */
 	public static Enumeration<DSPortAdapter> enumerateAllAdapters() {
-		Vector<DSPortAdapter> adapter_vector = new Vector<>(3, 1);
+		var adapter_vector = new Vector<DSPortAdapter>(3, 1);
 		DSPortAdapter adapter_instance;
 		Class<?> adapter_class;
 		String class_name = null;
-		boolean TMEX_loaded = false;
-		boolean serial_loaded = false;
+		var TMEX_loaded = false;
+		var serial_loaded = false;
 
 		// check for override
 		if (useOverrideAdapter) {
 			adapter_vector.addElement(overrideAdapter);
-			return (adapter_vector.elements());
+			return adapter_vector.elements();
 		}
 
 		// only try native TMEX if on Windows platform
 		if (System.getProperty("os.name").indexOf("Windows") != -1) {
 
 			// loop through the TMEX adapters
-			for (int port_type = 0; port_type <= 15; port_type++) {
+			for (var port_type = 0; port_type <= 15; port_type++) {
 
 				// try to load the adapter classes
 				try {
-					adapter_instance = (DSPortAdapter) (new com.dalsemi.onewire.adapter.TMEXAdapter(port_type));
+					adapter_instance = new com.dalsemi.onewire.adapter.TMEXAdapter(port_type);
 
 					// only add it if it has some ports
 					if (adapter_instance.getPortNames().hasMoreElements()) {
@@ -227,7 +222,7 @@ public class OneWireAccessProvider {
 		// get the pure java adapter
 		try {
 			adapter_class = Class.forName("com.dalsemi.onewire.adapter.USerialAdapter");
-			adapter_instance = (DSPortAdapter) adapter_class.newInstance();
+			adapter_instance = (DSPortAdapter) adapter_class.getConstructor().newInstance();
 
 			// check if has any ports (common javax.comm problem)
 			if (!adapter_instance.getPortNames().hasMoreElements()) {
@@ -270,7 +265,7 @@ public class OneWireAccessProvider {
 		// try PDK adapter
 		try {
 			adapter_class = Class.forName("com.dalsemi.onewire.adapter.PDKAdapterUSB");
-			adapter_instance = (DSPortAdapter) adapter_class.newInstance();
+			adapter_instance = (DSPortAdapter) adapter_class.getConstructor().newInstance();
 
 			adapter_vector.addElement(adapter_instance);
 		} catch (java.lang.NoClassDefFoundError e) {
@@ -282,7 +277,7 @@ public class OneWireAccessProvider {
 		// get the network adapter
 		try {
 			adapter_class = Class.forName("com.dalsemi.onewire.adapter.NetAdapter");
-			adapter_instance = (DSPortAdapter) adapter_class.newInstance();
+			adapter_instance = (DSPortAdapter) adapter_class.getConstructor().newInstance();
 
 			adapter_vector.addElement(adapter_instance);
 		} catch (java.lang.NoClassDefFoundError e) {
@@ -294,16 +289,17 @@ public class OneWireAccessProvider {
 		// get adapters from property file with keys 'onewire.register.adapter0-15'
 		try {
 			// loop through the possible registered adapters
-			for (int reg_num = 0; reg_num <= 15; reg_num++) {
+			for (var reg_num = 0; reg_num <= 15; reg_num++) {
 				class_name = getProperty("onewire.register.adapter" + reg_num);
 
 				// done if no property by that name
-				if (class_name == null)
+				if (class_name == null) {
 					break;
+				}
 
 				// add it to the enum
 				adapter_class = Class.forName(class_name);
-				adapter_instance = (DSPortAdapter) adapter_class.newInstance();
+				adapter_instance = (DSPortAdapter) adapter_class.getConstructor().newInstance();
 				adapter_vector.addElement(adapter_instance);
 			}
 		} catch (java.lang.UnsatisfiedLinkError e) {
@@ -317,10 +313,11 @@ public class OneWireAccessProvider {
 		}
 
 		// check for no adapters
-		if (adapter_vector.isEmpty())
+		if (adapter_vector.isEmpty()) {
 			System.err.println("No 1-Wire adapter classes found");
+		}
 
-		return (adapter_vector.elements());
+		return adapter_vector.elements();
 	}
 
 	/**
@@ -341,16 +338,17 @@ public class OneWireAccessProvider {
 		DSPortAdapter adapter, found_adapter = null;
 
 		// check for override
-		if (useOverrideAdapter)
+		if (useOverrideAdapter) {
 			return overrideAdapter;
+		}
 
 		// enumerature through available adapters to find the correct one
-		for (Enumeration<DSPortAdapter> adapter_enum = enumerateAllAdapters(); adapter_enum.hasMoreElements();) {
+		for (var adapter_enum = enumerateAllAdapters(); adapter_enum.hasMoreElements();) {
 			// cast the enum as a DSPortAdapter
-			adapter = (DSPortAdapter) adapter_enum.nextElement();
+			adapter = adapter_enum.nextElement();
 
 			// see if this is the type of adapter we want
-			if ((found_adapter != null) || (!adapter.getAdapterName().equals(adapterName))) {
+			if (found_adapter != null || !adapter.getAdapterName().equals(adapterName)) {
 				// not this adapter, then just cleanup
 				try {
 					adapter.freePort();
@@ -361,32 +359,33 @@ public class OneWireAccessProvider {
 			}
 
 			// attempt to open and verify the adapter
-			if (adapter.selectPort(portName)) {
-				adapter.beginExclusive(true);
-
-				try {
-					// check for the adapter
-					if (adapter.adapterDetected())
-						found_adapter = adapter;
-					else {
-
-						// close the port just opened
-						adapter.freePort();
-
-						throw new OneWireException(
-								"Port found \"" + portName + "\" but Adapter \"" + adapterName + "\" not detected");
-					}
-				} finally {
-					adapter.endExclusive();
-				}
-			} else
+			if (!adapter.selectPort(portName)) {
 				throw new OneWireException("Specified port \"" + portName + "\" could not be selected for adapter \""
 						+ adapterName + "\"");
+			}
+			adapter.beginExclusive(true);
+
+			try {
+				// check for the adapter
+				if (adapter.adapterDetected()) {
+					found_adapter = adapter;
+				} else {
+
+					// close the port just opened
+					adapter.freePort();
+
+					throw new OneWireException(
+							"Port found \"" + portName + "\" but Adapter \"" + adapterName + "\" not detected");
+				}
+			} finally {
+				adapter.endExclusive();
+			}
 		}
 
 		// if adapter found then return it
-		if (found_adapter != null)
+		if (found_adapter != null) {
 			return found_adapter;
+		}
 
 		// adapter by that name not found
 		throw new OneWireException("Specified adapter name \"" + adapterName + "\" is not known");
@@ -448,16 +447,18 @@ public class OneWireAccessProvider {
 	public static String getProperty(String propName) {
 		try {
 			if (useOverrideAdapter) {
-				if (propName.equals("onewire.adapter.default"))
+				if (propName.equals("onewire.adapter.default")) {
 					return overrideAdapter.getAdapterName();
-				if (propName.equals("onewire.port.default"))
+				}
+				if (propName.equals("onewire.port.default")) {
 					return overrideAdapter.getPortName();
+				}
 			}
 		} catch (Exception e) {
 			// just drain it and let the normal method run...
 		}
 
-		Properties onewire_properties = new Properties();
+		var onewire_properties = new Properties();
 		FileInputStream prop_file = null;
 		String ret_str = null;
 		DSPortAdapter adapter_instance;
@@ -475,9 +476,9 @@ public class OneWireAccessProvider {
 
 			// loop to attempt to open the onewire.properties file in two locations
 			// .\onewire.properties or <java.home>\lib\onewire.properties
-			String path = new String("");
+			var path = "";
 
-			for (int i = 0; i <= 1; i++) {
+			for (var i = 0; i <= 1; i++) {
 
 				// attempt to open the onewire.properties file
 				try {
@@ -500,8 +501,9 @@ public class OneWireAccessProvider {
 				}
 
 				// check to see if we now have the value
-				if (ret_str != null)
+				if (ret_str != null) {
 					break;
+				}
 
 				// try the second path
 				path = System.getProperty("java.home") + File.separator + "lib" + File.separator;
@@ -511,15 +513,17 @@ public class OneWireAccessProvider {
 		// if defaults still not found then check TMEX default
 		if (ret_str == null) {
 			try {
-				if (propName.equals("onewire.adapter.default"))
+				if (propName.equals("onewire.adapter.default")) {
 					ret_str = TMEXAdapter.getDefaultAdapterName();
-				else if (propName.equals("onewire.port.default"))
+				} else if (propName.equals("onewire.port.default")) {
 					ret_str = TMEXAdapter.getDefaultPortName();
+				}
 
 				// if did not get real string then null out
 				if (ret_str != null) {
-					if (ret_str.length() <= 0)
+					if (ret_str.length() <= 0) {
 						ret_str = null;
+					}
 				}
 			} catch (Exception e) {
 				// DRAIN
@@ -531,16 +535,17 @@ public class OneWireAccessProvider {
 
 		// if STILL not found then just pick DS9097U on 'smartDefaultPort'
 		if (ret_str == null) {
-			if (propName.equals("onewire.adapter.default"))
+			if (propName.equals("onewire.adapter.default")) {
 				ret_str = "DS9097U";
-			else if (propName.equals("onewire.port.default")) {
+			} else if (propName.equals("onewire.port.default")) {
 				try {
 					adapter_class = Class.forName("com.dalsemi.onewire.adapter.USerialAdapter");
-					adapter_instance = (DSPortAdapter) adapter_class.newInstance();
+					adapter_instance = (DSPortAdapter) adapter_class.getConstructor().newInstance();
 
 					// check if has any ports (common javax.comm problem)
-					if (adapter_instance.getPortNames().hasMoreElements())
-						ret_str = (String) adapter_instance.getPortNames().nextElement();
+					if (adapter_instance.getPortNames().hasMoreElements()) {
+						ret_str = adapter_instance.getPortNames().nextElement();
+					}
 				} catch (Exception e) {
 					// DRAIN
 				} catch (Error e) {
@@ -580,3 +585,4 @@ public class OneWireAccessProvider {
 		overrideAdapter = null;
 	}
 }
+// CHECKSTYLE:ON

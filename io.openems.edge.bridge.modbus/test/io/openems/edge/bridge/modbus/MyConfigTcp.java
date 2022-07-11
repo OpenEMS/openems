@@ -1,7 +1,7 @@
 package io.openems.edge.bridge.modbus;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfigTcp extends AbstractComponentConfig implements ConfigTcp {
@@ -48,7 +48,7 @@ public class MyConfigTcp extends AbstractComponentConfig implements ConfigTcp {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

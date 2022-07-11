@@ -2,6 +2,7 @@ package io.openems.edge.ess.dccharger.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -13,14 +14,17 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
+import io.openems.edge.ess.api.SymmetricEss;
 
 @ProviderType
 public interface EssDcCharger extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Maximum Ever Actual Power
-		 * 
+		 * Maximum Ever Actual Power.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess DC Charger
 		 * <li>Type: Integer
@@ -33,8 +37,8 @@ public interface EssDcCharger extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Actual Power
-		 * 
+		 * Actual Power.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess DC Charger
 		 * <li>Type: Integer
@@ -51,7 +55,7 @@ public interface EssDcCharger extends OpenemsComponent {
 						 * Fill Max Actual Power channel
 						 */
 						if (value.asOptional().isPresent()) {
-							int newValue = (int) (Integer) value.get();
+							int newValue = (Integer) value.get();
 							Channel<Integer> maxActualPowerChannel = channel.getComponent()
 									.channel(ChannelId.MAX_ACTUAL_POWER);
 							int maxActualPower = maxActualPowerChannel.value().orElse(0);
@@ -65,8 +69,8 @@ public interface EssDcCharger extends OpenemsComponent {
 					});
 				})),
 		/**
-		 * Actual Energy
-		 * 
+		 * Actual Energy.
+		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
 		 * <li>Type: Integer
@@ -83,6 +87,7 @@ public interface EssDcCharger extends OpenemsComponent {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -203,4 +208,17 @@ public interface EssDcCharger extends OpenemsComponent {
 		this.getActualEnergyChannel().setNextValue(value);
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
+	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
+		return ModbusSlaveNatureTable.of(SymmetricEss.class, accessMode, 100) //
+				.channel(0, ChannelId.ACTUAL_POWER, ModbusType.FLOAT32) //
+				.channel(2, ChannelId.ACTUAL_ENERGY, ModbusType.FLOAT64) //
+				.build();
+	}
 }

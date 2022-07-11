@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2004 Maxim Integrated Products, All Rights Reserved.
@@ -61,7 +62,7 @@ package com.dalsemi.onewire.utils;
  * <p>
  * </li>
  * </ul>
- * 
+ *
  * @version 0.00, 21 August 2000
  * @author DS
  */
@@ -94,16 +95,18 @@ public class Address {
 	 * @see com.dalsemi.onewire.utils.CRC8
 	 */
 	public static boolean isValid(byte[] address) {
-		if ((address[0] != 0) && (CRC8.compute(address) == 0))
+		if (address[0] != 0 && CRC8.compute(address) == 0) {
 			return true;
-		else if ((address[0] & 0x7F) == 0x1C) // DS28E04
+		}
+		if ((address[0] & 0x7F) == 0x1C) // DS28E04
 		{
 			// The DS28E04 has a pin selectable ROM ID input. However,
 			// the CRC8 for the ROM ID assumes that the selecatable bits
 			// are always 1.
 			return 0 == CRC8.compute(address, 2, 6, CRC8.compute(0x7F, CRC8.compute(address[0], 0)));
-		} else
+		} else {
 			return false;
+		}
 	}
 
 	/**
@@ -150,16 +153,16 @@ public class Address {
 		// When displaying, the CRC is first, family code is last so
 		// that the center 6 bytes are a real serial number (not byte reversed).
 
-		byte[] barr = new byte[16];
-		int index = 0;
+		var barr = new byte[16];
+		var index = 0;
 		int ch;
 
-		for (int i = 7; i >= 0; i--) {
-			ch = (address[i] >> 4) & 0x0F;
-			ch += ((ch > 9) ? 'A' - 10 : '0');
+		for (var i = 7; i >= 0; i--) {
+			ch = address[i] >> 4 & 0x0F;
+			ch += ch > 9 ? 'A' - 10 : '0';
 			barr[index++] = (byte) ch;
 			ch = address[i] & 0x0F;
-			ch += ((ch > 9) ? 'A' - 10 : '0');
+			ch += ch > 9 ? 'A' - 10 : '0';
 			barr[index++] = (byte) ch;
 		}
 
@@ -189,9 +192,9 @@ public class Address {
 	public static byte[] toByteArray(String address) {
 		byte address_byte[] = new byte[8];
 
-		for (int i = 0; i < 8; i++) {
-			address_byte[7 - i] = (byte) ((Character.digit((address.charAt(i * 2)), 16) << 4)
-					| (Character.digit(address.charAt(i * 2 + 1), 16)));
+		for (var i = 0; i < 8; i++) {
+			address_byte[7 - i] = (byte) (Character.digit(address.charAt(i * 2), 16) << 4
+					| Character.digit(address.charAt(i * 2 + 1), 16));
 		}
 
 		return address_byte;
@@ -238,21 +241,21 @@ public class Address {
 		 * This looks funny, but it should actually take less time since I do 7 eight
 		 * bit shifts instead of 8+16+24+32+40+48+56 shifts.
 		 */
-		long longVal = (long) (address[7] & 0xFF);
+		long longVal = address[7] & 0xFF;
 		longVal <<= 8;
-		longVal |= (long) (address[6] & 0xFF);
+		longVal |= address[6] & 0xFF;
 		longVal <<= 8;
-		longVal |= (long) (address[5] & 0xFF);
+		longVal |= address[5] & 0xFF;
 		longVal <<= 8;
-		longVal |= (long) (address[4] & 0xFF);
+		longVal |= address[4] & 0xFF;
 		longVal <<= 8;
-		longVal |= (long) (address[3] & 0xFF);
+		longVal |= address[3] & 0xFF;
 		longVal <<= 8;
-		longVal |= (long) (address[2] & 0xFF);
+		longVal |= address[2] & 0xFF;
 		longVal <<= 8;
-		longVal |= (long) (address[1] & 0xFF);
+		longVal |= address[1] & 0xFF;
 		longVal <<= 8;
-		longVal |= (long) (address[0] & 0xFF);
+		longVal |= address[0] & 0xFF;
 
 		return longVal;
 	}
@@ -266,3 +269,4 @@ public class Address {
 		return toLong(toByteArray(address));
 	}
 }
+// CHECKSTYLE:ON

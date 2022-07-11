@@ -1,9 +1,9 @@
 package io.openems.edge.bridge.modbus;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfigSerial extends AbstractComponentConfig implements ConfigSerial {
@@ -68,7 +68,7 @@ public class MyConfigSerial extends AbstractComponentConfig implements ConfigSer
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

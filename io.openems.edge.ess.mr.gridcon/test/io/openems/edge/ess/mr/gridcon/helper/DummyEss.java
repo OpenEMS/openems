@@ -248,7 +248,7 @@ public class DummyEss extends AbstractOpenemsComponent implements GridconPcs {
 	}
 
 	@Override
-	public boolean isIpusStarted(boolean enableIPU1, boolean enableIPU2, boolean enableIPU3) {
+	public boolean isIpusStarted(boolean enableIpu1, boolean enableIpu2, boolean enableIpu3) {
 		// TODO Auto-generated method stub
 		return false;
 	}

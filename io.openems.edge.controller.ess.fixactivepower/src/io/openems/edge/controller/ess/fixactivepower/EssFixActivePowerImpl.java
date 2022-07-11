@@ -65,6 +65,7 @@ public class EssFixActivePowerImpl extends AbstractOpenemsComponent
 		return OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

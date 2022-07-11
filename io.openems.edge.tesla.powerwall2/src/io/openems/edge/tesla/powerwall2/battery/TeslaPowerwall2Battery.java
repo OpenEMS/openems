@@ -10,7 +10,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -28,14 +28,15 @@ import io.openems.edge.tesla.powerwall2.core.TeslaPowerwall2Core;
 @Component(//
 		name = "Tesla.Powerwall2.Battery", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class TeslaPowerwall2Battery extends AbstractOpenemsComponent
 		implements SymmetricEss, AsymmetricEss, SinglePhaseEss, OpenemsComponent {
 
-	private final int CAPACITY = 14_200;
+	private static final int CAPACITY = 14_200;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private TeslaPowerwall2Core core;
@@ -68,6 +69,7 @@ public class TeslaPowerwall2Battery extends AbstractOpenemsComponent
 		this.core.setBattery(this);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.core != null) {

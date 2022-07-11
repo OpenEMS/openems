@@ -51,7 +51,7 @@ public class BitsWordElement extends UnsignedWordElement {
 
 	/**
 	 * Adds a mapping for a given bit.
-	 * 
+	 *
 	 * @param bitIndex  the index of the bit; a number between 0 and 15
 	 * @param channelId the Channel-ID
 	 * @param converter the Bit-Converter
@@ -67,9 +67,9 @@ public class BitsWordElement extends UnsignedWordElement {
 			throw new IllegalArgumentException("Channel [" + channelId + "] must be of type [BOOLEAN] for bit-mapping");
 		}
 		@SuppressWarnings("unchecked")
-		Channel<Boolean> booleanChannel = (Channel<Boolean>) channel;
+		var booleanChannel = (Channel<Boolean>) channel;
 
-		ChannelWrapper channelWrapper = new ChannelWrapper(booleanChannel, converter);
+		var channelWrapper = new ChannelWrapper(booleanChannel, converter);
 
 		// Set Channel-Source
 		channel.setMetaInfo(new ChannelMetaInfoBit(this.getStartAddress(), bitIndex));
@@ -77,7 +77,7 @@ public class BitsWordElement extends UnsignedWordElement {
 		// Add Modbus Address and Bit-Index to Channel Source
 		if (channel instanceof WriteChannel<?>) {
 			// Handle Writes to Bit-Channels
-			WriteChannel<Boolean> booleanWriteChannel = (WriteChannel<Boolean>) booleanChannel;
+			var booleanWriteChannel = (WriteChannel<Boolean>) booleanChannel;
 			booleanWriteChannel.onSetNextWrite(value -> {
 				// Listen on Writes to the BooleanChannel and store the value
 				channelWrapper.setWriteValue(value);
@@ -90,7 +90,7 @@ public class BitsWordElement extends UnsignedWordElement {
 
 	/**
 	 * Adds a mapping for a given bit.
-	 * 
+	 *
 	 * @param bitIndex  the index of the bit; a number between 0 and 15
 	 * @param channelId the Channel-ID
 	 * @return myself for builder pattern
@@ -101,9 +101,10 @@ public class BitsWordElement extends UnsignedWordElement {
 
 	/**
 	 * Sets the individual BooleanChannel-Values from an InputRegister.
-	 * 
+	 *
 	 * @param registers the InputRegisters
 	 */
+	@Override
 	protected void _setInputRegisters(InputRegister... registers) {
 		if (registers.length != 1) {
 			throw new IllegalArgumentException("Expected only one Register instead of [" + registers.length
@@ -111,19 +112,19 @@ public class BitsWordElement extends UnsignedWordElement {
 		}
 
 		// convert Register to int
-		ByteBuffer buff = ByteBuffer.allocate(2).order(this.getByteOrder());
+		var buff = ByteBuffer.allocate(2).order(this.getByteOrder());
 		buff.put(registers[0].toBytes());
-		int value = Short.toUnsignedInt(buff.getShort(0));
+		var value = Short.toUnsignedInt(buff.getShort(0));
 
-		for (int bitIndex = 0; bitIndex < 16; bitIndex++) {
+		for (var bitIndex = 0; bitIndex < 16; bitIndex++) {
 			// Get Wrapper
-			ChannelWrapper wrapper = this.channels[bitIndex];
+			var wrapper = this.channels[bitIndex];
 			if (wrapper == null) {
 				continue;
 			}
 
 			// Get Value
-			boolean setValue = value << ~bitIndex < 0;
+			var setValue = value << ~bitIndex < 0;
 
 			// Apply Bit-Conversion
 			switch (wrapper.converter) {
@@ -141,20 +142,20 @@ public class BitsWordElement extends UnsignedWordElement {
 
 	/**
 	 * Gets the next write value from all Bits and resets them.
-	 * 
+	 *
 	 * <p>
 	 * This method should be called once in every cycle on the
 	 * TOPIC_CYCLE_EXECUTE_WRITE event. It makes sure, that the nextWriteValue gets
 	 * initialized in every Cycle. If registers need to be written again in every
 	 * cycle, next setNextWriteValue()-method needs to called on every Cycle.
-	 * 
+	 *
 	 * @return the next value as an Optional array of Registers
 	 */
 	@Override
 	public Optional<Register[]> getNextWriteValueAndReset() {
 		// Check if any BooleanWriteChannel has a Write-Value; if none: return
 		// Optional.empty.
-		boolean isAnyBooleanWriteChannelSet = false;
+		var isAnyBooleanWriteChannelSet = false;
 		for (ChannelWrapper wrapper : this.channels) {
 			if (wrapper != null && wrapper.getWriteValue().isPresent()) {
 				isAnyBooleanWriteChannelSet = true;
@@ -166,28 +167,28 @@ public class BitsWordElement extends UnsignedWordElement {
 		}
 
 		// Get value of each BooleanChannel
-		byte b0 = (byte) 0;
-		byte b1 = (byte) 0;
+		var b0 = (byte) 0;
+		var b1 = (byte) 0;
 		List<ChannelAddress> channelsWithMissingWriteValue = new ArrayList<>();
-		for (int bitIndex = 0; bitIndex < this.channels.length; bitIndex++) {
-			ChannelWrapper wrapper = this.channels[bitIndex];
+		for (var bitIndex = 0; bitIndex < this.channels.length; bitIndex++) {
+			var wrapper = this.channels[bitIndex];
 			if (wrapper == null) {
 				continue;
 			}
-			Optional<Boolean> valueOpt = wrapper.getWriteValue();
+			var valueOpt = wrapper.getWriteValue();
 			if (!valueOpt.isPresent()) {
 				channelsWithMissingWriteValue.add(wrapper.channel.address());
 				continue;
 			}
 			// Write-Value exists
 			boolean value = valueOpt.get();
-			if ((value && wrapper.converter == BitConverter.DIRECT_1_TO_1) //
-					|| (!value && wrapper.converter == BitConverter.INVERT)) {
+			if ((value ? wrapper.converter == BitConverter.DIRECT_1_TO_1 //
+					: wrapper.converter == BitConverter.INVERT)) {
 				// Value is true -> set the bit of the byte
 				if (bitIndex < 8) {
 					b0 |= 1 << bitIndex;
 				} else {
-					b1 |= 1 << (bitIndex - 8);
+					b1 |= 1 << bitIndex - 8;
 				}
 			}
 		}
@@ -198,7 +199,8 @@ public class BitsWordElement extends UnsignedWordElement {
 			new IllegalArgumentException(
 					"The following BooleanWriteChannels have no Write-Value: " + channelsWithMissingWriteValue.stream() //
 							.map(ChannelAddress::toString) //
-							.collect(Collectors.joining(","))).printStackTrace();
+							.collect(Collectors.joining(",")))
+					.printStackTrace();
 			return Optional.empty();
 		}
 
@@ -219,23 +221,27 @@ public class BitsWordElement extends UnsignedWordElement {
 
 		// Log Debug
 		if (this.isDebug()) {
-			log.info("BitsWordElement [" + this + "]: next write value is to [" //
-					+ String.format("%16s", Integer.toBinaryString(result.getValue())).replace(' ', '0') + //
-					"/0x" + String.format("%4s", Integer.toHexString(result.getValue())).replace(' ', '0') + "].");
+			this.log.info("BitsWordElement [" + this + "]: " //
+					+ "next write value is ["
+					+ String.format("%16s", Integer.toBinaryString(result.getValue())).replace(' ', '0') //
+					+ "/0x" + String.format("%4s", Integer.toHexString(result.getValue())).replace(' ', '0') + "].");
 		}
 
 		return Optional.of(new Register[] { result });
 
 	}
 
+	@Override
 	protected Integer fromByteBuffer(ByteBuffer buff) {
 		throw new IllegalArgumentException("BitsWordElement.fromByteBuffer() should never be called");
 	}
 
+	@Override
 	public Optional<Register[]> getNextWriteValue() {
 		throw new IllegalArgumentException("BitsWordElement.getNextWriteValue() should never be called");
 	}
 
+	@Override
 	public void _setNextWriteValue(Optional<Integer> valueOpt) throws OpenemsException {
 		throw new IllegalArgumentException("BitsWordElement._setNextWriteValue() should never be called");
 	}
@@ -244,7 +250,7 @@ public class BitsWordElement extends UnsignedWordElement {
 		throw new IllegalArgumentException("BitsWordElement.toByteBuffer() should never be called");
 	}
 
-	private class ChannelWrapper {
+	private static class ChannelWrapper {
 		private final Channel<?> channel;
 		private final BitConverter converter;
 		private Optional<Boolean> writeValue = Optional.empty();
@@ -259,7 +265,7 @@ public class BitsWordElement extends UnsignedWordElement {
 		}
 
 		protected Optional<Boolean> getWriteValue() {
-			return writeValue;
+			return this.writeValue;
 		}
 	}
 }

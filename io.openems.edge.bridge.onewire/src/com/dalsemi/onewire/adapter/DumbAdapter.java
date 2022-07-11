@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -68,7 +69,7 @@ public class DumbAdapter extends DSPortAdapter {
 
 	int containers_index = 0;
 
-	private Vector<OneWireContainer> containers = new Vector<>();
+	private final Vector<OneWireContainer> containers = new Vector<>();
 
 	/**
 	 * Adds a <code>OneWireContainer</code> to the list of containers that this
@@ -78,8 +79,8 @@ public class DumbAdapter extends DSPortAdapter {
 	 *          search
 	 */
 	public void addContainer(OneWireContainer c) {
-		synchronized (containers) {
-			containers.addElement(c);
+		synchronized (this.containers) {
+			this.containers.addElement(c);
 		}
 	}
 
@@ -91,15 +92,15 @@ public class DumbAdapter extends DSPortAdapter {
 	 *          as found by a search
 	 */
 	public void removeContainer(OneWireContainer c) {
-		synchronized (containers) {
-			containers.removeElement(c);
+		synchronized (this.containers) {
+			this.containers.removeElement(c);
 		}
 	}
 
 	/**
 	 * Hashtable to contain the user replaced OneWireContainers
 	 */
-	private Hashtable<Integer, OneWireContainer> registeredOneWireContainerClasses = new Hashtable<>(5);
+	private final Hashtable<Integer, OneWireContainer> registeredOneWireContainerClasses = new Hashtable<>(5);
 
 	/**
 	 * Byte array of families to include in search
@@ -122,6 +123,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>String</code> representation of the port adapter.
 	 */
+	@Override
 	public String getAdapterName() {
 		return "DumbAdapter";
 	}
@@ -132,6 +134,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>String</code> description of the port type required.
 	 */
+	@Override
 	public String getPortTypeDescription() {
 		return "Virtual Emulated Port";
 	}
@@ -141,6 +144,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return version string
 	 */
+	@Override
 	public String getClassVersion() {
 		return "0.00";
 	}
@@ -158,8 +162,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @return <code>Enumeration</code> of type <code>String</code> that contains
 	 *         the port names
 	 */
+	@Override
 	public Enumeration<String> getPortNames() {
-		Vector<String> portNames = new Vector<>();
+		var portNames = new Vector<String>();
 		portNames.addElement("NULL0");
 		return portNames.elements();
 	}
@@ -168,6 +173,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 * This method does nothing in <code>DumbAdapter</code>.
 	 *
 	 */
+	@Override
 	public void registerOneWireContainerClass(int family, Class<?> OneWireContainerClass) {
 	}
 
@@ -178,6 +184,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return always returns <code>true</code>
 	 */
+	@Override
 	public boolean selectPort(String portName) {
 		// be lazy, allow anything
 		return true;
@@ -186,6 +193,7 @@ public class DumbAdapter extends DSPortAdapter {
 	/**
 	 * This method does nothing in <code>DumbAdapter</code>.
 	 */
+	@Override
 	public void freePort() {
 		// airball
 	}
@@ -195,6 +203,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return always returns the <code>String</code> "NULL0"
 	 */
+	@Override
 	public String getPortName() {
 		return "NULL0";
 	}
@@ -209,6 +218,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code>
 	 */
+	@Override
 	public boolean adapterDetected() {
 		return true;
 	}
@@ -231,6 +241,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @return <code>true</code>
 	 *
 	 */
+	@Override
 	public boolean canOverdrive() {
 		// don't want someone to bail because of this
 		return true;
@@ -244,6 +255,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code>
 	 */
+	@Override
 	public boolean canHyperdrive() {
 		// don't want someone to bail because of this, although it doesn't exist yet
 		return true;
@@ -257,6 +269,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code>
 	 */
+	@Override
 	public boolean canFlex() {
 		// don't want someone to bail because of this
 		return true;
@@ -270,6 +283,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code>
 	 */
+	@Override
 	public boolean canProgram() {
 		// don't want someone to bail because of this
 		return true;
@@ -283,6 +297,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code>
 	 */
+	@Override
 	public boolean canDeliverPower() {
 		// don't want someone to bail because of this
 		return true;
@@ -296,6 +311,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code>
 	 */
+	@Override
 	public boolean canDeliverSmartPower() {
 		// don't want someone to bail because of this
 		return true;
@@ -309,6 +325,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code>
 	 */
+	@Override
 	public boolean canBreak() {
 		// don't want someone to bail because of this
 		return true;
@@ -328,11 +345,12 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @return <code>Enumeration</code> of <code>OneWireContainer</code> objects
 	 *         found on the 1-Wire Network.
 	 */
+	@Override
 	public Enumeration<OneWireContainer> getAllDeviceContainers() {
-		Vector<OneWireContainer> copy_vector = new Vector<>();
-		synchronized (containers) {
-			for (int i = 0; i < containers.size(); i++) {
-				copy_vector.addElement(containers.elementAt(i));
+		var copy_vector = new Vector<OneWireContainer>();
+		synchronized (this.containers) {
+			for (var i = 0; i < this.containers.size(); i++) {
+				copy_vector.addElement(this.containers.elementAt(i));
 			}
 		}
 		return copy_vector.elements();
@@ -348,13 +366,14 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @return The first <code>OneWireContainer</code> object found on the 1-Wire
 	 *         Network, or <code>null</code> if no devices found.
 	 */
+	@Override
 	public OneWireContainer getFirstDeviceContainer() {
-		synchronized (containers) {
-			if (containers.size() > 0) {
-				containers_index = 1;
-				return (OneWireContainer) containers.elementAt(0);
-			} else
-				return null;
+		synchronized (this.containers) {
+			if (this.containers.size() > 0) {
+				this.containers_index = 1;
+				return this.containers.elementAt(0);
+			}
+			return null;
 		}
 	}
 
@@ -369,13 +388,14 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @return The next <code>OneWireContainer</code> object found on the 1-Wire
 	 *         Network, or <code>null</code> if no iButtons found.
 	 */
+	@Override
 	public OneWireContainer getNextDeviceContainer() {
-		synchronized (containers) {
-			if (containers.size() > containers_index) {
-				containers_index++;
-				return (OneWireContainer) containers.elementAt(containers_index - 1);
-			} else
-				return null;
+		synchronized (this.containers) {
+			if (this.containers.size() > this.containers_index) {
+				this.containers_index++;
+				return this.containers.elementAt(this.containers_index - 1);
+			}
+			return null;
 		}
 	}
 
@@ -386,13 +406,14 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code> if an iButton or 1-Wire device is found.
 	 */
+	@Override
 	public boolean findFirstDevice() {
-		synchronized (containers) {
-			if (containers.size() > 0) {
-				containers_index = 1;
+		synchronized (this.containers) {
+			if (this.containers.size() > 0) {
+				this.containers_index = 1;
 				return true;
-			} else
-				return false;
+			}
+			return false;
 		}
 	}
 
@@ -403,13 +424,14 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code> if an iButton or 1-Wire device is found.
 	 */
+	@Override
 	public boolean findNextDevice() {
-		synchronized (containers) {
-			if (containers.size() > containers_index) {
-				containers_index++;
+		synchronized (this.containers) {
+			if (this.containers.size() > this.containers_index) {
+				this.containers_index++;
 				return true;
-			} else
-				return false;
+			}
+			return false;
 		}
 	}
 
@@ -423,8 +445,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @param address An array to be filled with the current iButton address.
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public void getAddress(byte[] address) {
-		OneWireContainer temp = (OneWireContainer) containers.elementAt(containers_index - 1);
+		var temp = this.containers.elementAt(this.containers_index - 1);
 		if (temp != null) {
 			System.arraycopy(temp.getAddress(), 0, address, 0, 8);
 		}
@@ -438,10 +461,11 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @return <code>long</code> representation of the iButton address
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public long getAddressAsLong() {
-		byte[] address = new byte[8];
+		var address = new byte[8];
 
-		getAddress(address);
+		this.getAddress(address);
 
 		return Address.toLong(address);
 	}
@@ -454,10 +478,11 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @return <code>String</code> representation of the iButton address
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public String getAddressAsString() {
-		byte[] address = new byte[8];
+		var address = new byte[8];
 
-		getAddress(address);
+		this.getAddress(address);
 
 		return Address.toString(address);
 	}
@@ -473,8 +498,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public boolean isPresent(byte[] address) {
-		return isPresent(Address.toLong(address));
+		return this.isPresent(Address.toLong(address));
 	}
 
 	/**
@@ -488,13 +514,15 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public boolean isPresent(long address) {
-		synchronized (containers) {
-			for (int i = 0; i < containers.size(); i++) {
-				OneWireContainer temp = (OneWireContainer) containers.elementAt(i);
-				long addr = temp.getAddressAsLong();
-				if (addr == address)
+		synchronized (this.containers) {
+			for (var i = 0; i < this.containers.size(); i++) {
+				var temp = this.containers.elementAt(i);
+				var addr = temp.getAddressAsLong();
+				if (addr == address) {
 					return true;
+				}
 			}
 		}
 		return false;
@@ -511,8 +539,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public boolean isPresent(String address) {
-		return isPresent(Address.toByteArray(address));
+		return this.isPresent(Address.toByteArray(address));
 	}
 
 	/**
@@ -526,6 +555,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public boolean isAlarming(byte[] address) {
 		return false;
 	}
@@ -541,8 +571,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public boolean isAlarming(long address) {
-		return isAlarming(Address.toByteArray(address));
+		return this.isAlarming(Address.toByteArray(address));
 	}
 
 	/**
@@ -556,8 +587,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public boolean isAlarming(String address) {
-		return isAlarming(Address.toByteArray(address));
+		return this.isAlarming(Address.toByteArray(address));
 	}
 
 	/**
@@ -575,8 +607,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @see #isPresent(byte[])
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public boolean select(byte[] address) {
-		return isPresent(address);
+		return this.isPresent(address);
 	}
 
 	/**
@@ -594,8 +627,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @see #isPresent(byte[])
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public boolean select(long address) throws OneWireIOException, OneWireException {
-		return select(Address.toByteArray(address));
+		return this.select(Address.toByteArray(address));
 	}
 
 	/**
@@ -613,8 +647,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @see #isPresent(byte[])
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public boolean select(String address) throws OneWireIOException, OneWireException {
-		return select(Address.toByteArray(address));
+		return this.select(Address.toByteArray(address));
 	}
 
 	// --------
@@ -626,6 +661,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @see #setNoResetSearch
 	 */
+	@Override
 	public void setSearchOnlyAlarmingDevices() {
 	}
 
@@ -633,6 +669,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 * This method does nothing in <code>DumbAdapter</code>.
 	 *
 	 */
+	@Override
 	public void setNoResetSearch() {
 	}
 
@@ -641,6 +678,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @see #setNoResetSearch
 	 */
+	@Override
 	public void setSearchAllDevices() {
 	}
 
@@ -652,9 +690,10 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @see #excludeFamily
 	 * @see #excludeFamily(byte[])
 	 */
+	@Override
 	public void targetAllFamilies() {
-		include = null;
-		exclude = null;
+		this.include = null;
+		this.exclude = null;
 	}
 
 	/**
@@ -664,11 +703,13 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 * @see #targetAllFamilies
 	 */
+	@Override
 	public void targetFamily(int family) {
-		if ((include == null) || (include.length != 1))
-			include = new byte[1];
+		if (this.include == null || this.include.length != 1) {
+			this.include = new byte[1];
+		}
 
-		include[0] = (byte) family;
+		this.include[0] = (byte) family;
 	}
 
 	/**
@@ -678,11 +719,13 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 * @see #targetAllFamilies
 	 */
+	@Override
 	public void targetFamily(byte family[]) {
-		if ((include == null) || (include.length != family.length))
-			include = new byte[family.length];
+		if (this.include == null || this.include.length != family.length) {
+			this.include = new byte[family.length];
+		}
 
-		System.arraycopy(family, 0, include, 0, family.length);
+		System.arraycopy(family, 0, this.include, 0, family.length);
 	}
 
 	/**
@@ -692,11 +735,13 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 * @see #targetAllFamilies
 	 */
+	@Override
 	public void excludeFamily(int family) {
-		if ((exclude == null) || (exclude.length != 1))
-			exclude = new byte[1];
+		if (this.exclude == null || this.exclude.length != 1) {
+			this.exclude = new byte[1];
+		}
 
-		exclude[0] = (byte) family;
+		this.exclude[0] = (byte) family;
 	}
 
 	/**
@@ -706,11 +751,13 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @see com.dalsemi.onewire.utils.Address
 	 * @see #targetAllFamilies
 	 */
+	@Override
 	public void excludeFamily(byte family[]) {
-		if ((exclude == null) || (exclude.length != family.length))
-			exclude = new byte[family.length];
+		if (this.exclude == null || this.exclude.length != family.length) {
+			this.exclude = new byte[family.length];
+		}
 
-		System.arraycopy(family, 0, exclude, 0, family.length);
+		System.arraycopy(family, 0, this.exclude, 0, family.length);
 	}
 
 	// --------
@@ -724,6 +771,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *                 access to the adapter
 	 * @return <code>true</code>
 	 */
+	@Override
 	public boolean beginExclusive(boolean blocking) {
 		// DEBUG!!! RIGHT NOW THIS IS NOT IMPLEMENTED!!!
 		return true;
@@ -733,6 +781,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 * This method does nothing in <code>DumbAdapter</code>.
 	 *
 	 */
+	@Override
 	public void endExclusive() {
 		// DEBUG!!! RIGHT NOW THIS IS NOT IMPLEMENTED!!!
 	}
@@ -747,6 +796,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @param bitValue the bit value to send to the 1-Wire Network.
 	 */
+	@Override
 	public void putBit(boolean bitValue) {
 		// this will not be implemented
 	}
@@ -757,6 +807,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code>
 	 */
+	@Override
 	public boolean getBit() {
 		// this will not be implemented
 		return true;
@@ -767,6 +818,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @param byteValue the byte value to send to the 1-Wire Network.
 	 */
+	@Override
 	public void putByte(int byteValue) {
 		// this will not be implemented
 	}
@@ -776,6 +828,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return the value 0x0ff
 	 */
+	@Override
 	public int getByte() {
 		// this will not be implemented
 		return 0x0ff;
@@ -788,6 +841,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return a new byte array of length <code>len</code>
 	 */
+	@Override
 	public byte[] getBlock(int len) {
 		// this will not be implemented
 		return new byte[len];
@@ -799,6 +853,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @param arr array in which to write the received bytes
 	 * @param len length of data bytes to receive
 	 */
+	@Override
 	public void getBlock(byte[] arr, int len) {
 		// this will not be implemented
 	}
@@ -810,6 +865,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @param off offset into the array to start
 	 * @param len length of data bytes to receive
 	 */
+	@Override
 	public void getBlock(byte[] arr, int off, int len) {
 		// this will not be implemented
 	}
@@ -821,6 +877,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 * @param off       offset into the array of data to start
 	 * @param len       length of data to send / receive starting at 'off'
 	 */
+	@Override
 	public void dataBlock(byte dataBlock[], int off, int len) {
 		// this will not be implemented
 	}
@@ -843,10 +900,12 @@ public class DumbAdapter extends DSPortAdapter {
 	 *         Note that in <code>DumbAdapter</code>, the only possible results are
 	 *         0 and 1.
 	 */
+	@Override
 	public int reset() {
 		// this will not be implemented
-		if (containers.size() > 0)
+		if (this.containers.size() > 0) {
 			return 1;
+		}
 		return 0;
 	}
 
@@ -869,6 +928,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *                   setPowerNormal() method is called.
 	 *                   </ul>
 	 */
+	@Override
 	public void setPowerDuration(int timeFactor) {
 	}
 
@@ -888,6 +948,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code>
 	 */
+	@Override
 	public boolean startPowerDelivery(int changeCondition) {
 		return true;
 	}
@@ -903,6 +964,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *                   setPowerNormal() method is called.
 	 *                   </ul>
 	 */
+	@Override
 	public void setProgramPulseDuration(int timeFactor) {
 	}
 
@@ -922,6 +984,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code>
 	 */
+	@Override
 	public boolean startProgramPulse(int changeCondition) {
 		return true;
 	}
@@ -930,6 +993,7 @@ public class DumbAdapter extends DSPortAdapter {
 	 * This method does nothing in <code>DumbAdapter</code>.
 	 *
 	 */
+	@Override
 	public void startBreak() {
 	}
 
@@ -937,8 +1001,8 @@ public class DumbAdapter extends DSPortAdapter {
 	 * This method does nothing in <code>DumbAdapter</code>.
 	 *
 	 */
+	@Override
 	public void setPowerNormal() {
-		return;
 	}
 
 	// --------
@@ -961,8 +1025,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 *              </ul>
 	 *
 	 */
+	@Override
 	public void setSpeed(int speed) {
-		sp = speed;
+		this.sp = speed;
 	}
 
 	private int sp = 0;
@@ -972,8 +1037,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <the last value passed to the <code>setSpeed(int)</code> method, or 0
 	 */
+	@Override
 	public int getSpeed() {
-		return sp;
+		return this.sp;
 	}
 
 	// --------
@@ -991,12 +1057,14 @@ public class DumbAdapter extends DSPortAdapter {
 	 *         match could be found.
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public OneWireContainer getDeviceContainer(byte[] address) {
-		long addr = Address.toLong(address);
-		synchronized (containers) {
-			for (int i = 0; i < containers.size(); i++) {
-				if (((OneWireContainer) containers.elementAt(i)).getAddressAsLong() == addr)
-					return (OneWireContainer) containers.elementAt(i);
+		var addr = Address.toLong(address);
+		synchronized (this.containers) {
+			for (var i = 0; i < this.containers.size(); i++) {
+				if (this.containers.elementAt(i).getAddressAsLong() == addr) {
+					return this.containers.elementAt(i);
+				}
 			}
 		}
 		return null;
@@ -1014,8 +1082,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 *         match could be found.
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public OneWireContainer getDeviceContainer(long address) {
-		return getDeviceContainer(Address.toByteArray(address));
+		return this.getDeviceContainer(Address.toByteArray(address));
 	}
 
 	/**
@@ -1029,8 +1098,9 @@ public class DumbAdapter extends DSPortAdapter {
 	 *         match could be found.
 	 * @see com.dalsemi.onewire.utils.Address
 	 */
+	@Override
 	public OneWireContainer getDeviceContainer(String address) {
-		return getDeviceContainer(Address.toByteArray(address));
+		return this.getDeviceContainer(Address.toByteArray(address));
 	}
 
 	/**
@@ -1040,14 +1110,15 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return the <code>OneWireContainer</code> object
 	 */
+	@Override
 	public OneWireContainer getDeviceContainer() {
 
 		// Mask off the upper bit.
-		byte[] address = new byte[8];
+		var address = new byte[8];
 
-		getAddress(address);
+		this.getAddress(address);
 
-		return getDeviceContainer(address);
+		return this.getDeviceContainer(address);
 	}
 
 	/**
@@ -1055,20 +1126,21 @@ public class DumbAdapter extends DSPortAdapter {
 	 *
 	 * @return <code>true</code> if in include group
 	 */
+	@Override
 	protected boolean isValidFamily(byte[] address) {
-		byte familyCode = address[0];
+		var familyCode = address[0];
 
-		if (exclude != null) {
-			for (int i = 0; i < exclude.length; i++) {
-				if (familyCode == exclude[i]) {
+		if (this.exclude != null) {
+			for (byte element : this.exclude) {
+				if (familyCode == element) {
 					return false;
 				}
 			}
 		}
 
-		if (include != null) {
-			for (int i = 0; i < include.length; i++) {
-				if (familyCode == include[i]) {
+		if (this.include != null) {
+			for (byte element : this.include) {
+				if (familyCode == element) {
 					return true;
 				}
 			}
@@ -1079,3 +1151,4 @@ public class DumbAdapter extends DSPortAdapter {
 		return true;
 	}
 }
+// CHECKSTYLE:ON

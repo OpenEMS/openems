@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -281,52 +282,53 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	public MemoryBankEPROM(OneWireContainer ibutton) {
 
 		// keep reference to ibutton where memory bank is
-		ib = ibutton;
+		this.ib = ibutton;
 
 		// get references to MemoryBanks used in OTP operations, assume no
 		// locking/redirection
-		mbLock = null;
-		mbRedirect = null;
-		mbLockRedirect = null;
-		lockOffset = 0;
-		redirectOffset = 0;
-		lockRedirectOffset = 0;
+		this.mbLock = null;
+		this.mbRedirect = null;
+		this.mbLockRedirect = null;
+		this.lockOffset = 0;
+		this.redirectOffset = 0;
+		this.lockRedirectOffset = 0;
 
 		// initialize attributes of this memory bank - DEFAULT: Main memory DS1985 w/o
 		// lock stuff
-		generalPurposeMemory = true;
-		bankDescription = "Main Memory";
-		numberPages = 64;
-		size = 2048;
-		pageLength = 32;
-		maxPacketDataLength = 29;
-		readWrite = false;
-		writeOnce = true;
-		readOnly = false;
-		nonVolatile = true;
-		pageAutoCRC = true;
-		redirectPage = false;
-		lockPage = false;
-		lockRedirectPage = false;
-		programPulse = true;
-		powerDelivery = false;
-		extraInfo = true;
-		extraInfoLength = 1;
-		extraInfoDescription = "Inverted redirection page";
-		writeVerification = true;
-		startPhysicalAddress = 0;
-		READ_PAGE_WITH_CRC = MAIN_READ_PAGE_COMMAND;
-		WRITE_MEMORY_COMMAND = MAIN_WRITE_COMMAND;
-		numCRCBytes = 2;
-		crcAfterAddress = true;
-		normalReadCRC = false;
-		doSetSpeed = true;
+		this.generalPurposeMemory = true;
+		this.bankDescription = "Main Memory";
+		this.numberPages = 64;
+		this.size = 2048;
+		this.pageLength = 32;
+		this.maxPacketDataLength = 29;
+		this.readWrite = false;
+		this.writeOnce = true;
+		this.readOnly = false;
+		this.nonVolatile = true;
+		this.pageAutoCRC = true;
+		this.redirectPage = false;
+		this.lockPage = false;
+		this.lockRedirectPage = false;
+		this.programPulse = true;
+		this.powerDelivery = false;
+		this.extraInfo = true;
+		this.extraInfoLength = 1;
+		this.extraInfoDescription = "Inverted redirection page";
+		this.writeVerification = true;
+		this.startPhysicalAddress = 0;
+		this.READ_PAGE_WITH_CRC = MAIN_READ_PAGE_COMMAND;
+		this.WRITE_MEMORY_COMMAND = MAIN_WRITE_COMMAND;
+		this.numCRCBytes = 2;
+		this.crcAfterAddress = true;
+		this.normalReadCRC = false;
+		this.doSetSpeed = true;
 
 		// create the ffblock (used for faster 0xFF fills)
-		ffBlock = new byte[50];
+		this.ffBlock = new byte[50];
 
-		for (int i = 0; i < 50; i++)
-			ffBlock[i] = (byte) 0xFF;
+		for (var i = 0; i < 50; i++) {
+			this.ffBlock[i] = (byte) 0xFF;
+		}
 	}
 
 	// --------
@@ -338,8 +340,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return String containing the memory bank description
 	 */
+	@Override
 	public String getBankDescription() {
-		return bankDescription;
+		return this.bankDescription;
 	}
 
 	/**
@@ -349,8 +352,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank is general purpose
 	 */
+	@Override
 	public boolean isGeneralPurposeMemory() {
-		return generalPurposeMemory;
+		return this.generalPurposeMemory;
 	}
 
 	/**
@@ -358,8 +362,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank is read/write
 	 */
+	@Override
 	public boolean isReadWrite() {
-		return readWrite;
+		return this.readWrite;
 	}
 
 	/**
@@ -368,8 +373,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be written once
 	 */
+	@Override
 	public boolean isWriteOnce() {
-		return writeOnce;
+		return this.writeOnce;
 	}
 
 	/**
@@ -377,8 +383,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can only be read
 	 */
+	@Override
 	public boolean isReadOnly() {
-		return readOnly;
+		return this.readOnly;
 	}
 
 	/**
@@ -387,8 +394,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank non volatile.
 	 */
+	@Override
 	public boolean isNonVolatile() {
-		return nonVolatile;
+		return this.nonVolatile;
 	}
 
 	/**
@@ -398,8 +406,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires a
 	 *         'ProgramPulse'.
 	 */
+	@Override
 	public boolean needsProgramPulse() {
-		return programPulse;
+		return this.programPulse;
 	}
 
 	/**
@@ -409,8 +418,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @return 'true' if writing to the current memory bank pages requires
 	 *         'PowerDelivery'.
 	 */
+	@Override
 	public boolean needsPowerDelivery() {
-		return powerDelivery;
+		return this.powerDelivery;
 	}
 
 	/**
@@ -419,8 +429,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return physical starting address of this logical bank.
 	 */
+	@Override
 	public int getStartPhysicalAddress() {
-		return startPhysicalAddress;
+		return this.startPhysicalAddress;
 	}
 
 	/**
@@ -428,8 +439,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return memory bank size in bytes.
 	 */
+	@Override
 	public int getSize() {
-		return size;
+		return this.size;
 	}
 
 	// --------
@@ -441,8 +453,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return number of pages in current memory bank
 	 */
+	@Override
 	public int getNumberPages() {
-		return numberPages;
+		return this.numberPages;
 	}
 
 	/**
@@ -450,20 +463,22 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return page length in bytes in current memory bank
 	 */
+	@Override
 	public int getPageLength() {
-		return pageLength;
+		return this.pageLength;
 	}
 
 	/**
 	 * Query to get Maximum data page length in bytes for a packet read or written
 	 * in the current memory bank. See the 'ReadPagePacket()' and
-	 * 'WritePagePacket()' methods. This method is only useful if the current
-	 * memory bank is general purpose memory.
+	 * 'WritePagePacket()' methods. This method is only useful if the current memory
+	 * bank is general purpose memory.
 	 *
 	 * @return max packet page length in bytes in current memory bank
 	 */
+	@Override
 	public int getMaxPacketDataLength() {
-		return maxPacketDataLength;
+		return this.maxPacketDataLength;
 	}
 
 	/**
@@ -473,24 +488,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank can be read with self generated CRC.
 	 */
+	@Override
 	public boolean hasPageAutoCRC() {
-		return pageAutoCRC;
-	}
-
-	/**
-	 * Query to see if current memory bank pages when read deliver extra information
-	 * outside of the normal data space. Examples of this may be a redirection byte,
-	 * counter, tamper protection bytes, or SHA-1 result. If this method returns
-	 * true then the methods 'ReadPagePacket()' and 'readPageCRC()' with 'extraInfo'
-	 * parameter can be used.
-	 *
-	 * @return 'true' if reading the current memory bank pages provides extra
-	 *         information.
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by {@link #hasExtraInfo()}
-	 */
-	public boolean haveExtraInfo() {
-		return extraInfo;
+		return this.pageAutoCRC;
 	}
 
 	/**
@@ -510,8 +510,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @see #readPagePacket(int,boolean,byte[],int,byte[]) readPagePacket(extra)
 	 * @since 1-Wire API 0.01
 	 */
+	@Override
 	public boolean hasExtraInfo() {
-		return extraInfo;
+		return this.extraInfo;
 	}
 
 	/**
@@ -521,8 +522,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @return number of bytes in Extra Information read when reading pages in the
 	 *         current memory bank.
 	 */
+	@Override
 	public int getExtraInfoLength() {
-		return extraInfoLength;
+		return this.extraInfoLength;
 	}
 
 	/**
@@ -532,8 +534,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return string describing extra information.
 	 */
+	@Override
 	public String getExtraInfoDescription() {
-		return extraInfoDescription;
+		return this.extraInfoDescription;
 	}
 
 	/**
@@ -542,8 +545,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @param doReadVerf true (default) verify write in 'write' false, don't verify
 	 *                   write (used on Write-Once bit manipulation)
 	 */
+	@Override
 	public void setWriteVerification(boolean doReadVerf) {
-		writeVerification = doReadVerf;
+		this.writeVerification = doReadVerf;
 	}
 
 	// --------
@@ -556,8 +560,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank pages can be redirected to a new page.
 	 */
+	@Override
 	public boolean canRedirectPage() {
-		return redirectPage;
+		return this.redirectPage;
 	}
 
 	/**
@@ -566,8 +571,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 *
 	 * @return 'true' if current memory bank pages can be redirected to a new page.
 	 */
+	@Override
 	public boolean canLockPage() {
-		return lockPage;
+		return this.lockPage;
 	}
 
 	/**
@@ -577,8 +583,9 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @return 'true' if current memory bank pages can be locked from being
 	 *         redirected to a new page.
 	 */
+	@Override
 	public boolean canLockRedirectPage() {
-		return lockRedirectPage;
+		return this.lockRedirectPage;
 	}
 
 	// --------
@@ -607,36 +614,41 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void read(int startAddr, boolean readContinue, byte[] readBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 		int i;
 
 		// check if read exceeds memory
-		if ((startAddr + len) > (pageLength * numberPages))
+		if (startAddr + len > this.pageLength * this.numberPages) {
 			throw new OneWireException("Read exceeds memory bank end");
+		}
 
 		// attempt to put device at max desired speed
-		if (!readContinue)
-			checkSpeed();
+		if (!readContinue) {
+			this.checkSpeed();
+		}
 
 		// check if status memory
-		if (READ_PAGE_WITH_CRC == STATUS_READ_PAGE_COMMAND) {
+		if (this.READ_PAGE_WITH_CRC == STATUS_READ_PAGE_COMMAND) {
 
 			// no regular read memory so must use readPageCRC
-			int start_pg = startAddr / pageLength;
-			int end_pg = ((startAddr + len) / pageLength) - 1;
+			var start_pg = startAddr / this.pageLength;
+			var end_pg = (startAddr + len) / this.pageLength - 1;
 
-			if (((startAddr + len) % pageLength) > 0)
+			if ((startAddr + len) % this.pageLength > 0) {
 				end_pg++;
+			}
 
-			byte[] raw_buf = new byte[(end_pg - start_pg + 1) * pageLength];
+			var raw_buf = new byte[(end_pg - start_pg + 1) * this.pageLength];
 
 			// loop to read the pages
-			for (int pg = start_pg; pg <= end_pg; pg++)
-				readPageCRC(pg, !(pg == start_pg), raw_buf, (pg - start_pg) * pageLength, null, 0);
+			for (var pg = start_pg; pg <= end_pg; pg++) {
+				this.readPageCRC(pg, !(pg == start_pg), raw_buf, (pg - start_pg) * this.pageLength, null, 0);
+			}
 
 			// extract out the data
-			System.arraycopy(raw_buf, (startAddr % pageLength), readBuf, offset, len);
+			System.arraycopy(raw_buf, startAddr % this.pageLength, readBuf, offset, len);
 		}
 
 		// regular memory so use standard read memory command
@@ -646,37 +658,38 @@ class MemoryBankEPROM implements OTPMemoryBank {
 			if (!readContinue) {
 
 				// select the device
-				if (!ib.adapter.select(ib.address)) {
-					forceVerify();
+				if (!this.ib.adapter.select(this.ib.address)) {
+					this.forceVerify();
 
 					throw new OneWireIOException("Device select failed");
 				}
 
 				// build start reading memory block
-				byte[] raw_buf = new byte[4];
+				var raw_buf = new byte[4];
 
 				raw_buf[0] = READ_MEMORY_COMMAND;
-				raw_buf[1] = (byte) ((startAddr + startPhysicalAddress) & 0xFF);
-				raw_buf[2] = (byte) ((((startAddr + startPhysicalAddress) & 0xFFFF) >>> 8) & 0xFF);
+				raw_buf[1] = (byte) (startAddr + this.startPhysicalAddress & 0xFF);
+				raw_buf[2] = (byte) ((startAddr + this.startPhysicalAddress & 0xFFFF) >>> 8 & 0xFF);
 				raw_buf[3] = (byte) 0xFF;
 
 				// check if get a 1 byte crc in a normal read.
-				int num_bytes = (normalReadCRC) ? 4 : 3;
+				var num_bytes = this.normalReadCRC ? 4 : 3;
 
 				// do the first block for command, address
-				ib.adapter.dataBlock(raw_buf, 0, num_bytes);
+				this.ib.adapter.dataBlock(raw_buf, 0, num_bytes);
 			}
 
 			// pre-fill readBuf with 0xFF
-			int pgs = len / pageLength;
-			int extra = len % pageLength;
+			var pgs = len / this.pageLength;
+			var extra = len % this.pageLength;
 
-			for (i = 0; i < pgs; i++)
-				System.arraycopy(ffBlock, 0, readBuf, offset + i * pageLength, pageLength);
-			System.arraycopy(ffBlock, 0, readBuf, offset + pgs * pageLength, extra);
+			for (i = 0; i < pgs; i++) {
+				System.arraycopy(this.ffBlock, 0, readBuf, offset + i * this.pageLength, this.pageLength);
+			}
+			System.arraycopy(this.ffBlock, 0, readBuf, offset + pgs * this.pageLength, extra);
 
 			// send second block to read data, return result
-			ib.adapter.dataBlock(readBuf, offset, len);
+			this.ib.adapter.dataBlock(readBuf, offset, len);
 		}
 	}
 
@@ -700,46 +713,50 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void write(int startAddr, byte[] writeBuf, int offset, int len) throws OneWireIOException, OneWireException {
 		int i;
 		byte result;
 
 		// return if nothing to do
-		if (len == 0)
+		if (len == 0) {
 			return;
+		}
 
 		// check if power delivery is available
-		if (!ib.adapter.canProgram())
+		if (!this.ib.adapter.canProgram()) {
 			throw new OneWireException("Program voltage required but not available");
+		}
 
 		// check if trying to write read only bank
-		if (isReadOnly())
+		if (this.isReadOnly()) {
 			throw new OneWireException("Trying to write read-only memory bank");
+		}
 
 		// check if write exceeds memory
-		if ((startAddr + len) > (pageLength * numberPages))
+		if (startAddr + len > this.pageLength * this.numberPages) {
 			throw new OneWireException("Write exceeds memory bank end");
+		}
 
 		// set the program pulse duration
-		ib.adapter.setProgramPulseDuration(DSPortAdapter.DELIVERY_EPROM);
+		this.ib.adapter.setProgramPulseDuration(DSPortAdapter.DELIVERY_EPROM);
 
 		// attempt to put device at max desired speed
-		checkSpeed();
+		this.checkSpeed();
 
 		// loop while still have bytes to write
-		boolean write_continue = false;
+		var write_continue = false;
 
 		for (i = 0; i < len; i++) {
-			result = programByte(startAddr + i + startPhysicalAddress, writeBuf[offset + i], write_continue);
+			result = this.programByte(startAddr + i + this.startPhysicalAddress, writeBuf[offset + i], write_continue);
 
-			if (writeVerification) {
-				if ((byte) result == (byte) writeBuf[offset + i])
-					write_continue = true;
-				else {
-					forceVerify();
+			if (this.writeVerification) {
+				if (result != writeBuf[offset + i]) {
+					this.forceVerify();
 
 					throw new OneWireIOException("Read back byte on EPROM programming did not match");
 				}
+				write_continue = true;
 			}
 		}
 	}
@@ -769,12 +786,14 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		if (pageAutoCRC)
-			readPageCRC(page, readContinue, readBuf, offset, null, extraInfoLength);
-		else
-			read(page * pageLength, readContinue, readBuf, offset, pageLength);
+		if (this.pageAutoCRC) {
+			this.readPageCRC(page, readContinue, readBuf, offset, null, this.extraInfoLength);
+		} else {
+			this.read(page * this.pageLength, readContinue, readBuf, offset, this.pageLength);
+		}
 	}
 
 	/**
@@ -800,14 +819,16 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPage(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
 
 		// check if current bank is not scratchpad bank, or not page 0
-		if (!this.extraInfo)
+		if (!this.extraInfo) {
 			throw new OneWireException("Read extra information not supported on this memory bank");
+		}
 
-		readPageCRC(page, readContinue, readBuf, offset, extraInfo, extraInfoLength);
+		this.readPageCRC(page, readContinue, readBuf, offset, extraInfo, this.extraInfoLength);
 	}
 
 	/**
@@ -831,20 +852,22 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
-		byte[] raw_buf = new byte[pageLength];
+		var raw_buf = new byte[this.pageLength];
 
 		// check if current bank is not scratchpad bank, or not page 0
-		if (!this.extraInfo)
+		if (!this.extraInfo) {
 			throw new OneWireException("Read extra information not supported on this memory bank");
+		}
 
 		// read entire page with read page CRC
-		readPageCRC(page, readContinue, raw_buf, 0, extraInfo, extraInfoLength);
+		this.readPageCRC(page, readContinue, raw_buf, 0, extraInfo, this.extraInfoLength);
 
 		// check if length is realistic
-		if ((raw_buf[0] & 0x00FF) > maxPacketDataLength) {
-			forceVerify();
+		if ((raw_buf[0] & 0x00FF) > this.maxPacketDataLength) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Invalid length in packet");
 		}
@@ -857,11 +880,10 @@ class MemoryBankEPROM implements OTPMemoryBank {
 
 			// return the length
 			return raw_buf[0];
-		} else {
-			forceVerify();
-
-			throw new OneWireIOException("Invalid CRC16 in packet read");
 		}
+		this.forceVerify();
+
+		throw new OneWireIOException("Invalid CRC16 in packet read");
 	}
 
 	/**
@@ -884,16 +906,17 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public int readPagePacket(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		byte[] raw_buf = new byte[pageLength];
+		var raw_buf = new byte[this.pageLength];
 
 		// read entire page with read page CRC
-		readPageCRC(page, readContinue, raw_buf, 0, null, extraInfoLength);
+		this.readPageCRC(page, readContinue, raw_buf, 0, null, this.extraInfoLength);
 
 		// check if length is realistic
-		if ((raw_buf[0] & 0x00FF) > maxPacketDataLength) {
-			forceVerify();
+		if ((raw_buf[0] & 0x00FF) > this.maxPacketDataLength) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Invalid length in packet");
 		}
@@ -906,11 +929,10 @@ class MemoryBankEPROM implements OTPMemoryBank {
 
 			// return the length
 			return raw_buf[0];
-		} else {
-			forceVerify();
-
-			throw new OneWireIOException("Invalid CRC16 in packet read");
 		}
+		this.forceVerify();
+
+		throw new OneWireIOException("Invalid CRC16 in packet read");
 	}
 
 	/**
@@ -925,31 +947,34 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void writePagePacket(int page, byte[] writeBuf, int offset, int len)
 			throws OneWireIOException, OneWireException {
 
 		// make sure length does not exceed max
-		if (len > maxPacketDataLength)
+		if (len > this.maxPacketDataLength) {
 			throw new OneWireIOException("Length of packet requested exceeds page size");
+		}
 
 		// see if this bank is general read/write
-		if (!generalPurposeMemory)
+		if (!this.generalPurposeMemory) {
 			throw new OneWireException("Current bank is not general purpose memory");
+		}
 
 		// construct the packet to write
-		byte[] raw_buf = new byte[len + 3];
+		var raw_buf = new byte[len + 3];
 
 		raw_buf[0] = (byte) len;
 
 		System.arraycopy(writeBuf, offset, raw_buf, 1, len);
 
-		int crc = CRC16.compute(raw_buf, 0, len + 1, page);
+		var crc = CRC16.compute(raw_buf, 0, len + 1, page);
 
 		raw_buf[len + 1] = (byte) (~crc & 0xFF);
-		raw_buf[len + 2] = (byte) (((~crc & 0xFFFF) >>> 8) & 0xFF);
+		raw_buf[len + 2] = (byte) ((~crc & 0xFFFF) >>> 8 & 0xFF);
 
 		// write the packet, return result
-		write(page * pageLength, raw_buf, 0, len + 3);
+		this.write(page * this.pageLength, raw_buf, 0, len + 3);
 	}
 
 	/**
@@ -968,9 +993,10 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset)
 			throws OneWireIOException, OneWireException {
-		readPageCRC(page, readContinue, readBuf, offset, null, extraInfoLength);
+		this.readPageCRC(page, readContinue, readBuf, offset, null, this.extraInfoLength);
 	}
 
 	/**
@@ -992,9 +1018,10 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo)
 			throws OneWireIOException, OneWireException {
-		readPageCRC(page, readContinue, readBuf, offset, extraInfo, extraInfoLength);
+		this.readPageCRC(page, readContinue, readBuf, offset, extraInfo, this.extraInfoLength);
 	}
 
 	// --------
@@ -1010,24 +1037,25 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void lockPage(int page) throws OneWireIOException, OneWireException {
 
 		// create byte to write to mlLock to lock page
-		int nbyt = (page >>> 3);
-		int nbit = page - (nbyt << 3);
-		byte[] wr_byte = new byte[1];
+		var nbyt = page >>> 3;
+		var nbit = page - (nbyt << 3);
+		var wr_byte = new byte[1];
 
 		wr_byte[0] = (byte) ~(0x01 << nbit);
 
 		// bit field so turn off write verification
-		mbLock.setWriteVerification(false);
+		this.mbLock.setWriteVerification(false);
 
 		// write the lock bit
-		mbLock.write(nbyt + lockOffset, wr_byte, 0, 1);
+		this.mbLock.write(nbyt + this.lockOffset, wr_byte, 0, 1);
 
 		// read back to verify
-		if (!isPageLocked(page)) {
-			forceVerify();
+		if (!this.isPageLocked(page)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Read back from write incorrect, could not lock page");
 		}
@@ -1043,23 +1071,24 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public boolean isPageLocked(int page) throws OneWireIOException, OneWireException {
 
 		// read page that locked bit is on
-		int pg_len = mbLock.getPageLength();
-		int read_pg = (page + lockOffset) / (pg_len * 8);
+		var pg_len = this.mbLock.getPageLength();
+		var read_pg = (page + this.lockOffset) / (pg_len * 8);
 
 		// read page with bit
-		byte[] read_buf = new byte[pg_len];
+		var read_buf = new byte[pg_len];
 
-		mbLock.readPageCRC(read_pg, false, read_buf, 0);
+		this.mbLock.readPageCRC(read_pg, false, read_buf, 0);
 
 		// return boolean on locked bit
-		int index = (page + lockOffset) - (read_pg * 8 * pg_len);
-		int nbyt = (index >>> 3);
-		int nbit = index - (nbyt << 3);
+		var index = page + this.lockOffset - read_pg * 8 * pg_len;
+		var nbyt = index >>> 3;
+		var nbit = index - (nbyt << 3);
 
-		return !(((read_buf[nbyt] >>> nbit) & 0x01) == 0x01);
+		return !((read_buf[nbyt] >>> nbit & 0x01) == 0x01);
 	}
 
 	/**
@@ -1072,47 +1101,19 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void redirectPage(int page, int newPage) throws OneWireIOException, OneWireException {
 
 		// create byte to redirect page
-		byte[] wr_byte = new byte[1];
+		var wr_byte = new byte[1];
 
 		wr_byte[0] = (byte) ~newPage;
 
 		// writing byte so turn on write verification
-		mbRedirect.setWriteVerification(true);
+		this.mbRedirect.setWriteVerification(true);
 
 		// write the redirection byte
-		mbRedirect.write(page + redirectOffset, wr_byte, 0, 1);
-	}
-
-	/**
-	 * Query to see if the specified page is redirected. Not supported by all
-	 * devices. See the method 'canRedirectPage()'.
-	 *
-	 * @param page number of page check for redirection
-	 *
-	 * @return return the new page number or 0 if not redirected
-	 *
-	 * @throws OneWireIOException
-	 * @throws OneWireException
-	 *
-	 * @deprecated As of 1-Wire API 0.01, replaced by
-	 *             {@link #getRedirectedPage(int)}
-	 */
-	public int isPageRedirected(int page) throws OneWireIOException, OneWireException {
-
-		// read page that redirect byte is on
-		int pg_len = mbRedirect.getPageLength();
-		int read_pg = (page + redirectOffset) / pg_len;
-
-		// read page with byte
-		byte[] read_buf = new byte[pg_len];
-
-		mbRedirect.readPageCRC(read_pg, false, read_buf, 0);
-
-		// return page
-		return ~read_buf[(page + redirectOffset) % pg_len] & 0x000000FF;
+		this.mbRedirect.write(page + this.redirectOffset, wr_byte, 0, 1);
 	}
 
 	/**
@@ -1136,48 +1137,50 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @see #redirectPage(int,int) redirectPage
 	 * @since 1-Wire API 0.01
 	 */
+	@Override
 	public int getRedirectedPage(int page) throws OneWireIOException, OneWireException {
 
 		// read page that redirect byte is on
-		int pg_len = mbRedirect.getPageLength();
-		int read_pg = (page + redirectOffset) / pg_len;
+		var pg_len = this.mbRedirect.getPageLength();
+		var read_pg = (page + this.redirectOffset) / pg_len;
 
 		// read page with byte
-		byte[] read_buf = new byte[pg_len];
+		var read_buf = new byte[pg_len];
 
-		mbRedirect.readPageCRC(read_pg, false, read_buf, 0);
+		this.mbRedirect.readPageCRC(read_pg, false, read_buf, 0);
 
 		// return page
-		return ~read_buf[(page + redirectOffset) % pg_len] & 0x000000FF;
+		return ~read_buf[(page + this.redirectOffset) % pg_len] & 0x000000FF;
 	}
 
 	/**
-	 * Lock the redirection option for the specified page in the current memory bank.
-	 * Not supported by all devices. See the method 'canLockRedirectPage()'.
+	 * Lock the redirection option for the specified page in the current memory
+	 * bank. Not supported by all devices. See the method 'canLockRedirectPage()'.
 	 *
 	 * @param page number of page to redirect
 	 *
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public void lockRedirectPage(int page) throws OneWireIOException, OneWireException {
 
 		// create byte to write to mlLock to lock page
-		int nbyt = (page >>> 3);
-		int nbit = page - (nbyt << 3);
-		byte[] wr_byte = new byte[1];
+		var nbyt = page >>> 3;
+		var nbit = page - (nbyt << 3);
+		var wr_byte = new byte[1];
 
 		wr_byte[0] = (byte) ~(0x01 << nbit);
 
 		// bit field so turn off write verification
-		mbLockRedirect.setWriteVerification(false);
+		this.mbLockRedirect.setWriteVerification(false);
 
 		// write the lock bit
-		mbLockRedirect.write(nbyt + lockRedirectOffset, wr_byte, 0, 1);
+		this.mbLockRedirect.write(nbyt + this.lockRedirectOffset, wr_byte, 0, 1);
 
 		// read back to verify
-		if (!isRedirectPageLocked(page)) {
-			forceVerify();
+		if (!this.isRedirectPageLocked(page)) {
+			this.forceVerify();
 
 			throw new OneWireIOException("Read back from write incorrect, could not lock redirect byte");
 		}
@@ -1194,23 +1197,24 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 * @throws OneWireIOException
 	 * @throws OneWireException
 	 */
+	@Override
 	public boolean isRedirectPageLocked(int page) throws OneWireIOException, OneWireException {
 
 		// read page that lock redirect bit is on
-		int pg_len = mbLockRedirect.getPageLength();
-		int read_pg = (page + lockRedirectOffset) / (pg_len * 8);
+		var pg_len = this.mbLockRedirect.getPageLength();
+		var read_pg = (page + this.lockRedirectOffset) / (pg_len * 8);
 
 		// read page with bit
-		byte[] read_buf = new byte[pg_len];
+		var read_buf = new byte[pg_len];
 
-		mbLockRedirect.readPageCRC(read_pg, false, read_buf, 0);
+		this.mbLockRedirect.readPageCRC(read_pg, false, read_buf, 0);
 
 		// return boolean on lock redirect bit
-		int index = (page + lockRedirectOffset) - (read_pg * 8 * pg_len);
-		int nbyt = (index >>> 3);
-		int nbit = index - (nbyt << 3);
+		var index = page + this.lockRedirectOffset - read_pg * 8 * pg_len;
+		var nbyt = index >>> 3;
+		var nbit = index - (nbyt << 3);
 
-		return !(((read_buf[nbyt] >>> nbit) & 0x01) == 0x01);
+		return !((read_buf[nbyt] >>> nbit & 0x01) == 0x01);
 	}
 
 	// --------
@@ -1239,111 +1243,113 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	protected void readPageCRC(int page, boolean readContinue, byte[] readBuf, int offset, byte[] extraInfo,
 			int extraLength) throws OneWireIOException, OneWireException {
 		int len = 0, lastcrc = 0;
-		byte[] raw_buf = new byte[pageLength + numCRCBytes];
+		var raw_buf = new byte[this.pageLength + this.numCRCBytes];
 
 		// only needs to be implemented if supported by hardware
-		if (!pageAutoCRC)
+		if (!this.pageAutoCRC) {
 			throw new OneWireException("Read page with CRC not supported in this memory bank");
+		}
 
 		// attempt to put device at max desired speed
-		if (!readContinue)
-			checkSpeed();
+		if (!readContinue) {
+			this.checkSpeed();
+		}
 
 		// check if read exceeds memory
-		if (page > numberPages)
+		if (page > this.numberPages) {
 			throw new OneWireException("Read exceeds memory bank end");
+		}
 
 		// see if need to access the device
 		if (!readContinue) {
 
 			// select the device
-			if (!ib.adapter.select(ib.address)) {
-				forceVerify();
+			if (!this.ib.adapter.select(this.ib.address)) {
+				this.forceVerify();
 
 				throw new OneWireIOException("Device select failed");
 			}
 
 			// build start reading memory block with: command, address, (extraInfo?), (crc?)
-			len = 3 + extraInfoLength;
+			len = 3 + this.extraInfoLength;
 
-			if (crcAfterAddress)
-				len += numCRCBytes;
+			if (this.crcAfterAddress) {
+				len += this.numCRCBytes;
+			}
 
-			System.arraycopy(ffBlock, 0, raw_buf, 0, len);
+			System.arraycopy(this.ffBlock, 0, raw_buf, 0, len);
 
-			raw_buf[0] = READ_PAGE_WITH_CRC;
+			raw_buf[0] = this.READ_PAGE_WITH_CRC;
 
-			int addr = page * pageLength + startPhysicalAddress;
+			var addr = page * this.pageLength + this.startPhysicalAddress;
 
 			raw_buf[1] = (byte) (addr & 0xFF);
-			raw_buf[2] = (byte) (((addr & 0xFFFF) >>> 8) & 0xFF);
+			raw_buf[2] = (byte) ((addr & 0xFFFF) >>> 8 & 0xFF);
 
 			// do the first block
-			ib.adapter.dataBlock(raw_buf, 0, len);
-		} else if (extraInfoLength > 0) {
+			this.ib.adapter.dataBlock(raw_buf, 0, len);
+		} else if (this.extraInfoLength > 0) {
 
 			// build first block with: extraInfo, crc
-			len = extraInfoLength + numCRCBytes;
+			len = this.extraInfoLength + this.numCRCBytes;
 
-			System.arraycopy(ffBlock, 0, raw_buf, 0, len);
+			System.arraycopy(this.ffBlock, 0, raw_buf, 0, len);
 
 			// do the first block
-			ib.adapter.dataBlock(raw_buf, 0, len);
+			this.ib.adapter.dataBlock(raw_buf, 0, len);
 		}
 
 		// check CRC
-		if (numCRCBytes == 2)
+		if (this.numCRCBytes == 2) {
 			lastcrc = CRC16.compute(raw_buf, 0, len, 0);
-		else
+		} else {
 			lastcrc = CRC8.compute(raw_buf, 0, len, 0);
+		}
 
-		if ((extraInfoLength > 0) || (crcAfterAddress)) {
+		if (this.extraInfoLength > 0 || this.crcAfterAddress) {
 
 			// check CRC
-			if (numCRCBytes == 2) {
+			if (this.numCRCBytes == 2) {
 				if (lastcrc != 0x0000B001) {
-					forceVerify();
+					this.forceVerify();
 
 					throw new OneWireIOException("Invalid CRC16 read from device");
 				}
-			} else {
-				if (lastcrc != 0) {
-					forceVerify();
+			} else if (lastcrc != 0) {
+				this.forceVerify();
 
-					throw new OneWireIOException("Invalid CRC8 read from device");
-				}
+				throw new OneWireIOException("Invalid CRC8 read from device");
 			}
 
 			lastcrc = 0;
 
 			// extract the extra information
-			if ((extraInfoLength > 0) && (extraInfo != null))
-				System.arraycopy(raw_buf, len - extraInfoLength - numCRCBytes, extraInfo, 0, extraLength);
+			if (this.extraInfoLength > 0 && extraInfo != null) {
+				System.arraycopy(raw_buf, len - this.extraInfoLength - this.numCRCBytes, extraInfo, 0, extraLength);
+			}
 		}
 
 		// pre-fill with 0xFF
-		System.arraycopy(ffBlock, 0, raw_buf, 0, raw_buf.length);
+		System.arraycopy(this.ffBlock, 0, raw_buf, 0, raw_buf.length);
 
 		// send block to read data + crc
-		ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
+		this.ib.adapter.dataBlock(raw_buf, 0, raw_buf.length);
 
 		// check the CRC
-		if (numCRCBytes == 2) {
+		if (this.numCRCBytes == 2) {
 			if (CRC16.compute(raw_buf, 0, raw_buf.length, lastcrc) != 0x0000B001) {
-				forceVerify();
+				this.forceVerify();
 
 				throw new OneWireIOException("Invalid CRC16 read from device");
 			}
-		} else {
-			if (CRC8.compute(raw_buf, 0, raw_buf.length, lastcrc) != 0) {
-				forceVerify();
+		} else if (CRC8.compute(raw_buf, 0, raw_buf.length, lastcrc) != 0) {
+			this.forceVerify();
 
-				throw new OneWireIOException("Invalid CRC8 read from device");
-			}
+			throw new OneWireIOException("Invalid CRC8 read from device");
 		}
 
 		// extract the page data
-		System.arraycopy(raw_buf, 0, readBuf, offset, pageLength);
+		System.arraycopy(raw_buf, 0, readBuf, offset, this.pageLength);
 	}
 
 	/**
@@ -1368,24 +1374,24 @@ class MemoryBankEPROM implements OTPMemoryBank {
 		if (!writeContinue) {
 
 			// select the device
-			if (!ib.adapter.select(ib.address)) {
-				forceVerify();
+			if (!this.ib.adapter.select(this.ib.address)) {
+				this.forceVerify();
 
 				throw new OneWireIOException("device not present");
 			}
 
 			// pre-fill with 0xFF
-			byte[] raw_buf = new byte[6];
+			var raw_buf = new byte[6];
 
-			System.arraycopy(ffBlock, 0, raw_buf, 0, raw_buf.length);
+			System.arraycopy(this.ffBlock, 0, raw_buf, 0, raw_buf.length);
 
 			// construct packet
-			raw_buf[0] = (byte) WRITE_MEMORY_COMMAND;
+			raw_buf[0] = this.WRITE_MEMORY_COMMAND;
 			raw_buf[1] = (byte) (addr & 0xFF);
-			raw_buf[2] = (byte) (((addr & 0xFFFF) >>> 8) & 0xFF);
-			raw_buf[3] = (byte) data;
+			raw_buf[2] = (byte) ((addr & 0xFFFF) >>> 8 & 0xFF);
+			raw_buf[3] = data;
 
-			if (numCRCBytes == 2) {
+			if (this.numCRCBytes == 2) {
 				lastcrc = CRC16.compute(raw_buf, 0, 4, 0);
 				len = 6;
 			} else {
@@ -1394,42 +1400,40 @@ class MemoryBankEPROM implements OTPMemoryBank {
 			}
 
 			// send block to read data + crc
-			ib.adapter.dataBlock(raw_buf, 0, len);
+			this.ib.adapter.dataBlock(raw_buf, 0, len);
 
 			// check CRC
-			if (numCRCBytes == 2) {
+			if (this.numCRCBytes == 2) {
 				if (CRC16.compute(raw_buf, 4, 2, lastcrc) != 0x0000B001) {
-					forceVerify();
+					this.forceVerify();
 
 					throw new OneWireIOException("Invalid CRC16 read from device");
 				}
-			} else {
-				if (CRC8.compute(raw_buf, 4, 1, lastcrc) != 0) {
-					forceVerify();
+			} else if (CRC8.compute(raw_buf, 4, 1, lastcrc) != 0) {
+				this.forceVerify();
 
-					throw new OneWireIOException("Invalid CRC8 read from device");
-				}
+				throw new OneWireIOException("Invalid CRC8 read from device");
 			}
 		} else {
 
 			// send the data
-			ib.adapter.putByte(data);
+			this.ib.adapter.putByte(data);
 
 			// check CRC from device
-			if (numCRCBytes == 2) {
+			if (this.numCRCBytes == 2) {
 				lastcrc = CRC16.compute(data, addr);
-				lastcrc = CRC16.compute(ib.adapter.getByte(), lastcrc);
+				lastcrc = CRC16.compute(this.ib.adapter.getByte(), lastcrc);
 
-				if (CRC16.compute(ib.adapter.getByte(), lastcrc) != 0x0000B001) {
-					forceVerify();
+				if (CRC16.compute(this.ib.adapter.getByte(), lastcrc) != 0x0000B001) {
+					this.forceVerify();
 
 					throw new OneWireIOException("Invalid CRC16 read from device");
 				}
 			} else {
 				lastcrc = CRC8.compute(data, addr);
 
-				if (CRC8.compute(ib.adapter.getByte(), lastcrc) != 0) {
-					forceVerify();
+				if (CRC8.compute(this.ib.adapter.getByte(), lastcrc) != 0) {
+					this.forceVerify();
 
 					throw new OneWireIOException("Invalid CRC8 read from device");
 				}
@@ -1437,10 +1441,10 @@ class MemoryBankEPROM implements OTPMemoryBank {
 		}
 
 		// send the pulse
-		ib.adapter.startProgramPulse(DSPortAdapter.CONDITION_NOW);
+		this.ib.adapter.startProgramPulse(DSPortAdapter.CONDITION_NOW);
 
 		// return the result
-		return (byte) ib.adapter.getByte();
+		return (byte) this.ib.adapter.getByte();
 	}
 
 	// --------
@@ -1458,13 +1462,13 @@ class MemoryBankEPROM implements OTPMemoryBank {
 		synchronized (this) {
 
 			// only check the speed
-			if (doSetSpeed) {
+			if (this.doSetSpeed) {
 
 				// attempt to set the correct speed and verify device present
-				ib.doSpeed();
+				this.ib.doSpeed();
 
 				// no exceptions so clear flag
-				doSetSpeed = false;
+				this.doSetSpeed = false;
 			}
 		}
 	}
@@ -1475,7 +1479,8 @@ class MemoryBankEPROM implements OTPMemoryBank {
 	 */
 	public void forceVerify() {
 		synchronized (this) {
-			doSetSpeed = true;
+			this.doSetSpeed = true;
 		}
 	}
 }
+// CHECKSTYLE:ON

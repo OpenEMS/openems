@@ -19,7 +19,11 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.PvInverter.FixPowerLimit", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.PvInverter.FixPowerLimit", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class PvInverterFixPowerLimit extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(PvInverterFixPowerLimit.class);
@@ -30,7 +34,7 @@ public class PvInverterFixPowerLimit extends AbstractOpenemsComponent implements
 	private String pvInverterId;
 
 	/**
-	 * the configured Power Limit
+	 * The configured Power Limit.
 	 */
 	private int powerLimit = 0;
 
@@ -64,6 +68,7 @@ public class PvInverterFixPowerLimit extends AbstractOpenemsComponent implements
 		this.powerLimit = config.powerLimit();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		// Reset limit

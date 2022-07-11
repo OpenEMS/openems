@@ -1,7 +1,2 @@
 eclipse.preferences.version=1
-encoding//src/io/openems/backend/common/edgewebsocket/package-info.java=UTF-8
-encoding//src/io/openems/backend/common/metadata/package-info.java=UTF-8
-encoding//src/io/openems/backend/common/timedata/package-info.java=UTF-8
-encoding//src/io/openems/backend/common/uiwebsocket/package-info.java=UTF-8
-encoding//test/.gitignore=UTF-8
-encoding/bnd.bnd=UTF-8
+encoding/<project>=UTF-8

@@ -8,7 +8,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
@@ -28,10 +28,11 @@ import io.openems.edge.common.user.User;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Bridge.Onewire", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 public class BridgeOnewireImpl extends AbstractOpenemsComponent implements BridgeOnewire, OpenemsComponent, JsonApi {
 
 	private OneWireTaskWorker taskWorker = null;
@@ -53,6 +54,7 @@ public class BridgeOnewireImpl extends AbstractOpenemsComponent implements Bridg
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.taskWorker != null) {

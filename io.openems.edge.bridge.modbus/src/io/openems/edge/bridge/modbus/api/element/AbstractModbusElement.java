@@ -57,11 +57,11 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 
 	/**
 	 * The onUpdateCallback is called on reception of a new value.
-	 * 
+	 *
 	 * <p>
 	 * Be aware, that this is the original, untouched value.
 	 * ChannelToElementConverters are not applied here yet!
-	 * 
+	 *
 	 * @param onUpdateCallback the Callback
 	 * @return myself
 	 */
@@ -72,12 +72,12 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 
 	@Override
 	public int getStartAddress() {
-		return startAddress;
+		return this.startAddress;
 	}
 
 	@Override
 	public boolean isIgnored() {
-		return isIgnored;
+		return this.isIgnored;
 	}
 
 	@Override
@@ -86,12 +86,12 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	}
 
 	public AbstractTask getModbusTask() {
-		return abstractTask;
+		return this.abstractTask;
 	}
 
 	protected void setValue(T value) {
 		if (this.isDebug) {
-			log.info("Element [" + this + "] set value to [" + value + "].");
+			this.log.info("Element [" + this + "] set value to [" + value + "].");
 		}
 		if (value != null) {
 			this.invalidValueCounter = 0;
@@ -107,9 +107,8 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 		if (bridge.invalidateElementsAfterReadErrors() <= this.invalidValueCounter) {
 			this.setValue(null);
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	/*
@@ -117,13 +116,18 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	 */
 	private boolean isDebug = false;
 
+	/**
+	 * Activate Debug-Mode.
+	 * 
+	 * @return myself
+	 */
 	public AbstractModbusElement<T> debug() {
 		this.isDebug = true;
 		return this;
 	}
 
 	protected boolean isDebug() {
-		return isDebug;
+		return this.isDebug;
 	}
 
 	@Override

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -49,21 +50,21 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  * have 'get' and 'set' methods that manipulate the byte array. So a
  * OneWireSensor operation is:
  * </P>
- * 
+ *
  * <OL>
  * <LI>state = readDevice()
  * <LI>'get' and 'set' methods on state
  * <LI>writeDevice(state)
  * </OL>
- * 
+ *
  * <H3>Usage</H3>
- * 
+ *
  * <DL>
  * <DD>
  * <H4>Example 1</H4> Read the sensed level of a
  * {@link com.dalsemi.onewire.container.SwitchContainer SwitchContainer}
  * instance 'sw':
- * 
+ *
  * <PRE>
  *  <CODE>
  *  byte[] state = sw.readDevice();
@@ -82,12 +83,12 @@ import com.dalsemi.onewire.adapter.OneWireIOException;
  *      System.out.println("This SwitchContainer can not sense level");
  * </CODE>
  * </PRE>
- * 
+ *
  * <DD>
  * <H4>Example 2</H4> Set the clock of a
  * {@link com.dalsemi.onewire.container.ClockContainer ClockContainer} instance
  * 'cl':
- * 
+ *
  * <PRE>
  *  <CODE>
  *  byte[] state = cl.readDevice();
@@ -148,3 +149,4 @@ public interface OneWireSensor {
 	 */
 	public void writeDevice(byte[] state) throws OneWireIOException, OneWireException;
 }
+// CHECKSTYLE:ON

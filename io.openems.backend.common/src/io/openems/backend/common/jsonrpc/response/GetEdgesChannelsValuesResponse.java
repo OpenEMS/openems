@@ -15,7 +15,7 @@ import io.openems.common.types.ChannelAddress;
 
 /**
  * Represents a JSON-RPC Response for {@link GetEdgesChannelsValuesRequest}.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -42,7 +42,7 @@ public class GetEdgesChannelsValuesResponse extends JsonrpcResponseSuccess {
 
 	/**
 	 * Adds a Value to the JSON-RPC Response.
-	 * 
+	 *
 	 * @param edgeId  the Edge-ID
 	 * @param channel the {@link ChannelAddress}
 	 * @param value   the value
@@ -53,14 +53,14 @@ public class GetEdgesChannelsValuesResponse extends JsonrpcResponseSuccess {
 
 	@Override
 	public JsonObject getResult() {
-		JsonObject j = new JsonObject();
+		var j = new JsonObject();
 		for (Entry<String, Map<ChannelAddress, JsonElement>> row : this.values.rowMap().entrySet()) {
-			String edgeId = row.getKey();
-			Map<ChannelAddress, JsonElement> columns = row.getValue();
-			JsonObject jEdge = new JsonObject();
+			var edgeId = row.getKey();
+			var columns = row.getValue();
+			var jEdge = new JsonObject();
 			for (Entry<ChannelAddress, JsonElement> column : columns.entrySet()) {
-				ChannelAddress channel = column.getKey();
-				JsonElement value = column.getValue();
+				var channel = column.getKey();
+				var value = column.getValue();
 				jEdge.add(channel.toString(), value);
 			}
 			j.add(edgeId, jEdge);

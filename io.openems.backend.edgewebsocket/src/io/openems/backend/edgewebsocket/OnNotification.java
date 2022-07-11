@@ -1,7 +1,6 @@
 package io.openems.backend.edgewebsocket;
 
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
@@ -9,9 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.Edge;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -44,9 +41,9 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		}
 
 		// announce incoming message for this Edge
-		Optional<Edge> edge = wsData.getEdge(this.parent.metadata);
-		if (edge.isPresent()) {
-			edge.get().setLastMessageTimestamp();
+		var edgeOpt = wsData.getEdge(this.parent.metadata);
+		if (edgeOpt.isPresent()) {
+			edgeOpt.get().setLastMessageTimestamp();
 		}
 
 		// Handle notification
@@ -69,16 +66,16 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 	/**
 	 * Handles EdgeConfigNotification.
-	 * 
+	 *
 	 * @param message the EdgeConfigNotification
 	 * @param wsData  the WebSocket attachment
 	 * @throws OpenemsException on error
 	 */
 	private void handleEdgeConfigNotification(EdgeConfigNotification message, WsData wsData) throws OpenemsException {
-		String edgeId = wsData.assertEdgeId(message);
+		var edgeId = wsData.assertEdgeId(message);
 
 		// save config in metadata
-		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
+		var edge = this.parent.metadata.getEdgeOrError(edgeId);
 		edge.setConfig(message.getConfig());
 
 		// forward
@@ -94,14 +91,14 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 	/**
 	 * Handles TimestampedDataNotification.
-	 * 
+	 *
 	 * @param message the TimestampedDataNotification
 	 * @param wsData  the WebSocket attachment
 	 * @throws OpenemsNamedException on error
 	 */
 	private void handleTimestampedDataNotification(TimestampedDataNotification message, WsData wsData)
 			throws OpenemsNamedException {
-		String edgeId = wsData.assertEdgeId(message);
+		var edgeId = wsData.assertEdgeId(message);
 
 		try {
 			this.parent.timedata.write(edgeId, message.getData());
@@ -110,9 +107,9 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		}
 
 		// Read some specific channels
-		Edge edge = this.parent.metadata.getEdgeOrError(edgeId);
+		var edge = this.parent.metadata.getEdgeOrError(edgeId);
 		for (Entry<String, JsonElement> entry : message.getParams().entrySet()) {
-			JsonObject data = JsonUtils.getAsJsonObject(entry.getValue());
+			var data = JsonUtils.getAsJsonObject(entry.getValue());
 			// set Edge last update timestamp only for those channels
 			for (String channel : data.keySet()) {
 				if (channel.endsWith("ActivePower")
@@ -124,12 +121,12 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 			// set specific Edge values
 			if (data.has("_sum/State") && data.get("_sum/State").isJsonPrimitive()) {
-				Level sumState = Level.fromJson(data, "_sum/State").orElse(Level.FAULT);
+				var sumState = Level.fromJson(data, "_sum/State").orElse(Level.FAULT);
 				edge.setSumState(sumState);
 			}
 
 			if (data.has("_meta/Version") && data.get("_meta/Version").isJsonPrimitive()) {
-				String version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
+				var version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
 				edge.setVersion(SemanticVersion.fromString(version));
 			}
 
@@ -138,14 +135,14 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 	/**
 	 * Handles SystemLogNotification.
-	 * 
+	 *
 	 * @param message the SystemLogNotification
 	 * @param wsData  the WebSocket attachment
 	 * @throws OpenemsNamedException on error
 	 */
 	private void handleSystemLogNotification(SystemLogNotification message, WsData wsData)
 			throws OpenemsNamedException {
-		String edgeId = wsData.assertEdgeId(message);
+		var edgeId = wsData.assertEdgeId(message);
 		this.parent.handleSystemLogNotification(edgeId, message);
 	}
 }

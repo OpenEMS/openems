@@ -25,7 +25,6 @@ import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 import io.openems.common.session.Role;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
 
@@ -61,8 +60,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<AuthenticatedRpcResponse> handleAuthenticatedRpcRequest(
 			AuthenticatedRpcRequest<User> authenticatedRpcRequest) throws OpenemsNamedException {
-		User user = authenticatedRpcRequest.getUser();
-		JsonrpcRequest request = authenticatedRpcRequest.getPayload();
+		var user = authenticatedRpcRequest.getUser();
+		var request = authenticatedRpcRequest.getPayload();
 
 		CompletableFuture<? extends JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
@@ -94,15 +93,17 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case SubscribeSystemLogRequest.METHOD:
 			resultFuture = this.handleSubscribeSystemLogRequest(user, SubscribeSystemLogRequest.from(request));
 			break;
+			
 		case UpdateUserLanguageRequest.METHOD:
 			resultFuture = this.handleUpdateUserLanguageRequest(user, UpdateUserLanguageRequest.from(request));
+			break;
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
 
-		CompletableFuture<AuthenticatedRpcResponse> result = new CompletableFuture<AuthenticatedRpcResponse>();
+		var result = new CompletableFuture<AuthenticatedRpcResponse>();
 		resultFuture.whenComplete((r, ex) -> {
 			if (ex != null) {
 				result.completeExceptionally(ex);
@@ -127,15 +128,14 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleGetEdgeConfigRequest(User user,
 			GetEdgeConfigRequest getEdgeConfigRequest) throws OpenemsNamedException {
 		// wrap original request inside ComponentJsonApiRequest
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
-				getEdgeConfigRequest);
+		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID, getEdgeConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
 	}
 
 	/**
 	 * Handles a {@link CreateComponentConfigRequest}.
-	 * 
+	 *
 	 * @param user                         the {@link User}
 	 * @param createComponentConfigRequest the {@link CreateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
@@ -146,7 +146,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.INSTALLER);
 
 		// wrap original request inside ComponentJsonApiRequest
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
+		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
 				createComponentConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
@@ -154,7 +154,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a {@link UpdateComponentConfigRequest}.
-	 * 
+	 *
 	 * @param user                         the {@link User}
 	 * @param updateComponentConfigRequest the {@link UpdateComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
@@ -165,7 +165,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.OWNER);
 
 		// wrap original request inside ComponentJsonApiRequest
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
+		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
 				updateComponentConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
@@ -173,7 +173,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a {@link DeleteComponentConfigRequest}.
-	 * 
+	 *
 	 * @param user                         the {@link User}
 	 * @param deleteComponentConfigRequest the {@link DeleteComponentConfigRequest}
 	 * @return the Future JSON-RPC Response
@@ -184,7 +184,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		user.assertRoleIsAtLeast(DeleteComponentConfigRequest.METHOD, Role.INSTALLER);
 
 		// wrap original request inside ComponentJsonApiRequest
-		ComponentJsonApiRequest request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
+		var request = new ComponentJsonApiRequest(ComponentManager.SINGLETON_COMPONENT_ID,
 				deleteComponentConfigRequest);
 
 		return this.handleComponentJsonApiRequest(user, request);
@@ -192,7 +192,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a {@link SetChannelValueRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link SetChannelValueRequest}
 	 * @return the Future JSON-RPC Response
@@ -207,7 +207,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a {@link ComponentJsonApiRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link ComponentJsonApiRequest}
 	 * @return the JSON-RPC Success Response Future
@@ -216,8 +216,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<GenericJsonrpcResponseSuccess> handleComponentJsonApiRequest(User user,
 			ComponentJsonApiRequest request) throws OpenemsNamedException {
 		// get Component
-		String componentId = request.getComponentId();
-		OpenemsComponent component = this.parent.componentManager.getComponent(componentId);
+		var componentId = request.getComponentId();
+		var component = this.parent.componentManager.getComponent(componentId);
 
 		if (component == null) {
 			throw new OpenemsException("Unable to find Component [" + componentId + "]");
@@ -228,7 +228,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		}
 
 		// call JsonApi
-		JsonApi jsonApi = (JsonApi) component;
+		var jsonApi = (JsonApi) component;
 		CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = jsonApi.handleJsonrpcRequest(user,
 				request.getPayload());
 
@@ -238,7 +238,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		}
 
 		// Wrap reply in EdgeRpcResponse
-		CompletableFuture<GenericJsonrpcResponseSuccess> edgeRpcResponse = new CompletableFuture<>();
+		var edgeRpcResponse = new CompletableFuture<GenericJsonrpcResponseSuccess>();
 		responseFuture.whenComplete((r, ex) -> {
 			if (ex != null) {
 				edgeRpcResponse.completeExceptionally(ex);
@@ -269,7 +269,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	/**
 	 * Handles a {@link UpdateUserLanguageRequest}.
-	 * 
+	 *
 	 * @param user    the {@link User}
 	 * @param request the {@link UpdateUserLanguageRequest}
 	 * @return the JSON-RPC Success Response Future

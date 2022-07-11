@@ -1,14 +1,12 @@
 package io.openems.edge.evcs.hardybarth;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
 
@@ -24,7 +22,7 @@ public class HardyBarthWriteHandler implements Runnable {
 	/*
 	 * Minimum pause between two consecutive writes.
 	 */
-	private static final int WRITE_INTERVAL_SECONDS = 30;
+	private static final int WRITE_INTERVAL_SECONDS = 1;
 
 	public HardyBarthWriteHandler(HardyBarthImpl parent) {
 		this.parent = parent;
@@ -38,19 +36,21 @@ public class HardyBarthWriteHandler implements Runnable {
 		}
 
 		this.setManualMode();
+		this.setHeartbeat();
+		// this.enableExternalMeter();
 		this.setEnergyLimit();
 		this.setPower();
 	}
 
 	/**
 	 * Set manual mode.
-	 * 
+	 *
 	 * <p>
 	 * Sets the chargemode to manual if not set.
 	 */
 	private void setManualMode() {
 		StringReadChannel channelChargeMode = this.parent.channel(HardyBarth.ChannelId.RAW_SALIA_CHARGE_MODE);
-		Optional<String> valueOpt = channelChargeMode.value().asOptional();
+		var valueOpt = channelChargeMode.value().asOptional();
 		if (valueOpt.isPresent()) {
 			if (!valueOpt.get().equals("manual")) {
 				// Set to manual mode
@@ -66,8 +66,62 @@ public class HardyBarthWriteHandler implements Runnable {
 	}
 
 	/**
+	 * Set heartbeat.
+	 *
+	 * <p>
+	 * Sets the heartbeat to on or off.
+	 */
+	private void setHeartbeat() {
+		// The internal heartbeat is currently too fast - it is not enough to write
+		// every second by default. We have to disable it to run the evcs
+		// properly.
+		// TODO: The manufacturer must be asked if it is possible to read the heartbeat
+		// status so that we can check if the heartbeat is really disabled and if the
+		// heartbeat time can be increased to be able to use this feature.
+
+		try {
+			this.parent.api.sendPutRequest("/api/secc", "salia/heartbeat", "off");
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Enable external meter.
+	 *
+	 * <p>
+	 * Enables the external meter if not set.
+	 */
+	// TODO: Set the external meter to true because it's disabled per default.
+	// Not usable for now, because we haven't an update process defined and
+	// this REST Entry is only available with a beta firmware
+	// (http://salia.echarge.de/firmware/firmware_1.37.8_beta.image) or the next
+	// higher stable version. Be aware that the REST call and the update should not
+	// be called every cycle
+	/*
+	 * private void enableExternalMeter() {
+	 *
+	 * BooleanReadChannel channelChargeMode =
+	 * this.parent.channel(HardyBarth.ChannelId.RAW_SALIA_CHANGE_METER);
+	 * Optional<Boolean> valueOpt = channelChargeMode.value().asOptional(); if
+	 * (valueOpt.isPresent()) { if (!valueOpt.get().equals(true)) { // Enable
+	 * external meter try {
+	 * this.parent.debugLog("Enable external meter of HardyBarth " +
+	 * this.parent.id()); JsonElement result =
+	 * this.parent.api.sendPutRequest("/api/secc", "salia/changemeter",
+	 * "enable | /dev/ttymxc0 | klefr | 9600 | none | 1");
+	 * this.parent.debugLog(result.toString());
+	 *
+	 * if (result.toString().equals("{\"result\":\"ok\"}")) { // Reboot the charger
+	 * this.parent.debugLog("Reboot of HardyBarth " + this.parent.id()); JsonElement
+	 * resultReboot = this.parent.api.sendPutRequest("/api/secc",
+	 * "salia/servicereboot", "1"); this.parent.debugLog(resultReboot.toString()); }
+	 * } catch (OpenemsNamedException e) { e.printStackTrace(); } } } }
+	 */
+
+	/**
 	 * Sets the current from SET_CHARGE_POWER channel.
-	 * 
+	 *
 	 * <p>
 	 * Allowed loading current are between 6A and 32A. Invalid values are discarded.
 	 * The value is also depending on the configured min and max current of the
@@ -82,18 +136,18 @@ public class HardyBarthWriteHandler implements Runnable {
 
 			// Check current set_charge_power_limit write value
 			WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
-			Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+			var valueOpt = channel.getNextWriteValueAndReset();
 			if (valueOpt.isPresent()) {
 
 				int power = valueOpt.get();
 
 				// Convert it to ampere and apply hard limits
-				Value<Integer> phases = this.parent.getPhases();
+				var phases = this.parent.getPhases();
 				Integer current = (int) Math.round(power / (double) phases.orElse(3) / 230.0);
 
 				// TODO: Read separate saliaconf.json and set minimum and maximum dynamically
-				int maximum = this.parent.config.maxHwCurrent() / 1000;
-				int minimum = this.parent.config.minHwCurrent() / 1000;
+				var maximum = this.parent.config.maxHwCurrent() / 1000;
+				var minimum = this.parent.config.minHwCurrent() / 1000;
 				if (current > maximum) {
 					current = maximum;
 				}
@@ -122,23 +176,34 @@ public class HardyBarthWriteHandler implements Runnable {
 
 	/**
 	 * Set current target to the charger.
-	 * 
+	 *
 	 * @param current current target in A
 	 * @param power   current target in W
 	 */
 	private void setTarget(int current, int power) {
 		try {
+			JsonElement resultPause;
+			if (current > 0) {
+				// Send stop pause request
+				resultPause = this.parent.api.sendPutRequest("/api/secc", "salia/pausecharging", "" + 0);
+				this.parent.debugLog("Wake up HardyBarth " + this.parent.alias() + " from the pause");
+			} else {
+				// Send pause charging request
+				resultPause = this.parent.api.sendPutRequest("/api/secc", "salia/pausecharging", "" + 1);
+				this.parent.debugLog("Setting HardyBarth " + this.parent.alias() + " to pause");
+			}
+
 			// Send charge power limit
 			JsonElement result = this.parent.api.sendPutRequest("/api/secc", "grid_current_limit", "" + current);
 
 			// Set results
-			this.parent._setSetChargePowerLimit(current);
-			this.parent.debugLog(result.toString());
+			this.parent._setSetChargePowerLimit(power);
+			this.parent.debugLog("Pause: " + resultPause.toString());
+			this.parent.debugLog("SetActivePower: " + result.toString());
 
 			// Prepare next write
 			this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
 			this.lastCurrent = current;
-			this.parent._setSetChargePowerLimit(power);
 		} catch (OpenemsNamedException e) {
 			e.printStackTrace();
 		}
@@ -151,9 +216,9 @@ public class HardyBarthWriteHandler implements Runnable {
 	 */
 	private void setEnergyLimit() {
 		WriteChannel<Integer> channel = this.parent.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
-		Optional<Integer> valueOpt = channel.getNextWriteValueAndReset();
+		var valueOpt = channel.getNextWriteValueAndReset();
 		if (valueOpt.isPresent()) {
-			Integer energyLimit = valueOpt.get();
+			var energyLimit = valueOpt.get();
 
 			// Set if the energy target to set changed
 			if (!energyLimit.equals(this.lastEnergySession)) {

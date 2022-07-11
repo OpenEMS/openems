@@ -1,14 +1,14 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String ess_id;
+		private String essId;
 		private int reserveSoc;
 		private boolean isReserveSocEnabled;
 
@@ -21,7 +21,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 
 		public Builder setEssId(String essId) {
-			this.ess_id = essId;
+			this.essId = essId;
 			return this;
 		}
 
@@ -43,7 +43,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -59,7 +59,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String ess_id() {
-		return this.builder.ess_id;
+		return this.builder.essId;
 	}
 
 	@Override

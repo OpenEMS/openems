@@ -26,10 +26,17 @@ public class ChannelFormula {
 		this.staticValue = Optional.of(staticValue);
 	}
 
+	/**
+	 * Gets the Channel value.
+	 *
+	 * @param cache an {@link EdgeCache}
+	 * @return the value
+	 */
 	public int getValue(EdgeCache cache) {
 		if (this.address.isPresent()) {
 			return cache.getChannelValue(this.address.get()).orElse(new JsonPrimitive(0)).getAsInt();
-		} else if (this.staticValue.isPresent()) {
+		}
+		if (this.staticValue.isPresent()) {
 			return this.staticValue.get();
 		} else {
 			return 0;
@@ -37,7 +44,7 @@ public class ChannelFormula {
 	}
 
 	public Function getFunction() {
-		return function;
+		return this.function;
 	}
 
 }

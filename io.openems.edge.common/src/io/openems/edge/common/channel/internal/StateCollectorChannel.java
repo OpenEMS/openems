@@ -1,6 +1,5 @@
 package io.openems.edge.common.channel.internal;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,14 +18,14 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
- * Collects the values of all {@link StateChannel}s. This class is used for
- * the "State" Channel of every OpenEMS Component.
+ * Collects the values of all {@link StateChannel}s. This class is used for the
+ * "State" Channel of every OpenEMS Component.
  */
 public class StateCollectorChannel extends EnumReadChannel {
 
 	/**
 	 * Holds all Channels that are connected to and collected by this
-	 * StateCollectorChannel
+	 * StateCollectorChannel.
 	 */
 	private final Map<io.openems.edge.common.channel.ChannelId, Channel<?>> channels = Collections
 			.synchronizedMap(new HashMap<>());
@@ -42,8 +41,7 @@ public class StateCollectorChannel extends EnumReadChannel {
 
 	@Override
 	public Value<Integer> value() {
-		Value<Integer> result = super.value();
-		return result;
+		return super.value();
 	}
 
 	private final BiConsumer<StateChannel, Value<Boolean>> onChangeFunction = (channel, value) -> {
@@ -60,10 +58,10 @@ public class StateCollectorChannel extends EnumReadChannel {
 
 		/*
 		 * Set my own next value according to activeStates.
-		 * 
+		 *
 		 * Higher value of Level beats lower value.
 		 */
-		int nextValue = 0;
+		var nextValue = 0;
 		for (Level level : Level.values()) {
 			if (this.activeStates.get(level).size() > 0) {
 				nextValue = Math.max(nextValue, level.getValue());
@@ -74,7 +72,7 @@ public class StateCollectorChannel extends EnumReadChannel {
 
 	/**
 	 * Adds a Channel to this StateCollector.
-	 * 
+	 *
 	 * @param channel the Channel
 	 */
 	public void addChannel(StateChannel channel) {
@@ -87,9 +85,10 @@ public class StateCollectorChannel extends EnumReadChannel {
 
 	/**
 	 * Removes a Channel from this StateCollector.
+	 * 
 	 * <p>
 	 * The onChange listener is removed by the {@link Channel#deactivate()} method.
-	 * 
+	 *
 	 * @param channel the Channel
 	 */
 	public void removeChannel(StateChannel channel) {
@@ -98,8 +97,8 @@ public class StateCollectorChannel extends EnumReadChannel {
 	}
 
 	/**
-	 * Lists all States as Text
-	 * 
+	 * Lists all States as Text.
+	 *
 	 * @return the text
 	 */
 	public String listStates() {
@@ -108,18 +107,18 @@ public class StateCollectorChannel extends EnumReadChannel {
 
 	/**
 	 * Lists all States that are at least 'fromLevel' as text.
-	 * 
+	 *
 	 * @param fromLevel the minimum Level
 	 * @return the text
 	 */
 	public String listStates(Level fromLevel) {
-		StringBuilder result = new StringBuilder();
+		var result = new StringBuilder();
 		for (Level level : Level.values()) {
 			if (level.ordinal() < fromLevel.ordinal()) {
 				// filter levels below 'fromLevel'
 				continue;
 			}
-			Collection<ChannelId> channelIds = this.activeStates.get(level);
+			var channelIds = this.activeStates.get(level);
 			if (channelIds.size() > 0) {
 				if (result.length() > 0) {
 					result.append("| ");
@@ -127,7 +126,7 @@ public class StateCollectorChannel extends EnumReadChannel {
 				result.append(level.name() + ": ");
 				result.append(channelIds.stream() //
 						.map(channelId -> {
-							String docText = this.parent.channel(channelId).channelDoc().getText();
+							var docText = this.parent.channel(channelId).channelDoc().getText();
 							if (!docText.isEmpty()) {
 								return docText;
 							}

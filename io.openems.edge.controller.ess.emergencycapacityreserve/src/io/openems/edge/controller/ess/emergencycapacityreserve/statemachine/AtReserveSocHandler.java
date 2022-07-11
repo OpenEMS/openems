@@ -2,21 +2,20 @@ package io.openems.edge.controller.ess.emergencycapacityreserve.statemachine;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.emergencycapacityreserve.statemachine.StateMachine.State;
 
 public class AtReserveSocHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected State runAndGetNextState(Context context) throws OpenemsNamedException {
-		Sum sum = context.sum;
+		var sum = context.sum;
 
 		// calculate target and ramp power
-		int targetPower = Math.max(0, sum.getProductionDcActualPower().orElse(0));
+		var targetPower = Math.max(0, sum.getProductionDcActualPower().orElse(0));
 		context.setTargetPower(targetPower);
 		context.setRampPower(context.maxApparentPower * 0.01);
 
-		int reserveSoc = context.reserveSoc;
+		var reserveSoc = context.reserveSoc;
 		int soc = context.soc;
 
 		// SoC is under configured reserveSoC

@@ -22,18 +22,21 @@ import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
 import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.AsymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Asymmetric.BalancingCosPhi", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.Asymmetric.BalancingCosPhi", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class CosPhi extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public final static CosPhiDirection DEFAULT_DIRECTION = CosPhiDirection.CAPACITIVE;
-	public final static double DEFAULT_COS_PHI = 1d;
+	public static final CosPhiDirection DEFAULT_DIRECTION = CosPhiDirection.CAPACITIVE;
+	public static final double DEFAULT_COS_PHI = 1d;
 
 	private final Logger log = LoggerFactory.getLogger(CosPhi.class);
 
@@ -77,6 +80,7 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 		this.cosPhi = Math.abs(config.cosPhi());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -101,17 +105,17 @@ public class CosPhi extends AbstractOpenemsComponent implements Controller, Open
 		// Calculate the startpoint of the cosPhi line in relation to the ess zero power
 		long pNull = meterActivePower.getOrError() + essActivePower.getOrError();
 		long qNull = meterReactivePower.getOrError() + essReactivePower.getOrError();
-		double m = Math.tan(Math.acos(Math.abs(cosPhi)));
+		var m = Math.tan(Math.acos(Math.abs(this.cosPhi)));
 		if (this.direction == CosPhiDirection.INDUCTIVE) {
 			m *= -1;
 		}
 		System.out.println("Steigung [" + m + "] pNull [" + pNull + "] qNull [" + qNull + "]");
 
-		double staticValueOfEquation = m * pNull * qNull;
+		var staticValueOfEquation = m * pNull * qNull;
 
 		try {
-			Power power = ess.getPower();
-			Constraint c = new Constraint(ess.id() + phase + ": CosPhi [" + cosPhi + "]", new LinearCoefficient[] { //
+			var power = ess.getPower();
+			var c = new Constraint(ess.id() + phase + ": CosPhi [" + this.cosPhi + "]", new LinearCoefficient[] { //
 					new LinearCoefficient(power.getCoefficient(ess, phase, Pwr.ACTIVE), m), //
 					new LinearCoefficient(power.getCoefficient(ess, phase, Pwr.REACTIVE), 1) //
 			}, Relationship.EQUALS, staticValueOfEquation);

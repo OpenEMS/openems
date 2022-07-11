@@ -17,13 +17,13 @@ public class ChannelDataRecordMapper {
 		this.channelDataRecordsList = channelDataRecordsList;
 
 		for (ChannelRecord channelRecord : channelDataRecordsList) {
-			mapDataToChannel(data, channelRecord.getdataRecordPosition(), channelRecord.getChannel(),
+			this.mapDataToChannel(data, channelRecord.getDataRecordPosition(), channelRecord.getChannel(),
 					channelRecord.getDataType());
 		}
 	}
 
 	public VariableDataStructure getData() {
-		return data;
+		return this.data;
 	}
 
 	public void setData(VariableDataStructure data) {
@@ -31,7 +31,7 @@ public class ChannelDataRecordMapper {
 	}
 
 	public List<ChannelRecord> getChannelDataRecordsList() {
-		return channelDataRecordsList;
+		return this.channelDataRecordsList;
 	}
 
 	public void setChannelDataRecordsList(List<ChannelRecord> channelDataRecordsList) {

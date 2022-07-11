@@ -1,22 +1,17 @@
 package io.openems.edge.core.componentmanager;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.jar.Manifest;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -26,15 +21,9 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.component.ComponentConstants;
-import org.osgi.service.event.Event;
-import org.osgi.service.metatype.MetaTypeInformation;
-import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.google.gson.JsonElement;
@@ -42,17 +31,15 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.OpenemsConstants;
-import io.openems.common.channel.Level;
+import io.openems.common.event.EventBuilder;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetail;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailOpenemsType;
 import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
-import io.openems.common.types.EdgeConfig.Factory;
 import io.openems.common.types.OptionsEnum;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.StateChannelDoc;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -67,8 +54,10 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	private static final int CYCLE_TIME = 300_000; // in ms
 
+	private static final Logger LOG = LoggerFactory.getLogger(EdgeConfigWorker.class);
+
 	private final Logger log = LoggerFactory.getLogger(EdgeConfigWorker.class);
-	private final Queue<ConfigurationEvent> events = new ArrayDeque<ConfigurationEvent>();
+	private final Queue<ConfigurationEvent> events = new ArrayDeque<>();
 
 	private EdgeConfig cache = null;
 
@@ -84,11 +73,11 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	/**
 	 * Gets the EdgeConfig object; updates the cache if necessary and publishes a
 	 * CONFIG_UPDATE event on update.
-	 * 
+	 *
 	 * @return the {@link EdgeConfig}
 	 */
 	public synchronized EdgeConfig getEdgeConfig() {
-		boolean wasConfigUpdated = false;
+		var wasConfigUpdated = false;
 
 		if (this.cache != null) {
 			// Use Cache
@@ -109,9 +98,9 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		}
 
 		if (wasConfigUpdated) {
-			Map<String, Object> attachment = new HashMap<>();
-			attachment.put(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY, this.cache);
-			this.parent.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CONFIG_UPDATE, attachment));
+			EventBuilder.from(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CONFIG_UPDATE) //
+					.addArg(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY, this.cache) //
+					.send();
 		}
 
 		return this.cache;
@@ -130,29 +119,28 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	/**
 	 * Update the local EdgeConfig cache from event.
-	 * 
+	 *
 	 * @param event the {@link ConfigurationEvent}
 	 * @return true if this operation changed the {@link EdgeConfig}
 	 */
 	private boolean updateCacheFromEvent(ConfigurationEvent event) {
 		if (event.getType() == ConfigurationEvent.CM_UPDATED) {
 			// Update/Create: apply only changes
-			String pid = event.getPid();
+			var pid = event.getPid();
 			return this.readConfigurations(this.cache, "(service.pid=" + pid + ")");
-		} else {
-			// Something else - e.g. delete - create full EdgeConfig
-			this.cache = this.buildNewEdgeConfig();
-			return true;
 		}
+		// Something else - e.g. delete - create full EdgeConfig
+		this.cache = this.buildNewEdgeConfig();
+		return true;
 	}
 
 	/**
 	 * Build a new EdgeConfig without using Cache.
-	 * 
+	 *
 	 * @return the {@link EdgeConfig}
 	 */
 	private EdgeConfig buildNewEdgeConfig() {
-		EdgeConfig result = new EdgeConfig();
+		var result = new EdgeConfig();
 		try {
 			this.readFactories(result);
 			this.readConfigurations(result, null /* no filter: read all */);
@@ -165,14 +153,14 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	/**
 	 * Update EdgeConfig Channels.
-	 * 
+	 *
 	 * @param config the {@link EdgeConfig}
 	 * @return true if this operation changed the {@link EdgeConfig}
 	 */
 	private boolean updateChannels(EdgeConfig config) {
-		boolean wasConfigUpdated = false;
+		var wasConfigUpdated = false;
 		for (OpenemsComponent component : this.parent.getAllComponents()) {
-			EdgeConfig.Component comp = config.getComponents().get(component.id());
+			var comp = config.getComponents().get(component.id());
 			if (comp == null) {
 				this.log.warn("Component [" + component.id() + "] was missing!");
 				continue;
@@ -207,17 +195,16 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	 * @return a map of Channels; or empty map if the Component is not active
 	 */
 	private TreeMap<String, EdgeConfig.Component.Channel> getChannels(OpenemsComponent component) {
-		TreeMap<String, EdgeConfig.Component.Channel> result = new TreeMap<>();
+		var result = new TreeMap<String, EdgeConfig.Component.Channel>();
 		if (component != null) {
-			for (Iterator<Channel<?>> iter = component.channels().iterator(); iter.hasNext();) {
-				Channel<?> channel = iter.next();
-				io.openems.edge.common.channel.ChannelId channelId = channel.channelId();
-				Doc doc = channelId.doc();
+			for (Channel<?> channel : component.channels()) {
+				var channelId = channel.channelId();
+				var doc = channelId.doc();
 				ChannelDetail detail = null;
 				switch (doc.getChannelCategory()) {
 				case ENUM: {
 					Map<String, JsonElement> values = new HashMap<>();
-					EnumDoc d = (EnumDoc) doc;
+					var d = (EnumDoc) doc;
 					for (OptionsEnum option : d.getOptions()) {
 						values.put(option.getName(), new JsonPrimitive(option.getValue()));
 					}
@@ -228,8 +215,8 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					detail = new ChannelDetailOpenemsType();
 					break;
 				case STATE:
-					StateChannelDoc d = (StateChannelDoc) doc;
-					Level level = d.getLevel();
+					var d = (StateChannelDoc) doc;
+					var level = d.getLevel();
 					detail = new ChannelDetailState(level);
 					break;
 				}
@@ -249,7 +236,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	/**
 	 * Read all existing configurations, even those that are not properly
 	 * initialized.
-	 * 
+	 *
 	 * @param result the {@link EdgeConfig}
 	 * @param filter the filter string for
 	 *               {@link ConfigurationAdmin#listConfigurations(String)}, null for
@@ -267,15 +254,15 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		Set<String> missingComponentIds = new HashSet<>(result.getComponents().keySet());
 		if (configs != null) {
 			for (Configuration config : configs) {
-				Dictionary<String, Object> properties = config.getProperties();
+				var properties = config.getProperties();
 				if (properties == null) {
 					this.log.warn(config.getPid() + ": Properties is 'null'");
 					continue;
 				}
 				// Read Component-ID
 				String componentId = null;
-				Object componentIdObj = properties.get("id");
-				if (componentIdObj != null && (componentIdObj instanceof String)) {
+				var componentIdObj = properties.get("id");
+				if (componentIdObj instanceof String) {
 					// Read 'id' property
 					componentId = (String) componentIdObj;
 
@@ -291,14 +278,13 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 				if (componentId == null) {
 					// Use default value for 'id' property
-					String factoryPid = config.getFactoryPid();
+					var factoryPid = config.getFactoryPid();
 					if (factoryPid == null) {
 						continue;
 					}
-					Factory factory = result.getFactories().get(factoryPid);
+					var factory = result.getFactories().get(factoryPid);
 					if (factory != null) {
-						Optional<String> defaultValue = JsonUtils
-								.getAsOptionalString(factory.getPropertyDefaultValue("id"));
+						var defaultValue = JsonUtils.getAsOptionalString(factory.getPropertyDefaultValue("id"));
 						if (defaultValue.isPresent()) {
 							componentId = defaultValue.get();
 						}
@@ -313,11 +299,10 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				missingComponentIds.remove(componentId);
 
 				// Read Alias
-				String componentAlias = componentId;
+				var componentAlias = componentId;
 				{
-					Object componentAliasObj = properties.get("alias");
-					if (componentAliasObj != null && componentAliasObj instanceof String
-							&& !((String) componentAliasObj).trim().isEmpty()) {
+					var componentAliasObj = properties.get("alias");
+					if (componentAliasObj instanceof String && !((String) componentAliasObj).trim().isEmpty()) {
 						componentAlias = (String) componentAliasObj;
 					}
 				}
@@ -332,13 +317,13 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				}
 
 				// Read Factory
-				EdgeConfig.Factory factory = result.getFactories().get(factoryPid);
+				var factory = result.getFactories().get(factoryPid);
 
 				// Read all Properties
-				TreeMap<String, JsonElement> propertyMap = convertProperties(properties, factory);
+				var propertyMap = convertProperties(properties, factory);
 
 				// Read all Channels
-				TreeMap<String, EdgeConfig.Component.Channel> channels = this.getChannels(componentId);
+				var channels = this.getChannels(componentId);
 
 				// Create EdgeConfig.Component and add it to Result
 				result.addComponent(componentId, new EdgeConfig.Component(config.getPid(), componentId, componentAlias,
@@ -359,12 +344,12 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	/**
 	 * Read active, properly initialized Components.
-	 * 
+	 *
 	 * @param result the {@link EdgeConfig}
 	 * @return true if this operation changed the {@link EdgeConfig}
 	 */
 	private boolean readComponents(EdgeConfig result) {
-		boolean wasConfigUpdated = false;
+		var wasConfigUpdated = false;
 		for (OpenemsComponent component : this.parent.getAllComponents()) {
 			this.readComponent(result, component);
 			wasConfigUpdated = true;
@@ -374,26 +359,26 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	/**
 	 * Read this Component.
-	 * 
+	 *
 	 * @param result    the {@link EdgeConfig}
 	 * @param component the Component
 	 */
 	private void readComponent(EdgeConfig result, OpenemsComponent component) {
-		String factoryPid = component.serviceFactoryPid();
-		String componentId = component.id();
+		var factoryPid = component.serviceFactoryPid();
+		var componentId = component.id();
 
 		// get configuration properties
-		TreeMap<String, JsonElement> properties = convertProperties(//
+		var properties = convertProperties(//
 				component.getComponentContext().getProperties(), //
 				result.getFactories().get(factoryPid));
 
 		// get Channels
-		TreeMap<String, io.openems.common.types.EdgeConfig.Component.Channel> channels = this.getChannels(component);
+		var channels = this.getChannels(component);
 
-		Optional<Component> resultComponent = result.getComponent(componentId);
+		var resultComponent = result.getComponent(componentId);
 		if (resultComponent.isPresent()) {
 			// Update existing properties
-			Map<String, JsonElement> resultProperties = resultComponent.get().getProperties();
+			var resultProperties = resultComponent.get().getProperties();
 			for (Entry<String, JsonElement> property : properties.entrySet()) {
 				switch (property.getKey()) {
 				case "org.ops4j.pax.logging.appender.name":
@@ -406,8 +391,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			}
 
 			// Update existing Channels
-			Map<String, io.openems.common.types.EdgeConfig.Component.Channel> resultChannels = resultComponent.get()
-					.getChannels();
+			var resultChannels = resultComponent.get().getChannels();
 			for (Entry<String, io.openems.common.types.EdgeConfig.Component.Channel> channel : channels.entrySet()) {
 				if (!resultChannels.containsKey(channel.getKey())) {
 					resultChannels.put(channel.getKey(), channel.getValue());
@@ -423,19 +407,19 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	/**
 	 * Read Factories.
-	 * 
+	 *
 	 * @param result the {@link EdgeConfig}
 	 */
 	private void readFactories(EdgeConfig result) {
-		final Bundle[] bundles = this.parent.bundleContext.getBundles();
+		final var bundles = this.parent.bundleContext.getBundles();
 		for (Bundle bundle : bundles) {
-			final MetaTypeInformation mti = this.parent.metaTypeService.getMetaTypeInformation(bundle);
+			final var mti = this.parent.metaTypeService.getMetaTypeInformation(bundle);
 			if (mti == null) {
 				continue;
 			}
 
 			// read Bundle Manifest
-			URL manifestUrl = bundle.getResource("META-INF/MANIFEST.MF");
+			var manifestUrl = bundle.getResource("META-INF/MANIFEST.MF");
 			Manifest manifest;
 			try {
 				manifest = new Manifest(manifestUrl.openStream());
@@ -445,7 +429,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			}
 
 			// get Factory-PIDs in this Bundle
-			String[] factoryPids = mti.getFactoryPids();
+			var factoryPids = mti.getFactoryPids();
 			for (String factoryPid : factoryPids) {
 				switch (factoryPid) {
 				case "osgi.executor.provider":
@@ -453,9 +437,9 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					break;
 				default:
 					// Get ObjectClassDefinition (i.e. the main annotation on the Config class)
-					ObjectClassDefinition objectClassDefinition = mti.getObjectClassDefinition(factoryPid, null);
+					var objectClassDefinition = mti.getObjectClassDefinition(factoryPid, null);
 					// Get Natures implemented by this Factory-PID
-					String[] natures = this.getNatures(bundle, manifest, factoryPid);
+					var natures = this.getNatures(bundle, manifest, factoryPid);
 					// Add Factory to config
 					result.addFactory(factoryPid,
 							EdgeConfig.Factory.create(factoryPid, objectClassDefinition, natures));
@@ -467,9 +451,9 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				switch (pid) {
 				default:
 					// Get ObjectClassDefinition (i.e. the main annotation on the Config class)
-					ObjectClassDefinition objectClassDefinition = mti.getObjectClassDefinition(pid, null);
+					var objectClassDefinition = mti.getObjectClassDefinition(pid, null);
 					// Get Natures implemented by this Factory-PID
-					String[] natures = this.getNatures(bundle, manifest, pid);
+					var natures = this.getNatures(bundle, manifest, pid);
 					// Add Factory to config
 					result.addFactory(pid, EdgeConfig.Factory.create(pid, objectClassDefinition, natures));
 				}
@@ -479,7 +463,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	/**
 	 * Reads Natures from an XML.
-	 * 
+	 *
 	 * <pre>
 	 * &lt;scr:component&gt;
 	 *   &lt;service&gt;
@@ -487,7 +471,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	 *   &lt;/service&gt;
 	 * &lt;/scr:component&gt;
 	 * </pre>
-	 * 
+	 *
 	 * @param bundle     the {@link Bundle}
 	 * @param manifest   the {@link Manifest}
 	 * @param factoryPid the Factory-PID
@@ -496,12 +480,11 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	private String[] getNatures(Bundle bundle, Manifest manifest, String factoryPid) {
 		try {
 			// get "Service-Component"-Entry of Manifest
-			String serviceComponentsString = manifest.getMainAttributes()
-					.getValue(ComponentConstants.SERVICE_COMPONENT);
+			var serviceComponentsString = manifest.getMainAttributes().getValue(ComponentConstants.SERVICE_COMPONENT);
 			if (serviceComponentsString == null) {
 				return new String[0];
 			}
-			String[] serviceComponents = serviceComponentsString.split(",");
+			var serviceComponents = serviceComponentsString.split(",");
 
 			// read Service-Component XML files from OSGI-INF folder
 			for (String serviceComponent : serviceComponents) {
@@ -510,26 +493,26 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					continue;
 				}
 
-				URL componentUrl = bundle.getResource(serviceComponent);
-				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-				Document doc = dBuilder.parse(componentUrl.openStream());
+				var componentUrl = bundle.getResource(serviceComponent);
+				var dbFactory = DocumentBuilderFactory.newInstance();
+				var dBuilder = dbFactory.newDocumentBuilder();
+				var doc = dBuilder.parse(componentUrl.openStream());
 				doc.getDocumentElement().normalize();
 
-				NodeList serviceNodes = doc.getElementsByTagName("service");
-				for (int i = 0; i < serviceNodes.getLength(); i++) {
-					Node serviceNode = serviceNodes.item(i);
+				var serviceNodes = doc.getElementsByTagName("service");
+				for (var i = 0; i < serviceNodes.getLength(); i++) {
+					var serviceNode = serviceNodes.item(i);
 					if (serviceNode.getNodeType() == Node.ELEMENT_NODE) {
-						NodeList provideNodes = serviceNode.getChildNodes();
+						var provideNodes = serviceNode.getChildNodes();
 
 						// Read "interface" attributes and return them
 						Set<String> result = new HashSet<>();
-						for (int j = 0; j < provideNodes.getLength(); j++) {
-							Node provideNode = provideNodes.item(j);
-							NamedNodeMap attributes = provideNode.getAttributes();
+						for (var j = 0; j < provideNodes.getLength(); j++) {
+							var provideNode = provideNodes.item(j);
+							var attributes = provideNode.getAttributes();
 							if (attributes != null) {
-								Node interfaceNode = attributes.getNamedItem("interface");
-								String nature = interfaceNode.getNodeValue();
+								var interfaceNode = attributes.getNamedItem("interface");
+								var nature = interfaceNode.getNodeValue();
 								switch (nature) {
 								case "org.osgi.service.event.EventHandler":
 								case "org.ops4j.pax.logging.spi.PaxAppender":
@@ -554,20 +537,31 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	/**
 	 * Gets a component Property as JsonElement. Uses some more techniques to find
 	 * the proper type than {@link JsonUtils#getAsJsonElement(Object)}.
-	 * 
+	 *
 	 * @param properties the properties
 	 * @param key        the property key
 	 * @return the value as JsonElement
 	 */
 	private static JsonElement getPropertyAsJsonElement(Dictionary<String, Object> properties, String key) {
-		Object valueObj = properties.get(key);
-		if (valueObj != null && valueObj instanceof String) {
-			String value = (String) valueObj;
+		var valueObj = properties.get(key);
+		if (valueObj instanceof String) {
+			var value = ((String) valueObj).trim();
 			// find boolean
 			if (value.equalsIgnoreCase("true")) {
 				return new JsonPrimitive(true);
-			} else if (value.equalsIgnoreCase("false")) {
+			}
+			if (value.equalsIgnoreCase("false")) {
 				return new JsonPrimitive(false);
+			}
+			// find JSON
+			if (value.startsWith("{") && value.endsWith("}") /* JsonObject */
+					|| value.startsWith("[") && value.endsWith("]") /* JsonObject */
+			) {
+				try {
+					return JsonUtils.parse(value);
+				} catch (OpenemsNamedException e) {
+					LOG.warn(e.getMessage());
+				}
 			}
 		}
 		// fallback to JsonUtils
@@ -576,21 +570,21 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	/**
 	 * Convert properties to a String/JsonElement Map.
-	 * 
+	 *
 	 * @param properties the component properties
 	 * @param factory    the {@link EdgeConfig.Factory}
 	 * @return converted properties
 	 */
 	private static TreeMap<String, JsonElement> convertProperties(Dictionary<String, Object> properties,
 			EdgeConfig.Factory factory) {
-		TreeMap<String, JsonElement> result = new TreeMap<>();
+		var result = new TreeMap<String, JsonElement>();
 
 		/*
 		 * Read Factory Properties
 		 */
 		if (factory != null) {
 			for (EdgeConfig.Factory.Property property : factory.getProperties()) {
-				String key = property.getId();
+				var key = property.getId();
 
 				if (EdgeConfig.ignorePropertyKey(key)) {
 					// Ignore this Property
@@ -624,9 +618,9 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		/*
 		 * Add remaining existing properties
 		 */
-		Enumeration<String> keys = properties.keys();
+		var keys = properties.keys();
 		while (keys.hasMoreElements()) {
-			String key = keys.nextElement();
+			var key = keys.nextElement();
 			if (result.containsKey(key)) {
 				// already added
 				continue;

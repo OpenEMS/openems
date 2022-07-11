@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -36,7 +37,7 @@
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other materials
 //    provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR
 // IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
@@ -46,7 +47,7 @@
 // HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // $Id: XML.java,v 1.1.1.1 2001/06/20 18:21:11 seankelly Exp $
 package com.dalsemi.onewire.application.tag;
 
@@ -81,16 +82,16 @@ public class XML {
 	public static String escape(String source) {
 
 		// Optimistically start with at least as many characters in the source.
-		StringBuffer rc = new StringBuffer(source.length());
+		var rc = new StringBuilder(source.length());
 
-		for (int i = 0; i < source.length(); ++i) {
-			char c = source.charAt(i);
+		for (var i = 0; i < source.length(); ++i) {
+			var c = source.charAt(i);
 
 			// Nonprintable characters print as their corresponding char reference.
 			// Thanks to Apache project for specs for these characters.
-			if ((c < ' ' && c != '\t' && c != '\n' && c != '\r') || c > 0x7E || c == 0xF7)
+			if (c < ' ' && c != '\t' && c != '\n' && c != '\r' || c > 0x7E || c == 0xF7) {
 				rc.append("&#").append(Integer.toString(c)).append(';');
-			else {
+			} else {
 
 				// Use an entity reference where appropriate
 				switch (c) {
@@ -119,3 +120,4 @@ public class XML {
 		return rc.toString();
 	}
 }
+// CHECKSTYLE:ON

@@ -2,7 +2,6 @@ package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -42,6 +41,27 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 		DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text("Delay-Charge power limitation.")), //
+
+		/**
+		 * Capacity left used for delayed charge.
+		 */
+		DELAY_CHARGE_CAPACITY_WITH_BUFFER_LEFT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS) //
+				.text("Capacity left.")), //
+
+		/**
+		 * Time left used for delayed charge.
+		 */
+		DELAY_CHARGE_TIME_LEFT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.SECONDS) //
+				.text("Capacity left.")), //
+
+		/**
+		 * Predicted energy left used for delayed charge.
+		 */
+		DELAY_CHARGE_PREDICTED_ENERGY_LEFT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS) //
+				.text("Predicted energy left.")), //
 
 		/**
 		 * Raw Delay-Charge without consideration of the last limits.
@@ -113,16 +133,13 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 					((IntegerReadChannel) channel).onSetNextValue(value -> {
 						if (value != null && value.isDefined()) {
 							int targetTime = value.get();
-							GridOptimizedChargeImpl gridOptimizedCharge = (GridOptimizedChargeImpl) channel
-									.getComponent();
+							var gridOptimizedCharge = (GridOptimizedChargeImpl) channel.getComponent();
 
-							LocalDateTime targetDateTime = LocalDate
-									.now(gridOptimizedCharge.componentManager.getClock())
+							var targetDateTime = LocalDate.now(gridOptimizedCharge.componentManager.getClock())
 									.atTime(LocalTime.of(targetTime / 60, targetTime % 60));
 
-							ZonedDateTime zonedDateTime = ZonedDateTime.ofLocal(targetDateTime, ZoneId.systemDefault(),
-									null);
-							long targetEpochTime = zonedDateTime.toEpochSecond();
+							var zonedDateTime = ZonedDateTime.ofLocal(targetDateTime, ZoneId.systemDefault(), null);
+							var targetEpochTime = zonedDateTime.toEpochSecond();
 
 							gridOptimizedCharge.channel(ChannelId.TARGET_EPOCH_SECONDS).setNextValue(targetEpochTime);
 						}
@@ -138,6 +155,21 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 		 */
 		START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
 				.text("Time when the production is higher than the consumption for the first time on the current day.")), //
+
+		/**
+		 * Predicted charge start time as epoch seconds of the current day.
+		 * 
+		 * <p>
+		 * Keeps the time, when the delayed charge will start on the current day.
+		 */
+		PREDICTED_CHARGE_START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
+				.text("Time when the delayed charge will start on the current day.")), //
+
+		/**
+		 * Debug Channel for the minimum charge power for delay Charge.
+		 */
+		DEBUG_DELAY_CHARGE_MINIMUM_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT) //
+				.text("Debug Channel for the minimum charge power for delay Charge.")),
 
 		/**
 		 * Info State Channel, if the delay charge limit would be negative.
@@ -168,6 +200,13 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 		 * Cumulated seconds of the state sell to grid limit.
 		 */
 		SELL_TO_GRID_LIMIT_TIME(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_SECONDS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Cumulated seconds of the state avoid low charging.
+		 */
+		AVOID_LOW_CHARGING_TIME(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.CUMULATED_SECONDS) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 
@@ -547,11 +586,12 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	 * {@link ChannelId#START_EPOCH_SECONDS} Channel.
 	 *
 	 * @param value the next value
+	 * @param clock clock
 	 */
 	public default void _setStartEpochSeconds(LocalTime value, Clock clock) {
 
-		LocalDateTime startDateTime = LocalDate.now(clock).atTime(value);
-		ZonedDateTime zonedDateTime = ZonedDateTime.ofLocal(startDateTime, clock.getZone(), null);
+		var startDateTime = LocalDate.now(clock).atTime(value);
+		var zonedDateTime = ZonedDateTime.ofLocal(startDateTime, clock.getZone(), null);
 
 		this.getStartEpochSecondsChannel().setNextValue(zonedDateTime.toEpochSecond());
 	}
@@ -564,6 +604,64 @@ public interface GridOptimizedCharge extends Controller, OpenemsComponent {
 	 */
 	public default void _setStartEpochSeconds(Long value) {
 		this.getStartEpochSecondsChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PREDICTED_CHARGE_START_EPOCH_SECONDS}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getPredictedChargeStartEpochSecondsChannel() {
+		return this.channel(ChannelId.PREDICTED_CHARGE_START_EPOCH_SECONDS);
+	}
+
+	/**
+	 * Gets the actual predicted charge start time of the Day. See
+	 * {@link ChannelId#PREDICTED_CHARGE_START_EPOCH_SECONDS}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getPredictedChargeStartEpochSeconds() {
+		return this.getPredictedChargeStartEpochSecondsChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PREDICTED_CHARGE_START_EPOCH_SECONDS} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPredictedChargeStartEpochSeconds(Long value) {
+		this.getPredictedChargeStartEpochSecondsChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_DELAY_CHARGE_MINIMUM_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDebugDelayChargeMinimumPowerChannel() {
+		return this.channel(ChannelId.DEBUG_DELAY_CHARGE_MINIMUM_POWER);
+	}
+
+	/**
+	 * Gets the information of the minimum delay charge power. See
+	 * {@link ChannelId#DEBUG_DELAY_CHARGE_MINIMUM_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDebugDelayChargeMinimumPower() {
+		return this.getDebugDelayChargeMinimumPowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#DEBUG_DELAY_CHARGE_MINIMUM_POWER} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setDebugDelayChargeMinimumPower(Integer value) {
+		this.getDebugDelayChargeMinimumPowerChannel().setNextValue(value);
 	}
 
 	/**

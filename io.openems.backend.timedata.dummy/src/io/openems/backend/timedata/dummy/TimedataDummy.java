@@ -24,6 +24,7 @@ import io.openems.backend.common.timedata.EdgeCache;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 
 @Designate(ocd = Config.class, factory = false)
@@ -38,28 +39,28 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 	}
 
 	@Activate
-	void activate(Config config) throws OpenemsException {
+	private void activate(Config config) throws OpenemsException {
 		this.logInfo(this.log, "Activate");
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 		this.logInfo(this.log, "Deactivate");
 	}
 
+	@Override
 	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress) {
-		EdgeCache edgeCache = this.edgeCacheMap.get(edgeId);
+		var edgeCache = this.edgeCacheMap.get(edgeId);
 		if (edgeCache != null) {
 			return edgeCache.getChannelValue(channelAddress);
-		} else {
-			return Optional.empty();
 		}
+		return Optional.empty();
 	}
 
 	@Override
 	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
 		// get existing or create new EdgeCache
-		EdgeCache edgeCache = this.edgeCacheMap.get(edgeId);
+		var edgeCache = this.edgeCacheMap.get(edgeId);
 		if (edgeCache == null) {
 			edgeCache = new EdgeCache();
 			this.edgeCacheMap.put(edgeId, edgeCache);
@@ -72,7 +73,7 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		this.logWarn(this.log, "I do not support querying historic data");
 		return new TreeMap<>();
@@ -87,7 +88,7 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, int resolution)
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
 		this.logWarn(this.log, "I do not support querying historic energy per period");
 		return new TreeMap<>();

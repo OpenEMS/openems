@@ -6,15 +6,17 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 /**
  * Configures the User Service.
- * 
+ *
+ * <p>
  * By default the following passwords are set:
  * <ul>
  * <li>User admin: admin
  * <li>User installer: installer
  * <li>User owner: owner
  * <li>User guest: user
+ * </ul>
  */
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Core User", //
 		description = "This component handles User authentication.")
 @interface Config {

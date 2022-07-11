@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
@@ -32,7 +33,7 @@ package com.dalsemi.onewire.utils;
 public class SHA {
 
 	// SHA constants
-	private static final int[] KTN = new int[] { 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6 };
+	private static final int[] KTN = { 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6 };
 
 	private static final int H0 = 0x67452301;
 	private static final int H1 = 0xEFCDAB89;
@@ -44,7 +45,7 @@ public class SHA {
 	// can't 'static final' methods with no locals be
 	// inlined easier? I think so, but I need to remember
 	// to look into that.
-	private static int word, i, j;
+	private static int i, j;
 	private static int ShftTmp, Temp;
 
 	private static final int[] MTword;
@@ -72,12 +73,12 @@ public class SHA {
 
 		// split up the result into a byte array, LSB first
 		for (i = 0; i < 5; i++) {
-			word = H[4 - i];
+			var word = H[4 - i];
 			j = (i << 2) + offset;
-			result[j + 0] = (byte) ((word) & 0x00FF);
-			result[j + 1] = (byte) ((word >>> 8) & 0x00FF);
-			result[j + 2] = (byte) ((word >>> 16) & 0x00FF);
-			result[j + 3] = (byte) ((word >>> 24) & 0x00FF);
+			result[j + 0] = (byte) (word & 0x00FF);
+			result[j + 1] = (byte) (word >>> 8 & 0x00FF);
+			result[j + 2] = (byte) (word >>> 16 & 0x00FF);
+			result[j + 3] = (byte) (word >>> 24 & 0x00FF);
 		}
 
 		return result;
@@ -91,13 +92,14 @@ public class SHA {
 	 * @param ABCDE The result will be copied into this 5-int array.
 	 */
 	public synchronized static final void ComputeSHA(byte[] MT, int[] ABCDE) {
-		for (i = 0; i < 16; i++)
-			MTword[i] = ((MT[i * 4] & 0x00FF) << 24) | ((MT[i * 4 + 1] & 0x00FF) << 16)
-					| ((MT[i * 4 + 2] & 0x00FF) << 8) | (MT[i * 4 + 3] & 0x00FF);
+		for (i = 0; i < 16; i++) {
+			MTword[i] = (MT[i * 4] & 0x00FF) << 24 | (MT[i * 4 + 1] & 0x00FF) << 16 | (MT[i * 4 + 2] & 0x00FF) << 8
+					| MT[i * 4 + 3] & 0x00FF;
+		}
 
 		for (i = 16; i < 80; i++) {
 			ShftTmp = MTword[i - 3] ^ MTword[i - 8] ^ MTword[i - 14] ^ MTword[i - 16];
-			MTword[i] = ((ShftTmp << 1) & 0xFFFFFFFE) | ((ShftTmp >>> 31) & 0x00000001);
+			MTword[i] = ShftTmp << 1 & 0xFFFFFFFE | ShftTmp >>> 31 & 0x00000001;
 		}
 
 		ABCDE[0] = H0; // A
@@ -107,11 +109,11 @@ public class SHA {
 		ABCDE[4] = H4; // E
 
 		for (i = 0; i < 80; i++) {
-			ShftTmp = ((ABCDE[0] << 5) & 0xFFFFFFE0) | ((ABCDE[0] >>> 27) & 0x0000001F);
+			ShftTmp = ABCDE[0] << 5 & 0xFFFFFFE0 | ABCDE[0] >>> 27 & 0x0000001F;
 			Temp = NLF(ABCDE[1], ABCDE[2], ABCDE[3], i) + ABCDE[4] + KTN[i / 20] + MTword[i] + ShftTmp;
 			ABCDE[4] = ABCDE[3];
 			ABCDE[3] = ABCDE[2];
-			ABCDE[2] = ((ABCDE[1] << 30) & 0xC0000000) | ((ABCDE[1] >>> 2) & 0x3FFFFFFF);
+			ABCDE[2] = ABCDE[1] << 30 & 0xC0000000 | ABCDE[1] >>> 2 & 0x3FFFFFFF;
 			ABCDE[1] = ABCDE[0];
 			ABCDE[0] = Temp;
 		}
@@ -121,13 +123,16 @@ public class SHA {
 	// static final methods with no locals should definitely be inlined
 	// by the compiler.
 	private static final int NLF(int B, int C, int D, int n) {
-		if (n < 20)
-			return ((B & C) | ((~B) & D));
-		else if (n < 40)
-			return (B ^ C ^ D);
-		else if (n < 60)
-			return ((B & C) | (B & D) | (C & D));
-		else
-			return (B ^ C ^ D);
+		if (n < 20) {
+			return B & C | ~B & D;
+		}
+		if (n < 40) {
+			return B ^ C ^ D;
+		} else if (n < 60) {
+			return (B & (C | D)) | C & D;
+		} else {
+			return B ^ C ^ D;
+		}
 	}
 }
+// CHECKSTYLE:ON

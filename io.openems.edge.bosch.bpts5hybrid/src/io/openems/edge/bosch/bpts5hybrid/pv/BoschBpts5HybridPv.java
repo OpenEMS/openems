@@ -1,5 +1,7 @@
 package io.openems.edge.bosch.bpts5hybrid.pv;
 
+import java.io.IOException;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -22,8 +24,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
-import java.io.IOException;
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Bosch.BPTS5Hybrid.Pv", //
@@ -33,27 +33,28 @@ import java.io.IOException;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 		} //
 )
-public class BoschBpts5HybridPv extends AbstractOpenemsComponent implements EssDcCharger, OpenemsComponent{
-	
-	private final int PEAK_POWER = 5_500;
-	
+public class BoschBpts5HybridPv extends AbstractOpenemsComponent implements EssDcCharger, OpenemsComponent {
+
+	private static final int PEAK_POWER = 5_500;
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private BoschBpts5HybridCore core;
-	
+
 	@Reference
 	private ConfigurationAdmin cm;
-	
+
 	public BoschBpts5HybridPv() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				EssDcCharger.ChannelId.values(),//
+				EssDcCharger.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this._setMaxActualPower(PEAK_POWER); //TODO: get from read worker
+		this._setMaxActualPower(PEAK_POWER); // TODO: get from read worker
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException, ConfigurationException, IOException {
+	protected void activate(ComponentContext context, Config config)
+			throws OpenemsNamedException, ConfigurationException, IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		// update filter for 'core'
@@ -62,7 +63,8 @@ public class BoschBpts5HybridPv extends AbstractOpenemsComponent implements EssD
 		}
 		this.core.setPv(this);
 	}
-	
+
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.core != null) {

@@ -6,16 +6,13 @@ import java.util.TreeSet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
 import io.openems.backend.b2bwebsocket.jsonrpc.notification.EdgesCurrentDataNotification;
 import io.openems.backend.b2bwebsocket.jsonrpc.request.SubscribeEdgesChannelsRequest;
-import io.openems.backend.common.metadata.User;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
@@ -54,7 +51,7 @@ public class SubscribedEdgesChannelsWorker {
 
 	/**
 	 * Applies a SubscribeChannelsRequest.
-	 * 
+	 *
 	 * @param request the SubscribeEdgesChannelsRequest
 	 */
 	public synchronized void handleSubscribeEdgesChannelsRequest(SubscribeEdgesChannelsRequest request) {
@@ -66,7 +63,7 @@ public class SubscribedEdgesChannelsWorker {
 
 	/**
 	 * Updates the Subscription data.
-	 * 
+	 *
 	 * @param edgeIds  Set of Edge-IDs
 	 * @param channels Set of ChannelAddresses
 	 */
@@ -91,7 +88,7 @@ public class SubscribedEdgesChannelsWorker {
 				/*
 				 * This task is executed regularly. Sends data to Websocket.
 				 */
-				WebSocket ws = this.wsData.getWebsocket();
+				var ws = this.wsData.getWebsocket();
 				if (ws == null || !ws.isOpen()) {
 					// disconnected; stop worker
 					this.dispose();
@@ -104,14 +101,17 @@ public class SubscribedEdgesChannelsWorker {
 					this.log.warn("Unable to send SubscribedChannels: " + e.getMessage());
 				}
 
-			}, 0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS));
+			}, 0, SubscribedEdgesChannelsWorker.UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS));
 		}
 	}
 
+	/**
+	 * Dispose and deactivate this worker.
+	 */
 	public void dispose() {
 		// unsubscribe regular task
 		if (this.futureOpt.isPresent()) {
-			futureOpt.get().cancel(true);
+			this.futureOpt.get().cancel(true);
 		}
 	}
 
@@ -122,15 +122,15 @@ public class SubscribedEdgesChannelsWorker {
 	 * @throws OpenemsNamedException on error
 	 */
 	private EdgesCurrentDataNotification getCurrentDataNotification() throws OpenemsNamedException {
-		EdgesCurrentDataNotification result = new EdgesCurrentDataNotification();
-		User user = this.wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
+		var result = new EdgesCurrentDataNotification();
+		var user = this.wsData.getUserWithTimeout(5, TimeUnit.SECONDS);
 
 		for (String edgeId : this.edgeIds) {
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast("EdgesCurrentDataNotification", edgeId, Role.GUEST);
 
 			for (ChannelAddress channel : this.channels) {
-				Optional<JsonElement> value = this.parent.timeData.getChannelValue(edgeId, channel);
+				var value = this.parent.timeData.getChannelValue(edgeId, channel);
 				result.addValue(edgeId, channel, value.orElse(JsonNull.INSTANCE));
 			}
 		}

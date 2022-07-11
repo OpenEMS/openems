@@ -1,7 +1,7 @@
 package io.openems.edge.wago;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -19,12 +19,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.id = id;
 			return this;
 		}
-		
+
 		public Builder setUsername(String username) {
 			this.username = username;
 			return this;
 		}
-		
+
 		public Builder setPassword(String password) {
 			this.password = password;
 			return this;
@@ -42,7 +42,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {

@@ -11,7 +11,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * A OpenEMS Component that uses Modbus communication.
- * 
+ *
  * <p>
  * Classes implementing this interface typically inherit
  * {@link AbstractOpenemsModbusComponent}.
@@ -22,7 +22,7 @@ public interface ModbusComponent extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		MODBUS_COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
-				.text("Modbus Communication failed")); //
+				.text("Modbus Communication failed")) //
 		;
 
 		private final Doc doc;
@@ -39,7 +39,7 @@ public interface ModbusComponent extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MODBUS_COMMUNICATION_FAILED}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getModbusCommunicationFailedChannel() {
@@ -49,7 +49,7 @@ public interface ModbusComponent extends OpenemsComponent {
 	/**
 	 * Gets the Modbus Communication Failed State. See
 	 * {@link ChannelId#MODBUS_COMMUNICATION_FAILED}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getModbusCommunicationFailed() {
@@ -59,7 +59,7 @@ public interface ModbusComponent extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#MODBUS_COMMUNICATION_FAILED} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setModbusCommunicationFailed(boolean value) {

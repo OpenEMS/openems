@@ -43,10 +43,10 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 
 	protected UUID sessionId = null;
 
-	private ChargeSessionStamp sessionStart = new ChargeSessionStamp();
+	private final ChargeSessionStamp sessionStart = new ChargeSessionStamp();
 
-	private ChargeSessionStamp sessionEnd = new ChargeSessionStamp();
-	
+	private final ChargeSessionStamp sessionEnd = new ChargeSessionStamp();
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
@@ -55,7 +55,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 
-		this.profileTypes = new HashSet<OcppProfileType>(Arrays.asList(profileTypes));
+		this.profileTypes = new HashSet<>(Arrays.asList(profileTypes));
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -76,8 +76,8 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
 		super.activate(context, id, alias, enabled);
 
-		this.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(getConfiguredMaximumHardwarePower());
-		this.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER).setNextValue(getConfiguredMinimumHardwarePower());
+		this.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(this.getConfiguredMaximumHardwarePower());
+		this.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER).setNextValue(this.getConfiguredMinimumHardwarePower());
 	}
 
 	@Override
@@ -89,7 +89,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			if (this.sessionId == null) {
-				lostSession();
+				this.lostSession();
 				return;
 			}
 
@@ -104,32 +104,29 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	 * set.
 	 */
 	private void setInitialTotalEnergyFromTimedata() {
-		Long totalEnergy = this.getActiveConsumptionEnergy().orElse(null);
-		
+		var totalEnergy = this.getActiveConsumptionEnergy().orElse(null);
+
 		// Total energy already set
 		if (totalEnergy != null) {
 			return;
 		}
-		
-		Timedata timedata = this.getTimedata();
-		String componentId = this.id();
-		if (timedata == null || componentId == null) {
-			return;
-		} else {
-			timedata.getLatestValue(new ChannelAddress(componentId, "ActiveConstumptionEnergy"))
-					.thenAccept(totalEnergyOpt -> {
-						
-						if (totalEnergyOpt.isPresent()) {
-							try {
-								this._setActiveConsumptionEnergy(TypeUtils.getAsType(OpenemsType.LONG, totalEnergyOpt.get()));
-							} catch (IllegalArgumentException e) {
-								this._setActiveConsumptionEnergy(TypeUtils.getAsType(OpenemsType.LONG, 0L));
-							}
-						} else {
+
+		var timedata = this.getTimedata();
+		var componentId = this.id();
+		timedata.getLatestValue(new ChannelAddress(componentId, "ActiveConstumptionEnergy"))
+				.thenAccept(totalEnergyOpt -> {
+
+					if (totalEnergyOpt.isPresent()) {
+						try {
+							this._setActiveConsumptionEnergy(
+									TypeUtils.getAsType(OpenemsType.LONG, totalEnergyOpt.get()));
+						} catch (IllegalArgumentException e) {
 							this._setActiveConsumptionEnergy(TypeUtils.getAsType(OpenemsType.LONG, 0L));
 						}
-					});
-		}
+					} else {
+						this._setActiveConsumptionEnergy(TypeUtils.getAsType(OpenemsType.LONG, 0L));
+					}
+				});
 	}
 
 	@Override
@@ -137,6 +134,12 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
+	/**
+	 * New session started.
+	 * 
+	 * @param server    the {@link OcppServer}
+	 * @param sessionId the session {@link UUID}
+	 */
 	public void newSession(OcppServer server, UUID sessionId) {
 		this.ocppServer = server;
 		this.sessionId = sessionId;
@@ -144,6 +147,9 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		this._setChargingstationCommunicationFailed(false);
 	}
 
+	/**
+	 * Session lost.
+	 */
 	public void lostSession() {
 		this.ocppServer = null;
 		this.sessionId = null;
@@ -151,42 +157,72 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		this._setChargingstationCommunicationFailed(true);
 	}
 
+	/**
+	 * Get the supported measurements.
+	 * 
+	 * @return a Set of {@link OcppInformations}
+	 */
 	public abstract Set<OcppInformations> getSupportedMeasurements();
 
+	/**
+	 * Get configured OCPP-ID.
+	 * 
+	 * @return the OCPP-ID
+	 */
 	public abstract String getConfiguredOcppId();
 
+	/**
+	 * Get configured Connector-ID.
+	 * 
+	 * @return the Connector-ID
+	 */
 	public abstract Integer getConfiguredConnectorId();
 
+	/**
+	 * Get configured maximum hardware power.
+	 * 
+	 * @return the maximum hardware power
+	 */
 	public abstract Integer getConfiguredMaximumHardwarePower();
 
+	/**
+	 * Get configured minimum hardware power.
+	 * 
+	 * @return the minimum hardware power
+	 */
 	public abstract Integer getConfiguredMinimumHardwarePower();
 
+	/**
+	 * Returns the Session Energy.
+	 * 
+	 * @return true if yes
+	 */
 	public abstract boolean returnsSessionEnergy();
 
 	/**
 	 * Required requests that should be sent after a connection was established.
-	 * 
+	 *
 	 * @return List of requests
 	 */
 	public abstract List<Request> getRequiredRequestsAfterConnection();
 
 	/**
 	 * Required requests that should be sent permanently during a session.
-	 * 
+	 *
 	 * @return List of requests
 	 */
 	public abstract List<Request> getRequiredRequestsDuringConnection();
 
 	/**
 	 * Default requests that every OCPP EVCS should have.
-	 * 
+	 *
 	 * @return OcppRequests
 	 */
 	public abstract OcppStandardRequests getStandardRequests();
 
 	public UUID getSessionId() {
 		return this.sessionId;
-	};
+	}
 
 	/**
 	 * Reset the measured channel values and the charge power.
@@ -203,7 +239,7 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	 * Check the current state and resets the measured values.
 	 */
 	private void checkCurrentState() {
-		Status state = this.getStatus();
+		var state = this.getStatus();
 		switch (state) {
 		case CHARGING:
 			break;
@@ -231,11 +267,11 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	}
 
 	public ChargeSessionStamp getSessionStart() {
-		return sessionStart;
+		return this.sessionStart;
 	}
 
 	public ChargeSessionStamp getSessionEnd() {
-		return sessionEnd;
+		return this.sessionEnd;
 	}
 
 	@Override

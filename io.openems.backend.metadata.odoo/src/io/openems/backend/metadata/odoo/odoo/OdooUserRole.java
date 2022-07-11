@@ -23,7 +23,7 @@ public enum OdooUserRole {
 
 	/**
 	 * Get the Odoo role.
-	 * 
+	 *
 	 * @return Odoo role
 	 */
 	public String getOdooRole() {
@@ -32,7 +32,7 @@ public enum OdooUserRole {
 
 	/**
 	 * Get the specified Odoo groups for the role.
-	 * 
+	 *
 	 * @return Groups for an Odoo role
 	 */
 	public OdooUserGroup[] getOdooGroups() {
@@ -41,7 +41,7 @@ public enum OdooUserRole {
 
 	/**
 	 * Transform the specified Odoo group objects to a list of IDs.
-	 * 
+	 *
 	 * @return The Odoo groups as a list of IDs.
 	 */
 	public List<Integer> toOdooIds() {
@@ -52,7 +52,7 @@ public enum OdooUserRole {
 
 	/**
 	 * Get the {@link OdooUserRole} for the given role as {@link String}.
-	 * 
+	 *
 	 * @param role as {@link String} to parse
 	 * @return The Odoo role
 	 * @throws OpenemsException if role does not exist

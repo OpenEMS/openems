@@ -13,8 +13,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
@@ -39,10 +39,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.EssAsymmetric.Reacting", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAsymmetricEss, AsymmetricEss,
 		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
@@ -61,6 +62,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -102,6 +104,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 		this._setGridMode(config.gridMode());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -145,12 +148,12 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	@Override
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) throws OpenemsException {
-		int activePower = activePowerL1 + activePowerL2 + activePowerL3;
+		var activePower = activePowerL1 + activePowerL2 + activePowerL3;
 		/*
 		 * calculate State of charge
 		 */
-		float watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
-		float socChange = watthours / this.config.capacity();
+		var watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
+		var socChange = watthours / this.config.capacity();
 		this.soc -= socChange;
 		if (this.soc > 100) {
 			this.soc = 100;
@@ -166,7 +169,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 		this._setActivePowerL3(activePowerL3);
 		this._setActivePower(activePower);
 
-		int reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
+		var reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
 		this._setReactivePowerL1(reactivePowerL1);
 		this._setReactivePowerL2(reactivePowerL2);
 		this._setReactivePowerL3(reactivePowerL3);
@@ -208,7 +211,7 @@ public class EssAsymmetric extends AbstractOpenemsComponent implements ManagedAs
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateChargeEnergy.update(null);

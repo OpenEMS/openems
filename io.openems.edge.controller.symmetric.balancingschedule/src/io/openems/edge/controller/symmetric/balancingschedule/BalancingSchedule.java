@@ -38,7 +38,7 @@ public interface BalancingSchedule extends Controller, OpenemsComponent, JsonApi
 
 	/**
 	 * Gets the Channel for {@link ChannelId#NO_ACTIVE_SETPOINT}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getNoActiveSetpointChannel() {
@@ -47,7 +47,7 @@ public interface BalancingSchedule extends Controller, OpenemsComponent, JsonApi
 
 	/**
 	 * Gets the Run-Failed State. See {@link ChannelId#NO_ACTIVE_SETPOINT}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getNoActiveSetpoint() {
@@ -57,7 +57,7 @@ public interface BalancingSchedule extends Controller, OpenemsComponent, JsonApi
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#NO_ACTIVE_SETPOINT} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setNoActiveSetpoint(boolean value) {
@@ -66,7 +66,7 @@ public interface BalancingSchedule extends Controller, OpenemsComponent, JsonApi
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SCHEDULE_PARSE_FAILED}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getScheduleParseFailedChannel() {
@@ -75,7 +75,7 @@ public interface BalancingSchedule extends Controller, OpenemsComponent, JsonApi
 
 	/**
 	 * Gets the Run-Failed State. See {@link ChannelId#SCHEDULE_PARSE_FAILED}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getScheduleParseFailed() {
@@ -85,7 +85,7 @@ public interface BalancingSchedule extends Controller, OpenemsComponent, JsonApi
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#SCHEDULE_PARSE_FAILED} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setScheduleParseFailed(boolean value) {
@@ -124,8 +124,8 @@ public interface BalancingSchedule extends Controller, OpenemsComponent, JsonApi
 	/**
 	 * Sets the Active Power Limit in [W]. See
 	 * {@link ChannelId#GRID_ACTIVE_POWER_SET_POINT}.
-	 * 
-	 * @return the Channel
+	 *
+	 * @param value the active power limit
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setGridActivePowerSetPoint(Integer value) throws OpenemsNamedException {

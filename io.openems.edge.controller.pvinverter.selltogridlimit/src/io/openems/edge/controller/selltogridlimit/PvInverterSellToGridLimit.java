@@ -19,10 +19,14 @@ import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.PvInverter.SellToGridLimit", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.PvInverter.SellToGridLimit", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
+	public static final double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -58,6 +62,7 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -65,17 +70,17 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 
 	/**
 	 * Calculates required charge/discharge power.
-	 * 
+	 *
 	 * @param pvInverter the SymmetricPvInverter
 	 * @param meter      the Meter
 	 * @return the required power
-	 * @throws InvalidValueException
+	 * @throws InvalidValueException on error
 	 */
 	private int calculateRequiredPower(ManagedSymmetricPvInverter pvInverter, SymmetricMeter meter)
 			throws InvalidValueException {
 		return meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
 				+ pvInverter.getActivePower().getOrError() /* current charge/discharge Ess */
-				+ config.maximumSellToGridPower(); /* the configured limit */
+				+ this.config.maximumSellToGridPower(); /* the configured limit */
 	}
 
 	@Override
@@ -84,10 +89,10 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
 		// Calculates required charge/discharge power
-		int calculatedPower = this.calculateRequiredPower(pvInverter, meter);
+		var calculatedPower = this.calculateRequiredPower(pvInverter, meter);
 
-		if (Math.abs(this.lastSetLimit) > 100 && Math.abs(calculatedPower) > 100 && Math.abs(
-				this.lastSetLimit - calculatedPower) > (Math.abs(this.lastSetLimit) * DEFAULT_MAX_ADJUSTMENT_RATE)) {
+		if (Math.abs(this.lastSetLimit) > 100 && Math.abs(calculatedPower) > 100 && Math
+				.abs(this.lastSetLimit - calculatedPower) > Math.abs(this.lastSetLimit) * DEFAULT_MAX_ADJUSTMENT_RATE) {
 			if (this.lastSetLimit > calculatedPower) {
 				calculatedPower = this.lastSetLimit - (int) Math.abs(this.lastSetLimit * DEFAULT_MAX_ADJUSTMENT_RATE);
 			} else {

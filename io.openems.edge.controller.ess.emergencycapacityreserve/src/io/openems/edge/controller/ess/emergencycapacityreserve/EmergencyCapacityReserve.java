@@ -63,6 +63,13 @@ public interface EmergencyCapacityReserve extends Controller, OpenemsComponent {
 	}
 
 	/**
+	 * Gets the Configuration.
+	 * 
+	 * @return the {@link Config}
+	 */
+	public Config getConfig();
+
+	/**
 	 * Gets the Channel for {@link ChannelId#STATE_MACHINE}.
 	 *
 	 * @return the Channel

@@ -11,7 +11,7 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Represents a JSON-RPC Response for 'getFieldNames'.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -19,7 +19,7 @@ import io.openems.common.utils.JsonUtils;
  *   "result": {
  *     "fieldNames": [
  *     	 {@link Field#getName()}
- *     ]   
+ *     ]
  *   }
  * }
  * </pre>
@@ -39,7 +39,7 @@ public class GetFieldNamesResponse extends JsonrpcResponseSuccess {
 
 	@Override
 	public JsonObject getResult() {
-		JsonArray fieldNames = new JsonArray();
+		var fieldNames = new JsonArray();
 		for (Field field : this.fields) {
 			fieldNames.add(field.n());
 		}
@@ -49,8 +49,8 @@ public class GetFieldNamesResponse extends JsonrpcResponseSuccess {
 	}
 
 	/**
-	 * Gets the {@link Field}s
-	 * 
+	 * Gets the {@link Field}s.
+	 *
 	 * @return a set of Fields
 	 */
 	public Set<Field> getFields() {

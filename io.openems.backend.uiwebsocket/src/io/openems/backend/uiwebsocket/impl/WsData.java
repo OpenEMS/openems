@@ -51,7 +51,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Gets the authenticated User-ID.
-	 * 
+	 *
 	 * @return the User-ID or Optional.Empty if the User was not authenticated.
 	 */
 	public synchronized Optional<String> getUserId() {
@@ -60,16 +60,15 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Gets the authenticated User.
-	 * 
+	 *
 	 * @param metadata the Metadata service
 	 * @return the User or Optional.Empty if the User was not authenticated or it is
 	 *         not available from Metadata service
 	 */
 	public synchronized Optional<User> getUser(Metadata metadata) {
-		Optional<String> userId = this.getUserId();
-		if (userId.isPresent()) {
-			Optional<User> user = metadata.getUser(userId.get());
-			return user;
+		var userIdOpt = this.getUserId();
+		if (userIdOpt.isPresent()) {
+			return metadata.getUser(userIdOpt.get());
 		}
 		return Optional.empty();
 	}
@@ -80,7 +79,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Gets the Login-Token.
-	 * 
+	 *
 	 * @return the Login-Token
 	 */
 	public Optional<String> getToken() {
@@ -96,26 +95,26 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	/**
 	 * Gets the token or throws an error if no token was set.
-	 * 
+	 *
 	 * @return the token
 	 * @throws OpenemsNamedException if no token has been set
 	 */
 	public String assertToken() throws OpenemsNamedException {
-		Optional<String> token = this.token;
-		if (token.isPresent()) {
-			return token.get();
+		var tokenOpt = this.token;
+		if (tokenOpt.isPresent()) {
+			return tokenOpt.get();
 		}
 		throw OpenemsError.BACKEND_UI_TOKEN_MISSING.exception();
 	}
 
 	/**
 	 * Gets the SubscribedChannelsWorker to take care of subscribe to CurrentData.
-	 * 
+	 *
 	 * @param edgeId the Edge-ID
 	 * @return the SubscribedChannelsWorker
 	 */
 	public synchronized SubscribedChannelsWorker getSubscribedChannelsWorker(String edgeId) {
-		SubscribedChannelsWorker result = this.subscribedChannelsWorkers.get(edgeId);
+		var result = this.subscribedChannelsWorkers.get(edgeId);
 		if (result == null) {
 			result = new SubscribedChannelsWorker(this.parent.parent, edgeId, this);
 			this.subscribedChannelsWorkers.put(edgeId, result);

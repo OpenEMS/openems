@@ -54,6 +54,7 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -69,6 +70,7 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -83,6 +85,7 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
@@ -95,7 +98,7 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		final int offset = 300000 + 1;
+		final var offset = 300000 + 1;
 		/**
 		 * See Modbus definition PDF-file in doc directory and
 		 * https://www.galoz.co.il/wp-content/uploads/2014/11/EM341-Modbus.pdf

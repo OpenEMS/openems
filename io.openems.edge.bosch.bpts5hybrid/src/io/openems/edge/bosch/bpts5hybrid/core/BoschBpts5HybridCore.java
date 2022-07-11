@@ -19,10 +19,25 @@ public interface BoschBpts5HybridCore extends OpenemsComponent {
 
 	public void setMeter(BoschBpts5HybridMeter boschBpts5HybridMeter);
 
+	/**
+	 * Gets the {@link BoschBpts5HybridEss}.
+	 * 
+	 * @return the {@link BoschBpts5HybridEss}
+	 */
 	public Optional<BoschBpts5HybridEss> getEss();
-	
+
+	/**
+	 * Gets the {@link BoschBpts5HybridPv}.
+	 * 
+	 * @return the {@link BoschBpts5HybridPv}
+	 */
 	public Optional<BoschBpts5HybridPv> getPv();
-	
+
+	/**
+	 * Gets the {@link BoschBpts5HybridMeter}.
+	 * 
+	 * @return the {@link BoschBpts5HybridMeter}
+	 */
 	public Optional<BoschBpts5HybridMeter> getMeter();
 
 	public enum CoreChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -42,7 +57,7 @@ public interface BoschBpts5HybridCore extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getSlaveCommunicationFailedChannel() {
@@ -52,7 +67,7 @@ public interface BoschBpts5HybridCore extends OpenemsComponent {
 	/**
 	 * Gets the Slave Communication Failed State. See
 	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getSlaveCommunicationFailed() {
@@ -62,7 +77,7 @@ public interface BoschBpts5HybridCore extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on
 	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setSlaveCommunicationFailed(boolean value) {

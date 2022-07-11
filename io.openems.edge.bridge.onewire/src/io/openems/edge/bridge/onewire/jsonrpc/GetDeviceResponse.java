@@ -15,9 +15,9 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Wraps a JSON-RPC Response to "getDevices" Request.
- * 
+ *
  * <p>
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -43,17 +43,23 @@ public class GetDeviceResponse extends JsonrpcResponseSuccess {
 		final String description;
 		final JsonObject details;
 
+		/**
+		 * Extracts {@link Device} info from a {@link OneWireContainer}.
+		 * 
+		 * @param owc the {@link OneWireContainer}
+		 * @return the {@link Device}
+		 */
 		public static Device from(OneWireContainer owc) {
-			final JsonObject details = new JsonObject();
+			final var details = new JsonObject();
 
 			if (owc instanceof TemperatureContainer) {
 				details.addProperty("type", "TemperatureContainer");
 				try {
-					TemperatureContainer tc = (TemperatureContainer) owc;
-					byte[] state = tc.readDevice();
+					var tc = (TemperatureContainer) owc;
+					var state = tc.readDevice();
 					tc.doTemperatureConvert(state);
 					state = tc.readDevice();
-					double temp = tc.getTemperature(state);
+					var temp = tc.getTemperature(state);
 					details.addProperty("temperature", temp);
 				} catch (OneWireException e) {
 					e.printStackTrace();
@@ -66,7 +72,6 @@ public class GetDeviceResponse extends JsonrpcResponseSuccess {
 		}
 
 		private Device(String address, String name, String alternateName, String description, JsonObject details) {
-			super();
 			this.address = address;
 			this.name = name;
 			this.alternateName = alternateName;
@@ -81,13 +86,18 @@ public class GetDeviceResponse extends JsonrpcResponseSuccess {
 		super(id);
 	}
 
+	/**
+	 * Add a {@link Device}.
+	 * 
+	 * @param device the {@link Device}
+	 */
 	public void addDevice(Device device) {
 		this.devices.add(device);
 	}
 
 	@Override
 	public JsonObject getResult() {
-		JsonArray devices = new JsonArray();
+		var devices = new JsonArray();
 		for (Device device : this.devices) {
 			devices.add(JsonUtils.buildJsonObject() //
 					.addProperty("address", device.address) //
@@ -97,7 +107,7 @@ public class GetDeviceResponse extends JsonrpcResponseSuccess {
 					.add("details", device.details) //
 					.build());
 		}
-		JsonObject j = new JsonObject();
+		var j = new JsonObject();
 		j.add("devices", devices);
 		return j;
 	}

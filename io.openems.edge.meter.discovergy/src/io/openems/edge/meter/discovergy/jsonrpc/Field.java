@@ -22,8 +22,13 @@ public enum Field {
 		this.name = name;
 	}
 
+	/**
+	 * Shortcut to get name.
+	 * 
+	 * @return the name
+	 */
 	public String n() {
-		return name;
+		return this.name;
 	}
 
 }

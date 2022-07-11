@@ -12,8 +12,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import eu.chargetime.ocpp.model.Request;
@@ -38,11 +38,12 @@ import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
 @Component(//
 		name = "Evcs.Ocpp.IesKeywattSingle", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 		implements Evcs, ManagedEvcs, MeasuringEvcs, OpenemsComponent, EventHandler, SocEvcs {
 
@@ -53,7 +54,7 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 	};
 
 	// Values that a Ies KeyWatt is supporting
-	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<OcppInformations>(
+	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<>(
 			Arrays.asList(OcppInformations.values()));
 
 	private Config config;
@@ -77,7 +78,7 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 	}
 
 	@Activate
-	public void activate(ComponentContext context, Config config) {
+	protected void activate(ComponentContext context, Config config) {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
@@ -117,25 +118,18 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 
 	@Override
 	public OcppStandardRequests getStandardRequests() {
-		return new OcppStandardRequests() {
-
-			@Override
-			public Request setChargePowerLimit(int chargePower) {
-				return new ChangeConfigurationRequest("PowerLimit", String.valueOf(chargePower));
-			}
-		};
+		return chargePower -> new ChangeConfigurationRequest("PowerLimit", String.valueOf(chargePower));
 	}
 
 	@Override
 	public List<Request> getRequiredRequestsAfterConnection() {
 
-		ArrayList<Request> requests = new ArrayList<>();
+		var requests = new ArrayList<Request>();
 
-		ChangeConfigurationRequest setMeterValueSampleInterval = new ChangeConfigurationRequest(
-				"MeterValueSampleInterval", "10");
+		var setMeterValueSampleInterval = new ChangeConfigurationRequest("MeterValueSampleInterval", "10");
 		requests.add(setMeterValueSampleInterval);
 
-		TriggerMessageRequest requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
+		var requestStatus = new TriggerMessageRequest(TriggerMessageRequestType.StatusNotification);
 		requests.add(requestStatus);
 
 		return requests;
@@ -143,7 +137,7 @@ public class IesKeywattSingleCcs extends AbstractOcppEvcsComponent
 
 	@Override
 	public List<Request> getRequiredRequestsDuringConnection() {
-		return new ArrayList<Request>();
+		return new ArrayList<>();
 	}
 
 	@Override

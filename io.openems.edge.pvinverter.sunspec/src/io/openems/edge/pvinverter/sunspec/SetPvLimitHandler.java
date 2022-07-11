@@ -2,7 +2,6 @@ package io.openems.edge.pvinverter.sunspec;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingRunnable;
@@ -17,7 +16,7 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 
-	private final static float COMPARE_THRESHOLD = 0.0001F;
+	private static final float COMPARE_THRESHOLD = 0.0001F;
 
 	private final AbstractSunSpecPvInverter parent;
 
@@ -32,7 +31,7 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 		// Get ActivePowerLimit that should be applied
 		IntegerWriteChannel activePowerLimitChannel = this.parent
 				.channel(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
-		Optional<Integer> activePowerLimitOpt = activePowerLimitChannel.getNextWriteValueAndReset();
+		var activePowerLimitOpt = activePowerLimitChannel.getNextWriteValueAndReset();
 
 		FloatWriteChannel wMaxLimPctChannel;
 		FloatReadChannel wRtgChannel;
@@ -53,10 +52,9 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 			if (activePowerLimitOpt.isPresent()) {
 				// and power should be limited -> forward error
 				throw e;
-			} else {
-				// and no power limitation is required -> ignore error and exit
-				return;
 			}
+			// and no power limitation is required -> ignore error and exit
+			return;
 		}
 
 		float wMaxLimPct;

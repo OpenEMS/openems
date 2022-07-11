@@ -13,7 +13,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,11 +60,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "Battery-Inverter.Refu.REFUstore88k", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE,//
-		}
-
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements ManagedSymmetricBatteryInverter,
 		SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, RefuStore88k, TimedataProvider, StartStoppable {
 
@@ -72,13 +72,14 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 	private Config config;
 
 	public static final int DEFAULT_UNIT_ID = 1;
-	private int MAX_APPARENT_POWER = 0;
 	protected static final double EFFICIENCY_FACTOR = 0.98;
 
 	private final CalculateEnergyFromPower calculateChargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
 	private final CalculateEnergyFromPower calculateDischargeEnergy = new CalculateEnergyFromPower(this,
 			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+
+	private int maxApparentPower = 0;
 
 	@Reference
 	private Power power;
@@ -106,6 +107,7 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 		this._setGridMode(GridMode.ON_GRID);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -120,21 +122,22 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 		this.config = config;
 		this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).onChange((oldValue, newValue) -> {
 			@SuppressWarnings("unchecked")
-			Optional<Integer> valueOpt = (Optional<Integer>) newValue.asOptional();
+			var valueOpt = (Optional<Integer>) newValue.asOptional();
 			if (!valueOpt.isPresent()) {
 				return;
 			}
-			MAX_APPARENT_POWER = valueOpt.get();
 			IntegerWriteChannel wMaxChannel = this.channel(RefuStore88kChannelId.W_MAX);
+			this.maxApparentPower = valueOpt.get();
 			try {
 				// Set WMax
-				wMaxChannel.setNextWriteValue(MAX_APPARENT_POWER);
+				wMaxChannel.setNextWriteValue(this.maxApparentPower);
 			} catch (OpenemsNamedException e) {
-				log.error(e.getMessage());
+				this.log.error(e.getMessage());
 			}
 		});
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -155,7 +158,7 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 		this.calculateEnergy();
 
 		// Prepare Context
-		Context context = new Context(this, battery, this.config, setActivePower, setReactivePower);
+		var context = new Context(this, battery, this.config, setActivePower, setReactivePower);
 
 		// Call the StateMachine
 		try {
@@ -171,21 +174,18 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 
 	@Override
 	public BatteryInverterConstraint[] getStaticConstraints() throws OpenemsException {
-		BatteryInverterConstraint noReactivePower = new BatteryInverterConstraint("Reactive power is not allowed",
-				Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0d);
+		var noReactivePower = new BatteryInverterConstraint("Reactive power is not allowed", Phase.ALL, Pwr.REACTIVE,
+				Relationship.EQUALS, 0d);
 
 		if (this.stateMachine.getCurrentState() == State.RUNNING) {
 			return new BatteryInverterConstraint[] { noReactivePower };
 
-		} else {
-			// Block any power as long as we are not RUNNING
-			return new BatteryInverterConstraint[] { //
-					noReactivePower, //
-					new BatteryInverterConstraint("Refu inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS,
-							0d) //
-			};
-
 		}
+		// Block any power as long as we are not RUNNING
+		return new BatteryInverterConstraint[] { //
+				noReactivePower, //
+				new BatteryInverterConstraint("Refu inverter not ready", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0d) //
+		};
 	}
 
 	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
@@ -202,22 +202,22 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 
 	@Override
 	public int getPowerPrecision() {
-		return MAX_APPARENT_POWER / 1000;
+		return this.maxApparentPower / 1000;
 	}
 
 	/*
 	 * Supported Models First available Model = Start Address + 2 = 40002 Then 40002
 	 * + Length of Model ....
 	 */
-	private final static int START_ADDRESS = 40000;
-	private final static int SUNSPEC_1 = START_ADDRESS + 2; // Common
-	private final static int SUNSPEC_103 = 40070; // Inverter (Three Phase)
-	private final static int SUNSPEC_120 = 40122; // Nameplate
-	private final static int SUNSPEC_121 = 40150; // Basic Settings
-	private final static int SUNSPEC_123 = 40182; // Immediate Controls
-	private final static int SUNSPEC_64040 = 40208; // REFU Parameter
-	private final static int SUNSPEC_64041 = 40213; // REFU Parameter Value
-	private final static int SUNSPEC_64800 = 40225; // MESA-PCS Extensions
+	private static final int START_ADDRESS = 40000;
+	private static final int SUNSPEC_1 = START_ADDRESS + 2; // Common
+	private static final int SUNSPEC_103 = 40070; // Inverter (Three Phase)
+	private static final int SUNSPEC_120 = 40122; // Nameplate
+	private static final int SUNSPEC_121 = 40150; // Basic Settings
+	private static final int SUNSPEC_123 = 40182; // Immediate Controls
+	private static final int SUNSPEC_64040 = 40208; // REFU Parameter
+	private static final int SUNSPEC_64041 = 40213; // REFU Parameter Value
+	private static final int SUNSPEC_64800 = 40225; // MESA-PCS Extensions
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException { // Register
@@ -259,7 +259,6 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						m(RefuStore88kChannelId.V_SF, new UnsignedWordElement(SUNSPEC_103 + 13)), // 40083
 						m(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 14), // 40084
-																													// //
 								ElementToChannelConverter.SCALE_FACTOR_1), // REFUStore88KChannelId.W//
 						m(RefuStore88kChannelId.W_SF, new SignedWordElement(SUNSPEC_103 + 15)), // 40085
 						m(RefuStore88kChannelId.HZ, new SignedWordElement(SUNSPEC_103 + 16), // 40086
@@ -269,7 +268,6 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						m(RefuStore88kChannelId.VA_SF, new SignedWordElement(SUNSPEC_103 + 19)), // 40089
 						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 20), // 40090
-																														// //
 								ElementToChannelConverter.SCALE_FACTOR_1), // REFUStore88KChannelId.VA_R
 						m(RefuStore88kChannelId.VA_R_SF, new SignedWordElement(SUNSPEC_103 + 21)), // 40091
 						new DummyRegisterElement(SUNSPEC_103 + 22, SUNSPEC_103 + 23),
@@ -459,7 +457,7 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 				+ "|" + this.stateMachine.getCurrentState().asCamelCase();
 	}
 
-	private AtomicReference<StartStop> startStopTarget = new AtomicReference<StartStop>(StartStop.UNDEFINED);
+	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
 	@Override
 	public void setStartStop(StartStop value) {
@@ -494,7 +492,7 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateChargeEnergy.update(null);

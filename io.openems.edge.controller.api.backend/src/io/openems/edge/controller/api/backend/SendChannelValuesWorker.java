@@ -30,7 +30,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  * Method {@link #collectData()} is called Synchronously with the Core.Cycle to
  * collect values of Channels. Sending of values is then delegated to an
  * asynchronous task.
- * 
+ *
  * <p>
  * The logic tries to send changed values once per Cycle and all values once
  * every {@link #SEND_VALUES_OF_ALL_CHANNELS_AFTER_SECONDS}.
@@ -50,7 +50,7 @@ public class SendChannelValuesWorker {
 	/**
 	 * If true: next 'send' sends all channel values.
 	 */
-	private AtomicBoolean sendValuesOfAllChannels = new AtomicBoolean(true);
+	private final AtomicBoolean sendValuesOfAllChannels = new AtomicBoolean(true);
 
 	/**
 	 * Keeps the last timestamp when all channel values were sent.
@@ -86,11 +86,11 @@ public class SendChannelValuesWorker {
 	 * triggers asynchronous sending.
 	 */
 	public synchronized void collectData() {
-		Instant now = Instant.now(this.parent.componentManager.getClock());
+		var now = Instant.now(this.parent.componentManager.getClock());
 
 		// Update the values of all channels
-		final List<OpenemsComponent> enabledComponents = this.parent.componentManager.getEnabledComponents();
-		final ImmutableTable<String, String, JsonElement> allValues = this.collectData(enabledComponents);
+		final var enabledComponents = this.parent.componentManager.getEnabledComponents();
+		final var allValues = this.collectData(enabledComponents);
 
 		// Add to send Queue
 		this.executor.execute(new SendTask(this, now, allValues));
@@ -98,7 +98,7 @@ public class SendChannelValuesWorker {
 
 	/**
 	 * Cycles through all Channels and collects the value.
-	 * 
+	 *
 	 * @param enabledComponents the enabled components
 	 * @return collected data
 	 */
@@ -111,11 +111,21 @@ public class SendChannelValuesWorker {
 							// Ignore Low-Priority Channels
 							&& channel.channelDoc().getPersistencePriority()
 									.isAtLeast(this.parent.config.persistencePriority()))
-					.collect(ImmutableTable.toImmutableTable(c -> c.address().getComponentId(),
-							c -> c.address().getChannelId(), c -> c.value().asJson()));
+					.collect(//
+							ImmutableTable.toImmutableTable(//
+									c -> c.address().getComponentId(), //
+									c -> c.address().getChannelId(), //
+									c -> c.value().asJson(), //
+									// simple/stupid merge function to avoid
+									// 'java.lang.IllegalArgumentException Duplicate Key'
+									(t, u) -> {
+										this.parent.logWarn(this.log, "Duplicate Key [" + t.toString() + "]");
+										return t;
+									}));
 		} catch (Exception e) {
 			// ConcurrentModificationException can happen if Channels are dynamically added
 			// or removed
+			this.parent.logWarn(this.log, "Unable to collect date: " + e.getMessage());
 			return ImmutableTable.of();
 		}
 	}
@@ -154,12 +164,14 @@ public class SendChannelValuesWorker {
 
 			} else {
 				// Actually use the kept 'lastSentValues'
+				// CHECKSTYLE:OFF
 				lastAllValues = this.parent.lastAllValues;
+				// CHECKSTYLE:ON
 			}
 
 			// Round timestamp to Global Cycle-Time
-			final int cycleTime = this.parent.parent.cycle.getCycleTime();
-			final long timestampMillis = this.timestamp.toEpochMilli() / cycleTime * cycleTime;
+			final var cycleTime = this.parent.parent.cycle.getCycleTime();
+			final var timestampMillis = this.timestamp.toEpochMilli() / cycleTime * cycleTime;
 
 			// Prepare message values
 			Map<ChannelAddress, JsonElement> sendValuesMap = new HashMap<>();
@@ -174,7 +186,7 @@ public class SendChannelValuesWorker {
 			}
 
 			// Create JSON-RPC notification
-			TimestampedDataNotification message = new TimestampedDataNotification();
+			var message = new TimestampedDataNotification();
 			message.add(timestampMillis, sendValuesMap);
 
 			// Debug-Log
@@ -184,7 +196,7 @@ public class SendChannelValuesWorker {
 			}
 
 			// Try to send
-			boolean wasSent = this.parent.parent.websocket.sendMessage(message);
+			var wasSent = this.parent.parent.websocket.sendMessage(message);
 
 			// Set the UNABLE_TO_SEND channel
 			this.parent.parent.getUnableToSendChannel().setNextValue(!wasSent);

@@ -54,6 +54,7 @@ public class RestApiReadWriteImpl extends AbstractRestApi
 				config.port(), config.connectionlimit());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();

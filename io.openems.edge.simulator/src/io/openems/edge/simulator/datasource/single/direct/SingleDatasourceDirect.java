@@ -7,8 +7,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.common.component.ComponentManager;
@@ -21,8 +21,11 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.Datasource.Single.Direct", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+})
 public class SingleDatasourceDirect extends AbstractCsvDatasource
 		implements SimulatorDatasource, OpenemsComponent, EventHandler {
 
@@ -50,7 +53,7 @@ public class SingleDatasourceDirect extends AbstractCsvDatasource
 
 	@Override
 	protected DataContainer getData() throws NumberFormatException, IOException {
-		DataContainer result = new DataContainer();
+		var result = new DataContainer();
 		for (int value : this.config.values()) {
 			result.addRecord(new Float[] { Float.valueOf(value) });
 		}

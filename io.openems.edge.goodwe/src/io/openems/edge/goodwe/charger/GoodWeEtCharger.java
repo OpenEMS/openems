@@ -35,7 +35,7 @@ public interface GoodWeEtCharger extends OpenemsComponent {
 
 	/**
 	 * Gets the Channel for {@link ChannelId#HAS_NO_DC_PV}.
-	 * 
+	 *
 	 * @return the Channel
 	 */
 	public default StateChannel getHasNoDcPvChannel() {
@@ -44,7 +44,7 @@ public interface GoodWeEtCharger extends OpenemsComponent {
 
 	/**
 	 * Gets the Has-No-DC-PV State. See {@link ChannelId#HAS_NO_DC_PV}.
-	 * 
+	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Boolean> getHasNoDcPv() {
@@ -54,7 +54,7 @@ public interface GoodWeEtCharger extends OpenemsComponent {
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#HAS_NO_DC_PV}
 	 * Channel.
-	 * 
+	 *
 	 * @param value the next value
 	 */
 	public default void _setHasNoDcPv(Boolean value) {

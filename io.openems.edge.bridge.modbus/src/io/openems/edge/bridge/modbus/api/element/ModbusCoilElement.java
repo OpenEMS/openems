@@ -13,7 +13,7 @@ public interface ModbusCoilElement extends ModbusElement<Boolean> {
 
 	/**
 	 * Sets the boolean value of this Element from Modbus Coil.
-	 * 
+	 *
 	 * @param coil the value
 	 * @throws OpenemsException on error
 	 */
@@ -21,7 +21,7 @@ public interface ModbusCoilElement extends ModbusElement<Boolean> {
 
 	/**
 	 * Sets a value that should be written to the Modbus device.
-	 * 
+	 *
 	 * @param valueOpt the Optional value
 	 * @throws OpenemsException on error
 	 */
@@ -37,17 +37,17 @@ public interface ModbusCoilElement extends ModbusElement<Boolean> {
 
 	/**
 	 * Gets the next write value and resets it.
-	 * 
+	 *
 	 * <p>
 	 * This method should be called once in every cycle on the
 	 * TOPIC_CYCLE_EXECUTE_WRITE event. It makes sure, that the nextWriteValue gets
 	 * initialized in every Cycle. If registers need to be written again in every
 	 * cycle, next setNextWriteValue()-method needs to called on every Cycle.
-	 * 
+	 *
 	 * @return the Optional next write value
 	 */
 	public default Optional<Boolean> getNextWriteValueAndReset() {
-		Optional<Boolean> valueOpt = this.getNextWriteValue();
+		var valueOpt = this.getNextWriteValue();
 		try {
 			if (valueOpt.isPresent()) {
 				this._setNextWriteValue(Optional.empty());
@@ -58,5 +58,10 @@ public interface ModbusCoilElement extends ModbusElement<Boolean> {
 		return valueOpt;
 	}
 
+	/**
+	 * Gets the next write value.
+	 * 
+	 * @return the Optional next write value
+	 */
 	public Optional<Boolean> getNextWriteValue();
 }

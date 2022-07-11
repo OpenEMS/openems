@@ -15,22 +15,22 @@ import io.openems.edge.common.type.TypeUtils;
 
 /**
  * Represents an Asymmetric Meter.
- * 
- * - Negative ActivePowerL1/L2/L3 and ConsumptionActivePowerL1/L2/L3 represent
+ *
+ * <ul>
+ * <li>Negative ActivePowerL1/L2/L3 and ConsumptionActivePowerL1/L2/L3 represent
  * Consumption, i.e. power that is 'leaving the system', e.g. feed-to-grid
- * 
- * - Positive ActivePowerL1/L2/L3 and ProductionActivePowerL1/L2/L3 represent
+ * <li>Positive ActivePowerL1/L2/L3 and ProductionActivePowerL1/L2/L3 represent
  * Production, i.e. power that is 'entering the system', e.g. buy-from-grid
- * 
+ * </ul>
  */
 public interface AsymmetricMeter extends SymmetricMeter {
 
-	public final static String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
+	public static final String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Active Power L1
-		 * 
+		 * Active Power L1.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -45,8 +45,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
-		 * Active Power L2
-		 * 
+		 * Active Power L2.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -61,8 +61,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
-		 * Active Power L3
-		 * 
+		 * Active Power L3.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -77,8 +77,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
-		 * Reactive Power L1
-		 * 
+		 * Reactive Power L1.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -93,8 +93,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
-		 * Reactive Power L2
-		 * 
+		 * Reactive Power L2.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -109,8 +109,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
-		 * Reactive Power L3
-		 * 
+		 * Reactive Power L3.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -125,8 +125,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text(POWER_DOC_TEXT)), //
 		/**
-		 * Voltage L1
-		 * 
+		 * Voltage L1.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -137,8 +137,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.unit(Unit.MILLIVOLT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Voltage L2
-		 * 
+		 * Voltage L2.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -149,8 +149,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.unit(Unit.MILLIVOLT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Voltage L3
-		 * 
+		 * Voltage L3.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -161,8 +161,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.unit(Unit.MILLIVOLT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Current L1
-		 * 
+		 * Current L1.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -173,8 +173,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.unit(Unit.MILLIAMPERE) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Current L2
-		 * 
+		 * Current L2.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -185,8 +185,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.unit(Unit.MILLIAMPERE) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Current L3
-		 * 
+		 * Current L3.
+		 *
 		 * <ul>
 		 * <li>Interface: Meter Asymmetric
 		 * <li>Type: Integer
@@ -203,11 +203,19 @@ public interface AsymmetricMeter extends SymmetricMeter {
 			this.doc = doc;
 		}
 
+		@Override
 		public Doc doc() {
 			return this.doc;
 		}
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(AsymmetricMeter.class, accessMode, 100) //
 				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
@@ -693,8 +701,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	/**
 	 * Initializes Channel listeners to set the Active- and Reactive-Power Channel
 	 * value as the sum of L1 + L2 + L3.
-	 * 
-	 * @param meter
+	 *
+	 * @param meter the {@link AsymmetricMeter}
 	 */
 	public static void initializePowerSumChannels(AsymmetricMeter meter) {
 		// Active Power
@@ -712,8 +720,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		final Consumer<Value<Integer>> reactivePowerSum = ignore -> {
 			meter._setReactivePower(TypeUtils.sum(//
 					meter.getReactivePowerL1Channel().getNextValue().get(), //
-					meter.getReactivePowerL1Channel().getNextValue().get(), //
-					meter.getReactivePowerL1Channel().getNextValue().get())); //
+					meter.getReactivePowerL2Channel().getNextValue().get(), //
+					meter.getReactivePowerL3Channel().getNextValue().get())); //
 		};
 		meter.getReactivePowerL1Channel().onSetNextValue(reactivePowerSum);
 		meter.getReactivePowerL2Channel().onSetNextValue(reactivePowerSum);

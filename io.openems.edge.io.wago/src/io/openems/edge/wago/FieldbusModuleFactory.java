@@ -9,7 +9,7 @@ public class FieldbusModuleFactory {
 	/**
 	 * Builds a WAGO {@link FieldbusModule} instance, defined by the XML
 	 * specification.
-	 * 
+	 *
 	 * @param parent          the {@link Wago} parent component
 	 * @param moduleArtikelnr the XML 'Artikelnr'
 	 * @param moduleType      the XML 'Type'
@@ -20,7 +20,7 @@ public class FieldbusModuleFactory {
 	 */
 	public FieldbusModule of(Wago parent, String moduleArtikelnr, String moduleType, FieldbusModuleKanal[] kanals,
 			int coilOffset0, int coilOffset512) {
-		final int channelsCount = kanals.length;
+		final var channelsCount = kanals.length;
 		switch (moduleArtikelnr) {
 		case "750-4xx":
 			switch (moduleType) {

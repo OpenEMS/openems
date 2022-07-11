@@ -1,11 +1,10 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.OptionalDouble;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -24,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -31,7 +31,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.ComponentManagerProvider;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.filter.RampFilter;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -69,7 +68,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	 * time when production is lower or higher than consumption.
 	 */
 	protected static final int DEFAULT_POWER_BUFFER = 100;
-	
+
 	protected final RampFilter rampFilter = new RampFilter();
 
 	/**
@@ -84,6 +83,8 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			GridOptimizedCharge.ChannelId.DELAY_CHARGE_TIME);
 	private final CalculateActiveTime calculateSellToGridTime = new CalculateActiveTime(this,
 			GridOptimizedCharge.ChannelId.SELL_TO_GRID_LIMIT_TIME);
+	private final CalculateActiveTime calculateAvoidLowChargingTime = new CalculateActiveTime(this,
+			GridOptimizedCharge.ChannelId.AVOID_LOW_CHARGING_TIME);
 	private final CalculateActiveTime calculateNoLimitationTime = new CalculateActiveTime(this,
 			GridOptimizedCharge.ChannelId.NO_LIMITATION_TIME);
 
@@ -165,7 +166,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = this.ess.getGridMode();
+		var gridMode = this.ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -179,45 +180,41 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		Integer sellToGridLimitMinChargePower = null;
-		Integer delayChargeMaxChargePower = null;
-
-		this.resetTargetMinutesAtMidnight();
+		this.resetChannelsAtMidnight();
 
 		// Check if the logic already started or should start
 		if (!this.getStartEpochSeconds().isDefined()) {
 
-			Clock clock = this.componentManager.getClock();
+			var clock = this.componentManager.getClock();
 			IntegerReadChannel productionChannel = this.sum.getProductionActivePowerChannel();
 
-			// Fallback if the current production reached the maximum sell to grid power
-			if (productionChannel.value().orElse(0) >= this.config.maximumSellToGridPower()) {
-
-				this._setStartEpochSeconds(LocalTime.now(clock), clock);
-			} else {
+			// Check start if production not already reached the maximum sell to grid power
+			if (productionChannel.value().orElse(0) < this.config.maximumSellToGridPower()) {
 
 				/*
 				 * Calculate the average with the last 100 values of production and consumption
 				 */
-				OptionalDouble productionAvgOpt = this.getChannelAverageOfPastSeconds(100, productionChannel);
-				OptionalDouble consumptionAvgOpt = this.getChannelAverageOfPastSeconds(100,
+				var productionAvgOpt = this.getChannelAverageOfPastSeconds(100, productionChannel);
+				var consumptionAvgOpt = this.getChannelAverageOfPastSeconds(100,
 						this.sum.getConsumptionActivePowerChannel());
 
-				double production = productionAvgOpt.isPresent() ? productionAvgOpt.getAsDouble() : 0;
-				double consumption = consumptionAvgOpt.isPresent() ? consumptionAvgOpt.getAsDouble() : 0;
+				var production = productionAvgOpt.isPresent() ? productionAvgOpt.getAsDouble() : 0;
+				var consumption = consumptionAvgOpt.isPresent() ? consumptionAvgOpt.getAsDouble() : 0;
 
 				// Initiate the start time if the production is higher than the consumption
-				if (production > 100 && production > consumption + DEFAULT_POWER_BUFFER) {
-					this._setStartEpochSeconds(LocalTime.now(clock), clock);
-				} else {
+				if ((production <= 100) || (production <= consumption + DEFAULT_POWER_BUFFER)) {
 					// No restriction required so far, as not enough is produced
 					this.delayCharge.setDelayChargeStateAndLimit(DelayChargeState.NOT_STARTED, null);
 					this.sellToGridLimit.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.NOT_STARTED, null);
 					return;
 				}
 			}
+			this._setStartEpochSeconds(LocalTime.now(clock), clock);
 		}
 
+		Integer sellToGridLimitMinChargePower = null;
+		Integer delayChargeMaxChargePower = null;
+		
 		/*
 		 * Run the logic of the different modes, depending on the configuration
 		 */
@@ -236,13 +233,15 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 			break;
 		}
 
+		this.predictChargeStart();
+
 		// Prioritize both limits to get valid constraints for the ess & apply these.
 		this.applyCalculatedPowerLimits(sellToGridLimitMinChargePower, delayChargeMaxChargePower);
 	}
 
 	/**
 	 * Apply the calculated power limits.
-	 * 
+	 *
 	 * @param sellToGridLimitMinChargePower minimum charge power
 	 * @param delayChargeMaxChargePower     maximum charge power
 	 * @throws OpenemsNamedException on error
@@ -250,10 +249,10 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	private void applyCalculatedPowerLimits(Integer sellToGridLimitMinChargePower, Integer delayChargeMaxChargePower)
 			throws OpenemsNamedException {
 
-		boolean delayChargeIsDefined = delayChargeMaxChargePower != null;
-		boolean sellToGridLimitIsDefined = sellToGridLimitMinChargePower != null;
+		var delayChargeIsDefined = delayChargeMaxChargePower != null;
+		var sellToGridLimitIsDefined = sellToGridLimitMinChargePower != null;
 
-		Integer rawDelayChargeMaxChargePower = delayChargeMaxChargePower;
+		var rawDelayChargeMaxChargePower = delayChargeMaxChargePower;
 
 		if (delayChargeIsDefined) {
 			// Calculate AC-Setpoint depending on the DC production
@@ -262,7 +261,7 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		/*
 		 * Set sellToGridLimit if its lower than delayChargeLimit as fix value.
-		 * 
+		 *
 		 * <p> e.g. sellToGridLimit [-10kW | -3kW] & delayCharge [-2kW | 10kW] - it will
 		 * take -3 kW to reduce the grid power with the minimum power and avoid to
 		 * charge more than needed.
@@ -295,11 +294,11 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Calculating the AC limit.
-	 * 
+	 *
 	 * <p>
 	 * Calculating the maximum charge power in AC systems and the maximum discharge
 	 * power in DC systems as inverter setpoint.
-	 * 
+	 *
 	 * @param delayChargeMaxChargePower maximum charge power of the battery
 	 * @return Maximum power to is allowed to charged(AC) or discharged(DC)
 	 */
@@ -307,27 +306,28 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		// Calculate AC-Setpoint depending on the DC production
 		int productionDcPower = this.sum.getProductionDcActualPower().orElse(0);
-		delayChargeMaxChargePower = productionDcPower - delayChargeMaxChargePower;
-
-		return delayChargeMaxChargePower;
+		return productionDcPower - delayChargeMaxChargePower;
 	}
 
 	/**
 	 * Counts up the time of each state when it is active.
 	 */
 	private void calculateTime() {
-		boolean sellToGridLimitIsActive = false;
-		boolean delayChargeLimitIsActive = false;
-		boolean noLimitIsActive = false;
+		var sellToGridLimitIsActive = false;
+		var delayChargeLimitIsActive = false;
+		var noLimitIsActive = false;
+		var avoidLowChargingIsActive = false;
 
-		SellToGridLimitState sellToGridLimitState = this.getSellToGridLimitState();
-		DelayChargeState delayChargeState = this.getDelayChargeState();
+		var sellToGridLimitState = this.getSellToGridLimitState();
+		var delayChargeState = this.getDelayChargeState();
 		int sellToGridLimit = this.getSellToGridLimitMinimumChargeLimit().orElse(0);
 
 		if (sellToGridLimitState.equals(SellToGridLimitState.ACTIVE_LIMIT_FIXED)) {
 			sellToGridLimitIsActive = true;
 		} else if (delayChargeState.equals(DelayChargeState.ACTIVE_LIMIT)) {
 			delayChargeLimitIsActive = true;
+		} else if (delayChargeState.equals(DelayChargeState.AVOID_LOW_CHARGING)) {
+			avoidLowChargingIsActive = true;
 		} else if (sellToGridLimitState.equals(SellToGridLimitState.ACTIVE_LIMIT_CONSTRAINT) && sellToGridLimit > 0) {
 			sellToGridLimitIsActive = true;
 		} else {
@@ -336,25 +336,33 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 
 		this.calculateSellToGridTime.update(sellToGridLimitIsActive);
 		this.calculateDelayChargeTime.update(delayChargeLimitIsActive);
+		this.calculateAvoidLowChargingTime.update(avoidLowChargingIsActive);
 		this.calculateNoLimitationTime.update(noLimitIsActive);
 	}
 
 	/**
 	 * Resets the predicted target minutes at midnight.
 	 */
-	private void resetTargetMinutesAtMidnight() {
-		LocalDate today = LocalDate.now(this.componentManager.getClock());
+	private void resetChannelsAtMidnight() {
+
+		var today = LocalDate.now(this.componentManager.getClock());
 		if (!this.currentDay.equals(today)) {
+
+			/*
+			 * Target minutes
+			 */
 			this._setPredictedTargetMinute(null);
 			this._setPredictedTargetMinuteAdjusted(null);
 			this._setStartEpochSeconds(null);
+			this._setPredictedChargeStartEpochSeconds(null);
+
 			this.currentDay = today;
 		}
 	}
 
 	/**
 	 * Calculates the average of the past channel values.
-	 * 
+	 *
 	 * @param consideredSeconds Seconds that should be taken into account for the
 	 *                          past channels
 	 * @param channel           Channel whose values are calculated
@@ -363,22 +371,61 @@ public class GridOptimizedChargeImpl extends AbstractOpenemsComponent
 	private OptionalDouble getChannelAverageOfPastSeconds(int consideredSeconds, IntegerReadChannel channel) {
 
 		// Get the past channel values
-		Collection<Value<Integer>> pastValues = channel.getPastValues()
+		var pastValues = channel.getPastValues()
 				.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(consideredSeconds), true)
 				.values();
 
 		// Make sure we have at least one value
 		if (pastValues.isEmpty()) {
-			pastValues = new ArrayList<Value<Integer>>();
+			pastValues = new ArrayList<>();
 			pastValues.add(channel.value());
 		}
 
-		// Get the average of the past values
-		OptionalDouble averageOpt = pastValues.stream().filter(v -> v.isDefined()) //
-				.mapToInt(v -> v.get()) //
+		return pastValues.stream().filter(Value::isDefined) //
+				.mapToInt(Value::get) //
 				.average();
+	}
 
-		return averageOpt;
+	/**
+	 * Predicted charge start time.
+	 * 
+	 * <p>
+	 * Predicted charge start time as epoch seconds and set the channel.
+	 * 
+	 * @throws OpenemsException on error
+	 */
+	private void predictChargeStart() throws OpenemsException {
+		var targetTime = this.getTargetMinute().orElse(DelayCharge.DEFAULT_TARGET_TIME.get(ChronoField.MINUTE_OF_DAY));
+		var capacity = this.ess.getCapacity().getOrError();
+		var soc = this.ess.getSoc().getOrError();
+
+		// Predict ChargeStart
+		Long epochChargeStartTime = DelayCharge.getPredictedChargeStart(targetTime, capacity, soc,
+				this.componentManager.getClock());
+		if (epochChargeStartTime == null) {
+			this._setPredictedChargeStartEpochSeconds(null);
+			return;
+		}
+
+		/*
+		 * Set ChargeStart only until we have charged (Start time would increase)
+		 */
+		var currentVal = this.getPredictedChargeStartEpochSeconds().asOptional();
+
+		// ChargeStart not set
+		if (currentVal.isEmpty()) {
+			this._setPredictedChargeStartEpochSeconds(epochChargeStartTime);
+			return;
+		}
+
+		// ChargeStart time is earlier because the remaining capacity increased
+		if (currentVal.get() < epochChargeStartTime) {
+			this._setPredictedChargeStartEpochSeconds(epochChargeStartTime);
+			return;
+		}
+
+		// ChargeStart already set
+		this._setPredictedChargeStartEpochSeconds(currentVal.get());
 	}
 
 	protected void logDebug(String message) {

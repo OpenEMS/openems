@@ -1,7 +1,6 @@
 package io.openems.edge.controller.io.heatpump.sgready;
 
 import java.time.Instant;
-import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -14,8 +13,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +37,11 @@ import io.openems.edge.timedata.api.TimedataProvider;
 @Component(//
 		name = "Controller.Io.HeatPump.SgReady", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 public class HeatPumpImpl extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent, HeatPump, EventHandler, TimedataProvider {
 
@@ -95,6 +96,7 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -131,11 +133,11 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Automatic mode.
-	 * 
+	 *
 	 * <p>
 	 * Sets the digital outputs and the state depending on the surplus or grid-buy
 	 * power.
-	 * 
+	 *
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsNamedException    on error
 	 */
@@ -150,19 +152,19 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 		this._setAwaitingHysteresis(false);
 
 		// Values to calculate the surplus/grid-buy power
-		int gridActivePower = this.getGridActivePowerOrZero();
-		int soc = this.getEssSocOrZero();
-		int essDischargePower = this.getEssDischargePowerOrZero();
+		var gridActivePower = this.getGridActivePowerOrZero();
+		var soc = this.getEssSocOrZero();
+		var essDischargePower = this.getEssDischargePowerOrZero();
 
 		// We are only interested in discharging, not charging
 		essDischargePower = essDischargePower < 0 ? 0 : essDischargePower;
 
 		// Calculate power used by the heat pump
-		int heatPumpPower = this.recommState.isActive() ? this.config.automaticRecommendationSurplusPower() : 0;
+		var heatPumpPower = this.recommState.isActive() ? this.config.automaticRecommendationSurplusPower() : 0;
 		heatPumpPower = this.forceOnState.isActive() ? this.config.automaticForceOnSurplusPower() : heatPumpPower;
 
 		// Calculate surplus power
-		long surplusPower = (gridActivePower * -1) - essDischargePower + heatPumpPower;
+		long surplusPower = gridActivePower * -1 - essDischargePower + heatPumpPower;
 
 		// Check conditions for lock mode (Lock mode is not depending on the
 		// essDischarge Power)
@@ -193,15 +195,15 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Manual mode.
-	 * 
+	 *
 	 * <p>
 	 * Sets the digital outputs and the state depending on a fix user input.
-	 * 
+	 *
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsNamedException    on error
 	 */
 	private void modeManual() throws IllegalArgumentException, OpenemsNamedException {
-		Status state = this.config.manualState();
+		var state = this.config.manualState();
 		switch (state) {
 		case FORCE_ON:
 			this.forceOnState.switchOn();
@@ -239,14 +241,14 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	/**
 	 * Get the IntegerReadChannel value or 0 if not present - Sets also the
 	 * according state channel depending on the channel.
-	 * 
+	 *
 	 * @param channel      Channel that value should be read.
 	 * @param stateChannel Referring StateChannel that will be set if the value is
 	 *                     not present.
 	 * @return Current channel value as int.
 	 */
 	private int getChannelValueOrZeroAndSetStateChannel(IntegerReadChannel channel, StateChannel stateChannel) {
-		Optional<Integer> channelOptional = channel.getNextValue().asOptional();
+		var channelOptional = channel.getNextValue().asOptional();
 
 		if (channelOptional.isPresent()) {
 			stateChannel.setNextValue(false);
@@ -258,7 +260,7 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Helper method to set the two booleans for the two outputs.
-	 * 
+	 *
 	 * @param output1 Value that should be set on output 1.
 	 * @param output2 Value that should be set on output 2.
 	 * @throws IllegalArgumentException on error
@@ -271,7 +273,7 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Switch an output if it was not switched before.
-	 * 
+	 *
 	 * @param channelAddress The address of the channel.
 	 * @param value          Boolean that should be set on the output.
 	 * @throws IllegalArgumentException on error
@@ -281,10 +283,10 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 			throws IllegalArgumentException, OpenemsNamedException {
 
 		WriteChannel<Boolean> outputChannel = this.componentManager.getChannel(channelAddress);
-		Optional<Boolean> currentValueOpt = outputChannel.value().asOptional();
+		var currentValueOpt = outputChannel.value().asOptional();
 
 		if (!currentValueOpt.isPresent() || currentValueOpt.get() != value) {
-			this.logDebug(this.log, "Set output [" + outputChannel.address() + "] " + (value) + ".");
+			this.logDebug(this.log, "Set output [" + outputChannel.address() + "] " + value + ".");
 			outputChannel.setNextWriteValue(value);
 		}
 	}
@@ -303,11 +305,11 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Change of a state.
-	 * 
+	 *
 	 * <p>
 	 * Sets the digital outputs, the currently active status and the lastStateChange
 	 * time set point.
-	 * 
+	 *
 	 * @param status New active status
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error

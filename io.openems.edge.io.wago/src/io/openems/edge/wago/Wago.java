@@ -8,8 +8,8 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -37,9 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -75,7 +72,7 @@ public class Wago extends AbstractOpenemsModbusComponent
 
 	private InetAddress ipAddress = null;
 	protected ModbusProtocol protocol = null;
-	private CopyOnWriteArrayList<FieldbusModule> modules = new CopyOnWriteArrayList<FieldbusModule>();
+	private final CopyOnWriteArrayList<FieldbusModule> modules = new CopyOnWriteArrayList<>();
 
 	public enum ThisChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -122,7 +119,7 @@ public class Wago extends AbstractOpenemsModbusComponent
 		 */
 		this.configFuture = this.configExecutor.schedule(() -> {
 			try {
-				Document doc = Wago.downloadConfigXml(this.ipAddress, config.username(), config.password());
+				var doc = Wago.downloadConfigXml(this.ipAddress, config.username(), config.password());
 				this.modules.addAll(this.parseXml(doc));
 				this.createProtocolFromModules(this.modules);
 
@@ -145,7 +142,7 @@ public class Wago extends AbstractOpenemsModbusComponent
 	/**
 	 * Downloads the config xml file from WAGO fieldbus coupler. Tries old
 	 * ('ea-config.xml') and new ('io_config.xml') filenames.
-	 * 
+	 *
 	 * @param ip       the IP address
 	 * @param username the login username
 	 * @param password the login password
@@ -165,68 +162,68 @@ public class Wago extends AbstractOpenemsModbusComponent
 
 	private static Document downloadConfigXml(InetAddress ip, String filename, String username, String password)
 			throws ParserConfigurationException, SAXException, IOException {
-		URL url = new URL(String.format("http://%s/etc/%s", ip.getHostAddress(), filename));
-		String authStr = String.format("%s:%s", username, password);
-		byte[] bytesEncoded = Base64.getEncoder().encode(authStr.getBytes());
-		String authEncoded = new String(bytesEncoded);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		var url = new URL(String.format("http://%s/etc/%s", ip.getHostAddress(), filename));
+		var authStr = String.format("%s:%s", username, password);
+		var bytesEncoded = Base64.getEncoder().encode(authStr.getBytes());
+		var authEncoded = new String(bytesEncoded);
+		var connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestProperty("Authorization", String.format("Basic %s", authEncoded));
 		connection.setRequestProperty("Content-Type", "text/xml");
 		connection.setRequestMethod("GET");
 		connection.connect();
-		InputStream is = connection.getInputStream();
+		var is = connection.getInputStream();
 		return parseXmlToDocument(is);
 	}
 
 	protected static Document parseXmlToDocument(InputStream is)
 			throws ParserConfigurationException, SAXException, IOException {
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.parse(is);
+		var dbFactory = DocumentBuilderFactory.newInstance();
+		var dBuilder = dbFactory.newDocumentBuilder();
+		var doc = dBuilder.parse(is);
 		doc.getDocumentElement().normalize();
 		return doc;
 	}
 
 	/**
 	 * Parses the config xml file.
-	 * 
+	 *
 	 * @param doc the XML document
 	 * @return a list of FieldbusModules
 	 */
 	protected List<FieldbusModule> parseXml(Document doc) {
-		FieldbusModuleFactory factory = new FieldbusModuleFactory();
+		var factory = new FieldbusModuleFactory();
 		List<FieldbusModule> result = new ArrayList<>();
-		Element wagoElement = doc.getDocumentElement();
-		int offset0 = 0;
-		int offset512 = 512;
+		var wagoElement = doc.getDocumentElement();
+		var offset0 = 0;
+		var offset512 = 512;
 
 		// parse all "Module" XML elements
-		NodeList moduleNodes = wagoElement.getElementsByTagName("Module");
-		for (int i = 0; i < moduleNodes.getLength(); i++) {
-			Node moduleNode = moduleNodes.item(i);
+		var moduleNodes = wagoElement.getElementsByTagName("Module");
+		for (var i = 0; i < moduleNodes.getLength(); i++) {
+			var moduleNode = moduleNodes.item(i);
 			// get "Module" node attributes
-			NamedNodeMap moduleAttrs = moduleNode.getAttributes();
-			String moduleArtikelnr = moduleAttrs.getNamedItem("ARTIKELNR").getNodeValue();
-			String moduleType = moduleAttrs.getNamedItem("MODULETYPE").getNodeValue();
+			var moduleAttrs = moduleNode.getAttributes();
+			var moduleArtikelnr = moduleAttrs.getNamedItem("ARTIKELNR").getNodeValue();
+			var moduleType = moduleAttrs.getNamedItem("MODULETYPE").getNodeValue();
 			if (moduleNode.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
 			}
-			Element moduleElement = (Element) moduleNode;
+			var moduleElement = (Element) moduleNode;
 			// parse all "Kanal" XML elements inside the "Module" element
-			NodeList kanalNodes = moduleElement.getElementsByTagName("Kanal");
-			FieldbusModuleKanal[] kanals = new FieldbusModuleKanal[kanalNodes.getLength()];
-			for (int j = 0; j < kanalNodes.getLength(); j++) {
-				Node kanalNode = kanalNodes.item(j);
+			var kanalNodes = moduleElement.getElementsByTagName("Kanal");
+			var kanals = new FieldbusModuleKanal[kanalNodes.getLength()];
+			for (var j = 0; j < kanalNodes.getLength(); j++) {
+				var kanalNode = kanalNodes.item(j);
 				if (kanalNode.getNodeType() != Node.ELEMENT_NODE) {
 					continue;
 				}
-				NamedNodeMap kanalAttrs = kanalNode.getAttributes();
-				String channelName = kanalAttrs.getNamedItem("CHANNELNAME").getNodeValue();
-				String channelType = kanalAttrs.getNamedItem("CHANNELTYPE").getNodeValue();
+				var kanalAttrs = kanalNode.getAttributes();
+				var channelName = kanalAttrs.getNamedItem("CHANNELNAME").getNodeValue();
+				var channelType = kanalAttrs.getNamedItem("CHANNELTYPE").getNodeValue();
 				kanals[j] = new FieldbusModuleKanal(channelName, channelType);
 			}
 			// Create FieldbusModule instance using factory method
-			FieldbusModule module = factory.of(this, moduleArtikelnr, moduleType, kanals, offset0, offset512);
+			var module = factory.of(this, moduleArtikelnr, moduleType, kanals, offset0, offset512);
 			assert module.getInputCoil512Elements().length == module.getOutputCoil512Elements().length;
 			offset0 += module.getInputCoil0Elements().length;
 			offset512 += module.getOutputCoil512Elements().length;
@@ -237,7 +234,7 @@ public class Wago extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Takes a list of FieldbusModules and adds Modbus tasks to the protocol.
-	 * 
+	 *
 	 * @param modules lit of {@link FieldbusModule}s
 	 * @throws OpenemsException on error
 	 */
@@ -245,14 +242,10 @@ public class Wago extends AbstractOpenemsModbusComponent
 		List<ModbusCoilElement> readCoilElements0 = new ArrayList<>();
 		List<ModbusCoilElement> readCoilElements512 = new ArrayList<>();
 		for (FieldbusModule module : modules) {
-			for (ModbusCoilElement element : module.getInputCoil0Elements()) {
-				readCoilElements0.add(element);
-			}
-			for (ModbusCoilElement element : module.getInputCoil512Elements()) {
-				readCoilElements512.add(element);
-			}
+			Collections.addAll(readCoilElements0, module.getInputCoil0Elements());
+			Collections.addAll(readCoilElements512, module.getInputCoil512Elements());
 			for (ModbusCoilElement element : module.getOutputCoil512Elements()) {
-				FC5WriteCoilTask writeCoilTask = new FC5WriteCoilTask(element.getStartAddress(), element);
+				var writeCoilTask = new FC5WriteCoilTask(element.getStartAddress(), element);
 				this.protocol.addTask(writeCoilTask);
 			}
 		}
@@ -269,7 +262,7 @@ public class Wago extends AbstractOpenemsModbusComponent
 	/**
 	 * Creates a Modbus {@link CoilElement} on the address and maps it to the given
 	 * Channel-ID.
-	 * 
+	 *
 	 * @param channelId the Channel-ID
 	 * @param address   the modbus start address of the coil
 	 * @return the modbus {@link CoilElement}
@@ -286,6 +279,7 @@ public class Wago extends AbstractOpenemsModbusComponent
 		return this.protocol;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -302,12 +296,12 @@ public class Wago extends AbstractOpenemsModbusComponent
 		if (this.modules.isEmpty()) {
 			return "";
 		}
-		StringBuilder b = new StringBuilder();
-		for (int i = 0; i < this.modules.size(); i++) {
+		var b = new StringBuilder();
+		for (var i = 0; i < this.modules.size(); i++) {
 			b.append("M" + i + ":");
-			BooleanReadChannel[] channels = this.modules.get(i).getChannels();
-			for (int j = 0; j < channels.length; j++) {
-				Optional<Boolean> valueOpt = channels[j].value().asOptional();
+			var channels = this.modules.get(i).getChannels();
+			for (BooleanReadChannel channel : channels) {
+				var valueOpt = channel.value().asOptional();
 				if (valueOpt.isPresent()) {
 					b.append(valueOpt.get() ? "x" : "-");
 				} else {
@@ -325,12 +319,10 @@ public class Wago extends AbstractOpenemsModbusComponent
 	public BooleanReadChannel[] digitalInputChannels() {
 		List<BooleanReadChannel> channels = new ArrayList<>();
 		for (FieldbusModule module : this.modules) {
-			for (BooleanReadChannel channel : module.getChannels()) {
-				channels.add(channel);
-			}
+			Collections.addAll(channels, module.getChannels());
 		}
-		BooleanReadChannel[] result = new BooleanReadChannel[channels.size()];
-		for (int i = 0; i < channels.size(); i++) {
+		var result = new BooleanReadChannel[channels.size()];
+		for (var i = 0; i < channels.size(); i++) {
 			result[i] = channels.get(i);
 		}
 		return result;
@@ -346,8 +338,8 @@ public class Wago extends AbstractOpenemsModbusComponent
 				}
 			}
 		}
-		BooleanWriteChannel[] result = new BooleanWriteChannel[channels.size()];
-		for (int i = 0; i < channels.size(); i++) {
+		var result = new BooleanWriteChannel[channels.size()];
+		for (var i = 0; i < channels.size(); i++) {
 			result[i] = channels.get(i);
 		}
 		return result;

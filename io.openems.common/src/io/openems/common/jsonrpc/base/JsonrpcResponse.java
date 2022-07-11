@@ -11,7 +11,7 @@ import io.openems.common.utils.StringUtils;
 
 /**
  * Represents a JSON-RPC Response.
- * 
+ *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -19,21 +19,36 @@ import io.openems.common.utils.StringUtils;
  *   ...
  * }
  * </pre>
- * 
+ *
  * @see <a href="https://www.jsonrpc.org/specification#response_object">JSON-RPC
  *      specification</a>
  */
 public abstract class JsonrpcResponse extends JsonrpcMessage {
 
+	/**
+	 * Parses a JSON String to a {@link JsonrpcResponse}.
+	 *
+	 * @param json the JSON String
+	 * @return the {@link JsonrpcResponse}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static JsonrpcResponse from(String json) throws OpenemsNamedException {
-		return from(JsonUtils.parseToJsonObject(json));
+		return JsonrpcResponse.from(JsonUtils.parseToJsonObject(json));
 	}
 
+	/**
+	 * Parses a {@link JsonObject} to a {@link JsonrpcResponse}.
+	 *
+	 * @param j the {@link JsonObject}
+	 * @return the {@link JsonrpcResponse}
+	 * @throws OpenemsNamedException on error
+	 */
 	public static JsonrpcResponse from(JsonObject j) throws OpenemsNamedException {
-		UUID id = UUID.fromString(JsonUtils.getAsString(j, "id"));
+		var id = UUID.fromString(JsonUtils.getAsString(j, "id"));
 		if (j.has("result")) {
 			return new GenericJsonrpcResponseSuccess(id, JsonUtils.getAsJsonObject(j, "result"));
-		} else if (j.has("error")) {
+		}
+		if (j.has("error")) {
 			return JsonrpcResponseError.from(j);
 		}
 		throw new OpenemsException("Unable to parse JsonrpcResponse from " + StringUtils.toShortString(j, 100));
@@ -46,7 +61,7 @@ public abstract class JsonrpcResponse extends JsonrpcMessage {
 	}
 
 	public UUID getId() {
-		return id;
+		return this.id;
 	}
 
 	@Override

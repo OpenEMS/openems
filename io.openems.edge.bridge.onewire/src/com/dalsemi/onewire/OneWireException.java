@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -45,7 +46,6 @@ public class OneWireException extends Exception {
 	 * Constructs a <code>OneWireException</code> with no detail message.
 	 */
 	public OneWireException() {
-		super();
 	}
 
 	/**
@@ -57,3 +57,4 @@ public class OneWireException extends Exception {
 		super(desc);
 	}
 }
+// CHECKSTYLE:ON

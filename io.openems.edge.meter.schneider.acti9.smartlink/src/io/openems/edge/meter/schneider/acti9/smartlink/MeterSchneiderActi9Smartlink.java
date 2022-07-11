@@ -52,6 +52,7 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 		);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -67,6 +68,7 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -79,10 +81,10 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		final int offset = 1;
+		final var offset = 1;
 		/**
 		 * See Datasheet PDF-file in doc directory.
-		 * 
+		 *
 		 * Phase specific reactive Power, Single Current and Voltage figures are not
 		 * implemented by this meter.
 		 */

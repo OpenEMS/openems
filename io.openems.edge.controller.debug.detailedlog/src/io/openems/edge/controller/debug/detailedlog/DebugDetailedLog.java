@@ -39,7 +39,7 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 
 	private final Logger log = LoggerFactory.getLogger(DebugDetailedLog.class);
 
-	private final int WIDTH_FIRST = 30;
+	private static final int WIDTH_FIRST = 30;
 
 	private final Set<String> finishedFirstRun = new HashSet<>();
 	private final Map<ChannelAddress, String> lastPrinted = new HashMap<>();
@@ -77,6 +77,7 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -85,24 +86,24 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 	@Override
 	public void run() throws OpenemsNamedException {
 		for (String componentId : this.config.component_ids()) {
-			OpenemsComponent component = this.componentManager.getComponent(componentId);
-			boolean printedHeader = false;
+			var component = this.componentManager.getComponent(componentId);
+			var printedHeader = false;
 
 			if (!this.finishedFirstRun.contains(component.id())) {
 				/*
 				 * Print on first run
 				 */
-				logInfo(this.log, "=======================================");
+				this.logInfo(this.log, "=======================================");
 				this.log("ID", component.id());
 				this.log("Service-PID", component.servicePid());
 				this.log("Implementation", reducePackageName(component.getClass()));
 				getInheritanceViaReflection(component.getClass(), null).asMap().forEach((inheritance, names) -> {
-					boolean first = true;
+					var first = true;
 					for (String name : names) {
 						if (first) {
-							log(CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, inheritance.name()), name);
+							this.log(CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, inheritance.name()), name);
 						} else {
-							log("", name);
+							this.log("", name);
 						}
 						first = false;
 					}
@@ -115,15 +116,15 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 			component.channels().stream() //
 					.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name())) //
 					.forEach(channel -> {
-						String unit = channel.channelDoc().getUnit().getSymbol();
+						var unit = channel.channelDoc().getUnit().getSymbol();
 						/*
 						 * create descriptive text
 						 */
-						String channelText = "";
+						var channelText = "";
 						switch (channel.channelDoc().getAccessMode()) {
 						case READ_ONLY:
 						case READ_WRITE:
-							String description = "";
+							var description = "";
 							if (channel instanceof EnumReadChannel) {
 								try {
 									description += channel.value().asOptionString();
@@ -156,11 +157,10 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 							channelText += "WRITE_ONLY";
 						}
 						// Build complete line
-						String line = String.format("%-" + WIDTH_FIRST + "s : %s", channel.channelId().id(),
-								channelText);
+						var line = String.format("%-" + WIDTH_FIRST + "s : %s", channel.channelId().id(), channelText);
 						// Print the line only if is not equal to the last printed line
-						if ((!this.lastPrinted.containsKey(channel.address()))
-								|| !(this.lastPrinted.get(channel.address()).equals(line))) {
+						if (!this.lastPrinted.containsKey(channel.address())
+								|| !this.lastPrinted.get(channel.address()).equals(line)) {
 							shouldPrint.put(channel.address(), line);
 						}
 						// Add line to last printed lines
@@ -172,15 +172,15 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 					/*
 					 * Print header (this is not the first run)
 					 */
-					logInfo(this.log, "=======================================");
+					this.logInfo(this.log, "=======================================");
 					this.log("ID", component.id());
 				}
 
-				logInfo(this.log, "---------------------------------------");
+				this.logInfo(this.log, "---------------------------------------");
 				shouldPrint.values().stream().sorted().forEach(line -> {
 					this.logInfo(this.log, line);
 				});
-				logInfo(this.log, "---------------------------------------");
+				this.logInfo(this.log, "---------------------------------------");
 			}
 		}
 	}

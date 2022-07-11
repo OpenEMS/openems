@@ -12,7 +12,7 @@ public class SemanticVersion {
 	/**
 	 * Creates an instance using a Version-String in the form
 	 * MAJOR.MINOR.PATCH-ADDITIONAL, like "2019.2.1-SNAPSHOT".
-	 * 
+	 *
 	 * @param versionString the Version-String
 	 * @return the SemanticVersion instance
 	 * @throws NumberFormatException on parse error
@@ -21,8 +21,8 @@ public class SemanticVersion {
 		short major = 0;
 		short minor = 0;
 		short patch = 0;
-		String[] version1 = versionString.split("\\.", 3);
-		String additional = "";
+		var version1 = versionString.split("\\.", 3);
+		var additional = "";
 		if (version1.length > 0 && !version1[0].isEmpty()) {
 			major = Short.parseShort(version1[0]);
 		}
@@ -30,7 +30,7 @@ public class SemanticVersion {
 			minor = Short.parseShort(version1[1]);
 		}
 		if (version1.length > 2) {
-			String[] version2 = version1[2].split("-", 2);
+			var version2 = version1[2].split("-", 2);
 			if (version2.length < 2) {
 				patch = Short.parseShort(version1[2]);
 			} else {
@@ -45,7 +45,7 @@ public class SemanticVersion {
 	 * Creates an instance using a Version-String in the form
 	 * MAJOR.MINOR.PATCH-ADDITIONAL, like "2019.2.1-SNAPSHOT". On Error a ZERO
 	 * version is returned - avoiding an exception.
-	 * 
+	 *
 	 * @param versionString the Version-String
 	 * @return the SemanticVersion instance
 	 */
@@ -59,7 +59,7 @@ public class SemanticVersion {
 
 	/**
 	 * The major version.
-	 * 
+	 *
 	 * <p>
 	 * This is usually the year of the release
 	 */
@@ -67,7 +67,7 @@ public class SemanticVersion {
 
 	/**
 	 * The minor version.
-	 * 
+	 *
 	 * <p>
 	 * This is usually the number of the sprint within the year
 	 */
@@ -75,7 +75,7 @@ public class SemanticVersion {
 
 	/**
 	 * The patch version.
-	 * 
+	 *
 	 * <p>
 	 * This is the number of the bugfix release
 	 */
@@ -97,6 +97,12 @@ public class SemanticVersion {
 		this(major, minor, patch, "");
 	}
 
+	/**
+	 * Is this version at least as high as the given {@link SemanticVersion}?.
+	 *
+	 * @param o the given version
+	 * @return true if this version is greater or equal to the given version
+	 */
 	public boolean isAtLeast(SemanticVersion o) {
 		if (this.major > o.major) {
 			return true;
@@ -122,18 +128,22 @@ public class SemanticVersion {
 		if (this.additional.isEmpty() && !o.additional.isEmpty()) {
 			return true;
 		}
-		return (this.additional.compareTo(o.additional) >= 0);
+		return this.additional.compareTo(o.additional) >= 0;
 	}
 
 	@Override
 	public String toString() {
-		return this.major + "." + this.minor + "." + this.patch + //
-				(this.additional.isEmpty() ? "" : "-" + this.additional);
+		return this.major //
+				+ "." //
+				+ this.minor //
+				+ "." //
+				+ this.patch //
+				+ (this.additional.isEmpty() ? "" : "-" + this.additional);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(additional);
+		return Objects.hash(this.additional);
 	}
 
 	@Override
@@ -141,13 +151,10 @@ public class SemanticVersion {
 		if (this == o) {
 			return true;
 		}
-		if (o == null) {
+		if ((o == null) || (this.getClass() != o.getClass())) {
 			return false;
 		}
-		if (getClass() != o.getClass()) {
-			return false;
-		}
-		SemanticVersion other = (SemanticVersion) o;
+		var other = (SemanticVersion) o;
 		return Objects.equals(this.toString(), other.toString());
 	}
 

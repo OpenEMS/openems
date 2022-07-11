@@ -15,21 +15,20 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Controller.Symmetric.PeakShaving", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class PeakShaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public final static double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
+	public static final double DEFAULT_MAX_ADJUSTMENT_RATE = 0.2;
 
 	private final Logger log = LoggerFactory.getLogger(PeakShaving.class);
 
@@ -69,6 +68,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		this.config = config;
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -82,7 +82,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		GridMode gridMode = ess.getGridMode();
+		var gridMode = ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -95,7 +95,7 @@ public class PeakShaving extends AbstractOpenemsComponent implements Controller,
 		}
 
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
-		int gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
+		var gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
 				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
 
 		int calculatedPower;

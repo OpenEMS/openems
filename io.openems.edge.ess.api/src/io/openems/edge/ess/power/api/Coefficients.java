@@ -17,7 +17,7 @@ public class Coefficients {
 
 	/**
 	 * Initialize the Coefficients for the linear equation system.
-	 * 
+	 *
 	 * @param symmetricMode if activated, Coefficients are only added for Sum of all
 	 *                      Phases. Otherwise Coefficients for Sum and each Phase
 	 *                      are added.
@@ -26,7 +26,7 @@ public class Coefficients {
 	public synchronized void initialize(boolean symmetricMode, Set<String> essIds) {
 		this.coefficients.clear();
 		this.symmetricMode = symmetricMode;
-		int index = 0;
+		var index = 0;
 		for (String essId : essIds) {
 			if (symmetricMode) {
 				// Symmetric Mode
@@ -45,6 +45,16 @@ public class Coefficients {
 		this.noOfCoefficients = index;
 	}
 
+	/**
+	 * Gets the {@link Coefficient} for the given Ess-ID, {@link Phase} and
+	 * {@link Pwr}.
+	 * 
+	 * @param essId the Ess-ID
+	 * @param phase the {@link Phase}
+	 * @param pwr   the {@link Pwr}
+	 * @return the {@link Coefficient}
+	 * @throws OpenemsException on error
+	 */
 	public Coefficient of(String essId, Phase phase, Pwr pwr) throws OpenemsException {
 		if (this.symmetricMode && phase != Phase.ALL) {
 			throw new OpenemsException("Symmetric-Mode is activated. Coefficients for [" + essId + "," + phase + ","

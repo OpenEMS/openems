@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -51,11 +52,11 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	/**
 	 * For fast 0xFF fills of byte arrays
 	 */
-	private static final byte[] ffBlock = new byte[] { (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF,
+	private static final byte[] ffBlock = { (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF,
 			(byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF,
 			(byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF,
 			(byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF,
-			(byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF };
+			(byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF, (byte) 0x0FF };
 
 	/**
 	 * Reference to the OneWireContainer
@@ -87,7 +88,7 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 * @see #SHAiButtonUser33(SHAiButtonCopr,SHAiButtonCopr)
 	 */
 	protected SHAiButtonUser33() {
-		;
+
 	}
 
 	/**
@@ -138,25 +139,30 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 		this.address = owc.getAddress();
 
 		// clear out old secret first
-		byte[] NullSecret = new byte[8];
-		for (int i = 0; i < 8; i++)
+		var NullSecret = new byte[8];
+		for (var i = 0; i < 8; i++) {
 			NullSecret[i] = 0x00;
+		}
 
-		if (!this.ibc33.loadFirstSecret(NullSecret, 0))
+		if (!this.ibc33.loadFirstSecret(NullSecret, 0)) {
 			throw new OneWireException("Failed to null out device secret.");
+		}
 
-		if (!owc.installMasterSecret(0, authSecret))
+		if (!owc.installMasterSecret(0, authSecret)) {
 			throw new OneWireException("Install Master Secret failed");
+		}
 
-		if (!createServiceFile(owc, strServiceFilename, formatDevice))
+		if (!this.createServiceFile(owc, this.strServiceFilename, formatDevice)) {
 			throw new OneWireException("Failed to create service file.");
+		}
 
 		// setup the fullBindCode with rest of info
 		this.fullBindCode[4] = (byte) this.accountPageNumber;
 		System.arraycopy(this.address, 0, this.fullBindCode, 5, 7);
 
-		if (!owc.bindSecretToiButton(this.accountPageNumber, copr.getBindData()))
+		if (!owc.bindSecretToiButton(this.accountPageNumber, copr.getBindData())) {
 			throw new OneWireException("Bind Secret to iButton failed");
+		}
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		if (DEBUG) {
@@ -164,8 +170,8 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 			IOHelper.writeLine("Initialized DS1961S User");
 			IOHelper.writeLine("address");
 			IOHelper.writeBytesHex(owc.getAddress());
-			IOHelper.writeLine("serviceFilename: " + strServiceFilename);
-			IOHelper.writeLine("accountPageNumber: " + accountPageNumber);
+			IOHelper.writeLine("serviceFilename: " + this.strServiceFilename);
+			IOHelper.writeLine("accountPageNumber: " + this.accountPageNumber);
 			IOHelper.writeLine("authSecret");
 			IOHelper.writeBytesHex(authSecret);
 			IOHelper.writeLine("bindData");
@@ -215,7 +221,7 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	public SHAiButtonUser33(byte[] coprBindCode, byte[] fileName, int fileNameExt, OneWireContainer33 owc,
 			boolean formatDevice, byte[] authSecret) throws OneWireException, OneWireIOException {
 		// create string representation of service filename
-		this.strServiceFilename = new String(fileName) + "." + (int) fileNameExt;
+		this.strServiceFilename = new String(fileName) + "." + fileNameExt;
 
 		// hold container reference
 		this.ibc33 = owc;
@@ -224,25 +230,30 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 		this.address = owc.getAddress();
 
 		// clear out old secret first
-		byte[] NullSecret = new byte[8];
-		for (int i = 0; i < 8; i++)
+		var NullSecret = new byte[8];
+		for (var i = 0; i < 8; i++) {
 			NullSecret[i] = 0x00;
+		}
 
-		if (!this.ibc33.loadFirstSecret(NullSecret, 0))
+		if (!this.ibc33.loadFirstSecret(NullSecret, 0)) {
 			throw new OneWireException("Failed to null out device secret.");
+		}
 
-		if (!owc.installMasterSecret(0, authSecret))
+		if (!owc.installMasterSecret(0, authSecret)) {
 			throw new OneWireException("Install Master Secret failed");
+		}
 
-		if (!createServiceFile(owc, strServiceFilename, formatDevice))
+		if (!this.createServiceFile(owc, this.strServiceFilename, formatDevice)) {
 			throw new OneWireException("Failed to create service file.");
+		}
 
 		// setup the fullBindCode with rest of info
 		this.fullBindCode[4] = (byte) this.accountPageNumber;
 		System.arraycopy(this.address, 0, this.fullBindCode, 5, 7);
 
-		if (!owc.bindSecretToiButton(this.accountPageNumber, copr.getBindData()))
+		if (!owc.bindSecretToiButton(this.accountPageNumber, this.copr.getBindData())) {
 			throw new OneWireException("Bind Secret to iButton failed");
+		}
 
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
 		if (DEBUG) {
@@ -250,8 +261,8 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 			IOHelper.writeLine("Initialized DS1961S User");
 			IOHelper.writeLine("address");
 			IOHelper.writeBytesHex(owc.getAddress());
-			IOHelper.writeLine("serviceFilename: " + strServiceFilename);
-			IOHelper.writeLine("accountPageNumber: " + accountPageNumber);
+			IOHelper.writeLine("serviceFilename: " + this.strServiceFilename);
+			IOHelper.writeLine("accountPageNumber: " + this.accountPageNumber);
 			IOHelper.writeLine("authSecret");
 			IOHelper.writeBytesHex(authSecret);
 			IOHelper.writeLine("bindCode");
@@ -299,8 +310,9 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 		this(copr, authCopr);
 
 		// hold container reference and address
-		if (!setiButton33(owc))
+		if (!this.setiButton33(owc)) {
 			throw new OneWireException("Invalid SHA user");
+		}
 	}
 
 	/**
@@ -341,12 +353,13 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 		System.arraycopy(ffBlock, 0, this.fullBindCode, 0, 15);
 
 		// create string representation of service filename
-		copr.getFilename(this.serviceFile, 0);
-		this.strServiceFilename = new String(fileName) + "." + (int) fileNameExt;
+		this.copr.getFilename(this.serviceFile, 0);
+		this.strServiceFilename = new String(fileName) + "." + fileNameExt;
 
 		// hold container reference and address
-		if (!setiButton33(owc))
+		if (!this.setiButton33(owc)) {
 			throw new OneWireException("Invalid SHA user");
+		}
 	}
 
 	/**
@@ -424,8 +437,9 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 		this.accountPageNumber = -1;
 
 		// make sure account info is properly setup
-		if (!checkAccountPageInfo(owc))
+		if (!this.checkAccountPageInfo(owc)) {
 			return false;
+		}
 
 		// setup the fullBindCode with rest of info
 		this.fullBindCode[4] = (byte) this.accountPageNumber;
@@ -437,8 +451,8 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 			IOHelper.writeLine("Loaded DS1961S User");
 			IOHelper.writeLine("address");
 			IOHelper.writeBytesHex(owc.getAddress());
-			IOHelper.writeLine("accountPageNumber: " + accountPageNumber);
-			IOHelper.writeLine("serviceFilename: " + strServiceFilename);
+			IOHelper.writeLine("accountPageNumber: " + this.accountPageNumber);
+			IOHelper.writeLine("serviceFilename: " + this.strServiceFilename);
 			IOHelper.writeLine("------------------------------------");
 		}
 		// \\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\
@@ -467,12 +481,14 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public synchronized boolean setiButtonUser(DSPortAdapter adapter, byte[] address)
 			throws OneWireException, OneWireIOException {
-		if (this.ibc33 == null)
+		if (this.ibc33 == null) {
 			this.ibc33 = new OneWireContainer33();
+		}
 		this.ibc33.setupContainer(adapter, address);
-		return setiButton33(this.ibc33);
+		return this.setiButton33(this.ibc33);
 	}
 
 	/**
@@ -496,13 +512,15 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public synchronized boolean setiButtonUser(byte[] address) throws OneWireException, OneWireIOException {
-		if (this.ibc33 == null)
+		if (this.ibc33 == null) {
 			return false;
+		}
 
 		this.ibc33.setupContainer(this.ibc33.getAdapter(), address);
 
-		return setiButton33(this.ibc33);
+		return this.setiButton33(this.ibc33);
 	}
 
 	/**
@@ -528,6 +546,7 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public synchronized int getWriteCycleCounter() throws OneWireException, OneWireIOException {
 		// DS1961S has no write cycle counters
 		return -1;
@@ -546,6 +565,7 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 *
 	 * @return <code>true</code> if account page has write cycle counter.
 	 */
+	@Override
 	public synchronized boolean hasWriteCycleCounter() {
 		// DS1961S has no write cycle counters
 		return false;
@@ -562,7 +582,7 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 *
 	 * <P>
 	 * For the DS1963S user iButton, the format of the full bind code is as follows:
-	 * 
+	 *
 	 * <PRE>
 	 *      ( 0x0000FF ), ( 0x0000FF ), ( 0x0000FF ), ( 0x0000FF ),
 	 *      (svcPageNum), (deviceAN+0), (deviceAN+1), (deviceAN+2),
@@ -577,6 +597,7 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 *                     available starting from the offset.
 	 * @param offset       the offset into fullBindCode where copying should begin.
 	 */
+	@Override
 	public void getFullBindCode(byte[] l_fullBindCode, int offset) {
 		System.arraycopy(this.fullBindCode, 0, l_fullBindCode, offset, 15);
 		/*
@@ -596,13 +617,14 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 * @return byte indicating appropriate command for authenticating user
 	 *
 	 */
+	@Override
 	public byte getAuthorizationCommand() {
 		return OneWireContainer18.AUTH_HOST;
 	}
 
-	private byte[] writeAccountData_copyAuth = new byte[32];
-	private byte[] writeAccountData_scratchpad = new byte[32];
-	private byte[] writeAccountData_pageData = new byte[32];
+	private final byte[] writeAccountData_copyAuth = new byte[32];
+	private final byte[] writeAccountData_scratchpad = new byte[32];
+	private final byte[] writeAccountData_pageData = new byte[32];
 
 	/**
 	 * <P>
@@ -631,19 +653,21 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 * @throws OneWireException   on a communication or setup error with the 1-Wire
 	 *                            adapter
 	 */
+	@Override
 	public synchronized boolean writeAccountData(byte[] dataBuffer, int offset)
 			throws OneWireException, OneWireIOException {
 		// local vars.
-		OneWireContainer33 ibcL = this.ibc33;
-		byte[] copyAuth = this.writeAccountData_copyAuth;
-		byte[] scratchpad = this.writeAccountData_scratchpad;
-		byte[] pageData = this.writeAccountData_pageData;
-		byte[] fullBindCode = this.fullBindCode;
-		SHAiButtonCopr coprL = this.copr;
+		var ibcL = this.ibc33;
+		var copyAuth = this.writeAccountData_copyAuth;
+		var scratchpad = this.writeAccountData_scratchpad;
+		var pageData = this.writeAccountData_pageData;
+		var fullBindCode = this.fullBindCode;
+		var coprL = this.copr;
 
 		// make sure account info is properly setup
-		if (!checkAccountPageInfo(ibcL))
+		if (!this.checkAccountPageInfo(ibcL)) {
 			return false;
+		}
 
 		// if the part is being initialized, the container class "knows"
 		// the secret already. no need for a coprocessor.
@@ -663,16 +687,16 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 			System.arraycopy(this.accountData, 0, pageData, 0, 32);
 
 			// takes four write/copies to actually write the data page.
-			for (int i = 24; i >= 0; i -= 8) {
-				int index = offset + i;
+			for (var i = 24; i >= 0; i -= 8) {
+				var index = offset + i;
 				// only perform any action if the data needs to be updated
-				if ((dataBuffer[index] != accountData[i]) || (dataBuffer[index + 1] != accountData[i + 1])
-						|| (dataBuffer[index + 2] != accountData[i + 2])
-						|| (dataBuffer[index + 3] != accountData[i + 3])
-						|| (dataBuffer[index + 4] != accountData[i + 4])
-						|| (dataBuffer[index + 5] != accountData[i + 5])
-						|| (dataBuffer[index + 6] != accountData[i + 6])
-						|| (dataBuffer[index + 7] != accountData[i + 7])) {
+				if (dataBuffer[index] != this.accountData[i] || dataBuffer[index + 1] != this.accountData[i + 1]
+						|| dataBuffer[index + 2] != this.accountData[i + 2]
+						|| dataBuffer[index + 3] != this.accountData[i + 3]
+						|| dataBuffer[index + 4] != this.accountData[i + 4]
+						|| dataBuffer[index + 5] != this.accountData[i + 5]
+						|| dataBuffer[index + 6] != this.accountData[i + 6]
+						|| dataBuffer[index + 7] != this.accountData[i + 7]) {
 					// format the working page for generating the
 					// appropriate copy authorization mac
 					pageData[28] = dataBuffer[index];
@@ -710,14 +734,16 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 					fullBindCode = null;
 
 					// write 8 bytes of data to the DS1961S scratchpad
-					if (!ibcL.writeScratchpad(this.accountPageNumber, i, dataBuffer, index, 8))
+					if (!ibcL.writeScratchpad(this.accountPageNumber, i, dataBuffer, index, 8)) {
 						// operation failed
 						return false;
+					}
 
 					// copy scratchpad to page
-					if (!ibcL.copyScratchpad(this.accountPageNumber, i, copyAuth, 0))
+					if (!ibcL.copyScratchpad(this.accountPageNumber, i, copyAuth, 0)) {
 						// operation failed
 						return false;
+					}
 
 					// update cache of account data
 					System.arraycopy(dataBuffer, index, this.accountData, i, 8);
@@ -742,13 +768,14 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 * @param offset     the index into the buffer where copying should begin
 	 * @return whether or not the read was successful
 	 */
+	@Override
 	public synchronized boolean readAccountData(byte[] dataBuffer, int offset)
 			throws OneWireException, OneWireIOException {
 		// init local vars
-		OneWireContainer33 ibcL = this.ibc33;
+		var ibcL = this.ibc33;
 
 		// make sure account info is properly setup
-		if (!checkAccountPageInfo(ibcL)) {
+		if (!this.checkAccountPageInfo(ibcL)) {
 			return false;
 		}
 
@@ -791,10 +818,11 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 *
 	 * @return the value of the write cycle counter for the page
 	 */
+	@Override
 	public synchronized int readAccountData(byte[] chlg, int chlgStart, byte[] dataBuffer, int dataStart, byte[] mac,
 			int macStart) throws OneWireException, OneWireIOException {
 		// init local variables
-		OneWireContainer33 ibcL = this.ibc33;
+		var ibcL = this.ibc33;
 
 		// make sure account info is properly setup
 		if (this.accountPageNumber < 0) {
@@ -821,9 +849,8 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 
 			// has no write cycle counter
 			return -1;
-		} else {
-			throw new OneWireException("SHAiButtonUser ReadAuthenticatedPage Failed");
 		}
+		throw new OneWireException("SHAiButtonUser ReadAuthenticatedPage Failed");
 	}
 
 	/**
@@ -832,8 +859,10 @@ public class SHAiButtonUser33 extends SHAiButtonUser {
 	 *
 	 * @return true if the refresh was successful
 	 */
+	@Override
 	public boolean refreshDevice() throws OneWireException, OneWireIOException {
-		return ibc33.refreshPage(this.accountPageNumber);
+		return this.ibc33.refreshPage(this.accountPageNumber);
 	}
 
 }
+// CHECKSTYLE:ON

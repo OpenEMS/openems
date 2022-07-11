@@ -13,8 +13,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,9 +70,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "Fenecon.Mini.Ess", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 		implements FeneconMiniEss, ManagedSinglePhaseEss, ManagedAsymmetricEss, ManagedSymmetricEss, SinglePhaseEss,
 		AsymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
@@ -86,6 +88,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -134,10 +137,10 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 		SinglePhaseEss.initializeCopyPhaseChannel(this, config.phase());
 
 		// Calculate Allowed Charge and Discharge Power
-		final Consumer<Value<Integer>> calculateAllowedChargeDischargePower = (ignore) -> {
-			Value<Integer> voltage = this.getBecu1TotalVoltageChannel().getNextValue();
-			Value<Integer> chargeCurrent = this.getBecu1AllowedChargeCurrentChannel().getNextValue();
-			Value<Integer> dischargeCurrent = this.getBecu1AllowedDischargeCurrentChannel().getNextValue();
+		final Consumer<Value<Integer>> calculateAllowedChargeDischargePower = ignore -> {
+			var voltage = this.getBecu1TotalVoltageChannel().getNextValue();
+			var chargeCurrent = this.getBecu1AllowedChargeCurrentChannel().getNextValue();
+			var dischargeCurrent = this.getBecu1AllowedDischargeCurrentChannel().getNextValue();
 			final Integer allowedCharge;
 			final Integer allowedDischarge;
 			if (voltage.isDefined() && chargeCurrent.isDefined() && dischargeCurrent.isDefined()) {
@@ -158,6 +161,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 		this.getBecu1AllowedDischargeCurrentChannel().onSetNextValue(calculateAllowedChargeDischargePower);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -442,9 +446,8 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 									if (soc > 95 && this.getAllowedChargePower().orElse(-1) == 0
 											&& this.getAllowedDischargePower().orElse(0) != 0) {
 										return 100;
-									} else {
-										return value;
 									}
+									return value;
 								}, //
 										value -> value)) //
 				), //
@@ -487,7 +490,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 								new ElementToChannelConverter(
 										// element -> channel
 										value -> {
-											Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
+											var intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
 											if (intValue != null) {
 												switch (intValue) {
 												case 0:
@@ -514,13 +517,12 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 		if (this.config == null || this.config.readonly()) {
 			return "SoC:" + this.getSoc().asString() //
 					+ "|L:" + this.getActivePower().asString(); //
-		} else {
-			return "SoC:" + this.getSoc().asString() //
-					+ "|L:" + this.getActivePower().asString() //
-					+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
-					+ this.getAllowedDischargePower().asString() //
-					+ "|" + this.channel(FeneconMiniEss.ChannelId.STATE_MACHINE).value().asEnum().asCamelCase();
 		}
+		return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
+				+ this.getAllowedDischargePower().asString() //
+				+ "|" + this.channel(FeneconMiniEss.ChannelId.STATE_MACHINE).value().asEnum().asCamelCase();
 	}
 
 	@Override
@@ -562,7 +564,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 		this.channel(FeneconMiniEss.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
 		// Prepare Context
-		Context context = new Context(this, this.config, activePower, reactivePower);
+		var context = new Context(this, this.config, activePower, reactivePower);
 
 		// Call the StateMachine
 		try {
@@ -589,7 +591,8 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
 			};
 
-		} else if (this.stateMachine.getCurrentState() == State.WRITE_MODE) {
+		}
+		if (this.stateMachine.getCurrentState() == State.WRITE_MODE) {
 			return new Constraint[] { //
 					this.createPowerConstraint("No reactive power", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
 			};
@@ -622,7 +625,7 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 	 */
 	private void calculateEnergy() {
 		// Calculate Energy
-		Integer activePower = this.getActivePower().get();
+		var activePower = this.getActivePower().get();
 		if (activePower == null) {
 			// Not available
 			this.calculateChargeEnergy.update(null);

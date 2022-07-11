@@ -3,7 +3,6 @@ package io.openems.edge.evcs.keba.kecontact;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -17,8 +16,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +39,11 @@ import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Evcs.Keba.KeContact", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class KebaKeContact extends AbstractOpenemsComponent
 		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
 
@@ -81,7 +83,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 		this.channel(KebaChannelId.ALIAS).setNextValue(config.alias());
 
-		this.ip = Inet4Address.getByName(config.ip());
+		this.ip = InetAddress.getByName(config.ip().trim());
 
 		this.config = config;
 		this._setPowerPrecision(0.23);
@@ -101,6 +103,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -117,12 +120,12 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 			// Clear channels if the connection to the Charging Station has been lost
 			Channel<Boolean> connectionLostChannel = this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
-			Boolean connectionLost = connectionLostChannel.value().orElse(lastConnectionLostState);
-			if (connectionLost != lastConnectionLostState) {
+			var connectionLost = connectionLostChannel.value().orElse(this.lastConnectionLostState);
+			if (connectionLost != this.lastConnectionLostState) {
 				if (connectionLost) {
-					resetChannelValues();
+					this.resetChannelValues();
 				}
-				lastConnectionLostState = connectionLost;
+				this.lastConnectionLostState = connectionLost;
 			}
 
 			// handle writes
@@ -138,23 +141,17 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	 * @return true if sent
 	 */
 	protected boolean send(String s) {
-		byte[] raw = s.getBytes();
-		DatagramPacket packet = new DatagramPacket(raw, raw.length, ip, KebaKeContact.UDP_PORT);
-		DatagramSocket datagrammSocket = null;
-		try {
-			datagrammSocket = new DatagramSocket();
+		var raw = s.getBytes();
+		var packet = new DatagramPacket(raw, raw.length, this.ip, KebaKeContact.UDP_PORT);
+		try (DatagramSocket datagrammSocket = new DatagramSocket()) {
 			datagrammSocket.send(packet);
 			return true;
 		} catch (SocketException e) {
-			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + ip.getHostAddress()
+			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + this.ip.getHostAddress()
 					+ "]: " + e.getMessage());
 		} catch (IOException e) {
 			this.logError(this.log,
-					"Unable to send [" + s + "] UDP message to [" + ip.getHostAddress() + "]: " + e.getMessage());
-		} finally {
-			if (datagrammSocket != null) {
-				datagrammSocket.close();
-			}
+					"Unable to send [" + s + "] UDP message to [" + this.ip.getHostAddress() + "]: " + e.getMessage());
 		}
 		return false;
 	}
@@ -172,9 +169,9 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Logs are displayed if the debug mode is configured
-	 * 
-	 * @param log    Logger
+	 * Logs are displayed if the debug mode is configured.
+	 *
+	 * @param log    the {@link Logger}
 	 * @param string Text to display
 	 */
 	protected void logInfoInDebugmode(Logger log, String string) {
@@ -184,11 +181,11 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	public ReadWorker getReadWorker() {
-		return readWorker;
+		return this.readWorker;
 	}
 
 	public ReadHandler getReadHandler() {
-		return readHandler;
+		return this.readHandler;
 	}
 
 	/**
@@ -213,6 +210,13 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				this.getModbusSlaveNatureTable(accessMode));
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 
 		return ModbusSlaveNatureTable.of(KebaKeContact.class, accessMode, 300) //

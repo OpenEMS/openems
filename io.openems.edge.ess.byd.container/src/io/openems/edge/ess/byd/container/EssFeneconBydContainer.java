@@ -75,6 +75,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		this._setGridMode(GridMode.ON_GRID);
 	}
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -94,7 +95,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		}
 
 		// Configure Modbus 1
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "modbus1", config.modbus_id1())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "modbus1", config.modbus_id1())) {
 			return;
 		}
 		if (this.isEnabled() && this.modbus1 != null) {
@@ -102,7 +103,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		}
 
 		// Configure Modbus 2
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "modbus2", config.modbus_id2())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "modbus2", config.modbus_id2())) {
 			return;
 		}
 		if (this.isEnabled() && this.modbus2 != null) {
@@ -114,6 +115,7 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 		this.channel(ChannelId.READ_ONLY_MODE).setNextValue(config.readonly());
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		if (this.modbus1 != null) {
@@ -914,8 +916,8 @@ public class EssFeneconBydContainer extends AbstractOpenemsModbusComponent
 						// ADAS_WARNING_1_0
 						m(new BitsWordElement(0x3450, this) //
 								.bit(0, EssFeneconBydContainer.ChannelId.STATE_190) //
-						), //
-							// ADAS_WARNING_1_1
+						),
+						// ADAS_WARNING_1_1
 						m(new BitsWordElement(0x3451, this) //
 								.bit(3, EssFeneconBydContainer.ChannelId.STATE_203) //
 								.bit(4, EssFeneconBydContainer.ChannelId.STATE_191) //

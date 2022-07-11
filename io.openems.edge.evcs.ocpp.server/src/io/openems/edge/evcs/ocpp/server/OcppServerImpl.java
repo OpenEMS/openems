@@ -19,8 +19,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +42,11 @@ import io.openems.edge.evcs.ocpp.common.OcppServer;
 @Component(//
 		name = "Evcs.Ocpp.Server", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsComponent, OcppServer, EventHandler {
 
 	public static final String DEFAULT_IP = "0.0.0.0";
@@ -53,7 +56,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 
 	/**
 	 * The JSON server.
-	 * 
+	 *
 	 * <p>
 	 * Responsible for the OCPP communication.
 	 */
@@ -80,7 +83,7 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	/**
 	 * Adds each Evcs component to a list and checks whether there is a matching
 	 * session.
-	 * 
+	 *
 	 * @param evcs new Evcs
 	 */
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
@@ -88,18 +91,18 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 		if (!(evcs instanceof AbstractOcppEvcsComponent) || evcs == null) {
 			return;
 		}
-		AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) evcs;
-		List<AbstractOcppEvcsComponent> presentEvcss = ocppEvcss.get(ocppEvcs.getConfiguredOcppId());
+		var ocppEvcs = (AbstractOcppEvcsComponent) evcs;
+		var presentEvcss = this.ocppEvcss.get(ocppEvcs.getConfiguredOcppId());
 
 		if (presentEvcss == null) {
-			List<AbstractOcppEvcsComponent> initEvcssArr = new ArrayList<AbstractOcppEvcsComponent>();
+			List<AbstractOcppEvcsComponent> initEvcssArr = new ArrayList<>();
 			initEvcssArr.add(ocppEvcs);
-			ocppEvcss.put(ocppEvcs.getConfiguredOcppId(), initEvcssArr);
+			this.ocppEvcss.put(ocppEvcs.getConfiguredOcppId(), initEvcssArr);
 		} else {
 			presentEvcss.add(ocppEvcs);
 		}
 
-		UUID sessionId = this.ocppSessions.get(ocppEvcs.getConfiguredOcppId());
+		var sessionId = this.ocppSessions.get(ocppEvcs.getConfiguredOcppId());
 		if (sessionId == null) {
 			return;
 		}
@@ -111,15 +114,15 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	/**
 	 * Removes the given Evcs component from the list and checks whether there is a
 	 * present session that should be removed.
-	 * 
+	 *
 	 * @param evcs Evcs that should be removed
 	 */
 	protected void removeEvcs(Evcs evcs) {
 		if (!(evcs instanceof AbstractOcppEvcsComponent) || evcs == null) {
 			return;
 		}
-		AbstractOcppEvcsComponent ocppEvcs = (AbstractOcppEvcsComponent) evcs;
-		List<AbstractOcppEvcsComponent> evcss = this.activeEvcsSessions.get(ocppEvcs.getSessionId());
+		var ocppEvcs = (AbstractOcppEvcsComponent) evcs;
+		var evcss = this.activeEvcsSessions.get(ocppEvcs.getSessionId());
 		if (evcss != null) {
 			if (evcss.size() < 2) {
 				this.activeEvcsSessions.remove(ocppEvcs.getSessionId());

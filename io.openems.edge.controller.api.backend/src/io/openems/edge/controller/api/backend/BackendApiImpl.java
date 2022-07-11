@@ -23,8 +23,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,10 +52,12 @@ import io.openems.edge.timedata.api.Timedata;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				"org.ops4j.pax.logging.appender.name=Controller.Api.Backend", //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CONFIG_UPDATE //
 		} //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CONFIG_UPDATE //
+})
 public class BackendApiImpl extends AbstractOpenemsComponent
 		implements BackendApi, Controller, OpenemsComponent, PaxAppender, EventHandler {
 
@@ -103,8 +105,8 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		}
 
 		// initialize Executor
-		String name = COMPONENT_NAME + ":" + this.id();
-		this.executor = Executors.newScheduledThreadPool(1,
+		var name = COMPONENT_NAME + ":" + this.id();
+		this.executor = Executors.newScheduledThreadPool(10,
 				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		// initialize ApiWorker
@@ -136,6 +138,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		this.websocket.start();
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
@@ -143,7 +146,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		if (this.websocket != null) {
 			this.websocket.stop();
 		}
-		ThreadPoolUtils.shutdownAndAwaitTermination(executor, 5);
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 	}
 
 	@Override
@@ -158,16 +161,16 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	@Override
 	protected void logWarn(Logger log, String message) {
-		super.logInfo(log, message);
+		super.logWarn(log, message);
 	}
 
 	/**
 	 * Activates/deactivates subscription to System-Log.
-	 * 
+	 *
 	 * <p>
 	 * If activated, all System-Log events are sent via
 	 * {@link SystemLogNotification}s.
-	 * 
+	 *
 	 * @param isSystemLogSubscribed true to activate
 	 */
 	protected void setSystemLogSubscribed(boolean isSystemLogSubscribed) {
@@ -179,11 +182,11 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		if (!this.isSystemLogSubscribed) {
 			return;
 		}
-		WebsocketClient ws = this.websocket;
+		var ws = this.websocket;
 		if (ws == null) {
 			return;
 		}
-		SystemLogNotification notification = SystemLogNotification.fromPaxLoggingEvent(event);
+		var notification = SystemLogNotification.fromPaxLoggingEvent(event);
 		ws.sendMessage(notification);
 	}
 
@@ -199,9 +202,9 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
 			// Send new EdgeConfig
-			EdgeConfig config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
-			EdgeConfigNotification message = new EdgeConfigNotification(config);
-			WebsocketClient ws = this.websocket;
+			var config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
+			var message = new EdgeConfigNotification(config);
+			var ws = this.websocket;
 			if (ws == null) {
 				return;
 			}
@@ -219,7 +222,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Execute a command using the {@link ScheduledExecutorService}.
-	 * 
+	 *
 	 * @param command a {@link Runnable}
 	 */
 	protected void execute(Runnable command) {
@@ -230,7 +233,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	/**
 	 * Schedules a command using the {@link ScheduledExecutorService}.
-	 * 
+	 *
 	 * @param command      a {@link Runnable}
 	 * @param initialDelay the initial delay
 	 * @param delay        the delay
@@ -240,8 +243,7 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
 		if (this.executor.isShutdown()) {
 			return null;
-		} else {
-			return this.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 		}
+		return this.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
 }

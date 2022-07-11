@@ -2,15 +2,14 @@ package io.openems.edge.bridge.modbus.api.task;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
@@ -22,8 +21,8 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 
 /**
- * Implements a Write Holding Registers abstractTask, using Modbus function code
- * 16 (http://www.simplymodbus.ca/FC16.htm)
+ * Implements a Write Holding Registers Task, using Modbus function code 16
+ * (http://www.simplymodbus.ca/FC16.htm).
  */
 public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 
@@ -33,7 +32,7 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 		super(startAddress, elements);
 	}
 
-	private class CombinedWriteRegisters {
+	private static class CombinedWriteRegisters {
 		public final int startAddress;
 		private final List<Register> registers = new ArrayList<>();
 
@@ -42,9 +41,7 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 		}
 
 		public void add(Register... registers) {
-			for (Register register : registers) {
-				this.registers.add(register);
-			}
+			Collections.addAll(this.registers, registers);
 		}
 
 		public Register[] getRegisters() {
@@ -52,17 +49,17 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 		}
 
 		public int getLastAddress() {
-			return this.startAddress + registers.size() - 1;
+			return this.startAddress + this.registers.size() - 1;
 		}
 	}
 
 	@Override
 	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
-		int noOfWrittenRegisters = 0;
-		List<CombinedWriteRegisters> writes = mergeWriteRegisters();
+		var noOfWrittenRegisters = 0;
+		var writes = this.mergeWriteRegisters();
 		// Execute combined writes
 		for (CombinedWriteRegisters write : writes) {
-			Register[] registers = write.getRegisters();
+			var registers = write.getRegisters();
 			try {
 				/*
 				 * First try
@@ -87,8 +84,8 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 
 	private void writeMultipleRegisters(AbstractModbusBridge bridge, int unitId, int startAddress, Register[] registers)
 			throws ModbusException, OpenemsException {
-		WriteMultipleRegistersRequest request = new WriteMultipleRegistersRequest(startAddress, registers);
-		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
+		var request = new WriteMultipleRegistersRequest(startAddress, registers);
+		var response = Utils.getResponse(request, unitId, bridge);
 
 		// debug output
 		switch (this.getLogVerbosity(bridge)) {
@@ -112,16 +109,15 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 
 	/**
 	 * Combine WriteRegisters without holes in between.
-	 * 
+	 *
 	 * @return a list of CombinedWriteRegisters
 	 */
 	private List<CombinedWriteRegisters> mergeWriteRegisters() {
 		List<CombinedWriteRegisters> writes = new ArrayList<>();
-		ModbusElement<?>[] elements = this.getElements();
-		for (int i = 0; i < elements.length; i++) {
-			ModbusElement<?> element = elements[i];
+		var elements = this.getElements();
+		for (ModbusElement<?> element : elements) {
 			if (element instanceof ModbusRegisterElement) {
-				Optional<Register[]> valueOpt = ((ModbusRegisterElement<?>) element).getNextWriteValueAndReset();
+				var valueOpt = ((ModbusRegisterElement<?>) element).getNextWriteValueAndReset();
 				if (valueOpt.isPresent()) {
 					// found value -> add to 'writes'
 					CombinedWriteRegisters write;
@@ -136,7 +132,7 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 					write.add(valueOpt.get());
 				}
 			} else {
-				log.warn("Unable to execute Write for ModbusElement [" + element + "]: No ModbusRegisterElement!");
+				this.log.warn("Unable to execute Write for ModbusElement [" + element + "]: No ModbusRegisterElement!");
 			}
 		}
 		return writes;

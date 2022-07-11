@@ -13,8 +13,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,9 +62,11 @@ import io.openems.edge.ess.mr.gridcon.writewords.IpuParameter;
 @Component(//
 		name = "MR.Gridcon", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE } //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE //
+})
 public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		implements ModbusComponent, OpenemsComponent, GridconPcs, EventHandler {
 
@@ -135,10 +137,11 @@ public class GridconPcsImpl extends AbstractOpenemsModbusComponent
 		this.inverterCount = config.inverterCount();
 		this.efficiencyLossChargeFactor = config.efficiencyLossChargeFactor();
 		this.efficiencyLossDischargeFactor = config.efficiencyLossDischargeFactor();
-		;
 
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
-				config.modbus_id());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.unit_id(), this.cm, "Modbus",
+				config.modbus_id())) {
+			return;
+		}
 
 		this.setBalancingMode(config.balancing_mode());
 		this.setFundamentalFrequencyMode(config.fundamental_frequency_mode());
