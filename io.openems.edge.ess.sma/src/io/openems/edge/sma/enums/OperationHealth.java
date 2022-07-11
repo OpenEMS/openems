@@ -7,7 +7,7 @@ public enum OperationHealth implements OptionsEnum {
 	ERROR(35, "Error"), //
 	OFF(303, "Off"), //
 	OK(307, "Ok"), //
-	WARN(455, "Warning"); 
+	WARN(455, "Warning");
 
 	private final int value;
 	private final String name;
@@ -19,12 +19,12 @@ public enum OperationHealth implements OptionsEnum {
 
 	@Override
 	public int getValue() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

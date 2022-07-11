@@ -170,7 +170,7 @@ public class SunnyIslandEssImpl extends AbstractOpenemsModbusComponent implement
 									}
 									int value = TypeUtils.getAsType(OpenemsType.INTEGER, v);
 									// Evaluate symmetric/single-phase mode
-									if (config.phase() == Phase.ALL) {
+									if (this.config.phase() == Phase.ALL) {
 										// assuming 3 phases are done by Master/Slave
 										return 3 * value;
 

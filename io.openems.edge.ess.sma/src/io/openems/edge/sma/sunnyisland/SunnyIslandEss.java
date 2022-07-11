@@ -90,6 +90,16 @@ public interface SunnyIslandEss extends ManagedSinglePhaseEss, SinglePhaseEss, M
 		}
 	}
 
+	/**
+	 * Specify implementation to apply the calculated Power.
+	 *
+	 * @param activePowerL1   the active power set-point for L1
+	 * @param reactivePowerL1 the reactive power set-point for L1
+	 * @param activePowerL2   the active power set-point for L2
+	 * @param reactivePowerL2 the reactive power set-point for L2
+	 * @param activePowerL3   the active power set-point for L3
+	 * @param reactivePowerL3 the reactive power set-point for L3
+	 */
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException;
 }
