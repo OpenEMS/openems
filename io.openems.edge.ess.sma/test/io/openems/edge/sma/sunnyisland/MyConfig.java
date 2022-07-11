@@ -1,8 +1,8 @@
-package io.openems.edge.sma;
+package io.openems.edge.sma.sunnyisland;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.ess.api.SinglePhase;
+import io.openems.edge.ess.power.api.Phase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -11,7 +11,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id = null;
 		private String modbusId = null;
 		public int modbusUnitId;
-		public SinglePhase phase;
+		public Phase phase;
+		public boolean readOnlyMode;
 
 		private Builder() {
 		}
@@ -26,8 +27,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setPhase(SinglePhase phase) {
+		public Builder setPhase(Phase phase) {
 			this.phase = phase;
+			return this;
+		}
+		
+		public Builder setReadOnlyMode(boolean readOnlyMode) {
+			this.readOnlyMode = readOnlyMode;
 			return this;
 		}
 
@@ -68,8 +74,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public SinglePhase phase() {
+	public Phase phase() {
 		return this.builder.phase;
+	}
+
+	@Override
+	public boolean readOnlyMode() {
+		return this.builder.readOnlyMode;
 	}
 
 }
