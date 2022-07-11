@@ -51,15 +51,6 @@ import io.openems.edge.sma.enums.SetControlMode;
 public class SunnyIslandEssImpl extends AbstractOpenemsModbusComponent implements ManagedSinglePhaseEss, SinglePhaseEss,
 		ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent {
 
-	// TODO read MaxApparentPower from Modbus
-
-	// SMA Sunny Island 6
-	protected static final int MAX_APPARENT_POWER = 6000;
-
-	// SMA Sunny Island 4
-	// 4400W for max 30min
-	// protected static final int MAX_APPARENT_POWER = 3300;
-
 	private Config config;
 	private SinglePhase singlePhase = null;
 
@@ -81,8 +72,6 @@ public class SunnyIslandEssImpl extends AbstractOpenemsModbusComponent implement
 				ManagedSinglePhaseEss.ChannelId.values(), //
 				SunnyIslandEss.ChannelId.values() //
 		);
-
-		this._setMaxApparentPower(SunnyIslandEssImpl.MAX_APPARENT_POWER);
 	}
 
 	@Override
@@ -116,13 +105,7 @@ public class SunnyIslandEssImpl extends AbstractOpenemsModbusComponent implement
 			break;
 		}
 
-		// Evaluate symmetric/single-phase mode
-		if (config.phase() == Phase.ALL) {
-			// assuming 3 phases are done by Master/Slave
-			this._setMaxApparentPower(3 * SunnyIslandEssImpl.MAX_APPARENT_POWER);
-
-		} else {
-			this._setMaxApparentPower(SunnyIslandEssImpl.MAX_APPARENT_POWER);
+		if (this.singlePhase != null) {
 			SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
 		}
 
@@ -164,23 +147,37 @@ public class SunnyIslandEssImpl extends AbstractOpenemsModbusComponent implement
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(30051, Priority.ONCE, //
+				new FC3ReadRegistersTask(30051, Priority.LOW, //
 						m(SunnyIslandEss.ChannelId.DEVICE_CLASS, new UnsignedDoublewordElement(30051)), //
-						m(SunnyIslandEss.ChannelId.DEVICE_TYPE, new UnsignedDoublewordElement(30053)).debug(), //
+						m(SunnyIslandEss.ChannelId.DEVICE_TYPE, new UnsignedDoublewordElement(30053)), //
 						new DummyRegisterElement(30055, 30056), //
-						m(SunnyIslandEss.ChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(30057)).debug(), //
+						m(SunnyIslandEss.ChannelId.SERIAL_NUMBER, new UnsignedDoublewordElement(30057)), //
 						m(SunnyIslandEss.ChannelId.SOFTWARE_PACKAGE, new UnsignedDoublewordElement(30059))), //
 
-				new FC3ReadRegistersTask(30199, Priority.ONCE, //
-						m(SunnyIslandEss.ChannelId.WAITING_TIME_UNTIL_FEED_IN, new UnsignedDoublewordElement(30199))), //
-
-				new FC3ReadRegistersTask(30201, Priority.LOW, //
-						m(SunnyIslandEss.ChannelId.SYSTEM_STATE, new UnsignedDoublewordElement(30201))), //
-
-				new FC3ReadRegistersTask(30211, Priority.ONCE, //
+				new FC3ReadRegistersTask(30199, Priority.LOW, //
+						m(SunnyIslandEss.ChannelId.WAITING_TIME_UNTIL_FEED_IN, new UnsignedDoublewordElement(30199)), //
+						m(SunnyIslandEss.ChannelId.SYSTEM_STATE, new UnsignedDoublewordElement(30201)), //
+						new DummyRegisterElement(30203, 30210), //
 						m(SunnyIslandEss.ChannelId.RECOMMENDED_ACTION, new UnsignedDoublewordElement(30211)), //
 						m(SunnyIslandEss.ChannelId.MESSAGE, new UnsignedDoublewordElement(30213)), //
 						m(SunnyIslandEss.ChannelId.FAULT_CORRECTION_MEASURE, new UnsignedDoublewordElement(30215))), //
+
+				new FC3ReadRegistersTask(30231, Priority.LOW, //
+						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedDoublewordElement(30231),
+								new ElementToChannelConverter(v -> {
+									if (v == null) {
+										return null;
+									}
+									int value = TypeUtils.getAsType(OpenemsType.INTEGER, v);
+									// Evaluate symmetric/single-phase mode
+									if (config.phase() == Phase.ALL) {
+										// assuming 3 phases are done by Master/Slave
+										return 3 * value;
+
+									} else {
+										return value;
+									}
+								}))), //
 
 				new FC3ReadRegistersTask(30595, Priority.LOW,
 						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, new UnsignedDoublewordElement(30595)), //
@@ -263,9 +260,9 @@ public class SunnyIslandEssImpl extends AbstractOpenemsModbusComponent implement
 						m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new UnsignedDoublewordElement(40191))), //
 
 				new FC16WriteRegistersTask(40149, //
-						m(SunnyIslandEss.ChannelId.SET_ACTIVE_POWER, new SignedDoublewordElement(40149)).debug(), //
-						m(SunnyIslandEss.ChannelId.SET_CONTROL_MODE, new UnsignedDoublewordElement(40151)).debug(), //
-						m(SunnyIslandEss.ChannelId.SET_REACTIVE_POWER, new SignedDoublewordElement(40153)).debug()), //
+						m(SunnyIslandEss.ChannelId.SET_ACTIVE_POWER, new SignedDoublewordElement(40149)), //
+						m(SunnyIslandEss.ChannelId.SET_CONTROL_MODE, new UnsignedDoublewordElement(40151)), //
+						m(SunnyIslandEss.ChannelId.SET_REACTIVE_POWER, new SignedDoublewordElement(40153))), //
 
 				new FC16WriteRegistersTask(43090, //
 						m(SunnyIslandEss.ChannelId.GRID_GUARD_CODE, new UnsignedDoublewordElement(43090))), //
