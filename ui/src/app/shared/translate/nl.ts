@@ -166,6 +166,7 @@ export const TRANSLATION = {
                 reactivePower: 'Blind vermogen',
                 storage: 'Batterij',
                 title: 'Energiemonitor',
+                excelExportWarning: 'De weergave en uitvoer van gegevens over een langere periode is momenteel slechts in beperkte mate mogelijk. Probeer het later nog eens.'
             },
             Widgets: {
                 autarchyInfo: 'Autarky geeft het percentage huidig ​​vermogen aan dat kan worden gedekt door opwekking en ontlading van de opslag.',

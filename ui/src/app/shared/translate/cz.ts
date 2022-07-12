@@ -173,6 +173,7 @@ export const TRANSLATION = {
                 storageCharge: 'baterie nakládání',
                 storageDischarge: 'baterie výtok',
                 title: 'Monitoring energetických toků',
+                excelExportWarning: 'Zobrazení a export dat za delší časové období je v současné době možné pouze v omezené míře. Zkuste to prosím později.'
             },
             Widgets: {
                 autarchyInfo: 'Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.',

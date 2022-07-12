@@ -5,7 +5,7 @@ import { ModalController, Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import { differenceInCalendarMonths, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { saveAs } from 'file-saver-es';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -41,16 +41,17 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   private static readonly EXCEL_EXTENSION = '.xlsx';
 
-  public chartType: string = "line";
-
   private config: EdgeConfig | null = null;
-
   private stopOnDestroy: Subject<void> = new Subject<void>();
+
+  public chartType: string = "line";
+  public isExcelExportAllowed: boolean = true;
 
   @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
     this.updateChart();
+    this.isExcelExportAllowed = true;
   }
 
   constructor(
@@ -71,6 +72,12 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
    * Export historic data to Excel file.
    */
   public exportToXlxs() {
+    this.isExcelExportAllowed = differenceInCalendarMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) < 3;
+    if (!this.isExcelExportAllowed) {
+      return
+    }
+
+    this.startSpinner();
     this.service.getCurrentEdge().then(edge => {
       edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.from, this.service.historyPeriod.to)).then(response => {
         let r = response as Base64PayloadResponse;
@@ -104,6 +111,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         console.warn(reason);
       })
     })
+    this.stopSpinner();
   }
 
 

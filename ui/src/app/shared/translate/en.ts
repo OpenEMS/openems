@@ -175,6 +175,7 @@ export const TRANSLATION = {
                 storageCharge: 'Storage-Charge',
                 storageDischarge: 'Storage-Discharge',
                 title: 'Energymonitor',
+                excelExportWarning: 'The display and export of data over a longer period of time is currently only possible to a limited extent. Please try again later.'
             },
             Widgets: {
                 autarchyInfo: 'Autarky indicates the percentage of current power that can be covered by generation and storage discharge.',

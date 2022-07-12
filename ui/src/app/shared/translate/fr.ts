@@ -171,6 +171,7 @@ export const TRANSLATION = {
                 storageCharge: 'Stockage-Charge',
                 storageDischarge: 'Stockage-Décharge',
                 title: 'Moniteur d\'énergie',
+                excelExportWarning: 'L`affichage et l`exportation de données sur une longue période sont actuellement limités. Veuillez réessayer ultérieurement.'
             },
             Energytable: {
                 title: 'Tableau énergétique',
