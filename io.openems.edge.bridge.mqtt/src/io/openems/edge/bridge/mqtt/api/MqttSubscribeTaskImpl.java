@@ -8,6 +8,7 @@ import io.openems.edge.common.channel.WriteChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -228,6 +229,8 @@ public class MqttSubscribeTaskImpl extends AbstractMqttTask implements MqttSubsc
     public void convertTime() {
         if (this.time != null && !this.time.equals("")) {
             this.timeDate = ZonedDateTime.parse(this.time);
+        }else {
+            this.timeDate = ZonedDateTime.now(Clock.systemUTC());
         }
     }
 

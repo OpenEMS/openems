@@ -54,7 +54,7 @@ public class MqttCommandComponent extends MqttOpenemsComponentConnector implemen
     void activate(ComponentContext context, CommandComponentConfig config) throws OpenemsError.OpenemsNamedException, IOException, ConfigurationException, MqttException {
         this.config = config;
         super.connectorDeactivate();
-        if (super.modified(context, config.id(), config.alias(), config.enabled(), this.cpm, config.mqttBridgeId())) {
+        if (super.activate(context, config.id(), config.alias(), config.enabled(), this.cpm, config.mqttBridgeId())) {
             this.configureMqtt(config);
         }
     }
@@ -201,7 +201,7 @@ public class MqttCommandComponent extends MqttOpenemsComponentConnector implemen
     }
 
     private void updateConfiguration() throws ConfigurationException, MqttException, IOException {
-        super.setConfiguration(MqttType.TELEMETRY, this.config.subscriptionList(), null,
+        super.setConfiguration(MqttType.COMMAND, this.config.subscriptionList(), new String[0],
                 this.config.payloads(), this.config.createdByOsgi(), this.config.mqttId(), this.cm, this.config.channelIdList().length,
                 this.config.pathForJson(), this.config.payloadStyle(), this.config.configurationDone(), this.config.componentAddsChannelOnTheFly());
     }
