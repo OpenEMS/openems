@@ -397,7 +397,6 @@ export class Utils {
       if (consumptionActivePower <= 0) {
         /* avoid divide by zero; consumption == 0 -> autarchy 100 % */
         return 100;
-
       } else {
         return /* min 0 */ Math.max(0,
         /* max 100 */ Math.min(100,

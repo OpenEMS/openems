@@ -58,16 +58,8 @@ export class AdvertWidgets {
 
         let list: AdvertWidget[] = [
             {
-                name: 'GLS Crowdfunding',
-                title: 'Mach mit bei FENECON',
-            },
-            {
-                name: 'GridOptimizedCharge',
-                title: 'Neue Version jetzt online!',
-            },
-            {
-                name: 'Energiewende mit FEMS',
-                title: 'Energiewende mit FEMS - Wärme selbst erzeugen'
+                name: 'Heatingelement',
+                title: 'Heizstab FEMS App Paket'
             }
         ];
 

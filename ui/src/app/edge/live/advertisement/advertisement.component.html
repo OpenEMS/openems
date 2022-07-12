@@ -18,21 +18,14 @@
         <ion-slides [options]="slideOpts" class="slides" #slides (ionSlidesDidLoad)="slidesDidLoad(slides)"
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
-                <ion-slide *ngSwitchCase="'GLS Crowdfunding'">
-                    <glscrowdfunding>
-                    </glscrowdfunding>
-                </ion-slide>
 
-                <ion-slide *ngSwitchCase="'GridOptimizedCharge'">
-                    <gridOptimizedCharge></gridOptimizedCharge>
-                </ion-slide>
-
-                <ion-slide *ngSwitchCase="'Energiewende mit FEMS'">
-                    <energyRevolution></energyRevolution>
-                </ion-slide>
 
                 <ion-slide *ngSwitchCase="'Alerting'">
                     <alerting></alerting>
+                </ion-slide>
+
+                <ion-slide *ngSwitchCase="'Heatingelement'">
+                    <heatingelement></heatingelement>
                 </ion-slide>
 
             </ng-container>
