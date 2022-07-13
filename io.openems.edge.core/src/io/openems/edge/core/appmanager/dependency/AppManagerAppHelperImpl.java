@@ -959,7 +959,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	 * <p>
 	 * Order bottom -> top.
 	 *
-	 * @param errors					the errors that occur during the call
+	 * @param errors                    the errors that occur during the call
 	 * @param app                       the app to be installed
 	 * @param appConfig                 the {@link AppDependencyConfig} of the
 	 *                                  current app
@@ -1270,6 +1270,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			EdgeConfig.Component foundComponent = null;
 
 			// try to find a component with the necessary settings
+			// has to be at first place to make sure no unnecessary components are created
 			if (canBeReplaced) {
 				// TODO include currently creating components
 				foundComponent = this.componentUtil.getComponentByConfig(comp);
@@ -1277,8 +1278,11 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					id = foundComponent.getId();
 				}
 			}
-			if (foundComponent == null && oldAppInstance != null && oldAppInstance.properties.has(id.toUpperCase())) {
-				id = oldAppInstance.properties.get(id.toUpperCase()).getAsString();
+
+			// use component based on the last configuration
+			if (foundComponent == null && oldAppInstance != null && canBeReplaced
+					&& oldAppInstance.properties.has(replacableIds.get(id))) {
+				id = oldAppInstance.properties.get(replacableIds.get(id)).getAsString();
 				foundComponent = this.componentManager.getEdgeConfig().getComponent(id).orElse(null);
 				final var tempId = id;
 				// other app uses the same component because they had the same configuration
@@ -1289,6 +1293,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					foundComponent = null;
 				}
 			}
+
 			isNewComponent = isNewComponent && foundComponent == null;
 			if (isNewComponent) {
 				// if the id is not already set and there is no component with the default id
