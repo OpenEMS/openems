@@ -6,4 +6,13 @@ Implemented Natures::
 - AsymmetricMeter
 - SymmetricMeter
 
+
+Tested Meters::
+- SolarEdge
+- Elgris Zero Export
+- Elgris Smart Meter
+
+
+Note:: Elgris firmware version must be at least 1.15.02 
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.sunspec[Source Code icon:github[]]
