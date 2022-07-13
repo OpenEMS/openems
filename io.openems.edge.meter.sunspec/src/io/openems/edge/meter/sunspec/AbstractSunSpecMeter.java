@@ -61,8 +61,11 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 
 	@Override
 	protected void onSunSpecInitializationCompleted() {
-		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
+		this.mapPointsToChannels(false);
+	}
 
+	protected void mapPointsToChannels(boolean invert) {
+		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
 		/*
 		 * SymmetricMeter
 		 */
@@ -73,12 +76,12 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 				DefaultSunSpecModel.S201.HZ);
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.ACTIVE_POWER, //
-				ElementToChannelConverter.INVERT, //
+				ElementToChannelConverter.INVERT_IF_TRUE(!invert), //
 				DefaultSunSpecModel.S204.W, DefaultSunSpecModel.S203.W, DefaultSunSpecModel.S202.W,
 				DefaultSunSpecModel.S201.W);
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.REACTIVE_POWER, //
-				ElementToChannelConverter.INVERT, //
+				ElementToChannelConverter.INVERT_IF_TRUE(!invert), //
 				DefaultSunSpecModel.S204.VAR, DefaultSunSpecModel.S203.VAR, DefaultSunSpecModel.S202.VAR,
 				DefaultSunSpecModel.S201.VAR);
 		this.mapFirstPointToChannel(//
@@ -113,17 +116,17 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 		 */
 		this.mapFirstPointToChannel(//
 				AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, //
-				ElementToChannelConverter.INVERT, //
+				ElementToChannelConverter.INVERT_IF_TRUE(!invert), //
 				DefaultSunSpecModel.S204.WPH_A, DefaultSunSpecModel.S203.WPH_A, DefaultSunSpecModel.S202.WPH_A,
 				DefaultSunSpecModel.S201.WPH_A);
 		this.mapFirstPointToChannel(//
 				AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, //
-				ElementToChannelConverter.INVERT, //
+				ElementToChannelConverter.INVERT_IF_TRUE(!invert), //
 				DefaultSunSpecModel.S204.WPH_B, DefaultSunSpecModel.S203.WPH_B, DefaultSunSpecModel.S202.WPH_B,
 				DefaultSunSpecModel.S201.WPH_B);
 		this.mapFirstPointToChannel(//
 				AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, //
-				ElementToChannelConverter.INVERT, //
+				ElementToChannelConverter.INVERT_IF_TRUE(!invert), //
 				DefaultSunSpecModel.S204.WPH_C, DefaultSunSpecModel.S203.WPH_C, DefaultSunSpecModel.S202.WPH_C,
 				DefaultSunSpecModel.S201.WPH_C);
 		this.mapFirstPointToChannel(//
@@ -143,17 +146,17 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 				DefaultSunSpecModel.S201.APH_C);
 		this.mapFirstPointToChannel(//
 				AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, //
-				ElementToChannelConverter.INVERT, //
+				ElementToChannelConverter.INVERT_IF_TRUE(!invert), //
 				DefaultSunSpecModel.S204.V_A_RPH_A, DefaultSunSpecModel.S203.V_A_RPH_A,
 				DefaultSunSpecModel.S202.V_A_RPH_A, DefaultSunSpecModel.S201.V_A_RPH_A);
 		this.mapFirstPointToChannel(//
 				AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, //
-				ElementToChannelConverter.INVERT, //
+				ElementToChannelConverter.INVERT_IF_TRUE(!invert), //
 				DefaultSunSpecModel.S204.V_A_RPH_B, DefaultSunSpecModel.S203.V_A_RPH_B,
 				DefaultSunSpecModel.S202.V_A_RPH_B, DefaultSunSpecModel.S201.V_A_RPH_B);
 		this.mapFirstPointToChannel(//
 				AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, //
-				ElementToChannelConverter.INVERT, //
+				ElementToChannelConverter.INVERT_IF_TRUE(!invert), //
 				DefaultSunSpecModel.S204.V_A_RPH_C, DefaultSunSpecModel.S203.V_A_RPH_C,
 				DefaultSunSpecModel.S202.V_A_RPH_C, DefaultSunSpecModel.S201.V_A_RPH_C);
 		this.mapFirstPointToChannel(//
