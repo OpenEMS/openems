@@ -47,7 +47,7 @@ public interface AnalogInputOutput extends OpenemsComponent {
          * <li>Range: 0..100
          * </ul>
          */
-        AIO_THOUSANDTH_WRITE(Doc.of(OpenemsType.INTEGER).unit(Unit.THOUSANDTH)),
+        AIO_THOUSANDTH_WRITE(Doc.of(OpenemsType.INTEGER).unit(Unit.THOUSANDTH).accessMode(AccessMode.READ_WRITE)),
         /**
          * Status of Aio in thousandth.
          *
