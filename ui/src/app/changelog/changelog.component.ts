@@ -35,6 +35,17 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.7.2',
+        changes: [
+          Changelog.UI,
+          Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung an Schnittstelle FEMS Backend zu InfluxDB" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung an SMA ESS" },
+          { roleIsAtLeast: Role.ADMIN, change: "Werbewidgets: fenecon.de/heizstab" },
+          { roleIsAtLeast: Role.ADMIN, change: "Excel-Export gesperrt für Zeiträume > 3 Monate" },
+        ]
+      },
+      {
         version: '2022.7.1',
         changes: [
           Changelog.openems('2022.7.0'),
