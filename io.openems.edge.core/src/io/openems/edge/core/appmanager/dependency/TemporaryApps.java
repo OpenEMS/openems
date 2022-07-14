@@ -15,7 +15,7 @@ public final class TemporaryApps {
 
 	/**
 	 * Gets a unmodifiable list of the apps that are currently creating or modified.
-	 * 
+	 *
 	 * @return the apps
 	 */
 	public final List<OpenemsAppInstance> currentlyCreatingModifiedApps() {

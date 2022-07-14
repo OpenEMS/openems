@@ -77,11 +77,10 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 				(throwable) -> {
 					if (throwable instanceof BadRequestException) {
 						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
-						return true; // retry write
+
 					} else {
 						this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
 								+ ": " + throwable.getMessage());
-						return false; // dump points
 					}
 				});
 	}

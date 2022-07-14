@@ -18,7 +18,7 @@ import com.influxdb.exceptions.InfluxException;
 public class FieldTypeConflictHandler {
 
 	private static final Pattern FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN = Pattern.compile(
-			"^partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
+			"^.*partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
 
 	private final Logger log = LoggerFactory.getLogger(FieldTypeConflictHandler.class);
 	private final Influx parent;
@@ -53,14 +53,18 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("batteryInverter1/Dca", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverter1/_PropertyModbusUnitId", RequiredType.STRING);
 		this.createAndAddHandler("batteryInverter2/Dca", RequiredType.INTEGER);
+		this.createAndAddHandler("batteryInverter2/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverter3/Dca", RequiredType.INTEGER);
+		this.createAndAddHandler("batteryInverter3/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverter4/Dca", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverter5/Dca", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverter6/Dca", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverter7/Dca", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverter8/Dca", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverter9/Dca", RequiredType.INTEGER);
+		this.createAndAddHandler("batteryInverterA1/Dca", RequiredType.FLOAT);
 		this.createAndAddHandler("batteryInverterA1/_PropertyActivateWatchdog", RequiredType.INTEGER);
+		this.createAndAddHandler("batteryInverterA1/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA1/_PropertyTimeLimitNoPower", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA1/_PropertyWatchdoginterval", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA2/_PropertyActivateWatchdog", RequiredType.INTEGER);
@@ -83,6 +87,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("bms6/_PropertyMaxAllowedVoltageDifference", RequiredType.INTEGER);
 		this.createAndAddHandler("bms7/_PropertyMaxAllowedCurrentDifference", RequiredType.INTEGER);
 		this.createAndAddHandler("bms7/_PropertyMaxAllowedVoltageDifference", RequiredType.INTEGER);
+		this.createAndAddHandler("bms9/_PropertyMaxAllowedVoltageDifference", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsA1/_PropertyErrorDelay", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsA1/_PropertyMaxAllowedCellSocPct", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsA1/_PropertyMaxStartAttempts", RequiredType.INTEGER);
@@ -135,6 +140,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("bmsB4/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB4/_PropertyPendingTolerance", RequiredType.INTEGER);
 		this.createAndAddHandler("bmsB4/_PropertyStartUnsuccessfulDelay", RequiredType.INTEGER);
+		this.createAndAddHandler("charger1/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlApiModbusTcp0/RunFailed", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlApiModbusTcp0/_PropertyApiTimeout", RequiredType.INTEGER);
 		this.createAndAddHandler("ctrlApiModbusTcp0/_PropertyApiTimeout", RequiredType.INTEGER);
@@ -384,6 +390,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("meter9/_PropertyModbusUnitId", RequiredType.STRING);
 		this.createAndAddHandler("modbus0/_PropertyInvalidateElementsAfterReadErrors", RequiredType.INTEGER);
 		this.createAndAddHandler("modbus0/_PropertyPort", RequiredType.INTEGER);
+		this.createAndAddHandler("modbus1/_PropertyBaudRate", RequiredType.INTEGER);
 		this.createAndAddHandler("modbus1/_PropertyInvalidateElementsAfterReadErrors", RequiredType.INTEGER);
 		this.createAndAddHandler("modbus1/_PropertyPort", RequiredType.INTEGER);
 		this.createAndAddHandler("modbus10/_PropertyInvalidateElementsAfterReadErrors", RequiredType.STRING);
@@ -717,11 +724,16 @@ public class FieldTypeConflictHandler {
 	 *
 	 * @param e the {@link FieldTypeConflictException}
 	 */
-	public synchronized void handleException(InfluxException e) {
-		var matcher = FieldTypeConflictHandler.FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(e.getMessage());
+	public synchronized void handleException(InfluxException e) throws IllegalStateException, IllegalArgumentException {
+		this.handleExceptionMessage(e.getMessage());
+	}
+
+	protected synchronized boolean handleExceptionMessage(String message)
+			throws IllegalStateException, IllegalArgumentException {
+		var matcher = FieldTypeConflictHandler.FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(message);
 		if (!matcher.find()) {
-			this.parent.logWarn(this.log, "Unable to add special field handler for message [" + e.getMessage() + "]");
-			return;
+			this.parent.logWarn(this.log, "Unable to add special field handler for message [" + message + "]");
+			return false;
 		}
 		var field = matcher.group("channel");
 		var thisType = matcher.group("thisType");
@@ -729,17 +741,19 @@ public class FieldTypeConflictHandler {
 
 		if (this.specialCaseFieldHandlers.containsKey(field)) {
 			// Special handling had already been added.
-			return;
+			this.parent.logWarn(this.log, "Special field handler for message [" + message + "] is already existing");
+			return false;
 		}
 
 		var handler = this.createAndAddHandler(field, requiredType);
 
 		if (handler == null) {
 			this.parent.logWarn(this.log, "Unable to add special field handler for [" + field + "] from [" + thisType
-					+ "] to [" + requiredType + "]");
+					+ "] to [" + requiredType.name().toLowerCase() + "]");
 		}
-		this.parent.logInfo(this.log,
-				"Add special field handler for [" + field + "] from [" + thisType + "] to [" + requiredType + "]");
+		this.parent.logInfo(this.log, "Add special field handler for [" + field + "] from [" + thisType + "] to ["
+				+ requiredType.name().toLowerCase() + "]");
+		return true;
 	}
 
 	private static enum RequiredType {

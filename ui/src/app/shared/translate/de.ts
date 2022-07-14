@@ -176,6 +176,7 @@ export const TRANSLATION = {
                 storageCharge: 'Speicher-Beladung',
                 storageDischarge: 'Speicher-Entladung',
                 title: 'Energiemonitor',
+                excelExportWarning: 'Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Bitte versuchen Sie es später noch einmal.'
             },
             Widgets: {
                 autarchyInfo: 'Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.',

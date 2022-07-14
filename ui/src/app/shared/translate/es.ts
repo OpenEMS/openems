@@ -169,6 +169,7 @@ export const TRANSLATION = {
                 storageCharge: 'Carga del almacenaje',
                 storageDischarge: 'Descarga de memoria',
                 title: 'Monitor de energía',
+                excelExportWarning: 'La visualización y exportación de datos durante un periodo de tiempo más largo sólo es posible actualmente de forma limitada. Por favor, inténtelo más tarde.'
             },
             Widgets: {
                 autarchyInfo: 'La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.',

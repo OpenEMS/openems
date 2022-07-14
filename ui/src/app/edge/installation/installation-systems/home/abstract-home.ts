@@ -1149,11 +1149,6 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
     }
-
-    feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION && goodweconfig.properties.push({
-      name: 'maximumSellToGridPower',
-      value: feedInLimitation.maximumFeedInPower,
-    })
     componentConfigurator.add(gridOptimizedCharge);
 
     // ctrlEssSurplusFeedToGrid0

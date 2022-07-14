@@ -386,10 +386,10 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	private void validateIps(ArrayList<String> errors, EdgeConfig actualEdgeConfig,
 			AppConfiguration expectedAppConfiguration) {
-
 		if (expectedAppConfiguration.ips.isEmpty()) {
 			return;
 		}
+
 		List<Inet4AddressWithNetmask> addresses = new ArrayList<>(expectedAppConfiguration.ips.size());
 		for (var address : expectedAppConfiguration.ips) {
 			try {
@@ -433,6 +433,17 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	 */
 	private void validateScheduler(ArrayList<String> errors, EdgeConfig actualEdgeConfig,
 			AppConfiguration expectedAppConfiguration) {
+		if (expectedAppConfiguration.schedulerExecutionOrder.isEmpty()) {
+			return;
+		}
+
+		// Prepare Queue
+		var controllers = new LinkedList<>(this.componentUtil.removeIdsWhichNotExist(
+				expectedAppConfiguration.schedulerExecutionOrder, expectedAppConfiguration.components));
+
+		if (controllers.isEmpty()) {
+			return;
+		}
 
 		List<String> schedulerIds;
 		try {
@@ -441,10 +452,6 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			errors.add(e.getMessage());
 			return;
 		}
-
-		// Prepare Queue
-		var controllers = new LinkedList<>(this.componentUtil.removeIdsWhichNotExist(
-				expectedAppConfiguration.schedulerExecutionOrder, expectedAppConfiguration.components));
 
 		var nextControllerId = controllers.poll();
 

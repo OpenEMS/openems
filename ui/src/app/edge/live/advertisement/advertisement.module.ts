@@ -2,9 +2,7 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AdvertisementComponent } from './advertisement.component';
 import { Alerting } from './alerting/alerting';
-import { EnergyRevolutionWithFems } from './energyRevolutionWithFems/energyRevolutionWithFems';
-import { GlsCrowdfunding } from './glsCrowdFunding/glscrowdfunding';
-import { GridOptimizedCharge } from './gridOptimizedCharge/gridOptimizedCharge';
+import { HeatingElement } from './heatingelement/heatingelement';
 
 @NgModule({
     imports: [
@@ -12,10 +10,8 @@ import { GridOptimizedCharge } from './gridOptimizedCharge/gridOptimizedCharge';
     ],
     declarations: [
         AdvertisementComponent,
-        GlsCrowdfunding,
-        GridOptimizedCharge,
-        EnergyRevolutionWithFems,
-        Alerting
+        Alerting,
+        HeatingElement
     ],
     exports: [
         AdvertisementComponent
