@@ -117,7 +117,7 @@ public class GetApps {
 						.addProperty("cardinality", app.getCardinality().name()) //
 						.addProperty("appId", app.getAppId()) //
 						.addProperty("name", app.getName(language)) //
-						.addProperty("image", app.getImage()) //
+						.addPropertyIfNotNull("image", app.getImage()) //
 						.add("status", validator.toJsonObject(app.getValidatorConfig(), language)) //
 						.add("instanceIds", instanceIds.build()) //
 						.build());
