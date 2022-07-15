@@ -10,6 +10,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface Edge2EdgeEss extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		REMOTE_NO_OPENEMS(Doc.of(Level.FAULT)), //
+		REMOTE_COMPONENT_ID_NOT_FOUND(Doc.of(Level.FAULT)), //
+
 		REMOTE_FAULT(Doc.of(Level.FAULT)), //
 		REMOTE_WARNING(Doc.of(Level.WARNING)), //
 		REMOTE_INFO(Doc.of(Level.INFO)), //
