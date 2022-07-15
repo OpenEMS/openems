@@ -1,6 +1,6 @@
 package io.openems.edge.ess.core.power;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.ess.power.api.SolverStrategy;
 
 @SuppressWarnings("all")

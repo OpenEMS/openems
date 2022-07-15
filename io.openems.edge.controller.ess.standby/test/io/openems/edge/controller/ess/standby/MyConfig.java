@@ -2,7 +2,7 @@ package io.openems.edge.controller.ess.standby;
 
 import java.time.DayOfWeek;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

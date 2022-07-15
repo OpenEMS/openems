@@ -1,7 +1,7 @@
 package io.openems.edge.meter.microcare.sdm630;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 import io.openems.edge.meter.api.MeterType;
 
 @SuppressWarnings("all")

@@ -8,9 +8,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -70,6 +70,8 @@ public class AppManagerImplTest {
 		final var meterId = "meter0";
 
 		final var emergencyReserveEnabled = false;
+		
+		final var shadowManagmentDisabled = false;
 
 		// Battery-Inverter Settings
 		final var safetyCountry = "AUSTRIA";
@@ -159,6 +161,7 @@ public class AppManagerImplTest {
 										.addProperty("feedPowerEnable", "ENABLE") //
 										.addProperty("feedPowerPara", 10000) //
 										.addProperty("setfeedInPowerSettings", "LAGGING_0_95") //
+										.addProperty("mpptForShadowEnable", shadowManagmentDisabled ? "DISABLE" : "ENABLE") //
 										.build()) //
 								.build()) //
 						.add("predictor0", JsonUtils.buildJsonObject() //
@@ -290,6 +293,7 @@ public class AppManagerImplTest {
 												.addProperty("HAS_DC_PV1", false) //
 												.addProperty("HAS_DC_PV2", false) //
 												.addProperty("EMERGENCY_RESERVE_ENABLED", emergencyReserveEnabled) //
+												.addProperty("SHADOW_MANAGEMENT_DISABLED", shadowManagmentDisabled) //
 												.build()) //
 										.build()) //
 								.add(JsonUtils.buildJsonObject() //
