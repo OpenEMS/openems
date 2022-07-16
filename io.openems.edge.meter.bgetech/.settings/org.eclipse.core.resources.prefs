@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/meter/bgetech/Config.java=UTF-8
+encoding//src/io/openems/edge/meter/bgetech/MeterBgeTechDrt428M2.java=UTF-8
+encoding//src/io/openems/edge/meter/bgetech/MeterBgeTechDrt428M2Impl.java=UTF-8
+encoding//test/io/openems/edge/meter/bgetech/MeterBgeTechDrt428M2Test.java=UTF-8
+encoding//test/io/openems/edge/meter/bgetech/MyConfig.java=UTF-8
+encoding/bnd.bnd=UTF-8
+encoding/readme.adoc=UTF-8

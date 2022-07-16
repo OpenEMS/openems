@@ -1,0 +1,8 @@
+= io.openems.edge.meter.bgetech
+
+Implemented Natures
+
+- SymmetricMeter
+- AsymmetricMeter
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.bgetech[Source Code icon:github[]]
