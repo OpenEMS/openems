@@ -51,13 +51,13 @@ public class EaseeReadHandler {
             Integer power = valueOpt.get();
             channel.setNextValue(power);
             int current = (power) / GridVoltage.V_230_HZ_50.getValue();
-            int maxHwPower = this.parent.getMaximumHardwarePower().get();
+            int maxHwPower = this.parent.getMaximumHardwarePower().get() / GridVoltage.V_230_HZ_50.getValue();
             int maxSwPower = this.parent.getMaxPower();
             int maxPower = Math.min(maxHwPower, maxSwPower);
             if (current > maxPower) {
                 current = maxPower;
             }
-            int minHwPower = this.parent.getMinimumHardwarePower().get();
+            int minHwPower = this.parent.getMinimumHardwarePower().get() / GridVoltage.V_230_HZ_50.getValue();
             int minSwPower = this.parent.getMinPower();
             int minPower = Math.min(minHwPower, minSwPower);
             if (current < minPower) {

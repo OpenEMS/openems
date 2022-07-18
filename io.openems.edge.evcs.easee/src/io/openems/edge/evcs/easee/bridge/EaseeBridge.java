@@ -250,7 +250,7 @@ public class EaseeBridge {
     /**
      * Filters the useful information from the retrieveSiteAndCircuit Call to the Cloud.
      *
-     * @param response from the retrieveSiteandCircuit Method
+     * @param response from the retrieveSiteAndCircuit Method
      */
     private void solveSiteAndCircuitResponse(String response) {
         String[] responseArray = response.split("\"circuits\"");
@@ -260,31 +260,25 @@ public class EaseeBridge {
         String workString;
         for (int n = 0; n < siteAndCircuit.length; n++) {
             if (siteAndCircuit[n].contains("id")) {
-                workString = responseArray[n].replace("id", "");
+                workString = siteAndCircuit[n].replace("id", "");
                 workString = this.trimReturnString(workString);
+                workString = workString.split(",")[0];
                 this.circuitId = workString;
             } else if (siteAndCircuit[n].contains("siteId")) {
                 workString = responseArray[n].replace("siteId", "");
                 workString = this.trimReturnString(workString);
+                workString = workString.split(",")[1];
                 this.siteId = workString;
             }
         }
         for (int n = 0; n < backplate.length; n++) {
             if (backplate[n].contains("id")) {
-                workString = responseArray[n].replace("id", "");
+                workString = backplate[n].replace("id", "");
                 workString = this.trimReturnString(workString);
-                if (workString.equals(this.chargerSerial)) {
-                    for (int i = n; n < backplate.length; n++) {
+                if (workString.equals(this.chargerSerial)){
+                    for (int i = 0; i < backplate.length; i++) {
                         if (backplate[i].contains("backPlate")) {
-                            String[] inBetween = backplate[n].split(String.valueOf('{'));
-                            String[] backplateId = inBetween[1].split(",");
-                            for (int k = 0; k < 2; k++) {
-                                if (backplateId[k].contains("id")) {
-                                    workString = responseArray[n].replace("id", "");
-                                    workString = this.trimReturnString(workString);
-                                    this.chargerId = workString;
-                                }
-                            }
+                            this.chargerId = backplate[i].split(":")[2].split("\"")[1];
                         }
                     }
                 }

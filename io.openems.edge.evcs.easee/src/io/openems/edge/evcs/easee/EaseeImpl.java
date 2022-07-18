@@ -83,9 +83,9 @@ public class EaseeImpl extends AbstractOpenemsComponent implements OpenemsCompon
         }
         super.activate(context, config.id(), config.alias(), config.enabled());
         this._setMinimumHardwarePower(EASEE_MINIMUM_HARDWARE_POWER);
-        this._setMaximumPower(this.maxPower);
+        this._setMaximumPower(this.maxPower * GridVoltage.V_230_HZ_50.getValue());
         this._setMaximumHardwarePower(EASEE_MAXIMUM_HARDWARE_POWER);
-        this._setMinimumPower(this.minPower);
+        this._setMinimumPower(this.minPower * GridVoltage.V_230_HZ_50.getValue());
         this._setPowerPrecision(GridVoltage.V_230_HZ_50.getValue());
         this._setIsPriority(config.priority());
         this._setChargePower(0);
