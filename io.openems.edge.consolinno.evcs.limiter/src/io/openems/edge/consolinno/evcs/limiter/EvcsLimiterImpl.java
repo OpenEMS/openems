@@ -29,6 +29,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +41,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import java.time.Instant;
 
 /**
  * This provides a Limiter for the EVCS.
@@ -119,6 +119,7 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
     private static final String MAXIMUM_ALLOWED_TIME = "guard";
     private static final String SMOOTH_TIME = "smooth";
     private static final String ONE_MINUTE = "minute";
+    private List<String> ping = new ArrayList<>();
 
     private int l1Offs;
     private int l2Offs;
@@ -516,9 +517,9 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
         int afterTwoPhaseReduction;
         int afterThreePhaseReduction;
 
-        this.isProblem(this.currentL1,problemPhases,1);
-        this.isProblem(this.currentL2,problemPhases,2);
-        this.isProblem(this.currentL2,problemPhases,3);
+        this.isProblem(this.currentL1, problemPhases, 1);
+        this.isProblem(this.currentL2, problemPhases, 2);
+        this.isProblem(this.currentL2, problemPhases, 3);
 
         //Get all evcs on that phase
         // One Phase and two phase are sorted by Phase
@@ -544,7 +545,7 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
         int minReduce = Math.min(Math.min(reduceL1, reduceL2), reduceL3);
         //Actual limiting
         int previousReduceAmount = minReduce;
-        if (threePhase.length > 1) {
+        if (threePhase.length >= 1) {
             while (this.threePhasesOverPhaseLimit(reduceL1, reduceL2, reduceL3)) {
 
                 //1.1
@@ -567,7 +568,12 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
             //reduce at least one phase
             if (onePhase.size() > 0) {
                 while (minReduce > 0) {
-                    amountPerEvcs = minReduce / onePhase.get(phaseIndex).length;
+                    if (onePhase.get(phaseIndex).length != 0) {
+                        amountPerEvcs = minReduce / onePhase.get(phaseIndex).length;
+                    }
+                    else {
+                        amountPerEvcs = minReduce;
+                    }
                     minReduce = this.reduceOnePhaseEvcs(onePhase.get(phaseIndex),//
                             amountPerEvcs, minReduce);
 
@@ -803,9 +809,10 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
 
     /**
      * Checks if a Phase is unbalanced.
-     * @param givenPhase Current on a Phase
+     *
+     * @param givenPhase    Current on a Phase
      * @param problemPhases array that contain all Phases that are problematic
-     * @param i index of that phase
+     * @param i             index of that phase
      */
     private void isProblem(Integer givenPhase, List<Integer> problemPhases, int i) {
         if (givenPhase > (this.phaseLimit / GRID_VOLTAGE)) {
@@ -2274,8 +2281,9 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
 
     /**
      * Returns the minimum between MinimumHardwarePower and MinimumPower of an Evcs.
+     *
      * @param managedEvcs Evcs which minimumPowerValue is being searched for
-     * @return Math.min(minimumHwPower,minimumPower)
+     * @return Math.min(minimumHwPower, minimumPower)
      */
     private int minPower(ManagedEvcs managedEvcs) {
         int minHwPower = managedEvcs.getMinimumHardwarePower().orElse(MINIMUM_POWER);
@@ -2522,10 +2530,11 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
 
     /**
      * Updates the internal Power based on the predefined Channel.
-     * @param phase Number of the current phase
-     * @param phases Phase configuration (eg 1,2,3)
+     *
+     * @param phase      Number of the current phase
+     * @param phases     Phase configuration (eg 1,2,3)
      * @param phaseCount Amount of phases the Evcs is charging with
-     * @param channel where the power value has to be read from
+     * @param channel    where the power value has to be read from
      */
     private void updatePowerValue(int phase, int[] phases, int phaseCount, IntegerReadChannel channel) {
         switch (phases[phase]) {
@@ -2601,7 +2610,7 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
                 Instant time = evcs.getTimestamp();
                 active.set(this.nonPriorityList);
                 if (activeLength.get() == 0 && allOff.get()
-                       // && this.canActivate(id, evcs)
+                    // && this.canActivate(id, evcs)
                 ) {
                     remove.add(id);
                     allOff.set(false);
@@ -2706,7 +2715,6 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
                         }
                     }
                 }
-
 /*
                 if (this.time.checkTimeIsUp(ONE_MINUTE) && this.config.deltaTime() >=1) {
                     this.smoothAverageList.add(freeResources);
@@ -2745,14 +2753,19 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
                                 int finalFreeResources1 = freeResources;
                                 //Finds an Evcs on the waiting list that can be activated
                                 this.powerWaitingList.forEach((id, evcs) -> {
-                                    //TODO Choose Random member from the list and not always the same. This may be stupid but idk.
                                     if ((waitingTime.get() == null || evcs.getTimestamp().isBefore(waitingTime.get()))//
                                             && !tested.get().contains(id) && !foundAEvcsToTurnOn.get()) {
                                         waitingTime.set(evcs.getTimestamp());
                                         waitingPhases.set(evcs.getPhases());
                                         waitingId.set(id);
                                         waitingPower.set(evcs.getCurrent());
-                                        foundAEvcsToTurnOn.set(true);
+                                        if(!this.ping.contains(id)) {
+                                            foundAEvcsToTurnOn.set(true);
+                                            this.ping.add(id);
+                                        }
+                                        if(this.ping.size() >= this.powerWaitingList.size()){
+                                            this.ping.clear();
+                                        }
                                         try {
                                             ManagedEvcs target = this.cpm.getComponent(id);
                                             waitingWantToCharge.set(evcs.getWantToCharge() //
@@ -2902,8 +2915,10 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
         for (int i = 0; i < evcss.length; i++) {
             int newIncreaseAmount = 0;
             boolean allow = !evcss[i].getIsPriority().get() && !this.powerWaitingList.containsKey(evcss[i].id());
-            boolean overLimit = ((this.getMaximumLoad() - this.getMinimumLoad()) + powerForEveryone >= this.config.symmetryDelta()
+
+            boolean overLimit = ((evcss[i].getPhases().isDefined() && evcss[i].getPhases().get() != 3) && (this.getMaximumLoad() - this.getMinimumLoad()) + powerForEveryone >= this.config.symmetryDelta()
                     || this.getMiddleLoad() - this.getMinimumLoad() + powerForEveryone >= this.config.symmetryDelta());
+
             if (overLimit) {
                 newIncreaseAmount = (this.config.symmetryDelta() - (this.getMaximumLoad() - this.getMinimumLoad())) / evcss.length;
                 allow = false;
@@ -2934,11 +2949,12 @@ public class EvcsLimiterImpl extends AbstractOpenemsComponent implements Openems
             if (allow) {
                 int oldPower = this.getPower(evcss[i]);
                 int newPower = oldPower + powerForEveryone;
+                if (newPower > this.phaseLimit / GRID_VOLTAGE) {
+                    newPower = (this.phaseLimit / GRID_VOLTAGE) / active.size();
+                }
                 try {
-                    if (phaseCount == 3 || (newPower - this.getMinimumLoad() <= this.config.symmetryDelta() &&
-                            newPower >= (Math.min(evcss[i].getMinimumHardwarePower().orElse(MINIMUM_POWER),
-                                    evcss[i].getMinimumPower().orElse(MINIMUM_POWER)) / GRID_VOLTAGE))) {
-                        evcss[i].setChargePowerLimit(newPower * GRID_VOLTAGE);
+                    if (phaseCount == 3 || (newPower - this.getMinimumLoad() <= this.config.symmetryDelta() && newPower >= (Math.min(evcss[i].getMinimumHardwarePower().orElse(MINIMUM_POWER), evcss[i].getMinimumPower().orElse(MINIMUM_POWER)) / GRID_VOLTAGE))) {
+                        evcss[i].setChargePowerLimit(newPower  * GRID_VOLTAGE);
                     } else {
                         evcss[i].setChargePowerLimit((oldPower + (this.config.symmetryDelta() - oldPower)) * GRID_VOLTAGE);
                     }
