@@ -65,9 +65,7 @@ public class TestC extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
-		return (t, u, s) -> {
-			return new AppConfiguration();
-		};
+		return (t, u, s) -> new AppConfiguration();
 	}
 
 	@Override

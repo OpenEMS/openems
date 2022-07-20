@@ -22,11 +22,14 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -177,12 +180,39 @@ public class DummyComponentManager implements ComponentManager {
 
 		case GetEdgeConfigRequest.METHOD:
 			return this.handleGetEdgeConfigRequest(user, GetEdgeConfigRequest.from(request));
+		case CreateComponentConfigRequest.METHOD:
+			return this.handleCreateComponentConfigRequest(user, CreateComponentConfigRequest.from(request));
 		case UpdateComponentConfigRequest.METHOD:
 			return this.handleUpdateComponentConfigRequest(user, UpdateComponentConfigRequest.from(request));
 
 		default:
 			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getMethod());
 		}
+	}
+
+	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
+			CreateComponentConfigRequest request) throws OpenemsNamedException {
+		if (this.configurationAdmin == null) {
+			throw new OpenemsException("Can not create Component Config. ConfigurationAdmin is null!");
+		}
+		try {
+			var config = this.configurationAdmin.createFactoryConfiguration(request.getFactoryPid(), null);
+
+			// set properties
+			for (Property property : request.getProperties()) {
+				var value = JsonUtils.getAsBestType(property.getValue());
+				if (value instanceof Object[] && ((Object[]) value).length == 0) {
+					value = new String[0];
+				}
+				config.getProperties().put(property.getName(), value);
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
 	/**
