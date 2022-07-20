@@ -17,6 +17,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercialIbn {
     constructor() {
         super([
             View.PreInstallation,
+            View.PreInstallationUpdate,
             View.ConfigurationSystem,
             View.ConfigurationCommercialComponent,
             View.ProtocolInstaller,

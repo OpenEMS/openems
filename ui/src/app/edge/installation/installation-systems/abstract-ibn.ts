@@ -16,6 +16,7 @@ export enum View {
   ConfigurationSummary,
   ConfigurationSystem,
   PreInstallation,
+  PreInstallationUpdate,
   ProtocolAdditionalAcProducers,
   ProtocolCustomer,
   ProtocolFeedInLimitation,

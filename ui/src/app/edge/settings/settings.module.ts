@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from './../../shared/shared.module';
+import { AlertingComponent } from './alerting/alerting.component';
 import { AppModule } from './app/app.module';
 import { ChannelsComponent } from './channels/channels.component';
 import { IndexComponent as ComponentInstallIndexComponent } from './component/install/index.component';
@@ -13,8 +14,8 @@ import { ServiceAssistantModule } from './serviceassistant/serviceassistant.modu
 import { SettingsComponent } from './settings.component';
 import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
 import { SystemUpdateOldComponent } from './systemupdate.old/systemupdate.old.component';
+import { OeSystemUpdateComponent } from './systemupdate/oe-system-update.component';
 import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
-import { AlertingComponent } from './alerting/alerting.component';
 
 @NgModule({
   imports: [
@@ -30,6 +31,7 @@ import { AlertingComponent } from './alerting/alerting.component';
     ComponentUpdateComponent,
     ComponentUpdateIndexComponent,
     NetworkComponent,
+    OeSystemUpdateComponent,
     ProfileComponent,
     SettingsComponent,
     SystemExecuteComponent,
@@ -38,6 +40,9 @@ import { AlertingComponent } from './alerting/alerting.component';
     AlertingComponent,
   ],
   entryComponents: [
+  ],
+  exports: [
+    OeSystemUpdateComponent
   ]
 })
 export class SettingsModule { }

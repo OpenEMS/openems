@@ -33,7 +33,9 @@ import { Language } from './translate/language';
     CommonModule,
     FormsModule,
     IonicModule,
-    NgxSpinnerModule,
+    NgxSpinnerModule.forRoot({
+      type: 'ball-clip-rotate-multiple'
+    }),
     ReactiveFormsModule,
     RouterModule,
     TranslateModule.forRoot({

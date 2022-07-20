@@ -2,6 +2,7 @@ import { NgModule } from "@angular/core";
 import { FormControl, ValidationErrors } from "@angular/forms";
 import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { SharedModule } from "src/app/shared/shared.module";
+import { SettingsModule } from "../settings/settings.module";
 import { InstallationViewComponent } from "./installation-view/installation-view.component";
 import { InstallationComponent } from "./installation.component";
 import { KeyMask } from "./keymask";
@@ -13,6 +14,7 @@ import { ConfigurationLineSideMeterFuseComponent } from "./views/configuration-l
 import { ConfigurationSummaryComponent } from "./views/configuration-summary/configuration-summary.component";
 import { ConfigurationSystemComponent } from "./views/configuration-system/configuration-system.component";
 import { HeckertAppInstallerComponent } from "./views/heckert-app-installer/heckert-app-installer.component";
+import { PreInstallationUpdateComponent } from "./views/pre-installation-update/pre-installation-update.component";
 import { PreInstallationComponent } from "./views/pre-installation/pre-installation.component";
 import { ProtocolAdditionalAcProducersComponent } from "./views/protocol-additional-ac-producers/protocol-additional-ac-producers.component";
 import { ProtocolCustomerComponent } from "./views/protocol-customer/protocol-customer.component";
@@ -159,7 +161,8 @@ export function CommercialBatteryModuleSerialNumberValidatorMessage(err, field: 
         { name: "commercialBatteryInverterSerialNumber", message: CommercialBatteryInverterSerialNumberValidatorMessage }
       ]
     }),
-    SharedModule
+    SharedModule,
+    SettingsModule
   ],
   declarations: [
     CompletionComponent,
@@ -174,6 +177,7 @@ export function CommercialBatteryModuleSerialNumberValidatorMessage(err, field: 
     InstallationComponent,
     InstallationViewComponent,
     PreInstallationComponent,
+    PreInstallationUpdateComponent,
     ConfigurationSystemComponent,
     ProtocolPv,
     ProtocolAdditionalAcProducersComponent,
