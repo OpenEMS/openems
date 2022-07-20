@@ -1,5 +1,5 @@
-<table class="full_width" style="line-height: 1.4; margin-top: 1.3%">
-    <tr>
+<table class="full_width" style="line-height: 1.4; margin-top: 0.5%">
+    <tr *ngIf="text_indent" [style.text-indent]="text_indent">
 
         <!-- Name of Parameter on the left side -->
         <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_left">

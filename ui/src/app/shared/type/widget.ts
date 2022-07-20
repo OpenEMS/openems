@@ -8,7 +8,7 @@ export enum WidgetClass {
     'Common_Selfconsumption',
     'Storage',
     'Grid',
-    'Production',
+    'Common_Production',
     'Consumption',
 }
 
@@ -109,7 +109,7 @@ export class Widgets {
                         }
                     case 'Storage':
                         return config.hasStorage();
-                    case 'Production':
+                    case 'Common_Production':
                     case 'Common_Selfconsumption':
                         return config.hasProducer();
                 };

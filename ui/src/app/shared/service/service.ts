@@ -368,6 +368,27 @@ export class Service implements ErrorHandler {
   }
 
   /**
+   * Start NGX-Spinner
+   * 
+   * The spinner has a transparent background set 
+   * and the spinner color is the primary environment color
+   * Spinner will appear inside html tag only
+   * 
+   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+   * 
+   * @param selector selector for specific spinner
+   */
+  public startSpinnerTransparentBackground(selector: string) {
+    this.spinner.show(selector, {
+      type: "ball-clip-rotate-multiple",
+      fullScreen: false,
+      bdColor: "rgba(0, 0, 0, 0)",
+      size: "medium",
+      color: "var(--ion-color-primary)"
+    })
+  }
+
+  /**
    * Stop NGX-Spinner
    * @param selector selector for specific spinner
    */

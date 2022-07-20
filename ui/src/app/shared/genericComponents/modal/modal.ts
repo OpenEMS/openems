@@ -18,7 +18,7 @@ import { Icon } from "../../type/widget";
 export class ModalComponent {
 
     @Input() component: EdgeConfig.Component = null;
-    @Input() formGroup: FormGroup = null;
+    @Input() formGroup: FormGroup = new FormGroup({});
 
     /** Title in Header */
     @Input() title: string;

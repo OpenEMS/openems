@@ -16,4 +16,13 @@ export class ModalLine extends AbstractModalLine {
 
     /** ControlName for Toggle Button */
     @Input() controlType: 'TOGGLE' | 'INPUT';
+
+    /** Fixed indentation of the modal-line */
+    @Input() text_indent: TextIndentation = TextIndentation.NONE;
+}
+
+export enum TextIndentation {
+    NONE = '0%',
+    SIMPLE = '5%',
+    DOUBLE = '10%'
 }

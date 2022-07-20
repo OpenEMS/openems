@@ -1,0 +1,80 @@
+<oe-modal [title]="'General.production'| translate" *ngIf="isInitialized">
+
+    <!-- total summary of AC + DC -->
+    <ng-container *ngIf="productionMeterComponents?.length > 0 && chargerComponents?.length > 0">
+        <oe-modal-line [name]="'General.total'| translate" channelAddress="_sum/ProductionAcActivePower"
+            [converter]="CONVERT_TO_WATT">
+        </oe-modal-line>
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+    </ng-container>
+
+    <!-- ProductionMeters -->
+    <!-- One Production Meter -->
+    <ng-container *ngIf="productionMeterComponents.length == 1">
+        <ng-container *ngFor="let meter of productionMeterComponents">
+            <oe-modal-line [name]="meter.alias ?? meter.id" [channelAddress]="meter.id + '/ActivePower'"
+                margin_bottom="2" [converter]="CONVERT_TO_WATT">
+            </oe-modal-line>
+
+            <ng-container *ngIf="arePhasesNotNull">
+                <ng-container *ngFor="let phase of ['L1','L2','L3']">
+                    <oe-modal-line [text_indent]="TextIndentation.SIMPLE"
+                        [name]="('General.phase'| translate) + '&nbsp;' +phase"
+                        [channelAddress]="'_sum/ProductionAcActivePower' + phase" [converter]="CONVERT_TO_WATT">
+                    </oe-modal-line>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+    </ng-container>
+
+    <!-- Mutliple Production Meters -->
+    <ng-container *ngIf="productionMeterComponents.length > 1">
+        <oe-modal-line margin_bottom="2" [converter]="CONVERT_TO_WATT"
+            [name]="('General.total'| translate) + (chargerComponents.length > 0 ? '&nbsp;AC':'')"
+            channelAddress="_sum/ProductionAcActivePower">
+        </oe-modal-line>
+
+        <ng-container *ngIf="arePhasesNotNull">
+            <oe-modal-line *ngFor="let phase of ['L1','L2','L3']" [text_indent]="TextIndentation.SIMPLE"
+                [name]=" ('General.phase'| translate) + '&nbsp;' + phase"
+                [channelAddress]="'_sum/ProductionAcActivePower' + phase" [converter]="CONVERT_TO_WATT">
+            </oe-modal-line>
+        </ng-container>
+
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+        <ng-container *ngFor="let component of productionMeterComponents, let i = index">
+            <oe-modal-line [name]="component.alias ?? component.id" [channelAddress]="component.id + '/ActivePower'"
+                [converter]="CONVERT_TO_WATT">
+            </oe-modal-line>
+            <oe-modal-horizontal-line [index]="i" [component]="productionMeterComponents"></oe-modal-horizontal-line>
+        </ng-container>
+    </ng-container>
+
+    <!-- Chargers -->
+    <!-- One Charger -->
+    <ng-container *ngIf="chargerComponents.length == 1">
+        <oe-modal-line *ngFor="let component of chargerComponents" [name]="component.alias ?? component.id"
+            [channelAddress]="component.id + '/ActualPower'" [converter]="CONVERT_TO_WATT"></oe-modal-line>
+    </ng-container>
+
+    <!-- Multiple Charger -->
+    <ng-container *ngIf="chargerComponents.length > 1">
+        <oe-modal-line [name]="('General.total'| translate) + (productionMeterComponents.length > 0 ? '&nbsp;DC':'')"
+            [channelAddress]="'_sum/ProductionDcActualPower'" [converter]="CONVERT_TO_WATT">
+        </oe-modal-line>
+
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+
+        <ng-container *ngFor="let component of chargerComponents; let i = index">
+            <oe-modal-line [name]="component.alias ?? component.id" [channelAddress]="component.id + '/ActualPower'"
+                [converter]="CONVERT_TO_WATT"></oe-modal-line>
+            <oe-modal-horizontal-line [index]="i" [components]="chargerComponents"></oe-modal-horizontal-line>
+        </ng-container>
+    </ng-container>
+
+    <oe-modal-info-line *ngIf="arePhasesNotNull" [info]="'Edge.Index.Widgets.phasesInfo' | translate">
+    </oe-modal-info-line>
+
+</oe-modal>

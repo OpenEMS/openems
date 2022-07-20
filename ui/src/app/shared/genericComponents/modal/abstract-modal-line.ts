@@ -115,8 +115,8 @@ export abstract class AbstractModalLine implements OnDestroy {
     protected subscribe(channelAddress: ChannelAddress) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
-            edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
 
+            edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
             // call onCurrentData() with latest data
             edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
                 this.setValue(currentData.channel[channelAddress.toString()]);

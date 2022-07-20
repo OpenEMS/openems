@@ -11,6 +11,7 @@ export class HomeFeneconIbn extends AbstractHomeIbn {
     constructor() {
         super([
             View.PreInstallation,
+            View.PreInstallationUpdate,
             View.ConfigurationSystem,
             View.ProtocolInstaller,
             View.ProtocolCustomer,

@@ -35,6 +35,16 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.7.3',
+        changes: [
+          Changelog.UI,
+          Changelog.product(Product.HOME) + "Automatisches Update durch den Inbetriebnahmeassistent",
+          { roleIsAtLeast: Role.ADMIN, change: "GoodWe/Home Charger: Channel CURRENT/VOLTAGE" },
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: App-Icons überarbeitet" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI: generische Überarbeitung Live-Ansicht Verbrauch/Netz" },
+        ]
+      },
+      {
         version: '2022.7.2',
         changes: [
           Changelog.UI,

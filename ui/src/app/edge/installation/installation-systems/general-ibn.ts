@@ -13,6 +13,7 @@ export class GeneralIbn extends AbstractIbn {
     constructor() {
         super([
             View.PreInstallation,
+            View.PreInstallationUpdate,
             View.ConfigurationSystem,
             View.ConfigurationCommercialComponent,
             View.ProtocolInstaller,

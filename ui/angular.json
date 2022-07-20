@@ -70,8 +70,7 @@
               },
               "styles": [
                 "src/themes/openems/scss/variables.scss",
-                "src/global.scss",
-                "./node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css"
+                "src/global.scss"
               ]
             },
             "openems-backend-dev": {
@@ -134,7 +133,6 @@
                 ]
               },
               "styles": [
-                "./node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css",
                 "src/themes/fenecon/scss/variables.scss",
                 "src/global.scss"
               ]

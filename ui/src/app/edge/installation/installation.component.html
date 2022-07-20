@@ -18,6 +18,10 @@
                     (nextViewEvent)="displayNextView($event)">
                 </pre-installation>
 
+                <pre-installation-update *ngSwitchCase="view.PreInstallationUpdate"
+                    (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)" [edge]="edge">
+                </pre-installation-update>
+
                 <configuration-system *ngSwitchCase="view.ConfigurationSystem" [ibn]="ibn"
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-system>

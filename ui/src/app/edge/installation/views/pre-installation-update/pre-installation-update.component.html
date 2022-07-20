@@ -1,0 +1,14 @@
+<installation-view iconName="cloud-download-outline" header="System Update" (nextClicked)="onNextClicked()"
+    (previousClicked)="onPreviousClicked()" [isWaiting]="isWaiting">
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-item>
+                    <oe-system-update style="width: 100%;" [edge]="edge" [executeUpdateInstantly]="true"
+                        (stateChanged)="updateStateChanged($event)">
+                    </oe-system-update>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</installation-view>

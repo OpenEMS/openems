@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
+import { Router } from '@angular/router';
 import { filter, take } from 'rxjs/operators';
 import { AbstractIbn, View } from './installation-systems/abstract-ibn';
 import { GeneralIbn } from './installation-systems/general-ibn';
@@ -43,20 +43,17 @@ export class InstallationComponent implements OnInit {
     let ibn: AbstractIbn = null;
     let viewIndex: number;
 
+    // Determine view index
+    if (sessionStorage?.viewIndex) {
+      // 10 is given as radix parameter.
+      // 2 = binary, 8 = octal, 10 = decimal, 16 = hexadecimal.
+      viewIndex = parseInt(sessionStorage.viewIndex, 10);
+    } else {
+      viewIndex = 0;
+    }
+
     // Load 'Ibn' and 'edge' If it is available from session storage.
     if (sessionStorage?.edge) {
-
-      // The prototype can't be saved as JSON,
-      // so it has to get instantiated here again)
-      const edgeString = JSON.parse(sessionStorage.getItem('edge'));
-      this.service.metadata
-        .pipe(
-          filter(metadata => metadata != null),
-          take(1))
-        .subscribe(metadata => {
-          this.edge = metadata.edges[edgeString.id];
-        });
-
       // Ibn is added in second view.
       if (sessionStorage.ibn) {
         const ibnString = JSON.parse(sessionStorage.getItem('ibn'));
@@ -78,23 +75,30 @@ export class InstallationComponent implements OnInit {
       }
     }
 
-    // Determine view index
-    if (sessionStorage?.viewIndex) {
-      // 10 is given as radix parameter.
-      // 2 = binary, 8 = octal, 10 = decimal, 16 = hexadecimal.
-      viewIndex = parseInt(sessionStorage.viewIndex, 10);
-    } else {
-      viewIndex = 0;
-    }
-
-    // Load it in the global Ibn from local.
-    this.ibn = ibn;
-
     // Load Ibn with 'General Ibn' data initially.
-    if (this.ibn === null) {
-      this.ibn = new GeneralIbn();
+    if (ibn === null) {
+      ibn = new GeneralIbn();
     }
-    this.displayViewAtIndex(viewIndex);
+    // Load it in the global Ibn from local.
+    this.setIbn(ibn);
+
+    // display view after loading edge
+    // => update view needs to get removed if version is to low
+    if (sessionStorage?.edge) {
+      // The prototype can't be saved as JSON,
+      // so it has to get instantiated here again)
+      const edgeString = JSON.parse(sessionStorage.getItem('edge'));
+      this.service.metadata
+        .pipe(
+          filter(metadata => metadata != null),
+          take(1))
+        .subscribe(metadata => {
+          this.edge = metadata.edges[edgeString.id];
+          this.displayViewAtIndex(viewIndex);
+        });
+    } else {
+      this.displayViewAtIndex(viewIndex);
+    }
   }
 
   /**
@@ -133,6 +137,7 @@ export class InstallationComponent implements OnInit {
    * @param index index of the desired view.
    */
   public displayViewAtIndex(index: number) {
+    this.removeUpdateView();
     const viewCount = this.ibn.views.length;
     if (index >= 0 && index < viewCount) {
       this.displayedView = this.ibn.views[index];
@@ -168,7 +173,7 @@ export class InstallationComponent implements OnInit {
 
       // Takes back to the view for selecting systems. So need to reset the Ibn as well.
       this.displayViewAtIndex(this.getViewIndex(this.displayedView) - 1);
-      this.ibn = new GeneralIbn();
+      this.setIbn(new GeneralIbn());
     } else {
       this.displayViewAtIndex(this.getViewIndex(this.displayedView) - 1);
     }
@@ -181,7 +186,7 @@ export class InstallationComponent implements OnInit {
 
     // Stores the Ibn locally
     if (ibn) {
-      this.ibn = ibn;
+      this.setIbn(ibn);
       if (sessionStorage) {
         sessionStorage.setItem('ibn', JSON.stringify(ibn));
       }
@@ -189,4 +194,26 @@ export class InstallationComponent implements OnInit {
 
     this.displayViewAtIndex(this.getViewIndex(this.displayedView) + 1);
   }
+
+  private setIbn(ibn: AbstractIbn | null) {
+    this.ibn = ibn;
+  }
+
+  /**
+   * Removes the update view if the version is not at least '2021.19.1'.
+   */
+  private removeUpdateView() {
+    // TODO remove when every edge starts with at least the required version
+    // only show update view if the update requests are implemented 
+    if (!this.edge) {
+      return;
+    }
+    if (!this.edge.isVersionAtLeast('2021.19.1')) {
+      let indexOfUpdate = this.ibn.views.indexOf(View.PreInstallationUpdate)
+      if (indexOfUpdate != -1) {
+        this.ibn.views.splice(indexOfUpdate, 1)
+      }
+    }
+  }
+
 }
