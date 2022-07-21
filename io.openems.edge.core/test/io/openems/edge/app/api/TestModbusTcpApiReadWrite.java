@@ -68,7 +68,7 @@ public class TestModbusTcpApiReadWrite {
 
 		var readWriteApp = this.appManagerTestBundle.sut.getInstantiatedApps().get(0);
 
-		// ACTIVE not set or true
+		// ACTIVE set and false
 		readOnlyApp = this.appManagerTestBundle.sut.getInstantiatedApps().get(0);
 
 		assertTrue(readOnlyApp.properties.has("ACTIVE"));

@@ -44,6 +44,7 @@ public class DependencyUtil {
 	 * Temporary field to avoid endless loop.
 	 */
 	private boolean isCurrentlyRunning = false;
+	// can not use synchronized for primitive types
 	private final Object getInstanceIdLock = new Object();
 
 	private DependencyUtil() {
