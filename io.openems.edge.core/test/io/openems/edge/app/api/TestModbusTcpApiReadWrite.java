@@ -42,8 +42,8 @@ public class TestModbusTcpApiReadWrite {
 	@Test
 	public void testDeactivateReadOnly() throws Exception {
 		// create ReadOnly app
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(user, new AddAppInstance.Request(
-				modbusTcpApiReadOnly.getAppId(), "alias", JsonUtils.buildJsonObject().build()));
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
+				this.modbusTcpApiReadOnly.getAppId(), "alias", JsonUtils.buildJsonObject().build()));
 
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
@@ -56,8 +56,8 @@ public class TestModbusTcpApiReadWrite {
 		}
 
 		// create ReadWrite app
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(user,
-				new AddAppInstance.Request(modbusTcpApiReadWrite.getAppId(), "alias", JsonUtils.buildJsonObject() //
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request(this.modbusTcpApiReadWrite.getAppId(), "alias", JsonUtils.buildJsonObject() //
 						.addProperty("API_TIMEOUT", 60) //
 						.add("COMPONENT_IDS", JsonUtils.buildJsonArray() //
 								.add("_sum") //
@@ -66,7 +66,7 @@ public class TestModbusTcpApiReadWrite {
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
-		var readWriteApp = this.appManagerTestBundle.sut.getInstantiatedApps().get(0);
+		final var readWriteApp = this.appManagerTestBundle.sut.getInstantiatedApps().get(0);
 
 		// ACTIVE set and false
 		readOnlyApp = this.appManagerTestBundle.sut.getInstantiatedApps().get(0);
@@ -76,7 +76,7 @@ public class TestModbusTcpApiReadWrite {
 		assertFalse(isActiv);
 
 		// remove ReadWrite to see if the ReadOnly gets activated
-		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(user,
+		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(this.user,
 				new DeleteAppInstance.Request(readWriteApp.instanceId));
 
 		// ACTIVE not set or true
