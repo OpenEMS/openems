@@ -35,7 +35,7 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: '2022.7.4',
+        version: '2022.7.5',
         changes: [
           Changelog.UI,
         ]
