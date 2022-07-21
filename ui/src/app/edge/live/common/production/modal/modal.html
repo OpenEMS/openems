@@ -2,7 +2,7 @@
 
     <!-- total summary of AC + DC -->
     <ng-container *ngIf="productionMeterComponents?.length > 0 && chargerComponents?.length > 0">
-        <oe-modal-line [name]="'General.total'| translate" channelAddress="_sum/ProductionAcActivePower"
+        <oe-modal-line [name]="'General.total'| translate" channelAddress="_sum/ProductionActivePower"
             [converter]="CONVERT_TO_WATT">
         </oe-modal-line>
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
