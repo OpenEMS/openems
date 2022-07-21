@@ -55,16 +55,16 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                     // convert datasets
                     let datasets = [];
 
-                    // calculate total production
+                    // calculate total production of each phase
                     let effectiveProductionL1 = []
                     let effectiveProductionL2 = []
                     let effectiveProductionL3 = []
 
                     if (config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').length > 0) {
                         result.data['_sum/ProductionDcActualPower'].forEach((value, index) => {
-                            effectiveProductionL1[index] = Utils.subtractSafely(result.data['_sum/ProductionAcActivePowerL1'][index], value / -3);
-                            effectiveProductionL2[index] = Utils.subtractSafely(result.data['_sum/ProductionAcActivePowerL2'][index], value / -3);
-                            effectiveProductionL3[index] = Utils.subtractSafely(result.data['_sum/ProductionAcActivePowerL3'][index], value / -3);
+                            effectiveProductionL1[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL1']?.[index], value / 3);
+                            effectiveProductionL2[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL2']?.[index], value / 3);
+                            effectiveProductionL3[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL3']?.[index], value / 3);
                         });
                     } else {
                         effectiveProductionL1 = result.data['_sum/ProductionAcActivePowerL1'];
