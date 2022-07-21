@@ -190,6 +190,18 @@ public class DummyComponentManager implements ComponentManager {
 		}
 	}
 
+	/**
+	 * Handles a {@link CreateComponentConfigRequest}.
+	 * 
+	 * <p>
+	 * Only creates the Configuration with the given Properties. Does not actually
+	 * add the component the the dummy component list.
+	 * 
+	 * @param user    the executing user
+	 * @param request the {@link CreateComponentConfigRequest}
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
 			CreateComponentConfigRequest request) throws OpenemsNamedException {
 		if (this.configurationAdmin == null) {
