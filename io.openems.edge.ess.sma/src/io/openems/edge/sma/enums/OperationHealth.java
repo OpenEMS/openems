@@ -2,15 +2,17 @@ package io.openems.edge.sma.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum GridRequestViPowerSwitchOn implements OptionsEnum {
+public enum OperationHealth implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	YES(1129, "Yes"), //
-	NO(1130, "No");
+	ERROR(35, "Error"), //
+	OFF(303, "Off"), //
+	OK(307, "Ok"), //
+	WARN(455, "Warning");
 
 	private final int value;
 	private final String name;
 
-	private GridRequestViPowerSwitchOn(int value, String name) {
+	private OperationHealth(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
