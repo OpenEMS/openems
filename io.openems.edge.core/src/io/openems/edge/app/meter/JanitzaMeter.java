@@ -164,7 +164,7 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+		return OpenemsAppCardinality.MULTIPLE;
 	}
 
 	protected final Set<Entry<String, String>> buildFactorieIdOptions() {

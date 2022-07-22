@@ -416,7 +416,12 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.setDescription(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".rippleControlReceiver.description"))
 								.setDefaultValue(false) //
-								.build())
+								.onlyIf(batteryInverter.isPresent(), t -> {
+									var defaultValue = batteryInverter.get().getProperty("feedPowerEnable")
+											.map(j -> JsonUtils.getAsOptionalString(j).get()).orElse("ENABLE")
+											.equals("DISABLE");
+									t.setDefaultValue(defaultValue);
+								}).build())
 						.add(JsonFormlyUtil.buildInput(Property.MAX_FEED_IN_POWER) //
 								.setLabel(
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".feedInLimit.label")) //

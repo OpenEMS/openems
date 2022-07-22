@@ -137,7 +137,7 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+		return OpenemsAppCardinality.MULTIPLE;
 	}
 
 }
