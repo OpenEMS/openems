@@ -96,7 +96,7 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 
 			var componentIdOfRelay = outputChannel1.substring(0, outputChannel1.indexOf('/'));
 			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
-					componentIdOfRelay, this.getAppId());
+					componentIdOfRelay);
 
 			if (appIdOfRelay == null) {
 				// relay may be created but not as a app

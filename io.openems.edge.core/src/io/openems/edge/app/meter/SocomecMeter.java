@@ -140,7 +140,7 @@ public class SocomecMeter extends AbstractMeterApp<Property> implements OpenemsA
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+		return OpenemsAppCardinality.MULTIPLE;
 	}
 
 }
