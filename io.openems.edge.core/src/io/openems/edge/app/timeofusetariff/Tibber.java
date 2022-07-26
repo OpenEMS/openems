@@ -48,7 +48,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-tibber/">https://fenecon.de/fems-2-2/fems-app-tibber/</a>
+"https://fenecon.de/fems/fems-app-tibber/">link</a>
     }
   }
  * </pre>
@@ -118,7 +118,7 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-tibber/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-tibber/") //
 				.build();
 	}
 

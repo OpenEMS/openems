@@ -49,7 +49,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-ies-keywatt-ladestation-2/">https://fenecon.de/fems-2-2/fems-app-ies-keywatt-ladestation-2//</a>
+"https://fenecon.de/fems-2-2/fems-app-ies-keywatt-ladestation-2/">link</a>
     }
   }
  * </pre>

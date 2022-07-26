@@ -47,7 +47,8 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     	"MODBUS_UNIT_ID": 1
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": <a href=
+"https://fenecon.de/fems/fems-app-fronius-pv-wechselrichter/">link</a>
     }
   }
  * </pre>
@@ -130,7 +131,7 @@ public class FroniusPvInverter extends AbstractPvInverter<Property> implements O
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-fronius-pv-wechselrichter/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-fronius-pv-wechselrichter/") //
 				.build();
 	}
 

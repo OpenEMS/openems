@@ -47,7 +47,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-app-echarge-hardy-barth-ladestation/">https://fenecon.de/fems-app-echarge-hardy-barth-ladestation/</a>
+"https://fenecon.de/fems-app-echarge-hardy-barth-ladestation/">link</a>
     }
   }
  * </pre>

@@ -62,7 +62,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     ],
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-heizstab/">https://fenecon.de/fems-2-2/fems-app-heizstab/</a>
+"https://fenecon.de/fems/fems-app-heizstab-2/">link</a>
     }
   }
  * </pre>
@@ -181,7 +181,7 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-heizstab/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-heizstab-2/") //
 				.build();
 	}
 

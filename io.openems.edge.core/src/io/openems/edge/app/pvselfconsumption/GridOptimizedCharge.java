@@ -49,7 +49,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/">https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/</a>
+"https://fenecon.de/fems/fems-app-netzdienliche-beladung-2/">link</a>
     }
   }
  * </pre>
@@ -137,7 +137,7 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-netzdienliche-beladung-2/") //
 				.build();
 	}
 

@@ -46,7 +46,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/">https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/</a>
+"https://fenecon.de/fems/fems-app-kaco-pv-wechselrichter/">link</a>
     }
   }
  * </pre>
@@ -116,7 +116,7 @@ public class KacoPvInverter extends AbstractPvInverter<Property> implements Open
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-kaco-pv-wechselrichter/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-kaco-pv-wechselrichter/") //
 				.build();
 	}
 

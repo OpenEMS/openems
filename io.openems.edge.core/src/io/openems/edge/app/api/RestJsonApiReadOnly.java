@@ -44,7 +44,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-rest-json-lesend-2/">https://fenecon.de/fems-2-2/fems-app-rest-json-lesend-2/</a>
+"https://fenecon.de/fems/fems-app-rest-json-lesend/">link</a>
     }
   }
  * </pre>
@@ -75,7 +75,7 @@ public class RestJsonApiReadOnly extends AbstractOpenemsApp<Property> implements
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-rest-json-lesend-2/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-rest-json-lesend/") //
 				.build();
 	}
 

@@ -47,7 +47,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-carlo-gavazzi-zaehler-2/">https://fenecon.de/fems-2-2/fems-app-carlo-gavazzi-zaehler-2/</a>
+"https://fenecon.de/fems/fems-app-carlo-gavazzi-zaehler/">link</a>
     }
   }
  * </pre>
@@ -128,7 +128,7 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-carlo-gavazzi-zaehler-2/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-carlo-gavazzi-zaehler/") //
 				.build();
 	}
 

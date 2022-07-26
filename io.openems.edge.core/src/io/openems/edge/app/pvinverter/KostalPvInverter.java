@@ -48,7 +48,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-kostal-pv-wechselrichter/">https://fenecon.de/fems-2-2/fems-app-kostal-pv-wechselrichter/</a>
+"https://fenecon.de/fems/fems-app-kostal-pv-wechselrichter/">link</a>
     }
   }
  * </pre>
@@ -131,7 +131,7 @@ public class KostalPvInverter extends AbstractPvInverter<Property> implements Op
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-kostal-pv-wechselrichter/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-kostal-pv-wechselrichter/") //
 				.build();
 	}
 

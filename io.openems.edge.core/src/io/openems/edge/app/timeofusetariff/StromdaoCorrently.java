@@ -48,7 +48,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-stromdao-corrently/">https://fenecon.de/fems-2-2/fems-app-stromdao-corrently/</a>
+"https://fenecon.de/fems/fems-app-stromdao-corrently/">link</a>
     }
   }
  * </pre>
@@ -111,7 +111,7 @@ public class StromdaoCorrently extends AbstractOpenemsApp<Property> implements O
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-stromdao-corrently/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-stromdao-corrently/") //
 				.build();
 	}
 

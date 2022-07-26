@@ -49,7 +49,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-eigenverbrauchsoptimierung-2/">https://fenecon.de/fems-2-2/fems-app-eigenverbrauchsoptimierung-2//</a>
+"https://fenecon.de/fems/fems-app-eigenverbrauchsoptimierung/">link</a>
     }
   }
  * </pre>
@@ -123,7 +123,7 @@ public class SelfConsumptionOptimization extends AbstractOpenemsApp<Property> im
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-eigenverbrauchsoptimierung-2/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-eigenverbrauchsoptimierung/") //
 				.build();
 	}
 

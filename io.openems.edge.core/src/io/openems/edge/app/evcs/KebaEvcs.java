@@ -46,7 +46,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-keba-ladestation/">https://fenecon.de/fems-2-2/fems-app-keba-ladestation/</a>
+"https://fenecon.de/fems/fems-app-keba-ladestation/">link</a>
     }
   }
  * </pre>
@@ -117,7 +117,7 @@ public class KebaEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-keba-ladestation/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-keba-ladestation/") //
 				.build();
 	}
 

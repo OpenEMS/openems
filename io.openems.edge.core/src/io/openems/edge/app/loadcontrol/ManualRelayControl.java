@@ -52,7 +52,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-manuelle-relaissteuerung/">https://fenecon.de/fems-2-2/fems-app-manuelle-relaissteuerung/</a>
+"https://fenecon.de/fems/fems-app-manuelle-relaissteuerung/">link</a>
     }
   }
  * </pre>
@@ -134,7 +134,7 @@ public class ManualRelayControl extends AbstractOpenemsApp<Property> implements 
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-manuelle-relaissteuerung/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-manuelle-relaissteuerung/") //
 				.build();
 	}
 

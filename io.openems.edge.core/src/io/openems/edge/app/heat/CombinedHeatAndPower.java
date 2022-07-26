@@ -60,7 +60,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     ],
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-blockheizkraftwerk-bhkw/">https://fenecon.de/fems-2-2/fems-app-blockheizkraftwerk-bhkw/</a>
+"https://fenecon.de/fems/fems-app-blockheizkraftwerk-bhkw/">link</a>
     }
   }
  * </pre>
@@ -164,7 +164,7 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-blockheizkraftwerk-bhkw/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-blockheizkraftwerk-bhkw/") //
 				.build();
 	}
 

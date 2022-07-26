@@ -58,7 +58,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     ],
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/">https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/</a>
+"https://fenecon.de/fems/fems-app-sg-ready-waermepumpe/">link</a>
     }
   }
  * </pre>
@@ -150,7 +150,7 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-sg-ready-waermepumpe/") //
 				.build();
 	}
 

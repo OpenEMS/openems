@@ -48,7 +48,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems/fems-app-socomec-zaehler-2">https://fenecon.de/fems/fems-app-socomec-zaehler-2</a>
+"https://fenecon.de/fems/fems-app-socomec-zaehler/">link</a>
     }
   }
  * </pre>
@@ -129,7 +129,7 @@ public class SocomecMeter extends AbstractMeterApp<Property> implements OpenemsA
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems/fems-app-socomec-zaehler-2") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-socomec-zaehler/") //
 				.build();
 	}
 
