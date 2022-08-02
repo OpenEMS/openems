@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
