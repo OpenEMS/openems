@@ -115,7 +115,7 @@ public class ScheduleMessageServiceTest {
 	}
 
 	private Edge getEdge(String id) {
-		return new Edge(null, id, "", null, "", null, null, null, null);
+		return new Edge(null, id, "", null, "", null);
 	}
 
 }

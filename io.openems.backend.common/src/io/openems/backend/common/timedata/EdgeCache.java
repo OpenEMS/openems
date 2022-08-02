@@ -36,8 +36,10 @@ public class EdgeCache {
 	 * @param address the {@link ChannelAddress} of the channel
 	 * @return the value; empty if it is not in cache
 	 */
-	public final synchronized Optional<JsonElement> getChannelValue(ChannelAddress address) {
-		return Optional.ofNullable(this.cacheData.get(address));
+	public final Optional<JsonElement> getChannelValue(ChannelAddress address) {
+		synchronized (this) {
+			return Optional.ofNullable(this.cacheData.get(address));
+		}
 	}
 
 	/**
@@ -46,7 +48,7 @@ public class EdgeCache {
 	 * @param edgeId        the Edge-ID
 	 * @param incomingDatas the incoming data
 	 */
-	public synchronized void complementDataFromCache(String edgeId,
+	public void complementDataFromCache(String edgeId,
 			SortedMap<Long, Map<ChannelAddress, JsonElement>> incomingDatas) {
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : incomingDatas.entrySet()) {
 			var incomingTimestamp = entry.getKey();
@@ -66,8 +68,10 @@ public class EdgeCache {
 								+ Instant.ofEpochMilli(incomingTimestamp) + "]. Cache ["
 								+ Instant.ofEpochMilli(this.cacheTimestamp) + "]");
 					}
-					// Clear Cache
-					this.cacheData.clear();
+					synchronized (this) {
+						// Clear Cache
+						this.cacheData.clear();
+					}
 
 				} else if (incomingTimestamp < this.lastAppliedTimestamp + 2 * 60 * 1000) {
 					// Apply Cache only once every two minutes to throttle writes
@@ -77,20 +81,20 @@ public class EdgeCache {
 
 					// cache is valid (not elder than 5 minutes)
 					this.lastAppliedTimestamp = incomingTimestamp;
-					for (Entry<ChannelAddress, JsonElement> cacheEntry : this.cacheData.entrySet()) {
-						var channel = cacheEntry.getKey();
-						// check if there is a current value for this timestamp + channel
-						if (!incomingData.containsKey(channel)) {
-							// if not -> add cache data to write data
-							incomingData.put(channel, cacheEntry.getValue());
-						}
+					synchronized (this) {
+						this.cacheData.entrySet().stream() //
+								.forEach(e -> {
+									// check if there is a current value for this timestamp + channel
+									// if not -> add cache data to write data
+									incomingData.putIfAbsent(e.getKey(), e.getValue());
+								});
 					}
 				}
 
 				// update cache
 				this.cacheTimestamp = incomingTimestamp;
-				for (Entry<ChannelAddress, JsonElement> channelEntry : incomingData.entrySet()) {
-					this.cacheData.put(channelEntry.getKey(), channelEntry.getValue());
+				synchronized (this) {
+					this.cacheData.putAll(incomingData);
 				}
 			}
 		}

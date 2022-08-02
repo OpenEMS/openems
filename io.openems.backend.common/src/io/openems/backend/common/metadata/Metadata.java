@@ -67,6 +67,16 @@ public interface Metadata {
 	public void logout(User user);
 
 	/**
+	 * Handles operations with Edge.
+	 * 
+	 * <p>
+	 * To be completed. This should eventually replace Edge.
+	 * 
+	 * @return an {@link EdgeHandler}
+	 */
+	public EdgeHandler edge();
+
+	/**
 	 * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
 	 *
 	 * @param apikey the API-Key

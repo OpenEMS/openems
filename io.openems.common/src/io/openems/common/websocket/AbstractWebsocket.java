@@ -90,11 +90,13 @@ public abstract class AbstractWebsocket<T extends WsData> {
 
 	/**
 	 * Handles an internal Error asynchronously.
-	 *
-	 * @param e the {@link Exception} to be handled
+	 * 
+	 * @param e            the {@link Exception} to be handled
+	 * @param wsDataString the toString() content of the WsData attachment of the
+	 *                     WebSocket
 	 */
-	protected void handleInternalErrorAsync(Exception e) {
-		this.execute(new OnInternalErrorHandler(this.getOnInternalError(), e));
+	protected void handleInternalErrorAsync(Exception e, String wsDataString) {
+		this.execute(new OnInternalErrorHandler(this.getOnInternalError(), e, wsDataString));
 	}
 
 	/**

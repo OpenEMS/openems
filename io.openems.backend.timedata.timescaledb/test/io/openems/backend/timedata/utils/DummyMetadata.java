@@ -10,6 +10,7 @@ import org.osgi.service.event.EventAdmin;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
@@ -134,6 +135,12 @@ public class DummyMetadata implements Metadata {
 
 	@Override
 	public EventAdmin getEventAdmin() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public EdgeHandler edge() {
 		// TODO Auto-generated method stub
 		return null;
 	}

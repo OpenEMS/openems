@@ -19,7 +19,7 @@ public class OpenemsOEM {
 	/*
 	 * Backend-Api Controller
 	 */
-	public static final String BACKEND_API_URI = "wss://www1.fenecon.de:443/openems-backend2";
+	public static final String BACKEND_API_URI = "wss://srv0.fenecon.de/openems-backend";
 
 	/*
 	 * System-Update.

@@ -31,20 +31,18 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.OpenemsOEM;
-import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
-import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfigDiff;
-import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
@@ -69,6 +67,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 
 	private final Map<String, User> users = new HashMap<>();
 	private final Map<String, MyEdge> edges = new HashMap<>();
+	private final SimpleEdgeHandler edgeHandler = new SimpleEdgeHandler();
 
 	private Language defaultLanguage = Language.DE;
 
@@ -140,8 +139,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 			edgeId = "edge" + id;
 		}
 		setupPassword = edgeId;
-		var edge = new MyEdge(this, edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, "", "", Level.OK,
-				new EdgeConfig());
+		var edge = new MyEdge(this, edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, "", "");
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);
 
@@ -245,11 +243,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 
 		switch (event.getTopic()) {
 		case Edge.Events.ON_SET_CONFIG:
-			MyEdge edge = reader.getProperty(Edge.Events.OnSetConfig.EDGE);
-			EdgeConfigDiff diff = reader.getProperty(Edge.Events.OnSetConfig.DIFF);
-
-			this.logInfo(this.log,
-					"Edge [" + edge.getId() + "]. Update config: " + StringUtils.toShortString(diff.getAsHtml(), 100));
+			this.edgeHandler.setEdgeConfigFromEvent(reader);
 			break;
 		}
 	}
@@ -259,4 +253,8 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 		return Optional.empty();
 	}
 
+	@Override
+	public EdgeHandler edge() {
+		return this.edgeHandler;
+	}
 }

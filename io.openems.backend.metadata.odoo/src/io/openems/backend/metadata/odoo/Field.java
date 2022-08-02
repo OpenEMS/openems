@@ -57,11 +57,10 @@ public interface Field {
 		COMMENT("comment", true), //
 		OPENEMS_VERSION("openems_version", true), //
 		PRODUCT_TYPE("producttype", true), //
-		OPENEMS_CONFIG("openems_config", true), //
+		OPENEMS_CONFIG("openems_config", false), //
 		OPENEMS_CONFIG_COMPONENTS("openems_config_components", false), //
 		LAST_MESSAGE("lastmessage", true), //
-		LAST_UPDATE("lastupdate", true), //
-		OPENEMS_SUM_STATE("openems_sum_state_level", true), //
+		OPENEMS_SUM_STATE("openems_sum_state_level", false), //
 		OPENEMS_IS_CONNECTED("openems_is_connected", false);
 
 		public static final String ODOO_MODEL = "fems.device";

@@ -1,8 +1,6 @@
 package io.openems.backend.metadata.file;
 
 import io.openems.backend.common.metadata.Edge;
-import io.openems.common.channel.Level;
-import io.openems.common.types.EdgeConfig;
 
 public class MyEdge extends Edge {
 
@@ -10,8 +8,8 @@ public class MyEdge extends Edge {
 	private final String setupPassword;
 
 	public MyEdge(FileMetadata parent, String id, String apikey, String setupPassword, String comment, String version,
-			String producttype, Level sumState, EdgeConfig config) {
-		super(parent, id, comment, version, producttype, sumState, config, null, null);
+			String producttype) {
+		super(parent, id, comment, version, producttype, null);
 		this.apikey = apikey;
 		this.setupPassword = setupPassword;
 	}
