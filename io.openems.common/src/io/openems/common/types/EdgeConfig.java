@@ -812,8 +812,7 @@ public class EdgeConfig {
 				var id = JsonUtils.getAsString(json, "id");
 				var name = JsonUtils.getAsString(json, "name");
 				var description = JsonUtils.getAsString(json, "description");
-				var type = JsonUtils.getAsOptionalEnum(OpenemsType.class, json, "type")
-						.orElse(OpenemsType.STRING);
+				var type = JsonUtils.getAsOptionalEnum(OpenemsType.class, json, "type").orElse(OpenemsType.STRING);
 				var isRequired = JsonUtils.getAsBoolean(json, "isRequired");
 				boolean isPassword = JsonUtils.getAsOptionalBoolean(json, "isPassword").orElse(false);
 				var defaultValue = JsonUtils.getOptionalSubElement(json, "defaultValue").orElse(JsonNull.INSTANCE);
@@ -1302,58 +1301,12 @@ public class EdgeConfig {
 	 */
 	public static EdgeConfig fromJson(JsonObject json) throws OpenemsNamedException {
 		var result = new EdgeConfig();
-		if (json.has("things") && json.has("meta")) {
-			return EdgeConfig.fromOldJsonFormat(json);
-		}
-
 		for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "components").entrySet()) {
 			result.addComponent(entry.getKey(), Component.fromJson(entry.getKey(), entry.getValue()));
 		}
 
 		for (Entry<String, JsonElement> entry : JsonUtils.getAsJsonObject(json, "factories").entrySet()) {
 			result.addFactory(entry.getKey(), Factory.fromJson(entry.getKey(), entry.getValue()));
-		}
-
-		return result;
-	}
-
-	@Deprecated
-	private static EdgeConfig fromOldJsonFormat(JsonObject json) throws OpenemsNamedException {
-		var result = new EdgeConfig();
-
-		var things = JsonUtils.getAsJsonObject(json, "things");
-		for (Entry<String, JsonElement> entry : things.entrySet()) {
-			var config = JsonUtils.getAsJsonObject(entry.getValue());
-			var id = JsonUtils.getAsString(config, "id");
-			var servicePid = "NO";
-			var alias = JsonUtils.getAsOptionalString(config, "alias").orElse(id);
-			var clazz = JsonUtils.getAsString(config, "class");
-			var properties = new TreeMap<String, JsonElement>();
-			for (Entry<String, JsonElement> property : config.entrySet()) {
-				switch (property.getKey()) {
-				case "id":
-				case "alias":
-				case "class":
-					// ignore
-					break;
-				default:
-					if (property.getValue().isJsonPrimitive()) {
-						// ignore everything but JSON-Primitives
-						properties.put(property.getKey(), property.getValue());
-					}
-				}
-			}
-			var channels = new TreeMap<String, Component.Channel>();
-			result.addComponent(id, new EdgeConfig.Component(servicePid, id, alias, clazz, properties, channels));
-		}
-
-		var metas = JsonUtils.getAsJsonObject(json, "meta");
-		for (Entry<String, JsonElement> entry : metas.entrySet()) {
-			var meta = JsonUtils.getAsJsonObject(entry.getValue());
-			var id = JsonUtils.getAsString(meta, "class");
-			var implement = JsonUtils.getAsStringArray(JsonUtils.getAsJsonArray(meta, "implements"));
-			Factory.Property[] properties = {};
-			result.addFactory(id, new EdgeConfig.Factory(id, id, "", properties, implement));
 		}
 
 		return result;

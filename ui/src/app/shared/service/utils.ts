@@ -1,6 +1,5 @@
-import { formatNumber } from '@angular/common';
+import { formatDate, formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
@@ -289,6 +288,30 @@ export class Utils {
   }
 
   /**
+ * Converts states 'MANUAL', 'OFF' and 'AUTOMATIC' to translated strings.
+ * 
+ * @param value the value from passed value in html
+ * @returns converted value
+ */
+  public static CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = (translate: TranslateService) => {
+    return (value: any): string => {
+      if (value === 'MANUAL') {
+        return translate.instant('General.manually');
+      } else if (value === 'OFF') {
+        return translate.instant('General.off');
+      } else if (value === 'AUTOMATIC') {
+        return translate.instant('General.automatic');
+      } else {
+        return '-';
+      }
+    }
+  }
+
+  public static CONVERT_MINUTE_TO_TIME_OF_DAY = (value: number): string => {
+    return formatDate(value * 60 * 1000, 'HH:mm', 'UTC') + ' h'
+  }
+
+  /**
    * Gets the image path for storage depending on State-of-Charge.
    * 
    * @param soc the state-of-charge
@@ -363,11 +386,45 @@ export class Utils {
   }
 
   /**
+   * Calculate the Autarchy Rate
+   * 
+   * @param buyFromGrid the Buy-From-Grid power (GridActivePower)
+   * @param consumptionActivePower the Consumption Power (ConsumptionActivePower)
+   * @returns the Autarchy rate
+   */
+  public static calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number | null {
+    if (buyFromGrid != null && consumptionActivePower != null) {
+      if (consumptionActivePower <= 0) {
+        /* avoid divide by zero; consumption == 0 -> autarchy 100 % */
+        return 100;
+      } else {
+        return /* min 0 */ Math.max(0,
+        /* max 100 */ Math.min(100,
+          /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100
+        ));
+      }
+
+    } else {
+      return null;
+    }
+  }
+
+  /**
    * Rounds values between 0 and -1kW to 0
    * 
    * @param value the value to convert
    */
   public static roundSlightlyNegativeValues(value: number) {
     return (value > -0.49 && value < 0) ? 0 : value;
+  }
+
+  /**
+   * Shuffles an array
+   * 
+   * @param array the array to be shuffled
+   * @returns the shuffled array
+   */
+  public static shuffleArray(array: any[]): any[] {
+    return array.sort(() => Math.random() - 0.5)
   }
 }

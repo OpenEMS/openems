@@ -9,6 +9,9 @@ import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.component.annotations.Activate;
@@ -25,11 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
+import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
@@ -38,10 +43,7 @@ import io.openems.backend.metadata.odoo.odoo.FieldValue;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
-import io.openems.backend.metadata.odoo.postgres.task.InsertEdgeConfigUpdate;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeConfig;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateEdgeProducttype;
-import io.openems.backend.metadata.odoo.postgres.task.UpdateSumState;
+import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -52,6 +54,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfigDiff;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -64,11 +67,20 @@ import io.openems.common.utils.JsonUtils;
 })
 public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, EventHandler {
 
+	private static final int EXECUTOR_MIN_THREADS = 1;
+	private static final int EXECUTOR_MAX_THREADS = 50;
+
 	private final Logger log = LoggerFactory.getLogger(OdooMetadata.class);
+
 	private final EdgeCache edgeCache;
+	private final OdooEdgeHandler edgeHandler = new OdooEdgeHandler(this);
 
 	protected OdooHandler odooHandler = null;
 	protected PostgresHandler postgresHandler = null;
+
+	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
+			TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
+			new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.Worker-%d").build());
 
 	@Reference
 	private EventAdmin eventAdmin;
@@ -93,7 +105,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 				+ (config.pgPassword() != null ? "ok" : "NOT_SET") + "] " //
 				+ "Database [" + config.database() + "]");
 
-		this.odooHandler = new OdooHandler(this, config);
+		this.odooHandler = new OdooHandler(this, this.edgeCache, config);
 		this.postgresHandler = new PostgresHandler(this, this.edgeCache, config, () -> {
 			this.setInitialized();
 		});
@@ -102,6 +114,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	@Deactivate
 	private void deactivate() {
 		this.logInfo(this.log, "Deactivate");
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 		if (this.postgresHandler != null) {
 			this.postgresHandler.deactivate();
 		}
@@ -239,12 +252,17 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	}
 
 	@Override
+	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException {
+		return this.odooHandler.getSetupProtocolData((MyUser) user, edgeId);
+	}
+
+	@Override
 	public int submitSetupProtocol(User user, JsonObject jsonObject) throws OpenemsNamedException {
 		return this.odooHandler.submitSetupProtocol((MyUser) user, jsonObject);
 	}
 
 	@Override
-	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
 		final OdooUserRole role;
 
 		var roleOpt = JsonUtils.getAsOptionalString(jsonObject, "role");
@@ -254,7 +272,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 			role = OdooUserRole.OWNER;
 		}
 
-		this.odooHandler.registerUser(jsonObject, role);
+		this.odooHandler.registerUser(jsonObject, role, oem);
 	}
 
 	@Override
@@ -291,9 +309,9 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	}
 
 	@Override
-	public void sendAlertingMail(ZonedDateTime stamp, List<EdgeUser> user) {
+	public void sendAlertingMail(ZonedDateTime stamp, List<EdgeUser> user, String edgeId) {
 		try {
-			this.odooHandler.sendNotificationMailAsync(user, stamp);
+			this.odooHandler.sendNotificationMailAsync(user, stamp, edgeId);
 			user.forEach(u -> {
 				u.setLastNotification(stamp);
 			});
@@ -312,25 +330,12 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 			boolean isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
 
 			// Set OpenEMS Is Connected in Odoo/Postgres
-			if (isOnline) {
-				this.postgresHandler.getPeriodicWriteWorker().isOnline(edge);
-			} else {
-				this.postgresHandler.getPeriodicWriteWorker().isOffline(edge);
-			}
+			this.postgresHandler.getPeriodicWriteWorker().onSetOnline(edge, isOnline);
 		}
 			break;
 
-		case Edge.Events.ON_SET_CONFIG: {
-			MyEdge edge = reader.getProperty(Edge.Events.OnSetConfig.EDGE);
-			EdgeConfig config = reader.getProperty(Edge.Events.OnSetConfig.CONFIG);
-			EdgeConfigDiff diff = reader.getProperty(Edge.Events.OnSetConfig.DIFF);
-
-			this.logInfo(this.log, "Edge [" + edge.getId() + "]. Update config: " + diff.toString());
-
-			var queueWriteWorker = this.postgresHandler.getQueueWriteWorker();
-			queueWriteWorker.addTask(new UpdateEdgeConfig(edge.getOdooId(), config));
-			queueWriteWorker.addTask(new InsertEdgeConfigUpdate(edge.getOdooId(), diff));
-		}
+		case Edge.Events.ON_SET_CONFIG:
+			this.onSetConfigEvent(reader);
 			break;
 
 		case Edge.Events.ON_SET_VERSION: {
@@ -351,18 +356,11 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 		}
 			break;
 
-		case Edge.Events.ON_SET_LAST_UPDATE_TIMESTAMP: {
-			MyEdge edge = reader.getProperty(Edge.Events.OnSetLastUpdateTimestamp.EDGE);
-			// Set LastMessage timestamp in Odoo/Postgres
-			this.postgresHandler.getPeriodicWriteWorker().onLastMessage(edge);
-		}
-			break;
-
 		case Edge.Events.ON_SET_SUM_STATE: {
 			MyEdge edge = reader.getProperty(Edge.Events.OnSetSumState.EDGE);
 			Level sumState = reader.getProperty(Edge.Events.OnSetSumState.SUM_STATE);
 			// Set Sum-State in Odoo/Postgres
-			this.postgresHandler.getQueueWriteWorker().addTask(new UpdateSumState(edge.getOdooId(), sumState));
+			this.postgresHandler.getPeriodicWriteWorker().onSetSumState(edge, sumState);
 		}
 			break;
 
@@ -370,12 +368,59 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 			MyEdge edge = reader.getProperty(Edge.Events.OnSetProducttype.EDGE);
 			String producttype = reader.getString(Edge.Events.OnSetProducttype.PRODUCTTYPE);
 			// Set Producttype in Odoo/Postgres
-			this.postgresHandler.getQueueWriteWorker()
-					.addTask(new UpdateEdgeProducttype(edge.getOdooId(), producttype));
+			this.executor.execute(() -> {
+				try {
+					this.postgresHandler.edge.updateProductType(edge.getOdooId(), producttype);
+				} catch (SQLException | OpenemsNamedException e) {
+					this.logWarn(this.log, "Edge [" + edge.getId() + "] " //
+							+ "Unable to insert update Product Type: " + e.getMessage());
+				}
+			});
 		}
 			break;
 
 		}
 	}
 
+	private void onSetConfigEvent(EventReader reader) {
+		this.executor.execute(() -> {
+			MyEdge edge = reader.getProperty(Edge.Events.OnSetConfig.EDGE);
+			EdgeConfig newConfig = reader.getProperty(Edge.Events.OnSetConfig.CONFIG);
+
+			EdgeConfig oldConfig;
+			try {
+				oldConfig = this.edgeHandler.getEdgeConfig(edge.getId());
+
+			} catch (OpenemsNamedException e) {
+				oldConfig = new EdgeConfig();
+				this.logWarn(this.log, "Edge [" + edge.getId() + "]. " + e.getMessage());
+			}
+
+			EdgeConfigDiff diff = EdgeConfigDiff.diff(newConfig, oldConfig);
+			if (diff.isDifferent()) {
+				// Update "EdgeConfigUpdate"
+				this.logInfo(this.log, "Edge [" + edge.getId() + "]. Update config: " + diff.toString());
+
+				try {
+					this.postgresHandler.edge.insertEdgeConfigUpdate(edge.getOdooId(), diff);
+				} catch (SQLException | OpenemsNamedException e) {
+					this.logWarn(this.log, "Edge [" + edge.getId() + "] " //
+							+ "Unable to insert EdgeConfigUpdate: " + e.getMessage());
+				}
+			}
+
+			// Always update EdgeConfig, because it also updates "openems_config_components"
+			try {
+				this.postgresHandler.edge.updateEdgeConfig(edge.getOdooId(), newConfig);
+			} catch (SQLException | OpenemsNamedException e) {
+				this.logWarn(this.log, "Edge [" + edge.getId() + "] " //
+						+ "Unable to insert EdgeConfigUpdate: " + e.getMessage());
+			}
+		});
+	}
+
+	@Override
+	public EdgeHandler edge() {
+		return this.edgeHandler;
+	}
 }

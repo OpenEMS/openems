@@ -20,7 +20,7 @@
     <ng-container *ngIf="isChargingEnabled">
 
       <!-- Show if chargeMode is EXCESS_POWER -->
-      <ng-container *ngIf="chargeMode == 'EXCESS_POWER'">
+      <ng-container *ngIf="chargeMode === 'EXCESS_POWER'">
 
         <!-- Show if defaultChargeMinPower greater 0 -->
         <ng-container *ngIf="defaultChargeMinPower > 0">
@@ -38,7 +38,7 @@
         </oe-flat-widget-line>
       </ng-container>
 
-      <oe-flat-widget-line *ngIf="chargeMode == 'FORCE_CHARGE'"
+      <oe-flat-widget-line *ngIf="chargeMode === 'FORCE_CHARGE'"
         [name]="'Edge.Index.Widgets.EVCS.ForceChargeMode.maxCharging' | translate"
         [converter]="CONVERT_WATT_TO_KILOWATT" [value]="maxChargingValue">
       </oe-flat-widget-line>

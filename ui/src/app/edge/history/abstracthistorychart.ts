@@ -1,10 +1,9 @@
 import { Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
-import { addDays, addMonths, differenceInDays, differenceInMonths } from 'date-fns';
+import { differenceInDays, differenceInMonths } from 'date-fns';
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
@@ -15,7 +14,6 @@ import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DA
 export abstract class AbstractHistoryChart {
 
     public loading: boolean = true;
-    public spinnerId: string = "";
     protected edge: Edge | null = null;
 
     //observable is used to fetch new chart data every 10 minutes
@@ -48,8 +46,9 @@ export abstract class AbstractHistoryChart {
     }
 
     constructor(
+        public readonly spinnerId: string,
         protected service: Service,
-        protected translate: TranslateService
+        protected translate: TranslateService,
     ) {
     }
 
@@ -230,11 +229,33 @@ export abstract class AbstractHistoryChart {
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+        this.stopSpinner();
     }
 
     /**
      * Sets Chart Height
      */
-    protected abstract getChartHeight()
+    protected abstract getChartHeight();
+
+    /**
+     * Start NGX-Spinner
+     * 
+     * Spinner will appear inside html tag only
+     * 
+     * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+     * 
+     * @param selector selector for specific spinner
+     */
+    public startSpinner() {
+        this.service.startSpinner(this.spinnerId);
+    }
+
+    /**
+     * Stop NGX-Spinner
+     * @param selector selector for specific spinner
+     */
+    public stopSpinner() {
+        this.service.stopSpinner(this.spinnerId);
+    }
+
 }

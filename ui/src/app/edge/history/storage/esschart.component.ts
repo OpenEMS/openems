@@ -22,19 +22,18 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
-        super(service, translate);
+        super("storage-ess-chart", service, translate);
     }
 
     ngOnInit() {
-        this.spinnerId = "storage-ess-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
         this.setLabel();
     }
@@ -45,7 +44,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -63,7 +62,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                     let datasets = [];
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
-                            let data = result.data[channelAddress.toString()].map(value => {
+                            let data = result.data[channelAddress.toString()]?.map(value => {
                                 if (value == null) {
                                     return null
                                 } else {
@@ -112,17 +111,20 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
                     });
                     this.datasets = datasets;
                     this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
+                    this.stopSpinner();
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

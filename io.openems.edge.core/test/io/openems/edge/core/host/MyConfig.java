@@ -1,7 +1,7 @@
 package io.openems.edge.core.host;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.common.host.Host;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

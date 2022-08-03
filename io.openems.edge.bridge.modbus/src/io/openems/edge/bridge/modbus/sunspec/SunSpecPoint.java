@@ -187,16 +187,16 @@ public interface SunSpecPoint {
 			case INT16:
 			case SUNSSF:
 			case COUNT:
-			case UINT32:
-			case ACC32:
-			case ENUM32:
-			case BITFIELD32:
-			case IPADDR:
 			case INT32:
 			case PAD: // ignore
 			case EUI48:
 			case FLOAT32: // avoid floating point numbers; FLOAT32 might not fit in INTEGER
 				return OpenemsType.INTEGER;
+			case ACC32:
+			case BITFIELD32:
+			case ENUM32:
+			case IPADDR:
+			case UINT32:
 			case UINT64:
 			case ACC64:
 			case INT64:

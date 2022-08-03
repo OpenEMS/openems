@@ -1,6 +1,9 @@
 package io.openems.edge.core.appmanager;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -386,10 +389,10 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	private void validateIps(ArrayList<String> errors, EdgeConfig actualEdgeConfig,
 			AppConfiguration expectedAppConfiguration) {
-
 		if (expectedAppConfiguration.ips.isEmpty()) {
 			return;
 		}
+
 		List<Inet4AddressWithNetmask> addresses = new ArrayList<>(expectedAppConfiguration.ips.size());
 		for (var address : expectedAppConfiguration.ips) {
 			try {
@@ -433,6 +436,17 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	 */
 	private void validateScheduler(ArrayList<String> errors, EdgeConfig actualEdgeConfig,
 			AppConfiguration expectedAppConfiguration) {
+		if (expectedAppConfiguration.schedulerExecutionOrder.isEmpty()) {
+			return;
+		}
+
+		// Prepare Queue
+		var controllers = new LinkedList<>(this.componentUtil.removeIdsWhichNotExist(
+				expectedAppConfiguration.schedulerExecutionOrder, expectedAppConfiguration.components));
+
+		if (controllers.isEmpty()) {
+			return;
+		}
 
 		List<String> schedulerIds;
 		try {
@@ -441,10 +455,6 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			errors.add(e.getMessage());
 			return;
 		}
-
-		// Prepare Queue
-		var controllers = new LinkedList<>(this.componentUtil.removeIdsWhichNotExist(
-				expectedAppConfiguration.schedulerExecutionOrder, expectedAppConfiguration.components));
 
 		var nextControllerId = controllers.poll();
 
@@ -565,6 +575,11 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 
 	@Override
 	public String getImage() {
+		var imageName = this.getClass().getSimpleName() + ".png";
+		var image = base64OfImage(this.getClass().getResource(imageName));
+		if (image != null) {
+			return image;
+		}
 		return OpenemsApp.FALLBACK_IMAGE;
 	}
 
@@ -589,6 +604,20 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			break;
 		}
 		return ResourceBundle.getBundle("io.openems.edge.core.appmanager.translation", language.getLocal());
+	}
+
+	protected static final String base64OfImage(URL url) {
+		if (url == null) {
+			return null;
+		}
+		final var prefix = "data:image/png;base64,";
+		try (var is = url.openStream()) {
+			return prefix + Base64.getEncoder().encodeToString(is.readAllBytes());
+		} catch (IOException e) {
+			// image not found
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	protected static final Component getComponentWithFactoryId(List<Component> components, String factoryId) {

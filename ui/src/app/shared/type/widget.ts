@@ -7,7 +7,7 @@ export enum WidgetClass {
     'Common_Selfconsumption',
     'Storage',
     'Grid',
-    'Production',
+    'Common_Production',
     'Consumption',
 }
 
@@ -54,6 +54,7 @@ export class Widgets {
             .filter(v => typeof v === 'string')
             .filter(clazz => {
                 if (!edge.isVersionAtLeast('2018.8')) {
+
                     // no filter for deprecated versions
                     return true;
                 }
@@ -70,7 +71,7 @@ export class Widgets {
                         }
                     case 'Storage':
                         return config.hasStorage();
-                    case 'Production':
+                    case 'Common_Production':
                     case 'Common_Selfconsumption':
                         return config.hasProducer();
                 };
@@ -142,4 +143,8 @@ export class Widgets {
             }
         }
     }
+}
+
+export enum ProductType {
+    HOME = "home"
 }

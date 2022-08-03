@@ -83,9 +83,9 @@ public final class EventBuilder {
 	/**
 	 * Add an argument to EventBuilder.
 	 *
-	 * @param <T> type of constant
+	 * @param <T>        type of constant
 	 * @param identifier the identifier
-	 * @param arg the actual argument
+	 * @param arg        the actual argument
 	 * @return same instance
 	 */
 	public <T> EventBuilder addArg(String identifier, T arg) {

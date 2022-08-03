@@ -8,23 +8,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.Field.EdgeDeviceUserRole;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
-import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.SemanticVersion;
-import io.openems.common.utils.JsonUtils;
 
 public class EdgeCache {
 
-	private final Logger log = LoggerFactory.getLogger(EdgeCache.class);
 	private final OdooMetadata parent;
 
 	/**
@@ -59,43 +51,22 @@ public class EdgeCache {
 	 * @throws SQLException     on error
 	 * @throws OpenemsException on error
 	 */
-	public synchronized MyEdge addOrUpate(ResultSet rs) throws SQLException, OpenemsException {
+	public synchronized MyEdge addOrUpdate(ResultSet rs) throws SQLException, OpenemsException {
 		// simple fields
 		var edgeId = PgUtils.getAsString(rs, EdgeDevice.NAME);
 		var odooId = PgUtils.getAsInt(rs, EdgeDevice.ID);
 		var apikey = PgUtils.getAsString(rs, EdgeDevice.APIKEY);
 
-		// config
-		EdgeConfig config;
-		var configString = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_CONFIG, "");
-		if (configString.isEmpty()) {
-			config = new EdgeConfig();
-		} else {
-			try {
-				config = EdgeConfig.fromJson(//
-						JsonUtils.getAsJsonObject(//
-								JsonUtils.parse(configString)));
-			} catch (OpenemsNamedException e) {
-				this.parent.logWarn(this.log, "Unable to read Edge-Config for Odoo-ID [" + odooId + "] Edge-ID ["
-						+ edgeId + "]: " + e.getMessage());
-				config = new EdgeConfig();
-			}
-		}
-
 		// more simple fields
 		var comment = PgUtils.getAsStringOrElse(rs, EdgeDevice.COMMENT, "");
 		var version = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_VERSION, "");
 		var productType = PgUtils.getAsStringOrElse(rs, EdgeDevice.PRODUCT_TYPE, "");
-		int sumStateInt = PgUtils.getAsIntegerOrElse(rs, EdgeDevice.OPENEMS_SUM_STATE, -1);
-		var sumState = Level.fromValue(sumStateInt).orElse(null);
 		ZonedDateTime lastMessage = PgUtils.getAsDateOrElse(rs, EdgeDevice.LAST_MESSAGE, null);
-		ZonedDateTime lastUpdate = PgUtils.getAsDateOrElse(rs, EdgeDevice.LAST_UPDATE, null);
 
 		var edge = this.edgeIdToEdge.get(edgeId);
 		if (edge == null) {
 			// This is new -> create instance of Edge
-			edge = new MyEdge(this.parent, odooId, edgeId, apikey, comment, version, productType, sumState, config,
-					lastMessage, lastUpdate);
+			edge = new MyEdge(this.parent, odooId, edgeId, apikey, comment, version, productType, lastMessage);
 			this.edgeIdToEdge.put(edgeId, edge);
 			this.odooIdToEdgeId.put(odooId, edgeId);
 			this.apikeyToEdgeId.put(apikey, edgeId);
@@ -104,8 +75,6 @@ public class EdgeCache {
 			edge.setComment(comment);
 			edge.setVersion(SemanticVersion.fromStringOrZero(version), false);
 			edge.setProducttype(productType);
-			edge.setSumState(sumState, false);
-			edge.setConfig(config, false);
 		}
 
 		return edge;

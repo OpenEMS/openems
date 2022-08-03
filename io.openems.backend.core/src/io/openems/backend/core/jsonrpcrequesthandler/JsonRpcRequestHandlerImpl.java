@@ -52,13 +52,17 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 	protected volatile Metadata metadata;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
-	protected volatile Timedata timeData;
+	private volatile Timedata timedata;
 
 	private final EdgeRpcRequestHandler edgeRpcRequestHandler;
 
 	public JsonRpcRequestHandlerImpl() {
 		super("Core.JsonRpcRequestHandler");
 		this.edgeRpcRequestHandler = new EdgeRpcRequestHandler(this);
+	}
+
+	protected Timedata getTimedata(String edgeId) {
+		return this.timedata;
 	}
 
 	/**
@@ -144,7 +148,7 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 			}
 
 			for (ChannelAddress channel : request.getChannels()) {
-				var value = this.timeData.getChannelValue(edgeId, channel);
+				var value = this.timedata.getChannelValue(edgeId, channel);
 				response.addValue(edgeId, channel, value.orElse(JsonNull.INSTANCE));
 			}
 		}

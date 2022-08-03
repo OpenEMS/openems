@@ -7,7 +7,7 @@
             <ion-label translate>General.grid</ion-label>
         </ion-item>
         <ion-card-content>
-            <table class="full_width" *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
+            <table class="full_width" *ngIf="data && edge; else noData">
                 <tr>
                     <td style="width:65%" translate>General.gridBuyAdvanced</td>
                     <td style="width:35%" class="align_right">

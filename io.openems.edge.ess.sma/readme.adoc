@@ -1,4 +1,4 @@
-= SMA SunnyIsland 6.0H
+= SMA SunnyIsland 6.0H and Sunny Island 4.4M
 
 Implemented Natures::
 - SymmetricEss
