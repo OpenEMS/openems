@@ -42,9 +42,10 @@ public interface ManagedSymmetricBatteryInverter extends SymmetricBatteryInverte
 	}
 
 	/**
-	 * Gets the {@link ModbusSlaveNatureTable} for Modbus/TCP Api.
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
 	 *
-	 * @param accessMode the {@link AccessMode}
+	 * @param accessMode filters the Modbus-Records that should be shown
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {

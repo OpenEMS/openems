@@ -121,8 +121,8 @@ export const TRANSLATION = {
         },
         form: {
             companyName: "Company name",
-            firstname: "Firstname",
-            lastname: "Lastname",
+            firstname: "First name",
+            lastname: "Last name",
             street: "Street",
             zip: "Postal code",
             city: "City",
@@ -169,8 +169,8 @@ export const TRANSLATION = {
                 phasesInfo: 'For technical reasons, the sum of the individual phases can be slightly different from the total sum.',
                 selfconsumptionInfo: 'Self-consumption indicates the percentage of the currently generated output that can be used by direct consumption and storage load itself.',
                 twoWayInfoGrid: 'Negative values correspond to grid feed-in, Positive values correspond to mains supply',
-                InfoStorageForCharge: 'Negative values correspond to memory loading',
-                InfoStorageForDischarge: 'Positive values correspond to memory discharge',
+                InfoStorageForCharge: 'Negative values correspond to storage charging',
+                InfoStorageForDischarge: 'Positive values correspond to storage discharge',
                 Channeltreshold: {
                     output: 'Output'
                 },
@@ -211,6 +211,7 @@ export const TRANSLATION = {
                     startTimeCharge: 'Charge Start time',
                 },
                 GridOptimizedCharge: {
+                    chargingDelayed: 'Charging delayed',
                     considerGridFeedInLimit: 'Consider maximum grid feed-in',
                     endTime: 'End time',
                     endTimeDescription: 'The charging does not take place with the maximum amount for a few hours, but steadily over a longer period of time.',
@@ -250,6 +251,7 @@ export const TRANSLATION = {
                     riskPropensity: 'Risk propensity',
                     settingOnlyVisableForInstaller: 'This setting is only visible to the installer',
                     State: {
+                        avoidLowCharging: 'Low charging avoided',
                         chargeLimitActive: 'Charge limit active',
                         endTimeNotCalculated: 'End time not calculated',
                         gridFeedInLimitationIsAvoided: 'Grid-Feed-in limitation is avoided',
@@ -257,8 +259,9 @@ export const TRANSLATION = {
                         noLimitPossible: 'No limitation possible (restricted by controls with higher priority)',
                         notDefined: 'Not defined',
                         passedEndTime: 'End time of limited charging exceeded',
-                        storageAlreadyFull: 'Memory already full',
+                        storageAlreadyFull: 'Storage already full',
                     },
+                    storageCapacity: 'Storagecapacity (only visible for admin)'
                 },
                 CHP: {
                     highThreshold: 'High Threshold',
@@ -299,7 +302,7 @@ export const TRANSLATION = {
                     starting: 'Starting',
                     status: 'Status',
                     totalCharge: 'Total charge',
-                    totalChargingPower: 'Total charging power',
+                    totalChargingPower: 'Total chargingpower',
                     unknown: 'Unknown',
                     unplugged: 'Unplugged',
                     Administration: {
@@ -430,6 +433,7 @@ export const TRANSLATION = {
                 simulator: 'Simulator',
                 systemExecute: 'Execute system command',
                 systemProfile: 'System Profile',
+                alerting: 'Alerting',
             },
             More: {
                 manualCommand: 'Manual command',
@@ -464,6 +468,41 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'New connection...',
                 newDevice: 'New device...',
+            },
+            Alerting: {
+                activate: 'Activate',
+                delay: 'Delay',
+                save: 'Save',
+                options: {
+                    15: '15 minute',
+                    60: '1 hour',
+                    1440: '1 day'
+                },
+                toast: {
+                    success: 'Settings applied',
+                    error: 'Error loading the settings'
+                },
+            },
+            App: {
+                header: 'The App Manager is currently in a first test version. If not all apps are displayed, the FEMS version may need to be updated.',
+                installed: 'Installed',
+                available: 'Available',
+                incompatible: 'Incompatible',
+                buyApp: 'Buy app',
+                modifyApp: 'Modify app',
+                createApp: 'Install app',
+                deleteApp: 'Delete app',
+                updateApp: 'Update app',
+                errorInstallable: 'Installation errors',
+                errorCompatible: 'Compatibility errors',
+            },
+        },
+        Service: {
+            entireSystem: "Entire system",
+            Cell: {
+                voltages: "Cell-voltages",
+                temperatures: "Cell-temperatures",
+                insulation: "Isolation",
             }
         }
     },

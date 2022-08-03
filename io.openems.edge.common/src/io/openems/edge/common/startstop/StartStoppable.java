@@ -61,10 +61,10 @@ public interface StartStoppable extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the {@link ModbusSlaveNatureTable} for {@link StartStoppable} used by
-	 * the Modbus/TCP Slave API.
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
 	 *
-	 * @param accessMode the {@link AccessMode}
+	 * @param accessMode filters the Modbus-Records that should be shown
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -1514,3 +1515,4 @@ public class SHAiButtonCopr {
 		return new_secret;
 	}
 }
+// CHECKSTYLE:ON

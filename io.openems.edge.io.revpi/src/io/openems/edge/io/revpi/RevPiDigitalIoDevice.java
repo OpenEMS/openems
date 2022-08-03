@@ -11,8 +11,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +30,12 @@ import io.openems.edge.io.api.DigitalOutput;
 @Component(//
 		name = "IO.RevolutionPi.DigitalIO", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE//
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 		implements DigitalOutput, DigitalInput, OpenemsComponent, EventHandler {
 
@@ -151,7 +153,7 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * NOTE data out will only be set if the channel value changes
+	 * NOTE data out will only be set if the channel value changes.
 	 */
 	private void updateDataOutChannels() {
 
@@ -239,7 +241,10 @@ public class RevPiDigitalIoDevice extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * @brief reads the data either from the given DATA IN hardware port
+	 * Reads the data either from the given DATA IN hardware port.
+	 * 
+	 * @param idx the index
+	 * @return the data
 	 */
 	private boolean getData(int idx) throws IOException {
 		return this.revPiHardware.getDataIn(idx + 1);

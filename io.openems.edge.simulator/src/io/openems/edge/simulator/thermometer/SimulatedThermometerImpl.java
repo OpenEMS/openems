@@ -4,7 +4,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -16,9 +16,11 @@ import io.openems.edge.thermometer.api.Thermometer;
 @Component(//
 		name = "Simulator.Thermometer", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 public class SimulatedThermometerImpl extends AbstractOpenemsComponent
 		implements SimulatedThermometer, Thermometer, OpenemsComponent {
 

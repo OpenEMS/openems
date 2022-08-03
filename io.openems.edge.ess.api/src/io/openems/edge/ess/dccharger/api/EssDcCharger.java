@@ -23,7 +23,7 @@ public interface EssDcCharger extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Maximum Ever Actual Power
+		 * Maximum Ever Actual Power.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess DC Charger
@@ -37,7 +37,7 @@ public interface EssDcCharger extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Actual Power
+		 * Actual Power.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess DC Charger
@@ -69,7 +69,7 @@ public interface EssDcCharger extends OpenemsComponent {
 					});
 				})),
 		/**
-		 * Actual Energy
+		 * Actual Energy.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
@@ -79,6 +79,31 @@ public interface EssDcCharger extends OpenemsComponent {
 		 */
 		ACTUAL_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+
+		/**
+		 * Voltage.
+		 *
+		 * <ul>
+		 * <li>Interface: Ess DC Charger
+		 * <li>Type: Integer
+		 * <li>Unit: mV
+		 * </ul>
+		 */
+		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+		/**
+		 * Current.
+		 *
+		 * <ul>
+		 * <li>Interface: Ess DC Charger
+		 * <li>Type: Integer
+		 * <li>Unit: mA
+		 * </ul>
+		 */
+		CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
 				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
@@ -208,10 +233,91 @@ public interface EssDcCharger extends OpenemsComponent {
 		this.getActualEnergyChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#VOLTAGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getVoltageChannel() {
+		return this.channel(ChannelId.VOLTAGE);
+	}
+
+	/**
+	 * Gets the Voltage in [mV]. See {@link ChannelId#VOLTAGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getVoltage() {
+		return this.getVoltageChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setVoltage(Integer value) {
+		this.getVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setVoltage(int value) {
+		this.getVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CURRENT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getCurrentChannel() {
+		return this.channel(ChannelId.CURRENT);
+	}
+
+	/**
+	 * Gets the Current in [mA]. See {@link ChannelId#CURRENT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCurrent() {
+		return this.getCurrentChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCurrent(Integer value) {
+		this.getCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCurrent(int value) {
+		this.getCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(SymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.ACTUAL_POWER, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ACTUAL_ENERGY, ModbusType.FLOAT64) //
+				.channel(6, ChannelId.VOLTAGE, ModbusType.FLOAT32) //
+				.channel(8, ChannelId.CURRENT, ModbusType.FLOAT32) //
 				.build();
 	}
 }

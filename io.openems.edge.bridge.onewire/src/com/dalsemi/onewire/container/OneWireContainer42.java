@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2006 Maxim Integrated Products, All Rights Reserved.
@@ -1344,3 +1345,4 @@ public class OneWireContainer42 extends OneWireContainer implements TemperatureC
 	public void writeRegister(byte[] register) throws OneWireIOException, OneWireException {
 	}
 }
+// CHECKSTYLE:ON

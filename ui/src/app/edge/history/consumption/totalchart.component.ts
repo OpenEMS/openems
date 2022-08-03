@@ -1,12 +1,12 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'consumptionTotalChart',
@@ -29,13 +29,11 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("consumption-total-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = "consumption-total-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
         this.setLabel()
     }
@@ -46,7 +44,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
@@ -61,7 +59,6 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     }
                     this.labels = labels;
 
-
                     // gather EVCS consumption
                     let totalEvcsConsumption: number[] = [];
                     config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
@@ -75,14 +72,16 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                             });
                         })
 
-                    // gather consumptionMetered cosumption
+                    // gather consumptionMetered consumption
                     let totalMeteredConsumption: number[] = [];
                     config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
                         .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
                         .forEach(component => {
-                            totalMeteredConsumption = result.data[component.id + '/ActivePower'].map((value, index) => {
-                                return Utils.addSafely(totalMeteredConsumption[index], value / 1000)
-                            })
+                            if (result.data[component.id + "/ActivePower"]) {
+                                totalMeteredConsumption = result.data[component.id + '/ActivePower'].map((value, index) => {
+                                    return Utils.addSafely(totalMeteredConsumption[index], value / 1000)
+                                })
+                            }
                         })
 
                     // gather other Consumption (Total - EVCS - consumptionMetered)
@@ -91,8 +90,8 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
                         if (value != null) {
 
-                            // Check if either totalEvcsConsumption or totalMeteredConsumption is not null
-                            return Utils.subtractSafely(Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]), totalMeteredConsumption[index]);
+                            // Check if either totalEvcsConsumption or totalMeteredConsumption is not null and the endValue not below 0
+                            return Utils.roundSlightlyNegativeValues(Utils.subtractSafely(Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]), totalMeteredConsumption[index]));
                         }
                     })
                     // convert datasets
@@ -111,6 +110,9 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach((channelAddress, index) => {
+                            if (!Object.keys(result.data).includes(channelAddress.toString())) {
+                                result.data[channelAddress.toString()] = [].fill(null);
+                            }
                             let component = config.getComponent(channelAddress.componentId);
                             let data = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
@@ -288,17 +290,20 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     });
                     this.datasets = datasets;
                     this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
+                    this.stopSpinner();
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

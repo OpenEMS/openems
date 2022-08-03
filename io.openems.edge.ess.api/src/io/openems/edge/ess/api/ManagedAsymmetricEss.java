@@ -287,7 +287,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 				.onInit(new PowerConstraint("SetReactivePowerL3GreaterOrEquals", Phase.L3, Pwr.REACTIVE,
 						Relationship.GREATER_OR_EQUALS))), //
 		/**
-		 * Holds settings of Active Power L1 for debugging
+		 * Holds settings of Active Power L1 for debugging.
 		 *
 		 * <ul>
 		 * <li>Interface: Managed Asymmetric Ess
@@ -303,7 +303,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Holds settings of Reactive Power for debugging
+		 * Holds settings of Reactive Power L1 for debugging.
 		 *
 		 * <ul>
 		 * <li>Interface: Managed Asymmetric Ess
@@ -319,7 +319,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Holds settings of Active Power L2 for debugging
+		 * Holds settings of Active Power L2 for debugging.
 		 *
 		 * <ul>
 		 * <li>Interface: Managed Asymmetric Ess
@@ -335,7 +335,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Holds settings of Reactive Power for debugging
+		 * Holds settings of Reactive Power L2 for debugging.
 		 *
 		 * <ul>
 		 * <li>Interface: Managed Asymmetric Ess
@@ -351,7 +351,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Holds settings of Active Power L1 for debugging
+		 * Holds settings of Active Power L3 for debugging.
 		 *
 		 * <ul>
 		 * <li>Interface: Managed Asymmetric Ess
@@ -367,7 +367,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Holds settings of Reactive Power for debugging
+		 * Holds settings of Reactive Power L3 for debugging.
 		 *
 		 * <ul>
 		 * <li>Interface: Managed Asymmetric Ess
@@ -395,6 +395,13 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		}
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(ManagedAsymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.SET_ACTIVE_POWER_L1_EQUALS, ModbusType.FLOAT32) //
@@ -427,14 +434,14 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 	}
 
 	/**
-	 * Apply the calculated Power
+	 * Apply the calculated Power.
 	 *
-	 * @param activePowerL1
-	 * @param activePowerL2
-	 * @param activePowerL3
-	 * @param reactivePowerL1
-	 * @param reactivePowerL2
-	 * @param reactivePowerL3
+	 * @param activePowerL1   the active power set-point for L1
+	 * @param reactivePowerL1 the reactive power set-point for L1
+	 * @param activePowerL2   the active power set-point for L2
+	 * @param reactivePowerL2 the reactive power set-point for L2
+	 * @param activePowerL3   the active power set-point for L3
+	 * @param reactivePowerL3 the reactive power set-point for L3
 	 */
 	public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
 			int activePowerL3, int reactivePowerL3) throws OpenemsNamedException;

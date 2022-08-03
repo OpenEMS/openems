@@ -1,7 +1,7 @@
 import { ErrorHandler, Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
@@ -71,8 +71,14 @@ export class Service implements ErrorHandler {
     translate.addLangs(Language.getLanguages());
     // this language will be used as a fallback when a translation isn't found in the current language
     translate.setDefaultLang(LanguageTag.DE);
+
     // initialize history period
     this.historyPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
+
+    // React on Language Change and update language
+    translate.onLangChange.subscribe((event: LangChangeEvent) => {
+      this.setLang(event.lang as LanguageTag);
+    });
   }
 
   /**
@@ -352,10 +358,33 @@ export class Service implements ErrorHandler {
    */
   public startSpinner(selector: string) {
     this.spinner.show(selector, {
-      type: 'ball-clip-rotate-multiple',
+      type: "ball-clip-rotate-multiple",
       fullScreen: false,
-      bdColor: "rgba(0,0,0,0.5)"
-    });
+      bdColor: "rgba(0, 0, 0, 0.8)",
+      size: "medium",
+      color: "#fff"
+    })
+  }
+
+  /**
+   * Start NGX-Spinner
+   * 
+   * The spinner has a transparent background set 
+   * and the spinner color is the primary environment color
+   * Spinner will appear inside html tag only
+   * 
+   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+   * 
+   * @param selector selector for specific spinner
+   */
+  public startSpinnerTransparentBackground(selector: string) {
+    this.spinner.show(selector, {
+      type: "ball-clip-rotate-multiple",
+      fullScreen: false,
+      bdColor: "rgba(0, 0, 0, 0)",
+      size: "medium",
+      color: "var(--ion-color-primary)"
+    })
   }
 
   /**
@@ -363,7 +392,7 @@ export class Service implements ErrorHandler {
    * @param selector selector for specific spinner
    */
   public stopSpinner(selector: string) {
-    this.spinner.hide(selector);
+    this.spinner.hide(selector)
   }
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {

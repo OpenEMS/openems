@@ -33,7 +33,6 @@ public class ShellyApi {
 	 * <p>
 	 * See https://shelly-api-docs.shelly.cloud/#shelly2-5-status
 	 *
-	 * @param index the index of the relay
 	 * @return the status as JsonObject according to Shelly docs
 	 * @throws OpenemsNamedException on error
 	 */

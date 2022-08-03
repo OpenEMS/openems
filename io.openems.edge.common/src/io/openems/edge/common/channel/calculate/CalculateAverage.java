@@ -20,7 +20,7 @@ public class CalculateAverage {
 	/**
 	 * Adds a Channel-Value.
 	 *
-	 * @param channel
+	 * @param channel the channel
 	 */
 	public void addValue(Channel<Integer> channel) {
 		var value = channel.value().asOptional();

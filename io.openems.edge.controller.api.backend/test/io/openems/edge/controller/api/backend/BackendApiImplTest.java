@@ -1,5 +1,7 @@
 package io.openems.edge.controller.api.backend;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.net.Proxy.Type;
 import java.time.Duration;
 import java.time.Instant;
@@ -112,48 +114,53 @@ public class BackendApiImplTest {
 
 			// All Values initially
 			handler.onNotification((timestamp, values) -> {
-				assertTrue(values.size() > 40); // all values
+				assertNotNull(values);
+				assertTrue(String.valueOf(values.size()) + " > 40 is FALSE", values.size() > 40); // all values
 			});
 			test.next(new TestCase()); //
-			handler.waitForCallback(5000);
+			handler.waitForCallback(1000);
 
 			// Only changed value
 			handler.onNotification((timestamp, values) -> {
-				assertTrue(values.size() == 1); // exactly one value
+				assertNotNull(values);
+				assertEquals(1, values.size()); // exactly one value
 				assertEquals(Integer.valueOf(1000),
 						JsonUtils.getAsOptionalInt(values, SUM_GRID_ACTIVE_POWER.toString()).get());
 			});
 			test.next(new TestCase() //
 					.input(SUM_GRID_ACTIVE_POWER, 1000) //
 			);
-			handler.waitForCallback(5000);
+			handler.waitForCallback(1000);
 
 			// Only changed value
 			handler.onNotification((timestamp, values) -> {
-				assertTrue(values.size() == 1); // exactly one value
+				assertNotNull(values);
+				assertEquals(1, values.size(), values.toString()); // exactly one value
 				assertEquals(Integer.valueOf(2000),
 						JsonUtils.getAsOptionalInt(values, SUM_PRODUCTION_ACTIVE_POWER.toString()).get());
 			});
 			test.next(new TestCase() //
 					.input(SUM_PRODUCTION_ACTIVE_POWER, 2000) //
 			);
-			handler.waitForCallback(5000);
+			handler.waitForCallback(1000);
 
 			// All values after 5 minutes
 			handler.onNotification((timestamp, values) -> {
-				assertTrue(values.size() > 40); // all values
+				assertNotNull(values);
+				assertTrue(String.valueOf(values.size()) + " > 40 is FALSE", values.size() > 40); // all values
 			});
 			test.next(new TestCase() //
 					.timeleap(clock, 6, ChronoUnit.MINUTES));
-			handler.waitForCallback(5000);
+			handler.waitForCallback(1000);
 		}
 	}
 
-	private static void assertTrue(boolean condition) throws OpenemsException {
+	private static void assertTrue(String message, boolean condition) throws OpenemsException {
 		try {
-			org.junit.Assert.assertTrue(condition);
+			org.junit.Assert.assertTrue(message, condition);
 		} catch (AssertionError e) {
 			System.err.println("AssertionError: " + e.getMessage());
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}
@@ -163,6 +170,19 @@ public class BackendApiImplTest {
 			org.junit.Assert.assertEquals(expected, actual);
 		} catch (AssertionError e) {
 			System.err.println("AssertionError: " + e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	// TODO remove after finding the CI bug
+	private static void assertEquals(Object expected, Object actual, String errorMessage) throws OpenemsException {
+		try {
+			org.junit.Assert.assertEquals(expected, actual);
+		} catch (AssertionError e) {
+			System.err.println("AssertionError: " + e.getMessage());
+			System.err.println("errorMessage: " + errorMessage);
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}

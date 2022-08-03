@@ -2,8 +2,6 @@ package io.openems.backend.edgewebsocket;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
@@ -12,7 +10,6 @@ import io.openems.common.utils.JsonUtils;
 
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
-	private final Logger log = LoggerFactory.getLogger(OnOpen.class);
 	private final EdgeWebsocketImpl parent;
 
 	public OnOpen(EdgeWebsocketImpl parent) {
@@ -31,8 +28,7 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			if (!apikeyOpt.isPresent()) {
 				throw new OpenemsException("Apikey is missing in handshake");
 			}
-			apikey = apikeyOpt.get();
-			wsData.setApikey(apikey);
+			apikey = apikeyOpt.get().trim();
 
 			// get edgeId for apikey
 			var edgeIdOpt = this.parent.metadata.getEdgeIdForApikey(apikey);
@@ -40,7 +36,6 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 				throw new OpenemsException("Unable to authenticate this Apikey.");
 			}
 			var edgeId = edgeIdOpt.get();
-			wsData.setEdgeId(edgeId);
 
 			// get metadata for Edge
 			var edgeOpt = this.parent.metadata.getEdge(edgeId);
@@ -49,13 +44,10 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			}
 			var edge = edgeOpt.get();
 
-			// log
-			this.parent.logInfo(this.log, "Edge [" + edge.getId() + "] connected.");
-
 			// announce Edge as online
 			edge.setOnline(true);
 			edge.setLastMessageTimestamp();
-			wsData.setAuthenticated(true);
+			wsData.setEdgeId(edgeId);
 
 			// TODO send notification to UI
 		} catch (OpenemsException e) {

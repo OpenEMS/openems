@@ -12,7 +12,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.Unit;
@@ -46,9 +46,11 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE, //
 				"type=PRODUCTION" //
 		})
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE //
+})
 public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 		implements AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent {
 
@@ -63,7 +65,7 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 	protected ConfigurationAdmin cm;
 
 	/**
-	 * Subtracts 10.000 between Element and Channel
+	 * Subtracts 10.000 between Element and Channel.
 	 */
 	public static final ElementToChannelConverter MINUS_10000_CONVERTER = new ElementToChannelOffsetConverter(-10000);
 

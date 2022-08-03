@@ -111,11 +111,21 @@ public class SendChannelValuesWorker {
 							// Ignore Low-Priority Channels
 							&& channel.channelDoc().getPersistencePriority()
 									.isAtLeast(this.parent.config.persistencePriority()))
-					.collect(ImmutableTable.toImmutableTable(c -> c.address().getComponentId(),
-							c -> c.address().getChannelId(), c -> c.value().asJson()));
+					.collect(//
+							ImmutableTable.toImmutableTable(//
+									c -> c.address().getComponentId(), //
+									c -> c.address().getChannelId(), //
+									c -> c.value().asJson(), //
+									// simple/stupid merge function to avoid
+									// 'java.lang.IllegalArgumentException Duplicate Key'
+									(t, u) -> {
+										this.parent.logWarn(this.log, "Duplicate Key [" + t.toString() + "]");
+										return t;
+									}));
 		} catch (Exception e) {
 			// ConcurrentModificationException can happen if Channels are dynamically added
 			// or removed
+			this.parent.logWarn(this.log, "Unable to collect date: " + e.getMessage());
 			return ImmutableTable.of();
 		}
 	}
@@ -154,7 +164,9 @@ public class SendChannelValuesWorker {
 
 			} else {
 				// Actually use the kept 'lastSentValues'
+				// CHECKSTYLE:OFF
 				lastAllValues = this.parent.lastAllValues;
+				// CHECKSTYLE:ON
 			}
 
 			// Round timestamp to Global Cycle-Time

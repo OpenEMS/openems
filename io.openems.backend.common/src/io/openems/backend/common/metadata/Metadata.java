@@ -2,21 +2,25 @@ package io.openems.backend.common.metadata;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.osgi.annotation.versioning.ProviderType;
+import org.osgi.service.event.EventAdmin;
 
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.event.BackendEventConstants;
+import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
+import io.openems.common.session.Language;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.Channel;
@@ -35,20 +39,6 @@ public interface Metadata {
 	 * @return true if it is initialized
 	 */
 	public boolean isInitialized();
-
-	/**
-	 * See {@link #isInitialized()}.
-	 *
-	 * @param callback the callback on 'isInitialized'
-	 */
-	public void addOnIsInitializedListener(Runnable callback);
-
-	/**
-	 * See {@link #isInitialized()}.
-	 *
-	 * @param callback the callback on 'isInitialized'
-	 */
-	public void removeOnIsInitializedListener(Runnable callback);
 
 	/**
 	 * Authenticates the User by username and password.
@@ -77,12 +67,30 @@ public interface Metadata {
 	public void logout(User user);
 
 	/**
+	 * Handles operations with Edge.
+	 * 
+	 * <p>
+	 * To be completed. This should eventually replace Edge.
+	 * 
+	 * @return an {@link EdgeHandler}
+	 */
+	public EdgeHandler edge();
+
+	/**
 	 * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
 	 *
 	 * @param apikey the API-Key
 	 * @return the Edge-ID or Empty
 	 */
 	public abstract Optional<String> getEdgeIdForApikey(String apikey);
+
+	/**
+	 * Get all EdgeUsers to EdgeID.
+	 *
+	 * @param edgeId the Edge-ID
+	 * @return the List of Users as Optional
+	 */
+	public abstract Optional<List<EdgeUser>> getUserToEdge(String edgeId);
 
 	/**
 	 * Get an Edge by its unique Edge-ID.
@@ -251,6 +259,16 @@ public interface Metadata {
 	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException;
 
 	/**
+	 * Return the Setup Protocol data as a JsonObject.
+	 *
+	 * @param user   {@link User} the current user
+	 * @param edgeId the {@link Edge} ID to get the data
+	 * @return Setup Protocol as a JsonObject
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException;
+
+	/**
 	 * Submit the installation assistant protocol.
 	 *
 	 * @param user       {@link User} the current user
@@ -263,10 +281,11 @@ public interface Metadata {
 	/**
 	 * Register a user.
 	 *
-	 * @param jsonObject {@link JsonObject} that represents an user
+	 * @param user {@link JsonObject} that represents an user
+	 * @param oem  OEM name
 	 * @throws OpenemsNamedException on error
 	 */
-	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException;
+	public void registerUser(JsonObject user, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException;
 
 	/**
 	 * Update language from given user.
@@ -276,5 +295,30 @@ public interface Metadata {
 	 * @throws OpenemsNamedException on error
 	 */
 	public void updateUserLanguage(User user, Language language) throws OpenemsNamedException;
+
+	/**
+	 * Gets an EdgeUserRole to Edge and User.
+	 *
+	 * @param edgeId the Edge
+	 * @param userId the User
+	 * @return EdgeUser or null
+	 */
+	public Optional<EdgeUser> getEdgeUserTo(String edgeId, String userId);
+
+	/**
+	 * Returns an EventAdmin, used by Edge objects.
+	 *
+	 * @return {@link EventAdmin}
+	 */
+	public EventAdmin getEventAdmin();
+
+	/**
+	 * Defines Events a Metadata can throw.
+	 */
+	public static final class Events {
+		private static final String TOPIC_BASE = BackendEventConstants.TOPIC_BASE + "metadata/";
+
+		public static final String AFTER_IS_INITIALIZED = Events.TOPIC_BASE + "TOPIC_AFTER_IS_INITIALIZED";
+	}
 
 }

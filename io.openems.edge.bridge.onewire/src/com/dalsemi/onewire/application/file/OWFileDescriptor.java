@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
@@ -3318,3 +3319,4 @@ public class OWFileDescriptor {
 		System.out.println();
 	}
 }
+// CHECKSTYLE:ON

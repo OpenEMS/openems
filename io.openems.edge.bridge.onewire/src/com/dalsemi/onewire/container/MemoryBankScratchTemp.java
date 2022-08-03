@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 2006 Maxim Integrated Products, All Rights Reserved.
@@ -657,3 +658,4 @@ class MemoryBankScratchTemp implements MemoryBank {
 	}
 
 }
+// CHECKSTYLE:ON

@@ -35,7 +35,7 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 )
 public class BoschBpts5HybridPv extends AbstractOpenemsComponent implements EssDcCharger, OpenemsComponent {
 
-	private final int PEAK_POWER = 5_500;
+	private static final int PEAK_POWER = 5_500;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private BoschBpts5HybridCore core;
@@ -49,11 +49,11 @@ public class BoschBpts5HybridPv extends AbstractOpenemsComponent implements EssD
 				EssDcCharger.ChannelId.values(), //
 				ChannelId.values() //
 		);
-		this._setMaxActualPower(this.PEAK_POWER); // TODO: get from read worker
+		this._setMaxActualPower(PEAK_POWER); // TODO: get from read worker
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config)
+	protected void activate(ComponentContext context, Config config)
 			throws OpenemsNamedException, ConfigurationException, IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 

@@ -64,18 +64,29 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 		 * Update Map of prices
 		 */
 		var client = new OkHttpClient();
-		var mediaType = MediaType.parse("application/json");
-		var body = RequestBody.create(mediaType, JsonUtils.buildJsonObject() //
-				.addProperty("query", //
-						"{\n" + "  viewer {\n" + "    homes {\n" + "      currentSubscription{\n"
-								+ "        priceInfo{\n" + "          today {\n" + "            total\n"
-								+ "            startsAt\n" + "          }\n" + "          tomorrow {\n"
-								+ "            total\n" + "            startsAt\n" + "          }\n" + "        }\n"
-								+ "      }\n" + "    }\n" + "  }\n" + "}" + "") //
-				.build().toString());
 		var request = new Request.Builder() //
 				.url(TIBBER_API_URL) //
-				.header("Authorization", this.config.accessToken()).post(body) //
+				.header("Authorization", this.config.accessToken()) //
+				.post(RequestBody.create(JsonUtils.buildJsonObject() //
+						.addProperty("query", "{\n" //
+								+ "  viewer {\n" //
+								+ "    homes {\n" //
+								+ "      currentSubscription{\n" //
+								+ "        priceInfo{\n" //
+								+ "          today {\n" //
+								+ "            total\n" //
+								+ "            startsAt\n" //
+								+ "          }\n" //
+								+ "          tomorrow {\n" //
+								+ "            total\n" //
+								+ "            startsAt\n" //
+								+ "          }\n" //
+								+ "        }\n" //
+								+ "      }\n" //
+								+ "    }\n" //
+								+ "  }\n" //
+								+ "}") //
+						.build().toString(), MediaType.parse("application/json"))) //
 				.build();
 		int httpStatusCode;
 		try (var response = client.newCall(request).execute()) {
@@ -143,9 +154,9 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		// return null if data is not yet available.
+		// return empty TimeOfUsePrices if data is not yet available.
 		if (this.updateTimeStamp == null) {
-			return null;
+			return TimeOfUsePrices.empty(ZonedDateTime.now());
 		}
 
 		return TimeOfUseTariffUtils.getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */,
@@ -162,35 +173,32 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 	public static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String jsonData) throws OpenemsNamedException {
 		var result = new TreeMap<ZonedDateTime, Float>();
 
-		if (!jsonData.isEmpty()) {
+		var line = JsonUtils.parseToJsonObject(jsonData);
+		var homes = JsonUtils.getAsJsonObject(line, "data") //
+				.getAsJsonObject("viewer") //
+				.getAsJsonArray("homes");
 
-			var line = JsonUtils.parseToJsonObject(jsonData);
-			var homes = JsonUtils.getAsJsonObject(line, "data") //
-					.getAsJsonObject("viewer") //
-					.getAsJsonArray("homes");
+		for (JsonElement home : homes) {
 
-			for (JsonElement home : homes) {
+			var priceInfo = JsonUtils.getAsJsonObject(home, "currentSubscription") //
+					.getAsJsonObject("priceInfo");
 
-				var priceInfo = JsonUtils.getAsJsonObject(home, "currentSubscription") //
-						.getAsJsonObject("priceInfo");
+			// Price info for today and tomorrow.
+			var today = JsonUtils.getAsJsonArray(priceInfo, "today");
+			var tomorrow = JsonUtils.getAsJsonArray(priceInfo, "tomorrow");
 
-				// Price info for today and tomorrow.
-				var today = JsonUtils.getAsJsonArray(priceInfo, "today");
-				var tomorrow = JsonUtils.getAsJsonArray(priceInfo, "tomorrow");
+			// Adding to an array to avoid individual variables for individual for loops.
+			JsonArray[] days = { today, tomorrow };
 
-				// Adding to an array to avoid individual variables for individual for loops.
-				JsonArray[] days = { today, tomorrow };
-
-				// parse the arrays for price and time stamps.
-				for (JsonArray day : days) {
-					for (JsonElement element : day) {
-						var marketPrice = JsonUtils.getAsFloat(element, "total") * 1000;
-						var startTime = ZonedDateTime
-								.parse(JsonUtils.getAsString(element, "startsAt"), DateTimeFormatter.ISO_DATE_TIME)
-								.withZoneSameInstant(ZoneId.systemDefault());
-						// Adding the values in the Map.
-						result.put(startTime, marketPrice);
-					}
+			// parse the arrays for price and time stamps.
+			for (JsonArray day : days) {
+				for (JsonElement element : day) {
+					var marketPrice = JsonUtils.getAsFloat(element, "total") * 1000;
+					var startTime = ZonedDateTime
+							.parse(JsonUtils.getAsString(element, "startsAt"), DateTimeFormatter.ISO_DATE_TIME)
+							.withZoneSameInstant(ZoneId.systemDefault());
+					// Adding the values in the Map.
+					result.put(startTime, marketPrice);
 				}
 			}
 		}

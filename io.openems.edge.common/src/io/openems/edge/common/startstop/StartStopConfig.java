@@ -3,7 +3,7 @@ package io.openems.edge.common.startstop;
 /**
  * Every OpenEMS Component that implements {@link StartStoppable} is required to
  * have a configuration property "startStop" of this type that overrides the
- * logic of the {@link StartStoppable#setStartStop(StartStop)} method:
+ * logic of the {@link StartStoppable#setStartStop(StartStop)} method:.
  *
  * <pre>
  * 	&#64;AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
@@ -30,7 +30,7 @@ public enum StartStopConfig {
 	STOP,
 	/**
 	 * Wait for runtime START/STOP command via
-	 * {@link StartStoppable#setStartStop(StartStop)}
+	 * {@link StartStoppable#setStartStop(StartStop)}.
 	 */
 	AUTO;
 }

@@ -29,15 +29,18 @@ public class SymmetricLimitActivePower extends AbstractOpenemsComponent implemen
 	private Config config;
 
 	/**
-	 * the configured Max Charge ActivePower
+	 * The configured Max Charge ActivePower.
 	 *
-	 * value is zero or negative
+	 * <p>
+	 * Value is zero or negative
 	 */
 	private int maxChargePower = 0;
+
 	/**
-	 * the configured Max Discharge ActivePower
+	 * The configured Max Discharge ActivePower.
 	 *
-	 * value is zero or positive
+	 * <p>
+	 * Value is zero or positive
 	 */
 	private int maxDischargePower = 0;
 

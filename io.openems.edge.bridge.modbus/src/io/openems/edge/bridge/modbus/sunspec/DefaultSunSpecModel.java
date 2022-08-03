@@ -1,3 +1,5 @@
+// CHECKSTYLE:OFF
+
 package io.openems.edge.bridge.modbus.sunspec;
 
 import io.openems.common.channel.AccessMode;
@@ -13843,3 +13845,4 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		return this.label;
 	}
 }
+// CHECKSTYLE:ON

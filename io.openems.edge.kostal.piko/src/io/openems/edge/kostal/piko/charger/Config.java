@@ -3,7 +3,7 @@ package io.openems.edge.kostal.piko.charger;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "KOSTAL PIKO PV-Charger", //
 		description = "The PV charger implementation of a KOSTAL PIKO.")
 @interface Config {

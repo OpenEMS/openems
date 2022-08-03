@@ -48,7 +48,7 @@
                 </ion-segment-button>
             </ion-segment>
         </ion-card-content>
-        <ng-container *ngIf="component.properties['mode'] == 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
+        <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
             <ion-card-content class="underline">
                 <table class="full_width">
                     <tr>

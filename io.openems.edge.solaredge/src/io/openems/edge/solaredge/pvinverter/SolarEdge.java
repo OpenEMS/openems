@@ -1,6 +1,7 @@
 package io.openems.edge.solaredge.pvinverter;
 
 import java.util.Map;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -48,9 +49,8 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class SolarEdge extends AbstractSunSpecPvInverter implements SunSpecPvInverter, ManagedSymmetricPvInverter,
-	SymmetricMeter, ModbusComponent, AsymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
+		AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
-	//private static final int UNIT_ID = 14;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
@@ -95,7 +95,7 @@ public class SolarEdge extends AbstractSunSpecPvInverter implements SunSpecPvInv
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, 
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK, config.phase())) {
 			return;
 		}
@@ -120,6 +120,6 @@ public class SolarEdge extends AbstractSunSpecPvInverter implements SunSpecPvInv
 				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(SolarEdge.class, accessMode, 100) //
 						.build());
-	}	
-	
+	}
+
 }

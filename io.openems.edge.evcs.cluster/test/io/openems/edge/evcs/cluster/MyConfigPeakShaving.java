@@ -1,6 +1,6 @@
 package io.openems.edge.evcs.cluster;
 
-import io.openems.edge.common.test.AbstractComponentConfig;
+import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfigPeakShaving extends AbstractComponentConfig implements ConfigPeakShaving {
@@ -10,10 +10,10 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 		private String id = "evcsCluster0";
 		private boolean debugMode = false;
 		private int hardwarePowerLimitPerPhase = 7000;
-		private String[] evcs_ids = { "evcs0", "evcs1" };
+		private String[] evcsIds = { "evcs0", "evcs1" };
 		private String evcsTarget = "(&(enabled=true)(!(service.pid=evcsCluster0))(|(id=\" + this.evcs_id() + \")))";
-		private String ess_id = "ess0";
-		private String meter_id = "meter0";
+		private String essId = "ess0";
+		private String meterId = "meter0";
 		private int essSecureDischargeSoc = 25;
 		private int essSecureDischargeMinSoc = 15;
 		private boolean enableSecureEssDischarge = false;
@@ -36,8 +36,8 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 			return this;
 		}
 
-		public Builder setEvcsIds(String[] evcs_ids) {
-			this.evcs_ids = evcs_ids;
+		public Builder setEvcsIds(String[] evcsIds) {
+			this.evcsIds = evcsIds;
 			return this;
 		}
 
@@ -46,8 +46,8 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 			return this;
 		}
 
-		public Builder setEssId(String ess_id) {
-			this.ess_id = ess_id;
+		public Builder setEssId(String essId) {
+			this.essId = essId;
 			return this;
 		}
 
@@ -66,8 +66,8 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 			return this;
 		}
 
-		public Builder setMeterId(String meter_id) {
-			this.meter_id = meter_id;
+		public Builder setMeterId(String meterId) {
+			this.meterId = meterId;
 			return this;
 		}
 
@@ -76,6 +76,11 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 		}
 	}
 
+	/**
+	 * Create a Config builder.
+	 * 
+	 * @return a {@link Builder}
+	 */
 	public static Builder create() {
 		return new Builder();
 	}
@@ -99,12 +104,12 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 
 	@Override
 	public String[] evcs_ids() {
-		return this.builder.evcs_ids;
+		return this.builder.evcsIds;
 	}
 
 	@Override
 	public String ess_id() {
-		return this.builder.ess_id;
+		return this.builder.essId;
 	}
 
 	@Override
@@ -119,7 +124,7 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 
 	@Override
 	public String meter_id() {
-		return this.builder.meter_id;
+		return this.builder.meterId;
 	}
 
 	@Override

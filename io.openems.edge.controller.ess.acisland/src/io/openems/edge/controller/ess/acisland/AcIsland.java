@@ -22,7 +22,11 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.SymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Ess.AcIsland", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.Ess.AcIsland", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class AcIsland extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(AcIsland.class);
@@ -57,7 +61,7 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 	private Config config;
 
 	/**
-	 * The current state in the State Machine
+	 * The current state in the State Machine.
 	 */
 	private State state = State.UNDEFINED;
 
@@ -230,7 +234,7 @@ public class AcIsland extends AbstractOpenemsComponent implements Controller, Op
 	}
 
 	/**
-	 * A flag to maintain change in the state
+	 * A flag to maintain change in the state.
 	 *
 	 * @param nextState the target state
 	 * @return Flag that the state is changed or not

@@ -27,12 +27,11 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
     protected translate: TranslateService,
     private route: ActivatedRoute,
   ) {
-    super(service, translate);
+    super("timeOfUseTariffDischarge-chart", service, translate);
   }
 
   ngOnInit() {
-    this.spinnerId = "timeOfUseTariffDischarge-chart";
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.service.setCurrentComponent('', this.route);
   }
 
@@ -42,7 +41,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
 
   protected updateChart() {
     this.autoSubscribeChartRefresh();
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.colors = [];
     this.loading = true;
 
@@ -204,12 +203,14 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
 
         this.datasets = datasets;
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+        this.stopSpinner();
+
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
         return;
       });
+
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();

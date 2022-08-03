@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -1455,3 +1456,4 @@ public class OneWireContainer30 extends OneWireContainer implements ADContainer,
 		// drain this....let's just make everything happen in real time
 	}
 }
+// CHECKSTYLE:ON

@@ -68,6 +68,13 @@ public interface Controller extends OpenemsComponent {
 		this.getRunFailedChannel().setNextValue(value);
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(OpenemsComponent.class, accessMode, 80) //
 				.channel(0, ChannelId.RUN_FAILED, ModbusType.UINT16) //

@@ -50,10 +50,10 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                     //calculate other power
                     let otherEnergy: number = 0;
                     this.evcsComponents.forEach(component => {
-                        otherEnergy += this.data[component.id + '/EnergyTotal'];
+                        otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
                     })
                     this.consumptionMeterComponents.forEach(component => {
-                        otherEnergy += this.data[component.id + '/ActiveProductionEnergy'];
+                        otherEnergy += (this.data[component.id + '/ActiveProductionEnergy'] ?? 0);
                     })
                     this.totalOtherEnergy = response.result.data["_sum/ConsumptionActiveEnergy"] - otherEnergy;
                 }).catch(() => {
@@ -77,7 +77,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                     !component.isEnabled == false);
             for (let component of this.evcsComponents) {
                 channels.push(
-                    new ChannelAddress(component.id, 'EnergyTotal'),
+                    new ChannelAddress(component.id, 'ActiveConsumptionEnergy'),
                 )
             }
 
@@ -95,7 +95,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
     public getTotalOtherEnergy(): number {
         let otherEnergy: number = 0;
         this.evcsComponents.forEach(component => {
-            otherEnergy += this.data[component.id + '/EnergyTotal'];
+            otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
         })
         this.consumptionMeterComponents.forEach(component => {
             otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];

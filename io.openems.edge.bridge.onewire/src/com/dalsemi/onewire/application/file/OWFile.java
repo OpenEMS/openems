@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
@@ -1191,3 +1192,4 @@ public class OWFile {
 		}
 	}
 }
+// CHECKSTYLE:ON

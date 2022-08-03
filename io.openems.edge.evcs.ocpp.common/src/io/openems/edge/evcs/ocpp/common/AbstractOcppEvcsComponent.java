@@ -7,10 +7,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -27,7 +23,6 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
 public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
@@ -46,9 +41,6 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	private final ChargeSessionStamp sessionStart = new ChargeSessionStamp();
 
 	private final ChargeSessionStamp sessionEnd = new ChargeSessionStamp();
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
 
 	protected AbstractOcppEvcsComponent(OcppProfileType[] profileTypes,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
@@ -112,9 +104,11 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		}
 
 		var timedata = this.getTimedata();
-		var componentId = this.id();
-		if (timedata == null || componentId == null) {
+		if (timedata == null) {
+			return;
 		}
+
+		var componentId = this.id();
 		timedata.getLatestValue(new ChannelAddress(componentId, "ActiveConstumptionEnergy"))
 				.thenAccept(totalEnergyOpt -> {
 
@@ -136,6 +130,12 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		super.deactivate();
 	}
 
+	/**
+	 * New session started.
+	 * 
+	 * @param server    the {@link OcppServer}
+	 * @param sessionId the session {@link UUID}
+	 */
 	public void newSession(OcppServer server, UUID sessionId) {
 		this.ocppServer = server;
 		this.sessionId = sessionId;
@@ -143,6 +143,9 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		this._setChargingstationCommunicationFailed(false);
 	}
 
+	/**
+	 * Session lost.
+	 */
 	public void lostSession() {
 		this.ocppServer = null;
 		this.sessionId = null;
@@ -150,16 +153,46 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		this._setChargingstationCommunicationFailed(true);
 	}
 
+	/**
+	 * Get the supported measurements.
+	 * 
+	 * @return a Set of {@link OcppInformations}
+	 */
 	public abstract Set<OcppInformations> getSupportedMeasurements();
 
+	/**
+	 * Get configured OCPP-ID.
+	 * 
+	 * @return the OCPP-ID
+	 */
 	public abstract String getConfiguredOcppId();
 
+	/**
+	 * Get configured Connector-ID.
+	 * 
+	 * @return the Connector-ID
+	 */
 	public abstract Integer getConfiguredConnectorId();
 
+	/**
+	 * Get configured maximum hardware power.
+	 * 
+	 * @return the maximum hardware power
+	 */
 	public abstract Integer getConfiguredMaximumHardwarePower();
 
+	/**
+	 * Get configured minimum hardware power.
+	 * 
+	 * @return the minimum hardware power
+	 */
 	public abstract Integer getConfiguredMinimumHardwarePower();
 
+	/**
+	 * Returns the Session Energy.
+	 * 
+	 * @return true if yes
+	 */
 	public abstract boolean returnsSessionEnergy();
 
 	/**
@@ -235,11 +268,6 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 
 	public ChargeSessionStamp getSessionEnd() {
 		return this.sessionEnd;
-	}
-
-	@Override
-	public Timedata getTimedata() {
-		return this.timedata;
 	}
 
 	@Override

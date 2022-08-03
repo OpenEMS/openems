@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -1857,3 +1858,4 @@ public class NetAdapter extends DSPortAdapter implements NetAdapterConstants {
 		return -1;
 	}
 }
+// CHECKSTYLE:ON

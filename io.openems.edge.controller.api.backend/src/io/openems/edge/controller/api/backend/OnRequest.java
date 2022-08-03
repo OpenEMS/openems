@@ -93,8 +93,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case SubscribeSystemLogRequest.METHOD:
 			resultFuture = this.handleSubscribeSystemLogRequest(user, SubscribeSystemLogRequest.from(request));
 			break;
+
 		case UpdateUserLanguageRequest.METHOD:
 			resultFuture = this.handleUpdateUserLanguageRequest(user, UpdateUserLanguageRequest.from(request));
+			break;
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -261,7 +263,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(User user,
 			SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		this.parent.setSystemLogSubscribed(request.getSubscribe());
+		this.parent.setSystemLogSubscribed(request.isSubscribe());
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 

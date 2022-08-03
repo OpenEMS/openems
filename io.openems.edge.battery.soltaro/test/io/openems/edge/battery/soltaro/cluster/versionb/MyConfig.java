@@ -1,9 +1,9 @@
 package io.openems.edge.battery.soltaro.cluster.versionb;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.battery.soltaro.common.enums.BatteryState;
 import io.openems.edge.battery.soltaro.common.enums.ModuleType;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

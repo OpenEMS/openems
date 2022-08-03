@@ -16,8 +16,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +39,11 @@ import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Evcs.Keba.KeContact", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class KebaKeContact extends AbstractOpenemsComponent
 		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
 
@@ -166,9 +169,9 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Logs are displayed if the debug mode is configured
+	 * Logs are displayed if the debug mode is configured.
 	 *
-	 * @param log    Logger
+	 * @param log    the {@link Logger}
 	 * @param string Text to display
 	 */
 	protected void logInfoInDebugmode(Logger log, String string) {
@@ -207,6 +210,13 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				this.getModbusSlaveNatureTable(accessMode));
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 
 		return ModbusSlaveNatureTable.of(KebaKeContact.class, accessMode, 300) //

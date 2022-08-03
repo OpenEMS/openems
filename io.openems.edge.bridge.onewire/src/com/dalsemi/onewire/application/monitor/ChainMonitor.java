@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2006 Maxim Integrated Products, All Rights Reserved.
  *
@@ -338,3 +339,4 @@ public class ChainMonitor extends AbstractDeviceMonitor {
 		return containerVector;
 	}
 }
+// CHECKSTYLE:ON
