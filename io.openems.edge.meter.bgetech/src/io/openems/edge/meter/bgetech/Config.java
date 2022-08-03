@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.meter.api.MeterType;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Meter B+G E-Tech DRT428M-2", //
 		description = "Implements the B+G E-Tech DRT428M-2 Meter.")
 public
