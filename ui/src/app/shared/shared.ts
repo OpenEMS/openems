@@ -8,4 +8,4 @@ export { CurrentData } from "./type/currentdata";
 export { GridMode } from "./type/gridMode";
 export { SystemLog } from "./type/systemlog";
 export { Widget, WidgetFactory, WidgetNature, Widgets } from "./type/widget";
-
+export { Logger } from "./service/logger";

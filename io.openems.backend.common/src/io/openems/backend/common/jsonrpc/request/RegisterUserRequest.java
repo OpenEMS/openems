@@ -2,6 +2,7 @@ package io.openems.backend.common.jsonrpc.request;
 
 import com.google.gson.JsonObject;
 
+import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
@@ -18,20 +19,26 @@ public class RegisterUserRequest extends JsonrpcRequest {
 	 */
 	public static RegisterUserRequest from(JsonrpcRequest request) throws OpenemsNamedException {
 		var params = request.getParams();
-
-		return new RegisterUserRequest(request, JsonUtils.getAsJsonObject(params, "user"));
+		var user = JsonUtils.getAsJsonObject(params, "user");
+		var oem = JsonUtils.getAsEnum(OpenemsOEM.Manufacturer.class, params, "oem");
+		return new RegisterUserRequest(request, user, oem);
 	}
 
-	private final JsonObject jsonObject;
+	private final JsonObject user;
+	private final OpenemsOEM.Manufacturer oem;
 
-	private RegisterUserRequest(JsonrpcRequest request, JsonObject jsonObject) {
+	private RegisterUserRequest(JsonrpcRequest request, JsonObject jsonObject, OpenemsOEM.Manufacturer oem) {
 		super(request, RegisterUserRequest.METHOD);
-		this.jsonObject = jsonObject;
+		this.user = jsonObject;
+		this.oem = oem;
 	}
 
 	@Override
 	public JsonObject getParams() {
-		return this.jsonObject;
+		return JsonUtils.buildJsonObject() //
+				.add("user", this.user) //
+				.addProperty("oem", this.oem) //
+				.build();
 	}
 
 	/**
@@ -39,8 +46,11 @@ public class RegisterUserRequest extends JsonrpcRequest {
 	 *
 	 * @return the {@link JsonObject}
 	 */
-	public JsonObject getJsonObject() {
-		return this.jsonObject;
+	public JsonObject getUser() {
+		return this.user;
 	}
 
+	public OpenemsOEM.Manufacturer getOem() {
+		return this.oem;
+	}
 }

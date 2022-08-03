@@ -48,7 +48,8 @@ export type SetupProtocol = {
         category: string,
         name: string,
         value: string
-    }[]
+    }[],
+    oem: string
 };
 
 /**
@@ -101,7 +102,8 @@ export type SetupProtocol = {
  *              category: string,
  *              name: string,
  *              value: string
- *          }[]
+ *          }[],
+ *          oem: string
  *      }
  *  }
  * </pre>

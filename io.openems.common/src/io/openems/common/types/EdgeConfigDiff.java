@@ -75,7 +75,10 @@ public class EdgeConfigDiff {
 				if (!diffProperties.entriesOnlyOnLeft().isEmpty()) {
 					// created
 					for (Entry<String, JsonElement> newEntry : diffProperties.entriesOnlyOnLeft().entrySet()) {
-						properties.put(newEntry.getKey(), new OldNewProperty(JsonNull.INSTANCE, newEntry.getValue()));
+						if (newEntry.getValue() != null && newEntry.getValue() != JsonNull.INSTANCE) {
+							properties.put(newEntry.getKey(),
+									new OldNewProperty(JsonNull.INSTANCE, newEntry.getValue()));
+						}
 					}
 				}
 				if (!diffProperties.entriesDiffering().isEmpty()) {
@@ -237,8 +240,7 @@ public class EdgeConfigDiff {
 		var lastChangeBy = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
 				component.getProperty(OpenemsConstants.PROPERTY_LAST_CHANGE_BY)
 						.orElse(new JsonPrimitive("Apache Felix Webconsole")));
-		var lastChangeAt = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE,
-				JsonNull.INSTANCE);
+		var lastChangeAt = new ComponentDiff.OldNewProperty(JsonNull.INSTANCE, JsonNull.INSTANCE);
 		var diff = new ComponentDiff(component, Change.UPDATED, lastChangeBy, lastChangeAt);
 		for (Entry<String, OldNewProperty> property : properties.entrySet()) {
 			diff.add(property.getKey(), property.getValue());

@@ -194,9 +194,37 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		super.logInfo(log, message);
 	}
 
+	/**
+	 * Logs a info message with Edge-ID.
+	 * 
+	 * @param log     the {@link Logger}
+	 * @param edgeId  the Edge-ID
+	 * @param message the message
+	 */
+	protected void logInfo(Logger log, String edgeId, String message) {
+		if (edgeId == null) {
+			edgeId = "UNKNOWN";
+		}
+		super.logInfo(log, "[" + edgeId + "] " + message);
+	}
+
 	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
+	}
+
+	/**
+	 * Logs a warning message with Edge-ID.
+	 * 
+	 * @param log     the {@link Logger}
+	 * @param edgeId  the Edge-ID
+	 * @param message the message
+	 */
+	protected void logWarn(Logger log, String edgeId, String message) {
+		if (edgeId == null) {
+			edgeId = "UNKNOWN";
+		}
+		super.logWarn(log, "[" + edgeId + "] " + message);
 	}
 
 	@Override
@@ -213,7 +241,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @param notification the SystemLogNotification
 	 */
 	public void handleSystemLogNotification(String edgeId, SystemLogNotification notification) {
-		this.systemLogHandler.handleSystemLogNotification(edgeId, null, notification);
+		this.systemLogHandler.handleSystemLogNotification(edgeId, notification);
 	}
 
 	@Override
