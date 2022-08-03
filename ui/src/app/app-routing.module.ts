@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { ChangelogComponent } from './changelog/changelog.component';
-import { AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
+import { AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { DelayedSellToGridChartOverviewComponent } from './edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
 import { FixDigitalOutputChartOverviewComponent } from './edge/history/fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
@@ -21,6 +21,7 @@ import { StorageChartOverviewComponent } from './edge/history/storage/storagecha
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './edge/history/timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { InstallationComponent } from './edge/installation/installation.component';
 import { LiveComponent as EdgeLiveComponent } from './edge/live/live.component';
+import { AlertingComponent as EdgeSettingsAlerting } from './edge/settings/alerting/alerting.component';
 import { IndexComponent as EdgeSettingsAppIndex } from './edge/settings/app/index.component';
 import { InstallAppComponent as EdgeSettingsAppInstall } from './edge/settings/app/install.component';
 import { SingleAppComponent as EdgeSettingsAppSingle } from './edge/settings/app/single.component';
@@ -39,7 +40,6 @@ import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateOldComponent as EdgeSettingsSystemUpdateOldComponent } from './edge/settings/systemupdate.old/systemupdate.old.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
-import { AlertingComponent as EdgeSettingsAlerting } from './edge/settings/alerting/alerting.component';
 import { IndexComponent } from './index/index.component';
 import { UserComponent } from './user/user.component';
 
