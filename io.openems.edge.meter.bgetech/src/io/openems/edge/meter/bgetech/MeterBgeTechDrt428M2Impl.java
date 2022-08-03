@@ -31,9 +31,11 @@ import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Meter.BGE-TECH.DRT428M2", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+@Component(name = "Meter.BGE-TECH.DRT428M2", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE)
+public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent implements MeterBgeTechDrt428M2,
+		SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -45,7 +47,8 @@ public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), MeterBgeTechDrt428M2.ChannelId.values() //
+				SymmetricMeter.ChannelId.values(), //
+				MeterBgeTechDrt428M2.ChannelId.values() //
 		);
 	}
 
@@ -56,7 +59,7 @@ public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	protected void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
@@ -122,12 +125,12 @@ public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent
 						m(MeterBgeTechDrt428M2.ChannelId.L2_APPARENT_POWER, new FloatDoublewordElement(48)),
 						m(MeterBgeTechDrt428M2.ChannelId.L3_APPARENT_POWER, new FloatDoublewordElement(50)),
 
-						m(MeterBgeTechDrt428M2.ChannelId.TOTAL_POWER_FATCTOR, new FloatDoublewordElement(52)),
-						m(MeterBgeTechDrt428M2.ChannelId.L1_POWER_FATCTOR, new FloatDoublewordElement(54)),
-						m(MeterBgeTechDrt428M2.ChannelId.L2_POWER_FATCTOR, new FloatDoublewordElement(56)),
-						m(MeterBgeTechDrt428M2.ChannelId.L3_POWER_FATCTOR, new FloatDoublewordElement(58))),
+						m(MeterBgeTechDrt428M2.ChannelId.TOTAL_POWER_FACTOR, new FloatDoublewordElement(52)),
+						m(MeterBgeTechDrt428M2.ChannelId.L1_POWER_FACTOR, new FloatDoublewordElement(54)),
+						m(MeterBgeTechDrt428M2.ChannelId.L2_POWER_FACTOR, new FloatDoublewordElement(56)),
+						m(MeterBgeTechDrt428M2.ChannelId.L3_POWER_FACTOR, new FloatDoublewordElement(58))),
 
-				new FC3ReadRegistersTask(256, Priority.HIGH, //
+				new FC3ReadRegistersTask(256, Priority.LOW, //
 						m(MeterBgeTechDrt428M2.ChannelId.TOTAL_ACTIVE_ENERGY, new FloatDoublewordElement(256)),
 						m(MeterBgeTechDrt428M2.ChannelId.L1_TOTAL_ACTIVE_ENERGY, new FloatDoublewordElement(258)),
 						m(MeterBgeTechDrt428M2.ChannelId.L2_TOTAL_ACTIVE_ENERGY, new FloatDoublewordElement(260)),
@@ -196,7 +199,8 @@ public class MeterBgeTechDrt428M2Impl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(OpenemsComponent.getModbusSlaveNatureTable(accessMode),
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode),
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode),
 				AsymmetricMeter.getModbusSlaveNatureTable(accessMode));
 	}

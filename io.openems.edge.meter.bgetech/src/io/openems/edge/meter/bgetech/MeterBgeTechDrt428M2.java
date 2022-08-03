@@ -3,8 +3,12 @@ package io.openems.edge.meter.bgetech;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.SymmetricMeter;
 
-public interface MeterBgeTechDrt428M2 {
+public interface MeterBgeTechDrt428M2 extends SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		// Apparent Power
@@ -18,13 +22,13 @@ public interface MeterBgeTechDrt428M2 {
 				.unit(Unit.VOLT_AMPERE)), //
 
 		// Power Factor
-		TOTAL_POWER_FATCTOR(Doc.of(OpenemsType.FLOAT) //
+		TOTAL_POWER_FACTOR(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.NONE)), //
-		L1_POWER_FATCTOR(Doc.of(OpenemsType.FLOAT) //
+		L1_POWER_FACTOR(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.NONE)), //
-		L2_POWER_FATCTOR(Doc.of(OpenemsType.FLOAT) //
+		L2_POWER_FACTOR(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.NONE)), //
-		L3_POWER_FATCTOR(Doc.of(OpenemsType.FLOAT) //
+		L3_POWER_FACTOR(Doc.of(OpenemsType.FLOAT) //
 				.unit(Unit.NONE)), //
 
 		// Active Energy
