@@ -48,6 +48,9 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 	@Override
 	public void aggregate(AppConfiguration config, AppConfiguration oldConfig) {
 		if (config != null) {
+			// remove duplicated components
+			// TODO maybe error
+			this.components.removeIf(t -> config.components.stream().anyMatch(o -> t.getId().equals(o.getId())));
 			this.components.addAll(config.components);
 		}
 		if (oldConfig != null) {
@@ -174,9 +177,13 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 		properties.add(new Property("id", comp.getId()));
 		properties.add(new Property("alias", comp.getAlias()));
 
+		var request = new CreateComponentConfigRequest(comp.getFactoryId(), properties);
+		if (user != null) {
+			this.componentManager.handleJsonrpcRequest(user, request);
+			return;
+		}
 		// user can be null using internal method
-		((ComponentManagerImpl) this.componentManager).handleCreateComponentConfigRequest(user,
-				new CreateComponentConfigRequest(comp.getFactoryId(), properties));
+		((ComponentManagerImpl) this.componentManager).handleCreateComponentConfigRequest(user, request);
 	}
 
 	/**
@@ -200,6 +207,11 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 				.collect(Collectors.toList());
 		properties.add(new Property("alias", myComp.getAlias()));
 		var updateRequest = new UpdateComponentConfigRequest(actualComp.getId(), properties);
+
+		if (user != null) {
+			this.componentManager.handleJsonrpcRequest(user, updateRequest);
+			return;
+		}
 		// user can be null using internal method
 		((ComponentManagerImpl) this.componentManager).handleUpdateComponentConfigRequest(user, updateRequest);
 	}

@@ -9,8 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -65,6 +67,7 @@ import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 public class AppManagerImpl extends AbstractOpenemsComponent
 		implements AppManager, OpenemsComponent, JsonApi, ConfigurationListener {
 
+	// TODO maybe a worker which resolves defective apps
 	private final AppValidateWorker worker;
 	private final AppInstallWorker appInstallWorker;
 
@@ -201,7 +204,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @param excludingInstanceIds the instances that should be excluded
 	 * @return the filter
 	 */
-	public static Predicate<? super OpenemsAppInstance> exludingInstanceIds(UUID... excludingInstanceIds) {
+	public static Predicate<? super OpenemsAppInstance> excludingInstanceIds(UUID... excludingInstanceIds) {
 		return i -> !Arrays.stream(excludingInstanceIds).anyMatch(id -> id.equals(i.instanceId));
 	}
 
@@ -325,7 +328,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @param id of the app
 	 * @return the found app
 	 */
-	public final OpenemsApp findAppById(String id) throws NoSuchElementException {
+	protected final OpenemsApp findAppById(String id) throws NoSuchElementException {
 		return this.availableApps.stream() //
 				.filter(t -> t.getAppId().equals(id)) //
 				.findFirst() //
@@ -339,7 +342,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return s the instance
 	 * @throws NoSuchElementException if no instance is present
 	 */
-	public final OpenemsAppInstance findInstanceById(UUID uuid) throws NoSuchElementException {
+	protected final OpenemsAppInstance findInstanceById(UUID uuid) throws NoSuchElementException {
 		return this.instantiatedApps.stream() //
 				.filter(t -> t.instanceId.equals(uuid)) //
 				.findFirst() //
@@ -355,7 +358,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 */
 	public final List<AppConfiguration> getOtherAppConfigurations(UUID... ignoreIds) {
 		List<AppConfiguration> allOtherConfigs = new ArrayList<>(this.instantiatedApps.size());
-		for (var entry : this.appConfigs(AppManagerImpl.exludingInstanceIds(ignoreIds))) {
+		for (var entry : this.appConfigs(AppManagerImpl.excludingInstanceIds(ignoreIds))) {
 			allOtherConfigs.add(entry.getValue());
 		}
 		return allOtherConfigs;
@@ -603,6 +606,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException when the configuration can not be updated
 	 */
 	private void updateAppManagerConfiguration(User user, List<OpenemsAppInstance> apps) throws OpenemsNamedException {
+		AppManagerImpl.sortApps(apps);
 		var p = new Property("apps", getJsonAppsString(apps));
 		var updateRequest = new UpdateComponentConfigRequest(SINGLETON_COMPONENT_ID, Arrays.asList(p));
 		// user can be null using internal method
@@ -611,5 +615,24 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		} else {
 			this.componentManager.handleJsonrpcRequest(user, updateRequest);
 		}
+	}
+
+	private static void sortApps(List<OpenemsAppInstance> apps) {
+		var compareTransformer = new BiFunction<Integer, Integer, Integer>() {
+			@Override
+			public Integer apply(Integer t, Integer u) {
+				if (t == 0) {
+					return 0;
+				}
+				return (int) (t / Math.abs(t) * Math.pow(10, u));
+			}
+		};
+		apps.sort((o1, o2) -> {
+			var value = compareTransformer.apply(o1.appId.compareTo(o2.appId), 3);
+			var aliasValue = compareTransformer.apply(
+					Optional.ofNullable(o1.alias).orElse("").compareTo(Optional.ofNullable(o2.alias).orElse("")), 2);
+			var instanceValue = compareTransformer.apply(o1.instanceId.compareTo(o2.instanceId), 1);
+			return value + aliasValue + instanceValue;
+		});
 	}
 }
