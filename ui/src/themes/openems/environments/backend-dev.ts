@@ -8,7 +8,7 @@ export const environment: Environment = {
     edgeLongName: "Open Energy Management System",
 
     backend: 'OpenEMS Backend',
-    url: "wss://srv0.fenecon.de/ui",
+    url: "ws://" + location.hostname + ":8082",
 
     production: false,
     debugMode: true,
