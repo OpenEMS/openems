@@ -81,7 +81,7 @@ public class ScheduleMessageService {
 
 		MessageTask edgeTasks = new MessageTask(edgeId);
 		edgeUsers.forEach((timeStamp, listUsers) -> {
-			Message message = new Message(timeStamp, listUsers);
+			Message message = new Message(timeStamp, listUsers, edgeId);
 
 			if (!timeStamp.isAfter(ZonedDateTime.now())) {
 				this.action.accept(message);

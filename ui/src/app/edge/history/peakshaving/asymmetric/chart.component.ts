@@ -18,20 +18,18 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("asymmetricpeakshaving-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = 'asymmetricpeakshaving-chart';
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -41,7 +39,7 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -206,7 +204,8 @@ export class AsymmetricPeakshavingChartComponent extends AbstractHistoryChart im
             }
             this.datasets = datasets;
             this.loading = false;
-            this.service.stopSpinner(this.spinnerId);
+            this.stopSpinner();
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

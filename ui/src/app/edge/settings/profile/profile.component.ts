@@ -38,7 +38,7 @@ export class ProfileComponent {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.config = config;
-        let categorizedComponentIds: string[] = ["_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter"]
+        let categorizedComponentIds: string[] = ["_appManager", "_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter"]
         this.components = config.listActiveComponents(categorizedComponentIds);
       })
     });

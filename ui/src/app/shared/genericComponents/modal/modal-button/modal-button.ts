@@ -8,7 +8,7 @@ import { AbstractModalLine } from "../abstract-modal-line";
 })
 export class ModalButtons extends AbstractModalLine {
 
-    @Input() buttons: ButtonLabel;
+    @Input() buttons: ButtonLabel[];
 }
 
 export type ButtonLabel = {
@@ -16,5 +16,6 @@ export type ButtonLabel = {
     name: string;
     value: string;
     /** Icons for Button, displayed above the corresponding name */
-    icons: Icon;
+    icons?: Icon;
+    callback?: Function;
 }

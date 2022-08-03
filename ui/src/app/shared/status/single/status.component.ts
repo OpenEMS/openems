@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
@@ -10,7 +10,7 @@ import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
     selector: StatusSingleComponent.SELECTOR,
     templateUrl: './status.component.html'
 })
-export class StatusSingleComponent {
+export class StatusSingleComponent implements OnInit, OnDestroy {
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
 

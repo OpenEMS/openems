@@ -3,7 +3,7 @@
   <ion-grid>
     <ion-row class="ion-justify-content-center">
 
-      <ion-col size="12" size-md="6" *ngIf="edge && alertingOdoo">
+      <ion-col size="12" size-md="6" *ngIf="edge && model">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="settings-outline" color="primary"></ion-icon>
@@ -16,7 +16,8 @@
           <ion-card-content>
             <form (ngSubmit)="updateAlerting()">
               <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
-              <ion-button expand="block" type=" submit" color="primary" [disabled]="form.invalid" translate>
+              <ion-button expand="block" type="submit" color="primary" [disabled]="form.invalid || !form.dirty"
+                translate>
                 Edge.Config.Alerting.save
               </ion-button>
             </form>
@@ -24,7 +25,7 @@
         </ion-card>
       </ion-col>
 
-      <ion-col size="12" size-md="6" *ngIf="!alertingState">
+      <ion-col size="12" size-md="6" *ngIf="!model">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="warning-outline" color="danger"></ion-icon>

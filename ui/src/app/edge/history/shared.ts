@@ -1,8 +1,6 @@
-import { DecimalPipe } from '@angular/common';
-import { ChartData, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { differenceInDays, differenceInMinutes, endOfDay, startOfDay } from 'date-fns';
+import { ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ChannelAddress, Service } from 'src/app/shared/shared';
 
 export interface Dataset {
@@ -206,31 +204,14 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
 };
 
 export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse['result']) {
-    let result;
-    // TODO get locale dynamically
-    let decimalPipe = new DecimalPipe('de-DE')
     let startDate = startOfDay(new Date(queryResult.timestamps[0]));
-    let endDate = endOfDay(new Date(queryResult.timestamps[queryResult.timestamps.length - 1]));
+    let endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
     let activeSum = 0;
     queryResult.data[channel.toString()].forEach(value => {
         activeSum += value;
     });
     let activePercent = activeSum / queryResult.timestamps.length;
-    let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
-    let activeTimeHours = (activeTimeMinutes / 60).toFixed(1);
-    if (activeTimeMinutes > 59) {
-        activeTimeHours = decimalPipe.transform(activeTimeHours, '1.0-1');
-        result = activeTimeHours + ' h';
-        // if activeTimeHours is XY,0, removes the ',0' from activeTimeOverPeriod string
-        activeTimeHours.split('').forEach((letter, index) => {
-            if (index == activeTimeHours.length - 1 && letter == "0") {
-                result = activeTimeHours.slice(0, -2) + ' h';
-            }
-        });
-    } else {
-        result = decimalPipe.transform(activeTimeMinutes.toString(), '1.0-0') + ' m';
-    }
-    return result;
+    return (differenceInMinutes(endDate, startDate) * activePercent) * 60;
 };
 
 /**
@@ -270,8 +251,10 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
     } else if (days <= 31 && service.isSmartphoneResolution) {
         // Smartphone-View: show 31 days in daily view
         resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+
     } else if (days <= 90) {
         resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+
     } else if (days <= 144) {
         // >> show Days
         if (service.isSmartphoneResolution == true) {
@@ -279,6 +262,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         } else {
             resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
         }
+
     } else {
         // >> show Months
         resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
@@ -330,5 +314,37 @@ export enum Unit {
     HOURS = "Hours",
     DAYS = "Days",
     MONTHS = "Months",
-    YEARS = "Years"
+}
+
+export type ChartData = {
+    channel: {
+        name: string,
+        powerChannel: ChannelAddress,
+        energyChannel: ChannelAddress
+        filter?: ChannelFilter
+    }[],
+    displayValue: {
+        /** Name displayed in Label */
+        name: string,
+        /**  */
+        getValue: any,
+
+        hidden?: boolean,
+        /** color in rgb-Format */
+        color: string;
+    }[],
+    tooltip: {
+        /** Unit to be displayed as Tooltips unit */
+        unit: '%' | 'kWh' | 'kW',
+        /** Format of Number displayed */
+        formatNumber: string;
+    },
+    /** Name to be displayed on the left y-axis */
+    yAxisTitle: string,
+}
+// Should be renamed
+export enum ChannelFilter {
+    NOT_NULL,
+    NOT_NULL_OR_NEGATIVE,
+    NOT_NULL_OR_POSITIVE
 }

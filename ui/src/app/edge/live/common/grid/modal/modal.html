@@ -1,0 +1,17 @@
+<oe-modal *ngIf="isInitialized" [title]="'General.grid'| translate">
+    <oe-modal-line *ngIf="grid.mode == GridMode.OFF_GRID" [name]="'General.offGrid' | translate">
+    </oe-modal-line>
+    <oe-modal-line [name]="'General.gridBuyAdvanced' | translate" [value]="grid.buyFromGrid"
+        [converter]="CONVERT_TO_WATT"></oe-modal-line>
+    <oe-modal-line [name]="'General.gridSellAdvanced' | translate" [value]="grid.sellToGrid"
+        [converter]="CONVERT_TO_WATT"></oe-modal-line>
+
+    <!-- 3 Phases -->
+    <oe-modal-line *ngFor="let phase of grid.phases" [text_indent]="TextIndentation.SIMPLE" [name]="phase.name"
+        [value]="phase.value" [converter]="CONVERT_TO_WATT"></oe-modal-line>
+
+    <!-- Info Text -->
+    <oe-modal-info-line [info]="'Edge.Index.Widgets.phasesInfo' | translate"
+        rowStyle="color: var(--ion-color-step-600, #666666);">
+    </oe-modal-info-line>
+</oe-modal>

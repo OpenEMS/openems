@@ -7,7 +7,7 @@
     </ion-item>
     <ion-card-content>
         <table class="full_width">
-            <ng-container *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
+            <ng-container *ngIf="data && edge; else noData">
                 <ng-container *ngIf="evcsComponents.length == 0 && consumptionMeterComponents.length == 0">
                     <tr>
                         <td style="width:65%"></td>
@@ -20,9 +20,10 @@
                     <ng-container *ngFor="let component of evcsComponents">
                         <ng-container>
                             <tr>
-                                <td style="width:65%">{{ component.alias }}</td>
+                                <td style="width:65%">{{ component.alias }}
+                                </td>
                                 <td style="width:35%" class="align_right">
-                                    {{ data[component.id + "/EnergyTotal"] ?? 0 | unitvalue:'kWh' }}
+                                    {{ data[component.id + "/ActiveConsumptionEnergy"] ?? 0 | unitvalue:'kWh' }}
                                 </td>
                             </tr>
                         </ng-container>
@@ -41,7 +42,7 @@
                     </ng-container>
                 </ng-container>
                 <tr *ngIf="(evcsComponents.length != 0 || consumptionMeterComponents.length != 0)"
-                    style="border-top: 1px solid lightgray;">
+                    style="border-top: 2px solid lightgray;">
                     <td style="width:65%" translate>General.otherConsumption</td>
                     <td style="width:35%" class="align_right">
                         {{ totalOtherEnergy ?? 0 | unitvalue:'kWh' }}
