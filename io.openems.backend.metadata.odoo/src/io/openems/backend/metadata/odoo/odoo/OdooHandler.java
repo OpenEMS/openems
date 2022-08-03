@@ -650,7 +650,7 @@ public class OdooHandler {
 		setupProtocolFields.put(Field.SetupProtocol.CUSTOMER.id(), customerId);
 		setupProtocolFields.put(Field.SetupProtocol.DIFFERENT_LOCATION.id(), locationId);
 		setupProtocolFields.put(Field.SetupProtocol.INSTALLER.id(), installerId);
-		setupProtocolFields.put(Field.SetupProtocol.FEMS.id(), edgeId);
+		setupProtocolFields.put(Field.SetupProtocol.EDGE.id(), edgeId);
 
 		int setupProtocolId = OdooUtils.create(this.credentials, Field.SetupProtocol.ODOO_MODEL, setupProtocolFields);
 

@@ -373,7 +373,7 @@ public interface Field {
 		CUSTOMER("customer_id", true), //
 		DIFFERENT_LOCATION("different_location_id", true), //
 		INSTALLER("installer_id", true), //
-		FEMS("fems_device_id", true);
+		EDGE("fems_device_id", true);
 
 		public static final String ODOO_MODEL = "fems.setup_protocol";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
