@@ -48,7 +48,7 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class SolarEdge extends AbstractSunSpecPvInverter implements SunSpecPvInverter, ManagedSymmetricPvInverter,
+public class SolarEdgePvInverter extends AbstractSunSpecPvInverter implements SunSpecPvInverter, ManagedSymmetricPvInverter,
 		AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
@@ -75,7 +75,7 @@ public class SolarEdge extends AbstractSunSpecPvInverter implements SunSpecPvInv
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	public SolarEdge() throws OpenemsException {
+	public SolarEdgePvInverter() throws OpenemsException {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
@@ -118,7 +118,7 @@ public class SolarEdge extends AbstractSunSpecPvInverter implements SunSpecPvInv
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(SolarEdge.class, accessMode, 100) //
+				ModbusSlaveNatureTable.of(SolarEdgePvInverter.class, accessMode, 100) //
 						.build());
 	}
 
