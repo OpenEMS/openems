@@ -35,6 +35,17 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.8.1',
+        changes: [
+          Changelog.openems('2022.8.0'),
+          "Optimierung der Stabilität und Leistung des Backends",
+          Changelog.library(Library.NGX_FORMLY),
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für SMA Sunny Island 4.4 und 6" },
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Verbesserungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "OCPP-Server für Ladesäulen: Fehlerbehebung" },
+        ]
+      },
+      {
         version: '2022.7.5',
         changes: [
           Changelog.UI,
