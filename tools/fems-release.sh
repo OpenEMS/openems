@@ -3,8 +3,8 @@ set -e
 
 main() {
     initialize
-    print_header
     update_fems_branches
+    print_header
     merge_from_openems
     start_release
     update_changelog
@@ -27,6 +27,26 @@ initialize() {
     user_component="ui/src/app/user/user.component.html"
     initialize_version_from_string $(grep version $package_json | cut -d'"' -f4 | cut -d'-' -f1)
     release_date=$(date --iso-8601)
+
+    # Validate
+    if [ $(git remote -v | grep -c '^openems') -eq 0 ]; then
+	    echo "Missing Remote openems"
+	    echo "git remote add openems https://github.com/OpenEMS/openems.git"
+	    exit 1
+    fi
+
+    if [ $(git remote -v | grep -c '^origin') -eq 0 ]; then
+	    echo "Missing Remote origin"
+	    echo "git remote add origin https://git.intranet.fenecon.de/FENECON/fems.git"
+	    exit 1
+    fi
+
+    if [ $(dpkg -l | grep -c git-flow) -eq 0 ]; then
+	    echo "Missing git-flow"
+	    echo "apt install git-flow"
+	    echo "git flow init"
+	    exit 1
+    fi
 
     # Reset files
     git checkout $openems_constants 2>/dev/null
