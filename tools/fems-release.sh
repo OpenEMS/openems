@@ -30,21 +30,23 @@ initialize() {
 
     # Validate
     if [ $(git remote -v | grep -c '^openems') -eq 0 ]; then
-	    echo "Missing Remote openems"
+	    echo "# Missing Remote openems"
 	    echo "git remote add openems https://github.com/OpenEMS/openems.git"
 	    exit 1
     fi
 
     if [ $(git remote -v | grep -c '^origin') -eq 0 ]; then
-	    echo "Missing Remote origin"
+	    echo "# Missing Remote origin"
 	    echo "git remote add origin https://git.intranet.fenecon.de/FENECON/fems.git"
 	    exit 1
     fi
 
     if [ $(dpkg -l | grep -c git-flow) -eq 0 ]; then
-	    echo "Missing git-flow"
+	    echo "# Missing git-flow"
 	    echo "apt install git-flow"
 	    echo "git flow init"
+	    echo "git config --global user.name \"...\""
+	    echo "git config --global user.email ..."
 	    exit 1
     fi
 
