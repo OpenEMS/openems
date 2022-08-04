@@ -1,5 +1,6 @@
 package io.openems.backend.metadata.odoo.postgres;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
 
@@ -16,27 +17,27 @@ import io.openems.backend.metadata.odoo.OdooMetadata;
 
 public class PostgresHandler {
 
+	public final PgEdgeHandler edge;
+
 	protected final EdgeCache edgeCache;
 
 	private final OdooMetadata parent;
 	private final HikariDataSource dataSource;
 	private final InitializeEdgesWorker initializeEdgesWorker;
 	private final PeriodicWriteWorker periodicWriteWorker;
-	private final QueueWriteWorker queueWriteWorker;
 
 	public PostgresHandler(OdooMetadata parent, EdgeCache edgeCache, Config config, Runnable onInitialized)
 			throws SQLException {
 		this.parent = parent;
 		this.edgeCache = edgeCache;
 		this.dataSource = this.getDataSource(config);
+		this.edge = new PgEdgeHandler(this.dataSource);
 		this.initializeEdgesWorker = new InitializeEdgesWorker(this, this.dataSource, () -> {
 			onInitialized.run();
 		});
 		this.initializeEdgesWorker.start();
-		this.periodicWriteWorker = new PeriodicWriteWorker(this, this.dataSource);
+		this.periodicWriteWorker = new PeriodicWriteWorker(this);
 		this.periodicWriteWorker.start();
-		this.queueWriteWorker = new QueueWriteWorker(this, this.dataSource);
-		this.queueWriteWorker.start();
 	}
 
 	/**
@@ -45,7 +46,6 @@ public class PostgresHandler {
 	public void deactivate() {
 		this.initializeEdgesWorker.stop();
 		this.periodicWriteWorker.stop();
-		this.queueWriteWorker.stop();
 	}
 
 	/**
@@ -60,10 +60,6 @@ public class PostgresHandler {
 
 	public PeriodicWriteWorker getPeriodicWriteWorker() {
 		return this.periodicWriteWorker;
-	}
-
-	public QueueWriteWorker getQueueWriteWorker() {
-		return this.queueWriteWorker;
 	}
 
 	/**
@@ -88,6 +84,10 @@ public class PostgresHandler {
 		var result = new HikariDataSource();
 		result.setDataSource(pgds);
 		return result;
+	}
+
+	protected Connection getConnection() throws SQLException {
+		return this.dataSource.getConnection();
 	}
 
 	protected void logInfo(Logger log, String message) {

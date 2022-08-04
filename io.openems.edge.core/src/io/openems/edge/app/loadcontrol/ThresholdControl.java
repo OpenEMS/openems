@@ -53,7 +53,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/">https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/</a>
+"https://fenecon.de/fems/fems-app-schwellwert-steuerung/">link</a>
     }
   }
  * </pre>
@@ -139,7 +139,7 @@ public class ThresholdControl extends AbstractOpenemsApp<Property> implements Op
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-schwellwert-steuerung/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-schwellwert-steuerung/") //
 				.build();
 	}
 

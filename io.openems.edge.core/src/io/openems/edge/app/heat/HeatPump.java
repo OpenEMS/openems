@@ -58,7 +58,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     ],
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/">https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/</a>
+"https://fenecon.de/fems/fems-app-sg-ready-waermepumpe/">link</a>
     }
   }
  * </pre>
@@ -67,6 +67,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
+		ALIAS, //
 		CTRL_IO_HEAT_PUMP_ID, //
 		OUTPUT_CHANNEL_1, //
 		OUTPUT_CHANNEL_2;
@@ -82,13 +83,14 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
+			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
 			final var ctrlIoHeatPumpId = this.getId(t, p, Property.CTRL_IO_HEAT_PUMP_ID, "ctrlIoHeatPump0");
 
 			var outputChannel1 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_1, "io0/Relay2");
 			var outputChannel2 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_2, "io0/Relay3");
 
 			var comp = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlIoHeatPumpId, this.getName(l), "Controller.Io.HeatPump.SgReady",
+					new EdgeConfig.Component(ctrlIoHeatPumpId, alias, "Controller.Io.HeatPump.SgReady",
 							JsonUtils.buildJsonObject() //
 									.addProperty("outputChannel1", outputChannel1) //
 									.addProperty("outputChannel2", outputChannel2) //
@@ -96,7 +98,7 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 
 			var componentIdOfRelay = outputChannel1.substring(0, outputChannel1.indexOf('/'));
 			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
-					componentIdOfRelay, this.getAppId());
+					componentIdOfRelay);
 
 			if (appIdOfRelay == null) {
 				// relay may be created but not as a app
@@ -150,7 +152,7 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-sg-ready-waermepumpe-2/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-sg-ready-waermepumpe/") //
 				.build();
 	}
 

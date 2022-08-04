@@ -49,7 +49,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/">https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/</a>
+"https://fenecon.de/fems/fems-app-netzdienliche-beladung-2/">link</a>
     }
   }
  * </pre>
@@ -99,8 +99,8 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 									j -> j.addProperty("ess.id", "ess0") //
 											.addProperty("meter.id", "meter0"))
 							.addProperty("sellToGridLimitEnabled", sellToGridLimitEnabled) //
-							.onlyIf(sellToGridLimitEnabled,
-									o -> o.addProperty("maximumSellToGridPower", maximumSellToGridPower)) //
+							// always set the maximumSellToGridPower value
+							.addProperty("maximumSellToGridPower", maximumSellToGridPower) //
 							.build()));//
 
 			var schedulerExecutionOrder = Lists.newArrayList("ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0");
@@ -137,7 +137,7 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-netzdienliche-beladung/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-netzdienliche-beladung-2/") //
 				.build();
 	}
 

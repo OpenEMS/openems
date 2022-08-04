@@ -25,7 +25,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 
 	private final Logger log = LoggerFactory.getLogger(ClientReconnectorWorker.class);
 	private final AbstractWebsocketClient<?> parent;
-	private Instant lastTry = null;
+	private Instant lastTry = Instant.MIN;
 
 	public ClientReconnectorWorker(AbstractWebsocketClient<?> parent) {
 		this.parent = parent;
@@ -35,17 +35,11 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	protected void forever() throws InterruptedException, NoSuchMethodException, SecurityException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		var ws = this.parent.ws;
-		if ((ws == null) || (ws.getReadyState() == ReadyState.OPEN)) {
+		if (ws == null || ws.getReadyState() == ReadyState.OPEN) {
 			return;
 		}
 
 		var now = Instant.now();
-
-		if (this.lastTry == null) {
-			this.lastTry = now;
-			return;
-		}
-
 		var waitedSeconds = Duration.between(this.lastTry, now).getSeconds();
 		if (waitedSeconds < ClientReconnectorWorker.MIN_WAIT_SECONDS_BETWEEN_RETRIES) {
 			this.parent.logInfo(this.log, "Waiting till next WebSocket reconnect ["
@@ -54,17 +48,20 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		}
 		this.lastTry = now;
 
-		this.parent.logInfo(this.log, "Reconnecting WebSocket...");
+		this.parent.logInfo(this.log, "Connecting WebSocket...");
 
-		// Copy of WebSocketClient#reconnectBlocking, but with timeout; need to use
-		// reflection here because 'reset' is private.
-		Method resetMethod = WebSocketClient.class.getDeclaredMethod("reset");
-		resetMethod.setAccessible(true);
-		resetMethod.invoke(ws);
+		if (ws.getReadyState() != ReadyState.NOT_YET_CONNECTED) {
+			// Copy of WebSocketClient#reconnectBlocking, but with timeout; need to use
+			// reflection here because 'reset' is private.
+			// Do not 'reset' if WebSocket has never been connected before.
+			Method resetMethod = WebSocketClient.class.getDeclaredMethod("reset");
+			resetMethod.setAccessible(true);
+			resetMethod.invoke(ws);
+		}
 		ws.connectBlocking(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
 		this.parent.logInfo(this.log,
-				"Reconnected WebSocket successfully [" + Duration.between(now, Instant.now()).toSeconds() + "s]");
+				"Connected WebSocket successfully [" + Duration.between(now, Instant.now()).toSeconds() + "s]");
 	}
 
 	@Override

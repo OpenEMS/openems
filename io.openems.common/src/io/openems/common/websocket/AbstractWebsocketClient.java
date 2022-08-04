@@ -88,7 +88,8 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 					}
 				} catch (OpenemsNamedException e) {
-					AbstractWebsocketClient.this.handleInternalErrorAsync(e);
+					AbstractWebsocketClient.this.handleInternalErrorAsync(e,
+							WebsocketUtils.getWsDataString(AbstractWebsocketClient.this.ws));
 				}
 			}
 
@@ -131,7 +132,6 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	@Override
 	public void start() {
 		this.log.info("Opening connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
-		this.ws.connect();
 		this.reconnectorWorker.activate(this.getName());
 	}
 
@@ -143,6 +143,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	public void startBlocking() throws InterruptedException {
 		this.log.info("Opening connection [" + this.getName() + "] websocket server [" + this.serverUri + "]");
 		this.ws.connectBlocking();
+		this.reconnectorWorker.activate(this.getName());
 	}
 
 	/**

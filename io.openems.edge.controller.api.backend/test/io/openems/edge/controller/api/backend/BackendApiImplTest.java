@@ -135,7 +135,7 @@ public class BackendApiImplTest {
 			// Only changed value
 			handler.onNotification((timestamp, values) -> {
 				assertNotNull(values);
-				assertEquals(1, values.size()); // exactly one value
+				assertEquals(1, values.size(), values.toString()); // exactly one value
 				assertEquals(Integer.valueOf(2000),
 						JsonUtils.getAsOptionalInt(values, SUM_PRODUCTION_ACTIVE_POWER.toString()).get());
 			});
@@ -170,6 +170,18 @@ public class BackendApiImplTest {
 			org.junit.Assert.assertEquals(expected, actual);
 		} catch (AssertionError e) {
 			System.err.println("AssertionError: " + e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	// TODO remove after finding the CI bug
+	private static void assertEquals(Object expected, Object actual, String errorMessage) throws OpenemsException {
+		try {
+			org.junit.Assert.assertEquals(expected, actual);
+		} catch (AssertionError e) {
+			System.err.println("AssertionError: " + e.getMessage());
+			System.err.println("errorMessage: " + errorMessage);
 			e.printStackTrace();
 			System.exit(1);
 		}

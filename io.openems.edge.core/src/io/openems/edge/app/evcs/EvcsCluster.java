@@ -46,7 +46,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-multiladepunkt-eigenverbrauch-2/">https://fenecon.de/fems-2-2/fems-app-multiladepunkt-eigenverbrauch-2/</a>
+"https://fenecon.de/fems/fems-app-multiladepunkt-management/">link</a>
     }
   }
  * </pre>
@@ -109,7 +109,7 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-multiladepunkt-eigenverbrauch-2/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-multiladepunkt-management/") //
 				.build();
 	}
 

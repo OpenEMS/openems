@@ -48,7 +48,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-tibber/">https://fenecon.de/fems-2-2/fems-app-tibber/</a>
+"https://fenecon.de/fems/fems-app-tibber/">link</a>
     }
   }
  * </pre>
@@ -57,6 +57,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
+		ALIAS, //
 		CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID, //
 		TIME_OF_USE_TARIF_ID, //
 		ACCESS_TOKEN;
@@ -72,16 +73,17 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
-			var ctrlEssTimeOfUseTariffDischargeId = this.getId(t, p, Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID,
-					"ctrlEssTimeOfUseTariffDischarge0");
+			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
+			final var ctrlEssTimeOfUseTariffDischargeId = this.getId(t, p,
+					Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID, "ctrlEssTimeOfUseTariffDischarge0");
 
-			var timeOfUseTariffId = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID, "timeOfUseTariff0");
+			final var timeOfUseTariffId = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID, "timeOfUseTariff0");
 
-			var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, "xxx");
+			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, "xxx");
 
 			// TODO ess id may be changed
 			List<Component> comp = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, this.getName(l),
+					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, alias,
 							"Controller.Ess.Time-Of-Use-Tariff.Discharge", JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
 									.build()), //
@@ -118,7 +120,7 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-tibber/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-tibber/") //
 				.build();
 	}
 

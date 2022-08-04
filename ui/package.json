@@ -1,6 +1,6 @@
 {
     "name": "openems-ui",
-    "version": "2022.7.5",
+    "version": "2022.8.1",
     "license": "AGPL-3.0",
     "private": true,
     "dependencies": {
@@ -12,11 +12,11 @@
         "@angular/platform-browser-dynamic": "~14.0.4",
         "@angular/router": "~14.0.4",
         "@angular/service-worker": "~14.0.4",
-        "@ngx-translate/core": "^14.0.0",
         "@ionic/angular": "^6.1.12",
         "@ngx-formly/core": "^6.0.0-beta.3",
-        "@ngx-formly/ionic": "^6.0.0-beta.3",
+        "@ngx-formly/ionic": "^6.0.0-rc.2",
         "@ngx-formly/schematics": "^6.0.0-beta.3",
+        "@ngx-translate/core": "^14.0.0",
         "angular-mydatepicker": "^0.11.5",
         "chart.js": "^2.9.4",
         "classlist.js": "^1.1.20150312",
@@ -34,7 +34,7 @@
         "zone.js": "~0.11.6"
     },
     "devDependencies": {
-        "@angular-devkit/build-angular": "~14.0.4",
+        "@angular-devkit/build-angular": "^14.1.1",
         "@angular-eslint/builder": "~14.0.0",
         "@angular-eslint/eslint-plugin": "~14.0.0",
         "@angular-eslint/eslint-plugin-template": "~14.0.0",

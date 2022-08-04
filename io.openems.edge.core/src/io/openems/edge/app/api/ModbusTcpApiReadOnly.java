@@ -2,7 +2,6 @@ package io.openems.edge.app.api;
 
 import java.util.EnumMap;
 import java.util.List;
-import java.util.TreeMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -29,8 +28,6 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
-import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a App for ReadOnly Modbus/TCP Api.
@@ -47,7 +44,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-modbus-tcp-lesend-2/">https://fenecon.de/fems-2-2/fems-app-modbus-tcp-lesend-2/</a>
+"https://fenecon.de/fems/fems-app-modbus-tcp-lesend/">link</a>
     }
   }
  * </pre>
@@ -78,7 +75,7 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsApp<Property> implement
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-modbus-tcp-lesend-2/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-modbus-tcp-lesend/") //
 				.build();
 	}
 
@@ -108,16 +105,6 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsApp<Property> implement
 
 			return new AppConfiguration(components);
 		};
-	}
-
-	@Override
-	protected io.openems.edge.core.appmanager.validator.ValidatorConfig.Builder getValidateBuilder() {
-		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(
-						Lists.newArrayList(new ValidatorConfig.CheckableConfig(CheckAppsNotInstalled.COMPONENT_NAME,
-								new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
-										.put("appIds", new String[] { "App.Api.ModbusTcp.ReadWrite" }) //
-										.build())));
 	}
 
 	@Override

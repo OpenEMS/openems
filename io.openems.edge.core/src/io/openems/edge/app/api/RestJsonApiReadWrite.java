@@ -54,7 +54,7 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
     ],
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-rest-json-schreibzugriff-2/">https://fenecon.de/fems-2-2/fems-app-rest-json-schreibzugriff-2/</a>
+"https://fenecon.de/fems/fems-app-rest-json-schreibzugriff/">link</a>
     }
   }
  * </pre>
@@ -96,7 +96,7 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-rest-json-schreibzugriff-2/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-rest-json-schreibzugriff/") //
 				.build();
 	}
 

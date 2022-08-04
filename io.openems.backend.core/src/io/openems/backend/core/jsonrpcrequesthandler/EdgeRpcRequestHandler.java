@@ -206,7 +206,7 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeConfigRequest(String edgeId, User user,
 			GetEdgeConfigRequest request) throws OpenemsNamedException {
-		var config = this.parent.metadata.getEdgeOrError(edgeId).getConfig();
+		var config = this.parent.metadata.edge().getEdgeConfig(edgeId);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GetEdgeConfigResponse(request.getId(), config));

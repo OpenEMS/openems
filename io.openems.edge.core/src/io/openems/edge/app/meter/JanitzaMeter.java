@@ -55,7 +55,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     },
     "appDescriptor": {
     	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/">https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/</a>
+"https://fenecon.de/fems/fems-app-janitza-zaehler/">link</a>
     }
   }
  * </pre>
@@ -155,7 +155,7 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-janitza-zaehler-2/") //
+				.setWebsiteUrl("https://fenecon.de/fems/fems-app-janitza-zaehler/") //
 				.build();
 	}
 
@@ -166,7 +166,7 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+		return OpenemsAppCardinality.MULTIPLE;
 	}
 
 	protected final Set<Entry<String, String>> buildFactorieIdOptions() {
