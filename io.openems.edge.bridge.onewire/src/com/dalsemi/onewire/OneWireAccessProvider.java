@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2007 Maxim Integrated Products, All Rights Reserved.
@@ -584,3 +585,4 @@ public class OneWireAccessProvider {
 		overrideAdapter = null;
 	}
 }
+// CHECKSTYLE:ON

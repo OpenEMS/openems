@@ -1,16 +1,23 @@
 package io.openems.common.utils;
 
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
+import java.util.stream.Collector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -197,6 +204,18 @@ public class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link Enum} value to the {@link JsonObject}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, Enum<?> value) {
+			this.j.addProperty(property, value == null ? null : value.name());
+			return this;
+		}
+
+		/**
 		 * Add a {@link Boolean} value to the {@link JsonObject}.
 		 *
 		 * @param property the key
@@ -267,6 +286,34 @@ public class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link Enum} value to the {@link JsonObject}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addPropertyIfNotNull(String property, Enum<?> value) {
+			if (value != null) {
+				this.j.addProperty(property, value.name());
+			}
+			return this;
+		}
+
+		/**
+		 * Call a method on a JsonObjectBuilder if an expression is true.
+		 *
+		 * @param expression     the expression
+		 * @param ifTrueCallback allows a lambda function on {@link JsonObjectBuilder}
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder onlyIf(boolean expression, Consumer<JsonObjectBuilder> ifTrueCallback) {
+			if (expression) {
+				ifTrueCallback.accept(this);
+			}
+			return this;
+		}
+
+		/**
 		 * Return the built {@link JsonObject}.
 		 *
 		 * @return the {@link JsonObject}
@@ -277,7 +324,48 @@ public class JsonUtils {
 
 	}
 
+	public static class JsonArrayCollector implements Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> {
+
+		@Override
+		public Set<Characteristics> characteristics() {
+			return Sets.<Characteristics>newHashSet().stream().collect(Sets.toImmutableEnumSet());
+		}
+
+		@Override
+		public Supplier<JsonArrayBuilder> supplier() {
+			return JsonUtils::buildJsonArray;
+		}
+
+		@Override
+		public BiConsumer<JsonArrayBuilder, JsonElement> accumulator() {
+			return JsonUtils.JsonArrayBuilder::add;
+		}
+
+		@Override
+		public BinaryOperator<JsonArrayBuilder> combiner() {
+			return (t, u) -> {
+				u.build().forEach(j -> t.add(j));
+				return t;
+			};
+		}
+
+		@Override
+		public Function<JsonArrayBuilder, JsonArray> finisher() {
+			return JsonArrayBuilder::build;
+		}
+
+	}
+
 	private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
+
+	/**
+	 * Returns a Collector that accumulates the input elements into a new JsonArray.
+	 * 
+	 * @return a Collector which collects all the input elements into a JsonArray
+	 */
+	public static Collector<JsonElement, JsonUtils.JsonArrayBuilder, JsonArray> toJsonArray() {
+		return new JsonUtils.JsonArrayCollector();
+	}
 
 	/**
 	 * Creates a JsonArray using a Builder.
@@ -789,7 +877,7 @@ public class JsonUtils {
 		}
 		if (jPrimitive.isString()) {
 			var string = jPrimitive.getAsString();
-			return Integer.parseInt(string);
+			return Long.parseLong(string);
 		}
 		throw OpenemsError.JSON_NO_NUMBER.exception(jPrimitive.toString().replace("%", "%%"));
 	}
@@ -928,7 +1016,7 @@ public class JsonUtils {
 			throws OpenemsNamedException {
 		var element = getAsString(jElement);
 		try {
-			return Enum.valueOf(enumType, element);
+			return Enum.valueOf(enumType, element.toUpperCase());
 		} catch (IllegalArgumentException e) {
 			throw OpenemsError.JSON_NO_ENUM.exception(element);
 		}
@@ -948,7 +1036,7 @@ public class JsonUtils {
 			throws OpenemsNamedException {
 		var element = getAsString(jElement, memberName);
 		try {
-			return Enum.valueOf(enumType, element);
+			return Enum.valueOf(enumType, element.toUpperCase());
 		} catch (IllegalArgumentException e) {
 			throw OpenemsError.JSON_NO_ENUM_MEMBER.exception(memberName, element);
 		}
@@ -971,7 +1059,7 @@ public class JsonUtils {
 			return Optional.empty();
 		}
 		try {
-			return Optional.ofNullable(Enum.valueOf(enumType, elementOpt.get()));
+			return Optional.ofNullable(Enum.valueOf(enumType, elementOpt.get().toUpperCase()));
 		} catch (IllegalArgumentException e) {
 			return Optional.empty();
 		}
@@ -986,7 +1074,7 @@ public class JsonUtils {
 	 */
 	public static Inet4Address getAsInet4Address(JsonElement jElement) throws OpenemsNamedException {
 		try {
-			return (Inet4Address) InetAddress.getByName(getAsString(jElement));
+			return (Inet4Address) Inet4Address.getByName(getAsString(jElement));
 		} catch (UnknownHostException e) {
 			throw OpenemsError.JSON_NO_INET4ADDRESS.exception(jElement.toString().replace("%", "%%"));
 		}
@@ -1003,7 +1091,7 @@ public class JsonUtils {
 	 */
 	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement, String memberName) {
 		try {
-			return Optional.ofNullable((Inet4Address) InetAddress.getByName(getAsString(jElement, memberName)));
+			return Optional.ofNullable((Inet4Address) Inet4Address.getByName(getAsString(jElement, memberName)));
 		} catch (OpenemsNamedException | UnknownHostException e) {
 			return Optional.empty();
 		}
@@ -1119,7 +1207,8 @@ public class JsonUtils {
 			}
 			return j.getAsString();
 		} catch (Exception e) {
-			throw OpenemsError.JSON_PARSE_ELEMENT_FAILED.exception(j.toString().replace("%", "%%"),
+			throw OpenemsError.JSON_PARSE_ELEMENT_FAILED.exception(//
+					StringUtils.toShortString(j.toString().replace("%", "%%"), 100), //
 					e.getClass().getSimpleName(), e.getMessage());
 		}
 	}
@@ -1331,11 +1420,17 @@ public class JsonUtils {
 	/**
 	 * Gets a {@link JsonElement} as the given {@link OpenemsType}.
 	 *
+	 * @param <T>  the Type for implicit casting of the result
 	 * @param type the {@link OpenemsType}
 	 * @param j    the {@link JsonElement}
 	 * @return an Object of the given type
 	 */
-	public static Object getAsType(OpenemsType type, JsonElement j) throws OpenemsNamedException {
+	@SuppressWarnings("unchecked")
+	public static <T> T getAsType(OpenemsType type, JsonElement j) throws OpenemsNamedException {
+		if (j == null) {
+			return null;
+		}
+
 		if (j.isJsonNull()) {
 			return null;
 		}
@@ -1343,19 +1438,19 @@ public class JsonUtils {
 		if (j.isJsonPrimitive()) {
 			switch (type) {
 			case BOOLEAN:
-				return JsonUtils.getAsBoolean(j);
+				return (T) Boolean.valueOf(JsonUtils.getAsBoolean(j));
 			case DOUBLE:
-				return JsonUtils.getAsDouble(j);
+				return (T) Double.valueOf(JsonUtils.getAsDouble(j));
 			case FLOAT:
-				return JsonUtils.getAsFloat(j);
+				return (T) Float.valueOf(JsonUtils.getAsFloat(j));
 			case INTEGER:
-				return JsonUtils.getAsInt(j);
+				return (T) Integer.valueOf(JsonUtils.getAsInt(j));
 			case LONG:
-				return JsonUtils.getAsLong(j);
+				return (T) Long.valueOf(JsonUtils.getAsLong(j));
 			case SHORT:
-				return JsonUtils.getAsShort(j);
+				return (T) Short.valueOf(JsonUtils.getAsShort(j));
 			case STRING:
-				return JsonUtils.getAsString(j);
+				return (T) JsonUtils.getAsString(j);
 			}
 		}
 
@@ -1369,7 +1464,7 @@ public class JsonUtils {
 			case SHORT:
 				break;
 			case STRING:
-				return j.toString();
+				return (T) j.toString();
 			}
 		}
 
@@ -1426,7 +1521,7 @@ public class JsonUtils {
 		try {
 			return JsonParser.parseString(string);
 		} catch (JsonParseException e) {
-			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), string);
+			throw OpenemsError.JSON_PARSE_FAILED.exception(e.getMessage(), StringUtils.toShortString(string, 100));
 		}
 	}
 
@@ -1465,6 +1560,8 @@ public class JsonUtils {
 	 * Pretty toString()-method for a {@link JsonElement}.
 	 *
 	 * @param j the {@link JsonElement}
+	 * @return a pretty string representing the {@link JsonElement} using
+	 *         {@link GsonBuilder#setPrettyPrinting()}
 	 */
 	public static String prettyToString(JsonElement j) {
 		return new GsonBuilder().setPrettyPrinting().create().toJson(j);

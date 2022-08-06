@@ -189,6 +189,7 @@ export const TRANSLATION = {
                     startTimeCharge: 'Heure de début du chargement',
                 },
                 GridOptimizedCharge: {
+                    chargingDelayed: 'Chargement retardé',
                     considerGridFeedInLimit: 'Tenir compte de l\'injection maximale du réseau',
                     endTime: 'Heure de fin',
                     endTimeDescription: 'La charge n\'a pas lieu avec la quantité maximale pendant quelques heures, mais régulièrement sur une plus longue période de temps.',
@@ -228,6 +229,7 @@ export const TRANSLATION = {
                     riskPropensity: 'Propension au risque',
                     settingOnlyVisableForInstaller: 'Ce paramètre n\'est visible que par l\'installateur',
                     State: {
+                        avoidLowCharging: 'Faible charge évitée',
                         chargeLimitActive: 'Limite de chargement active',
                         endTimeNotCalculated: 'Heure de fin non calculée',
                         gridFeedInLimitationIsAvoided: 'La limitation Grid-Feed-in est évitée',
@@ -237,6 +239,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Heure de fin du chargement limité dépassée',
                         storageAlreadyFull: 'Mémoire déjà pleine',
                     },
+                    storageCapacity: 'capacité de stockage (visible seulement pour admin)'
                 },
                 CHP: {
                     highThreshold: 'Seuil Haut',
@@ -401,6 +404,7 @@ export const TRANSLATION = {
                 simulator: 'Simulateur',
                 systemExecute: 'Exécutez une commande système',
                 systemProfile: 'System Profile',
+                alerting: 'Alerte',
             },
             More: {
                 manualCommand: 'Commande Manuelle',
@@ -435,6 +439,41 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'Nouvelle connexion...',
                 newDevice: 'Nouvel appareil...',
+            },
+            Alerting: {
+                activate: 'Activer',
+                delay: 'Retard',
+                save: 'Enregistrer',
+                options: {
+                    15: '15 minutes',
+                    60: '1 heure',
+                    1440: '1 jour'
+                },
+                toast: {
+                    success: 'Paramètres adoptés',
+                    error: 'Erreur lors du chargement des paramètres'
+                },
+            },
+            App: {
+                header: 'L\'App Manager est actuellement dans une première version de test. Si toutes les applications ne sont pas affichées, il est possible que la version FEMS doive être mise à jour.',
+                installed: 'Installé',
+                available: 'Disponible sur',
+                incompatible: 'Incompatibilité',
+                buyApp: 'Acheter l\'application',
+                modifyApp: 'Modifier l\'application',
+                createApp: 'Installer l\'application',
+                deleteApp: 'Supprimer l\'application',
+                updateApp: 'Mise à jour de l\'application',
+                errorInstallable: 'Erreurs d\'installation',
+                errorCompatible: 'Erreurs de compatibilité',
+            },
+        },
+        Service: {
+            entireSystem: "système entier",
+            Cell: {
+                voltages: "Tensions de cellules",
+                temperatures: "Températures des cellules",
+                insulation: "Isolement",
             }
         }
     },

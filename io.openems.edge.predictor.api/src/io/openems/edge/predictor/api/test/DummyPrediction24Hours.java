@@ -12,13 +12,13 @@ import io.openems.edge.predictor.api.oneday.Prediction24Hours;
  */
 public class DummyPrediction24Hours extends Prediction24Hours {
 
-	private final static int DUMMY_NUMBER_OF_VALUES = Prediction24Hours.NUMBER_OF_VALUES * 2;
+	private static final int DUMMY_NUMBER_OF_VALUES = Prediction24Hours.NUMBER_OF_VALUES * 2;
 	private final Integer[] values = new Integer[DUMMY_NUMBER_OF_VALUES];
 
 	/**
 	 * Holds a {@link DummyPrediction24Hours} with all values null.
 	 */
-	public final static DummyPrediction24Hours EMPTY = new DummyPrediction24Hours();
+	public static final DummyPrediction24Hours EMPTY = new DummyPrediction24Hours();
 
 	/**
 	 * Constructs a {@link DummyPrediction24Hours}.

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2002 Maxim Integrated Products, All Rights Reserved.
  *
@@ -55,3 +56,4 @@ public interface DeviceMonitorEventListener {
 	 */
 	public void networkException(DeviceMonitorException dme);
 }
+// CHECKSTYLE:ON

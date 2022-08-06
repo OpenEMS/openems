@@ -3,7 +3,7 @@ package io.openems.edge.kostal.piko.core.impl;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "KOSTAL PIKO Core", //
 		description = "Implements a KOSTAL PIKO.")
 @interface Config {

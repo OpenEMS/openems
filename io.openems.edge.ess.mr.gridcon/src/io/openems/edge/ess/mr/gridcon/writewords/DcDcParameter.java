@@ -1,3 +1,5 @@
+// CHECKSTYLE:OFF
+
 package io.openems.edge.ess.mr.gridcon.writewords;
 
 public class DcDcParameter {
@@ -113,3 +115,4 @@ public class DcDcParameter {
 		return sb.toString();
 	}
 }
+// CHECKSTYLE:ON

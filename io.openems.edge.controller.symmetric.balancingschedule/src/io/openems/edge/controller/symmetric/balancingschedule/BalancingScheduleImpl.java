@@ -110,6 +110,8 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 	/**
 	 * Calculates required charge/discharge power.
 	 *
+	 * @param offset the power offset
+	 * @return the required charge/discharge power
 	 * @throws InvalidValueException on error
 	 */
 	private int calculateRequiredPower(int offset) throws InvalidValueException {

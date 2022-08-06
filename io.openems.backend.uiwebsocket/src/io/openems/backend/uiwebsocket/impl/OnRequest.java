@@ -1,5 +1,6 @@
 package io.openems.backend.uiwebsocket.impl;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -8,14 +9,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.jsonrpc.request.AddEdgeToUserRequest;
+import io.openems.backend.common.jsonrpc.request.GetAlertingConfigRequest;
+import io.openems.backend.common.jsonrpc.request.GetSetupProtocolDataRequest;
 import io.openems.backend.common.jsonrpc.request.GetSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.request.GetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.RegisterUserRequest;
+import io.openems.backend.common.jsonrpc.request.SendLogMessageRequest;
+import io.openems.backend.common.jsonrpc.request.SetAlertingConfigRequest;
 import io.openems.backend.common.jsonrpc.request.SetUserInformationRequest;
 import io.openems.backend.common.jsonrpc.request.SubmitSetupProtocolRequest;
 import io.openems.backend.common.jsonrpc.response.AddEdgeToUserResponse;
+import io.openems.backend.common.jsonrpc.response.GetAlertingConfigResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserInformationResponse;
+import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.User;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -89,6 +97,18 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case UpdateUserLanguageRequest.METHOD:
 			result = this.handleUpdateUserLanguageRequest(user, UpdateUserLanguageRequest.from(request));
 			break;
+		case GetAlertingConfigRequest.METHOD:
+			result = this.handleGetAlertingConfigRequest(user, GetAlertingConfigRequest.from(request));
+			break;
+		case SetAlertingConfigRequest.METHOD:
+			result = this.handleSetAlertingConfigRequest(user, SetAlertingConfigRequest.from(request));
+			break;
+		case GetSetupProtocolDataRequest.METHOD:
+			result = this.handleGetSetupProtocolDataRequest(user, GetSetupProtocolDataRequest.from(request));
+			break;
+		case SendLogMessageRequest.METHOD:
+			result = this.handleSendLogMessageRequest(user, SendLogMessageRequest.from(request));
+			break;
 		}
 
 		if (result != null) {
@@ -98,6 +118,49 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// forward to generic request handler
 		return this.parent.jsonRpcRequestHandler.handleRequest(this.parent.getName(), user, request);
+	}
+
+	private class AlertingException extends IllegalArgumentException {
+		private static final long serialVersionUID = 1427696037440674667L;
+
+		private AlertingException(String userId, String edgeId) {
+			super("settings_err:'" //
+					+ "There is no User [" + userId + "] in Edge [" + edgeId + "]!'");
+		}
+	}
+
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleGetAlertingConfigRequest(User user,
+			GetAlertingConfigRequest request) {
+		String edgeId = request.getEdgeId();
+		String userId = user.getId();
+
+		Optional<EdgeUser> edgeUser = this.parent.metadata.getEdgeUserTo(edgeId, userId);
+
+		if (edgeUser.isPresent()) {
+			return CompletableFuture.completedFuture(//
+					new GetAlertingConfigResponse(request.getId(), edgeUser.get().getTimeToWait()));
+		} else {
+			throw new AlertingException(userId, edgeId);
+		}
+	}
+
+	private CompletableFuture<? extends JsonrpcResponseSuccess> handleSetAlertingConfigRequest(User user,
+			SetAlertingConfigRequest request) throws NotImplementedException {
+		String edgeId = request.getEdgeId();
+		String userId = user.getId();
+		int timeToWait = request.getTimeToWait();
+
+		Optional<EdgeUser> edgeUser = this.parent.metadata.getEdgeUserTo(edgeId, userId);
+
+		if (edgeUser.isPresent()) {
+			EdgeUser userRole = edgeUser.get();
+			userRole.setTimeToWait(timeToWait);
+
+			return CompletableFuture.completedFuture(//
+					new GetAlertingConfigResponse(request.getId(), userRole.getTimeToWait()));
+		} else {
+			throw new AlertingException(userId, edgeId);
+		}
 	}
 
 	/**
@@ -162,7 +225,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleRegisterUserReuqest(WsData wsData,
 			RegisterUserRequest request) throws OpenemsNamedException {
-		this.parent.metadata.registerUser(request.getJsonObject());
+		this.parent.metadata.registerUser(request.getUser(), request.getOem());
 
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
@@ -380,9 +443,57 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<? extends JsonrpcResponseSuccess> handleUpdateUserLanguageRequest(User user,
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleUpdateUserLanguageRequest(User user,
 			UpdateUserLanguageRequest request) throws OpenemsNamedException {
 		this.parent.metadata.updateUserLanguage(user, request.getLanguage());
+
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Handles a {@link GetSetupProtocolDataRequest}.
+	 * 
+	 * @param user    the {@link User}
+	 * @param request the {@link GetSetupProtocolDataRequest}
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleGetSetupProtocolDataRequest(User user,
+			GetSetupProtocolDataRequest request) throws OpenemsNamedException {
+		var latestProtocolJson = this.parent.metadata.getSetupProtocolData(user, request.getEdgeId());
+
+		return CompletableFuture
+				.completedFuture(new GenericJsonrpcResponseSuccess(request.getId(), latestProtocolJson));
+	}
+
+	/**
+	 * Handles a {@link SendLogMessageRequest}. Logs given message from request.
+	 * 
+	 * @param user    the {@link User}r
+	 * @param request the {@link SendLogMessageRequest}
+	 * @return the JSON-RPC Success Response Future
+	 */
+	private CompletableFuture<GenericJsonrpcResponseSuccess> handleSendLogMessageRequest(User user,
+			SendLogMessageRequest request) {
+		var msg = "User [" + user.getId() + ":" + user.getName() + "] UI: " + request.getParams();
+
+		switch (request.getLevel()) {
+		case DEBUG:
+			this.log.debug(msg);
+			break;
+		case INFO:
+			this.log.info(msg);
+			break;
+		case WARNING:
+			this.log.warn(msg);
+			break;
+		case ERROR:
+			this.log.error(msg);
+			break;
+		default:
+			this.log.warn("Unable to log message with level [" + request.getLevel() + "]");
+			break;
+		}
 
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}

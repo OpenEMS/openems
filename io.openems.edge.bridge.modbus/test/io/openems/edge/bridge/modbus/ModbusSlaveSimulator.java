@@ -12,6 +12,15 @@ public class ModbusSlaveSimulator {
 	private static final int PORT = 8502;
 	private static final int CONCURRENT_CONNECTIONS = 5;
 
+	/**
+	 * Start the {@link ModbusSlaveSimulator}.
+	 * 
+	 * <p>
+	 * See https://openems.github.io/openems.io/openems/latest/edge/implement.html
+	 * 
+	 * @param args the command line arguments
+	 * @throws ModbusException on error
+	 */
 	public static void main(String[] args) throws ModbusException {
 		// Start Modbus/TCP slave
 		var image = createProcessImage();

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -96,3 +97,4 @@ public class Thermal extends TaggedDevice implements TaggedSensor {
 		return (int) (d + (d > 0 ? 0.5 : -0.5));
 	}
 }
+// CHECKSTYLE:ON

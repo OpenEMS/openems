@@ -61,7 +61,8 @@ public interface ChannelId {
 	 * <p>
 	 * To create a query, call this function like
 	 * `ChannelId.printChannelIdsForInfluxQuery(FeneconMiniEss.ServiceInfoChannelId.values());`
-	 *
+	 * 
+	 * @param <T>        the actual type
 	 * @param channelIds the {@link ChannelId}s, e.g. from ChannelId.values().
 	 */
 	public static <T extends Enum<T>> void printChannelIdsForInfluxQuery(ChannelId[] channelIds) {

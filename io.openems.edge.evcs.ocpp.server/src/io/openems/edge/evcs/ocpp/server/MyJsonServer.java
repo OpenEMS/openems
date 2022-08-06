@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.chargetime.ocpp.AuthenticationException;
 import eu.chargetime.ocpp.JSONServer;
 import eu.chargetime.ocpp.NotConnectedException;
 import eu.chargetime.ocpp.OccurenceConstraintException;
@@ -73,8 +74,11 @@ public class MyJsonServer {
 	/**
 	 * Starting the OCPP Server. Responds to every connecting/disconnecting charging
 	 * station.
+	 * 
+	 * @param ip   the IP address
+	 * @param port the port
 	 */
-	public void activate(String ip, int port) {
+	protected void activate(String ip, int port) {
 
 		this.server.open(ip, port, new ServerEvents() {
 
@@ -124,10 +128,16 @@ public class MyJsonServer {
 				MyJsonServer.this.parent.ocppSessions.remove(ocppId);
 				MyJsonServer.this.parent.activeEvcsSessions.remove(sessionIndex);
 			}
+
+			@Override
+			public void authenticateSession(SessionInformation arg0, String arg1, byte[] arg2)
+					throws AuthenticationException {
+				MyJsonServer.this.logDebug("authenticateSession " + arg0 + "; " + arg1);
+			}
 		});
 	}
 
-	public void deactivate() {
+	protected void deactivate() {
 		this.server.close();
 	}
 

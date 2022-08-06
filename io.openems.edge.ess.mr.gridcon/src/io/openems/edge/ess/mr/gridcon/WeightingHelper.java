@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 package io.openems.edge.ess.mr.gridcon;
 
 import io.openems.edge.battery.api.Battery;
@@ -101,3 +102,4 @@ public class WeightingHelper {
 		return weightingMode;
 	}
 }
+// CHECKSTYLE:ON

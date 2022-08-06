@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -1913,3 +1914,4 @@ public class OneWireContainer26 extends OneWireContainer
 		throw new OneWireException("This device does not have selectable humidity resolution!");
 	}
 }
+// CHECKSTYLE:ON

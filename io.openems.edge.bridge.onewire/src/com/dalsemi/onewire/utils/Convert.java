@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -768,3 +769,4 @@ public class Convert {
 		return new String(floteChars, 0, floteChars.length);
 	}
 }
+// CHECKSTYLE:ON

@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonElement;
@@ -67,10 +69,10 @@ public class OdooUtils {
 	}
 
 	/**
-	 * Sends a JSON-RPC Request to an Odoo server.
+	 * Sends a JSON-RPC Request to an Odoo server - without Cookie header.
 	 *
 	 * @param url     the URL
-	 * @param cookie  a Cookie string
+	 * @param cookie  the Cookie
 	 * @param request the JSON-RPC Request as {@link JsonObject}
 	 * @return the {@link JsonObject} response and HTTP connection headers on
 	 *         success
@@ -78,12 +80,28 @@ public class OdooUtils {
 	 */
 	public static SuccessResponseAndHeaders sendJsonrpcRequest(String url, String cookie, JsonObject request)
 			throws OpenemsNamedException {
+		return OdooUtils.sendJsonrpcRequest(url, cookie, request, 5000);
+	}
+
+	/**
+	 * Sends a JSON-RPC Request to an Odoo server.
+	 *
+	 * @param url     the URL
+	 * @param cookie  a Cookie string
+	 * @param request the JSON-RPC Request as {@link JsonObject}
+	 * @param timeout readtimeout in milliseconds
+	 * @return the {@link JsonObject} response and HTTP connection headers on
+	 *         success
+	 * @throws OpenemsNamedException on error
+	 */
+	public static SuccessResponseAndHeaders sendJsonrpcRequest(String url, String cookie, JsonObject request,
+			int timeout) throws OpenemsNamedException {
 		HttpURLConnection connection = null;
 		try {
 			// Open connection to Odoo
 			connection = (HttpURLConnection) new URL(url).openConnection();
 			connection.setConnectTimeout(5000);// 5 secs
-			connection.setReadTimeout(5000);// 5 secs
+			connection.setReadTimeout(timeout);// 5 secs
 			connection.setRequestProperty("Accept-Charset", "US-ASCII");
 			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);
@@ -125,13 +143,16 @@ public class OdooUtils {
 				// "arguments":["Access denied"],
 				var dataArguments = JsonUtils.getAsJsonArray(data, "arguments");
 				// "exception_type":"access_denied"
-				var dataExceptionType = JsonUtils.getAsString(data, "exception_type");
+				var dataExceptionType = JsonUtils.getAsOptionalString(data, "exception_type");
+
 				switch (dataName) {
 				case "odoo.exceptions.AccessDenied":
 					throw new OpenemsException(
 							"Access Denied for Request [" + request.toString() + "] to URL [" + url + "]");
+
 				case "odoo.http.SessionExpiredException":
 					throw new OpenemsException("Session Expired for Request to URL [" + url + "]");
+
 				default:
 					var exception = "Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
 							+ dataMessage + ";" //
@@ -139,7 +160,7 @@ public class OdooUtils {
 							+ " Code [" + code + "]" //
 							+ " Message [" + message + "]" //
 							+ " Name [" + dataName + "]" //
-							+ " ExceptionType [" + dataExceptionType + "]" //
+							+ " ExceptionType [" + dataExceptionType.orElse("n/a") + "]" //
 							+ " Arguments [" + dataArguments + "]" //
 							+ " Debug [" + dataDebug + "]";
 					throw new OpenemsException(exception);
@@ -164,18 +185,48 @@ public class OdooUtils {
 		}
 	}
 
+	protected static SuccessResponseAndHeaders sendAdminJsonrpcRequest(Credentials credentials, String url,
+			JsonObject request, int timeout) throws OpenemsNamedException {
+		var session = OdooUtils.login(credentials, "admin", credentials.getPassword());
+		return OdooUtils.sendJsonrpcRequest(credentials.getUrl() + url, "session_id=" + session, request, timeout);
+	}
+
 	/**
 	 * Sends a request with admin privileges.
 	 *
 	 * @param credentials the Odoo credentials
 	 * @param url         to send the request
 	 * @param request     to send
+	 * @return SuccessResponseAndHeaders response
 	 * @throws OpenemsNamedException on error
 	 */
-	protected static void sendAdminJsonrpcRequest(Credentials credentials, String url, JsonObject request)
-			throws OpenemsNamedException {
+	protected static SuccessResponseAndHeaders sendAdminJsonrpcRequest(Credentials credentials, String url,
+			JsonObject request) throws OpenemsNamedException {
 		var session = OdooUtils.login(credentials, "admin", credentials.getPassword());
-		OdooUtils.sendJsonrpcRequest(credentials.getUrl() + url, "session_id=" + session, request);
+		return OdooUtils.sendJsonrpcRequest(credentials.getUrl() + url, "session_id=" + session, request);
+	}
+
+	/**
+	 * Sends a request with admin privileges in async.
+	 *
+	 * @param credentials the Odoo credentials
+	 * @param url         to send the request
+	 * @param request     to send
+	 * @return SuccessResponseAndHeaders response as Future
+	 * @throws OpenemsNamedException on error
+	 */
+	protected static Future<SuccessResponseAndHeaders> sendAdminJsonrpcRequestAsyc(Credentials credentials, String url,
+			JsonObject request) throws OpenemsNamedException {
+		var completableFuture = new CompletableFuture<SuccessResponseAndHeaders>();
+		completableFuture.completeAsync(() -> {
+			try {
+				return sendAdminJsonrpcRequest(credentials, url, request);
+			} catch (OpenemsNamedException e) {
+				completableFuture.completeExceptionally(e);
+			}
+			return null;
+		});
+		return completableFuture;
 	}
 
 	/**
@@ -231,7 +282,7 @@ public class OdooUtils {
 		}
 		Object[] paramsDomain = { domain };
 		// Create request params
-		HashMap<Object, Object> paramsRules = new HashMap<Object, Object>();
+		HashMap<Object, Object> paramsRules = new HashMap<>();
 		String action = "search";
 		Object[] params = { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(), model, action,
 				paramsDomain, paramsRules };
@@ -436,7 +487,7 @@ public class OdooUtils {
 
 	/**
 	 * Executes a get object reference from Odoo.
-	 * 
+	 *
 	 * @param credentials the Odoo credentials
 	 * @param module      the Odoo module
 	 * @param name        the external identifier
@@ -523,7 +574,7 @@ public class OdooUtils {
 				new Object[] { fieldValues } };
 
 		try {
-			Object resultObj = (Object) executeKw(credentials.getUrl(), params);
+			Object resultObj = executeKw(credentials.getUrl(), params);
 			if (resultObj == null) {
 				throw new OpenemsException("Not created.");
 			}
@@ -655,7 +706,7 @@ public class OdooUtils {
 		try {
 			connection = (HttpURLConnection) new URL(
 					credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + session)
-							.openConnection();
+					.openConnection();
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);
 			connection.setRequestMethod("GET");

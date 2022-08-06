@@ -27,13 +27,11 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("consumption-single-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = "consumption-single-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -43,7 +41,7 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
@@ -62,6 +60,9 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                     let datasets = [];
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
+                            if (!Object.keys(result.data).includes(channelAddress.toString())) {
+                                result.data[channelAddress.toString()] = [].fill(null);
+                            }
                             let component = config.getComponent(channelAddress.componentId);
                             let data = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
@@ -157,17 +158,20 @@ export class ConsumptionSingleChartComponent extends AbstractHistoryChart implem
                     });
                     this.datasets = datasets;
                     this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
+                    this.stopSpinner();
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

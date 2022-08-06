@@ -7,7 +7,7 @@
     </ion-item>
     <ion-card-content>
         <table class="full_width">
-            <ng-container *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
+            <ng-container *ngIf="data && edge; else noData">
                 <ng-container *ngIf="productionMeterComponents.length != 0">
                     <ng-container *ngFor="let component of productionMeterComponents">
                         <tr>

@@ -42,6 +42,11 @@ public class DummyManagedAsymmetricEss extends DummyManagedSymmetricEss
 		}
 	}
 
+	/**
+	 * Sets a callback for {@link #applyPower(int, int, int, int, int, int)}.
+	 * 
+	 * @param callback the callback
+	 */
 	public void withAsymmetricApplyPowerCallback(Consumer<AsymmetricApplyPowerRecord> callback) {
 		this.asymmetricApplyPowerCallback = callback;
 	}

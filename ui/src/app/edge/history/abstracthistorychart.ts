@@ -1,20 +1,19 @@
 import { Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
-import { addDays, addMonths, differenceInDays, differenceInMonths } from 'date-fns';
+import { differenceInDays, differenceInMonths } from 'date-fns';
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared/shared";
-import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, TooltipItem } from './shared';
+import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
 
     public loading: boolean = true;
-    public spinnerId: string = "";
     protected edge: Edge | null = null;
 
     //observable is used to fetch new chart data every 10 minutes
@@ -47,8 +46,9 @@ export abstract class AbstractHistoryChart {
     }
 
     constructor(
+        public readonly spinnerId: string,
         protected service: Service,
-        protected translate: TranslateService
+        protected translate: TranslateService,
     ) {
     }
 
@@ -69,21 +69,17 @@ export abstract class AbstractHistoryChart {
      * @param edge     the current Edge
      * @param ws       the websocket
      */
-    protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date, resolution?: number): Promise<QueryHistoricTimeseriesDataResponse> {
+    protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date, res?: Resolution): Promise<QueryHistoricTimeseriesDataResponse> {
 
-        // TODO should be removed, edge delivers too much data 
-        let newDate = (this.service.periodString == 'year' ? addMonths(fromDate, 1) : this.service.periodString == 'month' ? addDays(fromDate, 1) : fromDate);
-
-        if (resolution == null) {
-            resolution = calculateResolution(this.service, fromDate, toDate);
-        }
+        // Take custom resolution if passed
+        let resolution = res ?? calculateResolution(this.service, fromDate, toDate).resolution;
 
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     this.setLabel(config);
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        let request = new QueryHistoricTimeseriesDataRequest(newDate, toDate, channelAddresses, resolution);
+                        let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses, resolution);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             let result = (response as QueryHistoricTimeseriesDataResponse).result;
                             if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
@@ -108,14 +104,12 @@ export abstract class AbstractHistoryChart {
     protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date, channelAddresses: ChannelAddress[]): Promise<queryHistoricTimeseriesEnergyPerPeriodResponse> {
 
         // TODO should be removed, edge delivers too much data 
-        let newDate = this.service.periodString == 'year' ? addMonths(fromDate, 1) : addDays(fromDate, 1)
-
-        let resolution = calculateResolution(this.service, fromDate, toDate);
+        let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
 
         return new Promise((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    edge.sendRequest(this.service.websocket, new queryHistoricTimeseriesEnergyPerPeriodRequest(newDate, toDate, channelAddresses, resolution)).then(response => {
+                    edge.sendRequest(this.service.websocket, new queryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
                         let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
                         if (Object.keys(result).length != 0) {
@@ -138,17 +132,11 @@ export abstract class AbstractHistoryChart {
      * @returns period for Tooltip Header
      */
     protected toTooltipTitle(fromDate: Date, toDate: Date, date: Date): string {
-        let resolution = calculateResolution(this.service, fromDate, toDate);
-        if (resolution >= (31 * 24 * 60 * 60)) {
-            // Yearly view
+        if (this.service.periodString == 'year') {
             return date.toLocaleDateString('default', { month: 'long' });
-
-        } else if (resolution >= (24 * 60 * 60)) {
-            // Monthly view
+        } else if (this.service.periodString == 'month') {
             return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
-
         } else {
-            // Default
             return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit', }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
         }
     }
@@ -241,11 +229,33 @@ export abstract class AbstractHistoryChart {
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+        this.stopSpinner();
     }
 
     /**
      * Sets Chart Height
      */
-    protected abstract getChartHeight()
+    protected abstract getChartHeight();
+
+    /**
+     * Start NGX-Spinner
+     * 
+     * Spinner will appear inside html tag only
+     * 
+     * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+     * 
+     * @param selector selector for specific spinner
+     */
+    public startSpinner() {
+        this.service.startSpinner(this.spinnerId);
+    }
+
+    /**
+     * Stop NGX-Spinner
+     * @param selector selector for specific spinner
+     */
+    public stopSpinner() {
+        this.service.stopSpinner(this.spinnerId);
+    }
+
 }

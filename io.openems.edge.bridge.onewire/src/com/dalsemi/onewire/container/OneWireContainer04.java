@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -1414,3 +1415,4 @@ public class OneWireContainer04 extends OneWireContainer implements ClockContain
 		this.clock.bankDescription = "Clock/alarm registers";
 	}
 }
+// CHECKSTYLE:ON

@@ -29,7 +29,11 @@ import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.HighLoadTimeslot", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.HighLoadTimeslot", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class HighLoadTimeslot extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	public static final String TIME_FORMAT = "HH:mm";
@@ -112,7 +116,8 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	/**
 	 * Gets the current ActivePower.
 	 *
-	 * @return
+	 * @param ess the {@link ManagedSymmetricEss}
+	 * @return the active power value
 	 */
 	private int getPower(ManagedSymmetricEss ess) {
 		var now = LocalDateTime.now(this.componentManager.getClock());
@@ -172,9 +177,10 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	/**
-	 * Is the current time in a high-load timeslot?
+	 * Is the current time in a high-load timeslot?.
 	 *
-	 * @return
+	 * @param dateTime the current {@link LocalDateTime}
+	 * @return true on yes
 	 */
 	private boolean isHighLoadTimeslot(LocalDateTime dateTime) {
 		if (!isActiveWeekday(this.weekdayDayFilter, dateTime)) {
@@ -191,11 +197,11 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	/**
-	 * Is 'dateTime' within the ActiveWeekdayFilter?
+	 * Is 'dateTime' within the ActiveWeekdayFilter?.
 	 *
-	 * @param activeDayFilter
-	 * @param dateTime
-	 * @return
+	 * @param activeDayFilter the {@link WeekdayFilter}
+	 * @param dateTime        the current {@link LocalDateTime}
+	 * @return true on yes
 	 */
 	protected static boolean isActiveWeekday(WeekdayFilter activeDayFilter, LocalDateTime dateTime) {
 		switch (activeDayFilter) {
@@ -216,12 +222,12 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	/**
-	 * Is the time of 'dateTime' within startTime and endTime?
+	 * Is the time of 'dateTime' within startTime and endTime?.
 	 *
-	 * @param startTime
-	 * @param endTime
-	 * @param dateTime
-	 * @return
+	 * @param startTime the configured start time
+	 * @param endTime   the configured end time
+	 * @param dateTime  the current {@link LocalDateTime}
+	 * @return true on yes
 	 */
 	protected static boolean isActiveTime(LocalTime startTime, LocalTime endTime, LocalDateTime dateTime) {
 		var time = dateTime.toLocalTime();
@@ -231,8 +237,8 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	/**
 	 * Converts a string to a LocalDate.
 	 *
-	 * @param date
-	 * @return
+	 * @param date the string
+	 * @return a {@link LocalDate} object
 	 */
 	protected static LocalDate convertDate(String date) {
 		var dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
@@ -242,8 +248,8 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	/**
 	 * Converts a string to a LocalTime.
 	 *
-	 * @param time
-	 * @return
+	 * @param time the string
+	 * @return a {@link LocalTime} object
 	 */
 	protected static LocalTime convertTime(String time) {
 		var dateTimeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
@@ -251,10 +257,10 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	/**
-	 * Is 'dateTime' a Saturday or Sunday?
+	 * Is 'dateTime' a Saturday or Sunday?.
 	 *
-	 * @param dateTime
-	 * @return
+	 * @param dateTime the current {@link LocalDateTime}
+	 * @return true on yes
 	 */
 	protected static boolean isWeekend(LocalDateTime dateTime) {
 		var dayOfWeek = dateTime.getDayOfWeek();
@@ -262,10 +268,11 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	/**
-	 * Applies the power constraint on the Ess
+	 * Applies the power constraint on the Ess.
 	 *
-	 * @param activePower
-	 * @throws OpenemsException
+	 * @param ess         the {@link ManagedSymmetricEss}
+	 * @param activePower the active power set-point
+	 * @throws OpenemsException on error
 	 */
 	private void applyPower(ManagedSymmetricEss ess, int activePower) throws OpenemsException {
 		// adjust value so that it fits into Min/MaxActivePower

@@ -15,6 +15,12 @@ import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 
 public class Utils {
 
+	/**
+	 * Convert a {@link BitVector} to a {@link Boolean} array.
+	 * 
+	 * @param v the {@link BitVector}
+	 * @return the {@link Boolean} array
+	 */
 	public static Boolean[] toBooleanArray(BitVector v) {
 		var bools = new Boolean[v.size()];
 		for (var i = 0; i < v.size(); i++) {
@@ -23,6 +29,12 @@ public class Utils {
 		return bools;
 	}
 
+	/**
+	 * Convert a byte array to a {@link Boolean} array.
+	 * 
+	 * @param bytes the byte array
+	 * @return the {@link Boolean} array
+	 */
 	public static Boolean[] toBooleanArray(byte[] bytes) {
 		var bools = new Boolean[bytes.length * 8];
 		for (var i = 0; i < bytes.length * 8; i++) {
@@ -32,6 +44,14 @@ public class Utils {
 		return bools;
 	}
 
+	/**
+	 * Build a {@link ModbusResponse} from a {@link ModbusRequest}.
+	 * 
+	 * @param request the {@link ModbusRequest}
+	 * @param unitId  the Modbus Unit-ID
+	 * @param bridge  the {@link AbstractModbusBridge}
+	 * @return the {@link ModbusResponse}
+	 */
 	public static ModbusResponse getResponse(ModbusRequest request, int unitId, AbstractModbusBridge bridge)
 			throws OpenemsException, ModbusException {
 		request.setUnitID(unitId);
@@ -41,6 +61,12 @@ public class Utils {
 		return transaction.getResponse();
 	}
 
+	/**
+	 * Converts an array of {@link InputRegister}s to a String.
+	 * 
+	 * @param registers the {@link InputRegister} array
+	 * @return the String
+	 */
 	public static String toBitString(InputRegister[] registers) {
 		return Arrays.stream(registers).map(register -> {
 			var bs = register.toBytes();
@@ -53,6 +79,12 @@ public class Utils {
 		}).collect(Collectors.joining(" "));
 	}
 
+	/**
+	 * Converts an array of bytes to a String.
+	 * 
+	 * @param bs the byte array
+	 * @return the String
+	 */
 	public static String toBitString(byte[] bs) {
 		return IntStream //
 				.range(0, bs.length) //

@@ -6,6 +6,9 @@ package io.openems.common;
 // CHECKSTYLE:OFF
 public class OpenemsOEM {
 	// CHECKSTYLE:ON
+	public enum Manufacturer {
+		OPENEMS; //
+	}
 
 	/*
 	 * General.

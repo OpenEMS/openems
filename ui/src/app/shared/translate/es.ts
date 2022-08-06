@@ -117,6 +117,40 @@ export const TRANSLATION = {
     },
     Register: {
         title: "Crear una cuenta de usuario",
+        segment: {
+            user: "Usuario",
+            installer: "Instalador"
+        },
+        form: {
+            user: {
+                acceptPrivacyPolicy: "Al crear una cuenta de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de Privacidad</a> y las Condiciones de Uso de FENECON.*",
+            },
+            installer: {
+                acceptPrivacyPolicy: "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de privacidad</a> y las Condiciones de uso de FENECON.*",
+            },
+            contactDetails: "Datos de contacto",
+            companyName: "Nombre de la empresa",
+            firstname: "Nombre",
+            lastname: "Apellido",
+            street: "Calle | número de casa",
+            zip: "Código postal",
+            city: "Ciudad",
+            country: "País",
+            phone: "Número de teléfono",
+            email: "Correo electrónico",
+            password: "Contraseña",
+            confirmPassword: "Confirmar contraseña",
+            isElectrician: "Confirmo que mi empresa está inscrita en el registro de instaladores y, por tanto, estoy autorizado a conectar y poner en marcha un sistema de almacenamiento.",
+            acceptPrivacyPolicy: "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la  <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de privacidad</a> y las condiciones de uso de FENECON.*",
+            acceptAgb: "Confirmo el <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+            subscribeNewsletter: "Me gustaría suscribirme al boletín de FENECON para recibir todas las novedades de FENECON."
+        },
+        button: "Crear",
+        errors: {
+            requiredFields: "Por favor, rellene todos los campos",
+            passwordNotEqual: "Las contraseñas no son iguales"
+        },
+        success: "Registro realizado con éxito"
     },
     Edge: {
         Index: {
@@ -181,6 +215,7 @@ export const TRANSLATION = {
                     startTimeCharge: 'Hora de inicio de carga',
                 },
                 GridOptimizedCharge: {
+                    chargingDelayed: 'Retraso en la carga',
                     considerGridFeedInLimit: 'Tenga en cuenta la alimentación máxima a la red',
                     endTime: 'Hora de finalización',
                     endTimeDescription: 'La carga no se realiza con la cantidad máxima durante unas pocas horas, sino de manera constante durante un período de tiempo más largo.',
@@ -220,6 +255,7 @@ export const TRANSLATION = {
                     riskPropensity: 'Propensión al riesgo',
                     settingOnlyVisableForInstaller: 'Esta configuración solo es visible para el instalador',
                     State: {
+                        avoidLowCharging: 'Se evita la carga baja',
                         chargeLimitActive: 'Límite de carga activo',
                         endTimeNotCalculated: 'Hora de finalización no calculada',
                         gridFeedInLimitationIsAvoided: 'Se evita la limitación de la alimentación a la red',
@@ -229,6 +265,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Se superó el tiempo de finalización de la carga limitada',
                         storageAlreadyFull: 'Memoria ya llena',
                     },
+                    storageCapacity: 'capacidad de almacenamiento (sólo visible para el administrador)'
                 },
                 CHP: {
                     highThreshold: 'Umbral alto',
@@ -399,6 +436,7 @@ export const TRANSLATION = {
                 simulator: 'Simulador',
                 systemExecute: 'Ejecutar comando del sistema',
                 systemProfile: 'Perfil del Sistema',
+                alerting: 'Alerta',
             },
             More: {
                 manualCommand: 'Comando manual',
@@ -433,6 +471,41 @@ export const TRANSLATION = {
             Bridge: {
                 newConnection: 'Nueva conexión...',
                 newDevice: 'Nuevo dispositivo...',
+            },
+            Alerting: {
+                activate: 'Activar',
+                delay: 'Retraso',
+                save: 'Guardar',
+                options: {
+                    15: '15 minutos',
+                    60: '1 hora',
+                    1440: '1 día'
+                },
+                toast: {
+                    success: 'Ajustes adoptados',
+                    error: 'Error al cargar la configuración'
+                },
+            },
+            App: {
+                header: 'El App Manager se encuentra actualmente en una primera versión de prueba. Si no se muestran todas las aplicaciones, es posible que haya que actualizar la versión de FEMS.',
+                installed: 'Instalado',
+                available: 'Disponible',
+                incompatible: 'Incompatible',
+                buyApp: 'Comprar aplicación',
+                modifyApp: 'Modificar la aplicación',
+                createApp: 'Instalar la aplicación',
+                deleteApp: 'Eliminar la aplicación',
+                updateApp: 'Actualizar la aplicación',
+                errorInstallable: 'Errores de instalación',
+                errorCompatible: 'Errores de compatibilidad',
+            },
+        },
+        Service: {
+            entireSystem: "Sistema entero",
+            Cell: {
+                voltages: "Voltajes de celda",
+                temperatures: "temperaturas de celda",
+                insulation: "Aislamiento",
             }
         }
     },

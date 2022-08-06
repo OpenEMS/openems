@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -964,3 +965,4 @@ class MemoryBankAppReg implements OTPMemoryBank {
 		return (byte) this.ib.adapter.getByte();
 	}
 }
+// CHECKSTYLE:ON

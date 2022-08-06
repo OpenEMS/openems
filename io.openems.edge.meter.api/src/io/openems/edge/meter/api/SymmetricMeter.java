@@ -200,8 +200,15 @@ public interface SymmetricMeter extends OpenemsComponent {
 	 *
 	 * @return the MeterType
 	 */
-	MeterType getMeterType();
+	public MeterType getMeterType();
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(SymmetricMeter.class, accessMode, 100) //
 				.channel(0, ChannelId.FREQUENCY, ModbusType.FLOAT32) //

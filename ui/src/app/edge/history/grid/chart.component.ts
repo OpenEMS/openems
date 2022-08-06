@@ -25,13 +25,11 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("grid-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = 'grid-chart';
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -42,7 +40,7 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
         this.loading = true;
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.colors = [];
 
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -143,7 +141,8 @@ export class GridChartComponent extends AbstractHistoryChart implements OnInit, 
             }
             this.datasets = datasets;
             this.loading = false;
-            this.service.stopSpinner(this.spinnerId);
+            this.stopSpinner();
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

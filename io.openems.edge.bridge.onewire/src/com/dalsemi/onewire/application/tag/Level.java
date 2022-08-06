@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2002 Maxim Integrated Products, All Rights Reserved.
@@ -85,3 +86,4 @@ public class Level extends TaggedDevice implements TaggedSensor {
 		return returnString;
 	}
 }
+// CHECKSTYLE:ON

@@ -16,7 +16,7 @@ public class CalculateGridMode {
 	/**
 	 * Adds a Channel-Value.
 	 *
-	 * @param channel
+	 * @param channel the {@link Channel}
 	 */
 	public void addValue(Channel<GridMode> channel) {
 		GridMode gridMode = channel.getNextValue().asEnum();
@@ -26,7 +26,7 @@ public class CalculateGridMode {
 	/**
 	 * Finds the effective Grid-Mode.
 	 *
-	 * @return
+	 * @return the {@link GridMode}
 	 */
 	public GridMode calculate() {
 		if (this.values.isEmpty()) {

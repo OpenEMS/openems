@@ -5,8 +5,13 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 public abstract class Inverter {
 
-	/*
-	 * Factory
+	/**
+	 * Factory for an {@link Inverter}.
+	 * 
+	 * @param symmetricMode is Symmetric-Mode?
+	 * @param ess           the {@link ManagedSymmetricEss}
+	 * @param essType       the {@link EssType}
+	 * @return the {@link Inverter}
 	 */
 	public static Inverter[] of(boolean symmetricMode, ManagedSymmetricEss ess, EssType essType) {
 		var essId = ess.id();
@@ -91,7 +96,7 @@ public abstract class Inverter {
 	}
 
 	/**
-	 * Holds the last set ActivePower
+	 * Holds the last set ActivePower.
 	 */
 	private int lastActivePower = 0;
 

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -149,3 +150,4 @@ public class D2A extends TaggedDevice implements TaggedActuator {
 	 */
 	private final Vector<String> ActuatorSelections;
 }
+// CHECKSTYLE:ON

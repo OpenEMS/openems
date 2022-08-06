@@ -30,6 +30,7 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 			if (edgeOpt.isPresent()) {
 				var isOnline = this.parent.isOnline(edgeId);
 				edgeOpt.get().setOnline(isOnline);
+
 			}
 
 		} else {
@@ -42,8 +43,7 @@ public class OnClose implements io.openems.common.websocket.OnClose {
 			// This happens when Metadata service is not yet initialized. No need to log
 			// message.
 		} else {
-			this.parent.logInfo(this.log,
-					"Edge [" + edgeId + "] disconnected. Code [" + code + "] Reason [" + reason + "]");
+			this.parent.logInfo(this.log, edgeId, "Disconnected. Code [" + code + "] Reason [" + reason + "]");
 		}
 	}
 

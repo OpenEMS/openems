@@ -2,6 +2,7 @@ package io.openems.edge.timeofusetariff.awattar;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.time.ZonedDateTime;
 import java.util.SortedMap;
@@ -92,12 +93,15 @@ public class AwattarProviderTest {
 
 	@Test
 	public void emptyStringTest() throws OpenemsNamedException {
-		// Parsing with empty string
-		SortedMap<ZonedDateTime, Float> prices = AwattarImpl.parsePrices("");
+		try {
+			// Parsing with empty string
+			AwattarImpl.parsePrices("");
+		} catch (OpenemsNamedException e) {
+			// expected
+			return;
+		}
 
-		// To check if the map is empty.
-		assertTrue(prices.isEmpty());
-
+		fail("Expected Exception");
 	}
 
 }

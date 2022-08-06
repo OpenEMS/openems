@@ -25,7 +25,7 @@ public class StateCollectorChannel extends EnumReadChannel {
 
 	/**
 	 * Holds all Channels that are connected to and collected by this
-	 * StateCollectorChannel
+	 * StateCollectorChannel.
 	 */
 	private final Map<io.openems.edge.common.channel.ChannelId, Channel<?>> channels = Collections
 			.synchronizedMap(new HashMap<>());
@@ -85,6 +85,7 @@ public class StateCollectorChannel extends EnumReadChannel {
 
 	/**
 	 * Removes a Channel from this StateCollector.
+	 * 
 	 * <p>
 	 * The onChange listener is removed by the {@link Channel#deactivate()} method.
 	 *
@@ -96,7 +97,7 @@ public class StateCollectorChannel extends EnumReadChannel {
 	}
 
 	/**
-	 * Lists all States as Text
+	 * Lists all States as Text.
 	 *
 	 * @return the text
 	 */

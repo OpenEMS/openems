@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
@@ -300,3 +301,4 @@ public interface ClockContainer extends OneWireSensor {
 	 */
 	public void setClockAlarmEnable(boolean alarmEnable, byte[] state) throws OneWireException;
 }
+// CHECKSTYLE:ON

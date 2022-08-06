@@ -26,6 +26,7 @@ import org.osgi.service.event.EventHandler;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingRunnable;
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -290,8 +291,8 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			for (ChannelValue input : this.inputs) {
 				var component = components.get(input.address.getComponentId());
 				if (component == null) {
-					throw new IllegalArgumentException("On TestCase [" + this.description + "]: " + //
-							"the component [" + input.address.getComponentId() + "] " //
+					throw new IllegalArgumentException("On TestCase [" + this.description + "]: " //
+							+ "the component [" + input.address.getComponentId() + "] " //
 							+ "was not added to the OpenEMS Component test framework!");
 				}
 				Channel<?> channel = component.channel(input.address.getChannelId());

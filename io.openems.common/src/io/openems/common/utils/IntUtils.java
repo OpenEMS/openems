@@ -18,11 +18,7 @@ public class IntUtils {
 	 * @return the rounded value
 	 */
 	public static int roundToPrecision(double value, Round round, int precision) {
-		if (value == 0) {
-			return (int) value;
-		}
-
-		if (value % precision == 0) {
+		if ((value == 0) || (value % precision == 0)) {
 			return (int) value;
 		}
 

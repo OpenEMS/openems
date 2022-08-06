@@ -1,6 +1,5 @@
-import { DecimalPipe } from '@angular/common';
-import { ChartData, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { differenceInDays, differenceInMinutes, endOfDay, startOfDay } from 'date-fns';
+import { ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Service } from 'src/app/shared/shared';
 
@@ -205,88 +204,70 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
 };
 
 export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse['result']) {
-    let result;
-    // TODO get locale dynamically
-    let decimalPipe = new DecimalPipe('de-DE')
     let startDate = startOfDay(new Date(queryResult.timestamps[0]));
-    let endDate = endOfDay(new Date(queryResult.timestamps[queryResult.timestamps.length - 1]));
+    let endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
     let activeSum = 0;
     queryResult.data[channel.toString()].forEach(value => {
         activeSum += value;
     });
     let activePercent = activeSum / queryResult.timestamps.length;
-    let activeTimeMinutes = differenceInMinutes(endDate, startDate) * activePercent;
-    let activeTimeHours = (activeTimeMinutes / 60).toFixed(1);
-    if (activeTimeMinutes > 59) {
-        activeTimeHours = decimalPipe.transform(activeTimeHours, '1.0-1');
-        result = activeTimeHours + ' h';
-        // if activeTimeHours is XY,0, removes the ',0' from activeTimeOverPeriod string
-        activeTimeHours.split('').forEach((letter, index) => {
-            if (index == activeTimeHours.length - 1 && letter == "0") {
-                result = activeTimeHours.slice(0, -2) + ' h';
-            }
-        });
-    } else {
-        result = decimalPipe.transform(activeTimeMinutes.toString(), '1.0-0') + ' m';
-    }
-    return result;
+    return (differenceInMinutes(endDate, startDate) * activePercent) * 60;
 };
 
 /**
-   * Calculates resolution from passed Dates for queryHistoricTime-SeriesData und -EnergyPerPeriod 
+   * Calculates resolution from passed Dates for queryHistoricTime-SeriesData und -EnergyPerPeriod &&
+   * Calculates timeFormat from passed Dates for xAxes of chart
    * 
    * @param service the Service
    * @param fromDate the From-Date
    * @param toDate the To-Date
-   * @returns resolution
+   * @returns resolution and timeformat
    */
-export function calculateResolution(service: Service, fromDate: Date, toDate: Date): number {
+export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' } {
+
     let days = Math.abs(differenceInDays(toDate, fromDate));
+    let resolution: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' };
 
     if (days <= 1) {
-        return 5 * 60; // 5 Minutes
-
+        resolution = { resolution: { value: 5, unit: Unit.MINUTES }, timeFormat: 'hour' } // 5 Minutes
     } else if (days == 2) {
         if (service.isSmartphoneResolution) {
-            return 24 * 60 * 60; // 1 Day
+            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'hour' }; // 1 Day
         } else {
-            return 10 * 60; // 10 Minutes
+            resolution = { resolution: { value: 10, unit: Unit.MINUTES }, timeFormat: 'hour' }; // 1 Hour
         }
 
     } else if (days <= 4) {
         if (service.isSmartphoneResolution) {
-            return 24 * 60 * 60; // 1 Day
+            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
         } else {
-            return 60 * 60; // 1 Hour
+            resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'hour' } // 1 Hour
         }
 
     } else if (days <= 6) {
         // >> show Hours
-        // Smartphone - Week View show one bar for every Day
-        if (service.isSmartphoneResolution == true) {
-            return 24 * 60 * 60; // 1 Day
-        } else if (service.periodString == 'week') {
-            return 60 * 60; // 1 Hour
-        } else {
-            return 12 * 60 * 60; // 12 Hour
-        }
+        resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'day' }; // 1 Day
 
     } else if (days <= 31 && service.isSmartphoneResolution) {
         // Smartphone-View: show 31 days in daily view
-        return 24 * 60 * 60; // 1 Day
+        resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+
+    } else if (days <= 90) {
+        resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
 
     } else if (days <= 144) {
         // >> show Days
         if (service.isSmartphoneResolution == true) {
-            return 31 * 24 * 60 * 60; // 1 Month
+            resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
         } else {
-            return 24 * 60 * 60; // 1 Day
+            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
         }
 
     } else {
         // >> show Months
-        return 31 * 24 * 60 * 60; // 1 Month
+        resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
     }
+    return resolution
 }
 
 /**
@@ -320,4 +301,50 @@ export function setLabelVisible(label: string, visible: boolean | null): void {
     }
     let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
     sessionStorage.setItem(labelWithoutUnit, visible ? 'true' : 'false');
+}
+
+export type Resolution = {
+    value: number,
+    unit: Unit
+}
+
+export enum Unit {
+    SECONDS = "Seconds",
+    MINUTES = "Minutes",
+    HOURS = "Hours",
+    DAYS = "Days",
+    MONTHS = "Months",
+}
+
+export type ChartData = {
+    channel: {
+        name: string,
+        powerChannel: ChannelAddress,
+        energyChannel: ChannelAddress
+        filter?: ChannelFilter
+    }[],
+    displayValue: {
+        /** Name displayed in Label */
+        name: string,
+        /**  */
+        getValue: any,
+
+        hidden?: boolean,
+        /** color in rgb-Format */
+        color: string;
+    }[],
+    tooltip: {
+        /** Unit to be displayed as Tooltips unit */
+        unit: '%' | 'kWh' | 'kW',
+        /** Format of Number displayed */
+        formatNumber: string;
+    },
+    /** Name to be displayed on the left y-axis */
+    yAxisTitle: string,
+}
+// Should be renamed
+export enum ChannelFilter {
+    NOT_NULL,
+    NOT_NULL_OR_NEGATIVE,
+    NOT_NULL_OR_POSITIVE
 }

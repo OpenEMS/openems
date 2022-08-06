@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.controller.io.heatingelement.enums.Phase;
 
 /**
  * PhaseDef represents one Phase of the Heating Element.
@@ -23,7 +24,7 @@ public class PhaseDef {
 	 * keeps the total summed up Duration of the current day; it is updated on
 	 * switchOff() and reset after midnight by getTotalDuration().
 	 */
-	private Duration duration = Duration.ZERO;
+	private Duration dailyDuration = Duration.ZERO;
 
 	/**
 	 * Keeps the current day to detect changes in day.
@@ -43,8 +44,6 @@ public class PhaseDef {
 	/**
 	 * Switch the output ON.
 	 *
-	 * @param outputChannelAddress address of the channel which must set to ON
-	 *
 	 * @throws OpenemsNamedException    on error.
 	 * @throws IllegalArgumentException on error.
 	 */
@@ -59,14 +58,12 @@ public class PhaseDef {
 	/**
 	 * Switch the output OFF.
 	 *
-	 * @param outputChannelAddress address of the channel which must set to OFF.
-	 *
 	 * @throws OpenemsNamedException    on error.
 	 * @throws IllegalArgumentException on error.
 	 */
 	protected void switchOff() throws IllegalArgumentException, OpenemsNamedException {
 		if (this.lastSwitchOn != null) {
-			this.duration = this.getTotalDuration();
+			this.dailyDuration = this.getTotalDuration();
 			this.lastSwitchOn = null;
 		}
 
@@ -85,7 +82,7 @@ public class PhaseDef {
 		if (!this.currentDay.equals(today)) {
 			// Always reset Duration
 			this.currentDay = today;
-			this.duration = Duration.ZERO;
+			this.dailyDuration = Duration.ZERO;
 			if (this.lastSwitchOn != null) {
 				this.lastSwitchOn = LocalTime.MIN;
 			}
@@ -94,8 +91,8 @@ public class PhaseDef {
 		// Calculate and return the Duration
 		if (this.lastSwitchOn != null) {
 			var now = LocalTime.now(this.parent.componentManager.getClock());
-			return this.duration.plus(Duration.between(this.lastSwitchOn, now));
+			return this.dailyDuration.plus(Duration.between(this.lastSwitchOn, now));
 		}
-		return this.duration;
+		return this.dailyDuration;
 	}
 }
