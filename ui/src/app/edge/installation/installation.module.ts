@@ -10,7 +10,9 @@ import { CompletionComponent } from "./views/completion/completion.component";
 import { ConfigurationCommercialComponent } from "./views/configuration-commercial-component/configuration-commercial.component";
 import { ConfigurationEmergencyReserveComponent } from "./views/configuration-emergency-reserve/configuration-emergency-reserve.component";
 import { ConfigurationExecuteComponent } from "./views/configuration-execute/configuration-execute.component";
+import { ConfigurationFeaturesStorageSystemComponent } from "./views/configuration-features-storage-system/configuration-features-storage-system.component";
 import { ConfigurationLineSideMeterFuseComponent } from "./views/configuration-line-side-meter-fuse/configuration-line-side-meter-fuse.component";
+import { ConfigurationPeakShavingComponent } from "./views/configuration-peak-shaving/configuration-peak-shaving.component";
 import { ConfigurationSummaryComponent } from "./views/configuration-summary/configuration-summary.component";
 import { ConfigurationSystemComponent } from "./views/configuration-system/configuration-system.component";
 import { HeckertAppInstallerComponent } from "./views/heckert-app-installer/heckert-app-installer.component";
@@ -18,7 +20,7 @@ import { PreInstallationUpdateComponent } from "./views/pre-installation-update/
 import { PreInstallationComponent } from "./views/pre-installation/pre-installation.component";
 import { ProtocolAdditionalAcProducersComponent } from "./views/protocol-additional-ac-producers/protocol-additional-ac-producers.component";
 import { ProtocolCustomerComponent } from "./views/protocol-customer/protocol-customer.component";
-import { ProtocolFeedInLimitation } from "./views/protocol-feed-in-limitation/protocol-feed-in-limitation.component";
+import { ProtocolFeedInLimitationComponent } from "./views/protocol-feed-in-limitation/protocol-feed-in-limitation.component";
 import { ProtocolInstallerComponent } from "./views/protocol-installer/protocol-installer.component";
 import { ProtocolPv } from "./views/protocol-pv/protocol-pv.component";
 import { ProtocolSerialNumbersComponent } from "./views/protocol-serial-numbers/protocol-serial-numbers.component";
@@ -38,11 +40,6 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
 export function BatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
   // This validator checks the length of the value
   return /^.{16}$/.test(control.value) ? null : { "batteryInverterSerialNumber": true };
-}
-
-export function CommercialBatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
-  // This validator checks the length of the value
-  return /^.{10}$/.test(control.value) ? null : { "commercialBatteryInverterSerialNumber": true };
 }
 
 export function EmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
@@ -77,6 +74,16 @@ export function CommercialBatteryModuleSerialNumberValidator(control: FormContro
   return /^\d{10}$/.test(control.value) ? null : { "commercialBatteryModuleSerialNumber": true };
 }
 
+export function Commercial30BatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
+  // This validator checks the length of the value
+  return /^.{10}$/.test(control.value) ? null : { "commercial30BatteryInverterSerialNumber": true };
+}
+
+export function Commercial50BatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
+  // This validator checks the length of the value
+  return /^.{6}$/.test(control.value) ? null : { "commercial50BatteryInverterSerialNumber": true };
+}
+
 //#region Validator Messages
 export function OnlyPositiveIntegerValidatorMessage(err, field: FormlyFieldConfig) {
   return `Nur ganze positive Zahlen sind erlaubt.`
@@ -99,10 +106,6 @@ export function EmailValidatorMessage(err, field: FormlyFieldConfig) {
 }
 
 export function BatteryInverterSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
-}
-
-export function CommercialBatteryInverterSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
   return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
 }
 
@@ -130,6 +133,14 @@ export function CommercialBatteryModuleSerialNumberValidatorMessage(err, field: 
   return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 10 Ziffern.`;
 }
 
+export function Commercial30BatteryInverterSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
+}
+
+export function Commercial50BatteryInverterSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
+  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 6 Ziffern.`;
+}
+
 @NgModule({
   imports: [
     FormlyModule.forRoot({
@@ -143,7 +154,8 @@ export function CommercialBatteryModuleSerialNumberValidatorMessage(err, field: 
         { name: "onlyPositiveInteger", validation: OnlyPositiveIntegerValidator },
         { name: "commercialBmsBoxSerialNumber", validation: CommercialBmsBoxSerialNumberValidator },
         { name: "commercialBatteryModuleSerialNumber", validation: CommercialBatteryModuleSerialNumberValidator },
-        { name: "commercialBatteryInverterSerialNumber", validation: CommercialBatteryInverterSerialNumberValidator }
+        { name: "commercial30BatteryInverterSerialNumber", validation: Commercial30BatteryInverterSerialNumberValidator },
+        { name: "commercial50BatteryInverterSerialNumber", validation: Commercial50BatteryInverterSerialNumberValidator },
       ],
       validationMessages: [
         { name: "required", message: RequiredValidatorMessage },
@@ -158,7 +170,8 @@ export function CommercialBatteryModuleSerialNumberValidatorMessage(err, field: 
         { name: "onlyPositiveInteger", message: OnlyPositiveIntegerValidatorMessage },
         { name: "commercialBmsBoxSerialNumber", message: CommercialBmsBoxSerialNumberValidatorMessage },
         { name: "commercialBatteryModuleSerialNumber", message: CommercialBatteryModuleSerialNumberValidatorMessage },
-        { name: "commercialBatteryInverterSerialNumber", message: CommercialBatteryInverterSerialNumberValidatorMessage }
+        { name: "commercial30BatteryInverterSerialNumber", message: Commercial30BatteryInverterSerialNumberValidatorMessage },
+        { name: "commercial50BatteryInverterSerialNumber", message: Commercial50BatteryInverterSerialNumberValidatorMessage }
       ]
     }),
     SharedModule,
@@ -171,7 +184,7 @@ export function CommercialBatteryModuleSerialNumberValidatorMessage(err, field: 
     ConfigurationLineSideMeterFuseComponent,
     KeyMask,
     ProtocolCustomerComponent,
-    ProtocolFeedInLimitation,
+    ProtocolFeedInLimitationComponent,
     ProtocolInstallerComponent,
     ProtocolSystemComponent,
     InstallationComponent,
@@ -184,7 +197,9 @@ export function CommercialBatteryModuleSerialNumberValidatorMessage(err, field: 
     ConfigurationSummaryComponent,
     ProtocolSerialNumbersComponent,
     HeckertAppInstallerComponent,
-    ConfigurationCommercialComponent
+    ConfigurationCommercialComponent,
+    ConfigurationFeaturesStorageSystemComponent,
+    ConfigurationPeakShavingComponent,
   ]
 })
 export class InstallationModule { }

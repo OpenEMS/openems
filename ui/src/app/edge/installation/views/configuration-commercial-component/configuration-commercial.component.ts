@@ -2,14 +2,16 @@ import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { AbstractIbn } from "../../installation-systems/abstract-ibn";
-import { Commercial30AnschlussIbn } from "../../installation-systems/commercial/commercial30-anschluss";
-import { Commercial30NetztrennIbn } from "../../installation-systems/commercial/commercial30-netztrenn";
+import { Commercial30AnschlussIbn } from "../../installation-systems/commercial/commercial-30/commercial30-anschluss";
+import { Commercial30NetztrennIbn } from "../../installation-systems/commercial/commercial-30/commercial30-netztrenn";
 
 @Component({
-    selector: 'configuration-commercial',
+    selector: ConfigurationCommercialComponent.SELECTOR,
     templateUrl: './configuration-commercial.component.html'
 })
 export class ConfigurationCommercialComponent implements OnInit {
+
+    private static readonly SELECTOR = 'configuration-commercial';
 
     @Input() public ibn: AbstractIbn;
     @Output() public nextViewEvent = new EventEmitter();
@@ -38,19 +40,24 @@ export class ConfigurationCommercialComponent implements OnInit {
 
     public getFields(): FormlyFieldConfig[] {
         const fields: FormlyFieldConfig[] = [];
-
         const componentLabel = ([
-            { value: "Anschluss", label: "FEMS Anschlussbox (Commercial 30 ohne Notstromversorgung)" },
-            { value: "Netzstelle", label: "Netztrennstelle (Commercial 30 mit Notstromversorgung)" }
+            {
+                value: "Anschluss", label: `FEMS Anschlussbox
+                (Commercial 30 ohne Notstromversorgung)`
+            },
+            {
+                value: "Netzstelle", label: `Netztrennstelle 
+            (Commercial 30 mit Notstromversorgung)` }
         ]);
 
         fields.push({
             key: "component",
             type: "radio",
+            className: 'line-break',
             templateOptions: {
                 options: componentLabel,
-                required: true
-            }
+                required: true,
+            },
         });
         return fields;
     }

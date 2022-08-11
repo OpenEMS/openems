@@ -1,3 +1,4 @@
+import { Category } from "src/app/edge/installation/shared/enums";
 import { JsonrpcRequest } from "../base";
 
 export type SetupProtocol = {
@@ -45,7 +46,7 @@ export type SetupProtocol = {
         serialNumber: string
     }[],
     items?: {
-        category: string,
+        category: Category,
         name: string,
         value: string
     }[],

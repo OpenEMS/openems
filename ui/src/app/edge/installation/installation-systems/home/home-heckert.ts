@@ -15,8 +15,6 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
 
     public readonly id = 'heckert';
 
-    public readonly manualLink = 'https://www.heckertsolar.com/wp-content/uploads/2022/03/Montage_und-Serviceanleitung-Symphon-E.pdf';
-
     constructor() {
         super([
             View.PreInstallation,
@@ -38,7 +36,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
         ]);
     }
 
-    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service: Service): ComponentConfigurator {
+    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service: Service) {
 
         const componentConfigurator: ComponentConfigurator =
             super.getComponentConfigurator(edge, config, websocket, service);
@@ -211,7 +209,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
      * @param websocket the websocket connection.
      * @returns the status of adding ip address as boolean.
      */
-    public addIpAddress(interfaceName: string, ip: string, edge: Edge, websocket: Websocket): boolean {
+    public addIpAddress(interfaceName: string, ip: string, edge: Edge, websocket: Websocket) {
         let iface: Interface;
 
         edge.sendRequest(

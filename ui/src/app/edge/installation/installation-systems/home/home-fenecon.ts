@@ -6,8 +6,6 @@ export class HomeFeneconIbn extends AbstractHomeIbn {
 
     public readonly id = 'home';
 
-    public readonly manualLink = 'https://fenecon.de/wp-content/uploads/2022/02/V2022.01.27_DE_Montage-und_Serviceanleitung_Home.pdf';
-
     constructor() {
         super([
             View.PreInstallation,

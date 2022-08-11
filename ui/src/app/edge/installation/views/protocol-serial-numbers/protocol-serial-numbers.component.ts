@@ -2,8 +2,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
-import { ComponentData, SerialNumberFormData } from 'src/app/shared/type/componentData';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { ComponentData, SerialNumberFormData } from '../../shared/ibndatatypes';
 
 @Component({
   selector: ProtocolSerialNumbersComponent.SELECTOR,
@@ -17,7 +17,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
   @Output() public nextViewEvent = new EventEmitter<AbstractIbn>();
 
-  public forms: Array<SerialNumberFormData>;
+  public forms: SerialNumberFormData[];
 
   public formSettings: FormGroup;
   public fieldsSettings: FormlyFieldConfig[];
@@ -28,10 +28,12 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
   public spinnerId: string;
   public isWaiting = false;
+  private duplicateSerialNumbers: string[] = [];
 
   constructor(private service: Service, private websocket: Websocket) { }
 
   public ngOnInit() {
+
     // Start spinner
     this.spinnerId = 'installation-serial-number-spinner';
     this.setIsWaiting(true);
@@ -46,7 +48,11 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       // Read all module serial numbers
       this.initializeAllFields().then(() => {
         this.setIsWaiting(false);
-      });
+      }).then(() => {
+        if (this.numberOfModulesPerTower < this.ibn.defaultNumberOfModules) {
+          this.service.toast('Bitte überprüfen Sie die "Voreinstellungen". Bitte lesen Sie die Beschreibung der Felder.', 'danger');
+        }
+      })
     });
   }
 
@@ -56,6 +62,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
   public onNextClicked() {
     if (this.formSettings.invalid) {
+      this.service.toast('Bitte überprüfen Sie die "Voreinstellungen". Bitte lesen Sie die Beschreibung der Felder.', 'danger');
       return;
     }
 
@@ -75,6 +82,12 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       for (const sn of serialNumbers) {
         this.ibn.serialNumbers.modules.push(sn);
       }
+    }
+
+    // Duplicates check.
+    if (this.duplicateSerialNumbers.length !== 0) {
+      this.service.toast(this.duplicateSerialNumbers + ' haben gleiche Seriennummern ', 'warning');
+      return;
     }
 
     // Submit the setup protocol
@@ -151,9 +164,10 @@ export class ProtocolSerialNumbersComponent implements OnInit {
       return;
     }
 
-    // Model settings consists of Number of towers information in home and number of strings in Commercial.
-    this.numberOfTowers = <number>Object.values(this.modelSettings)[0];
-    this.numberOfModulesPerTower = <number>Object.values(this.modelSettings)[1];
+    // Model settings consists of Number of towers information in home and number of strings in Commercial, 
+    // but towers are used as keys for both individual implementations.
+    this.numberOfTowers = this.modelSettings.numberOfTowers;
+    this.numberOfModulesPerTower = this.modelSettings.numberOfModulesPerTower;
 
     this.setIsWaiting(true);
     this.initializeAllFields().then(() => {
@@ -163,13 +177,28 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
   public extractSerialNumbers(fields: FormlyFieldConfig[]): ComponentData[] {
     const serialNumbers: ComponentData[] = [];
+    this.duplicateSerialNumbers = [];
 
     for (const field of fields) {
+      const label = field.templateOptions.label;
+      const value = (field.templateOptions.prefix ?? '') + field.formControl.value;
+
       serialNumbers.push({
-        label: field.templateOptions.label + ' Seriennummer',
-        value: (field.templateOptions.prefix ?? '') + field.formControl.value
+        label: label,
+        value: value
       });
     }
+
+    // check if there are duplicates and add it to duplicates array to display later in alert.
+    // Collect the duplicate values..
+    const duplicateValues = serialNumbers
+      .map(v => v.value)
+      .filter((v, i, valueArray) => valueArray.indexOf(v) !== i)
+
+    // Based on the Id's collect the Labels to display in the alert.
+    serialNumbers.filter(obj => duplicateValues.includes(obj.value))
+      .forEach((value) => this.duplicateSerialNumbers.push(value.label));;
+
     return serialNumbers;
   }
 

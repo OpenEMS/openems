@@ -1,23 +1,21 @@
-import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { ChannelAddress, Edge, Websocket } from 'src/app/shared/shared';
-import { ComponentData, SerialNumberFormData } from 'src/app/shared/type/componentData';
-import { FeedInSetting, FeedInType } from 'src/app/shared/type/feedinsettings';
 import { environment } from 'src/environments';
+import { Category, FeedInType } from '../../shared/enums';
+import { ComponentData } from '../../shared/ibndatatypes';
 import { AbstractIbn } from '../abstract-ibn';
 
 export abstract class AbstractCommercialIbn extends AbstractIbn {
-    private static readonly SELECTOR = 'Commercial';
 
-    public readonly lineSideMeterFuseTitle = 'Vorsicherung Netzanschlusspunkt / Zählervorsicherung';
+    public readonly lineSideMeterFuseTitle = Category.LINE_SIDE_METER_FUSE_COMMERCIAL;
 
-    public readonly showRundSteuerManual = false;
+    public readonly showRundSteuerManual: boolean = false;
 
-    public showViewCount = true;
+    public showViewCount: boolean = false;
 
     // configuration-emergency-reserve
     public emergencyReserve?= {
@@ -33,114 +31,11 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         maximumFeedInPower: 0
     };
 
+    public numberOfModulesPerTower: number;
+
     public setFeedInLimitsFields(model: any) {
         this.feedInLimitation.feedInType = model.feedInType;
         return this.feedInLimitation;
-    }
-
-    public getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower: number) {
-        return new Promise((resolve) => {
-            let isResolved = false;
-            const channelAddresses: { [key: string]: ChannelAddress } = {};
-            const subscriptionId = AbstractCommercialIbn.SELECTOR;
-            const model: Object = {};
-
-            // Gather channel addresses
-            channelAddresses['batteryInverter'] = new ChannelAddress('batteryInverter0', 'SerialNumber');
-
-            // Edge-subscribe
-            edge.subscribeChannels(websocket, subscriptionId, Object.values(channelAddresses));
-
-            // Subject to stop the subscription to currentData
-            const stopOnRequest: Subject<void> = new Subject<void>();
-
-            // Read data
-            edge.currentData.pipe(
-                takeUntil(stopOnRequest),
-                filter(currentData => currentData != null)
-            ).subscribe((currentData) => {
-                for (const key in channelAddresses) {
-                    if (channelAddresses.hasOwnProperty(key)) {
-                        const channelAddress: ChannelAddress = channelAddresses[key];
-                        const serialNumber: string = currentData.channel[channelAddress.componentId + '/' + channelAddress.channelId];
-
-                        // If one serial number is undefined return
-                        if (!serialNumber) {
-                            return;
-                        }
-
-                        // Only take after first 5 digits.
-                        model[key] = serialNumber.substr(5);
-                    }
-                }
-
-                // Resolve the promise
-                isResolved = true;
-                resolve(model);
-            });
-            setTimeout(() => {
-                // If data isn't available after the timeout, the
-                // promise gets resolved with an empty object
-                if (!isResolved) {
-                    resolve({});
-                }
-
-                // Unsubscribe to currentData and channels after timeout
-                stopOnRequest.next();
-                stopOnRequest.complete();
-                edge.unsubscribeChannels(websocket, subscriptionId);
-            }, 5000);
-
-        });
-    }
-
-    public fillForms(
-        numberOfTowers: number,
-        numberOfModulesPerTower: number,
-        models: any,
-        forms: Array<SerialNumberFormData>) {
-        for (let i = 0; i < numberOfTowers; i++) {
-            forms[i] = {
-                fieldSettings: this.getFields(i, numberOfModulesPerTower),
-                model: models[i],
-                formTower: new FormGroup({}),
-                header: numberOfTowers === 1 ? 'Speichersystemkomponenten' : ('Batteriestring ' + (i + 1))
-            };
-        }
-        return forms;
-    }
-
-    public getSettingsFields(numberOfModulesPerTower: number, numberOfTowers: number) {
-        const fields: FormlyFieldConfig[] = [];
-
-        fields.push({
-            key: 'numberOfStrings',
-            type: 'input',
-            templateOptions: {
-                type: 'number',
-                label: 'Anzahl Strings',
-                min: 1,
-                max: 2,
-                required: true
-            },
-            parsers: [Number],
-            defaultValue: numberOfTowers
-        });
-
-        fields.push({
-            key: 'numberOfModulesPerString',
-            type: 'input',
-            templateOptions: {
-                type: 'number',
-                label: 'Anzahl Module pro String',
-                min: 9,
-                max: 17,
-                required: true
-            },
-            parsers: [Number],
-            defaultValue: numberOfModulesPerTower
-        });
-        return fields;
     }
 
     public getLineSideMeterFuseFields() {
@@ -162,165 +57,6 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             }
         });
         return fields;
-    }
-
-    public getFields(towerNr: number, numberOfModulesPerTower: number) {
-        // TODO add validation: no duplicate serial number entries
-        const fields: FormlyFieldConfig[] = [];
-
-        if (towerNr === 0) {
-
-            fields.push({
-                key: 'batteryInverter',
-                type: 'input',
-                templateOptions: {
-                    label: 'Wechselrichter',
-                    required: true,
-                    prefix: 'PWS00',
-                    placeholder: 'xxxxxxxxxx'
-                },
-                validators: {
-                    validation: ['commercialBatteryInverterSerialNumber']
-                },
-                wrappers: ['input-serial-number']
-            });
-
-            fields.push({
-                key: 'femsBox',
-                type: 'input',
-                templateOptions: {
-                    label: 'FEMS Anschlussbox/Netztrennstelle',
-                    required: true,
-                    prefix: 'FC',
-                    placeholder: 'xxxxxxxxx'
-                },
-                validators: {
-                    validation: ['emsBoxSerialNumber']
-                },
-                wrappers: ['input-serial-number']
-            });
-
-            fields.push({
-                key: 'bmsBox',
-                type: 'input',
-                templateOptions: {
-                    label: 'BMS Box Master',
-                    required: true,
-                    prefix: 'WSDEM3822',
-                    placeholder: 'xxxxxxxxxx'
-                },
-                // hideExpression: model => model.bmsComponent !== 'master',
-                validators: {
-                    validation: ['commercialBmsBoxSerialNumber']
-                },
-                wrappers: ['input-serial-number']
-            });
-        } else {
-            fields.push({
-                key: 'bmsBox',
-                type: 'input',
-                templateOptions: {
-                    label: 'BMS Box Submaster',
-                    required: true,
-                    prefix: 'WSDESM3822',
-                    placeholder: 'xxxxxxxxxx'
-                },
-                // hideExpression: model => model.bmsComponent !== 'submaster',
-                validators: {
-                    validation: ['commercialBmsBoxSerialNumber']
-                },
-                wrappers: ['input-serial-number']
-            });
-        }
-
-        // Bms Master and Submaster.
-        // const bmsComponents = ([
-        //     { value: "master", label: "Master" },
-        //     { value: "submaster", label: "Submaster" }
-        // ]);
-
-        // fields.push({
-        //     key: "bmsComponent",
-        //     type: "select",
-        //     templateOptions: {
-        //         label: 'BMS Box',
-        //         options: bmsComponents,
-        //         required: true
-        //     },
-        //     wrappers: ['formly-select-field-wrapper']
-        // });
-
-        for (let moduleNr = 0; moduleNr < numberOfModulesPerTower; moduleNr++) {
-            fields.push({
-                key: 'module' + moduleNr,
-                type: 'input',
-                templateOptions: {
-                    label: 'Batteriemodul ' + (moduleNr + 1),
-                    required: true,
-                    // Note: Edit also validator (substring 12) if removing prefix
-                    prefix: 'WSDE2138',
-                    placeholder: 'xxxxxxxxxx'
-                },
-                validators: {
-                    validation: ['commercialBatteryModuleSerialNumber']
-                },
-                wrappers: ['input-serial-number']
-            });
-        }
-        return fields;
-    }
-
-    public getSettings(edge: Edge, websocket: Websocket):
-        Promise<{
-            numberOfTowers: number;
-            numberOfModulesPerTower: number;
-        }> {
-        return new Promise((resolve) => {
-            let isResolved = false;
-
-            // Edge-subscribe
-            edge.subscribeChannels(websocket, AbstractCommercialIbn.SELECTOR, [
-                new ChannelAddress('battery0', 'NumberOfTowers'),
-                new ChannelAddress('battery0', 'NumberOfModulesPerTower')
-            ]);
-
-            // Subject to stop the subscription to currentData
-            const stopOnRequest: Subject<void> = new Subject<void>();
-
-            // Read tower and module numbers
-            edge.currentData
-                .pipe(
-                    takeUntil(stopOnRequest),
-                    filter(currentData => currentData != null))
-                .subscribe((currentData) => {
-                    const numberOfTowers = currentData.channel['battery0/NumberOfTowers'];
-                    const numberOfModulesPerTower = currentData.channel['battery0/NumberOfModulesPerTower'];
-
-                    // If values are available, resolve the promise with them
-                    if (numberOfTowers && numberOfModulesPerTower) {
-                        isResolved = true;
-                        resolve({
-                            // 10 is given as radix parameter.
-                            // 2 = binary, 8 = octal, 10 = decimal, 16 = hexadecimal.
-                            numberOfTowers: parseInt(numberOfTowers, 10),
-                            numberOfModulesPerTower: parseInt(numberOfModulesPerTower, 10)
-                        });
-                    }
-                });
-
-            setTimeout(() => {
-                // If data isn't available after the timeout, the
-                // promise gets resolved with default values
-                if (!isResolved) {
-                    resolve({ numberOfTowers: 1, numberOfModulesPerTower: 9 });
-                }
-
-                // Unsubscribe to currentData and channels after timeout
-                stopOnRequest.next();
-                stopOnRequest.complete();
-                // edge.unsubscribeChannels(websocket, AbstractCommercialIbn.SELECTOR);
-            }, 5000);
-        });
     }
 
     public getFeedInLimitFields() {
@@ -388,8 +124,57 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         return batteryInverterData;
     }
 
-    public addCustomPvData(pvData: ComponentData[]) {
-        return pvData;
+    public getSettings(edge: Edge, websocket: Websocket):
+        Promise<{
+            numberOfTowers: number;
+            numberOfModulesPerTower: number;
+        }> {
+        return new Promise((resolve) => {
+            let isResolved = false;
+
+            // Edge-subscribe
+            edge.subscribeChannels(websocket, 'commercial', [
+                new ChannelAddress('battery0', 'NumberOfTowers'),
+                new ChannelAddress('battery0', 'NumberOfModulesPerTower')
+            ]);
+
+            // Subject to stop the subscription to currentData
+            const stopOnRequest: Subject<void> = new Subject<void>();
+
+            // Read tower and module numbers
+            edge.currentData
+                .pipe(
+                    takeUntil(stopOnRequest),
+                    filter(currentData => currentData != null))
+                .subscribe((currentData) => {
+                    const numberOfTowers = currentData.channel['battery0/NumberOfTowers'];
+                    const numberOfModulesPerTower = currentData.channel['battery0/NumberOfModulesPerTower'];
+
+                    // If values are available, resolve the promise with them
+                    if (numberOfTowers && numberOfModulesPerTower) {
+                        isResolved = true;
+                        resolve({
+                            // 10 is given as radix parameter.
+                            // 2 = binary, 8 = octal, 10 = decimal, 16 = hexadecimal.
+                            numberOfTowers: parseInt(numberOfTowers, 10),
+                            numberOfModulesPerTower: parseInt(numberOfModulesPerTower, 10)
+                        });
+                    }
+                });
+
+            setTimeout(() => {
+                // If data isn't available after the timeout, the
+                // promise gets resolved with default values
+                if (!isResolved) {
+                    resolve({ numberOfTowers: 1, numberOfModulesPerTower: this.defaultNumberOfModules });
+                }
+
+                // Unsubscribe to currentData and channels after timeout
+                stopOnRequest.next();
+                stopOnRequest.complete();
+                edge.unsubscribeChannels(websocket, 'commercial');
+            }, 5000);
+        });
     }
 
     public getProtocol(edge: Edge, websocket: Websocket): Promise<string> {
@@ -425,7 +210,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             };
         }
 
-        const protocol: SetupProtocol = {
+        let protocol: SetupProtocol = {
             fems: {
                 id: edge.id
             },
@@ -468,25 +253,25 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         });
 
         const feedInLimitation = this.feedInLimitation;
-        protocol.items.push({
-            category: 'Einspeisemanagement',
-            name: 'Rundsteuerempfänger',
-            value: feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION
-                ? "ja"
-                : "nein"
-        });
-
-        protocol.items.push({
-            category: 'Einspeisemanagement',
-            name: 'Netzdienliche Beladung (z.B. 70% Abregelung)',
-            value: feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
-                ? "ja"
-                : "nein"
-        });
+        protocol.items.push(
+            {
+                category: Category.FEED_IN_MANAGEMENT,
+                name: 'Rundsteuerempfänger',
+                value: feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION
+                    ? "ja"
+                    : "nein"
+            },
+            {
+                category: Category.FEED_IN_MANAGEMENT,
+                name: 'Netzdienliche Beladung (z.B. 70% Abregelung)',
+                value: feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
+                    ? "ja"
+                    : "nein"
+            });
 
         if (feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION) {
             protocol.items.push({
-                category: 'Einspeisemanagement',
+                category: Category.FEED_IN_MANAGEMENT,
                 name: 'Maximale Einspeiseleistung [W]',
                 value: feedInLimitation.maximumFeedInPower
                     ? feedInLimitation.maximumFeedInPower.toString()
@@ -498,67 +283,60 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             const element = ac[index];
             const label = 'AC' + (index + 1);
 
-            protocol.items.push({
-                category: 'Zusätzliche AC-Erzeuger',
-                name: 'Alias ' + label,
-                value: element.alias
-            });
+            protocol.items.push(
+                {
+                    category: Category.ADDITIONAL_AC_PRODUCERS,
+                    name: 'Alias ' + label,
+                    value: element.alias,
+                },
+                {
+                    category: Category.ADDITIONAL_AC_PRODUCERS,
+                    name: 'Wert ' + label + ' [Wp]',
+                    value: element.value ? element.value.toString() : '',
+                });
 
-            protocol.items.push({
-                category: 'Zusätzliche AC-Erzeuger',
-                name: 'Wert ' + label + ' [Wp]',
-                value: element.value ? element.value.toString() : ''
-            });
-
-            protocol.items.push({
-                category: 'Zusätzliche AC-Erzeuger',
+            element.orientation && protocol.items.push({
+                category: Category.ADDITIONAL_AC_PRODUCERS,
                 name: 'Ausrichtung ' + label,
-                value: element.orientation
+                value: element.orientation,
             });
 
-            protocol.items.push({
-                category: 'Zusätzliche AC-Erzeuger',
+            element.moduleType && protocol.items.push({
+                category: Category.ADDITIONAL_AC_PRODUCERS,
                 name: 'Modultyp ' + label,
-                value: element.moduleType
+                value: element.moduleType,
             });
 
-            protocol.items.push({
-                category: 'Zusätzliche AC-Erzeuger',
+            element.modulesPerString && protocol.items.push({
+                category: Category.ADDITIONAL_AC_PRODUCERS,
                 name: 'Anzahl PV-Module ' + label,
-                value: element.modulesPerString ? element.modulesPerString.toString() : ''
+                value: element.modulesPerString
+                    ? element.modulesPerString.toString()
+                    : '',
             });
 
-            protocol.items.push({
-                category: 'Zusätzliche AC-Erzeuger',
+            element.meterType && protocol.items.push({
+                category: Category.ADDITIONAL_AC_PRODUCERS,
                 name: 'Zählertyp ' + label,
-                value: element.meterType
+                value: element.meterType,
             });
 
-            protocol.items.push({
-                category: 'Zusätzliche AC-Erzeuger',
+            element.modbusCommunicationAddress && protocol.items.push({
+                category: Category.ADDITIONAL_AC_PRODUCERS,
                 name: 'Modbus Kommunikationsadresse ' + label,
-                value: element.modbusCommunicationAddress ? element.modbusCommunicationAddress.toString() : ''
+                value: element.modbusCommunicationAddress
+                    ? element.modbusCommunicationAddress.toString()
+                    : '',
             });
         }
 
         protocol.items.push({
-            category: 'FEMS',
+            category: Category.FEMS_DETAILS,
             name: 'FEMS Nummer',
             value: edge.id
         });
 
-        protocol.lots = [];
-
-        // Speichersystemkomponenten
-        for (const serialNumber of serialNumbers.modules) {
-            if (serialNumber.value !== null && serialNumber.value !== '') {
-                protocol.lots.push({
-                    category: 'Speichersystemkomponenten',
-                    name: serialNumber.label + ' Seriennummer',
-                    serialNumber: serialNumber.value
-                });
-            }
-        }
+        protocol = this.getProtocolSerialNumbers(protocol);
 
         return new Promise((resolve, reject) => {
             websocket.sendRequest(new SubmitSetupProtocolRequest({ protocol })).then((response: JsonrpcResponseSuccess) => {
@@ -568,5 +346,61 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             });
         });
     }
-}
 
+    public getProtocolSerialNumbers(protocol: SetupProtocol): SetupProtocol {
+
+        protocol.lots = [];
+
+        const serialNumbers = this.serialNumbers;
+
+        // Initial tower has 3 static components other than modules such as Welcherischter, BMS and EMS box.
+        const initialStaticTowerComponents = 3;
+
+        // Subsequent towers will have only 2 static components. Paralell box and BMS box.
+        const subsequentStaticTowerComponents = 1;
+
+        // Total number of components each tower contains, so that easier to categorize the serial numbers based on towers.
+        const numberOfComponentsTower1 = this.numberOfModulesPerTower + initialStaticTowerComponents;
+        const numberOfComponentsTower2 = numberOfComponentsTower1 + this.numberOfModulesPerTower + subsequentStaticTowerComponents;
+        const numberOfComponentsTower3 = numberOfComponentsTower2 + this.numberOfModulesPerTower + subsequentStaticTowerComponents;
+        const numberOfComponentsTower4 = numberOfComponentsTower3 + this.numberOfModulesPerTower + subsequentStaticTowerComponents;
+
+        for (let componentCount = 0; componentCount < serialNumbers.modules.length; componentCount++) {
+            if (serialNumbers.modules[componentCount].value !== null && serialNumbers.modules[componentCount].value !== '') {
+                // String 1
+                if (componentCount < numberOfComponentsTower1) {
+                    protocol.lots.push({
+                        category: 'Speichersystemkomponenten',
+                        name: serialNumbers.modules[componentCount].label + ' Seriennummer',
+                        serialNumber: serialNumbers.modules[componentCount].value,
+                    });
+                }
+                // String 2
+                else if (componentCount < numberOfComponentsTower2) {
+                    protocol.lots.push({
+                        category: 'Batterie String 2',
+                        name: serialNumbers.modules[componentCount].label + ' Seriennummer',
+                        serialNumber: serialNumbers.modules[componentCount].value,
+                    });
+                }
+                // String 3
+                else if (componentCount < numberOfComponentsTower3) {
+                    protocol.lots.push({
+                        category: 'Batterie String 3',
+                        name: serialNumbers.modules[componentCount].label + ' Seriennummer',
+                        serialNumber: serialNumbers.modules[componentCount].value,
+                    });
+                }
+                // String 4
+                else if (componentCount < numberOfComponentsTower4) {
+                    protocol.lots.push({
+                        category: 'Batterie String 4',
+                        name: serialNumbers.modules[componentCount].label + ' Seriennummer',
+                        serialNumber: serialNumbers.modules[componentCount].value,
+                    });
+                }
+            }
+        }
+        return protocol;
+    }
+}

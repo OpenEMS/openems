@@ -1,14 +1,14 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { FeedInType } from 'src/app/shared/type/feedinsettings';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { FeedInType } from '../../shared/enums';
 
 @Component({
-  selector: ProtocolFeedInLimitation.SELECTOR,
+  selector: ProtocolFeedInLimitationComponent.SELECTOR,
   templateUrl: './protocol-feed-in-limitation.component.html'
 })
-export class ProtocolFeedInLimitation implements OnInit {
+export class ProtocolFeedInLimitationComponent implements OnInit {
 
   private static readonly SELECTOR = 'protocol-feed-in-limitation';
 

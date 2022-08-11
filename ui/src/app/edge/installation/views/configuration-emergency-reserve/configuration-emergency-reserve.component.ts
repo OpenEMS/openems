@@ -9,7 +9,7 @@ import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 })
 export class ConfigurationEmergencyReserveComponent implements OnInit {
 
-  private static readonly SELECTOR = "configuration-emergency-reserve";
+  private static readonly SELECTOR = 'configuration-emergency-reserve';
 
   @Input() public ibn: AbstractIbn;
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
@@ -51,35 +51,35 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
     let fields: FormlyFieldConfig[] = [];
 
     fields.push({
-      key: "isEnabled",
-      type: "checkbox",
+      key: 'isEnabled',
+      type: 'checkbox',
       templateOptions: {
-        label: "Soll die Notstromfunktion aktiviert werden?",
+        label: 'Soll die Notstromfunktion aktiviert werden?',
       }
     });
 
     fields.push({
-      key: "isReserveSocEnabled",
-      type: "toggle",
+      key: 'isReserveSocEnabled',
+      type: 'toggle',
       templateOptions: {
-        label: "Notstromreserve aktivieren?",
+        label: 'Notstromreserve aktivieren?',
       },
       hideExpression: model => !model.isEnabled
     });
 
     fields.push({
-      key: "value",
-      type: "range",
+      key: 'value',
+      type: 'range',
       templateOptions: {
-        label: "Wert [%]",
-        description: "Aktuell: 20",
+        label: 'Wert [%]',
+        description: 'Aktuell: 20',
         required: true,
         min: this.ibn.emergencyReserve.minValue,
         max: 100,
         attributes: {
-          pin: "true"
+          pin: 'true'
         },
-        change: (field, event) => { field.templateOptions.description = "Aktuell: " + field.formControl.value; }
+        change: (field, event) => { field.templateOptions.description = 'Aktuell: ' + field.formControl.value; }
       },
       parsers: [Number],
       hideExpression: model => !model.isEnabled || !model.isReserveSocEnabled

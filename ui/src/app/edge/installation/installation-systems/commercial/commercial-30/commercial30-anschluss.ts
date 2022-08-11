@@ -1,18 +1,14 @@
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
-import { ComponentData } from 'src/app/shared/type/componentData';
-import { ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
-import { View } from '../abstract-ibn';
-import { AbstractCommercialIbn } from './abstract-commercial';
+import { FeedInType } from '../../../shared/enums';
+import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
+import { View } from '../../abstract-ibn';
+import { AbstractCommercial30Ibn } from './abstract-commercial-30';
 
-export class Commercial30AnschlussIbn extends AbstractCommercialIbn {
+export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
 
-    public readonly type = 'Fenecon-Commercial-30';
+    public readonly type: string = 'Fenecon-Commercial-30';
 
-    public readonly id = 'commercial-30-anschluss';
-
-    public readonly imageUrl = 'assets/img/Commercial-30_label.PNG';
-
-    public readonly manualLink = 'https://fenecon.de/download/12-montage-und-serviceanleitung-commercial-30/';
+    public readonly id: string = 'commercial-30-anschluss';
 
     constructor() {
         super([
@@ -33,19 +29,18 @@ export class Commercial30AnschlussIbn extends AbstractCommercialIbn {
         ]);
     }
 
-    public addCustomBatteryData(batteryData: ComponentData[]) {
-        return batteryData;
-    }
-
     public setRequiredControllers() {
-        const requiredControllerIds = [
-            'ctrlBalancing0',
-        ];
+
+        const requiredControllerIds: string[] = ['ctrlBalancing0'];
+
+        if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
+            requiredControllerIds.push('ctrlGridOptimizedCharge0')
+        }
 
         this.requiredControllerIds = requiredControllerIds;
     }
 
-    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket): ComponentConfigurator {
+    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket) {
 
         const componentConfigurator: ComponentConfigurator = new ComponentConfigurator(edge, config, websocket);
 
@@ -206,6 +201,31 @@ export class Commercial30AnschlussIbn extends AbstractCommercialIbn {
             ],
             mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
         });
+
+        if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
+            // ctrlGridOptimizedCharge0
+            componentConfigurator.add({
+                factoryId: 'Controller.Ess.GridOptimizedCharge',
+                componentId: 'ctrlGridOptimizedCharge0',
+                alias: 'Netzdienliche Beladung',
+                properties: [
+                    { name: 'enabled', value: true },
+                    { name: 'ess.id', value: 'ess0' },
+                    { name: 'meter.id', value: 'meter0' },
+                    { name: 'sellToGridLimitEnabled', value: true },
+                    {
+                        name: 'maximumSellToGridPower',
+                        value: this.feedInLimitation.maximumFeedInPower,
+                    },
+                    { name: 'delayChargeRiskLevel', value: 'MEDIUM' },
+                    { name: 'mode', value: 'AUTOMATIC' },
+                    { name: 'manualTargetTime', value: '17:00' },
+                    { name: 'debugMode', value: false },
+                    { name: 'sellToGridLimitRampPercentage', value: 2 },
+                ],
+                mode: ConfigurationMode.RemoveAndConfigure,
+            });
+        }
 
         // ctrlBalancing0
         componentConfigurator.add({ // Clearify with Productmanagement if a different App like peak shaving could be selected in IBN

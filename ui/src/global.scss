@@ -51,6 +51,14 @@ formly-field-ion-radio {
     }
 }
 
+.line-break{
+    formly-wrapper-ion-form-field > ion-item > ion-label > span > small,
+    formly-field-ion-radio > ion-list > ion-radio-group > ion-item > ion-label {
+        white-space: pre-line !important;
+        line-height: 1.6 !important;
+    }
+}
+
 .margin-top {
     ion-item {
 
