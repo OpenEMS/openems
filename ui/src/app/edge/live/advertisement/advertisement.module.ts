@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { AdvertisementComponent } from './advertisement.component';
 import { Alerting } from './alerting/alerting';
+import { GlsCrowdfunding } from './glsCrowdfunding/glsCrowdfunding';
 import { HeatingElement } from './heatingelement/heatingelement';
 
 @NgModule({
@@ -11,7 +12,8 @@ import { HeatingElement } from './heatingelement/heatingelement';
     declarations: [
         AdvertisementComponent,
         Alerting,
-        HeatingElement
+        HeatingElement,
+        GlsCrowdfunding
     ],
     exports: [
         AdvertisementComponent
