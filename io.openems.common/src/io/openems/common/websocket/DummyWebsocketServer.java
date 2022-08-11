@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 
 import io.openems.common.exceptions.NotImplementedException;
@@ -137,24 +136,6 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 	@Override
 	protected void logWarn(Logger log, String message) {
 		log.info(message);
-	}
-
-	/**
-	 * Starts the {@link WebSocketServer} and waits.
-	 *
-	 * @return the dynamically assigned Port.
-	 * @throws InterruptedException on error
-	 */
-	public int startBlocking() throws InterruptedException {
-		this.start();
-
-		// block until Port is not anymore zero
-		int port;
-		do {
-			Thread.sleep(500);
-			port = this.getPort();
-		} while (port == 0);
-		return port;
 	}
 
 	@Override

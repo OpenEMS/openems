@@ -133,6 +133,7 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	public void start() {
 		this.log.info("Opening connection [" + this.getName() + "] to websocket server [" + this.serverUri + "]");
 		this.reconnectorWorker.activate(this.getName());
+		this.reconnectorWorker.triggerNextRun();
 	}
 
 	/**
