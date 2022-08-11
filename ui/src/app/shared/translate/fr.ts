@@ -499,7 +499,8 @@ export const TRANSLATION = {
                 },
             },
             App: {
-                header: 'L\'App Manager est actuellement dans une première version de test. Si toutes les applications ne sont pas affichées, il est possible que la version FEMS doive être mise à jour.',
+                header: 'L\'App Manager est actuellement dans une première version de test.',
+                updateAvailable: 'Une nouvelle version {{ edgeShortName }} est disponible. version est disponible ! Veuillez mettre à jour le {{ edgeShortName }} pour que tous les nouveaux {{ edgeShortName }} soient affichés. Apps soient affichées dans l\'App Center.',
                 installed: 'Installé',
                 available: 'Disponible sur',
                 incompatible: 'Incompatibilité',

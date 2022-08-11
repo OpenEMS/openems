@@ -523,7 +523,8 @@ export const TRANSLATION = {
             }
         },
         App: {
-            header: 'Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi FEMS.',
+            header: 'Správce aplikací je v současné době v první testovací verzi.',
+            updateAvailable: 'Je zde nový {{ edgeShortName }} verze je k dispozici! Aktualizujte prosím {{ edgeShortName }} tak, aby všechny nové {{ edgeShortName }} Aplikace se zobrazují v Centru aplikací.',
             installed: 'Nainstalováno',
             available: 'Dostupné na',
             incompatible: 'Nekompatibilní',
