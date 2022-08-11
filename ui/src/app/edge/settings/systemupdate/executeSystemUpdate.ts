@@ -49,26 +49,35 @@ export class ExecuteSystemUpdate {
 
     private refreshSystemUpdateState(): Promise<SystemUpdateState> {
         return new Promise<SystemUpdateState>((resolve, reject) => {
-            this.edge.sendRequest(this.websocket,
-                new ComponentJsonApiRequest({
-                    componentId: "_host",
-                    payload: new GetSystemUpdateStateRequest()
-                })).then(response => {
-                    let result = (response as GetSystemUpdateStateResponse).result;
+            // if the version is a SNAPSHOT always set the udpate state
+            // to updated with the current SNAPSHOT version
+            if (this.edge.version.includes("SNAPSHOT")) {
+                let updateState = { updated: { version: this.edge.version } }
+                this.setSystemUpdateState(updateState);
+                this.stopRefreshSystemUpdateState();
+                resolve(updateState);
+            } else {
+                this.edge.sendRequest(this.websocket,
+                    new ComponentJsonApiRequest({
+                        componentId: "_host",
+                        payload: new GetSystemUpdateStateRequest()
+                    })).then(response => {
+                        let result = (response as GetSystemUpdateStateResponse).result;
 
-                    this.setSystemUpdateState(result);
-                    // Stop regular check if there is no Update available
-                    if (result.updated) {
-                        this.stopRefreshSystemUpdateState();
-                    }
-                    resolve(this.systemUpdateState);
-                }).catch(error => {
-                    if (this.systemUpdateState.running) {
-                        this.isEdgeRestarting = true;
-                        return
-                    }
-                    reject(error)
-                });
+                        this.setSystemUpdateState(result);
+                        // Stop regular check if there is no Update available
+                        if (result.updated) {
+                            this.stopRefreshSystemUpdateState();
+                        }
+                        resolve(this.systemUpdateState);
+                    }).catch(error => {
+                        if (this.systemUpdateState.running) {
+                            this.isEdgeRestarting = true;
+                            return
+                        }
+                        reject(error)
+                    });
+            }
         });
     }
 
