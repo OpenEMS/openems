@@ -35,6 +35,18 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.8.2',
+        changes: [
+          Changelog.product(Product.COMMERCIAL_50) + "Inbetriebnahmeassistent ist jetzt auch für Commercial 50 verfügbar",
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          "Funktion für Systemupdate in den Einstellungen",
+          { roleIsAtLeast: Role.INSTALLER, change: "Anzeige von Strom und Spannung für Erzeuger" },
+          { roleIsAtLeast: Role.ADMIN, change: "Werbewidgets: GLS Crowdfunding" },
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Info, wenn ein Update zur Verfügung steht" },
+          { roleIsAtLeast: Role.ADMIN, change: "Shelly: Anzeige als Stromzähler" },
+        ]
+      },
+      {
         version: '2022.8.1',
         changes: [
           Changelog.openems('2022.8.0'),
