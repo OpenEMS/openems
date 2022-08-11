@@ -505,7 +505,8 @@ export const TRANSLATION = {
                 },
             },
             App: {
-                header: 'Der App-Manager befindet sich aktuell in einer ersten Testversion. Falls nicht alle Apps angezeigt werden, muss evtl. die FEMS Version geupdatet werden.',
+                header: 'Der App-Manager befindet sich aktuell in einer ersten Testversion.',
+                updateAvailable: 'Es ist eine neue {{ edgeShortName }} Version verfügbar! Bitte aktualisieren Sie das {{ edgeShortName }}, damit alle neuen {{ edgeShortName }} Apps im App Center angezeigt werden.',
                 installed: 'Installiert',
                 available: 'Verfügbar',
                 incompatible: 'Inkompatibel',

@@ -3,31 +3,21 @@
 
   <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
 
-  <ion-grid *ngIf="(form.controls['feedInType']?.value == FeedInType.DYNAMIC_LIMITATION) && !showRundSteuerManual">
-    <ion-row>
-      <ion-text color="success">
-        <ion-label>Info:</ion-label>
-      </ion-text>
-    </ion-row>
+  <ion-card *ngIf="(form.controls['feedInType']?.value == FeedInType.DYNAMIC_LIMITATION) && !showRundSteuerManual">
+    <ion-card-content>
+      <ion-card-subtitle color="success">Info:</ion-card-subtitle>
 
-    <ion-row>
-      <p>
+      <ion-row>
         Ihr Energiespeichersystem versucht die Abregelung der PV-Anlage durch intelligente Beladung zu vermeiden.
-      </p>
-    </ion-row>
+      </ion-row>
 
-    <ion-row>
-      <ion-text color="danger">
-        <ion-label>Warning: </ion-label>
-      </ion-text>
-    </ion-row>
+      <ion-card-subtitle color="danger">Warning:</ion-card-subtitle>
 
-    <ion-row>
-      <p>
+      <ion-row>
         Dies ersetzt nicht die ordnungsgemäße Konfiguration des PV-Wechselrichters!
-      </p>
-    </ion-row>
-  </ion-grid>
+      </ion-row>
+    </ion-card-content>
+  </ion-card>
 
   <ion-item *ngIf="(form.controls['feedInType']?.value == FeedInType.EXTERNAL_LIMITATION) && showRundSteuerManual">
     <ion-button (click)="openManual()" slot="end">

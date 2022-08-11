@@ -55,7 +55,10 @@ export class UserComponent implements OnInit {
         fields: this.getFields(),
         model: userInformation
       }
-      this.showInformation = true;
+    }).then(() => {
+      this.service.metadata.subscribe(entry => {
+        this.showInformation = entry?.user.id != 'demo@fenecon.de';
+      })
     })
   }
 

@@ -5,9 +5,11 @@ import { filter, take } from 'rxjs/operators';
 import { AbstractIbn, View } from './installation-systems/abstract-ibn';
 import { GeneralIbn } from './installation-systems/general-ibn';
 import { HomeFeneconIbn } from './installation-systems/home/home-fenecon';
-import { Commercial30AnschlussIbn } from './installation-systems/commercial/commercial30-anschluss';
-import { Commercial30NetztrennIbn } from './installation-systems/commercial/commercial30-netztrenn';
+import { Commercial30AnschlussIbn } from './installation-systems/commercial/commercial-30/commercial30-anschluss';
+import { Commercial30NetztrennIbn } from './installation-systems/commercial/commercial-30/commercial30-netztrenn';
 import { HomeHeckertIbn } from './installation-systems/home/home-heckert';
+import { Commercial50EigenverbrauchsOptimierung } from './installation-systems/commercial/commercial-50/commercial50-eigenverbrauchsoptimierung';
+import { Commercial50Lastspitzenkappung } from './installation-systems/commercial/commercial-50/commercial50-lastspitzenkappung';
 
 export const COUNTRY_OPTIONS: { value: string; label: string }[] = [
   { value: 'de', label: 'Deutschland' },
@@ -72,6 +74,11 @@ export class InstallationComponent implements OnInit {
         ibn.lineSideMeterFuse = ibnString.lineSideMeterFuse ?? {};
         ibn.feedInLimitation = ibnString.feedInLimitation ?? {};
         ibn.pv = ibnString.pv ?? {};
+
+        // Applies only for COmmercial-50.
+        if (ibnString.commercial50Feature) {
+          ibn.setCommercialfeature(ibnString.commercial50Feature);
+        }
       }
     }
 
@@ -118,6 +125,10 @@ export class InstallationComponent implements OnInit {
         return new Commercial30AnschlussIbn();
       case 'commercial-30-netztrennstelle':
         return new Commercial30NetztrennIbn();
+      case 'commercial-50-eigenverbrauchsoptimierung':
+        return new Commercial50EigenverbrauchsOptimierung();
+      case 'commercial-50-lastspitzenkappung':
+        return new Commercial50Lastspitzenkappung();
     }
   }
 
@@ -168,15 +179,7 @@ export class InstallationComponent implements OnInit {
    * Displays the previous view.
    */
   public displayPreviousView() {
-
-    if (this.displayedView === View.ProtocolInstaller) {
-
-      // Takes back to the view for selecting systems. So need to reset the Ibn as well.
-      this.displayViewAtIndex(this.getViewIndex(this.displayedView) - 1);
-      this.setIbn(new GeneralIbn());
-    } else {
-      this.displayViewAtIndex(this.getViewIndex(this.displayedView) - 1);
-    }
+    this.displayViewAtIndex(this.getViewIndex(this.displayedView) - 1);
   }
 
   /**

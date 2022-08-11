@@ -52,3 +52,14 @@ export enum FeedInType {
     DYNAMIC_LIMITATION,
     EXTERNAL_LIMITATION
 }
+
+export enum Category {
+    LINE_SIDE_METER_FUSE_COMMERCIAL = 'Vorsicherung Netzanschlusspunkt / Zählervorsicherung',
+    LINE_SIDE_METER_FUSE = 'Vorsicherung Hausanschlusszähler',
+    FEED_IN_MANAGEMENT = 'Einspeisemanagement',
+    ADDITIONAL_AC_PRODUCERS = 'Zusätzliche AC-Erzeuger',
+    FEMS_DETAILS = 'FEMS',
+    EMERGENCY_RESERVE = 'Angaben zu Notstrom',
+    DC_PV_INSTALLATION = 'DC-PV-Installation'
+}
+

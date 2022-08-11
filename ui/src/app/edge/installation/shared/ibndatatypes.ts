@@ -12,3 +12,10 @@ export type SerialNumberFormData = {
     model: any;
     header: string;
 };
+
+export type TableData = {
+    header: 'Allgemein' | 'Installateur' | 'Kunde'
+    | 'Standort' | 'Batterie' | 'Wechselrichter'
+    | 'Erzeuger' | 'Lastspitzenkappung' | 'Apps';
+    rows: ComponentData[]
+};

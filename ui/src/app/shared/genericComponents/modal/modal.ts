@@ -3,6 +3,7 @@ import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../shared";
+import { Role } from "../../type/role";
 import { Icon } from "../../type/widget";
 
 @Component({
@@ -24,6 +25,8 @@ export class ModalComponent {
     @Input() title: string;
 
     @Input() toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } = null;
+
+    public readonly Role = Role;
 
     private edge: Edge = null;
 

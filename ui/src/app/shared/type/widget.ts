@@ -60,6 +60,10 @@ export class AdvertWidgets {
             {
                 name: 'Heatingelement',
                 title: 'Heizstab FEMS App Paket'
+            },
+            {
+                name: 'GlsCrowdfunding',
+                title: 'CarBatteryReFactory'
             }
         ];
 

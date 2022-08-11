@@ -1,0 +1,12 @@
+<installation-view iconName="settings-outline" [header]="header" (previousClicked)="onPreviousClicked()"
+    (nextClicked)="onNextClicked()">
+
+    <formly-form [form]="form" [fields]="fields" [model]="model"> </formly-form>
+
+    <ion-card *ngIf="showDescription">
+        <ion-card-content>Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die
+            jeweils am stärksten belastete Phase ausgeregelt.
+        </ion-card-content>
+    </ion-card>
+
+</installation-view>

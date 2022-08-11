@@ -11,6 +11,7 @@ import { ChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
 import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
+import { MeterModule } from './edge/meter/meter.module';
 import { FormlyWrapperFormField } from './formly/form-field.wrapper';
 import { FormlySelectFieldWrapper } from './formly/formly-select-field.wrapper';
 import { InputTypeComponent } from './formly/input';
@@ -82,6 +83,7 @@ import { Language } from './translate/language';
     TranslateModule,
     PipeModule,
     Generic_ComponentsModule,
+    MeterModule,
     // components
     ChartOptionsComponent,
     HeaderComponent,

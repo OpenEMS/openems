@@ -140,7 +140,6 @@ export class ProtocolPv implements OnInit {
               { label: "Nordwest", value: "Nordwest" },
               { label: "Nordost", value: "Nordost" },
               { label: "Nord", value: "Nord" },
-              { label: "", value: undefined }
             ]
           },
           hideExpression: model => !model.isSelected

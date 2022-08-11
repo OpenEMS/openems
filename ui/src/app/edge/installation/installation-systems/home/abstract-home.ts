@@ -5,19 +5,14 @@ import { filter, takeUntil } from 'rxjs/operators';
 import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
-import { ComponentData, SerialNumberFormData } from 'src/app/shared/type/componentData';
-import { FeedInSetting, FeedInType } from 'src/app/shared/type/feedinsettings';
 import { environment } from 'src/environments';
+import { Category, FeedInSetting, FeedInType } from '../../shared/enums';
+import { ComponentData, SerialNumberFormData } from '../../shared/ibndatatypes';
 import { ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { SafetyCountry } from '../../views/configuration-execute/safety-country';
 import { AcPv } from '../../views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
 import { DcPv } from '../../views/protocol-pv/protocol-pv.component';
 import { AbstractIbn } from '../abstract-ibn';
-
-export type TowerData = {
-  label: string;
-  value: string;
-};
 
 export abstract class AbstractHomeIbn extends AbstractIbn {
   private static readonly SELECTOR = 'Home';
@@ -25,15 +20,6 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   // Protocol-pv-component
   public batteryInverter?: {
     shadowManagementDisabled?: boolean;
-  };
-
-  // protocol-serial-numbers
-  public battery?: {
-    serialNumbers?: {
-      tower0?: TowerData[];
-      tower1?: TowerData[];
-      tower2?: TowerData[];
-    };
   };
 
   // configuration-emergency-reserve
@@ -66,13 +52,17 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     ac?: AcPv[];
   };
 
-  public readonly imageUrl = 'assets/img/Home-Typenschild-web.jpg';
+  public readonly imageUrl: string = 'assets/img/Home-Typenschild-web.jpg';
 
-  public readonly lineSideMeterFuseTitle = 'Vorsicherung Hausanschlusszäher';
+  public readonly lineSideMeterFuseTitle = Category.LINE_SIDE_METER_FUSE;
 
-  public readonly showRundSteuerManual = true;
+  public readonly showRundSteuerManual: boolean = true;
 
-  public showViewCount = true;
+  public readonly defaultNumberOfModules: number = 5;
+
+  public showViewCount: boolean = true;
+
+  private numberOfModulesPerTower: number;
 
   public getLineSideMeterFuseFields() {
     const fields: FormlyFieldConfig[] = [];
@@ -113,17 +103,22 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     return fields;
   }
 
+  public addPeakShavingData(peakShavingData: ComponentData[]) {
+    return peakShavingData;
+  }
+
   public fillForms(
     numberOfTowers: number,
     numberOfModulesPerTower: number,
     models: any,
-    forms: Array<SerialNumberFormData>) {
+    forms: SerialNumberFormData[]) {
+    this.numberOfModulesPerTower = numberOfModulesPerTower;
     for (let i = 0; i < numberOfTowers; i++) {
       forms[i] = {
         fieldSettings: this.getFields(i, numberOfModulesPerTower),
         model: models[i],
         formTower: new FormGroup({}),
-        header: numberOfTowers === 1 ? 'Speichersystemkomponenten' : ('Batterieturm ' + i)
+        header: i === 0 ? 'Speichersystemkomponenten' : ('Batterieturm ' + i)
       };
     }
     return forms;
@@ -517,10 +512,6 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     this.feedInLimitation.fixedPowerFactor = model.fixedPowerFactor ?? FeedInSetting.Undefined;
     this.feedInLimitation.isManualProperlyFollowedAndRead = model.isManualProperlyFollowedAndRead;
 
-    // if (model.feedInType == FeedInType.EXTERNAL_LIMITATION) {
-    //   this.feedInLimitation.isManualProperlyFollowedAndRead = true;
-    // }
-
     return this.feedInLimitation;
   }
 
@@ -690,14 +681,14 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
     protocol.items = [];
     protocol.items.push({
-      category: 'Angaben zu Notstrom',
+      category: Category.EMERGENCY_RESERVE,
       name: 'Notstrom?',
       value: emergencyReserve.isEnabled ? 'ja' : 'nein',
     });
 
     if (emergencyReserve.isEnabled) {
       protocol.items.push({
-        category: 'Angaben zu Notstrom',
+        category: Category.EMERGENCY_RESERVE,
         name: 'Notstromreserve [%]',
         value: emergencyReserve.value ? emergencyReserve.value.toString() : '',
       });
@@ -719,32 +710,32 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
     // DC-PV 1
     if (dc1.isSelected) {
-      protocol.items.push({
-        category: 'DC-PV-Installation',
-        name: 'Alias MPPT1',
-        value: dc1.alias,
-      });
-
-      protocol.items.push({
-        category: 'DC-PV-Installation',
-        name: 'Wert MPPT1 [Wp]',
-        value: dc1.value ? dc1.value.toString() : '',
-      });
+      protocol.items.push(
+        {
+          category: Category.DC_PV_INSTALLATION,
+          name: 'Alias MPPT1',
+          value: dc1.alias,
+        },
+        {
+          category: Category.DC_PV_INSTALLATION,
+          name: 'Wert MPPT1 [Wp]',
+          value: dc1.value ? dc1.value.toString() : '',
+        });
 
       dc1.orientation && protocol.items.push({
-        category: 'DC-PV-Installation',
+        category: Category.DC_PV_INSTALLATION,
         name: 'Ausrichtung MPPT1',
         value: dc1.orientation,
       });
 
       dc1.moduleType && protocol.items.push({
-        category: 'DC-PV-Installation',
+        category: Category.DC_PV_INSTALLATION,
         name: 'Modultyp MPPT1',
         value: dc1.moduleType,
       });
 
       dc1.modulesPerString && protocol.items.push({
-        category: 'DC-PV-Installation',
+        category: Category.DC_PV_INSTALLATION,
         name: 'Anzahl PV-Module MPPT1',
         value: dc1.modulesPerString ? dc1.modulesPerString.toString() : '',
       });
@@ -752,39 +743,39 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
     // DC-PV 2
     if (dc2.isSelected) {
-      protocol.items.push({
-        category: 'DC-PV-Installation',
-        name: 'Wert MPPT2 [Wp]',
-        value: dc2.value ? dc2.value.toString() : '',
-      });
-
-      protocol.items.push({
-        category: 'DC-PV-Installation',
-        name: 'Alias MPPT2',
-        value: dc2.alias,
-      });
+      protocol.items.push(
+        {
+          category: Category.DC_PV_INSTALLATION,
+          name: 'Wert MPPT2 [Wp]',
+          value: dc2.value ? dc2.value.toString() : '',
+        },
+        {
+          category: Category.DC_PV_INSTALLATION,
+          name: 'Alias MPPT2',
+          value: dc2.alias,
+        });
 
       dc2.orientation && protocol.items.push({
-        category: 'DC-PV-Installation',
+        category: Category.DC_PV_INSTALLATION,
         name: 'Ausrichtung MPPT2',
         value: dc2.orientation,
       });
 
       dc2.moduleType && protocol.items.push({
-        category: 'DC-PV-Installation',
+        category: Category.DC_PV_INSTALLATION,
         name: 'Modultyp MPPT2',
         value: dc2.moduleType,
       });
 
       dc2.modulesPerString && protocol.items.push({
-        category: 'DC-PV-Installation',
+        category: Category.DC_PV_INSTALLATION,
         name: 'Anzahl PV-Module MPPT2',
         value: dc2.modulesPerString ? dc2.modulesPerString.toString() : '',
       });
     }
 
     protocol.items.push({
-      category: 'Einspeisemanagement',
+      category: Category.FEED_IN_MANAGEMENT,
       name: 'Rundsteuerempfänger aktiviert?',
       value: feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION
         ? "ja"
@@ -792,7 +783,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     });
 
     protocol.items.push({
-      category: 'Einspeisemanagement',
+      category: Category.FEED_IN_MANAGEMENT,
       name: 'Dynamische Begrenzung der Einspeisung aktiviert?',
 
       value: feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
@@ -801,23 +792,22 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     });
 
     if (feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION) {
-      protocol.items.push({
-        category: 'Einspeisemanagement',
-        name: 'Maximale Einspeiseleistung [W]',
-        value: feedInLimitation.maximumFeedInPower
-          ? feedInLimitation.maximumFeedInPower.toString()
-          : (0).toString(),
-      });
-
-      protocol.items.push({
-        category: 'Einspeisemanagement',
+      protocol.items.push(
+        {
+          category: Category.FEED_IN_MANAGEMENT,
+          name: 'Maximale Einspeiseleistung [W]',
+          value: feedInLimitation.maximumFeedInPower
+            ? feedInLimitation.maximumFeedInPower.toString()
+            : (0).toString(),
+        }, {
+        category: Category.FEED_IN_MANAGEMENT,
         name: 'Typ',
         value: feedInLimitation.feedInSetting,
       });
 
       if (feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
         protocol.items.push({
-          category: 'Einspeisemanagement',
+          category: Category.FEED_IN_MANAGEMENT,
           name: 'Cos φ Festwert',
           value: feedInLimitation.fixedPowerFactor,
         });
@@ -829,32 +819,32 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       const element = ac[index];
       const label = 'AC' + (index + 1);
 
-      protocol.items.push({
-        category: 'Zusätzliche AC-Erzeuger',
-        name: 'Alias ' + label,
-        value: element.alias,
-      });
-
-      protocol.items.push({
-        category: 'Zusätzliche AC-Erzeuger',
-        name: 'Wert ' + label + ' [Wp]',
-        value: element.value ? element.value.toString() : '',
-      });
+      protocol.items.push(
+        {
+          category: Category.ADDITIONAL_AC_PRODUCERS,
+          name: 'Alias ' + label,
+          value: element.alias,
+        },
+        {
+          category: Category.ADDITIONAL_AC_PRODUCERS,
+          name: 'Wert ' + label + ' [Wp]',
+          value: element.value ? element.value.toString() : '',
+        });
 
       element.orientation && protocol.items.push({
-        category: 'Zusätzliche AC-Erzeuger',
+        category: Category.ADDITIONAL_AC_PRODUCERS,
         name: 'Ausrichtung ' + label,
         value: element.orientation,
       });
 
       element.moduleType && protocol.items.push({
-        category: 'Zusätzliche AC-Erzeuger',
+        category: Category.ADDITIONAL_AC_PRODUCERS,
         name: 'Modultyp ' + label,
         value: element.moduleType,
       });
 
       element.modulesPerString && protocol.items.push({
-        category: 'Zusätzliche AC-Erzeuger',
+        category: Category.ADDITIONAL_AC_PRODUCERS,
         name: 'Anzahl PV-Module ' + label,
         value: element.modulesPerString
           ? element.modulesPerString.toString()
@@ -862,13 +852,13 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       });
 
       element.meterType && protocol.items.push({
-        category: 'Zusätzliche AC-Erzeuger',
+        category: Category.ADDITIONAL_AC_PRODUCERS,
         name: 'Zählertyp ' + label,
         value: element.meterType,
       });
 
       element.modbusCommunicationAddress && protocol.items.push({
-        category: 'Zusätzliche AC-Erzeuger',
+        category: Category.ADDITIONAL_AC_PRODUCERS,
         name: 'Modbus Kommunikationsadresse ' + label,
         value: element.modbusCommunicationAddress
           ? element.modbusCommunicationAddress.toString()
@@ -877,7 +867,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     }
 
     protocol.items.push({
-      category: 'FEMS',
+      category: Category.FEMS_DETAILS,
       name: 'FEMS Nummer',
       value: edge.id,
     });
@@ -885,13 +875,43 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     // Speichersystemkomponenten
     protocol.lots = [];
 
-    for (const serialNumber of serialNumbers.modules) {
-      if (serialNumber.value !== null && serialNumber.value !== '') {
-        protocol.lots.push({
-          category: 'Speichersystemkomponenten',
-          name: serialNumber.label + ' Seriennummer',
-          serialNumber: serialNumber.value,
-        });
+    // Initial tower has 3 static components other than modules such as Welcherischter, BMS and EMS box.
+    const initialStaticTowerComponents: number = 3;
+
+    // Subsequent towers will have only 2 static components. Paralell box and BMS box.
+    const subsequentStaticTowerComponents: number = 2;
+
+    // Total number of components each tower contains, so that easier to categorize the serial numbers based on towers.
+    const numberOfComponentsTower1: number = this.numberOfModulesPerTower + initialStaticTowerComponents;
+    const numberOfComponentsTower2: number = numberOfComponentsTower1 + this.numberOfModulesPerTower + subsequentStaticTowerComponents;
+    const numberOfComponentsTower3: number = numberOfComponentsTower2 + this.numberOfModulesPerTower + subsequentStaticTowerComponents;
+
+    for (let componentCount = 0; componentCount < serialNumbers.modules.length; componentCount++) {
+      if (serialNumbers.modules[componentCount].value !== null && serialNumbers.modules[componentCount].value !== '') {
+        // Tower 1
+        if (componentCount < numberOfComponentsTower1) {
+          protocol.lots.push({
+            category: 'Speichersystemkomponenten',
+            name: serialNumbers.modules[componentCount].label + ' Seriennummer',
+            serialNumber: serialNumbers.modules[componentCount].value,
+          });
+        }
+        // Tower 2 
+        else if (componentCount < numberOfComponentsTower2) {
+          protocol.lots.push({
+            category: 'Batterie Turm 2',
+            name: serialNumbers.modules[componentCount].label + ' Seriennummer',
+            serialNumber: serialNumbers.modules[componentCount].value,
+          });
+        }
+        // tower 3
+        else if (componentCount < numberOfComponentsTower3) {
+          protocol.lots.push({
+            category: 'Batterie Turm 3',
+            name: serialNumbers.modules[componentCount].label + ' Seriennummer',
+            serialNumber: serialNumbers.modules[componentCount].value,
+          });
+        }
       }
     }
 
@@ -907,7 +927,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     });
   }
 
-  public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service?: Service): ComponentConfigurator {
+  public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service?: Service) {
     const componentConfigurator: ComponentConfigurator =
       new ComponentConfigurator(edge, config, websocket);
     // modbus1
@@ -1018,11 +1038,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           value: this.emergencyReserve.isEnabled ? 'ENABLE' : 'DISABLE',
         },
         { name: 'feedPowerEnable', value: 'ENABLE' },
-
         { name: 'setfeedInPowerSettings', value: feedInSetting },
-
-        { name: 'emsPowerMode', value: 'UNDEFINED' },
-        { name: 'emsPowerSet', value: -1 },
         {
           name: 'mpptForShadowEnable',
           value: this.batteryInverter?.shadowManagementDisabled

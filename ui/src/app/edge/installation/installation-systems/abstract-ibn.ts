@@ -2,8 +2,8 @@ import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
-import { ComponentData, SerialNumberFormData } from 'src/app/shared/type/componentData';
-import { FeedInType } from 'src/app/shared/type/feedinsettings';
+import { Category, FeedInType } from '../shared/enums';
+import { ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
 import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
 import { EmsApp } from '../views/heckert-app-installer/heckert-app-installer.component';
 import { AcPv } from '../views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
@@ -26,7 +26,8 @@ export enum View {
   ProtocolSystem,
   HeckertAppInstaller,
   ConfigurationFeaturesStorageSystem,
-  ConfigurationCommercialComponent
+  ConfigurationCommercialComponent,
+  ConfigurationPeakShaving,
 }
 
 export type SerialNumberData = {
@@ -128,20 +129,17 @@ export abstract class AbstractIbn {
   // Protocol-serial-numbers
   public setupProtocolId?: string;
 
-  // Image for system to be configured in Pre installation
-  public readonly imageUrl: string;
-
-  // Url for system information
-  public readonly manualLink: string;
-
   // Title for line side meter fuse view.
-  public readonly lineSideMeterFuseTitle: string;
+  public readonly lineSideMeterFuseTitle: Category.LINE_SIDE_METER_FUSE | Category.LINE_SIDE_METER_FUSE_COMMERCIAL;
 
   // Rundsteuerempfaenger manual in feed in limitation
   public readonly showRundSteuerManual: boolean;
 
   // Show view count along with Schritt number on top of page.
   public showViewCount: boolean;
+
+  // Contains default number of battery modules per tower based on system. 
+  public readonly defaultNumberOfModules: number;
 
   constructor(public views: View[]) { }
 
@@ -187,10 +185,10 @@ export abstract class AbstractIbn {
     numberOfTowers: number,
     numberOfModulesPerTower: number,
     models: any,
-    forms: Array<SerialNumberFormData>): Array<SerialNumberFormData>;
+    forms: SerialNumberFormData[]): SerialNumberFormData[];
 
   /**
-   * Retrives the Serial numbers of the battery modules and components.
+   * Retrieves the Serial numbers of the battery modules and components.
    *
    * @param towerNr number of towers.
    * @param edge the current edge.
@@ -204,6 +202,13 @@ export abstract class AbstractIbn {
    * Returns the fields for the views based on the system.
    */
   public abstract getFeedInLimitFields(): FormlyFieldConfig[];
+
+  /**
+   * Returns the updated ibn after filling Dynamic-Feed-In-Limit fields from the model.
+   * 
+   * @param model the model containing the user input for the Dynamic-Feed-In-Limit fields.
+   */
+  public abstract setFeedInLimitsFields(model: any);
 
   /**
    * View Configuration-execute.
@@ -231,12 +236,19 @@ export abstract class AbstractIbn {
   public abstract getProtocol(edge: Edge, websocket: Websocket): Promise<string>;
 
   /**
+   * Returns the set of controller for updateScheduler in component configurator.
+   */
+  public abstract setRequiredControllers();
+
+  /**
    * View Emergency-reserve
    * Adds and returns the specific battery information based on Ibn to view in summary.
    *
    * @param batteryData the battery data.
    */
-  public abstract addCustomBatteryData(batteryData: ComponentData[]): ComponentData[];
+  public addCustomBatteryData(batteryData: ComponentData[]): ComponentData[] {
+    return batteryData;
+  };
 
   /**
    * View Dynamic limitation
@@ -244,7 +256,9 @@ export abstract class AbstractIbn {
    *
    * @param batteryInverterData the battery inverter data.
    */
-  public abstract addCustomBatteryInverterData(batteryInverterData: ComponentData[]): ComponentData[];
+  public addCustomBatteryInverterData(batteryInverterData: ComponentData[]): ComponentData[] {
+    return batteryInverterData;
+  };
 
   /**
    * View Protocol pv Data
@@ -252,18 +266,32 @@ export abstract class AbstractIbn {
    *
    * @param pvData the photovoltaic data.
    */
-  public abstract addCustomPvData(pvData: ComponentData[]): ComponentData[];
+  public addCustomPvData(pvData: ComponentData[]): ComponentData[] {
+    return pvData;
+  };
 
   /**
-   * Returns the set of controller for updateScheduler in component configurator.
-   */
-  public abstract setRequiredControllers();
-
-  /**
-   * Returns the updated ibn after filling Dynamic-Feed-In-Limit fields from the model.
+   * View configuration peak shaving.
+   * Adds the peak shaving data specific to commercial-50 systems.
    * 
-   * @param ibn The IBN.
-   * @param model the model containing the user input for the Dynamic-Feed-In-Limit fields.
+   * @param peakShavingData the peak shaving data.
    */
-  public abstract setFeedInLimitsFields(model: any);
+  public addPeakShavingData(peakShavingData: ComponentData[]): ComponentData[] {
+    return peakShavingData;
+  }
+
+  /**
+   * Specific to commercial-50 and sets the Beladung Unter and Entladung Über information based on user's requirement.
+   * 
+   * @param model model information from the peak shaving view.
+   */
+  public setCommercialfeature(model: any) { }
+
+  /**
+   * Specific to commercial-50. Retrieves title for peakshaving view based on feature selected. 
+   */
+  public getPeakShavingHeader(): string {
+    return null;
+  };
+
 }

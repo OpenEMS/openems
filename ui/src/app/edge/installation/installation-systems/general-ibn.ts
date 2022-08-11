@@ -1,6 +1,6 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
-import { ComponentData, SerialNumberFormData } from 'src/app/shared/type/componentData';
+import { SerialNumberFormData } from '../shared/ibndatatypes';
 import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
 import { AbstractIbn, View } from './abstract-ibn';
 
@@ -57,15 +57,6 @@ export class GeneralIbn extends AbstractIbn {
         throw new Error('This is General Ibn, Method not implemented.');
     }
     public getProtocol(edge: Edge, websocket: Websocket): Promise<string> {
-        throw new Error('This is General Ibn, Method not implemented.');
-    }
-    public addCustomBatteryData(batteryData: ComponentData[]): ComponentData[] {
-        throw new Error('This is General Ibn, Method not implemented.');
-    }
-    public addCustomBatteryInverterData(batteryInverterData: ComponentData[]): ComponentData[] {
-        throw new Error('This is General Ibn, Method not implemented.');
-    }
-    public addCustomPvData(pvData: ComponentData[]): ComponentData[] {
         throw new Error('This is General Ibn, Method not implemented.');
     }
     public setRequiredControllers() {

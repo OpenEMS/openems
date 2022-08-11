@@ -496,7 +496,8 @@ export const TRANSLATION = {
                 },
             },
             App: {
-                header: 'De App Manager bevindt zich momenteel in een eerste testversie. Als niet alle apps worden weergegeven, moet de FEMS-versie mogelijk worden bijgewerkt.',
+                header: 'De App Manager bevindt zich momenteel in een eerste testversie.',
+                updateAvailable: 'Er is een nieuwe {{ randShortName }} versie is beschikbaar! Gelieve de {{ edgeShortName }} bij te werken zodat alle nieuwe {{ edgeShortName }} Apps worden weergegeven in het App Center.',
                 installed: 'Geïnstalleerd',
                 available: 'Beschikbaar',
                 incompatible: 'Onverenigbaar',

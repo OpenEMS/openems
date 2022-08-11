@@ -1,5 +1,5 @@
 <ion-card>
-    <ion-item lines="full" color="light">
+    <ion-item lines="full" color="light" class="ion-text-center">
         <ion-avatar slot="start">
             <img [src]="imageUrl">
         </ion-avatar>
@@ -19,6 +19,9 @@
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
 
+                <ion-slide *ngSwitchCase="'GlsCrowdfunding'">
+                    <glsCrowdfunding></glsCrowdfunding>
+                </ion-slide>
 
                 <ion-slide *ngSwitchCase="'Alerting'">
                     <alerting></alerting>

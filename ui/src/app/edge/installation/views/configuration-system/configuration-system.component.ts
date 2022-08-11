@@ -1,11 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { ComponentData } from 'src/app/shared/type/componentData';
 import { environment } from 'src/environments';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { Commercial30AnschlussIbn } from '../../installation-systems/commercial/commercial-30/commercial30-anschluss';
+import { Commercial50EigenverbrauchsOptimierung } from '../../installation-systems/commercial/commercial-50/commercial50-eigenverbrauchsoptimierung';
 import { HomeFeneconIbn } from '../../installation-systems/home/home-fenecon';
 import { HomeHeckertIbn } from '../../installation-systems/home/home-heckert';
+import { ComponentData } from '../../shared/ibndatatypes';
 
 @Component({
   selector: ConfigurationSystemComponent.SELECTOR,
@@ -18,9 +20,9 @@ export class ConfigurationSystemComponent implements OnInit {
   @Output() public nextViewEvent = new EventEmitter();
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
 
-  public form: FormGroup;
-  public fields: FormlyFieldConfig[];
-  public model;
+  protected form: FormGroup;
+  protected fields: FormlyFieldConfig[];
+  protected model;
 
   constructor() { }
 
@@ -51,6 +53,7 @@ export class ConfigurationSystemComponent implements OnInit {
         label = (
           [{ value: 'home', label: 'FENECON Home' },
           { value: 'commercial-30', label: 'FENECON Commercial 30' },
+          { value: 'commercial-50', label: 'FENECON Commercial 50' }
           ]);
         break;
     }
@@ -89,6 +92,9 @@ export class ConfigurationSystemComponent implements OnInit {
       case 'commercial-30':
         window.open('https://fenecon.de/downloadcenter-commercial-30/');
         break;
+      case 'commercial-50':
+        window.open('https://fenecon.de/downloadcenter-commercial-50/');
+        break;
     }
   }
 
@@ -104,6 +110,12 @@ export class ConfigurationSystemComponent implements OnInit {
         break;
       case 'home':
         this.ibn = new HomeFeneconIbn();
+        break;
+      case 'commercial-30':
+        this.ibn = new Commercial30AnschlussIbn();
+        break;
+      case 'commercial-50':
+        this.ibn = new Commercial50EigenverbrauchsOptimierung();
         break;
     }
   }

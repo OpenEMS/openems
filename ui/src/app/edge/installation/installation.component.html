@@ -30,6 +30,10 @@
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-commercial>
 
+                <configuration-features-storage-system *ngSwitchCase="view.ConfigurationFeaturesStorageSystem"
+                    [ibn]="ibn" (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
+                </configuration-features-storage-system>
+
                 <protocol-installer *ngSwitchCase="view.ProtocolInstaller" [ibn]="ibn"
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </protocol-installer>
@@ -45,6 +49,10 @@
                 <configuration-emergency-reserve *ngSwitchCase="view.ConfigurationEmergencyReserve" [ibn]="ibn"
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
                 </configuration-emergency-reserve>
+
+                <configuration-peak-shaving *ngSwitchCase="view.ConfigurationPeakShaving" [ibn]="ibn"
+                    (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">
+                </configuration-peak-shaving>
 
                 <configuration-line-side-meter-fuse *ngSwitchCase="view.ConfigurationLineSideMeterFuse" [ibn]="ibn"
                     (previousViewEvent)="displayPreviousView()" (nextViewEvent)="displayNextView($event)">

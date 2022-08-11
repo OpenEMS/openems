@@ -2,10 +2,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Edge, Service } from 'src/app/shared/shared';
-import { ComponentData } from 'src/app/shared/type/componentData';
 import { environment } from 'src/environments';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { COUNTRY_OPTIONS } from '../../installation.component';
+import { ComponentData, TableData } from '../../shared/ibndatatypes';
 import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
 
 @Component({
@@ -21,10 +21,10 @@ export class ConfigurationSummaryComponent implements OnInit {
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
   @Output() public nextViewEvent = new EventEmitter<any>();
 
-  public form: FormGroup;
-  public fields: FormlyFieldConfig[];
-  public model;
-  public tableData: { header: string; rows: ComponentData[] }[] = [];
+  protected form: FormGroup;
+  protected fields: FormlyFieldConfig[];
+  protected model;
+  protected tableData: { header: string; rows: ComponentData[] }[] = [];
 
   constructor(private service: Service) { }
 
@@ -87,7 +87,7 @@ export class ConfigurationSummaryComponent implements OnInit {
    * Collect all the data for summary.
    */
   public generateTableData() {
-    const tableData: { header: string; rows: ComponentData[] }[] = [];
+    const tableData: TableData[] = [];
     const edgeData = this.edge.id;
     const generalData: ComponentData[] = [
       { label: 'Zeitpunkt der Installation', value: (new Date()).toLocaleString() },
@@ -209,6 +209,16 @@ export class ConfigurationSummaryComponent implements OnInit {
       tableData.push({
         header: 'Erzeuger',
         rows: pvData
+      });
+    }
+
+    let peakShavingData: ComponentData[] = [];
+    peakShavingData = this.ibn.addPeakShavingData(peakShavingData);
+
+    if (peakShavingData.length > 0) {
+      tableData.push({
+        header: 'Lastspitzenkappung',
+        rows: peakShavingData
       });
     }
 
