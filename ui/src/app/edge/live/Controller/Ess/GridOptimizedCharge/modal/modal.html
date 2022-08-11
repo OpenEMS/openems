@@ -4,12 +4,12 @@
     <ng-container *ngIf="formGroup.value.mode !=='OFF'">
 
         <!-- SellToGridLimit or DelayCharge -->
-        <oe-modal-line [name]="'General.state' | translate" [value]="state">
+        <oe-modal-line [name]="'General.state' | translate" [values]="[{value:state}]">
         </oe-modal-line>
 
         <!-- Minimum-/ Maximum- Charge-Limit -->
         <oe-modal-line *ngIf="chargeLimit" [name]="chargeLimit.name" [converter]="CONVERT_TO_WATT"
-            [value]="chargeLimit.value">
+            [values]="[{value:chargeLimit.value}]">
         </oe-modal-line>
 
         <!--DelayCharge target minute-->
@@ -21,7 +21,7 @@
         <!-- Capacity (visible for admin only)-->
         <oe-modal-line *ngIf="isAtLeastAdmin" leftColumnWidth="70"
             [name]="'Edge.Index.Widgets.GridOptimizedCharge.storageCapacity' | translate"
-            [converter]="CONVERT_TO_WATTHOURS" [value]="channelCapacity">
+            [converter]="CONVERT_TO_WATTHOURS" [values]="[{value:channelCapacity}]">
         </oe-modal-line>
 
         <!--Sell to grid limit-->

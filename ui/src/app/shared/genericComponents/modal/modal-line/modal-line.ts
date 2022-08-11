@@ -18,7 +18,7 @@ export class ModalLine extends AbstractModalLine {
     @Input() controlType: 'TOGGLE' | 'INPUT';
 
     /** Fixed indentation of the modal-line */
-    @Input() text_indent: TextIndentation = TextIndentation.NONE;
+    @Input() textIndent: TextIndentation = TextIndentation.NONE;
 }
 
 export enum TextIndentation {

@@ -11,9 +11,10 @@ export class Modal extends AbstractModal {
     public readonly isLastElement = Utils.isLastElement;
     public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
 
-    public productionMeterComponents: EdgeConfig.Component[] = [];
+    public productionMeters: { component: EdgeConfig.Component, isAsymmetric: boolean }[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
     public arePhasesNotNull: boolean = false;
+    public isAsymmetric: boolean = false;
 
     protected override getChannelAddresses() {
 
@@ -22,11 +23,16 @@ export class Modal extends AbstractModal {
             this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
                 .filter(component => component.isEnabled);
 
+        const asymmetricMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter")
+            .filter(component => component.isEnabled
+                && this.config.isProducer(component));
+
         // Get productionMeters
-        this.productionMeterComponents =
-            this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
-                .filter(component => component.isEnabled
-                    && this.config.isProducer(component));
+        this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+            .filter(component => component.isEnabled && this.config.isProducer(component))
+            .forEach(component => {
+                this.productionMeters.push({ component: component, isAsymmetric: asymmetricMeters.filter(element => component.id == element.id).length > 0 })
+            })
 
         return [
             new ChannelAddress('_sum', 'ProductionAcActivePowerL1'),

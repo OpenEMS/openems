@@ -1,5 +1,5 @@
-<table class="full_width" style="line-height: 1.4; margin-top: 0.5%">
-    <tr *ngIf="text_indent" [style.text-indent]="text_indent">
+<table class="full_width" style="line-height: 1.4; margin-top: 0.5%" *ngIf="isAllowed">
+    <tr *ngIf="textIndent" [style.text-indent]="textIndent">
 
         <!-- Name of Parameter on the left side -->
         <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_left">
@@ -7,9 +7,14 @@
         </td>
 
         <!-- Value of Parameter on the right side -->
-        <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right" *ngIf="displayValue">
-            <!-- 'Normal' line, name and value  -->
-            <ng-container>{{ displayValue }}</ng-container>
+        <td *ngIf="displayValue" [style.width]=" leftColumnWidth ?? 50 + '%'" class=" align_right">
+            <ng-container *ngFor="let value of displayValue; let i = index">
+                <!-- 'Normal' line, name and value  -->
+                <ng-container style="width: min-content;">
+                    {{ value }}
+                    <span *ngIf="i < (displayValue.length -1)">&nbsp;|&nbsp;</span>
+                </ng-container>
+            </ng-container>
         </td>
 
         <!-- 'Input' Line, name and changeable value -->

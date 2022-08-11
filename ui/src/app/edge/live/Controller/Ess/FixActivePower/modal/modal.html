@@ -5,7 +5,7 @@
   </oe-modal-line>
 
   <ng-container *ngIf="formGroup.value.mode === 'MANUAL_ON'">
-    <oe-modal-line [name]="chargeDischargePower.name" [value]="chargeDischargePower.value"
+    <oe-modal-line [name]="chargeDischargePower.name" [values]="[{value: chargeDischargePower.value}]"
       [converter]="CONVERT_TO_WATT">
     </oe-modal-line>
   </ng-container>
