@@ -104,6 +104,11 @@ export class ExecuteSystemUpdate {
         });
     }
 
+    /**
+     * Tries to get the status update every 15 seconds until its finished.
+     * 
+     * @returns Promise<SystemUpdateState>
+     */
     private update(): Promise<SystemUpdateState> {
         return new Promise<SystemUpdateState>((resolve, reject) => {
             const source = timer(0, 15000);
@@ -136,7 +141,6 @@ export class ExecuteSystemUpdate {
 
     private stopRefreshSystemUpdateState() {
         this.ngUnsubscribe.next();
-        this.ngUnsubscribe.complete();
     }
 
     /**
@@ -144,11 +148,11 @@ export class ExecuteSystemUpdate {
      */
     public stop() {
         this.stopRefreshSystemUpdateState();
+        this.ngUnsubscribe.complete();
     }
 
     private setSystemUpdateState(systemUpdateState: SystemUpdateState) {
         this.systemUpdateState = systemUpdateState;
         this.systemUpdateStateChange(systemUpdateState)
     }
-
 }
