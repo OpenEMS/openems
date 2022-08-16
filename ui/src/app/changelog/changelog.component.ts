@@ -35,6 +35,12 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.8.3',
+        changes: [
+          Changelog.UI,
+        ]
+      },
+      {
         version: '2022.8.2',
         changes: [
           Changelog.product(Product.COMMERCIAL_50) + "Inbetriebnahmeassistent ist jetzt auch für Commercial 50 verfügbar",
