@@ -1,6 +1,6 @@
 <oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
 
-  <oe-modal-line [name]="'General.state' | translate" [channelAddress]="component.id + '/_PropertyMode'"
+  <oe-modal-line [name]="'General.state' | translate" [channelAddress]="[{address: component.id + '/_PropertyMode'}]"
     [converter]="CONVERT_MANUAL_ON_OFF">
   </oe-modal-line>
 
