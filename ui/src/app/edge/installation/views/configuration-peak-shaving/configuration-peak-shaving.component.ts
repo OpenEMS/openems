@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
-import { Category } from '../../shared/enums';
 
 @Component({
     selector: ConfigurationPeakShavingComponent.SELECTOR,
@@ -56,7 +55,7 @@ export class ConfigurationPeakShavingComponent implements OnInit {
             templateOptions: {
                 label: 'Entladung über - Wert [W]:',
                 type: 'number',
-                description: 'liegt die Netzbezugsleistung oberhalb von diesem Wert, wird die Batterie entladen ',
+                description: 'liegt die Netzbezugsleistung oberhalb von diesem Wert, wird die Batterie entladen.',
                 required: true,
             },
         });

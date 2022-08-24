@@ -16,8 +16,7 @@ import { Controller_ChpSocModalComponent } from './Controller/ChpSoc/modal/modal
 import { Controller_Ess_FixActivePower } from './Controller/Ess/FixActivePower/Ess_FixActivePower';
 import { Controller_Ess_GridOptimizedCharge } from './Controller/Ess/GridOptimizedCharge/Ess_GridOptimizedCharge';
 import { PredictionChartComponent } from './Controller/Ess/GridOptimizedCharge/modal/predictionChart';
-import { Controller_Ess_TimeOfUseTariff_Discharge } from './Controller/Ess/Time-Of-Use-Tariff_Discharge/Ess_Time-Of-Use-Tariff_Discharge';
-import { Controller_Ess_TimeOfUseTariff_DischargeModalComponent } from './Controller/Ess/Time-Of-Use-Tariff_Discharge/modal/modal.component';
+import { Controller_Ess_TimeOfUseTariff_Discharge } from './Controller/Ess/TimeOfUseTariffDischarge/Ess_TimeOfUseTariff_Discharge';
 import { Controller_EvcsComponent } from './Controller/Evcs/Evcs';
 import { AdministrationComponent } from './Controller/Evcs/modal/administration/administration.component';
 import { Controller_EvcsModalComponent } from './Controller/Evcs/modal/modal.page';
@@ -62,6 +61,7 @@ import { OfflineComponent } from './offline/offline.component';
     // Controller
     Controller_Ess_FixActivePower,
     Controller_Ess_GridOptimizedCharge,
+    Controller_Ess_TimeOfUseTariff_Discharge,
     EnergymonitorModule,
     SharedModule,
   ],
@@ -70,8 +70,6 @@ import { OfflineComponent } from './offline/offline.component';
     Controller_Asymmetric_PeakShavingModalComponent,
     Controller_ChpSocComponent,
     Controller_ChpSocModalComponent,
-    Controller_Ess_TimeOfUseTariff_Discharge,
-    Controller_Ess_TimeOfUseTariff_DischargeModalComponent,
     Controller_EvcsModalComponent,
     Controller_EvcsPopoverComponent,
     Controller_Io_ChannelSingleThresholdComponent,
@@ -96,8 +94,6 @@ import { OfflineComponent } from './offline/offline.component';
     Controller_ChpSocComponent,
     Controller_ChpSocComponent,
     Controller_ChpSocModalComponent,
-    Controller_Ess_TimeOfUseTariff_Discharge,
-    Controller_Ess_TimeOfUseTariff_DischargeModalComponent,
     Controller_EvcsComponent,
     Controller_EvcsModalComponent,
     Controller_EvcsPopoverComponent,
