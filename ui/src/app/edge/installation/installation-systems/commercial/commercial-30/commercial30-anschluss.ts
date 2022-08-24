@@ -122,20 +122,6 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
             mode: ConfigurationMode.RemoveAndConfigure
         });
 
-        // meter1
-        componentConfigurator.add({
-            factoryId: 'Meter.Socomec.Threephase',
-            componentId: 'meter1',
-            alias: 'Produktion',
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'modbus.id', value: 'modbus2' },
-                { name: 'type', value: 'PRODUCTION' },
-                { name: 'modbusUnitId', value: 6 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
-
         // battery0
         componentConfigurator.add({
             factoryId: 'Battery.Fenecon.Commercial',
@@ -183,20 +169,18 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         const acArray = this.pv.ac;
         const isAcCreated: boolean = acArray.length >= 1;
 
-        // TODO: Tell the customer in the View that one Production socomec meter is installed per default!
-        // TODO if more than 1 meter should be created, this logic must be changed
         const acAlias = isAcCreated ? acArray[0].alias : '';
         const acModbusUnitId = isAcCreated ? acArray[0].modbusCommunicationAddress : 0;
 
         componentConfigurator.add({
             factoryId: 'Meter.Socomec.Threephase',
-            componentId: 'meter2',
+            componentId: 'meter1',
             alias: acAlias,
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'type', value: 'PRODUCTION' },
                 { name: 'modbus.id', value: 'modbus2' },
-                { name: 'modbusUnitId', value: acModbusUnitId }, // should be 7 or greater (maybe it could be stricted in view)
+                { name: 'modbusUnitId', value: acModbusUnitId },
                 { name: 'invert', value: false }
             ],
             mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
