@@ -348,9 +348,11 @@ export const TRANSLATION = {
                     }
                 },
                 Heatingelement: {
+                    activeForced: 'Aktivní (vynucený)',
                     activeLevel: 'Aktivní level',
                     endtime: 'Poslední dny',
                     energy: 'Energie',
+                    guaranteeMinimumHeating: 'Záruka minimálního vytápění',
                     heatingelement: 'Topný článek',
                     minimalEnergyAmount: 'Minimální množství energie',
                     minimumRunTime: 'Minimální doba',

@@ -343,9 +343,11 @@ export const TRANSLATION = {
                     }
                 },
                 Heatingelement: {
+                    activeForced: 'Activo (forzado)',
                     activeLevel: 'Fases level',
                     endtime: 'Los días pasados',
                     energy: 'Energía',
+                    guaranteeMinimumHeating: 'Garantizar la calefacción mínima',
                     heatingelement: 'Elemento de calefacción',
                     minimalEnergyAmount: 'Cantidad mínima de energía',
                     minimumRunTime: 'Plazo mínimo',

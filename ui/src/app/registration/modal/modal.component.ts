@@ -81,7 +81,7 @@ export class RegistrationModalComponent implements OnInit {
     }
 
     this.websocket.sendRequest(request)
-      .then(res => {
+      .then(() => {
         this.service.toast(this.translate.instant("Register.success"), 'success');
         this.modalCtrl.dismiss();
       })
