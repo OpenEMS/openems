@@ -70,6 +70,7 @@
         "node": "< 17.0.0"
     },
     "scripts": {
-        "lint": "ng lint"
+        "lint": "ng lint",
+        "test": "ng test"
     }
 }
