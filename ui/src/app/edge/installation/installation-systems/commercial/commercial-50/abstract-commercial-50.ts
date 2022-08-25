@@ -253,7 +253,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Tcp',
             componentId: 'modbus1',
-            alias: 'Kommunikation mit dem Wechselrichter',
+            alias: 'Kommunikation mit dem Batterie-Wechselrichter',
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'ip', value: '10.4.0.10' },
@@ -268,7 +268,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Serial',
             componentId: 'modbus2',
-            alias: 'Schnittstelle Meter',
+            alias: 'Kommunikation mit den Zählern',
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'portName', value: '/dev/ttySC0' },
@@ -309,20 +309,6 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             mode: ConfigurationMode.RemoveAndConfigure
         });
 
-        // meter1
-        componentConfigurator.add({
-            factoryId: 'Meter.Socomec.Threephase',
-            componentId: 'meter1',
-            alias: 'Produktion',
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'modbus.id', value: 'modbus2' },
-                { name: 'type', value: 'PRODUCTION' },
-                { name: 'modbusUnitId', value: 6 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
-
         // battery0
         componentConfigurator.add({
             factoryId: 'Battery.Fenecon.Commercial',
@@ -332,7 +318,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'enabled', value: true },
                 { name: 'startStop', value: 'AUTO' },
                 { name: 'modbus.id', value: 'modbus0' },
-                { name: 'masterStartUpRelay', value: 'io0/Relay8' },
+                { name: 'batteryStartStopRelay', value: 'io0/Relay8' },
                 { name: 'modbusUnitId', value: 1 }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
@@ -366,18 +352,17 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             mode: ConfigurationMode.RemoveAndConfigure
         });
 
-        // Optional meter2 - aditional AC PV
+        // Optional meter - AC PV
         const acArray = this.pv.ac;
         const isAcCreated: boolean = acArray.length >= 1;
 
-        // TODO: Tell the customer in the View that one Production socomec meter is installed per default!
         // TODO if more than 1 meter should be created, this logic must be changed
         const acAlias = isAcCreated ? acArray[0].alias : '';
         const acModbusUnitId = isAcCreated ? acArray[0].modbusCommunicationAddress : 0;
 
         componentConfigurator.add({
             factoryId: 'Meter.Socomec.Threephase',
-            componentId: 'meter2',
+            componentId: 'meter1',
             alias: acAlias,
             properties: [
                 { name: 'enabled', value: true },

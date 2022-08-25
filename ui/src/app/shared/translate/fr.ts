@@ -345,14 +345,16 @@ export const TRANSLATION = {
                     }
                 },
                 Heatingelement: {
-                    heatingelement: 'Heating element',
-                    priority: 'Priority',
+                    activeForced: 'Actif (Minimum runtime)',
                     activeLevel: 'Active level',
-                    energy: 'Energy',
-                    time: 'Time',
                     endtime: 'Endtime',
+                    energy: 'Energy',
+                    guaranteeMinimumHeating: 'Garantir un chauffage minimum',
+                    heatingelement: 'Heating element',
                     minimalEnergyAmount: 'Minimal charge amount',
                     minimumRunTime: 'Minimum runtime',
+                    priority: 'Priority',
+                    time: 'Time',
                     timeCountdown: 'time until start',
                 },
                 HeatPump: {

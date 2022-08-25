@@ -26,5 +26,4 @@ export class InstallationViewComponent {
   public keyPressed(event) {
     if (event.key === 'Enter') this.nextClicked.emit();
   }
-
 }

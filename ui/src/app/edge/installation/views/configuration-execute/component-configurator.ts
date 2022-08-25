@@ -384,19 +384,8 @@ export class ComponentConfigurator {
             ]);
         } else {
             // If the scheduler is existing, it gets updated
-            let existingControllerIds: string[] = scheduler.properties["controllers.ids"];
-            let newControllerIds = [];
-
-            for (let requiredControllerId of requiredControllerIds) {
-                if (!existingControllerIds.find(existingControllerId => requiredControllerId === existingControllerId)) {
-                    newControllerIds.push(requiredControllerId);
-                }
-            }
-
-            newControllerIds = existingControllerIds.concat(newControllerIds);
-
             this.edge.updateComponentConfig(this.websocket, "scheduler0", [
-                { name: "controllers.ids", value: newControllerIds }
+                { name: "controllers.ids", value: requiredControllerIds }
             ]);
         }
     }

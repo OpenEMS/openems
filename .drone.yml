@@ -25,6 +25,18 @@ pipeline:
       - node_modules/.bin/ng build -c "fenecon,fenecon-backend-prod,prod"
       #- node_modules/.bin/ng lint
 
+  ui-unit-test:
+    image: node:16
+    commands:
+      - cd ui
+      - npm ci
+      - apt-get update
+      - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+      - apt install -y ./google-chrome*.deb;
+      - export CHROME_BIN=/usr/bin/google-chrome
+      - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+      #- node_modules/.bin/ng test app --watch false --code-coverage
+
   build-java:
     when:
       branch: 

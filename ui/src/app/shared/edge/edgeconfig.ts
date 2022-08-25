@@ -581,6 +581,7 @@ export module EdgeConfig {
         public readonly accessMode: "RO" | "RW" | "WO";
         public readonly unit: string;
         public readonly category: "OPENEMS_TYPE" | "ENUM" | "STATE";
+        public readonly level: "INFO" | "OK" | "WARNING" | "FAULT";
     }
 
     export class Component {

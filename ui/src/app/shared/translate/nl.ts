@@ -341,14 +341,16 @@ export const TRANSLATION = {
                     }
                 },
                 Heatingelement: {
-                    heatingelement: 'Verwarmingselement',
-                    priority: 'Prioriteit',
+                    activeForced: 'Actief (Minimale looptijd)',
                     activeLevel: 'Actieve level',
-                    energy: 'Energie',
-                    time: 'Tijd',
                     endtime: 'Einde tijd',
+                    energy: 'Energie',
+                    guaranteeMinimumHeating: 'Minimale verwarming garanderen',
+                    heatingelement: 'Verwarmingselement',
                     minimalEnergyAmount: 'Minimale hoeveelheid energie',
                     minimumRunTime: 'Minimale looptijd',
+                    priority: 'Prioriteit',
+                    time: 'Tijd',
                     timeCountdown: 'Tijd om te beginnen',
                 },
                 HeatPump: {

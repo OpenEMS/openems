@@ -189,20 +189,6 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             mode: ConfigurationMode.RemoveAndConfigure
         });
 
-        // meter1
-        componentConfigurator.add({
-            factoryId: 'Meter.Socomec.Threephase',
-            componentId: 'meter1',
-            alias: 'Produktion',
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'modbus.id', value: 'modbus2' },
-                { name: 'type', value: 'PRODUCTION' },
-                { name: 'modbusUnitId', value: 6 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
-
         // battery0
         componentConfigurator.add({
             factoryId: 'Battery.Fenecon.Commercial',
@@ -240,7 +226,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
 
         componentConfigurator.add({
             factoryId: 'Meter.Socomec.Threephase',
-            componentId: 'meter2',
+            componentId: 'meter1',
             alias: acAlias,
             properties: [
                 { name: 'enabled', value: true },

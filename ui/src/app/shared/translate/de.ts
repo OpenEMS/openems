@@ -350,9 +350,11 @@ export const TRANSLATION = {
                     }
                 },
                 Heatingelement: {
+                    activeForced: 'Aktiv (Mindestlaufzeit)',
                     activeLevel: 'Aktives Level',
                     endtime: 'Endzeit',
                     energy: 'Energie',
+                    guaranteeMinimumHeating: 'Minimale Beheizung garantieren',
                     heatingelement: 'Heizelement',
                     minimalEnergyAmount: 'Minimale Energiemenge',
                     minimumRunTime: 'Mindestlaufzeit',

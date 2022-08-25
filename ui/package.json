@@ -1,6 +1,6 @@
 {
     "name": "openems-ui",
-    "version": "2022.8.3",
+    "version": "2022.8.4",
     "license": "AGPL-3.0",
     "private": true,
     "dependencies": {
@@ -70,6 +70,7 @@
         "node": "< 17.0.0"
     },
     "scripts": {
-        "lint": "ng lint"
+        "lint": "ng lint",
+        "test": "ng test"
     }
 }

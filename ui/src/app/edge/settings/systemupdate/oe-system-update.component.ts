@@ -60,5 +60,4 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
     this.isWaiting = true;
     this.executeUpdate.executeSystemUpdate();
   }
-
 }

@@ -35,6 +35,16 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.8.4',
+        changes: [
+          Changelog.product(Product.COMMERCIAL_50, Product.COMMERCIAL_30) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF, Product.FEMS_HEIZSTAB) + "Überarbeitung des Widgets im Online-Monitoring",
+          { roleIsAtLeast: Role.INSTALLER, change: Changelog.GENERAL_OPTIMIZATION + " für invertierte Produktionszähler" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.UI + " Anzeige von Strom und Spannung für einzelne Erzeuger" },
+          { roleIsAtLeast: Role.ADMIN, change: "Strukturelle Änderungen am Online-Monitoring. Verbesserung der automatischen Tests." },
+        ]
+      },
+      {
         version: '2022.8.3',
         changes: [
           Changelog.UI,
