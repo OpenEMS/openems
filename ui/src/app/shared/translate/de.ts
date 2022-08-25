@@ -350,7 +350,7 @@ export const TRANSLATION = {
                     }
                 },
                 Heatingelement: {
-                    activeForced: 'Aktiv (Erzwungen)',
+                    activeForced: 'Aktiv (Mindestlaufzeit)',
                     activeLevel: 'Aktives Level',
                     endtime: 'Endzeit',
                     energy: 'Energie',

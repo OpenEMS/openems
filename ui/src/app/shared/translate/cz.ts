@@ -348,7 +348,7 @@ export const TRANSLATION = {
                     }
                 },
                 Heatingelement: {
-                    activeForced: 'Aktivní (vynucený)',
+                    activeForced: 'Aktivní (Minimální doba)',
                     activeLevel: 'Aktivní level',
                     endtime: 'Poslední dny',
                     energy: 'Energie',

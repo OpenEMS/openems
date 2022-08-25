@@ -343,7 +343,7 @@ export const TRANSLATION = {
                     }
                 },
                 Heatingelement: {
-                    activeForced: 'Activo (forzado)',
+                    activeForced: 'Activo (Plazo mínimo)',
                     activeLevel: 'Fases level',
                     endtime: 'Los días pasados',
                     energy: 'Energía',
