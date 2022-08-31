@@ -48,8 +48,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
       "OCCP_CONNECTOR_IDENTIFIER": "1"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-2-2/fems-app-ies-keywatt-ladestation-2/">link</a>
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
@@ -136,7 +135,7 @@ public class IesKeywattEvcs extends AbstractEvcsApp<Property> implements Openems
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-2-2/fems-app-ies-keywatt-ladestation-2/") //
+				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-ies-keywatt-ladestation/") //
 				.build();
 	}
 

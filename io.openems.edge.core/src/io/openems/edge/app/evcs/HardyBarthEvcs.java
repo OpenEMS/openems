@@ -46,8 +46,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
       "IP":"192.168.25.30"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems-app-echarge-hardy-barth-ladestation/">link</a>
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
@@ -118,7 +117,7 @@ public class HardyBarthEvcs extends AbstractEvcsApp<Property> implements Openems
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems-app-echarge-hardy-barth-ladestation/") //
+				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-echarge-hardy-barth-ladestation/") //
 				.build();
 	}
 

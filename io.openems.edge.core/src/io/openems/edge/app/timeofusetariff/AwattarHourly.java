@@ -43,8 +43,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"TIME_OF_USE_TARIF_ID": "timeOfUseTariff0"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems/fems-app-awattar-hourly/">link</a>
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
@@ -98,7 +97,7 @@ public class AwattarHourly extends AbstractOpenemsApp<Property> implements Opene
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems/fems-app-awattar-hourly/") //
+				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-awattar-hourly/") //
 				.build();
 	}
 

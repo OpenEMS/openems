@@ -55,8 +55,7 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
     	}
     ],
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems/fems-app-modbus-tcp-schreibzugriff/">link</a>
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
@@ -111,7 +110,7 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems/fems-app-modbus-tcp-schreibzugriff/") //
+				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-modbus-tcp-schreibzugriff/") //
 				.build();
 	}
 

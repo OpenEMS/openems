@@ -43,8 +43,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"CONTROLLER_ID": "ctrlApiModbusTcp0"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems/fems-app-modbus-tcp-lesend/">link</a>
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
@@ -75,7 +74,7 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsApp<Property> implement
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems/fems-app-modbus-tcp-lesend/") //
+				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-modbus-tcp-lesend/") //
 				.build();
 	}
 
