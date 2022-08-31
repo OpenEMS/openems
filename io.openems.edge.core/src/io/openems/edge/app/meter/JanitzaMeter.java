@@ -54,8 +54,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     	"MODBUS_UNIT_ID": 1
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems/fems-app-janitza-zaehler/">link</a>
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
@@ -155,7 +154,7 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems/fems-app-janitza-zaehler/") //
+				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-janitza-zaehler/") //
 				.build();
 	}
 

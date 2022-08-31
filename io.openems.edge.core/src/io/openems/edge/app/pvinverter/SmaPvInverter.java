@@ -47,8 +47,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     	"MODBUS_UNIT_ID": "126"
     },
     "appDescriptor": {
-    	"websiteUrl": <a href=
-"https://fenecon.de/fems/fems-app-sma-pv-wechselrichter/">link</a>
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
@@ -130,7 +129,7 @@ public class SmaPvInverter extends AbstractPvInverter<Property> implements Opene
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fems/fems-app-sma-pv-wechselrichter/") //
+				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-sma-pv-wechselrichter/") //
 				.build();
 	}
 

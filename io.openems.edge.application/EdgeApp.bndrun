@@ -99,6 +99,7 @@
 	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
 	bnd.identity;id='io.openems.edge.ess.generic',\
 	bnd.identity;id='io.openems.edge.ess.mr.gridcon',\
+	bnd.identity;id='io.openems.edge.ess.refubeckhoff',\
 	bnd.identity;id='io.openems.edge.ess.sma',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
@@ -126,6 +127,7 @@
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
+	bnd.identity;id='io.openems.edge.meter.plexlog',\
 	bnd.identity;id='io.openems.edge.meter.pqplus',\
 	bnd.identity;id='io.openems.edge.meter.schneider.acti9.smartlink',\
 	bnd.identity;id='io.openems.edge.meter.siemens',\
@@ -240,6 +242,7 @@
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.ess.generic;version=snapshot,\
 	io.openems.edge.ess.mr.gridcon;version=snapshot,\
+	io.openems.edge.ess.refubeckhoff;version=snapshot,\
 	io.openems.edge.ess.sma;version=snapshot,\
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
@@ -270,6 +273,7 @@
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
+	io.openems.edge.meter.plexlog;version=snapshot,\
 	io.openems.edge.meter.pqplus;version=snapshot,\
 	io.openems.edge.meter.schneider.acti9.smartlink;version=snapshot,\
 	io.openems.edge.meter.siemens;version=snapshot,\
