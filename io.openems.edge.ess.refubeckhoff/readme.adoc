@@ -1,0 +1,20 @@
+= This implements the Refu inverter along with beckhoff computer.
+
+This component is a Ess-component, which implements inverter and battery as one component.
+Beckhoff would provide the battery values such as "Charge Max Current/Voltage, Discharge Max Current, Discharge Min Voltage, Soc... "
+to the inverter and controls starting and stoping the battery. 
+
+`ess_id`::
+Id of the device. ex, ess0
+`essState`::
+Switches the ess into the given state, if auto is used, ess state is set automatically.
+`operationState`::
+Switches the  feed in power operation state.
+`symmetricMode`::
+In Symmetric mode no coefficients for L1/L2/L3 are available, resulting in a smaller linear equation system that is faster to solve.
+`acknowledgeError`::
+Number of times error to be acknowledged.
+
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.refu[Source Code icon:github[]]
