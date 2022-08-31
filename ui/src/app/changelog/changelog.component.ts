@@ -35,6 +35,14 @@ export class ChangelogComponent {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.8.5',
+        changes: [
+          Changelog.UI,
+          Changelog.product(Product.FEMS_HOCHLASTZEITFENSTER) + Changelog.GENERAL_OPTIMIZATION,
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung von Plexlog Datalogger als Zähler" },
+        ]
+      },
+      {
         version: '2022.8.4',
         changes: [
           Changelog.product(Product.COMMERCIAL_50, Product.COMMERCIAL_30) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
