@@ -83,11 +83,21 @@ public class PlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
 				this.m(PlexlogDatalogger.ChannelId.CONSUMPTION_EXPONENT, new SignedWordElement(13)) //
 		));
 
-		this.getTotalProductionChannel().onSetNextValue(this::onTotalProductionNextValue);
-		this.getProductionExponentChannel().onSetNextValue(this::onProductionExponentNextValue);
+		this.getTotalProductionChannel().onSetNextValue(value -> {
+			doIfBothPresent(value, this.getProductionExponent(), this::calculateActiveProductionEnergy);
+		});
 
-		this.getTotalConsumptionChannel().onSetNextValue(this::onTotalConsumptionNextValue);
-		this.getConsumptionExponentChannel().onSetNextValue(this::onConsumptionExponentNextValue);
+		this.getProductionExponentChannel().onSetNextValue(value -> {
+			doIfBothPresent(this.getTotalProduction(), value, this::calculateActiveProductionEnergy);
+		});
+
+		this.getTotalConsumptionChannel().onSetNextValue(value -> {
+			doIfBothPresent(value, this.getTotalConsumption(), this::calculateActiveConsumptionEnergy);
+		});
+
+		this.getConsumptionExponentChannel().onSetNextValue(value -> {
+			doIfBothPresent(this.getTotalConsumption(), value, this::calculateActiveConsumptionEnergy);
+		});
 
 		return modbusProtocol;
 	}
@@ -97,23 +107,8 @@ public class PlexlogDataloggerImpl extends AbstractOpenemsModbusComponent
 		return this.meterType;
 	}
 
-	private void onConsumptionExponentNextValue(Value<Integer> value) {
-		this.doIfBothPresent(this.getTotalConsumption(), value, this::calculateActiveConsumptionEnergy);
-	}
-
-	private void onProductionExponentNextValue(Value<Integer> value) {
-		this.doIfBothPresent(this.getTotalProduction(), value, this::calculateActiveProductionEnergy);
-	}
-
-	private void onTotalConsumptionNextValue(Value<Integer> value) {
-		this.doIfBothPresent(value, this.getTotalConsumption(), this::calculateActiveConsumptionEnergy);
-	}
-
-	private void onTotalProductionNextValue(Value<Integer> value) {
-		this.doIfBothPresent(value, this.getProductionExponent(), this::calculateActiveProductionEnergy);
-	}
-
-	private void doIfBothPresent(Value<Integer> total, Value<Integer> exponent, BiConsumer<Integer, Integer> consumer) {
+	private static void doIfBothPresent(Value<Integer> total, Value<Integer> exponent,
+			BiConsumer<Integer, Integer> consumer) {
 		if (total.asOptional().isEmpty()) {
 			return;
 		}

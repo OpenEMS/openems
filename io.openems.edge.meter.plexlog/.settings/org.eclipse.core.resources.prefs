@@ -1,9 +1,2 @@
 eclipse.preferences.version=1
-encoding//src/io/openems/edge/meter/plexlog/Config.java=UTF-8
-encoding//src/io/openems/edge/meter/plexlog/PlexlogDatalogger.java=UTF-8
-encoding//src/io/openems/edge/meter/plexlog/PlexlogDataloggerImpl.java=UTF-8
-encoding//test/io/openems/edge/meter/plexlog/MyConfig.java=UTF-8
-encoding//test/io/openems/edge/meter/plexlog/PlexlogDataloggerImplTest.java=UTF-8
 encoding/<project>=UTF-8
-encoding/bnd.bnd=UTF-8
-encoding/readme.adoc=UTF-8
