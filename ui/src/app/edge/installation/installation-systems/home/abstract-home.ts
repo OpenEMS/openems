@@ -433,8 +433,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           { label: 'Fester Verschiebungsfaktor Cos φ', value: FeedInSetting.FixedPowerFactor }
         ],
         required: true
-      },
-      hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION
+      }
     });
 
     fields.push({
@@ -1037,7 +1036,6 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           name: 'backupEnable',
           value: this.emergencyReserve.isEnabled ? 'ENABLE' : 'DISABLE',
         },
-        { name: 'feedPowerEnable', value: 'ENABLE' },
         { name: 'setfeedInPowerSettings', value: feedInSetting },
         {
           name: 'mpptForShadowEnable',
@@ -1049,10 +1047,16 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       mode: ConfigurationMode.RemoveAndConfigure,
     }
 
-    feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION && goodweconfig.properties.push({
-      name: 'feedPowerPara',
-      value: feedInLimitation.maximumFeedInPower,
-    })
+    feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
+      ? goodweconfig.properties.push({
+        name: 'feedPowerPara',
+        value: feedInLimitation.maximumFeedInPower,
+      },
+        { name: 'feedPowerEnable', value: 'ENABLE' },
+      )
+      : goodweconfig.properties.push(
+        { name: 'feedPowerEnable', value: 'DISABLE' },
+      )
 
     componentConfigurator.add(goodweconfig);
 
@@ -1152,19 +1156,26 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'enabled', value: true },
         { name: 'ess.id', value: 'ess0' },
         { name: 'meter.id', value: 'meter0' },
-        { name: 'sellToGridLimitEnabled', value: true },
-        {
-          name: 'maximumSellToGridPower',
-          value: feedInLimitation.maximumFeedInPower,
-        },
         { name: 'delayChargeRiskLevel', value: 'MEDIUM' },
-        { name: 'mode', value: 'AUTOMATIC' },
         { name: 'manualTargetTime', value: '17:00' },
         { name: 'debugMode', value: false },
         { name: 'sellToGridLimitRampPercentage', value: 2 },
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
     }
+
+    feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
+      ? gridOptimizedCharge.properties.push(
+        { name: 'maximumSellToGridPower', value: feedInLimitation.maximumFeedInPower },
+        { name: "sellToGridLimitEnabled", value: true },
+        { name: 'mode', value: 'AUTOMATIC' }
+      )
+      :
+      gridOptimizedCharge.properties.push(
+        { name: "sellToGridLimitEnabled", value: false },
+        { name: 'mode', value: 'OFF' }
+      );
+
     componentConfigurator.add(gridOptimizedCharge);
 
     // ctrlEssSurplusFeedToGrid0
