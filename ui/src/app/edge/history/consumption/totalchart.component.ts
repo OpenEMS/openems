@@ -1,12 +1,12 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'consumptionTotalChart',
@@ -29,13 +29,11 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("consumption-total-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = "consumption-total-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
         this.setLabel()
     }
@@ -46,7 +44,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
@@ -292,17 +290,20 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     });
                     this.datasets = datasets;
                     this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
+                    this.stopSpinner();
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

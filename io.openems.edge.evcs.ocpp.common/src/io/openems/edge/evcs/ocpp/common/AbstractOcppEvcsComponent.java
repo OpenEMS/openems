@@ -7,10 +7,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -27,7 +23,6 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
 public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
@@ -46,9 +41,6 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 	private final ChargeSessionStamp sessionStart = new ChargeSessionStamp();
 
 	private final ChargeSessionStamp sessionEnd = new ChargeSessionStamp();
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
 
 	protected AbstractOcppEvcsComponent(OcppProfileType[] profileTypes,
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
@@ -112,6 +104,10 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 		}
 
 		var timedata = this.getTimedata();
+		if (timedata == null) {
+			return;
+		}
+
 		var componentId = this.id();
 		timedata.getLatestValue(new ChannelAddress(componentId, "ActiveConstumptionEnergy"))
 				.thenAccept(totalEnergyOpt -> {
@@ -272,11 +268,6 @@ public abstract class AbstractOcppEvcsComponent extends AbstractOpenemsComponent
 
 	public ChargeSessionStamp getSessionEnd() {
 		return this.sessionEnd;
-	}
-
-	@Override
-	public Timedata getTimedata() {
-		return this.timedata;
 	}
 
 	@Override

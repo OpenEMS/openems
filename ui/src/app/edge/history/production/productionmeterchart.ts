@@ -20,19 +20,18 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("production-meter-chart", service, translate);
     }
 
     ngOnInit() {
-        this.spinnerId = 'production-meter-chart';
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -43,7 +42,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
     protected updateChart() {
         this.autoSubscribeChartRefresh();
         this.loading = true;
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
@@ -108,17 +107,20 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart implemen
                     });
                     this.datasets = datasets;
                     this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
+                    this.stopSpinner();
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

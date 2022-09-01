@@ -18,7 +18,7 @@ import com.influxdb.exceptions.InfluxException;
 public class FieldTypeConflictHandler {
 
 	private static final Pattern FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN = Pattern.compile(
-			"^partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
+			"^.*partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
 
 	private final Logger log = LoggerFactory.getLogger(FieldTypeConflictHandler.class);
 	private final Influx parent;
@@ -34,11 +34,16 @@ public class FieldTypeConflictHandler {
 	 *
 	 * @param e the {@link FieldTypeConflictException}
 	 */
-	public synchronized void handleException(InfluxException e) {
-		var matcher = FieldTypeConflictHandler.FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(e.getMessage());
+	public synchronized void handleException(InfluxException e) throws IllegalStateException, IllegalArgumentException {
+		this.handleExceptionMessage(e.getMessage());
+	}
+
+	protected synchronized boolean handleExceptionMessage(String message)
+			throws IllegalStateException, IllegalArgumentException {
+		var matcher = FieldTypeConflictHandler.FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(message);
 		if (!matcher.find()) {
-			this.parent.logWarn(this.log, "Unable to add special field handler for message [" + e.getMessage() + "]");
-			return;
+			this.parent.logWarn(this.log, "Unable to add special field handler for message [" + message + "]");
+			return false;
 		}
 		var field = matcher.group("channel");
 		var thisType = matcher.group("thisType");
@@ -46,17 +51,19 @@ public class FieldTypeConflictHandler {
 
 		if (this.specialCaseFieldHandlers.containsKey(field)) {
 			// Special handling had already been added.
-			return;
+			this.parent.logWarn(this.log, "Special field handler for message [" + message + "] is already existing");
+			return false;
 		}
 
 		var handler = this.createAndAddHandler(field, requiredType);
 
 		if (handler == null) {
 			this.parent.logWarn(this.log, "Unable to add special field handler for [" + field + "] from [" + thisType
-					+ "] to [" + requiredType + "]");
+					+ "] to [" + requiredType.name().toLowerCase() + "]");
 		}
-		this.parent.logInfo(this.log,
-				"Add special field handler for [" + field + "] from [" + thisType + "] to [" + requiredType + "]");
+		this.parent.logInfo(this.log, "Add special field handler for [" + field + "] from [" + thisType + "] to ["
+				+ requiredType.name().toLowerCase() + "]");
+		return true;
 	}
 
 	private static enum RequiredType {

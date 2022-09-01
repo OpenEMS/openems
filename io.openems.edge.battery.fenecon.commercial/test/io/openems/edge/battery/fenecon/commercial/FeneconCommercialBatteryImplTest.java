@@ -16,6 +16,7 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.io.test.DummyInputOutput;
+import io.openems.edge.battery.api.Battery;
 
 public class FeneconCommercialBatteryImplTest {
 
@@ -30,6 +31,14 @@ public class FeneconCommercialBatteryImplTest {
 	private static final ChannelAddress BATTERY_RELAY = new ChannelAddress(IO_ID, "InputOutput7");
 	private static final ChannelAddress START_STOP = new ChannelAddress(BATTERY_ID,
 			StartStoppable.ChannelId.START_STOP.id());
+	private static final ChannelAddress BATTERY_SOC = new ChannelAddress(BATTERY_ID,
+			FeneconCommercialBattery.ChannelId.BATTERY_SOC.id());
+	private static final ChannelAddress BATTERY_MAX_DISCHARGE_CURRENT = new ChannelAddress(BATTERY_ID,
+			Battery.ChannelId.DISCHARGE_MAX_CURRENT.id());
+	private static final ChannelAddress BATTERY_MAX_CHARGE_CURRENT = new ChannelAddress(BATTERY_ID,
+			Battery.ChannelId.CHARGE_MAX_CURRENT.id());
+	private static final ChannelAddress SOC = new ChannelAddress(BATTERY_ID,
+			Battery.ChannelId.SOC.id());
 
 	@Test
 	public void startBattery() throws Exception {
@@ -101,6 +110,54 @@ public class FeneconCommercialBatteryImplTest {
 				.next(new TestCase()//
 						.output(STATE_MACHINE, StateMachine.State.STOPPED))//
 
+		;
+	}
+
+	@Test
+	public void socManipulationMin() throws Exception {
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		new ComponentTest(new FeneconCommercialBatteryImpl()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addComponent(new DummyInputOutput(IO_ID))//
+				.activate(MyConfig.create() //
+						.setId(BATTERY_ID) //
+						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(1) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartStopRelay("io0/InputOutput7")//
+						.build())//
+				.next(new TestCase("Soc")//
+						.input(RUNNING, true) //
+						.input(BATTERY_SOC, 10)
+						.input(BATTERY_MAX_DISCHARGE_CURRENT, 0)
+						.input(BATTERY_MAX_CHARGE_CURRENT, 10000)
+						.output(SOC, 10))
+		;
+	}
+	
+	@Test
+	public void socManipulationMax() throws Exception {
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
+		new ComponentTest(new FeneconCommercialBatteryImpl()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addComponent(new DummyInputOutput(IO_ID))//
+				.activate(MyConfig.create() //
+						.setId(BATTERY_ID) //
+						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(1) //
+						.setStartStop(StartStopConfig.START) //
+						.setBatteryStartStopRelay("io0/InputOutput7")//
+						.build())//
+				.next(new TestCase("Soc")//
+						.input(RUNNING, true) //
+						.input(BATTERY_SOC, 98)
+						.input(BATTERY_MAX_DISCHARGE_CURRENT, 100000)
+						.input(BATTERY_MAX_CHARGE_CURRENT, 0)
+						.output(SOC, 100))
 		;
 	}
 }

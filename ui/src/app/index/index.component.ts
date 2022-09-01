@@ -67,8 +67,21 @@ export class IndexComponent {
       })
   }
 
-  ionViewWillEnter() {
-    this.service.setCurrentComponent('', this.route);
+
+  async ionViewWillEnter() {
+
+    // Execute Login-Request if url path matches 'demo' 
+    if (this.route.snapshot.routeConfig.path == 'demo') {
+
+      // Wait for Websocket
+      await new Promise((resolve) => setTimeout(() => {
+        if (this.websocket.status == 'waiting for credentials') {
+          resolve(this.websocket.login(new AuthenticateWithPasswordRequest({ username: 'demo@fenecon.de', password: 'femsdemo' })))
+        }
+      }, 2000)).then(() => { this.service.setCurrentComponent('', this.route) });
+    } else {
+      this.service.setCurrentComponent('', this.route);
+    }
   }
 
   updateFilteredEdges() {

@@ -82,7 +82,7 @@
                             <td translate>
                                 General.mode
                             </td>
-                            <td class="align_right" *ngIf="chargeMode != 'OFF'">
+                            <td class="align_right" *ngIf="chargeMode !== 'OFF'">
                                 <ion-icon (click)="isPrioritization = false; presentPopover()" class="ion-no-padding"
                                     style="text-align: right; font-size: 20px" style="cursor: pointer"
                                     name="information-circle-outline">
@@ -113,7 +113,7 @@
                         </ion-segment-button>
                     </ion-segment>
                 </ion-card-content>
-                <ng-container *ngIf="chargeMode == 'EXCESS_POWER'">
+                <ng-container *ngIf="chargeMode === 'EXCESS_POWER'">
                     <!--Excess Power settings-->
                     <ion-card-content>
                         <table class="full_width">
@@ -190,7 +190,7 @@
 
                     </ion-card-content>
                 </ng-container>
-                <ng-container *ngIf="chargeMode == 'FORCE_CHARGE'">
+                <ng-container *ngIf="chargeMode === 'FORCE_CHARGE'">
                     <ion-card-content *ngIf="getNumberOfPhasesOrThree() as numberOfPhases" class="underline">
                         <!--Force Charge settings-->
                         <table class="full_width">
@@ -224,7 +224,7 @@
                         </table>
                     </ion-card-content>
                 </ng-container>
-                <ion-card-content *ngIf="controller && chargeMode != 'OFF'">
+                <ion-card-content *ngIf="controller && chargeMode !== 'OFF'">
                     <table class="full_width">
                         <tr>
                             <td style="width: 65%" translate>

@@ -19,19 +19,18 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
 
   ngOnChanges() {
     this.updateChart();
-  };
+  }
 
   constructor(
     protected service: Service,
     protected translate: TranslateService,
     private route: ActivatedRoute,
   ) {
-    super(service, translate);
+    super("channelthreshold-single-chart", service, translate);
   }
 
   ngOnInit() {
-    this.spinnerId = "channelthreshold-single-chart";
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.service.setCurrentComponent('', this.route);
   }
 
@@ -41,7 +40,7 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
 
   protected updateChart() {
     this.autoSubscribeChartRefresh();
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -75,7 +74,8 @@ export class ChannelthresholdSingleChartComponent extends AbstractHistoryChart i
       }
       this.datasets = datasets;
       this.loading = false;
-      this.service.stopSpinner(this.spinnerId);
+      this.stopSpinner();
+
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();

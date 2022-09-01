@@ -17,7 +17,7 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
 
     private static readonly SELECTOR = "singlethresholdWidget";
 
-    public activeTimeOverPeriod: string = null;
+    public activeSecondsOverPeriod: number = null;
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
 
@@ -55,7 +55,7 @@ export class SinglethresholdWidgetComponent extends AbstractHistoryWidget implem
                     // Takes only the first output for simplicity reasons
                     outputChannelAddress = outputChannelAddress[0];
                 }
-                this.activeTimeOverPeriod = calculateActiveTimeOverPeriod(ChannelAddress.fromString(outputChannelAddress), result);
+                this.activeSecondsOverPeriod = calculateActiveTimeOverPeriod(ChannelAddress.fromString(outputChannelAddress), result);
             });
         });
     };

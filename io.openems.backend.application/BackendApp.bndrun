@@ -99,5 +99,5 @@
 	org.osgi.service.jdbc;version='[1.0.1,1.0.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
-	org.postgresql.jdbc;version='[42.4.0,42.4.1)',\
+	org.postgresql.jdbc;version='[42.4.1,42.4.2)',\
 	reactive-streams;version='[1.0.4,1.0.5)'

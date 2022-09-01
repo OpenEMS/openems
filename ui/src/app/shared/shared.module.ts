@@ -12,14 +12,15 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
 import { FormlyWrapperFormField } from './formly/form-field.wrapper';
+import { FormlySelectFieldWrapper } from './formly/formly-select-field.wrapper';
 import { InputTypeComponent } from './formly/input';
 import { FormlyInputSerialNumberWrapper as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
 import { RepeatTypeComponent } from './formly/repeat';
 import { Generic_ComponentsModule } from './genericComponents/genericComponents';
 import { HeaderComponent } from './header/header.component';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
-import { PickDateComponent } from './pickdate/pickdate.component';
 import { PipeModule } from './pipe/pipe';
+import { Logger } from './service/logger';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
@@ -32,7 +33,9 @@ import { Language } from './translate/language';
     CommonModule,
     FormsModule,
     IonicModule,
-    NgxSpinnerModule,
+    NgxSpinnerModule.forRoot({
+      type: 'ball-clip-rotate-multiple'
+    }),
     ReactiveFormsModule,
     RouterModule,
     TranslateModule.forRoot({
@@ -41,7 +44,8 @@ import { Language } from './translate/language';
     FormlyModule.forRoot({
       wrappers: [
         { name: 'form-field', component: FormlyWrapperFormField },
-        { name: "input-serial-number", component: FormlyWrapperInputSerialNumber }
+        { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
+        { name: 'formly-select-field-wrapper', component: FormlySelectFieldWrapper }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
@@ -56,12 +60,12 @@ import { Language } from './translate/language';
     ChartOptionsComponent,
     HeaderComponent,
     PercentageBarComponent,
-    PickDateComponent,
     // formly
     InputTypeComponent,
     FormlyWrapperFormField,
     RepeatTypeComponent,
     FormlyWrapperInputSerialNumber,
+    FormlySelectFieldWrapper
   ],
   exports: [
     // modules
@@ -82,13 +86,13 @@ import { Language } from './translate/language';
     ChartOptionsComponent,
     HeaderComponent,
     PercentageBarComponent,
-    PickDateComponent,
   ],
   providers: [
     appRoutingProviders,
     Service,
     Utils,
     Websocket,
+    Logger
   ]
 })
 

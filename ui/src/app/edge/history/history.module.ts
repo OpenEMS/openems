@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
-import { AutarchyChartOverviewComponent } from './autarchy/autarchychartoverview/autarchychartoverview.component';
-import { AutarchyChartComponent } from './autarchy/chart.component';
-import { AutarchyWidgetComponent } from './autarchy/widget.component';
+import { Autarchy } from './common/autarchy/Autarchy';
 import { ChannelthresholdChartOverviewComponent } from './channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { ChannelthresholdSingleChartComponent } from './channelthreshold/singlechart.component';
 import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalchart.component';
@@ -76,6 +74,7 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
 @NgModule({
   imports: [
     SharedModule,
+    Autarchy
   ],
   entryComponents: [
     EnergyModalComponent,
@@ -84,9 +83,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     AsymmetricPeakshavingChartComponent,
     AsymmetricPeakshavingChartOverviewComponent,
     AsymmetricPeakshavingWidgetComponent,
-    AutarchyChartComponent,
-    AutarchyChartOverviewComponent,
-    AutarchyWidgetComponent,
     ChannelthresholdChartOverviewComponent,
     ChannelthresholdSingleChartComponent,
     ChannelthresholdTotalChartComponent,

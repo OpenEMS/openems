@@ -14,7 +14,7 @@ public class FeneconProEssTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new FeneconProEss()) //
+		new ComponentTest(new FeneconProEssImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //

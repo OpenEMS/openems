@@ -35,7 +35,7 @@ public class SystemLogHandler {
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String token,
 			SubscribeSystemLogRequest request) throws OpenemsNamedException {
-		if (request.getSubscribe()) {
+		if (request.isSubscribe()) {
 			/*
 			 * Start subscription
 			 */
