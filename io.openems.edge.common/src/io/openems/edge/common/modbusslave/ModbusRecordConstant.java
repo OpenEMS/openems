@@ -21,7 +21,7 @@ public abstract class ModbusRecordConstant extends ModbusRecord {
 
 	@Override
 	public String toString() {
-		return "ModbusRecordConstant [getOffset()=" + this.getOffset() + ", getType()=" + this.getType() + "]";
+		return "ModbusRecordConstant [offset=" + this.getOffset() + ", type=" + this.getType() + "]";
 	}
 
 	public byte[] getValue() {

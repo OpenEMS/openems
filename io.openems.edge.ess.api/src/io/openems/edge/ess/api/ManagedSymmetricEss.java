@@ -248,8 +248,10 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(ManagedSymmetricEss.class, accessMode, 100) //
-				.channel(0, ChannelId.ALLOWED_CHARGE_POWER, ModbusType.FLOAT32) //
-				.channel(2, ChannelId.ALLOWED_DISCHARGE_POWER, ModbusType.FLOAT32) //
+				.<ManagedSymmetricEss>cycleValue(0, "Minimum Power Set-Point", Unit.WATT, "", ModbusType.FLOAT32,
+						c -> c.getPower().getMinPower(c, Phase.ALL, Pwr.ACTIVE)) //
+				.<ManagedSymmetricEss>cycleValue(2, "Maximum Power Set-Point", Unit.WATT, "", ModbusType.FLOAT32,
+						c -> c.getPower().getMaxPower(c, Phase.ALL, Pwr.ACTIVE)) //
 				.channel(4, ChannelId.SET_ACTIVE_POWER_EQUALS, ModbusType.FLOAT32) //
 				.channel(6, ChannelId.SET_REACTIVE_POWER_EQUALS, ModbusType.FLOAT32) //
 				.channel(8, ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS, ModbusType.FLOAT32) //
