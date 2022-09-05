@@ -10,10 +10,11 @@ public interface Mailer {
 
 	/**
 	 * Send alerting mail at stamp to users.
-	 * 
-	 * @param stamp is timestamp at which to send
-	 * @param users to which to send
+	 *
+	 * @param stamp  is timestamp at which to send
+	 * @param edgeId id of the involved edge
+	 * @param users  to which to send
 	 */
-	public void sendAlertingMail(ZonedDateTime stamp, List<EdgeUser> users);
+	public void sendAlertingMail(ZonedDateTime stamp, List<EdgeUser> users, String edgeId);
 
 }

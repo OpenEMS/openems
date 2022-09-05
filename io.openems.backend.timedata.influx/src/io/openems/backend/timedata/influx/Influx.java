@@ -2,12 +2,12 @@ package io.openems.backend.timedata.influx;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.osgi.service.component.annotations.Activate;
@@ -46,7 +46,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
-	private final Map<String, EdgeCache> edgeCacheMap = new HashMap<>();
+	private final ConcurrentHashMap<String, EdgeCache> edgeCacheMap = new ConcurrentHashMap<>();
 	private final FieldTypeConflictHandler fieldTypeConflictHandler;
 
 	private InfluxConnector influxConnector = null;
@@ -74,11 +74,10 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 				(throwable) -> {
 					if (throwable instanceof BadRequestException) {
 						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
-						return true; // retry write
+
 					} else {
 						this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
 								+ ": " + throwable.getMessage());
-						return false; // dump points
 					}
 				});
 	}
@@ -97,11 +96,7 @@ public class Influx extends AbstractOpenemsBackendComponent implements Timedata 
 		int influxEdgeId = Influx.parseNumberFromName(edgeId);
 
 		// get existing or create new DeviceCache
-		var edgeCache = this.edgeCacheMap.get(edgeId);
-		if (edgeCache == null) {
-			edgeCache = new EdgeCache();
-			this.edgeCacheMap.put(edgeId, edgeCache);
-		}
+		var edgeCache = this.edgeCacheMap.computeIfAbsent(edgeId, (ignore) -> new EdgeCache());
 
 		// Complement incoming data with data from Cache, because only changed values
 		// are transmitted

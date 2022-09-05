@@ -19,7 +19,8 @@ import { JsonrpcRequest } from "../base";
  *       "email": string,
  *       "password": string,
  *       "confirmPassword": string,
- *     }
+ *     },
+ *     "oem" : string
  *   }
  * }
  * </pre>
@@ -47,7 +48,8 @@ export class RegisterUserRequest extends JsonrpcRequest {
                     name: string
                 },
                 role: string
-            }
+            },
+            oem: string
         }
     ) {
         super(RegisterUserRequest.METHOD, params);

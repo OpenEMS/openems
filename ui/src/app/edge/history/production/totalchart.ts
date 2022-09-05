@@ -18,19 +18,18 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("production-total-chart", service, translate);
     }
 
     ngOnInit() {
-        this.spinnerId = 'production-total-chart';
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -40,7 +39,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -56,16 +55,16 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                     // convert datasets
                     let datasets = [];
 
-                    // calculate total production
+                    // calculate total production of each phase
                     let effectiveProductionL1 = []
                     let effectiveProductionL2 = []
                     let effectiveProductionL3 = []
 
                     if (config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').length > 0) {
                         result.data['_sum/ProductionDcActualPower'].forEach((value, index) => {
-                            effectiveProductionL1[index] = Utils.subtractSafely(result.data['_sum/ProductionAcActivePowerL1'][index], value / -3);
-                            effectiveProductionL2[index] = Utils.subtractSafely(result.data['_sum/ProductionAcActivePowerL2'][index], value / -3);
-                            effectiveProductionL3[index] = Utils.subtractSafely(result.data['_sum/ProductionAcActivePowerL3'][index], value / -3);
+                            effectiveProductionL1[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL1']?.[index], value / 3);
+                            effectiveProductionL2[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL2']?.[index], value / 3);
+                            effectiveProductionL3[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL3']?.[index], value / 3);
                         });
                     } else {
                         effectiveProductionL1 = result.data['_sum/ProductionAcActivePowerL1'];
@@ -173,17 +172,20 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                     });
                     this.datasets = datasets;
                     this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
+                    this.stopSpinner();
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

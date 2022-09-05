@@ -3,6 +3,7 @@ import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, EdgeConfig, Service, Websocket } from "../../shared";
+import { Icon } from "../../type/widget";
 
 @Component({
     selector: 'oe-modal',
@@ -10,18 +11,19 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../shared";
     styles: [`
         :host {
             height: 100%;
-            margin-bottom: 15%;
             font-size: 0.9em;
         }
-    `]
+    `],
 })
 export class ModalComponent {
 
     @Input() component: EdgeConfig.Component = null;
-    @Input() formGroup: FormGroup = null;
+    @Input() formGroup: FormGroup = new FormGroup({});
 
     /** Title in Header */
     @Input() title: string;
+
+    @Input() toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } = null;
 
     private edge: Edge = null;
 
@@ -34,6 +36,7 @@ export class ModalComponent {
         this.service.getCurrentEdge().then(edge => this.edge = edge);
     }
 
+    // Changes applied together
     public applyChanges() {
         let updateComponentArray: { name: string, value: any }[] = [];
         for (let key in this.formGroup.controls) {

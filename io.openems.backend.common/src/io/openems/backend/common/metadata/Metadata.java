@@ -15,6 +15,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.event.BackendEventConstants;
+import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -64,6 +65,16 @@ public interface Metadata {
 	 * @param user the {@link User}
 	 */
 	public void logout(User user);
+
+	/**
+	 * Handles operations with Edge.
+	 * 
+	 * <p>
+	 * To be completed. This should eventually replace Edge.
+	 * 
+	 * @return an {@link EdgeHandler}
+	 */
+	public EdgeHandler edge();
 
 	/**
 	 * Gets the Edge-ID for an API-Key, i.e. authenticates the API-Key.
@@ -248,6 +259,16 @@ public interface Metadata {
 	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException;
 
 	/**
+	 * Return the Setup Protocol data as a JsonObject.
+	 *
+	 * @param user   {@link User} the current user
+	 * @param edgeId the {@link Edge} ID to get the data
+	 * @return Setup Protocol as a JsonObject
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException;
+
+	/**
 	 * Submit the installation assistant protocol.
 	 *
 	 * @param user       {@link User} the current user
@@ -260,10 +281,11 @@ public interface Metadata {
 	/**
 	 * Register a user.
 	 *
-	 * @param jsonObject {@link JsonObject} that represents an user
+	 * @param user {@link JsonObject} that represents an user
+	 * @param oem  OEM name
 	 * @throws OpenemsNamedException on error
 	 */
-	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException;
+	public void registerUser(JsonObject user, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException;
 
 	/**
 	 * Update language from given user.
@@ -298,4 +320,5 @@ public interface Metadata {
 
 		public static final String AFTER_IS_INITIALIZED = Events.TOPIC_BASE + "TOPIC_AFTER_IS_INITIALIZED";
 	}
+
 }

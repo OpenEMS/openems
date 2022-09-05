@@ -596,9 +596,9 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	private void setSchedulerComponentIds(User user, List<String> componentIds) throws OpenemsNamedException {
-
 		try {
 			var scheduler = this.getScheduler();
+			// null is necessary otherwise a new configuration gets created
 			var config = this.cm.getConfiguration(scheduler.getPid(), null);
 
 			var properties = config.getProperties();

@@ -12,11 +12,13 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.io.test.DummyInputOutput;
 
 public class DynamicChannelsAndSerialNumbersTest {
 
 	private static final String BATTERY_ID = "battery0";
 	private static final String MODBUS_ID = "modbus0";
+	private static final String IO_ID = "io0";
 
 	private static final int TOWERS = 1;
 	private static final int MODULES = 10;
@@ -40,11 +42,13 @@ public class DynamicChannelsAndSerialNumbersTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.addComponent(new DummyInputOutput(IO_ID))//
 				.activate(MyConfig.create() //
 						.setId(BATTERY_ID) //
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(0) //
-						.setBatteryStartStopRelay("io0/DigitalInput0").setStartStop(StartStopConfig.AUTO) //
+						.setBatteryStartStopRelay("io0/InputOutput0")//
+						.setStartStop(StartStopConfig.AUTO) //
 						.build());
 
 		// initial home (1 tower, each tower 5 modules)

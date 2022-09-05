@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,8 +92,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	}
 
 	@Override
-	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsNamedException lastException)
-			throws OpenemsNamedException {
+	protected JsonrpcMessage handleNonJsonrpcMessage(WebSocket ws, String stringMessage,
+			OpenemsNamedException lastException) throws OpenemsNamedException {
 		var message = JsonUtils.parseToJsonObject(stringMessage);
 
 		// config

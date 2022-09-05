@@ -47,6 +47,7 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 			break;
 		case FINISHED:
 			if (context.isBatteryStarted()) {
+				this.state = BatteryRelayState.WAIT_FOR_RELAYS_SWITCH_ON;
 				return State.RUNNING;
 			}
 			return State.GO_RUNNING;

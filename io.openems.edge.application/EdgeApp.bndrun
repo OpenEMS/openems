@@ -125,6 +125,7 @@
 	bnd.identity;id='io.openems.edge.meter.abb',\
 	bnd.identity;id='io.openems.edge.meter.artemes.am2',\
 	bnd.identity;id='io.openems.edge.meter.bcontrol.em300',\
+	bnd.identity;id='io.openems.edge.meter.bgetech',\
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi.em300',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
@@ -163,7 +164,7 @@
 	Java-WebSocket;version='[1.5.3,1.5.4)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
-	com.google.gson;version='[2.9.0,2.9.1)',\
+	com.google.gson;version='[2.9.1,2.9.2)',\
 	com.google.guava;version='[31.1.0,31.1.1)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.squareup.okio;version='[3.2.0,3.2.1)',\
@@ -272,6 +273,7 @@
 	io.openems.edge.meter.api;version=snapshot,\
 	io.openems.edge.meter.artemes.am2;version=snapshot,\
 	io.openems.edge.meter.bcontrol.em300;version=snapshot,\
+	io.openems.edge.meter.bgetech;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
@@ -319,6 +321,7 @@
 	io.openems.wrapper.influxdb-client-java;version=snapshot,\
 	io.openems.wrapper.influxdb-client-utils;version=snapshot,\
 	io.openems.wrapper.influxdb-flux-dsl;version=snapshot,\
+	io.openems.wrapper.io.reactivex.rxjava3.rxjava;version=snapshot,\
 	io.openems.wrapper.javax.activation;version=snapshot,\
 	io.openems.wrapper.kotlinx-coroutines-core-jvm;version=snapshot,\
 	io.openems.wrapper.okhttp;version=snapshot,\
@@ -346,7 +349,7 @@
 	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
 	org.jetbrains.kotlin.osgi-bundle;version='[1.7.0,1.7.1)',\
-	org.jsoup;version='[1.15.1,1.15.2)',\
+	org.jsoup;version='[1.15.3,1.15.4)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\

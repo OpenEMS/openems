@@ -98,8 +98,8 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 									j -> j.addProperty("ess.id", "ess0") //
 											.addProperty("meter.id", "meter0"))
 							.addProperty("sellToGridLimitEnabled", sellToGridLimitEnabled) //
-							.onlyIf(sellToGridLimitEnabled,
-									o -> o.addProperty("maximumSellToGridPower", maximumSellToGridPower)) //
+							// always set the maximumSellToGridPower value
+							.addProperty("maximumSellToGridPower", maximumSellToGridPower) //
 							.build()));//
 
 			var schedulerExecutionOrder = Lists.newArrayList("ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0");

@@ -2,7 +2,6 @@ package io.openems.backend.alerting;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,14 +11,12 @@ import io.openems.backend.common.metadata.EdgeUser;
  * Properties for one notification.
  */
 public class Message implements Comparable<Message> {
+	private final String edgeId;
 	private final List<EdgeUser> userList;
 	private final ZonedDateTime notifyStamp;
 
-	public Message(ZonedDateTime notifyStamp) {
-		this(notifyStamp, new ArrayList<>());
-	}
-
-	public Message(ZonedDateTime notifyStamp, List<EdgeUser> users) {
+	public Message(ZonedDateTime notifyStamp, List<EdgeUser> users, String edgeId) {
+		this.edgeId = edgeId;
 		this.userList = users;
 		this.notifyStamp = notifyStamp;
 	}
@@ -65,5 +62,9 @@ public class Message implements Comparable<Message> {
 
 	public ZonedDateTime getNotifyStamp() {
 		return this.notifyStamp;
+	}
+
+	public String getEdgeId() {
+		return this.edgeId;
 	}
 }

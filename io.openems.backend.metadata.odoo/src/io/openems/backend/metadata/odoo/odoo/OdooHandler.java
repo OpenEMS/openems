@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.metadata.odoo.Config;
+import io.openems.backend.metadata.odoo.EdgeCache;
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.Field.Partner;
 import io.openems.backend.metadata.odoo.Field.SetupProtocol;
@@ -30,6 +31,7 @@ import io.openems.backend.metadata.odoo.MyEdge;
 import io.openems.backend.metadata.odoo.MyUser;
 import io.openems.backend.metadata.odoo.OdooMetadata;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.SuccessResponseAndHeaders;
+import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
@@ -40,12 +42,14 @@ import io.openems.common.utils.PasswordUtils;
 public class OdooHandler {
 
 	protected final OdooMetadata parent;
+	private final EdgeCache edgeCache;
 
 	private final Logger log = LoggerFactory.getLogger(OdooHandler.class);
 	private final Credentials credentials;
 
-	public OdooHandler(OdooMetadata parent, Config config) {
+	public OdooHandler(OdooMetadata parent, EdgeCache edgeCache, Config config) {
 		this.parent = parent;
+		this.edgeCache = edgeCache;
 		this.credentials = Credentials.fromConfig(config);
 	}
 
@@ -320,7 +324,7 @@ public class OdooHandler {
 		var address = addressOpt.get();
 
 		Map<String, Object> addressFields = new HashMap<>();
-		addressFields.put("type", "private");
+		addressFields.put("type", "contact");
 		JsonUtils.getAsOptionalString(address, "street") //
 				.ifPresent(street -> addressFields.put(Field.Partner.STREET.id(), street));
 		JsonUtils.getAsOptionalString(address, "zip") //
@@ -418,7 +422,7 @@ public class OdooHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public byte[] getOdooSetupProtocolReport(int setupProtocolId) throws OpenemsNamedException {
-		return OdooUtils.getOdooReport(this.credentials, "edge.report_edge_setup_protocol_template", setupProtocolId);
+		return OdooUtils.getOdooReport(this.credentials, "fems.report_fems_setup_protocol_template", setupProtocolId);
 	}
 
 	/**
@@ -431,8 +435,9 @@ public class OdooHandler {
 	 */
 	public int submitSetupProtocol(MyUser user, JsonObject setupProtocolJson) throws OpenemsNamedException {
 		var userJson = JsonUtils.getAsJsonObject(setupProtocolJson, "customer");
-		var edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "edge");
+		var edgeJson = JsonUtils.getAsJsonObject(setupProtocolJson, "fems");
 		var installerJson = JsonUtils.getAsJsonObject(setupProtocolJson, "installer");
+		var oem = OpenemsOEM.Manufacturer.valueOf(JsonUtils.getAsString(setupProtocolJson, "oem").toUpperCase());
 
 		var edgeId = JsonUtils.getAsString(edgeJson, "id");
 		int[] foundEdge = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL,
@@ -442,13 +447,15 @@ public class OdooHandler {
 		}
 
 		var password = PasswordUtils.generateRandomPassword(8);
-		var odooUserId = this.createOdooUser(userJson, password);
+		var odooUserId = this.createOdooUser(userJson, password, oem);
 
 		var customerId = this.getOdooPartnerId(odooUserId);
 		var installerId = this.getOdooPartnerId(user);
 		this.assignEdgeToUser(odooUserId, foundEdge[0], OdooUserRole.OWNER);
 
 		var protocolId = this.createSetupProtocol(setupProtocolJson, foundEdge[0], customerId, installerId);
+
+		this.updateEdgeComment(userJson, edgeId, foundEdge[0]);
 
 		var installer = OdooUtils.readOne(this.credentials, Field.Partner.ODOO_MODEL, installerId,
 				Field.Partner.IS_COMPANY);
@@ -469,10 +476,53 @@ public class OdooHandler {
 		try {
 			this.sendSetupProtocolMail(user, protocolId, edgeId);
 		} catch (OpenemsNamedException ex) {
-			this.log.warn("Unable to send email", ex);
+			this.log.warn("User [" + user.getId() + ":" + user.getName() + "] Unable to send email", ex);
 		}
 
 		return protocolId;
+	}
+
+	/**
+	 * Update the Odoo edge comment by customers firstname, lastname and city.
+	 *
+	 * @param customer   json object to get customer information
+	 * @param edgeId     to update the comment
+	 * @param odooEdgeId Odoo edge id
+	 * @throws OpenemsNamedException on error
+	 */
+	private void updateEdgeComment(JsonObject customer, String edgeId, int odooEdgeId) throws OpenemsNamedException {
+		// build comment
+		var builder = new StringBuilder();
+		JsonUtils.getAsOptionalString(customer, "firstname") //
+				.ifPresent(firstname -> builder.append(firstname));
+		JsonUtils.getAsOptionalString(customer, "lastname") //
+				.ifPresent(lastname -> {
+					if (builder.length() > 0) {
+						builder.append(" ");
+					}
+					builder.append(lastname);
+				});
+		JsonUtils.getAsOptionalJsonObject(customer, "address") //
+				.ifPresent(address -> { //
+					JsonUtils.getAsOptionalString(address, "city") //
+							.ifPresent(city -> {
+								if (builder.length() > 0) {
+									builder.append(", ");
+								}
+								builder.append(city);
+							});
+				});
+		var comment = builder.toString();
+
+		// update comment for edge
+		OdooUtils.write(this.credentials, Field.EdgeDevice.ODOO_MODEL, new Integer[] { odooEdgeId },
+				new FieldValue<>(Field.EdgeDevice.COMMENT, comment));
+
+		// update edge cache
+		var edge = this.edgeCache.getEdgeFromEdgeId(edgeId);
+		if (edge != null) {
+			edge.setComment(comment);
+		}
 	}
 
 	/**
@@ -499,10 +549,12 @@ public class OdooHandler {
 	 *
 	 * @param userJson the {@link Partner} to create user
 	 * @param password the password to set for the new user
+	 * @param oem      OEM name
 	 * @return the Odoo user id
 	 * @throws OpenemsNamedException on error
 	 */
-	private int createOdooUser(JsonObject userJson, String password) throws OpenemsNamedException {
+	private int createOdooUser(JsonObject userJson, String password, OpenemsOEM.Manufacturer oem)
+			throws OpenemsNamedException {
 		Map<String, Object> customerFields = new HashMap<>();
 		customerFields.putAll(this.updateAddress(userJson));
 		customerFields.putAll(this.updateCompany(userJson));
@@ -540,22 +592,24 @@ public class OdooHandler {
 			this.log.warn("Unable to add tag for Odoo user id [" + createdUserId + "]", e);
 		}
 
-		this.sendRegistrationMail(createdUserId, password);
+		this.sendRegistrationMail(createdUserId, password, oem);
 		return createdUserId;
 	}
 
 	/**
-	 * Add the "Created via IBN" tag to the referenced partner for given user id.
+	 * Add tags to the referenced partner for given user id.
 	 *
 	 * @param userId to get Odoo partner
 	 * @throws OpenemsException on error
 	 */
 	private void addTagToPartner(int userId) throws OpenemsException {
-		var tagId = OdooUtils.getObjectReference(this.credentials, "edge", "res_partner_category_created_via_ibn");
+		var createdViaIbnTag = OdooUtils.getObjectReference(this.credentials, "fems", "res_partner_category_created_via_ibn");
+		var customerTag = OdooUtils.getObjectReference(this.credentials, "fems", "res_partner_category_customer");
+
 		var partnerId = this.getOdooPartnerId(userId);
 
 		OdooUtils.write(this.credentials, Field.Partner.ODOO_MODEL, new Integer[] { partnerId },
-				new FieldValue<>(Field.Partner.CATEGORY_ID, new Integer[] { tagId }));
+				new FieldValue<>(Field.Partner.CATEGORY_ID, new Integer[] { createdViaIbnTag, customerTag }));
 	}
 
 	/**
@@ -698,6 +752,10 @@ public class OdooHandler {
 					.ifPresent(name -> setupProtocolItem.put("name", name));
 			JsonUtils.getAsOptionalString(item, "value") //
 					.ifPresent(value -> setupProtocolItem.put("value", value));
+			JsonUtils.getAsOptionalString(item, "view") //
+					.ifPresent(view -> setupProtocolItem.put("view", view));
+			JsonUtils.getAsOptionalString(item, "field") //
+					.ifPresent(field -> setupProtocolItem.put("field", field));
 
 			OdooUtils.create(this.credentials, Field.SetupProtocolItem.ODOO_MODEL, setupProtocolItem);
 		}
@@ -739,9 +797,11 @@ public class OdooHandler {
 	 *
 	 * @param jsonObject {@link JsonObject} that represents an user
 	 * @param role       {@link OdooUserRole} to set for the user
+	 * @param oem        OEM name
 	 * @throws OpenemsNamedException on error
 	 */
-	public void registerUser(JsonObject jsonObject, OdooUserRole role) throws OpenemsNamedException {
+	public void registerUser(JsonObject jsonObject, OdooUserRole role, OpenemsOEM.Manufacturer oem)
+			throws OpenemsNamedException {
 		var emailOpt = JsonUtils.getAsOptionalString(jsonObject, "email");
 		if (!emailOpt.isPresent()) {
 			throw new OpenemsException("No email specified");
@@ -772,17 +832,18 @@ public class OdooHandler {
 				.ifPresent(password -> userFields.put("password", password));
 
 		int createdUserId = OdooUtils.create(this.credentials, Field.User.ODOO_MODEL, userFields);
-		this.sendRegistrationMail(createdUserId);
+		this.sendRegistrationMail(createdUserId, oem);
 	}
 
 	/**
 	 * Call Odoo api to send registration mail via Odoo.
 	 *
 	 * @param odooUserId Odoo user id to send the mail
+	 * @param oem        OEM name
 	 * @throws OpenemsNamedException error
 	 */
-	private void sendRegistrationMail(int odooUserId) throws OpenemsNamedException {
-		this.sendRegistrationMail(odooUserId, null);
+	private void sendRegistrationMail(int odooUserId, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+		this.sendRegistrationMail(odooUserId, null, oem);
 	}
 
 	/**
@@ -790,14 +851,17 @@ public class OdooHandler {
 	 *
 	 * @param odooUserId Odoo user id to send the mail
 	 * @param password   password for the user
+	 * @param oem        OEM name
 	 * @throws OpenemsNamedException error
 	 */
-	private void sendRegistrationMail(int odooUserId, String password) throws OpenemsNamedException {
+	private void sendRegistrationMail(int odooUserId, String password, OpenemsOEM.Manufacturer oem)
+			throws OpenemsNamedException {
 		OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/sendRegistrationEmail",
 				JsonUtils.buildJsonObject() //
 						.add("params", JsonUtils.buildJsonObject() //
 								.addProperty("userId", odooUserId) //
 								.addProperty("password", password) //
+								.addProperty("oem", oem) //
 								.build()) //
 						.build());
 	}
@@ -805,13 +869,14 @@ public class OdooHandler {
 	/**
 	 * Call Odoo api to send multiple notification mails via Odoo async.
 	 *
-	 * @param user Odoo deviceUser ids to send the mail
-	 * @param now  TimeStamp for last_notification field
+	 * @param user   Odoo deviceUser ids to send the mail
+	 * @param now    TimeStamp for last_notification field
+	 * @param edgeId id of involved edge
 	 * @return {@link Future} of {@link SuccessResponseAndHeaders}
 	 * @throws OpenemsNamedException error
 	 */
-	public Future<SuccessResponseAndHeaders> sendNotificationMailAsync(List<EdgeUser> user, ZonedDateTime now)
-			throws OpenemsNamedException {
+	public Future<SuccessResponseAndHeaders> sendNotificationMailAsync(List<EdgeUser> user, ZonedDateTime now,
+			String edgeId) throws OpenemsNamedException {
 		JsonArray arr = new JsonArray(user.size());
 		user.forEach(u -> {
 			arr.add(u.getId());
@@ -823,6 +888,7 @@ public class OdooHandler {
 								.addProperty("now", now //
 										.withZoneSameInstant(ZoneId.of("UTC")) //
 										.format(OdooUtils.DATETIME_FORMATTER)) //
+								.addProperty("edgeId", edgeId) //
 								.build()) //
 						.build());
 	}
@@ -842,6 +908,29 @@ public class OdooHandler {
 		} catch (OpenemsNamedException ex) {
 			throw new OpenemsException("Unable to set language [" + language.name() + "] for current user", ex);
 		}
+	}
+
+	/**
+	 * Get latest Setup Protocol from Odoo or empty JsonObject if no protocol is
+	 * available.
+	 *
+	 * @param user     {@link MyUser} the current user
+	 * @param edgeName the unique Edge name
+	 * @return the Setup Protocol as a JsonObject
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getSetupProtocolData(MyUser user, String edgeName) throws OpenemsNamedException {
+		// build request
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("edge_name", edgeName) //
+						.build()) //
+				.build();
+
+		// call odoo api
+		return JsonUtils.getAsJsonObject(
+				OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/get_latest_setup_protocol",
+						"session_id=" + user.getToken(), request).result);
 	}
 
 }

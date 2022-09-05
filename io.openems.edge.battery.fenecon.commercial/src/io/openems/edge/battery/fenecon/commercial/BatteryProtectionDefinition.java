@@ -5,7 +5,6 @@ import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
 public class BatteryProtectionDefinition implements io.openems.edge.battery.protection.BatteryProtectionDefinition {
-
 	@Override
 	public int getInitialBmsMaxEverChargeCurrent() {
 		return 100; // [A]
@@ -20,14 +19,14 @@ public class BatteryProtectionDefinition implements io.openems.edge.battery.prot
 	@Override
 	public PolyLine getChargeVoltageToPercent() {
 		return PolyLine.create() //
-				.addPoint(3000, 0.1) //
-				.addPoint(Math.nextUp(3000), 1) //
-				.addPoint(3485, 1) //
-				.addPoint(3490, 0.9) //
-				.addPoint(3570, 0.01) //
-				.addPoint(3600, 0.01) //
-				.addPoint(Math.nextDown(3600), 0) //
-				.addPoint(3600, 0) //
+				.addPoint(3010, 0.1) //
+				.addPoint(Math.nextUp(3010), 1) //
+				.addPoint(Math.nextDown(3500), 1) //
+				.addPoint(3500, 0.99) //
+				.addPoint(3590, 0.02) //
+				.addPoint(3605, 0.01) //
+				.addPoint(Math.nextDown(3615), 0.01) //
+				.addPoint(3615, 0) //
 				.build();
 	}
 
@@ -35,13 +34,12 @@ public class BatteryProtectionDefinition implements io.openems.edge.battery.prot
 	@Override
 	public PolyLine getDischargeVoltageToPercent() {
 		return PolyLine.create() //
-				.addPoint(3000, 0) //
-				.addPoint(Math.nextUp(3000), 0.1) //
-				.addPoint(3030, 0.02) //
-				.addPoint(3050, 0.02) //
-				.addPoint(3140, 1) //
-				.addPoint(3600, 1) //
-				.addPoint(Math.nextUp(3600), 1) //
+				.addPoint(3040, 0) //
+				.addPoint(Math.nextUp(3040), 0.01) //
+				.addPoint(3050, 0.01) //
+				.addPoint(3150, 1) //
+				.addPoint(3615, 1) //
+				.addPoint(Math.nextUp(3615), 1) //
 				.build();
 	}
 
@@ -71,17 +69,17 @@ public class BatteryProtectionDefinition implements io.openems.edge.battery.prot
 
 	@Override
 	public ForceDischarge.Params getForceDischargeParams() {
-		return new ForceDischarge.Params(3700, 3630, 3610);
+		return new ForceDischarge.Params(3700, 3630, 3620);
 	}
 
 	@Override
 	public ForceCharge.Params getForceChargeParams() {
-		return new ForceCharge.Params(2850, 2950, 3030);
+		return new ForceCharge.Params(3031, 3100, 3130);
+
 	}
 
 	@Override
 	public Double getMaxIncreaseAmperePerSecond() {
 		return 0.5; // [A] per second
 	}
-
 }

@@ -1,20 +1,19 @@
-import { addDays, getDate, getMonth, getYear, startOfWeek, endOfWeek, startOfYear, endOfYear } from 'date-fns/esm';
-import { Component, Input } from '@angular/core';
-import { DefaultTypes } from '../../service/defaulttypes';
-import { Edge } from '../../edge/edge';
-import { endOfMonth, startOfMonth } from 'date-fns';
-import { IAngularMyDpOptions, IMyDate, IMyDateRangeModel, CalAnimation } from 'angular-mydatepicker';
+import { Component, Input, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { Service } from '../../shared';
 import { TranslateService } from '@ngx-translate/core';
+import { CalAnimation, IAngularMyDpOptions, IMyDate, IMyDateRangeModel } from 'angular-mydatepicker';
+import { endOfMonth, startOfMonth } from 'date-fns';
+import { addDays, endOfWeek, endOfYear, getDate, getMonth, getYear, startOfWeek, startOfYear } from 'date-fns/esm';
+import { Edge } from '../../edge/edge';
+import { DefaultTypes } from '../../service/defaulttypes';
+import { Service } from '../../shared';
 
 
 @Component({
     selector: 'pickdatepopover',
     templateUrl: './popover.component.html'
 })
-export class PickDatePopoverComponent {
-
+export class PickDatePopoverComponent implements OnInit {
 
     @Input() public setDateRange: (period: DefaultTypes.HistoryPeriod) => void;
     @Input() public edge: Edge | null = null;

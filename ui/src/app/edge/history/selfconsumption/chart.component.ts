@@ -17,20 +17,18 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("selfconsumption-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = "selfconsumption-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -40,7 +38,7 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -131,9 +129,10 @@ export class SelfconsumptionChartComponent extends AbstractHistoryChart implemen
                 backgroundColor: 'rgba(253,197,7,0.05)',
                 borderColor: 'rgba(253,197,7,1)'
             })
-            this.service.stopSpinner(this.spinnerId);
+            this.stopSpinner();
             this.datasets = datasets;
             this.loading = false;
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

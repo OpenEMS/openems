@@ -194,7 +194,7 @@
                                             <ion-item>
                                                 <table class="full_width" class="ion-text-wrap">
                                                     <!--Excess Power settings-->
-                                                    <tr *ngIf="evcsCtrl.properties.chargeMode == 'EXCESS_POWER'"
+                                                    <tr *ngIf="evcsCtrl.properties.chargeMode === 'EXCESS_POWER'"
                                                         style="margin-top: 20px;">
                                                         <td>
                                                             <table>
@@ -257,7 +257,7 @@
                                                         </td>
                                                     </tr>
                                                     <!--Force Charge settings-->
-                                                    <tr *ngIf="evcsCtrl.properties.chargeMode == 'FORCE_CHARGE'">
+                                                    <tr *ngIf="evcsCtrl.properties.chargeMode === 'FORCE_CHARGE'">
                                                         <td>
                                                             <table>
                                                                 <tr>
