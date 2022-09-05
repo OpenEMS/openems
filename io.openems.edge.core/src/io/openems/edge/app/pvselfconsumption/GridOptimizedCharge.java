@@ -48,7 +48,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     	"MAXIMUM_SELL_TO_GRID_POWER": 10000
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>

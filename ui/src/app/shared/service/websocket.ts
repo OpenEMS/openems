@@ -21,9 +21,10 @@ import { LanguageTag } from '../translate/language';
 import { Role } from '../type/role';
 import { Service } from './service';
 import { WsData } from './wsdata';
+import { WebsocketInterface } from './websocketInterface';
 
 @Injectable()
-export class Websocket {
+export class Websocket implements WebsocketInterface {
   private static readonly DEFAULT_EDGEID = 0;
   private readonly wsdata = new WsData();
 

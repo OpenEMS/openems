@@ -106,8 +106,8 @@ public class ModbusRecordChannel extends ModbusRecord {
 	public String toString() {
 		return "ModbusRecordChannel [" //
 				+ "channelId=" + this.channelId + ", " //
-				+ "getOffset()=" + this.getOffset() + ", " //
-				+ "getType()=" + this.getType() //
+				+ "offset=" + this.getOffset() + ", " //
+				+ "type=" + this.getType() //
 				+ "]";
 	}
 

@@ -6,23 +6,21 @@ import java.util.UUID;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
+import io.openems.edge.common.component.ComponentManager;
 
 @Component
 public class AppManagerUtilImpl implements AppManagerUtil {
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile AppManager appManager;
+	private final ComponentManager componentManager;
 
 	@Activate
-	public AppManagerUtilImpl() {
+	public AppManagerUtilImpl(@Reference ComponentManager componentManager) {
+		this.componentManager = componentManager;
 	}
 
 	@Override
@@ -58,7 +56,11 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 	}
 
 	private final AppManagerImpl getAppManagerImpl() {
-		return (AppManagerImpl) this.appManager;
+		var appManagerList = this.componentManager.getEnabledComponentsOfType(AppManager.class);
+		if (appManagerList.size() == 0) {
+			return null;
+		}
+		return (AppManagerImpl) appManagerList.get(0);
 	}
 
 }

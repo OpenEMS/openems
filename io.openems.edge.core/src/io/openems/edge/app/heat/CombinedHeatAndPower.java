@@ -59,7 +59,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	}
     ],
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>

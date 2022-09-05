@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -30,15 +31,13 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
-//import io.openems.edge.ess.power.api.Phase;
-//import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.TimeslotPeakshaving", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public static final String TIME_FORMAT = "HH:mm";
+	public static final String TIME_FORMAT = "H:mm";
 	public static final String DATE_FORMAT = "dd.MM.yyyy";
 
 	private final Logger log = LoggerFactory.getLogger(TimeslotPeakshaving.class);
@@ -59,6 +58,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		STATE_MACHINE(Doc.of(ChargeState.values()) //
 				.text("Current State of State-Machine")),
 		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)),
+		PEAK_SHAVED_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT));
 
 		private final Doc doc;
@@ -82,7 +83,19 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {		
+		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.applyConfig(config);
+	}
+
+	@Modified
+	void modified(ComponentContext context, Config config) throws OpenemsNamedException {			
+		super.modified(context, config.id(), config.alias(), config.enabled());
+		this.applyConfig(config);
+
+	}
+
+	private void applyConfig(Config config) throws OpenemsNamedException {		
 		this.startDate = convertDate(config.startDate());
 		this.endDate = convertDate(config.endDate());
 		this.startTime = convertTime(config.startTime());
@@ -90,8 +103,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 		this.slowStartTime = convertTime(config.slowChargeStartTime());
 		this.slowforceChargeMinutes = calculateSlowForceChargeMinutes(this.slowStartTime, this.startTime);
 		this.config = config;
-
-		super.activate(context, config.id(), config.alias(), config.enabled());
 	}
 
 	@Override
@@ -110,7 +121,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * Applies the power on the Ess.
+	 * Applies the power on the ESS.
 	 *
 	 * @param ess         {@link ManagedSymmetricEss} where the power needs to be
 	 *                    set
@@ -120,6 +131,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
 		if (activePower != null) {
 			ess.setActivePowerEqualsWithPid(activePower);
+			this.channel(ChannelId.CALCULATED_POWER).setNextValue(activePower);
 		}
 	}
 
@@ -194,7 +206,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * A flag to maintain change in the state.
 	 *
 	 * @param nextState the target state
-	 * @return Flag that the state is changed or not
+	 * @return Flag that the state is changed or not.
 	 */
 	private boolean changeState(ChargeState nextState) {
 		if (this.chargeState != nextState) {
@@ -206,11 +218,11 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 
 	/**
 	 * This method calculates the power that is required to cut the peak during
-	 * timeslot.
+	 * time slot.
 	 *
 	 * @param ess   the {@link ManagedSymmetricEss}
 	 * @param meter the {@link SymmetricMeter} of the grid
-	 * @return activepower to be set on the ess
+	 * @return active power to be set on the ESS
 	 * @throws InvalidValueException on error
 	 */
 	private int calculatePeakShavePower(ManagedSymmetricEss ess, SymmetricMeter meter) throws InvalidValueException {
@@ -230,7 +242,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 
 		// Calculate 'real' grid-power (without current ESS charge/discharge)
 		var gridPower = meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
-				+ ess.getActivePower().getOrError() /* current charge/discharge Ess */;
+				+ ess.getActivePower().getOrError() /* current charge/discharge ESS */;
 
 		int calculatedPower;
 		if (gridPower >= this.config.peakShavingPower()) {
@@ -241,7 +253,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 
 		} else if (gridPower <= this.config.rechargePower()) {
 			/*
-			 * Recharge
+			 * Re-charge
 			 */
 			calculatedPower = gridPower -= this.config.rechargePower();
 
@@ -251,15 +263,15 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 			 */
 			calculatedPower = 0;
 		}
-		this.channel(ChannelId.CALCULATED_POWER).setNextValue(calculatedPower);
+		this.channel(ChannelId.PEAK_SHAVED_POWER).setNextValue(calculatedPower);
 		return calculatedPower;
 	}
 
 	/**
-	 * Is the current time in a high-load timeslot?.
+	 * Is the current time in a high-load time slot ?.
 	 *
-	 * @param dateTime the datetime to be checked
-	 * @return boolean true if time is within timeslot
+	 * @param dateTime the date time to be checked
+	 * @return boolean true if time is within time slot
 	 * @throws OpenemsException on error
 	 */
 	private boolean isHighLoadTimeslot(LocalDateTime dateTime) throws OpenemsException {
@@ -382,11 +394,11 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	/**
 	 * This methods calculates the slow charging minutes from slowStartTime and
 	 * startTime, this is the period for charging the battery to 100% and getting
-	 * ready for highthreshold period.
+	 * ready for high threshold period.
 	 *
 	 * @param slowStartTime start of slow charging the battery
 	 * @param startTime     start of the high threshold period
-	 * @return forceChargeMinutes in int, which specifies the total time the battery
+	 * @return forceChargeMinutes in integer, which specifies the total time the battery
 	 *         should be slowly charged
 	 */
 	private static int calculateSlowForceChargeMinutes(LocalTime slowStartTime, LocalTime startTime) {

@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { timeout } from 'rxjs/operators';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { environment } from 'src/environments';
-import { Service, Websocket } from '../../../shared/shared';
+import { Edge, Service, Websocket } from '../../../shared/shared';
+import { ExecuteSystemUpdate } from '../systemupdate/executeSystemUpdate';
 import { GetApps } from './jsonrpc/getApps';
 
 @Component({
@@ -15,6 +15,9 @@ export class IndexComponent {
 
   private static readonly SELECTOR = "appIndex";
   public readonly spinnerId: string = IndexComponent.SELECTOR;
+
+  protected readonly environment = environment;
+  protected edge: Edge = null;
 
   /**
    * e. g. if more than 4 apps are in a list the apps are displayed in their categories
@@ -31,6 +34,9 @@ export class IndexComponent {
   public appLists: AppList[] = [this.installedApps, this.availableApps, this.incompatibleApps];
 
   public categories = [];
+
+  // check if update is available
+  protected isUpdateAvailable: boolean = false;
 
   public constructor(
     private route: ActivatedRoute,
@@ -53,6 +59,7 @@ export class IndexComponent {
     });
 
     this.service.setCurrentComponent(environment.edgeShortName + " Apps", this.route).then(edge => {
+      this.edge = edge;
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
           componentId: "_appManager",
@@ -78,6 +85,14 @@ export class IndexComponent {
           console.error(reason.error);
           this.service.toast("Error while receiving available apps: " + reason.error.message, 'danger');
         });
+
+      const systemUpdate = new ExecuteSystemUpdate(edge, this.websocket);
+      systemUpdate.systemUpdateStateChange = (updateState) => {
+        if (updateState.available) {
+          this.isUpdateAvailable = true;
+        }
+      }
+      systemUpdate.start();
     });
   }
 
