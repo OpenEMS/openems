@@ -43,7 +43,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
     	"CONTROLLER_ID": "ctrlApiModbusTcp0"
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>

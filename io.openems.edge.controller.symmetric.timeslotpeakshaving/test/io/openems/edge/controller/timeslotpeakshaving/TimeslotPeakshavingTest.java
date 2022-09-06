@@ -48,7 +48,7 @@ public class TimeslotPeakshavingTest {
 						.setEndDate("30.04.2020") //
 						.setStartTime("10:00") //
 						.setEndTime("11:00") //
-						.setSlowChargeStartTime("09:00") //
+						.setSlowChargeStartTime("9:00") //
 						.setHysteresisSoc(95) //
 						.setMonday(true) //
 						.setTuesday(true) //

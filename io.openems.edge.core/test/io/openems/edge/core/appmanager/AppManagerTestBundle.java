@@ -112,7 +112,7 @@ public class AppManagerTestBundle {
 		this.sut = new AppManagerImpl();
 		this.componentManger.addComponent(this.sut);
 		this.componentManger.setConfigurationAdmin(this.cm);
-		this.appManagerUtil = new AppManagerUtilImpl();
+		this.appManagerUtil = new AppManagerUtilImpl(this.componentManger);
 		ReflectionUtils.setAttribute(this.appManagerUtil.getClass(), this.appManagerUtil, "appManager", this.sut);
 
 		this.checkablesBundle = new CheckablesBundle(new CheckCardinality(this.sut, this.appManagerUtil,

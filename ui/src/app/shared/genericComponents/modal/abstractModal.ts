@@ -5,8 +5,9 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
+import { Role } from "../../type/role";
 import { TextIndentation } from "./modal-line/modal-line";
 
 @Directive()
@@ -20,8 +21,13 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     public stopOnDestroy: Subject<void> = new Subject<void>();
     public formGroup: FormGroup | null = null;
 
+    /** Enum for User Role */
+    public readonly Role = Role;
+
     /** Enum for Indentation */
     public readonly TextIndentation = TextIndentation;
+
+    public readonly Utils = Utils;
 
     private selector: string = uuidv4();
 

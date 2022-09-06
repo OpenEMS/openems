@@ -47,7 +47,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     	"MODBUS_UNIT_ID": 1
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>

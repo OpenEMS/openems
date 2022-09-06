@@ -27,6 +27,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordChannel;
+import io.openems.edge.common.modbusslave.ModbusRecordCycleValue;
 import io.openems.edge.common.modbusslave.ModbusRecordString16;
 import io.openems.edge.common.modbusslave.ModbusRecordUint16BlockLength;
 import io.openems.edge.common.modbusslave.ModbusRecordUint16Hash;
@@ -292,6 +293,23 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		this.apiWorker.run();
+		this.updateCycleValues();
+	}
+
+	@SuppressWarnings("unchecked")
+	/**
+	 * Once every cycle: update the values for each registered
+	 * {@link ModbusRecordCycleValue}.
+	 */
+	private void updateCycleValues() {
+		this.records.values() //
+				.stream() //
+				.filter(r -> r instanceof ModbusRecordCycleValue) //
+				.map(r -> (ModbusRecordCycleValue<OpenemsComponent>) r) //
+				.forEach(r -> {
+					OpenemsComponent component = this.getComponent(r.getComponentId());
+					r.updateValue(component);
+				});
 	}
 
 	@Override

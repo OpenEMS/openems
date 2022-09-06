@@ -55,7 +55,7 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
     	}
     ],
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
