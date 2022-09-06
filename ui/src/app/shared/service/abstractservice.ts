@@ -6,7 +6,6 @@ import { EdgeConfig } from '../edge/edgeconfig';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChannelAddress } from '../shared';
 import { LanguageTag } from '../translate/language';
-import { AdvertWidgets } from '../type/widget';
 import { DefaultTypes } from './defaulttypes';
 
 export abstract class AbstractService extends ErrorHandler {
@@ -104,14 +103,5 @@ export abstract class AbstractService extends ErrorHandler {
   abstract stopSpinner(selector: string);
 
   abstract toast(message: string, level: 'success' | 'warning' | 'danger');
-
-  /**
-   * checks if fems is allowed to show advertisement widget
-   * 
-   * @param edge the edge
-   * @param advertWidgets the advertWidgets 
-   * @returns true if advertWidgets are allowed, false if not
-   */
-  abstract isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets);
 
 }

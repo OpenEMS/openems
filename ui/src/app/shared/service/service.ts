@@ -1,4 +1,4 @@
-import { ErrorHandler, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
@@ -14,6 +14,7 @@ import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/query
 import { User } from '../jsonrpc/shared';
 import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
+import { AbstractService } from './abstractservice';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
 
@@ -339,10 +340,6 @@ export class Service extends AbstractService {
       cssClass: 'container'
     });
     toast.present();
-  }
-
-  public isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets) {
-    return true;
   }
 
   /**
