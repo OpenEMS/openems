@@ -46,7 +46,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
       "IP":"192.168.25.30"
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>

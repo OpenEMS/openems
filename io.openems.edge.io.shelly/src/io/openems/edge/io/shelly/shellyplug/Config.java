@@ -3,6 +3,8 @@ package io.openems.edge.io.shelly.shellyplug;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.meter.api.MeterType;
+
 @ObjectClassDefinition(//
 		name = "IO Shelly Plug", //
 		description = "Implements the Shelly Plug / PlugS WiFi Switch.")
@@ -19,6 +21,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.")
 	String ip();
+
+	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
+	MeterType type() default MeterType.CONSUMPTION_METERED;
 
 	String webconsole_configurationFactory_nameHint() default "IO Shelly Plug [{id}]";
 }

@@ -202,6 +202,39 @@ export class Utils {
   }
 
   /**
+ * Converts a value in Watt [W] to KiloWatt [kW].
+ * 
+ * @param value the value from passed value in html
+ * @returns converted value
+ */
+  public static CONVERT_TO_VOLT = (value: any): string => {
+    if (value == null) {
+      return '-';
+    } else if (value >= 0) {
+      return formatNumber(value / 1000, 'de', '1.0-0') + ' V';
+    } else {
+      return '0 V';
+    }
+  }
+
+  /**
+* Converts a value in Milliampere [mA] to Ampere[A].
+* 
+* @param value the value from passed value in html
+* @returns converted value
+*/
+  public static CONVERT_TO_CURRENT = (value: any): string => {
+    if (value == null) {
+      return '-';
+    } else if (value >= 0) {
+      return formatNumber(value / 1000, 'de', '1.1-1') + ' A';
+    } else {
+      return '0 A';
+    }
+  }
+
+
+  /**
    * Converts a value in Watt [W] to KiloWatt [kW].
    * 
    * @param value the value from passed value in html
@@ -302,13 +335,49 @@ export class Utils {
       } else if (value === 'AUTOMATIC') {
         return translate.instant('General.automatic');
       } else {
+        console.log("value", value, value === 'AUTOMATIC')
         return '-';
       }
     }
   }
 
+  /**
+   * Converts Minute from start of day to daytime
+   * 
+   * @param value the value to parse
+   * @returns converted value
+   */
   public static CONVERT_MINUTE_TO_TIME_OF_DAY = (value: number): string => {
     return formatDate(value * 60 * 1000, 'HH:mm', 'UTC') + ' h'
+  }
+
+  /**
+   * Converts Price to Cent per kWh [Cent / kWh]
+   * 
+   * @param decimal number of decimals after fraction
+   * @returns converted value
+   */
+  public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number) => { return (value: any): string => (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' Cent/kWh' };
+
+  /**
+   * Converts Time-Of-Use-Tariff-State 
+   * 
+   * @param translate the current language to be translated to
+   * @returns converted value
+   */
+  public static CONVERT_TIME_OF_USE_TARIFF_STATE = (translate: TranslateService) => {
+    return (value: any): string => {
+      switch (value) {
+        case -1:
+          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.notStarted');
+        case 0:
+          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.delayed');
+        case 1:
+          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.allowsDischarge');
+        case 2:
+          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.standby');
+      }
+    }
   }
 
   /**

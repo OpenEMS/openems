@@ -128,13 +128,13 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 				new FC4ReadInputRegistersTask(300013 - offset, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1,
 								new SignedDoublewordElement(300013 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT_IF_TRUE(this.config.invert())),
+								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2,
 								new SignedDoublewordElement(300015 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT_IF_TRUE(this.config.invert())),
+								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3,
 								new SignedDoublewordElement(300017 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT_IF_TRUE(this.config.invert())),
+								ElementToChannelConverter.SCALE_FACTOR_2),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1,
 								new SignedDoublewordElement(300019 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter

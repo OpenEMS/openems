@@ -1,0 +1,3 @@
+<oe-modal-line [name]="component.alias ?? component.id"
+    [channelAddress]="[{address:component.id + '/Voltage', roleIsAtLeast: Role.INSTALLER, unit: Utils.CONVERT_TO_VOLT},{address:component.id + '/Current',roleIsAtLeast: Role.INSTALLER, unit: Utils.CONVERT_TO_CURRENT},{address:component.id + '/ActualPower', unit: Utils.CONVERT_TO_WATT}]">
+</oe-modal-line>

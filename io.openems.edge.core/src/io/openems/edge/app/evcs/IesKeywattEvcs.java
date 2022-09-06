@@ -48,7 +48,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
       "OCCP_CONNECTOR_IDENTIFIER": "1"
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>

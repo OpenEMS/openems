@@ -254,7 +254,6 @@ public class PowerComponentImpl extends AbstractOpenemsComponent
 		return this.debugMode;
 	}
 
-	@Override
 	public boolean isPidEnabled() {
 		return this.config.enablePid();
 	}
