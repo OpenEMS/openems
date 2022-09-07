@@ -16,12 +16,13 @@
   </ng-container>
 
   <!-- Total Evcs-ChargePower -->
-  <ng-container *ngIf="evcsChargePower.total && evcsChargePower.component.length > 0">
-    <oe-modal-line
-      [name]="('General.total'| translate) + '&nbsp;' + ('Edge.Index.Widgets.EVCS.chargingPower'| translate)"
-      *ngIf="evcss.length > 1" [values]="[{value: evcsSumOfChargePower}]" [converter]="CONVERT_TO_WATT">
-    </oe-modal-line>
-    <oe-modal-horizontal-line></oe-modal-horizontal-line>
+  <ng-container *ngIf="evcsChargePower.total != null&& evcsChargePower.component.length > 0">
+    <ng-container *ngIf="evcss.length > 1">
+      <oe-modal-line
+        [name]="('General.total'| translate) + '&nbsp;' + ('Edge.Index.Widgets.EVCS.chargingPower'| translate)" [values]="[{value: evcsChargePower.total}]" [converter]="CONVERT_TO_WATT">
+      </oe-modal-line>
+      <oe-modal-horizontal-line></oe-modal-horizontal-line>
+    </ng-container>
 
     <!-- Evcs's -->
     <ng-container *ngFor="let component of evcsChargePower.component">
