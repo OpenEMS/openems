@@ -45,7 +45,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     	"PORT": "502"
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>

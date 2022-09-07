@@ -107,11 +107,11 @@ public class SiemensPacMeterImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						new DummyRegisterElement(7, 12), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(13),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
+								ElementToChannelConverter.SCALE_FACTOR_3),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(15),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
+								ElementToChannelConverter.SCALE_FACTOR_3),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(17),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
+								ElementToChannelConverter.SCALE_FACTOR_3),
 						new DummyRegisterElement(19, 24), //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(25),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
@@ -127,7 +127,7 @@ public class SiemensPacMeterImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(37, 60), //
 						m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(61),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
+								ElementToChannelConverter.SCALE_FACTOR_3),
 						new DummyRegisterElement(63, 64), //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(65),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),

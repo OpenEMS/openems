@@ -48,7 +48,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     	"URI": "tcp://localhost:1883"
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>

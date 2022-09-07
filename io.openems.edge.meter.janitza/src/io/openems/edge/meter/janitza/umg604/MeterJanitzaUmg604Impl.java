@@ -107,15 +107,13 @@ public class MeterJanitzaUmg604Impl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_3), //
 						new DummyRegisterElement(1323, 1324), //
 						m(new FloatDoublewordElement(1325)) //
-								.m(AsymmetricMeter.ChannelId.CURRENT_L1,
-										ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)) //
-								.m(SymmetricMeter.ChannelId.CURRENT,
-										ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)) //
+								.m(AsymmetricMeter.ChannelId.CURRENT_L1, ElementToChannelConverter.SCALE_FACTOR_3) //
+								.m(SymmetricMeter.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_3) //
 								.build(), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(1327), //
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)), //
+								ElementToChannelConverter.SCALE_FACTOR_3), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(1329), //
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)), //
+								ElementToChannelConverter.SCALE_FACTOR_3), //
 						new DummyRegisterElement(1331, 1332), //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(1333), //
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //
