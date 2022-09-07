@@ -1236,6 +1236,17 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         ? ConfigurationMode.RemoveAndConfigure
         : ConfigurationMode.RemoveOnly,
     });
+
+    componentConfigurator.add({
+      factoryId: 'Ess.Power',
+      componentId: '_power',
+      alias: 'Power',
+      properties: [
+        { name: 'enablePid', value: false },
+      ],
+      mode: ConfigurationMode.UpdateOnly
+    });
+
     return componentConfigurator;
   }
 }

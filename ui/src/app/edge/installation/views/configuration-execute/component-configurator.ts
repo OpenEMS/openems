@@ -5,6 +5,7 @@ import { ChannelAddress, Edge, EdgeConfig, Websocket } from "src/app/shared/shar
 export enum ConfigurationMode {
     RemoveAndConfigure = "remove-and-configure",    // The component will be removed and then configured as specified
     RemoveOnly = "remove-only",                     // The component will only be removed
+    UpdateOnly = "update-only",
 }
 
 export enum ConfigurationState {
@@ -139,6 +140,10 @@ export class ComponentConfigurator {
      */
     public anyHasConfigurationState(configurationState: ConfigurationState): boolean {
         for (let configurationObject of this.configurationObjects) {
+            if (configurationObject.componentId.startsWith("_")) {
+                // ignore core components
+                continue;
+            }
             if (configurationObject.configState === configurationState) {
                 return true;
             }
@@ -195,7 +200,7 @@ export class ComponentConfigurator {
         return new Promise((resolve, reject) => {
             let configurationObject = preConfiguredObjects[index];
 
-            this.edge.deleteComponentConfig(this.websocket, configurationObject.componentId).then(() => {
+            const clearNext = () => {
                 configurationObject.configState = ConfigurationState.Missing;
 
                 setTimeout(() => {
@@ -209,10 +214,19 @@ export class ComponentConfigurator {
                         resolve();
                     }
                 }, DELAY_CLEAR);
-            }).catch((reason) => {
-                configurationObject.configState = ConfigurationState.Error;
-                reject(reason);
-            });
+            }
+
+            if (configurationObject.mode == ConfigurationMode.UpdateOnly) {
+                clearNext();
+                return;
+            }
+
+            this.edge.deleteComponentConfig(this.websocket, configurationObject.componentId)
+                .then(clearNext)
+                .catch((reason) => {
+                    configurationObject.configState = ConfigurationState.Error;
+                    reject(reason);
+                });
         });
     }
 
@@ -285,9 +299,17 @@ export class ComponentConfigurator {
 
     private configure(configurationObject: ConfigurationObject): Promise<void> {
         return new Promise((resolve, reject) => {
-            if (configurationObject.mode === ConfigurationMode.RemoveAndConfigure) {
-                let properties: { name: string, value: any }[] = this.generateProperties(configurationObject);
+            let properties: { name: string, value: any }[] = this.generateProperties(configurationObject);
 
+            // When in UpdateOnly-Mode the component gets updated and
+            // the Promise resolved. When the configuration fails, the Promise gets rejected.
+            if (configurationObject.mode === ConfigurationMode.UpdateOnly) {
+                this.edge.updateComponentConfig(this.websocket, configurationObject.componentId, properties).then(() => {
+                    resolve();
+                }).catch((reason) => {
+                    reject(reason);
+                });
+            } else if (configurationObject.mode === ConfigurationMode.RemoveAndConfigure) {
                 // When in RemoveAndConfigure-Mode the component gets configured and
                 // the Promise resolved. When the configuration fails, the Promise gets rejected.
                 this.edge.createComponentConfig(this.websocket, configurationObject.factoryId, properties).then(() => {
