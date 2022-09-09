@@ -1,6 +1,6 @@
 
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
@@ -12,7 +12,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared
     selector: 'predictionChart',
     templateUrl: '../../../../../history/abstracthistorychart.html'
 })
-export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() refresh: boolean;
     @Input() edge: Edge;

@@ -8,7 +8,7 @@ import { Role } from 'src/app/shared/type/role';
     templateUrl: './modal.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Modal extends AbstractModal {
+export class ModalComponent extends AbstractModal {
 
     public channelCapacity: number;
     public isAtLeastAdmin: boolean = false;
@@ -22,9 +22,9 @@ export class Modal extends AbstractModal {
     public chargeLimit: { name: string, value: number };
     public delayChargeState: number = null;
     public maximumSellToGridPower: number = null;
-    public targetMinute: number = null;
-    public delayChargeMaximumChargeLimit: number = null;
-    public targetEpochSeconds: number = null;
+    public targetMinute: number | null = null;
+    public delayChargeMaximumChargeLimit: number | null = null;
+    public targetEpochSeconds: number | null = null;
     public chargeStartEpochSeconds: number = null;
 
     protected override getChannelAddresses(): ChannelAddress[] {

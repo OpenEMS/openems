@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -11,7 +11,7 @@ type inputMode = 'SOC' | 'GRIDSELL' | 'GRIDBUY' | 'PRODUCTION' | 'OTHER'
   selector: 'Io_ChannelSingleThresholdModalComponent',
   templateUrl: './modal.component.html'
 })
-export class Controller_Io_ChannelSingleThresholdModalComponent {
+export class Controller_Io_ChannelSingleThresholdModalComponent implements OnInit {
 
   @Input() public edge: Edge;
   @Input() public config: EdgeConfig;

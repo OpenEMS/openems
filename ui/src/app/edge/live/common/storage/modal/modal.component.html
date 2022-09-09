@@ -19,11 +19,10 @@
     <form [formGroup]="formGroup" *ngIf="formGroup">
 
         <!-- one ESS Component -->
-        <ng-container
-            *ngIf="essComponents != null && essComponents.length == 1 && edge.currentData | async as currentData">
+        <ng-container *ngIf="essComponents?.length == 1 && edge.currentData | async as currentData">
             <ng-container *ngFor="let component of essComponents">
-                <ion-card-content *ngIf="currentData.summary.storage as sum"
-                    [class.underline]="essComponents.length != 1 || !isLastElement(component, essComponents)">
+                <ion-card-content *ngIf="currentData.summary.storage as sum" [class.underline]="essComponents.length !=
+                     1 || !isLastElement(component, essComponents)">
                     <table class="full_width">
                         <div style="padding-top: 5px;"></div>
                         <tr>

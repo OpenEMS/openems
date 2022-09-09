@@ -12,10 +12,10 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
 import { MeterModule } from './edge/meter/meter.module';
-import { FormlyWrapperFormField } from './formly/form-field.wrapper';
-import { FormlySelectFieldWrapper } from './formly/formly-select-field.wrapper';
+import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
+import { FormlySelectFieldWrapperComponent } from './formly/formly-select-field.wrapper';
 import { InputTypeComponent } from './formly/input';
-import { FormlyInputSerialNumberWrapper as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
+import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
 import { RepeatTypeComponent } from './formly/repeat';
 import { Generic_ComponentsModule } from './genericComponents/genericComponents';
 import { HeaderComponent } from './header/header.component';
@@ -44,9 +44,9 @@ import { Language } from './translate/language';
     }),
     FormlyModule.forRoot({
       wrappers: [
-        { name: 'form-field', component: FormlyWrapperFormField },
+        { name: 'form-field', component: FormlyWrapperFormFieldComponent },
         { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
-        { name: 'formly-select-field-wrapper', component: FormlySelectFieldWrapper }
+        { name: 'formly-select-field-wrapper', component: FormlySelectFieldWrapperComponent }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
@@ -63,10 +63,10 @@ import { Language } from './translate/language';
     PercentageBarComponent,
     // formly
     InputTypeComponent,
-    FormlyWrapperFormField,
+    FormlyWrapperFormFieldComponent,
     RepeatTypeComponent,
     FormlyWrapperInputSerialNumber,
-    FormlySelectFieldWrapper
+    FormlySelectFieldWrapperComponent
   ],
   exports: [
     // modules

@@ -1,13 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
+import { Edge, Service, Websocket } from '../../../shared/shared';
 
 @Component({
   selector: PartnerComponent.SELECTOR,
   templateUrl: './partner.component.html'
 })
-export class PartnerComponent {
+export class PartnerComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = "partner";
 

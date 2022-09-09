@@ -1,15 +1,15 @@
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { ModalController } from '@ionic/angular';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: HeatpumpWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;

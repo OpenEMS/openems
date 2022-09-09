@@ -1,6 +1,6 @@
 
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractHistoryChart } from 'src/app/edge/history/abstracthistorychart';
@@ -13,7 +13,7 @@ import { ChannelChartDescription } from '../../abstractbattery.component';
     selector: 'soltarocellchart',
     templateUrl: '../../../../history/abstracthistorychart.html'
 })
-export class SoltaroCellChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class SoltaroCellChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() battery: string;
     @Input() channels: ChannelChartDescription[];

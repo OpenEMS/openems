@@ -1,11 +1,11 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { Edge, Service } from "src/app/shared/shared";
 
 @Component({
     selector: 'alerting',
     templateUrl: './alerting.html'
 })
-export class Alerting {
+export class AlertingComponent implements OnInit {
 
     public edge: Edge | null = null;
     constructor(private service: Service) { }

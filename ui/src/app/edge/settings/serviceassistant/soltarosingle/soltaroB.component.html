@@ -168,23 +168,23 @@
                                                 <!-- show value as string for enum values -->
                                                 <ng-container *ngIf="channelConfig.category === 'ENUM'">
                                                     <ng-container *ngFor="let option of (channelConfig.options | keys)">
-                                                        <span *ngIf="option.value == currentData[address.toString()]">
+                                                        <span *ngIf="option.value === currentData[address.toString()]">
                                                             ({{ option.key }})
                                                         </span>
                                                     </ng-container>
                                                 </ng-container>
                                                 <!-- show active/inactive string for StateChannels -->
                                                 <ng-container *ngIf="channelConfig.category === 'STATE'">
-                                                    <span *ngIf="currentData[address.toString()] == 1">(State is
+                                                    <span *ngIf="currentData[address.toString()] === 1">(State is
                                                         SET)</span>
-                                                    <span *ngIf="currentData[address.toString()] == 0">(State is not
+                                                    <span *ngIf="currentData[address.toString()] === 0">(State is not
                                                         set)</span>
                                                 </ng-container>
                                                 <!-- show active/inactive string for StateChannels -->
                                                 <ng-container
                                                     *ngIf="channelConfig.category === 'OPENEMS_TYPE' && channelConfig.type === 'BOOLEAN'">
-                                                    <span *ngIf="currentData[address.toString()] == 1">(On)</span>
-                                                    <span *ngIf="currentData[address.toString()] == 0">(Off)</span>
+                                                    <span *ngIf="currentData[address.toString()] === 1">(On)</span>
+                                                    <span *ngIf="currentData[address.toString()] === 0">(Off)</span>
                                                 </ng-container>
                                             </ion-text>
                                         </ion-item>

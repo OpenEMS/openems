@@ -1,13 +1,13 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { Component } from '@angular/core';
 import { SetChannelValueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 
 @Component({
   selector: ChannelsComponent.SELECTOR,
   templateUrl: './channels.component.html'
 })
-export class ChannelsComponent {
+export class ChannelsComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = "channels";
 

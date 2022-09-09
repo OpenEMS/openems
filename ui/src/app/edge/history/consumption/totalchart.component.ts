@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -12,7 +12,7 @@ import { Data, TooltipItem } from '../shared';
     selector: 'consumptionTotalChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class ConsumptionTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class ConsumptionTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public showPhases: boolean;

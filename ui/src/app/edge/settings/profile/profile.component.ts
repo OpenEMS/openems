@@ -24,7 +24,7 @@ export class ProfileComponent {
   public config: EdgeConfig = null;
   public subscribedChannels: ChannelAddress[] = [];
 
-  public components: CategorizedComponents[];
+  public components: CategorizedComponents[] | null = null;
 
   constructor(
     private service: Service,

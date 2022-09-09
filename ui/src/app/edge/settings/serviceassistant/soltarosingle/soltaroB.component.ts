@@ -1,14 +1,14 @@
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
-import { Component, Input } from '@angular/core';
-import { AbstractBattery, ChannelChartDescription, CategorizedChannelDescription, ChannelDescription } from '../abstractbattery.component';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
+import { AbstractBattery, CategorizedChannelDescription, ChannelChartDescription, ChannelDescription } from '../abstractbattery.component';
 
 @Component({
-    selector: SoltaroVersionB.SELECTOR,
+    selector: SoltaroVersionBComponent.SELECTOR,
     templateUrl: './../abstractbattery.component.html'
 })
-export class SoltaroVersionB extends AbstractBattery {
+export class SoltaroVersionBComponent extends AbstractBattery implements OnInit, OnDestroy {
 
     @Input() private componentId: string;
     @Input() public edge: Edge;
@@ -51,7 +51,7 @@ export class SoltaroVersionB extends AbstractBattery {
 
     ngOnDestroy() {
         if (this.edge != null) {
-            this.edge.unsubscribeChannels(this.websocket, SoltaroVersionB.SELECTOR);
+            this.edge.unsubscribeChannels(this.websocket, SoltaroVersionBComponent.SELECTOR);
         }
     }
 

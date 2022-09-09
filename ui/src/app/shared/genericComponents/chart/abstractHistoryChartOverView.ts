@@ -1,10 +1,10 @@
-import { Directive } from "@angular/core";
+import { Directive, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Edge, Service } from "src/app/shared/shared";
 
 @Directive()
-export abstract class AbstractHistoryChartOverView {
+export abstract class AbstractHistoryChartOverView implements OnInit {
 
     public edge: Edge | null = null;
 

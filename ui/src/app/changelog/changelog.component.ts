@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'src/environments';
@@ -10,7 +10,7 @@ import { Changelog, Library, OpenemsComponent, Product } from './changelog.const
   selector: 'changelog',
   templateUrl: './changelog.component.html'
 })
-export class ChangelogComponent {
+export class ChangelogComponent implements OnInit {
 
   public environment = environment;
 

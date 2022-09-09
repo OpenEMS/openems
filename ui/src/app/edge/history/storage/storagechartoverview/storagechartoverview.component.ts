@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { EdgeConfig, Service, Utils, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: StorageChartOverviewComponent.SELECTOR,
     templateUrl: './storagechartoverview.component.html'
 })
-export class StorageChartOverviewComponent {
+export class StorageChartOverviewComponent implements OnInit {
 
     public edge: Edge = null;
 

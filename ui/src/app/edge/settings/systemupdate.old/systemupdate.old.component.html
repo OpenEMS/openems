@@ -55,15 +55,15 @@
                 <ion-col>{{ package.currentVersion }}</ion-col>
                 <ion-col>{{ package.latestVersion }}</ion-col>
                 <ion-col>
-                  <ion-button [disabled]="isCurrentlyInstalling" *ngIf="package.isUpdateAvailable == true"
+                  <ion-button [disabled]="isCurrentlyInstalling" *ngIf="package.isUpdateAvailable === true"
                     (click)="updatePackage(package)">Neueste Version
                     installieren
                   </ion-button>
-                  <p *ngIf="package.isUpdateAvailable == false">
+                  <p *ngIf="package.isUpdateAvailable === false">
                     <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
                     Version ist aktuell
                   </p>
-                  <p *ngIf="package.isUpdateAvailable == null">
+                  <p *ngIf="package.isUpdateAvailable === null">
                     <ion-icon name="refresh-circle-outline"></ion-icon>
                     Version wird gelesen...
                   </p>

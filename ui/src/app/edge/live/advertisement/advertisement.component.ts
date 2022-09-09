@@ -1,16 +1,16 @@
+import { AfterContentChecked, ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { IonSlides, ModalController } from '@ionic/angular';
 import { AdvertWidgets } from 'src/app/shared/type/widget';
-import { Component, ViewChild, Input, ChangeDetectorRef } from '@angular/core';
-import { Edge, Service, EdgeConfig } from '../../../shared/shared';
-import { ModalController, IonSlides } from '@ionic/angular';
 import { environment } from 'src/environments';
+import { Edge, EdgeConfig, Service } from '../../../shared/shared';
 
 @Component({
   selector: 'advertisement',
   templateUrl: './advertisement.component.html'
 })
 
-export class AdvertisementComponent {
+export class AdvertisementComponent implements OnInit, AfterContentChecked, OnDestroy {
 
   @Input() public advertWidgets: AdvertWidgets;
 

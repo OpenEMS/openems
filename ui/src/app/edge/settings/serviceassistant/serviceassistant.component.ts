@@ -1,6 +1,6 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Edge, Service, EdgeConfig, ChannelAddress, Websocket } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 
 interface MyEdgeConfigComponent extends EdgeConfig.Component {
   isClicked?: boolean,
@@ -10,7 +10,7 @@ interface MyEdgeConfigComponent extends EdgeConfig.Component {
   selector: ServiceAssistantComponent.SELECTOR,
   templateUrl: './serviceassistant.component.html'
 })
-export class ServiceAssistantComponent {
+export class ServiceAssistantComponent implements OnInit, OnDestroy {
 
   public readonly spinnerId = "serviceAssistent";
   public readonly servcieAssistantSpinnerId: string = "ServiceAssistentSpinner";
