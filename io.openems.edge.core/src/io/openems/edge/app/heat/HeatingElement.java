@@ -61,7 +61,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	}
     ],
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
@@ -118,7 +118,7 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 
 			var componentIdOfRelay = outputChannelPhaseL1.substring(0, outputChannelPhaseL1.indexOf('/'));
 			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
-					componentIdOfRelay, this.getAppId());
+					componentIdOfRelay);
 
 			if (appIdOfRelay == null) {
 				// relay may be created but not as a app

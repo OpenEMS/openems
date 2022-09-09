@@ -46,7 +46,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     	"MODBUS_UNIT_ID": 6
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
@@ -137,7 +137,7 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 
 	@Override
 	public OpenemsAppCardinality getCardinality() {
-		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+		return OpenemsAppCardinality.MULTIPLE;
 	}
 
 }

@@ -188,6 +188,7 @@ export const TRANSLATION = {
                     startTimeCharge: 'Čas zahájení načítání',
                 },
                 GridOptimizedCharge: {
+                    chargingDelayed: 'Zpožděné nabíjení',
                     considerGridFeedInLimit: 'Vezměte v úvahu maximální přívod sítě',
                     endTime: 'Čas ukončení',
                     endTimeDescription: 'Nabíjení neprobíhá maximálním množstvím po dobu několika hodin, ale stabilně po delší dobu.',
@@ -227,6 +228,7 @@ export const TRANSLATION = {
                     riskPropensity: 'Sklon k riziku',
                     settingOnlyVisableForInstaller: 'Toto nastavení je viditelné pouze pro instalačního technika',
                     State: {
+                        avoidLowCharging: 'Zamezení nízkého nabíjení',
                         chargeLimitActive: 'Aktivní limit načítání',
                         endTimeNotCalculated: 'Čas ukončení se nepočítá',
                         gridFeedInLimitationIsAvoided: 'Je vyloučeno omezení přívodu mřížky',
@@ -236,6 +238,7 @@ export const TRANSLATION = {
                         passedEndTime: 'Byl překročen čas ukončení omezeného načítání',
                         storageAlreadyFull: 'Paměť je již plná',
                     },
+                    storageCapacity: 'skladovací kapacita (viditelné pouze pro správce)'
                 },
                 CHP: {
                     highThreshold: 'vysoký práh',
@@ -445,8 +448,28 @@ export const TRANSLATION = {
             },
             Alerting: {
                 activate: 'Aktivace',
-                delay: 'Zpoždění [min]',
+                delay: 'Zpoždění',
                 save: 'Uložit',
+                options: {
+                    1: '15 minut',
+                    2: '1 hodina',
+                    3: '1 den'
+                },
+                toast: {
+                    success: 'Přijatá nastavení',
+                    error: 'Chyba při načítání nastavení'
+                },
+            },
+            App: {
+                header: 'Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi FEMS.',
+                installed: 'Nainstalováno',
+                available: 'Dostupné na',
+                incompatible: 'Nekompatibilní',
+                buyApp: 'koupit aplikaci',
+                modifyApp: 'upravit aplikaci',
+                createApp: 'vytvořit aplikaci',
+                deleteApp: 'odstranit aplikaci',
+                updateApp: 'aktualizace aplikace',
             },
         },
         Service: {

@@ -8,10 +8,12 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	private final String componentId;
 	private final String channelId;
+	private final String toString;
 
 	public ChannelAddress(String componentId, String channelId) {
 		this.componentId = componentId;
 		this.channelId = channelId;
+		this.toString = new StringBuilder(this.componentId).append("/").append(this.channelId).toString();
 	}
 
 	/**
@@ -34,7 +36,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	@Override
 	public String toString() {
-		return this.componentId + "/" + this.channelId;
+		return this.toString;
 	}
 
 	/**

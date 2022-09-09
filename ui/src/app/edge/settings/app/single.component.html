@@ -21,23 +21,23 @@
                 <ion-button style="width: 100%;" disabled translate>Edge.Config.App.buyApp</ion-button>
               </div>
               <div>
-                <ion-button style="width: 100%;" [disabled]="app.instanceIds.length == 0"
+                <ion-button style="width: 100%;" [disabled]="app.instanceIds.length === 0"
                   [routerLink]="['../../update', app.appId]" translate>Edge.Config.App.modifyApp</ion-button>
               </div>
               <div>
                 <ion-button style="width: 100%;"
-                  [disabled]="(app.cardinality != 'MULTIPLE' && app.instanceIds.length != 0) || app.status.name != 'INSTALLABLE'"
+                  [disabled]="(app.cardinality !== 'MULTIPLE' && app.instanceIds.length !== 0) || app.status.name !== 'INSTALLABLE'"
                   [routerLink]="['../../install', app.appId]" translate>Edge.Config.App.createApp
                   <!-- TODO later rename to 'aktivieren' -->
                 </ion-button>
               </div>
-              <div *ngIf="app.instanceIds.length == 0 && app.status.name != 'INSTALLABLE'">
-                <div *ngIf="app.status.errorCompatibleMessages.length != 0 ">
+              <div *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
+                <div *ngIf="app.status.errorCompatibleMessages.length !== 0 ">
                   <small translate>Edge.Config.App.errorCompatible</small><br />
                   <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
                     }}</small><br />
                 </div>
-                <div *ngIf="app.status.errorInstallableMessages.length != 0 ">
+                <div *ngIf="app.status.errorInstallableMessages.length !== 0 ">
                   <small translate>Edge.Config.App.errorInstallable</small><br />
                   <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
                     }}</small><br />
@@ -48,7 +48,7 @@
           </ion-card>
         </form>
       </ion-col>
-      <ion-col size="12" size-xl="7" *ngIf="descriptor != null && descriptor.websiteUrl">
+      <ion-col size="12" size-xl="7" *ngIf="descriptor !== null && descriptor.websiteUrl">
         <iframe [src]="descriptor.sanitizedWebsiteUrl" style=" width: 100%;" [ngStyle]="iFrameStyle()" name="appInfo"
           title="App-Info"></iframe>
       </ion-col>

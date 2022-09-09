@@ -7,7 +7,7 @@ import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
-import { Icon } from "../../type/widget";
+import { Role } from "../../type/role";
 
 @Directive()
 export abstract class AbstractModalLine implements OnDestroy {
@@ -18,7 +18,7 @@ export abstract class AbstractModalLine implements OnDestroy {
     /** component */
     @Input() component: EdgeConfig.Component = null;
 
-    /** Component-Properties ControlName */
+    /** FormGroup ControlName */
     @Input() controlName: string;
 
     /**
@@ -35,12 +35,18 @@ export abstract class AbstractModalLine implements OnDestroy {
     name: string;
 
     /** value defines value of the parameter, displayed on the right */
-    @Input() value: number;
+    @Input() values: {
+        value: string | number,
+        /* If no role provided, default is guest */
+        roleIsAtLeast?: Role,
+        /* the converter to pass*/
+        unit?: (value: any) => {}
+    }[] = []
 
     /** Channel defines the channel, you need for this line */
     @Input()
-    set channelAddress(channelAddress: string) {
-        this.subscribe(ChannelAddress.fromString(channelAddress));
+    set channelAddress(channel: { address: string, unit?: (value: any) => {}, roleIsAtLeast?: Role }[]) {
+        this.subscribe(channel);
     }
 
     /** Selector needed for Subscribe (Identifier) */
@@ -49,7 +55,10 @@ export abstract class AbstractModalLine implements OnDestroy {
     /** 
      * displayValue is the displayed @Input value in html
      */
-    public displayValue: string = null;
+    public displayValue: string | string[] = null;
+
+    /** Checks if any value of this line can be seen => hides line if false */
+    protected isAllowed: boolean = true;
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
@@ -70,7 +79,7 @@ export abstract class AbstractModalLine implements OnDestroy {
     }
 
     ngOnChanges() {
-        this.setValue(this.value)
+        this.convertvalues(this.values);
     }
 
     ngOnInit() {
@@ -108,21 +117,53 @@ export abstract class AbstractModalLine implements OnDestroy {
     }
 
     /** value defines value of the parameter, displayed on the right */
-    protected setValue(value: any) {
-        this.displayValue = this.converter(value);
+    protected setValue(value: any[]) {
+        this.displayValue = [];
+        for (let val of value) {
+            this.displayValue.push(this.converter(val))
+        }
     }
 
     /** Subscribe on HTML passed Channels */
-    protected subscribe(channelAddress: ChannelAddress) {
+    protected subscribe(channel: { address: string, unit?: (value: any) => {}, roleIsAtLeast?: Role }[]) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
-            edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
+
+            // Check if user is allowed to see these channel-values
+            let permittedChannels: ChannelAddress[] = channel.filter(element => {
+                if (this.edge.roleIsAtLeast(element.roleIsAtLeast ?? Role.GUEST)) {
+                    return element.address
+                }
+            }).map(element => ChannelAddress.fromString(element.address));
+
+            edge.subscribeChannels(this.websocket, this.selector, permittedChannels);
 
             // call onCurrentData() with latest data
             edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                this.setValue(currentData.channel[channelAddress.toString()]);
-            });
+                let values: any[] = [];
+                permittedChannels.forEach(element => {
+                    if (currentData.channel[element.toString()] != null) {
+                        let converter = channel.find(chan => chan.address == element.toString()).unit ?? function (value: any) { return value };
+                        values.push(converter(currentData.channel[element.toString()]))
+                    }
+                });
+
+                this.isAllowed = values.length !== 0;
+                values.length > 0 && this.setValue(values);
+            })
         });
+    }
+    /**
+     * Converts a value based on its passed unit
+     * 
+     * @param data the data to be parsed
+     */
+    protected convertvalues(data: { value: string | number, roleIsAtLeast?: Role, unit?: (value: any) => {} }[]) {
+        let values: any[] = [];
+        data.forEach(element => {
+            values.push(element.unit ? element.unit(element.value) : element.value)
+        });
+        this.setValue(values)
     }
 
     public ngOnDestroy() {

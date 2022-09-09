@@ -204,6 +204,18 @@ public class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link Enum} value to the {@link JsonObject}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, Enum<?> value) {
+			this.j.addProperty(property, value == null ? null : value.name());
+			return this;
+		}
+
+		/**
 		 * Add a {@link Boolean} value to the {@link JsonObject}.
 		 *
 		 * @param property the key
@@ -274,6 +286,20 @@ public class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link Enum} value to the {@link JsonObject}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addPropertyIfNotNull(String property, Enum<?> value) {
+			if (value != null) {
+				this.j.addProperty(property, value.name());
+			}
+			return this;
+		}
+
+		/**
 		 * Call a method on a JsonObjectBuilder if an expression is true.
 		 *
 		 * @param expression     the expression
@@ -333,7 +359,7 @@ public class JsonUtils {
 	private static final Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
 
 	/**
-	 * Returns a Collector that accumulates the input elements into a new JsonArray. 
+	 * Returns a Collector that accumulates the input elements into a new JsonArray.
 	 * 
 	 * @return a Collector which collects all the input elements into a JsonArray
 	 */
@@ -851,7 +877,7 @@ public class JsonUtils {
 		}
 		if (jPrimitive.isString()) {
 			var string = jPrimitive.getAsString();
-			return Integer.parseInt(string);
+			return Long.parseLong(string);
 		}
 		throw OpenemsError.JSON_NO_NUMBER.exception(jPrimitive.toString().replace("%", "%%"));
 	}
@@ -990,7 +1016,7 @@ public class JsonUtils {
 			throws OpenemsNamedException {
 		var element = getAsString(jElement);
 		try {
-			return Enum.valueOf(enumType, element);
+			return Enum.valueOf(enumType, element.toUpperCase());
 		} catch (IllegalArgumentException e) {
 			throw OpenemsError.JSON_NO_ENUM.exception(element);
 		}
@@ -1010,7 +1036,7 @@ public class JsonUtils {
 			throws OpenemsNamedException {
 		var element = getAsString(jElement, memberName);
 		try {
-			return Enum.valueOf(enumType, element);
+			return Enum.valueOf(enumType, element.toUpperCase());
 		} catch (IllegalArgumentException e) {
 			throw OpenemsError.JSON_NO_ENUM_MEMBER.exception(memberName, element);
 		}
@@ -1033,7 +1059,7 @@ public class JsonUtils {
 			return Optional.empty();
 		}
 		try {
-			return Optional.ofNullable(Enum.valueOf(enumType, elementOpt.get()));
+			return Optional.ofNullable(Enum.valueOf(enumType, elementOpt.get().toUpperCase()));
 		} catch (IllegalArgumentException e) {
 			return Optional.empty();
 		}
@@ -1401,6 +1427,10 @@ public class JsonUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getAsType(OpenemsType type, JsonElement j) throws OpenemsNamedException {
+		if (j == null) {
+			return null;
+		}
+
 		if (j.isJsonNull()) {
 			return null;
 		}

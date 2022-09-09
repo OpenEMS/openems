@@ -1,7 +1,7 @@
-import { ErrorHandler, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map } from 'rxjs/operators';
@@ -14,11 +14,12 @@ import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/query
 import { User } from '../jsonrpc/shared';
 import { ChannelAddress } from '../shared';
 import { Language, LanguageTag } from '../translate/language';
+import { AbstractService } from './abstractservice';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
 
 @Injectable()
-export class Service implements ErrorHandler {
+export class Service extends AbstractService {
 
   public static readonly TIMEOUT = 15_000;
 
@@ -67,25 +68,26 @@ export class Service implements ErrorHandler {
     public modalCtrl: ModalController,
     public translate: TranslateService,
   ) {
+    super();
     // add language
     translate.addLangs(Language.getLanguages());
     // this language will be used as a fallback when a translation isn't found in the current language
     translate.setDefaultLang(LanguageTag.DE);
+
     // initialize history period
     this.historyPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
+
+    // React on Language Change and update language
+    translate.onLangChange.subscribe((event: LangChangeEvent) => {
+      this.setLang(event.lang as LanguageTag);
+    });
   }
 
-  /**
-   * Set the application language
-   */
   public setLang(id: LanguageTag) {
     this.translate.use(id);
     // TODO set locale for date-fns: https://date-fns.org/docs/I18n
   }
 
-  /**
-   * Returns the configured language for docs.fenecon.de
-   */
   public getDocsLang(): string {
     if (this.translate.currentLang == "German") {
       return "de";
@@ -94,9 +96,6 @@ export class Service implements ErrorHandler {
     }
   }
 
-  /**
-   * Convert the browser language in Language Tag
-   */
   public browserLangToLangTag(browserLang: string): LanguageTag {
     switch (browserLang) {
       case "de": return LanguageTag.DE;
@@ -109,16 +108,10 @@ export class Service implements ErrorHandler {
     }
   }
 
-  /**
-   * Shows a nofication using toastr
-   */
   public notify(notification: DefaultTypes.Notification) {
     this.notificationEvent.next(notification);
   }
 
-  /**
-   * Handles an application error
-   */
   public handleError(error: any) {
     console.error(error);
     // TODO: show notification
@@ -129,9 +122,6 @@ export class Service implements ErrorHandler {
     // this.notify(notification);
   }
 
-  /**
-   * Parses the route params and sets the current edge
-   */
   public setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge> {
     return new Promise((resolve) => {
       // Set the currentPageTitle only once per ActivatedRoute
@@ -199,9 +189,6 @@ export class Service implements ErrorHandler {
     });
   }
 
-  /**
-   * Gets the current Edge - or waits for a Edge if it is not available yet.
-   */
   public getCurrentEdge(): Promise<Edge> {
     return this.currentEdge.pipe(
       filter(edge => edge != null),
@@ -209,9 +196,6 @@ export class Service implements ErrorHandler {
     ).toPromise();
   }
 
-  /**
-   * Gets the EdgeConfig of the current Edge - or waits for Edge and Config if they are not available yet.
-   */
   public getConfig(): Promise<EdgeConfig> {
     return new Promise<EdgeConfig>((resolve, reject) => {
       this.getCurrentEdge().then(edge => {
@@ -226,34 +210,18 @@ export class Service implements ErrorHandler {
     });
   }
 
-  /**
-   * Handles being logged out.
-   */
   public onLogout() {
     this.currentEdge.next(null);
     this.metadata.next(null);
     this.router.navigate(['/index']);
   }
 
-  /**
-   * Gets the ChannelAddresses for cumulated values that should be queried.
-   * 
-   * @param edge the current Edge
-   */
   public getChannelAddresses(edge: Edge, channels: ChannelAddress[]): Promise<ChannelAddress[]> {
     return new Promise((resolve) => {
       resolve(channels);
     });
   };
 
-  /**
-   * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
-   * 
-   * @param fromDate the From-Date
-   * @param toDate   the To-Date
-   * @param edge     the current Edge
-   * @param ws       the websocket
-   */
   public queryEnergy(fromDate: Date, toDate: Date, channels: ChannelAddress[]): Promise<QueryHistoricTimeseriesEnergyResponse> {
     // keep only the date, without time
     fromDate.setHours(0, 0, 0, 0);
@@ -340,30 +308,28 @@ export class Service implements ErrorHandler {
   }[] = [];
   private queryEnergyTimeout: any = null;
 
-
-  /**
-   * Start NGX-Spinner
-   * 
-   * Spinner will appear inside html tag only
-   * 
-   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
-   * 
-   * @param selector selector for specific spinner
-   */
   public startSpinner(selector: string) {
     this.spinner.show(selector, {
-      type: 'ball-clip-rotate-multiple',
+      type: "ball-clip-rotate-multiple",
       fullScreen: false,
-      bdColor: "rgba(0,0,0,0.5)"
-    });
+      bdColor: "rgba(0, 0, 0, 0.8)",
+      size: "medium",
+      color: "#fff"
+    })
   }
 
-  /**
-   * Stop NGX-Spinner
-   * @param selector selector for specific spinner
-   */
+  public startSpinnerTransparentBackground(selector: string) {
+    this.spinner.show(selector, {
+      type: "ball-clip-rotate-multiple",
+      fullScreen: false,
+      bdColor: "rgba(0, 0, 0, 0)",
+      size: "medium",
+      color: "var(--ion-color-primary)"
+    })
+  }
+
   public stopSpinner(selector: string) {
-    this.spinner.hide(selector);
+    this.spinner.hide(selector)
   }
 
   public async toast(message: string, level: 'success' | 'warning' | 'danger') {
@@ -374,13 +340,6 @@ export class Service implements ErrorHandler {
       cssClass: 'container'
     });
     toast.present();
-  }
-
-  /**
-   * Checks if this Edge is allowed to show kWh values
-   */
-  public isKwhAllowed(edge: Edge): boolean {
-    return false;
   }
 
   /**

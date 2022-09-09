@@ -59,7 +59,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	}
     ],
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
@@ -113,7 +113,7 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 			var componentIdOfRelay = outputChannelAddress.substring(0, outputChannelAddress.indexOf('/'));
 
 			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
-					componentIdOfRelay, this.getAppId());
+					componentIdOfRelay);
 
 			if (appIdOfRelay == null) {
 				// relay may be created but not as a app

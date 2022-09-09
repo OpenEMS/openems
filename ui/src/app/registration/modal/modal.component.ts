@@ -4,6 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { RegisterUserRequest } from 'src/app/shared/jsonrpc/request/registerUserRequest';
 import { Service, Websocket } from 'src/app/shared/shared';
+import { environment } from 'src/environments';
 
 @Component({
   selector: 'registration-modal',
@@ -67,7 +68,8 @@ export class RegistrationModalComponent implements OnInit {
           country: this.formGroup.value.country
         },
         role: this.activeSegment
-      }
+      },
+      oem: environment.theme
     });
 
     let companyName = this.formGroup.value.companyName;
@@ -78,7 +80,7 @@ export class RegistrationModalComponent implements OnInit {
     }
 
     this.websocket.sendRequest(request)
-      .then(res => {
+      .then(() => {
         this.service.toast(this.translate.instant("Register.success"), 'success');
         this.modalCtrl.dismiss();
       })

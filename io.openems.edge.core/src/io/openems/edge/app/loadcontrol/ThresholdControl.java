@@ -52,7 +52,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     	"OUTPUT_CHANNELS":['io1/Relay1', 'io1/Relay2']
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
@@ -113,6 +113,7 @@ public class ThresholdControl extends AbstractOpenemsApp<Property> implements Op
 	@Override
 	public AppAssistant getAppAssistant(Language language) {
 		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(), new int[] { 1 }, new int[] { 1 });
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNELS) //
@@ -120,11 +121,10 @@ public class ThresholdControl extends AbstractOpenemsApp<Property> implements Op
 								.setOptions(this.componentUtil.getAllRelays() //
 										.stream().map(r -> r.relays).flatMap(List::stream) //
 										.collect(Collectors.toList())) //
-								.setDefaultValueWithStringSupplier(() -> {
-									var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(),
-											new int[] { 1 }, new int[] { 1 });
-									return relays == null ? null : relays[0];
-								}) //
+								.onlyIf(relays != null, t -> t.setDefaultValue(//
+										JsonUtils.buildJsonArray() //
+												.add(relays[0]) //
+												.build())) //
 								.isRequired(true) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".outputChannels.label")) //

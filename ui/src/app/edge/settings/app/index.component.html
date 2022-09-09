@@ -23,7 +23,11 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" name="information-outline"></ion-icon>
-            <ion-label text-wrap translate>Edge.Config.App.header</ion-label>
+            <ion-text text-nowrap translate>Edge.Config.App.header
+              <a routerLink="/device/{{ edge.id }}/settings/systemupdate{{ edge.isVersionAtLeast('2021.19.1') ? '' : '.old' }}"
+                *ngIf="isUpdateAvailable" text-nowrap translate>{{ 'Edge.Config.App.updateAvailable' | translate: {
+                edgeShortName: environment.edgeShortName } }}</a>
+            </ion-text>
           </ion-item>
         </ion-card>
       </ion-col>
@@ -65,13 +69,14 @@
                             <ion-item lines="full" color="primary">
                               <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
                               <ion-label
-                                class="ng-star-inserted sc-ion-label-md-h sc-ion-label-md-s md in-item-color hydrated">
+                                class="ng-star-inserted sc-ion-label-md-h sc-ion-label-md-s md in-item-color hydrated"
+                                style="white-space: initial">
                                 {{ app.name }}</ion-label>
                             </ion-item>
                             <ion-card-content [routerLink]="['single', app.appId]" [state]="app"
                               style="cursor: pointer;">
                               <div
-                                [ngStyle]="{'opacity': (app.status.name=='INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}"
+                                [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}"
                                 style="display: flex; align-items: center;justify-content: center; ">
                                 <img *ngIf="app.image" [src]="app.image" />
                               </div>
@@ -84,13 +89,13 @@
                                   </a></small><br />
                                 <small>Cardinality: {{ app.cardinality }}</small>
                               </p>
-                              <div *ngIf="app.instanceIds.length == 0 && app.status.name != 'INSTALLABLE'">
-                                <div *ngIf="app.status.errorCompatibleMessages.length != 0 ">
+                              <div *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
+                                <div *ngIf="app.status.errorCompatibleMessages.length !== 0 ">
                                   <small translate>Edge.Config.App.errorCompatible</small><br />
                                   <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
                                     }}</small><br />
                                 </div>
-                                <div *ngIf="app.status.errorInstallableMessages.length != 0 ">
+                                <div *ngIf="app.status.errorInstallableMessages.length !== 0 ">
                                   <small translate>Edge.Config.App.errorInstallable</small><br />
                                   <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
                                     }}</small><br />
@@ -116,7 +121,7 @@
                             app.name }}</ion-label>
                         </ion-item>
                         <ion-card-content [routerLink]="['single', app.appId]" [state]="app" style="cursor: pointer;"
-                          [ngStyle]="{'opacity': (app.status.name=='INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
+                          [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
                           <div style="display: flex; align-items: center;justify-content: center; ">
                             <img *ngIf="app.image" [src]="app.image" />
                           </div>
@@ -130,13 +135,13 @@
                             </small><br />
                             <small>Cardinality: {{ app.cardinality }}</small>
                           </p>
-                          <div *ngIf="app.instanceIds.length == 0 && app.status.name != 'INSTALLABLE'">
-                            <div *ngIf="app.status.errorCompatibleMessages.length != 0 ">
+                          <div *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
+                            <div *ngIf="app.status.errorCompatibleMessages.length !== 0 ">
                               <small translate>Edge.Config.App.errorCompatible</small><br />
                               <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
                                 }}</small><br />
                             </div>
-                            <div *ngIf="app.status.errorInstallableMessages.length != 0 ">
+                            <div *ngIf="app.status.errorInstallableMessages.length !== 0 ">
                               <small translate>Edge.Config.App.errorInstallable</small><br />
                               <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
                                 }}</small><br />

@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.Reference;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.AppManager;
 import io.openems.edge.core.appmanager.AppManagerImpl;
+import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -23,6 +24,7 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 	public static final String COMPONENT_NAME = "Validator.Checkable.CheckCardinality";
 
 	private final AppManager appManager;
+	private final AppManagerUtil appManagerUtil;
 	private OpenemsApp openemsApp;
 
 	private ErrorType errorType = ErrorType.NONE;
@@ -38,9 +40,11 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 	}
 
 	@Activate
-	public CheckCardinality(@Reference AppManager appManager, ComponentContext componentContext) {
+	public CheckCardinality(@Reference AppManager appManager, @Reference AppManagerUtil appManagerUtil,
+			ComponentContext componentContext) {
 		super(componentContext);
 		this.appManager = appManager;
+		this.appManagerUtil = appManagerUtil;
 	}
 
 	@Override
@@ -73,7 +77,7 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 			}
 			break;
 		case SINGLE_IN_CATEGORY:
-			var matchedCategorie = this.getMatchingCategorie(appManagerImpl, instantiatedApps);
+			var matchedCategorie = this.getMatchingCategorie(this.appManagerUtil, instantiatedApps);
 			if (matchedCategorie != null) {
 				// only create one instance with the same category of this app
 				this.matchingCategory = matchedCategorie;
@@ -88,11 +92,11 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 		return this.errorType == ErrorType.NONE;
 	}
 
-	private OpenemsAppCategory getMatchingCategorie(AppManagerImpl appManager,
+	private OpenemsAppCategory getMatchingCategorie(AppManagerUtil appManagerUtil,
 			List<OpenemsAppInstance> instantiatedApps) {
 		for (var openemsAppInstance : instantiatedApps) {
 			try {
-				var app = appManager.findAppById(openemsAppInstance.appId);
+				var app = appManagerUtil.getAppById(openemsAppInstance.appId);
 				if (app.getCardinality() != OpenemsAppCardinality.SINGLE_IN_CATEGORY) {
 					continue;
 				}

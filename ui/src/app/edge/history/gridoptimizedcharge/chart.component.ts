@@ -20,19 +20,18 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
 
   ngOnChanges() {
     this.updateChart();
-  };
+  }
 
   constructor(
     protected service: Service,
     protected translate: TranslateService,
     private route: ActivatedRoute,
   ) {
-    super(service, translate);
+    super("gridOptimizedCharge-chart", service, translate);
   }
 
   ngOnInit() {
-    this.spinnerId = 'gridOptimizedCharge-chart';
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.service.setCurrentComponent('', this.route);
     this.setLabel()
   }
@@ -43,7 +42,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
 
   protected updateChart() {
     this.autoSubscribeChartRefresh();
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -171,12 +170,14 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
         }
         this.datasets = datasets;
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+        this.stopSpinner();
+
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
         return;
       });
+
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();

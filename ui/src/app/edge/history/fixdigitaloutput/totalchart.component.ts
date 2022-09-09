@@ -25,12 +25,11 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
     protected translate: TranslateService,
     private route: ActivatedRoute,
   ) {
-    super(service, translate);
+    super("fixdigitaloutput-total-chart", service, translate);
   }
 
   ngOnInit() {
-    this.spinnerId = 'fixdigitaloutput-total-chart';
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.service.setCurrentComponent('', this.route);
   }
 
@@ -40,7 +39,7 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
 
   protected updateChart() {
     this.autoSubscribeChartRefresh();
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -88,7 +87,8 @@ export class FixDigitalOutputTotalChartComponent extends AbstractHistoryChart im
         }
         this.datasets = datasets;
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+        this.stopSpinner();
+
       })
     }).catch(reason => {
       console.error(reason); // TODO error message

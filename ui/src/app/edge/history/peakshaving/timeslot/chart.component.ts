@@ -18,20 +18,18 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("timeslotpeakshaving-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = 'timeslotpeakshaving-chart';
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -41,7 +39,7 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -189,12 +187,14 @@ export class TimeslotPeakshavingChartComponent extends AbstractHistoryChart impl
                 }
                 this.datasets = datasets;
                 this.loading = false;
-                this.service.stopSpinner(this.spinnerId);
+                this.stopSpinner();
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.chargetime.ocpp.AuthenticationException;
 import eu.chargetime.ocpp.JSONServer;
 import eu.chargetime.ocpp.NotConnectedException;
 import eu.chargetime.ocpp.OccurenceConstraintException;
@@ -126,6 +127,12 @@ public class MyJsonServer {
 
 				MyJsonServer.this.parent.ocppSessions.remove(ocppId);
 				MyJsonServer.this.parent.activeEvcsSessions.remove(sessionIndex);
+			}
+
+			@Override
+			public void authenticateSession(SessionInformation arg0, String arg1, byte[] arg2)
+					throws AuthenticationException {
+				MyJsonServer.this.logDebug("authenticateSession " + arg0 + "; " + arg1);
 			}
 		});
 	}

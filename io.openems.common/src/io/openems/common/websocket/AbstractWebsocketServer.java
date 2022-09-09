@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
@@ -97,7 +96,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 					} catch (OpenemsNamedException e) {
 						// handle deprecated non-JSON-RPC messages
-						message = AbstractWebsocketServer.this.handleNonJsonrpcMessage(stringMessage, e);
+						message = AbstractWebsocketServer.this.handleNonJsonrpcMessage(ws, stringMessage, e);
 					}
 
 					if (message instanceof JsonrpcRequest) {
@@ -116,14 +115,14 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 					}
 				} catch (OpenemsNamedException e) {
-					AbstractWebsocketServer.this.handleInternalErrorAsync(e);
+					AbstractWebsocketServer.this.handleInternalErrorAsync(e, WebsocketUtils.getWsDataString(ws));
 				}
 			}
 
 			@Override
 			public void onError(WebSocket ws, Exception ex) {
 				if (ws == null) {
-					AbstractWebsocketServer.this.handleInternalErrorAsync(ex);
+					AbstractWebsocketServer.this.handleInternalErrorAsync(ex, WebsocketUtils.getWsDataString(ws));
 				} else {
 					AbstractWebsocketServer.this.execute(new OnErrorHandler(AbstractWebsocketServer.this, ws, ex));
 				}
@@ -238,13 +237,14 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 	/**
 	 * Handle Non-JSON-RPC messages.
-	 *
+	 * 
+	 * @param ws            the {@link WebSocket}
 	 * @param stringMessage the message
 	 * @param e             the parse error
 	 * @return message converted to {@link JsonrpcMessage}
 	 * @throws OpenemsNamedException if conversion is not possible
 	 */
-	protected JsonrpcMessage handleNonJsonrpcMessage(String stringMessage, OpenemsNamedException e)
+	protected JsonrpcMessage handleNonJsonrpcMessage(WebSocket ws, String stringMessage, OpenemsNamedException e)
 			throws OpenemsNamedException {
 		throw new OpenemsException("Unhandled Non-JSON-RPC message", e);
 	}

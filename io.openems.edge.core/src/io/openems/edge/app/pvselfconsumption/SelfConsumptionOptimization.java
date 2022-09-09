@@ -48,7 +48,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
     	"METER_ID": "meter0"
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>
