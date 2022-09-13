@@ -367,8 +367,10 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<AddEdgeToUserResponse> handleAddEdgeToUserRequest(User user, AddEdgeToUserRequest request)
 			throws OpenemsNamedException {
 		var edge = this.parent.metadata.addEdgeToUser(user, request.getSetupPassword());
+		var serialNumber = this.parent.metadata.getSerialNumberForEdge(edge);
 
-		return CompletableFuture.completedFuture(new AddEdgeToUserResponse(request.getId(), edge));
+		return CompletableFuture
+				.completedFuture(new AddEdgeToUserResponse(request.getId(), edge, serialNumber.orElse(null)));
 	}
 
 	/**

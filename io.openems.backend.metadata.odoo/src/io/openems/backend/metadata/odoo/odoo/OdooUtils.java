@@ -645,16 +645,17 @@ public class OdooUtils {
 	}
 
 	/**
-	 * Return the Object type-safe as a String; or otherwise as an empty String.
+	 * Return the Object type-safe as a {@link Optional} String; or otherwise as an
+	 * empty {@link Optional}.
 	 *
 	 * @param object the value as object
-	 * @return the value as String
+	 * @return the value as {@link Optional} String
 	 */
-	protected static String getAsString(Object object) {
+	protected static Optional<String> getAsOptionalString(Object object) {
 		if (object instanceof String) {
-			return (String) object;
+			return Optional.of((String) object);
 		}
-		return "";
+		return Optional.empty();
 	}
 
 	/**

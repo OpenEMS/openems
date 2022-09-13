@@ -20,6 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.metadata.odoo.Config;
 import io.openems.backend.metadata.odoo.EdgeCache;
@@ -603,7 +604,8 @@ public class OdooHandler {
 	 * @throws OpenemsException on error
 	 */
 	private void addTagToPartner(int userId) throws OpenemsException {
-		var createdViaIbnTag = OdooUtils.getObjectReference(this.credentials, "fems", "res_partner_category_created_via_ibn");
+		var createdViaIbnTag = OdooUtils.getObjectReference(this.credentials, "fems",
+				"res_partner_category_created_via_ibn");
 		var customerTag = OdooUtils.getObjectReference(this.credentials, "fems", "res_partner_category_customer");
 
 		var partnerId = this.getOdooPartnerId(userId);
@@ -933,6 +935,35 @@ public class OdooHandler {
 		return JsonUtils.getAsJsonObject(
 				OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/get_latest_setup_protocol",
 						"session_id=" + user.getToken(), request).result);
+	}
+
+	/**
+	 * Get serial number for the given {@link Edge}.
+	 * 
+	 * @param edge the {@link Edge}
+	 * @return Serial number or empty {@link Optional}
+	 */
+	public Optional<String> getSerialNumberForEdge(Edge edge) {
+		try {
+			var edgeIds = OdooUtils.search(this.credentials, Field.EdgeDevice.ODOO_MODEL, //
+					new Domain(Field.EdgeDevice.NAME, "=", edge.getId()));
+			if (edgeIds.length == 0) {
+				return Optional.empty();
+			}
+
+			var serialNumberField = OdooUtils.readOne(this.credentials, Field.EdgeDevice.ODOO_MODEL, edgeIds[0],
+					Field.EdgeDevice.STOCK_PRODUCTION_LOT_ID);
+
+			var serialNumber = serialNumberField.get(Field.EdgeDevice.STOCK_PRODUCTION_LOT_ID.id());
+			if (serialNumber instanceof Object[] && ((Object[]) serialNumber).length > 1) {
+				return OdooUtils.getAsOptionalString(((Object[]) serialNumber)[1]);
+			}
+			return Optional.empty();
+		} catch (OpenemsException ex) {
+			this.parent.logInfo(this.log, "Unable to find serial number for Edge [" + edge.getId() + "]");
+		}
+
+		return Optional.empty();
 	}
 
 }
