@@ -4,4 +4,4 @@ import { Component } from "@angular/core";
     selector: 'heatingelement',
     templateUrl: './heatingelement.html'
 })
-export class HeatingElement { }
+export class HeatingElementComponent { }

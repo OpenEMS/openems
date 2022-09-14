@@ -3,4 +3,4 @@ import { Component } from '@angular/core';
 @Component({
     templateUrl: './modal.html'
 })
-export class Modal { }
+export class ModalComponent { }

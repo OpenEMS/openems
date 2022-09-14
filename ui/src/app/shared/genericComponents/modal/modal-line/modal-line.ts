@@ -5,7 +5,7 @@ import { AbstractModalLine } from "../abstract-modal-line";
     selector: 'oe-modal-line',
     templateUrl: './modal-line.html',
 })
-export class ModalLine extends AbstractModalLine {
+export class ModalLineComponent extends AbstractModalLine {
 
     // Width of Left Column, Right Column is (100% - leftColumn)
     @Input()

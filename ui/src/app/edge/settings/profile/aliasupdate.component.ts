@@ -1,19 +1,19 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { EdgeConfig, Edge, Websocket, Service } from 'src/app/shared/shared';
-import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 @Component({
     selector: 'aliasupdate',
     templateUrl: './aliasupdate.component.html'
 })
-export class AliasUpdateComponent {
+export class AliasUpdateComponent implements OnInit {
 
     private edge: Edge;
 
     public component: EdgeConfig.Component = null;
-    public formGroup: FormGroup = null;
+    public formGroup: FormGroup | null = null;
     public factory: EdgeConfig.Factory = null;
     public componentIcon: string = null;
 

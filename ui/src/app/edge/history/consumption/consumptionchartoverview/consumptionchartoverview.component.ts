@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { EdgeConfig, Service, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: ConsumptionChartOverviewComponent.SELECTOR,
     templateUrl: './consumptionchartoverview.component.html'
 })
-export class ConsumptionChartOverviewComponent {
+export class ConsumptionChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "consumption-chart-overview";
 

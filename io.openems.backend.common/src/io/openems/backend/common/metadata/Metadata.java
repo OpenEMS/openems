@@ -321,4 +321,12 @@ public interface Metadata {
 		public static final String AFTER_IS_INITIALIZED = Events.TOPIC_BASE + "TOPIC_AFTER_IS_INITIALIZED";
 	}
 
+	/**
+	 * Get serial number for the given {@link Edge}.
+	 * 
+	 * @param edge {@link Edge} to search for serial number
+	 * @return Serial number or empty {@link Optional}
+	 */
+	public Optional<String> getSerialNumberForEdge(Edge edge);
+
 }

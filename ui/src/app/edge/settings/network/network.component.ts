@@ -1,13 +1,13 @@
+import { Component, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
+import { FormlyFieldConfig } from '@ngx-formly/core';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, Service, Websocket } from '../../../shared/shared';
-import { FormGroup } from '@angular/forms';
-import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { GetNetworkConfigRequest } from './getNetworkConfigRequest';
 import { GetNetworkConfigResponse } from './getNetworkConfigResponse';
-import { NetworkInterface } from './shared';
 import { SetNetworkConfigRequest } from './setNetworkConfigRequest';
+import { NetworkInterface } from './shared';
 
 export interface InterfaceForm {
   name: string,
@@ -20,7 +20,7 @@ export interface InterfaceForm {
   selector: NetworkComponent.SELECTOR,
   templateUrl: './network.component.html'
 })
-export class NetworkComponent {
+export class NetworkComponent implements OnInit {
 
   private static readonly SELECTOR = "network";
 

@@ -12,7 +12,7 @@ class Package {
 
   public currentVersion = null;
   public latestVersion = null;
-  public isUpdateAvailable = null;
+  public isUpdateAvailable: boolean | null = null;
 
   constructor(
     public readonly name: string,

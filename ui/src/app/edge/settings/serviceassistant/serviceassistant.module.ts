@@ -2,8 +2,8 @@ import { NgModule } from "@angular/core";
 import { SharedModule } from "src/app/shared/shared.module";
 import { ServiceAssistantComponent } from "./serviceassistant.component";
 import { SoltaroCellChartComponent } from "./soltarosingle/cell-chart/chart.component";
-import { SoltaroVersionB } from "./soltarosingle/soltaroB.component";
-import { SoltaroVersionC } from "./soltarosingle/soltaroC.component";
+import { SoltaroVersionBComponent } from "./soltarosingle/soltaroB.component";
+import { SoltaroVersionCComponent } from "./soltarosingle/soltaroC.component";
 
 @NgModule({
     imports: [
@@ -14,8 +14,8 @@ import { SoltaroVersionC } from "./soltarosingle/soltaroC.component";
     declarations: [
         ServiceAssistantComponent,
         SoltaroCellChartComponent,
-        SoltaroVersionB,
-        SoltaroVersionC
+        SoltaroVersionBComponent,
+        SoltaroVersionCComponent
     ],
     exports: [ServiceAssistantComponent]
 })

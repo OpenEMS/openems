@@ -1,14 +1,14 @@
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
-import { Component, Input } from '@angular/core';
-import { AbstractBattery, ChannelChartDescription, CategorizedChannelDescription, ChannelDescription } from '../abstractbattery.component';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
+import { AbstractBattery, CategorizedChannelDescription, ChannelChartDescription, ChannelDescription } from '../abstractbattery.component';
 
 @Component({
     selector: "soltaroVersionC",
     templateUrl: './../abstractbattery.component.html'
 })
-export class SoltaroVersionC extends AbstractBattery {
+export class SoltaroVersionCComponent extends AbstractBattery implements OnInit {
 
     @Input() private componentId: string;
     @Input() public edge: Edge;

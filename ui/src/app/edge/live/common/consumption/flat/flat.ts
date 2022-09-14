@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { Modal } from '../modal/modal';
+import { ModalComponent } from '../modal/modal';
 
 @Component({
   selector: 'consumption',
   templateUrl: './flat.html'
 })
-export class Flat extends AbstractFlatWidget {
+export class FlatComponent extends AbstractFlatWidget {
 
   public evcss: EdgeConfig.Component[] | null = null;
   public consumptionMeters: EdgeConfig.Component[] = null;
@@ -84,7 +84,7 @@ export class Flat extends AbstractFlatWidget {
 
   async presentModal() {
     const modal = await this.modalController.create({
-      component: Modal
+      component: ModalComponent
     });
     return await modal.present();
   }

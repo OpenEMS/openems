@@ -36,17 +36,6 @@ export class ConfigurationExecuteComponent implements OnInit {
       stopOnRequest.next();
       stopOnRequest.complete();
 
-      // Change EssPower's enablePid to false
-      if (this.edge != null) {
-        this.edge.updateComponentConfig(this.websocket, '_power', [
-          { name: 'enablePid', value: false },
-        ]).then(() => {
-        }).catch(reason => {
-          this.service.toast('Changing PID failed' + '\n' + reason.error.message, 'danger');
-          console.warn(reason);
-        });
-      }
-
       // Add objects to component configurator
       this.componentConfigurator = this.ibn.getComponentConfigurator(this.edge, config, this.websocket, this.service);
 

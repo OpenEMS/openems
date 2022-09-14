@@ -1,17 +1,17 @@
-import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from 'date-fns/esm';
-import { Component } from '@angular/core';
-import { DefaultTypes, } from '../service/defaulttypes';
-import { Edge, Service } from '../shared';
-import { endOfDay, differenceInMilliseconds, addMonths, endOfMonth, endOfYear, subMonths, addYears, subYears } from 'date-fns';
-import { PickDatePopoverComponent } from './popover/popover.component';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { addMonths, addYears, differenceInMilliseconds, endOfDay, endOfMonth, endOfYear, subMonths, subYears } from 'date-fns';
+import { addDays, addWeeks, endOfWeek, isFuture, subDays, subWeeks } from 'date-fns/esm';
+import { DefaultTypes } from '../service/defaulttypes';
+import { Edge, Service } from '../shared';
+import { PickDatePopoverComponent } from './popover/popover.component';
 
 @Component({
     selector: 'pickdate',
     templateUrl: './pickdate.component.html'
 })
-export class PickDateComponent {
+export class PickDateComponent implements OnInit, OnDestroy {
 
     public disableArrow: boolean | null = null;
 
@@ -24,14 +24,14 @@ export class PickDateComponent {
         public popoverCtrl: PopoverController,
     ) { }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.checkArrowAutomaticForwarding();
         this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
         })
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         if (this.changePeriodTimeout != null) {
             clearTimeout(this.changePeriodTimeout);
         }

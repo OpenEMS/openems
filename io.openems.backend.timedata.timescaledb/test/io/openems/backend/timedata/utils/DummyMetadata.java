@@ -145,4 +145,10 @@ public class DummyMetadata implements Metadata {
 		return null;
 	}
 
+	@Override
+	public Optional<String> getSerialNumberForEdge(Edge edge) {
+		// TODO Auto-generated method stub
+		return Optional.empty();
+	}
+
 }

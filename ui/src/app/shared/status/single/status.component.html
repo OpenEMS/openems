@@ -53,7 +53,8 @@
                                         <ng-container *ngFor="let address of subscribedInfoChannels">
                                             <ng-container
                                                 *ngIf="address.componentId === item.id && address.channelId !== 'State'">
-                                                <ng-container *ngIf="currentData.channel[address.toString()] == 1">
+                                                <ng-container *ngIf="currentData.channel[address.toString()] === 1">
+                                                    <!-- State-Channel is active -->
                                                     <ion-label class="ion-text-wrap"
                                                         *ngIf="item.channels[address.channelId]['text'].length !== 0">
                                                         <ng-container

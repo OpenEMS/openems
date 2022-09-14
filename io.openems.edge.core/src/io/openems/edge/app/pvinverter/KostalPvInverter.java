@@ -43,7 +43,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
     	"PV_INVERTER_ID": "pvInverter0",
     	"MODBUS_ID": "modbus0",
     	"IP": "192.168.178.85",
-    	"PORT": "502",
+    	"PORT": "1502",
     	"MODBUS_UNIT_ID": "71"
     },
     "appDescriptor": {
@@ -111,7 +111,7 @@ public class KostalPvInverter extends AbstractPvInverter<Property> implements Op
 								.setDescription(
 										TranslationUtil.getTranslation(bundle, "App.PvInverter.port.description")) //
 								.setInputType(Type.NUMBER) //
-								.setDefaultValue(502) //
+								.setDefaultValue(1502) //
 								.setMin(0) //
 								.isRequired(true) //
 								.build()) //

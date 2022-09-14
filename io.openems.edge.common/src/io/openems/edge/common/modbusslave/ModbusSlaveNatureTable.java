@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.component.OpenemsComponent;
 
 public final class ModbusSlaveNatureTable {
 
@@ -68,6 +71,29 @@ public final class ModbusSlaveNatureTable {
 					break;
 				}
 			}
+			return this;
+		}
+
+		/**
+		 * Add a CycleValue to the {@link Builder}.
+		 * 
+		 * <p>
+		 * A {@link ModbusRecordCycleValue} allows to receive a {@link ModbusRecord} via
+		 * a {@link Function}. The Function is executed in the 'run()' method of the
+		 * Modbus-TCP-Api-Controller.
+		 * 
+		 * @param <T>			   the target OpenemsType
+		 * @param offset           the register address offset
+		 * @param name             the name
+		 * @param unit             the {@link Unit}
+		 * @param valueDescription the value description
+		 * @param type             the {@link ModbusType}
+		 * @param function         the {@link Function}
+		 * @return myself
+		 */
+		public <T extends OpenemsComponent> Builder cycleValue(int offset, String name, Unit unit,
+				String valueDescription, ModbusType type, Function<T, Object> function) {
+			this.add(new ModbusRecordCycleValue<T>(offset, name, unit, valueDescription, type, function));
 			return this;
 		}
 
@@ -212,7 +238,6 @@ public final class ModbusSlaveNatureTable {
 			return new ModbusSlaveNatureTable(this.nature, this.length,
 					this.maps.toArray(new ModbusRecord[this.maps.size()]));
 		}
-
 	}
 
 	/**

@@ -8,6 +8,7 @@ import { ComponentConfigurator, ConfigurationMode } from '../../views/configurat
 import { EmsAppId } from '../../views/heckert-app-installer/heckert-app-installer.component';
 import { AbstractHomeIbn } from './abstract-home';
 import { View } from '../abstract-ibn';
+import { AppCenterUtil } from '../../shared/appcenterutil';
 
 export class HomeHeckertIbn extends AbstractHomeIbn {
 
@@ -41,6 +42,89 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
         const componentConfigurator: ComponentConfigurator =
             super.getComponentConfigurator(edge, config, websocket, service);
 
+        // TODO remove
+        // system not updated => appManager not fully available
+        const isAppManagerAvailable: boolean = AppCenterUtil.isAppManagerAvailable(edge);
+        const confModeRemoveAndConfigure: ConfigurationMode = isAppManagerAvailable ?
+            ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveAndConfigure;
+
+        const confModeRemoveOnly: ConfigurationMode = isAppManagerAvailable ?
+            ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveOnly;
+
+        let appId: string
+        let alias: string
+        let properties: {}
+        switch (this.selectedFreeApp.id) {
+            case EmsAppId.Keba:
+                appId = "App.Evcs.Keba"
+                alias = "Ladestation"
+                properties = {
+                    IP: "192.168.25.11"
+                }
+                break
+            case EmsAppId.HardyBarthSingle:
+                appId = "App.Evcs.HardyBarth"
+                alias = "Ladestation"
+                properties = {
+                    IP: "192.168.25.30"
+                }
+                break
+            case EmsAppId.HardyBarthDouble:
+                // TODO single app
+                break
+            case EmsAppId.HeatPump:
+                appId = "App.Heat.HeatPump"
+                alias = "Wärmepumpe"
+                properties = {
+                    OUTPUT_CHANNEL_1: "io0/Relay1",
+                    OUTPUT_CHANNEL_2: "io0/Relay2"
+                }
+                break
+            case EmsAppId.HeatingElement:
+                appId = "App.Heat.HeatingElement"
+                alias = "Heizstab"
+                properties = {
+                    OUTPUT_CHANNEL_PHASE_L1: "io0/Relay1",
+                    OUTPUT_CHANNEL_PHASE_L2: "io0/Relay2",
+                    OUTPUT_CHANNEL_PHASE_L3: "io0/Relay3"
+                }
+                break
+        }
+        if (isAppManagerAvailable) {
+            // remove old apps
+            componentConfigurator.addInstallAppCallback(() => {
+                return new Promise((resolve, reject) => {
+                    // first remove old apps to make sure the new app can be installed
+                    // e. g. an HeatPump is installed and uses relays and a other app which also
+                    // uses relay ports cant be installed when not enought relays are available
+
+                    // for now its only possible to create one app in the IBN
+                    // to avoid installing multiple apps when executing the IBN
+                    // multiple times
+                    let deletePromise: Promise<any>[] = [];
+                    ["App.Evcs.Keba", "App.Evcs.HardyBarth", "App.Heat.HeatPump",
+                        "App.Heat.HeatingElement"].forEach(removeId => {
+                            if (removeId == appId) {
+                                return;
+                            }
+                            deletePromise.push(AppCenterUtil.removeInstancesOfApp(edge, websocket, removeId));
+                        });
+                    if (!appId) {
+                        Promise.all(deletePromise)
+                            .then(result => resolve(result))
+                            .catch(error => reject(error))
+                    } else {
+                        Promise.all(deletePromise)
+                            .finally(() => {
+                                AppCenterUtil.createOrUpdateApp(edge, websocket, appId, alias, properties)
+                                    .then(value => resolve(value))
+                                    .catch(error => reject(error))
+                            });
+                    }
+                });
+            });
+        }
+
         //components specific to Heckert
         const freeAppId: EmsAppId = this.selectedFreeApp.id;
         const isAppEvcs: boolean = [
@@ -49,8 +133,9 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
             EmsAppId.Keba
         ].includes(freeAppId);
 
-        // Add ip address to network configuration if EVCS gets configured
-        if (isAppEvcs) {
+        // Add ip address to network configuration if HardyBarthDouble gets configured
+        // else the ip gets set by the appManager
+        if ((!isAppManagerAvailable && isAppEvcs) || freeAppId === EmsAppId.HardyBarthDouble) {
             if (!this.addIpAddress('eth0', '192.168.25.10/24', edge, websocket)) {
                 service.toast('Eine für die Ladestation notwendige IP-Adresse konnte nicht zur Netzwerkkonfiguration hinzugefügt werden.'
                     , 'danger');
@@ -69,7 +154,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                 { name: 'minHwCurrent', value: 6000 },
                 { name: 'maxHwCurrent', value: 32000 }
             ],
-            mode: freeAppId === EmsAppId.HardyBarthSingle ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+            mode: freeAppId === EmsAppId.HardyBarthSingle ? confModeRemoveAndConfigure : confModeRemoveOnly
         });
 
         componentConfigurator.add({
@@ -110,7 +195,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                 { name: 'ip', value: '192.168.25.11' },
                 { name: 'minHwCurrent', value: 6000 }
             ],
-            mode: freeAppId === EmsAppId.Keba ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+            mode: freeAppId === EmsAppId.Keba ? confModeRemoveAndConfigure : confModeRemoveOnly
         });
 
         componentConfigurator.add({
@@ -130,7 +215,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                 { name: 'powerPerPhase', value: 2000 },
                 { name: 'minimumSwitchingTime', value: 60 }
             ],
-            mode: freeAppId === EmsAppId.HeatingElement ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+            mode: freeAppId === EmsAppId.HeatingElement ? confModeRemoveAndConfigure : confModeRemoveOnly
         });
 
         componentConfigurator.add({
@@ -154,7 +239,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                 { name: 'automaticLockSoc', value: 20 },
                 { name: 'minimumSwitchingTime', value: 60 }
             ],
-            mode: freeAppId === EmsAppId.HeatPump ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+            mode: freeAppId === EmsAppId.HeatPump ? confModeRemoveAndConfigure : confModeRemoveOnly
         });
 
         // Add EVCS-Controller if selected app is an EVCS
@@ -174,7 +259,8 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                 { name: 'ess.id', value: 'ess0' },
                 { name: 'energySessionLimit', value: 0 }
             ],
-            mode: isAppEvcs ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+            mode: isAppEvcs ? (freeAppId === EmsAppId.HardyBarthDouble ?
+                ConfigurationMode.RemoveAndConfigure : confModeRemoveAndConfigure) : ConfigurationMode.RemoveOnly
         });
 
         // Add second EVCS-Controller for HardyBarthDouble if selected

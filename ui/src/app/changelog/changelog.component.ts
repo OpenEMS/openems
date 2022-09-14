@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'src/environments';
@@ -10,7 +10,7 @@ import { Changelog, Library, OpenemsComponent, Product } from './changelog.const
   selector: 'changelog',
   templateUrl: './changelog.component.html'
 })
-export class ChangelogComponent {
+export class ChangelogComponent implements OnInit {
 
   public environment = environment;
 
@@ -34,6 +34,17 @@ export class ChangelogComponent {
     version: string,
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
+      {
+        version: '2022.9.1',
+        changes: [
+          Changelog.openems('2022.9.1'),
+          Changelog.UI,
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.FEMS_MODBUS_TCP_API) + "Zusätzliche Register für das Minimum und Maximum der Speicherleistung" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.UI + "Verbesserung der Codequalität" },
+          { roleIsAtLeast: Role.ADMIN, change: "Erweiterung der PV-WR Abregelung um phasengenaues Detektieren (Vorerst für dreiphasige PV-WR)" },
+        ]
+      },
       {
         version: '2022.8.5',
         changes: [

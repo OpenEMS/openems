@@ -22,7 +22,7 @@ import { ProtocolAdditionalAcProducersComponent } from "./views/protocol-additio
 import { ProtocolCustomerComponent } from "./views/protocol-customer/protocol-customer.component";
 import { ProtocolFeedInLimitationComponent } from "./views/protocol-feed-in-limitation/protocol-feed-in-limitation.component";
 import { ProtocolInstallerComponent } from "./views/protocol-installer/protocol-installer.component";
-import { ProtocolPv } from "./views/protocol-pv/protocol-pv.component";
+import { ProtocolPvComponent } from "./views/protocol-pv/protocol-pv.component";
 import { ProtocolSerialNumbersComponent } from "./views/protocol-serial-numbers/protocol-serial-numbers.component";
 import { ProtocolSystemComponent } from "./views/protocol-system/protocol-system.component";
 
@@ -192,7 +192,7 @@ export function Commercial50BatteryInverterSerialNumberValidatorMessage(err, fie
     PreInstallationComponent,
     PreInstallationUpdateComponent,
     ConfigurationSystemComponent,
-    ProtocolPv,
+    ProtocolPvComponent,
     ProtocolAdditionalAcProducersComponent,
     ConfigurationSummaryComponent,
     ProtocolSerialNumbersComponent,

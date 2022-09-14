@@ -1,4 +1,4 @@
-package io.openems.edge.controller.selltogridlimit;
+package io.openems.edge.controller.pvinverter.selltogridlimit;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -23,7 +23,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of the Grid-Meter.")
 	String meter_id();
 
-	@AttributeDefinition(name = "Maximum allowed Sell-To-Grid power", description = "The target limit for sell-to-grid power.")
+	@AttributeDefinition(name = "Asymmetric Mode (Not optimized for Single-Phase PV-Inverter)", description = "Reduces PV-Inverter power to limit the Sell-to-Grid power, depending on the individual phase.")
+	boolean asymmetricMode() default false;
+
+	@AttributeDefinition(name = "Maximum allowed Sell-To-Grid power (per Phase in asymmetric mode)", description = "The target limit for sell-to-grid power.")
 	int maximumSellToGridPower() default 5_000;
 
 	String webconsole_configurationFactory_nameHint() default "Controller PV-Inverter Sell-to-Grid Limit [{id}]";

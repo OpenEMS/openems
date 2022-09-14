@@ -1,13 +1,13 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
-import { Component } from '@angular/core';
 import { SetChannelValueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 
 @Component({
-  selector: ServiceAssistent.SELECTOR,
+  selector: ServiceAssistentComponent.SELECTOR,
   templateUrl: './index.component.html'
 })
-export class ServiceAssistent {
+export class ServiceAssistentComponent implements OnInit, OnDestroy {
 
   //private static readonly SELECTOR = "serviceSoltaro";
   private static readonly SELECTOR = "serviceassistent";
@@ -63,7 +63,7 @@ export class ServiceAssistent {
             channelAddresses.push(new ChannelAddress(battery.id, channel));
           }
         });
-        this.edge.subscribeChannels(this.websocket, ServiceAssistent.SELECTOR, channelAddresses);
+        this.edge.subscribeChannels(this.websocket, ServiceAssistentComponent.SELECTOR, channelAddresses);
       });
     });
   }
@@ -94,7 +94,7 @@ export class ServiceAssistent {
     }
 
     if (this.edge) {
-      this.edge.subscribeChannels(this.websocket, ServiceAssistent.SELECTOR, this.subscribedChannels);
+      this.edge.subscribeChannels(this.websocket, ServiceAssistentComponent.SELECTOR, this.subscribedChannels);
     }
   }
 
@@ -125,7 +125,7 @@ export class ServiceAssistent {
 
   ngOnDestroy() {
     if (this.edge != null) {
-      this.edge.unsubscribeChannels(this.websocket, ServiceAssistent.SELECTOR);
+      this.edge.unsubscribeChannels(this.websocket, ServiceAssistentComponent.SELECTOR);
     }
   }
 

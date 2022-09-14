@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Service, Utils, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service, Utils } from '../../../../shared/shared';
 
 @Component({
     selector: ChannelthresholdChartOverviewComponent.SELECTOR,
     templateUrl: './channelthresholdchartoverview.component.html'
 })
-export class ChannelthresholdChartOverviewComponent {
+export class ChannelthresholdChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "channelthreshold-chart-overview";
 

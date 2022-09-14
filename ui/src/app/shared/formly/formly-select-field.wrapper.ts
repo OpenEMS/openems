@@ -5,4 +5,4 @@ import { FieldWrapper } from "@ngx-formly/core";
     selector: 'formly-select-field-wrapper',
     templateUrl: './formly-select-field.wrapper.html',
 })
-export class FormlySelectFieldWrapper extends FieldWrapper { }
+export class FormlySelectFieldWrapperComponent extends FieldWrapper { }

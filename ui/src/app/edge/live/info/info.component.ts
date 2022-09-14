@@ -6,10 +6,4 @@ import { Component } from '@angular/core';
 })
 export class InfoComponent {
 
-    constructor(
-    ) { }
-
-    ngOnInit() { }
-
-    ngOnDestroy() { }
 }

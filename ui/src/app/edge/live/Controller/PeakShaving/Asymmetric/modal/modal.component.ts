@@ -1,15 +1,15 @@
-import { Component, Input } from '@angular/core';
-import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/shared';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/shared';
 
 @Component({
     selector: 'asymmetricpeakshaving-modal',
     templateUrl: './modal.component.html'
 })
-export class Controller_Asymmetric_PeakShavingModalComponent {
+export class Controller_Asymmetric_PeakShavingModalComponent implements OnInit {
 
     @Input() component: EdgeConfig.Component;
     @Input() edge: Edge;

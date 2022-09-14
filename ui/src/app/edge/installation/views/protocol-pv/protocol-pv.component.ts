@@ -18,7 +18,7 @@ export type DcPv = {
   selector: "protocol-pv",
   templateUrl: './protocol-pv.component.html'
 })
-export class ProtocolPv implements OnInit {
+export class ProtocolPvComponent implements OnInit {
 
   @Input() public ibn: HomeFeneconIbn | HomeHeckertIbn;
 

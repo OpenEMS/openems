@@ -423,4 +423,9 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	public EdgeHandler edge() {
 		return this.edgeHandler;
 	}
+
+	@Override
+	public Optional<String> getSerialNumberForEdge(Edge edge) {
+		return this.odooHandler.getSerialNumberForEdge(edge);
+	}
 }

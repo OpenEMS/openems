@@ -43,7 +43,7 @@
         [converter]="CONVERT_WATT_TO_KILOWATT" [value]="maxChargingValue">
       </oe-flat-widget-line>
 
-      <oe-flat-widget-line *ngIf="energySessionLimit != 0" [name]="'Edge.Index.Widgets.EVCS.energyLimit' | translate"
+      <oe-flat-widget-line *ngIf="energySessionLimit !== 0" [name]="'Edge.Index.Widgets.EVCS.energyLimit' | translate"
         [converter]="CONVERT_TO_KILO_WATTHOURS" [value]="energySessionLimit"></oe-flat-widget-line>
     </ng-container>
 

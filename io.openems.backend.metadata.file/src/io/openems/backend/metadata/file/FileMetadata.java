@@ -296,4 +296,10 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 			break;
 		}
 	}
+
+	@Override
+	public Optional<String> getSerialNumberForEdge(Edge edge) {
+		return Optional.empty();
+	}
+
 }

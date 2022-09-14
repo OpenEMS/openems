@@ -4,4 +4,4 @@ import { Component } from "@angular/core";
     selector: 'glsCrowdfunding',
     templateUrl: './glsCrowdfunding.html'
 })
-export class GlsCrowdfunding { }
+export class GlsCrowdfundingComponent { }
