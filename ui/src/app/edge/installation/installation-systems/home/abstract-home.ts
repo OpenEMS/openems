@@ -6,13 +6,30 @@ import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
+import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category, FeedInSetting, FeedInType } from '../../shared/enums';
 import { ComponentData, SerialNumberFormData } from '../../shared/ibndatatypes';
 import { ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { SafetyCountry } from '../../views/configuration-execute/safety-country';
 import { AcPv } from '../../views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
 import { DcPv } from '../../views/protocol-pv/protocol-pv.component';
-import { AbstractIbn } from '../abstract-ibn';
+import { AbstractIbn, SchedulerIdBehaviour } from '../abstract-ibn';
+
+type FeneconHome = {
+  SAFETY_COUNTRY: SafetyCountry,
+  RIPPLE_CONTROL_RECEIVER_ACTIV: boolean,
+  MAX_FEED_IN_POWER?: number,
+  FEED_IN_SETTING: string,
+  HAS_AC_METER: boolean,
+  HAS_DC_PV1: boolean,
+  DC_PV1_ALIAS?: string,
+  HAS_DC_PV2: boolean,
+  DC_PV2_ALIAS?: string,
+  HAS_EMERGENCY_RESERVE: boolean,
+  EMERGENCY_RESERVE_ENABLED?: boolean,
+  EMERGENCY_RESERVE_SOC?: number,
+  SHADOW_MANAGEMENT_DISABLED?: boolean
+}
 
 export abstract class AbstractHomeIbn extends AbstractIbn {
   private static readonly SELECTOR = 'Home';
@@ -515,22 +532,27 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   }
 
   public setRequiredControllers() {
-    let requiredControllerIds: string[];
+    this.requiredControllerIds = [];
     if (this.emergencyReserve.isEnabled) {
-      requiredControllerIds = [
-        'ctrlEmergencyCapacityReserve0',
-        'ctrlGridOptimizedCharge0',
-        'ctrlEssSurplusFeedToGrid0',
-        'ctrlBalancing0',
-      ];
-    } else {
-      requiredControllerIds = [
-        'ctrlGridOptimizedCharge0',
-        'ctrlEssSurplusFeedToGrid0',
-        'ctrlBalancing0',
-      ];
+      this.requiredControllerIds.push({
+        componentId: "ctrlEmergencyCapacityReserve0"
+        , behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
+      })
     }
-    this.requiredControllerIds = requiredControllerIds;
+    this.requiredControllerIds.push(
+      {
+        componentId: "ctrlGridOptimizedCharge0"
+        , behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
+      },
+      {
+        componentId: "ctrlEssSurplusFeedToGrid0"
+        , behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
+      },
+      {
+        componentId: "ctrlBalancing0"
+        , behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
+      }
+    );
   }
 
   public addCustomBatteryData(batteryData: ComponentData[]) {
@@ -929,6 +951,95 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service?: Service) {
     const componentConfigurator: ComponentConfigurator =
       new ComponentConfigurator(edge, config, websocket);
+
+    // Determine safety country
+    let safetyCountry: SafetyCountry;
+    if (this.location.isEqualToCustomerData) {
+      safetyCountry = SafetyCountry.getSafetyCountry(this.customer.country);
+    } else {
+      safetyCountry = SafetyCountry.getSafetyCountry(this.location.country);
+    }
+
+    // Determine feed-in-setting
+    let feedInSetting: FeedInSetting;
+    const feedInLimitation = this.feedInLimitation;
+    if (
+      feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor
+    ) {
+      feedInSetting = feedInLimitation.fixedPowerFactor;
+    } else {
+      feedInSetting = feedInLimitation.feedInSetting;
+    }
+
+    // meter1
+    const acArray = this.pv.ac;
+    const isAcCreated: boolean = acArray.length >= 1;
+
+    // TODO if more than 1 meter should be created, this logic must be changed
+    const acAlias: string = isAcCreated ? acArray[0].alias : '';
+    const acModbusUnitId: number = isAcCreated
+      ? acArray[0].modbusCommunicationAddress
+      : 0;
+
+    let homeAppProperties: FeneconHome = {
+      SAFETY_COUNTRY: safetyCountry,
+      ...(feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION && { RIPPLE_CONTROL_RECEIVER_ACTIV: true }),
+      ...(feedInLimitation.maximumFeedInPower && { MAX_FEED_IN_POWER: feedInLimitation.maximumFeedInPower }),
+      FEED_IN_SETTING: feedInSetting,
+      HAS_AC_METER: isAcCreated,
+      HAS_DC_PV1: this.pv.dc1.isSelected,
+      ...(this.pv.dc1.isSelected && { DC_PV1_ALIAS: this.pv.dc1.alias }),
+      HAS_DC_PV2: this.pv.dc2.isSelected,
+      ...(this.pv.dc2.isSelected && { DC_PV2_ALIAS: this.pv.dc2.alias }),
+      HAS_EMERGENCY_RESERVE: this.emergencyReserve.isEnabled,
+      ...(this.emergencyReserve.isEnabled && { EMERGENCY_RESERVE_ENABLED: this.emergencyReserve.isReserveSocEnabled }),
+      ...(this.emergencyReserve.isReserveSocEnabled && { EMERGENCY_RESERVE_SOC: this.emergencyReserve.value }),
+      ...(this.batteryInverter?.shadowManagementDisabled && { SHADOW_MANAGEMENT_DISABLED: true })
+    }
+
+    // TODO remove
+    // system not updated => newest appManager not available
+    const isAppManagerAvailable: boolean = AppCenterUtil.isAppManagerAvailable(edge)
+    const confModeRemoveAndConfigure: ConfigurationMode = isAppManagerAvailable ?
+      ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveAndConfigure;
+
+    const confModeRemoveOnly: ConfigurationMode = isAppManagerAvailable ?
+      ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveOnly;
+
+    const confModeUpdateOnly: ConfigurationMode = isAppManagerAvailable ?
+      ConfigurationMode.CreatedByAppManager : ConfigurationMode.UpdateOnly;
+
+    if (isAppManagerAvailable) {
+      componentConfigurator.addInstallAppCallback(() => {
+        return new Promise((resolve, reject) => {
+          AppCenterUtil.createOrUpdateApp(edge, websocket, "App.FENECON.Home", "FENECON Home", homeAppProperties)
+            .then(instance => {
+              if (!isAcCreated) {
+                resolve(instance)
+              }
+              let acMeters = instance.dependencies.filter(dependency => {
+                return dependency.key == "AC_METER"
+              })
+              if (acMeters.length == 0) {
+                reject("AC Meter not created!")
+              }
+              AppCenterUtil.getAppInstance(edge, websocket, "App.Meter.Socomec", acMeters[0].instanceId)
+                .then(instance => {
+                  // update meter with existing properties
+                  instance.properties["MODBUS_UNIT_ID"] = acModbusUnitId
+                  AppCenterUtil.updateApp(edge, websocket, instance.instanceId, acAlias, instance.properties)
+                    .then(response => resolve(response))
+                    .catch(error => reject(error))
+                })
+                .catch(error => reject(error))
+            })
+            .catch(error => reject(error))
+        })
+      });
+
+    }
+
+    // TODO remove components later when progress is shown by appManager
     // modbus1
     componentConfigurator.add({
       factoryId: 'Bridge.Modbus.Serial',
@@ -944,7 +1055,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'logVerbosity', value: 'NONE' },
         { name: 'invalidateElementsAfterReadErrors', value: 1 },
       ],
-      mode: ConfigurationMode.RemoveAndConfigure,
+      mode: confModeRemoveAndConfigure,
     });
 
     // modbus0
@@ -962,7 +1073,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'logVerbosity', value: 'NONE' },
         { name: 'invalidateElementsAfterReadErrors', value: 1 },
       ],
-      mode: ConfigurationMode.RemoveAndConfigure,
+      mode: confModeRemoveAndConfigure,
     });
 
     // meter0
@@ -975,7 +1086,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'modbus.id', value: 'modbus1' },
         { name: 'modbusUnitId', value: 247 },
       ],
-      mode: ConfigurationMode.RemoveAndConfigure,
+      mode: confModeRemoveAndConfigure,
     });
 
     // io0
@@ -988,7 +1099,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'modbus.id', value: 'modbus0' },
         { name: 'modbusUnitId', value: 2 },
       ],
-      mode: ConfigurationMode.RemoveAndConfigure,
+      mode: confModeRemoveAndConfigure,
     });
 
     // battery0
@@ -1002,25 +1113,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'modbus.id', value: 'modbus0' },
         { name: 'modbusUnitId', value: 1 },
       ],
-      mode: ConfigurationMode.RemoveAndConfigure,
+      mode: confModeRemoveAndConfigure,
     });
-
-    // Determine safety country
-    let safetyCountry: SafetyCountry;
-    if (this.location.isEqualToCustomerData) {
-      safetyCountry = SafetyCountry.getSafetyCountry(this.customer.country);
-    } else {
-      safetyCountry = SafetyCountry.getSafetyCountry(this.location.country);
-    }
-
-    // Determine feed-in-setting
-    let feedInSetting: FeedInSetting;
-    const feedInLimitation = this.feedInLimitation;
-    if (feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor) {
-      feedInSetting = feedInLimitation.fixedPowerFactor;
-    } else {
-      feedInSetting = feedInLimitation.feedInSetting;
-    }
 
     // batteryInverter0
     let goodweconfig = {
@@ -1044,7 +1138,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
             : 'ENABLE',
         },
       ],
-      mode: ConfigurationMode.RemoveAndConfigure,
+      mode: confModeRemoveAndConfigure,
     }
 
     feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
@@ -1061,15 +1155,6 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     componentConfigurator.add(goodweconfig);
 
     // meter1
-    const acArray = this.pv.ac;
-    const isAcCreated: boolean = acArray.length >= 1;
-
-    // TODO if more than 1 meter should be created, this logic must be changed
-    const acAlias = isAcCreated ? acArray[0].alias : '';
-    const acModbusUnitId = isAcCreated
-      ? acArray[0].modbusCommunicationAddress
-      : 0;
-
     componentConfigurator.add({
       factoryId: 'Meter.Socomec.Threephase',
       componentId: 'meter1',
@@ -1082,10 +1167,9 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'invert', value: false },
       ],
       mode: isAcCreated
-        ? ConfigurationMode.RemoveAndConfigure
-        : ConfigurationMode.RemoveOnly,
+        ? confModeRemoveAndConfigure
+        : confModeRemoveOnly,
     });
-
     // charger0
     componentConfigurator.add({
       factoryId: 'GoodWe.Charger-PV1',
@@ -1098,10 +1182,9 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'modbusUnitId', value: 247 },
       ],
       mode: this.pv.dc1.isSelected
-        ? ConfigurationMode.RemoveAndConfigure
-        : ConfigurationMode.RemoveOnly,
+        ? confModeRemoveAndConfigure
+        : confModeRemoveOnly,
     });
-
     // charger1
     componentConfigurator.add({
       factoryId: 'GoodWe.Charger-PV2',
@@ -1114,10 +1197,9 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'modbusUnitId', value: 247 },
       ],
       mode: this.pv.dc2.isSelected
-        ? ConfigurationMode.RemoveAndConfigure
-        : ConfigurationMode.RemoveOnly,
+        ? confModeRemoveAndConfigure
+        : confModeRemoveOnly,
     });
-
     // ess0
     componentConfigurator.add({
       factoryId: 'Ess.Generic.ManagedSymmetric',
@@ -1129,9 +1211,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'batteryInverter.id', value: 'batteryInverter0' },
         { name: 'battery.id', value: 'battery0' },
       ],
-      mode: ConfigurationMode.RemoveAndConfigure,
+      mode: confModeRemoveAndConfigure,
     });
-
     // predictor0
     componentConfigurator.add({
       factoryId: 'Predictor.PersistenceModel',
@@ -1144,9 +1225,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           value: ['_sum/ProductionActivePower', '_sum/ConsumptionActivePower'],
         },
       ],
-      mode: ConfigurationMode.RemoveAndConfigure,
+      mode: confModeRemoveAndConfigure,
     });
-
     // ctrlGridOptimizedCharge0
     let gridOptimizedCharge = {
       factoryId: 'Controller.Ess.GridOptimizedCharge',
@@ -1161,7 +1241,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'debugMode', value: false },
         { name: 'sellToGridLimitRampPercentage', value: 2 },
       ],
-      mode: ConfigurationMode.RemoveAndConfigure,
+      mode: confModeRemoveAndConfigure,
     }
 
     feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
@@ -1187,9 +1267,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'enabled', value: true },
         { name: 'ess.id', value: 'ess0' },
       ],
-      mode: ConfigurationMode.RemoveAndConfigure,
+      mode: confModeRemoveAndConfigure,
     });
-
     // ctrlBalancing0
     componentConfigurator.add({
       factoryId: 'Controller.Symmetric.Balancing',
@@ -1201,10 +1280,9 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'meter.id', value: 'meter0' },
         { name: 'targetGridSetpoint', value: 0 },
       ],
-      mode: ConfigurationMode.RemoveAndConfigure,
+      mode: confModeRemoveAndConfigure,
     });
 
-    const emergencyReserve = this.emergencyReserve;
     componentConfigurator.add({
       factoryId: 'GoodWe.EmergencyPowerMeter',
       componentId: 'meter2',
@@ -1214,11 +1292,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'modbus.id', value: 'modbus1' },
         { name: 'modbusUnitId', value: 247 },
       ],
-      mode: emergencyReserve.isEnabled
-        ? ConfigurationMode.RemoveAndConfigure
-        : ConfigurationMode.RemoveOnly,
+      mode: this.emergencyReserve.isEnabled
+        ? confModeRemoveAndConfigure
+        : confModeRemoveOnly,
     });
-
     componentConfigurator.add({
       factoryId: 'Controller.Ess.EmergencyCapacityReserve',
       componentId: 'ctrlEmergencyCapacityReserve0',
@@ -1226,15 +1303,15 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       properties: [
         { name: 'enabled', value: true },
         { name: 'ess.id', value: 'ess0' },
-        { name: 'isReserveSocEnabled', value: emergencyReserve.isReserveSocEnabled },
+        { name: 'isReserveSocEnabled', value: this.emergencyReserve.isReserveSocEnabled },
         {
           name: 'reserveSoc',
-          value: emergencyReserve.value ?? 5 /* minimum allowed value */,
+          value: this.emergencyReserve.value ?? 5 /* minimum allowed value */,
         },
       ],
-      mode: emergencyReserve.isEnabled
-        ? ConfigurationMode.RemoveAndConfigure
-        : ConfigurationMode.RemoveOnly,
+      mode: this.emergencyReserve.isEnabled
+        ? confModeRemoveAndConfigure
+        : confModeRemoveOnly,
     });
 
     componentConfigurator.add({
@@ -1244,7 +1321,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       properties: [
         { name: 'enablePid', value: false },
       ],
-      mode: ConfigurationMode.UpdateOnly
+      mode: confModeUpdateOnly
     });
 
     return componentConfigurator;

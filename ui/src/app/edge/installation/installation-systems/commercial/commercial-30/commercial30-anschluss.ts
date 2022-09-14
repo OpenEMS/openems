@@ -1,7 +1,7 @@
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { FeedInType } from '../../../shared/enums';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
-import { View } from '../../abstract-ibn';
+import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
 import { AbstractCommercial30Ibn } from './abstract-commercial-30';
 
 export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
@@ -30,14 +30,17 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
     }
 
     public setRequiredControllers() {
-
-        const requiredControllerIds: string[] = ['ctrlBalancing0'];
-
+        this.requiredControllerIds = [];
         if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
-            requiredControllerIds.push('ctrlGridOptimizedCharge0')
+            this.requiredControllerIds.push({
+                componentId: "ctrlGridOptimizedCharge0"
+                , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+            })
         }
-
-        this.requiredControllerIds = requiredControllerIds;
+        this.requiredControllerIds.push({
+            componentId: "ctrlBalancing0"
+            , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+        });
     }
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket) {

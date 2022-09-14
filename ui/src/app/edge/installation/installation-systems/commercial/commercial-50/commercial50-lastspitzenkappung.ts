@@ -1,6 +1,6 @@
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
-import { View } from '../../abstract-ibn';
+import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
 import { AbstractCommercial50Ibn } from './abstract-commercial-50';
 
 export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
@@ -27,11 +27,10 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
     }
 
     public setRequiredControllers() {
-        const requiredControllerIds = [
-            'ctrlPeakShaving0',
-        ];
-
-        this.requiredControllerIds = requiredControllerIds;
+        this.requiredControllerIds = [{
+            componentId: "ctrlPeakShaving0"
+            , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+        }];
     }
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket) {

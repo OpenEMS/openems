@@ -37,6 +37,16 @@ export type SerialNumberData = {
   header: string;
 };
 
+export type SchedulerId = {
+  componentId: string,
+  behaviour: SchedulerIdBehaviour
+}
+
+export enum SchedulerIdBehaviour {
+  MANAGED_BY_APP_MANAGER,
+  ALWAYS_INCLUDE
+}
+
 export abstract class AbstractIbn {
   // Battery type
   public readonly type: string;
@@ -118,7 +128,7 @@ export abstract class AbstractIbn {
   };
 
   //Controller-Id's
-  public requiredControllerIds: string[];
+  public requiredControllerIds: SchedulerId[];
 
   // Heckert-app-installer
   public selectedFreeApp?: EmsApp;

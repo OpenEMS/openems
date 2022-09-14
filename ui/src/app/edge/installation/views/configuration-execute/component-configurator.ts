@@ -1,11 +1,14 @@
 import { Subscription } from "rxjs";
 import { filter } from "rxjs/operators";
 import { ChannelAddress, Edge, EdgeConfig, Websocket } from "src/app/shared/shared";
+import { SchedulerId, SchedulerIdBehaviour } from "../../installation-systems/abstract-ibn";
+import { AppCenterUtil } from "../../shared/appcenterutil";
 
 export enum ConfigurationMode {
     RemoveAndConfigure = "remove-and-configure",    // The component will be removed and then configured as specified
     RemoveOnly = "remove-only",                     // The component will only be removed
-    UpdateOnly = "update-only",
+    UpdateOnly = "update-only",                     // The component gets updated can be used for core components like _power, ...
+    CreatedByAppManager = "created-by-app-manager", // The component will be created by the AppManager
 }
 
 export enum ConfigurationState {
@@ -48,6 +51,8 @@ export class ComponentConfigurator {
     private channelMappings: { configurationObject: ConfigurationObject, channelAddress: ChannelAddress }[] = [];
     private subscriptions: Subscription[] = [];
 
+    private installAppCallbacks: (() => Promise<any>)[] = []
+
     constructor(private edge: Edge, private config: EdgeConfig, private websocket: Websocket) { }
 
     /**
@@ -59,6 +64,10 @@ export class ComponentConfigurator {
     public add(configurationObject: ConfigurationObject) {
         this.refreshConfigurationState(configurationObject);
         this.configurationObjects.push(configurationObject);
+    }
+
+    public addInstallAppCallback(installAppCallback: () => Promise<any>) {
+        this.installAppCallbacks.push(installAppCallback)
     }
 
     private refreshConfigurationState(configurationObject: ConfigurationObject) {
@@ -82,21 +91,35 @@ export class ComponentConfigurator {
      * @returns a promise of type void
      */
     public start(): Promise<void> {
-
-        this.refreshAllConfigurationStates();
         return new Promise((resolve, reject) => {
-            this.clear().then(response => {
-                this.configureNext(0).then(() => {
-                    this.updateScheduler();
-                    //this.stopFunctionTests(); TODO
-                    resolve(response);
-                }).catch((reason) => {
-                    reject(reason);
+            // first update scheduler to make sure it is created
+            this.updateScheduler().then(() => {
+                // execute app install callbacks
+                let installApp = new Promise<void>((resolve, reject) => {
+                    let allPromises: Promise<any>[] = []
+                    this.installAppCallbacks.forEach(callback => {
+                        allPromises.push(callback());
+                    });
+                    Promise.all(allPromises).then(() => resolve())
+                        .catch(error => reject(error));
                 });
-            }).catch((reason) => {
+
+                this.refreshAllConfigurationStates();
+                let updateComponents = new Promise((resolve, reject) => {
+                    this.clear().then(response => {
+                        this.configureNext(0).then(() =>
+                            //this.stopFunctionTests(); TODO
+                            resolve(response))
+                            .catch((reason) => reject(reason));
+                    }).catch((reason) => reject(reason));
+                })
+                Promise.all([installApp, updateComponents])
+                    .then(() => resolve())
+                    .catch(error => reject(error));
+            }).catch(reason => {
                 reject(reason);
-            });
-        });
+            })
+        })
     }
 
     /**
@@ -110,7 +133,7 @@ export class ComponentConfigurator {
         let configurationObjectsToBeInstalled: ConfigurationObject[] = [];
 
         for (let configurationObject of this.configurationObjects) {
-            if (configurationObject.mode === ConfigurationMode.RemoveAndConfigure) {
+            if (configurationObject.mode !== ConfigurationMode.RemoveOnly) {
                 configurationObjectsToBeInstalled.push(configurationObject);
             }
         }
@@ -200,6 +223,11 @@ export class ComponentConfigurator {
         return new Promise((resolve, reject) => {
             let configurationObject = preConfiguredObjects[index];
 
+            let delay = DELAY_CLEAR;
+            if (configurationObject.mode === ConfigurationMode.CreatedByAppManager) {
+                delay = 0;
+            }
+
             const clearNext = () => {
                 configurationObject.configState = ConfigurationState.Missing;
 
@@ -213,10 +241,15 @@ export class ComponentConfigurator {
                     } else {
                         resolve();
                     }
-                }, DELAY_CLEAR);
+                }, delay);
             }
 
-            if (configurationObject.mode == ConfigurationMode.UpdateOnly) {
+            if (configurationObject.mode === ConfigurationMode.CreatedByAppManager) {
+                clearNext();
+                return
+            }
+
+            if (configurationObject.mode === ConfigurationMode.UpdateOnly) {
                 clearNext();
                 return;
             }
@@ -277,6 +310,11 @@ export class ComponentConfigurator {
                     timeout = 0;
                 }
 
+                // component got already created by app manager
+                if (configurationObject.mode === ConfigurationMode.CreatedByAppManager) {
+                    timeout = 0;
+                }
+
                 // Recursively installs the next elements with the set delay between
                 setTimeout(() => {
                     if (index + 1 < this.configurationObjects.length) {
@@ -299,6 +337,10 @@ export class ComponentConfigurator {
 
     private configure(configurationObject: ConfigurationObject): Promise<void> {
         return new Promise((resolve, reject) => {
+            if (configurationObject.mode === ConfigurationMode.CreatedByAppManager) {
+                resolve()
+                return
+            }
             let properties: { name: string, value: any }[] = this.generateProperties(configurationObject);
 
             // When in UpdateOnly-Mode the component gets updated and
@@ -377,7 +419,6 @@ export class ComponentConfigurator {
             // Add subscription to list
             this.subscriptions.push(subscription);
         }, DELAY_FUNCTION_TEST);
-
     }
 
     private stopFunctionTests() {
@@ -393,22 +434,50 @@ export class ComponentConfigurator {
      * @param config 
      */
     private updateScheduler() {
-        let scheduler: EdgeConfig.Component = this.config.getComponent("scheduler0");
-        let ibn = JSON.parse(sessionStorage.ibn);
+        return new Promise((resolve, reject) => {
+            let scheduler: EdgeConfig.Component = this.config.getComponent("scheduler0");
+            let ibn = JSON.parse(sessionStorage.ibn);
 
-        let requiredControllerIds: string[] = ibn.requiredControllerIds;
+            let requiredControllerIds: SchedulerId[] = ibn.requiredControllerIds;
+            let controllerIds: string[] = []
+            requiredControllerIds.forEach(value => {
+                if (AppCenterUtil.isAppManagerAvailable(this.edge) && value.behaviour === SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER) {
+                    return
+                }
+                controllerIds.push(value.componentId)
+            })
 
-        if (!scheduler) {
-            // If scheduler is not existing, it gets configured as required
-            this.edge.createComponentConfig(this.websocket, "Scheduler.AllAlphabetically", [
-                { name: "id", value: "scheduler0" },
-                { name: "controllers.ids", value: requiredControllerIds }
-            ]);
-        } else {
-            // If the scheduler is existing, it gets updated
-            this.edge.updateComponentConfig(this.websocket, "scheduler0", [
-                { name: "controllers.ids", value: requiredControllerIds }
-            ]);
-        }
+            if (!scheduler) {
+                // If scheduler doesn't exist, it gets created and configured as required
+                this.edge.createComponentConfig(this.websocket, "Scheduler.AllAlphabetically", [
+                    { name: "id", value: "scheduler0" },
+                    { name: "controllers.ids", value: controllerIds }
+                ])
+                    .then(value => resolve(value))
+                    .catch(error => reject(error));
+            } else {
+                if (controllerIds.length == 0) {
+                    resolve("No Controllers to add.");
+                    return;
+                }
+                // If the scheduler exists, it gets updated
+                let existingControllerIds: string[] = scheduler.properties["controllers.ids"];
+                let newControllerIds: string[] = [];
+
+                for (let requiredControllerId of controllerIds) {
+                    if (!existingControllerIds.find(existingControllerId => requiredControllerId === existingControllerId)) {
+                        newControllerIds.push(requiredControllerId);
+                    }
+                }
+
+                newControllerIds = existingControllerIds.concat(newControllerIds);
+
+                this.edge.updateComponentConfig(this.websocket, "scheduler0", [
+                    { name: "controllers.ids", value: newControllerIds }
+                ])
+                    .then(value => resolve(value))
+                    .catch(error => reject(error));
+            }
+        });
     }
 }

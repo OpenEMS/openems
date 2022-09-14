@@ -5,7 +5,7 @@ import { environment } from 'src/environments';
 import { Category, FeedInType } from '../../../shared/enums';
 import { ComponentData } from '../../../shared/ibndatatypes';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
-import { View } from '../../abstract-ibn';
+import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
 import { AbstractCommercial30Ibn } from './abstract-commercial-30';
 
 export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
@@ -50,17 +50,23 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
     }
 
     public setRequiredControllers() {
-        const requiredControllerIds: string[] = ['ctrlBalancing0'];
-
+        this.requiredControllerIds = [];
         if (this.emergencyReserve.isEnabled) {
-            requiredControllerIds.push('ctrlEmergencyCapacityReserve0');
+            this.requiredControllerIds.push({
+                componentId: "ctrlEmergencyCapacityReserve0"
+                , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+            });
         }
-
         if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
-            requiredControllerIds.push('ctrlGridOptimizedCharge0');
+            this.requiredControllerIds.push({
+                componentId: "ctrlGridOptimizedCharge0"
+                , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+            });
         }
-
-        this.requiredControllerIds = requiredControllerIds;
+        this.requiredControllerIds.push({
+            componentId: "ctrlBalancing0"
+            , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+        });
     }
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket): ComponentConfigurator {
