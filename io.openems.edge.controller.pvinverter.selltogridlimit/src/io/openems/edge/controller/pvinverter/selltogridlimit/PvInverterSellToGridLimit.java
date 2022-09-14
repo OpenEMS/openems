@@ -1,4 +1,4 @@
-package io.openems.edge.controller.selltogridlimit;
+package io.openems.edge.controller.pvinverter.selltogridlimit;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -15,6 +15,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
@@ -71,16 +72,37 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 	/**
 	 * Calculates required charge/discharge power.
 	 *
-	 * @param pvInverter the SymmetricPvInverter
-	 * @param meter      the Meter
+	 * @param pvInverter     the SymmetricPvInverter
+	 * @param meter          the Meter
+	 * @param asymmetricMode is asymmetric mode configured
 	 * @return the required power
 	 * @throws InvalidValueException on error
 	 */
-	private int calculateRequiredPower(ManagedSymmetricPvInverter pvInverter, SymmetricMeter meter)
-			throws InvalidValueException {
-		return meter.getActivePower().getOrError() /* current buy-from/sell-to grid */
-				+ pvInverter.getActivePower().getOrError() /* current charge/discharge Ess */
-				+ this.config.maximumSellToGridPower(); /* the configured limit */
+	private int calculateRequiredPower(ManagedSymmetricPvInverter pvInverter, SymmetricMeter meter,
+			boolean asymmetricMode) throws InvalidValueException {
+
+		/*
+		 * Calculate grid-power
+		 */
+		var gridPower = 0;
+		var maximumSellToGridPower = this.config.maximumSellToGridPower();
+		if (asymmetricMode && meter instanceof AsymmetricMeter) {
+			var asymmetricMeter = (AsymmetricMeter) meter;
+
+			// TODO: Optimize for Single-Phase PV-Inverter
+			var gridPowerL1 = asymmetricMeter.getActivePowerL1().getOrError();
+			var gridPowerL2 = asymmetricMeter.getActivePowerL2().getOrError();
+			var gridPowerL3 = asymmetricMeter.getActivePowerL3().getOrError();
+
+			var minPowerOnPhase = Math.min(Math.min(gridPowerL1, gridPowerL2), gridPowerL3);
+			gridPower = minPowerOnPhase * 3;
+			maximumSellToGridPower *= 3;
+		} else {
+			gridPower = meter.getActivePower().getOrError();
+		}
+		return gridPower /* current buy-from/sell-to grid */
+				+ pvInverter.getActivePower().getOrError() /* current production */
+				+ maximumSellToGridPower; /* the configured limit */
 	}
 
 	@Override
@@ -89,7 +111,7 @@ public class PvInverterSellToGridLimit extends AbstractOpenemsComponent implemen
 		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
 		// Calculates required charge/discharge power
-		var calculatedPower = this.calculateRequiredPower(pvInverter, meter);
+		var calculatedPower = this.calculateRequiredPower(pvInverter, meter, this.config.asymmetricMode());
 
 		if (Math.abs(this.lastSetLimit) > 100 && Math.abs(calculatedPower) > 100 && Math
 				.abs(this.lastSetLimit - calculatedPower) > Math.abs(this.lastSetLimit) * DEFAULT_MAX_ADJUSTMENT_RATE) {
