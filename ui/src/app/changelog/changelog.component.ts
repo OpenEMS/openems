@@ -35,6 +35,17 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.9.1',
+        changes: [
+          Changelog.openems('2022.9.1'),
+          Changelog.UI,
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.FEMS_MODBUS_TCP_API) + "Zusätzliche Register für das Minimum und Maximum der Speicherleistung" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.UI + "Verbesserung der Codequalität" },
+          { roleIsAtLeast: Role.ADMIN, change: "Erweiterung der PV-WR Abregelung um phasengenaues Detektieren (Vorerst für dreiphasige PV-WR)" },
+        ]
+      },
+      {
         version: '2022.8.5',
         changes: [
           Changelog.UI,
