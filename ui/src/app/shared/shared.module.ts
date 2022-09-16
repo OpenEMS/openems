@@ -11,6 +11,7 @@ import { ChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
 import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
+import { DirectiveModule } from './directive/directive';
 import { MeterModule } from './edge/meter/meter.module';
 import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
 import { FormlySelectFieldWrapperComponent } from './formly/formly-select-field.wrapper';
@@ -32,6 +33,7 @@ import { Language } from './translate/language';
     BrowserAnimationsModule,
     ChartsModule,
     CommonModule,
+    DirectiveModule,
     FormsModule,
     IonicModule,
     NgxSpinnerModule.forRoot({
@@ -73,6 +75,7 @@ import { Language } from './translate/language';
     BrowserAnimationsModule,
     ChartsModule,
     CommonModule,
+    DirectiveModule,
     FormlyIonicModule,
     FormlyModule,
     FormsModule,

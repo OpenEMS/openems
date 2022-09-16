@@ -3,7 +3,7 @@
 
   <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
 
-  <ion-card *ngIf="(form.controls['feedInType']?.value == FeedInType.DYNAMIC_LIMITATION) && !showRundSteuerManual">
+  <ion-card *ngIf="(form.controls['feedInType']?.value === FeedInType.DYNAMIC_LIMITATION) && !showRundSteuerManual">
     <ion-card-content>
       <ion-card-subtitle color="success">Info:</ion-card-subtitle>
 
@@ -19,7 +19,7 @@
     </ion-card-content>
   </ion-card>
 
-  <ion-item *ngIf="(form.controls['feedInType']?.value == FeedInType.EXTERNAL_LIMITATION) && showRundSteuerManual">
+  <ion-item *ngIf="(form.controls['feedInType']?.value === FeedInType.EXTERNAL_LIMITATION) && showRundSteuerManual">
     <ion-button (click)="openManual()" slot="end">
       <ion-label>Anleitung öffnen</ion-label>
       <ion-icon name="open-outline" slot="start"></ion-icon>

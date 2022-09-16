@@ -2,7 +2,7 @@
     <ion-header>
         <ion-toolbar color="primary">
             <ion-title>{{ component.alias }}</ion-title>
-            <ion-buttons slot="start" *ngIf="showTotal != null">
+            <ion-buttons slot="start">
                 <chartOptions (setShowTotal)='onNotifyTotal($event)' [showTotal]="showTotal"></chartOptions>
             </ion-buttons>
             <ion-buttons slot="end">
@@ -29,7 +29,7 @@
                 </channelthresholdTotalChart>
             </ion-card-content>
         </ng-container>
-        <ng-container *ngIf="!showTotal || showTotal == null">
+        <ng-container *ngIf="!showTotal">
             <ion-card-content>
                 <table class="full_width">
                     <tr>

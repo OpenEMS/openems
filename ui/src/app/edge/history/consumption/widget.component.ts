@@ -17,8 +17,8 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
 
     public data: Cumulated = null;
     public edge: Edge = null;
-    public evcsComponents: EdgeConfig.Component[] = null;
-    public consumptionMeterComponents: EdgeConfig.Component[] = null;
+    public evcsComponents: EdgeConfig.Component[] = [];
+    public consumptionMeterComponents: EdgeConfig.Component[] = [];
     public totalOtherEnergy: number | null = null;
 
     constructor(

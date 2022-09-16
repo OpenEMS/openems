@@ -15,7 +15,7 @@ export class ChannelthresholdChartOverviewComponent implements OnInit {
 
     public component: EdgeConfig.Component = null;
 
-    public showTotal: boolean = null;
+    public showTotal: boolean = false;
     public channelthresholdComponents: string[] = [];
 
     // reference to the Utils method to access via html
@@ -37,10 +37,8 @@ export class ChannelthresholdChartOverviewComponent implements OnInit {
                         .concat(this.config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
                     this.channelthresholdComponents.push(componentId)
                 }
-                if (this.channelthresholdComponents.length > 1) {
+                if (this.channelthresholdComponents.length > 0) {
                     this.showTotal = false;
-                } else if (this.channelthresholdComponents.length == 1) {
-                    this.showTotal = null;
                 }
             })
         });

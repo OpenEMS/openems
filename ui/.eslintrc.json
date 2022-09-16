@@ -23,7 +23,11 @@
           "error",
           {
             "type": "attribute",
-            "prefix": "app",
+            "prefix": [
+              "app",
+              "oe",
+              "ngVar"
+            ],
             "style": "camelCase"
           }
         ]

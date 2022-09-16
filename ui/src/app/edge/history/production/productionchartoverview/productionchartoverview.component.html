@@ -2,7 +2,7 @@
     <ion-header>
         <ion-toolbar class="ion-justify-content-center" color="primary">
             <ion-title class="ion-text-start ion-padding-left" translate>General.production</ion-title>
-            <ng-container *ngIf="showTotal != null || showPhases != null">
+            <ng-container>
                 <ion-buttons slot="start">
                     <chartOptions (setShowTotal)='onNotifyTotal($event)' (setShowPhases)='onNotifyPhases($event)'
                         [showTotal]="showTotal" [showPhases]="showPhases"></chartOptions>
@@ -33,8 +33,7 @@
         </ng-container>
         <ng-container *ngIf="!showTotal">
             <!-- total summary of AC + DC -->
-            <ng-container
-                *ngIf="productionMeterComponents != null && productionMeterComponents.length > 0 && chargerComponents != null && chargerComponents.length > 0">
+            <ng-container *ngIf="productionMeterComponents.length > 0 && chargerComponents.length > 0">
                 <ion-card-content class="underline">
                     <table class="full_width">
                         <tr>
@@ -46,17 +45,13 @@
                 </ion-card-content>
             </ng-container>
             <!-- One Production Meter -->
-            <ng-container
-                *ngIf="productionMeterComponents != null && productionMeterComponents.length == 1 && (chargerComponents.length == 0 || chargerComponents == null)">
+            <ng-container *ngIf="productionMeterComponents.length === 1 && chargerComponents.length === 0">
                 <ng-container *ngFor="let component of productionMeterComponents">
-                    <ion-card-content [class.underline]="chargerComponents.length > 0">
+                    <ion-card-content>
                         <table class="full_width">
                             <tr>
-                                <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
-                                    {{component.id}}
-                                </td>
-                                <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
-                                    {{component.alias}}
+                                <td style="width: 100%" class="ion-padding">
+                                    {{ component.alias }}
                                 </td>
                             </tr>
                         </table>
@@ -67,17 +62,13 @@
                 </ng-container>
             </ng-container>
             <!-- disable Phases if Total AC + DC Chart is shown -->
-            <ng-container
-                *ngIf="productionMeterComponents != null && productionMeterComponents.length == 1 && chargerComponents.length > 0">
+            <ng-container *ngIf="productionMeterComponents.length === 1 && chargerComponents.length > 0">
                 <ng-container *ngFor="let component of productionMeterComponents">
                     <ion-card-content [class.underline]="chargerComponents.length > 0">
                         <table class="full_width">
                             <tr>
-                                <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
-                                    {{component.id}}
-                                </td>
-                                <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
-                                    {{component.alias}}
+                                <td style="width: 100%" class="ion-padding">
+                                    {{ component.alias }}
                                 </td>
                             </tr>
                         </table>
@@ -89,9 +80,8 @@
             </ng-container>
             <!-- more than one Production Meter -->
             <!-- summary of Production Meters -->
-            <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
-                <ion-card-content class="underline"
-                    *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
+            <ng-container *ngIf="productionMeterComponents.length > 1">
+                <ion-card-content class="underline">
                     <table class="full_width">
                         <tr>
                             <td style="width: 100%" class="ion-padding" translate>General.total</td>
@@ -102,7 +92,7 @@
                 </ion-card-content>
             </ng-container>
 
-            <ng-container *ngIf="productionMeterComponents != null && productionMeterComponents.length > 1">
+            <ng-container *ngIf="productionMeterComponents.length > 1">
                 <ng-container *ngFor="let component of productionMeterComponents">
                     <ng-container *ngIf="config.factories[component.factoryId] as factory">
                         <ion-card-content
@@ -111,13 +101,8 @@
                                 *ngIf="factory.natureIds.includes('io.openems.edge.meter.api.SymmetricMeter')">
                                 <table class="full_width">
                                     <tr>
-                                        <td style="width:100%" class="ion-padding"
-                                            *ngIf="component.id == component.alias">
-                                            {{component.id}}
-                                        </td>
-                                        <td style="width: 100%" class="ion-padding"
-                                            *ngIf="component.id != component.alias">
-                                            {{component.alias}}
+                                        <td style="width: 100%" class="ion-padding">
+                                            {{ component.alias }}
                                         </td>
                                     </tr>
                                 </table>
@@ -130,16 +115,13 @@
             </ng-container>
 
             <!-- one DC Charger -->
-            <ng-container *ngIf="chargerComponents != null && chargerComponents.length == 1">
+            <ng-container *ngIf="chargerComponents.length === 1">
                 <ng-container *ngFor="let component of chargerComponents">
                     <ion-card-content>
                         <table class="full_width">
                             <tr>
-                                <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
-                                    {{component.id}}
-                                </td>
-                                <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
-                                    {{component.alias}}
+                                <td style="width: 100%" class="ion-padding">
+                                    {{ component.alias }}
                                 </td>
                             </tr>
                         </table>
@@ -150,7 +132,7 @@
                 </ng-container>
             </ng-container>
             <!-- more than one DC Charger -->
-            <ng-container *ngIf="chargerComponents != null && chargerComponents.length > 1">
+            <ng-container *ngIf="chargerComponents.length > 1">
                 <!-- summary of DC Charger -->
                 <ion-card-content class="underline">
                     <table class="full_width">
@@ -163,11 +145,8 @@
                 <ng-container *ngFor="let component of chargerComponents">
                     <table class="full_width">
                         <tr>
-                            <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
-                                {{component.id}}
-                            </td>
-                            <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
-                                {{component.alias}}
+                            <td style="width: 100%" class="ion-padding">
+                                {{ component.alias }}
                             </td>
                         </tr>
                     </table>

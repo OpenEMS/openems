@@ -16,7 +16,7 @@ export class StorageChartOverviewComponent implements OnInit {
     public chargerComponents: EdgeConfig.Component[] = null;
 
     public showPhases: boolean = false;
-    public showTotal: boolean = null;
+    public showTotal: boolean = false;
     public isOnlyChart = null;
 
     // reference to the Utils method to access via html

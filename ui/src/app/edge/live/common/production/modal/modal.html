@@ -10,7 +10,7 @@
 
     <!-- ProductionMeters -->
     <!-- One Production Meter -->
-    <ng-container *ngIf="productionMeters.length == 1">
+    <ng-container *ngIf="productionMeters?.length === 1">
         <ng-container *ngFor="let meter of productionMeters; let i = index">
             <ng-container *ngIf="meter.isAsymmetric">
                 <oe-asymmetricMeter [component]="meter.component"></oe-asymmetricMeter>
