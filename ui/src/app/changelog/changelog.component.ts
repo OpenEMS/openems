@@ -22,7 +22,7 @@ export class ChangelogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Menu.changelog'), this.route);
+    this.service.setCurrentComponent({ languageKey: 'Menu.changelog' }, this.route);
   }
 
   public readonly roleIsAtLeast = Role.isAtLeast;

@@ -62,7 +62,7 @@ export class AlertingComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.alerting'), this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.alerting' }, this.route).then(edge => {
       this.edge = edge;
 
       this.options = {

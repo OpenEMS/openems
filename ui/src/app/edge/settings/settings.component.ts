@@ -22,7 +22,7 @@ export class SettingsComponent {
   }
 
   ionViewWillEnter() {
-    this.service.setCurrentComponent(this.translate.instant('Menu.edgeSettings'), this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: 'Menu.edgeSettings' }, this.route).then(edge => {
       this.edge = edge
     });
   }
