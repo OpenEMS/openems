@@ -12,6 +12,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +26,14 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
+import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -35,16 +42,18 @@ import io.openems.edge.ess.power.api.Power;
 @Component(//
 		name = "Edge2Edge.Ess", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		})
 public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, SymmetricEss, Edge2EdgeEss, ModbusComponent, OpenemsComponent {
+		implements ManagedSymmetricEss, SymmetricEss, Edge2EdgeEss, ModbusComponent, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(Edge2EdgeEssImpl.class);
 
 	// TODO this should be read dynamically using the RemoteComponentId-config
 	// property
-	private final static int BASE_ADDRESS = 500;
 	private final ModbusProtocol modbusProtocol;
 
 	@Reference
@@ -218,12 +227,28 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void _readNatureBlock(CompletableFuture<Void> result, int startAddress, int lastAddress) {
+
 		try {
 			ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress), false)
 					.thenAccept(hash -> {
 						this._readNatureBlock(hash);
 
 						try {
+							this._findManagedSymmetric(startAddress).thenAccept(value -> {
+								if (value) {
+									try {
+										this.defineModbusProtocol().addTask(//
+												new FC16WriteRegistersTask(startAddress + 6, //
+														m(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS,
+																new FloatDoublewordElement(startAddress + 6))) //
+										);
+									} catch (OpenemsException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
+							});
+
 							ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress + 1),
 									false).thenAccept(lengthOfBlock -> {
 										var nextStartAddress = startAddress + lengthOfBlock;
@@ -240,6 +265,15 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 		} catch (OpenemsException e) {
 			result.completeExceptionally(e);
 		}
+	}
+
+	private CompletableFuture<Boolean> _findManagedSymmetric(int startAddress) throws OpenemsException {
+		final var result = new CompletableFuture<Boolean>();
+		ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress), true)
+				.thenAccept(value -> {
+					result.complete(isHashEqual(value, "ManagedSymmetricEss"));
+				});
+		return result;
 	}
 
 	private void _readNatureBlock(Integer hash) {
@@ -317,5 +351,26 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public int getPowerPrecision() {
 		return 1;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.handleStateMachine();
+			break;
+		}
+	}
+
+	private void handleStateMachine() {
+		try {
+			this.setActivePowerEquals(1000);
+		} catch (OpenemsNamedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
