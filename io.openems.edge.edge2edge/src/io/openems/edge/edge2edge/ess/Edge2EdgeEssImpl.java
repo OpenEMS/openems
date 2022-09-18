@@ -1,6 +1,9 @@
 package io.openems.edge.edge2edge.ess;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,6 +22,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -26,11 +31,8 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
-import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
-import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -213,49 +215,78 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private CompletableFuture<Void> readNatureBlocks(int startAddress) {
-		final var result = new CompletableFuture<Void>();
+		var result = new CompletableFuture<Integer>();
+		final var resultVoid = new CompletableFuture<Void>();
 		try {
 			ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress + 16), false)
 					.thenAccept(lengthOfBlock -> {
-						var lastAddress = startAddress + 20 + lengthOfBlock; // TODO overlap!
-						this._readNatureBlock(result, startAddress + 20, lastAddress);
+						var lastAddress = startAddress + 20 + lengthOfBlock;
+						createMap(result, startAddress, lastAddress);
 					});
 		} catch (OpenemsException e) {
-			result.completeExceptionally(e);
+			resultVoid.completeExceptionally(e);
+		}
+		return resultVoid;
+	}
+//	try {
+//		this.defineModbusProtocol().addTask(//
+//				new FC3ReadRegistersTask(startAddress, Priority.HIGH, //
+//						m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(startAddress))//
+//		));
+//	} catch (OpenemsException e) {
+//		e.printStackTrace();
+//	}
+//	System.out.println(" Keyy : " + entry.getKey() + " Valuee" + entry.getValue());
+
+	private void createMap(CompletableFuture<Integer> result, int startAddress, int lastAddress) {
+		Map<Object, Object> map = new HashMap<>();
+		map = Lists.newArrayList("SymmetricEss", "ManagedSymmetricEss", "StartStoppable").stream()//
+				.collect(Collectors.toMap(key -> key, a -> {
+					return this._readNatureBlock(startAddress + 20, lastAddress, a);
+				}));
+		System.out.println(" ========================== =======================");
+		map.computeIfAbsent("SymmetricEss", key -> 1000);
+		System.out.println(map + "\n");
+		//TODO to get the map and create add tasks in modbus protocol
+	}
+
+	private CompletableFuture<Boolean> _findNature(int startAddress, String mapValue) {
+		final var result = new CompletableFuture<Boolean>();
+		try {
+			ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress), false)
+					.thenAccept(value -> {
+						result.complete(isHashEqual(value, mapValue));
+					});
+		} catch (OpenemsException e) {
+			e.printStackTrace();
 		}
 		return result;
 	}
 
-	private void _readNatureBlock(CompletableFuture<Void> result, int startAddress, int lastAddress) {
-
+	private CompletableFuture<Integer> _readNatureBlock(int startAddress, int lastAddress, String mapKey) {
+		var result = new CompletableFuture<Integer>();
 		try {
 			ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress), false)
 					.thenAccept(hash -> {
 						this._readNatureBlock(hash);
-
 						try {
-							this._findManagedSymmetric(startAddress).thenAccept(value -> {
-								if (value) {
-									try {
-										this.defineModbusProtocol().addTask(//
-												new FC16WriteRegistersTask(startAddress + 6, //
-														m(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS,
-																new FloatDoublewordElement(startAddress + 6))) //
-										);
-									} catch (OpenemsException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-								}
-							});
-
 							ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress + 1),
 									false).thenAccept(lengthOfBlock -> {
 										var nextStartAddress = startAddress + lengthOfBlock;
 										if (nextStartAddress == lastAddress) {
 											result.complete(null);
 										} else {
-											this._readNatureBlock(result, nextStartAddress, lastAddress);
+											this._findNature(nextStartAddress, mapKey).thenAccept(t -> {
+												if (t) {
+													result.complete(nextStartAddress);
+													System.out.println(
+															"FOuunnDDDD for " + mapKey + " at : " + nextStartAddress);
+												} else {
+													System.out.println("NOT  FOOuunnDDD for " + mapKey
+															+ " trying with : " + nextStartAddress);
+													this._readNatureBlock(nextStartAddress, lastAddress, mapKey);
+												}
+											});
 										}
 									});
 						} catch (OpenemsException e) {
@@ -265,14 +296,6 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 		} catch (OpenemsException e) {
 			result.completeExceptionally(e);
 		}
-	}
-
-	private CompletableFuture<Boolean> _findManagedSymmetric(int startAddress) throws OpenemsException {
-		final var result = new CompletableFuture<Boolean>();
-		ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress), true)
-				.thenAccept(value -> {
-					result.complete(isHashEqual(value, "ManagedSymmetricEss"));
-				});
 		return result;
 	}
 
@@ -369,7 +392,6 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 		try {
 			this.setActivePowerEquals(1000);
 		} catch (OpenemsNamedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
