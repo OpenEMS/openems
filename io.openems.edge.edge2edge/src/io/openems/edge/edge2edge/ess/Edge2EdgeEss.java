@@ -10,6 +10,12 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface Edge2EdgeEss extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		MINIMUM_POWER_SET_POINT(Doc.of(OpenemsType.FLOAT) //
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.WATT)), //
+		MAXIMUM_POWER_SET_POINT(Doc.of(OpenemsType.FLOAT) //
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.WATT)), //
 		REMOTE_NO_OPENEMS(Doc.of(Level.FAULT)), //
 		REMOTE_COMPONENT_ID_NOT_FOUND(Doc.of(Level.FAULT)), //
 
@@ -17,12 +23,6 @@ public interface Edge2EdgeEss extends OpenemsComponent {
 		REMOTE_WARNING(Doc.of(Level.WARNING)), //
 		REMOTE_INFO(Doc.of(Level.INFO)), //
 
-		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
 		;
 
 		private final Doc doc;
