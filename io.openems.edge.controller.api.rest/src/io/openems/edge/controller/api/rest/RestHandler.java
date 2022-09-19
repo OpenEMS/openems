@@ -637,7 +637,7 @@ public class RestHandler extends AbstractHandler {
 
 		// handle null response
 		if (responseFuture == null) {
-			OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getPayload().getMethod());
+			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getPayload().getMethod());
 		}
 
 		// Wrap reply in EdgeRpcResponse
