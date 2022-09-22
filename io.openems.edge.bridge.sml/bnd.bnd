@@ -1,0 +1,15 @@
+Bundle-Name: OpenEMS Edge Bridge SML
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	org.openmuc.jsml;version=1.1.2,\
+	org.openmuc.jrxtx;version=1.0,\
+	jaxb-api
+	
+-testpath: \
+	${testpath},\
+	io.openems.edge.meter.api
