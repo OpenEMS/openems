@@ -391,7 +391,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 								// .bit(0, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_HIGH) //
 								// .bit(1, SingleRackVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_HIGH) //
 								.bit(2, SingleRackVersionC.ChannelId.PRE_ALARM_CHARGE_CURRENT_HIGH) //
-								.bit(3, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_LOW) //
+								// .bit(3, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_LOW) //
 								.bit(4, SingleRackVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_LOW) //
 								.bit(5, SingleRackVersionC.ChannelId.PRE_ALARM_DISCHARGE_CURRENT_HIGH) //
 								.bit(6, SingleRackVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_HIGH) //
