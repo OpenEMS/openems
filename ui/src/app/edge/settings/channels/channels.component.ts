@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { SetChannelValueRequest } from 'src/app/shared/jsonrpc/request/setChannelValueRequest';
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from '../../../shared/shared';
 
+
 @Component({
   selector: ChannelsComponent.SELECTOR,
   templateUrl: './channels.component.html'
@@ -32,6 +33,7 @@ export class ChannelsComponent implements OnInit, OnDestroy {
     this.service.getConfig().then(config => {
       this.config = config;
     })
+    setTimeout(_ => this.loadSavedChannels(), 2000)
   }
 
   subscribeChannel(componentId: string, channelId: string) {
@@ -82,6 +84,24 @@ export class ChannelsComponent implements OnInit, OnDestroy {
       }).catch(reason => {
         this.service.toast("Error setting " + address.toString() + " to [" + value + "]", 'danger');
       });
+    }
+  }
+
+  saveChannels() {
+    let dataStr = JSON.stringify(this.subscribedChannels)
+    localStorage.setItem("openems-ui-channels", dataStr)
+    localStorage.setItem("openems-ui-channels-date", new Date().toUTCString())
+    this.service.toast("Successfully saved subscribed channels", "success")
+  }
+
+  loadSavedChannels() {
+    let storedValue = localStorage.getItem("openems-ui-channels")
+    let date = localStorage.getItem("openems-ui-channels-date")
+    if (storedValue) {
+      let channels: ChannelAddress[] = JSON.parse(storedValue)
+      let that = this
+      channels.map(el => that.subscribeChannel(el.componentId, el.channelId))
+      this.service.toast(`Successfully loaded save from ${date}`, "success")
     }
   }
 
