@@ -1,9 +1,9 @@
 import { Directive, HostListener } from '@angular/core';
 
 @Directive({
-    selector: '[keyMask]'
+    selector: '[oeKeyMask]'
 })
-export class KeyMask {
+export class KeyMaskDirective {
     @HostListener('input', ['$event'])
     onInput(event: KeyboardEvent) {
         const input = event.target as HTMLInputElement;

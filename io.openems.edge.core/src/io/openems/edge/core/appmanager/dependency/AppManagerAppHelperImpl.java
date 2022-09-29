@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -321,7 +322,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			// do not include the dependencies if the app already exists
 			return IncludeApp.INCLUDE_ONLY_APP;
 		};
-		final var lastCreatedOrModifiedApp = new MutableValue<OpenemsAppInstance>();
+		final var lastCreatedOrModifiedApp = new AtomicReference<OpenemsAppInstance>();
 		// update app and its dependencies
 		this.foreachDependency(errors, app, alias, properties, ConfigurationTarget.UPDATE, language,
 				this::determineDependencyConfig, includeDependency, dc -> {
@@ -430,7 +431,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 							}
 
 							// check if the created app can satisfy another app dependency
-							final var fallBackAlwaysCreateApp = new MutableValue<OpenemsAppInstance>();
+							final var fallBackAlwaysCreateApp = new AtomicReference<OpenemsAppInstance>();
 
 							List<OpenemsAppInstance> apps2UpdateDependency = this.getAllInstances().stream() //
 									.filter(i -> {
@@ -441,15 +442,15 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 										}
 										if (neededDependency.createPolicy == DependencyDeclaration.CreatePolicy.ALWAYS) {
 											// only set the dependency to one app which has the always create policy
-											fallBackAlwaysCreateApp.setValue(i);
+											fallBackAlwaysCreateApp.set(i);
 											return false;
 										}
 										return true;
 									}) //
 									.collect(Collectors.toList());
 
-							if (apps2UpdateDependency.isEmpty() && fallBackAlwaysCreateApp.getValue() != null) {
-								apps2UpdateDependency.add(fallBackAlwaysCreateApp.getValue());
+							if (apps2UpdateDependency.isEmpty() && fallBackAlwaysCreateApp.get() != null) {
+								apps2UpdateDependency.add(fallBackAlwaysCreateApp.get());
 							}
 
 							for (var instance : apps2UpdateDependency) {
@@ -496,7 +497,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 						var newAppInstance = new OpenemsAppInstance(dc.app.getAppId(), aliasOfNewInstance, instanceId,
 								propertiesOfNewInstance, dependencies);
-						lastCreatedOrModifiedApp.setValue(newAppInstance);
+						lastCreatedOrModifiedApp.set(newAppInstance);
 						this.temporaryApps.currentlyModifiedApps.removeIf(t -> t.equals(newAppInstance));
 						this.temporaryApps.currentlyCreatingApps.removeIf(t -> t.equals(newAppInstance));
 						if (neededApp.isPresent()) {
@@ -581,7 +582,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 								oldAppConfig.instance.instanceId, newInstanceProperties, dependencies);
 					}
 
-					lastCreatedOrModifiedApp.setValue(newAppInstance);
+					lastCreatedOrModifiedApp.set(newAppInstance);
 					dependencieInstances.put(dc, newAppInstance);
 
 					if (isNotAllowedToUpdate) {
@@ -633,7 +634,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
 
-		return new UpdateValues(lastCreatedOrModifiedApp.getValue(), this.temporaryApps.currentlyCreatingModifiedApps(),
+		return new UpdateValues(lastCreatedOrModifiedApp.get(), this.temporaryApps.currentlyCreatingModifiedApps(),
 				this.temporaryApps.currentlyDeletingApps, warnings);
 	}
 
@@ -646,28 +647,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			}
 		}
 		return null;
-	}
-
-	private static final class MutableValue<T> {
-
-		private T value;
-
-		public MutableValue() {
-			this(null);
-		}
-
-		public MutableValue(T value) {
-			this.setValue(value);
-		}
-
-		public void setValue(T value) {
-			this.value = value;
-		}
-
-		public T getValue() {
-			return this.value;
-		}
-
 	}
 
 	private final DependencyDeclaration getNeededDependencyTo(OpenemsAppInstance instance, String appId,

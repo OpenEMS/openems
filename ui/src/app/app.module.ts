@@ -1,4 +1,5 @@
 import { registerLocaleData } from '@angular/common';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import localDE from '@angular/common/locales/de';
 import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -6,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AngularMyDatePickerModule } from 'angular-mydatepicker';
 import { CookieService } from 'ngx-cookie-service';
 import { AppRoutingModule } from './app-routing.module';
@@ -21,8 +23,11 @@ import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popo
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
 import { SharedModule } from './shared/shared.module';
 import { StatusSingleComponent } from './shared/status/single/status.component';
-import { Language } from './shared/translate/language';
 import { UserModule } from './user/user.module';
+
+export function createTranslateLoader(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 @NgModule({
   declarations: [
@@ -47,9 +52,14 @@ import { UserModule } from './user/user.module';
     IndexModule,
     InstallationModule,
     IonicModule.forRoot(),
+    HttpClientModule,
     SharedModule,
     TranslateModule.forRoot({
-      loader: { provide: TranslateLoader, useClass: Language }
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (createTranslateLoader),
+        deps: [HttpClient]
+      }
     }),
     UserModule,
     RegistrationModule

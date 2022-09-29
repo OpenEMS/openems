@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { environment } from '../environments';
 import { Service, Websocket } from './shared/shared';
-import { LanguageTag } from './shared/translate/language';
+import { Language } from './shared/type/language';
 
 @Component({
   selector: 'app-root',
@@ -30,7 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public websocket: Websocket,
     private titleService: Title
   ) {
-    service.setLang(LanguageTag[localStorage.LANGUAGE] ?? this.service.browserLangToLangTag(navigator.language));
+    service.setLang(Language.getByFilename(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
   }
 
   ngOnInit() {

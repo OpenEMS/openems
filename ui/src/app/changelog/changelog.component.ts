@@ -22,7 +22,7 @@ export class ChangelogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.service.setCurrentComponent(this.translate.instant('Menu.changelog'), this.route);
+    this.service.setCurrentComponent({ languageKey: 'Menu.changelog' }, this.route);
   }
 
   public readonly roleIsAtLeast = Role.isAtLeast;
@@ -34,6 +34,23 @@ export class ChangelogComponent implements OnInit {
     version: string,
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
+      {
+        version: '2022.9.2',
+        changes: [
+          Changelog.UI,
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
+          Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + "Fehlerbehebung in der Darstellung der Live-Daten",
+          Changelog.UI + "Fehlerbehebung bei Farbdarstellung in der historischen Ansicht",
+          Changelog.UI + "Historische Ansicht der eingestellten oder deaktivierten Notstromreserve",
+          { roleIsAtLeast: Role.ADMIN, change: "Aktivieriung ESLint für automatische Prüfung der Codequalität im UI" },
+          { roleIsAtLeast: Role.ADMIN, change: "Anpassung Übersetzungsframework für einfachere Übersetzungen im UI" },
+          { roleIsAtLeast: Role.ADMIN, change: "Refactoring und detaillierte JUnit-Tests der zentralen JsonUtils-Klasse" },
+          { roleIsAtLeast: Role.ADMIN, change: "Battery Soltaro.Single.C: entferne 'Cell Voltage Low Pre-Alarm'" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei automatischem Reconnect Edge mit Backend" },
+          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App-Center" },
+          { roleIsAtLeast: Role.ADMIN, change: "In 'Channels' können die gewählten Channels jetzt gespeichert werden" },
+        ]
+      },
       {
         version: '2022.9.1',
         changes: [

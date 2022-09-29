@@ -6,11 +6,12 @@ import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyIonicModule } from '@ngx-formly/ionic';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { ChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
 import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
+import { DirectiveModule } from './directive/directive';
 import { MeterModule } from './edge/meter/meter.module';
 import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
 import { FormlySelectFieldWrapperComponent } from './formly/formly-select-field.wrapper';
@@ -25,13 +26,13 @@ import { Logger } from './service/logger';
 import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
-import { Language } from './translate/language';
 
 @NgModule({
   imports: [
     BrowserAnimationsModule,
     ChartsModule,
     CommonModule,
+    DirectiveModule,
     FormsModule,
     IonicModule,
     NgxSpinnerModule.forRoot({
@@ -39,9 +40,6 @@ import { Language } from './translate/language';
     }),
     ReactiveFormsModule,
     RouterModule,
-    TranslateModule.forRoot({
-      loader: { provide: TranslateLoader, useClass: Language }
-    }),
     FormlyModule.forRoot({
       wrappers: [
         { name: 'form-field', component: FormlyWrapperFormFieldComponent },
@@ -73,6 +71,7 @@ import { Language } from './translate/language';
     BrowserAnimationsModule,
     ChartsModule,
     CommonModule,
+    DirectiveModule,
     FormlyIonicModule,
     FormlyModule,
     FormsModule,

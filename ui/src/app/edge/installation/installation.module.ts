@@ -5,7 +5,7 @@ import { SharedModule } from "src/app/shared/shared.module";
 import { SettingsModule } from "../settings/settings.module";
 import { InstallationViewComponent } from "./installation-view/installation-view.component";
 import { InstallationComponent } from "./installation.component";
-import { KeyMask } from "./keymask";
+import { KeyMaskDirective } from "./keymask";
 import { CompletionComponent } from "./views/completion/completion.component";
 import { ConfigurationCommercialComponent } from "./views/configuration-commercial-component/configuration-commercial.component";
 import { ConfigurationEmergencyReserveComponent } from "./views/configuration-emergency-reserve/configuration-emergency-reserve.component";
@@ -182,7 +182,7 @@ export function Commercial50BatteryInverterSerialNumberValidatorMessage(err, fie
     ConfigurationEmergencyReserveComponent,
     ConfigurationExecuteComponent,
     ConfigurationLineSideMeterFuseComponent,
-    KeyMask,
+    KeyMaskDirective,
     ProtocolCustomerComponent,
     ProtocolFeedInLimitationComponent,
     ProtocolInstallerComponent,

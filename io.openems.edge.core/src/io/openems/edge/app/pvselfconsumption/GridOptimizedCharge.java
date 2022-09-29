@@ -77,7 +77,7 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
 
-			final var ctrlIoFixDigitalOutputId = this.getValueOrDefault(p, Property.CTRL_GRID_OPTIMIZED_CHARGE_ID,
+			final var ctrlGridOptimizedChargeId = this.getValueOrDefault(p, Property.CTRL_GRID_OPTIMIZED_CHARGE_ID,
 					"ctrlGridOptimizedCharge0");
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
@@ -94,7 +94,7 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 				maximumSellToGridPower = 0;
 			}
 
-			List<Component> comp = Lists.newArrayList(new EdgeConfig.Component(ctrlIoFixDigitalOutputId, alias,
+			List<Component> comp = Lists.newArrayList(new EdgeConfig.Component(ctrlGridOptimizedChargeId, alias,
 					"Controller.Ess.GridOptimizedCharge", JsonUtils.buildJsonObject() //
 							.addProperty("enabled", true) //
 							.onlyIf(t == ConfigurationTarget.ADD, //

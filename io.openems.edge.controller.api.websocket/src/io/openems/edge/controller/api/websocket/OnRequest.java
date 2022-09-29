@@ -419,7 +419,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// handle null response
 		if (responseFuture == null) {
-			OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getPayload().getMethod());
+			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getPayload().getMethod());
 		}
 
 		// Wrap reply in new JsonrpcResponseSuccess

@@ -52,12 +52,16 @@ public class ValidatorImpl implements Validator {
 			var noneExistingCheckables = Lists.<CheckableConfig>newArrayList();
 			checkableConfigs.forEach(c -> noneExistingCheckables.add(c));
 			var isReturnedImmediate = false;
-			var usedReferencens = new ArrayList<ServiceReference<Checkable>>(serviceReferences.size());
+			final var usedReferencens = new ArrayList<ServiceReference<Checkable>>(serviceReferences.size());
 			for (var reference : serviceReferences) {
 				var componentName = (String) reference.getProperty(OpenemsConstants.PROPERTY_OSGI_COMPONENT_NAME);
 				var checkableConfig = checkableConfigs.stream()
 						.filter(c -> c.checkableComponentName.equals(componentName)).findFirst().orElse(null);
 				var checkable = bundleContext.getService(reference);
+				if (checkable == null) {
+					errorMessages.add("Can not get Checkable[" + checkableConfig.checkableComponentName + "]");
+					continue;
+				}
 				usedReferencens.add(reference);
 				if (checkableConfig.properties != null) {
 					checkable.setProperties(checkableConfig.properties);

@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
@@ -32,8 +31,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	}
 
 	@Override
-	protected void forever() throws InterruptedException, NoSuchMethodException, SecurityException,
-			IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	protected void forever() throws Exception {
 		var ws = this.parent.ws;
 		if (ws == null || ws.getReadyState() == ReadyState.OPEN) {
 			return;
@@ -51,17 +49,37 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		this.parent.logInfo(this.log, "Connecting WebSocket...");
 
 		if (ws.getReadyState() != ReadyState.NOT_YET_CONNECTED) {
-			// Copy of WebSocketClient#reconnectBlocking, but with timeout; need to use
-			// reflection here because 'reset' is private.
+			// Copy of WebSocketClient#reconnectBlocking.
 			// Do not 'reset' if WebSocket has never been connected before.
-			Method resetMethod = WebSocketClient.class.getDeclaredMethod("reset");
-			resetMethod.setAccessible(true);
-			resetMethod.invoke(ws);
+			resetWebSocketClient(ws);
 		}
-		ws.connectBlocking(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+		try {
+			ws.connectBlocking(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+		} catch (IllegalArgumentException e) {
+			// Catch "WebSocketClient objects are not reuseable" thrown by
+			// WebSocketClient#connect(). Set WebSocketClient#connectReadThread to `null`.
+			resetWebSocketClient(ws);
+		}
 
 		this.parent.logInfo(this.log,
 				"Connected WebSocket successfully [" + Duration.between(now, Instant.now()).toSeconds() + "s]");
+	}
+
+	/**
+	 * This method calls {@link WebSocketClient} reset()-method via reflection
+	 * because it is private.
+	 * 
+	 * <p>
+	 * Waiting for https://github.com/TooTallNate/Java-WebSocket/pull/1251 to be
+	 * merged.
+	 * 
+	 * @param ws the {@link WebSocketClient}
+	 * @throws Exception on error
+	 */
+	private static void resetWebSocketClient(WebSocketClient ws) throws Exception {
+		Method resetMethod = WebSocketClient.class.getDeclaredMethod("reset");
+		resetMethod.setAccessible(true);
+		resetMethod.invoke(ws);
 	}
 
 	@Override

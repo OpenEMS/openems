@@ -13,7 +13,7 @@ export class FixDigitalOutputChartOverviewComponent implements OnInit {
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
 
-    public showTotal: boolean = null;
+    public showTotal: boolean = false;
     public fixDigitalOutputComponents: string[] = [];
 
     // reference to the Utils method to access via html

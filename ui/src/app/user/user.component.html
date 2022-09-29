@@ -109,7 +109,7 @@
             <p class="ion-padding" translate>About.build</p>
             <ul>
               <li>
-                <a routerLinkActive="active" routerLink="/changelog">2022.9.1 (2022-09-14)</a>
+                <a routerLinkActive="active" routerLink="/changelog">2022.9.2 (2022-09-29)</a>
               </li>
             </ul>
             <p class="ion-padding">Für Rückfragen und Anregungen zum Energiemanagement und unseren Produkten, wenden Sie
@@ -134,7 +134,7 @@
               <ion-label translate>About.language</ion-label>
               <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
                 <ion-select-option *ngFor="let language of languages" [value]="language">
-                  {{ language }}
+                  {{ language.title }}
                 </ion-select-option>
               </ion-select>
             </ion-item>

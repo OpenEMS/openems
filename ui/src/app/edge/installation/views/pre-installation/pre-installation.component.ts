@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { filter, take } from 'rxjs/operators';
@@ -47,6 +47,7 @@ export class PreInstallationComponent implements OnInit {
       .sendRequest(new AddEdgeToUserRequest({ setupPassword }))
       .then((response: AddEdgeToUserResponse) => {
         const edge = response.result.edge;
+        const emsBoxSerialNumber: string = response.result.serialNumber;
 
         // Test if edge is online
         if (!edge.online) {
@@ -78,6 +79,10 @@ export class PreInstallationComponent implements OnInit {
 
         // Add to session Storage.
         sessionStorage.setItem('edge', JSON.stringify(edge));
+        if (emsBoxSerialNumber) {
+          // Store Fems Box Serial number only if it is existing in Odoo.
+          sessionStorage.setItem('emsBoxSerialNumber', emsBoxSerialNumber);
+        }
 
         // Update metadata
         this.service.metadata.next({
