@@ -178,6 +178,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   public getFields(towerNr: number, numberOfModulesPerTower: number) {
     // TODO add validation: no duplicate serial number entries
     const fields: FormlyFieldConfig[] = [];
+    const emsBoxSerialNumber: string = sessionStorage.getItem('emsBoxSerialNumber');
 
     switch (towerNr) {
       case 0:
@@ -200,9 +201,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           templateOptions: {
             label: 'EMS Box (FEMS Box)',
             required: true,
-            prefix: 'FH',
+            prefix: emsBoxSerialNumber ? '' : 'FH',
             placeholder: 'xxxxxxxxxx'
           },
+          defaultValue: emsBoxSerialNumber,
           validators: {
             validation: ['emsBoxSerialNumber']
           },
