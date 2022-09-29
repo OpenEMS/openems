@@ -344,12 +344,11 @@ export class Utils {
   /**
    * Converts Minute from start of day to daytime
    * 
-   * @param value the value to parse
    * @returns converted value
    */
-  public static CONVERT_MINUTE_TO_TIME_OF_DAY = (value: number): string => {
-    return formatDate(value * 60 * 1000, 'HH:mm', 'UTC') + ' h'
-  }
+  public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService) => {
+    return (value: number): string => formatDate(value * 60 * 1000, 'HH:mm', translate.getBrowserCultureLang()) + ' h'
+  };
 
   /**
    * Converts Price to Cent per kWh [Cent / kWh]
