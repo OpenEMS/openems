@@ -146,6 +146,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
   }
 
   protected updateChart() {
+    this.colors = [];
+    this.datasets = [];
     this.loading = true;
     this.startSpinner();
     this.autoSubscribeChartRefresh();
