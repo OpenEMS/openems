@@ -114,7 +114,8 @@
     "preamble": "Por favor, introduzca su contraseña o confirme la entrada por defecto para conectarse como invitado.",
     "passwordLabel": "Contraseña",
     "passwordReset": "Restablecer contraseña",
-    "authenticationFailed": "Fallo de autentificación"
+    "authenticationFailed": "Fallo de autentificación",
+    "user": "Usuario"
   },
   "Register": {
     "title": "Crear una cuenta de usuario",

@@ -116,7 +116,8 @@
     "preamble": "Veuillez saisir votre mot de passe ou confirmer l'entrée par défaut pour vous connecter en tant qu'invité.",
     "passwordLabel": "mot de passe",
     "passwordReset": "Réinitialiser le mot de passe",
-    "authenticationFailed": "Échec de l'authentification"
+    "authenticationFailed": "Échec de l'authentification",
+    "user": "Utilisateur"
   },
   "Register": {
     "title": "Créer un compte utilisateur",

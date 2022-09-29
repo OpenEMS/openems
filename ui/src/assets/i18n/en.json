@@ -157,7 +157,8 @@
     "passwordLabel": "Password",
     "passwordPlaceholder": "Password",
     "passwordReset": "Reset Password",
-    "authenticationFailed": "Authentication Failed"
+    "authenticationFailed": "Authentication Failed",
+    "user": "User"
   },
   "Edge": {
     "Index": {

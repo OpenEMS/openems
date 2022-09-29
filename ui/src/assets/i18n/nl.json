@@ -111,7 +111,8 @@
     "preamble": "Voer uw wachtwoord in of bevestig de standaard om in te loggen als gast.",
     "passwordLabel": "Wachtwoord",
     "passwordReset": "Wachtwoord opnieuw instellen",
-    "authenticationFailed": "Authenticatie mislukt"
+    "authenticationFailed": "Authenticatie mislukt",
+    "user": "Gebruiker"
   },
   "Register": {
     "title": "Gebruikersaccount aanmaken",
