@@ -170,8 +170,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("parity", "NONE") //
 									.addProperty("logVerbosity", "NONE") //
 									.onlyIf(t == ConfigurationTarget.ADD, //
-											j -> j.addProperty("invalidateElementsAfterReadErrors", 1) //
-			).build()),
+											j -> j.addProperty("invalidateElementsAfterReadErrors", 1)) //
+									.build()),
 					new EdgeConfig.Component(modbusIdExternal,
 							TranslationUtil.getTranslation(bundle, this.getAppId() + "." + modbusIdExternal + ".alias"),
 							"Bridge.Modbus.Serial", JsonUtils.buildJsonObject() //
@@ -182,7 +182,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("stopbits", "ONE") //
 									.addProperty("parity", "NONE") //
 									.addProperty("logVerbosity", "NONE") //
-									.addProperty("invalidateElementsAfterReadErrors", 1) //
+									.onlyIf(t == ConfigurationTarget.ADD, //
+											j -> j.addProperty("invalidateElementsAfterReadErrors", 1)) //
 									.build()),
 					new EdgeConfig.Component("meter0",
 							TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter0.alias"),
@@ -445,7 +446,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 										this.getAppId() + ".feedInSettings.label")) //
 								.isRequired(true) //
 								.setDefaultValue("UNDEFINED") //
-								.setOptions(this.getFeedInSettingsOptions(), t -> t, t -> t) //
+								.setOptions(this.getFeedInSettingsOptions()) //
 								.onlyIf(batteryInverter.isPresent(), f -> {
 									f.setDefaultValue(batteryInverter.get() //
 											.getProperty("setfeedInPowerSettings") //
