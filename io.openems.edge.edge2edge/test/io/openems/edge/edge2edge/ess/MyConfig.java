@@ -1,5 +1,6 @@
 package io.openems.edge.edge2edge.ess;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 
@@ -11,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId = null;
 		public int modbusUnitId;
 		public String remoteComponentId;
+		public AccessMode remoteAccessMode;
 
 		private Builder() {
 		}
@@ -29,9 +31,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
-		
+
 		public Builder setRemoteComponentId(String remoteComponentId) {
 			this.remoteComponentId = remoteComponentId;
+			return this;
+		}
+		
+		public Builder setRemoteAccessMode(AccessMode remoteAccessMode) {
+			this.remoteAccessMode = remoteAccessMode;
 			return this;
 		}
 
@@ -76,4 +83,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.remoteComponentId;
 	}
 
+	@Override
+	public AccessMode remoteAccessMode() {
+		return this.builder.remoteAccessMode;
+	}
 }

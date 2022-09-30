@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -23,6 +24,7 @@ public class Edge2EdgeEssImplTest {
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setModbusId(MODBUS_ID) //
+						.setRemoteAccessMode(AccessMode.READ_WRITE) //
 						.setRemoteComponentId(COMPONENT_ID) //
 						.build())
 				.next(new TestCase());
