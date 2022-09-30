@@ -1,8 +1,10 @@
 package io.openems.edge.edge2edge.ess;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,6 +21,9 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import com.google.common.collect.Lists;
+
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -26,15 +31,14 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
-import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
-import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusRecordChannel;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
@@ -44,12 +48,12 @@ import io.openems.edge.ess.power.api.Power;
 		name = "Edge2Edge.Ess", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
+		property = { // TODO anderes Event-Format
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 		})
-public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
-		implements ManagedSymmetricEss, SymmetricEss, Edge2EdgeEss, ModbusComponent, OpenemsComponent, EventHandler {
+public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements ManagedSymmetricEss, AsymmetricEss,
+		SymmetricEss, Edge2EdgeEss, ModbusComponent, OpenemsComponent, EventHandler {
 
 	private final ModbusProtocol modbusProtocol;
 
@@ -64,21 +68,24 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
+	private Config config;
+
 	public Edge2EdgeEssImpl() throws OpenemsException {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
+				AsymmetricEss.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				Edge2EdgeEss.ChannelId.values() //
 		);
 		this.modbusProtocol = new ModbusProtocol(this);
-		this._setMaxApparentPower(Integer.MAX_VALUE); // TODO read proper limits from Modbus
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
+		this.config = config;
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -155,7 +162,7 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 		if (value == null) {
 			return false;
 		}
-		return (value & 0xFFFF) == (text.hashCode() & 0xFFFF);
+		return (short) (int) value == ModbusSlaveNatureTable.generateHash(text);
 	}
 
 	@Override
@@ -180,6 +187,7 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 			ModbusUtils.readELementOnce(this.modbusProtocol, new StringWordElement(startAddress, 16), false)
 					.thenAccept(remoteComponentId -> {
 						if (remoteComponentId == null) {
+							// TODO Fehlermeldung
 							result.completeExceptionally(
 									new OpenemsException("Unable to find remote Component with ID " + componentId));
 						}
@@ -205,116 +213,150 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 		final var resultVoid = new CompletableFuture<Void>();
 		try {
 			ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress + 16), false)
-					.thenAccept(lengthOfBlock -> {
-						var lastAddress = startAddress + 20 + lengthOfBlock;
-						this._readNatureBlock(startAddress + 20, lastAddress).thenAccept(map -> {
-							map.entrySet().forEach(entry -> {
-								try {
-									switch (entry.getKey()) {
-									case "SymmetricEss":
-										this.defineModbusProtocol()
-												.addTasks(new FC3ReadRegistersTask(entry.getValue() + 2, Priority.HIGH, //
-														m(SymmetricEss.ChannelId.SOC,
-																new UnsignedWordElement(entry.getValue() + 2)),
-														m(SymmetricEss.ChannelId.GRID_MODE,
-																new UnsignedWordElement(entry.getValue() + 3)),
-														m(SymmetricEss.ChannelId.ACTIVE_POWER,
-																new FloatDoublewordElement(entry.getValue() + 4)),
-														m(SymmetricEss.ChannelId.REACTIVE_POWER,
-																new FloatDoublewordElement(entry.getValue() + 6))));
-										break;
-									case "ManagedSymmetricEss":
-										this.defineModbusProtocol().addTasks(
-												new FC3ReadRegistersTask(entry.getValue() + 2, Priority.HIGH, //
-														m(Edge2EdgeEss.ChannelId.MINIMUM_POWER_SET_POINT,
-																new FloatDoublewordElement(entry.getValue() + 2)),
-														m(Edge2EdgeEss.ChannelId.MAXIMUM_POWER_SET_POINT,
-																new FloatDoublewordElement(entry.getValue() + 4))), //
-												new FC16WriteRegistersTask(entry.getValue() + 6, //
-														m(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS,
-																new FloatDoublewordElement(entry.getValue() + 6)), //
-														m(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS,
-																new FloatDoublewordElement(entry.getValue() + 8)), //
-														m(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS,
-																new FloatDoublewordElement(entry.getValue() + 10)), //
-														m(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_LESS_OR_EQUALS,
-																new FloatDoublewordElement(entry.getValue() + 12)), //
-														m(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS,
-																new FloatDoublewordElement(entry.getValue() + 14)), //
-														m(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_GREATER_OR_EQUALS,
-																new FloatDoublewordElement(entry.getValue() + 16)) //
-										));
-										break;
-									case "StartStoppable":
-										this.defineModbusProtocol()
-												.addTasks(new FC3ReadRegistersTask(entry.getValue() + 2, Priority.HIGH, //
-														m(StartStoppable.ChannelId.START_STOP,
-																new UnsignedWordElement(entry.getValue() + 2)) //
-										));
-										break;
-									}
-								} catch (OpenemsException e) {
-									e.printStackTrace();
-								}
-							});
-						});
+					.thenAccept(lengthOfComponentBlock -> {
+						var lastAddress = startAddress + lengthOfComponentBlock + 20;
+						// TODO fix length of last component blocks in Slave Modbus/TCP-Api
+						this.readNatureStartAddresses(startAddress + 20, lastAddress)
+								.thenAccept(natureStartAddresses -> {
+									this.mapRemoteChannels(natureStartAddresses);
+								});
 					});
-		} catch (OpenemsException e) {
+		} catch (
+
+		OpenemsException e) {
 			resultVoid.completeExceptionally(e);
 		}
 		return resultVoid;
 	}
 
-	private CompletableFuture<Integer> _findNature(int startAddress, String... mapValue) {
-		final var result = new CompletableFuture<Integer>();
-		try {
-			ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress), false)
-					.thenAccept(value -> {
-						for (int i = 0; i < mapValue.length; i++) {
-							if (isHashEqual(value, mapValue[i])) {
-								result.complete(i);
-								return;
-							}
-						}
-						result.complete(-1);
-					});
-		} catch (OpenemsException e) {
-			e.printStackTrace();
+	/**
+	 * Do the actual mapping of remote Nature Channels to local Channels.
+	 * 
+	 * @param natureStartAddresses a map of Nature-Hashes to Modbus start addresses
+	 */
+	private void mapRemoteChannels(Map<Short, Integer> natureStartAddresses) {
+		List<Function<AccessMode, ModbusSlaveNatureTable>> methods = Lists.newArrayList(//
+				OpenemsComponent::getModbusSlaveNatureTable, //
+				SymmetricEss::getModbusSlaveNatureTable, //
+				AsymmetricEss::getModbusSlaveNatureTable, //
+				ManagedSymmetricEss::getModbusSlaveNatureTable, //
+				StartStoppable::getModbusSlaveNatureTable //
+		);
+
+		for (var method : methods) {
+			var modbusSlaveNatureTable = method.apply(this.config.remoteAccessMode());
+			var hash = modbusSlaveNatureTable.getNatureHash();
+			var startAddress = natureStartAddresses.get(hash);
+			if (startAddress == null) {
+				continue;
+			}
+			System.out.println(modbusSlaveNatureTable.getNatureName() + ": " + startAddress);
+			for (var record : modbusSlaveNatureTable.getModbusRecords()) {
+				if (record instanceof ModbusRecordChannel) {
+					var r = (ModbusRecordChannel) record;
+					System.out.println("  " + r.getOffset() + ": " + r.getChannelId());
+				}
+			}
 		}
+		System.out.println("X");
+//		try {
+//			switch (entry.getKey()) {
+//			case hah "SymmetricEss":
+//				this.defineModbusProtocol().addTasks(new FC3ReadRegistersTask(
+//						entry.getValue() + 2, Priority.HIGH, //
+//						m(SymmetricEss.ChannelId.SOC,
+//								new UnsignedWordElement(entry.getValue() + 2)),
+//						m(SymmetricEss.ChannelId.GRID_MODE,
+//								new UnsignedWordElement(entry.getValue() + 3)),
+//						m(SymmetricEss.ChannelId.ACTIVE_POWER,
+//								new FloatDoublewordElement(entry.getValue() + 4)),
+//						m(SymmetricEss.ChannelId.REACTIVE_POWER,
+//								new FloatDoublewordElement(entry.getValue() + 6))));
+//				break;
+//			case "ManagedSymmetricEss":
+//				this.defineModbusProtocol().addTasks(
+//						new FC3ReadRegistersTask(entry.getValue() + 2, Priority.HIGH, //
+//								m(Edge2EdgeEss.ChannelId.MINIMUM_POWER_SET_POINT,
+//										new FloatDoublewordElement(
+//												entry.getValue() + 2)),
+//								m(Edge2EdgeEss.ChannelId.MAXIMUM_POWER_SET_POINT,
+//										new FloatDoublewordElement(
+//												entry.getValue() + 4))), //
+//						new FC16WriteRegistersTask(entry.getValue() + 6, //
+//								m(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS,
+//										new FloatDoublewordElement(
+//												entry.getValue() + 6)), //
+//								m(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS,
+//										new FloatDoublewordElement(
+//												entry.getValue() + 8)), //
+//								m(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS,
+//										new FloatDoublewordElement(
+//												entry.getValue() + 10)), //
+//								m(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_LESS_OR_EQUALS,
+//										new FloatDoublewordElement(
+//												entry.getValue() + 12)), //
+//								m(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS,
+//										new FloatDoublewordElement(
+//												entry.getValue() + 14)), //
+//								m(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_GREATER_OR_EQUALS,
+//										new FloatDoublewordElement(
+//												entry.getValue() + 16)) //
+//				));
+//				break;
+//			case "StartStoppable":
+//				this.defineModbusProtocol()
+//						.addTasks(new FC3ReadRegistersTask(entry.getValue() + 2,
+//								Priority.HIGH, //
+//								m(StartStoppable.ChannelId.START_STOP,
+//										new UnsignedWordElement(entry.getValue() + 2)) //
+//				));
+//				break;
+//			}
+//		} catch (OpenemsException e) {
+//			e.printStackTrace();
+//		}
+//	});	
+	}
+
+	/**
+	 * Reads all Nature Start Addresses of a Component-Block.
+	 * 
+	 * @param startAddress the address of the first Nature-Block inside the
+	 *                     Component-Block
+	 * @param lastAddress  the start address of the following Component-Block
+	 * @return a map of Nature-Hash to modbus start address
+	 */
+	private CompletableFuture<Map<Short, Integer>> readNatureStartAddresses(int startAddress, int lastAddress) {
+		final var result = new CompletableFuture<Map<Short, Integer>>();
+		this._readNatureStartAddresses(result, startAddress, lastAddress, new HashMap<>());
 		return result;
 	}
 
-	private CompletableFuture<Map<String, Integer>> _readNatureBlock(int startAddress, int lastAddress) {
-		return this._readNatureBlock(startAddress, lastAddress, new HashMap<>());
-	}
-
-	private CompletableFuture<Map<String, Integer>> _readNatureBlock(int startAddress, int lastAddress,
-			final Map<String, Integer> map) {
-		final var result = new CompletableFuture<Map<String, Integer>>();
+	private void _readNatureStartAddresses(CompletableFuture<Map<Short, Integer>> result, int startAddress,
+			int lastAddress, final Map<Short, Integer> natureStartAddresses) {
 		try {
-			final var natures = new String[] { "SymmetricEss", "ManagedSymmetricEss", "StartStoppable" };
 			ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress), false)
-					.thenAccept(hash -> {
+					.thenAccept(rawHash -> {
+						if (rawHash == null) {
+							result.completeExceptionally(
+									new OpenemsException("Unable to read hash at " + startAddress));
+							return;
+						}
+						var hash = (short) (int) rawHash;
+
 						try {
 							ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress + 1),
-									false).thenAccept(lengthOfBlock -> {
-										var nextStartAddress = startAddress + lengthOfBlock;
-										if (nextStartAddress == lastAddress) {
-											result.complete(map);
+									false).thenAccept(lengthOfNatureBlock -> {
+										natureStartAddresses.put(hash, startAddress);
+
+										var nextStartAddress = startAddress + lengthOfNatureBlock;
+										if (nextStartAddress >= lastAddress) {
+											result.complete(natureStartAddresses);
+
 										} else {
-											this._findNature(nextStartAddress, natures).thenAccept((t) -> {
-												if (t != -1) {
-													map.put(natures[t], nextStartAddress);
-													if (map.size() == natures.length) {
-														result.complete(map);
-														return;
-													}
-												}
-												this._readNatureBlock(nextStartAddress, lastAddress, map)
-														.whenComplete((t1, u) -> {
-															result.complete(t1);
-														});
-											});
+											// recursive call of _readNatureStartAddresses
+											this._readNatureStartAddresses(result, nextStartAddress, lastAddress,
+													natureStartAddresses);
 										}
 									});
 						} catch (OpenemsException e) {
@@ -324,7 +366,6 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 		} catch (OpenemsException e) {
 			result.completeExceptionally(e);
 		}
-		return result;
 	}
 
 	@Override

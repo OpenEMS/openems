@@ -3,6 +3,8 @@ package io.openems.edge.edge2edge.ess;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.channel.AccessMode;
+
 @ObjectClassDefinition(//
 		name = "Edge-2-Edge ESS", //
 		description = "Connects an energy storage system from a slave OpenEMS Edge via Modbus")
@@ -16,6 +18,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+
+	@AttributeDefinition(name = "Remote Access-Mode", description = "Access-Mode of the Modbus/TCP-Api-Controller at the slave OpenEMS Edge?")
+	AccessMode remoteAccessMode() default AccessMode.READ_ONLY;
 
 	@AttributeDefinition(name = "Remote Component-ID", description = "Component-ID of ESS at the slave OpenEMS Edge.")
 	String remoteComponentId() default "ess0";
