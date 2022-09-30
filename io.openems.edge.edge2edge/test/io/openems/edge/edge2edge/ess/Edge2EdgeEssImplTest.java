@@ -1,8 +1,5 @@
 package io.openems.edge.edge2edge.ess;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 
 import io.openems.common.channel.AccessMode;
@@ -30,11 +27,4 @@ public class Edge2EdgeEssImplTest {
 				.next(new TestCase());
 	}
 
-	@Test
-	public void testIsHashEqual() {
-		assertTrue(Edge2EdgeEssImpl.isHashEqual(0x6201, "OpenEMS"));
-		assertTrue(Edge2EdgeEssImpl.isHashEqual(0xb3dc, "OpenemsComponent"));
-		assertFalse(Edge2EdgeEssImpl.isHashEqual(null, "_sum"));
-		assertFalse(Edge2EdgeEssImpl.isHashEqual(0x6201, "foobar"));
-	}
 }
