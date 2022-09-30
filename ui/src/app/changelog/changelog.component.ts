@@ -35,9 +35,9 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: '2022.9.3',
+        version: '2022.9.4',
         changes: [
-          Changelog.UI + "Fehlerbehebung bei Farbdarstellung in der historischen Ansicht",
+          Changelog.UI + "Fehlerbehebung bei Übersetzungen",
           Changelog.product(Product.FEMS_MODBUS_TCP_API) + "Schreibzugriff: Fehlerbehebung bei Registern für das Minimum und Maximum der verfügbaren Speicherleistung",
         ]
       },
