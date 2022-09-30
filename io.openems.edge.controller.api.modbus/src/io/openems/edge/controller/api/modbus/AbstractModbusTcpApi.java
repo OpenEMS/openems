@@ -292,8 +292,8 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		this.apiWorker.run();
 		this.updateCycleValues();
+		this.apiWorker.run();
 	}
 
 	@SuppressWarnings("unchecked")

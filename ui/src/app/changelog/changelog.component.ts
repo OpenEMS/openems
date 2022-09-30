@@ -35,6 +35,13 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.9.3',
+        changes: [
+          Changelog.UI + "Fehlerbehebung bei Farbdarstellung in der historischen Ansicht",
+          Changelog.product(Product.FEMS_MODBUS_TCP_API) + "Schreibzugriff: Fehlerbehebung bei Registern für das Minimum und Maximum der verfügbaren Speicherleistung",
+        ]
+      },
+      {
         version: '2022.9.2',
         changes: [
           Changelog.UI,
@@ -54,10 +61,10 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2022.9.1',
         changes: [
-          Changelog.openems('2022.9.1'),
+          Changelog.openems('2022.9.0'),
           Changelog.UI,
           Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
-          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.FEMS_MODBUS_TCP_API) + "Zusätzliche Register für das Minimum und Maximum der Speicherleistung" },
+          Changelog.product(Product.FEMS_MODBUS_TCP_API) + "Schreibzugriff: Zusätzliche Register für das Minimum und Maximum der verfügbaren Speicherleistung",
           { roleIsAtLeast: Role.ADMIN, change: Changelog.UI + "Verbesserung der Codequalität" },
           { roleIsAtLeast: Role.ADMIN, change: "Erweiterung der PV-WR Abregelung um phasengenaues Detektieren (Vorerst für dreiphasige PV-WR)" },
         ]
