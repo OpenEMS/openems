@@ -1,6 +1,7 @@
 package io.openems.edge.edge2edge.ess;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
@@ -27,6 +28,7 @@ import com.google.common.collect.Lists;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -260,8 +262,7 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements 
 				.map(method -> method.apply(this.config.remoteAccessMode())) //
 				.collect(Collectors.toUnmodifiableList());
 
-		Integer taskAddress = null;
-		var taskElements = new ArrayList<AbstractModbusElement<?>>();
+		Deque<AbstractModbusElement<?>> elements = new ArrayDeque<>();
 		for (var entry : natureStartAddresses.entrySet()) {
 			var natureStartAddress = entry.getKey();
 			var hash = entry.getValue();
@@ -278,19 +279,14 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements 
 				var address = natureStartAddress + 2 /* hash & length */ + record.getOffset();
 
 				// Fill gaps with DummyModbusElements
-				if (!taskElements.isEmpty()) {
-					var lastElement = taskElements.get(taskElements.size() - 1);
+				var lastElement = elements.peekLast();
+				if (lastElement != null) {
 					var gap = address - lastElement.getStartAddress() - lastElement.getLength();
 					if (gap > 0) {
-						taskElements.add(new DummyRegisterElement(//
+						elements.add(new DummyRegisterElement(//
 								lastElement.getStartAddress() + lastElement.getLength(),
 								lastElement.getStartAddress() + lastElement.getLength() + gap - 1));
 					}
-				}
-
-				if (taskAddress == null) {
-					// this is the first known address -> keep for FC3ReadRegistersTask
-					taskAddress = address;
 				}
 
 				if (record instanceof ModbusRecordChannel) {
@@ -322,15 +318,52 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements 
 						continue;
 					}
 
-					taskElements.add(element);
+					elements.add(element);
 					m(r.getChannelId(), element);
 				}
 			}
 		}
 
-		// Add the Read-Task
-		this.modbusProtocol.addTask(new FC3ReadRegistersTask(taskAddress, Priority.HIGH,
-				taskElements.toArray(new AbstractModbusElement[taskElements.size()])));
+		/**
+		 * Adds a Task with ModbusElements.
+		 * 
+		 * <ul>
+		 * <li>Makes sure there is no DummyRegisterElement in beginning or end of the
+		 * queue
+		 * <li>Adds only if queue is not empty
+		 * </ul>
+		 */
+		ThrowingConsumer<Deque<AbstractModbusElement<?>>, OpenemsException> addTask = (es) -> {
+			if (es.isEmpty()) {
+				return;
+			}
+			while (es.peekFirst() instanceof DummyRegisterElement) {
+				es.removeFirst();
+			}
+			while (es.peekLast() instanceof DummyRegisterElement) {
+				es.removeLast();
+			}
+			this.modbusProtocol.addTask(//
+					new FC3ReadRegistersTask(//
+							es.peekFirst().getStartAddress(), Priority.HIGH,
+							es.toArray(new AbstractModbusElement[es.size()])));
+		};
+
+		// Add the Read-Task(s)
+		var length = 0;
+		var taskElements = new ArrayDeque<AbstractModbusElement<?>>();
+		var element = elements.pollFirst();
+		while (element != null) {
+			if (length + element.getLength() > 126 /* limit of j2mod */) {
+				addTask.accept(taskElements);
+				taskElements.clear();
+			}
+			taskElements.add(element);
+			length += element.getLength();
+			element = elements.pollFirst();
+		}
+		addTask.accept(taskElements);
+
 		// TODO add Write-Tasks
 
 		System.out.println("X");
