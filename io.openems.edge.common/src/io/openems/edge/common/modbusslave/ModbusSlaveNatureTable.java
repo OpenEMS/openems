@@ -273,6 +273,17 @@ public final class ModbusSlaveNatureTable {
 	}
 
 	/**
+	 * Gets the Nature class.
+	 * 
+	 * @return the nature class, e.g.
+	 *         {@link io.openems.edge.common.component.OpenemsComponent}
+	 * 
+	 */
+	public Class<?> getNatureClass() {
+		return this.nature;
+	}
+
+	/**
 	 * Gets the Nature name, i.e. the SimpleName of the Nature Class.
 	 * 
 	 * @return the nature name, e.g. "OpenemsComponent" for

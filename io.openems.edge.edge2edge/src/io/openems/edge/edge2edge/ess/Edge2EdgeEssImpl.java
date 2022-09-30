@@ -19,17 +19,15 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -39,16 +37,18 @@ import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordChannel;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
@@ -61,14 +61,12 @@ import io.openems.edge.ess.power.api.Power;
 @Component(//
 		name = "Edge2Edge.Ess", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { // TODO anderes Event-Format
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
-public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements ManagedSymmetricEss, AsymmetricEss,
-		SymmetricEss, Edge2EdgeEss, ModbusComponent, OpenemsComponent, EventHandler {
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
+		implements ManagedSymmetricEss, AsymmetricEss, SymmetricEss, Edge2EdgeEss, ModbusComponent, OpenemsComponent {
 
+	private final Logger log = LoggerFactory.getLogger(Edge2EdgeEssImpl.class);
 	private final ModbusProtocol modbusProtocol;
 
 	@Reference
@@ -95,6 +93,7 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements 
 				Edge2EdgeEss.ChannelId.values() //
 		);
 		this.modbusProtocol = new ModbusProtocol(this);
+		this._setMaxApparentPower(Integer.MAX_VALUE); // has no effect, as long as AllowedCharge/DischargePower are null
 	}
 
 	@Activate
@@ -201,11 +200,12 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements 
 			ModbusUtils.readELementOnce(this.modbusProtocol, new StringWordElement(startAddress, 16), false)
 					.thenAccept(remoteComponentId -> {
 						if (remoteComponentId == null) {
-							// TODO Fehlermeldung
 							result.completeExceptionally(
 									new OpenemsException("Unable to find remote Component with ID " + componentId));
 						}
 						if (remoteComponentId.equals(componentId)) {
+							this.logInfo(this.log,
+									"Found Remote-Component '" + componentId + "' on address " + startAddress);
 							result.complete(startAddress);
 							return;
 						}
@@ -266,7 +266,8 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements 
 				.map(method -> method.apply(this.config.remoteAccessMode())) //
 				.collect(Collectors.toUnmodifiableList());
 
-		Deque<AbstractModbusElement<?>> elements = new ArrayDeque<>();
+		Deque<AbstractModbusElement<?>> readElements = new ArrayDeque<>();
+		Deque<AbstractModbusElement<?>> writeElements = new ArrayDeque<>();
 		for (var entry : natureStartAddresses.entrySet()) {
 			var natureStartAddress = entry.getKey();
 			var hash = entry.getValue();
@@ -278,121 +279,187 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements 
 			}
 			var modbusSlaveNatureTable = modbusSlaveNatureTableOpt.get();
 
-			System.out.println(modbusSlaveNatureTable.getNatureName() + ": " + natureStartAddress);
 			for (var record : modbusSlaveNatureTable.getModbusRecords()) {
-				// Do not add Read-Task for WRITE_ONLY registers
-				if (record.getAccessMode() == AccessMode.WRITE_ONLY) {
-					continue;
-				}
-
 				var address = natureStartAddress + 2 /* hash & length */ + record.getOffset();
 
-				// Fill gaps with DummyModbusElements
-				var lastElement = elements.peekLast();
-				if (lastElement != null) {
-					var gap = address - lastElement.getStartAddress() - lastElement.getLength();
-					if (gap > 0) {
-						elements.add(new DummyRegisterElement(//
-								lastElement.getStartAddress() + lastElement.getLength(),
-								lastElement.getStartAddress() + lastElement.getLength() + gap - 1));
+				/*
+				 * Add element to Read-Task
+				 */
+				if (record.getAccessMode() == AccessMode.READ_ONLY || record.getAccessMode() == AccessMode.READ_WRITE) {
+					var element = generateModbusElement(record.getType(), address);
+
+					// Fill gaps with DummyModbusElements
+					var lastElement = readElements.peekLast();
+					if (lastElement != null) {
+						var gap = address - lastElement.getStartAddress() - lastElement.getLength();
+						if (gap > 0) {
+							readElements.add(new DummyRegisterElement(//
+									lastElement.getStartAddress() + lastElement.getLength(),
+									lastElement.getStartAddress() + lastElement.getLength() + gap - 1));
+						}
+					}
+
+					if (record instanceof ModbusRecordChannel) {
+						var r = (ModbusRecordChannel) record;
+						m(r.getChannelId(), element);
+
+					} else {
+						var onUpdateCallback = this.getOnUpdateCallback(modbusSlaveNatureTable, record);
+						if (onUpdateCallback != null) {
+							m(element).build().onUpdateCallback(value -> onUpdateCallback.accept(value));
+						}
+					}
+
+					readElements.add(element);
+				}
+
+				/*
+				 * Add element to Write-Task
+				 */
+				if (record.getAccessMode() == AccessMode.WRITE_ONLY
+						|| record.getAccessMode() == AccessMode.READ_WRITE) {
+					var element = generateModbusElement(record.getType(), address);
+					var channelId = this.getWriteChannelId(modbusSlaveNatureTable, record);
+					if (channelId != null) {
+						m(channelId, element);
+						writeElements.add(element);
 					}
 				}
-
-				// Create ModbusElement from type and address
-				AbstractModbusElement<?> element = null;
-				switch (record.getType()) {
-				case ENUM16:
-				case UINT16:
-					element = new UnsignedWordElement(address);
-					break;
-				case UINT32:
-					element = new UnsignedDoublewordElement(address);
-					break;
-				case FLOAT32:
-					element = new FloatDoublewordElement(address);
-					break;
-				case FLOAT64:
-					element = new UnsignedQuadruplewordElement(address);
-					break;
-				case STRING16:
-					element = new StringWordElement(address, 16);
-					break;
-				}
-				if (element == null) {
-					continue;
-				}
-
-				if (record instanceof ModbusRecordChannel) {
-					var r = (ModbusRecordChannel) record;
-					m(r.getChannelId(), element);
-
-				} else {
-					var onUpdateCallback = this.getOnUpdateCallback(record);
-					if (onUpdateCallback != null) {
-						m(element).build().onUpdateCallback(value -> onUpdateCallback.accept(value));
-					}
-				}
-
-				elements.add(element);
 			}
 		}
 
-		/**
-		 * Adds a Task with ModbusElements.
-		 * 
-		 * <ul>
-		 * <li>Makes sure there is no DummyRegisterElement in beginning or end of the
-		 * queue
-		 * <li>Adds only if queue is not empty
-		 * </ul>
+		/*
+		 * Add the Read-Task(s)
 		 */
-		ThrowingConsumer<Deque<AbstractModbusElement<?>>, OpenemsException> addTask = (es) -> {
-			if (es.isEmpty()) {
-				return;
+		{
+			var length = 0;
+			var taskElements = new ArrayDeque<AbstractModbusElement<?>>();
+			var element = readElements.pollFirst();
+			while (element != null) {
+				if (length + element.getLength() > 126 /* limit of j2mod */) {
+					this.addReadTask(taskElements);
+					length = 0;
+					taskElements.clear();
+				}
+				taskElements.add(element);
+				length += element.getLength();
+				element = readElements.pollFirst();
 			}
-			while (es.peekFirst() instanceof DummyRegisterElement) {
-				es.removeFirst();
-			}
-			while (es.peekLast() instanceof DummyRegisterElement) {
-				es.removeLast();
-			}
-			this.modbusProtocol.addTask(//
-					new FC3ReadRegistersTask(//
-							es.peekFirst().getStartAddress(), Priority.HIGH,
-							es.toArray(new AbstractModbusElement[es.size()])));
-		};
-
-		// Add the Read-Task(s)
-		var length = 0;
-		var taskElements = new ArrayDeque<AbstractModbusElement<?>>();
-		var element = elements.pollFirst();
-		while (element != null) {
-			if (length + element.getLength() > 126 /* limit of j2mod */) {
-				addTask.accept(taskElements);
-				length = 0;
-				taskElements.clear();
-			}
-			taskElements.add(element);
-			length += element.getLength();
-			element = elements.pollFirst();
+			this.addReadTask(taskElements);
 		}
-		addTask.accept(taskElements);
 
-		// TODO add Write-Tasks
+		/*
+		 * Add the Write-Task(s)
+		 */
+		{
+			var taskElements = new ArrayDeque<AbstractModbusElement<?>>();
+			var element = writeElements.pollFirst();
+			while (element != null) {
+				var lastElement = taskElements.peekLast();
+				if (lastElement != null
+						&& (lastElement.getStartAddress() + lastElement.getLength() < element.getStartAddress())) {
+					// Found gap
+					this.addWriteTask(taskElements);
+					taskElements.clear();
+				}
+				taskElements.add(element);
+				element = writeElements.pollFirst();
+			}
+			this.addWriteTask(taskElements);
+		}
 
 		System.out.println("X");
 	}
 
-	private Consumer<Object> getOnUpdateCallback(ModbusRecord record) {
-		switch (record.getOffset()) {
-		case 0: // "Minimum Power Set-Point"
-			return (value) -> this._setAllowedChargePower(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+	private Consumer<Object> getOnUpdateCallback(ModbusSlaveNatureTable modbusSlaveNatureTable, ModbusRecord record) {
+		if (modbusSlaveNatureTable.getNatureClass() == ManagedSymmetricEss.class) {
+			switch (record.getOffset()) {
+			case 0: // "Minimum Power Set-Point"
+				return (value) -> this._setAllowedChargePower(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 
-		case 2: // "Maximum Power Set-Point"
-			return (value) -> this._setAllowedDischargePower(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+			case 2: // "Maximum Power Set-Point"
+				return (value) -> this._setAllowedDischargePower(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+			}
 		}
 		return null;
 	}
+
+	private io.openems.edge.common.channel.ChannelId getWriteChannelId(ModbusSlaveNatureTable modbusSlaveNatureTable,
+			ModbusRecord record) {
+		if (record instanceof ModbusRecordChannel) {
+			var c = ((ModbusRecordChannel) record).getChannelId();
+			if (c == ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS) {
+				return Edge2EdgeEss.ChannelId.REMOTE_SET_ACTIVE_POWER_EQUALS;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Create ModbusElement from type and address.
+	 * 
+	 * @param type    the {@link ModbusType}
+	 * @param address the address of the {@link ModbusElement}
+	 * @return the {@link ModbusElement}
+	 */
+	private static AbstractModbusElement<?> generateModbusElement(ModbusType type, int address) {
+		switch (type) {
+		case ENUM16:
+		case UINT16:
+			return new UnsignedWordElement(address);
+		case UINT32:
+			return new UnsignedDoublewordElement(address);
+		case FLOAT32:
+			return new FloatDoublewordElement(address);
+		case FLOAT64:
+			return new UnsignedQuadruplewordElement(address);
+		case STRING16:
+			return new StringWordElement(address, 16);
+		}
+		return null;
+	}
+
+	/**
+	 * Adds a Reak-Task with ModbusElements.
+	 * 
+	 * <ul>
+	 * <li>Makes sure there is no DummyRegisterElement in beginning or end of the
+	 * queue
+	 * <li>Adds only if queue is not empty
+	 * </ul>
+	 * 
+	 * @throws OpenemsException on error
+	 */
+	private void addReadTask(Deque<AbstractModbusElement<?>> elements) throws OpenemsException {
+		if (elements.isEmpty()) {
+			return;
+		}
+		while (elements.peekFirst() instanceof DummyRegisterElement) {
+			elements.removeFirst();
+		}
+		while (elements.peekLast() instanceof DummyRegisterElement) {
+			elements.removeLast();
+		}
+		this.modbusProtocol.addTask(//
+				new FC3ReadRegistersTask(//
+						elements.peekFirst().getStartAddress(), Priority.HIGH,
+						elements.toArray(new AbstractModbusElement[elements.size()])));
+	};
+
+	/**
+	 * Adds a Write-Task with ModbusElements.
+	 * 
+	 * @throws OpenemsException on error
+	 */
+	private void addWriteTask(Deque<AbstractModbusElement<?>> elements) throws OpenemsException {
+		if (elements.isEmpty()) {
+			return;
+		}
+		this.modbusProtocol.addTask(//
+				new FC16WriteRegistersTask(//
+						elements.peekFirst().getStartAddress(),
+						elements.toArray(new AbstractModbusElement[elements.size()])));
+	};
 
 	/**
 	 * Reads all Nature Start Addresses of a Component-Block.
@@ -423,6 +490,8 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements 
 						try {
 							ModbusUtils.readELementOnce(this.modbusProtocol, new UnsignedWordElement(startAddress + 1),
 									false).thenAccept(lengthOfNatureBlock -> {
+										this.logInfo(this.log, "Found Remote-Nature '0x"
+												+ Integer.toHexString(hash & 0xffff) + "' on address " + startAddress);
 										natureStartAddresses.put(startAddress, hash);
 
 										var nextStartAddress = startAddress + lengthOfNatureBlock;
@@ -448,9 +517,8 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements 
 	public String debugLog() {
 		return "SoC:" + this.getSoc().asString() //
 				+ "|L:" + this.getActivePower().asString() //
-				+ "|Allowed:"
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + ";"
-				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asString() //
+				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";" //
+				+ this.getAllowedDischargePower().asString() //
 				+ "|" + this.getGridModeChannel().value().asOptionString();
 	}
 
@@ -461,8 +529,8 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		this.setActivePowerEquals(activePower);
-		this.setReactivePowerEquals(reactivePower);
+		this.setRemoteActivePowerEquals((float) activePower);
+		this.setRemoteReactivePowerEquals((float) reactivePower);
 	}
 
 	@Override
@@ -470,24 +538,4 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent implements 
 		return 1;
 	}
 
-	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.handleStateMachine();
-			break;
-		}
-	}
-
-	private void handleStateMachine() {
-		try {
-			// TODO distribute power for different scenarios
-			this.setActivePowerEquals(500);
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-		}
-	}
 }
