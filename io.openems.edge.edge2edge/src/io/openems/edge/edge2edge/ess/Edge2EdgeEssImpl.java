@@ -116,10 +116,8 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 					}
 					this.findComponentBlock(config.remoteComponentId(), 1 + value) //
 							.whenComplete((startAddress, e1) -> {
-								this.channel(Edge2EdgeEss.ChannelId.REMOTE_COMPONENT_ID_NOT_FOUND)
-										.setNextValue(e1 != null);
 								if (e1 != null) {
-									// TODO restart with timeout finding the component block on exception
+									this._setMappingRemoteProtocolFault(true);
 									e1.printStackTrace();
 									return;
 								}
@@ -127,17 +125,20 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 								// Found Component Block -> read each nature block
 								this.readNatureBlocks(startAddress).whenComplete((ignore, e2) -> {
 									if (e2 != null) {
+										this._setMappingRemoteProtocolFault(true);
 										// TODO restart with timeout finding the component block on exception
 										e2.printStackTrace();
 										return;
 									}
 
-									System.out.println("FINISHED");
+									this._setMappingRemoteProtocolFault(false);
+									this.logInfo(this.log, "Finished reading remote Modbus/TCP protocol");
 								});
 							});
 				});
+
 			} catch (OpenemsException e) {
-				e.printStackTrace();
+				this._setMappingRemoteProtocolFault(true);
 			}
 		});
 	}
@@ -367,8 +368,6 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 			}
 			this.addWriteTask(taskElements);
 		}
-
-		System.out.println("X");
 	}
 
 	private Consumer<Object> getOnUpdateCallback(ModbusSlaveNatureTable modbusSlaveNatureTable, ModbusRecord record) {
@@ -390,6 +389,9 @@ public class Edge2EdgeEssImpl extends AbstractOpenemsModbusComponent
 			var c = ((ModbusRecordChannel) record).getChannelId();
 			if (c == ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS) {
 				return Edge2EdgeEss.ChannelId.REMOTE_SET_ACTIVE_POWER_EQUALS;
+
+			} else if (c == ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS) {
+				return Edge2EdgeEss.ChannelId.REMOTE_SET_REACTIVE_POWER_EQUALS;
 			}
 		}
 		return null;

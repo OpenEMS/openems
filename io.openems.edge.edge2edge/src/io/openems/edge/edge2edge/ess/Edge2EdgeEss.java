@@ -7,6 +7,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.FloatWriteChannel;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public interface Edge2EdgeEss extends OpenemsComponent {
@@ -19,7 +21,7 @@ public interface Edge2EdgeEss extends OpenemsComponent {
 				.accessMode(AccessMode.READ_ONLY)//
 				.unit(Unit.WATT)), //
 		REMOTE_NO_OPENEMS(Doc.of(Level.FAULT)), //
-		REMOTE_COMPONENT_ID_NOT_FOUND(Doc.of(Level.FAULT)), //
+		MAPPING_REMOTE_PROTOCOL_FAULT(Doc.of(Level.FAULT)), //
 
 		REMOTE_FAULT(Doc.of(Level.FAULT)), //
 		REMOTE_WARNING(Doc.of(Level.WARNING)), //
@@ -85,4 +87,32 @@ public interface Edge2EdgeEss extends OpenemsComponent {
 		this.getRemoteSetReactivePowerEqualsChannel().setNextWriteValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#MAPPING_REMOTE_PROTOCOL_FAULT}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getMappingRemoteProtocolFaultChannel() {
+		return this.channel(ChannelId.MAPPING_REMOTE_PROTOCOL_FAULT);
+	}
+
+	/**
+	 * Gets the boolean if the state channel is active. See
+	 * {@link ChannelId#MAPPING_REMOTE_PROTOCOL_FAULT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getMappingRemoteProtocolFault() {
+		return this.getMappingRemoteProtocolFaultChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#MAPPING_REMOTE_PROTOCOL_FAULT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMappingRemoteProtocolFault(Boolean value) {
+		this.getMappingRemoteProtocolFaultChannel().setNextValue(value);
+	}
 }
