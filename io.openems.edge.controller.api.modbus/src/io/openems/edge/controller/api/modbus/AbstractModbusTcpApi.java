@@ -245,9 +245,10 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 		for (ModbusSlaveNatureTable natureTable : table.getNatureTables()) {
 			// add the Interface Hash-Code and Length
 			nextAddress = this.addRecordToProcessImage(nextNatureAddress,
-					new ModbusRecordUint16Hash(-1, natureTable.getNature().getSimpleName()), component);
-			nextAddress = this.addRecordToProcessImage(nextAddress, new ModbusRecordUint16BlockLength(-1,
-					natureTable.getNature().getSimpleName(), (short) natureTable.getLength()), component);
+					new ModbusRecordUint16Hash(-1, natureTable.getNatureName()), component);
+			nextAddress = this.addRecordToProcessImage(nextAddress,
+					new ModbusRecordUint16BlockLength(-1, natureTable.getNatureName(), (short) natureTable.getLength()),
+					component);
 
 			// add Records
 			for (ModbusRecord record : natureTable.getModbusRecords()) {
@@ -292,8 +293,8 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		this.apiWorker.run();
 		this.updateCycleValues();
+		this.apiWorker.run();
 	}
 
 	@SuppressWarnings("unchecked")
