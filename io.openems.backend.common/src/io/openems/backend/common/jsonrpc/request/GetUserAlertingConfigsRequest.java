@@ -3,7 +3,6 @@ package io.openems.backend.common.jsonrpc.request;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.utils.JsonUtils;
 
@@ -14,36 +13,41 @@ import io.openems.common.utils.JsonUtils;
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
- *   "method": "getEdgeConfig",
+ *   "method": "getUserAlertingConfigs",
  *   "params": {
- *     edgeId: String
+ *      edgeId: string,
  *   }
  * }
  * </pre>
  */
-public class GetAlertingConfigRequest extends JsonrpcRequest {
+public class GetUserAlertingConfigsRequest extends JsonrpcRequest {
 
-	public static final String METHOD = "getAlertingConfig";
+	public static final String METHOD = "getUserAlertingConfigs";
 
 	/**
-	 * Create {@link GetAlertingConfigRequest} from a template
+	 * Create {@link GetUserAlertingConfigsRequest} from a template
 	 * {@link JsonrpcRequest}.
 	 *
 	 * @param r the template {@link JsonrpcRequest}
-	 * @return the {@link GetAlertingConfigRequest}
+	 * @return the {@link GetUserAlertingConfigsRequest}
 	 * @throws OpenemsNamedException on parse error
 	 */
-	public static GetAlertingConfigRequest from(JsonrpcRequest r) throws OpenemsException {
-		return new GetAlertingConfigRequest(r);
+	public static GetUserAlertingConfigsRequest from(JsonrpcRequest r) throws OpenemsNamedException {
+		return new GetUserAlertingConfigsRequest(r);
 	}
 
 	private final String edgeId;
 
-	private GetAlertingConfigRequest(JsonrpcRequest request) {
-		super(request, GetAlertingConfigRequest.METHOD);
-		this.edgeId = request.getParams().get("edgeId").getAsString();
+	private GetUserAlertingConfigsRequest(JsonrpcRequest request) throws OpenemsNamedException {
+		super(request, GetUserAlertingConfigsRequest.METHOD);
+		this.edgeId = JsonUtils.getAsString(request.getParams(), "edgeId");
 	}
 
+	/**
+	 * Get the Edge-ID.
+	 *
+	 * @return the Edge-ID
+	 */
 	public String getEdgeId() {
 		return this.edgeId;
 	}

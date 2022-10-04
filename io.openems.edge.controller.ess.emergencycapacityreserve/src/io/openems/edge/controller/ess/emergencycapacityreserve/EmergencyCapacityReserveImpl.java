@@ -198,10 +198,4 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 				.mapToInt(Value::get) //
 				.findFirst();
 	}
-
-	@Override
-	public Config getConfig() {
-		return this.config;
-	}
-
 }

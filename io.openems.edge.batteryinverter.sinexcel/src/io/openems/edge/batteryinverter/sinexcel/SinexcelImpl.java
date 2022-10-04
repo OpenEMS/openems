@@ -494,7 +494,7 @@ public class SinexcelImpl extends AbstractOpenemsModbusComponent
 
 				),
 
-				new FC3ReadRegistersTask(101, Priority.LOW, //
+				new FC3ReadRegistersTask(101, Priority.HIGH, //
 						m(Sinexcel.ChannelId.GRID_VOLTAGE_L1, new SignedWordElement(101),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(Sinexcel.ChannelId.GRID_VOLTAGE_L2, new SignedWordElement(102),

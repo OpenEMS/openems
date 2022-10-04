@@ -84,7 +84,8 @@
       "october": "Ríjen",
       "november": "Listopad",
       "december": "Prosinec"
-    }
+    },
+    "save": "Save"
   },
   "Menu": {
     "aboutUI": "About FEMS",
@@ -493,14 +494,18 @@
         "activate": "Aktivace",
         "delay": "Zpoždění",
         "save": "Uložit",
-        "options": {
-          "1": "15 minut",
-          "2": "1 hodina",
-          "3": "1 den"
-        },
+        "options": {},
         "toast": {
           "success": "Přijatá nastavení",
           "error": "Chyba při načítání nastavení"
+        },
+        "interval": {
+          "hours": "hours",
+          "minute": "minute",
+          "minutes": "minutes",
+          "day": "day",
+          "days": "days",
+          "hour": "hour"
         }
       },
       "App": {

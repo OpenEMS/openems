@@ -79,7 +79,8 @@
       "october": "Oktober",
       "november": "November",
       "december": "December"
-    }
+    },
+    "save": "Opslaan"
   },
   "Menu": {
     "aboutUI": "Over FEMS",
@@ -93,7 +94,8 @@
     "overview": "FEMS overzicht",
     "settings": "Instellingen",
     "user": "Gebruiker",
-    "changelog": "Changelog"
+    "changelog": "Changelog",
+    "otherUser": "Andere gebruikers"
   },
   "Index": {
     "allConnected": "Alle verbindingen gemaakt.",
@@ -486,14 +488,18 @@
         "activate": "Activeer",
         "delay": "Vertraging",
         "save": "Save",
-        "options": {
-          "15": "15 minuten",
-          "60": "1 uur",
-          "1440": "1 dag"
-        },
+        "options": {},
         "toast": {
           "success": "Goedgekeurde instellingen",
           "error": "Fout bij het laden van de instellingen"
+        },
+        "interval": {
+          "hours": "uur",
+          "minute": "minuut",
+          "minutes": "minuten",
+          "day": "dag",
+          "days": "dagen",
+          "hour": "uur"
         }
       },
       "App": {

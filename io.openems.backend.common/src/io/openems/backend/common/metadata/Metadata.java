@@ -68,10 +68,10 @@ public interface Metadata {
 
 	/**
 	 * Handles operations with Edge.
-	 * 
+	 *
 	 * <p>
 	 * To be completed. This should eventually replace Edge.
-	 * 
+	 *
 	 * @return an {@link EdgeHandler}
 	 */
 	public EdgeHandler edge();
@@ -297,13 +297,34 @@ public interface Metadata {
 	public void updateUserLanguage(User user, Language language) throws OpenemsNamedException;
 
 	/**
-	 * Gets an EdgeUserRole to Edge and User.
+	 * Gets all the alerting settings for given edge id.
+	 * 
 	 *
-	 * @param edgeId the Edge
-	 * @param userId the User
-	 * @return EdgeUser or null
+	 * @param edgeId the Edge ID
+	 * @return List of {@link AlertingSetting}
+	 * @throws OpenemsException on error
 	 */
-	public Optional<EdgeUser> getEdgeUserTo(String edgeId, String userId);
+	public List<AlertingSetting> getUserAlertingSettings(String edgeId) throws OpenemsException;
+
+	/**
+	 * Gets the alerting settings for given edge id and userId.
+	 *
+	 * @param edgeId the Edge ID
+	 * @param userId the User ID
+	 * @return List of {@link UserRoleDelayTime}
+	 * @throws OpenemsException on error
+	 */
+	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
+
+	/**
+	 * Sets the alerting settings for the given list of users.
+	 *
+	 * @param user   {@link User} the current user
+	 * @param edgeId the Edge-ID
+	 * @param users  list of users to update
+	 * @throws OpenemsException on error
+	 */
+	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) throws OpenemsException;
 
 	/**
 	 * Returns an EventAdmin, used by Edge objects.
@@ -323,7 +344,7 @@ public interface Metadata {
 
 	/**
 	 * Get serial number for the given {@link Edge}.
-	 * 
+	 *
 	 * @param edge {@link Edge} to search for serial number
 	 * @return Serial number or empty {@link Optional}
 	 */

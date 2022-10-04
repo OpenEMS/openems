@@ -89,7 +89,8 @@
       "october": "Oktober",
       "november": "November",
       "december": "Dezember"
-    }
+    },
+    "save": "Speichern"
   },
   "Menu": {
     "aboutUI": "Über FEMS",
@@ -103,7 +104,8 @@
     "overview": "Alle Systeme",
     "settings": "Einstellungen",
     "user": "Benutzer",
-    "changelog": "Changelog"
+    "changelog": "Changelog",
+    "otherUser": "Weitere Benutzer"
   },
   "Index": {
     "allConnected": "Alle Verbindungen hergestellt.",
@@ -497,14 +499,17 @@
         "activate": "Aktivieren",
         "delay": "Verzögerung",
         "save": "Speichern",
-        "options": {
-          "15": "15 Minuten",
-          "60": "1 Stunde",
-          "1440": "1 Tag"
-        },
         "toast": {
           "success": "Einstellungen übernommen",
           "error": "Fehler beim Laden der Einstellungen"
+        },
+        "interval": {
+          "hour": "Stunde",
+          "hours": "Stunden",
+          "minute": "Minute",
+          "minutes": "minuten",
+          "day": "Tag",
+          "days": "Tage"
         }
       },
       "App": {

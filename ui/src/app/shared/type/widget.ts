@@ -69,7 +69,7 @@ export class AdvertWidgets {
 
         let edgeIdNumber = parseInt(edge.id.match(/\D*(\d*)/)[1]);
 
-        if (edgeIdNumber >= 10000 && edgeIdNumber <= 10600 && edge.producttype == ProductType.HOME) {
+        if (edgeIdNumber >= 10000 && edgeIdNumber <= 11500 && edge.producttype == ProductType.HOME) {
             list.push({
                 name: 'Alerting',
                 title: 'Neue Benachrichtigungsfunktion jetzt verfügbar!'

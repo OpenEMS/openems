@@ -82,7 +82,8 @@
       "october": "Octubre",
       "november": "Noviembre",
       "december": "Diciembre"
-    }
+    },
+    "save": "Ahorrar"
   },
   "Menu": {
     "aboutUI": "Sobre FEMS",
@@ -96,7 +97,8 @@
     "overview": "estudio FEMS",
     "settings": "Ajustes",
     "user": "Usuario",
-    "changelog": "Changelog"
+    "changelog": "Changelog",
+    "otherUser": "Otros usuarios"
   },
   "Index": {
     "allConnected": "Todas las conexiones establecidas.",
@@ -490,14 +492,18 @@
         "activate": "Activar",
         "delay": "Retraso",
         "save": "Guardar",
-        "options": {
-          "15": "15 minutos",
-          "60": "1 hora",
-          "1440": "1 día"
-        },
+        "options": {},
         "toast": {
           "success": "Ajustes adoptados",
           "error": "Error al cargar la configuración"
+        },
+        "interval": {
+          "hours": "horas",
+          "minute": "minuto",
+          "minutes": "minutos",
+          "day": "día",
+          "days": "días",
+          "hour": "hora"
         }
       },
       "App": {

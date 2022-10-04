@@ -55,7 +55,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		}
 		try {
 			ws.connectBlocking(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalStateException e) {
 			// Catch "WebSocketClient objects are not reuseable" thrown by
 			// WebSocketClient#connect(). Set WebSocketClient#connectReadThread to `null`.
 			resetWebSocketClient(ws);

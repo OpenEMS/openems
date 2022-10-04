@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,12 +26,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Objects;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
+import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.EdgeUser;
@@ -296,19 +295,6 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	}
 
 	@Override
-	public Optional<EdgeUser> getEdgeUserTo(String edgeId, String userId) {
-		AtomicReference<EdgeUser> response = new AtomicReference<>(null);
-		this.edgeCache.getEdgeFromEdgeId(edgeId) //
-				.getUser().forEach(user -> {
-					if (Objects.equal(user.getUserId(), userId)) {
-						response.set(user);
-						return;
-					}
-				});
-		return Optional.ofNullable(response.get());
-	}
-
-	@Override
 	public void sendAlertingMail(ZonedDateTime stamp, List<EdgeUser> user, String edgeId) {
 		try {
 			this.odooHandler.sendNotificationMailAsync(user, stamp, edgeId);
@@ -423,9 +409,26 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	public EdgeHandler edge() {
 		return this.edgeHandler;
 	}
-
+	
 	@Override
 	public Optional<String> getSerialNumberForEdge(Edge edge) {
 		return this.odooHandler.getSerialNumberForEdge(edge);
 	}
+
+	@Override
+	public List<AlertingSetting> getUserAlertingSettings(String edgeId) throws OpenemsException {
+		return this.odooHandler.getUserAlertingSettings(edgeId);
+	}
+	
+	@Override
+	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+		return this.odooHandler.getUserAlertingSettings(edgeId, userId);
+	}
+
+	@Override
+	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users)
+			throws OpenemsException {
+		this.odooHandler.setUserAlertingSettings((MyUser) user, edgeId, users);
+	}
+
 }
