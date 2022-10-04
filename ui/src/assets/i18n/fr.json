@@ -84,7 +84,8 @@
       "october": "October",
       "november": "November",
       "december": "December"
-    }
+    },
+    "save": "sauvegarder"
   },
   "Menu": {
     "aboutUI": "à propos de OpenEMS UI",
@@ -98,7 +99,8 @@
     "overview": "Apperçu FEMS ",
     "profile": "Utilisateur",
     "settings": "Réglages",
-    "changelog": "Changelog"
+    "changelog": "Changelog",
+    "otherUser": "Autres utilisateurs"
   },
   "Index": {
     "allConnected": "Toutes les connections sont établies.",
@@ -491,14 +493,18 @@
         "activate": "Activer",
         "delay": "Retard",
         "save": "Enregistrer",
-        "options": {
-          "15": "15 minutes",
-          "60": "1 heure",
-          "1440": "1 jour"
-        },
+        "options": {},
         "toast": {
           "success": "Paramètres adoptés",
           "error": "Erreur lors du chargement des paramètres"
+        },
+        "interval": {
+          "hours": "heures",
+          "minute": "minute",
+          "minutes": "minutes",
+          "day": "journée",
+          "days": "journées",
+          "hour": "heure"
         }
       },
       "App": {

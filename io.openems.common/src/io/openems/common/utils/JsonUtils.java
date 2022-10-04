@@ -4,6 +4,7 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -33,6 +34,27 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 
 public class JsonUtils {
+	/**
+	 * Provide a easy way to generate a JsonArray from a list using the given
+	 * convert function to add each element.
+	 * 
+	 * @param list    to convert
+	 * @param convert function to convert elements
+	 * @param <T>     type of an element from list
+	 * 
+	 * @return list as JsonArray
+	 */
+	public static <T> JsonArray generateJsonArray(List<T> list, Function<T, JsonElement> convert) {
+		if (list == null) {
+			return null;
+		} else {
+			var jab = new JsonArrayBuilder();
+			list.forEach(element -> {
+				jab.add(convert.apply(element));
+			});
+			return jab.build();
+		}
+	}
 
 	/**
 	 * A temporary builder class for JsonArrays.

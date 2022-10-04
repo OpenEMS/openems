@@ -1,49 +1,38 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
-import { SetAlertingConfigRequest } from './setAlertingConfigRequest';
-import { GetAlertingConfigRequest } from './getAlertingConfigRequest';
-import { GetAlertingConfigResponse, AlertingState } from './getAlertingConfigResponse';
+import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
-import { FormGroup } from '@angular/forms';
-import { FormlyFormOptions, FormlyFieldConfig } from '@ngx-formly/core';
+import { SetUserAlertingConfigsRequest } from 'src/app/shared/jsonrpc/request/setUserAlertingConfigsRequest';
+import { GetUserAlertingConfigsRequest } from 'src/app/shared/jsonrpc/request/getUserAlertingConfigsRequest';
+import { GetUserAlertingConfigsResponse, UserSettingResponse } from 'src/app/shared/jsonrpc/response/getUserAlertingConfigsResponse';
+import { User } from 'src/app/shared/jsonrpc/shared';
+import { Role } from 'src/app/shared/type/role';
+import { Edge, Service, Utils, Websocket } from 'src/app/shared/shared';
 
-type option = { value: number, label: string }
+export type UserSetting = { userId: string, delayTime: number }
+
+type Delay = { value: number, label: string }
+type UserSettingRole = UserSetting & { role: Role };
+type RoleUsersSettings = { role: Role, form: FormGroup, settings: UserSetting[] }
 
 @Component({
   selector: AlertingComponent.SELECTOR,
   templateUrl: './alerting.component.html'
 })
 export class AlertingComponent implements OnInit {
-  private static readonly SELECTOR = "alerting";
+  protected static readonly SELECTOR = "alerting";
+  public readonly spinnerId: string = AlertingComponent.SELECTOR;
+  protected static readonly DELAYS: number[] = [15, 60, 1440];
 
-  public static readonly OPTIONS = [15, 60, 1440];
+  protected edge: Edge;
+  protected user: User;
+  protected error: Error;
 
-  public edge: Edge = null;
+  protected currentUserInformation: UserSettingRole;
+  protected currentUserForm: { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: FormlyFormOptions };
 
-  public form = new FormGroup({});
-  public model: AlertingSetting = null;
-  public options: FormlyFormOptions = {};
-  public fields: FormlyFieldConfig[] = [
-    {
-      key: 'isOn',
-      type: 'checkbox',
-      templateOptions: {
-        label: this.translate.instant('Edge.Config.Alerting.activate'),
-      },
-    },
-    {
-      key: 'delay',
-      type: 'radio',
-      templateOptions: {
-        label: this.translate.instant('Edge.Config.Alerting.delay'),
-        type: 'number',
-        required: true,
-        options: this.getOptions(),
-      },
-      hideExpression: model => !model.isOn,
-    }
-  ]
+  protected otherUserSettings: RoleUsersSettings[];
 
   public constructor(
     private route: ActivatedRoute,
@@ -51,111 +40,275 @@ export class AlertingComponent implements OnInit {
     private websocket: Websocket,
     private service: Service,
     private translate: TranslateService,
+    public formBuilder: FormBuilder
   ) { }
 
-  private getOptions(): option[] {
-    let options: option[] = [];
-    for (var val of AlertingComponent.OPTIONS) {
-      options.push({ value: val, label: this.translate.instant('Edge.Config.Alerting.options.' + (val)) });
-    }
-    return options;
-  }
-
   public ngOnInit(): void {
+    this.service.startSpinner(this.spinnerId);
+
     this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.alerting' }, this.route).then(edge => {
       this.edge = edge;
 
-      this.options = {
-        formState: {
-          awesomeIsForced: false,
-        },
-      };
+      this.service.metadata.subscribe(metadata => {
+        this.user = metadata.user;
+      });
 
-      this.refreshState(new GetAlertingConfigRequest(this.edge.id));
+      let request = new GetUserAlertingConfigsRequest({ edgeId: this.edge.id });
+
+      this.sendRequest(request).then(response => {
+        const result = response.result;
+        // copy the array, because a later splice will otherwise falsify the log output of the response.
+        const userSettings: UserSettingResponse[] = result.userSettings.map(e => e);
+        this.findRemoveAndSetCurrentUser(userSettings)
+        if (edge?.roleIsAtLeast('admin')) {
+          this.setRemainingUserSettings(userSettings);
+        }
+      }).catch(error => {
+        this.error = error.error;
+      }).finally(() => {
+        this.service.stopSpinner(this.spinnerId)
+      })
     });
   }
 
-  protected ionViewWillEnter(): void {
-    if (this.options.resetModel) {
-      this.options.resetModel();
-    }
-  }
+  private findRemoveAndSetCurrentUser(userSettings: UserSettingResponse[]) {
+    let currentUserIndex = userSettings.findIndex(setting => setting.userId === this.user.id);
 
-  private refreshState(request: GetAlertingConfigRequest | SetAlertingConfigRequest): void {
-    this.service.startSpinner(AlertingComponent.SELECTOR);
-
-    this.websocket.sendRequest(request)
-      .then(response => {
-        let result = (response as GetAlertingConfigResponse).result;
-
-        this.model = new AlertingSetting(result);
-
-        if (this.options.updateInitialValue) {
-          this.options.updateInitialValue();
-          this.options.resetModel();
-        }
-
-        if (request instanceof SetAlertingConfigRequest) {
-          this.service.toast(this.translate.instant('Edge.Config.Alerting.toast.success'), 'success')
-        }
-
-        this.service.stopSpinner(AlertingComponent.SELECTOR);
-      }).catch(reason => {
-        if (reason.error.message.startsWith('settings_err:')) {
-          this.model = null;
-        } else {
-          console.error(reason.error);
-          this.service.toast(this.translate.instant('Edge.Config.Alerting.toast.error') + ': ' + reason.error.message, 'danger');
-        }
-      });
-  }
-
-  public updateAlerting(): void {
-    var setConfig = {
-      edgeId: this.edge.id,
-      timeToWait: this.model.timeToWait
-    }
-    var request = new SetAlertingConfigRequest(setConfig);
-    this.refreshState(request);
-  }
-}
-
-class AlertingSetting {
-  private _isOn: boolean = false;
-  private _delay: number = 15;
-
-  constructor(state?: AlertingState) {
-    if (state != null) {
-      let val = state.timeToWait
-      this._isOn = val > 0
-
-      val = Math.abs(val);
-      if (AlertingComponent.OPTIONS.find(x => x === val) === undefined) {
-        val = AlertingComponent.OPTIONS[0];
-      }
-      this._delay = val
-    }
-  }
-
-  public get isOn(): boolean {
-    return this._isOn;
-  }
-  public set isOn(val: boolean) {
-    this._isOn = val;
-  }
-
-  public get delay(): number {
-    return this._delay;
-  }
-  public set delay(val: number) {
-    this._delay = Math.abs(val);
-  }
-
-  public get timeToWait(): number {
-    if (this._isOn) {
-      return this.delay;
+    if (currentUserIndex != -1) {
+      this.currentUserInformation = userSettings.splice(currentUserIndex, 1)[0];
     } else {
-      return -this.delay;
+      this.currentUserInformation = { delayTime: 0, userId: this.user.id, role: Role.getRole(this.user.globalRole) };
     }
+    this.currentUserForm = this.generateFormFor(this.currentUserInformation);
+  }
+
+  private generateFormFor(userSettings: UserSettingRole): { formGroup: FormGroup, model: any, fields: FormlyFieldConfig[], options: any } {
+    let delays: Delay[] = this.Delays
+    if (this.isInvalidDelay(userSettings.delayTime)) {
+      delays.push({ value: userSettings.delayTime, label: this.getLabelToDelay(userSettings.delayTime) })
+    }
+    return {
+      formGroup: new FormGroup({}),
+      options: {
+        formState: {
+          awesomeIsForced: false,
+        }
+      },
+      model: {
+        isActivated: userSettings.delayTime > 0,
+        delayTime: userSettings.delayTime
+      },
+      fields: [{
+        key: 'isActivated',
+        type: 'checkbox',
+        templateOptions: {
+          label: this.translate.instant('Edge.Config.Alerting.activate'),
+        },
+      },
+      {
+        key: 'delayTime',
+        type: 'radio',
+        templateOptions: {
+          label: this.translate.instant('Edge.Config.Alerting.delay'),
+          type: 'number',
+          required: true,
+          options: delays,
+        },
+        hideExpression: model => !model.isActivated,
+      }
+      ],
+    };
+  }
+
+  private setRemainingUserSettings(userSettings: UserSettingResponse[]) {
+    if (!userSettings || userSettings.length === 0) return;
+
+    userSettings = this.sortedAlphabetically(userSettings);
+    let otherUserSettings: RoleUsersSettings[] = [];
+
+    userSettings.forEach(userSetting => {
+      let roleSettings = this.findOrGetNew(otherUserSettings, userSetting.role);
+      this.addUserToRoleUserSettings(userSetting, roleSettings);
+    })
+    this.otherUserSettings = this.sortedByRole(otherUserSettings);
+  }
+
+  private sortedAlphabetically(userSettings: UserSettingResponse[]): UserSettingResponse[] {
+    return userSettings.sort((userA, userB) => {
+      return userA.userId.localeCompare(userB.userId, undefined, { sensitivity: 'accent' });
+    });
+  }
+
+  /**
+   * get entry for role. if no entry is found genarate a new one.
+   * eather way return the value.
+   *
+   * @param from array to search in
+   * @param role the role to search for
+   * @returns the found/created setting
+   */
+  private findOrGetNew(from: RoleUsersSettings[], role: Role): RoleUsersSettings {
+    let roleSettings = from.find(setting => setting.role === role);
+    if (!roleSettings) {
+      roleSettings = { role: role, settings: [], form: new FormGroup({}) };
+      from.push(roleSettings);
+    }
+    return roleSettings;
+  }
+
+  /**
+   * add a user to a roleUserSetting.
+   *
+   * @param userSetting user to add
+   * @param roleSetting settings to add user to
+   */
+  private addUserToRoleUserSettings(userSetting: UserSettingResponse, roleSetting: RoleUsersSettings) {
+    let activated = userSetting.delayTime > 0;
+    let delay = userSetting.delayTime == 0 ? 15 : userSetting.delayTime;
+    roleSetting.settings.push(userSetting)
+    roleSetting.form.addControl(userSetting.userId, this.formBuilder.group({
+      isActivated: new FormControl(activated),
+      delayTime: new FormControl(delay),
+    }));
+  }
+
+  private sortedByRole(roleUsersSettings: RoleUsersSettings[]): RoleUsersSettings[] {
+    return roleUsersSettings.sort((settingA, settingB) => {
+      return Role.isAtLeast(settingA.role, settingB.role) ? 1 : -1;
+    });
+  }
+
+  /**
+   * get if given delay is valid
+   */
+  protected isInvalidDelay(delay: number): boolean {
+    if (delay === 0) return false;
+    return !AlertingComponent.DELAYS.includes(delay);
+  }
+
+  /**
+   * get list of delays with translated labels.
+   */
+  protected get Delays() {
+    return AlertingComponent.DELAYS.map((delay) => { return { value: delay, label: this.getLabelToDelay(delay) } });
+  }
+
+  /**
+   * get the label matching the given delay, with translated timeunits and
+   * attention to writing differences and singular and plural.
+   *
+   * @param delay to generate label for
+   * @returns label as string
+   */
+  private getLabelToDelay(delay: number): string {
+    if (delay >= 1440) {
+      delay = delay / 1440
+      return delay + ' ' + (delay == 1
+        ? this.translate.instant("Edge.Config.Alerting.interval.day")
+        : this.translate.instant("Edge.Config.Alerting.interval.days"));
+    } else if (delay >= 60) {
+      delay = delay / 60
+      return delay + ' ' + (delay == 1
+        ? this.translate.instant("Edge.Config.Alerting.interval.hour")
+        : this.translate.instant("Edge.Config.Alerting.interval.hours"));
+    } else {
+      return delay + ' ' + (delay == 1
+        ? this.translate.instant("Edge.Config.Alerting.interval.minute")
+        : this.translate.instant("Edge.Config.Alerting.interval.minutes"));
+    }
+  }
+
+  protected setUsersAlertingConfig() {
+    let edgeId: string = this.edge.id;
+
+    let formGroup: FormGroup<any>[] = []; // all dirty formGroups
+    let userSettings: UserSetting[] = []; // all changed userSettings
+
+    if (this.currentUserForm.formGroup.dirty) {
+      formGroup.push(this.currentUserForm.formGroup)
+
+      userSettings.push({
+        delayTime: this.currentUserForm.formGroup.controls['delayTime']?.value ?? 0,
+        userId: this.currentUserInformation.userId,
+      })
+    }
+
+    if (this.otherUserSettings) {
+      for (let setting of this.otherUserSettings) {
+        if (setting.form.dirty) {
+          formGroup.push(setting.form)
+
+          for (let user of setting.settings) {
+            let control = setting.form.controls[user.userId]
+            if (control.dirty) {
+              let delayTime = control.value['delayTime']
+              let isActivated = control.value['isActivated']
+              userSettings.push({
+                delayTime: isActivated ? delayTime : 0,
+                userId: user.userId,
+              });
+            }
+          }
+        }
+      }
+    }
+
+    let request = new SetUserAlertingConfigsRequest({ edgeId: edgeId, userSettings: userSettings })
+    this.sendRequestAndUpdate(request, formGroup)
+  }
+
+  /**
+   * send requests, show events using toasts and reset given formGroup if successful.
+   * @param request   stucture containing neccesary parameters
+   * @param formGroup   formGroup to update
+   * @returns @GetUserAlertingConfigsResponse containing logged in users data, as well as data other users, if user is admin
+   */
+  private sendRequestAndUpdate(request: GetUserAlertingConfigsRequest | SetUserAlertingConfigsRequest, formGroup: FormGroup<any>[]) {
+    this.service.startSpinner(this.spinnerId)
+    this.sendRequest(request)
+      .then(() => {
+        this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
+        for (let group of formGroup.values()) {
+          group.markAsPristine();
+        }
+      })
+      .catch((response) => {
+        let error = response.error;
+        this.errorToast(this.translate.instant('General.changeFailed'), error.message);
+      })
+      .finally(() => {
+        this.service.stopSpinner(this.spinnerId)
+      })
+  }
+
+  /**
+   * send requests and show events using toasts.
+   * @param request   stucture containing neccesary parameters
+   * @returns @GetUserAlertingConfigsResponse containing logged in users data, as well as data other users, if user is admin
+   */
+  private sendRequest(request: GetUserAlertingConfigsRequest | SetUserAlertingConfigsRequest): Promise<GetUserAlertingConfigsResponse> {
+    return new Promise((resolve, reject) => {
+      this.websocket.sendRequest(request).then(response => {
+        resolve(response as GetUserAlertingConfigsResponse);
+      }).catch(reason => {
+        let error = reason.error;
+        console.error(error);
+        this.errorToast(this.translate.instant('Edge.Config.Alerting.toast.error'), error.message);
+        reject(reason);
+      })
+    });
+  }
+
+  private errorToast(errorType: string, errorMsg: string) {
+    this.service.toast('[ ' + errorType + ' ]<br/>' + errorMsg, 'danger');
+  }
+
+  /**
+   * get if any userSettings has changed/is dirty.
+   * @returns true if any settings are changed, else false
+   */
+  protected isDirty(): boolean {
+    if (this.error || !this.currentUserForm) return false;
+    return this.currentUserForm?.formGroup.dirty || this.otherUserSettings?.findIndex(setting => setting.form.dirty) != -1;
   }
 }

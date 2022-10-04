@@ -167,7 +167,8 @@ public interface Field {
 		USER_ID("(SELECT login FROM res_users ru WHERE ru.id = user_id)", true), //
 
 		TIME_TO_WAIT("time_to_wait", true), //
-		LAST_NOTIFICATION("last_notification", true); //
+		LAST_NOTIFICATION("last_notification", true), //
+		; //
 
 		public static final String ODOO_MODEL = "fems.device_user_role";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
