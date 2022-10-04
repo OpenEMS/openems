@@ -24,7 +24,7 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
 
   constructor(
     private websocket: Websocket,
-    private service: Service,) { }
+    private service: Service) { }
 
   ngOnInit() {
     this.executeUpdate = new ExecuteSystemUpdate(this.edge, this.websocket);
@@ -60,5 +60,4 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
     this.isWaiting = true;
     this.executeUpdate.executeSystemUpdate();
   }
-
 }

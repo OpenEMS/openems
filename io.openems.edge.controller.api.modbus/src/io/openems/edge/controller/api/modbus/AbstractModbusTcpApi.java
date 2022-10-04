@@ -27,6 +27,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordChannel;
+import io.openems.edge.common.modbusslave.ModbusRecordCycleValue;
 import io.openems.edge.common.modbusslave.ModbusRecordString16;
 import io.openems.edge.common.modbusslave.ModbusRecordUint16BlockLength;
 import io.openems.edge.common.modbusslave.ModbusRecordUint16Hash;
@@ -244,9 +245,10 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 		for (ModbusSlaveNatureTable natureTable : table.getNatureTables()) {
 			// add the Interface Hash-Code and Length
 			nextAddress = this.addRecordToProcessImage(nextNatureAddress,
-					new ModbusRecordUint16Hash(-1, natureTable.getNature().getSimpleName()), component);
-			nextAddress = this.addRecordToProcessImage(nextAddress, new ModbusRecordUint16BlockLength(-1,
-					natureTable.getNature().getSimpleName(), (short) natureTable.getLength()), component);
+					new ModbusRecordUint16Hash(-1, natureTable.getNatureName()), component);
+			nextAddress = this.addRecordToProcessImage(nextAddress,
+					new ModbusRecordUint16BlockLength(-1, natureTable.getNatureName(), (short) natureTable.getLength()),
+					component);
 
 			// add Records
 			for (ModbusRecord record : natureTable.getModbusRecords()) {
@@ -291,7 +293,24 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		this.updateCycleValues();
 		this.apiWorker.run();
+	}
+
+	@SuppressWarnings("unchecked")
+	/**
+	 * Once every cycle: update the values for each registered
+	 * {@link ModbusRecordCycleValue}.
+	 */
+	private void updateCycleValues() {
+		this.records.values() //
+				.stream() //
+				.filter(r -> r instanceof ModbusRecordCycleValue) //
+				.map(r -> (ModbusRecordCycleValue<OpenemsComponent>) r) //
+				.forEach(r -> {
+					OpenemsComponent component = this.getComponent(r.getComponentId());
+					r.updateValue(component);
+				});
 	}
 
 	@Override

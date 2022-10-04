@@ -37,7 +37,7 @@ export class Modal extends AbstractModal {
     this.grid.buyFromGrid = currentData.allComponents["_sum/GridActivePower"] > 0 ? currentData.allComponents["_sum/GridActivePower"] : 0;
     this.grid.sellToGrid = currentData.allComponents["_sum/GridActivePower"] < 0 ? (currentData.allComponents["_sum/GridActivePower"] * -1) : 0;
     this.grid.phases?.forEach((element, index) => {
-      element.name = "Phase L" + (index + 1) + " " + this.translate.instant(this.grid.buyFromGrid > 0 ? "General.gridBuyAdvanced" : "General.gridSellAdvanced");
+      element.name = "Phase L" + (index + 1) + " " + this.translate.instant(currentData.allComponents["_sum/GridActivePowerL" + (index + 1)] > 0 ? "General.gridBuyAdvanced" : "General.gridSellAdvanced");
       element.value = currentData.allComponents["_sum/GridActivePowerL" + (index + 1)] < 0 ? currentData.allComponents["_sum/GridActivePowerL" + (index + 1)] * -1 : currentData.allComponents["_sum/GridActivePowerL" + (index + 1)] ?? 0;
     })
   }

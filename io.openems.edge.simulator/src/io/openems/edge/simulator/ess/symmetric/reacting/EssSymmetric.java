@@ -96,8 +96,8 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 				/ 100 * this.config.initialSoc() /* [current SoC] */);
 		this._setSoc(config.initialSoc());
 		this._setMaxApparentPower(config.maxApparentPower());
-		this._setAllowedChargePower(config.maxApparentPower() * -1);
-		this._setAllowedDischargePower(config.maxApparentPower());
+		this._setAllowedChargePower(config.capacity() * -1);
+		this._setAllowedDischargePower(config.capacity());
 		this._setGridMode(config.gridMode());
 		this._setCapacity(config.capacity());
 	}
@@ -133,7 +133,9 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().asString() //
-				+ "|L:" + this.getActivePower().asString();
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
+				+ this.getAllowedDischargePower().asString();
 	}
 
 	@Override
@@ -203,12 +205,12 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 		if (soc == 100) {
 			this._setAllowedChargePower(0);
 		} else {
-			this._setAllowedChargePower(this.config.maxApparentPower() * -1);
+			this._setAllowedChargePower(this.config.capacity() * -1);
 		}
 		if (soc == 0) {
 			this._setAllowedDischargePower(0);
 		} else {
-			this._setAllowedDischargePower(this.config.maxApparentPower());
+			this._setAllowedDischargePower(this.config.capacity());
 		}
 	}
 

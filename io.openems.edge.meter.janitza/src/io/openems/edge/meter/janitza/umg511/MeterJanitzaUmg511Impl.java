@@ -106,15 +106,13 @@ public class MeterJanitzaUmg511Impl extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3849),
 								ElementToChannelConverter.SCALE_FACTOR_3), // , //
 						new DummyRegisterElement(3851, 3852), m(new FloatDoublewordElement(3853)) //
-								.m(AsymmetricMeter.ChannelId.CURRENT_L1,
-										ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)) //
-								.m(SymmetricMeter.ChannelId.CURRENT,
-										ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)) //
+								.m(AsymmetricMeter.ChannelId.CURRENT_L1, ElementToChannelConverter.SCALE_FACTOR_3) //
+								.m(SymmetricMeter.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_3) //
 								.build(), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3855), //
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)), //
+								ElementToChannelConverter.SCALE_FACTOR_3), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3857), //
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)), //
+								ElementToChannelConverter.SCALE_FACTOR_3), //
 						new DummyRegisterElement(3859, 3860),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3861), //
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)), //

@@ -4,11 +4,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Unit;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.component.OpenemsComponent;
 
 public final class ModbusSlaveNatureTable {
+
+	/**
+	 * Generates a hash code from a string text.
+	 * 
+	 * @param text the text (e.g. "OpenemsComponent")
+	 * @return the short hash value (e.g. "0xb3dc")
+	 */
+	public static short generateHash(String text) {
+		return (short) text.hashCode();
+	}
 
 	public static class Builder {
 		private final Class<?> nature;
@@ -72,6 +85,29 @@ public final class ModbusSlaveNatureTable {
 		}
 
 		/**
+		 * Add a CycleValue to the {@link Builder}.
+		 * 
+		 * <p>
+		 * A {@link ModbusRecordCycleValue} allows to receive a {@link ModbusRecord} via
+		 * a {@link Function}. The Function is executed in the 'run()' method of the
+		 * Modbus-TCP-Api-Controller.
+		 * 
+		 * @param <T>              the target OpenemsType
+		 * @param offset           the register address offset
+		 * @param name             the name
+		 * @param unit             the {@link Unit}
+		 * @param valueDescription the value description
+		 * @param type             the {@link ModbusType}
+		 * @param function         the {@link Function}
+		 * @return myself
+		 */
+		public <T extends OpenemsComponent> Builder cycleValue(int offset, String name, Unit unit,
+				String valueDescription, ModbusType type, Function<T, Object> function) {
+			this.add(new ModbusRecordCycleValue<T>(offset, name, unit, valueDescription, type, function));
+			return this;
+		}
+
+		/**
 		 * Add a Unsigned Int 16 value to the {@link ModbusSlaveNatureTable}
 		 * {@link Builder}.
 		 * 
@@ -90,7 +126,7 @@ public final class ModbusSlaveNatureTable {
 		 * {@link Builder}.
 		 * 
 		 * @param offset the address offset
-		 * @param text   the value
+		 * @param text   the description text
 		 * @return myself
 		 */
 		public Builder uint16Hash(int offset, String text) {
@@ -212,7 +248,6 @@ public final class ModbusSlaveNatureTable {
 			return new ModbusSlaveNatureTable(this.nature, this.length,
 					this.maps.toArray(new ModbusRecord[this.maps.size()]));
 		}
-
 	}
 
 	/**
@@ -237,8 +272,35 @@ public final class ModbusSlaveNatureTable {
 		this.modbusRecords = modbusRecords;
 	}
 
-	public Class<?> getNature() {
+	/**
+	 * Gets the Nature class.
+	 * 
+	 * @return the nature class, e.g.
+	 *         {@link io.openems.edge.common.component.OpenemsComponent}
+	 * 
+	 */
+	public Class<?> getNatureClass() {
 		return this.nature;
+	}
+
+	/**
+	 * Gets the Nature name, i.e. the SimpleName of the Nature Class.
+	 * 
+	 * @return the nature name, e.g. "OpenemsComponent" for
+	 *         {@link io.openems.edge.common.component.OpenemsComponent}
+	 */
+	public String getNatureName() {
+		return this.nature.getSimpleName();
+	}
+
+	/**
+	 * Gets the Hash code for this Nature, built from the Nature-Name via
+	 * {@link #getNatureName()}.
+	 * 
+	 * @return the Hash code, e.g. "0xb3dc" for "OpenemsComponent"
+	 */
+	public short getNatureHash() {
+		return generateHash(this.getNatureName());
 	}
 
 	public int getLength() {

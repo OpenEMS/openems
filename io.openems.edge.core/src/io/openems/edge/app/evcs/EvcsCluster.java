@@ -45,7 +45,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
       "EVCS_IDS": [ "evcs0", "evcs1", ...]
     },
     "appDescriptor": {
-    	"websiteUrl": URL
+    	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
   }
  * </pre>

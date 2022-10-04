@@ -8,6 +8,7 @@ import static io.openems.common.types.OpenemsType.LONG;
 
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
+import io.openems.edge.controller.io.heatingelement.enums.Status;
 
 public interface ControllerHeatingElement {
 
@@ -47,7 +48,8 @@ public interface ControllerHeatingElement {
 		TOTAL_PHASE_TIME(Doc.of(INTEGER)//
 				.unit(SECONDS)), //
 		FORCE_START_AT_SECONDS_OF_DAY(Doc.of(INTEGER)//
-				.unit(SECONDS)); //
+				.unit(SECONDS)),
+		STATUS(Doc.of(Status.values())); //
 
 		private final Doc doc;
 
