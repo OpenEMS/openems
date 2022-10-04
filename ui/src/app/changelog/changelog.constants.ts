@@ -5,7 +5,7 @@ export class Changelog {
 
     public static readonly GENERAL_OPTIMIZATION = "Optimierungen und Fehlerbehebungen";
     public static readonly EDGE = Changelog.GENERAL_OPTIMIZATION + " am " + environment.edgeShortName + ".";
-    public static readonly UI = Changelog.GENERAL_OPTIMIZATION + " am Online-Monitoring.";
+    public static readonly UI = Changelog.GENERAL_OPTIMIZATION + " am Online-Monitoring. ";
     public static readonly BACKEND = Changelog.GENERAL_OPTIMIZATION + " am Backend für das Online-Monitoring.";
 
     public static readonly BATTERY_PROTECTION = "Verbesserung des Batterie Lade- und Entladeverhaltens im oberen und unteren Ladezustandsbereich";

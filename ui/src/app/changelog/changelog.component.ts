@@ -35,6 +35,17 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.10.1',
+        changes: [
+          Changelog.openems('2022.10.0'),
+          Changelog.product(Product.COMMERCIAL_30) + "Optimierung der Lese- und Regelgeschwindigkeit",
+          Changelog.UI + "Verbesserung der Einstellungsoberfläche für Benachrichtungen",
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + "Allgemeine Verbesserungen",
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei automatischem Reconnect Edge mit Backend" },
+          { roleIsAtLeast: Role.ADMIN, change: "Betatest Edge-2-Edge: https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.edge2edge/readme.adoc" },
+        ]
+      },
+      {
         version: '2022.9.4',
         changes: [
           Changelog.UI + "Fehlerbehebung bei Übersetzungen",
