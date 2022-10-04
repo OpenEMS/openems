@@ -11,10 +11,7 @@ public interface Edge2Edge extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		REMOTE_NO_OPENEMS(Doc.of(Level.FAULT)), //
 		MAPPING_REMOTE_PROTOCOL_FAULT(Doc.of(Level.FAULT)), //
-
-		REMOTE_FAULT(Doc.of(Level.FAULT)), //
-		REMOTE_WARNING(Doc.of(Level.WARNING)), //
-		REMOTE_INFO(Doc.of(Level.INFO)),; //
+		;
 
 		private final Doc doc;
 
