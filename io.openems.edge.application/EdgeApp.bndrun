@@ -5,8 +5,8 @@
 -resolve.effective: active
 
 -runproperties:\
-	org.osgi.service.http.port=8881,\
-	felix.cm.dir=c:/openems/config/master,\
+	org.osgi.service.http.port=8080,\
+	felix.cm.dir=c:/openems/config,\
 	openems.data.dir=c:/openems/data,\
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.ops4j.pax.logging.DefaultServiceLog.level=INFO
