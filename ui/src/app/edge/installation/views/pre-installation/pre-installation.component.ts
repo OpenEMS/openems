@@ -26,6 +26,7 @@ export class PreInstallationComponent implements OnInit {
   public model;
   public isWaiting = false;
   public image: string;
+  protected validKey: boolean = true;
 
   constructor(private service: Service, public websocket: Websocket) { }
 
@@ -40,7 +41,7 @@ export class PreInstallationComponent implements OnInit {
   }
 
   public onNextClicked() {
-    const setupPassword = this.setupKey.nativeElement.value;
+    const setupPassword = this.setupKey.nativeElement.value.trim();
     this.isWaiting = true;
 
     this.websocket
@@ -101,6 +102,7 @@ export class PreInstallationComponent implements OnInit {
       })
       .catch((reason) => {
         this.service.toast('Fehler bei der Authentifizierung.', 'danger');
+        this.validKey = false;
         console.log(reason);
       })
       .finally(() => {
