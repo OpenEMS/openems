@@ -1,0 +1,8 @@
+= io.openems.edge.evcs.alfen
+
+This component implements the Alfen NG9xx platform (Eve Single and Eve Double) charging station.
+
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station)
+* ManagedEvcs
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.alfen[Source Code icon:github[]]
