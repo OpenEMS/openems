@@ -15,4 +15,14 @@
         <img [src]="image">
     </ion-item>
 
+    <ion-card *ngIf="!validKey">
+        <ion-card-content>
+            <ion-card-subtitle style="color:orange" class="font-weight: bold">Hinweis:</ion-card-subtitle>
+            <ion-text color="dark">
+                Sollte der Installateursschlüssel fälschlicherweise als ungültig erkannt werden, aktualisieren Sie
+                bitte die Seite.
+            </ion-text>
+        </ion-card-content>
+    </ion-card>
+
 </installation-view>
