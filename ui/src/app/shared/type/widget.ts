@@ -67,6 +67,13 @@ export class AdvertWidgets {
             }
         ];
 
+        if (edge.producttype == ProductType.HOME) {
+            list.push({
+                name: 'FeneconHomeExtension',
+                title: 'FENECON Home Erweiterung'
+            })
+        }
+
         let edgeIdNumber = parseInt(edge.id.match(/\D*(\d*)/)[1]);
 
         if (edgeIdNumber >= 10000 && edgeIdNumber <= 11500 && edge.producttype == ProductType.HOME) {
