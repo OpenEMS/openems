@@ -35,7 +35,7 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: '2022.10.2',
+        version: '2022.10.3',
         changes: [
           Changelog.UI,
           Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
