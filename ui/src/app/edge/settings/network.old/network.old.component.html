@@ -1,0 +1,25 @@
+<header></header>
+<ion-content>
+  <ion-grid *ngIf="interfaces">
+    <ion-row class="ion-justify-content-center">
+
+      <ion-col *ngFor="let iface of interfaces" size="12" size-xl="6">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon size="large" slot="start" name="globe-outline" color="primary"></ion-icon>
+            <ion-label>Schnittstelle {{ iface.name }}</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <form (ngSubmit)="submit(iface)">
+              <formly-form [form]="iface.form" [fields]="iface.fields" [model]="iface.model"></formly-form>
+              <ion-item>
+                <ion-button [disabled]="iface.form.pristine" type="submit" color="primary">Anwenden</ion-button>
+              </ion-item>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+    </ion-row>
+  </ion-grid>
+</ion-content>

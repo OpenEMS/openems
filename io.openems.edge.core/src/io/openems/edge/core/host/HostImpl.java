@@ -174,7 +174,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 			SetNetworkConfigRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("handleSetNetworkConfigRequest", Role.OWNER);
 		var oldNetworkConfiguration = this.operatingSystem.getNetworkConfiguration();
-		this.operatingSystem.handleSetNetworkConfigRequest(oldNetworkConfiguration, request);
+		this.operatingSystem.handleSetNetworkConfigRequest(user, oldNetworkConfiguration, request);
 
 		// Notify NetworkConfigurationWorker about the change
 		this.networkConfigurationWorker.triggerNextRun();

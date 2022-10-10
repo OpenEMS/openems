@@ -448,7 +448,8 @@
         "simulator": "Simulator",
         "systemExecute": "Voer systeemopdracht uit",
         "systemProfile": "Systeemprofiel",
-        "alerting": "Waarschuwing"
+        "alerting": "Waarschuwing",
+        "networkConfiguration": "Netwerk configuratie"
       },
       "More": {
         "manualCommand": "Handmatig commando",
@@ -524,6 +525,17 @@
         "temperatures": "Celtemperaturen",
         "insulation": "Isolatie"
       }
+    },
+    "Network": {
+      "errorReadingConfiguration": "Fout bij lezen huidige netwerkconfiguratie:",
+      "mandatoryFields": "Gelieve de verplichte velden in te vullen",
+      "successUpdate": "Netwerkconfiguratie geüpdatet voor:",
+      "errorUpdating": "Fout bij updaten",
+      "ipAddress": "IP-adres",
+      "subnetmask": "Subnetmasker",
+      "addIP": "Statische IP-adressen toevoegen",
+      "validAddressWarning": "Voer bij 'Statische IP-adressen toevoegen' een geldig ip-adres in met netmasker, b.v. 10.4.1.6/24",
+      "advancedMode": "Geavanceerde modus"
     }
   },
   "About": {

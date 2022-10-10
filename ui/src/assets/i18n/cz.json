@@ -454,7 +454,8 @@
         "simulator": "Simulátor",
         "systemExecute": "Spusťte příkaz systému",
         "systemProfile": "Systémový Profil",
-        "alerting": "Upozornění"
+        "alerting": "Upozornění",
+        "networkConfiguration": "Network Configuration"
       },
       "More": {
         "manualCommand": "Manuální příkaz ",
@@ -527,6 +528,17 @@
         "temperatures": "Teplota buňky",
         "insulation": "Izolace"
       }
+    },
+    "Network": {
+      "errorReadingConfiguration": "Chyba při čtení aktuální konfigurace sítě:",
+      "mandatoryFields": "Vyplňte prosím povinná pole",
+      "successUpdate": "Konfigurace sítě pro doménu byla úspěšně aktualizována",
+      "errorUpdating": "Při aktualizaci došlo k chybě",
+      "ipAddress": "IP adresa",
+      "subnetmask": "Maska podsítě",
+      "addIP": "Přidejte statické IP adresy",
+      "validAddressWarning": "V části „Přidat statické IP adresy“ zadejte platnou adresu IP se síťovou maskou, např. 10.4.1.6/24",
+      "advancedMode": "Pokročilý mód"
     }
   },
   "About": {

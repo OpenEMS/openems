@@ -7,6 +7,7 @@ import { IndexComponent as ComponentInstallIndexComponent } from './component/in
 import { ComponentInstallComponent } from './component/install/install.component';
 import { IndexComponent as ComponentUpdateIndexComponent } from './component/update/index.component';
 import { ComponentUpdateComponent } from './component/update/update.component';
+import { NetworkOldComponent } from './network.old/network.old.component';
 import { NetworkComponent } from './network/network.component';
 import { AliasUpdateComponent } from './profile/aliasupdate.component';
 import { ProfileComponent } from './profile/profile.component';
@@ -31,6 +32,7 @@ import { SystemUpdateComponent } from './systemupdate/systemupdate.component';
     ComponentUpdateComponent,
     ComponentUpdateIndexComponent,
     NetworkComponent,
+    NetworkOldComponent,
     OeSystemUpdateComponent,
     ProfileComponent,
     SettingsComponent,
