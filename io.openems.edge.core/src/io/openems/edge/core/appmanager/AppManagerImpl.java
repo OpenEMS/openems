@@ -377,7 +377,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		var openemsApp = this.findAppById(request.appId);
 		synchronized (this.instantiatedApps) {
 
-			var installedValues = this.appHelper.installApp(user, request.properties, request.alias, openemsApp);
+			final var instance = new OpenemsAppInstance(request.appId, request.alias, UUID.randomUUID(),
+					request.properties, null);
+			var installedValues = this.appHelper.installApp(user, instance, openemsApp);
 
 			// Update App-Manager configuration
 			try {
@@ -572,7 +574,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				throw new OpenemsException("App-Instance-ID [" + request.instanceId + "] is unknown.");
 			}
 
-			var result = this.appHelper.updateApp(user, oldApp, request.properties, request.alias, app);
+			final var instance = new OpenemsAppInstance(oldApp.appId, request.alias, oldApp.instanceId,
+					request.properties, null);
+			var result = this.appHelper.updateApp(user, oldApp, instance, app);
 
 			// Update App-Manager configuration
 			try {

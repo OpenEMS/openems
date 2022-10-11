@@ -91,15 +91,15 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	}
 
 	@Override
-	public UpdateValues installApp(User user, JsonObject properties, String alias, OpenemsApp app)
+	public UpdateValues installApp(User user, OpenemsAppInstance instance, OpenemsApp app)
 			throws OpenemsNamedException {
-		return this.updateApp(user, null, properties, alias, app);
+		return this.updateApp(user, null, instance, app);
 	}
 
 	@Override
-	public UpdateValues updateApp(User user, OpenemsAppInstance oldInstance, JsonObject properties, String alias,
+	public UpdateValues updateApp(User user, OpenemsAppInstance oldInstance, OpenemsAppInstance instance,
 			OpenemsApp app) throws OpenemsNamedException {
-		return this.usingTemporaryApps(user, () -> this.updateAppInternal(user, oldInstance, properties, alias, app));
+		return this.usingTemporaryApps(user, () -> this.updateAppInternal(user, oldInstance, instance, app));
 	}
 
 	@Override
@@ -175,25 +175,17 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		return result;
 	}
 
-	private UpdateValues updateAppInternal(User user, OpenemsAppInstance oldInstance, JsonObject properties,
-			String alias, OpenemsApp app) throws OpenemsNamedException {
-		if (properties == null) {
-			properties = new JsonObject();
-		}
-		// TODO maybe check for all apps
-		// if also checking dependencies these may be inconsistent
-		// e. g. install HOME is requested it may have a dependency on a SOCOMEC Meter
-		// but the meter has a checkable that there has to be a HOME installed
-		// maybe add temporary apps in this component
+	private UpdateValues updateAppInternal(final User user, OpenemsAppInstance oldInstance,
+			OpenemsAppInstance newInstance, final OpenemsApp app) throws OpenemsNamedException {
 		final var warnings = new LinkedList<String>();
 		final var language = user == null ? null : user.getLanguage();
 		final var bundle = getTranslationBundle(language);
 		final var toCreateInstances = new ArrayList<OpenemsAppInstance>();
 		if (oldInstance == null) {
+			// TODO maybe check for all apps and its dependencies
 			this.checkStatus(app, language);
-			var instance = new OpenemsAppInstance(app.getAppId(), alias, UUID.randomUUID(), properties, null);
-			this.temporaryApps.currentlyCreatingApps.add(instance);
-			toCreateInstances.add(instance);
+			this.temporaryApps.currentlyCreatingApps.add(newInstance);
+			toCreateInstances.add(newInstance);
 		} else {
 			// determine if properties are allowed to be updated
 			var references = this.getAppsWithReferenceTo(oldInstance.instanceId);
@@ -226,20 +218,21 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					case ALLOW_ONLY_UNCONFIGURED_PROPERTIES:
 						// override properties
 						for (var propEntry : appConfig.properties.entrySet()) {
-							if (!properties.has(propEntry.getKey())
-									|| !properties.get(propEntry.getKey()).equals(propEntry.getValue())) {
+							if (!newInstance.properties.has(propEntry.getKey())
+									|| !newInstance.properties.get(propEntry.getKey()).equals(propEntry.getValue())) {
 
 								warnings.add(TranslationUtil.getTranslation(bundle, "canNotChangeProperty",
 										propEntry.getKey()));
 
-								properties.add(propEntry.getKey(), propEntry.getValue());
+								newInstance.properties.add(propEntry.getKey(), propEntry.getValue());
 							}
 
 						}
-						// override alias if set
-						if (appConfig.alias != null && !alias.equals(appConfig.alias)) {
+						// override alias if set from a parent dependency
+						if (appConfig.alias != null && !newInstance.alias.equals(appConfig.alias)) {
 							warnings.add(TranslationUtil.getTranslation(bundle, "canNotChangeAlias"));
-							alias = appConfig.alias;
+							newInstance = new OpenemsAppInstance(newInstance.appId, appConfig.alias,
+									newInstance.instanceId, newInstance.properties, newInstance.dependencies);
 						}
 						break;
 					}
@@ -264,6 +257,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		}
 
 		BiFunction<OpenemsApp, DependencyDeclaration, IncludeApp> includeDependency = (a, d) -> {
+
 			var oldAppConfig = oldInstances.get(new AppIdKey(a.getAppId(), d.key));
 
 			var isCreating = false;
@@ -324,8 +318,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		};
 		final var lastCreatedOrModifiedApp = new AtomicReference<OpenemsAppInstance>();
 		// update app and its dependencies
-		this.foreachDependency(errors, app, alias, properties, ConfigurationTarget.UPDATE, language,
-				this::determineDependencyConfig, includeDependency, dc -> {
+		this.foreachDependency(errors, app, newInstance.alias, newInstance.properties, ConfigurationTarget.UPDATE,
+				language, this::determineDependencyConfig, includeDependency, dc -> {
 					// get old instance if existing
 					ExistingDependencyConfig oldAppConfig = null;
 					if (oldInstance != null) {
@@ -521,6 +515,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 							var newConfig = this.getNewAppConfigWithReplacedIds(dc.app, oldInstanceOfCurrentApp,
 									newAppInstance, AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigs),
 									language);
+							this.removeNotAllowedToSavedProperties(newAppInstance);
 
 							this.aggregateAllTasks(newConfig, oldConfig);
 						} catch (OpenemsNamedException e) {
@@ -607,6 +602,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 								newAppInstance, AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigs),
 								language);
 
+						this.removeNotAllowedToSavedProperties(newAppInstance);
+
 						this.aggregateAllTasks(newAppConfig, oldAppConfig.config);
 
 					} catch (OpenemsNamedException e) {
@@ -636,6 +633,22 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 		return new UpdateValues(lastCreatedOrModifiedApp.get(), this.temporaryApps.currentlyCreatingModifiedApps(),
 				this.temporaryApps.currentlyDeletingApps, warnings);
+	}
+
+	/**
+	 * Removes properties which should not get saved e. g. passwords.
+	 * 
+	 * @param instance The {@link OpenemsAppInstance} to remove the properties from
+	 */
+	private void removeNotAllowedToSavedProperties(OpenemsAppInstance instance) {
+		// TODO needs to be changed if the properties have something similar to
+		// AttributeDefinition
+		try {
+			this.appManagerUtil.getAppConfiguration(ConfigurationTarget.DELETE_NOT_SAVED_PROPERTIES, instance,
+					Language.DEFAULT);
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private DependencyDeclaration.AppDependencyConfig getAppDependencyConfig(OpenemsAppInstance instance,
@@ -790,9 +803,10 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					}
 
 					try {
-						this.updateAppInternal(user, dc.instance, copy,
-								dc.appDependencyConfig.alias != null ? dc.appDependencyConfig.alias : dc.instance.alias,
-								dc.app);
+						var updateInstance = new OpenemsAppInstance(dc.instance.appId, //
+								Optional.fromNullable(dc.appDependencyConfig.alias).or(dc.instance.alias), //
+								dc.instance.instanceId, copy, null);
+						this.updateAppInternal(user, dc.instance, updateInstance, dc.app);
 
 					} catch (OpenemsNamedException e) {
 						// can not update app
