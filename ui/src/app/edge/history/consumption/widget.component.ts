@@ -50,8 +50,9 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                     //calculate other power
                     let otherEnergy: number = 0;
                     this.evcsComponents.forEach(component => {
-                        otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
+                        otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'] ?? 0;
                     })
+
                     this.consumptionMeterComponents.forEach(component => {
                         otherEnergy += (this.data[component.id + '/ActiveProductionEnergy'] ?? 0);
                     })
