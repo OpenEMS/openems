@@ -88,7 +88,8 @@
       "november": "November",
       "december": "December"
     },
-    "save": "Save"
+    "save": "Save",
+    "SystemOutage": "Due to maintenance work the online monitoring is temporarily unavailable. Please try again later. For more information see"
   },
   "Menu": {
     "aboutUI": "About FEMS",

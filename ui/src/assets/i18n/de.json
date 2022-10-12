@@ -90,7 +90,8 @@
       "november": "November",
       "december": "Dezember"
     },
-    "save": "Speichern"
+    "save": "Speichern",
+    "SystemOutage": "Aufgrund von Wartungsarbeiten steht das Online-Monitoring vorübergehend nur eingeschränkt zur Verfügung. Bitte versuchen Sie es später noch einmal. Mehr Informationen finden Sie unter"
   },
   "Menu": {
     "aboutUI": "Über FEMS",

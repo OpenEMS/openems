@@ -1,12 +1,19 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, timer } from 'rxjs';
+import { retry, switchMap, takeUntil } from 'rxjs/operators';
 import { environment } from '../environments';
 import { Service, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
+
+export interface CachetComponentStatus {
+  data: {
+    status: 1 /* Operational */ | 2 /* Performance Issues */ | 3 /* Partial Outage */ | 4 /* Major Outage */
+  }
+}
 
 @Component({
   selector: 'app-root',
@@ -20,8 +27,11 @@ export class AppComponent implements OnInit, OnDestroy {
   public isSystemLogEnabled: boolean = false;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
+  protected isSystemOutage = false;
+
   constructor(
     private platform: Platform,
+    private http: HttpClient,
     public menu: MenuController,
     public modalCtrl: ModalController,
     public router: Router,
@@ -34,6 +44,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.pollSystemStatus();
 
     // Checks if sessionStorage is not null, undefined or empty string
     if (sessionStorage.getItem("DEBUGMODE")) {
@@ -66,6 +77,29 @@ export class AppComponent implements OnInit, OnDestroy {
         this.checkSmartphoneResolution(false);
       })
     })
+  }
+
+  /**
+   * Get system status from https://status.fenecon.de
+   */
+  private pollSystemStatus(): void {
+    timer(1 /* immediately */, 5 * 60 * 1000 /* and then every 5 minutes */)
+      .pipe(
+        switchMap(() => this.http.get<CachetComponentStatus>('https://status.fenecon.de/api/v1/components/3')),
+        retry())
+      .subscribe((data) => {
+        switch (data.data.status) {
+          case 2:
+          case 3:
+          case 4:
+            this.isSystemOutage = true;
+            break;
+          case 1:
+          default:
+            this.isSystemOutage = false;
+            break;
+        }
+      });
   }
 
   private checkSmartphoneResolution(init: boolean): void {
