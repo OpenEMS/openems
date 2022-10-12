@@ -142,9 +142,8 @@
               </ion-col>
             </ng-container>
 
-            <ion-col size="12" size-lg="6" class="ion-no-padding"
-              *ngIf="service.isAdvertAllowed(edge, advertWidgets, widgets)">
-              <advertisement [advertWidgets]="advertWidgets" *ngIf="advertWidgets.list.length"></advertisement>
+            <ion-col size="12" size-lg="6" class="ion-no-padding" *ngIf="service.showAdvertWidgets(advertWidgets)">
+              <advertisement [advertWidgets]="advertWidgets"></advertisement>
             </ion-col>
 
           </ion-row>

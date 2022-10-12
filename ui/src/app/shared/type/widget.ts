@@ -56,16 +56,7 @@ export class AdvertWidgets {
 
     public static parseAdvertWidgets(edge: Edge, config: EdgeConfig) {
 
-        let list: AdvertWidget[] = [
-            {
-                name: 'Heatingelement',
-                title: 'Heizstab FEMS App Paket'
-            },
-            {
-                name: 'GlsCrowdfunding',
-                title: 'CarBatteryReFactory'
-            }
-        ];
+        let list: AdvertWidget[] = [];
 
         if (edge.producttype == ProductType.HOME) {
             list.push({

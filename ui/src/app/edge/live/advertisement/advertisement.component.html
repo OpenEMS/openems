@@ -19,16 +19,8 @@
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
 
-                <ion-slide *ngSwitchCase="'GlsCrowdfunding'">
-                    <glsCrowdfunding></glsCrowdfunding>
-                </ion-slide>
-
                 <ion-slide *ngSwitchCase="'Alerting'">
                     <alerting></alerting>
-                </ion-slide>
-
-                <ion-slide *ngSwitchCase="'Heatingelement'">
-                    <heatingelement></heatingelement>
                 </ion-slide>
 
                 <ion-slide *ngSwitchCase="'FeneconHomeExtension'">

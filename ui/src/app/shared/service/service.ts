@@ -344,10 +344,14 @@ export class Service extends AbstractService {
     toast.present();
   }
 
-  public isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets) {
-
+  public showAdvertWidgets(advertWidgets: AdvertWidgets): boolean {
     // Show adverts only for FENECON
     if (environment.theme != 'FENECON') {
+      return false;
+    }
+
+    // No widgets available
+    if (advertWidgets.list.length == 0) {
       return false;
     }
 
