@@ -499,4 +499,20 @@ export class Utils {
   public static shuffleArray(array: any[]): any[] {
     return array.sort(() => Math.random() - 0.5)
   }
+
+  /**
+   * Checks if multiple array elements exist in the source object.
+   * returns true only if all the elements in the array exist in the source Object.
+   * 
+   * @param arrayToCheck The array with elements that needs to be checked.
+   * @param source the source Object.
+   * @returns the value.
+   */
+  public static isArrayExistingInSource(arrayToCheck: string[], source: any): boolean {
+    return arrayToCheck.every(value => {
+      if (value in source) {
+        return true;
+      }
+    });
+  }
 }
