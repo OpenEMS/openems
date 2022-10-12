@@ -35,6 +35,20 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.10.4',
+        changes: [
+          Changelog.product(Product.FEMS_TIBBER) + "Allgemeine Verbesserungen",
+          Changelog.product(Product.FEMS_NETZDIENLICHE_BELADUNG) + "Fehlerbehebung bei der Darstellung der Zielzeit in der richtigen Zeitzone",
+          "Umfangreiche Anpassungen an den Möglichkeiten zur Netzwerkkonfiguration",
+          "Anzeige aktueller Systemstatus-Meldungen, z. B. bei Wartungsarbeiten",
+          "Fehlerbehebung in der Anzeige dreiphasiger historischer Verbrauchs- und Erzeugungsdaten",
+          { roleIsAtLeast: Role.ADMIN, change: "Modbus/TCP-Api-Kompatibilität für KACO 10 und GoodWe-ESS" },
+          { roleIsAtLeast: Role.ADMIN, change: "Bereinigung der Werbewidgets" },
+          { roleIsAtLeast: Role.ADMIN, change: "Verbesserung der Erstinitialisierung von OpenEMS Edge" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei automatischem Reconnect Edge mit Backend" },
+        ]
+      },
+      {
         version: '2022.10.3',
         changes: [
           Changelog.UI,
