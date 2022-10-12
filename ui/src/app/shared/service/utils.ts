@@ -342,12 +342,17 @@ export class Utils {
   }
 
   /**
-   * Converts Minute from start of day to daytime
+   * Converts Minute from start of day to daytime in 'HH:mm' format.
    * 
    * @returns converted value
    */
   public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService) => {
-    return (value: number): string => formatDate(value * 60 * 1000, 'HH:mm', translate.getBrowserCultureLang()) + ' h'
+    return (value: number): string => {
+      var date: Date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setMinutes(value);
+      return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: '2-digit', minute: '2-digit' });
+    }
   };
 
   /**
