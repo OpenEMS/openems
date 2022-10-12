@@ -335,7 +335,6 @@ export class Utils {
       } else if (value === 'AUTOMATIC') {
         return translate.instant('General.automatic');
       } else {
-        console.log("value", value, value === 'AUTOMATIC')
         return '-';
       }
     }
