@@ -101,13 +101,12 @@ export abstract class AbstractService extends ErrorHandler {
   abstract toast(message: string, level: 'success' | 'warning' | 'danger');
 
   /**
-   * checks if fems is allowed to show advertisement widget
+   * Should advertisement widgets be shown?
    * 
-   * @param edge the edge
    * @param advertWidgets the advertWidgets 
-   * @returns true if advertWidgets are allowed, false if not
+   * @returns true if advertWidgets should be shown, false if not
    */
-  abstract isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets);
+  abstract showAdvertWidgets(advertWidgets: AdvertWidgets);
 
   /**
    * checks if fems is allowed to show partner widget

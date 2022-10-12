@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -7,11 +8,15 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.common.host.Host;
@@ -166,6 +171,19 @@ public class AppManagerTestBundle {
 	public void printApps() {
 		JsonUtils.prettyPrint(this.sut.getInstantiatedApps().stream().map(OpenemsAppInstance::toJsonObject)
 				.collect(JsonUtils.toJsonArray()));
+	}
+
+	/**
+	 * Gets the apps as a {@link JsonArray} from the "apps" property in the
+	 * {@link ConfigurationAdmin}.
+	 * 
+	 * @return the apps
+	 * @throws IOException           on IO error
+	 * @throws OpenemsNamedException on parse error
+	 */
+	public JsonArray getAppsFromConfig() throws IOException, OpenemsNamedException {
+		final var config = this.cm.getConfiguration(this.sut.servicePid());
+		return JsonUtils.parse(((JsonPrimitive) config.getProperties().get("apps")).getAsString()).getAsJsonArray();
 	}
 
 	public static class CheckablesBundle {

@@ -3,12 +3,12 @@ import { GetNetworkConfigResponse } from 'src/app/edge/settings/network/getNetwo
 import { SetNetworkConfigRequest } from 'src/app/edge/settings/network/setNetworkConfigRequest';
 import { Interface } from 'src/app/shared/interface/interface';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { Edge, EdgeConfig, Websocket, Service } from 'src/app/shared/shared';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+import { AppCenterUtil } from '../../shared/appcenterutil';
 import { ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { EmsAppId } from '../../views/heckert-app-installer/heckert-app-installer.component';
-import { AbstractHomeIbn } from './abstract-home';
 import { View } from '../abstract-ibn';
-import { AppCenterUtil } from '../../shared/appcenterutil';
+import { AbstractHomeIbn } from './abstract-home';
 
 export class HomeHeckertIbn extends AbstractHomeIbn {
 
@@ -286,6 +286,24 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
     }
 
     /**
+   * Converts the subnetmask to a string address.
+   * 
+   * e. g. Converts "24" to "255.255.255.0"
+   * 
+   * @param cidr the CIDR number
+   * @returns the subnetmask as a string
+   */
+    protected getSubnetmaskAsString(cidr: any): string {
+        var mask = [];
+        for (var i = 0; i < 4; i++) {
+            var n = Math.min(cidr, 8);
+            mask.push(256 - Math.pow(2, 8 - n));
+            cidr -= n;
+        }
+        return mask.join('.');
+    }
+
+    /**
      * Adds an ip address to the given interface.
      * Returns false if an error occurs.
      *
@@ -325,19 +343,25 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
 
             // Set the ip in the model of the interface
             // or return if it already exists
-            if (iface.model.addresses === null) {
-                iface.model.addresses = new Array(ip);
+            var address = ip.split('/');
+            if (iface.model.addresses == null) {
+                iface.model.addresses = new Array({
+                    label: '',
+                    address: address[0],
+                    subnetmask: this.getSubnetmaskAsString(address[1]),
+                })
             } else {
-                if (iface.model.addresses.includes(ip)) {
-                    return true;
-                }
-                iface.model.addresses.push(ip);
-            }
+                for (const addr of iface.model.addresses) {
+                    if (addr.address == address[0]) {
+                        return true;
+                    }
 
-            // Unset Gateway and DNS if DHCP is activated
-            if (iface.model.dhcp) {
-                iface.model.gateway = null;
-                iface.model.dns = null;
+                    iface.model.addresses.push({
+                        label: '',
+                        address: address[0],
+                        subnetmask: this.getSubnetmaskAsString(address[1]),
+                    })
+                }
             }
 
             const params = {

@@ -17,7 +17,7 @@ import { NetworkInterface } from './shared';
  *         "linkLocalAddressing": boolean,
  *         "gateway": string,
  *         "dns": string,
- *         "addresses": IpAddress[]
+ *         "addresses": string[]
  *       }
  *     }
  *   }

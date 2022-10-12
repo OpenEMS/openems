@@ -12,6 +12,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -55,6 +56,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	private final DiskSpaceWorker diskSpaceWorker;
 	private final NetworkConfigurationWorker networkConfigurationWorker;
 	private final UsbConfigurationWorker usbConfigurationWorker;
+
 	private final SystemUpdateHandler systemUpdateHandler;
 
 	protected Config config;
@@ -90,21 +92,34 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	}
 
 	@Activate
-	void activate(ComponentContext componentContext, BundleContext bundleContext, Config config)
+	private void activate(ComponentContext componentContext, BundleContext bundleContext, Config config)
 			throws OpenemsException {
 		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.config = config;
-		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
-			return;
-		}
 
 		// Start the Workers
 		this.diskSpaceWorker.activate(this.id());
 		this.networkConfigurationWorker.activate(this.id());
 		this.usbConfigurationWorker.activate(this.id());
 
-		this.networkConfigurationWorker.triggerNextRun();
-		this.usbConfigurationWorker.triggerNextRun();
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
+	}
+
+	@Modified
+	private void modified(ComponentContext componentContext, BundleContext bundleContext, Config config) {
+		super.modified(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		this.config = config;
+
+		// Modify the Workers
+		this.diskSpaceWorker.modified(this.id());
+		this.networkConfigurationWorker.modified(this.id());
+		this.usbConfigurationWorker.modified(this.id());
+
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
 	}
 
 	@Override
@@ -114,6 +129,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		this.diskSpaceWorker.deactivate();
 		this.networkConfigurationWorker.deactivate();
 		this.usbConfigurationWorker.deactivate();
+
 		this.systemUpdateHandler.deactivate();
 
 		super.deactivate();
@@ -174,7 +190,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 			SetNetworkConfigRequest request) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("handleSetNetworkConfigRequest", Role.OWNER);
 		var oldNetworkConfiguration = this.operatingSystem.getNetworkConfiguration();
-		this.operatingSystem.handleSetNetworkConfigRequest(oldNetworkConfiguration, request);
+		this.operatingSystem.handleSetNetworkConfigRequest(user, oldNetworkConfiguration, request);
 
 		// Notify NetworkConfigurationWorker about the change
 		this.networkConfigurationWorker.triggerNextRun();

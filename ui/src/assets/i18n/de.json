@@ -90,7 +90,8 @@
       "november": "November",
       "december": "Dezember"
     },
-    "save": "Speichern"
+    "save": "Speichern",
+    "SystemOutage": "Aufgrund von Wartungsarbeiten steht das Online-Monitoring vorübergehend nur eingeschränkt zur Verfügung. Bitte versuchen Sie es später noch einmal. Mehr Informationen finden Sie unter"
   },
   "Menu": {
     "aboutUI": "Über FEMS",
@@ -459,7 +460,8 @@
         "simulator": "Simulator",
         "systemExecute": "System-Befehl ausführen",
         "systemProfile": "Anlagenprofil",
-        "alerting": "Benachrichtigung"
+        "alerting": "Benachrichtigung",
+        "networkConfiguration": "Netzwerkkonfiguration"
       },
       "More": {
         "manualCommand": "Manueller Befehl",
@@ -534,6 +536,17 @@
         "temperatures": "Zelltemperaturen",
         "insulation": "Isolation"
       }
+    },
+    "Network": {
+      "errorReadingConfiguration": "Fehler beim Lesen der aktuellen Netzwerkkonfiguration:",
+      "mandatoryFields": "Bitte füllen Sie die Pflichtfelder aus",
+      "successUpdate": "Netzwerkkonfiguration erfolgreich aktualisiert für",
+      "errorUpdating": "Fehler beim Aktualisieren",
+      "ipAddress": "IP-Adresse",
+      "subnetmask": "Subnetzmaske",
+      "addIP": "Statische IP-Adressen hinzufügen",
+      "validAddressWarning": "Geben Sie unter \"Statische IP-Adressen hinzufügen\" eine gültige IP-Adresse mit Netzmaske ein, z. B. 10.4.1.6/24",
+      "advancedMode": "erweiterte Ansicht"
     }
   },
   "About": {

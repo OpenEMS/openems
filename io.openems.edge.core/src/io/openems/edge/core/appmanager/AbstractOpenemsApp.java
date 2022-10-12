@@ -37,7 +37,7 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
-import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
+import io.openems.edge.core.host.Inet4AddressWithSubnetmask;
 
 public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implements OpenemsApp {
 
@@ -393,10 +393,10 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			return;
 		}
 
-		List<Inet4AddressWithNetmask> addresses = new ArrayList<>(expectedAppConfiguration.ips.size());
+		List<Inet4AddressWithSubnetmask> addresses = new ArrayList<>(expectedAppConfiguration.ips.size());
 		for (var address : expectedAppConfiguration.ips) {
 			try {
-				addresses.add(Inet4AddressWithNetmask.fromString(address));
+				addresses.add(Inet4AddressWithSubnetmask.fromString(address));
 			} catch (OpenemsException e) {
 				errors.add("Could not parse ip '" + address + "'.");
 			}
@@ -407,7 +407,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			var eth0 = interfaces.stream().filter(t -> t.getName().equals("eth0")).findFirst().get();
 			var eth0Adresses = eth0.getAddresses();
 
-			var availableAddresses = new LinkedList<Inet4AddressWithNetmask>();
+			var availableAddresses = new LinkedList<Inet4AddressWithSubnetmask>();
 			for (var address : addresses) {
 				for (var eth0Address : eth0Adresses.getValue()) {
 					if (eth0Address.isInSameNetwork(address)) {

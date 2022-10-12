@@ -452,7 +452,8 @@
         "simulator": "Simulador",
         "systemExecute": "Ejecutar comando del sistema",
         "systemProfile": "Perfil del Sistema",
-        "alerting": "Alerta"
+        "alerting": "Alerta",
+        "networkConfiguration": "configuración de la red"
       },
       "More": {
         "manualCommand": "Comando manual",
@@ -528,6 +529,17 @@
         "temperatures": "temperaturas de celda",
         "insulation": "Aislamiento"
       }
+    },
+    "Network": {
+      "errorReadingConfiguration": "Error al leer la configuración de red actual:",
+      "mandatoryFields": "Por favor complete los campos obligatorios",
+      "successUpdate": "Configuración de red actualizada con éxito para",
+      "errorUpdating": "Error al actualizar",
+      "ipAddress": "Dirección IP",
+      "subnetmask": "Máscara de subred",
+      "addIP": "Agregar direcciones IP estáticas",
+      "validAddressWarning": "En 'Agregar direcciones IP estáticas', ingrese una dirección IP válida con máscara de red, p. 10.4.1.6/24",
+      "advancedMode": "Modo avanzado"
     }
   },
   "About": {

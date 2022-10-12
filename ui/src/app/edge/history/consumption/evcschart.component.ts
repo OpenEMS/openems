@@ -17,7 +17,7 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
 
-    ngOnChanges() {
+    public ngOnChanges() {
         this.updateChart();
     };
 
@@ -30,12 +30,12 @@ export class ConsumptionEvcsChartComponent extends AbstractHistoryChart implemen
     }
 
 
-    ngOnInit() {
+    public ngOnInit() {
         this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.unsubscribeChartRefresh()
     }
 

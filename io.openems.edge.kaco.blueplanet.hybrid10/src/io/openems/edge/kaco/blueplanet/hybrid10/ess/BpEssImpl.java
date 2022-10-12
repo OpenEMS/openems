@@ -22,6 +22,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -29,6 +30,9 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.HybridEss;
@@ -59,7 +63,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, HybridEss, ManagedSymmetricEss, SymmetricEss,
-		OpenemsComponent, TimedataProvider, EventHandler {
+		OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private static final int WATCHDOG_SECONDS = 8;
 	private static final int MAX_POWER_RAMP = 500; // [W/sec]
@@ -415,5 +419,16 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 	@Override
 	public boolean isManaged() {
 		return !this.config.readOnly();
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				HybridEss.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(BpEss.class, accessMode, 100) //
+						.build());
 	}
 }

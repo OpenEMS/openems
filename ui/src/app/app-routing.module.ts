@@ -32,6 +32,7 @@ import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentCompo
 import { IndexComponent as EdgeSettingsComponentUpdateIndexComponentComponent } from './edge/settings/component/update/index.component';
 import { ComponentUpdateComponent as EdgeSettingsComponentUpdateComponentComponent } from './edge/settings/component/update/update.component';
 import { NetworkComponent as EdgeSettingsNetworkComponent } from './edge/settings/network/network.component';
+import { NetworkOldComponent as EdgeSettingsNetworkOldComponent } from './edge/settings/network.old/network.old.component';
 import { AliasUpdateComponent } from './edge/settings/profile/aliasupdate.component';
 import { ProfileComponent as EdgeSettingsProfileComponent } from './edge/settings/profile/profile.component';
 import { ServiceAssistantComponent as EdgeSettingsServiceAssistant } from './edge/settings/serviceassistant/serviceassistant.component';
@@ -83,6 +84,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/settings/component.update', component: EdgeSettingsComponentUpdateIndexComponentComponent },
   { path: 'device/:edgeId/settings/component.update/:componentId', component: EdgeSettingsComponentUpdateComponentComponent },
   { path: 'device/:edgeId/settings/network', component: EdgeSettingsNetworkComponent },
+  { path: 'device/:edgeId/settings/network.old', component: EdgeSettingsNetworkOldComponent },
   { path: 'device/:edgeId/settings/profile', component: EdgeSettingsProfileComponent },
   { path: 'device/:edgeId/settings/profile/:componentId', component: AliasUpdateComponent },
   { path: 'device/:edgeId/settings/servcieAssistant', component: EdgeSettingsServiceAssistant },

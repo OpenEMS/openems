@@ -79,4 +79,18 @@
       </ion-content>
     </ion-menu>
   </ion-content>
+
+  <ion-footer *ngIf="isSystemOutage">
+    <ion-toolbar color="warning">
+      <ion-grid>
+        <ion-row class="ion-justify-content-center">
+          <ion-col size="12" size-md="6">
+            <span translate>General.SystemOutage</span>
+            <span>&nbsp;</span>
+            <a href="https://status.fenecon.de/" target="_blank">status.fenecon.de</a>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-toolbar>
+  </ion-footer>
 </ion-app>

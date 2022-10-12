@@ -12,6 +12,8 @@ import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.stream.Collector;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1776,6 +1778,18 @@ public class JsonUtils {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns a sequential stream of the {@link JsonElement JsonElements} in the
+	 * {@link JsonArray}.
+	 * 
+	 * @param jsonArray The {@link JsonArray}, assumed to be unmodified during use
+	 * @return a Stream of the elements
+	 */
+	public static Stream<JsonElement> stream(JsonArray jsonArray) {
+		return IntStream.range(0, jsonArray.size()) //
+				.mapToObj(index -> jsonArray.get(index));
 	}
 
 	private static JsonObject toJsonObject(JsonElement jElement) {

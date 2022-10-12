@@ -58,7 +58,7 @@ export class DummyService extends AbstractService {
     toast(message: string, level: "success" | "warning" | "danger") {
         throw new Error("Method not implemented.");
     }
-    isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets) {
+    showAdvertWidgets(advertWidgets: AdvertWidgets) {
         throw new Error("Method not implemented.");
     }
     isPartnerAllowed(edge: Edge): boolean {
