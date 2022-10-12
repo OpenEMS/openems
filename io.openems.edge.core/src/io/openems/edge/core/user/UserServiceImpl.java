@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
 	private final List<ManagedUser> users = new ArrayList<>();
 
 	@Activate
-	void activate(Config config) {
+	private void activate(Config config) {
 		this.initializeUser("admin", "Admin", Language.DEFAULT, Role.ADMIN, config.adminPassword(), config.adminSalt());
 		this.users.add(//
 				new ManagedUser("installer", "Installer", Language.DEFAULT, Role.INSTALLER, config.installerPassword(),
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Deactivate
-	void deactivate() {
+	private void deactivate() {
 	}
 
 	@Override
