@@ -37,14 +37,14 @@ public class ClientReconnectorWorker extends AbstractWorker {
 			return;
 		}
 
-		var now = Instant.now();
-		var waitedSeconds = Duration.between(this.lastTry, now).getSeconds();
+		var start = Instant.now();
+		var waitedSeconds = Duration.between(this.lastTry, start).getSeconds();
 		if (waitedSeconds < ClientReconnectorWorker.MIN_WAIT_SECONDS_BETWEEN_RETRIES) {
 			this.parent.logInfo(this.log, "Waiting till next WebSocket reconnect ["
 					+ (ClientReconnectorWorker.MIN_WAIT_SECONDS_BETWEEN_RETRIES - waitedSeconds) + "s]");
 			return;
 		}
-		this.lastTry = now;
+		this.lastTry = start;
 
 		this.parent.logInfo(this.log, "Connecting WebSocket...");
 
@@ -61,8 +61,11 @@ public class ClientReconnectorWorker extends AbstractWorker {
 			resetWebSocketClient(ws);
 		}
 
+		var end = Instant.now();
 		this.parent.logInfo(this.log,
-				"Connected WebSocket successfully [" + Duration.between(now, Instant.now()).toSeconds() + "s]");
+				"Connected WebSocket successfully [" + Duration.between(start, end).toSeconds() + "s]");
+
+		this.lastTry = end;
 	}
 
 	/**
