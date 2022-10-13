@@ -546,7 +546,8 @@
       "subnetmask": "Subnetzmaske",
       "addIP": "Statische IP-Adressen hinzufügen",
       "validAddressWarning": "Geben Sie unter \"Statische IP-Adressen hinzufügen\" eine gültige IP-Adresse mit Netzmaske ein, z. B. 10.4.1.6/24",
-      "advancedMode": "erweiterte Ansicht"
+      "advancedMode": "erweiterte Ansicht",
+      "submit": "Anwenden"
     }
   },
   "About": {

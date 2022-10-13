@@ -547,7 +547,8 @@
       "subnetmask": "Subnetmask",
       "addIP": "Add static IP addresses",
       "validAddressWarning": "In 'Add static IP addresses', Please enter valid ip address with subnetmask e.g. 10.4.1.6/24",
-      "advancedMode": "Advanced Mode"
+      "advancedMode": "Advanced Mode",
+      "submit": "Submit"
     }
   },
   "About": {
