@@ -6,7 +6,7 @@ import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 @Component({
   templateUrl: './modal.html'
 })
-export class Modal extends AbstractModal {
+export class ModalComponent extends AbstractModal {
 
   public chargeDischargePower: { name: string, value: number };
 

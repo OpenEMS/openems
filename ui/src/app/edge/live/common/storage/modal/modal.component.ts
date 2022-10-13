@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -9,13 +9,13 @@ import { Edge, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shar
     selector: 'storage-modal',
     templateUrl: './modal.component.html',
 })
-export class StorageModalComponent {
+export class StorageModalComponent implements OnInit {
 
     // TODO after refactoring of Model: subscribe to EssActivePowerL1/L2/L3 here instead of Flat Widget
 
     @Input() edge: Edge;
     @Input() config: EdgeConfig;
-    @Input() essComponents: EdgeConfig.Component[];
+    @Input() essComponents: EdgeConfig.Component[] | null = null;
     @Input() chargerComponents: EdgeConfig.Component[];
     @Input() singleComponent: EdgeConfig.Component = null;
 

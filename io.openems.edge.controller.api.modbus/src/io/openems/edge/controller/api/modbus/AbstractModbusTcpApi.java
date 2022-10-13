@@ -190,7 +190,8 @@ public abstract class AbstractModbusTcpApi extends AbstractOpenemsComponent
 			// find next component in order
 			var component = this._components.get(id);
 			if (component == null) {
-				this.logWarn(this.log, "Required Component [" + id + "] is not available.");
+				this.logWarn(this.log, "Required Component [" + id + "] " //
+						+ "is not available. Component may not implement ModbusSlave or is not active.");
 				continue;
 			}
 

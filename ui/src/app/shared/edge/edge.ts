@@ -285,6 +285,15 @@ export class Edge {
   }
 
   /**
+   * Determines if the verion of the edge is a snapshot.
+   * 
+   * @returns true if the verion of the edge is a snapshot
+   */
+  public isSnapshot(): boolean {
+    return this.version.includes("SNAPSHOT");
+  }
+
+  /**
    * Evaluates whether the current Role is equal or more privileged than the
    * given Role.
    * 

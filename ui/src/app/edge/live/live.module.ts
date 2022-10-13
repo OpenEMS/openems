@@ -21,7 +21,7 @@ import { Controller_EvcsModalComponent } from './Controller/Evcs/modal/modal.pag
 import { Controller_EvcsPopoverComponent } from './Controller/Evcs/modal/popover/popover.page';
 import { Controller_Io_ChannelSingleThresholdComponent } from './Controller/Io/ChannelSingleThreshold/Io_ChannelSingleThreshold';
 import { Controller_Io_ChannelSingleThresholdModalComponent } from './Controller/Io/ChannelSingleThreshold/modal/modal.component';
-import { Controller_Io_FixDigitalOutput } from './Controller/Io/FixDigitalOutput/Io_FixDigitalOutput';
+import { Controller_Io_FixDigitalOutputComponent } from './Controller/Io/FixDigitalOutput/Io_FixDigitalOutput';
 import { Controller_Io_FixDigitalOutputModalComponent } from './Controller/Io/FixDigitalOutput/modal/modal.component';
 import { Controller_Io_HeatingElement } from './Controller/Io/HeatingElement/Io_HeatingElement';
 import { Controller_Io_HeatpumpComponent } from './Controller/Io/Heatpump/Io_Heatpump';
@@ -39,8 +39,8 @@ import { InfoComponent } from './info/info.component';
 import { Io_Api_DigitalInputComponent } from './Io/Api_DigitalInput/Io_Api_DigitalInput';
 import { Io_Api_DigitalInput_ModalComponent } from './Io/Api_DigitalInput/modal/modal.component';
 import { LiveComponent } from './live.component';
-import { Evcs_Api_Cluster } from './Multiple/Evcs_Api_Cluster/Evcs_Api_Cluster';
-import { EvcsChart } from './Multiple/Evcs_Api_Cluster/modal/evcs-chart/evcs.chart';
+import { Evcs_Api_ClusterComponent } from './Multiple/Evcs_Api_Cluster/Evcs_Api_Cluster';
+import { EvcsChartComponent } from './Multiple/Evcs_Api_Cluster/modal/evcs-chart/evcs.chart';
 import { Evcs_Api_ClusterModalComponent } from './Multiple/Evcs_Api_Cluster/modal/evcsCluster-modal.page';
 import { OfflineComponent } from './offline/offline.component';
 
@@ -71,7 +71,7 @@ import { OfflineComponent } from './offline/offline.component';
     Controller_EvcsPopoverComponent,
     Controller_Io_ChannelSingleThresholdComponent,
     Controller_Io_ChannelSingleThresholdModalComponent,
-    Controller_Io_FixDigitalOutput,
+    Controller_Io_FixDigitalOutputComponent,
     Controller_Io_FixDigitalOutputModalComponent,
     Controller_Io_HeatpumpModalComponent,
     Controller_Symmetric_PeakShavingComponent,
@@ -95,7 +95,7 @@ import { OfflineComponent } from './offline/offline.component';
     Controller_EvcsPopoverComponent,
     Controller_Io_ChannelSingleThresholdComponent,
     Controller_Io_ChannelSingleThresholdModalComponent,
-    Controller_Io_FixDigitalOutput,
+    Controller_Io_FixDigitalOutputComponent,
     Controller_Io_FixDigitalOutputModalComponent,
     Controller_Io_HeatpumpComponent,
     Controller_Io_HeatpumpModalComponent,
@@ -105,9 +105,9 @@ import { OfflineComponent } from './offline/offline.component';
     Controller_Symmetric_TimeSlot_PeakShavingModalComponent,
     DelayedSellToGridComponent,
     DelayedSellToGridModalComponent,
-    Evcs_Api_Cluster,
+    Evcs_Api_ClusterComponent,
     Evcs_Api_ClusterModalComponent,
-    EvcsChart,
+    EvcsChartComponent,
     InfoComponent,
     Io_Api_DigitalInput_ModalComponent,
     Io_Api_DigitalInputComponent,

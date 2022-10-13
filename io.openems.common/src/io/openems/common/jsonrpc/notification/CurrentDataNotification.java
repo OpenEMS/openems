@@ -1,6 +1,5 @@
 package io.openems.common.jsonrpc.notification;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -28,20 +27,11 @@ public class CurrentDataNotification extends JsonrpcNotification {
 
 	public static final String METHOD = "currentData";
 
-	private final Map<ChannelAddress, JsonElement> data = new HashMap<>();
+	private final Map<ChannelAddress, JsonElement> data;
 
-	public CurrentDataNotification() {
+	public CurrentDataNotification(Map<ChannelAddress, JsonElement> data) {
 		super(CurrentDataNotification.METHOD);
-	}
-
-	/**
-	 * Add a Channel value.
-	 *
-	 * @param channel the {@link ChannelAddress}
-	 * @param value   the value as {@link JsonElement}
-	 */
-	public void add(ChannelAddress channel, JsonElement value) {
-		this.data.put(channel, value);
+		this.data = data;
 	}
 
 	@Override

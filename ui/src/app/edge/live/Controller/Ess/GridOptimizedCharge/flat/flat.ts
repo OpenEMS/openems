@@ -1,20 +1,20 @@
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { Modal } from '../modal/modal';
+import { ModalComponent } from '../modal/modal';
 
 @Component({
     selector: 'Controller_Ess_GridOptimizedCharge',
     templateUrl: './flat.html'
 })
-export class Flat extends AbstractFlatWidget {
+export class FlatComponent extends AbstractFlatWidget {
 
     public component: EdgeConfig.Component = null;
     public mode: string = '-';
     public state: string = '-';
     public isSellToGridLimitAvoided: boolean = false;
     public sellToGridLimitMinimumChargeLimit: boolean = false;
-    public delayChargeMaximumChargeLimit: number = null;
+    public delayChargeMaximumChargeLimit: number | null = null;
     public readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate)
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
 
@@ -72,7 +72,7 @@ export class Flat extends AbstractFlatWidget {
 
     async presentModal() {
         const modal = await this.modalController.create({
-            component: Modal,
+            component: ModalComponent,
             componentProps: {
                 component: this.component,
             }

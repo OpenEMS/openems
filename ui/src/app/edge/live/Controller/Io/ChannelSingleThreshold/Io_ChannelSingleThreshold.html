@@ -11,7 +11,7 @@
       [value]="dependendOnValue + ' ' + unitOfInputChannel">
     </oe-flat-widget-line>
 
-    <ng-container *ngIf="outputChannelValue != null">
+    <ng-container *ngIf="outputChannelValue !== null">
       <oe-flat-widget-line [converter]="switchConverter" [name]="switchState" [value]="switchValue">
       </oe-flat-widget-line>
     </ng-container>

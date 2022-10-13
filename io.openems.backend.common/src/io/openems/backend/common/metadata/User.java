@@ -38,22 +38,6 @@ public class User extends AbstractUser {
 	}
 
 	/**
-	 * Gets the information whether the Users Role for the given Edge is equal or
-	 * more privileged than the given Role.
-	 *
-	 * @param edgeId the Edge-Id
-	 * @param role   the compared Role
-	 * @return true if the Users Role privileges are equal or higher
-	 */
-	public boolean roleIsAtLeast(String edgeId, Role role) {
-		var thisRoleOpt = this.getRole(edgeId);
-		if (!thisRoleOpt.isPresent()) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
 	 * Throws an exception if the current Role is equal or more privileged than the
 	 * given Role.
 	 *

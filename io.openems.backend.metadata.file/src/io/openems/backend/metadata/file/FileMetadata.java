@@ -32,6 +32,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
+import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.EdgeUser;
@@ -43,6 +44,7 @@ import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
@@ -277,18 +279,13 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
-	public Optional<EdgeUser> getEdgeUserTo(String edgeId, String userId) {
-		return Optional.empty();
-	}
-
-	@Override
 	public EdgeHandler edge() {
 		return this.edgeHandler;
 	}
 
 	@Override
 	public void handleEvent(Event event) {
-		EventReader reader = new EventReader(event);
+		var reader = new EventReader(event);
 
 		switch (event.getTopic()) {
 		case Edge.Events.ON_SET_CONFIG:
@@ -296,4 +293,25 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 			break;
 		}
 	}
+
+	@Override
+	public Optional<String> getSerialNumberForEdge(Edge edge) {
+		return Optional.empty();
+	}
+
+	@Override
+	public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+		return null;
+	}
+
+	@Override
+	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) {
+		throw new IllegalArgumentException("FileMetadata.setUserAlertingSettings() is not implemented");
+	}
+
 }

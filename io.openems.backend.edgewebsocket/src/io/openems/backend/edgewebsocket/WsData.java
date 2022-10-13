@@ -3,18 +3,16 @@ package io.openems.backend.edgewebsocket;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.utils.StringUtils;
 
 public class WsData extends io.openems.common.websocket.WsData {
-
-	private final WebsocketServer parent;
 
 	/**
 	 * Edge-ID is set only if the connection was authenticated (i.e. apikey was
@@ -23,10 +21,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private Optional<String> edgeId = Optional.empty();
 
 	private final CompletableFuture<Void> isAuthenticated = new CompletableFuture<>();
-
-	public WsData(WebsocketServer parent) {
-		this.parent = parent;
-	}
+	public final EdgeCache edgeCache = new EdgeCache();
 
 	/**
 	 * Asserts that the Edge-ID is available (i.e. properly authenticated).
@@ -81,9 +76,4 @@ public class WsData extends io.openems.common.websocket.WsData {
 				+ "]";
 	}
 
-	@Override
-	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
-			TimeUnit unit) {
-		return this.parent.scheduleWithFixedDelay(command, initialDelay, delay, unit);
-	}
 }

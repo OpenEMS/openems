@@ -60,6 +60,17 @@ public class JsonFormlyUtil {
 	}
 
 	/**
+	 * Creates a JsonObject Formly Range Builder for the given enum.
+	 *
+	 * @param <T>      the type of the enum
+	 * @param property the enum property
+	 * @return a {@link RangeBuilder}
+	 */
+	public static <T extends Enum<T>> RangeBuilder buildRange(T property) {
+		return new RangeBuilder(property);
+	}
+
+	/**
 	 * Creates a JsonObject Formly Repeat Builder for the given enum.
 	 *
 	 * @param <T>      the type of the enum
@@ -477,6 +488,53 @@ public class JsonFormlyUtil {
 				this.validation = new JsonObject();
 			}
 			return this.validation;
+		}
+
+	}
+
+	public static final class RangeBuilder extends FormlyBuilder<RangeBuilder> {
+
+		private <PROPERTY extends Enum<PROPERTY>> RangeBuilder(PROPERTY property) {
+			super(property);
+		}
+
+		private RangeBuilder(DefaultEnum property) {
+			super(property);
+		}
+
+		/**
+		 * Sets the min value of the input.
+		 *
+		 * @param min the min number that can be set
+		 * @return this
+		 */
+		public RangeBuilder setMin(int min) {
+			this.templateOptions.addProperty("min", min);
+			return this;
+		}
+
+		/**
+		 * Sets the max value of the input.
+		 *
+		 * @param max the max number that can be set
+		 * @return this
+		 */
+		public RangeBuilder setMax(int max) {
+			this.templateOptions.addProperty("max", max);
+			return this;
+		}
+
+		@Override
+		public JsonObject build() {
+			this.templateOptions.add("attributes", JsonUtils.buildJsonObject() //
+					.addProperty("pin", true) //
+					.build());
+			return super.build();
+		}
+
+		@Override
+		protected String getType() {
+			return "range";
 		}
 
 	}

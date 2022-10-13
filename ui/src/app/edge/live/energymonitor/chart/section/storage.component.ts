@@ -1,5 +1,5 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
@@ -36,7 +36,7 @@ import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquare
         ])
     ]
 })
-export class StorageSectionComponent extends AbstractSection implements OnDestroy {
+export class StorageSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
     private socValue: number
     private unitpipe: UnitvaluePipe;

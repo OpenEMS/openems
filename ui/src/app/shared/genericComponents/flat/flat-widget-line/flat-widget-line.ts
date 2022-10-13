@@ -5,7 +5,7 @@ import { AbstractFlatWidgetLine } from "../abstract-flat-widget-line";
     selector: 'oe-flat-widget-line',
     templateUrl: './flat-widget-line.html'
 })
-export class FlatWidgetLine extends AbstractFlatWidgetLine {
+export class FlatWidgetLineComponent extends AbstractFlatWidgetLine {
 
     /** Name for parameter, displayed on the left side */
     @Input()

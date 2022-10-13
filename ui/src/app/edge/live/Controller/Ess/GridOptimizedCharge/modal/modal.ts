@@ -8,23 +8,23 @@ import { Role } from 'src/app/shared/type/role';
     templateUrl: './modal.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Modal extends AbstractModal {
+export class ModalComponent extends AbstractModal {
 
     public channelCapacity: number;
     public isAtLeastAdmin: boolean = false;
     public refreshChart: boolean;
 
     public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
-    public readonly CONVERT_MINUTE_TO_TIME_OF_DAY = Utils.CONVERT_MINUTE_TO_TIME_OF_DAY;
+    public readonly CONVERT_MINUTE_TO_TIME_OF_DAY = Utils.CONVERT_MINUTE_TO_TIME_OF_DAY(this.translate);
     public readonly CONVERT_TO_WATTHOURS = Utils.CONVERT_TO_WATTHOURS;
     public readonly DelayChargeState = DelayChargeState;
     public state: string = '';
     public chargeLimit: { name: string, value: number };
-    public delayChargeState: number = null;
+    public delayChargeState: number | null = null;
     public maximumSellToGridPower: number = null;
-    public targetMinute: number = null;
-    public delayChargeMaximumChargeLimit: number = null;
-    public targetEpochSeconds: number = null;
+    public targetMinute: number | null = null;
+    public delayChargeMaximumChargeLimit: number | null = null;
+    public targetEpochSeconds: number | null = null;
     public chargeStartEpochSeconds: number = null;
 
     protected override getChannelAddresses(): ChannelAddress[] {
@@ -45,6 +45,8 @@ export class Modal extends AbstractModal {
             new ChannelAddress(this.component.id, "_PropertyMaximumSellToGridPower"),
             new ChannelAddress(this.component.id, "_PropertySellToGridLimitEnabled"),
             new ChannelAddress(this.component.id, "TargetEpochSeconds"),
+            new ChannelAddress(this.component.id, "TargetMinute"),
+            new ChannelAddress(this.component.id, "DelayChargeMaximumChargeLimit"),
             new ChannelAddress(this.component.id, "PredictedChargeStartEpochSeconds")
         )
         return channels
