@@ -14,7 +14,7 @@
         "@angular/service-worker": "~14.2.0",
         "@ionic/angular": "^6.2.5",
         "@ngx-formly/core": "^6.0.0",
-        "@ngx-formly/ionic": "^6.0.0",
+        "@ngx-formly/ionic": "^6.0.1",
         "@ngx-formly/schematics": "^6.0.0",
         "@ngx-translate/core": "^14.0.0",
         "@ngx-translate/http-loader": "^7.0.0",
