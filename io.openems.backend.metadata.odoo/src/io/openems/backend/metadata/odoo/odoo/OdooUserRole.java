@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.session.Role;
 
 public enum OdooUserRole {
 
@@ -69,6 +70,17 @@ public enum OdooUserRole {
 		} else {
 			throw new OpenemsException("Role [" + role + "] does not exist");
 		}
+	}
+
+	/**
+	 * Get the {@link OdooUserRole} for the given {@link Role}.
+	 * 
+	 * @param role given {@link Role}
+	 * @return The {@link OdooUserRole}
+	 * @throws OpenemsException if role does not exist
+	 */
+	public static OdooUserRole getRole(Role role) throws OpenemsException {
+		return getRole(role.name());
 	}
 
 }

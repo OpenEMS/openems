@@ -18,6 +18,7 @@ import io.openems.common.utils.JsonUtils;
  *   "id": "UUID",
  *   "result": {
  *     "edge": Edge
+ *     "serialNumber": String
  *   }
  * }
  * </pre>
@@ -25,20 +26,19 @@ import io.openems.common.utils.JsonUtils;
 public class AddEdgeToUserResponse extends JsonrpcResponseSuccess {
 
 	private final Edge edge;
+	private final String serialNumber;
 
-	public AddEdgeToUserResponse(Edge edge) {
-		this(UUID.randomUUID(), edge);
-	}
-
-	public AddEdgeToUserResponse(UUID id, Edge edge) {
+	public AddEdgeToUserResponse(UUID id, Edge edge, String serialNumber) {
 		super(id);
 		this.edge = edge;
+		this.serialNumber = serialNumber;
 	}
 
 	@Override
 	public JsonObject getResult() {
 		return JsonUtils.buildJsonObject() //
 				.add("edge", this.edge.toJsonObject()) //
+				.addPropertyIfNotNull("serialNumber", this.serialNumber) //
 				.build();
 	}
 

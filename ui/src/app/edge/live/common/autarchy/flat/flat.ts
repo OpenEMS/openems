@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
-import { Modal } from '../modal/modal';
+import { ModalComponent } from '../modal/modal';
 
 @Component({
   selector: 'Common_Autarchy',
   templateUrl: './flat.html'
 })
-export class Flat extends AbstractFlatWidget {
+export class FlatComponent extends AbstractFlatWidget {
 
   public percentageValue: number;
 
@@ -27,7 +27,7 @@ export class Flat extends AbstractFlatWidget {
 
   async presentModal() {
     const modal = await this.modalController.create({
-      component: Modal,
+      component: ModalComponent,
     });
     return await modal.present();
   }

@@ -5,7 +5,7 @@ import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChannelAddress } from '../shared';
-import { LanguageTag } from '../translate/language';
+import { Language } from '../type/language';
 import { DefaultTypes } from './defaulttypes';
 
 export abstract class AbstractService extends ErrorHandler {
@@ -18,17 +18,12 @@ export abstract class AbstractService extends ErrorHandler {
   /**
    * Set the application language
    */
-  abstract setLang(id: LanguageTag);
+  abstract setLang(language: Language): void;
 
   /**
    * Returns the configured language for docs.fenecon.de
    */
   abstract getDocsLang(): string;
-
-  /**
-   * Convert the browser language in Language Tag
-   */
-  abstract browserLangToLangTag(browserLang: string): LanguageTag;
 
   /**
    * Shows a nofication using toastr

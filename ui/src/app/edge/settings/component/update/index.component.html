@@ -16,7 +16,7 @@
         <ion-label style="cursor: pointer" class="ion-text-wrap">
           <ion-text color="primary">
             <h3>{{ item.alias }}
-              <span *ngIf="item.id != item.alias"> ({{ item.id }})</span>
+              <span *ngIf="item.id !== item.alias"> ({{ item.id }})</span>
               <small *ngIf="!item.isEnabled"> (<span translate>General.componentInactive</span>)</small>
             </h3>
           </ion-text>

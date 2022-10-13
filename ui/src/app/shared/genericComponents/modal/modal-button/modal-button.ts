@@ -6,7 +6,7 @@ import { AbstractModalLine } from "../abstract-modal-line";
     selector: 'oe-modal-buttons',
     templateUrl: './modal-button.html'
 })
-export class ModalButtons extends AbstractModalLine {
+export class ModalButtonsComponent extends AbstractModalLine {
 
     @Input() buttons: ButtonLabel[];
 }

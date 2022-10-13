@@ -4,7 +4,7 @@ import { ModalController, ToastController } from '@ionic/angular';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
-import { filter, first, map } from 'rxjs/operators';
+import { filter, first, map, take } from 'rxjs/operators';
 import { environment } from 'src/environments';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
@@ -13,7 +13,7 @@ import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHi
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { User } from '../jsonrpc/shared';
 import { ChannelAddress } from '../shared';
-import { Language, LanguageTag } from '../translate/language';
+import { Language } from '../type/language';
 import { AbstractService } from './abstractservice';
 import { DefaultTypes } from './defaulttypes';
 import { Websocket } from './websocket';
@@ -70,21 +70,25 @@ export class Service extends AbstractService {
   ) {
     super();
     // add language
-    translate.addLangs(Language.getLanguages());
+    translate.addLangs(Language.ALL.map(l => l.filename));
     // this language will be used as a fallback when a translation isn't found in the current language
-    translate.setDefaultLang(LanguageTag.DE);
+    translate.setDefaultLang(Language.DEFAULT.filename);
 
     // initialize history period
     this.historyPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
 
     // React on Language Change and update language
     translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.setLang(event.lang as LanguageTag);
+      this.setLang(Language.getByFilename(event.lang));
     });
   }
 
-  public setLang(id: LanguageTag) {
-    this.translate.use(id);
+  public setLang(language: Language) {
+    if (language !== null) {
+      this.translate.use(language.filename);
+    } else {
+      this.translate.use(Language.DEFAULT.filename);
+    }
     // TODO set locale for date-fns: https://date-fns.org/docs/I18n
   }
 
@@ -93,18 +97,6 @@ export class Service extends AbstractService {
       return "de";
     } else {
       return "en";
-    }
-  }
-
-  public browserLangToLangTag(browserLang: string): LanguageTag {
-    switch (browserLang) {
-      case "de": return LanguageTag.DE;
-      case "en": return LanguageTag.EN;
-      case "es": return LanguageTag.ES;
-      case "nl": return LanguageTag.NL;
-      case "cz": return LanguageTag.CZ;
-      case "fr": return LanguageTag.FR;
-      default: return LanguageTag.DE;
     }
   }
 
@@ -122,14 +114,23 @@ export class Service extends AbstractService {
     // this.notify(notification);
   }
 
-  public setCurrentComponent(currentPageTitle: string, activatedRoute: ActivatedRoute): Promise<Edge> {
+  public setCurrentComponent(currentPageTitle: string | { languageKey: string }, activatedRoute: ActivatedRoute): Promise<Edge> {
     return new Promise((resolve) => {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
-        if (currentPageTitle == null || currentPageTitle.trim() === '') {
-          this.currentPageTitle = environment.uiTitle;
+        if (typeof currentPageTitle === 'string') {
+          // Use given page title directly
+          if (currentPageTitle == null || currentPageTitle.trim() === '') {
+            this.currentPageTitle = environment.uiTitle;
+          } else {
+            this.currentPageTitle = currentPageTitle;
+          }
+
         } else {
-          this.currentPageTitle = currentPageTitle;
+          // Translate from key
+          this.translate.get(currentPageTitle.languageKey).pipe(
+            take(1),
+          ).subscribe(title => this.currentPageTitle = title);
         }
       }
       this.currentActivatedRoute = activatedRoute;

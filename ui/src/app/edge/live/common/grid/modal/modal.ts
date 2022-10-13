@@ -6,12 +6,12 @@ import { ChannelAddress, CurrentData, GridMode, Utils } from 'src/app/shared/sha
   selector: 'modal',
   templateUrl: './modal.html'
 })
-export class Modal extends AbstractModal {
+export class ModalComponent extends AbstractModal {
 
   public readonly GridMode = GridMode;
-  public grid: { mode: number, buyFromGrid: number, sellToGrid: number, phases?: { name: string, value: number }[] } =
+  public grid: { mode: GridMode, buyFromGrid: number, sellToGrid: number, phases?: { name: string, value: number }[] } =
     {
-      mode: 0,
+      mode: GridMode.UNDEFINED,
       buyFromGrid: 0,
       sellToGrid: 0,
       phases: [

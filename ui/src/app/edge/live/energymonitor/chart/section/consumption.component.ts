@@ -1,10 +1,10 @@
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
-import { Component, OnDestroy } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from '../../../../../shared/service/defaulttypes';
 import { Service, Utils } from '../../../../../shared/shared';
-import { TranslateService } from '@ngx-translate/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from './abstractsection.component';
 
 @Component({
     selector: '[consumptionsection]',
@@ -24,7 +24,7 @@ import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
         ])
     ]
 })
-export class ConsumptionSectionComponent extends AbstractSection implements OnDestroy {
+export class ConsumptionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
     private unitpipe: UnitvaluePipe;
     private showAnimation: boolean = false;

@@ -1,14 +1,14 @@
-import { Component, Input } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Service, EdgeConfig, Edge, Websocket } from '../../../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/shared';
 
 @Component({
     selector: 'timeslotpeakshaving-modal',
     templateUrl: './modal.component.html'
 })
-export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent {
+export class Controller_Symmetric_TimeSlot_PeakShavingModalComponent implements OnInit {
 
     @Input() component: EdgeConfig.Component | null = null;
     @Input() edge: Edge | null = null;
