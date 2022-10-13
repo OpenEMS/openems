@@ -1,22 +1,18 @@
-package io.openems.backend.common.timedata;
+package io.openems.backend.common.edgewebsocket;
 
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.SortedMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.BiConsumer;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 import io.openems.common.types.ChannelAddress;
 
 public class EdgeCache {
-
-	private final Logger log = LoggerFactory.getLogger(EdgeCache.class);
 
 	/**
 	 * The Timestamp of the data in the Cache.
@@ -36,20 +32,26 @@ public class EdgeCache {
 	 * @param address the {@link ChannelAddress} of the channel
 	 * @return the value; empty if it is not in cache
 	 */
-	public final Optional<JsonElement> getChannelValue(ChannelAddress address) {
+	public final JsonElement getChannelValue(ChannelAddress address) {
 		synchronized (this) {
-			return Optional.ofNullable(this.cacheData.get(address));
+			var result = this.cacheData.get(address);
+			if (result == null) {
+				return JsonNull.INSTANCE;
+			} else {
+				return result;
+			}
 		}
 	}
 
 	/**
 	 * Updates the 'incoming data' with the data from the cache.
 	 *
-	 * @param edgeId        the Edge-ID
-	 * @param incomingDatas the incoming data
+	 * @param incomingDatas  the incoming data
+	 * @param onInvalidCache callback on invalid cache. Can be used for a log
+	 *                       message.
 	 */
-	public void complementDataFromCache(String edgeId,
-			SortedMap<Long, Map<ChannelAddress, JsonElement>> incomingDatas) {
+	public void complementDataFromCache(SortedMap<Long, Map<ChannelAddress, JsonElement>> incomingDatas,
+			BiConsumer<Instant, Instant> onInvalidCache) {
 		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : incomingDatas.entrySet()) {
 			var incomingTimestamp = entry.getKey();
 			var incomingData = entry.getValue();
@@ -64,9 +66,8 @@ public class EdgeCache {
 				if (incomingTimestamp > this.cacheTimestamp + 5 * 60 * 1000) {
 					// Cache is not anymore valid (elder than 5 minutes)
 					if (this.cacheTimestamp != 0L) {
-						this.log.info("Edge [" + edgeId + "]: invalidate cache. Incoming ["
-								+ Instant.ofEpochMilli(incomingTimestamp) + "]. Cache ["
-								+ Instant.ofEpochMilli(this.cacheTimestamp) + "]");
+						onInvalidCache.accept(Instant.ofEpochMilli(incomingTimestamp),
+								Instant.ofEpochMilli(this.cacheTimestamp));
 					}
 					synchronized (this) {
 						// Clear Cache

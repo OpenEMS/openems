@@ -287,9 +287,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeChannelsRequest(WsData wsData, String edgeId,
 			User user, SubscribeChannelsRequest request) throws OpenemsNamedException {
-		// activate SubscribedChannelsWorker
-		var worker = wsData.getSubscribedChannelsWorker(edgeId);
-		worker.handleSubscribeChannelsRequest(user.getRole(edgeId).orElse(Role.GUEST), request);
+		// Register subscription in WsData
+		wsData.handleSubscribeChannelsRequest(edgeId, request);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));

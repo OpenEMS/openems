@@ -26,7 +26,6 @@ import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
-import io.openems.backend.timedata.timescaledb.Timescaledb;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -62,9 +61,6 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	@Reference
 	protected volatile Timedata timedata;
-
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
-	protected volatile Timescaledb timescale;
 
 	@Reference
 	protected volatile EventAdmin eventAdmin;
@@ -232,6 +228,11 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
+	}
+
+	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
 			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, token, request);
@@ -253,6 +254,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		switch (event.getTopic()) {
 		case Metadata.Events.AFTER_IS_INITIALIZED:
 			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+			break;
 		}
 	}
 }

@@ -78,4 +78,10 @@ public class User extends AbstractUser {
 		var role = Role.getRole(JsonUtils.getAsString(j, "role"));
 		return new User(id, name, language, role);
 	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + this.getId() + ", name=" + this.getName() + "]";
+	}
+
 }

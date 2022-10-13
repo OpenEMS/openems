@@ -39,7 +39,6 @@ import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.websocket.SubscribedChannelsWorker;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
@@ -232,8 +231,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.parent.sessionTokens.put(token, user);
 			this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] connected.");
 
-			return CompletableFuture.completedFuture(
-					new AuthenticateResponse(requestId, token, user, Utils.getEdgeMetadata(user.getRole()), Language.DEFAULT));
+			return CompletableFuture.completedFuture(new AuthenticateResponse(requestId, token, user,
+					Utils.getEdgeMetadata(user.getRole()), Language.DEFAULT));
 		}
 		wsData.unsetUser();
 		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
@@ -250,9 +249,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeChannelsRequest(WsData wsData, User user,
 			SubscribeChannelsRequest request) throws OpenemsNamedException {
-		// activate SubscribedChannelsWorker
-		SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
-		worker.handleSubscribeChannelsRequest(user.getRole(), request);
+		// Register subscription in WsData
+		wsData.handleSubscribeChannelsRequest(request);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));

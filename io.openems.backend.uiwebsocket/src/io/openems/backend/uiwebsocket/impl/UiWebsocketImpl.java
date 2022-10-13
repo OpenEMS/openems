@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.common.metadata.Metadata;
@@ -115,6 +116,11 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	}
 
 	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
+	}
+
+	@Override
 	public void send(String token, JsonrpcNotification notification) throws OpenemsNamedException {
 		var wsData = this.getWsDataForTokenOrError(token);
 		wsData.send(notification);
@@ -199,6 +205,15 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 		case Metadata.Events.AFTER_IS_INITIALIZED:
 			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
 			break;
+		}
+	}
+
+	@Override
+	public void sendSubscribedChannels(String edgeId, EdgeCache edgeCache) {
+		var connections = this.server.getConnections();
+		for (var websocket : connections) {
+			WsData wsData = websocket.getAttachment();
+			wsData.sendSubscribedChannels(edgeId, edgeCache);
 		}
 	}
 

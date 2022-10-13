@@ -3,7 +3,6 @@ package io.openems.backend.b2bwebsocket;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -13,12 +12,10 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
-	private final B2bWebsocket parent;
 	private final SubscribedEdgesChannelsWorker worker;
 	private final CompletableFuture<User> user = new CompletableFuture<>();
 
 	public WsData(B2bWebsocket parent) {
-		this.parent = parent;
 		this.worker = new SubscribedEdgesChannelsWorker(parent, this);
 	}
 
@@ -70,11 +67,5 @@ public class WsData extends io.openems.common.websocket.WsData {
 			return "B2bWebsocket.WsData [user=UNKNOWN]";
 		}
 		return "B2bWebsocket.WsData [user=" + this.user + "]";
-	}
-
-	@Override
-	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
-			TimeUnit unit) {
-		return this.parent.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
 }

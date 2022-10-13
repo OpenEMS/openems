@@ -184,6 +184,11 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		super.logWarn(log, message);
 	}
 
+	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
+	}
+
 	/**
 	 * Activates/deactivates subscription to System-Log.
 	 *

@@ -13,7 +13,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public String password;
 		public String database;
 		public boolean isReadOnly;
-		public WriteConfig betaWriteConfig;
+		public int poolSize;
 
 		private Builder() {
 		}
@@ -52,9 +52,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.isReadOnly = isReadOnly;
 			return this;
 		}
-
-		public Builder setBetaWriteConfig(WriteConfig betaWriteConfig) {
-			this.betaWriteConfig = betaWriteConfig;
+		
+		public Builder setPoolSize(int poolSize) {
+			this.poolSize = poolSize;
 			return this;
 		}
 
@@ -110,8 +110,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public WriteConfig betaWriteConfig() {
-		return this.builder.betaWriteConfig;
+	public int poolSize() {
+		return this.builder.poolSize;
 	}
 
 }
