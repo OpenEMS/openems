@@ -83,16 +83,20 @@ public final class History implements DataSet {
      * @param type History.HOUR, History.DAY, History.MONTH or History.YEAR
      */
     public void setRequiredData(int type) {
-        switch (type) {
-            case History.HOUR ->
-                this.curBlock = this.hourBlock;
-            case History.DAY ->
-                this.curBlock = this.dayBlock;
-            case History.MONTH ->
-                this.curBlock = this.monthBlock;
-            case History.YEAR ->
-                this.curBlock = this.yearBlock;
-        }
+       switch (type) {
+        case History.HOUR:
+          this.curBlock = this.hourBlock;
+          break;
+        case History.DAY:
+          this.curBlock = this.dayBlock;
+          break;
+        case History.MONTH:
+          this.curBlock = this.monthBlock;
+          break;
+        case History.YEAR:
+          this.curBlock = this.yearBlock;
+          break;
+      } 
     }
 
     public boolean hasNext() {

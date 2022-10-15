@@ -146,12 +146,14 @@ public final class Status implements DataSet {
         if (gridComStatus.getInteger() != 1) {
             return r; // rs485 communication off
         }
-        switch ((vs & 0x8) >> 3) {
-            case 0 -> // grid
-                r = 0;
-            case 1 -> // off-grid
-                r = 1;
-        }
+		switch ((vs & 0x8) >> 3) {
+		case 0: // grid
+			r = 0;
+			break;
+		case 1: // off-grid
+			r = 1;
+			break;
+		}
         return r;
     }
 
@@ -168,14 +170,14 @@ public final class Status implements DataSet {
         if ((int) ((inverterMode.getLong() >> 22) & 0x1) != 0) { //Emergency mode ?
             return gridConMode.getInteger();
         }
-        switch (getInverterStatus()) { // return inverter status when not in Emergency mode
-            case 12, 16 -> {
-                return 2;
-            }
-            case 13, 14 -> {
-                return 1;
-            }
-        }
+		switch (getInverterStatus()) { // return inverter status when not in Emergency mode
+		case 12:
+		case 16:
+			return 2;
+		case 13:
+		case 14:
+			return 1;
+		}
         // return inverter status when not in Emergency mode
         return 0;
 
