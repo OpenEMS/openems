@@ -344,7 +344,7 @@ public final class Settings implements DataSet {
     }
     
     private Date getPreferredChargeTime(Long setPoint){
-        if (setPoint.equals(0) || setPoint == null){
+        if (setPoint.equals(0L) || setPoint == null){
             return new Date();
         }
         java.util.Date date = new java.util.Date();

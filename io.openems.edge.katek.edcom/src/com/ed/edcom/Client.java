@@ -709,7 +709,6 @@ public final class Client implements Comparable<Client>, Runnable, Closeable {
     }
 
     private int mb_state = 0;
-    private int mb_start = 0;
     private int msgLen = 0;
     private int pdu_index = 0;
     private int adu_unit_id = 0;
@@ -982,10 +981,8 @@ public final class Client implements Comparable<Client>, Runnable, Closeable {
     private long picVersionRefreshTime;
 
     private byte mac[] = new byte[6];
-    private long macRefreshTime;
 
     private byte serialNum[] = new byte[20];
-    private long serialNumRefreshTime;
 
     private byte picRandomKey[] = new byte[6];
     private long picRandomKeyRefreshTime;
@@ -1021,7 +1018,6 @@ public final class Client implements Comparable<Client>, Runnable, Closeable {
             mac[3] = msgBytes[22];
             mac[4] = msgBytes[23];
             mac[5] = msgBytes[24];
-            macRefreshTime = System.currentTimeMillis();
         }
         // Serial number
         if (len >= 55) {
@@ -1045,7 +1041,6 @@ public final class Client implements Comparable<Client>, Runnable, Closeable {
             serialNum[17] = msgBytes[52];
             serialNum[18] = msgBytes[53];
             serialNum[19] = msgBytes[54];
-            serialNumRefreshTime = System.currentTimeMillis();
         }
         // Random key
         if (len >= 61) {

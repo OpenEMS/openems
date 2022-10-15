@@ -52,7 +52,8 @@ public final class ErrorLog implements DataSet {
      *
      * @return list of records
      */
-    public List<ErrorRecord> getErrorsList() {
+    @SuppressWarnings("unchecked")
+	public List<ErrorRecord> getErrorsList() {
         List<ErrorRecord> rl = new LinkedList<>();
         byte b[] = errors.getBytes();
         for (int i = 0; i < b.length; i += ErrorRecord.RecordSize) {

@@ -26,6 +26,7 @@ import java.util.List;
 /**
  * Inverter error representation
  */
+@SuppressWarnings("rawtypes")
 public class ErrorRecord implements Comparable {
 
     /**

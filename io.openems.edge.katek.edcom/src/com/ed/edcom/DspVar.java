@@ -106,15 +106,15 @@ public final class DspVar extends ADspData {
     public Object getValue(int ix) {
         if (canReadAfterModify(3000)) {
             if (type == TYPE_FLOAT) {
-                return new Float(getFloat(data, ix));
+                return Float.valueOf(getFloat(data, ix));
             } else {
-                return new Long(getLong(data, ix));
+                return Long.valueOf(getLong(data, ix));
             }
         } else {
             if (type == TYPE_FLOAT) {
-                return new Float(getFloat(data_set, ix));
+                return Float.valueOf(getFloat(data_set, ix));
             } else {
-                return new Long(getLong(data_set, ix));
+                return Long.valueOf(getLong(data_set, ix));
             }
         }
     }

@@ -95,7 +95,8 @@ public final class Discovery implements ServiceListener {
      * @param serialNum inverter serial number
      * @return service info or 'null' if no inverter found
      */
-    public ServiceInfo getBySerialNumber(String serialNum) {
+    @SuppressWarnings("deprecation")
+	public ServiceInfo getBySerialNumber(String serialNum) {
         ServiceInfo sr = null;
         if (sInfo == null) {
             sInfo = mdnsService.list(SERVICE_TYPE);
