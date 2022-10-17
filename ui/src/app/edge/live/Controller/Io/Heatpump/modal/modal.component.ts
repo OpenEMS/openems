@@ -42,8 +42,6 @@ export class Controller_Io_HeatpumpModalComponent implements OnInit {
       automaticRecommendationSurplusPower: new FormControl(this.component.properties.automaticRecommendationSurplusPower),
       minimumSwitchingTime: new FormControl(this.component.properties.minimumSwitchingTime),
     })
-
-    console.log("fomrGroup", this.formGroup)
   };
 
   public updateControllerMode(event: CustomEvent) {
