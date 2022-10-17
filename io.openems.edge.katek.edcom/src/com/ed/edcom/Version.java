@@ -15,7 +15,8 @@
 *   
 *   You should have received a copy of the GNU Lesser General Public License
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
+
 package com.ed.edcom;
 
 /**
@@ -23,9 +24,9 @@ package com.ed.edcom;
  */
 public class Version {
 
-    public static final String build_number = "";
+	public static final String build_number = "";
 
-    public static final String build_time = "2022-01-24T08:52:57Z";
+	public static final String build_time = "2022-01-24T08:52:57Z";
 
-    public static final String pomversion = "v8.1";
+	public static final String pomversion = "v8.1";
 }

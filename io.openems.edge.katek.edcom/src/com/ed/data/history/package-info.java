@@ -1,4 +1,4 @@
 /**
- * History data representation
+ * History data representation.
  */
 package com.ed.data.history;

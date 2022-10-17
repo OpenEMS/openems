@@ -1,3 +1,4 @@
+//CHECKSTYLE:OFF
 /*
 *   EDCOM 8.1 is a java cross platform library for communication with 10kW
 *   hybrid Inverter (Katek Memmingen GmbH).
@@ -21,24 +22,27 @@ package com.ed.data;
 import com.ed.edcom.Client;
 
 /**
- * General functions of data set 
+ * General functions of data set
  */
 public interface DataSet {
-    /**
-     * Register all internal data
-     * @param cl client connected to inverter  
-     */
-    public void registerData(Client cl);
-    
-    /**
-     * Put refresh request
-     */
-    public void refresh();
-    
-    /**
-     * Get data status
-     * @return true if internal data was read after last refresh request
-     */
-    public boolean dataReady();
-    
+	/**
+	 * Register all internal data
+	 * 
+	 * @param cl client connected to inverter
+	 */
+	public void registerData(Client cl);
+
+	/**
+	 * Put refresh request
+	 */
+	public void refresh();
+
+	/**
+	 * Get data status
+	 * 
+	 * @return true if internal data was read after last refresh request
+	 */
+	public boolean dataReady();
+
 }
+//CHECKSTYLE:ON

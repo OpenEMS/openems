@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*
 *   EDCOM 8.1 is a java cross platform library for communication with 10kW
 *   hybrid Inverter (Katek Memmingen GmbH).
@@ -20,6 +21,7 @@ package com.ed.edcom;
 
 import java.io.IOException;
 import java.net.InetAddress;
+
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
@@ -30,109 +32,109 @@ import javax.jmdns.ServiceListener;
  */
 public final class Discovery implements ServiceListener {
 
-    private static final String SERVICE_TYPE = "_centurio._tcp.local.";
+	private static final String SERVICE_TYPE = "_centurio._tcp.local.";
 
-    private static Discovery instance;
-    private final JmDNS mdnsService;
-    private ServiceInfo sInfo[] = null;
+	private static Discovery instance;
+	private final JmDNS mdnsService;
+	private ServiceInfo sInfo[] = null;
 
-    private Discovery(InetAddress ia) throws IOException {
-        mdnsService = JmDNS.create(ia);
-        mdnsService.addServiceListener(SERVICE_TYPE, this);
-    }
+	private Discovery(InetAddress ia) throws IOException {
+		mdnsService = JmDNS.create(ia);
+		mdnsService.addServiceListener(SERVICE_TYPE, this);
+	}
 
-    /**
-     * Factory method for search utilities
-     *
-     * @param ia current host address
-     * @return new or already existing instance of Discovery class
-     * @throws java.io.IOException some exception
-     */
-    public static synchronized Discovery getInstance(InetAddress ia) throws IOException {
-        if (instance == null) {
-            instance = new Discovery(ia);
-        }
-        return instance;
-    }
+	/**
+	 * Factory method for search utilities
+	 *
+	 * @param ia current host address
+	 * @return new or already existing instance of Discovery class
+	 * @throws java.io.IOException some exception
+	 */
+	public static synchronized Discovery getInstance(InetAddress ia) throws IOException {
+		if (instance == null) {
+			instance = new Discovery(ia);
+		}
+		return instance;
+	}
 
-    /**
-     * Get inverters found
-     *
-     * @return inverters list
-     */
-    public ServiceInfo[] refreshInverterList() {
-        sInfo = mdnsService.list(SERVICE_TYPE);
-        return sInfo;
-    }
+	/**
+	 * Get inverters found
+	 *
+	 * @return inverters list
+	 */
+	public ServiceInfo[] refreshInverterList() {
+		sInfo = mdnsService.list(SERVICE_TYPE);
+		return sInfo;
+	}
 
-    /**
-     * Get inverter info by name
-     *
-     * @param inverterName inverter name (MAC Address as string)
-     * @return service info or 'null' if no inverter found
-     */
-    public ServiceInfo getByMac(String inverterName) {
-        ServiceInfo sr = null;
-        if (sInfo == null) {
-            sInfo = mdnsService.list(SERVICE_TYPE);
-        }
-        sInfo = mdnsService.list(SERVICE_TYPE);
-        String fname = inverterName.replaceAll("-", "");
-        String lcname = fname.toLowerCase();
-        for (ServiceInfo s : sInfo) {
-            if (s.getName().contains(fname)
-                    || s.getName().contains(lcname)) {
-                sr = s;
-                break;
-            }
-        }
-        return sr;
-    }
+	/**
+	 * Get inverter info by name
+	 *
+	 * @param inverterName inverter name (MAC Address as string)
+	 * @return service info or 'null' if no inverter found
+	 */
+	public ServiceInfo getByMac(String inverterName) {
+		ServiceInfo sr = null;
+		if (sInfo == null) {
+			sInfo = mdnsService.list(SERVICE_TYPE);
+		}
+		sInfo = mdnsService.list(SERVICE_TYPE);
+		String fname = inverterName.replaceAll("-", "");
+		String lcname = fname.toLowerCase();
+		for (ServiceInfo s : sInfo) {
+			if (s.getName().contains(fname) || s.getName().contains(lcname)) {
+				sr = s;
+				break;
+			}
+		}
+		return sr;
+	}
 
-    /**
-     * Get inverter info by serial number
-     *
-     * @param serialNum inverter serial number
-     * @return service info or 'null' if no inverter found
-     */
-    @SuppressWarnings("deprecation")
+	/**
+	 * Get inverter info by serial number
+	 *
+	 * @param serialNum inverter serial number
+	 * @return service info or 'null' if no inverter found
+	 */
+	@SuppressWarnings("deprecation")
 	public ServiceInfo getBySerialNumber(String serialNum) {
-        ServiceInfo sr = null;
-        if (sInfo == null) {
-            sInfo = mdnsService.list(SERVICE_TYPE);
-        }
-        sInfo = mdnsService.list(SERVICE_TYPE);
-        for (ServiceInfo s : sInfo) {
-            if (s.getTextString().contains(serialNum)) {
-                sr = s;
-                break;
-            }
-        }
-        return sr;
-    }
+		ServiceInfo sr = null;
+		if (sInfo == null) {
+			sInfo = mdnsService.list(SERVICE_TYPE);
+		}
+		sInfo = mdnsService.list(SERVICE_TYPE);
+		for (ServiceInfo s : sInfo) {
+			if (s.getTextString().contains(serialNum)) {
+				sr = s;
+				break;
+			}
+		}
+		return sr;
+	}
 
-    /**
-     * Close mDNS service discovery
-     *
-     * @throws IOException some exception
-     */
-    public void close() throws IOException {
-        mdnsService.close();
-        instance = null;
-    }
+	/**
+	 * Close mDNS service discovery
+	 *
+	 * @throws IOException some exception
+	 */
+	public void close() throws IOException {
+		mdnsService.close();
+		instance = null;
+	}
 
-    @Override
-    public void serviceAdded(ServiceEvent event) {
+	@Override
+	public void serviceAdded(ServiceEvent event) {
 
-    }
+	}
 
-    @Override
-    public void serviceRemoved(ServiceEvent event) {
+	@Override
+	public void serviceRemoved(ServiceEvent event) {
 
-    }
+	}
 
-    @Override
-    public void serviceResolved(ServiceEvent event) {
+	@Override
+	public void serviceResolved(ServiceEvent event) {
 
-    }
+	}
 }
+//CHECKSTYLE:ON

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*
 *   EDCOM 8.1 is a java cross platform library for communication with 10kW
 *   hybrid Inverter (Katek Memmingen GmbH).
@@ -23,51 +24,50 @@ package com.ed.edcom;
  */
 public final class DspBlob {
 
-    byte[] bytes;
-    byte[] acknowledge;
-    long timeOut;
-    int acknowledgeStatus;
-    byte messageType;
-    int retryCount;
-    long ts;
+	byte[] bytes;
+	byte[] acknowledge;
+	long timeOut;
+	int acknowledgeStatus;
+	byte messageType;
+	int retryCount;
+	long ts;
 
-    /**
-     * Constructor
-     *
-     * @param bytes bytes to send
-     * @param acknowledge required acknowledge bytes
-     * @param timeOut timeout in millisecond
-     * @param messageType message type
-     * @param retryCount retry count
-     * @throws java.lang.Exception wrong parameters
-     */
-    public DspBlob(byte bytes[], byte[] acknowledge, long timeOut,
-            byte messageType, int retryCount) throws Exception {
-        if (Util.userId < 1) {
-            throw new Exception("Library initialization error");
-        }
-        this.bytes = bytes.clone();
-        this.timeOut = timeOut;
-        this.messageType = messageType;
-        if (acknowledge != null) {
-            this.acknowledge = acknowledge.clone();
-        } else {
-            this.acknowledge = null;
-        }
-        this.retryCount = retryCount;
-    }
+	/**
+	 * Constructor
+	 *
+	 * @param bytes       bytes to send
+	 * @param acknowledge required acknowledge bytes
+	 * @param timeOut     timeout in millisecond
+	 * @param messageType message type
+	 * @param retryCount  retry count
+	 * @throws java.lang.Exception wrong parameters
+	 */
+	public DspBlob(byte bytes[], byte[] acknowledge, long timeOut, byte messageType, int retryCount) throws Exception {
+		if (Util.userId < 1) {
+			throw new Exception("Library initialization error");
+		}
+		this.bytes = bytes.clone();
+		this.timeOut = timeOut;
+		this.messageType = messageType;
+		if (acknowledge != null) {
+			this.acknowledge = acknowledge.clone();
+		} else {
+			this.acknowledge = null;
+		}
+		this.retryCount = retryCount;
+	}
 
-    /**
-     * Get acknowledge status
-     *
-     * @return '1' acknowledge received '0' wait '-1' no or bad acknowledge
-     * received
-     */
-    public int getAcknowledgeStatus() {
-        return acknowledgeStatus;
-    }
+	/**
+	 * Get acknowledge status
+	 *
+	 * @return '1' acknowledge received '0' wait '-1' no or bad acknowledge received
+	 */
+	public int getAcknowledgeStatus() {
+		return acknowledgeStatus;
+	}
 
-    byte getType() {
-        return messageType;
-    }
+	byte getType() {
+		return messageType;
+	}
 }
+//CHECKSTYLE:ON
