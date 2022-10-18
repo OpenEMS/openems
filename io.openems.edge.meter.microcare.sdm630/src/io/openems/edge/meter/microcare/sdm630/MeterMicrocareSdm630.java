@@ -3,7 +3,6 @@ package io.openems.edge.meter.microcare.sdm630;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
-//import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.meter.api.AsymmetricMeter;
