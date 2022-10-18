@@ -986,7 +986,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     let homeAppProperties: FeneconHome = {
       SAFETY_COUNTRY: safetyCountry,
       ...(feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION && { RIPPLE_CONTROL_RECEIVER_ACTIV: true }),
-      ...(feedInLimitation.maximumFeedInPower && { MAX_FEED_IN_POWER: feedInLimitation.maximumFeedInPower }),
+      ...(feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: feedInLimitation.maximumFeedInPower }),
       FEED_IN_SETTING: feedInSetting,
       HAS_AC_METER: isAcCreated,
       HAS_DC_PV1: this.pv.dc1.isSelected,
