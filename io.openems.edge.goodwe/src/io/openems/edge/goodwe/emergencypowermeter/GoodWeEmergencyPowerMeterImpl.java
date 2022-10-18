@@ -44,7 +44,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				"type=CONSUMPTION_METERED" //
 		})
 @EventTopics({ //
-	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponent implements GoodWeEmergencyPowerMeter,
 		AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {

@@ -1685,8 +1685,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				new FC3ReadRegistersTask(36001, Priority.LOW, //
 						// External Communication Data(ARM)
 						m(GoodWe.ChannelId.RSSI, new UnsignedWordElement(36001)), //
-						new DummyRegisterElement(36002), //
-						m(GoodWe.ChannelId.B_METER_COMMUNICATE_STATUS, new UnsignedWordElement(36003)), //
+						new DummyRegisterElement(36002, 36003), //
 						m(GoodWe.ChannelId.METER_COMMUNICATE_STATUS, new UnsignedWordElement(36004)), //
 						// Registers for Grid Smart-Meter (36005 to 36014) are read via GridMeter
 						// implementation
@@ -1807,8 +1806,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		protocol.addTask(//
 				new FC3ReadRegistersTask(36001, Priority.LOW, //
 						m(GoodWe.ChannelId.RSSI, new UnsignedWordElement(36001)), //
-						new DummyRegisterElement(36002), //
-						m(GoodWe.ChannelId.B_METER_COMMUNICATE_STATUS, new UnsignedWordElement(36003)), //
+						new DummyRegisterElement(36002, 36003), //
 						m(GoodWe.ChannelId.METER_COMMUNICATE_STATUS, new UnsignedWordElement(36004)), //
 						// Registers for Grid Smart-Meter (36005 to 36014) are read via GridMeter
 						// implementation

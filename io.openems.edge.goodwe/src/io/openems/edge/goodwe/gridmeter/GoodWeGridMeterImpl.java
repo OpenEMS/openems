@@ -16,6 +16,7 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -29,6 +30,8 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -95,6 +98,26 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
+
+				// States
+				new FC3ReadRegistersTask(36003, Priority.LOW,
+						m(new UnsignedWordElement(36003)).build().onUpdateCallback((value) -> {
+							this.convertMeterConnectStatus(value);
+						}),
+
+						m(GoodWeGridMeter.ChannelId.HAS_NO_METER, new UnsignedWordElement(36004),
+								new ElementToChannelConverter(value -> {
+									Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
+									if (intValue != null) {
+										switch (intValue) {
+										case 0:
+											return true;
+										case 1:
+											return false;
+										}
+									}
+									return null;
+								}))), //
 
 				// Active and reactive power, Power factor and frequency
 				new FC3ReadRegistersTask(36005, Priority.HIGH, //
@@ -166,6 +189,100 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 		}
 	}
 
+	private void convertMeterConnectStatus(Integer value) {
+		if (value == null) {
+			value = 0x0;
+		}
+		this.updateMeterConnectStatus(//
+				GoodWeGridMeter.ChannelId.METER_CON_CORRECTLY_L1, //
+				GoodWeGridMeter.ChannelId.METER_CON_INCORRECTLY_L1, //
+				GoodWeGridMeter.ChannelId.METER_CON_REVERSE_L1, //
+				GoodWeGridMeterImpl.getPhaseConnectionValue(Phase.L1, value));
+
+		this.updateMeterConnectStatus(//
+				GoodWeGridMeter.ChannelId.METER_CON_CORRECTLY_L2, //
+				GoodWeGridMeter.ChannelId.METER_CON_INCORRECTLY_L2, //
+				GoodWeGridMeter.ChannelId.METER_CON_REVERSE_L2, //
+				GoodWeGridMeterImpl.getPhaseConnectionValue(Phase.L2, value));
+
+		this.updateMeterConnectStatus(//
+				GoodWeGridMeter.ChannelId.METER_CON_CORRECTLY_L3, //
+				GoodWeGridMeter.ChannelId.METER_CON_INCORRECTLY_L3, //
+				GoodWeGridMeter.ChannelId.METER_CON_REVERSE_L3, //
+				GoodWeGridMeterImpl.getPhaseConnectionValue(Phase.L3, value));
+	}
+
+	/**
+	 * Get the connection value depending on the phase.
+	 * 
+	 * <p>
+	 * The information of each phase connection is part of a hex. The part of the
+	 * given phase will be returned.
+	 * 
+	 * <p>
+	 * For example: 0X0124 means Phase R connect incorrectly，Phase S connect
+	 * reverse, Phase T connect correctly
+	 * 
+	 * @param phase Phase
+	 * @param value Original value with all phase information
+	 * @return connection information of the given phase
+	 */
+	protected static Integer getPhaseConnectionValue(Phase phase, Integer value) {
+		if (value == null) {
+			return null;
+		}
+
+		switch (phase) {
+		case L1:
+			return value & 0xF;
+		case L2:
+			return value >> 4 & 0xF;
+		case L3:
+			return value >> 8 & 0xF;
+		case ALL:
+		default:
+			return null;
+		}
+	}
+
+	/**
+	 * Update the connect state of the given phase.
+	 * 
+	 * <p>
+	 * 1: connect correctly, 2: connect reverse（CT）, 4:connect incorrectly,
+	 * 
+	 * @param correctlyChannel   correctlyChannel
+	 * @param incorrectlyChannel incorrectlyChannel
+	 * @param reverseChannel     reverseChannel
+	 * @param value              value
+	 */
+	private void updateMeterConnectStatus(GoodWeGridMeter.ChannelId correctlyChannel,
+			GoodWeGridMeter.ChannelId incorrectlyChannel, GoodWeGridMeter.ChannelId reverseChannel, Integer value) {
+
+		boolean correctly = false;
+		boolean incorrectly = false;
+		boolean reverse = false;
+
+		if (value != null) {
+
+			switch (value) {
+			case 4:
+				incorrectly = true;
+				break;
+			case 2:
+				reverse = true;
+				break;
+			case 1:
+				correctly = true;
+				break;
+			}
+		}
+
+		this.channel(correctlyChannel).setNextValue(correctly);
+		this.channel(incorrectlyChannel).setNextValue(incorrectly);
+		this.channel(reverseChannel).setNextValue(reverse);
+	}
+
 	@Override
 	public MeterType getMeterType() {
 		return MeterType.GRID;
@@ -180,5 +297,4 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
-
 }
