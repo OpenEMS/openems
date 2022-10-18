@@ -14,31 +14,24 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-//import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.common.channel.AccessMode;
-/*
-import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
-import io.openems.edge.bridge.modbus.api.ModbusComponent;
-
-*/
-//import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
+
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
+
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
