@@ -1,10 +1,10 @@
-package io.openems.edge.controller.evcs;
+package io.openems.edge.evcs.api;
 
 import io.openems.common.types.OptionsEnum;
 
 public enum ChargeMode implements OptionsEnum {
 	FORCE_CHARGE(0, "Force-Charge"), //
-	EXCESS_POWER(1, "Use excessive power"); //
+	EXCESS_POWER(1, "Use surplus power"); //
 
 	private final int value;
 	private final String name;

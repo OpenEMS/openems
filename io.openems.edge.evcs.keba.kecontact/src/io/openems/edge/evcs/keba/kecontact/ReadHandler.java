@@ -13,6 +13,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 
 /**
@@ -122,6 +123,7 @@ public class ReadHandler implements Consumer<String> {
 									&& this.parent.getSetChargePowerLimit().orElse(0) > 0) {
 								status = Status.CHARGING_FINISHED;
 							}
+							break;
 						}
 
 						/*
@@ -185,41 +187,50 @@ public class ReadHandler implements Consumer<String> {
 					Channel<Integer> currentL1 = this.parent.channel(KebaChannelId.CURRENT_L1);
 					Channel<Integer> currentL2 = this.parent.channel(KebaChannelId.CURRENT_L2);
 					Channel<Integer> currentL3 = this.parent.channel(KebaChannelId.CURRENT_L3);
-					var currentSum = currentL1.value().orElse(0) + currentL2.value().orElse(0)
-							+ currentL3.value().orElse(0);
+					var currentSum = currentL1.getNextValue().orElse(0) + currentL2.getNextValue().orElse(0)
+							+ currentL3.getNextValue().orElse(0);
 
 					if (currentSum > 300) {
 
+						this.parent._setStatus(Status.CHARGING);
 						var phases = 0;
 
-						if (currentL1.value().orElse(0) >= 100) {
+						if (currentL1.getNextValue().orElse(0) >= 100) {
 							phases += 1;
 						}
-						if (currentL2.value().orElse(0) >= 100) {
+						if (currentL2.getNextValue().orElse(0) >= 100) {
 							phases += 1;
 						}
-						if (currentL3.value().orElse(0) >= 100) {
+						if (currentL3.getNextValue().orElse(0) >= 100) {
 							phases += 1;
 						}
 						this.parent._setPhases(phases);
 
-						this.parent.logInfoInDebugmode(this.log, "Used phases: " + this.parent.getPhases().orElse(3));
+						this.parent.logInfoInDebugmode(this.log, "Used phases: " + phases);
 					}
 
 					/*
-					 * Set MAXIMUM_HARDWARE_POWER of Evcs
+					 * Set FIXED_MAXIMUM_HARDWARE_POWER of Evcs - this is setting internally the
+					 * dynamically calculated MAXIMUM_HARDWARE_POWER including the current used
+					 * phases.
 					 */
-					Channel<Integer> maxHW = this.parent.channel(KebaChannelId.DIP_SWITCH_MAX_HW);
-					int phases = this.parent.getPhases().orElse(3);
+					Channel<Integer> maxDipSwitchLimitChannel = this.parent.channel(KebaChannelId.DIP_SWITCH_MAX_HW);
+					int maxDipSwitchPowerLimit = Math.round(
+							maxDipSwitchLimitChannel.value().orElse(Evcs.DEFAULT_MAXIMUM_HARDWARE_CURRENT) / 1000f)
+							* Evcs.DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
 
-					this.parent.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER)
-							.setNextValue(230 /* Spannung */ * maxHW.value().orElse(32) /* max Strom */ * phases);
+					// Minimum of hardware setting and component configuration will be set.
+					int maximumHardwareLimit = Math.min(maxDipSwitchPowerLimit,
+							this.parent.getConfiguredMaximumHardwarePower());
+
+					this.parent._setFixedMaximumHardwarePower(maximumHardwareLimit);
+
 					/*
-					 * Set default MINIMUM_HARDWARE_POWER of Evcs
+					 * Set FIXED_MINIMUM_HARDWARE_POWER of Evcs - this is setting internally the
+					 * dynamically calculated MINIMUM_HARDWARE_POWER including the current used
+					 * phases.
 					 */
-					var minHwCurrent = this.parent.config.minHwCurrent() / 1000;
-					this.parent.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER)
-							.setNextValue(230 /* Spannung */ * minHwCurrent /* min Strom */ * phases);
+					this.parent._setFixedMinimumHardwarePower(this.parent.getConfiguredMinimumHardwarePower());
 
 					/*
 					 * Set CHARGE_POWER of Evcs
@@ -311,22 +322,22 @@ public class ReadHandler implements Consumer<String> {
 
 		switch (hwLimitDips) {
 		case "000":
-			hwLimit = 10;
+			hwLimit = 10_000;
 			break;
 		case "100":
-			hwLimit = 13;
+			hwLimit = 13_000;
 			break;
 		case "010":
-			hwLimit = 16;
+			hwLimit = 16_000;
 			break;
 		case "110":
-			hwLimit = 20;
+			hwLimit = 20_000;
 			break;
 		case "001":
-			hwLimit = 25;
+			hwLimit = 25_000;
 			break;
 		case "101":
-			hwLimit = 32;
+			hwLimit = 32_000;
 			break;
 		}
 		this.parent.channel(KebaChannelId.DIP_SWITCH_MAX_HW).setNextValue(hwLimit);

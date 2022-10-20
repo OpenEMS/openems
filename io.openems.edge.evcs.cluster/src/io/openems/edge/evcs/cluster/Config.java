@@ -7,7 +7,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "EVCS Cluster Peak Shaving", //
 		description = "Limits the maximum charging power of all electric vehicle charging stations "
 				+ "depending on the ecxess power, the maximum allowed discharge of the storage and the maximum allowed grid input power.")
-@interface ConfigPeakShaving {
+@interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "evcsCluster0";
@@ -33,15 +33,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id() default "ess0";
-
-	@AttributeDefinition(name = "Secure ess discharge enabled?", description = "Is secure ess discharge enabled?")
-	boolean enable_secure_ess_discharge() default true;
-
-	@AttributeDefinition(name = "Start secure discharge SoC", description = "The allowed discharge power will be reduced softly under this SoC")
-	int ess_secure_discharge_soc() default 25;
-
-	@AttributeDefinition(name = "Secure discharge minimum SoC", description = "The allowed discharge power will be reduced till this SoC")
-	int ess_secure_discharge_min_soc() default 15;
 
 	@AttributeDefinition(name = "Grid-Meter-ID", description = "ID of the Grid-Meter.")
 	String meter_id() default "meter0";
