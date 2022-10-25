@@ -12,7 +12,6 @@ export class SettingsComponent {
 
   public edge: Edge = null;
   public environment = environment;
-  protected isAllowedToSeeAlerting: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -24,9 +23,6 @@ export class SettingsComponent {
   ionViewWillEnter() {
     this.service.setCurrentComponent({ languageKey: 'Menu.edgeSettings' }, this.route).then(edge => {
       this.edge = edge
-    }).then(() => {
-      let edgeIdNumber: number = parseInt(this.edge.id.match(/\D*(\d*)/)[1]);
-      this.isAllowedToSeeAlerting = (edgeIdNumber >= 10000 && edgeIdNumber <= 11500 && this.edge.producttype === ProductType.HOME);
     });
   }
 }
