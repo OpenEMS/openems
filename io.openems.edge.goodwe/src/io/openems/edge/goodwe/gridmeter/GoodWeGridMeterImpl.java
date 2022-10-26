@@ -15,6 +15,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -29,6 +30,9 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.power.api.Phase;
@@ -51,7 +55,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implements GoodWeGridMeter, AsymmetricMeter,
-		SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
+		SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -189,7 +193,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 		}
 	}
 
-	private void convertMeterConnectStatus(Integer value) {
+	protected void convertMeterConnectStatus(Integer value) {
 		if (value == null) {
 			value = 0x0;
 		}
@@ -220,18 +224,14 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	 * given phase will be returned.
 	 * 
 	 * <p>
-	 * For example: 0X0124 means Phase R connect incorrectly，Phase S connect
+	 * For example: 0x0124 means Phase R connect incorrectly，Phase S connect
 	 * reverse, Phase T connect correctly
 	 * 
 	 * @param phase Phase
 	 * @param value Original value with all phase information
 	 * @return connection information of the given phase
 	 */
-	protected static Integer getPhaseConnectionValue(Phase phase, Integer value) {
-		if (value == null) {
-			return null;
-		}
-
+	protected static Integer getPhaseConnectionValue(Phase phase, int value) {
 		switch (phase) {
 		case L1:
 			return value & 0xF;
@@ -297,4 +297,15 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				AsymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(GoodWeGridMeter.class, accessMode, 100).build() //
+		);
+	}
+
 }

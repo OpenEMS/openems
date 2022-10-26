@@ -1,11 +1,12 @@
 package io.openems.edge.goodwe.gridmeter;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.power.api.Phase;
@@ -16,17 +17,44 @@ public class GoodWeGridMeterTest {
 
 	private static final String METER_ID = "meter0";
 
+	private static final ChannelAddress METER_CON_CORRECTLY_L1 = new ChannelAddress(METER_ID,
+			GoodWeGridMeter.ChannelId.METER_CON_CORRECTLY_L1.id());
+	private static final ChannelAddress METER_CON_INCORRECTLY_L1 = new ChannelAddress(METER_ID,
+			GoodWeGridMeter.ChannelId.METER_CON_INCORRECTLY_L1.id());
+	private static final ChannelAddress METER_CON_REVERSE_L1 = new ChannelAddress(METER_ID,
+			GoodWeGridMeter.ChannelId.METER_CON_REVERSE_L1.id());
+
 	@Test
 	public void test() throws Exception {
-		final GoodWeGridMeter gridMeterComponent = new GoodWeGridMeterImpl();
+		final var sut = new GoodWeGridMeterImpl();
 
-		new ComponentTest(gridMeterComponent) //
+		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(METER_ID) //
 						.setModbusId(MODBUS_ID) //
-						.build());
+						.build()) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> sut.convertMeterConnectStatus(null))
+						.output(METER_CON_CORRECTLY_L1, false) //
+						.output(METER_CON_INCORRECTLY_L1, false) //
+						.output(METER_CON_REVERSE_L1, false)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> sut.convertMeterConnectStatus(1))
+						.output(METER_CON_CORRECTLY_L1, true) //
+						.output(METER_CON_INCORRECTLY_L1, false) //
+						.output(METER_CON_REVERSE_L1, false)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> sut.convertMeterConnectStatus(2))
+						.output(METER_CON_CORRECTLY_L1, false) //
+						.output(METER_CON_INCORRECTLY_L1, false) //
+						.output(METER_CON_REVERSE_L1, true)) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> sut.convertMeterConnectStatus(4))
+						.output(METER_CON_CORRECTLY_L1, false) //
+						.output(METER_CON_INCORRECTLY_L1, true) //
+						.output(METER_CON_REVERSE_L1, false));
 	}
 
 	@Test
@@ -56,8 +84,8 @@ public class GoodWeGridMeterTest {
 		assertEquals(0, (int) l2NoResult);
 		assertEquals(0, (int) l3NoResult);
 
-		var noResult = GoodWeGridMeterImpl.getPhaseConnectionValue(Phase.L3, null);
+		var noResult = GoodWeGridMeterImpl.getPhaseConnectionValue(Phase.L3, 0x000);
 
-		assertNull(noResult);
+		assert noResult == 0x000;
 	}
 }

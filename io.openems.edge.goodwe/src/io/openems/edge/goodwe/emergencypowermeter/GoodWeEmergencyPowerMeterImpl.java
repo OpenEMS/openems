@@ -15,6 +15,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -27,6 +28,9 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
@@ -46,8 +50,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponent implements GoodWeEmergencyPowerMeter,
-		AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
+public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponent
+		implements GoodWeEmergencyPowerMeter, AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent,
+		TimedataProvider, EventHandler, ModbusSlave {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -96,7 +101,7 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 		return new ModbusProtocol(this, //
 
 				// Power of each backup up phase
-				new FC3ReadRegistersTask(35145, Priority.LOW, //
+				new FC3ReadRegistersTask(35145, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35145), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35146), //
@@ -166,6 +171,16 @@ public class GoodWeEmergencyPowerMeterImpl extends AbstractOpenemsModbusComponen
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				AsymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(GoodWeEmergencyPowerMeter.class, accessMode, 100).build() //
+		);
 	}
 
 }
