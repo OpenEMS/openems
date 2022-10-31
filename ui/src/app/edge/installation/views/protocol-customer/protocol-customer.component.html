@@ -1,5 +1,6 @@
-<installation-view iconName="clipboard-outline" header="Kontaktdaten Endkunde" (previousClicked)="onPreviousClicked()"
-  (nextClicked)="onNextClicked()">
+<installation-view iconName="clipboard-outline"
+  header="{{ 'INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.TITLE_CUSTOMER' | translate }}"
+  (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()">
 
   <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
 

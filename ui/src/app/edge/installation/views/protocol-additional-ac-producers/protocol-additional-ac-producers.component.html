@@ -1,15 +1,17 @@
-<installation-view iconName="clipboard-outline" header="AC-Erzeuger" (previousClicked)="onPreviousClicked()"
-    (nextClicked)="onNextClicked()">
+<installation-view iconName="clipboard-outline"
+    header="{{ 'INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.TITLE_ADDITIONAL_AC' | translate }}"
+    (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()">
 
     <formly-form *ngIf="insertModeEnabled" [form]="form" [fields]="fields" [model]="model"></formly-form>
 
     <ion-item lines="none">
         <ion-button [disabled]="ibn.pv.ac.length >= 1" (click)="switchMode()" slot="start">
-            <ion-label>{{insertModeEnabled ? "Erzeuger speichern" : "Erzeuger hinzufügen"}}</ion-label>
+            <ion-label>{{insertModeEnabled ? ('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SAVE' | translate) :
+                ('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ADD' | translate)}}</ion-label>
             <ion-icon [name]="insertModeEnabled ? 'save-outline':'add-outline'" slot="start"></ion-icon>
         </ion-button>
         <ion-button (click)="openManual()" slot="end">
-            <ion-label>Anleitung öffnen</ion-label>
+            <ion-label>{{ 'INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.OPEN_MANUAL' | translate}}</ion-label>
             <ion-icon name="open-outline" slot="start"></ion-icon>
         </ion-button>
     </ion-item>

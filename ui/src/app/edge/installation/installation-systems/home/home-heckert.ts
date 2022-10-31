@@ -1,3 +1,4 @@
+import { TranslateService } from '@ngx-translate/core';
 import { GetNetworkConfigRequest } from 'src/app/edge/settings/network/getNetworkConfigRequest';
 import { GetNetworkConfigResponse } from 'src/app/edge/settings/network/getNetworkConfigResponse';
 import { SetNetworkConfigRequest } from 'src/app/edge/settings/network/setNetworkConfigRequest';
@@ -16,7 +17,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
 
     public readonly id = 'heckert';
 
-    constructor() {
+    constructor(translate: TranslateService) {
         super([
             View.PreInstallation,
             View.PreInstallationUpdate,
@@ -34,7 +35,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
             View.Completion
-        ]);
+        ], translate);
     }
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service: Service) {
@@ -47,7 +48,6 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
         const isAppManagerAvailable: boolean = AppCenterUtil.isAppManagerAvailable(edge);
         const confModeRemoveAndConfigure: ConfigurationMode = isAppManagerAvailable ?
             ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveAndConfigure;
-
         const confModeRemoveOnly: ConfigurationMode = isAppManagerAvailable ?
             ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveOnly;
 

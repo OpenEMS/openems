@@ -3,6 +3,7 @@ import { AlertController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { Service } from 'src/app/shared/shared';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { Util } from '../../shared/util';
 
 export enum EmsAppId {
   HardyBarthSingle = "hardyBarthSingle",
@@ -66,7 +67,7 @@ export class HeckertAppInstallerComponent implements OnInit {
 
     // Save the id of the selected app and switch to next view
     this.ibn.selectedFreeApp = selectedApp;
-    sessionStorage.setItem("ibn", JSON.stringify(this.ibn));
+    Util.addIbnToSessionStorage(this.ibn);
     this.nextViewEvent.emit(this.ibn);
   }
 
@@ -74,7 +75,7 @@ export class HeckertAppInstallerComponent implements OnInit {
     if (this.ibn.selectedFreeApp) {
       this.nextViewEvent.emit(this.ibn);
     } else {
-      this.service.toast(this.translate.instant('Edge.Installation.pleaseSelectOption'), 'danger');
+      this.service.toast(this.translate.instant('INSTALLATION.PLEASE_SELECT_OPTION'), 'danger');
     }
   }
 
@@ -104,15 +105,15 @@ export class HeckertAppInstallerComponent implements OnInit {
 
     let isAppSelected = clickedApp.id != EmsAppId.None;
     let alert = this.alertCtrl.create({
-      header: (isAppSelected ? this.translate.instant('Edge.Installation.confirmAppSelection') : this.translate.instant('Edge.Installation.confirmAppSelectionLater')),
+      header: (isAppSelected ? this.translate.instant('INSTALLATION.CONFIRM_APP_SELECTION') : this.translate.instant('INSTALLATION.CONFIRM_APP_SELECTION_LATER')),
       subHeader: isAppSelected ? (clickedApp.alias ?? clickedApp.id) : '',
-      message: isAppSelected ? this.translate.instant('Edge.Installation.attentionMessage') : '',
+      message: isAppSelected ? this.translate.instant('INSTALLATION.ATTENTION_MESSAGE') : '',
       buttons: [{
-        text: this.translate.instant('Edge.Installation.backward'),
+        text: this.translate.instant('INSTALLATION.BACK'),
         role: 'cancel'
       },
       {
-        text: this.translate.instant('Edge.Installation.forward'),
+        text: this.translate.instant('INSTALLATION.FORWARD'),
         handler: () => {
           this.saveConfirmedApp();
         },

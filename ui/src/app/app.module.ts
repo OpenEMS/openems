@@ -6,7 +6,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { FORMLY_CONFIG } from '@ngx-formly/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AngularMyDatePickerModule } from 'angular-mydatepicker';
 import { CookieService } from 'ngx-cookie-service';
@@ -23,6 +24,7 @@ import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popo
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
 import { SharedModule } from './shared/shared.module';
 import { StatusSingleComponent } from './shared/status/single/status.component';
+import { registerTranslateExtension } from './shared/translate.extension';
 import { UserModule } from './user/user.module';
 
 export function createTranslateLoader(http: HttpClient) {
@@ -68,7 +70,9 @@ export function createTranslateLoader(http: HttpClient) {
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     CookieService,
     // { provide: ErrorHandler, useExisting: Service },
-    { provide: LOCALE_ID, useValue: 'de' }
+    { provide: LOCALE_ID, useValue: 'de' },
+    // Use factory for formly. This allows us to use translations in validationMessages.
+    { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
   ],
   bootstrap: [AppComponent],
 })

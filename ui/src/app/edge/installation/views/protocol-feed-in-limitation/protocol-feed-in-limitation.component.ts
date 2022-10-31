@@ -49,7 +49,7 @@ export class ProtocolFeedInLimitationComponent implements OnInit {
     this.nextViewEvent.emit(this.ibn);
   }
 
-  openManual() {
+  protected openManual() {
     window.open("https://fenecon.de/wp-content/uploads/2022/06/20220523_Anleitung-Rundsteuerempfaenger.pdf")
   }
 }

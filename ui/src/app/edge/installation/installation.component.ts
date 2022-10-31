@@ -1,21 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { filter, take } from 'rxjs/operators';
+import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { AbstractIbn, View } from './installation-systems/abstract-ibn';
-import { GeneralIbn } from './installation-systems/general-ibn';
-import { HomeFeneconIbn } from './installation-systems/home/home-fenecon';
 import { Commercial30AnschlussIbn } from './installation-systems/commercial/commercial-30/commercial30-anschluss';
 import { Commercial30NetztrennIbn } from './installation-systems/commercial/commercial-30/commercial30-netztrenn';
-import { HomeHeckertIbn } from './installation-systems/home/home-heckert';
 import { Commercial50EigenverbrauchsOptimierung } from './installation-systems/commercial/commercial-50/commercial50-eigenverbrauchsoptimierung';
 import { Commercial50Lastspitzenkappung } from './installation-systems/commercial/commercial-50/commercial50-lastspitzenkappung';
-
-export const COUNTRY_OPTIONS: { value: string; label: string }[] = [
-  { value: 'de', label: 'Deutschland' },
-  { value: 'at', label: 'Österreich' },
-  { value: 'ch', label: 'Schweiz' },
-];
+import { GeneralIbn } from './installation-systems/general-ibn';
+import { HomeFeneconIbn } from './installation-systems/home/home-fenecon';
+import { HomeHeckertIbn } from './installation-systems/home/home-heckert';
+import { Util } from './shared/util';
 
 @Component({
   selector: InstallationComponent.SELECTOR,
@@ -35,7 +31,8 @@ export class InstallationComponent implements OnInit {
   constructor(
     private service: Service,
     private router: Router,
-    public websocket: Websocket
+    public websocket: Websocket,
+    private translate: TranslateService
   ) { }
 
   public ngOnInit() {
@@ -84,7 +81,7 @@ export class InstallationComponent implements OnInit {
 
     // Load Ibn with 'General Ibn' data initially.
     if (ibn === null) {
-      ibn = new GeneralIbn();
+      ibn = new GeneralIbn(this.translate);
     }
     // Load it in the global Ibn from local.
     this.setIbn(ibn);
@@ -116,19 +113,19 @@ export class InstallationComponent implements OnInit {
   public getIbnType(systemId: string): AbstractIbn {
     switch (systemId) {
       case 'general':
-        return new GeneralIbn();
+        return new GeneralIbn(this.translate);
       case 'home':
-        return new HomeFeneconIbn();
+        return new HomeFeneconIbn(this.translate);
       case 'heckert':
-        return new HomeHeckertIbn();
+        return new HomeHeckertIbn(this.translate);
       case 'commercial-30-anschluss':
-        return new Commercial30AnschlussIbn();
+        return new Commercial30AnschlussIbn(this.translate);
       case 'commercial-30-netztrennstelle':
-        return new Commercial30NetztrennIbn();
+        return new Commercial30NetztrennIbn(this.translate);
       case 'commercial-50-eigenverbrauchsoptimierung':
-        return new Commercial50EigenverbrauchsOptimierung();
+        return new Commercial50EigenverbrauchsOptimierung(this.translate);
       case 'commercial-50-lastspitzenkappung':
-        return new Commercial50Lastspitzenkappung();
+        return new Commercial50Lastspitzenkappung(this.translate);
     }
   }
 
@@ -156,8 +153,9 @@ export class InstallationComponent implements OnInit {
 
       // Till the initial system and components are selected show only current page number.
       // The view count changes based on the components selected.
-      this.progressText = this.ibn.showViewCount ? 'Schritt ' + (index + 1) +
-        ' von ' + viewCount : 'Schritt ' + (index + 1);
+      this.progressText = this.ibn.showViewCount
+        ? this.translate.instant('INSTALLATION.STEP_FROM_TO', { from: (index + 1), to: viewCount })
+        : this.translate.instant('INSTALLATION.STEP_TO', { number: (index + 1) });
 
       if (sessionStorage) {
         sessionStorage.setItem('viewIndex', index.toString());
@@ -191,7 +189,8 @@ export class InstallationComponent implements OnInit {
     if (ibn) {
       this.setIbn(ibn);
       if (sessionStorage) {
-        sessionStorage.setItem('ibn', JSON.stringify(ibn));
+
+        Util.addIbnToSessionStorage(ibn);
       }
     }
 

@@ -126,7 +126,7 @@
       "user": "Uživatel",
       "installer": "Instalatér"
     },
-    "form": {
+    "Form": {
       "user": {
         "acceptPrivacyPolicy": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
       },

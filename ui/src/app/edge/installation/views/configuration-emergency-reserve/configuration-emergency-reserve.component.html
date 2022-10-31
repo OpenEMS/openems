@@ -1,8 +1,9 @@
-<installation-view iconName="settings-outline" header="Angaben zu Notstrom" (previousClicked)="onPreviousClicked()"
-  (nextClicked)="onNextClicked()">
+<installation-view iconName="settings-outline"
+  header="{{ 'INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.TITLE' | translate }}"
+  (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()">
 
   <formly-form [form]="form" [fields]="fields" [model]="model"
-    title="Wenn diese Funktion aktiviert ist, kann der Ladezustand der Batterie nicht unter den eingestellten Wert fallen.">
+    title="{{ 'INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE_NOTE' | translate}}">
   </formly-form>
 
 </installation-view>

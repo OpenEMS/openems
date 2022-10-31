@@ -1,4 +1,6 @@
-<installation-view iconName="clipboard-outline" header="Seriennummern" (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()" [isWaiting]="isWaiting">
+<installation-view iconName="clipboard-outline"
+    header="{{ 'INSTALLATION.PROTOCOL_SERIAL_NUMBERS.SERIAL_NUMBER' | translate }}"
+    (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()" [isWaiting]="isWaiting">
 
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
 
@@ -6,7 +8,8 @@
         <ion-card-header>
             <ion-item>
                 <ion-label>
-                    <ion-card-title>Voreinstellungen</ion-card-title>
+                    <ion-card-title>{{ 'INSTALLATION.PROTOCOL_SERIAL_NUMBERS.SYSTEM_SETUP' | translate }}
+                    </ion-card-title>
                 </ion-label>
             </ion-item>
         </ion-card-header>
@@ -14,7 +17,7 @@
             <formly-form [form]="formSettings" [fields]="fieldsSettings" [model]="modelSettings"></formly-form>
             <ion-item>
                 <ion-button (click)="saveSettings()">
-                    <ion-label>speichern</ion-label>
+                    <ion-label>{{ 'INSTALLATION.PROTOCOL_SERIAL_NUMBERS.CONFIRM' | translate }}</ion-label>
                 </ion-button>
             </ion-item>
         </ion-card-content>
@@ -22,10 +25,10 @@
 
     <ng-container *ngIf="!isWaiting">
         <ion-card>
-            <ion-card-content>Vervollständigen Sie die Seriennummern, indem Sie die Platzhalter (mit "x" gekennzeichnet) durch die entsprechenden Zeichen ersetzen.</ion-card-content>
+            <ion-card-content>{{'INSTALLATION.PROTOCOL_SERIAL_NUMBERS.SETUP_NOTE' | translate }}</ion-card-content>
         </ion-card>
 
-        <ng-container *ngFor="let form of forms, let i = index">     
+        <ng-container *ngFor="let form of forms, let i = index">
             <ion-card>
                 <ion-card-header>
                     <ion-item>
@@ -33,13 +36,14 @@
                     </ion-item>
                 </ion-card-header>
                 <ion-card-content>
-                    <formly-form [form]="form.formGroup" [fields]="form.fieldSettings" [model]="form.model"></formly-form>
+                    <formly-form [form]="form.formGroup" [fields]="form.fieldSettings" [model]="form.model">
+                    </formly-form>
                 </ion-card-content>
             </ion-card>
         </ng-container>
 
         <ion-card>
-            <ion-card-content>Wenn Sie jetzt auf weiter klicken, wird das IBN-Protokoll automatisch an die FENECON GmbH übermittelt.
+            <ion-card-content>{{ 'INSTALLATION.PROTOCOL_SERIAL_NUMBERS.NEXT_BUTTON_DESCRIPTION' | translate }}
             </ion-card-content>
         </ion-card>
     </ng-container>

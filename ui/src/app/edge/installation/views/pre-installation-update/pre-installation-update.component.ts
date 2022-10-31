@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { SystemUpdateState } from 'src/app/edge/settings/systemupdate/getSystemUpdateStateResponse';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 
@@ -19,11 +20,11 @@ export class PreInstallationUpdateComponent {
   protected isWaiting: boolean
   protected isUpdated: boolean
 
-  constructor(private service: Service, public websocket: Websocket) { }
+  constructor(private service: Service, public websocket: Websocket, private translate: TranslateService) { }
 
   public onNextClicked() {
     if (!this.isUpdated) {
-      this.service.toast("Version muss geupdated werden!", "danger");
+      this.service.toast(this.translate.instant('INSTALLATION.SYSTEM_UPDATE.UPDATE_WARNING'), "danger");
       return;
     }
     this.nextViewEvent.emit();

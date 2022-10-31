@@ -125,7 +125,7 @@
       "user": "Usuario",
       "installer": "Instalador"
     },
-    "form": {
+    "Form": {
       "user": {
         "acceptPrivacyPolicy": "Al crear una cuenta de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de Privacidad</a> y las Condiciones de Uso de FENECON.*"
       },

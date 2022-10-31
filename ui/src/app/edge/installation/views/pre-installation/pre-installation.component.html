@@ -1,12 +1,11 @@
-<installation-view iconName="key-outline" header="Installateursschlüssel eingeben" (nextClicked)="onNextClicked()"
-    [isWaiting]="isWaiting || websocket.status !== 'online'" isFirstView="true">
+<installation-view iconName="key-outline" header="{{ 'INSTALLATION.PRE_INSTALLATION.TITLE' | translate }}"
+    (nextClicked)="onNextClicked()" [isWaiting]="isWaiting || websocket.status !== 'online'" isFirstView="true">
 
     <table class="full_width ion-text-center">
         <tr>
             <td>
                 <!-- [(ngModel)]="setupKey" - Two way binding is not working with keymask directive. The last letter in upper case, is not set to the setup key property-->
                 <input oeKeyMask type="text" #setupKey style="width: 13em;" placeholder="XXXX-XXXX-XXXX-XXXX">
-
             </td>
         </tr>
     </table>
@@ -17,10 +16,10 @@
 
     <ion-card *ngIf="!validKey">
         <ion-card-content>
-            <ion-card-subtitle style="color:orange" class="font-weight: bold">Hinweis:</ion-card-subtitle>
+            <ion-card-subtitle style="color:orange" class="font-weight: bold">{{'INSTALLATION.PRE_INSTALLATION.NOTE'
+                | translate}}</ion-card-subtitle>
             <ion-text color="dark">
-                Sollte der Installateursschlüssel fälschlicherweise als ungültig erkannt werden, aktualisieren Sie
-                bitte die Seite.
+                {{ 'INSTALLATION.PRE_INSTALLATION.WRONG_KEY_NOTE' | translate }}
             </ion-text>
         </ion-card-content>
     </ion-card>

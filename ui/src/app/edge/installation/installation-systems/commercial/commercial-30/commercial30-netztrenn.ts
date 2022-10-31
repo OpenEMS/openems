@@ -1,8 +1,10 @@
+import { TranslateService } from '@ngx-translate/core';
 import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
-import { Category, FeedInType } from '../../../shared/enums';
+import { Category } from '../../../shared/category';
+import { FeedInType } from '../../../shared/enums';
 import { ComponentData } from '../../../shared/ibndatatypes';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
@@ -14,7 +16,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
 
     public readonly id: string = 'commercial-30-netztrennstelle';
 
-    constructor() {
+    constructor(translate: TranslateService) {
         super([
             View.PreInstallation,
             View.PreInstallationUpdate,
@@ -31,18 +33,18 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
             View.Completion
-        ]);
+        ], translate);
     }
 
     public addCustomBatteryData(batteryData: ComponentData[]) {
         batteryData.push({
-            label: 'Notstromfunktion aktiviert?',
-            value: this.emergencyReserve.isEnabled ? 'ja' : 'nein',
+            label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED'),
+            value: this.emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no'),
         });
 
         if (this.emergencyReserve.isEnabled) {
             batteryData.push({
-                label: 'Notstromfunktion Wert',
+                label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE_VALUE'),
                 value: this.emergencyReserve.value,
             });
         }
@@ -76,7 +78,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Serial',
             componentId: 'modbus0',
-            alias: 'Kommunikation mit der Batterie',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'portName', value: '/dev/ttyAMA0' }, // TODO: Check if this could be changed to default '/dev/ttyAMA0'
@@ -94,7 +96,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Tcp',
             componentId: 'modbus1',
-            alias: 'Kommunikation mit dem Batterie-Wechselrichter',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY_INVERTER'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'ip', value: '192.168.1.11' }, // TODO: Change it to 192.168.1.11 !!!!!
@@ -109,7 +111,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Serial',
             componentId: 'modbus2',
-            alias: 'Kommunikation mit den Zählern',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_METER'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'portName', value: '/dev/ttySC0' },
@@ -127,7 +129,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Tcp',
             componentId: 'modbus3',
-            alias: 'Wago Bridge',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.WAGO_BRIDGE'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'ip', value: '192.168.1.50' },
@@ -142,7 +144,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'IO.KMtronic',
             componentId: 'io0',
-            alias: 'Relaisboard',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.RELAY_BOARD'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus0' },
@@ -155,7 +157,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'IO.WAGO',
             componentId: 'io1',
-            alias: 'WAGO feldbuskoppler',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.FIELD_BUS_COUPLER'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus3' },
@@ -169,7 +171,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Io.Off.Grid.Switch',
             componentId: 'offGridSwitch0',
-            alias: 'Ansteuerung der Netztrennstelle',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.CONTROL_GRID_POINT'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'inputGridStatus', value: 'io1/DigitalInputM1C2' },
@@ -185,7 +187,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Meter.Socomec.Threephase',
             componentId: 'meter0',
-            alias: 'Netz',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_METER'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus2' },
@@ -199,7 +201,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Battery.Fenecon.Commercial',
             componentId: 'battery0',
-            alias: 'Batterie',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'startStop', value: 'AUTO' },
@@ -214,7 +216,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Battery-Inverter.Sinexcel',
             componentId: 'batteryInverter0',
-            alias: 'Batterie-Wechselrichter',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INVERTER'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus1' },
@@ -226,7 +228,6 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         // Optional meter2 - aditional AC PV
         const acArray = this.pv.ac;
         const isAcCreated: boolean = acArray.length >= 1;
-
         const acAlias = isAcCreated ? acArray[0].alias : '';
         const acModbusUnitId = isAcCreated ? acArray[0].modbusCommunicationAddress : 0;
 
@@ -248,7 +249,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Ess.Generic.OffGrid',
             componentId: 'ess0',
-            alias: 'Speichersystem',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.STORAGE_SYSTEM'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'startStop', value: 'START' },
@@ -264,7 +265,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             componentConfigurator.add({
                 factoryId: 'Controller.Ess.GridOptimizedCharge',
                 componentId: 'ctrlGridOptimizedCharge0',
-                alias: 'Netzdienliche Beladung',
+                alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_OPTIMIZED_CHARGE'),
                 properties: [
                     { name: 'enabled', value: true },
                     { name: 'ess.id', value: 'ess0' },
@@ -288,7 +289,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Controller.Ess.EmergencyCapacityReserve',
             componentId: 'ctrlEmergencyCapacityReserve0',
-            alias: 'Ansteuerung der Notstromreserve',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.EMERGENCY_CAPACITY_RESERVE'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'ess.id', value: 'ess0' },
@@ -307,7 +308,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Controller.Symmetric.Balancing',
             componentId: 'ctrlBalancing0',
-            alias: 'Eigenverbrauchsoptimierung',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.SELF_CONSUMPTION'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'ess.id', value: 'ess0' },
@@ -384,18 +385,17 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         }
 
         protocol.items = [];
-
         const emergencyReserve = this.emergencyReserve;
         protocol.items.push({
             category: Category.EMERGENCY_RESERVE,
-            name: 'Notstrom?',
-            value: emergencyReserve.isEnabled ? 'ja' : 'nein',
+            name: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE', { symbol: '?' }),
+            value: emergencyReserve.isEnabled ? this.translate.instant('General.yes') : this.translate.instant('General.no'),
         });
 
         if (emergencyReserve.isEnabled) {
             protocol.items.push({
                 category: Category.EMERGENCY_RESERVE,
-                name: 'Notstromreserve [%]',
+                name: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.EMERGENCY_RESERVE', { symbol: '[%]' }),
                 value: emergencyReserve.value ? emergencyReserve.value.toString() : '',
             });
         }
@@ -404,8 +404,8 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         lineSideMeterFuseValue = lineSideMeterFuse.otherValue;
 
         protocol.items.push({
-            category: this.lineSideMeterFuseTitle,
-            name: 'Wert [A]',
+            category: this.lineSideMeterFuse.category,
+            name: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
             value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : '',
         });
 
@@ -413,74 +413,76 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         protocol.items.push(
             {
                 category: Category.FEED_IN_MANAGEMENT,
-                name: 'Rundsteuerempfänger',
+                name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_CONTROLLER_RECIEVER'),
                 value: feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION
-                    ? "ja"
-                    : "nein"
+                    ? this.translate.instant('General.yes')
+                    : this.translate.instant('General.no')
             },
             {
                 category: Category.FEED_IN_MANAGEMENT,
-                name: 'Netzdienliche Beladung (z.B. 70% Abregelung)',
+                name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.DYNAMIC_LIMITATION'),
                 value: feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
-                    ? "ja"
-                    : "nein"
+                    ? this.translate.instant('General.yes')
+                    : this.translate.instant('General.no')
             });
 
         if (feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION) {
             protocol.items.push({
                 category: Category.FEED_IN_MANAGEMENT,
-                name: 'Maximale Einspeiseleistung [W]',
+                name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
                 value: feedInLimitation.maximumFeedInPower
                     ? feedInLimitation.maximumFeedInPower.toString()
                     : (0).toString(),
             });
         }
 
+        const additionalAcCategory: Category = Category.ADDITIONAL_AC_PRODUCERS
         for (let index = 0; index < ac.length; index++) {
             const element = ac[index];
-            const label = 'AC' + (index + 1);
+            const label = 'AC';
+            const acNr = (index + 1);
 
             protocol.items.push(
                 {
-                    category: Category.ADDITIONAL_AC_PRODUCERS,
-                    name: 'Alias ' + label,
+                    category: additionalAcCategory,
+                    name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: acNr }),
                     value: element.alias,
                 },
                 {
-                    category: Category.ADDITIONAL_AC_PRODUCERS,
-                    name: 'Wert ' + label + ' [Wp]',
+                    category: additionalAcCategory,
+                    name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: label, number: acNr, symbol: '[Wp]' }),
                     value: element.value ? element.value.toString() : '',
                 });
 
             element.orientation && protocol.items.push({
-                category: Category.ADDITIONAL_AC_PRODUCERS,
-                name: 'Ausrichtung ' + label,
+                category: additionalAcCategory,
+                name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: acNr }),
                 value: element.orientation,
             });
 
             element.moduleType && protocol.items.push({
-                category: Category.ADDITIONAL_AC_PRODUCERS,
-                name: 'Modultyp ' + label,
+                category: additionalAcCategory,
+                name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: acNr }),
                 value: element.moduleType,
             });
 
             element.modulesPerString && protocol.items.push({
-                category: Category.ADDITIONAL_AC_PRODUCERS,
-                name: 'Anzahl PV-Module ' + label,
+                category: additionalAcCategory,
+                name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: acNr }),
                 value: element.modulesPerString
                     ? element.modulesPerString.toString()
                     : '',
             });
 
             element.meterType && protocol.items.push({
-                category: Category.ADDITIONAL_AC_PRODUCERS,
-                name: 'Zählertyp ' + label,
+                category: additionalAcCategory,
+                name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
                 value: element.meterType,
             });
 
             element.modbusCommunicationAddress && protocol.items.push({
-                category: Category.ADDITIONAL_AC_PRODUCERS,
-                name: 'Modbus Kommunikationsadresse ' + label,
+                category: additionalAcCategory,
+                name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_WITH_LABEL', { label: label, number: acNr }),
                 value: element.modbusCommunicationAddress
                     ? element.modbusCommunicationAddress.toString()
                     : '',
@@ -488,15 +490,15 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         }
 
         protocol.items.push({
-            category: Category.FEMS_DETAILS,
-            name: 'FEMS Nummer',
+            category: Category.EMS_DETAILS,
+            name: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.EDGE_NUMBER', { edgeShortName: environment.edgeShortName }),
             value: edge.id
         });
 
         protocol = this.getProtocolSerialNumbers(protocol);
 
         return new Promise((resolve, reject) => {
-            websocket.sendRequest(new SubmitSetupProtocolRequest({ protocol })).then((response: JsonrpcResponseSuccess) => {
+            websocket.sendRequest(SubmitSetupProtocolRequest.translateFrom(protocol, this.translate)).then((response: JsonrpcResponseSuccess) => {
                 resolve(response.result['setupProtocolId']);
             }).catch((reason) => {
                 reject(reason);

@@ -1,5 +1,5 @@
-<installation-view iconName="clipboard-outline" header="Speicherstandort" (previousClicked)="onPreviousClicked()"
-  (nextClicked)="onNextClicked()">
+<installation-view iconName="clipboard-outline" header="{{ 'INSTALLATION.PROTOCOL_SYSTEM.TITLE' | translate }}"
+  (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()">
 
   <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
 

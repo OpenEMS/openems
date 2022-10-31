@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { ComponentData, SerialNumberFormData } from '../../shared/ibndatatypes';
@@ -30,7 +31,11 @@ export class ProtocolSerialNumbersComponent implements OnInit {
   public isWaiting = false;
   private duplicateSerialNumbers: string[] = [];
 
-  constructor(private service: Service, private websocket: Websocket) { }
+  constructor(
+    private service: Service,
+    private websocket: Websocket,
+    private translate: TranslateService
+  ) { }
 
   public ngOnInit() {
 
@@ -50,7 +55,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
         this.setIsWaiting(false);
       }).then(() => {
         if (this.numberOfModulesPerTower < this.ibn.defaultNumberOfModules) {
-          this.service.toast('Bitte überprüfen Sie die "Voreinstellungen". Bitte lesen Sie die Beschreibung der Felder.', 'danger');
+          this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.READ_DESCRIPTION'), 'danger');
         }
       })
     });
@@ -62,7 +67,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
   public onNextClicked() {
     if (this.formSettings.invalid) {
-      this.service.toast('Bitte überprüfen Sie die "Voreinstellungen". Bitte lesen Sie die Beschreibung der Felder.', 'danger');
+      this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.READ_DESCRIPTION'), 'danger');
       return;
     }
 
@@ -86,7 +91,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
 
     // Duplicates check.
     if (this.duplicateSerialNumbers.length !== 0) {
-      this.service.toast(this.duplicateSerialNumbers + ' haben gleiche Seriennummern ', 'warning');
+      this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.SAME_SERIAL_NUMBERS', { serialNumbers: this.duplicateSerialNumbers }), 'warning');
       return;
     }
 
@@ -94,10 +99,10 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     this.isWaiting = true;
 
     this.submitSetupProtocol().then((protocolId) => {
-      this.service.toast('Das Protokoll wurde erfolgreich versendet.', 'success');
+      this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.SENT_SUCCESSFULLY'), 'success');
       this.ibn.setupProtocolId = protocolId;
     }).catch((reason) => {
-      this.service.toast('Fehler beim Versenden des Protokolls.', 'danger');
+      this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.ERROR_SENDING'), 'danger');
       console.warn(reason);
     }).finally(() => {
       this.isWaiting = false;
@@ -160,7 +165,7 @@ export class ProtocolSerialNumbersComponent implements OnInit {
    */
   public saveSettings() {
     if (this.formSettings.invalid) {
-      this.service.toast('Um die Einstellungen zu übernehmen, geben Sie gültige Werte ein.', 'warning');
+      this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.ENTER_VALID_ADDRESS'), 'warning');
       return;
     }
 
@@ -180,8 +185,8 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     this.duplicateSerialNumbers = [];
 
     for (const field of fields) {
-      const label = field.templateOptions.label;
-      const value = (field.templateOptions.prefix ?? '') + field.formControl.value;
+      const label = field.props.label;
+      const value = (field.props.prefix ?? '') + field.formControl.value;
 
       serialNumbers.push({
         label: label,

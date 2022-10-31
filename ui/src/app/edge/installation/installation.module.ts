@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { FormControl, ValidationErrors } from "@angular/forms";
-import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
+import { FormlyModule } from "@ngx-formly/core";
 import { SharedModule } from "src/app/shared/shared.module";
 import { SettingsModule } from "../settings/settings.module";
 import { InstallationViewComponent } from "./installation-view/installation-view.component";
@@ -34,7 +34,11 @@ export function EmailMatchValidator(control: FormControl): ValidationErrors {
     return null;
   }
 
-  return { emailMatch: { message: 'E-Mails stimmen nicht überein.' } };
+  return { "emailMatch": true };
+}
+
+export function OnlyPositiveIntegerValidator(control: FormControl): ValidationErrors {
+  return /^[0-9]+$/.test(control.value) ? null : { "onlyPositiveInteger": true }
 }
 
 export function BatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
@@ -53,16 +57,12 @@ export function BoxSerialNumberValidator(control: FormControl): ValidationErrors
 }
 
 export function BmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
-  return /^\d{24}$/.test(control.value) ? null : { "bmsBoxSerialNumber": true };
+  return /^\d{24}$/.test(control.value) ? null : { "batterySerialNumber": true };
 }
 
 export function BatterySerialNumberValidator(control: FormControl): ValidationErrors {
   // This validator only checks the value after the prefix
   return /^\d{12}$/.test(control.value) ? null : { "batterySerialNumber": true };
-}
-
-export function OnlyPositiveIntegerValidator(control: FormControl): ValidationErrors {
-  return /^[0-9]+$/.test(control.value) ? null : { "onlyPositiveInteger": true }
 }
 
 export function CommercialBmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
@@ -76,69 +76,12 @@ export function CommercialBatteryModuleSerialNumberValidator(control: FormContro
 
 export function Commercial30BatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
   // This validator checks the length of the value
-  return /^.{10}$/.test(control.value) ? null : { "commercial30BatteryInverterSerialNumber": true };
+  return /^.{10}$/.test(control.value) ? null : { "commercialBatteryInverterSerialNumber": true };
 }
 
 export function Commercial50BatteryInverterSerialNumberValidator(control: FormControl): ValidationErrors {
   // This validator checks the length of the value
-  return /^.{6}$/.test(control.value) ? null : { "commercial50BatteryInverterSerialNumber": true };
-}
-
-//#region Validator Messages
-export function OnlyPositiveIntegerValidatorMessage(err, field: FormlyFieldConfig) {
-  return `Nur ganze positive Zahlen sind erlaubt.`
-}
-
-export function RequiredValidatorMessage(err, field: FormlyFieldConfig) {
-  return "Dies ist ein Pflichtfeld.";
-}
-
-export function MinValidatorMessage(err, field: FormlyFieldConfig) {
-  return `Nur Werte größer oder gleich ${field.templateOptions.min} sind erlaubt.`;
-}
-
-export function MaxValidatorMessage(err, field: FormlyFieldConfig) {
-  return `Nur Werte kleiner oder gleich ${field.templateOptions.max} sind erlaubt.`;
-}
-
-export function EmailValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${field.formControl.value}" ist keine gültige E-Mail-Adresse.`;
-}
-
-export function BatteryInverterSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
-}
-
-export function EmsBoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
-}
-
-export function BoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
-}
-
-export function BmsBoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 24 Ziffern.`;
-}
-
-export function BatterySerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 12 Ziffern.`;
-}
-
-export function CommercialBmsBoxSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 14 Ziffern.`;
-}
-
-export function CommercialBatteryModuleSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 10 Ziffern.`;
-}
-
-export function Commercial30BatteryInverterSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer.`;
-}
-
-export function Commercial50BatteryInverterSerialNumberValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${(field.templateOptions.prefix ?? "") + field.formControl.value}" ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus 6 Ziffern.`;
+  return /^.{6}$/.test(control.value) ? null : { "commercialBatteryInverterSerialNumber": true };
 }
 
 @NgModule({
@@ -157,22 +100,6 @@ export function Commercial50BatteryInverterSerialNumberValidatorMessage(err, fie
         { name: "commercial30BatteryInverterSerialNumber", validation: Commercial30BatteryInverterSerialNumberValidator },
         { name: "commercial50BatteryInverterSerialNumber", validation: Commercial50BatteryInverterSerialNumberValidator },
       ],
-      validationMessages: [
-        { name: "required", message: RequiredValidatorMessage },
-        { name: "min", message: MinValidatorMessage },
-        { name: "max", message: MaxValidatorMessage },
-        { name: "email", message: EmailValidatorMessage },
-        { name: "batteryInverterSerialNumber", message: BatteryInverterSerialNumberValidatorMessage },
-        { name: "emsBoxSerialNumber", message: EmsBoxSerialNumberValidatorMessage },
-        { name: "boxSerialNumber", message: BoxSerialNumberValidatorMessage },
-        { name: "bmsBoxSerialNumber", message: BmsBoxSerialNumberValidatorMessage },
-        { name: "batterySerialNumber", message: BatterySerialNumberValidatorMessage },
-        { name: "onlyPositiveInteger", message: OnlyPositiveIntegerValidatorMessage },
-        { name: "commercialBmsBoxSerialNumber", message: CommercialBmsBoxSerialNumberValidatorMessage },
-        { name: "commercialBatteryModuleSerialNumber", message: CommercialBatteryModuleSerialNumberValidatorMessage },
-        { name: "commercial30BatteryInverterSerialNumber", message: Commercial30BatteryInverterSerialNumberValidatorMessage },
-        { name: "commercial50BatteryInverterSerialNumber", message: Commercial50BatteryInverterSerialNumberValidatorMessage }
-      ]
     }),
     SharedModule,
     SettingsModule

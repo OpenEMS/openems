@@ -1,6 +1,7 @@
 import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { filter, take } from 'rxjs/operators';
 import { AddEdgeToUserRequest } from 'src/app/shared/jsonrpc/request/addEdgeToUserRequest';
 import { AddEdgeToUserResponse } from 'src/app/shared/jsonrpc/response/addEdgeToUserResponse';
@@ -28,7 +29,11 @@ export class PreInstallationComponent implements OnInit {
   public image: string;
   protected validKey: boolean = true;
 
-  constructor(private service: Service, public websocket: Websocket) { }
+  constructor(
+    private service: Service,
+    public websocket: Websocket,
+    private translate: TranslateService
+  ) { }
 
   public ngOnInit() {
     this.form = new FormGroup({});
@@ -53,8 +58,7 @@ export class PreInstallationComponent implements OnInit {
         // Test if edge is online
         if (!edge.online) {
           this.service.toast(
-            'Es konnte keine Verbindung zum FEMS hergestellt werden.',
-            'danger'
+            this.translate.instant('INSTALLATION.PRE_INSTALLATION.EDGE_OFFLINE', { edgeShortName: environment.edgeShortName }), 'danger'
           );
           return;
         }
@@ -93,7 +97,7 @@ export class PreInstallationComponent implements OnInit {
 
         // Start installation process
         this.service.toast(
-          'Installation für ' + this.edge.id + ' gestartet.',
+          this.translate.instant('INSTALLATION.PRE_INSTALLATION.INSTALLATION_SUCCESS', { edgeId: this.edge.id }),
           'success'
         );
 
@@ -101,7 +105,7 @@ export class PreInstallationComponent implements OnInit {
         this.nextViewEvent.emit();
       })
       .catch((reason) => {
-        this.service.toast('Fehler bei der Authentifizierung.', 'danger');
+        this.service.toast(this.translate.instant('INSTALLATION.PRE_INSTALLATION.AUTHENTICATION_FAILED'), 'danger');
         this.validKey = false;
         console.log(reason);
       })

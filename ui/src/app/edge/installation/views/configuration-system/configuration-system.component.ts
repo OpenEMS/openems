@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'src/environments';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { Commercial30AnschlussIbn } from '../../installation-systems/commercial/commercial-30/commercial30-anschluss';
@@ -24,7 +25,7 @@ export class ConfigurationSystemComponent implements OnInit {
   protected fields: FormlyFieldConfig[];
   protected model;
 
-  constructor() { }
+  constructor(private translate: TranslateService,) { }
 
   public ngOnInit() {
     this.form = new FormGroup({});
@@ -62,7 +63,7 @@ export class ConfigurationSystemComponent implements OnInit {
       key: 'type',
       type: 'radio',
       templateOptions: {
-        label: 'Speichertyp',
+        label: this.translate.instant('INSTALLATION.CONFIGURATION_SYSTEM.PRODUCT_NAME'),
         type: 'radio',
         options: label,
         required: true
@@ -106,16 +107,16 @@ export class ConfigurationSystemComponent implements OnInit {
 
     switch (system) {
       case 'heckert-home':
-        this.ibn = new HomeHeckertIbn();
+        this.ibn = new HomeHeckertIbn(this.translate);
         break;
       case 'home':
-        this.ibn = new HomeFeneconIbn();
+        this.ibn = new HomeFeneconIbn(this.translate);
         break;
       case 'commercial-30':
-        this.ibn = new Commercial30AnschlussIbn();
+        this.ibn = new Commercial30AnschlussIbn(this.translate);
         break;
       case 'commercial-50':
-        this.ibn = new Commercial50EigenverbrauchsOptimierung();
+        this.ibn = new Commercial50EigenverbrauchsOptimierung(this.translate);
         break;
     }
   }

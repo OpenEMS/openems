@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns/esm';
 import { saveAs } from 'file-saver-es';
 import { GetSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/getSetupProtocolRequest';
@@ -19,7 +20,11 @@ export class CompletionComponent {
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
   @Output() public nextViewEvent: EventEmitter<any> = new EventEmitter();
 
-  constructor(private service: Service, private websocket: Websocket) { }
+  constructor(
+    private service: Service,
+    private websocket: Websocket,
+    private translate: TranslateService
+  ) { }
 
   public onPreviousClicked() {
     this.previousViewEvent.emit();
@@ -49,7 +54,7 @@ export class CompletionComponent {
 
       saveAs(data, fileName);
     }).catch((reason) => {
-      this.service.toast("Das Protokoll konnte nicht heruntergeladen werden.", "danger");
+      this.service.toast(this.translate.instant('INSTALLATION.COMPLETION.DOWNLOAD_ERROR'), "danger");
       console.log(reason);
     });
   }

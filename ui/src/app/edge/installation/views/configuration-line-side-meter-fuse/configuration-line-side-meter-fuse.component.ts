@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
-import { Category } from '../../shared/enums';
+import { Category } from '../../shared/category';
 
 @Component({
   selector: ConfigurationLineSideMeterFuseComponent.SELECTOR,
@@ -19,12 +20,12 @@ export class ConfigurationLineSideMeterFuseComponent implements OnInit {
   protected form: FormGroup;
   protected fields: FormlyFieldConfig[];
   protected model;
-  protected header: Category.LINE_SIDE_METER_FUSE | Category.LINE_SIDE_METER_FUSE_COMMERCIAL;
+  protected header: string;
 
-  constructor() { }
+  constructor(private translate: TranslateService) { }
 
   public ngOnInit() {
-    this.header = this.ibn.lineSideMeterFuseTitle;
+    this.header = Category.toTranslatedString(this.ibn.lineSideMeterFuse.category, this.translate);
     this.form = new FormGroup({});
     this.fields = this.ibn.getLineSideMeterFuseFields();
     this.model = this.ibn.lineSideMeterFuse ?? {};

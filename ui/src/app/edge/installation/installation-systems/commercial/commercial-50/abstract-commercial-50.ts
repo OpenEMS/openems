@@ -134,7 +134,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                     label: 'Wechselrichter',
                     required: true,
                     prefix: '50.0TL01S',
-                    placeholder: 'xxxxxxxxxx'
+                    placeholder: 'xxxxxx'
                 },
                 validators: {
                     validation: ['commercial50BatteryInverterSerialNumber']
