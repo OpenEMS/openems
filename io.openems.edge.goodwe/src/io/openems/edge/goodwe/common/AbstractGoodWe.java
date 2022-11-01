@@ -526,7 +526,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				// Registers 40000 to 42011 for BTC and ETC throw "Illegal Data Address"
 
 				// Setting and Controlling Data Registers
-				new FC3ReadRegistersTask(45127, Priority.ONCE, //
+				new FC3ReadRegistersTask(45127, Priority.LOW, //
 						m(GoodWe.ChannelId.INVERTER_UNIT_ID, new UnsignedWordElement(45127)), //
 						new DummyRegisterElement(45128, 45131), //
 						m(GoodWe.ChannelId.MODBUS_BAUDRATE, new UnsignedDoublewordElement(45132))), //

@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.modbus.api;
+package io.openems.edge.bridge.modbus.api.worker;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,11 +16,14 @@ import com.google.common.collect.Multimap;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.worker.AbstractImmediateWorker;
+import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.MetaTasksManager;
 import io.openems.edge.common.taskmanager.Priority;
 
@@ -48,14 +51,14 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	// The measured duration between BeforeProcessImage event and ExecuteWrite event
 	private long durationBetweenBeforeProcessImageTillExecuteWrite = 0;
 
-	protected ModbusWorker(AbstractModbusBridge parent) {
+	public ModbusWorker(AbstractModbusBridge parent) {
 		this.parent = parent;
 	}
 
 	/**
 	 * This is called on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE cycle event.
 	 */
-	protected void onBeforeProcessImage() {
+	public synchronized void onBeforeProcessImage() {
 		this.stopwatch.reset();
 		this.stopwatch.start();
 
@@ -142,7 +145,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	/**
 	 * This is called on TOPIC_CYCLE_EXECUTE_WRITE cycle event.
 	 */
-	public void onExecuteWrite() {
+	public synchronized void onExecuteWrite() {
 		// calculate the duration between BeforeProcessImage event and ExecuteWrite
 		// event. This duration is used for planning the queue in onBeforeProcessImage()
 		if (this.stopwatch.isRunning()) {
@@ -176,7 +179,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 			}
 
 		} catch (OpenemsException e) {
-			this.parent.logWarn(this.log, task.toString() + " execution failed: " + e.getMessage());
+			OpenemsComponent.logWarn(this.parent, this.log, task.toString() + " execution failed: " + e.getMessage());
 
 			// mark this component as erroneous
 			if (modbusComponent != null) {
@@ -196,13 +199,6 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * @return a list of ReadTasks by Source-ID
 	 */
 	private ReadTask getOneLowPriorityReadTask() {
-		// Get next Priority ONCE task
-		var oncePriorityTask = this.readTasksManager.getOneTask(Priority.ONCE);
-		if (oncePriorityTask != null && !oncePriorityTask.hasBeenExecuted()) {
-			return oncePriorityTask;
-
-		}
-		// No more Priority ONCE tasks available -> add Priority LOW task
 		var lowPriorityTask = this.readTasksManager.getOneTask(Priority.LOW);
 		return lowPriorityTask;
 	}
