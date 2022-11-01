@@ -1,6 +1,8 @@
 
 include::io.openems.edge.battery.bydcommercial.adoc[leveloffset=+1]
 
+include::io.openems.edge.battery.fenecon.commercial.adoc[leveloffset=+1]
+
 include::io.openems.edge.battery.fenecon.home.adoc[leveloffset=+1]
 
 include::io.openems.edge.battery.soltaro.adoc[leveloffset=+1]
@@ -9,11 +11,15 @@ include::io.openems.edge.batteryinverter.kaco.blueplanetgridsave.adoc[leveloffse
 
 include::io.openems.edge.batteryinverter.refu88k.adoc[leveloffset=+1]
 
+include::io.openems.edge.batteryinverter.sinexcel.adoc[leveloffset=+1]
+
 include::io.openems.edge.batteryinverter.sunspec.adoc[leveloffset=+1]
 
 include::io.openems.edge.bosch.bpts5hybrid.adoc[leveloffset=+1]
 
 include::io.openems.edge.core.adoc[leveloffset=+1]
+
+include::io.openems.edge.edge2edge.adoc[leveloffset=+1]
 
 include::io.openems.edge.ess.adstec.storaxe.adoc[leveloffset=+1]
 
@@ -26,8 +32,6 @@ include::io.openems.edge.ess.fenecon.commercial40.adoc[leveloffset=+1]
 include::io.openems.edge.ess.generic.adoc[leveloffset=+1]
 
 include::io.openems.edge.ess.mr.gridcon.adoc[leveloffset=+1]
-
-include::io.openems.edge.ess.sinexcel.adoc[leveloffset=+1]
 
 include::io.openems.edge.ess.sma.adoc[leveloffset=+1]
 
@@ -59,6 +63,8 @@ include::io.openems.edge.goodwe.adoc[leveloffset=+1]
 
 include::io.openems.edge.io.kmtronic.adoc[leveloffset=+1]
 
+include::io.openems.edge.io.offgridswitch.adoc[leveloffset=+1]
+
 include::io.openems.edge.io.revpi.adoc[leveloffset=+1]
 
 include::io.openems.edge.io.shelly.adoc[leveloffset=+1]
@@ -73,6 +79,8 @@ include::io.openems.edge.meter.artemes.am2.adoc[leveloffset=+1]
 
 include::io.openems.edge.meter.bcontrol.em300.adoc[leveloffset=+1]
 
+include::io.openems.edge.meter.bgetech.adoc[leveloffset=+1]
+
 include::io.openems.edge.meter.carlo.gavazzi.em300.adoc[leveloffset=+1]
 
 include::io.openems.edge.meter.discovergy.adoc[leveloffset=+1]
@@ -81,9 +89,13 @@ include::io.openems.edge.meter.janitza.adoc[leveloffset=+1]
 
 include::io.openems.edge.meter.microcare.sdm630.adoc[leveloffset=+1]
 
-include::io.openems.edge.meter.pqplus.umd97.adoc[leveloffset=+1]
+include::io.openems.edge.meter.plexlog.adoc[leveloffset=+1]
+
+include::io.openems.edge.meter.pqplus.adoc[leveloffset=+1]
 
 include::io.openems.edge.meter.schneider.acti9.smartlink.adoc[leveloffset=+1]
+
+include::io.openems.edge.meter.siemens.adoc[leveloffset=+1]
 
 include::io.openems.edge.meter.sma.shm20.adoc[leveloffset=+1]
 
@@ -103,7 +115,11 @@ include::io.openems.edge.predictor.similardaymodel.adoc[leveloffset=+1]
 
 include::io.openems.edge.pvinverter.cluster.adoc[leveloffset=+1]
 
+include::io.openems.edge.pvinverter.fronius.adoc[leveloffset=+1]
+
 include::io.openems.edge.pvinverter.kaco.blueplanet.adoc[leveloffset=+1]
+
+include::io.openems.edge.pvinverter.kostal.adoc[leveloffset=+1]
 
 include::io.openems.edge.pvinverter.sma.adoc[leveloffset=+1]
 
@@ -120,3 +136,9 @@ include::io.openems.edge.tesla.powerwall2.adoc[leveloffset=+1]
 include::io.openems.edge.timedata.influxdb.adoc[leveloffset=+1]
 
 include::io.openems.edge.timedata.rrd4j.adoc[leveloffset=+1]
+
+include::io.openems.edge.timeofusetariff.awattar.adoc[leveloffset=+1]
+
+include::io.openems.edge.timeofusetariff.corrently.adoc[leveloffset=+1]
+
+include::io.openems.edge.timeofusetariff.tibber.adoc[leveloffset=+1]
