@@ -128,6 +128,7 @@ echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
 for D in io.openems.edge.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle
@@ -150,6 +151,7 @@ echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
 for D in io.openems.backend.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle

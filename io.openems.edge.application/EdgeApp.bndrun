@@ -30,6 +30,7 @@
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='org.apache.felix.inventory',\
+	bnd.identity;id='org.apache.felix.eventadmin',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
@@ -360,7 +361,6 @@
 	org.ops4j.pax.logging.pax-logging-api;version='[2.0.14,2.0.15)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.0.14,2.0.15)',\
 	org.osgi.service.component;version='[1.5.0,1.5.1)',\
-	org.osgi.service.event;version='[1.4.1,1.4.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
