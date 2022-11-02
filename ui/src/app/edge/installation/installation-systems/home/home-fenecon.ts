@@ -1,11 +1,14 @@
-import { AbstractHomeIbn } from './abstract-home';
 import { View } from '../abstract-ibn';
+import { AbstractHomeIbn } from './abstract-home';
 import { TranslateService } from '@ngx-translate/core';
+import { Category } from '../../shared/category';
 
 export class HomeFeneconIbn extends AbstractHomeIbn {
     public readonly type = 'Fenecon-Home';
 
     public readonly id = 'home';
+
+    public override readonly emsBoxLabel = Category.EMS_BOX_LABEL_HOME;
 
     constructor(public translate: TranslateService) {
         super([

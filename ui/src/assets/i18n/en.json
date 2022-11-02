@@ -713,7 +713,9 @@
       "SETUP_NOTE": "Complete the serial numbers by replacing the placeholders (marked with \"x\") with the appropriate characters.",
       "SINGLE_SERIAL_NUMBER": " {{ label }} Serial number",
       "SYSTEM_SETUP": "System setup",
-      "BATTERY_STRING": "Battery String {{ stringNumber }}"
+      "BATTERY_STRING": "Battery String {{ stringNumber }}",
+      "EMS_BOX_HOME": "EMS Box ({{edgeShortName }} Box)",
+      "EMS_BOX_HECKERT": "EMS Box"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",

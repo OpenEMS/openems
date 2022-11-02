@@ -714,7 +714,9 @@
       "SETUP_NOTE": "Vervollständigen Sie die Seriennummern, indem Sie die Platzhalter (mit \"x\" gekennzeichnet) durch die entsprechenden Zeichen ersetzen.",
       "SINGLE_SERIAL_NUMBER": "{{ label }} Seriennummer",
       "SYSTEM_SETUP": "Voreinstellungen",
-      "BATTERY_STRING": "Batterie String {{ stringNumber }}"
+      "BATTERY_STRING": "Batterie String {{ stringNumber }}",
+      "EMS_BOX_HOME": "EMS Box ({{edgeShortName }} Box)",
+      "EMS_BOX_HECKERT": "EMS Box"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
