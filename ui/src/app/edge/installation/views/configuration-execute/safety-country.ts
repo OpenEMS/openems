@@ -1,18 +1,29 @@
+import { Country } from '../../shared/country';
+
 export enum SafetyCountry {
-    Germany = "GERMANY",
-    Austria = "AUSTRIA",
-    Switzerland = "SWITZERLAND"
+    GERMANY = 'GERMANY',
+    AUSTRIA = 'AUSTRIA',
+    SWITZERLAND = 'SWITZERLAND',
+    SWEDEN = 'SWEDEN',
+    CZECH_REPUBLIK = 'CZECH',
+    NETHERLANDS = 'HOLLAND',
 }
 
 export namespace SafetyCountry {
-    export function getSafetyCountry(countryValue: string) {
+    export function getSafetyCountry(countryValue: Country) {
         switch (countryValue) {
-            case "de":
-                return SafetyCountry.Germany;
-            case "at":
-                return SafetyCountry.Austria;
-            case "ch":
-                return SafetyCountry.Switzerland;
+            case Country.GERMANY:
+                return SafetyCountry.GERMANY;
+            case Country.AUSTRIA:
+                return SafetyCountry.AUSTRIA;
+            case Country.SWITZERLAND:
+                return SafetyCountry.SWITZERLAND;
+            case Country.CZECH_REPUBLIK:
+                return SafetyCountry.CZECH_REPUBLIK;
+            case Country.NETHERLANDS:
+                return SafetyCountry.NETHERLANDS;
+            case Country.SWEDEN:
+                return SafetyCountry.SWEDEN;
         }
     }
 }

@@ -1,3 +1,4 @@
+import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
@@ -7,7 +8,7 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
 
     public readonly id: string = 'commercial-50-lastspitzenkappung';
 
-    constructor() {
+    constructor(translate: TranslateService) {
         super([
             View.PreInstallation,
             View.PreInstallationUpdate,
@@ -23,7 +24,7 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
             View.Completion
-        ]);
+        ], translate);
     }
 
     public setRequiredControllers() {

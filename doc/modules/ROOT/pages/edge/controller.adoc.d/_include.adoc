@@ -31,9 +31,13 @@ include::io.openems.edge.controller.ess.acisland.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.ess.activepowervoltagecharacteristic.adoc[leveloffset=+1]
 
+include::io.openems.edge.controller.ess.cycle.adoc[leveloffset=+1]
+
 include::io.openems.edge.controller.ess.delaycharge.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.ess.delayedselltogrid.adoc[leveloffset=+1]
+
+include::io.openems.edge.controller.ess.emergencycapacityreserve.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.ess.fixactivepower.adoc[leveloffset=+1]
 
@@ -47,15 +51,13 @@ include::io.openems.edge.controller.ess.linearpowerband.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.ess.mindischargeperiod.adoc[leveloffset=+1]
 
-include::io.openems.edge.controller.ess.onefullcycle.adoc[leveloffset=+1]
-
-include::io.openems.edge.controller.ess.predictivedelaycharge.adoc[leveloffset=+1]
-
 include::io.openems.edge.controller.ess.reactivepowervoltagecharacteristic.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.ess.selltogridlimit.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.ess.standby.adoc[leveloffset=+1]
+
+include::io.openems.edge.controller.ess.timeofusetariff.discharge.adoc[leveloffset=+1]
 
 include::io.openems.edge.controller.evcs.adoc[leveloffset=+1]
 

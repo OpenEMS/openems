@@ -1,6 +1,7 @@
 package io.openems.backend.timedata.timescaledb;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,15 +55,20 @@ public class Utils {
 	public static Map<Type, Map<Integer, ChannelAddress>> querySchemaCache(Schema schema, String edgeId,
 			Set<ChannelAddress> channelAddresses) {
 		var result = new EnumMap<Type, Map<Integer, ChannelAddress>>(Type.class);
+		var missingChannels = new ArrayList<String>();
 		for (var channelAddress : channelAddresses) {
 			var meta = schema.getChannelFromCache(edgeId, channelAddress.getComponentId(),
 					channelAddress.getChannelId());
 			if (meta == null) {
-				LOG.warn("Missing Cache for " + channelAddress);
+				missingChannels.add(channelAddress.toString());
 				continue;
 			}
 			var ids = result.computeIfAbsent(meta.type, (m) -> new HashMap<Integer, ChannelAddress>());
 			ids.put(meta.id, channelAddress);
+		}
+
+		if (!missingChannels.isEmpty()) {
+			LOG.warn("Missing Cache for [" + edgeId + "]: " + String.join(", ", missingChannels));
 		}
 		return result;
 	}

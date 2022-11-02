@@ -1,3 +1,4 @@
+import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { FeedInType } from '../../../shared/enums';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
@@ -10,7 +11,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
 
     public readonly id: string = 'commercial-30-anschluss';
 
-    constructor() {
+    constructor(translate: TranslateService) {
         super([
             View.PreInstallation,
             View.PreInstallationUpdate,
@@ -26,7 +27,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
             View.Completion
-        ]);
+        ], translate);
     }
 
     public setRequiredControllers() {
@@ -51,7 +52,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Serial',
             componentId: 'modbus0',
-            alias: 'Kommunikation mit der Batterie',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'portName', value: '/dev/ttyAMA0' },
@@ -69,7 +70,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Tcp',
             componentId: 'modbus1',
-            alias: 'Kommunikation mit dem Batterie-Wechselrichter',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY_INVERTER'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'ip', value: '192.168.1.11' },
@@ -84,7 +85,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Serial',
             componentId: 'modbus2',
-            alias: 'Kommunikation mit den Zählern',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_METER'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'portName', value: '/dev/ttySC0' },
@@ -102,7 +103,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'IO.KMtronic',
             componentId: 'io0',
-            alias: 'Relaisboard',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.RELAY_BOARD'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus0' },
@@ -115,7 +116,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Meter.Socomec.Threephase',
             componentId: 'meter0',
-            alias: 'Netz',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_METER'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus2' },
@@ -129,7 +130,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Battery.Fenecon.Commercial',
             componentId: 'battery0',
-            alias: 'Batterie',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'startStop', value: 'AUTO' },
@@ -144,7 +145,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Battery-Inverter.Sinexcel',
             componentId: 'batteryInverter0',
-            alias: 'Batterie-Wechselrichter',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INVERTER'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus1' },
@@ -158,7 +159,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Ess.Generic.ManagedSymmetric',
             componentId: 'ess0',
-            alias: 'Speichersystem',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.STORAGE_SYSTEM'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'startStop', value: 'START' },
@@ -171,7 +172,6 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         // Optional meter2 - aditional AC PV
         const acArray = this.pv.ac;
         const isAcCreated: boolean = acArray.length >= 1;
-
         const acAlias = isAcCreated ? acArray[0].alias : '';
         const acModbusUnitId = isAcCreated ? acArray[0].modbusCommunicationAddress : 0;
 
@@ -194,7 +194,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
             componentConfigurator.add({
                 factoryId: 'Controller.Ess.GridOptimizedCharge',
                 componentId: 'ctrlGridOptimizedCharge0',
-                alias: 'Netzdienliche Beladung',
+                alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_OPTIMIZED_CHARGE'),
                 properties: [
                     { name: 'enabled', value: true },
                     { name: 'ess.id', value: 'ess0' },
@@ -218,7 +218,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({ // Clearify with Productmanagement if a different App like peak shaving could be selected in IBN
             factoryId: 'Controller.Symmetric.Balancing',
             componentId: 'ctrlBalancing0',
-            alias: 'Eigenverbrauchsoptimierung',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.SELF_CONSUMPTION'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'ess.id', value: 'ess0' },

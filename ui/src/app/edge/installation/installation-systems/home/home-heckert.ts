@@ -1,3 +1,4 @@
+import { TranslateService } from '@ngx-translate/core';
 import { GetNetworkConfigRequest } from 'src/app/edge/settings/network/getNetworkConfigRequest';
 import { GetNetworkConfigResponse } from 'src/app/edge/settings/network/getNetworkConfigResponse';
 import { SetNetworkConfigRequest } from 'src/app/edge/settings/network/setNetworkConfigRequest';
@@ -5,6 +6,7 @@ import { Interface } from 'src/app/shared/interface/interface';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { AppCenterUtil } from '../../shared/appcenterutil';
+import { Category } from '../../shared/category';
 import { ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { EmsAppId } from '../../views/heckert-app-installer/heckert-app-installer.component';
 import { View } from '../abstract-ibn';
@@ -16,7 +18,9 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
 
     public readonly id = 'heckert';
 
-    constructor() {
+    public override readonly emsBoxLabel = Category.EMS_BOX_LABEL_HECKERT;
+
+    constructor(translate: TranslateService) {
         super([
             View.PreInstallation,
             View.PreInstallationUpdate,
@@ -34,7 +38,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
             View.Completion
-        ]);
+        ], translate);
     }
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, service: Service) {
@@ -47,7 +51,6 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
         const isAppManagerAvailable: boolean = AppCenterUtil.isAppManagerAvailable(edge);
         const confModeRemoveAndConfigure: ConfigurationMode = isAppManagerAvailable ?
             ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveAndConfigure;
-
         const confModeRemoveOnly: ConfigurationMode = isAppManagerAvailable ?
             ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveOnly;
 

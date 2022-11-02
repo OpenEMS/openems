@@ -1,4 +1,5 @@
-<installation-view iconName="clipboard-outline" header="Einspeisemanagement" (previousClicked)="onPreviousClicked()"
+<installation-view iconName="clipboard-outline"
+  header="{{ 'INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.TITLE' | translate }}" (previousClicked)="onPreviousClicked()"
   (nextClicked)="onNextClicked()">
 
   <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
@@ -21,7 +22,7 @@
 
   <ion-item *ngIf="(form.controls['feedInType']?.value === FeedInType.EXTERNAL_LIMITATION) && showRundSteuerManual">
     <ion-button (click)="openManual()" slot="end">
-      <ion-label>Anleitung öffnen</ion-label>
+      <ion-label>{{ 'INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.OPEN_MANUAL' | translate }}</ion-label>
       <ion-icon name="open-outline" slot="start"></ion-icon>
     </ion-button>
   </ion-item>

@@ -1,8 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Service, Utils } from 'src/app/shared/shared';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { DIRECTIONS_OPTIONS } from '../../shared/options';
 
 export type AcPv = {
   alias: string,
@@ -29,7 +31,10 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
   public model;
   public insertModeEnabled: boolean;
 
-  constructor(private service: Service) { }
+  constructor(
+    private service: Service,
+    private translate: TranslateService
+  ) { }
 
   public ngOnInit() {
 
@@ -48,7 +53,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
 
   public onNextClicked() {
     if (this.insertModeEnabled) {
-      this.service.toast("Speichern Sie zuerst Ihre Eingaben um fortzufahren.", "warning");
+      this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SAVE_TO_CONTINUE'), "warning");
       return;
     }
 
@@ -63,8 +68,8 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       key: "alias",
       type: "input",
       templateOptions: {
-        label: "Bezeichnung",
-        description: "z. B. ''PV Hausdach''",
+        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ALIAS'),
+        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ALIAS_DESCRIPTION_ADDITIONAL_AC'),
         required: true
       }
     });
@@ -74,7 +79,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       type: "input",
       templateOptions: {
         type: "number",
-        label: "Installierte Leistung [Wₚ]",
+        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.INSTALLED_POWER'),
         min: 1000,
         required: true
       },
@@ -88,17 +93,8 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       key: "orientation",
       type: "select",
       templateOptions: {
-        label: "Ausrichtung",
-        options: [
-          { label: "Süd", value: "Sued" },
-          { label: "Südwest", value: "Suedwest" },
-          { label: "West", value: "West" },
-          { label: "Südost", value: "Suedost" },
-          { label: "Ost", value: "Ost" },
-          { label: "Nordwest", value: "Nordwest" },
-          { label: "Nordost", value: "Nordost" },
-          { label: "Nord", value: "Nord" },
-        ]
+        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION'),
+        options: DIRECTIONS_OPTIONS(this.translate)
       }
     });
 
@@ -106,8 +102,8 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       key: "moduleType",
       type: "input",
       templateOptions: {
-        label: "Modultyp",
-        description: "z. B. Hersteller und Leistung"
+        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE'),
+        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_DESCRIPTION'),
       }
     });
 
@@ -116,7 +112,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       type: "input",
       templateOptions: {
         type: "number",
-        label: "Anzahl PV-Module"
+        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES'),
       },
       parsers: [Number],
       validators: {
@@ -129,7 +125,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       key: "meterType",
       type: "select",
       templateOptions: {
-        label: "Zählertyp",
+        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE'),
         required: true,
         options: [
           { label: "SOCOMEC", value: "socomec" }
@@ -143,8 +139,8 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       type: "input",
       templateOptions: {
         type: "number",
-        label: "Modbus Kommunikationsadresse",
-        description: "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (bAud) ''9600'', Kommunikationsparität (PrtY) ''n'', Kommunikations-Stopbit (StoP) ''1''",
+        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS'),
+        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_DESCRIPTION'),
         required: true,
         min: 6
       },
@@ -164,7 +160,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
 
       // Test if form is valid
       if (this.form.invalid) {
-        this.service.toast("Geben Sie gültige Daten ein um zu Speichern.", "danger");
+        this.service.toast(this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.VALID_DATA'), "danger");
         return;
       }
 

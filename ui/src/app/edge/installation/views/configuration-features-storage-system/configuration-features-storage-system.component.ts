@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AbstractCommercial50Ibn } from '../../installation-systems/commercial/commercial-50/abstract-commercial-50';
 import { Commercial50EigenverbrauchsOptimierung } from '../../installation-systems/commercial/commercial-50/commercial50-eigenverbrauchsoptimierung';
 import { Commercial50Lastspitzenkappung } from '../../installation-systems/commercial/commercial-50/commercial50-lastspitzenkappung';
@@ -21,7 +22,7 @@ export class ConfigurationFeaturesStorageSystemComponent implements OnInit {
     protected fields: FormlyFieldConfig[];
     protected model;
 
-    constructor() { }
+    constructor(private translate: TranslateService) { }
 
     public ngOnInit(): void {
         this.form = new FormGroup({});
@@ -72,15 +73,15 @@ export class ConfigurationFeaturesStorageSystemComponent implements OnInit {
 
         switch (system) {
             case 'Eigenverbrauchsoptimierung':
-                this.ibn = new Commercial50EigenverbrauchsOptimierung();
+                this.ibn = new Commercial50EigenverbrauchsOptimierung(this.translate);
                 this.ibn.commercial50Feature.feature.type = 'Eigenverbrauchsoptimierung';
                 break;
             case 'Lastspitzenkappung':
-                this.ibn = new Commercial50Lastspitzenkappung();
+                this.ibn = new Commercial50Lastspitzenkappung(this.translate);
                 this.ibn.commercial50Feature.feature.type = 'Lastspitzenkappung';
                 break;
             case 'PhasengenaueLastspitzenkappung':
-                this.ibn = new Commercial50Lastspitzenkappung();
+                this.ibn = new Commercial50Lastspitzenkappung(this.translate);
                 this.ibn.commercial50Feature.feature.type = 'PhasengenaueLastspitzenkappung';
                 break;
         }

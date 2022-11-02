@@ -1,9 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { HomeFeneconIbn } from '../../installation-systems/home/home-fenecon';
 import { HomeHeckertIbn } from '../../installation-systems/home/home-heckert';
+import { DIRECTIONS_OPTIONS } from '../../shared/options';
 
 export type DcPv = {
   isSelected: boolean,
@@ -21,9 +23,10 @@ export type DcPv = {
 export class ProtocolPvComponent implements OnInit {
 
   @Input() public ibn: HomeFeneconIbn | HomeHeckertIbn;
-
   @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
   @Output() public nextViewEvent = new EventEmitter<AbstractIbn>();
+
+  public constructor(private translate: TranslateService) { }
 
   public forms: Array<{ formGroup: FormGroup, fields: FormlyFieldConfig[], model: any }> = new Array();
 
@@ -86,8 +89,8 @@ export class ProtocolPvComponent implements OnInit {
       key: "shadowManagementDisabled",
       type: "checkbox",
       templateOptions: {
-        label: "Schattenmanagement deaktivieren",
-        description: "Nur wenn Optimierer verbaut sind, muss das Schattenmanagement deaktiviert werden",
+        label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DEACTIVATE'),
+        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.SHADE_MANAGEMENT_DESCRIPTION'),
       },
     })
 
@@ -98,15 +101,15 @@ export class ProtocolPvComponent implements OnInit {
         key: "isSelected",
         type: "checkbox",
         templateOptions: {
-          label: "MPPT " + forMpptNr + " (beschriftet mit ''PV" + forMpptNr + "'')",
+          label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MARKED_AS', { number: forMpptNr }),
         }
       },
         {
           key: "alias",
           type: "input",
           templateOptions: {
-            label: "Bezeichnung",
-            description: "wird im Online-Monitoring angezeigt, z. B. ''PV Hausdach''",
+            label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ALIAS'),
+            description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ALIAS_DESCRIPTION_PV'),
             required: true
           },
           hideExpression: model => !model.isSelected
@@ -116,7 +119,7 @@ export class ProtocolPvComponent implements OnInit {
           type: "input",
           templateOptions: {
             type: "number",
-            label: "Installierte Leistung [Wₚ]",
+            label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.INSTALLED_POWER'),
             min: 1000,
             required: true
           },
@@ -130,17 +133,8 @@ export class ProtocolPvComponent implements OnInit {
           key: "orientation",
           type: "select",
           templateOptions: {
-            label: "Ausrichtung",
-            options: [
-              { label: "Süd", value: "Sued" },
-              { label: "Südwest", value: "Suedwest" },
-              { label: "West", value: "West" },
-              { label: "Südost", value: "Suedost" },
-              { label: "Ost", value: "Ost" },
-              { label: "Nordwest", value: "Nordwest" },
-              { label: "Nordost", value: "Nordost" },
-              { label: "Nord", value: "Nord" },
-            ]
+            label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION'),
+            options: DIRECTIONS_OPTIONS(this.translate)
           },
           hideExpression: model => !model.isSelected
         },
@@ -148,8 +142,8 @@ export class ProtocolPvComponent implements OnInit {
           key: "moduleType",
           type: "input",
           templateOptions: {
-            label: "Modultyp",
-            description: "z. B. Hersteller und Leistung"
+            label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE'),
+            description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_DESCRIPTION'),
           },
           hideExpression: model => !model.isSelected
         },
@@ -158,7 +152,7 @@ export class ProtocolPvComponent implements OnInit {
           type: "input",
           templateOptions: {
             type: "number",
-            label: "Anzahl PV-Module"
+            label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES'),
           },
           parsers: [Number],
           hideExpression: model => !model.isSelected

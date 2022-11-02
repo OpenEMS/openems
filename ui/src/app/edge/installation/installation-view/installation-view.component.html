@@ -15,14 +15,12 @@
           <ng-content></ng-content>
           <ion-item lines="none">
             <ion-button *ngIf="!isFirstView && !isWaiting" slot="start" (click)="previousClicked.emit()">
-              <ion-label>zurück</ion-label>
+              <ion-label>{{ 'INSTALLATION.BACK' | translate}}</ion-label>
               <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
             </ion-button>
-            <ion-button slot="end" [disabled]="isWaiting" (click)="nextClicked.emit()">
-              <ion-label>{{isWaiting ? 'laden...' : isLastView ? 'abschließen' : 'weiter'}}</ion-label>
-              <ion-icon
-                name="{{isWaiting ? 'hourglass-outline' : isLastView ? 'checkmark-done-outline' : 'arrow-forward-outline'}}"
-                slot="end"></ion-icon>
+            <ion-button slot="end" [disabled]="isWaiting" *ngIf="labelToShow" (click)="nextClicked.emit()">
+              <ion-label>{{labelToShow.label}}</ion-label>
+              <ion-icon [name]="labelToShow.icon" slot="end"></ion-icon>
             </ion-button>
           </ion-item>
         </form>

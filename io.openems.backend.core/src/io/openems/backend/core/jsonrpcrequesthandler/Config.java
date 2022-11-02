@@ -9,6 +9,4 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	String webconsole_configurationFactory_nameHint() default "Core JSON-RPC Request Handler";
 
-	ReadConfig betaReadConfig() default ReadConfig.NONE;
-
 }

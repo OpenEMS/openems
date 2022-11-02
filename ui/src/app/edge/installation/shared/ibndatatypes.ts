@@ -1,5 +1,6 @@
 import { FormGroup } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
+import { Category } from "./category";
 
 export type ComponentData = {
     label: string;
@@ -14,8 +15,6 @@ export type SerialNumberFormData = {
 };
 
 export type TableData = {
-    header: 'Allgemein' | 'Installateur' | 'Kunde'
-    | 'Standort' | 'Batterie' | 'Wechselrichter'
-    | 'Erzeuger' | 'Lastspitzenkappung' | 'Apps';
+    header: Category;
     rows: ComponentData[]
 };

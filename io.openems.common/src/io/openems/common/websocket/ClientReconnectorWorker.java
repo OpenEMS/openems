@@ -46,19 +46,26 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		}
 		this.lastTry = start;
 
-		this.parent.logInfo(this.log, "Connecting WebSocket...");
+		this.parent.logInfo(this.log, "Connecting WebSocket... [" + ws.getReadyState() + "]");
 
 		if (ws.getReadyState() != ReadyState.NOT_YET_CONNECTED) {
 			// Copy of WebSocketClient#reconnectBlocking.
 			// Do not 'reset' if WebSocket has never been connected before.
+			this.parent.logInfo(this.log, "# Reset WebSocket Client...");
 			resetWebSocketClient(ws);
+			this.parent.logInfo(this.log, "# Reset WebSocket Client... done");
 		}
 		try {
+			this.parent.logInfo(this.log, "# Connect Blocking [" + CONNECT_TIMEOUT_SECONDS + "]...");
 			ws.connectBlocking(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+			this.parent.logInfo(this.log, "# Connect Blocking [" + CONNECT_TIMEOUT_SECONDS + "]... done");
+
 		} catch (IllegalStateException e) {
 			// Catch "WebSocketClient objects are not reuseable" thrown by
 			// WebSocketClient#connect(). Set WebSocketClient#connectReadThread to `null`.
+			this.parent.logInfo(this.log, "# Reset WebSocket Client after Exception... " + e.getMessage());
 			resetWebSocketClient(ws);
+			this.parent.logInfo(this.log, "# Reset WebSocket Client after Exception... done");
 		}
 
 		var end = Instant.now();

@@ -114,6 +114,7 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
+				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-relais/") //
 				.build();
 	}
 

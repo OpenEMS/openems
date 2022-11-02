@@ -1,9 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { utils } from 'protractor';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { Util } from '../../shared/util';
 import { ComponentConfigurator, ConfigurationObject, ConfigurationState, FunctionState } from './component-configurator';
 
 @Component({
@@ -24,7 +27,11 @@ export class ConfigurationExecuteComponent implements OnInit {
   public configurationObjectsToBeConfigured: ConfigurationObject[];
   public isAnyConfigurationObjectPreConfigured: boolean;
 
-  constructor(private service: Service, private websocket: Websocket) { }
+  constructor(
+    private service: Service,
+    private websocket: Websocket,
+    private translate: TranslateService
+  ) { }
 
   public ngOnInit() {
     const stopOnRequest: Subject<void> = new Subject<void>();
@@ -38,18 +45,16 @@ export class ConfigurationExecuteComponent implements OnInit {
 
       // Add objects to component configurator
       this.componentConfigurator = this.ibn.getComponentConfigurator(this.edge, config, this.websocket, this.service);
-
       this.configurationObjectsToBeConfigured = this.componentConfigurator.getConfigurationObjectsToBeConfigured();
       this.isAnyConfigurationObjectPreConfigured = this.componentConfigurator.anyHasConfigurationState(ConfigurationState.PreConfigured);
 
       // To update scheduler.
       this.ibn.setRequiredControllers();
-      sessionStorage.setItem('ibn', JSON.stringify(this.ibn));
+      Util.addIbnToSessionStorage(this.ibn)
 
       // Auto-start configuration when no components pre-configured
       if (this.isAnyConfigurationObjectPreConfigured) {
-        this.service.toast('Es wurden eine bestehende Konfiguration gefunden.'
-          + 'Sie können diese überschreiben, indem Sie den Konfigurationsvorgang manuell starten.', 'warning');
+        this.service.toast(this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.EXISTING_CONFIGURATION'), 'warning');
       } else {
         this.startConfiguration();
       }
@@ -72,17 +77,17 @@ export class ConfigurationExecuteComponent implements OnInit {
 
     // Starts the configuration
     this.componentConfigurator.start().then(() => {
-      this.service.toast('Konfiguration erfolgreich.', 'success');
+      this.service.toast(this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.SUCCESSFULLY_CONFIGURED'), 'success');
     }).catch((reason) => {
       console.log(reason);
 
       if (!this.componentConfigurator.allHaveConfigurationState(ConfigurationState.Configured)) {
-        this.service.toast('Es konnten nicht alle Komponenten richtig konfiguriert werden.', 'danger');
+        this.service.toast(this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.PARTIAL_CONFIGURATION'), 'danger');
         return;
       }
 
       if (!this.componentConfigurator.allHaveFunctionState(FunctionState.Ok)) {
-        this.service.toast('Funktionstest mit Fehlern abgeschlossen.', 'warning');
+        this.service.toast(this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.FUNCTION_TESTError'), 'warning');
         return;
       }
     }).finally(() => {

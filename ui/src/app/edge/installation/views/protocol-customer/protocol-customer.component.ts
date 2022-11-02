@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
-import { COUNTRY_OPTIONS } from '../../installation.component';
+import { COUNTRY_OPTIONS } from '../../shared/country';
 
 @Component({
   selector: ProtocolCustomerComponent.SELECTOR,
@@ -20,7 +21,7 @@ export class ProtocolCustomerComponent implements OnInit {
   public fields: FormlyFieldConfig[];
   public model;
 
-  constructor() { }
+  constructor(private translate: TranslateService) { }
 
   public ngOnInit() {
     this.form = new FormGroup({});
@@ -49,7 +50,7 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'isCorporateClient',
       type: 'checkbox',
       templateOptions: {
-        label: 'Firmenkunde?',
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_CUSTOMER'),
       },
     });
 
@@ -57,7 +58,7 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'companyName',
       type: 'input',
       templateOptions: {
-        label: 'Firmenname',
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_NAME'),
         required: true
       },
       hideExpression: model => !model.isCorporateClient,
@@ -67,7 +68,7 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'lastName',
       type: 'input',
       templateOptions: {
-        label: 'Nachname',
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.LAST_NAME'),
         required: true
       },
     });
@@ -76,7 +77,7 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'firstName',
       type: 'input',
       templateOptions: {
-        label: 'Vorname',
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.FIRST_NAME'),
         required: true
       }
     });
@@ -85,7 +86,7 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'street',
       type: 'input',
       templateOptions: {
-        label: 'Straße / Hausnummer',
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.STREET_ADDRESS'),
         required: true
       }
     });
@@ -94,7 +95,8 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'zip',
       type: 'input',
       templateOptions: {
-        label: 'PLZ',
+        type: "number",
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.ZIP'),
         required: true
       }
     });
@@ -103,7 +105,7 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'city',
       type: 'input',
       templateOptions: {
-        label: 'Ort',
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.CITY'),
         required: true
       }
     });
@@ -112,9 +114,9 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'country',
       type: 'select',
       templateOptions: {
-        label: 'Land',
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COUNTRY'),
         required: true,
-        options: COUNTRY_OPTIONS
+        options: COUNTRY_OPTIONS(this.translate)
       }
     });
 
@@ -125,8 +127,8 @@ export class ProtocolCustomerComponent implements OnInit {
           type: 'input',
           templateOptions: {
             type: 'email',
-            label: 'E-Mail-Adresse',
-            description: 'zum Anlegen des persönlichen Zugangs',
+            label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL'),
+            description: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL_DESCRIPTION'),
             required: true
           },
           validators: {
@@ -138,8 +140,8 @@ export class ProtocolCustomerComponent implements OnInit {
           type: 'input',
           templateOptions: {
             type: 'email',
-            label: 'E-Mail-Adresse',
-            description: 'Wiederholen',
+            label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL'),
+            description: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL_CONFIRMATION'),
             required: true
           }
         }
@@ -155,7 +157,8 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'phone',
       type: 'input',
       templateOptions: {
-        label: 'Telefonnummer',
+        type: "number",
+        label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.PHONE'),
         required: true
       }
     });

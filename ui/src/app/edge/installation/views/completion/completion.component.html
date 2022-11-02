@@ -1,12 +1,13 @@
-<installation-view iconName="checkmark-done-outline" header="Abschließen" (previousClicked)="onPreviousClicked()"
-  (nextClicked)="onNextClicked()" isLastView="true">
+<installation-view iconName="checkmark-done-outline" header="{{ 'INSTALLATION.COMPLETION.TITLE' | translate }}"
+  (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()" isLastView="true">
 
-  <ion-textarea readonly auto-grow value="Sie haben den {{ibn.type}} erfolgreich in Betrieb genommen.">
+  <ion-textarea readonly auto-grow value="{{ 'INSTALLATION.COMPLETION.SUB_TITLE' | translate:
+  { value: ibn.type } }}">
   </ion-textarea>
 
   <ion-item>
     <ion-button (click)="downloadProtocol()">
-      <ion-label>IBN-Protokoll herunterladen</ion-label>
+      <ion-label>{{ 'INSTALLATION.COMPLETION.DOWNLOAD' | translate}}</ion-label>
       <ion-icon name="download-outline" slot="end"></ion-icon>
     </ion-button>
   </ion-item>

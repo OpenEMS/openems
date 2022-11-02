@@ -321,6 +321,9 @@ export class EdgeConfig {
             switch (component.factoryId) {
                 case 'GoodWe.EmergencyPowerMeter':
                     return true;
+
+                case 'Simulator.Evcs':
+                    return true;
             }
         }
         return false;

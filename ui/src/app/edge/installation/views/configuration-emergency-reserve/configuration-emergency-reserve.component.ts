@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 
 @Component({
@@ -19,7 +20,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
   public fields: FormlyFieldConfig[];
   public model;
 
-  constructor() { }
+  constructor(private translate: TranslateService) { }
 
   public ngOnInit() {
 
@@ -54,7 +55,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       key: 'isEnabled',
       type: 'checkbox',
       templateOptions: {
-        label: 'Soll die Notstromfunktion aktiviert werden?',
+        label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ENABLED'),
       }
     });
 
@@ -62,7 +63,7 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       key: 'isReserveSocEnabled',
       type: 'toggle',
       templateOptions: {
-        label: 'Notstromreserve aktivieren?',
+        label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.IS_ACTIVATED'),
       },
       hideExpression: model => !model.isEnabled
     });
@@ -71,15 +72,15 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       key: 'value',
       type: 'range',
       templateOptions: {
-        label: 'Wert [%]',
-        description: 'Aktuell: 20',
+        label: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.VALUE'),
+        description: this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.RECENT') + ' 20',
         required: true,
         min: this.ibn.emergencyReserve.minValue,
         max: 100,
         attributes: {
           pin: 'true'
         },
-        change: (field, event) => { field.templateOptions.description = 'Aktuell: ' + field.formControl.value; }
+        change: (field) => { field.props.description = this.translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.RECENT') + ' ' + field.formControl.value; }
       },
       parsers: [Number],
       hideExpression: model => !model.isEnabled || !model.isReserveSocEnabled

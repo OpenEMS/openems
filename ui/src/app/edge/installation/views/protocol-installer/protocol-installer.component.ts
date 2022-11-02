@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { GetUserInformationRequest } from 'src/app/shared/jsonrpc/request/getUserInformationRequest';
 import { GetUserInformationResponse } from 'src/app/shared/jsonrpc/response/getUserInformationResponse';
 import { Service } from 'src/app/shared/shared';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
-import { COUNTRY_OPTIONS } from '../../installation.component';
+import { COUNTRY_OPTIONS } from '../../shared/country';
 
 type UserInformation = {
   companyName: string;
@@ -35,7 +36,10 @@ export class ProtocolInstallerComponent implements OnInit {
   public model;
   public spinnerId: string;
 
-  constructor(private service: Service) { }
+  constructor(
+    private service: Service,
+    private translate: TranslateService
+  ) { }
 
   public ngOnInit() {
     this.spinnerId = ProtocolInstallerComponent.SELECTOR + '-spinner';
@@ -70,7 +74,7 @@ export class ProtocolInstallerComponent implements OnInit {
             key: 'lastName',
             type: 'input',
             templateOptions: {
-              label: 'Nachname',
+              label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.LAST_NAME'),
               required: true,
             },
           },
@@ -78,7 +82,7 @@ export class ProtocolInstallerComponent implements OnInit {
             key: 'firstName',
             type: 'input',
             templateOptions: {
-              label: 'Vorname',
+              label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.FIRST_NAME'),
               required: true,
             },
           },
@@ -86,7 +90,7 @@ export class ProtocolInstallerComponent implements OnInit {
             key: 'companyName',
             type: 'input',
             templateOptions: {
-              label: 'Firmenname',
+              label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COMPANY_NAME'),
               disabled: true,
             },
           },
@@ -94,7 +98,7 @@ export class ProtocolInstallerComponent implements OnInit {
             key: 'street',
             type: 'input',
             templateOptions: {
-              label: 'Straße / Hausnummer',
+              label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.STREET_ADDRESS'),
               disabled: true,
             },
           },
@@ -102,7 +106,7 @@ export class ProtocolInstallerComponent implements OnInit {
             key: 'zip',
             type: 'input',
             templateOptions: {
-              label: 'PLZ',
+              label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.ZIP'),
               disabled: true,
             },
           },
@@ -110,7 +114,7 @@ export class ProtocolInstallerComponent implements OnInit {
             key: 'city',
             type: 'input',
             templateOptions: {
-              label: 'Ort',
+              label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.CITY'),
               disabled: true,
             },
           },
@@ -119,7 +123,7 @@ export class ProtocolInstallerComponent implements OnInit {
             type: 'select',
             templateOptions: {
               label: 'Land',
-              options: COUNTRY_OPTIONS,
+              options: COUNTRY_OPTIONS(this.translate),
               disabled: true,
             },
           },
@@ -127,7 +131,7 @@ export class ProtocolInstallerComponent implements OnInit {
             key: 'email',
             type: 'input',
             templateOptions: {
-              label: 'E-Mail',
+              label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.EMAIL'),
               disabled: true,
             },
             validators: {
@@ -138,7 +142,7 @@ export class ProtocolInstallerComponent implements OnInit {
             key: 'phone',
             type: 'input',
             templateOptions: {
-              label: 'Telefonnummer',
+              label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.PHONE'),
               disabled: true,
             },
           },

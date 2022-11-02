@@ -1,4 +1,5 @@
-<installation-view iconName="checkmark-done-outline" header="Zusammenfassung" (previousClicked)="onPreviousClicked()"
+<installation-view iconName="checkmark-done-outline"
+  header="{{ 'INSTALLATION.CONFIGURATION_SUMMARY.SUMMARY' | translate }}" (previousClicked)="onPreviousClicked()"
   (nextClicked)="onNextClicked()">
 
   <ion-list>
@@ -26,7 +27,7 @@
   <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
 
   <ion-textarea readonly auto-grow
-    value="Wenn Sie jetzt 'weiter' klicken, wird das Speichersystem konfiguriert. Stellen Sie sicher, dass die Batterie und der Wechselrichter während des gesamten Konfigurationsvorgangs eingeschaltet sind.">
+    value="{{ 'INSTALLATION.CONFIGURATION_SUMMARY.NEXT_CLICKED_DESCRIPTION' | translate }}">
   </ion-textarea>
 
 </installation-view>

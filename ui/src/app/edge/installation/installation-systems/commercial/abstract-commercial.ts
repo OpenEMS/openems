@@ -5,13 +5,12 @@ import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { ChannelAddress, Edge, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
-import { Category, FeedInType } from '../../shared/enums';
+import { Category } from '../../shared/category';
+import { FeedInType } from '../../shared/enums';
 import { ComponentData } from '../../shared/ibndatatypes';
 import { AbstractIbn } from '../abstract-ibn';
 
 export abstract class AbstractCommercialIbn extends AbstractIbn {
-
-    public readonly lineSideMeterFuseTitle = Category.LINE_SIDE_METER_FUSE_COMMERCIAL;
 
     public readonly showRundSteuerManual: boolean = false;
 
@@ -31,6 +30,15 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         maximumFeedInPower: 0
     };
 
+    // Protocol line side meter fuse
+    public lineSideMeterFuse?: {
+        category: Category;
+        fixedValue?: number;
+        otherValue?: number;
+    } = {
+            category: Category.LINE_SIDE_METER_FUSE_COMMERCIAL
+        }
+
     public numberOfModulesPerTower: number;
 
     public setFeedInLimitsFields(model: any) {
@@ -45,9 +53,9 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             key: "otherValue",
             type: "input",
             templateOptions: {
-                label: "Wert [A]",
+                label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
                 type: 'number',
-                description: "Mit welcher Stromstärke ist der Zähler abgesichert?",
+                description: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.FIXED_VALUE_DESCRIPTION'),
                 min: 0,
                 required: true
             },
@@ -80,8 +88,8 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 label: "Typ",
                 placeholder: "Select Option",
                 options: [
-                    { label: "Netzdienliche Beladung (z.B. 70% Abregelung)", value: FeedInType.DYNAMIC_LIMITATION },
-                    { label: "Rundsteuerempfänger (Externe Abregelung durch Netzbetreiber)", value: FeedInType.EXTERNAL_LIMITATION }
+                    { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.DYNAMIC_LIMITATION'), value: FeedInType.DYNAMIC_LIMITATION },
+                    { label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_LIMITATION'), value: FeedInType.EXTERNAL_LIMITATION }
                 ],
                 required: true,
             }
@@ -92,8 +100,8 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             type: 'input',
             templateOptions: {
                 type: 'number',
-                label: 'Maximale Einspeiseleistung [W]',
-                description: 'Diesen Wert entnehmen Sie der Anschlussbestätigung des Netzbetreibers',
+                label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
+                description: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_VALUE_DESCRIPTION'),
                 required: true
             },
             parsers: [Number],
@@ -111,14 +119,14 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION
             ? batteryInverterData.push(
                 {
-                    label: 'Maximale Einspeiseleistung',
+                    label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
                     value: feedInLimitation.maximumFeedInPower,
                 }
             )
             : batteryInverterData.push(
                 {
-                    label: "Rundsteuerempfänger",
-                    value: "ja"
+                    label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_CONTROLLER_RECIEVER'),
+                    value: this.translate.instant('General.yes')
                 })
 
         return batteryInverterData;
@@ -183,7 +191,6 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         const customer = this.customer;
         const pv = this.pv;
         const lineSideMeterFuse = this.lineSideMeterFuse;
-        const serialNumbers = this.serialNumbers;
         const ac = pv.ac;
 
         const installerObj: any = {
@@ -247,8 +254,8 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         lineSideMeterFuseValue = lineSideMeterFuse.otherValue;
 
         protocol.items.push({
-            category: this.lineSideMeterFuseTitle,
-            name: 'Wert [A]',
+            category: this.lineSideMeterFuse.category,
+            name: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.VALUE'),
             value: lineSideMeterFuseValue ? lineSideMeterFuseValue.toString() : '',
         });
 
@@ -256,23 +263,23 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         protocol.items.push(
             {
                 category: Category.FEED_IN_MANAGEMENT,
-                name: 'Rundsteuerempfänger',
+                name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_CONTROLLER_RECIEVER'),
                 value: feedInLimitation.feedInType == FeedInType.EXTERNAL_LIMITATION
-                    ? "ja"
-                    : "nein"
+                    ? this.translate.instant('General.yes')
+                    : this.translate.instant('General.no')
             },
             {
                 category: Category.FEED_IN_MANAGEMENT,
-                name: 'Netzdienliche Beladung (z.B. 70% Abregelung)',
+                name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.DYNAMIC_LIMITATION'),
                 value: feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
-                    ? "ja"
-                    : "nein"
+                    ? this.translate.instant('General.yes')
+                    : this.translate.instant('General.no')
             });
 
         if (feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION) {
             protocol.items.push({
                 category: Category.FEED_IN_MANAGEMENT,
-                name: 'Maximale Einspeiseleistung [W]',
+                name: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
                 value: feedInLimitation.maximumFeedInPower
                     ? feedInLimitation.maximumFeedInPower.toString()
                     : (0).toString(),
@@ -281,35 +288,36 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
 
         for (let index = 0; index < ac.length; index++) {
             const element = ac[index];
-            const label = 'AC' + (index + 1);
+            const label = 'AC';
+            const acNr = (index + 1);
 
             protocol.items.push(
                 {
                     category: Category.ADDITIONAL_AC_PRODUCERS,
-                    name: 'Alias ' + label,
+                    name: this.translate.instant('INSTALLATION.ALIAS_WITH_LABEL', { label: label, number: acNr }),
                     value: element.alias,
                 },
                 {
                     category: Category.ADDITIONAL_AC_PRODUCERS,
-                    name: 'Wert ' + label + ' [Wp]',
+                    name: this.translate.instant('INSTALLATION.VALUE_WITH_LABEL', { label: label, number: acNr, symbol: '[Wp]' }),
                     value: element.value ? element.value.toString() : '',
                 });
 
             element.orientation && protocol.items.push({
                 category: Category.ADDITIONAL_AC_PRODUCERS,
-                name: 'Ausrichtung ' + label,
+                name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ORIENTATION_WITH_LABEL', { label: label, number: acNr }),
                 value: element.orientation,
             });
 
             element.moduleType && protocol.items.push({
                 category: Category.ADDITIONAL_AC_PRODUCERS,
-                name: 'Modultyp ' + label,
+                name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODULE_TYPE_WITH_LABEL', { label: label, number: acNr }),
                 value: element.moduleType,
             });
 
             element.modulesPerString && protocol.items.push({
                 category: Category.ADDITIONAL_AC_PRODUCERS,
-                name: 'Anzahl PV-Module ' + label,
+                name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.NUMBER_OF_MODULES_WITH_LABEL', { label: label, number: acNr }),
                 value: element.modulesPerString
                     ? element.modulesPerString.toString()
                     : '',
@@ -317,13 +325,13 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
 
             element.meterType && protocol.items.push({
                 category: Category.ADDITIONAL_AC_PRODUCERS,
-                name: 'Zählertyp ' + label,
+                name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
                 value: element.meterType,
             });
 
             element.modbusCommunicationAddress && protocol.items.push({
                 category: Category.ADDITIONAL_AC_PRODUCERS,
-                name: 'Modbus Kommunikationsadresse ' + label,
+                name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_WITH_LABEL', { label: label, number: acNr }),
                 value: element.modbusCommunicationAddress
                     ? element.modbusCommunicationAddress.toString()
                     : '',
@@ -331,15 +339,15 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         }
 
         protocol.items.push({
-            category: Category.FEMS_DETAILS,
-            name: 'FEMS Nummer',
+            category: Category.EMS_DETAILS,
+            name: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.EDGE_NUMBER', { edgeShortName: environment.edgeShortName }),
             value: edge.id
         });
 
         protocol = this.getProtocolSerialNumbers(protocol);
 
         return new Promise((resolve, reject) => {
-            websocket.sendRequest(new SubmitSetupProtocolRequest({ protocol })).then((response: JsonrpcResponseSuccess) => {
+            websocket.sendRequest(SubmitSetupProtocolRequest.translateFrom(protocol, this.translate)).then((response: JsonrpcResponseSuccess) => {
                 resolve(response.result['setupProtocolId']);
             }).catch((reason) => {
                 reject(reason);
@@ -367,36 +375,39 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
 
         for (let componentCount = 0; componentCount < serialNumbers.modules.length; componentCount++) {
             if (serialNumbers.modules[componentCount].value !== null && serialNumbers.modules[componentCount].value !== '') {
+                var name: string = this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.SINGLE_SERIAL_NUMBER', { label: serialNumbers.modules[componentCount].label });
+                var serialNumber: string = serialNumbers.modules[componentCount].value;
+
                 // String 1
                 if (componentCount < numberOfComponentsTower1) {
                     protocol.lots.push({
-                        category: 'Speichersystemkomponenten',
-                        name: serialNumbers.modules[componentCount].label + ' Seriennummer',
-                        serialNumber: serialNumbers.modules[componentCount].value,
+                        category: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS'),
+                        name: name,
+                        serialNumber: serialNumber,
                     });
                 }
                 // String 2
                 else if (componentCount < numberOfComponentsTower2) {
                     protocol.lots.push({
-                        category: 'Batterie String 2',
-                        name: serialNumbers.modules[componentCount].label + ' Seriennummer',
-                        serialNumber: serialNumbers.modules[componentCount].value,
+                        category: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { stringNumber: 2 }),
+                        name: name,
+                        serialNumber: serialNumber,
                     });
                 }
                 // String 3
                 else if (componentCount < numberOfComponentsTower3) {
                     protocol.lots.push({
-                        category: 'Batterie String 3',
-                        name: serialNumbers.modules[componentCount].label + ' Seriennummer',
-                        serialNumber: serialNumbers.modules[componentCount].value,
+                        category: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { stringNumber: 3 }),
+                        name: name,
+                        serialNumber: serialNumber,
                     });
                 }
                 // String 4
                 else if (componentCount < numberOfComponentsTower4) {
                     protocol.lots.push({
-                        category: 'Batterie String 4',
-                        name: serialNumbers.modules[componentCount].label + ' Seriennummer',
-                        serialNumber: serialNumbers.modules[componentCount].value,
+                        category: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { stringNumber: 4 }),
+                        name: name,
+                        serialNumber: serialNumber,
                     });
                 }
             }

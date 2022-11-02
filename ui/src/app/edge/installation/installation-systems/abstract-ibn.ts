@@ -1,8 +1,11 @@
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
-import { Category, FeedInType } from '../shared/enums';
+import { Category } from '../shared/category';
+import { Country } from '../shared/country';
+import { FeedInType } from '../shared/enums';
 import { ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
 import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
 import { EmsApp } from '../views/heckert-app-installer/heckert-app-installer.component';
@@ -62,7 +65,7 @@ export abstract class AbstractIbn {
     street: string;
     zip: string;
     city: string;
-    country: string;
+    country: Country;
     email: string;
     phone: string;
   };
@@ -76,7 +79,7 @@ export abstract class AbstractIbn {
     street: string;
     zip: string;
     city: string;
-    country: string;
+    country: Country;
     email: string;
     emailConfirm: string;
     phone: string;
@@ -92,15 +95,16 @@ export abstract class AbstractIbn {
     street: string;
     zip: string;
     city: string;
-    country: string;
+    country: Country;
     email?: string;
     phone?: string;
   };
 
   // configuration-line-side-meter-fuse
   public lineSideMeterFuse?: {
-    fixedValue: number;
-    otherValue: number;
+    category: Category;
+    fixedValue?: number;
+    otherValue?: number;
   };
 
   // protocol-dynamic-feed-in-limitation
@@ -139,9 +143,6 @@ export abstract class AbstractIbn {
   // Protocol-serial-numbers
   public setupProtocolId?: string;
 
-  // Title for line side meter fuse view.
-  public readonly lineSideMeterFuseTitle: Category.LINE_SIDE_METER_FUSE | Category.LINE_SIDE_METER_FUSE_COMMERCIAL;
-
   // Rundsteuerempfaenger manual in feed in limitation
   public readonly showRundSteuerManual: boolean;
 
@@ -151,7 +152,7 @@ export abstract class AbstractIbn {
   // Contains default number of battery modules per tower based on system. 
   public readonly defaultNumberOfModules: number;
 
-  constructor(public views: View[]) { }
+  constructor(public views: View[], public translate: TranslateService) { }
 
   /**
    * Retrieves the fields for View Line side meter Fuse,

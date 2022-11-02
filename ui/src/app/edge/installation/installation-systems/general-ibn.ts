@@ -1,4 +1,5 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { SerialNumberFormData } from '../shared/ibndatatypes';
 import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
@@ -10,7 +11,7 @@ export class GeneralIbn extends AbstractIbn {
 
     public showViewCount = false;
 
-    constructor() {
+    constructor(translate: TranslateService) {
         super([
             View.PreInstallation,
             View.PreInstallationUpdate,
@@ -29,7 +30,7 @@ export class GeneralIbn extends AbstractIbn {
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
             View.Completion
-        ]);
+        ], translate);
     }
 
     public getLineSideMeterFuseFields(): FormlyFieldConfig[] {

@@ -27,7 +27,7 @@ public class TimescaledbImplTest {
 				.setPassword(Credentials.PASSWORD) //
 				.setDatabase(Credentials.DATABASE) //
 				.setReadOnly(true) //
-				.setBetaWriteConfig(WriteConfig.NONE) //
+				.setPoolSize(10) //
 				.build();
 		TimescaledbImpl sut = new TimescaledbImpl(metadata, config);
 

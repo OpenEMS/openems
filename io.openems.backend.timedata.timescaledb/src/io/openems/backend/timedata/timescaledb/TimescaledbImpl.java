@@ -6,10 +6,10 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -33,7 +33,6 @@ import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.google.common.collect.TreeBasedTable;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
@@ -52,13 +51,11 @@ import io.openems.common.utils.ThreadPoolUtils;
 @Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Timedata.TimescaleDB", //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		immediate = true //
 )
 public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements Timescaledb, Timedata {
 
-	private static final int EXECUTOR_MIN_THREADS = 10;
-	private static final int EXECUTOR_MAX_THREADS = 50;
-	private static final int EXECUTOR_QUEUE_SIZE = 500;
 	private static final int POINTS_QUEUE_SIZE = 1_000_000;
 	private static final int MAX_POINTS_PER_WRITE = 1_000;
 	private static final int MAX_AGGREGATE_WAIT = 10; // [s]
@@ -66,16 +63,13 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 	private final Logger log = LoggerFactory.getLogger(TimescaledbImpl.class);
 	private final HikariDataSource dataSource;
 	private final boolean isReadOnly;
-	private final WriteConfig betaWriteConfig;
-	private final Schema schema;
 	private final BlockingQueue<Point> pointsQueue = new ArrayBlockingQueue<>(POINTS_QUEUE_SIZE);
-	private final ThreadPoolExecutor executor = new ThreadPoolExecutor(EXECUTOR_MIN_THREADS, EXECUTOR_MAX_THREADS, 60L,
-			TimeUnit.SECONDS, //
-			new ArrayBlockingQueue<>(EXECUTOR_QUEUE_SIZE), //
-			new ThreadFactoryBuilder().setNameFormat("Timescaledb-%d").build(), //
-			new ThreadPoolExecutor.DiscardOldestPolicy());
+
+	private final ThreadPoolExecutor executor;
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 	private final ExecutorService mergePointsExecutor = Executors.newSingleThreadExecutor();
+
+	private Schema schema = null;
 
 	@Activate
 	public TimescaledbImpl(@Reference Metadata metadata, Config config) throws SQLException {
@@ -88,16 +82,48 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 				+ (config.isReadOnly() ? "|READ_ONLY_MODE" : "") //
 				+ "]");
 
+		// Configuration
 		this.dataSource = getDataSource(//
 				config.host(), config.port(), config.database(), //
 				config.user(), config.password());
 		this.isReadOnly = config.isReadOnly();
-		this.betaWriteConfig = config.betaWriteConfig();
 
-		this.schema = Schema.initialize(this.dataSource);
+		// Executors for debug, merge points and write to database
+		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(config.poolSize(),
+				new ThreadFactoryBuilder().setNameFormat("TimescaleDB-%d").build());
 
-		this.debugLogExecutor.scheduleWithFixedDelay(this.debugLogTask, 10, 10, TimeUnit.SECONDS);
+		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
+			int pointsQueueSize = this.pointsQueue.size();
+			this.log.info(new StringBuilder("[monitor] TimescaleDB ") //
+					.append("Pool: ").append(this.executor.getPoolSize()).append(", ") //
+					.append("Active: ").append(this.executor.getActiveCount()).append(", ") //
+					.append("Pending: ").append(this.executor.getQueue().size()).append(", ") //
+					.append("Completed: ").append(this.executor.getCompletedTaskCount()).append(", ") //
+					.append("QueuedPoints: ").append(this.pointsQueue.size()).append(", ") //
+					.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? "!!!POINTS BACKPRESSURE!!!" : "") //
+					.toString());
+		}, 10, 10, TimeUnit.SECONDS);
+
 		this.mergePointsExecutor.execute(() -> {
+			// TODO stop on deactivate()
+			/*
+			 * Load Schema cache
+			 */
+			while (this.schema == null) {
+				try {
+					this.schema = Schema.initialize(this.dataSource);
+
+				} catch (SQLException e) {
+					this.logError(this.log, "Unable to cache Schema: " + e.getMessage());
+
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+
 			/**
 			 * This task merges single Points to Lists of Points, which are then sent to
 			 * TimescaleDB. This approach improves speed as not every single Point gets sent
@@ -195,9 +221,6 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 		}
 	}
 
-	private static final HashSet<String> TIMESCALEDB_WRITE_TEST = //
-			Sets.newHashSet("edge0" /* local test */, "fems888", "fems4");
-
 	@Override
 	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
 		if (this.isReadOnly) {
@@ -206,18 +229,6 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 			return;
 		}
 
-		// TODO remove eventually
-		switch (this.betaWriteConfig) {
-		case NONE:
-			return;
-		case ONLY_A_FEW:
-			if (!TIMESCALEDB_WRITE_TEST.contains(edgeId)) {
-				return;
-			}
-			break;
-		case ALL:
-			break;
-		}
 		this.pointsQueue.addAll(data.cellSet().stream() //
 				.map(cell -> new Point(cell.getRowKey(), edgeId, cell.getColumnKey(), cell.getValue())) //
 				.collect(Collectors.toList()));
@@ -272,20 +283,6 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 		}
 		return points;
 	}
-
-	private final Runnable debugLogTask = () -> {
-		int executorQueueSize = this.executor.getQueue().size();
-		int pointsQueueSize = this.pointsQueue.size();
-		this.log.info(new StringBuilder("[monitor] TimescaleDB ") //
-				.append("Pool: ").append(this.executor.getPoolSize()).append(", ") //
-				.append("Active: ").append(this.executor.getActiveCount()).append(", ") //
-				.append("Pending: ").append(this.executor.getQueue().size()).append(", ") //
-				.append("Completed: ").append(this.executor.getCompletedTaskCount()).append(", ") //
-				.append((executorQueueSize == EXECUTOR_QUEUE_SIZE) ? "!!!EXECUTOR BACKPRESSURE!!!" : "") //
-				.append("QueuedPoints: ").append(this.pointsQueue.size()).append(", ") //
-				.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? "!!!POINTS BACKPRESSURE!!!" : "") //
-				.toString());
-	};
 
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
@@ -520,9 +517,9 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 	}
 
 	@Override
-	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress) {
+	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
 		// TODO
-		return Optional.empty();
+		return Collections.emptyMap();
 	}
 
 }

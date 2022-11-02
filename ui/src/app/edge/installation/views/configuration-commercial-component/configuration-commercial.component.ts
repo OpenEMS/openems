@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
+import { TranslateService } from "@ngx-translate/core";
 import { AbstractIbn } from "../../installation-systems/abstract-ibn";
 import { Commercial30AnschlussIbn } from "../../installation-systems/commercial/commercial-30/commercial30-anschluss";
 import { Commercial30NetztrennIbn } from "../../installation-systems/commercial/commercial-30/commercial30-netztrenn";
@@ -21,7 +22,7 @@ export class ConfigurationCommercialComponent implements OnInit {
     public fields: FormlyFieldConfig[];
     public model;
 
-    constructor() { }
+    constructor(private translate: TranslateService) { }
 
     public ngOnInit() {
         this.form = new FormGroup({});
@@ -73,9 +74,9 @@ export class ConfigurationCommercialComponent implements OnInit {
         const component = this.form.controls['component'].value;
 
         if (component === 'Anschluss') {
-            this.ibn = new Commercial30AnschlussIbn();
+            this.ibn = new Commercial30AnschlussIbn(this.translate);
         } else {
-            this.ibn = new Commercial30NetztrennIbn();
+            this.ibn = new Commercial30NetztrennIbn(this.translate);
         }
     }
 }

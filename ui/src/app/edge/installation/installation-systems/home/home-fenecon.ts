@@ -1,12 +1,16 @@
-import { AbstractHomeIbn } from './abstract-home';
 import { View } from '../abstract-ibn';
+import { AbstractHomeIbn } from './abstract-home';
+import { TranslateService } from '@ngx-translate/core';
+import { Category } from '../../shared/category';
 
 export class HomeFeneconIbn extends AbstractHomeIbn {
     public readonly type = 'Fenecon-Home';
 
     public readonly id = 'home';
 
-    constructor() {
+    public override readonly emsBoxLabel = Category.EMS_BOX_LABEL_HOME;
+
+    constructor(public translate: TranslateService) {
         super([
             View.PreInstallation,
             View.PreInstallationUpdate,
@@ -23,6 +27,6 @@ export class HomeFeneconIbn extends AbstractHomeIbn {
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
             View.Completion
-        ]);
+        ], translate);
     }
 }

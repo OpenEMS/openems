@@ -16,8 +16,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonNull;
-
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
@@ -29,7 +27,6 @@ import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse.EdgeInf
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.common.timedata.Timedata;
-import io.openems.backend.timedata.timescaledb.Timescaledb;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -39,7 +36,6 @@ import io.openems.common.jsonrpc.request.ComponentJsonApiRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SetGridConnScheduleRequest;
 import io.openems.common.session.Role;
-import io.openems.common.types.ChannelAddress;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -58,10 +54,6 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	private volatile Timedata timedata;
-
-	// TODO remove eventually
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timescaledb timescale;
 
 	private final EdgeRpcRequestHandler edgeRpcRequestHandler;
 	protected Config config;
@@ -87,16 +79,6 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 
 	// TODO remove eventually
 	protected Timedata getTimedata(String edgeId) {
-		switch (this.config.betaReadConfig()) {
-		case ONLY_888:
-			if (edgeId.equals("fems888")) {
-				return this.timescale;
-			}
-			break;
-
-		case NONE:
-			break;
-		}
 		return this.timedata;
 	}
 
@@ -118,7 +100,7 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 			return this.edgeRpcRequestHandler.handleRequest(user, request.getId(), EdgeRpcRequest.from(request));
 
 		case GetEdgesStatusRequest.METHOD:
-			return this.handleGetStatusOfEdgesRequest(user, request.getId(), GetEdgesStatusRequest.from(request));
+			return this.handleGetEdgesStatusRequest(user, request.getId(), GetEdgesStatusRequest.from(request));
 
 		case GetEdgesChannelsValuesRequest.METHOD:
 			return this.handleGetChannelsValuesRequest(user, request.getId(),
@@ -143,16 +125,14 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 	 * @return the JSON-RPC Success Response Future
 	 * @throws OpenemsNamedException on error
 	 */
-	private CompletableFuture<GetEdgesStatusResponse> handleGetStatusOfEdgesRequest(User user, UUID messageId,
+	private CompletableFuture<GetEdgesStatusResponse> handleGetEdgesStatusRequest(User user, UUID messageId,
 			GetEdgesStatusRequest request) throws OpenemsNamedException {
 		Map<String, EdgeInfo> result = new HashMap<>();
 		for (Entry<String, Role> entry : user.getEdgeRoles().entrySet()) {
 			var edgeId = entry.getKey();
 
 			// assure read permissions of this User for this Edge.
-			if (!user.roleIsAtLeast(edgeId, Role.GUEST)) {
-				continue;
-			}
+			user.assertEdgeRoleIsAtLeast(GetEdgesStatusRequest.METHOD, edgeId, Role.GUEST);
 
 			var edgeOpt = this.metadata.getEdge(edgeId);
 			if (edgeOpt.isPresent()) {
@@ -178,13 +158,11 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 		var response = new GetEdgesChannelsValuesResponse(messageId);
 		for (String edgeId : request.getEdgeIds()) {
 			// assure read permissions of this User for this Edge.
-			if (!user.roleIsAtLeast(edgeId, Role.GUEST)) {
-				continue;
-			}
+			user.assertEdgeRoleIsAtLeast(GetEdgesStatusRequest.METHOD, edgeId, Role.GUEST);
 
-			for (ChannelAddress channel : request.getChannels()) {
-				var value = this.timedata.getChannelValue(edgeId, channel);
-				response.addValue(edgeId, channel, value.orElse(JsonNull.INSTANCE));
+			var values = this.getTimedata(edgeId).getChannelValues(edgeId, request.getChannels());
+			for (var entry : values.entrySet()) {
+				response.addValue(edgeId, entry.getKey(), entry.getValue());
 			}
 		}
 		return CompletableFuture.completedFuture(response);

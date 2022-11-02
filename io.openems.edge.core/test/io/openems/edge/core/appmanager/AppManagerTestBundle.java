@@ -1,10 +1,10 @@
 package io.openems.edge.core.appmanager;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -12,6 +12,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -30,6 +31,7 @@ import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.dependency.SchedulerAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.StaticIpAggregateTaskImpl;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
+import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.Validator;
 
@@ -47,6 +49,12 @@ public class AppManagerTestBundle {
 
 	public AppManagerTestBundle(JsonObject initialComponentConfig, MyConfig initialAppManagerConfig,
 			Function<AppManagerTestBundle, List<OpenemsApp>> availableAppsSupplier) throws Exception {
+		this(initialComponentConfig, initialAppManagerConfig, availableAppsSupplier, null);
+	}
+
+	public AppManagerTestBundle(JsonObject initialComponentConfig, MyConfig initialAppManagerConfig,
+			Function<AppManagerTestBundle, List<OpenemsApp>> availableAppsSupplier,
+			Consumer<JsonUtils.JsonObjectBuilder> additionalComponentConfig) throws Exception {
 		if (initialComponentConfig == null) {
 			initialComponentConfig = JsonUtils.buildJsonObject() //
 					.add("scheduler0", JsonUtils.buildJsonObject() //
@@ -82,6 +90,7 @@ public class AppManagerTestBundle {
 													+ "}") //
 									.build()) //
 							.build()) //
+					.onlyIf(additionalComponentConfig != null, additionalComponentConfig) //
 					.build();
 		}
 
@@ -120,8 +129,11 @@ public class AppManagerTestBundle {
 		this.appManagerUtil = new AppManagerUtilImpl(this.componentManger);
 		ReflectionUtils.setAttribute(this.appManagerUtil.getClass(), this.appManagerUtil, "appManager", this.sut);
 
-		this.checkablesBundle = new CheckablesBundle(new CheckCardinality(this.sut, this.appManagerUtil,
-				getComponentContext(CheckCardinality.COMPONENT_NAME)));
+		this.checkablesBundle = new CheckablesBundle(
+				new CheckCardinality(this.sut, this.appManagerUtil,
+						getComponentContext(CheckCardinality.COMPONENT_NAME)), //
+				new CheckRelayCount(this.componentUtil, getComponentContext(CheckRelayCount.COMPONENT_NAME)) //
+		);
 
 		var dummyValidator = new DummyValidator();
 		dummyValidator.setCheckables(this.checkablesBundle.all());
@@ -146,6 +158,19 @@ public class AppManagerTestBundle {
 				.addReference("availableApps", availableAppsSupplier.apply(this)) //
 				.activate(initialAppManagerConfig);
 
+	}
+
+	/**
+	 * Gets the first found instance of the given app.
+	 * 
+	 * @param appId the instance of which app
+	 * @return the instance or null if not found
+	 */
+	public OpenemsAppInstance findFirst(String appId) {
+		return this.sut.getInstantiatedApps().stream() //
+				.filter(t -> t.appId.equals(appId)) //
+				.findFirst() //
+				.orElse(null);
 	}
 
 	/**
@@ -189,9 +214,11 @@ public class AppManagerTestBundle {
 	public static class CheckablesBundle {
 
 		public final CheckCardinality checkCardinality;
+		public final CheckRelayCount checkRelayCount;
 
-		private CheckablesBundle(CheckCardinality checkCardinality) {
+		private CheckablesBundle(CheckCardinality checkCardinality, CheckRelayCount checkRelayCount) {
 			this.checkCardinality = checkCardinality;
+			this.checkRelayCount = checkRelayCount;
 		}
 
 		/**
@@ -200,9 +227,9 @@ public class AppManagerTestBundle {
 		 * @return the {@link Checkable}
 		 */
 		public final List<Checkable> all() {
-			var result = new ArrayList<Checkable>();
-			result.add(this.checkCardinality);
-			return result;
+			return Lists.newArrayList(this.checkCardinality, //
+					this.checkRelayCount //
+			);
 		}
 	}
 

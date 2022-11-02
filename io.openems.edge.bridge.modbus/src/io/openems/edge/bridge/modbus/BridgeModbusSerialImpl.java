@@ -99,7 +99,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	}
 
 	@Override
-	protected Cycle getCycle() {
+	public Cycle getCycle() {
 		return this.cycle;
 	}
 

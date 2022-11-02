@@ -1,3 +1,4 @@
+import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { FeedInType } from '../../../shared/enums';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
@@ -8,7 +9,7 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
 
     public readonly id: string = 'commercial-50-eigenverbrauchsoptimierung';
 
-    constructor() {
+    constructor(translate: TranslateService) {
         super([
             View.PreInstallation,
             View.PreInstallationUpdate,
@@ -24,7 +25,7 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
             View.ConfigurationExecute,
             View.ProtocolSerialNumbers,
             View.Completion
-        ]);
+        ], translate);
     }
 
     public setRequiredControllers() {

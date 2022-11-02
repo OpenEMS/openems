@@ -1,11 +1,11 @@
-<installation-view iconName="settings-outline" header="Welches Speichersystem soll konfiguriert werden?"
+<installation-view iconName="settings-outline" header="{{'INSTALLATION.CONFIGURATION_SYSTEM.TITLE'|translate}}"
     (previousClicked)="onPreviousClicked()" (nextClicked)="onNextClicked()">
 
     <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
 
     <ion-item *ngIf="form.controls['type']?.value">
         <ion-button (click)="openManual()">
-            <ion-label>Anleitung öffnen</ion-label>
+            <ion-label>{{ 'INSTALLATION.CONFIGURATION_SYSTEM.OPEN_INSTRUCTIONS' | translate}}</ion-label>
             <ion-icon name="open-outline" slot="start"></ion-icon>
         </ion-button>
     </ion-item>
