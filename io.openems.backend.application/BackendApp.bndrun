@@ -29,6 +29,7 @@
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='org.apache.felix.inventory',\
 	bnd.identity;id='org.apache.felix.eventadmin',\
+	bnd.identity;id='org.apache.felix.metatype',\
 	bnd.identity;id='io.openems.backend.alerting',\
 	bnd.identity;id='io.openems.backend.application',\
 	bnd.identity;id='io.openems.backend.b2brest',\
@@ -92,6 +93,7 @@
 	org.apache.felix.http.jetty;version='[4.1.14,4.1.15)',\
 	org.apache.felix.http.servlet-api;version='[2.0.0,2.0.1)',\
 	org.apache.felix.inventory;version='[1.1.0,1.1.1)',\
+	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.2.4,2.2.5)',\
 	org.apache.felix.webconsole;version='[4.7.2,4.7.3)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
@@ -101,7 +103,6 @@
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.0.14,2.0.15)',\
 	org.osgi.service.component;version='[1.5.0,1.5.1)',\
 	org.osgi.service.jdbc;version='[1.0.1,1.0.2)',\
-	org.osgi.service.metatype;version='[1.4.1,1.4.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
 	org.postgresql.jdbc;version='[42.5.0,42.5.1)',\
