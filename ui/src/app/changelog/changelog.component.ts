@@ -35,7 +35,7 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
-        version: '2022.10.5',
+        version: '2022.10.6',
         changes: [
           Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
           Changelog.product(...Product.ALL_EVCS) + Changelog.GENERAL_OPTIMIZATION,
