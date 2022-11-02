@@ -85,7 +85,7 @@ public interface ShellyPlug extends DigitalOutput, SymmetricMeter, OpenemsCompon
 	 *
 	 * @param value the next value
 	 */
-	public default void _setRelay(boolean value) {
+	public default void _setRelay(Boolean value) {
 		this.getRelayChannel().setNextValue(value);
 	}
 

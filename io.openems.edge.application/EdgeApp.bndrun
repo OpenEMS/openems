@@ -1,4 +1,4 @@
--runfw: org.apache.felix.framework;version='[7.0.3,7.0.3]'
+-runfw: org.apache.felix.framework;version='[7.0.5,7.0.5]'
 -runee: JavaSE-11
 -runprovidedcapabilities: ${native_capability}
 
@@ -30,6 +30,8 @@
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='org.apache.felix.inventory',\
+	bnd.identity;id='org.apache.felix.eventadmin',\
+	bnd.identity;id='org.apache.felix.metatype',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
@@ -347,7 +349,7 @@
 	org.apache.felix.http.servlet-api;version='[2.0.0,2.0.1)',\
 	org.apache.felix.inventory;version='[1.1.0,1.1.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
-	org.apache.felix.scr;version='[2.1.30,2.1.31)',\
+	org.apache.felix.scr;version='[2.2.4,2.2.5)',\
 	org.apache.felix.webconsole;version='[4.7.2,4.7.3)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
@@ -355,6 +357,7 @@
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.0.14,2.0.15)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.0.14,2.0.15)',\
+	org.osgi.service.component;version='[1.5.0,1.5.1)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
