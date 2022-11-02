@@ -1,6 +1,7 @@
 package io.openems.backend.common.timedata;
 
-import java.util.Optional;
+import java.util.Map;
+import java.util.Set;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -25,12 +26,12 @@ public interface Timedata extends CommonTimedataService {
 	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException;
 
 	/**
-	 * Gets the latest value for the given ChannelAddress.
+	 * Gets the latest values for the given ChannelAddresses.
 	 *
-	 * @param edgeId         The unique Edge-ID
-	 * @param channelAddress The Channel-Address
-	 * @return the value
+	 * @param edgeId           The unique Edge-ID
+	 * @param channelAddresses The {@link ChannelAddress}es
+	 * @return the values
 	 */
-	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress);
+	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses);
 
 }

@@ -1,8 +1,5 @@
 package io.openems.backend.uiwebsocket.impl;
 
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +21,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnClose onClose;
 
 	public WebsocketServer(UiWebsocketImpl parent, String name, int port, int poolSize, boolean debugMode) {
-		super(name, port, poolSize, debugMode);
+		super(name, port, poolSize, debugMode, (executor) -> {
+		});
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(parent);
@@ -81,8 +79,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	}
 
 	@Override
-	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
-			TimeUnit unit) {
-		return super.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+	protected void logError(Logger log, String message) {
+		this.parent.logError(log, message);
 	}
 }

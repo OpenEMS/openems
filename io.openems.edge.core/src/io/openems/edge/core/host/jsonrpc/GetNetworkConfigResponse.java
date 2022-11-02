@@ -17,15 +17,7 @@ import io.openems.edge.core.host.NetworkConfiguration;
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *     "interfaces": {
- *       [name: string]: {
- *         "dhcp": boolean,
- *         "linkLocalAddressing": boolean,
- *         "gateway": string,
- *         "dns": string,
- *         "addresses": string[]
- *       }
- *     }
+ *     {@link NetworkConfiguration#toJson()}
  *   }
  * }
  * </pre>

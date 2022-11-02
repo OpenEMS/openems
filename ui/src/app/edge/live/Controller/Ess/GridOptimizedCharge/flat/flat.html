@@ -14,8 +14,7 @@
             </oe-flat-widget-line>
 
             <!--Minimum charge limit - negative are not shown-->
-            <oe-flat-widget-line
-                *ngIf="sellToGridLimitMinimumChargeLimit != null && sellToGridLimitMinimumChargeLimit > 0"
+            <oe-flat-widget-line *ngIf="sellToGridLimitMinimumChargeLimit > 0"
                 [name]="'Edge.Index.Widgets.GridOptimizedCharge.minimumCharge'| translate"
                 [converter]="CONVERT_WATT_TO_KILOWATT" [value]="sellToGridLimitMinimumChargeLimit">
             </oe-flat-widget-line>
@@ -27,7 +26,7 @@
             </oe-flat-widget-line>
 
             <!--DelayCharge maximum charge limit-->
-            <oe-flat-widget-line *ngIf="delayChargeMaximumChargeLimit != null"
+            <oe-flat-widget-line *ngIf="delayChargeMaximumChargeLimit !== null"
                 [name]="'Edge.Index.Widgets.GridOptimizedCharge.maximumCharge' | translate"
                 [converter]="CONVERT_WATT_TO_KILOWATT" [value]="delayChargeMaximumChargeLimit">
             </oe-flat-widget-line>

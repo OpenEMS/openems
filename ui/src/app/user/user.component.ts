@@ -9,9 +9,9 @@ import { SetUserInformationRequest } from '../shared/jsonrpc/request/setUserInfo
 import { UpdateUserLanguageRequest } from '../shared/jsonrpc/request/updateUserLanguageRequest';
 import { GetUserInformationResponse } from '../shared/jsonrpc/response/getUserInformationResponse';
 import { Service, Websocket } from '../shared/shared';
-import { Language, LanguageTag } from '../shared/translate/language';
+import { Language } from '../shared/type/language';
 
-export const COUNTRY_OPTIONS: { value: string; label: string }[] = [
+const COUNTRY_OPTIONS: { value: string; label: string }[] = [
   { value: 'de', label: 'Deutschland' },
   { value: 'at', label: 'Österreich' },
   { value: 'ch', label: 'Schweiz' },
@@ -34,8 +34,8 @@ export class UserComponent implements OnInit {
 
   public environment = environment;
 
-  public readonly languages: LanguageTag[];
-  public currentLanguage: LanguageTag;
+  public readonly languages: Language[] = Language.ALL;
+  public currentLanguage: Language;
   public isEditModeDisabled: boolean = true;
   public form: { formGroup: FormGroup, fields: FormlyFieldConfig[], model: UserInformation };
   public showInformation: boolean = false;
@@ -46,13 +46,12 @@ export class UserComponent implements OnInit {
     private route: ActivatedRoute,
     private websocket: Websocket,
   ) {
-    this.languages = Language.getLanguageTags();
   }
 
   ngOnInit() {
     // Set currentLanguage to 
-    this.currentLanguage = LanguageTag[localStorage.LANGUAGE];
-    this.service.setCurrentComponent(this.translate.instant('Menu.user'), this.route);
+    this.currentLanguage = Language.getByFilename(localStorage.LANGUAGE) ?? Language.DEFAULT;
+    this.service.setCurrentComponent({ languageKey: 'Menu.user' }, this.route);
 
     this.getUserInformation().then((userInformation) => {
       this.form = {
@@ -236,19 +235,18 @@ export class UserComponent implements OnInit {
     this.environment.debugMode = event.detail['checked'];
   }
 
-  public setLanguage(language: LanguageTag): void {
-
+  public setLanguage(language: Language): void {
     // Get Key of LanguageTag Enum
-    localStorage.LANGUAGE = Object.keys(LanguageTag)[Object.values(LanguageTag).indexOf(language)]
+    localStorage.LANGUAGE = language.filename;
 
-    this.service.setLang(LanguageTag[localStorage.LANGUAGE])
-    this.websocket.sendRequest(new UpdateUserLanguageRequest({ language: localStorage.LANGUAGE })).then(() => {
+    this.service.setLang(language);
+    this.websocket.sendRequest(new UpdateUserLanguageRequest({ language: language.filename })).then(() => {
       this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
     }).catch((reason) => {
       this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
     });
 
     this.currentLanguage = language;
-    this.translate.use(language);
+    this.translate.use(language.filename);
   }
 }

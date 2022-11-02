@@ -106,6 +106,11 @@ public class TestClient extends AbstractWebsocketClient<WsData> {
 	}
 
 	@Override
+	protected void logError(Logger log, String message) {
+		log.error(message);
+	}
+
+	@Override
 	protected void execute(Runnable command) {
 		command.run();
 	}

@@ -7,7 +7,7 @@ import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstra
   selector: 'Evcs_Api_Cluster',
   templateUrl: './Evcs_Api_Cluster.html'
 })
-export class Evcs_Api_Cluster extends AbstractFlatWidget {
+export class Evcs_Api_ClusterComponent extends AbstractFlatWidget {
 
   public channelAddresses: ChannelAddress[] = [];
   public evcsIdsInCluster: String[] = []

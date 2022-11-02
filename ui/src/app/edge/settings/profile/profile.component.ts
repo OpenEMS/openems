@@ -24,7 +24,7 @@ export class ProfileComponent {
   public config: EdgeConfig = null;
   public subscribedChannels: ChannelAddress[] = [];
 
-  public components: CategorizedComponents[];
+  public components: CategorizedComponents[] | null = null;
 
   constructor(
     private service: Service,
@@ -34,7 +34,7 @@ export class ProfileComponent {
   ) { }
 
   ionViewWillEnter() {
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.systemProfile'), this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.systemProfile' }, this.route).then(edge => {
       this.edge = edge;
       this.service.getConfig().then(config => {
         this.config = config;

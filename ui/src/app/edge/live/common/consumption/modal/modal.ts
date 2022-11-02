@@ -1,12 +1,11 @@
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Utils } from '../../../../../shared/shared';
 import { Component } from '@angular/core';
 import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
-import { FormGroup } from '@angular/forms';
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../../shared/shared';
 
 @Component({
   templateUrl: './modal.html'
 })
-export class Modal extends AbstractModal {
+export class ModalComponent extends AbstractModal {
 
   public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
 

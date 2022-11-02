@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
@@ -42,5 +43,13 @@ public interface UiWebsocket {
 	 * @throws OpenemsNamedException on error
 	 */
 	public void sendBroadcast(String edgeId, JsonrpcNotification notification) throws OpenemsNamedException;
+
+	/**
+	 * Sends the subscribed Channels to the UI session.
+	 * 
+	 * @param edgeId    the Edge-ID
+	 * @param edgeCache the {@link EdgeCache} for the Edge-ID
+	 */
+	public void sendSubscribedChannels(String edgeId, EdgeCache edgeCache);
 
 }

@@ -35,8 +35,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.host.Inet4AddressWithSubnetmask;
 import io.openems.edge.core.host.NetworkInterface;
-import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 import io.openems.edge.io.api.DigitalOutput;
 
@@ -729,19 +729,19 @@ public class ComponentUtilImpl implements ComponentUtil {
 		}
 
 		// parse ip s
-		List<Inet4AddressWithNetmask> deleteIpAddresses = new ArrayList<>();
+		List<Inet4AddressWithSubnetmask> deleteIpAddresses = new ArrayList<>();
 		for (var ip : deleteIps) {
 			try {
-				deleteIpAddresses.add(Inet4AddressWithNetmask.fromString(ip));
+				deleteIpAddresses.add(Inet4AddressWithSubnetmask.fromString(ip));
 			} catch (OpenemsException e) {
 				errors.add("Ip '" + ip + "' can not be parsed.");
 			}
 		}
 
-		List<Inet4AddressWithNetmask> ipAddresses = new ArrayList<>(ips.size());
+		List<Inet4AddressWithSubnetmask> ipAddresses = new ArrayList<>(ips.size());
 		for (var ip : ips) {
 			try {
-				ipAddresses.add(Inet4AddressWithNetmask.fromString(ip));
+				ipAddresses.add(Inet4AddressWithSubnetmask.fromString(ip));
 			} catch (OpenemsException e) {
 				errors.add("Ip '" + ip + "' can not be parsed.");
 			}
@@ -752,6 +752,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 		if (eth0 == null) {
 			return;
 		}
+		interfaces.remove(eth0);
 
 		// remove already added addresses
 		for (var address : eth0.getAddresses().getValue()) {
@@ -763,6 +764,13 @@ public class ComponentUtilImpl implements ComponentUtil {
 
 		// add ip s from new configuration
 		eth0.getAddresses().getValue().addAll(ipAddresses);
+
+		for (var address : ipAddresses) {
+			// TODO add label to IP-Addresses (e.g. for KEBA)
+			eth0.getAddresses().getValue().add(address);
+		}
+
+		interfaces.add(eth0);
 
 		try {
 			this.updateInterfaces(user, interfaces);

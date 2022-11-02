@@ -1,6 +1,6 @@
-<ng-container *ngIf="index && components?.length != 1, else simpleLine">
+<ng-container *ngIf="index && components?.length !== 1, else simpleLine">
     <ng-container>
-        <div *ngIf="(index != (components.length - 1))"
+        <div *ngIf="(index !== (components.length - 1))"
             style="border-bottom: 1px solid lightgray; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">
         </div>
     </ng-container>
@@ -8,7 +8,7 @@
 
 <ng-template #simpleLine>
     <!-- If only one component, dont display the line -->
-    <div *ngIf="components?.length != 1"
+    <div *ngIf="components?.length !== 1"
         style="border-bottom: 1px solid lightgray; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">
     </div>
 </ng-template>

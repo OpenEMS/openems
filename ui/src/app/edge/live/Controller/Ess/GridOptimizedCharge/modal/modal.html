@@ -13,9 +13,9 @@
         </oe-modal-line>
 
         <!--DelayCharge target minute-->
-        <oe-modal-line *ngIf="targetMinute && this.delayChargeState != DelayChargeState.NO_REMAINING_TIME"
+        <oe-modal-line *ngIf="targetMinute && this.delayChargeState !== DelayChargeState.NO_REMAINING_TIME"
             leftColumnWidth="70" [name]="'Edge.Index.Widgets.GridOptimizedCharge.endTimeLong'| translate"
-            [converter]="CONVERT_MINUTE_TO_TIME_OF_DAY" [channelAddress]="[{address: component.id + '/TargetMinute'}]">
+            [converter]="CONVERT_MINUTE_TO_TIME_OF_DAY" [values]="[{value: targetMinute}]">
         </oe-modal-line>
 
         <!-- Capacity (visible for admin only)-->
@@ -84,8 +84,11 @@
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
         <oe-modal-info-line
-            *ngIf="targetMinute != null && delayChargeMaximumChargeLimit != null;else defaultEndTimeDescription"
-            [info]="'Edge.Index.Widgets.GridOptimizedCharge.endTimeDetailedDescription'| translate: {value1:delayChargeMaximumChargeLimit | unitvalue:'W', value2:(targetMinute * 60)} | formatSecondsToDuration">
+            *ngIf="targetMinute !== null && delayChargeMaximumChargeLimit !== null;else defaultEndTimeDescription"
+            [info]="[{text:
+                'Edge.Index.Widgets.GridOptimizedCharge.endTimeDetailedDescription'| translate:
+                 {value1:delayChargeMaximumChargeLimit | unitvalue:'W', value2:(targetMinute * 60) | formatSecondsToDuration}
+                }]">
         </oe-modal-info-line>
 
         <ng-template #defaultEndTimeDescription>
@@ -97,7 +100,7 @@
 
         <!--Predicted soc chart-->
         <ng-container
-            *ngIf="delayChargeState != DelayChargeState.NO_REMAINING_TIME && delayChargeState != DelayChargeState.TARGET_MINUTE_NOT_CALCULATED">
+            *ngIf="delayChargeState !== DelayChargeState.NO_REMAINING_TIME && delayChargeState !== DelayChargeState.TARGET_MINUTE_NOT_CALCULATED">
 
             <!-- Description -->
             <oe-modal-info-line
@@ -105,7 +108,7 @@
             </oe-modal-info-line>
 
             <!-- Chart -->
-            <predictionChart *ngIf="targetEpochSeconds != null" padding-bottom padding-top [refresh]="refreshChart"
+            <predictionChart *ngIf="targetEpochSeconds !== null" padding-bottom padding-top [refresh]="refreshChart"
                 [component]="component" [edge]="edge" [targetEpochSeconds]="targetEpochSeconds"
                 [chargeStartEpochSeconds]="chargeStartEpochSeconds">
             </predictionChart>

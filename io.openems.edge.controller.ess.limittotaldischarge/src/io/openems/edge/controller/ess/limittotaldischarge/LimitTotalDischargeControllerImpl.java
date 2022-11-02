@@ -48,7 +48,6 @@ public class LimitTotalDischargeControllerImpl extends AbstractOpenemsComponent
 	private int forceChargeSoc = 0;
 	private Optional<Integer> forceChargePower = Optional.empty();
 	private State state = State.NORMAL;
-	private Config config;
 
 	public LimitTotalDischargeControllerImpl() {
 		super(//
@@ -62,11 +61,13 @@ public class LimitTotalDischargeControllerImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		this.config = config;
 		this.essId = config.ess_id();
 		this.minSoc = config.minSoc();
 		this.forceChargeSoc = config.forceChargeSoc();
 
+		// Set the MinSoc channel.
+		this._setMinSoc(this.minSoc);
+		
 		// Parse Force-Charge-Power
 		int forceChargePower;
 		try {
@@ -209,10 +210,5 @@ public class LimitTotalDischargeControllerImpl extends AbstractOpenemsComponent
 			this._setAwaitingHysteresisValue(true);
 			return false;
 		}
-	}
-
-	@Override
-	public Config getConfig() {
-		return this.config;
 	}
 }
