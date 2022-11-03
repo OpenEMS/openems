@@ -133,10 +133,6 @@ include::io.openems.edge.solaredge.adoc[leveloffset=+1]
 
 include::io.openems.edge.tesla.powerwall2.adoc[leveloffset=+1]
 
-include::io.openems.edge.timedata.influxdb.adoc[leveloffset=+1]
-
-include::io.openems.edge.timedata.rrd4j.adoc[leveloffset=+1]
-
 include::io.openems.edge.timeofusetariff.awattar.adoc[leveloffset=+1]
 
 include::io.openems.edge.timeofusetariff.corrently.adoc[leveloffset=+1]

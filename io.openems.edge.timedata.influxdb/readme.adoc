@@ -1,5 +1,80 @@
 = InfluxDB
 
-Persists all data of OpenEMS Edge Channels to an InfluxDB timeseries database.
+Persists all data of OpenEMS Edge Channels to an InfluxDB timeseries database. The implementation is compatible with InfluxDB v1 and v2.
+
+== InfluxDB v1
+
+To setup the InfluxDB Timedata service with InfluxDB:
+
+. Download from https://portal.influxdata.com/downloads/[InfluxDB Download portal] -> "Are you interested in InfluxDB 1.x Open Source?"
+
+. Extract downloaded archive
+
+. Adjust the 'influxdb.conf' configuration file:
+
+.. Directory for metadata:
++
+```
+[meta]
+  dir = "/opt/influxdb/meta" # on Linux
+  dir = "C:/influxdb/meta" # on Windows
+```
+
+.. Directory for TSM and WAL files:
++
+```
+[data]
+  dir = "/opt/influxdb/data" # on Linux
+  dir = "C:/influxdb/data" # on Windows
+
+  wal-dir = "/opt/influxdb/wal" # on Linux
+  wal-dir = "C:/influxdb/wal" # on Windows
+```
+
+.. Enable HTTP endpoint and Flux query language in InfluxDB v1:
++
+```
+[http]
+  enabled = true
+  flux-enabled = true
+```
+
+. Run InfluxDB Server
+.. Open a new Terminal
+.. Run InfluxDB Server...
++
+```
+influxd.exe -config influxdb.conf
+```
+
+. Create database
+.. Open a new Terminal
+.. Run InfluxDB Client
++
+```
+influx.exe
+```
+.. Create database
++
+```
+Connected to http://localhost:8086 version 1.8.10
+InfluxDB shell version: 1.8.10
+> CREATE DATABASE db;
+exit
+```
++
+NOTE: You should see a log in InfluxDB Server: `"[httpd] "POST /query?chunked=true&db=&epoch=ns&q=CREATE+DATABASE+db%3B HTTP/1.1 " 200 57"`
+
+. Start OpenEMS Edge via `EdgeApp.bndrun`
+
+. Open Apache Felix Web Console (http://localhost:8080/system/console/configMgr)
+
+. Add Configuration for `Timedata InfluxDB`:
+
+** URL: `http://localhost:8086`
+** Org: `-`
+** Bucket: `db/data`
++
+NOTE: You should see logs in InfluxDB Server: `"[httpd] "POST /api/v2/write?org=-&bucket=db%2Fautogen&precision=ms HTTP/1.1 " 204 0"`
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timedata.influxdb[Source Code icon:github[]]
