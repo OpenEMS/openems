@@ -5,7 +5,7 @@ public class ModbusRecordUint16Hash extends ModbusRecordUint16 {
 	private final String text;
 
 	public ModbusRecordUint16Hash(int offset, String text) {
-		super(offset, "Hash of \"" + text + "\"", (short) text.hashCode());
+		super(offset, "Hash of \"" + text + "\"", ModbusSlaveNatureTable.generateHash(text));
 		this.text = text;
 	}
 

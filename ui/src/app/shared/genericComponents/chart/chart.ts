@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Edge, Service } from "../../shared";
 
@@ -6,7 +6,7 @@ import { Edge, Service } from "../../shared";
     selector: 'oe-chart',
     templateUrl: './chart.html',
 })
-export class ChartComponent {
+export class ChartComponent implements OnInit {
 
     public edge: Edge | null = null;
     @Input() public title: string = '';

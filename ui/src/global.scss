@@ -190,6 +190,11 @@ formly-input-section {
     flex: auto; // use all remaining space in a row
 }
 
+// style to color table rows with translusent background
+.even-row {
+  background-color: rgba(var(--ion-color-primary-rgb), 0.2);
+}
+
 // Added styles for alertController, because alertController doesn't take ionic default style
 .alertController {
     .alert-head {

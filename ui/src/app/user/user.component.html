@@ -17,7 +17,7 @@
                 Menu.name
               </ion-label>
               <ion-label>
-                {{ user.name }}
+                {{ this.form?.model ? (this.form?.model?.firstname + ' ' + this.form?.model?.lastname) : user.name }}
                 <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
                 </ion-icon> -->
               </ion-label>
@@ -78,7 +78,7 @@
                 <ion-icon name="pencil-outline" slot="end"></ion-icon>
               </ion-button>
               <ion-button [disabled]="!form?.formGroup?.dirty" slot="end" (click)="applyChanges()">
-                <ion-label>speichern</ion-label>
+                <ion-label translate>General.save</ion-label>
                 <ion-icon name="save-outline" slot="end"></ion-icon>
               </ion-button>
             </ion-item>
@@ -106,7 +106,7 @@
             <ul>
               <li>
                 <a target="_blank" href="https://github.com/OpenEMS/openems/tree/develop">
-                  <span translate>About.build</span>: 2022.10.0-SNAPSHOT</a>
+                  <span translate>About.build</span>: 2022.11.0-SNAPSHOT</a>
               </li>
             </ul>
             <p class="ion-padding">
@@ -129,7 +129,7 @@
               <ion-label translate>About.language</ion-label>
               <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
                 <ion-select-option *ngFor="let language of languages" [value]="language">
-                  {{ language }}
+                  {{ language.title }}
                 </ion-select-option>
               </ion-select>
             </ion-item>

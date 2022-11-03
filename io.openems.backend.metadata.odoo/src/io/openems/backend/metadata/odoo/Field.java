@@ -61,7 +61,8 @@ public interface Field {
 		OPENEMS_CONFIG_COMPONENTS("openems_config_components", false), //
 		LAST_MESSAGE("lastmessage", true), //
 		OPENEMS_SUM_STATE("openems_sum_state_level", false), //
-		OPENEMS_IS_CONNECTED("openems_is_connected", false);
+		OPENEMS_IS_CONNECTED("openems_is_connected", false), //
+		STOCK_PRODUCTION_LOT_ID("stock_production_lot_id", false);
 
 		public static final String ODOO_MODEL = "openems.device";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");
@@ -166,7 +167,8 @@ public interface Field {
 		USER_ID("(SELECT login FROM res_users ru WHERE ru.id = user_id)", true), //
 
 		TIME_TO_WAIT("time_to_wait", true), //
-		LAST_NOTIFICATION("last_notification", true); //
+		LAST_NOTIFICATION("last_notification", true), //
+		; //
 
 		public static final String ODOO_MODEL = "openems.device_user_role";
 		public static final String ODOO_TABLE = ODOO_MODEL.replace(".", "_");

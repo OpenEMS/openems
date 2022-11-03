@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { ProductType } from 'src/app/shared/type/widget';
 import { environment } from 'src/environments';
 import { Edge, Service, Utils } from '../../shared/shared';
 
@@ -16,15 +16,13 @@ export class SettingsComponent {
   constructor(
     private route: ActivatedRoute,
     protected utils: Utils,
-    private service: Service,
-    private translate: TranslateService
+    private service: Service
   ) {
   }
 
   ionViewWillEnter() {
-    this.service.setCurrentComponent(this.translate.instant('Menu.edgeSettings'), this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: 'Menu.edgeSettings' }, this.route).then(edge => {
       this.edge = edge
     });
   }
-
 }

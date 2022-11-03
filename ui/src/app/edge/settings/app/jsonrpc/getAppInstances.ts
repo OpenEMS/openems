@@ -62,6 +62,12 @@ export namespace GetAppInstances {
         appId: string,
         alias: string,
         instanceId: string,
-        properties: {}
+        properties: {},
+        dependencies: Dependency[]
+    }
+
+    export interface Dependency {
+        key: string,
+        instanceId: string
     }
 }

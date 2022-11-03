@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -36,7 +36,7 @@ type EnergyChartLabels = {
   selector: 'energy',
   templateUrl: './energy.component.html'
 })
-export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
+export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
   private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   private static readonly EXCEL_EXTENSION = '.xlsx';
@@ -139,6 +139,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   }
 
   protected updateChart() {
+    this.colors = [];
+    this.datasets = [];
     this.loading = true;
     this.startSpinner();
     this.autoSubscribeChartRefresh();

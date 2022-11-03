@@ -235,10 +235,10 @@ public class TimeOfUseTariffDischargeImpl extends AbstractOpenemsComponent
 		// reserve controllers.
 		var limitSoc = 0;
 		for (LimitTotalDischargeController ctrl : this.ctrlLimitTotalDischarges) {
-			limitSoc = Math.max(limitSoc, ctrl.getConfig().minSoc());
+			limitSoc = TypeUtils.max(limitSoc, ctrl.getMinSoc().get());
 		}
 		for (EmergencyCapacityReserve ctrl : this.ctrlEmergencyCapacityReserves) {
-			limitSoc = Math.max(limitSoc, ctrl.getConfig().reserveSoc());
+			limitSoc = TypeUtils.max(limitSoc, ctrl.getActualReserveSoc().get());
 		}
 		this.channel(TimeOfUseTariffDischarge.ChannelId.MIN_SOC).setNextValue(limitSoc);
 

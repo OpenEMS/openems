@@ -1,5 +1,6 @@
 package io.openems.edge.bridge.modbus;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
@@ -35,6 +36,7 @@ public class BridgeModbusTcpImplTest {
 	private static final ChannelAddress MODBUS_COMMUNICATION_FAILED = new ChannelAddress(DEVICE_ID,
 			"ModbusCommunicationFailed");
 
+	@Ignore
 	@Test
 	public void test() throws Exception {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(CYCLE_TIME);

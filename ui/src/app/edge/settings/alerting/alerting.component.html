@@ -1,46 +1,141 @@
-<header></header>
 <ion-content>
-  <ion-grid>
-    <ion-row class="ion-justify-content-center">
+  <!-- Loading Spinner -->
+  <ngx-spinner [name]="spinnerId"></ngx-spinner>
 
-      <ion-col size="12" size-md="6" *ngIf="edge && model">
+  <!-- User Settings View -->
+  <ion-grid *ngIf="!error; else error_view">
+    <!-- Current User View -->
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="6" *ngIf="edge">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" name="settings-outline" color="primary"></ion-icon>
             <ion-label>
-              <span translate>Menu.settings</span>
-              <!--span *ngIf="environment.backend == 'OpenEMS Backend'"> für {{ edge.id }}</span-->
+              <span>{{user.name}}</span>
             </ion-label>
           </ion-item>
-
-          <ion-card-content>
-            <form (ngSubmit)="updateAlerting()">
-              <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
-              <ion-button expand="block" type="submit" color="primary" [disabled]="form.invalid || !form.dirty"
-                translate>
-                Edge.Config.Alerting.save
-              </ion-button>
+          <ion-card-content *ngIf="currentUserInformation">
+            <form>
+              <formly-form [model]="currentUserForm.model" [fields]="currentUserForm.fields"
+              [options]="currentUserForm.options" [form]="currentUserForm.formGroup">
+              </formly-form>
             </form>
           </ion-card-content>
         </ion-card>
       </ion-col>
+    </ion-row>
 
-      <ion-col size="12" size-md="6" *ngIf="!model">
-        <ion-card>
-          <ion-item lines="full" color="light">
-            <ion-icon slot="start" name="warning-outline" color="danger"></ion-icon>
-            <ion-label color="danger">
-              <span>Error</span>
-            </ion-label>
-          </ion-item>
+    <!-- Other Users View -->
+    <ng-container *ngIf="edge?.roleIsAtLeast('admin') && otherUserSettings">
+      <ion-row class="ion-justify-content-center" *ngFor="let info of otherUserSettings">
+        <ion-col size="12" size-md="6">
+          <ion-card>
+            <ion-item lines="full" color="light">
+              <ion-icon slot="start" name="person-outline" color="primary"></ion-icon>
+              <ion-label>
+                <span translate>Menu.otherUser</span>{{' - '}}
+                {{('Role.' + info.role) | translate}}
+              </ion-label>
+            </ion-item>
 
-          <ion-card-content>
-            <ion-label color="danger">
-              <span>No Settings for Alerting</span>
-            </ion-label>
-          </ion-card-content>
-        </ion-card>
+            <ion-card-content>
+              <form [formGroup]="info.form">
+                <ion-item>
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col size="6">
+                        <ion-label class="wrap-text">
+                          <span translate>Menu.user</span>
+                        </ion-label>
+                      </ion-col>
+                      <ion-col size="3">
+                        <ion-label class="wrap-text">
+                          <span translate>Edge.Config.Alerting.activate</span>
+                        </ion-label>
+                      </ion-col>
+                      <ion-col size="3">
+                        <ion-label class="wrap-text">
+                          <span translate>Edge.Config.Alerting.delay</span>
+                        </ion-label>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-item>
+                <ion-item>
+                  <ion-grid>
+                    <ion-row *ngFor="let user of info.settings; let i = index;"
+                      [formGroupName]="user.userId" style="align-items: center;"
+                      [ngClass]="(i % 2 === 0) ? '' : 'even-row'">
+                      <ion-col size="6">
+                        <ion-label>
+                          {{user.userId}}
+                        </ion-label>
+                      </ion-col>
+                      <ion-col size="3">
+                        <ion-checkbox formControlName="isActivated" style="margin: 0;">
+                        </ion-checkbox>
+                      </ion-col>
+                      <ion-col size="3">
+                        <ion-select class="custom-options" interface="popover" formControlName="delayTime"
+                          style="max-width: 100% !important; margin: 0; padding: 0;"
+                          *ngIf="info.form.value[user.userId].isActivated">
+                          <ion-select-option *ngFor="let option of Delays" [value]="option.value">
+                            {{option.label}}
+                          </ion-select-option>
+                          <ng-container *ngIf="info.form.value[user.userId].delayTime as delay">
+                            <ion-select-option *ngIf="isInvalidDelay(delay)" [value]="delay">
+                              {{getLabelToDelay(delay)}}
+                            </ion-select-option>
+                          </ng-container>
+                        </ion-select>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-item>
+              </form>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ng-container>
+  </ion-grid>
+
+  <!-- Error View -->
+  <ng-template #error_view>
+    <ion-grid>
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="12" size-md="6">
+          <ion-card>
+            <ion-item lines="full" color="light">
+              <ion-icon slot="start" name="warning-outline" color="danger"></ion-icon>
+              <ion-label color="danger" translate>
+                General.fault
+              </ion-label>
+            </ion-item>
+
+            <ion-card-content>
+              <ion-label color="danger" expand="block" color="danger">
+                <span>{{error.message}}</span>
+              </ion-label>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ng-template>
+</ion-content>
+
+<!-- Save Button -->
+<ion-footer *ngIf="isDirty()">
+  <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="6">
+        <form (ngSubmit)="setUsersAlertingConfig()">
+          <ion-button expand="block" type="submit" color="primary" translate>
+          General.save
+          </ion-button>
+        </form>
       </ion-col>
     </ion-row>
   </ion-grid>
-</ion-content>
+</ion-footer>

@@ -41,10 +41,26 @@ public abstract class AbstractWorker {
 	 * @param name the name of the worker thread
 	 */
 	public void activate(String name) {
+		this.startWorker(name);
+	}
+
+	/**
+	 * Modifies the worker thread.
+	 * 
+	 * @param name the name of the worker thread
+	 */
+	public void modified(String name) {
+		if (!this.worker.isAlive() && !this.worker.isInterrupted() && !this.isStopped.get()) {
+			this.startWorker(name);
+		}
+	}
+
+	private void startWorker(String name) {
 		if (name != null) {
 			this.worker.setName(name);
-			this.worker.start();
 		}
+		this.worker.start();
+		this.triggerNextRun();
 	}
 
 	/**

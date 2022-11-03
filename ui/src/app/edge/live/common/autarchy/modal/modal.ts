@@ -4,4 +4,4 @@ import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractMo
 @Component({
   templateUrl: './modal.html'
 })
-export class Modal extends AbstractModal { }
+export class ModalComponent extends AbstractModal { }

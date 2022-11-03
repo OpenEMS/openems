@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition(//
 		name = "Controller Ess Emergency Capacity Reserve", //
 		description = "Delays/stops discharging if SoC is at configured reserve SoC")
-public @interface Config {
+@interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ctrlEmergencyCapacityReserve0";

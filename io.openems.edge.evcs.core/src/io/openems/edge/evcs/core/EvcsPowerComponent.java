@@ -51,27 +51,29 @@ public class EvcsPowerComponent extends AbstractOpenemsComponent implements Open
 	}
 
 	@Activate
-	void activate(ComponentContext context, Map<String, Object> properties, Config config) {
+	private void activate(ComponentContext context, Map<String, Object> properties, Config config) {
 		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		this.updateConfig(config);
+
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
+	}
+
+	@Modified
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.updateConfig(config);
+
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	@Modified
-	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
-			return;
-		}
-		this.updateConfig(config);
 	}
 
 	private void updateConfig(Config config) {

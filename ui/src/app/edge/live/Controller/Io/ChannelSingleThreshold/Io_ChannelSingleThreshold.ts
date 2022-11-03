@@ -24,7 +24,7 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
   public dependendOnValue: any;
   public isOtherInputAddress: boolean;
   public unitOfInputChannel: any;
-  public outputChannelValue: number;
+  public outputChannelValue: number | null = null;
   public switchState: string;
   public switchValue: number | string;
   public switchConverter = Utils.CONVERT_WATT_TO_KILOWATT;

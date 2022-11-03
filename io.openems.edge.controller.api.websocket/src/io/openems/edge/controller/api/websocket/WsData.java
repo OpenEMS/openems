@@ -1,17 +1,79 @@
 package io.openems.edge.controller.api.websocket;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.notification.CurrentDataNotification;
+import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
+import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
+import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 
 public class WsData extends io.openems.common.websocket.WsData {
 
+	private static class SubscribedChannels {
+
+		private final Logger log = LoggerFactory.getLogger(SubscribedChannels.class);
+
+		private int lastRequestCount = Integer.MIN_VALUE;
+		private final SortedSet<ChannelAddress> subscribedChannels = new TreeSet<>();
+
+		/**
+		 * Applies a SubscribeChannelsRequest.
+		 *
+		 * @param request the SubscribeChannelsRequest
+		 */
+		public synchronized void handleSubscribeChannelsRequest(SubscribeChannelsRequest request) {
+			if (this.lastRequestCount < request.getCount()) {
+				this.subscribedChannels.clear();
+				this.subscribedChannels.addAll(request.getChannels());
+			}
+		}
+
+		public Map<ChannelAddress, JsonElement> getChannelValues(ComponentManager componentManager) {
+			var subscribedChannels = this.subscribedChannels;
+			if (subscribedChannels == null || subscribedChannels.isEmpty()) {
+				return Collections.emptyMap();
+			}
+
+			var result = new HashMap<ChannelAddress, JsonElement>(subscribedChannels.size());
+			for (var channel : subscribedChannels) {
+				JsonElement value;
+				try {
+					Channel<?> c = componentManager.getChannel(channel);
+					value = c.value().asJson();
+				} catch (IllegalArgumentException | OpenemsNamedException e) {
+					this.log.warn("Unable to read value for Channel [" + channel + "]");
+					value = JsonNull.INSTANCE;
+				}
+				result.put(channel, value);
+			}
+			return result;
+		}
+
+		protected void dispose() {
+			this.subscribedChannels.clear();
+		}
+	}
+
+	private final Logger log = LoggerFactory.getLogger(WsData.class);
 	private final WebsocketApi parent;
-	private final SubscribedChannelsWorker subscribedChannelsWorker;
+	private final SubscribedChannels subscribedChannels = new SubscribedChannels();
 
 	/**
 	 * The token that is stored in the Browser Cookie. Be aware that this can be
@@ -23,7 +85,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	public WsData(WebsocketApi parent) {
 		this.parent = parent;
-		this.subscribedChannelsWorker = new SubscribedChannelsWorker(parent, this);
 	}
 
 	/**
@@ -31,7 +92,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	public void logout() {
 		this.unsetUser();
-		this.subscribedChannelsWorker.dispose();
+		this.subscribedChannels.dispose();
 	}
 
 	/**
@@ -92,16 +153,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 				.exception("Session [" + this.getSessionToken() + "]. Ignoring [" + resource + "]");
 	}
 
-	/**
-	 * Gets the {@link SubscribedChannelsWorker} to take care of subscribe to
-	 * CurrentData.
-	 *
-	 * @return the {@link SubscribedChannelsWorker}
-	 */
-	public SubscribedChannelsWorker getSubscribedChannelsWorker() {
-		return this.subscribedChannelsWorker;
-	}
-
 	@Override
 	public String toString() {
 		String tokenString;
@@ -113,10 +164,33 @@ public class WsData extends io.openems.common.websocket.WsData {
 		return "WebsocketApi.WsData [sessionToken=" + tokenString + ", user=" + this.user + "]";
 	}
 
-	@Override
-	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
-			TimeUnit unit) {
-		return this.parent.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+	/**
+	 * Applies a SubscribeChannelsRequest.
+	 *
+	 * @param request the {@link SubscribeChannelsRequest}
+	 */
+	public synchronized void handleSubscribeChannelsRequest(SubscribeChannelsRequest request) {
+		this.subscribedChannels.handleSubscribeChannelsRequest(request);
+	}
+
+	/**
+	 * Sends the subscribed Channels to the UI session.
+	 */
+	public void sendSubscribedChannels() {
+		var values = this.subscribedChannels.getChannelValues(this.parent.componentManager);
+		if (values.isEmpty()) {
+			return;
+		}
+		this.parent.server.execute(() -> {
+			try {
+				this.send(//
+						new EdgeRpcNotification(WebsocketApi.EDGE_ID, //
+								new CurrentDataNotification(values)));
+
+			} catch (OpenemsException e) {
+				this.parent.logWarn(this.log, "Unable to send CurrentDataNotification: " + e.getMessage());
+			}
+		});
 	}
 
 }

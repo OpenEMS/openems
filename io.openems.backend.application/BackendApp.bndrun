@@ -1,4 +1,4 @@
--runfw: org.apache.felix.framework;version='[7.0.3,7.0.3]'
+-runfw: org.apache.felix.framework;version='[7.0.5,7.0.5]'
 -runee: JavaSE-11
 -runprovidedcapabilities: ${native_capability}
 
@@ -28,6 +28,8 @@
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='org.apache.felix.inventory',\
+	bnd.identity;id='org.apache.felix.eventadmin',\
+	bnd.identity;id='org.apache.felix.metatype',\
 	bnd.identity;id='io.openems.backend.alerting',\
 	bnd.identity;id='io.openems.backend.application',\
 	bnd.identity;id='io.openems.backend.b2brest',\
@@ -40,6 +42,7 @@
 	bnd.identity;id='io.openems.backend.metadata.odoo',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
 	bnd.identity;id='io.openems.backend.timedata.influx',\
+	bnd.identity;id='io.openems.backend.timedata.timescaledb',\
 	bnd.identity;id='io.openems.backend.uiwebsocket',\
 
 -runbundles: \
@@ -62,6 +65,7 @@
 	io.openems.backend.metadata.odoo;version=snapshot,\
 	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\
+	io.openems.backend.timedata.timescaledb;version=snapshot,\
 	io.openems.backend.uiwebsocket;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
@@ -86,17 +90,18 @@
 	org.apache.commons.commons-io;version='[2.8.0,2.8.1)',\
 	org.apache.felix.configadmin;version='[1.9.24,1.9.25)',\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
-	org.apache.felix.http.jetty;version='[4.1.14,4.1.15)',\
+	org.apache.felix.http.jetty;version='[4.2.2,4.2.3)',\
 	org.apache.felix.http.servlet-api;version='[2.0.0,2.0.1)',\
 	org.apache.felix.inventory;version='[1.1.0,1.1.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
-	org.apache.felix.scr;version='[2.1.30,2.1.31)',\
+	org.apache.felix.scr;version='[2.2.4,2.2.5)',\
 	org.apache.felix.webconsole;version='[4.7.2,4.7.3)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
 	org.jetbrains.kotlin.osgi-bundle;version='[1.7.10,1.7.11)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.0.14,2.0.15)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.0.14,2.0.15)',\
+	org.osgi.service.component;version='[1.5.0,1.5.1)',\
 	org.osgi.service.jdbc;version='[1.0.1,1.0.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\

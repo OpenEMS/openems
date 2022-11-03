@@ -21,10 +21,10 @@ public class FieldTypeConflictHandler {
 			"^.*partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
 
 	private final Logger log = LoggerFactory.getLogger(FieldTypeConflictHandler.class);
-	private final Influx parent;
+	private final InfluxImpl parent;
 	private final ConcurrentHashMap<String, BiConsumer<Point, JsonElement>> specialCaseFieldHandlers = new ConcurrentHashMap<>();
 
-	public FieldTypeConflictHandler(Influx parent) {
+	public FieldTypeConflictHandler(InfluxImpl parent) {
 		this.parent = parent;
 	}
 

@@ -1,5 +1,5 @@
 <oe-modal *ngIf="isInitialized" [title]="'General.grid'| translate">
-    <oe-modal-line *ngIf="grid.mode == GridMode.OFF_GRID" [name]="'General.offGrid' | translate">
+    <oe-modal-line *ngIf="grid.mode === GridMode.OFF_GRID" [name]="'General.offGrid' | translate">
     </oe-modal-line>
     <oe-modal-line [name]="'General.gridBuyAdvanced' | translate" [values]="[{value: grid.buyFromGrid}]"
         [converter]="CONVERT_TO_WATT"></oe-modal-line>

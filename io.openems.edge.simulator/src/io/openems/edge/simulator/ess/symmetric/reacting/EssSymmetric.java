@@ -133,7 +133,9 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().asString() //
-				+ "|L:" + this.getActivePower().asString();
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
+				+ this.getAllowedDischargePower().asString();
 	}
 
 	@Override
