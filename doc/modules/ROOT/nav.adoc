@@ -9,6 +9,7 @@
 ** xref:edge/controller.adoc[Controller]
 ** xref:edge/bridge.adoc[Bridge]
 ** xref:edge/device_service.adoc[Device & Service]
+** xref:edge/timedata.adoc[Timedata]
 ** xref:edge/implement.adoc[Implementing a Device]
 ** xref:edge/build.adoc[Build OpenEMS Edge]
 ** xref:edge/deploy.adoc[Deploy OpenEMS Edge]
