@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - develop
+      - feature/update-timedata-docs
 
 jobs:
   build-docs:

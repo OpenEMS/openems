@@ -1,4 +1,0 @@
-
-include::io.openems.edge.timedata.influxdb.adoc[leveloffset=+1]
-
-include::io.openems.edge.timedata.rrd4j.adoc[leveloffset=+1]
