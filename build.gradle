@@ -91,7 +91,7 @@ task copyBundleReadmes() {
         def targetTimedata = basePath + "edge/timedata.adoc.d"
 
         // initialize target files and directories
-        [targetController, targetScheduler, targetNature, targetBridge, targetDeviceService].each { target ->
+        [targetController, targetScheduler, targetNature, targetBridge, targetDeviceService, targetTimedata].each { target ->
             delete fileTree(dir: target, include: '**/*.adoc') 
             new File(target + "/_include.adoc").write('')
         }
