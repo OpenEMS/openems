@@ -614,7 +614,7 @@
     "PLEASE_SELECT_OPTION": "Bitte wähle eine Option aus",
     "PRE_INSTALLATION": {
       "AUTHENTICATION_FAILED": "Fehler bei der Authentifizierung",
-      "EDGE_OFFLINE": "Es konnte keine Verbindung zum {{ edgeSHortName }} hergestellt werden",
+      "EDGE_OFFLINE": "Es konnte keine Verbindung zum {{ edgeShortName }} hergestellt werden",
       "INSTALLATION_SUCCESS": "Installation für {{ edgeId }} gestartet",
       "NOTE": "Hinweis:",
       "TITLE": "Installateursschlüssel eingeben",
@@ -812,7 +812,7 @@
       "LATEST_VERISON": "Das System ist auf dem aktuellsten Softwarestand",
       "NEW_VERSION_INSTALLING": "Neueste version installieren",
       "NEW_VERSION": "Neueste version:",
-      "OFFLINE": "Das {{ edge }} ist offline.",
+      "OFFLINE": "Das {{ edgeShortName }} ist offline.",
       "RESTARTING": "Das {{ edge }} wird neu gestartet...",
       "UPDATE_NOT_POSSIBLE": "System kann nicht geupdatet werden!",
       "UPDATE_PROGRESS": "Update wird ausgeführt...",
