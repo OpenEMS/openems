@@ -525,7 +525,7 @@
       "RECENT": "Current:",
       "TITLE": "Emergency power reserve",
       "VALUE": "Value [%]",
-      "EMERGENCY_RESERVE_LABEL": "Emergency power((symbol))"
+      "EMERGENCY_RESERVE_LABEL": "Emergency power{{ symbol }}"
     },
     "CONFIGURATION_EXECUTE": {
       "BATTERY_INVERTER": "Battery-Inverter",
@@ -613,7 +613,7 @@
     "PLEASE_SELECT_OPTION": "Please select a option",
     "PRE_INSTALLATION": {
       "AUTHENTICATION_FAILED": "Authentication failed",
-      "EDGE_OFFLINE": "A connection to the {{ edgeSHortName }} could not be established",
+      "EDGE_OFFLINE": "A connection to the {{ edgeShortName }} could not be established",
       "INSTALLATION_SUCCESS": "installation started for {{ edgeId }}",
       "NOTE": "Note:",
       "TITLE": "Enter the installation key",
@@ -812,7 +812,7 @@
       "LATEST_VERISON": "The system is up to date with the latest software",
       "NEW_VERSION_INSTALLING": "Install latest version",
       "NEW_VERSION": "Latest version:",
-      "OFFLINE": "The {{ value }} is offline.",
+      "OFFLINE": "The {{ edgeShortName }} is offline.",
       "RESTARTING": "The {{ edge }} is restarting...",
       "UPDATE_NOT_POSSIBLE": "System cannot be updated!",
       "UPDATE_PROGRESS": "Update in progress.",
