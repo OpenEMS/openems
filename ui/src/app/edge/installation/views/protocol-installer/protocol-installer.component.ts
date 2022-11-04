@@ -5,8 +5,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { GetUserInformationRequest } from 'src/app/shared/jsonrpc/request/getUserInformationRequest';
 import { GetUserInformationResponse } from 'src/app/shared/jsonrpc/response/getUserInformationResponse';
 import { Service } from 'src/app/shared/shared';
+import { COUNTRY_OPTIONS } from 'src/app/shared/type/country';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
-import { COUNTRY_OPTIONS } from '../../shared/country';
 
 type UserInformation = {
   companyName: string;

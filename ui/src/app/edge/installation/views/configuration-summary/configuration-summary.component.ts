@@ -6,7 +6,7 @@ import { Edge, Service } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { Category } from '../../shared/category';
-import { COUNTRY_OPTIONS } from '../../shared/country';
+import { COUNTRY_OPTIONS } from '../../../../shared/type/country';
 import { ComponentData, TableData } from '../../shared/ibndatatypes';
 import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
 

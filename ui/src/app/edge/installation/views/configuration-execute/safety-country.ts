@@ -1,4 +1,4 @@
-import { Country } from '../../shared/country';
+import { Country } from "src/app/shared/type/country";
 
 export enum SafetyCountry {
     GERMANY = 'GERMANY',
