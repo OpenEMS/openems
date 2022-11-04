@@ -17,16 +17,16 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "URL", description = "The InfluxDB URL, e.g.: http://ip:port")
-	String url();
+	@AttributeDefinition(name = "URL", description = "The InfluxDB URL, e.g.: http://localhost:8086")
+	String url() default "http://localhost:8086";
 
-	@AttributeDefinition(name = "Org", description = "The Organisation; '-' for InfluxDB v1")
+	@AttributeDefinition(name = "Org", description = "The Organisation; for InfluxDB v1: '-'")
 	String org() default "-";
 
-	@AttributeDefinition(name = "ApiKey", description = "The ApiKey; 'username:password' for InfluxDB v1")
+	@AttributeDefinition(name = "ApiKey", description = "The ApiKey; for InfluxDB v1: 'username:password', e.g. 'admin:admin'")
 	String apiKey();
 
-	@AttributeDefinition(name = "Bucket", description = "The bucket name; 'database/retentionPolicy' for InfluxDB v1")
+	@AttributeDefinition(name = "Bucket", description = "The bucket name; for InfluxDB v1: 'database/retentionPolicy', e.g. 'db/data'")
 	String bucket();
 
 	@AttributeDefinition(name = "No of Cycles", description = "How many Cycles till data is written to InfluxDB.")
