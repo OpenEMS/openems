@@ -336,7 +336,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 						m(SingleRackVersionC.ChannelId.CLUSTER_RUN_STATE, new UnsignedWordElement(0x2113)), //
 						m(SingleRackVersionC.ChannelId.CLUSTER_1_AVG_TEMPERATURE, new UnsignedWordElement(0x2114)) //
 				), //
-				new FC3ReadRegistersTask(0x218b, Priority.ONCE,
+				new FC3ReadRegistersTask(0x218b, Priority.LOW,
 						m(SingleRackVersionC.ChannelId.CLUSTER_1_PROJECT_ID, new UnsignedWordElement(0x218b)), //
 						m(SingleRackVersionC.ChannelId.CLUSTER_1_VERSION_MAJOR, new UnsignedWordElement(0x218c)), //
 						m(SingleRackVersionC.ChannelId.CLUSTER_1_VERSION_SUB, new UnsignedWordElement(0x218d)), //

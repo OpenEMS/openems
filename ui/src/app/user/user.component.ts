@@ -4,18 +4,13 @@ import { ActivatedRoute } from '@angular/router';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments';
+import { COUNTRY_OPTIONS } from '../shared/type/country';
 import { GetUserInformationRequest } from '../shared/jsonrpc/request/getUserInformationRequest';
 import { SetUserInformationRequest } from '../shared/jsonrpc/request/setUserInformationRequest';
 import { UpdateUserLanguageRequest } from '../shared/jsonrpc/request/updateUserLanguageRequest';
 import { GetUserInformationResponse } from '../shared/jsonrpc/response/getUserInformationResponse';
 import { Service, Websocket } from '../shared/shared';
 import { Language } from '../shared/type/language';
-
-const COUNTRY_OPTIONS: { value: string; label: string }[] = [
-  { value: 'de', label: 'Deutschland' },
-  { value: 'at', label: 'Österreich' },
-  { value: 'ch', label: 'Schweiz' },
-];
 
 type UserInformation = {
   firstname: string,
@@ -118,7 +113,7 @@ export class UserComponent implements OnInit {
           key: "firstname",
           type: "input",
           templateOptions: {
-            label: this.translate.instant("Register.form.firstname"),
+            label: this.translate.instant("Register.Form.firstname"),
             disabled: true
           }
         },
@@ -126,7 +121,7 @@ export class UserComponent implements OnInit {
           key: "lastname",
           type: "input",
           templateOptions: {
-            label: this.translate.instant("Register.form.lastname"),
+            label: this.translate.instant("Register.Form.lastname"),
             disabled: true
           }
         },
@@ -134,7 +129,7 @@ export class UserComponent implements OnInit {
           key: "street",
           type: "input",
           templateOptions: {
-            label: this.translate.instant("Register.form.street"),
+            label: this.translate.instant("Register.Form.street"),
             disabled: true
           }
         },
@@ -142,7 +137,7 @@ export class UserComponent implements OnInit {
           key: "zip",
           type: "input",
           templateOptions: {
-            label: this.translate.instant("Register.form.zip"),
+            label: this.translate.instant("Register.Form.zip"),
             disabled: true
           }
         },
@@ -150,7 +145,7 @@ export class UserComponent implements OnInit {
           key: "city",
           type: "input",
           templateOptions: {
-            label: this.translate.instant("Register.form.city"),
+            label: this.translate.instant("Register.Form.city"),
             disabled: true
           }
         },
@@ -158,8 +153,8 @@ export class UserComponent implements OnInit {
           key: "country",
           type: "select",
           templateOptions: {
-            label: this.translate.instant("Register.form.country"),
-            options: COUNTRY_OPTIONS,
+            label: this.translate.instant("Register.Form.country"),
+            options: COUNTRY_OPTIONS(this.translate),
             disabled: true
           }
         },
@@ -167,7 +162,7 @@ export class UserComponent implements OnInit {
           key: "email",
           type: "input",
           templateOptions: {
-            label: this.translate.instant("Register.form.email"),
+            label: this.translate.instant("Register.Form.email"),
             disabled: true
           },
           validators: {
@@ -178,7 +173,7 @@ export class UserComponent implements OnInit {
           key: "phone",
           type: "input",
           templateOptions: {
-            label: this.translate.instant("Register.form.phone"),
+            label: this.translate.instant("Register.Form.phone"),
             disabled: true
           }
         }

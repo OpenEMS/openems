@@ -42,7 +42,6 @@ import io.openems.edge.goodwe.common.enums.LoadMode;
 import io.openems.edge.goodwe.common.enums.LoadRegulationIndex;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 import io.openems.edge.goodwe.common.enums.MeterConnectCheckFlag;
-import io.openems.edge.goodwe.common.enums.MeterConnectStatus;
 import io.openems.edge.goodwe.common.enums.OperationMode;
 import io.openems.edge.goodwe.common.enums.OutputTypeAC;
 import io.openems.edge.goodwe.common.enums.PvMode;
@@ -243,7 +242,6 @@ public interface GoodWe extends OpenemsComponent {
 		// External Communication Data (ARM)
 		COM_MODE(Doc.of(ComMode.values())), //
 		RSSI(Doc.of(OpenemsType.INTEGER)), //
-		B_METER_COMMUNICATE_STATUS(Doc.of(MeterConnectStatus.values())), //
 		METER_COMMUNICATE_STATUS(Doc.of(MeterCommunicateStatus.values())), //
 		METER_ACTIVE_POWER_R(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
@@ -944,7 +942,8 @@ public interface GoodWe extends OpenemsComponent {
 		// Meter Control ARM
 		SELECT_WORK_MODE(Doc.of(AppModeIndex.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		WMETER_CONNECT_CHECK_FLAG(Doc.of(MeterConnectCheckFlag.values())), //
+		WMETER_CONNECT_CHECK_FLAG(Doc.of(MeterConnectCheckFlag.values()) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		LOG_DATA_ENABLE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		DATA_SEND_INTERVAL(Doc.of(OpenemsType.INTEGER) //

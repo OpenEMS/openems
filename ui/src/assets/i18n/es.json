@@ -86,15 +86,15 @@
     "save": "Ahorrar"
   },
   "Menu": {
-    "aboutUI": "Sobre FEMS",
+    "aboutUI": "Sobre OpenEMS",
     "accessLevel": "Nivel de acceso",
-    "edgeSettings": "Configuración FEMS",
+    "edgeSettings": "Configuración OpenEMS",
     "generalSettings": "Configuración general",
     "index": "Visión general",
     "logout": "Desuscribirse",
     "menu": "Menú",
     "name": "Nombre",
-    "overview": "estudio FEMS",
+    "overview": "estudio OpenEMS",
     "settings": "Ajustes",
     "user": "Usuario",
     "changelog": "Changelog",
@@ -125,7 +125,7 @@
       "user": "Usuario",
       "installer": "Instalador"
     },
-    "form": {
+    "Form": {
       "user": {
         "acceptPrivacyPolicy": "Al crear una cuenta de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de Privacidad</a> y las Condiciones de Uso de FENECON.*"
       },
@@ -544,14 +544,14 @@
   },
   "About": {
     "build": "Esta compilación",
-    "contact": "Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro FEMS-Team en <a href=\"mailto:{{value}}\">{{value}}</a>.",
+    "contact": "Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro OpenEMS-Team en <a href=\"mailto:{{value}}\">{{value}}</a>.",
     "currentDevelopments": "Desarrollos actuales",
     "developed": "Esta interfaz de usario es desarrollada por FENECON como software de código abierto.",
     "faq": "Preguntas frecuentes (FAQ)",
     "language": "Seleccionar idioma:",
     "openEMS": "Acerca de OpenEMS",
     "patchnotes": "Cambios en la supervisión de esta compilación",
-    "ui": "Interfaz de usario para FEMS y OpenEMS"
+    "ui": "Interfaz de usario para OpenEMS"
   },
   "Notifications": {
     "authenticationFailed": "Sin conexión: error de autenticación.",

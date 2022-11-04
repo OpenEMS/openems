@@ -88,15 +88,15 @@
     "save": "Save"
   },
   "Menu": {
-    "aboutUI": "About FEMS",
+    "aboutUI": "About OpenEMS",
     "accessLevel": "Úroveň přístupu",
-    "edgeSettings": "FEMS Předvolby",
+    "edgeSettings": "OpenEMS Předvolby",
     "generalSettings": "Obecné Nastavení",
     "index": "Přehled",
     "logout": "Odhlásit",
     "menu": "Menu",
     "name": "Název",
-    "overview": "FEMS Přehled",
+    "overview": "OpenEMS Přehled",
     "settings": "nastavení",
     "user": "Uživatel",
     "changelog": "Changelog"
@@ -126,7 +126,7 @@
       "user": "Uživatel",
       "installer": "Instalatér"
     },
-    "form": {
+    "Form": {
       "user": {
         "acceptPrivacyPolicy": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
       },
@@ -510,7 +510,7 @@
         }
       },
       "App": {
-        "header": "Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi FEMS.",
+        "header": "Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi OpenEMS.",
         "installed": "Nainstalováno",
         "available": "Dostupné na",
         "incompatible": "Nekompatibilní",
@@ -550,7 +550,7 @@
     "language": "Zvolte jazyk:",
     "openEMS": "Více o OpenEMS",
     "patchnotes": "Změny v monitorování tohoto sestavení",
-    "ui": "Uživatelské rozhraní pro FEMS"
+    "ui": "Uživatelské rozhraní pro OpenEMS"
   },
   "Notifications": {
     "authenticationFailed": "Žádné připojení: Ověření uživatele selhalo.",

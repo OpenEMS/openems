@@ -39,7 +39,7 @@ export class NetworkComponent implements OnInit {
 
   public ngOnInit() {
 
-    this.service.setCurrentComponent(this.translate.instant('Edge.Config.Index.networkConfiguration'), this.route).then(edge => {
+    this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.networkConfiguration' }, this.route).then(edge => {
       this.edge = edge;
 
       this.edge.sendRequest(this.websocket,
