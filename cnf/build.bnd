@@ -30,9 +30,15 @@ junit: \
 
 # OpenEMS bnd.bnd defaults
 buildpath: \
-	osgi.annotation;version='7.0.0',\
-	osgi.core;version='7.0.0',\
-	osgi.cmpn;version='7.0.0',\
+	osgi.annotation;version='8.1.0',\
+	osgi.core;version='8.0.0',\
+	org.osgi.service.cm;version='1.6.1',\
+	org.osgi.service.component;version='1.5.0',\
+	org.osgi.service.component.annotations;version='1.5.0',\
+	org.osgi.service.event;version='1.4.1',\
+	org.osgi.service.metatype;version='1.4.1',\
+	org.osgi.service.metatype.annotations;version='1.4.1',\
+	org.osgi.util.promise;version='1.2.0',\
 	slf4j.api;version='1.7.32',\
 	com.google.guava;version='31.1.0.jre',\
 	com.google.gson;version='2.9.1'
@@ -44,8 +50,8 @@ testpath: \
 # OpenEMS Eclipse IDE Workingsets
 -workingset =  \
 	Backend;member=${filter;${p};io\.openems\.backend\..*},\
-	Common;member=${filter;${p};io\.openems\.common|io\.openems\.shared\.influxdb|io\.openems\.wrapper|io\.openems\.edge\.simulator},\
-	Edge_Common;member=${filter;${p};io\.openems\.edge\.core|io\.openems\.edge\.application|io\.openems\.edge\.common},\
+	Common;member=${filter;${p};cnf|io\.openems\.common|io\.openems\.shared\.influxdb|io\.openems\.wrapper},\
+	Edge_Common;member=${filter;${p};io\.openems\.edge\.core|io\.openems\.edge\.application|io\.openems\.edge\.common|io\.openems\.edge\.simulator|io\.openems\.edge\.controller\.api|io\.openems\.edge\.edge2edge},\
 	Edge_Battery_Inverter;member=${filter;${p};io\.openems\.edge\.batteryinverter\..*},\
 	Edge_Bridge;member=${filter;${p};io\.openems\.edge\.bridge\..*},\
 	Edge_Battery;member=${filter;${p};io\.openems\.edge\.battery\..*},\

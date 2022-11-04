@@ -27,7 +27,11 @@ import io.openems.edge.core.host.NetworkInterface;
  *       "linkLocalAddressing"?: boolean,
  *       "gateway"?: string,
  *       "dns"?: string,
- *       "addresses"?: string[]
+ *       "addresses"?: [{
+ *         "label": string,
+ *         "address": string,
+ *         "subnetmask": string
+ *       }]
  *     }
  *   }
  * }
@@ -72,6 +76,7 @@ public class SetNetworkConfigRequest extends JsonrpcRequest {
 		for (NetworkInterface<?> iface : this.networkInterfaces) {
 			interfaces.add(iface.getName(), iface.toJson());
 		}
+
 		return JsonUtils.buildJsonObject() //
 				.add("interfaces", interfaces) //
 				.build();

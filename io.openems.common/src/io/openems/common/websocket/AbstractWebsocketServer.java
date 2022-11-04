@@ -5,10 +5,11 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -29,10 +30,9 @@ import io.openems.common.utils.ThreadPoolUtils;
 public abstract class AbstractWebsocketServer<T extends WsData> extends AbstractWebsocket<T> {
 
 	/**
-	 * Shared {@link ExecutorService}. Configuration is equal to
-	 * Executors.newCachedThreadPool(), but with DiscardOldestPolicy.
+	 * Shared {@link ExecutorService}.
 	 */
-	protected final ScheduledThreadPoolExecutor executor;
+	protected final ThreadPoolExecutor executor;
 
 	/*
 	 * This Executor is used if Debug-Mode is activated.
@@ -46,14 +46,17 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	/**
 	 * Construct an {@link AbstractWebsocketServer}.
 	 *
-	 * @param name      to identify this server
-	 * @param port      to listen on
-	 * @param poolSize  number of threads dedicated to handle the tasks
-	 * @param debugMode activate a regular debug log about the state of the tasks
+	 * @param name          to identify this server
+	 * @param port          to listen on
+	 * @param poolSize      number of threads dedicated to handle the tasks
+	 * @param debugMode     activate a regular debug log about the state of the
+	 *                      tasks
+	 * @param debugCallback additional callback on regular debug log
 	 */
-	protected AbstractWebsocketServer(String name, int port, int poolSize, boolean debugMode) {
+	protected AbstractWebsocketServer(String name, int port, int poolSize, boolean debugMode,
+			Consumer<ThreadPoolExecutor> debugCallback) {
 		super(name);
-		this.executor = new ScheduledThreadPoolExecutor(poolSize,
+		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
 				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		// Debug-Mode
@@ -66,6 +69,10 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 								this.executor.getActiveCount(), //
 								this.executor.getQueue().size(), //
 								this.executor.getCompletedTaskCount())); //
+				if (debugCallback != null) {
+					debugCallback.accept(this.executor);
+				}
+
 			}, 10, 10, TimeUnit.SECONDS);
 		} else {
 			this.debugLogExecutor = null;
@@ -80,11 +87,17 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 			@Override
 			public void onOpen(WebSocket ws, ClientHandshake handshake) {
-				T wsData = AbstractWebsocketServer.this.createWsData();
-				wsData.setWebsocket(ws);
-				ws.setAttachment(wsData);
-				var jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
-				AbstractWebsocketServer.this.execute(new OnOpenHandler(AbstractWebsocketServer.this, ws, jHandshake));
+				try {
+					T wsData = AbstractWebsocketServer.this.createWsData();
+					wsData.setWebsocket(ws);
+					ws.setAttachment(wsData);
+					var jHandshake = WebsocketUtils.handshakeToJsonObject(handshake);
+					AbstractWebsocketServer.this
+							.execute(new OnOpenHandler(AbstractWebsocketServer.this, ws, jHandshake));
+
+				} catch (Throwable t) {
+					AbstractWebsocketServer.this.handleInternalErrorSync(t, WebsocketUtils.getWsDataString(ws));
+				}
 			}
 
 			@Override
@@ -92,11 +105,16 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				try {
 					JsonrpcMessage message;
 					try {
-						message = JsonrpcMessage.from(stringMessage);
+						try {
+							message = JsonrpcMessage.from(stringMessage);
 
+						} catch (OpenemsNamedException e) {
+							// handle deprecated non-JSON-RPC messages
+							message = AbstractWebsocketServer.this.handleNonJsonrpcMessage(ws, stringMessage, e);
+						}
 					} catch (OpenemsNamedException e) {
-						// handle deprecated non-JSON-RPC messages
-						message = AbstractWebsocketServer.this.handleNonJsonrpcMessage(ws, stringMessage, e);
+						AbstractWebsocketServer.this.handleInternalErrorAsync(e, WebsocketUtils.getWsDataString(ws));
+						return;
 					}
 
 					if (message instanceof JsonrpcRequest) {
@@ -112,26 +130,36 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 					} else if (message instanceof JsonrpcNotification) {
 						AbstractWebsocketServer.this.execute(new OnNotificationHandler(AbstractWebsocketServer.this, ws,
 								(JsonrpcNotification) message));
-
 					}
-				} catch (OpenemsNamedException e) {
-					AbstractWebsocketServer.this.handleInternalErrorAsync(e, WebsocketUtils.getWsDataString(ws));
+
+				} catch (Throwable t) {
+					AbstractWebsocketServer.this.handleInternalErrorSync(t, WebsocketUtils.getWsDataString(ws));
 				}
 			}
 
 			@Override
 			public void onError(WebSocket ws, Exception ex) {
-				if (ws == null) {
-					AbstractWebsocketServer.this.handleInternalErrorAsync(ex, WebsocketUtils.getWsDataString(ws));
-				} else {
-					AbstractWebsocketServer.this.execute(new OnErrorHandler(AbstractWebsocketServer.this, ws, ex));
+				try {
+					if (ws == null) {
+						AbstractWebsocketServer.this.handleInternalErrorAsync(ex, WebsocketUtils.getWsDataString(ws));
+					} else {
+						AbstractWebsocketServer.this.execute(new OnErrorHandler(AbstractWebsocketServer.this, ws, ex));
+					}
+
+				} catch (Throwable t) {
+					AbstractWebsocketServer.this.handleInternalErrorSync(t, WebsocketUtils.getWsDataString(ws));
 				}
 			}
 
 			@Override
 			public void onClose(WebSocket ws, int code, String reason, boolean remote) {
-				AbstractWebsocketServer.this
-						.execute(new OnCloseHandler(AbstractWebsocketServer.this, ws, code, reason, remote));
+				try {
+					AbstractWebsocketServer.this
+							.execute(new OnCloseHandler(AbstractWebsocketServer.this, ws, code, reason, remote));
+
+				} catch (Throwable t) {
+					AbstractWebsocketServer.this.handleInternalErrorSync(t, WebsocketUtils.getWsDataString(ws));
+				}
 			}
 		};
 		// Allow the port to be reused. See
@@ -141,13 +169,14 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 
 	@Override
 	protected OnInternalError getOnInternalError() {
-		return (ex, wsDataString) -> {
-			if (ex instanceof BindException) {
-				this.log.error("Unable to Bind to port [" + this.port + "]");
+		return (t, wsDataString) -> {
+			if (t instanceof BindException) {
+				this.logError(this.log, "Unable to Bind to port [" + this.port + "]");
 			} else {
-				this.log.warn("OnInternalError for " + wsDataString + ". " + ex.getClass() + ": " + ex.getMessage());
+				this.logError(this.log,
+						"OnInternalError for " + wsDataString + ". " + t.getClass() + ": " + t.getMessage());
 			}
-			ex.printStackTrace();
+			t.printStackTrace();
 		};
 	}
 
@@ -191,7 +220,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	@Override
 	public void start() {
 		super.start();
-		this.log.info("Starting [" + this.getName() + "] websocket server [port=" + this.port + "]");
+		this.logInfo(this.log, "Starting websocket server [port=" + this.port + "]");
 		this.ws.start();
 	}
 
@@ -201,10 +230,8 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * @param command the {@link Runnable}
 	 */
 	@Override
-	protected void execute(Runnable command) {
-		if (!this.executor.isShutdown()) {
-			this.executor.execute(command);
-		}
+	protected void execute(Runnable command) throws RejectedExecutionException {
+		this.executor.execute(command);
 	}
 
 	/**
@@ -222,8 +249,8 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				this.ws.stop();
 				return;
 			} catch (NullPointerException | InterruptedException e) {
-				this.log.warn("Unable to stop websocket server [" + this.getName() + "]. "
-						+ e.getClass().getSimpleName() + ": " + e.getMessage());
+				this.logWarn(this.log,
+						"Unable to stop websocket server. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e1) {
@@ -231,7 +258,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				}
 			}
 		}
-		this.log.error("Stopping websocket server [" + this.getName() + "] failed too often.");
+		this.logError(this.log, "Stopping websocket server failed too often.");
 		super.stop();
 	}
 
@@ -247,21 +274,6 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	protected JsonrpcMessage handleNonJsonrpcMessage(WebSocket ws, String stringMessage, OpenemsNamedException e)
 			throws OpenemsNamedException {
 		throw new OpenemsException("Unhandled Non-JSON-RPC message", e);
-	}
-
-	/**
-	 * Wraps the shared {@link ScheduledThreadPoolExecutor} of this
-	 * {@link AbstractWebsocketServer}.
-	 *
-	 * @param command      see {@link ScheduledThreadPoolExecutor}
-	 * @param initialDelay see {@link ScheduledThreadPoolExecutor}
-	 * @param delay        see {@link ScheduledThreadPoolExecutor}
-	 * @param unit         see {@link ScheduledThreadPoolExecutor}
-	 * @return see {@link ScheduledThreadPoolExecutor}
-	 */
-	protected ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
-			TimeUnit unit) {
-		return this.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
 
 }

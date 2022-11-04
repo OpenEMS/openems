@@ -29,6 +29,9 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 		this.power = power;
+		if (power instanceof DummyPower) {
+			((DummyPower) power).addEss(this);
+		}
 		for (Channel<?> channel : this.channels()) {
 			channel.nextProcessImage();
 		}
@@ -45,6 +48,10 @@ public class DummyManagedSymmetricEss extends AbstractOpenemsComponent
 
 	public DummyManagedSymmetricEss(String id) {
 		this(id, new DummyPower(MAX_APPARENT_POWER));
+	}
+
+	public DummyManagedSymmetricEss(String id, int maxApparentPower) {
+		this(id, new DummyPower(maxApparentPower));
 	}
 
 	public DummyManagedSymmetricEss setMaxApparentPower(Integer value) {

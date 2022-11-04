@@ -45,7 +45,7 @@
                 <ion-col size="12">
                   <ion-card>
                     <ion-item lines="full" color="primary">
-                      <ion-label style="text-align: center;"> {{ appList.name }}
+                      <ion-label style="text-align: center;" translate> {{ appList.name }}
                       </ion-label>
                     </ion-item>
                   </ion-card>
@@ -73,8 +73,8 @@
                                 style="white-space: initial">
                                 {{ app.name }}</ion-label>
                             </ion-item>
-                            <ion-card-content [routerLink]="['single', app.appId]" [state]="app"
-                              style="cursor: pointer;">
+                            <ion-card-content [routerLink]="['single', app.appId]" [queryParams]="{name: app.name}"
+                              [state]="app" style="cursor: pointer;">
                               <div
                                 [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}"
                                 style="display: flex; align-items: center;justify-content: center; ">
@@ -120,7 +120,8 @@
                             class="ng-star-inserted sc-ion-label-md-h sc-ion-label-md-s md in-item-color hydrated">{{
                             app.name }}</ion-label>
                         </ion-item>
-                        <ion-card-content [routerLink]="['single', app.appId]" [state]="app" style="cursor: pointer;"
+                        <ion-card-content [routerLink]="['single', app.appId]" [queryParams]="{name: app.name}"
+                          [state]="app" style="cursor: pointer;"
                           [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
                           <div style="display: flex; align-items: center;justify-content: center; ">
                             <img *ngIf="app.image" [src]="app.image" />

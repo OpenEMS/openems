@@ -57,8 +57,8 @@
                 </ion-row>
             </ion-card-content>
         </ng-container>
-        <ng-container *ngIf="!showTotal || showTotal == null">
-            <ng-container *ngIf="essComponents != null && essComponents.length == 1">
+        <ng-container *ngIf="!showTotal">
+            <ng-container *ngIf="essComponents?.length === 1">
                 <ion-card-content class="underline">
                     <table class="full_width">
                         <tr>
@@ -89,7 +89,7 @@
                     </ion-row>
                 </ion-card-content>
             </ng-container>
-            <ng-container *ngIf="essComponents != null && essComponents.length > 1">
+            <ng-container *ngIf="essComponents?.length > 1">
                 <ion-card-content class="underline">
                     <table class="full_width">
                         <tr>
@@ -102,11 +102,8 @@
                     <ion-card-content class="underline">
                         <table class="full_width">
                             <tr>
-                                <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
-                                    {{component.id}}
-                                </td>
-                                <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
-                                    {{component.alias}}
+                                <td style="width: 100%" class="ion-padding">
+                                    {{ component.alias }}
                                 </td>
                             </tr>
                         </table>
@@ -135,16 +132,13 @@
                     </ion-row>
                 </ion-card-content>
             </ng-container>
-            <ng-container *ngIf="chargerComponents != null && essComponents.length != 1">
+            <ng-container *ngIf="essComponents?.length !== 1">
                 <ng-container *ngFor="let component of chargerComponents">
                     <ion-card-content [class.underline]="!isLastElement(component, chargerComponents)">
                         <table class="full_width">
                             <tr>
-                                <td style="width:100%" class="ion-padding" *ngIf="component.id == component.alias">
-                                    {{component.id}}
-                                </td>
-                                <td style="width: 100%" class="ion-padding" *ngIf="component.id != component.alias">
-                                    {{component.alias}}
+                                <td style="width: 100%" class="ion-padding">
+                                    {{ component.alias }}
                                 </td>
                             </tr>
                         </table>

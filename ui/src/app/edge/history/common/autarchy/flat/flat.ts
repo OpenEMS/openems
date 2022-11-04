@@ -6,7 +6,7 @@ import { AbstractHistoryWidget } from 'src/app/shared/genericComponents/abstract
     selector: 'autarchyWidget',
     templateUrl: './flat.html'
 })
-export class Flat extends AbstractHistoryWidget {
+export class FlatComponent extends AbstractHistoryWidget {
 
     public autarchyValue: number;
 

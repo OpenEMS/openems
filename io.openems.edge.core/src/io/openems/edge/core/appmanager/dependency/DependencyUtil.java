@@ -91,7 +91,7 @@ public class DependencyUtil {
 		var instances = new ArrayList<>(appManagerImpl.getInstantiatedApps());
 		var appHelper = getAppManagerAppHelper();
 		if (appHelper.getTemporaryApps() != null) {
-			instances.addAll(appHelper.getTemporaryApps().currentlyCreatingApps);
+			instances.addAll(appHelper.getTemporaryApps().currentlyCreatingApps());
 		}
 		for (var entry : appManagerImpl.appConfigs(instances, null)) {
 			if (entry.getValue().components.stream().anyMatch(c -> c.getId().equals(componentId))) {

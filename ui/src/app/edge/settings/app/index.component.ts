@@ -26,10 +26,10 @@ export class IndexComponent {
 
   public apps: GetApps.App[] = [];
 
-  public installedApps: AppList = { name: this.translate.instant('Edge.Config.App.installed'), appCategories: [] };
-  public availableApps: AppList = { name: this.translate.instant('Edge.Config.App.available'), appCategories: [] };
+  public installedApps: AppList = { name: 'Edge.Config.App.installed', appCategories: [] };
+  public availableApps: AppList = { name: 'Edge.Config.App.available', appCategories: [] };
   // TODO incompatible apps should not be shown in the future
-  public incompatibleApps: AppList = { name: this.translate.instant('Edge.Config.App.incompatible'), appCategories: [] };
+  public incompatibleApps: AppList = { name: 'Edge.Config.App.incompatible', appCategories: [] };
 
   public appLists: AppList[] = [this.installedApps, this.availableApps, this.incompatibleApps];
 

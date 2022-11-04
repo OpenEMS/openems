@@ -1,8 +1,8 @@
-import { Component, Input } from '@angular/core';
-import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 type ManualMode = 'FORCE_ON' | 'RECOMMENDATION' | 'REGULAR' | 'LOCK';
 type AutomaticEnableMode = 'automaticRecommendationCtrlEnabled' | 'automaticForceOnCtrlEnabled' | 'automaticLockCtrlEnabled'
@@ -11,7 +11,7 @@ type AutomaticEnableMode = 'automaticRecommendationCtrlEnabled' | 'automaticForc
   selector: 'heatpump-modal',
   templateUrl: './modal.component.html'
 })
-export class Controller_Io_HeatpumpModalComponent {
+export class Controller_Io_HeatpumpModalComponent implements OnInit {
 
   @Input() public edge: Edge | null = null;
   @Input() public component: EdgeConfig.Component | null = null;

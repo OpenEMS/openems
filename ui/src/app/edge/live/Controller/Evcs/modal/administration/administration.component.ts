@@ -1,14 +1,14 @@
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component, Input } from '@angular/core';
-import { Edge, Service, EdgeConfig, Websocket } from '../../../../../../shared/shared';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../../../shared/shared';
 
 @Component({
   selector: AdministrationComponent.SELECTOR,
   templateUrl: './administration.component.html'
 })
-export class AdministrationComponent {
+export class AdministrationComponent implements OnInit {
 
   @Input() public evcsComponent: EdgeConfig.Component;
   @Input() public edge: Edge;

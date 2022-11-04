@@ -16,6 +16,7 @@ import com.ghgande.j2mod.modbus.procimg.SimpleInputRegister;
 
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusRecord;
+import io.openems.edge.common.modbusslave.ModbusRecordUint16Reserved;
 
 /**
  * This implementation answers Modbus-TCP Slave requests.
@@ -54,6 +55,16 @@ public class MyProcessImage implements ProcessImage {
 		this.parent.logDebug(this.log, "Reading Registers. Address [" + offset + "] Count [" + count + "].");
 
 		try {
+			/*
+			 * Apply limitation from
+			 * `com.ghgande.j2mod.modbus.msg.ModbusMessageImpl.setDataLength()` and handle
+			 * exception properly
+			 */
+			var length = count * 2;
+			if (length < 0 || length + 2 > 255) {
+				throw new IllegalArgumentException("Invalid length: " + length + "; max. 126 registers allowed");
+			}
+
 			var records = this.parent.records.subMap(offset, offset + count);
 			var result = new Register[count];
 			for (var i = 0; i < count;) {
@@ -61,7 +72,7 @@ public class MyProcessImage implements ProcessImage {
 				var ref = i + offset;
 				var record = records.get(ref);
 				if (record == null) {
-					throw new MyIllegalAddressException(this, "Record for Modbus address [" + ref + "] is undefined.");
+					record = new ModbusRecordUint16Reserved(ref);
 				}
 
 				// Get Registers from Record

@@ -228,6 +228,11 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
+	}
+
+	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
 			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, token, request);
@@ -249,6 +254,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		switch (event.getTopic()) {
 		case Metadata.Events.AFTER_IS_INITIALIZED:
 			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+			break;
 		}
 	}
 }

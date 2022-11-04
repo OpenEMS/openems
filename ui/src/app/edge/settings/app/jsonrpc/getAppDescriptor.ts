@@ -23,7 +23,7 @@ import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonr
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *     "websiteURL": "https://fenecon.de/fems-2-2/..."
+ *     "websiteURL": "..."
  *   }
  * }
  * </pre>

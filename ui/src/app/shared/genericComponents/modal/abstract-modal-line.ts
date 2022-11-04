@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Directive, Inject, Input, OnDestroy } from "@angular/core";
+import { ChangeDetectorRef, Directive, Inject, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Role } from "../../type/role";
 
 @Directive()
-export abstract class AbstractModalLine implements OnDestroy {
+export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges {
 
     /** FormGroup */
     @Input() formGroup: FormGroup;

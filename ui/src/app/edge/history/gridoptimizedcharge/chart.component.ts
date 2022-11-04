@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { differenceInDays } from 'date-fns';
@@ -13,7 +13,7 @@ import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../
   selector: 'gridOptimizedChargeChart',
   templateUrl: '../abstracthistorychart.html'
 })
-export class GridOptimizedChargeChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class GridOptimizedChargeChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public component: EdgeConfig.Component;

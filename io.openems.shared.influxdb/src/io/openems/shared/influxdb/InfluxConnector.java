@@ -7,6 +7,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -19,6 +20,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +45,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.ThreadPoolUtils;
 import okhttp3.OkHttpClient;
@@ -201,13 +205,14 @@ public class InfluxConnector {
 		var options = InfluxDBClientOptions.builder() //
 				.url(this.url.toString()) //
 				.org(this.org) //
-				.authenticateToken(String.format(this.apiKey).toCharArray()) //
 				.bucket(this.bucket) //
-				.okHttpClient(okHttpClientBuilder) //
-				.build();
+				.okHttpClient(okHttpClientBuilder); //
+		if (this.apiKey != null && !this.apiKey.isBlank()) {
+			options.authenticateToken(String.format(this.apiKey).toCharArray()); //
+		}
 
 		var client = InfluxDBClientFactory //
-				.create(options) //
+				.create(options.build()) //
 				.enableGzip();
 
 		// Keep default WriteOptions from
@@ -442,6 +447,53 @@ public class InfluxConnector {
 	}
 
 	/**
+	 * Queries the latest available channel values.
+	 *
+	 * @param influxEdgeId     the unique, numeric Edge-ID; or Empty to query all
+	 *                         Edges
+	 * @param channelAddresses the {@link ChannelAddress}es
+	 * @return a map of {@link ChannelAddress}es and values
+	 * @throws OpenemsException on error
+	 */
+	public Map<ChannelAddress, JsonElement> queryChannelValues(Optional<Integer> influxEdgeId,
+			Set<ChannelAddress> channelAddresses) {
+		var result = channelAddresses.stream()
+				.collect(Collectors.toMap(Function.identity(), c -> (JsonElement) JsonNull.INSTANCE));
+		try {
+			for (var channelAddress : channelAddresses) {
+				// prepare query
+				var builder = new StringBuilder() //
+						.append("from(bucket: \"").append("db/default").append("\")") //
+						.append("|> range(start: -5m)") //
+						.append("|> filter(fn: (r) => ") //
+						.append("r._measurement == \"").append(MEASUREMENT).append("\" ");
+				if (influxEdgeId.isPresent()) {
+					builder.append("and r." + OpenemsOEM.INFLUXDB_TAG + " == \"" + influxEdgeId.get() + "\" ");
+				}
+				builder //
+						.append("and r._field == \"").append(channelAddress.toString()).append("\")") //
+						.append("|> last()");
+				var query = builder.toString();
+
+				// Execute query
+				var queryResult = this.executeQuery(query);
+
+				for (FluxTable fluxTable : queryResult) {
+					for (FluxRecord record : fluxTable.getRecords()) {
+						result.put(channelAddress, JsonUtils.getAsJsonElement(record.getValue()));
+					}
+				}
+			}
+
+		} catch (OpenemsException e) {
+			this.log.error(e.getMessage());
+			e.printStackTrace();
+
+		}
+		return result;
+	}
+
+	/**
 	 * Converts the QueryResult of a Historic-Data query to a properly typed Table.
 	 *
 	 * @param queryResult the Query-Result
@@ -571,4 +623,5 @@ public class InfluxConnector {
 		}
 		this.pointsQueue.offer(point);
 	}
+
 }

@@ -50,22 +50,29 @@ public class OnRequestHandler implements Runnable {
 				response = responseFuture.get();
 			}
 
-		} catch (Exception e) {
+		} catch (Throwable t) {
 			// Log Error
 			var log = new StringBuilder() //
 					.append("JSON-RPC Error ") //
-					.append("Response \"").append(e.getMessage()).append("\" ");
-			if (!(e instanceof OpenemsNamedException)) {
-				log.append("of type ").append(e.getClass().getCanonicalName()).append("] ");
+					.append("Response \"") //
+					.append(t.getMessage()) //
+					.append("\" ");
+			if (!(t instanceof OpenemsNamedException)) {
+				log //
+						.append("of type ") //
+						.append(t.getClass().getCanonicalName()) //
+						.append("] ");
 			}
-			log.append("for Request ").append(simplifyJsonrpcMessage(this.request.toJsonObject()).toString()); //
+			log //
+					.append("for Request ") //
+					.append(simplifyJsonrpcMessage(this.request.toJsonObject()).toString()); //
 			this.parent.logWarn(this.log, log.toString());
 
 			// Get JSON-RPC Response Error
-			if (e instanceof OpenemsNamedException) {
-				response = new JsonrpcResponseError(this.request.getId(), (OpenemsNamedException) e);
+			if (t instanceof OpenemsNamedException) {
+				response = new JsonrpcResponseError(this.request.getId(), (OpenemsNamedException) t);
 			} else {
-				response = new JsonrpcResponseError(this.request.getId(), e.getMessage());
+				response = new JsonrpcResponseError(this.request.getId(), t.getMessage());
 			}
 		}
 

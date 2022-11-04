@@ -13,6 +13,16 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public final class ModbusSlaveNatureTable {
 
+	/**
+	 * Generates a hash code from a string text.
+	 * 
+	 * @param text the text (e.g. "OpenemsComponent")
+	 * @return the short hash value (e.g. "0xb3dc")
+	 */
+	public static short generateHash(String text) {
+		return (short) text.hashCode();
+	}
+
 	public static class Builder {
 		private final Class<?> nature;
 		private final AccessMode accessModeFilter;
@@ -82,7 +92,7 @@ public final class ModbusSlaveNatureTable {
 		 * a {@link Function}. The Function is executed in the 'run()' method of the
 		 * Modbus-TCP-Api-Controller.
 		 * 
-		 * @param <T>			   the target OpenemsType
+		 * @param <T>              the target OpenemsType
 		 * @param offset           the register address offset
 		 * @param name             the name
 		 * @param unit             the {@link Unit}
@@ -116,7 +126,7 @@ public final class ModbusSlaveNatureTable {
 		 * {@link Builder}.
 		 * 
 		 * @param offset the address offset
-		 * @param text   the value
+		 * @param text   the description text
 		 * @return myself
 		 */
 		public Builder uint16Hash(int offset, String text) {
@@ -262,8 +272,35 @@ public final class ModbusSlaveNatureTable {
 		this.modbusRecords = modbusRecords;
 	}
 
-	public Class<?> getNature() {
+	/**
+	 * Gets the Nature class.
+	 * 
+	 * @return the nature class, e.g.
+	 *         {@link io.openems.edge.common.component.OpenemsComponent}
+	 * 
+	 */
+	public Class<?> getNatureClass() {
 		return this.nature;
+	}
+
+	/**
+	 * Gets the Nature name, i.e. the SimpleName of the Nature Class.
+	 * 
+	 * @return the nature name, e.g. "OpenemsComponent" for
+	 *         {@link io.openems.edge.common.component.OpenemsComponent}
+	 */
+	public String getNatureName() {
+		return this.nature.getSimpleName();
+	}
+
+	/**
+	 * Gets the Hash code for this Nature, built from the Nature-Name via
+	 * {@link #getNatureName()}.
+	 * 
+	 * @return the Hash code, e.g. "0xb3dc" for "OpenemsComponent"
+	 */
+	public short getNatureHash() {
+		return generateHash(this.getNatureName());
 	}
 
 	public int getLength() {
