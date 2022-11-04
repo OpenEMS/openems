@@ -5,6 +5,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
@@ -28,7 +30,6 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonNull;
 
 import io.openems.common.OpenemsConstants;
@@ -98,16 +99,30 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext componentContext, BundleContext bundleContext) throws OpenemsException {
+	private void activate(ComponentContext componentContext, BundleContext bundleContext) throws OpenemsException {
 		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.bundleContext = bundleContext;
+
+		for (ComponentManagerWorker worker : this.workers) {
+			worker.activate(this.id());
+		}
 
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
+	}
+
+	@Modified
+	private void modified(ComponentContext componentContext, BundleContext bundleContext) {
+		super.modified(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		this.bundleContext = bundleContext;
 
 		for (ComponentManagerWorker worker : this.workers) {
-			worker.activate(this.id());
+			worker.modified(this.id());
+		}
+
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
 		}
 	}
 
@@ -177,6 +192,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the components matching the filter
 	 */
 	private <T> List<T> getComponentsViaService(Class<T> clazz, String filter) {
+		if (this.bundleContext == null) {
+			// Can be null in JUnit tests
+			return Collections.emptyList();
+		}
+
 		try {
 			var serviceReferences = this.bundleContext.getServiceReferences(clazz, filter);
 
@@ -194,7 +214,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		} catch (InvalidSyntaxException e) {
 			// filter invalid
 			e.printStackTrace();
-			return Lists.newArrayList();
+			return Collections.emptyList();
 		}
 	}
 

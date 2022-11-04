@@ -8,7 +8,7 @@ import { Controller_Io_FixDigitalOutputModalComponent } from './modal/modal.comp
   selector: 'Controller_Io_FixDigitalOutput',
   templateUrl: './Io_FixDigitalOutput.html'
 })
-export class Controller_Io_FixDigitalOutput extends AbstractFlatWidget {
+export class Controller_Io_FixDigitalOutputComponent extends AbstractFlatWidget {
 
   public state: string = '-';
   public outputChannel: string;

@@ -1,9 +1,9 @@
 package io.openems.backend.timedata.dummy;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -20,7 +20,7 @@ import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.timedata.EdgeCache;
+import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -49,12 +49,16 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 	}
 
 	@Override
-	public Optional<JsonElement> getChannelValue(String edgeId, ChannelAddress channelAddress) {
+	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
 		var edgeCache = this.edgeCacheMap.get(edgeId);
-		if (edgeCache != null) {
-			return edgeCache.getChannelValue(channelAddress);
+		if (edgeCache == null) {
+			return Collections.emptyMap();
 		}
-		return Optional.empty();
+		var result = new HashMap<ChannelAddress, JsonElement>();
+		for (var channelAddress : channelAddresses) {
+			result.put(channelAddress, edgeCache.getChannelValue(channelAddress));
+		}
+		return result;
 	}
 
 	@Override
@@ -68,7 +72,11 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 
 		// Complement incoming data with data from Cache, because only changed values
 		// are transmitted
-		edgeCache.complementDataFromCache(edgeId, data.rowMap());
+		edgeCache.complementDataFromCache(data.rowMap(), //
+				(incomingTimestamp, cacheTimestamp) -> this.log.info(//
+						"Edge [" + edgeId + "]: invalidate cache. " //
+								+ "Incoming [" + incomingTimestamp + "]. " //
+								+ "Cache [" + cacheTimestamp + "]"));
 	}
 
 	@Override

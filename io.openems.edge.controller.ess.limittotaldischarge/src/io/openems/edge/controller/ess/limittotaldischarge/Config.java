@@ -6,8 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition(//
 		name = "Controller Ess Limit Total Discharge", //
 		description = "Limits total discharge for an Ess.")
-
-public @interface Config {
+@interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "ctrlLimitTotalDischarge0";

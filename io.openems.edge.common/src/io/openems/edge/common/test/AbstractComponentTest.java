@@ -511,9 +511,8 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		this.callActivate(config);
 
 		if (configChangeCount != this.getConfigChangeCount()) {
-			// deactivate + recursive call
-			this.callDeactivate();
-			this.activate(config);
+			// Config change detected
+			this.callModified(config);
 		}
 
 		// Now SUT can be added to the list, as it does have an ID now
@@ -537,10 +536,15 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	private void callActivate(AbstractComponentConfig config)
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		this.callActivateOrModified("activate", config);
+	}
+
+	private boolean callActivateOrModified(String methodName, AbstractComponentConfig config)
+			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Class<?> clazz = this.sut.getClass();
 		var methods = clazz.getDeclaredMethods();
 		for (Method method : methods) {
-			if (!method.getName().equals("activate")) {
+			if (!method.getName().equals(methodName)) {
 				continue;
 			}
 			var args = new Object[method.getParameterCount()];
@@ -568,7 +572,20 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			}
 			method.setAccessible(true);
 			method.invoke(this.sut, args);
+			return true;
+		}
+		return false;
+	}
+
+	private void callModified(AbstractComponentConfig config) throws Exception {
+		var hasModified = this.callActivateOrModified("modified", config);
+		if (hasModified) {
 			return;
+
+		} else {
+			// Has no modified() method -> Deactivate + recursive activate
+			this.callDeactivate();
+			this.activate(config);
 		}
 	}
 

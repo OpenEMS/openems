@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -11,12 +11,12 @@ import { Data, TooltipItem } from './../shared';
     selector: 'socStorageChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class SocStorageChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     private emergencyCapacityReserveComponents: EdgeConfig.Component[] = [];
 
-    ngOnChanges() {
+    public ngOnChanges() {
         this.updateChart();
     }
 
@@ -28,12 +28,12 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
         super("storage-single-chart", service, translate);
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.unsubscribeChartRefresh();
     }
 
@@ -55,9 +55,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
                     // convert datasets
                     let datasets = [];
-
                     let moreThanOneESS = Object.keys(result.data).length > 1 ? true : false;
-
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
                             let component = config.getComponent(channelAddress.componentId);
@@ -73,7 +71,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                             if (!data) {
                                 return;
                             } else {
-                                if (channelAddress.channelId == 'EssSoc') {
+                                if (channelAddress.channelId === 'EssSoc') {
                                     datasets.push({
                                         label: (moreThanOneESS ? this.translate.instant('General.total') : this.translate.instant('General.soc')),
                                         data: data
@@ -83,7 +81,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                         borderColor: 'rgba(0,223,0,1)',
                                     })
                                 }
-                                if (channelAddress.channelId == 'Soc' && moreThanOneESS) {
+                                if (channelAddress.channelId === 'Soc' && moreThanOneESS) {
                                     datasets.push({
                                         label: (channelAddress.componentId == component.alias ? component.id : component.alias),
                                         data: data
@@ -94,10 +92,7 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
                                     })
                                 }
                             }
-                            if (channelAddress.channelId == '_PropertyReserveSoc' &&
-                                this.emergencyCapacityReserveComponents.find(
-                                    element => element.id == channelAddress.componentId)
-                                    .properties.isReserveSocEnabled) {
+                            if (channelAddress.channelId === 'ActualReserveSoc') {
                                 datasets.push({
                                     label:
                                         this.emergencyCapacityReserveComponents.length > 1 ? component.alias : this.translate.instant("Edge.Index.EmergencyReserve.emergencyReserve"),
@@ -136,21 +131,20 @@ export class SocStorageChartComponent extends AbstractHistoryChart implements On
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
-            let channeladdresses: ChannelAddress[] = [];
+            const channeladdresses: ChannelAddress[] = [];
             channeladdresses.push(new ChannelAddress('_sum', 'EssSoc'));
-
 
             this.emergencyCapacityReserveComponents = config.getComponentsByFactory('Controller.Ess.EmergencyCapacityReserve')
                 .filter(component => component.isEnabled)
 
             this.emergencyCapacityReserveComponents
                 .forEach(component =>
-                    channeladdresses.push(new ChannelAddress(component.id, '_PropertyReserveSoc'))
+                    channeladdresses.push(new ChannelAddress(component.id, 'ActualReserveSoc'))
                 );
 
-            let ess = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss");
+            const ess = config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss");
             if (ess.length > 1) {
-                ess.filter(component => !(component.factoryId == 'Ess.Cluster')).forEach(component => {
+                ess.filter(component => !(component.factoryId === 'Ess.Cluster')).forEach(component => {
                     channeladdresses.push(new ChannelAddress(component.id, 'Soc'));
                 });
             }

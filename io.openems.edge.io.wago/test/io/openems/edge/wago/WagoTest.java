@@ -75,7 +75,7 @@ public class WagoTest {
 		sut.createProtocolFromModules(modules);
 
 		{
-			var readTasks = sut.protocol.getReadTasksManager().getAllTasks();
+			var readTasks = sut.protocol.getReadTasksManager().getTasks();
 			ReadTask t;
 			{
 				t = readTasks.get(0);
@@ -92,7 +92,7 @@ public class WagoTest {
 		}
 
 		{
-			var writeTasks = sut.protocol.getWriteTasksManager().getAllTasks();
+			var writeTasks = sut.protocol.getWriteTasksManager().getTasks();
 			System.out.println(writeTasks);
 			WriteTask t;
 			{

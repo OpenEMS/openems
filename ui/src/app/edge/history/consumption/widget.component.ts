@@ -1,15 +1,15 @@
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, EdgeConfig } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: ConsumptionComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class ConsumptionComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class ConsumptionComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 
@@ -17,8 +17,8 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
 
     public data: Cumulated = null;
     public edge: Edge = null;
-    public evcsComponents: EdgeConfig.Component[] = null;
-    public consumptionMeterComponents: EdgeConfig.Component[] = null;
+    public evcsComponents: EdgeConfig.Component[] = [];
+    public consumptionMeterComponents: EdgeConfig.Component[] = [];
     public totalOtherEnergy: number | null = null;
 
     constructor(
@@ -50,8 +50,9 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                     //calculate other power
                     let otherEnergy: number = 0;
                     this.evcsComponents.forEach(component => {
-                        otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'];
+                        otherEnergy += this.data[component.id + '/ActiveConsumptionEnergy'] ?? 0;
                     })
+
                     this.consumptionMeterComponents.forEach(component => {
                         otherEnergy += (this.data[component.id + '/ActiveProductionEnergy'] ?? 0);
                     })

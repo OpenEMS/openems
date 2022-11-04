@@ -106,28 +106,40 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			throws OpenemsNamedException {
 		var edgeId = wsData.assertEdgeId(message);
 
+		// Complement incoming data with data from Cache, because only changed values
+		// are transmitted
+		var data = message.getData();
+		wsData.edgeCache.complementDataFromCache(data.rowMap(), //
+				(incomingTimestamp, cacheTimestamp) -> this.log.info(//
+						"Edge [" + edgeId + "]: invalidate cache. " //
+								+ "Incoming [" + incomingTimestamp + "]. " //
+								+ "Cache [" + cacheTimestamp + "]"));
+
 		try {
-			this.parent.timedata.write(edgeId, message.getData());
+			this.parent.timedata.write(edgeId, data);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
 
+		// Forward subscribed Channels to UI
+		this.parent.uiWebsocket.sendSubscribedChannels(edgeId, wsData.edgeCache);
+
 		// Read some specific channels
 		var edge = this.parent.metadata.getEdgeOrError(edgeId);
 		for (Entry<String, JsonElement> entry : message.getParams().entrySet()) {
-			var data = JsonUtils.getAsJsonObject(entry.getValue());
+			var d = JsonUtils.getAsJsonObject(entry.getValue());
 
 			// set specific Edge values
-			if (data.has("_sum/State") && data.get("_sum/State").isJsonPrimitive()) {
-				var sumState = Level.fromJson(data, "_sum/State").orElse(Level.FAULT);
+			if (d.has("_sum/State") && d.get("_sum/State").isJsonPrimitive()) {
+				var sumState = Level.fromJson(d, "_sum/State").orElse(Level.FAULT);
 				EventBuilder.from(this.parent.eventAdmin, Events.ON_SET_SUM_STATE)
 						.addArg(Events.OnSetSumState.EDGE, edge) //
 						.addArg(Events.OnSetSumState.SUM_STATE, sumState) //
 						.send();
 			}
 
-			if (data.has("_meta/Version") && data.get("_meta/Version").isJsonPrimitive()) {
-				var version = JsonUtils.getAsPrimitive(data, "_meta/Version").getAsString();
+			if (d.has("_meta/Version") && d.get("_meta/Version").isJsonPrimitive()) {
+				var version = JsonUtils.getAsPrimitive(d, "_meta/Version").getAsString();
 				edge.setVersion(SemanticVersion.fromString(version));
 			}
 

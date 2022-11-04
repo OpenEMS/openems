@@ -1,4 +1,5 @@
 import { JsonrpcResponseSuccess } from "../base";
+import { AddEdgeToUserRequest } from "../request/addEdgeToUserRequest";
 
 /**
  * Represents a JSON-RPC Response for a {@link AddEdgeToUserRequest}.
@@ -14,7 +15,8 @@ import { JsonrpcResponseSuccess } from "../base";
  *          producttype: string,
  *          version: string,
  *          isOnline: boolean
- *      }
+ *      },
+ *      serialNumber: string
  *  }
  * }
  * </pre>
@@ -30,7 +32,8 @@ export class AddEdgeToUserResponse extends JsonrpcResponseSuccess {
                 producttype: string,
                 version: string,
                 online: boolean
-            }
+            },
+            serialNumber: string
         }
     ) {
         super(id, result);

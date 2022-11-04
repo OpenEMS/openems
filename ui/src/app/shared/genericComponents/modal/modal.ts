@@ -24,7 +24,7 @@ export class ModalComponent {
     /** Title in Header */
     @Input() title: string;
 
-    @Input() toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } = null;
+    @Input() toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | null = null;
 
     public readonly Role = Role;
 

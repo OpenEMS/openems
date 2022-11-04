@@ -53,7 +53,8 @@ import io.openems.edge.timedata.api.Timedata;
 				"org.ops4j.pax.logging.appender.name=Controller.Api.Websocket" //
 		})
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CONFIG_UPDATE //
+		EdgeEventConstants.TOPIC_CONFIG_UPDATE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class WebsocketApi extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent, PaxAppender, EventHandler {
@@ -173,6 +174,11 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	}
 
 	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
+	}
+
+	@Override
 	public void doAppend(PaxLoggingEvent event) {
 		this.systemLogHandler.handlePaxLoggingEvent(event);
 	}
@@ -223,6 +229,14 @@ public class WebsocketApi extends AbstractOpenemsComponent
 			var config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
 			var message = new EdgeConfigNotification(config);
 			this.server.broadcastMessage(new EdgeRpcNotification(WebsocketApi.EDGE_ID, message));
+			break;
+
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			for (var ws : this.server.getConnections()) {
+				WsData wsData = ws.getAttachment();
+				wsData.sendSubscribedChannels();
+			}
+			break;
 		}
 	}
 

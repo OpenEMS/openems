@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -11,12 +11,12 @@ import { Data, TooltipItem } from '../shared';
     selector: 'productionTotalChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class ProductionTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class ProductionTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public showPhases: boolean;
 
-    ngOnChanges() {
+    public ngOnChanges() {
         this.updateChart();
     }
 
@@ -28,12 +28,12 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
         super("production-total-chart", service, translate);
     }
 
-    ngOnInit() {
+    public ngOnInit() {
         this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.unsubscribeChartRefresh()
     }
 
@@ -60,19 +60,19 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                     let effectiveProductionL2 = []
                     let effectiveProductionL3 = []
 
-                    if (config.getComponentsImplementingNature('io.openems.edge.ess.dccharger.api.EssDcCharger').length > 0) {
+                    if (config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").length > 0) {
                         result.data['_sum/ProductionDcActualPower'].forEach((value, index) => {
                             effectiveProductionL1[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL1']?.[index], value / 3);
                             effectiveProductionL2[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL2']?.[index], value / 3);
                             effectiveProductionL3[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL3']?.[index], value / 3);
-                        });
-                    } else {
+                        })
+                    } else if (config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0) {
                         effectiveProductionL1 = result.data['_sum/ProductionAcActivePowerL1'];
                         effectiveProductionL2 = result.data['_sum/ProductionAcActivePowerL2'];
                         effectiveProductionL3 = result.data['_sum/ProductionAcActivePowerL3'];
                     }
 
-                    let totalProductionDataL1 = effectiveProductionL1.map(value => {
+                    let totalProductionDataL1 = effectiveProductionL1?.map(value => {
                         if (value == null) {
                             return null
                         } else {
@@ -80,7 +80,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                         }
                     })
 
-                    let totalProductionDataL2 = effectiveProductionL2.map(value => {
+                    let totalProductionDataL2 = effectiveProductionL2?.map(value => {
                         if (value == null) {
                             return null
                         } else {
@@ -88,7 +88,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                         }
                     })
 
-                    let totalProductionDataL3 = effectiveProductionL3.map(value => {
+                    let totalProductionDataL3 = effectiveProductionL3?.map(value => {
                         if (value == null) {
                             return null
                         } else {
@@ -124,7 +124,10 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                                         borderColor: 'rgba(45,143,171,1)'
                                     });
                                 }
-                                if ('_sum/ProductionAcActivePowerL1' && '_sum/ProductionAcActivePowerL2' && '_sum/ProductionAcActivePowerL3' in result.data && this.showPhases == true) {
+
+                                const productionPhasesChannels = ['_sum/ProductionAcActivePowerL1', '_sum/ProductionAcActivePowerL2', '_sum/ProductionAcActivePowerL3'];
+
+                                if (Utils.isArrayExistingInSource(productionPhasesChannels, result.data) && this.showPhases == true) {
                                     if (channelAddress.channelId == 'ProductionAcActivePowerL1') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L1',

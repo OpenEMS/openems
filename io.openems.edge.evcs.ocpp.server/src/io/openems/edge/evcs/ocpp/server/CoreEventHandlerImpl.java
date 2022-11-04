@@ -37,7 +37,7 @@ import eu.chargetime.ocpp.model.core.StopTransactionConfirmation;
 import eu.chargetime.ocpp.model.core.StopTransactionRequest;
 import eu.chargetime.ocpp.model.core.ValueFormat;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.common.AbstractManagedOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.ChargingProperty;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 
@@ -341,7 +341,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 		var tag = new IdTagInfo(AuthorizationStatus.Accepted);
 		tag.setParentIdTag(request.getIdTag());
 		tag.validate();
-		AbstractOcppEvcsComponent evcs;
+		AbstractManagedOcppEvcsComponent evcs;
 		var evcss = this.getEvcssBySessionIndex(sessionIndex);
 		if (evcss.size() == 1) {
 			evcs = evcss.get(0);
@@ -367,8 +367,9 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	 * @param sessionIndex given session
 	 * @return List of AbstractOcppEvcsComponent
 	 */
-	private List<AbstractOcppEvcsComponent> getEvcssBySessionIndex(UUID sessionIndex) {
-		return this.parent.activeEvcsSessions.getOrDefault(sessionIndex, new ArrayList<AbstractOcppEvcsComponent>());
+	private List<AbstractManagedOcppEvcsComponent> getEvcssBySessionIndex(UUID sessionIndex) {
+		return this.parent.activeEvcsSessions.getOrDefault(sessionIndex,
+				new ArrayList<AbstractManagedOcppEvcsComponent>());
 	}
 
 	/**
@@ -383,10 +384,10 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	 * @param connectorId  given connector id
 	 * @return EVCS Component with the given session and connectorId.
 	 */
-	private AbstractOcppEvcsComponent getEvcsBySessionIndexAndConnector(UUID sessionIndex, int connectorId) {
+	private AbstractManagedOcppEvcsComponent getEvcsBySessionIndexAndConnector(UUID sessionIndex, int connectorId) {
 		var evcss = this.getEvcssBySessionIndex(sessionIndex);
 		if (evcss != null) {
-			for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
+			for (AbstractManagedOcppEvcsComponent ocppEvcs : evcss) {
 				if (ocppEvcs.getConfiguredConnectorId().equals(connectorId)) {
 					return ocppEvcs;
 				}
@@ -427,7 +428,7 @@ public class CoreEventHandlerImpl implements ServerCoreEventHandler {
 	 * @param currentEnergy Current measured Energy.
 	 * @param timestamp     Time when the current Energy was measured.
 	 */
-	private void setPowerDependingOnEnergy(AbstractOcppEvcsComponent evcs, Double currentEnergy,
+	private void setPowerDependingOnEnergy(AbstractManagedOcppEvcsComponent evcs, Double currentEnergy,
 			ZonedDateTime timestamp) {
 
 		var lastChargingProperty = evcs.getLastChargingProperty();

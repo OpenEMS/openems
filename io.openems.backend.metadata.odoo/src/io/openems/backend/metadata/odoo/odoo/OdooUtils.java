@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -258,10 +259,30 @@ public class OdooUtils {
 		return sessionIdOpt.get();
 	}
 
-	private static Object executeKw(String url, Object[] params) throws MalformedURLException, XMLRPCException {
-		var client = new XMLRPCClient(new URL(String.format("%s/xmlrpc/2/object", url)), XMLRPCClient.FLAGS_NIL);
+	private static Object executeKw(Credentials creds, String model, String action, Object[] arg)
+			throws MalformedURLException, XMLRPCException {
+		return executeKw(creds, model, action, arg, null);
+	}
+
+	private static Object executeKw(Credentials creds, String model, String action, Object[] arg, Map<String, ?> kw)
+			throws MalformedURLException, XMLRPCException {
+		var params = new Object[] { creds.getDatabase(), creds.getUid(), creds.getPassword(), model, action, arg, kw };
+		var client = new XMLRPCClient(new URL(String.format("%s/xmlrpc/2/object", creds.getUrl())),
+				XMLRPCClient.FLAGS_NIL);
 		client.setTimeout(60 /* seconds */);
 		return client.call("execute_kw", params);
+	}
+
+	protected static String[] getAsStringArray(Field... fields) {
+		return Arrays.stream(fields) //
+				.map(Field::id) //
+				.toArray(String[]::new);
+	}
+
+	protected static Object[] getAsObjectArray(Domain... domains) {
+		return Arrays.stream(domains) //
+				.map(filter -> new Object[] { filter.field, filter.operator, filter.value }) //
+				.toArray(Object[]::new);
 	}
 
 	/**
@@ -273,28 +294,17 @@ public class OdooUtils {
 	 * @return Odoo object ids
 	 * @throws OpenemsException on error
 	 */
-	protected static int[] search(Credentials credentials, String model, Domain... domains) throws OpenemsException {
+	protected static Integer[] search(Credentials credentials, String model, Domain... domains)
+			throws OpenemsException {
 		// Add domain filter
-		Object[] domain = new Object[domains.length];
-		for (int i = 0; i < domains.length; i++) {
-			Domain filter = domains[i];
-			domain[i] = new Object[] { filter.field, filter.operator, filter.value };
-		}
+		var domain = getAsObjectArray(domains);
 		Object[] paramsDomain = { domain };
-		// Create request params
-		HashMap<Object, Object> paramsRules = new HashMap<>();
-		String action = "search";
-		Object[] params = { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(), model, action,
-				paramsDomain, paramsRules };
 		try {
 			// Execute XML request
-			var resultObjs = (Object[]) OdooUtils.executeKw(credentials.getUrl(), params);
+			var resultObjs = (Object[]) OdooUtils.executeKw(credentials, model, "search", paramsDomain, Map.of());
 			// Parse results
-			int[] results = new int[resultObjs.length];
-			for (int i = 0; i < resultObjs.length; i++) {
-				results[i] = (int) resultObjs[i];
-			}
-			return results;
+			Integer[] resultMaps = Arrays.copyOf(resultObjs, resultObjs.length, Integer[].class);
+			return resultMaps;
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to search from Odoo: " + e.getMessage());
 		}
@@ -314,21 +324,13 @@ public class OdooUtils {
 			throws OpenemsException {
 		// Create request params
 		// Add ids
-		var paramsIds = new Object[1];
-		paramsIds[0] = id;
+		var paramsIds = new Object[] { id };
 		// Add fields
-		var fieldStrings = new String[fields.length];
-		for (int i = 0; i < fields.length; i++) {
-			fieldStrings[i] = fields[i].id();
-		}
-		Map<String, String[]> paramsFields = new HashMap<>();
-		paramsFields.put("fields", fieldStrings);
-		// Create request params
-		Object[] params = { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(), model, "read",
-				paramsIds, paramsFields };
+		var fieldStrings = getAsStringArray(fields);
+		var paramsFields = Map.of("fields", fieldStrings);
 		try {
 			// Execute XML request
-			var resultObjs = (Object[]) OdooUtils.executeKw(credentials.getUrl(), params);
+			var resultObjs = (Object[]) OdooUtils.executeKw(credentials, model, "read", paramsIds, paramsFields);
 			// Parse results
 			for (var resultObj : resultObjs) {
 				@SuppressWarnings("unchecked")
@@ -338,56 +340,6 @@ public class OdooUtils {
 			throw new OpenemsException("No matching entry found for id [" + id + "]");
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
-		}
-	}
-
-	/**
-	 * Executes a Search and read on Odoo.
-	 *
-	 * @see <a href=
-	 *      "https://www.odoo.com/documentation/10.0/api_integration.html">Odoo API
-	 *      Integration</a>
-	 *
-	 * @param credentials the Odoo credentials
-	 * @param model       Odoo model to query (e.g. 'res.partner')
-	 * @param domains     Odoo domain filters
-	 * @param fields      the Fields
-	 * @return Odoo object ids
-	 * @throws OpenemsException on error
-	 */
-	// TODO this method is not yet functional
-	protected static Map<String, Object>[] searchAndRead(Credentials credentials, String model, Domain[] domains,
-			Field[] fields) throws OpenemsException {
-		// Add domain filter
-		var domain = new Object[domains.length];
-		for (int i = 0; i < domains.length; i++) {
-			Domain filter = domains[i];
-			domain[i] = new Object[] { filter.field, filter.operator, filter.value };
-		}
-		Object[] paramsDomain = { domain };
-		// Add fields
-		var fieldStrings = new String[fields.length];
-		for (int i = 0; i < fields.length; i++) {
-			fieldStrings[i] = fields[i].id();
-		}
-		Map<String, String[]> paramsFields = new HashMap<>();
-		paramsFields.put("fields", fieldStrings);
-		// Create request params
-		var action = "search_read";
-		Object[] params = { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(), model, action,
-				paramsDomain, paramsFields };
-		try {
-			// Execute XML request
-			OdooUtils.executeKw(credentials.getUrl(), params);
-			// Object[] resultObjs = (Object[]) executeKw(url, params);
-			// Parse results
-			// int[] results = new int[resultObjs.length];
-			// for (int i = 0; i < resultObjs.length; i++) {
-			// results[i] = (int) resultObjs[i];
-			// }
-			return null;
-		} catch (Throwable e) {
-			throw new OpenemsException("Unable to search and read from Odoo: " + e.getMessage());
 		}
 	}
 
@@ -403,36 +355,14 @@ public class OdooUtils {
 	 */
 	protected static Map<String, Object>[] readMany(Credentials credentials, String model, Integer[] ids,
 			Field... fields) throws OpenemsException {
-		// Create request params
-		var action = "read";
-		// Add ids
-		// Object[] paramsIds = Arrays.stream(ids).mapToObj(id -> (Integer)
-		// id).toArray();
-		// Object[] paramsIds = new Object[2];
-		// paramsIds[0] = ids[0];
-		// paramsIds[1] = ids[1];
-		// Add fields
-		var fieldStrings = new String[fields.length];
-		for (int i = 0; i < fields.length; i++) {
-			fieldStrings[i] = fields[i].id();
-		}
-		// Map<String, String[]> paramsFields = new HashMap<>();
-		// paramsFields.put("fields", fieldStrings);
-		// Create request params
-		Object[] params = { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(), model, action,
-				new Object[] { ids, fieldStrings } };
+		var fieldStrings = getAsStringArray(fields);
 		try {
 			// Execute XML request
-			var resultObjs = (Object[]) OdooUtils.executeKw(credentials.getUrl(), params);
+			var result = (Object[]) OdooUtils.executeKw(credentials, model, "read", new Object[] { ids, fieldStrings });
 			// Parse results
 			@SuppressWarnings("unchecked")
-			Map<String, Object>[] results = new Map[resultObjs.length];
-			for (int i = 0; i < resultObjs.length; i++) {
-				@SuppressWarnings("unchecked")
-				var result = (Map<String, Object>) resultObjs[i];
-				results[i] = result;
-			}
-			return results;
+			var resultMaps = (Map<String, Object>[]) Arrays.copyOf(result, result.length, Map[].class);
+			return resultMaps;
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
 		}
@@ -452,34 +382,18 @@ public class OdooUtils {
 			Domain... domains) throws OpenemsException {
 		// Create request params
 		// Add domain filter
-		var domain = new Object[domains.length];
-		for (int i = 0; i < domains.length; i++) {
-			var filter = domains[i];
-			domain[i] = new Object[] { filter.field, filter.operator, filter.value };
-		}
-		Object[] paramsDomain = { domain };
+		var domain = getAsObjectArray(domains);
+		var paramsDomain = new Object[] { domain };
 		// Add fields
-		var fieldStrings = new String[fields.length];
-		for (int i = 0; i < fields.length; i++) {
-			fieldStrings[i] = fields[i].toString();
-		}
-		Map<String, String[]> paramsFields = new HashMap<>();
-		paramsFields.put("fields", fieldStrings);
-		// Create request params
-		Object[] params = { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(), model,
-				"search_read", paramsDomain, paramsFields };
+		var fieldStrings = getAsStringArray(fields);
+		var paramsFields = Map.of("fields", fieldStrings);
 		try {
 			// Execute XML request
-			var resultObjs = (Object[]) OdooUtils.executeKw(credentials.getUrl(), params);
+			var result = (Object[]) OdooUtils.executeKw(credentials, model, "search_read", paramsDomain, paramsFields);
 			// Parse results
 			@SuppressWarnings("unchecked")
-			Map<String, Object>[] results = new Map[resultObjs.length];
-			for (int i = 0; i < resultObjs.length; i++) {
-				@SuppressWarnings("unchecked")
-				var result = (Map<String, Object>) resultObjs[i];
-				results[i] = result;
-			}
-			return results;
+			var resultMaps = (Map<String, Object>[]) Arrays.copyOf(result, result.length, Map[].class);
+			return resultMaps;
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
 		}
@@ -496,17 +410,14 @@ public class OdooUtils {
 	 */
 	protected static int getObjectReference(Credentials credentials, String module, String name)
 			throws OpenemsException {
-		// Create request params
-		Object[] params = { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(), "ir.model.data",
-				"get_object_reference", new Object[] { module, name } };
 		try {
 			// Execute XML request
-			var resultObj = (Object[]) executeKw(credentials.getUrl(), params);
+			var resultObj = (Object[]) executeKw(credentials, "ir.model.data", "get_object_reference",
+					new Object[] { module, name });
 			if (resultObj == null) {
 				throw new OpenemsException(
 						"No matching entry found for module [" + module + "] and name [" + name + "]");
 			}
-
 			return (int) resultObj[1];
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
@@ -524,12 +435,9 @@ public class OdooUtils {
 	 */
 	protected static void addChatterMessage(Credentials credentials, String model, int id, String message)
 			throws OpenemsException {
-		// Create request params
-		Object[] params = { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(), model,
-				"message_post", new Object[] { id, message } };
 		try {
 			// Execute XML request
-			Object resultObj = executeKw(credentials.getUrl(), params);
+			var resultObj = executeKw(credentials, model, "message_post", new Object[] { id, message });
 			if (resultObj == null) {
 				throw new OpenemsException("Returned Null");
 			}
@@ -568,17 +476,11 @@ public class OdooUtils {
 	 */
 	protected static int create(Credentials credentials, String model, Map<String, Object> fieldValues)
 			throws OpenemsException {
-		var action = "create";
-
-		Object[] params = { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(), model, action,
-				new Object[] { fieldValues } };
-
 		try {
-			Object resultObj = executeKw(credentials.getUrl(), params);
+			var resultObj = executeKw(credentials, model, "create", new Object[] { fieldValues });
 			if (resultObj == null) {
 				throw new OpenemsException("Not created.");
 			}
-
 			return OdooUtils.getAsInteger(resultObj);
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to write to Odoo: " + e.getMessage());
@@ -596,23 +498,11 @@ public class OdooUtils {
 	 */
 	public static void write(Credentials credentials, String model, Integer[] ids, FieldValue<?>... fieldValues)
 			throws OpenemsException {
-		// // for debugging:
-		// StringBuilder b = new StringBuilder("Odoo Write: " + model + "; ");
-		// for (int id : ids) {
-		// b.append(id + ",");
-		// }
-		// b.append(";");
-		// for (FieldValue fieldValue : fieldValues) {
-		// b.append(fieldValue.getField().n() + ",");
-		// }
-		// System.out.println(b.toString());
-
 		// Add fieldValues
-		Map<String, Object> paramsFieldValues = new HashMap<>();
+		var paramsFieldValues = new HashMap<String, Object>();
 		for (FieldValue<?> fieldValue : fieldValues) {
 			paramsFieldValues.put(fieldValue.getField().id(), fieldValue.getValue());
 		}
-
 		OdooUtils.write(credentials, model, ids, paramsFieldValues);
 	}
 
@@ -627,15 +517,10 @@ public class OdooUtils {
 	 */
 	protected static void write(Credentials credentials, String model, Integer[] ids, Map<String, Object> fieldValues)
 			throws OpenemsException {
-		// Create request params
-		var action = "write";
-
-		// Create request params
-		Object[] params = { credentials.getDatabase(), credentials.getUid(), credentials.getPassword(), model, action,
-				new Object[] { ids, fieldValues } };
 		try {
 			// Execute XML request
-			var resultObj = (Boolean) OdooUtils.executeKw(credentials.getUrl(), params);
+			var resultObj = (Boolean) OdooUtils.executeKw(credentials, model, "write",
+					new Object[] { ids, fieldValues });
 			if (!resultObj) {
 				throw new OpenemsException("Returned False.");
 			}
@@ -645,16 +530,17 @@ public class OdooUtils {
 	}
 
 	/**
-	 * Return the Object type-safe as a String; or otherwise as an empty String.
+	 * Return the Object type-safe as a {@link Optional} String; or otherwise as an
+	 * empty {@link Optional}.
 	 *
 	 * @param object the value as object
-	 * @return the value as String
+	 * @return the value as {@link Optional} String
 	 */
-	protected static String getAsString(Object object) {
+	protected static Optional<String> getAsOptionalString(Object object) {
 		if (object instanceof String) {
-			return (String) object;
+			return Optional.of((String) object);
 		}
-		return "";
+		return Optional.empty();
 	}
 
 	/**

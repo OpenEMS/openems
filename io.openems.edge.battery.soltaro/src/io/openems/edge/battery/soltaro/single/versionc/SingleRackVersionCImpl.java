@@ -336,7 +336,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 						m(SingleRackVersionC.ChannelId.CLUSTER_RUN_STATE, new UnsignedWordElement(0x2113)), //
 						m(SingleRackVersionC.ChannelId.CLUSTER_1_AVG_TEMPERATURE, new UnsignedWordElement(0x2114)) //
 				), //
-				new FC3ReadRegistersTask(0x218b, Priority.ONCE,
+				new FC3ReadRegistersTask(0x218b, Priority.LOW,
 						m(SingleRackVersionC.ChannelId.CLUSTER_1_PROJECT_ID, new UnsignedWordElement(0x218b)), //
 						m(SingleRackVersionC.ChannelId.CLUSTER_1_VERSION_MAJOR, new UnsignedWordElement(0x218c)), //
 						m(SingleRackVersionC.ChannelId.CLUSTER_1_VERSION_SUB, new UnsignedWordElement(0x218d)), //
@@ -391,7 +391,7 @@ public class SingleRackVersionCImpl extends AbstractOpenemsModbusComponent imple
 								// .bit(0, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_HIGH) //
 								// .bit(1, SingleRackVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_HIGH) //
 								.bit(2, SingleRackVersionC.ChannelId.PRE_ALARM_CHARGE_CURRENT_HIGH) //
-								.bit(3, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_LOW) //
+								// .bit(3, SingleRackVersionC.ChannelId.PRE_ALARM_CELL_VOLTAGE_LOW) //
 								.bit(4, SingleRackVersionC.ChannelId.PRE_ALARM_TOTAL_VOLTAGE_LOW) //
 								.bit(5, SingleRackVersionC.ChannelId.PRE_ALARM_DISCHARGE_CURRENT_HIGH) //
 								.bit(6, SingleRackVersionC.ChannelId.PRE_ALARM_CHARGE_TEMP_HIGH) //
