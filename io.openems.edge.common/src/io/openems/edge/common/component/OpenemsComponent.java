@@ -365,6 +365,11 @@ public interface OpenemsComponent {
 	 *         activate() method.
 	 */
 	public static boolean updateReferenceFilterRaw(ConfigurationAdmin cm, String pid, String member, String filter) {
+		if (cm == null) {
+			throw new IllegalArgumentException("ConfigurationAdmin is null for updateReferenceFilterRaw" //
+					+ "(pid=\"" + pid + "\",member=\"" + member + "\",filter=\"" + filter + "\")");
+		}
+
 		final var targetProperty = member + ".target";
 		/*
 		 * read existing target filter

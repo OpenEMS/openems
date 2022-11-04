@@ -16,16 +16,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 
 @Designate(ocd = Config.class, factory = true)
@@ -34,9 +34,10 @@ import io.openems.edge.evcs.api.Status;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
-public class GoeChargerHomeImpl extends AbstractOpenemsComponent
+public class GoeChargerHomeImpl extends AbstractManagedEvcsComponent
 		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(GoeChargerHomeImpl.class);
@@ -58,9 +59,6 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 
 	// Maximum current
 	private int maxCurrent;
-
-	// Last energy session
-	private int lastEnergySession;
 
 	/**
 	 * Constructor.
@@ -100,6 +98,7 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 		if (!this.isEnabled()) {
 			return;
 		}
+		super.handleEvent(event);
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 
@@ -142,16 +141,20 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 					this.channel(GoeChannelId.ACTUAL_POWER).setNextValue(power * 10);
 					this.channel(Evcs.ChannelId.CHARGE_POWER).setNextValue(power * 10);
 
-					var phases = this.convertGoePhase(JsonUtils.getAsInt(json, "pha"));
-					this.channel(Evcs.ChannelId.PHASES).setNextValue(phases);
-
 					// Hardware limits
 					var cableCurrent = JsonUtils.getAsInt(json, "cbl") * 1000;
 					this.maxCurrent = cableCurrent > 0 && cableCurrent < this.config.maxHwCurrent() //
 							? cableCurrent //
 							: this.config.maxHwCurrent();
-					this._setMinimumHardwarePower(this.minCurrent / 1000 * phases * 230);
-					this._setMaximumHardwarePower(this.maxCurrent / 1000 * phases * 230);
+
+					this._setFixedMinimumHardwarePower(
+							Math.round(this.minCurrent / 1000f) * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue());
+					this._setFixedMaximumHardwarePower(
+							Math.round(this.maxCurrent / 1000f) * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue());
+
+					// Phases
+					int phases = this.convertGoePhase(JsonUtils.getAsInt(json, "pha"));
+					this._setPhases(phases);
 
 					// Energy
 					this.channel(GoeChannelId.ENERGY_TOTAL).setNextValue(JsonUtils.getAsInt(json, "eto") * 100);
@@ -162,10 +165,6 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 					this.channel(GoeChannelId.ERROR).setNextValue(JsonUtils.getAsString(json, "err"));
 					this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
 
-					// Set the power and energy
-					this.setPower();
-					this.setEnergySession();
-
 				} catch (OpenemsNamedException e) {
 					this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(true);
 				}
@@ -174,7 +173,6 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 		default:
 			break;
 		}
-
 	}
 
 	private Status convertGoeStatus(int status) {
@@ -213,103 +211,11 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Sets the current from SET_CHARGE_POWER channel.
-	 *
-	 * <p>
-	 * Possible charge currents are between MinCurrent and MaxCurrent. Values below
-	 * are set to zero and values above are set to the maximum.
-	 */
-	private void setPower() {
-		WriteChannel<Integer> energyLimitChannel = this.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
-		int energyLimit = energyLimitChannel.getNextValue().orElse(0);
-		// Check energy limit
-		if (energyLimit == 0 || energyLimit > this.getEnergySession().orElse(0)) {
-			WriteChannel<Integer> channel = this.channel(ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT);
-			var valueOpt = channel.getNextWriteValueAndReset();
-			if (valueOpt.isPresent()) {
-				var power = valueOpt.get();
-				Channel<Integer> minimumHardwarePowerChannel = this.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
-
-				// Charging under MINIMUM_HARDWARE_POWER isn't possible
-				if (power < minimumHardwarePowerChannel.value().orElse(0)) {
-					power = 0;
-					this.goeapi.setActive(false);
-				} else {
-					this.goeapi.setActive(true);
-				}
-				var phases = this.getPhases();
-				Integer current = power * 1000 / phases.orElse(3) /* e.g. 3 phases */ / 230; /* voltage */
-
-				/*
-				 * Limits the charging value because goe knows only values between MinCurrent
-				 * and MaxCurrent
-				 */
-				if (current > this.maxCurrent) {
-					current = this.maxCurrent;
-				}
-				if (current < this.minCurrent) {
-					current = this.minCurrent;
-				}
-				var result = this.goeapi.setCurrent(current);
-				if (result.isJsonObject()) {
-					this._setSetChargePowerLimit(power);
-					this.debugLog(result.toString());
-				}
-			}
-		} else {
-			this.goeapi.setActive(false);
-			this.debugLog("Maximum energy limit reached");
-			this._setStatus(Status.ENERGY_LIMIT_REACHED);
-		}
-	}
-
-	/**
-	 * Sets the Energy Limit for this session from SET_ENERGY_SESSION channel.
-	 *
-	 * <p>
-	 * Allowed values for the command setenergy are 0; 1-65535 the value of the
-	 * command is 0.1 Wh. The charging station will charge till this limit.
-	 */
-	private void setEnergySession() {
-		WriteChannel<Integer> channel = this.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT);
-		var valueOpt = channel.getNextWriteValueAndReset();
-		if (valueOpt.isPresent()) {
-			var energyTarget = valueOpt.get();
-			if (energyTarget < 0) {
-				return;
-			}
-
-			/*
-			 * limits the target value because go-e knows only values between 0 and 65535
-			 * 0.1Wh
-			 */
-			energyTarget /= 100;
-			energyTarget = energyTarget > 65535 ? 65535 : energyTarget;
-			energyTarget = energyTarget > 0 && energyTarget < 1 ? 1 : energyTarget;
-			if (!energyTarget.equals(this.lastEnergySession)) {
-				// Set energy limit
-				this.channel(ManagedEvcs.ChannelId.SET_ENERGY_LIMIT).setNextValue(energyTarget * 100);
-				this.debugLog("Setting go-e " + this.alias() + " Energy Limit in this Session to [" + energyTarget / 10
-						+ " kWh]");
-
-				if (this.goeapi.setMaxEnergy(energyTarget)) {
-					this.lastEnergySession = energyTarget;
-				}
-			}
-		}
-	}
-
-	@Override
-	public EvcsPower getEvcsPower() {
-		return this.evcsPower;
-	}
-
-	/**
 	 * Debug Log.
-	 *
+	 * 
 	 * <p>
 	 * Logging only if the debug mode is enabled
-	 *
+	 * 
 	 * @param message text that should be logged
 	 */
 	public void debugLog(String message) {
@@ -318,4 +224,58 @@ public class GoeChargerHomeImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
+	public boolean getConfiguredDebugMode() {
+		return this.config.debugMode();
+	}
+
+	@Override
+	public boolean applyChargePowerLimit(int power) throws OpenemsException {
+		this.goeapi.setActive(true);
+		return this.sendChargePowerLimit(power);
+	}
+
+	@Override
+	public boolean pauseChargeProcess() throws OpenemsException {
+		this.goeapi.setActive(false);
+		return this.sendChargePowerLimit(0);
+	}
+
+	private boolean sendChargePowerLimit(int power) {
+		var phases = this.getPhasesAsInt();
+		var current = power * 1000 / phases /* e.g. 3 phases */ / 230; /* voltage */
+
+		var result = this.goeapi.setCurrent(current);
+		if (result.isJsonObject()) {
+			this._setSetChargePowerLimit(power);
+			this.debugLog(result.toString());
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean applyDisplayText(String text) throws OpenemsException {
+		return false;
+	}
+
+	@Override
+	public int getMinimumTimeTillChargingLimitTaken() {
+		return 30;
+	}
+
+	@Override
+	public int getConfiguredMinimumHardwarePower() {
+		return Math.round(this.config.minHwCurrent() / 1000f) * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
+	}
+
+	@Override
+	public int getConfiguredMaximumHardwarePower() {
+		return Math.round(this.config.maxHwCurrent() / 1000f) * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
+	}
+
+	@Override
+	public EvcsPower getEvcsPower() {
+		return this.evcsPower;
+	}
 }

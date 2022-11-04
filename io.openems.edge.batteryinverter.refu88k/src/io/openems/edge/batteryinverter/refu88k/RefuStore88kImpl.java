@@ -222,7 +222,7 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException { // Register
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(SUNSPEC_1, Priority.ONCE, //
+				new FC3ReadRegistersTask(SUNSPEC_1, Priority.LOW, //
 						m(RefuStore88kChannelId.ID_1, new UnsignedWordElement(SUNSPEC_1)), // 40002
 						m(RefuStore88kChannelId.L_1, new UnsignedWordElement(SUNSPEC_1 + 1)), // 40003
 						m(RefuStore88kChannelId.MN, new StringWordElement(SUNSPEC_1 + 2, 16)), // 40004

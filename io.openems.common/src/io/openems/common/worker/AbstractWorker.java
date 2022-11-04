@@ -50,16 +50,16 @@ public abstract class AbstractWorker {
 	 * @param name the name of the worker thread
 	 */
 	public void modified(String name) {
-		if (!this.worker.isAlive() && !this.worker.isInterrupted() && !this.isStopped.get()) {
+		if (!this.thread.isAlive() && !this.thread.isInterrupted() && !this.isStopped.get()) {
 			this.startWorker(name);
 		}
 	}
 
 	private void startWorker(String name) {
 		if (name != null) {
-			this.worker.setName(name);
+			this.thread.setName(name);
 		}
-		this.worker.start();
+		this.thread.start();
 		this.triggerNextRun();
 	}
 
@@ -68,7 +68,7 @@ public abstract class AbstractWorker {
 	 */
 	public void deactivate() {
 		this.isStopped.set(true);
-		this.worker.interrupt();
+		this.thread.interrupt();
 	}
 
 	/**
@@ -96,7 +96,7 @@ public abstract class AbstractWorker {
 		this.cycleMutex.release();
 	}
 
-	private final Thread worker = new Thread() {
+	protected final Thread thread = new Thread() {
 		@Override
 		public void run() {
 			var onWorkerExceptionSleep = 1L; // seconds

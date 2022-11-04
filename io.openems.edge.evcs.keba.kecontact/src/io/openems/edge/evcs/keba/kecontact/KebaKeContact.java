@@ -23,17 +23,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
+import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
+import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
 
 @Designate(ocd = Config.class, factory = true)
@@ -42,9 +45,9 @@ import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class KebaKeContact extends AbstractOpenemsComponent
+public class KebaKeContact extends AbstractManagedEvcsComponent
 		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public static final int UDP_PORT = 7090;
@@ -52,7 +55,6 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(KebaKeContact.class);
 	private final ReadWorker readWorker = new ReadWorker(this);
 	private final ReadHandler readHandler = new ReadHandler(this);
-	private final WriteHandler writeHandler = new WriteHandler(this);
 	private Boolean lastConnectionLostState = false;
 
 	protected Config config;
@@ -87,6 +89,9 @@ public class KebaKeContact extends AbstractOpenemsComponent
 
 		this.config = config;
 		this._setPowerPrecision(0.23);
+		this._setChargingType(ChargingType.AC);
+		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
+		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
 
 		/*
 		 * subscribe on replies to report queries
@@ -115,6 +120,7 @@ public class KebaKeContact extends AbstractOpenemsComponent
 		if (!this.isEnabled()) {
 			return;
 		}
+		super.handleEvent(event);
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 
@@ -127,9 +133,6 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				}
 				this.lastConnectionLostState = connectionLost;
 			}
-
-			// handle writes
-			this.writeHandler.run();
 			break;
 		}
 	}
@@ -201,6 +204,65 @@ public class KebaKeContact extends AbstractOpenemsComponent
 	}
 
 	@Override
+	public EvcsPower getEvcsPower() {
+		return this.evcsPower;
+	}
+
+	@Override
+	public boolean getConfiguredDebugMode() {
+		return this.config.debugMode();
+	}
+
+	@Override
+	public boolean applyChargePowerLimit(int power) throws OpenemsException {
+
+		var phases = this.getPhasesAsInt();
+		var current = Math.round((power * 1000) / phases / 230f);
+
+		/*
+		 * Limits the charging value because KEBA knows only values between 6000 and
+		 * 63000
+		 */
+		current = Math.min(current, 63_000);
+
+		if (current < 6000) {
+			current = 0;
+		}
+		return this.send("currtime " + current + " 1");
+	}
+
+	@Override
+	public boolean applyDisplayText(String text) throws OpenemsException {
+		if (text.length() > 23) {
+			text = text.substring(0, 23);
+		}
+		text = text.replace(" ", "$"); // $ == blank
+
+		return this.send("display 0 0 0 0 " + text);
+	}
+
+	@Override
+	public boolean pauseChargeProcess() throws OpenemsException {
+		return this.applyChargePowerLimit(0);
+	}
+
+	@Override
+	public int getMinimumTimeTillChargingLimitTaken() {
+		return 30;
+	}
+
+	@Override
+	public int getConfiguredMinimumHardwarePower() {
+		return Math.round(this.config.minHwCurrent() / 1000f) * Evcs.DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
+	}
+
+	@Override
+	public int getConfiguredMaximumHardwarePower() {
+		return Math.round(Evcs.DEFAULT_MAXIMUM_HARDWARE_CURRENT / 1000f) * Evcs.DEFAULT_VOLTAGE
+				* Phases.THREE_PHASE.getValue();
+	}
+
+	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 
 		return new ModbusSlaveTable(//
@@ -250,10 +312,5 @@ public class KebaKeContact extends AbstractOpenemsComponent
 				.channel(85, KebaChannelId.ACTUAL_POWER, ModbusType.UINT16)
 				.channel(86, KebaChannelId.COS_PHI, ModbusType.UINT16).uint16Reserved(87)
 				.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16).build();
-	}
-
-	@Override
-	public EvcsPower getEvcsPower() {
-		return this.evcsPower;
 	}
 }

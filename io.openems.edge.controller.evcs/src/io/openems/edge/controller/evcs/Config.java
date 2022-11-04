@@ -3,6 +3,8 @@ package io.openems.edge.controller.evcs;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.evcs.api.ChargeMode;
+
 @ObjectClassDefinition(//
 		name = "Controller Electric Vehicle Charging Station", //
 		description = "Limits the maximum charging power of an electric vehicle charging station.")

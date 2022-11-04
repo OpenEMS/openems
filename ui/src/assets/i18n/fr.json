@@ -90,13 +90,13 @@
   "Menu": {
     "aboutUI": "à propos de OpenEMS UI",
     "accessLevel": "Niveau d'accès",
-    "edgeSettings": "Réglages de FEMS",
+    "edgeSettings": "Réglages de OpenEMS",
     "generalSettings": "Réglages généraux",
     "index": "Index",
     "logout": "Déconnexion",
     "menu": "Menu",
     "name": "Nom",
-    "overview": "Apperçu FEMS ",
+    "overview": "Apperçu OpenEMS ",
     "profile": "Utilisateur",
     "settings": "Réglages",
     "changelog": "Changelog",
@@ -127,7 +127,7 @@
       "user": "Utilisateur",
       "installer": "Installateur"
     },
-    "form": {
+    "Form": {
       "user": {
         "acceptPrivacyPolicy": "En créant un compte FENECON, je déclare avoir lu et accepté la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Politique de confidentialité</a> et les conditions d'utilisation de FENECON*."
       },

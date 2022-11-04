@@ -10,7 +10,7 @@ public class ChannelMetaInfoBit extends ChannelMetaInfo {
 	/**
 	 * Holds the index of the bit inside the Register if applicable.
 	 */
-	private final int bit;
+	protected final int bit;
 
 	public ChannelMetaInfoBit(int address, int bit) {
 		super(address);

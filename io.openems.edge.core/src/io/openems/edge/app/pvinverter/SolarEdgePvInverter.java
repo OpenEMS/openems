@@ -16,18 +16,13 @@ import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.pvinverter.SolarEdgePvInverter.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
-import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a App for SolarEdge PV-Inverter.
@@ -90,24 +85,11 @@ public class SolarEdgePvInverter extends AbstractPvInverter<Property> implements
 
 	@Override
 	public AppAssistant getAppAssistant(Language language) {
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildInput(Property.IP) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "App.PvInverter.ip.description")) //
-								.setDefaultValue("192.168.178.85") //
-								.isRequired(true) //
-								.setValidation(Validation.IP) //
+						.add(AbstractPvInverter.buildIp(language, Property.IP) //
 								.build()) //
-						.add(JsonFormlyUtil.buildInput(Property.PORT) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "port")) //
-								.setDescription(
-										TranslationUtil.getTranslation(bundle, "App.PvInverter.port.description")) //
-								.setInputType(Type.NUMBER) //
-								.setDefaultValue(502) //
-								.setMin(0) //
-								.isRequired(true) //
+						.add(AbstractPvInverter.buildPort(language, Property.PORT) //
 								.build()) //
 						.build())
 				.build();
