@@ -80,7 +80,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws UnknownHostException, SocketException {
+	private void activate(ComponentContext context, Config config) throws UnknownHostException, SocketException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		/*
