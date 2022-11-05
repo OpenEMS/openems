@@ -99,8 +99,7 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
-		// TODO Auto-generated method stub
-		throw new IllegalArgumentException("DummyTimedata.getLatestValue() is not implemented");
+		return CompletableFuture.completedFuture(Optional.empty());
 	}
 
 }

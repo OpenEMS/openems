@@ -16,4 +16,6 @@
 *   You should have received a copy of the GNU Lesser General Public License
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+@org.osgi.annotation.versioning.Version("1.0.0")
+@org.osgi.annotation.bundle.Export
 package com.ed.edcom;
