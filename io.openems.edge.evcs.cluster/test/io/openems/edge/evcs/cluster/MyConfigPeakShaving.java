@@ -3,7 +3,7 @@ package io.openems.edge.evcs.cluster;
 import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
-public class MyConfigPeakShaving extends AbstractComponentConfig implements ConfigPeakShaving {
+public class MyConfigPeakShaving extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 
@@ -14,9 +14,6 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 		private String evcsTarget = "(&(enabled=true)(!(service.pid=evcsCluster0))(|(id=\" + this.evcs_id() + \")))";
 		private String essId = "ess0";
 		private String meterId = "meter0";
-		private int essSecureDischargeSoc = 25;
-		private int essSecureDischargeMinSoc = 15;
-		private boolean enableSecureEssDischarge = false;
 
 		private Builder() {
 		}
@@ -51,21 +48,6 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 			return this;
 		}
 
-		public Builder setEssSecureDischargeSoc(int essSecureDischargeSoc) {
-			this.essSecureDischargeSoc = essSecureDischargeSoc;
-			return this;
-		}
-
-		public Builder setEssSecureDischargeMinSoc(int essSecureDischargeMinSoc) {
-			this.essSecureDischargeMinSoc = essSecureDischargeMinSoc;
-			return this;
-		}
-
-		public Builder setEnableSecureEssDischarge(boolean enableSecureEssDischarge) {
-			this.enableSecureEssDischarge = enableSecureEssDischarge;
-			return this;
-		}
-
 		public Builder setMeterId(String meterId) {
 			this.meterId = meterId;
 			return this;
@@ -88,7 +70,7 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 	private final Builder builder;
 
 	private MyConfigPeakShaving(Builder builder) {
-		super(ConfigPeakShaving.class, builder.id);
+		super(Config.class, builder.id);
 		this.builder = builder;
 	}
 
@@ -125,20 +107,5 @@ public class MyConfigPeakShaving extends AbstractComponentConfig implements Conf
 	@Override
 	public String meter_id() {
 		return this.builder.meterId;
-	}
-
-	@Override
-	public boolean enable_secure_ess_discharge() {
-		return this.builder.enableSecureEssDischarge;
-	}
-
-	@Override
-	public int ess_secure_discharge_soc() {
-		return this.builder.essSecureDischargeSoc;
-	}
-
-	@Override
-	public int ess_secure_discharge_min_soc() {
-		return this.builder.essSecureDischargeMinSoc;
 	}
 }

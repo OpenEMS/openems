@@ -8,7 +8,7 @@ public class FieldTypeConflictHandlerTest {
 
 	@Test
 	public void testHandleExceptionMessage() {
-		var influx = new Influx();
+		var influx = new InfluxImpl();
 		var sut = new FieldTypeConflictHandler(influx);
 		assertTrue(sut.handleExceptionMessage("HTTP status code: 400; Message: partial write: field type conflict: " //
 				+ "input field \"foo/bar\" on measurement \"data\" is type integer, " //

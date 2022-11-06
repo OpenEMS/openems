@@ -124,12 +124,12 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 
 	@Override
 	public Configuration getConfiguration(String pid) throws IOException {
-		return this.configurations.get(pid);
+		return this.getOrCreateEmptyConfiguration(pid);
 	}
 
 	@Override
 	public Configuration getConfiguration(String pid, String location) throws IOException {
-		return this.configurations.get(pid);
+		return this.getOrCreateEmptyConfiguration(pid);
 	}
 
 	@Override

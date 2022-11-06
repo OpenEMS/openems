@@ -568,8 +568,6 @@ public interface SingleRackVersionC extends Battery, OpenemsComponent, StartStop
 		// Pre-Alarm
 		PRE_ALARM_CHARGE_CURRENT_HIGH(Doc.of(Level.INFO) //
 				.text("Charge Current High Pre-Alarm")), //
-		PRE_ALARM_CELL_VOLTAGE_LOW(Doc.of(Level.INFO) //
-				.text("Cell Voltage Low Pre-Alarm")), //
 		PRE_ALARM_TOTAL_VOLTAGE_LOW(Doc.of(Level.INFO) //
 				.text("Total Voltage Low Pre-Alarm")), //
 		PRE_ALARM_DISCHARGE_CURRENT_HIGH(Doc.of(Level.INFO) //

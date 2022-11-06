@@ -4,15 +4,17 @@ jobs:
   build-code:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup Java 11
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'
           java-version: '11'
+          java-package: jdk
 
       - name: Setup Cache for Java/Gradle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -21,7 +23,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Setup Cache for Java/Maven
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -29,12 +31,12 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '14'
 
       - name: Setup Cache for Node.js
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -60,6 +62,7 @@ jobs:
           cd ui
           npm ci --prefer-offline --cache ~/.npm
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
+          node_modules/.bin/ng lint
 
       #
       # Is this a Tag? Prepare release assets and create a draft release

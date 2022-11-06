@@ -83,7 +83,7 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 	}
 
 	private void unsetComponent(OpenemsComponent component) {
-		for (ReadTask task : this.readTasksManager.getAllTasks()) {
+		for (ReadTask task : this.readTasksManager.getTasks()) {
 			if (task.getComponent() == component) {
 				this.readTasksManager.removeTask(task);
 			}
@@ -99,79 +99,78 @@ public class KostalPikoCoreImpl extends AbstractOpenemsComponent
 				/*
 				 * ONCE
 				 */
-				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_NAME, Priority.ONCE, FieldType.STRING, 0x01000300), //
-				new ReadTask(this, KostalPikoCore.ChannelId.ARTICLE_NUMBER, Priority.ONCE, FieldType.STRING,
-						0x01000100), //
-				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_SERIAL_NUMBER, Priority.ONCE, FieldType.STRING,
+				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_NAME, Priority.LOW, FieldType.STRING, 0x01000300), //
+				new ReadTask(this, KostalPikoCore.ChannelId.ARTICLE_NUMBER, Priority.LOW, FieldType.STRING, 0x01000100), //
+				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_SERIAL_NUMBER, Priority.LOW, FieldType.STRING,
 						0x01000200), //
-				new ReadTask(this, KostalPikoCore.ChannelId.FIRMWARE_VERSION, Priority.ONCE, FieldType.STRING,
+				new ReadTask(this, KostalPikoCore.ChannelId.FIRMWARE_VERSION, Priority.LOW, FieldType.STRING,
 						0x01000801), //
-				new ReadTask(this, KostalPikoCore.ChannelId.HARDWARE_VERSION, Priority.ONCE, FieldType.STRING,
+				new ReadTask(this, KostalPikoCore.ChannelId.HARDWARE_VERSION, Priority.LOW, FieldType.STRING,
 						0x01000802), //
-				new ReadTask(this, KostalPikoCore.ChannelId.KOMBOARD_VERSION, Priority.ONCE, FieldType.STRING,
+				new ReadTask(this, KostalPikoCore.ChannelId.KOMBOARD_VERSION, Priority.LOW, FieldType.STRING,
 						0x01000803), //
-				new ReadTask(this, KostalPikoCore.ChannelId.PARAMETER_VERSION, Priority.ONCE, FieldType.STRING,
+				new ReadTask(this, KostalPikoCore.ChannelId.PARAMETER_VERSION, Priority.LOW, FieldType.STRING,
 						0x01000901), //
-				new ReadTask(this, KostalPikoCore.ChannelId.COUNTRY_NAME, Priority.ONCE, FieldType.STRING, 0x01000902), //
-				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_TYPE_NAME, Priority.ONCE, FieldType.STRING,
+				new ReadTask(this, KostalPikoCore.ChannelId.COUNTRY_NAME, Priority.LOW, FieldType.STRING, 0x01000902), //
+				new ReadTask(this, KostalPikoCore.ChannelId.INVERTER_TYPE_NAME, Priority.LOW, FieldType.STRING,
 						0x01000D00), //
-				new ReadTask(this, KostalPikoCore.ChannelId.NUMBER_OF_STRING, Priority.ONCE, FieldType.INTEGER,
+				new ReadTask(this, KostalPikoCore.ChannelId.NUMBER_OF_STRING, Priority.LOW, FieldType.INTEGER,
 						0x01000500), //
-				new ReadTask(this, KostalPikoCore.ChannelId.NUMBER_OF_PHASES, Priority.ONCE, FieldType.INTEGER,
+				new ReadTask(this, KostalPikoCore.ChannelId.NUMBER_OF_PHASES, Priority.LOW, FieldType.INTEGER,
 						0x01000600), //
-				new ReadTask(this, KostalPikoCore.ChannelId.POWER_ID, Priority.ONCE, FieldType.INTEGER, 0x01000400), //
-				new ReadTask(this, KostalPikoCore.ChannelId.FEED_IN_TIME, Priority.ONCE, FieldType.INTEGER, 0x0F000100), //
-				new ReadTask(this, KostalPikoCore.ChannelId.BAUDRATE_INDEX_MODBUS_RTU, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.POWER_ID, Priority.LOW, FieldType.INTEGER, 0x01000400), //
+				new ReadTask(this, KostalPikoCore.ChannelId.FEED_IN_TIME, Priority.LOW, FieldType.INTEGER, 0x0F000100), //
+				new ReadTask(this, KostalPikoCore.ChannelId.BAUDRATE_INDEX_MODBUS_RTU, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000206), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP1, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP1, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000102), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP2, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP2, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000103), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP3, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP3, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000104), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP4, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP4, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000105), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_SUBNET_MASK_1, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_SUBNET_MASK_1, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000106), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_SUBNET_MASK_2, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_SUBNET_MASK_2, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000107), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_SUBNET_MASK_3, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_SUBNET_MASK_3, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000108), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_SUBNET_MASK_4, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_SUBNET_MASK_4, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000109), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_GATEWAY_1, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_GATEWAY_1, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x0700010B), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_GATEWAY_2, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_GATEWAY_2, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x0700010C), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_GATEWAY_3, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_GATEWAY_3, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x0700010D), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_GATEWAY_4, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_GATEWAY_4, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x0700010E), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_FIRST_1, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_FIRST_1, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x0700010F), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_FIRST_2, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_FIRST_2, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000110), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_FIRST_3, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_FIRST_3, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000111), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_FIRST_4, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_FIRST_4, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000112), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_SECOND_1, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_SECOND_1, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000113), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_SECOND_2, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_SECOND_2, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000114), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_SECOND_3, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_SECOND_3, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000115), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_SECOND_4, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_IP_DNS_SECOND_4, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000116), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_AUTO_IP, Priority.ONCE, FieldType.BOOLEAN,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_AUTO_IP, Priority.LOW, FieldType.BOOLEAN,
 						0x07000101), //
-				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_EXTERNAL_ROUTER, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.SETTING_MANUAL_EXTERNAL_ROUTER, Priority.LOW,
 						FieldType.BOOLEAN, 0x0700010A), //
-				new ReadTask(this, KostalPikoCore.ChannelId.PRELOAD_MODBUS_RTU, Priority.ONCE, FieldType.BOOLEAN,
+				new ReadTask(this, KostalPikoCore.ChannelId.PRELOAD_MODBUS_RTU, Priority.LOW, FieldType.BOOLEAN,
 						0x07000202), //
-				new ReadTask(this, KostalPikoCore.ChannelId.TERMINATION_MODBUS_RTU, Priority.ONCE, FieldType.BOOLEAN,
+				new ReadTask(this, KostalPikoCore.ChannelId.TERMINATION_MODBUS_RTU, Priority.LOW, FieldType.BOOLEAN,
 						0x07000203), //
-				new ReadTask(this, KostalPikoCore.ChannelId.ADDRESS_MODBUS_RTU, Priority.ONCE,
+				new ReadTask(this, KostalPikoCore.ChannelId.ADDRESS_MODBUS_RTU, Priority.LOW,
 						FieldType.INTEGER_UNSIGNED_BYTE, 0x07000201),
 
 				/*

@@ -21,7 +21,7 @@
         </ng-container>
 
         <!-- If at least Evcss or ConsumptionMeters -->
-        <ng-container *ngIf="evcss.length != 0 || consumptionMeters.length != 0; else noMeters">
+        <ng-container *ngIf="evcss.length !== 0 || consumptionMeters.length !== 0; else noMeters">
             <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
             <oe-flat-widget-line [name]="'General.otherConsumption' | translate" [value]="otherPower"
                 [converter]="CONVERT_WATT_TO_KILOWATT">

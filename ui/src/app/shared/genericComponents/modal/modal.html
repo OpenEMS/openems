@@ -4,7 +4,7 @@
         <ion-buttons slot="end">
 
             <!-- Additional Toolbarbuttons -->
-            <ng-container *ngIf="toolbarButtons != null">
+            <ng-container *ngIf="toolbarButtons !== null">
                 <ng-container
                     *ngIf="((toolbarButtons | typeof) !== 'Object') && toolbarButtons.length > 0, else singleButton">
                     <ion-button *ngFor="let button of toolbarButtons" [href]="button.url" target="_blank">

@@ -1,7 +1,13 @@
-export interface NetworkInterface {
+export type NetworkInterface = {
     dhcp?: boolean,
-    linkLocalAddressing?: boolean,
     gateway?: string,
     dns?: string,
-    addresses?: string[]
+    linkLocalAddressing?: boolean,
+    addresses?: IpAddress[]
+}
+
+export type IpAddress = {
+    label: string,
+    address: string,
+    subnetmask: string
 }

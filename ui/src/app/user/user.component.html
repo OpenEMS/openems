@@ -17,7 +17,7 @@
                 Menu.name
               </ion-label>
               <ion-label>
-                {{ user.name }}
+                {{ this.form?.model ? (this.form?.model?.firstname + ' ' + this.form?.model?.lastname) : user.name }}
                 <!-- <ion-icon style="cursor: pointer;" color="primary" name="create-outline">
                 </ion-icon> -->
               </ion-label>
@@ -63,7 +63,7 @@
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="primary" name="person-outline"></ion-icon>
             <ion-label class="ion-text-wrap" translate>
-              Register.form.contactDetails
+              Register.Form.contactDetails
             </ion-label>
           </ion-item>
           <ion-card-content>
@@ -78,7 +78,7 @@
                 <ion-icon name="pencil-outline" slot="end"></ion-icon>
               </ion-button>
               <ion-button [disabled]="!form?.formGroup?.dirty" slot="end" (click)="applyChanges()">
-                <ion-label>speichern</ion-label>
+                <ion-label translate>General.save</ion-label>
                 <ion-icon name="save-outline" slot="end"></ion-icon>
               </ion-button>
             </ion-item>
@@ -105,8 +105,8 @@
             <p class="ion-padding" translate>About.build</p>
             <ul>
               <li>
-                <a target="_blank" href="https://github.com/OpenEMS/openems/releases/tag/2022.10.0">
-                  <span translate>About.build</span>: 2022.10.0 (2022-10-04)</a>
+                <a target="_blank" href="https://github.com/OpenEMS/openems/releases/tag/2022.11.0">
+                  <span translate>About.build</span>: 2022.11.0 (2022-11-06)</a>
               </li>
             </ul>
             <p class="ion-padding">
@@ -129,7 +129,7 @@
               <ion-label translate>About.language</ion-label>
               <ion-select #langSelect (ionChange)="setLanguage(langSelect.value)" [value]="currentLanguage">
                 <ion-select-option *ngFor="let language of languages" [value]="language">
-                  {{ language }}
+                  {{ language.title }}
                 </ion-select-option>
               </ion-select>
             </ion-item>

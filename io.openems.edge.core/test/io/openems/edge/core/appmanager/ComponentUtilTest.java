@@ -15,8 +15,8 @@ import com.google.common.collect.Lists;
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.core.host.Inet4AddressWithSubnetmask;
 import io.openems.edge.core.host.NetworkInterface;
-import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
 
 public class ComponentUtilTest {
 
@@ -50,18 +50,18 @@ public class ComponentUtilTest {
 	}
 
 	@Test
-	public void testEqualsListOfNetworkInterfaceOfQListOfNetworkInterfaceOfQ() throws Exception {
-		var expectedInet4Addresses = new HashSet<Inet4AddressWithNetmask>();
-		expectedInet4Addresses.add(NetworkInterface.Inet4AddressWithNetmask.fromString("192.168.178.2/24"));
+	public void testEqualsListOfNetworkInterface() throws Exception {
+		var expectedInet4Addresses = new HashSet<Inet4AddressWithSubnetmask>();
+		expectedInet4Addresses.add(Inet4AddressWithSubnetmask.fromString("foo", "192.168.178.2/24"));
 		List<NetworkInterface<?>> expected = Lists.newArrayList(new NetworkInterface<Void>("eth0",
 				ConfigurationProperty.of(false), ConfigurationProperty.of(false), ConfigurationProperty.asNull(),
 				ConfigurationProperty.asNull(), ConfigurationProperty.of(expectedInet4Addresses), null));
 
-		var actualInet4Addresses = new HashSet<Inet4AddressWithNetmask>();
-		actualInet4Addresses.add(NetworkInterface.Inet4AddressWithNetmask.fromString("192.168.178.2/24"));
+		var actualInet4Addresses = new HashSet<Inet4AddressWithSubnetmask>();
+		actualInet4Addresses.add(Inet4AddressWithSubnetmask.fromString("foo", "192.168.178.2/24"));
 		var networkInterface = new NetworkInterface<Void>("eth0", ConfigurationProperty.of(false),
 				ConfigurationProperty.of(false), ConfigurationProperty.asNull(), ConfigurationProperty.asNull(),
-				ConfigurationProperty.of(expectedInet4Addresses), null);
+				ConfigurationProperty.of(actualInet4Addresses), null);
 
 		List<NetworkInterface<?>> actual = Lists.newArrayList(networkInterface);
 

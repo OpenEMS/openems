@@ -1,12 +1,12 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ChannelAddress, Edge, Service, Websocket } from '../../../shared/shared';
-import { Component } from '@angular/core';
 
 @Component({
   selector: EnergymonitorComponent.SELECTOR,
   templateUrl: './energymonitor.component.html'
 })
-export class EnergymonitorComponent {
+export class EnergymonitorComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = "energymonitor";
 

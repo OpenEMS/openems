@@ -18,16 +18,13 @@ public class TibberProviderTest {
 
 	@Test
 	public void test() throws Exception {
-		var sut = new TibberImpl();
-		new ComponentTest(sut) //
+		var tibber = new TibberImpl();
+		new ComponentTest(tibber) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setAccessToken("dummy") //
 						.build()) //
 		;
-
-		// Thread.sleep(5000);
-		// System.out.println(sut.getPrices());
 	}
 
 	@Test
@@ -151,6 +148,11 @@ public class TibberProviderTest {
 
 		// To check if the a value input from the string is present in map.
 		assertTrue(prices.containsValue(0.1853f * 1000));
+
+		ZonedDateTime firstHour = prices.firstKey();
+
+		// To check 15 minutes values are taken instead of one hour values.
+		assertTrue(prices.containsKey(firstHour.plusMinutes(15)));
 
 	}
 

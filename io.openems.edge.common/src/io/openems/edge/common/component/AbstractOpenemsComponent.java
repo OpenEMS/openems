@@ -102,6 +102,10 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		this.addChannels(furtherInitialChannelIds);
 	}
 
+	protected void activate(String id) {
+		throw new IllegalArgumentException("Use the other activate() method.");
+	}
+
 	/**
 	 * Handles @Activate of implementations. Prints log output.
 	 *

@@ -30,7 +30,11 @@ public class NetworkConfiguration {
 	 *       "linkLocalAddressing"?: boolean,
 	 *       "gateway"?: string,
 	 *       "dns"?: string,
-	 *       "addresses"?: string[]
+	 *       "addresses": [{ 
+	 *         "label": string, 
+	 *         "address": string, 
+	 *         "subnetmask": string 
+	 *       }]
 	 *     }
 	 *   }
 	 * }

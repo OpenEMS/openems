@@ -87,10 +87,22 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.config = config;
+		this.worker.activate(this.id());
+
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
-		this.worker.activate(SINGLETON_SERVICE_PID);
+	}
+
+	@Modified
+	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		this.config = config;
+		this.worker.modified(this.id());
+
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
 	}
 
 	@Override
@@ -98,20 +110,6 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 	protected void deactivate() {
 		super.deactivate();
 		this.worker.deactivate();
-	}
-
-	@Modified
-	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-		var oldConfig = this.config;
-		this.config = config;
-		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
-			return;
-		}
-		// make sure the worker starts if it had been stopped
-		if (oldConfig.cycleTime() <= 0 && oldConfig.cycleTime() != config.cycleTime()) {
-			this.worker.triggerNextRun();
-		}
 	}
 
 	@Override

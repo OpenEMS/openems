@@ -17,11 +17,11 @@ import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
 import { LogoutRequest } from '../jsonrpc/request/logoutRequest';
 import { RegisterUserRequest } from '../jsonrpc/request/registerUserRequest';
 import { AuthenticateResponse } from '../jsonrpc/response/authenticateResponse';
-import { LanguageTag } from '../translate/language';
+import { Language } from '../type/language';
 import { Role } from '../type/role';
 import { Service } from './service';
-import { WsData } from './wsdata';
 import { WebsocketInterface } from './websocketInterface';
+import { WsData } from './wsdata';
 
 @Injectable()
 export class Websocket implements WebsocketInterface {
@@ -153,8 +153,9 @@ export class Websocket implements WebsocketInterface {
     this.sendRequest(request).then(r => {
       let response = (r as AuthenticateResponse).result;
 
-      localStorage.LANGUAGE = response.user.language;
-      this.service.setLang(LanguageTag[localStorage.LANGUAGE])
+      let language = Language.getByFilename(response.user.language.toLocaleLowerCase());
+      localStorage.LANGUAGE = language.filename;
+      this.service.setLang(language);
       this.status = 'online';
 
       // received login token -> save in cookie

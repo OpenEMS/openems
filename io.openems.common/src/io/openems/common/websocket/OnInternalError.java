@@ -6,9 +6,9 @@ public interface OnInternalError {
 	/**
 	 * Handles an internal error.
 	 *
-	 * @param ex           the thrown Exception
+	 * @param t            the error {@link Throwable}
 	 * @param wsDataString the content from WsData.toString()
 	 */
-	public void run(Exception ex, String wsDataString);
+	public void run(Throwable t, String wsDataString);
 
 }
