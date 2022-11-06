@@ -74,7 +74,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 		if (tasks.isEmpty()) {
 			// refill the queue
 			for (TasksManager<T> tasksManager : this.tasksManagers.values()) {
-				tasks.addAll(tasksManager.getAllTasks(priority));
+				tasks.addAll(tasksManager.getTasks(priority));
 			}
 		}
 
@@ -91,7 +91,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 	public Multimap<String, T> getAllTasksBySourceId(Priority priority) {
 		Multimap<String, T> result = ArrayListMultimap.create();
 		for (Entry<String, TasksManager<T>> entry : this.tasksManagers.entries()) {
-			result.putAll(entry.getKey(), entry.getValue().getAllTasks(priority));
+			result.putAll(entry.getKey(), entry.getValue().getTasks(priority));
 		}
 		return result;
 	}
@@ -104,7 +104,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 	public Multimap<String, T> getAllTasksBySourceId() {
 		Multimap<String, T> result = ArrayListMultimap.create();
 		for (Entry<String, TasksManager<T>> entry : this.tasksManagers.entries()) {
-			result.putAll(entry.getKey(), entry.getValue().getAllTasks());
+			result.putAll(entry.getKey(), entry.getValue().getTasks());
 		}
 		return result;
 	}

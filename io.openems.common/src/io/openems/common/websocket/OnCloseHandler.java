@@ -28,8 +28,9 @@ public class OnCloseHandler implements Runnable {
 			if (wsData != null) {
 				wsData.setWebsocket(null);
 			}
-		} catch (Exception e) {
-			this.parent.handleInternalErrorSync(e, WebsocketUtils.getWsDataString(this.ws));
+
+		} catch (Throwable t) {
+			this.parent.handleInternalErrorSync(t, WebsocketUtils.getWsDataString(this.ws));
 		}
 	}
 

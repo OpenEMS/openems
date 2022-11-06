@@ -411,7 +411,12 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	 * @param result the {@link EdgeConfig}
 	 */
 	private void readFactories(EdgeConfig result) {
-		final var bundles = this.parent.bundleContext.getBundles();
+		var bundleContext = this.parent.bundleContext;
+		if (bundleContext == null) {
+			// Can be null in JUnit tests
+			return;
+		}
+		final var bundles = bundleContext.getBundles();
 		for (Bundle bundle : bundles) {
 			final var mti = this.parent.metaTypeService.getMetaTypeInformation(bundle);
 			if (mti == null) {

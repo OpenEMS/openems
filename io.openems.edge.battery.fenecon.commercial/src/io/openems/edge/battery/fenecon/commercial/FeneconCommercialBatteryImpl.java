@@ -171,12 +171,12 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				// Versions
-				new FC3ReadRegistersTask(0, Priority.ONCE, //
+				new FC3ReadRegistersTask(0, Priority.LOW, //
 						m(FeneconCommercialBattery.ChannelId.MASTER_MCU_HARDWARE_VERSION, new StringWordElement(0, 5),
 								SERIAL_NUMBER_CONVERTER),
 						m(FeneconCommercialBattery.ChannelId.MASTER_MCU_FIRMWARE_VERSION, new StringWordElement(5, 2),
 								SERIAL_NUMBER_CONVERTER)), //
-				new FC3ReadRegistersTask(2176, Priority.ONCE, //
+				new FC3ReadRegistersTask(2176, Priority.LOW, //
 						m(FeneconCommercialBattery.ChannelId.SLAVE_MCU_HARDWARE_VERSION, new StringWordElement(2176, 5),
 								SERIAL_NUMBER_CONVERTER),
 						m(FeneconCommercialBattery.ChannelId.SLAVE_MCU_FIRMWARE_VERSION, new StringWordElement(2181, 2),
@@ -469,7 +469,7 @@ public class FeneconCommercialBatteryImpl extends AbstractOpenemsModbusComponent
 			generateStatusChannels(this, towerNum);
 			this.getModbusProtocol().addTasks(//
 					// Cold Data, 2s frequency ==> Master Machine Summary Low Map 1.3
-					new FC3ReadRegistersTask(towerOffset + 8, Priority.ONCE, //
+					new FC3ReadRegistersTask(towerOffset + 8, Priority.LOW, //
 							m(generateTowerChannel(this, towerNum, "SUB_MASTER_HARDWARE_VERSION", OpenemsType.STRING,
 									Unit.NONE), new StringWordElement(towerOffset + 8, 5), SERIAL_NUMBER_CONVERTER),
 							m(generateTowerChannel(this, towerNum, "SUB_MASTER_FIRMWARE_VERSION", OpenemsType.STRING,

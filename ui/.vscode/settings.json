@@ -1,5 +1,8 @@
 {
     "typescript.tsdk": "./node_modules/typescript/lib",
     "editor.formatOnSave": true,
-    "cSpell.enabled": false
+    "cSpell.enabled": false,
+    "i18n-ally.localesPaths": "src/assets/i18n",
+    "i18n-ally.dirStructure": "file",
+    "i18n-ally.keystyle": "nested"
 }

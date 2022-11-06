@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -10,7 +10,7 @@ import { Data, TooltipItem } from './../shared';
     selector: 'heatpumpchart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class HeatPumpChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class HeatPumpChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public component: EdgeConfig.Component;

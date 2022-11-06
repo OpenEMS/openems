@@ -1,6 +1,7 @@
 package io.openems.edge.controller.evcs;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.evcs.api.ChargeMode;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

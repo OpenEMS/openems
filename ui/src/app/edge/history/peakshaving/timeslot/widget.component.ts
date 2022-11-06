@@ -1,7 +1,7 @@
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component, Input, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Edge, Service, EdgeConfig } from 'src/app/shared/shared';
+import { Edge, EdgeConfig, Service } from 'src/app/shared/shared';
 
 @Component({
     selector: TimeslotPeakshavingWidgetComponent.SELECTOR,
@@ -29,9 +29,6 @@ export class TimeslotPeakshavingWidgetComponent implements OnInit {
                 this.component = config.getComponent(this.componentId);
             });
         });
-    }
-
-    ngOnDestroy() {
     }
 }
 

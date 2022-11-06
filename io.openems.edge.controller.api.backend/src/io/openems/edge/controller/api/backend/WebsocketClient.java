@@ -65,7 +65,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	protected WsData createWsData() {
-		return new WsData(this);
+		return new WsData();
 	}
 
 	@Override
@@ -76,6 +76,11 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	@Override
 	protected void logWarn(Logger log, String message) {
 		this.parent.logWarn(log, message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		this.parent.logError(log, message);
 	}
 
 	public boolean isConnected() {

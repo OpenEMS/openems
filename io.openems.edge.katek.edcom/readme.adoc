@@ -1,0 +1,8 @@
+= Katek EDCOM Library
+
+EDCOM 8.1 is a java cross platform library for communication with 10kW hybrid Inverter.
+
+Java code provided by Katek Memmingen GmbH under the GNU LPGLv3.0. 
+Converted to Java 11 compatible code and packaged as OpenEMS Edge bundle by FENECON GmbH.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.katek.edcom[Source Code icon:github[]]

@@ -25,6 +25,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.gson.JsonArray;
@@ -74,8 +75,8 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
-	@Reference
-	protected List<OpenemsApp> availableApps;
+	@Reference(policy = ReferencePolicy.DYNAMIC)
+	protected volatile List<OpenemsApp> availableApps;
 
 	@Reference
 	private AppManagerAppHelper appHelper;
@@ -103,14 +104,35 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	@Activate
 	private void activate(ComponentContext componentContext, Config config) {
 		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-
-		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
-			return;
-		}
 		this.applyConfig(config);
 
 		this.worker.activate(this.id());
 		this.appInstallWorker.activate(this.id());
+
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
+	}
+
+	@Modified
+	private void modified(ComponentContext componentContext, Config config) throws OpenemsNamedException {
+		super.modified(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		this.applyConfig(config);
+
+		this.worker.modified(this.id());
+		this.appInstallWorker.modified(this.id());
+
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
+	}
+
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+		this.worker.deactivate();
+		this.appInstallWorker.deactivate();
 	}
 
 	/**
@@ -310,14 +332,6 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-		this.worker.deactivate();
-		this.appInstallWorker.deactivate();
-	}
-
-	@Override
 	public String debugLog() {
 		return this.worker.debugLog();
 	}
@@ -377,7 +391,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		var openemsApp = this.findAppById(request.appId);
 		synchronized (this.instantiatedApps) {
 
-			var installedValues = this.appHelper.installApp(user, request.properties, request.alias, openemsApp);
+			final var instance = new OpenemsAppInstance(request.appId, request.alias, UUID.randomUUID(),
+					request.properties, null);
+			var installedValues = this.appHelper.installApp(user, instance, openemsApp);
 
 			// Update App-Manager configuration
 			try {
@@ -572,7 +588,9 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 				throw new OpenemsException("App-Instance-ID [" + request.instanceId + "] is unknown.");
 			}
 
-			var result = this.appHelper.updateApp(user, oldApp, request.properties, request.alias, app);
+			final var instance = new OpenemsAppInstance(oldApp.appId, request.alias, oldApp.instanceId,
+					request.properties, null);
+			var result = this.appHelper.updateApp(user, oldApp, instance, app);
 
 			// Update App-Manager configuration
 			try {
@@ -589,13 +607,6 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			return CompletableFuture
 					.completedFuture(new UpdateAppInstance.Response(request.id, newInstance, result.warnings));
 		}
-	}
-
-	@Modified
-	private void modified(ComponentContext componentContext, Config config) throws OpenemsNamedException {
-		super.modified(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-		this.applyConfig(config);
-		this.worker.triggerNextRun();
 	}
 
 	/**

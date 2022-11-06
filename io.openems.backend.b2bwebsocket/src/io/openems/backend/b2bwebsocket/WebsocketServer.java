@@ -14,7 +14,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnClose onClose;
 
 	public WebsocketServer(B2bWebsocket parent, String name, int port, int poolSize, boolean debugMode) {
-		super(name, port, poolSize, debugMode);
+		super(name, port, poolSize, debugMode, (executor) -> {
+		});
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onRequest = new OnRequest(parent);
@@ -61,5 +62,10 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	@Override
 	protected void logWarn(Logger log, String message) {
 		this.parent.logWarn(log, message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		this.parent.logError(log, message);
 	}
 }

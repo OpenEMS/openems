@@ -1,9 +1,9 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem } from '../shared';
 
@@ -11,7 +11,7 @@ import { Data, TooltipItem } from '../shared';
     selector: 'productionTotalAcChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class ProductionTotalAcChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class ProductionTotalAcChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public showPhases: boolean;
@@ -57,13 +57,14 @@ export class ProductionTotalAcChartComponent extends AbstractHistoryChart implem
                     let datasets = [];
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
-                            let data = result.data[channelAddress.toString()].map(value => {
+                            let data = result.data[channelAddress.toString()]?.map(value => {
                                 if (value == null) {
                                     return null
                                 } else {
                                     return value / 1000; // convert to kW
                                 }
                             });
+
                             if (!data) {
                                 return;
                             } else {
@@ -77,7 +78,9 @@ export class ProductionTotalAcChartComponent extends AbstractHistoryChart implem
                                         borderColor: 'rgba(45,143,171,1)'
                                     });
                                 }
-                                if ('_sum/ProductionAcActivePowerL1' && '_sum/ProductionAcActivePowerL2' && '_sum/ProductionAcActivePowerL3' in result.data && this.showPhases == true) {
+
+                                const productionPhasesChannels = ['_sum/ProductionAcActivePowerL1', '_sum/ProductionAcActivePowerL2', '_sum/ProductionAcActivePowerL3'];
+                                if (Utils.isArrayExistingInSource(productionPhasesChannels, result.data) && this.showPhases == true) {
                                     if (channelAddress.channelId == 'ProductionAcActivePowerL1') {
                                         datasets.push({
                                             label: this.translate.instant('General.phase') + ' ' + 'L1',

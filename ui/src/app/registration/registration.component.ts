@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { RegistrationModalComponent } from './modal/modal.component';
 
@@ -6,12 +6,9 @@ import { RegistrationModalComponent } from './modal/modal.component';
   selector: 'registration',
   templateUrl: './registration.component.html'
 })
-export class RegistrationComponent implements OnInit {
+export class RegistrationComponent {
 
   constructor(private modalController: ModalController) { }
-
-  ngOnInit() {
-  }
 
   async presentModal() {
     const modal = await this.modalController.create({

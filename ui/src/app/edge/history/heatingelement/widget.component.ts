@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -9,7 +9,7 @@ import { AbstractHistoryWidget } from '../abstracthistorywidget';
     selector: HeatingelementWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class HeatingelementWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class HeatingelementWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;

@@ -46,9 +46,8 @@
             <ion-card-content *ngIf="environment.backend === 'OpenEMS Backend'">
               <form (ngSubmit)="doLogin({ username: username.value.trim(), password: password.value.trim() })">
                 <ion-item>
-                  <ion-label position="floating">E-Mail / <span translate>Login.passwordLabel</span></ion-label>
-                  <ion-input #username required type="input"
-                    [placeholder]="'E-Mail / ' + ('Login.passwordLabel' | translate)">
+                  <ion-label position="floating">E-Mail / <span translate>Login.user</span></ion-label>
+                  <ion-input #username required type="input" [placeholder]="'E-Mail / ' + ('Login.user' | translate)">
                   </ion-input>
                 </ion-item>
                 <ion-item>
@@ -89,10 +88,6 @@
                         <ion-label class="ion-text-wrap ion-text-center">Sie haben noch kein
                           {{environment.edgeShortName}} hinzugefügt.</ion-label>
                       </ion-item>
-                      <ion-card-content class="ion-text-center">
-                        <p>Bitte klicken Sie unten auf den "Hinzufügen"-Button wenn sie ein FEMS in Betrieb nehmen
-                          wollen.</p>
-                      </ion-card-content>
                     </ng-container>
                     <ng-template #others>
                       <ion-item color="warning" lines="full">

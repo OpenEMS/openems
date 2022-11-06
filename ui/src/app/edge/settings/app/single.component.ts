@@ -44,8 +44,9 @@ export class SingleAppComponent implements OnInit {
     this.service.startSpinner(this.spinnerId);
     this.updateIsXL();
     this.appId = this.route.snapshot.params["appId"];
+    let appName = this.route.snapshot.queryParams['name'];
     let appId = this.appId;
-    this.service.setCurrentComponent("App " + appId, this.route).then(edge => {
+    this.service.setCurrentComponent(appName, this.route).then(edge => {
       this.edge = edge;
 
       // set appname, image ...
