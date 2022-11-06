@@ -193,12 +193,17 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 			// parse the arrays for price and time stamps.
 			for (JsonArray day : days) {
 				for (JsonElement element : day) {
+					// Multiply the price with 1000 to make it EUR/MWh.
 					var marketPrice = JsonUtils.getAsFloat(element, "total") * 1000;
-					var startTime = ZonedDateTime
+					var startTimeStamp = ZonedDateTime
 							.parse(JsonUtils.getAsString(element, "startsAt"), DateTimeFormatter.ISO_DATE_TIME)
 							.withZoneSameInstant(ZoneId.systemDefault());
+
 					// Adding the values in the Map.
-					result.put(startTime, marketPrice);
+					result.put(startTimeStamp, marketPrice);
+					result.put(startTimeStamp.plusMinutes(15), marketPrice);
+					result.put(startTimeStamp.plusMinutes(30), marketPrice);
+					result.put(startTimeStamp.plusMinutes(45), marketPrice);
 				}
 			}
 		}
