@@ -45,7 +45,7 @@ public class ErrorRecord implements Comparable {
 			/* 5 */ { "E051", "AC Overcurrent" }, //
 			/* 6 */ { "E023", "Fault" }, //
 			/* 7 */ { "E022", "Fault" }, //
-			/* 8 */ { "E021", "Störung" }, //
+			/* 8 */ { "E021", "Stoerung" }, //
 			/* 9 */ { "E001", "PV Overvoltage 1" }, //
 			/* 10 */ { "A010", "Isolation impedance" }, //
 			/* 11 */ { "E180", "Initialization error" }, //
