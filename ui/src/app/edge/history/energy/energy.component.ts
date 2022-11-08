@@ -51,7 +51,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
 
   ngOnChanges() {
     this.updateChart();
-    this.isExcelExportAllowed = true;
   }
 
   constructor(
@@ -72,7 +71,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
    * Export historic data to Excel file.
    */
   public exportToXlxs() {
-    this.isExcelExportAllowed = differenceInCalendarMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) < 3;
+    this.isExcelExportAllowed = differenceInCalendarMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) < 0;
     if (!this.isExcelExportAllowed) {
       return
     }
@@ -392,6 +391,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
 
     }).catch(reason => {
       console.error(reason); // TODO error message
+      this.isExcelExportAllowed = false;
       this.initializeChart();
       return;
     });
@@ -768,8 +768,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
           }
           resolve(labels)
-        }).catch(() => {
-          resolve(labels)
+        }).catch((error) => {
+          this.isExcelExportAllowed = !this.isExcelExportAllowed;
+          resolve(error)
         })
       })
     })

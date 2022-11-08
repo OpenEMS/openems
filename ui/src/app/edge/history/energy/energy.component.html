@@ -10,14 +10,12 @@
   </ion-item>
   <ion-item lines="full" color="warning" *ngIf="!isExcelExportAllowed">
     <ion-icon size="large" slot="start" name="alert-circle-outline"></ion-icon>
-    <ion-label translate style="text-align: center">
-      Edge.Index.Energymonitor.excelExportWarning
-    </ion-label>
+    <ion-label translate style="text-align: center">Edge.Index.Energymonitor.excelExportWarning</ion-label>
   </ion-item>
 </ng-template>
 
 <ng-template #tplChart>
-  <div [style.height.px]="getChartHeight()">
+  <div [style.height.px]="getChartHeight()" *ngIf="isExcelExportAllowed">
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
     <ng-container *ngIf="!loading">
       <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [colors]="colors"
