@@ -90,6 +90,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
   public readonly defaultNumberOfModules: number = 5;
 
+  public abstract readonly emsBoxLabel: Category;
+
   public showViewCount: boolean = true;
 
   private numberOfModulesPerTower: number;
@@ -215,7 +217,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           key: 'emsBox',
           type: 'input',
           templateOptions: {
-            label: 'EMS Box (FEMS Box)',
+            label: Category.toTranslatedString(this.emsBoxLabel, this.translate),
             required: true,
             prefix: emsBoxSerialNumber ? '' : 'FH',
             placeholder: 'xxxxxxxxxx'

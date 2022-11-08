@@ -20,6 +20,10 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ed.data.InverterData;
+import com.ed.data.Settings;
+import com.ed.data.Status;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -31,9 +35,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.InverterData;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Settings;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Status;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;

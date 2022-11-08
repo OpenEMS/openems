@@ -88,9 +88,10 @@ task copyBundleReadmes() {
         def targetNature = basePath + "edge/nature.adoc.d"
         def targetBridge = basePath + "edge/bridge.adoc.d"
         def targetDeviceService = basePath + "edge/device_service.adoc.d"
+        def targetTimedata = basePath + "edge/timedata.adoc.d"
 
         // initialize target files and directories
-        [targetController, targetScheduler, targetNature, targetBridge, targetDeviceService].each { target ->
+        [targetController, targetScheduler, targetNature, targetBridge, targetDeviceService, targetTimedata].each { target ->
             delete fileTree(dir: target, include: '**/*.adoc') 
             new File(target + "/_include.adoc").write('')
         }
@@ -114,9 +115,16 @@ task copyBundleReadmes() {
                             target = targetScheduler
                         } else if(edgeBundle.startsWith("bridge.")) {
                             target = targetBridge
+                        } else if(edgeBundle.startsWith("timedata.")) {
+                            target = targetTimedata
                         } else {
                             target = targetDeviceService
                         }
+
+                    } else if(bundle.startsWith("io.openems.backend.")) {
+                        // ignore
+                        return
+
                     } else if(bundle.startsWith("io.openems.wrapper")) {
                         // ignore
                         return

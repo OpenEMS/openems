@@ -6,6 +6,7 @@ import { Interface } from 'src/app/shared/interface/interface';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { AppCenterUtil } from '../../shared/appcenterutil';
+import { Category } from '../../shared/category';
 import { ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { EmsAppId } from '../../views/heckert-app-installer/heckert-app-installer.component';
 import { View } from '../abstract-ibn';
@@ -16,6 +17,8 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
     public readonly type = 'Symphon-E';
 
     public readonly id = 'heckert';
+
+    public override readonly emsBoxLabel = Category.EMS_BOX_LABEL_HECKERT;
 
     constructor(translate: TranslateService) {
         super([

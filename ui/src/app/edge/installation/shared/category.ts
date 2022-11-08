@@ -1,4 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
+import { environment } from "src/environments";
 
 export enum Category {
     LINE_SIDE_METER_FUSE_COMMERCIAL,
@@ -16,7 +17,9 @@ export enum Category {
     INVERTER,
     PRODUCER,
     PEAK_SHAVING,
-    APPS
+    APPS,
+    EMS_BOX_LABEL_HOME,
+    EMS_BOX_LABEL_HECKERT
 }
 
 export namespace Category {
@@ -54,6 +57,10 @@ export namespace Category {
                 return translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.PEAK_SHAVING');
             case Category.APPS:
                 return translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.APPS');
+            case Category.EMS_BOX_LABEL_HOME:
+                return translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_HOME', { edgeShortName: environment.edgeShortName });
+            case Category.EMS_BOX_LABEL_HECKERT:
+                return translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_HECKERT');
         }
     }
 }

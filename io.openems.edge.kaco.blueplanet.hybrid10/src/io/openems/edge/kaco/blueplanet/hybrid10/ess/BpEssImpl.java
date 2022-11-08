@@ -22,6 +22,11 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ed.data.BatteryData;
+import com.ed.data.InverterData;
+import com.ed.data.Settings;
+import com.ed.data.Status;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -45,10 +50,6 @@ import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.BatteryData;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.InverterData;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Settings;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Status;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;

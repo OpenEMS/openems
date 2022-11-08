@@ -35,6 +35,17 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.10.7',
+        changes: [
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
+          "Fehlerbehebungen der Übersetzung Deutsch und Englisch",
+          Changelog.product(...Product.ALL_EVCS) + Changelog.GENERAL_OPTIMIZATION,
+          { roleIsAtLeast: Role.ADMIN, change: "Modbus/TCP-Api-Kompatibilität für GoodWe Zähler" },
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für Ziehl EFR4001IP Zähler" },
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für Weidmüller Modbus/TCP Feldbuskoppler UR20-FBC-MOD-TCP-V2" },
+        ]
+      },
+      {
         version: '2022.10.4',
         changes: [
           Changelog.product(Product.FEMS_TIBBER) + "Allgemeine Verbesserungen",
