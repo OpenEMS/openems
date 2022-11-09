@@ -38,12 +38,12 @@ public class OpenemsConstants {
 	 * This is always `0` for OpenEMS open source releases and reserved for private
 	 * distributions.
 	 */
-	public static final short VERSION_PATCH = 8;
+	public static final short VERSION_PATCH = 0;
 
 	/**
 	 * The additional version string.
 	 */
-	public static final String VERSION_STRING = "SNAPSHOT";
+	public static final String VERSION_STRING = "";
 
 	/**
 	 * The complete version as a SemanticVersion.

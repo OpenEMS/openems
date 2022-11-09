@@ -35,6 +35,16 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.11.1',
+        changes: [
+          Changelog.openems('2022.11.0'),
+          "Fehlerbehebung bei der automatischem Reconnect mit dem Online-Monitoring nach Verbindungsausfall",
+          Changelog.library(Library.APACHE_FELIX_HTTP_JETTY, Library.DATE_FNS, Library.MOSHI, Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY),
+          { roleIsAtLeast: Role.ADMIN, change: "KACO Blueplanet Hybrid 10: interne Architektur geändert" },
+          { roleIsAtLeast: Role.ADMIN, change: "Simulator Grid-Meter: Fehlerbehebung in Verbindung mit Ess-Cluster" },
+        ]
+      },
+      {
         version: '2022.10.7',
         changes: [
           Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
