@@ -223,14 +223,16 @@
 			<version>4.7.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.servicemix.bundles</groupId>
-			<artifactId>org.apache.servicemix.bundles.junit</artifactId>
-			<version>4.13.2_1</version>
-		</dependency>
-		<dependency>
+			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole-plugins/ds/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole.plugins.ds</artifactId>
 			<version>2.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.servicemix.bundles</groupId>
+			<artifactId>org.apache.servicemix.bundles.junit</artifactId>
+			<version>4.13.2_1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
