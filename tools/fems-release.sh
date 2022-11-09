@@ -105,7 +105,7 @@ update_changelog() {
     echo "# Update Changelog! ($(pwd)/ui/src/app/changelog/changelog.component.ts)"
     read -p ""
     git add .
-    git commit --no-edit -m "Update Changelog for $version" || true
+    git commit --no-edit -m "Update Changelog for $version_string" || true
 }
 
 update_version_files() {
