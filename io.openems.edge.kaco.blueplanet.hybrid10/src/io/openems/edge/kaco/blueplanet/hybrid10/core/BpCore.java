@@ -1,5 +1,13 @@
 package io.openems.edge.kaco.blueplanet.hybrid10.core;
 
+import com.ed.data.BatteryData;
+import com.ed.data.EnergyMeter;
+import com.ed.data.InverterData;
+import com.ed.data.Settings;
+import com.ed.data.Status;
+import com.ed.data.SystemInfo;
+import com.ed.data.VectisData;
+
 import io.openems.common.channel.Level;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -7,13 +15,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.BatteryData;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.EnergyMeter;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.InverterData;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Settings;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Status;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.SystemInfo;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.VectisData;
 
 public interface BpCore extends OpenemsComponent {
 

@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { compareVersions } from 'compare-versions';
 import { Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { cmp } from 'semver-compare-multi';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { ExecuteSystemCommandRequest } from 'src/app/shared/jsonrpc/request/executeCommandRequest';
 import { ExecuteSystemCommandResponse } from 'src/app/shared/jsonrpc/response/executeSystemCommandResponse';
@@ -27,7 +27,7 @@ class Package {
       this.isUpdateAvailable = null;
       return;
     }
-    this.isUpdateAvailable = cmp(this.latestVersion, this.currentVersion) > 0
+    this.isUpdateAvailable = compareVersions(this.latestVersion, this.currentVersion) > 0
   }
 
   public resetVersions() {

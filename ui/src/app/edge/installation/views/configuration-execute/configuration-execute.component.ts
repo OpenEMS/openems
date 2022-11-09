@@ -1,10 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { utils } from 'protractor';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
-import { environment } from 'src/environments';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { Util } from '../../shared/util';
 import { ComponentConfigurator, ConfigurationObject, ConfigurationState, FunctionState } from './component-configurator';

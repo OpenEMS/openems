@@ -7,11 +7,12 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ed.data.Settings;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Settings;
 
 public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException> {
 

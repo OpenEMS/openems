@@ -27,22 +27,23 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ed.data.BatteryData;
+import com.ed.data.EnergyMeter;
+import com.ed.data.InverterData;
+import com.ed.data.Settings;
+import com.ed.data.Status;
+import com.ed.data.SystemInfo;
+import com.ed.data.VectisData;
+import com.ed.edcom.Client;
+import com.ed.edcom.ClientListener;
+import com.ed.edcom.Discovery;
+import com.ed.edcom.Util;
+
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.BatteryData;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Client;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.ClientListener;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Discovery;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.EnergyMeter;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.InverterData;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Settings;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Status;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.SystemInfo;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Util;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.VectisData;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -54,9 +55,6 @@ import io.openems.edge.kaco.blueplanet.hybrid10.edcom.VectisData;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, OpenemsComponent, EventHandler {
-
-	private static final byte[] IDENT_KEY = { (byte) 0xbd, (byte) 0xdb, (byte) 0x2f, (byte) 0x76, (byte) 0xe4,
-			(byte) 0x7c, (byte) 0xf6, (byte) 0xe7 };
 
 	private final Logger log = LoggerFactory.getLogger(BpCoreImpl.class);
 	private final ScheduledExecutorService configExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -82,10 +80,8 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws UnknownHostException, SocketException {
+	private void activate(ComponentContext context, Config config) throws UnknownHostException, SocketException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-
-		// System.setProperty("java.net.preferIPv4Stack" , "true");
 
 		/*
 		 * Async initialize library and connection
@@ -130,8 +126,31 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		util.init();
 
 		util.setListener(new ClientListener() {
-			public byte[] updateIdentKey(byte[] param1ArrayOfbyte) {
-				return BpCoreImpl.encryptIdentKey(param1ArrayOfbyte, BpCoreImpl.IDENT_KEY, 8);
+			public byte[] updateIdentKey(byte[] randomKey) {
+				var identKeyString = "0xbddb2f76e47cf6e7";
+				if (identKeyString.startsWith("0x")) {
+					identKeyString = identKeyString.substring(2);
+				}
+				byte[] identKey = new byte[identKeyString.length() / 2];
+				for (int i = 0; i < identKey.length; i++) {
+					int index = i * 2;
+					int j = Integer.parseInt(identKeyString.substring(index, index + 2), 16);
+					identKey[i] = (byte) j;
+				}
+
+				final var len = 8;
+				byte[] tmp = new byte[len];
+				System.arraycopy(identKey, 0, tmp, 0, len);
+				for (int i = 0; i < tmp.length && i < randomKey.length; i++) {
+					tmp[i] += randomKey[i];
+				}
+				for (int i = 0; i < 99; i++) {
+					tmp[i % len] += 1;
+					tmp[i % len] += tmp[(i + 10) % len];
+					tmp[(i + 3) % len] *= tmp[(i + 11) % len];
+					tmp[i % len] += tmp[(i + 7) % len];
+				}
+				return tmp;
 			}
 		});
 
@@ -243,7 +262,6 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		if (this.inverter == null || !this.isConnected()) {
 			return null;
 		}
-		
 		// In some old systems the data was read only once
 		// if (this.inverter != null && this.inverter.dataReady()) {
 		this.inverter.refresh();
@@ -412,19 +430,6 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		// Old access feedback
 		int userStatus = this.client.getUserStatus();
 
-		/*
-		 * Deprecated authentication. If this is used, the password must be 'user'. If
-		 * this is not used, EnergyDepot will be returned.
-		 */
-		// Util.getInstance().setUserName( //
-		// "K+JxgBxJPPzGuCZjznH35ggVlzY8NVV8Y9vZ8nU9k3RTiQBJxBcY8F0Umv3H2tCfCTpQTcZBDIZFd52Y54WvBojYm"
-		// +
-		// "BxD84MoHXexNpr074zyhahFwppN+fZPXMIGaYTng0Mvv1XdYKdCMhh6xElc7eM3Q9e9JOWAbpD3eTX8L/yOVT8sVv"
-		// +
-		// "n0q6oL4m2+pASNLHBFAVfRFjtNYVCIsjpnEEbsNN7OwO6IdokBV1qbbXbaWWljco/Sz3zD/l35atntDHwkyTG2Tpv"
-		// +
-		// "Z1HWGBZVt39z17LxK8baCVIRw02/P6QjCStbnCPaVEEZquW/YpGrHRg5v8E3wlNx8U+Oy/TyIsA==");
-
 		// Set USER_ACCESS_DENIED Fault-Channel
 		this._setUserAccessDenied(userStatus == 0);
 
@@ -491,21 +496,6 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 			}
 		}
 		return true;
-	}
-
-	private static byte[] encryptIdentKey(byte[] randomKey, byte[] identKey, int len) {
-		byte[] tmp = new byte[len];
-		System.arraycopy(identKey, 0, tmp, 0, len);
-		for (int i = 0; i < tmp.length && i < randomKey.length; i++) {
-			tmp[i] += randomKey[i];
-		}
-		for (int i = 0; i < 99; i++) {
-			tmp[i % len] += 1;
-			tmp[i % len] += tmp[(i + 10) % len];
-			tmp[(i + 3) % len] *= tmp[(i + 11) % len];
-			tmp[i % len] += tmp[(i + 7) % len];
-		}
-		return tmp;
 	}
 
 	@Override

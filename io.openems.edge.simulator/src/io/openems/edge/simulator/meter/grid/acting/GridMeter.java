@@ -28,6 +28,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
@@ -141,6 +142,10 @@ public class GridMeter extends AbstractOpenemsComponent
 		 */
 		var activePower = simulatedActivePower;
 		for (ManagedSymmetricEss ess : this.symmetricEsss) {
+			if (ess instanceof MetaEss) {
+				// ignore this Ess
+				continue;
+			}
 			activePower = TypeUtils.subtract(activePower, ess.getActivePower().get());
 		}
 
