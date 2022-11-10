@@ -2,8 +2,7 @@ package io.openems.edge.io.kmtronic.four;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-
-import io.openems.edge.io.kmtronic.eight.mprio;
+import io.openems.edge.common.taskmanager.Priority;
 
 @ObjectClassDefinition(//
 		name = "IO KMtronic 4-Port Relay Board", //
@@ -20,7 +19,7 @@ import io.openems.edge.io.kmtronic.eight.mprio;
 	boolean enabled() default true;
 	
 	@AttributeDefinition(name = "Modbus Prio", description = "Set the Modbus-Prio for this Component")
-	mprio mprio() default mprio.LOW;
+	Priority mprio() default Priority.LOW;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";

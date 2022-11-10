@@ -29,6 +29,8 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.io.kmtronic.AbstractKmtronicRelay;
 
+
+
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "IO.KMtronic", //
@@ -41,8 +43,8 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	//TMP-Storage for Modbus-Prio
-	public Priority prio;
+	//Define private Variable to Store Modbus-Prio permanently. 
+	private Priority prio;
 	
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -56,12 +58,8 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		//Setting the Modbus-Prio in a OpenEMS-Readable Format
-		if(config.mprio() == mprio.LOW) {
-			this.prio = Priority.LOW;
-		}else if(config.mprio() == mprio.HIGH){
-			this.prio = Priority.HIGH;
-		}
+		//Permanently set The Prio for later use
+		this.prio = config.mprio();
 		//Normal Activate-Function
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {

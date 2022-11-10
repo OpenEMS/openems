@@ -2,6 +2,7 @@ package io.openems.edge.io.kmtronic.eight;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.common.taskmanager.Priority;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -10,7 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id = null;
 		private String modbusId = null;
 		public int modbusUnitId;
-		public mprio mprio;
+		public Priority mprio;
 
 		private Builder() {
 		}
@@ -62,7 +63,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public mprio mprio() {
+	public Priority mprio() {
 		return this.builder.mprio;
 	}
 
