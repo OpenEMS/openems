@@ -214,7 +214,7 @@
           "timeCountdown": "time until start"
         },
         "HeatPump": {
-          "aboveSoc": "and above the state of charge of",
+          "aboveSoc": "and from the state of charge of",
           "belowSoc": "and below state of charge of",
           "gridBuy": "From grid purchase of",
           "gridSell": "From excess feed-in of",

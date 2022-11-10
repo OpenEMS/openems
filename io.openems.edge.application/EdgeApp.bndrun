@@ -168,12 +168,11 @@
 	Java-WebSocket;version='[1.5.3,1.5.4)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
-	com.google.gson;version='[2.9.1,2.9.2)',\
+	com.google.gson;version='[2.10.0,2.10.1)',\
 	com.google.guava;version='[31.1.0,31.1.1)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
 	com.squareup.okio;version='[3.2.0,3.2.1)',\
 	com.sun.jna;version='[5.12.1,5.12.2)',\
-	io.gsonfire;version='[1.8.5,1.8.6)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.api;version=snapshot,\
@@ -353,7 +352,7 @@
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.2.4,2.2.5)',\
 	org.apache.felix.webconsole;version='[4.7.2,4.7.3)',\
-	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
+	org.apache.felix.webconsole.plugins.ds;version='[2.2.0,2.2.1)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
 	org.jetbrains.kotlin.osgi-bundle;version='[1.7.20,1.7.21)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
@@ -363,4 +362,4 @@
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
-	rrd4j;version='[3.8.1,3.8.2)'
+	rrd4j;version='[3.8.2,3.8.3)'

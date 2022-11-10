@@ -213,7 +213,7 @@
           "timeCountdown": "Spätester Start"
         },
         "HeatPump": {
-          "aboveSoc": "und über Ladezustand von",
+          "aboveSoc": "und ab Ladezustand von",
           "belowSoc": "und unter Ladezustand von",
           "gridBuy": "Ab Netzbezug von",
           "gridSell": "Ab Überschusseinspeisung von",
