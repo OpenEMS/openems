@@ -684,7 +684,7 @@
       "NUMBER_OF_MODULES": "Anzahl PV-Module",
       "OPEN_MANUAL": "Anleitung öffnen",
       "ORIENTATION_WITH_LABEL": "Ausrichtung {{ label }}{{ number }}",
-      "ORIENTATION": "Ausrichtung {{ label }}{{ number }}",
+      "ORIENTATION": "Ausrichtung",
       "SAVE_TO_CONTINUE": "Speichern Sie zuerst Ihre Eingaben um fortzufahren.",
       "SAVE": "Erzeuger speichern",
       "SHADE_MANAGEMENT_DEACTIVATE": "Schattenmanagement deaktivieren",
