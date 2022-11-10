@@ -10,7 +10,6 @@ import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
@@ -64,13 +63,6 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		this.worker.deactivate();
 		this.closeModbusConnection();
 	}
-
-	/**
-	 * Gets the {@link Cycle}.
-	 * 
-	 * @return the Cycle
-	 */
-	public abstract Cycle getCycle();
 
 	/**
 	 * Adds the protocol.

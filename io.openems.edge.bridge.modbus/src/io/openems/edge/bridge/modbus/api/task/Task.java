@@ -61,19 +61,4 @@ public interface Task extends ManagedTask {
 	 */
 	<T> int execute(AbstractModbusBridge bridge) throws OpenemsException;
 
-	/**
-	 * Gets whether this ReadTask has been successfully executed before.
-	 *
-	 * @return true if this Task has been executed successfully at least once
-	 */
-	boolean hasBeenExecuted();
-
-	/**
-	 * Gets the execution duration of the last execution (successful or not not
-	 * successful) in [ms].
-	 *
-	 * @return the duration in [ms]
-	 */
-	long getExecuteDuration();
-
 }

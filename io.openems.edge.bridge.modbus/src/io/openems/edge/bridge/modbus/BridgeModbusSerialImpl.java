@@ -5,7 +5,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
@@ -23,7 +22,6 @@ import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
@@ -41,12 +39,6 @@ import io.openems.edge.common.event.EdgeEventConstants;
 })
 public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler {
-
-	// private final Logger log =
-	// LoggerFactory.getLogger(BridgeModbusSerialImpl.class);
-
-	@Reference
-	private Cycle cycle;
 
 	/**
 	 * The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3').
@@ -96,11 +88,6 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-	}
-
-	@Override
-	public Cycle getCycle() {
-		return this.cycle;
 	}
 
 	@Override

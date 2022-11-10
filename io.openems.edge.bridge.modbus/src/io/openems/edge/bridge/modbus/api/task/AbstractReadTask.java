@@ -34,7 +34,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 	}
 
 	@Override
-	public int _execute(AbstractModbusBridge bridge) throws OpenemsException {
+	public int execute(AbstractModbusBridge bridge) throws OpenemsException {
 		T[] response;
 		try {
 			/*

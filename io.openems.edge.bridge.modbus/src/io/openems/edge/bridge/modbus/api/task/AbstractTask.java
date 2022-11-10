@@ -1,9 +1,5 @@
 package io.openems.edge.bridge.modbus.api.task;
 
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.base.Stopwatch;
-
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -16,16 +12,11 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  */
 public abstract class AbstractTask implements Task {
 
-	private static final long DEFAULT_EXECUTION_DURATION = 300;
-
 	private final int length;
 	private final int startAddress;
-	private final Stopwatch stopwatch = Stopwatch.createUnstarted();
 
 	private final ModbusElement<?>[] elements;
 	private AbstractOpenemsModbusComponent parent = null; // this is always set by ModbusProtocol.addTask()
-	private boolean hasBeenExecutedSuccessfully = false;
-	private long lastExecuteDuration = DEFAULT_EXECUTION_DURATION; // initialize to some default
 
 	public AbstractTask(int startAddress, ModbusElement<?>... elements) {
 		this.startAddress = startAddress;
@@ -69,30 +60,12 @@ public abstract class AbstractTask implements Task {
 	 * Executes the tasks - i.e. sends the query of a ReadTask or writes a
 	 * WriteTask.
 	 *
-	 * <p>
-	 * Internally the _execute()-method of the specific subclass gets called.
-	 *
 	 * @param bridge the Modbus-Bridge
 	 * @return the number of executed Sub-Tasks
 	 * @throws OpenemsException on error
 	 */
 	@Override
-	public final synchronized int execute(AbstractModbusBridge bridge) throws OpenemsException {
-		this.stopwatch.reset();
-		this.stopwatch.start();
-		try {
-			var noOfSubTasksExecuted = this._execute(bridge);
-
-			// no exception -> mark this task as successfully executed
-			this.hasBeenExecutedSuccessfully = true;
-			return noOfSubTasksExecuted;
-
-		} finally {
-			this.lastExecuteDuration = this.stopwatch.elapsed(TimeUnit.MILLISECONDS);
-		}
-	}
-
-	protected abstract int _execute(AbstractModbusBridge bridge) throws OpenemsException;
+	public abstract int execute(AbstractModbusBridge bridge) throws OpenemsException;
 
 	/*
 	 * Enable Debug mode for this Element. Activates verbose logging. TODO:
@@ -128,11 +101,6 @@ public abstract class AbstractTask implements Task {
 	}
 
 	@Override
-	public boolean hasBeenExecuted() {
-		return this.hasBeenExecutedSuccessfully;
-	}
-
-	@Override
 	public void deactivate() {
 		for (ModbusElement<?> element : this.elements) {
 			element.deactivate();
@@ -155,11 +123,6 @@ public abstract class AbstractTask implements Task {
 		sb.append(this.getLength());
 		sb.append("]");
 		return sb.toString();
-	}
-
-	@Override
-	public long getExecuteDuration() {
-		return this.lastExecuteDuration;
 	}
 
 	protected abstract String getActiondescription();

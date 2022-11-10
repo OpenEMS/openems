@@ -1,8 +1,4 @@
-package io.openems.edge.bridge.modbus.test;
-
-import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.Map;
+package io.openems.edge.bridge.modbus.api.worker;
 
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 
@@ -11,13 +7,10 @@ import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
-import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public class DummyModbusBridge extends AbstractModbusBridge implements BridgeModbusTcp, BridgeModbus, OpenemsComponent {
-
-	private final Map<String, ModbusProtocol> protocols = new HashMap<>();
+public class DummyModbusBridge extends AbstractModbusBridge {
 
 	public DummyModbusBridge(String id) {
 		super(//
@@ -31,19 +24,8 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 		super.activate(null, id, "", true, LogVerbosity.NONE, 1);
 	}
 
-	@Override
-	public void addProtocol(String sourceId, ModbusProtocol protocol) {
-		this.protocols.put(sourceId, protocol);
-	}
-
-	@Override
-	public void removeProtocol(String sourceId) {
-		this.protocols.remove(sourceId);
-	}
-
-	@Override
-	public InetAddress getIpAddress() {
-		return null;
+	public ModbusWorker getWorker() {
+		return this.worker;
 	}
 
 	@Override

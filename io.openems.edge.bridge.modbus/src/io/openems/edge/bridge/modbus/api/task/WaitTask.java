@@ -1,5 +1,8 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +15,8 @@ import io.openems.edge.common.taskmanager.Priority;
 public class WaitTask implements Task {
 
 	private final Logger log = LoggerFactory.getLogger(WaitTask.class);
-	private final long delay;
+
+	private long delay;
 
 	private AbstractOpenemsModbusComponent parent = null;
 
@@ -56,22 +60,24 @@ public class WaitTask implements Task {
 
 	@Override
 	public <T> int execute(AbstractModbusBridge bridge) throws OpenemsException {
+		if (this.delay <= 0) {
+			return 0;
+		}
+
+		var start = Instant.now();
 		try {
 			Thread.sleep(this.delay);
+
 		} catch (InterruptedException e) {
-			this.log.warn(e.getMessage());
+			this.delay -= Duration.between(start, Instant.now()).toMillis();
+			this.log.warn(e.getMessage() + "; reduce delay to " + this.delay);
 		}
 		return 0;
 	}
 
 	@Override
-	public boolean hasBeenExecuted() {
-		return true;
-	}
-
-	@Override
-	public long getExecuteDuration() {
-		return this.delay;
+	public String toString() {
+		return "WaitTask [delay=" + this.delay + "]";
 	}
 
 }
