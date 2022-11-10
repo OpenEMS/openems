@@ -137,7 +137,7 @@ public class WaitHandler {
 	 * @return true if it is too short
 	 */
 	public boolean isCycleTimeTooShort() {
-		return isCycleTimeTooShort;
+		return this.isCycleTimeTooShort;
 	}
 
 	/**
