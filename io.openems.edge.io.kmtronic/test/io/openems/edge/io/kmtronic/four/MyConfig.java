@@ -2,6 +2,7 @@ package io.openems.edge.io.kmtronic.four;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.io.kmtronic.eight.mprio;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -10,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id = null;
 		private String modbusId = null;
 		public int modbusUnitId;
+		public mprio mprio;
 
 		private Builder() {
 		}
@@ -58,6 +60,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
+	}
+
+	@Override
+	public mprio mprio() {
+		// TODO Auto-generated method stub
+		return this.builder.mprio;
 	}
 
 }

@@ -10,6 +10,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id = null;
 		private String modbusId = null;
 		public int modbusUnitId;
+		public mprio mprio;
 
 		private Builder() {
 		}
@@ -58,6 +59,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
+	}
+
+	@Override
+	public mprio mprio() {
+		return this.builder.mprio;
 	}
 
 }

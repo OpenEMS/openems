@@ -41,6 +41,9 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	//TMP-Storage for Modbus-Prio
+	public Priority prio;
+	
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -53,6 +56,13 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
+		//Setting the Modbus-Prio in a OpenEMS-Readable Format
+		if(config.mprio() == mprio.LOW) {
+			this.prio = Priority.LOW;
+		}else if(config.mprio() == mprio.HIGH){
+			this.prio = Priority.HIGH;
+		}
+		//Normal Activate-Function
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -64,14 +74,15 @@ public class KmtronicRelay8PortImpl extends AbstractKmtronicRelay
 	protected void deactivate() {
 		super.deactivate();
 	}
-
+	
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				/*
 				 * For Read: Read Coils
 				 */
-				new FC1ReadCoilsTask(0, Priority.LOW, //
+				
+				new FC1ReadCoilsTask(0, this.prio, //
 						m(KmtronicRelay8Port.ChannelId.RELAY_1, new CoilElement(0)), //
 						m(KmtronicRelay8Port.ChannelId.RELAY_2, new CoilElement(1)), //
 						m(KmtronicRelay8Port.ChannelId.RELAY_3, new CoilElement(2)), //

@@ -3,6 +3,8 @@ package io.openems.edge.io.kmtronic.four;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.io.kmtronic.eight.mprio;
+
 @ObjectClassDefinition(//
 		name = "IO KMtronic 4-Port Relay Board", //
 		description = "Implements the KMtronic 4-Port Relay Board.")
@@ -16,6 +18,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Modbus Prio", description = "Set the Modbus-Prio for this Component")
+	mprio mprio() default mprio.LOW;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
