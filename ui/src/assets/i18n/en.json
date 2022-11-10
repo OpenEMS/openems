@@ -683,7 +683,7 @@
       "NUMBER_OF_MODULES": "Number of PV module",
       "OPEN_MANUAL": "Open manual",
       "ORIENTATION_WITH_LABEL": "{{ label }}{{ number }} Orientation",
-      "ORIENTATION": "Orientation {{ label }}{{ number }}",
+      "ORIENTATION": "Orientation",
       "SAVE_TO_CONTINUE": "First save your entries to continue.",
       "SAVE": "Save generator",
       "SHADE_MANAGEMENT_DEACTIVATE": "Deactivate Shade management",
