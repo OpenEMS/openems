@@ -1,217 +1,225 @@
-import { ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
+import { Colors } from 'ng2-charts';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Service } from 'src/app/shared/shared';
 
 export interface Dataset {
-    label: string;
-    data: number[];
-    hidden: boolean;
+  label: string;
+  data: number[];
+  hidden: boolean;
 }
 
 export const EMPTY_DATASET = [{
-    label: "no Data available",
-    data: [],
-    hidden: false
+  label: "no Data available",
+  data: [],
+  hidden: false
 }];
 
 export type Data = {
-    labels: Date,
-    datasets: {
-        backgroundColor: string,
-        borderColor: string,
-        data: number[],
-        label: string,
-        _meta: {}
-    }[]
+  labels: Date,
+  datasets: {
+    backgroundColor: string,
+    borderColor: string,
+    data: number[],
+    label: string,
+    _meta: {}
+  }[]
 }
 
 export type TooltipItem = {
-    datasetIndex: number,
-    index: number,
-    x: number,
-    xLabel: Date,
-    value: number,
-    y: number,
-    yLabel: number
+  datasetIndex: number,
+  index: number,
+  x: number,
+  xLabel: Date,
+  value: number,
+  y: number,
+  yLabel: number
+}
+
+export type Datasets = ChartDataSets & ChartColors;
+
+export interface ChartColors {
+  backgroundColor: string,
+  bordercolor: string
 }
 
 export type ChartOptions = {
-    layout?: {
-        padding: {
-            left: number,
-            right: number,
-            top: number,
-            bottom: number
-        }
+  layout?: {
+    padding: {
+      left: number,
+      right: number,
+      top: number,
+      bottom: number
     }
-    responsive?: boolean,
-    maintainAspectRatio: boolean,
-    legend: {
-        onClick?(event: MouseEvent, legendItem: ChartLegendLabelItem): void
-        labels: {
-            generateLabels?(chart: Chart): ChartLegendLabelItem[],
-            filter?(legendItem: ChartLegendLabelItem, data: ChartData): any,
-        },
-        position: "bottom"
+  }
+  responsive?: boolean,
+  maintainAspectRatio: boolean,
+  legend: {
+    onClick?(event: MouseEvent, legendItem: ChartLegendLabelItem): void
+    labels: {
+      generateLabels?(chart: Chart): ChartLegendLabelItem[],
+      filter?(legendItem: ChartLegendLabelItem, data: ChartData): any,
     },
-    elements: {
-        point: {
-            radius: number,
-            hitRadius: number,
-            hoverRadius: number
-        },
-        line: {
-            borderWidth: number,
-            tension: number
-        },
-        rectangle: {
-            borderWidth: number,
-        }
+    position: "bottom"
+  },
+  elements: {
+    point: {
+      radius: number,
+      hitRadius: number,
+      hoverRadius: number
     },
-    hover: {
-        mode: string,
-        intersect: boolean
+    line: {
+      borderWidth: number,
+      tension: number
     },
-    scales: {
-        yAxes: [{
-            id?: string,
-            position: string,
-            scaleLabel: {
-                display: boolean,
-                labelString: string,
-                padding?: number,
-                fontSize?: number
-            },
-            gridLines?: {
-                display: boolean
-            },
-            ticks: {
-                beginAtZero: boolean,
-                max?: number,
-                padding?: number,
-                stepSize?: number,
-                callback?(value: number | string, index: number, values: number[] | string[]): string | number | null | undefined;
-            }
-        }],
-        xAxes: [{
-            bounds?: string,
-            offset?: boolean,
-            stacked: boolean,
-            type: "time",
-            time: {
-                stepSize?: number,
-                unit?: string,
-                minUnit: string,
-                displayFormats: {
-                    millisecond: string,
-                    second: string,
-                    minute: string,
-                    hour: string,
-                    day: string,
-                    week: string,
-                    month: string,
-                    quarter: string,
-                    year: string
-                }
-            },
-            ticks: {
-                source?: string,
-                maxTicksLimit?: number
-            }
-        }]
-    },
-    tooltips: {
-        mode: string,
-        intersect: boolean,
-        axis: string,
-        itemSort?(itemA: ChartTooltipItem, itemB: ChartTooltipItem, data?: ChartData): number,
-        callbacks: {
-            label?(tooltipItem: TooltipItem, data: Data): string,
-            title?(tooltipItems: TooltipItem[], data: Data): string,
-            afterTitle?(item: ChartTooltipItem[], data: ChartData): string | string[],
-            footer?(item: ChartTooltipItem[], data: ChartData): string | string[]
-        }
+    rectangle: {
+      borderWidth: number,
     }
+  },
+  hover: {
+    mode: string,
+    intersect: boolean
+  },
+  scales: {
+    yAxes: [{
+      id?: string,
+      position: string,
+      scaleLabel: {
+        display: boolean,
+        labelString: string,
+        padding?: number,
+        fontSize?: number
+      },
+      gridLines?: {
+        display: boolean
+      },
+      ticks: {
+        beginAtZero: boolean,
+        max?: number,
+        padding?: number,
+        stepSize?: number,
+        callback?(value: number | string, index: number, values: number[] | string[]): string | number | null | undefined;
+      }
+    }],
+    xAxes: [{
+      bounds?: string,
+      offset?: boolean,
+      stacked: boolean,
+      type: "time",
+      time: {
+        stepSize?: number,
+        unit?: string,
+        minUnit: string,
+        displayFormats: {
+          millisecond: string,
+          second: string,
+          minute: string,
+          hour: string,
+          day: string,
+          week: string,
+          month: string,
+          quarter: string,
+          year: string
+        }
+      },
+      ticks: {
+        source?: string,
+        maxTicksLimit?: number
+      }
+    }]
+  },
+  tooltips: {
+    mode: string,
+    intersect: boolean,
+    axis: string,
+    itemSort?(itemA: ChartTooltipItem, itemB: ChartTooltipItem, data?: ChartData): number,
+    callbacks: {
+      label?(tooltipItem: TooltipItem, data: Data): string,
+      title?(tooltipItems: TooltipItem[], data: Data): string,
+      afterTitle?(item: ChartTooltipItem[], data: ChartData): string | string[],
+      footer?(item: ChartTooltipItem[], data: ChartData): string | string[]
+    }
+  },
 }
 
 export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
-    maintainAspectRatio: false,
-    legend: {
-        labels: {},
-        position: 'bottom'
+  maintainAspectRatio: false,
+  legend: {
+    labels: {},
+    position: 'bottom'
+  },
+  elements: {
+    point: {
+      radius: 0,
+      hitRadius: 0,
+      hoverRadius: 0
     },
-    elements: {
-        point: {
-            radius: 0,
-            hitRadius: 0,
-            hoverRadius: 0
-        },
-        line: {
-            borderWidth: 2,
-            tension: 0.1
-        },
-        rectangle: {
-            borderWidth: 2,
-        }
+    line: {
+      borderWidth: 2,
+      tension: 0.1
     },
-    hover: {
-        mode: 'point',
-        intersect: true
-    },
-    scales: {
-        yAxes: [{
-            position: 'left',
-            scaleLabel: {
-                display: true,
-                labelString: ""
-            },
-            ticks: {
-                beginAtZero: true
-            }
-        }],
-        xAxes: [{
-            ticks: {},
-            stacked: false,
-            type: 'time',
-            time: {
-                minUnit: 'hour',
-                displayFormats: {
-                    millisecond: 'SSS [ms]',
-                    second: 'HH:mm:ss a', // 17:20:01
-                    minute: 'HH:mm', // 17:20
-                    hour: 'HH:[00]', // 17:20
-                    day: 'DD', // Sep 04 2015
-                    week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
-                    month: 'MM', // September
-                    quarter: '[Q]Q - YYYY', // Q3 - 2015
-                    year: 'YYYY' // 2015,
-                }
-            },
-        }]
-    },
-    tooltips: {
-        mode: 'index',
-        intersect: false,
-        axis: 'x',
-        callbacks: {
-            title(tooltipItems: TooltipItem[], data: Data): string {
-                let date = new Date(tooltipItems[0].xLabel);
-                return date.toLocaleDateString() + " " + date.toLocaleTimeString();
-            }
-        }
+    rectangle: {
+      borderWidth: 2,
     }
+  },
+  hover: {
+    mode: 'point',
+    intersect: true
+  },
+  scales: {
+    yAxes: [{
+      position: 'left',
+      scaleLabel: {
+        display: true,
+        labelString: ""
+      },
+      ticks: {
+        beginAtZero: true
+      }
+    }],
+    xAxes: [{
+      ticks: {},
+      stacked: false,
+      type: 'time',
+      time: {
+        minUnit: 'hour',
+        displayFormats: {
+          millisecond: 'SSS [ms]',
+          second: 'HH:mm:ss a', // 17:20:01
+          minute: 'HH:mm', // 17:20
+          hour: 'HH:[00]', // 17:20
+          day: 'DD', // Sep 04 2015
+          week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
+          month: 'MM', // September
+          quarter: '[Q]Q - YYYY', // Q3 - 2015
+          year: 'YYYY' // 2015,
+        }
+      },
+    }]
+  },
+  tooltips: {
+    mode: 'index',
+    intersect: false,
+    axis: 'x',
+    callbacks: {
+      title(tooltipItems: TooltipItem[], data: Data): string {
+        let date = new Date(tooltipItems[0].xLabel);
+        return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+      }
+    }
+  },
 };
 
 export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse['result']) {
-    let startDate = startOfDay(new Date(queryResult.timestamps[0]));
-    let endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
-    let activeSum = 0;
-    queryResult.data[channel.toString()].forEach(value => {
-        activeSum += value;
-    });
-    let activePercent = activeSum / queryResult.timestamps.length;
-    return (differenceInMinutes(endDate, startDate) * activePercent) * 60;
+  let startDate = startOfDay(new Date(queryResult.timestamps[0]));
+  let endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
+  let activeSum = 0;
+  queryResult.data[channel.toString()].forEach(value => {
+    activeSum += value;
+  });
+  let activePercent = activeSum / queryResult.timestamps.length;
+  return (differenceInMinutes(endDate, startDate) * activePercent) * 60;
 };
 
 /**
@@ -225,49 +233,49 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
    */
 export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' } {
 
-    let days = Math.abs(differenceInDays(toDate, fromDate));
-    let resolution: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' };
+  let days = Math.abs(differenceInDays(toDate, fromDate));
+  let resolution: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' };
 
-    if (days <= 1) {
-        resolution = { resolution: { value: 5, unit: Unit.MINUTES }, timeFormat: 'hour' } // 5 Minutes
-    } else if (days == 2) {
-        if (service.isSmartphoneResolution) {
-            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'hour' }; // 1 Day
-        } else {
-            resolution = { resolution: { value: 10, unit: Unit.MINUTES }, timeFormat: 'hour' }; // 1 Hour
-        }
-
-    } else if (days <= 4) {
-        if (service.isSmartphoneResolution) {
-            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
-        } else {
-            resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'hour' } // 1 Hour
-        }
-
-    } else if (days <= 6) {
-        // >> show Hours
-        resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'day' }; // 1 Day
-
-    } else if (days <= 31 && service.isSmartphoneResolution) {
-        // Smartphone-View: show 31 days in daily view
-        resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
-
-    } else if (days <= 90) {
-        resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
-
-    } else if (days <= 144) {
-        // >> show Days
-        if (service.isSmartphoneResolution == true) {
-            resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
-        } else {
-            resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
-        }
-
+  if (days <= 1) {
+    resolution = { resolution: { value: 5, unit: Unit.MINUTES }, timeFormat: 'hour' } // 5 Minutes
+  } else if (days == 2) {
+    if (service.isSmartphoneResolution) {
+      resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'hour' }; // 1 Day
     } else {
-        // >> show Months
-        resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
+      resolution = { resolution: { value: 10, unit: Unit.MINUTES }, timeFormat: 'hour' }; // 1 Hour
     }
-    return resolution
+
+  } else if (days <= 4) {
+    if (service.isSmartphoneResolution) {
+      resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+    } else {
+      resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'hour' } // 1 Hour
+    }
+
+  } else if (days <= 6) {
+    // >> show Hours
+    resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'day' }; // 1 Day
+
+  } else if (days <= 31 && service.isSmartphoneResolution) {
+    // Smartphone-View: show 31 days in daily view
+    resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+
+  } else if (days <= 90) {
+    resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+
+  } else if (days <= 144) {
+    // >> show Days
+    if (service.isSmartphoneResolution == true) {
+      resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
+    } else {
+      resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
+    }
+
+  } else {
+    // >> show Months
+    resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
+  }
+  return resolution
 }
 
 /**
@@ -280,13 +288,13 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
   * @returns true for visible labels; hidden otherwise
   */
 export function isLabelVisible(label: string, orElse?: boolean): boolean {
-    let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
-    let value = sessionStorage.getItem(labelWithoutUnit);
-    if (orElse != null && value == null) {
-        return orElse;
-    } else {
-        return value !== 'false';
-    }
+  let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
+  let value = sessionStorage.getItem(labelWithoutUnit);
+  if (orElse != null && value == null) {
+    return orElse;
+  } else {
+    return value !== 'false';
+  }
 }
 
 /**
@@ -296,55 +304,65 @@ export function isLabelVisible(label: string, orElse?: boolean): boolean {
  * @param visible true to set the Label visibile; false to hide ite
  */
 export function setLabelVisible(label: string, visible: boolean | null): void {
-    if (visible == null) {
-        return;
-    }
-    let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
-    sessionStorage.setItem(labelWithoutUnit, visible ? 'true' : 'false');
+  if (visible == null) {
+    return;
+  }
+  let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
+  sessionStorage.setItem(labelWithoutUnit, visible ? 'true' : 'false');
 }
 
 export type Resolution = {
-    value: number,
-    unit: Unit
+  value: number,
+  unit: Unit
+}
+export type Channels = {
+  name: string,
+  powerChannel: ChannelAddress,
+  energyChannel: ChannelAddress
+  filter?: ChannelFilter,
+  data?: number[],
+  converter?: (value: number[]) => number[]
+}
+
+export type ToBeRenamed = {
+  channelname: string, label: string, values: number[]
 }
 
 export enum Unit {
-    SECONDS = "Seconds",
-    MINUTES = "Minutes",
-    HOURS = "Hours",
-    DAYS = "Days",
-    MONTHS = "Months",
+  SECONDS = "Seconds",
+  MINUTES = "Minutes",
+  HOURS = "Hours",
+  DAYS = "Days",
+  MONTHS = "Months",
 }
 
 export type ChartData = {
-    channel: {
-        name: string,
-        powerChannel: ChannelAddress,
-        energyChannel: ChannelAddress
-        filter?: ChannelFilter
-    }[],
-    displayValue: {
-        /** Name displayed in Label */
-        name: string,
-        /**  */
-        getValue: any,
+  channel: Channels[],
+  // displayValues: (data: ChannelData[]) => {
+  displayValues: (data: { name: string, data: number[] }[]) => {
+    /** Name displayed in Label */
+    name: string,
+    /** The values to be displayed in Chart */
+    setValue: () => number[],
 
-        hidden?: boolean,
-        /** color in rgb-Format */
-        color: string;
-    }[],
-    tooltip: {
-        /** Unit to be displayed as Tooltips unit */
-        unit: '%' | 'kWh' | 'kW',
-        /** Format of Number displayed */
-        formatNumber: string;
-    },
-    /** Name to be displayed on the left y-axis */
-    yAxisTitle: string,
+    hidden?: boolean,
+    /** color in rgb-Format */
+    color: string,
+    filter?: ChannelFilter,
+  }[],
+  tooltip: {
+    /** Unit to be displayed as Tooltips unit */
+    unit: '%' | 'kWh' | 'kW',
+    /** Format of Number displayed */
+    formatNumber?: string;
+  },
+  test?: Function,
+  /** Name to be displayed on the left y-axis */
+  yAxisTitle: string,
 }
 // Should be renamed
 export enum ChannelFilter {
-    NOT_NULL,
-    NOT_NULL_OR_NEGATIVE,
-    NOT_NULL_OR_POSITIVE
+  NOT_NULL,
+  NOT_NULL_OR_NEGATIVE,
+  NOT_NULL_OR_POSITIVE
 }

@@ -15,54 +15,60 @@ import { ModalLineComponent } from './modal/modal-line/modal-line';
 import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/modal-horizontal-line';
 import { ChartComponent } from './chart/chart'
 import { RouterModule } from '@angular/router';
+import { ChartOptionsComponent } from '../chartoptions/chartoptions.component';
+import { ChartOptionsPopoverComponent } from './chart/chartoptions/popover/popover.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
-    imports: [
-        BrowserModule,
-        IonicModule,
-        PipeModule,
-        ReactiveFormsModule,
-        RouterModule,
-    ],
-    entryComponents: [
-        PickDateComponent,
-        FlatWidgetComponent,
-        FlatWidgetLineComponent,
-        FlatWidgetHorizontalLineComponent,
-        FlatWidgetPercentagebarComponent,
-        ModalButtonsComponent,
-        ModalInfoLineComponent,
-        ModalLineComponent,
-        ModalHorizontalLineComponent,
-        ModalComponent,
-    ],
-    declarations: [
-        PickDateComponent,
-        FlatWidgetComponent,
-        FlatWidgetLineComponent,
-        FlatWidgetHorizontalLineComponent,
-        FlatWidgetPercentagebarComponent,
-        ModalButtonsComponent,
-        ModalInfoLineComponent,
-        ModalLineComponent,
-        ModalHorizontalLineComponent,
-        ModalComponent,
-        ChartComponent,
-    ],
-    exports: [
-        FlatWidgetComponent,
-        FlatWidgetLineComponent,
-        FlatWidgetHorizontalLineComponent,
-        FlatWidgetPercentagebarComponent,
-        ModalButtonsComponent,
-        ModalInfoLineComponent,
-        ModalLineComponent,
-        ModalHorizontalLineComponent,
-        ModalComponent,
-        ChartComponent,
-        PickDateComponent,
-    ],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
-
+  imports: [
+    BrowserModule,
+    IonicModule,
+    PipeModule,
+    ReactiveFormsModule,
+    RouterModule,
+    TranslateModule.forRoot()
+  ],
+  entryComponents: [
+    PickDateComponent,
+    FlatWidgetComponent,
+    FlatWidgetLineComponent,
+    FlatWidgetHorizontalLineComponent,
+    FlatWidgetPercentagebarComponent,
+    ModalButtonsComponent,
+    ModalInfoLineComponent,
+    ModalLineComponent,
+    ModalHorizontalLineComponent,
+    ModalComponent,
+    ChartOptionsPopoverComponent
+  ],
+  declarations: [
+    PickDateComponent,
+    FlatWidgetComponent,
+    FlatWidgetLineComponent,
+    FlatWidgetHorizontalLineComponent,
+    FlatWidgetPercentagebarComponent,
+    ModalButtonsComponent,
+    ModalInfoLineComponent,
+    ModalLineComponent,
+    ModalHorizontalLineComponent,
+    ModalComponent,
+    ChartComponent,
+    ChartOptionsPopoverComponent
+  ],
+  exports: [
+    FlatWidgetComponent,
+    FlatWidgetLineComponent,
+    FlatWidgetHorizontalLineComponent,
+    FlatWidgetPercentagebarComponent,
+    ModalButtonsComponent,
+    ModalInfoLineComponent,
+    ModalLineComponent,
+    ModalHorizontalLineComponent,
+    ModalComponent,
+    ChartComponent,
+    PickDateComponent,
+    ChartOptionsPopoverComponent
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Generic_ComponentsModule { }

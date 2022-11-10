@@ -516,3 +516,10 @@ export class Utils {
     });
   }
 }
+
+export namespace HistoryUtils {
+
+  export const CONVERT_WATT_TO_KILOWATT = (data: number[]): number[] | null[] => {
+    return data?.map(value => value == null ? null : value / 1000)
+  }
+}

@@ -1,0 +1,36 @@
+<oe-chart [title]="'General.production' | translate" [isPopoverNeeded]="true" [showPhases]="showPhases"
+  [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)">
+
+  <!-- Total Chart -->
+  <ng-container>
+    <productionTotalChart [chartTitle]="'General.total' | translate" [period]="service.historyPeriod"
+      [showPhases]="showPhases" [showTotal]="showTotal">
+    </productionTotalChart>
+  </ng-container>
+
+  <ng-container *ngIf="!showTotal">
+
+    <!-- Production TotalAcChart if more than one charger-->
+    <productionTotalAcChart2 *ngIf="productionMeterComponents?.length > 1" [chartTitle]="'General.total'| translate"
+      [period]="service.historyPeriod">
+    </productionTotalAcChart2>
+
+    <!-- ProductionMeters -->
+    <ng-container *ngFor="let component of productionMeterComponents">
+      <productionMeterchart2 [chartTitle]="component.alias ?? component.id" [period]="service.historyPeriod"
+        [component]="component" [showPhases]="showPhases">
+      </productionMeterchart2>
+    </ng-container>
+
+    <!-- Total DC Chart if more than one charger -->
+    <totalDcChart [chartTitle]="('General.total' | translate) + ' DC'" *ngIf="chargerComponents.length > 1">
+    </totalDcChart>
+
+    <!-- ChargerComponents -->
+    <ng-container *ngFor="let component of chargerComponents">
+      <productionChargerChart [chartTitle]="component.alias ?? component.id" [period]="service.historyPeriod"
+        [component]="component">
+      </productionChargerChart>
+    </ng-container>
+  </ng-container>
+</oe-chart>
