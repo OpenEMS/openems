@@ -361,7 +361,7 @@
           "timeCountdown": "Čas začít"
         },
         "HeatPump": {
-          "aboveSoc": "a o stavu poplatku za",
+          "aboveSoc": "a od státu nabití",
           "belowSoc": "a za stavu nabití",
           "gridBuy": "Z mřížkového nákupu",
           "gridSell": "Z nadměrného napájení",

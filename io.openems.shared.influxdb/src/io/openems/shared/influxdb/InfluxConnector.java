@@ -205,13 +205,14 @@ public class InfluxConnector {
 		var options = InfluxDBClientOptions.builder() //
 				.url(this.url.toString()) //
 				.org(this.org) //
-				.authenticateToken(String.format(this.apiKey).toCharArray()) //
 				.bucket(this.bucket) //
-				.okHttpClient(okHttpClientBuilder) //
-				.build();
+				.okHttpClient(okHttpClientBuilder); //
+		if (this.apiKey != null && !this.apiKey.isBlank()) {
+			options.authenticateToken(String.format(this.apiKey).toCharArray()); //
+		}
 
 		var client = InfluxDBClientFactory //
-				.create(options) //
+				.create(options.build()) //
 				.enableGzip();
 
 		// Keep default WriteOptions from

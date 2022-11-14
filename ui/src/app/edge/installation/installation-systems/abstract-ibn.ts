@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { Category } from '../shared/category';
-import { Country } from '../shared/country';
+import { Country } from '../../../shared/type/country';
 import { FeedInType } from '../shared/enums';
 import { ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
 import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';

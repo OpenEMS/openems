@@ -360,7 +360,7 @@
           "timeCountdown": "Hora de empezar"
         },
         "HeatPump": {
-          "aboveSoc": "y sobre el estado de carga de",
+          "aboveSoc": "y del estado de carga de",
           "belowSoc": "y bajo el estado de cargo de",
           "gridBuy": "De la compra de la red de",
           "gridSell": "Por exceso de alimentación de",

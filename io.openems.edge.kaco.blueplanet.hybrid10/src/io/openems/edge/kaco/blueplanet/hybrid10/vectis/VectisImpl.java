@@ -17,13 +17,14 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
+import com.ed.data.InverterData;
+import com.ed.data.Status;
+import com.ed.data.VectisData;
+
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.InverterData;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.Status;
-import io.openems.edge.kaco.blueplanet.hybrid10.edcom.VectisData;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;

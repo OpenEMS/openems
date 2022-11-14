@@ -18,7 +18,7 @@
         <ng-template #edgeIsOffline>
             <ion-item lines="none">
                 <ion-label>{{ 'SETTINGS.SYSTEM_UPDATE.OFFLINE' | translate:
-                    { edge: environment.edgeShortName } }}
+                    { edgeShortName: environment.edgeShortName } }}
                 </ion-label>
             </ion-item>
         </ng-template>
@@ -147,7 +147,7 @@
                             <ion-col>
                                 <ion-item lines="none">
                                     <ion-button (click)="executeSystemUpdate()">{{
-                                        'SETTINGS.SYSTEM_UPDATE.NEW_VERSION_INSTALLING'| translate}
+                                        'SETTINGS.SYSTEM_UPDATE.NEW_VERSION_INSTALLING'| translate }}
                                     </ion-button>
                                 </ion-item>
                             </ion-col>

@@ -66,7 +66,7 @@ public class ElementToChannelConverter {
 	 */
 	public static final ElementToChannelConverter KEEP_POSITIVE = new ElementToChannelConverter(//
 			// element -> channel
-			value -> StaticConverters.KEEP_POSITIVE, //
+			StaticConverters.KEEP_POSITIVE, //
 			// channel -> element
 			value -> value);
 

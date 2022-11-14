@@ -35,6 +35,27 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.11.1',
+        changes: [
+          Changelog.openems('2022.11.0'),
+          "Fehlerbehebung bei der automatischem Reconnect mit dem Online-Monitoring nach Verbindungsausfall",
+          Changelog.library(Library.APACHE_FELIX_HTTP_JETTY, Library.DATE_FNS, Library.MOSHI, Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY),
+          { roleIsAtLeast: Role.ADMIN, change: "KACO Blueplanet Hybrid 10: interne Architektur geändert" },
+          { roleIsAtLeast: Role.ADMIN, change: "Simulator Grid-Meter: Fehlerbehebung in Verbindung mit Ess-Cluster" },
+        ]
+      },
+      {
+        version: '2022.10.7',
+        changes: [
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
+          "Fehlerbehebungen der Übersetzung Deutsch und Englisch",
+          Changelog.product(...Product.ALL_EVCS) + Changelog.GENERAL_OPTIMIZATION,
+          { roleIsAtLeast: Role.ADMIN, change: "Modbus/TCP-Api-Kompatibilität für GoodWe Zähler" },
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für Ziehl EFR4001IP Zähler" },
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für Weidmüller Modbus/TCP Feldbuskoppler UR20-FBC-MOD-TCP-V2" },
+        ]
+      },
+      {
         version: '2022.10.4',
         changes: [
           Changelog.product(Product.FEMS_TIBBER) + "Allgemeine Verbesserungen",
