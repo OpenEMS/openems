@@ -5,7 +5,7 @@ import { ChannelAddress } from '../../../../../shared/shared';
 import { ChannelFilter, ChartData } from '../../../shared';
 
 @Component({
-  selector: 'productionTotalAcChart2',
+  selector: 'productionTotalAcChart',
   templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
 })
 export class TotalAcChartComponent extends AbstractHistoryChart {
@@ -46,7 +46,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
           setValue: () => {
             return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channel.find(element => element.name == 'ProductionAcActivePower')?.data) ?? null
           },
-          color: "rgb(100,100,100)",
+          color: "rgb(0,152,204)",
         }]
       },
       tooltip: {

@@ -136,6 +136,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
           label: displayValue.name,
           data: displayValue.setValue(),
           hidden: !isLabelVisible(displayValue.name),
+          ...(displayValue.stack && { stack: displayValue.stack.toString() })
         })
         colors.push({
           backgroundColor: 'rgba(' + displayValue.color.split('(').pop().split(')')[0] + ',0.05)',

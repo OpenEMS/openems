@@ -85,6 +85,7 @@ export type ChartOptions = {
     yAxes: [{
       id?: string,
       position: string,
+      stacked?: boolean,
       scaleLabel: {
         display: boolean,
         labelString: string,
@@ -336,20 +337,22 @@ export enum Unit {
   MONTHS = "Months",
 }
 
+export type DisplayValues = {
+  name: string,
+  /** The values to be displayed in Chart */
+  setValue: () => number[],
+
+  hidden?: boolean,
+  /** color in rgb-Format */
+  color: string,
+  filter?: ChannelFilter,
+  stack?: number
+}
+
 export type ChartData = {
   channel: Channels[],
   // displayValues: (data: ChannelData[]) => {
-  displayValues: (data: { name: string, data: number[] }[]) => {
-    /** Name displayed in Label */
-    name: string,
-    /** The values to be displayed in Chart */
-    setValue: () => number[],
-
-    hidden?: boolean,
-    /** color in rgb-Format */
-    color: string,
-    filter?: ChannelFilter,
-  }[],
+  displayValues: (data: { name: string, data: number[] }[]) => DisplayValues[],
   tooltip: {
     /** Unit to be displayed as Tooltips unit */
     unit: '%' | 'kWh' | 'kW',
@@ -360,7 +363,7 @@ export type ChartData = {
   /** Name to be displayed on the left y-axis */
   yAxisTitle: string,
 }
-// Should be renamed
+
 export enum ChannelFilter {
   NOT_NULL,
   NOT_NULL_OR_NEGATIVE,

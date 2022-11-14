@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { AlertController, ModalController, PopoverController } from "@ionic/angular";
+import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Edge, Service } from "../../shared";
 import { ChartOptionsPopoverComponent } from "./chartoptions/popover/popover.component";
@@ -23,7 +23,6 @@ export class ChartComponent implements OnInit {
     protected service: Service,
     private route: ActivatedRoute,
     public popoverCtrl: PopoverController,
-    private alertCtrl: AlertController,
     protected translate: TranslateService,
     protected modalCtr: ModalController,
   ) { }
@@ -34,18 +33,14 @@ export class ChartComponent implements OnInit {
   }
 
   async presentPopover(ev: any) {
-    let componentProps = {};
-    if (this.showPhases !== null) {
-      componentProps['showPhases'] = this.showPhases;
-    }
-    if (this.showTotal !== null) {
-      componentProps['showTotal'] = this.showTotal;
-    }
     const popover = await this.popoverCtrl.create({
       component: ChartOptionsPopoverComponent,
       event: ev,
       translucent: true,
-      componentProps: componentProps,
+      componentProps: {
+        showPhases: this.showPhases,
+        showTotal: this.showTotal
+      },
       animated: true
     });
 

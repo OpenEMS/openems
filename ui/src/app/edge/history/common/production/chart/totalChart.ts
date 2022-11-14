@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { HistoryUtils, Utils } from 'src/app/shared/service/utils';
 import { ChannelAddress } from '../../../../../shared/shared';
-import { ChannelFilter, ChartData } from '../../../shared';
+import { ChannelFilter, ChartData, DisplayValues } from '../../../shared';
 
 @Component({
   selector: 'productionTotalChart',
@@ -20,42 +20,43 @@ export class TotalChartComponent extends AbstractHistoryChart {
         [{
           name: 'ProductionDcActualPower',
           powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
-          energyChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
+          energyChannel: ChannelAddress.fromString('_sum/ProductionDcActualEnergy'),
           filter: ChannelFilter.NOT_NULL,
         },
         {
           name: 'ProductionAcActivePowerL1',
           powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
-          energyChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
+          energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL1'),
           filter: ChannelFilter.NOT_NULL,
         },
         {
           name: 'ProductionAcActivePowerL2',
           powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
-          energyChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
-          filter: ChannelFilter.NOT_NULL,
-        },
-        {
-          name: 'ProductionActivePower',
-          powerChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
-          energyChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
+          energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL2'),
           filter: ChannelFilter.NOT_NULL,
         },
         {
           name: 'ProductionAcActivePowerL3',
           powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
-          energyChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
+          energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL3'),
           filter: ChannelFilter.NOT_NULL,
-        }
+        },
+        {
+          name: 'ProductionActivePower',
+          powerChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
+          energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergy'),
+          filter: ChannelFilter.NOT_NULL,
+        },
         ],
       displayValues: (channel: { name: string, data: number[] }[]) => {
-        let datasets = [];
+        let datasets: DisplayValues[] = [];
         datasets.push({
           name: this.showTotal == false ? this.translate.instant('General.production') : this.translate.instant('General.total'),
           setValue: () => {
             return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channel.find(element => element.name == 'ProductionActivePower')?.data)
           },
-          color: 'rgb(0,152,204)'
+          color: 'rgb(0,152,204)',
+          stack: 0,
         })
 
         if (!this.showTotal) {
@@ -81,7 +82,8 @@ export class TotalChartComponent extends AbstractHistoryChart {
               }
               return HistoryUtils.CONVERT_WATT_TO_KILOWATT(result) ?? null
             },
-            color: 'rgb(' + this.phaseColors[i - 1] + ')'
+            color: 'rgb(' + this.phaseColors[i - 1] + ')',
+            stack: 0
           })
         }
 
@@ -92,7 +94,8 @@ export class TotalChartComponent extends AbstractHistoryChart {
             setValue: () => {
               return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channel.find(element => element.name == component.id)?.data) ?? null
             },
-            color: 'rgb(253,197,7)'
+            color: 'rgb(253,197,7)',
+            stack: 0
           })
         }
 
@@ -103,7 +106,8 @@ export class TotalChartComponent extends AbstractHistoryChart {
             setValue: () => {
               return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channel.find(element => element.name == component.id)?.data) ?? null
             },
-            color: 'rgb(0,223,0)'
+            color: 'rgb(0,223,0)',
+            stack: 0
           })
         }
         return datasets;

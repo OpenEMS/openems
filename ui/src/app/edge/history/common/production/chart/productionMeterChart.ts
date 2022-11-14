@@ -5,7 +5,7 @@ import { ChannelAddress } from '../../../../../shared/shared';
 import { ChannelFilter, Channels, ChartData } from '../../../shared';
 
 @Component({
-  selector: 'productionMeterchart2',
+  selector: 'productionMeterchart',
   templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
 })
 export class ProductionMeterChartComponent extends AbstractHistoryChart {

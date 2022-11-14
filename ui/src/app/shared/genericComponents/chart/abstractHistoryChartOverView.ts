@@ -12,7 +12,7 @@ export abstract class AbstractHistoryChartOverView implements OnInit {
   public edge: Edge | null = null;
   public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
-  protected showTotal: boolean = false;
+  protected showTotal: boolean = true;
   protected showPhases: boolean = false;
 
   /**
@@ -31,7 +31,6 @@ export abstract class AbstractHistoryChartOverView implements OnInit {
 
   public setShowPhases(event: boolean) {
     this.showPhases = event;
-    console.log("event", event)
     this.updateValues();
   }
   protected setShowTotal(event: boolean) {
