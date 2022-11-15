@@ -29,37 +29,3 @@ export class FlatComponent extends AbstractHistoryWidget {
 
   }
 }
-
-// import { ChannelAddress, EdgeConfig, Utils } from 'src/app/shared/shared';
-// import { Component } from '@angular/core';
-// import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-// import { ModalComponent } from '../modal/modal';
-
-// @Component({
-//     selector: 'Common_Production',
-//     templateUrl: './flat.html'
-// })
-// export class FlatComponent extends AbstractFlatWidget {
-
-
-//     protected override getChannelAddresses() {
-//         // Get Chargers
-//         this.chargerComponents =
-//             this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
-//                 .filter(component => component.isEnabled);
-
-//         // Get productionMeters
-//         this.productionMeterComponents =
-//             this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
-//                 .filter(component => component.isEnabled && this.config.isProducer(component));
-
-//         return []
-//     }
-
-//     async presentModal() {
-//         const modal = await this.modalController.create({
-//             component: ModalComponent,
-//         });
-//         return await modal.present();
-//     }
-// }

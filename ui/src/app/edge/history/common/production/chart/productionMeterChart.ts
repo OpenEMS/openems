@@ -19,6 +19,8 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
       filter: ChannelFilter.NOT_NULL,
     },
     ];
+
+    // Phase 1 to 3
     for (let i = 1; i < 4; i++) {
       channels.push({
         name: 'ActivePowerL' + i,
@@ -39,6 +41,8 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
           color: 'rgb(0,152,204)'
         })
         if (this.showPhases) {
+
+          // Phase 1 to 3
           for (let i = 1; i < 4; i++) {
             datasets.push({
               name: "Erzeugung Phase L" + i,

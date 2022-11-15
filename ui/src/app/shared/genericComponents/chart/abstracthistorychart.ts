@@ -1,19 +1,18 @@
 import { formatNumber } from '@angular/common';
-import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { ChartDataSets, ChartLegendLabelItem } from 'chart.js';
-import { randomUUID } from 'crypto';
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { v4 as uuidv4 } from 'uuid';
 import { calculateResolution, ChannelFilter, ChartData, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
 import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
-import { v4 as uuidv4 } from 'uuid';
 
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
@@ -135,20 +134,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         datasets.push({
           label: displayValue.name,
           data: displayValue.setValue(),
-          hidden: !isLabelVisible(displayValue.name),
+          hidden: !isLabelVisible(displayValue.name, !(displayValue.hiddenOnInit)),
           ...(displayValue.stack && { stack: displayValue.stack.toString() })
         })
         colors.push({
-          backgroundColor: 'rgba(' + displayValue.color.split('(').pop().split(')')[0] + ',0.05)',
+          backgroundColor: 'rgba(' + (this.chartType == 'bar' ? displayValue.color.split('(').pop().split(')')[0] + ',0.4)' : displayValue.color.split('(').pop().split(')')[0] + ',0.05)'),
           borderColor: 'rgba(' + displayValue.color.split('(').pop().split(')')[0] + ',1)',
         })
       }
     }
 
-    this.datasets = datasets.map(element => {
-
-      return { label: element.label, data: element.data, hidden: !isLabelVisible(element.label) }
-    });
+    this.datasets = datasets;
     this.colors = colors;
     this.labels = labels;
   }
@@ -325,6 +321,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
     options.scales.xAxes[0].bounds = 'ticks';
     options.scales.xAxes[0].stacked = true;
+    options.scales.yAxes[0].stacked = true;
 
     // Chart.pluginService.register(this.showZeroPlugin);
 

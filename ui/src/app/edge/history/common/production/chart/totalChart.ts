@@ -56,7 +56,8 @@ export class TotalChartComponent extends AbstractHistoryChart {
             return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channel.find(element => element.name == 'ProductionActivePower')?.data)
           },
           color: 'rgb(0,152,204)',
-          stack: 0,
+          hiddenOnInit: true,
+          stack: 2,
         })
 
         if (!this.showTotal) {
@@ -83,7 +84,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
               return HistoryUtils.CONVERT_WATT_TO_KILOWATT(result) ?? null
             },
             color: 'rgb(' + this.phaseColors[i - 1] + ')',
-            stack: 0
+            stack: 2
           })
         }
 
@@ -95,19 +96,21 @@ export class TotalChartComponent extends AbstractHistoryChart {
               return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channel.find(element => element.name == component.id)?.data) ?? null
             },
             color: 'rgb(253,197,7)',
-            stack: 0
+            stack: 1
           })
         }
 
+        let chargerColors: string[] = ['rgb(153,217,234)', 'rgb(155,181,216)', 'rgb(158,145,199)', 'rgb(160,109,181)', 'rgb(163,73,164)', 'rgb(165,37,146)']
         // ChargerComponents
-        for (let component of chargerComponents) {
+        for (let i = 0; i < chargerComponents.length; i++) {
+          let component = chargerComponents[i];
           datasets.push({
             name: component.alias ?? component.id,
             setValue: () => {
               return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channel.find(element => element.name == component.id)?.data) ?? null
             },
-            color: 'rgb(0,223,0)',
-            stack: 0
+            color: chargerColors[i],
+            stack: 1
           })
         }
         return datasets;
@@ -123,7 +126,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
       chartObject.channel.push({
         name: component.id,
         powerChannel: ChannelAddress.fromString(component.id + '/ActivePower'),
-        energyChannel: ChannelAddress.fromString(component.id + '/ActiveEnergy'),
+        energyChannel: ChannelAddress.fromString(component.id + '/ActivePower'),
         filter: ChannelFilter.NOT_NULL,
       })
 

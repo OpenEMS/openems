@@ -286,12 +286,13 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
   * 
   * @param label the Chart label
   * @param orElse the default, in case no value was stored yet in Session-Storage
-  * @returns true for visible labels; hidden otherwise
+  * @returns true for visible labels, hidden otherwise
   */
 export function isLabelVisible(label: string, orElse?: boolean): boolean {
-  let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
+  let labelWithoutUnit = "LABEL_" + label;
   let value = sessionStorage.getItem(labelWithoutUnit);
   if (orElse != null && value == null) {
+    console.log("orElse", orElse);
     return orElse;
   } else {
     return value !== 'false';
@@ -308,7 +309,7 @@ export function setLabelVisible(label: string, visible: boolean | null): void {
   if (visible == null) {
     return;
   }
-  let labelWithoutUnit = "LABEL_" + label.split(" ")[0];
+  let labelWithoutUnit = "LABEL_" + label;
   sessionStorage.setItem(labelWithoutUnit, visible ? 'true' : 'false');
 }
 
@@ -342,11 +343,11 @@ export type DisplayValues = {
   /** The values to be displayed in Chart */
   setValue: () => number[],
 
-  hidden?: boolean,
+  hiddenOnInit?: boolean,
   /** color in rgb-Format */
   color: string,
   filter?: ChannelFilter,
-  stack?: number
+  stack?: number,
 }
 
 export type ChartData = {

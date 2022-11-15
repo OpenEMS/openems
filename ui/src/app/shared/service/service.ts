@@ -378,5 +378,5 @@ export class Service extends AbstractService {
    * 
    * initialized as day, is getting changed by pickdate component
    */
-  public periodString: DefaultTypes.PeriodString = 'day';
+  public periodString: DefaultTypes.PeriodString = DefaultTypes.PeriodString.DAY;
 }
