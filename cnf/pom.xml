@@ -160,7 +160,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.configadmin</artifactId>
-			<version>1.9.24</version>
+			<version>1.9.26</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix EventAdmin -->
@@ -247,12 +247,12 @@
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>6.5.0</version>
+			<version>6.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>6.5.0</version>
+			<version>6.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
@@ -267,7 +267,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>1.7.20</version>
+			<version>1.7.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
