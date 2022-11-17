@@ -22,6 +22,8 @@
         </ng-template>
       </ng-container>
 
+      <oe-help-button *ngif="helpKey" [key]="helpKey"></oe-help-button>
+
       <ion-button (click)="modalController.dismiss()">
         <ion-icon name="close-outline" size="medium" color="light"></ion-icon>
       </ion-button>
