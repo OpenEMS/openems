@@ -1,15 +1,13 @@
 import { Environment } from "src/environments";
+import { theme } from "./theme";
 
 export const environment: Environment = {
-    theme: "Heckert",
+    ...theme, ...{
 
-    uiTitle: "Heckert Solar Symphon-E Online Monitoring",
-    edgeShortName: "EMS",
-    edgeLongName: "Heckert Solar Symphon-E Energiemanagementsystem",
+        backend: 'OpenEMS Edge',
+        url: "ws://" + location.hostname + ":8085",
 
-    backend: 'OpenEMS Edge',
-    url: "ws://" + location.hostname + ":8085",
-
-    production: true,
-    debugMode: false,
+        production: true,
+        debugMode: false,
+    }
 };

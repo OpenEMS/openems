@@ -1,6 +1,5 @@
-<oe-modal [title]="component.alias"
-    [toolbarButtons]="{url:'https://docs.fenecon.de/de/_/latest/fems/fems-app/includes/FEMS_App_Netzdienliche_Beladung.html', icon: {name: 'help-circle-outline'}}"
-    [component]="component" [formGroup]="formGroup" *ngIf="isInitialized && formGroup">
+<oe-modal [title]="component.alias" helpKey="CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE" [component]="component"
+    [formGroup]="formGroup" *ngIf="isInitialized && formGroup">
     <ng-container *ngIf="formGroup.value.mode !=='OFF'">
 
         <!-- SellToGridLimit or DelayCharge -->

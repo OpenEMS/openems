@@ -94,7 +94,7 @@ export class Service extends AbstractService {
   }
 
   public getDocsLang(): string {
-    if (this.translate.currentLang == "German") {
+    if (this.translate.currentLang == "de") {
       return "de";
     } else {
       return "en";
