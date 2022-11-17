@@ -20,7 +20,7 @@ export class PickDatePopoverComponent implements OnInit {
 
     private readonly TODAY = new Date();
     private readonly TOMORROW = addDays(new Date(), 1);
-    protected readonly DefaultTypes = DefaultTypes.PeriodString;
+    protected readonly DefaultTypes = DefaultTypes;
     public locale: string = 'de';
     public showCustomDate: boolean = false;
 
