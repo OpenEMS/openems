@@ -42,7 +42,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
      */
     public checkArrowAutomaticForwarding() {
         switch (this.service.periodString) {
-            case 'day': {
+            case DefaultTypes.PeriodString.DAY: {
                 if (isFuture(addDays(this.service.historyPeriod.from, 1))) {
                     //waits until next day is reached to set next days period
                     this.forwardToNextDayWhenReached()
@@ -56,7 +56,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 }
                 break;
             }
-            case 'week': {
+            case DefaultTypes.PeriodString.WEEK: {
                 if (isFuture(addWeeks(this.service.historyPeriod.from, 1))) {
                     //waits until next week is reached to set next weeks period
                     this.forwardToNextWeekWhenReached()
@@ -70,7 +70,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 }
                 break;
             }
-            case 'month': {
+            case DefaultTypes.PeriodString.MONTH: {
                 if (isFuture(addMonths(this.service.historyPeriod.from, 1))) {
                     //waits until next month is reached to set next months period
                     this.forwardToNextMonthWhenReached()
@@ -84,7 +84,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 }
                 break;
             }
-            case 'year': {
+            case DefaultTypes.PeriodString.YEAR: {
                 if (isFuture(addYears(this.service.historyPeriod.from, 1))) {
                     //waits until next week is reached to set next weeks period
                     // this.forwardToNextYearWhenReached()
@@ -97,7 +97,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                     this.disableArrow = false;
                 }
             }
-            case 'custom': {
+            case DefaultTypes.PeriodString.CUSTOM: {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
                 if (isFuture(addDays(this.service.historyPeriod.from, dateDistance * 2))) {
@@ -122,7 +122,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
     public goForward() {
         switch (this.service.periodString) {
-            case 'day': {
+            case DefaultTypes.PeriodString.DAY: {
                 if (isFuture(addDays(this.service.historyPeriod.from, 2))) {
                     //waits until next day is reached to set next days period
                     this.forwardToNextDayWhenReached();
@@ -137,7 +137,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 }
                 break;
             }
-            case 'week': {
+            case DefaultTypes.PeriodString.WEEK: {
                 if (isFuture(addWeeks(this.service.historyPeriod.from, 2))) {
                     //waits until next week is reached to set next weeks period
                     this.forwardToNextWeekWhenReached();
@@ -152,7 +152,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 }
                 break;
             }
-            case 'month': {
+            case DefaultTypes.PeriodString.MONTH: {
                 if (isFuture(addMonths(this.service.historyPeriod.from, 2))) {
                     //waits until next month is reached to set next months period
                     this.forwardToNextMonthWhenReached();
@@ -167,7 +167,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 }
                 break;
             }
-            case 'year': {
+            case DefaultTypes.PeriodString.YEAR: {
                 if (isFuture(addYears(this.service.historyPeriod.from, 2))) {
                     //waits until next week is reached to set next weeks period
                     this.forwardToNextYearWhenReached();
@@ -182,7 +182,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 }
                 break;
             }
-            case 'custom': {
+            case DefaultTypes.PeriodString.CUSTOM: {
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
                 if (isFuture(addDays(this.service.historyPeriod.to, dateDistance * 2))) {
@@ -198,7 +198,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
 
     public goBackward() {
         switch (this.service.periodString) {
-            case 'day': {
+            case DefaultTypes.PeriodString.DAY: {
                 //disables changing period to next day when next day is reached if current day is not selected
                 if (this.changePeriodTimeout != null) {
                     clearTimeout(this.changePeriodTimeout);
@@ -207,7 +207,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subDays(this.service.historyPeriod.from, 1), subDays((endOfDay(this.service.historyPeriod.to)), 1)));
                 break;
             }
-            case 'week': {
+            case DefaultTypes.PeriodString.WEEK: {
                 //disables changing period to next week when next week is reached if current week is not selected
                 if (this.changePeriodTimeout != null) {
                     clearTimeout(this.changePeriodTimeout);
@@ -216,7 +216,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subWeeks(this.service.historyPeriod.from, 1), subWeeks(endOfWeek(this.service.historyPeriod.to, { weekStartsOn: 1 }), 1)));
                 break;
             }
-            case 'month': {
+            case DefaultTypes.PeriodString.MONTH: {
                 //disables changing period to next month when next month is reached if current month is not selected
                 if (this.changePeriodTimeout != null) {
                     clearTimeout(this.changePeriodTimeout);
@@ -225,7 +225,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subMonths(this.service.historyPeriod.from, 1), endOfMonth(subMonths(this.service.historyPeriod.to, 1))));
                 break;
             }
-            case 'year': {
+            case DefaultTypes.PeriodString.YEAR: {
                 //disables changing period to next year when next year is reached if current year is not selected
                 if (this.changePeriodTimeout != null) {
                     clearTimeout(this.changePeriodTimeout);
@@ -234,7 +234,7 @@ export class PickDateComponent implements OnInit, OnDestroy {
                 this.setDateRange(new DefaultTypes.HistoryPeriod(subYears(this.service.historyPeriod.from, 1), endOfYear(subYears(this.service.historyPeriod.to, 1))));
                 break;
             }
-            case 'custom': {
+            case DefaultTypes.PeriodString.CUSTOM: {
                 this.disableArrow = false;
                 let dateDistance = Math.floor(Math.abs(<any>this.service.historyPeriod.from - <any>this.service.historyPeriod.to) / (1000 * 60 * 60 * 24));
                 dateDistance == 0 ? dateDistance = 1 : dateDistance = dateDistance;
@@ -296,22 +296,22 @@ export class PickDateComponent implements OnInit, OnDestroy {
     private millisecondsUntilnextPeriod(): number {
         // + 1000 to reach the next day
         switch (this.service.periodString) {
-            case 'day': {
+            case DefaultTypes.PeriodString.DAY: {
                 let currentDayTime = new Date();
                 let endOfDayTime = endOfDay(currentDayTime);
                 return differenceInMilliseconds(endOfDayTime, currentDayTime) + 1000;
             }
-            case 'week': {
+            case DefaultTypes.PeriodString.WEEK: {
                 let currentDayTime = new Date();
                 let endOfWeekTime = endOfWeek(currentDayTime, { weekStartsOn: 1 })
                 return differenceInMilliseconds(endOfWeekTime, currentDayTime) + 1000;
             }
-            case 'month': {
+            case DefaultTypes.PeriodString.MONTH: {
                 let currentDayTime = new Date();
                 let endOfMonthTime = endOfMonth(currentDayTime)
                 return differenceInMilliseconds(endOfMonthTime, currentDayTime) + 1000;
             }
-            case 'year': {
+            case DefaultTypes.PeriodString.YEAR: {
                 let currentDayTime = new Date();
                 let endOfYearTime = endOfYear(currentDayTime)
                 return differenceInMilliseconds(endOfYearTime, currentDayTime) + 1000;

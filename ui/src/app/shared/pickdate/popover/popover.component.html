@@ -1,32 +1,33 @@
 <ion-list lines="none" inset="false">
-    <ion-item mode="md" [class.active]="service.periodString === 'day'" (click)="setPeriod('day')"
-        class="ion-text-center" lines="none" button>
+    <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.DAY"
+        (click)="setPeriod(DefaultTypes.PeriodString.DAY)" class="ion-text-center" lines="none" button>
         <ion-label translate>
             Edge.History.day
         </ion-label>
     </ion-item>
-    <ion-item mode="md" [class.active]="service.periodString === 'week'" (click)="setPeriod('week')"
-        class="ion-text-center" lines="none" button>
+    <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.WEEK"
+        (click)="setPeriod(DefaultTypes.PeriodString.WEEK)" class="ion-text-center" lines="none" button>
         <ion-label translate>
             Edge.History.week
         </ion-label>
     </ion-item>
-    <ion-item mode="md" [class.active]="service.periodString === 'month'" (click)="setPeriod('month')"
-        class="ion-text-center" lines="none" button>
+    <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.MONTH"
+        (click)="setPeriod(DefaultTypes.PeriodString.MONTH)" class="ion-text-center" lines="none" button>
         <ion-label translate>
             Edge.History.month
         </ion-label>
     </ion-item>
 
     <!-- Show Year View for now only in Energy-Monitor-Chart -->
-    <ion-item mode="md" [class.active]="service.periodString === 'year'" class="ion-text-center" lines="none" button
-        (click)="setPeriod('year')" class="ion-text-center">
+    <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.YEAR" class="ion-text-center"
+        lines="none" button (click)="setPeriod(DefaultTypes.PeriodString.YEAR)" class="ion-text-center">
         <ion-label translate>
             Edge.History.year
         </ion-label>
     </ion-item>
-    <ion-item mode="md" [class.active]="service.periodString === 'custom'"
-        (click)="showCustomDate = !showCustomDate; setPeriod('custom')" class="ion-text-center" lines="none" button>
+    <ion-item mode="md" [class.active]="service.periodString === DefaultTypes.PeriodString.CUSTOM"
+        (click)="showCustomDate = !showCustomDate; setPeriod(DefaultTypes.PeriodString.CUSTOM)" class="ion-text-center"
+        lines="none" button>
         <ion-label translate>
             Edge.History.otherPeriod
         </ion-label>

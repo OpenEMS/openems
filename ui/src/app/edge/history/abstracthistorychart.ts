@@ -4,6 +4,7 @@ import { ChartDataSets } from 'chart.js';
 import { differenceInDays, differenceInMonths } from 'date-fns';
 import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { JsonrpcResponseError } from "../../shared/jsonrpc/base";
 import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
@@ -132,9 +133,9 @@ export abstract class AbstractHistoryChart {
      * @returns period for Tooltip Header
      */
     protected toTooltipTitle(fromDate: Date, toDate: Date, date: Date): string {
-        if (this.service.periodString == 'year') {
+        if (this.service.periodString == DefaultTypes.PeriodString.YEAR) {
             return date.toLocaleDateString('default', { month: 'long' });
-        } else if (this.service.periodString == 'month') {
+        } else if (this.service.periodString == DefaultTypes.PeriodString.MONTH) {
             return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
         } else {
             return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit', }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });

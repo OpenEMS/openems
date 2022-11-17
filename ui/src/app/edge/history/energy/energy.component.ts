@@ -438,15 +438,15 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         let categoryGapPercentage = 0;
 
         switch (this.service.periodString) {
-          case "custom": {
+          case DefaultTypes.PeriodString.CUSTOM: {
             barWidthPercentage = 0.7;
             categoryGapPercentage = 0.4;
           }
-          case "week": {
+          case DefaultTypes.PeriodString.WEEK: {
             barWidthPercentage = 0.7;
             categoryGapPercentage = 0.4;
           }
-          case "month": {
+          case DefaultTypes.PeriodString.MONTH: {
             if (this.service.isSmartphoneResolution == true) {
               barWidthPercentage = 1;
               categoryGapPercentage = 0.6;

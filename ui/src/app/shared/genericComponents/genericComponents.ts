@@ -3,9 +3,11 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
+import { TranslateModule } from '@ngx-translate/core';
 import { PickDateComponent } from '../pickdate/pickdate.component';
 import { PipeModule } from '../pipe/pipe';
 import { ChartComponent } from './chart/chart';
+import { ChartOptionsPopoverComponent } from './chart/chartoptions/popover/popover.component';
 import { FlatWidgetComponent } from './flat/flat';
 import { FlatWidgetHorizontalLineComponent } from './flat/flat-widget-horizontal-line/flat-widget-horizontal-line';
 import { FlatWidgetLineComponent } from './flat/flat-widget-line/flat-widget-line';
@@ -16,11 +18,6 @@ import { ModalButtonsComponent } from './modal/modal-button/modal-button';
 import { ModalInfoLineComponent } from './modal/modal-info-line/modal-info-line';
 import { ModalLineComponent } from './modal/modal-line/modal-line';
 import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/modal-horizontal-line';
-import { ChartComponent } from './chart/chart'
-import { RouterModule } from '@angular/router';
-import { ChartOptionsComponent } from '../chartoptions/chartoptions.component';
-import { ChartOptionsPopoverComponent } from './chart/chartoptions/popover/popover.component';
-import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
     imports: [
@@ -29,7 +26,7 @@ import { TranslateModule } from '@ngx-translate/core';
         PipeModule,
         ReactiveFormsModule,
         RouterModule,
-	TranslateModule.forRoot()
+        TranslateModule.forRoot()
     ],
     entryComponents: [
         PickDateComponent,
@@ -42,7 +39,7 @@ import { TranslateModule } from '@ngx-translate/core';
         ModalLineComponent,
         ModalHorizontalLineComponent,
         ModalComponent,
-	ChartOptionsPopoverComponent
+        ChartOptionsPopoverComponent
     ],
     declarations: [
         PickDateComponent,
@@ -57,7 +54,7 @@ import { TranslateModule } from '@ngx-translate/core';
         ModalHorizontalLineComponent,
         ModalComponent,
         ChartComponent,
-	ChartOptionsPopoverComponent
+        ChartOptionsPopoverComponent
     ],
     exports: [
         FlatWidgetComponent,
@@ -72,7 +69,8 @@ import { TranslateModule } from '@ngx-translate/core';
         ModalComponent,
         ChartComponent,
         PickDateComponent,
-	ChartOptionsPopoverComponent    ],
+        ChartOptionsPopoverComponent
+    ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 
 })
