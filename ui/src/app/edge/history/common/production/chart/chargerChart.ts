@@ -29,8 +29,8 @@ export class ChargerChartComponent extends AbstractHistoryChart {
         }]
       },
       tooltip: {
-        unit: '%',
-        formatNumber: '1.0-0'
+        unit: 'kW',
+        formatNumber: '1.1-2'
       },
       yAxisTitle: 'kW',
     }

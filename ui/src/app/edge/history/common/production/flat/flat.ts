@@ -24,8 +24,4 @@ export class FlatComponent extends AbstractHistoryWidget {
         .filter(component => component.isEnabled && this.config.isProducer(component));
     return [];
   }
-
-  protected onCurrentData(currentData: CurrentData) {
-
-  }
 }

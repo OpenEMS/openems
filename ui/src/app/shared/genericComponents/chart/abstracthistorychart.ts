@@ -34,7 +34,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
   public loading: boolean = true;
   public labels: Date[] = [];
-  public datasets: ChartDataSets[] = EMPTY_DATASET;
+  public datasets: ChartDataSets[] = EMPTY_DATASET(this.translate);
   public options: ChartOptions | null = null;
   public colors: any[] = [];
   public chartObject: ChartData = null;
@@ -62,24 +62,29 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       })
     })
   }
-  // protected onCurrentData(): void { }
 
   ngOnChanges() {
     this.updateChart();
   };
 
-  public getChartHeight(): number {
+  protected getChartHeight(): number {
     return window.innerHeight / 2.3;
   }
 
-  public updateChart() {
+  private updateChart() {
     this.service.startSpinner(this.spinnerId);
     this.loadChart()
   }
 
   private fillChart(response: QueryHistoricTimeseriesDataResponse | queryHistoricTimeseriesEnergyPerPeriodResponse) {
-    let result = response.result;
 
+    if (Utils.areChannelAddressesEmpty(response)) {
+      this.datasets = EMPTY_DATASET(this.translate);
+      this.labels = []
+      return
+    }
+
+    let result = response.result;
     let labels: Date[] = [];
     for (let timestamp of result.timestamps) {
       labels.push(new Date(timestamp));
@@ -127,6 +132,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     let datasets: ChartDataSets[] = [];
     let colors: any[] = [];
 
+    // Fill datasets, labels and colors
     for (let i = 0; i < this.chartObject.displayValues(channelData).length; i++) {
       let displayValue = this.chartObject.displayValues(channelData)[i];
 
@@ -363,7 +369,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
    */
   protected initializeChart() {
     EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
-    this.datasets = EMPTY_DATASET;
+    this.datasets = EMPTY_DATASET(this.translate);
     this.labels = [];
     this.loading = false;
     this.service.stopSpinner(this.spinnerId);

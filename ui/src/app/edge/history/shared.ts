@@ -1,3 +1,4 @@
+import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
 import { Colors } from 'ng2-charts';
@@ -10,8 +11,8 @@ export interface Dataset {
   hidden: boolean;
 }
 
-export const EMPTY_DATASET = [{
-  label: "no Data available",
+export const EMPTY_DATASET = (translate: TranslateService) => [{
+  label: translate.instant("Edge.History.noData"),
   data: [],
   hidden: false
 }];

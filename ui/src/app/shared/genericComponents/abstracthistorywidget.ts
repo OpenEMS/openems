@@ -43,6 +43,7 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
         // store important variables publically
         this.edge = edge;
         this.config = config;
+        console.log("🚀 ~ file: abstracthistorywidget.ts ~ line 46 ~ AbstractHistoryWidget ~ this.service.getConfig ~ config", config)
         this.component = config.components[this.componentId];
 
         // announce initialized
@@ -75,7 +76,9 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
   }
 
   public ngOnChanges() {
-    this.updateValues()
+    if (this.isInitialized) {
+      this.updateValues()
+    }
   }
 
   public ngOnDestroy() {

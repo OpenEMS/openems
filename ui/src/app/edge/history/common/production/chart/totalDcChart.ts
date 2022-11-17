@@ -18,7 +18,7 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
           {
             name: 'ProductionDcActual',
             powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
-            energyChannel: ChannelAddress.fromString('_sum/ProductionDcActualEnergy'),
+            energyChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
             filter: ChannelFilter.NOT_NULL,
           },
         ],
@@ -32,8 +32,8 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
         }]
       },
       tooltip: {
-        unit: '%',
-        formatNumber: '1.0-0'
+        unit: 'kW',
+        formatNumber: '1.1-2'
       },
       yAxisTitle: 'kW',
     }

@@ -2,6 +2,7 @@ import { formatDate, formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 
 export class Utils {
@@ -514,6 +515,16 @@ export class Utils {
         return true;
       }
     });
+  }
+
+  /**
+   * Checks if at least on element in the JSON-RPC-Response Arrays contains a non null value
+   * 
+   * @param arg The JSON-RPC-Response
+   * @returns true if all datapoints are null
+   */
+  public static areChannelAddressesEmpty<T extends JsonrpcResponseSuccess>(arg: T): boolean {
+    return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true)
   }
 }
 

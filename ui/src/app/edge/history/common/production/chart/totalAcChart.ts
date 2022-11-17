@@ -18,25 +18,25 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
           {
             name: 'ProductionAcActivePower',
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePower'),
-            energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
+            energyChannel: ChannelAddress.fromString('_sum/ProductionAcActivePower'),
             filter: ChannelFilter.NOT_NULL_OR_NEGATIVE,
           },
           {
             name: 'ProductionAcActivePowerL1',
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
-            energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
+            energyChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
             filter: ChannelFilter.NOT_NULL_OR_NEGATIVE,
           },
           {
             name: 'ProductionAcActivePowerL2',
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
-            energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
+            energyChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
             filter: ChannelFilter.NOT_NULL_OR_NEGATIVE,
           },
           {
             name: 'ProductionAcActivePowerL3',
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
-            energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
+            energyChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
             filter: ChannelFilter.NOT_NULL_OR_NEGATIVE,
           }
         ],
