@@ -76,6 +76,10 @@
             "openems-backend-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-dev.ts"
                 }
@@ -83,6 +87,10 @@
             },
             "openems-backend-prod": {
               "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-prod.ts"
@@ -92,6 +100,10 @@
             "openems-edge-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-dev.ts"
                 }
@@ -100,6 +112,10 @@
             "openems-edge-prod": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-prod.ts"
                 }
@@ -107,6 +123,10 @@
             },
             "openems-gitpod": {
               "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/gitpod.ts"
@@ -140,6 +160,10 @@
             "fenecon-backend-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/fenecon/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/fenecon/environments/backend-dev.ts"
                 }
@@ -149,6 +173,10 @@
               "baseHref": "/m/",
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/fenecon/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/fenecon/environments/backend-prod.ts"
                 }
@@ -157,6 +185,10 @@
             "fenecon-edge-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/fenecon/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/fenecon/environments/edge-dev.ts"
                 }
@@ -164,6 +196,10 @@
             },
             "fenecon-edge-prod": {
               "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/fenecon/environments/theme.ts"
+                },
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/fenecon/environments/edge-prod.ts"
@@ -197,6 +233,10 @@
             "heckert-backend-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/heckert/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/heckert/environments/backend-dev.ts"
                 }
@@ -204,6 +244,10 @@
             },
             "heckert-backend-prod": {
               "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/heckert/environments/theme.ts"
+                },
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/heckert/environments/backend-prod.ts"
@@ -213,6 +257,10 @@
             "heckert-edge-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/heckert/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/heckert/environments/edge-dev.ts"
                 }
@@ -221,8 +269,12 @@
             "heckert-edge-prod": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/heckert/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
-                  "with": "src/themes/heckertenvironments//edge-prod.ts"
+                  "with": "src/themes/heckert/environments/edge-prod.ts"
                 }
               ]
             }

@@ -1,15 +1,13 @@
 import { Environment } from "src/environments";
+import { theme } from "./theme";
 
 export const environment: Environment = {
-    theme: "FENECON",
+    ...theme, ...{
 
-    uiTitle: "FENECON Online-Monitoring",
-    edgeShortName: "FEMS",
-    edgeLongName: "FENECON Energiemanagementsystem",
+        backend: 'OpenEMS Backend',
+        url: "wss://srv0.fenecon.de/ui",
 
-    backend: 'OpenEMS Backend',
-    url: "wss://srv0.fenecon.de/ui",
-
-    production: false,
-    debugMode: true,
+        production: false,
+        debugMode: true,
+    }
 };
