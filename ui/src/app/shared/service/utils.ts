@@ -2,6 +2,7 @@ import { formatDate, formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 
 export class Utils {
@@ -514,5 +515,9 @@ export class Utils {
         return true;
       }
     });
+  }
+
+  public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
+    return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true)
   }
 }

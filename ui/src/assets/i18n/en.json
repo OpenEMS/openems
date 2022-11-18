@@ -26,7 +26,8 @@
         "storageCharge": "Storage-Charge",
         "storageDischarge": "Storage-Discharge",
         "title": "Energymonitor",
-        "excelExportWarning": "The display and export of data over a longer period of time is currently only possible to a limited extent. Please try again later."
+        "excelExportWarning": "The display and export of data over a longer period of time is currently only possible to a limited extent. The function is expected to be usable again at the start of 2023.",
+        "displayWarning": "The display of data over a longer period of time is currently only possible to a limited extent. \nThe feature is expected to be available again in early 2023."
       },
       "Widgets": {
         "autarchyInfo": "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",

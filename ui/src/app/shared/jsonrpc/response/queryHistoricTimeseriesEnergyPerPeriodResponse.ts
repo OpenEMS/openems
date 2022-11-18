@@ -13,7 +13,7 @@ import { JsonrpcResponseSuccess } from "../base";
  * }
  * </pre>
  */
-export class queryHistoricTimeseriesEnergyPerPeriodResponse extends JsonrpcResponseSuccess {
+export class QueryHistoricTimeseriesEnergyPerPeriodResponse extends JsonrpcResponseSuccess {
 
     public constructor(
         public readonly id: string,
