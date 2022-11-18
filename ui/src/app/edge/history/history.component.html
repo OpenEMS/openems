@@ -1,10 +1,17 @@
 <header></header>
 <ion-content>
+  <ion-item lines="full" color="warning" *ngIf="showWarning" style="margin-top: 1%;">
+    <ion-icon size="large" slot="start" name="alert-circle-outline"></ion-icon>
+    <ion-label style="text-align: center" translate>Edge.Index.Energymonitor.excelExportWarning</ion-label>
+  </ion-item>
+
+  <!-- Only displayed when history allowed to be seen -->
   <ion-grid *ngIf="isTimedataAvailable && widgets">
     <ion-row>
       <!-- Energymonitor Chart -->
       <ion-col size="12">
-        <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
+        <energy (setShowWarning)="setShowWarning($event)" [period]="service.historyPeriod"
+          [style.height]="energyChartHeight"></energy>
       </ion-col>
 
       <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">

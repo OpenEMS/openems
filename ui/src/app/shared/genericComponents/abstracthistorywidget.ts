@@ -37,14 +37,13 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
   ) {
   }
 
-  public ngOnInit() {
-    this.service.setCurrentComponent('', this.route).then(edge => {
-      this.service.getConfig().then(config => {
-        // store important variables publically
-        this.edge = edge;
-        this.config = config;
-        console.log("🚀 ~ file: abstracthistorywidget.ts ~ line 46 ~ AbstractHistoryWidget ~ this.service.getConfig ~ config", config)
-        this.component = config.components[this.componentId];
+    public ngOnInit() {
+        this.service.setCurrentComponent('', this.route).then(edge => {
+            this.service.getConfig().then(config => {
+                // store important variables publically
+                this.edge = edge;
+                this.config = config;
+                this.component = config.components[this.componentId];
 
         // announce initialized
         this.isInitialized = true;
@@ -56,24 +55,25 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
     });
   };
 
-  public updateValues() {
-    let channelAddresses = this.getChannelAddresses();
-    this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
-      let result = response.result;
-      let thisComponent = {};
-      let allComponents = {};
-      for (let channelAddress of channelAddresses) {
-        let ca = channelAddress.toString();
-        allComponents[ca] = result.data[ca]
-        if (channelAddress.componentId === this.componentId) {
-          thisComponent[channelAddress.channelId] = result.data[ca];
-        }
-      }
-      this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents })
-    }).catch(() => {
-      // TODO Error Message
-    })
-  }
+    public updateValues() {
+        let channelAddresses = this.getChannelAddresses();
+        this.onCurrentData({ thisComponent: {}, allComponents: {} })
+        this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
+            let result = response.result;
+            let thisComponent = {};
+            let allComponents = {};
+            for (let channelAddress of channelAddresses) {
+                let ca = channelAddress.toString();
+                allComponents[ca] = result.data[ca]
+                if (channelAddress.componentId === this.componentId) {
+                    thisComponent[channelAddress.channelId] = result.data[ca];
+                }
+            }
+            this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents })
+        }).catch(() => {
+            // TODO Error Message
+        })
+    }
 
   public ngOnChanges() {
     if (this.isInitialized) {

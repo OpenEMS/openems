@@ -523,7 +523,7 @@ export class Utils {
    * @param arg The JSON-RPC-Response
    * @returns true if all datapoints are null
    */
-  public static areChannelAddressesEmpty<T extends JsonrpcResponseSuccess>(arg: T): boolean {
+  public static isDataEmpty(arg: T): boolean {
     return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true)
   }
 }
