@@ -4,7 +4,7 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -46,7 +46,7 @@ public class JsonUtils {
 	 * 
 	 * @return list as JsonArray
 	 */
-	public static <T> JsonArray generateJsonArray(List<T> list, Function<T, JsonElement> convert) {
+	public static <T> JsonArray generateJsonArray(Collection<T> list, Function<T, JsonElement> convert) {
 		if (list == null) {
 			return null;
 		} else {

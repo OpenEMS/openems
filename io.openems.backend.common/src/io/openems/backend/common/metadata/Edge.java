@@ -87,6 +87,10 @@ public class Edge {
 	public boolean isOnline() {
 		return this.isOnline;
 	}
+	
+	public boolean isOffline() {
+		return !this.isOnline;
+	}
 
 	/**
 	 * Marks this Edge as being online. This is called by an event listener.

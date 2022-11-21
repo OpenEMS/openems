@@ -45,5 +45,4 @@ public class ThreadPoolUtils {
 			Thread.currentThread().interrupt();
 		}
 	}
-
 }
