@@ -10,25 +10,20 @@ import java.util.Optional;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
-import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.SystemLog;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
-
-	private final Logger log = LoggerFactory.getLogger(WebsocketServer.class);
 
 	private final EdgeWebsocketImpl parent;
 	private final OnOpen onOpen;
@@ -37,7 +32,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnError onError;
 	private final OnClose onClose;
 
-	public WebsocketServer(EdgeWebsocketImpl parent, String name, int port, int poolSize, boolean debugMode) {
+	public WebsocketServer(EdgeWebsocketImpl parent, String name, int port, int poolSize, DebugMode debugMode) {
 		super(name, port, poolSize, debugMode, (executor) -> {
 		});
 		this.parent = parent;
@@ -97,8 +92,8 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 		// config
 		if (message.has("config")) {
-			var config = EdgeConfig.fromJson(JsonUtils.getAsJsonObject(message, "config"));
-			return new EdgeConfigNotification(config);
+			// Unable to handle deprecated configurations
+			return null;
 		}
 
 		// timedata
@@ -129,7 +124,6 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 					JsonUtils.getAsString(log, "message")));
 		}
 
-		this.log.info("EdgeWs. handleNonJsonrpcMessage: " + stringMessage);
 		throw new OpenemsException("EdgeWs. handleNonJsonrpcMessage", lastException);
 	}
 

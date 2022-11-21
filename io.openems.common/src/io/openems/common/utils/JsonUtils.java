@@ -1285,7 +1285,7 @@ public class JsonUtils {
 	 * Gets the {@link JsonElement} as {@link Optional} {@link UUID}.
 	 *
 	 * @param jElement the {@link JsonElement}
-	 * @return the {@link Optional} {@link Inet4Address} value
+	 * @return the {@link Optional} {@link UUID} value
 	 * @throws OpenemsNamedException on error
 	 */
 	// CHECKSTYLE:OFF
@@ -1997,7 +1997,7 @@ public class JsonUtils {
 	}
 
 	private static Inet4Address toInet4Address(String name) {
-		if (name == null) {
+		if (name == null || name.isBlank()) {
 			return null;
 		}
 		try {
@@ -2011,7 +2011,7 @@ public class JsonUtils {
 	// CHECKSTYLE:OFF
 	private static UUID toUUID(String value) {
 		// CHECKSTYLE:ON
-		if (value == null) {
+		if (value == null || value.isBlank()) {
 			return null;
 		}
 		try {

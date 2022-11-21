@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -216,37 +215,6 @@ public class OdooHandler {
 		} catch (OpenemsNamedException e) {
 			this.log.warn("Unable to logout session [" + sessionId + "]: " + e.getMessage());
 		}
-	}
-
-	/**
-	 * Get field from the 'Set-Cookie' field in HTTP headers.
-	 *
-	 * <p>
-	 * Per <a href=
-	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
-	 * all variants of 'cookie' are accepted.
-	 *
-	 * @param headers   the HTTP headers
-	 * @param fieldname the field name
-	 * @return value as optional
-	 */
-	public static Optional<String> getFieldFromSetCookieHeader(Map<String, List<String>> headers, String fieldname) {
-		for (Entry<String, List<String>> header : headers.entrySet()) {
-			var key = header.getKey();
-			if (key != null && key.equalsIgnoreCase("Set-Cookie")) {
-				for (String cookie : header.getValue()) {
-					for (String cookieVariable : cookie.split("; ")) {
-						var keyValue = cookieVariable.split("=");
-						if (keyValue.length == 2) {
-							if (keyValue[0].equals(fieldname)) {
-								return Optional.ofNullable(keyValue[1]);
-							}
-						}
-					}
-				}
-			}
-		}
-		return Optional.empty();
 	}
 
 	/**
@@ -1028,7 +996,8 @@ public class OdooHandler {
 					var lastNotificationStr = OdooUtils.getAsOrElse(Field.EdgeDeviceUserRole.LAST_NOTIFICATION,
 							edgeUser, String.class, null);
 					var lastNotification = OdooUtils.DateTime.stringToDateTime(lastNotificationStr);
-					result.add(new AlertingSetting(edgeUserId, login, Role.getRole(role), lastNotification, timeToWait));
+					result.add(
+							new AlertingSetting(edgeUserId, login, Role.getRole(role), lastNotification, timeToWait));
 				}
 			}
 		}

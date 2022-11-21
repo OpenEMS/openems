@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -251,7 +252,7 @@ public class OdooUtils {
 						.build()) //
 				.build();
 		var response = OdooUtils.sendJsonrpcRequest(credentials.getUrl() + "/web/session/authenticate", request);
-		var sessionIdOpt = OdooHandler.getFieldFromSetCookieHeader(response.headers, "session_id");
+		var sessionIdOpt = getFieldFromSetCookieHeader(response.headers, "session_id");
 		if (!sessionIdOpt.isPresent()) {
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 		}
@@ -642,6 +643,37 @@ public class OdooUtils {
 		}
 	}
 
+	/**
+	 * Get field from the 'Set-Cookie' field in HTTP headers.
+	 *
+	 * <p>
+	 * Per <a href=
+	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
+	 * all variants of 'cookie' are accepted.
+	 *
+	 * @param headers   the HTTP headers
+	 * @param fieldname the field name
+	 * @return value as optional
+	 */
+	private static Optional<String> getFieldFromSetCookieHeader(Map<String, List<String>> headers, String fieldname) {
+		for (Entry<String, List<String>> header : headers.entrySet()) {
+			var key = header.getKey();
+			if (key != null && key.equalsIgnoreCase("Set-Cookie")) {
+				for (String cookie : header.getValue()) {
+					for (String cookieVariable : cookie.split("; ")) {
+						var keyValue = cookieVariable.split("=");
+						if (keyValue.length == 2) {
+							if (keyValue[0].equals(fieldname)) {
+								return Optional.ofNullable(keyValue[1]);
+							}
+						}
+					}
+				}
+			}
+		}
+		return Optional.empty();
+	}
+
 	public static class DateTime {
 
 		public static final ZoneId SERVER_TIMEZONE = ZoneId.of("UTC");
@@ -687,6 +719,5 @@ public class OdooUtils {
 			}
 			return dateTime.format(DATETIME_FORMATTER);
 		}
-
 	}
 }
