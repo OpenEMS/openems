@@ -13,21 +13,20 @@ import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/req
 import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
 
-
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 @Directive()
 export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
+  /** Title for Chart, diplayed above the Chart */
+  @Input() public chartTitle: string = "";
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public component: EdgeConfig.Component;
   @Input() public showPhases: boolean;
   @Input() public showTotal: boolean;
+  @Input() protected isOnlyChart: boolean = false;
   protected spinnerId: string = uuidv4();
 
   protected readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)']
-
-  /** Title for Chart, diplayed above the Chart */
-  @Input() public chartTitle: string = "";
 
   public edge: Edge | null = null;
 
@@ -69,6 +68,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   };
 
   protected getChartHeight(): number {
+    if (this.isOnlyChart) {
+      return window.innerHeight / 1.3;
+    }
     return window.innerHeight / 21 * 9;
   }
 
