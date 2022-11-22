@@ -20,6 +20,11 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.WordOrder;
+import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -43,7 +48,7 @@ public class SolarEdgeEss extends AbstractSunSpecEss
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_802, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
 			.build();
 
 	@Reference
@@ -57,6 +62,8 @@ public class SolarEdgeEss extends AbstractSunSpecEss
 				SymmetricEss.ChannelId.values(), //
 				SunSpecEss.ChannelId.values() //
 		);
+
+		addStaticModbusTasks(this.getModbusProtocol());
 	}
 
 	@Override
@@ -66,11 +73,40 @@ public class SolarEdgeEss extends AbstractSunSpecEss
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
 			return;
 		}
+	}
+
+	/**
+	 * Adds static modbus tasks.
+	 * 
+	 * @param protocol the {@link ModbusProtocol}
+	 * @throws OpenemsException on error
+	 */
+	private void addStaticModbusTasks(ModbusProtocol protocol) throws OpenemsException {
+		protocol.addTask(//
+				new FC3ReadRegistersTask(0xE142, Priority.LOW, //
+						m(SymmetricEss.ChannelId.ACTIVE_POWER, //
+								new FloatDoublewordElement(0xE142).wordOrder(WordOrder.LSWMSW)), //
+						new DummyRegisterElement(0xE144, 0xE17D), m(SymmetricEss.ChannelId.CAPACITY, //
+								new FloatDoublewordElement(0xE17E).wordOrder(WordOrder.LSWMSW)),
+						new DummyRegisterElement(0xE180, 0xE183), //
+						m(SymmetricEss.ChannelId.SOC, //
+								new FloatDoublewordElement(0xE184).wordOrder(WordOrder.LSWMSW))));
+	}
+
+	@Override
+	protected void onSunSpecInitializationCompleted() {
+		// TODO Add mappings for registers from S1 and S103
+
+		// Example:
+		// this.mapFirstPointToChannel(//
+		// SymmetricEss.ChannelId.ACTIVE_POWER, //
+		// ElementToChannelConverter.DIRECT_1_TO_1, //
+		// DefaultSunSpecModel.S103.W);
 	}
 
 	@Override

@@ -10,9 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
-import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 import io.openems.edge.common.channel.Channel;
@@ -85,21 +83,21 @@ public abstract class AbstractSunSpecEss extends AbstractOpenemsSunSpecComponent
 	protected void onSunSpecInitializationCompleted() {
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
 
-		this.mapFirstPointToChannel(//
-				SymmetricEss.ChannelId.SOC, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S802.SO_C);
-
-		this.mapFirstPointToChannel(//
-				SymmetricEss.ChannelId.CAPACITY, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S802.W_H_RTG);
-
-		// TODO this is the battery power; wrong for hybrid system
-		this.mapFirstPointToChannel(//
-				SymmetricEss.ChannelId.ACTIVE_POWER, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S802.W);
+		// this.mapFirstPointToChannel(//
+		// SymmetricEss.ChannelId.SOC, //
+		// ElementToChannelConverter.DIRECT_1_TO_1, //
+		// DefaultSunSpecModel.S802.SO_C);
+		//
+		// this.mapFirstPointToChannel(//
+		// SymmetricEss.ChannelId.CAPACITY, //
+		// ElementToChannelConverter.DIRECT_1_TO_1, //
+		// DefaultSunSpecModel.S802.W_H_RTG);
+		//
+		// // TODO this is the battery power; wrong for hybrid system
+		// this.mapFirstPointToChannel(//
+		// SymmetricEss.ChannelId.ACTIVE_POWER, //
+		// ElementToChannelConverter.DIRECT_1_TO_1, //
+		// DefaultSunSpecModel.S802.W);
 
 		// TODO Channels: REACTIVE_POWER, MAX_APPARENT_POWER, ACTIVE_CHARGE_ENERGY,
 		// ACTIVE_DISCHARGE_ENERGY,...
