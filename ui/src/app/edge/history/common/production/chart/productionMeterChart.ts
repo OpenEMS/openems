@@ -11,7 +11,6 @@ import { ChannelFilter, Channels, ChartData } from '../../../shared';
 export class ProductionMeterChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): ChartData {
-    this.spinnerId = 'productionMeter-chart';
     let channels: Channels[] = [{
       name: 'ActivePower',
       powerChannel: ChannelAddress.fromString(this.component.id + '/ActivePower'),

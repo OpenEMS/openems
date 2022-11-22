@@ -11,7 +11,6 @@ import { ChannelFilter, ChartData, DisplayValues } from '../../../shared';
 export class TotalChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): ChartData {
-    this.spinnerId = 'productionTotalChart-chart';
     let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => this.config.isProducer(component));
     let chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
 

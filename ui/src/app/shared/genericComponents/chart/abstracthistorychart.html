@@ -1,16 +1,18 @@
-<ion-item lines="full" color="warning" *ngIf="!isDataExisting">
-  <ion-icon size="large" slot="start" name="alert-circle-outline"></ion-icon>
-  <ion-label style="text-align: center" translate>Edge.Index.Energymonitor.displayWarning</ion-label>
-</ion-item>
-<table class="full_width">
-  <tr>
-    <td style="width: 100%" class="ion-padding">{{chartTitle}}</td>
-  </tr>
-</table>
-<div [style.height.px]="getChartHeight()">
-  <ngx-spinner [name]="spinnerId"></ngx-spinner>
-  <ng-container *ngIf="!loading">
-    <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [colors]="colors"
-      [chartType]="chartType"></canvas>
-  </ng-container>
-</div>
+<ion-card-content>
+  <ion-item lines="full" color="warning" *ngIf="!isDataExisting">
+    <ion-icon size="large" slot="start" name="alert-circle-outline"></ion-icon>
+    <ion-label style="text-align: center" translate>Edge.Index.Energymonitor.displayWarning</ion-label>
+  </ion-item>
+  <table class="full_width">
+    <tr>
+      <td style="width: 100%" class="ion-padding">{{chartTitle}}</td>
+    </tr>
+  </table>
+  <div [style.height.px]="getChartHeight()">
+    <ngx-spinner [name]="spinnerId"></ngx-spinner>
+    <ng-container *ngIf="!loading">
+      <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [colors]="colors"
+        [chartType]="chartType"></canvas>
+    </ng-container>
+  </div>
+</ion-card-content>

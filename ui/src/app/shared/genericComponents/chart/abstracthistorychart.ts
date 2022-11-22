@@ -8,7 +8,6 @@ import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/j
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
 import { calculateResolution, ChannelFilter, ChartData, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
-import { JsonrpcResponseSuccess } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -23,7 +22,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   @Input() public component: EdgeConfig.Component;
   @Input() public showPhases: boolean;
   @Input() public showTotal: boolean;
-  @Input() public spinnerId: string = uuidv4();
+  protected spinnerId: string = uuidv4();
 
   protected readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)']
 
@@ -70,7 +69,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   };
 
   protected getChartHeight(): number {
-    return window.innerHeight / 2.3;
+    return window.innerHeight / 21 * 9;
   }
 
   private updateChart() {
@@ -353,6 +352,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     options.scales.xAxes[0].bounds = 'ticks';
     options.scales.xAxes[0].stacked = true;
     options.scales.yAxes[0].stacked = true;
+    options.responsive = true;
+    options.maintainAspectRatio = false;
 
     // Chart.pluginService.register(this.showZeroPlugin);
 
@@ -371,7 +372,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
     // Set Y-Axis Title
     options.scales.yAxes[0].scaleLabel.labelString = chartObject.yAxisTitle;
-
 
     // Save Original OnClick because calling onClick overwrites default function
     var original = Chart.defaults.global.legend.onClick;

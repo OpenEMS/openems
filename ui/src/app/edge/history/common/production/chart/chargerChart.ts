@@ -10,7 +10,6 @@ import { ChannelFilter, ChartData } from '../../../shared';
 export class ChargerChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): ChartData {
-    this.spinnerId = 'production-chart' + this.component.id;
     return {
       channel:
         [{

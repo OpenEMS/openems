@@ -11,7 +11,6 @@ import { ChannelFilter, ChartData } from '../../../shared';
 export class TotalDcChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): ChartData {
-    this.spinnerId = 'productionMeter-chart';
     return {
       channel:
         [
