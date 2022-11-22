@@ -114,19 +114,19 @@ public final class PgEdgeHandler {
 	 * Updates the ProductType for an Edge-ID.
 	 * 
 	 * @param odooId      the Odoo-ID
-	 * @param productType the ProductType
+	 * @param producttype the ProductType
 	 * @throws OpenemsNamedException on error
 	 * @throws SQLException          on error
 	 */
-	public void updateProductType(int odooId, String productType) throws SQLException, OpenemsNamedException {
+	public void updateProductType(int odooId, String producttype) throws SQLException, OpenemsNamedException {
 		try (var con = this.dataSource.getConnection(); //
 				var pst = con.prepareStatement(new StringBuilder() //
 						.append("UPDATE ").append(EdgeDevice.ODOO_TABLE) //
 						.append(" SET ") //
-						.append(EdgeDevice.PRODUCT_TYPE.id()).append(" = ?") //
+						.append(EdgeDevice.PRODUCTTYPE.id()).append(" = ?") //
 						.append(" WHERE id = ?") //
 						.toString())) {
-			pst.setString(1, productType);
+			pst.setString(1, producttype);
 			pst.setInt(2, odooId);
 			pst.execute();
 		}
@@ -175,7 +175,7 @@ public final class PgEdgeHandler {
 				var st = con.createStatement()) {
 			st.executeUpdate(new StringBuilder() //
 					.append("UPDATE ").append(EdgeDevice.ODOO_TABLE) //
-					.append(" SET ").append(Field.EdgeDevice.LAST_MESSAGE.id()).append(" = (now() at time zone 'UTC')") //
+					.append(" SET ").append(Field.EdgeDevice.LASTMESSAGE.id()).append(" = (now() at time zone 'UTC')") //
 					.append(" WHERE id IN (") //
 					.append(odooIds.stream() //
 							.map(String::valueOf) //

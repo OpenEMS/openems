@@ -55,11 +55,11 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	}
 
 	/**
-	 * Provides a factory for {@link AppConfiguration}s.
+	 * Provides a factory for {@link AppConfiguration AppConfigurations}.
 	 *
 	 * @return a {@link ThrowingFunction} that creates a {@link AppConfiguration}
 	 *         from a {@link EnumMap} of configuration properties for a given
-	 *         {@link ConfigurationTarget}.
+	 *         {@link ConfigurationTarget} in the specified language.
 	 */
 	protected abstract ThrowingTriFunction<//
 			ConfigurationTarget, // ADD, UPDATE, VALIDATE, DELETE or TEST

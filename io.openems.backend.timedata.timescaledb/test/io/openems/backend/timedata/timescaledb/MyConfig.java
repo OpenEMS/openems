@@ -52,7 +52,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.isReadOnly = isReadOnly;
 			return this;
 		}
-		
+
 		public Builder setPoolSize(int poolSize) {
 			this.poolSize = poolSize;
 			return this;

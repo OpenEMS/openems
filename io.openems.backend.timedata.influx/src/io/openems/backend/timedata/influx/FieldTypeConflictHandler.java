@@ -48,6 +48,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("_component0/_PropertyThreshold", RequiredType.STRING);
 		this.createAndAddHandler("_cycle/_PropertyCycleTime", RequiredType.INTEGER);
 		this.createAndAddHandler("activepowerfrequencycharacteristic0/DebugSetTargetGridSetpoint", RequiredType.FLOAT);
+		this.createAndAddHandler("airCon0/_PropertyModbusUnitId", RequiredType.INTEGER);
 		this.createAndAddHandler("battery0/Tower1BmsSerialNumber", RequiredType.STRING);
 		this.createAndAddHandler("batteryInverter0/Dca", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverter1/Dca", RequiredType.INTEGER);
@@ -70,13 +71,16 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("batteryInverterA2/_PropertyActivateWatchdog", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA2/_PropertyTimeLimitNoPower", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA2/_PropertyWatchdoginterval", RequiredType.INTEGER);
+		this.createAndAddHandler("batteryInverterA2/Dca", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterA3/_PropertyActivateWatchdog", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB1/_PropertyActivateWatchdog", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB1/_PropertyTimeLimitNoPower", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB1/_PropertyWatchdoginterval", RequiredType.INTEGER);
+		this.createAndAddHandler("batteryInverterB1/Dca", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB2/_PropertyActivateWatchdog", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB2/_PropertyTimeLimitNoPower", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB2/_PropertyWatchdoginterval", RequiredType.INTEGER);
+		this.createAndAddHandler("batteryInverterB2/Dca", RequiredType.INTEGER);
 		this.createAndAddHandler("batteryInverterB3/_PropertyActivateWatchdog", RequiredType.INTEGER);
 		this.createAndAddHandler("bms0/_PropertyWatchdog", RequiredType.STRING);
 		this.createAndAddHandler("bms1/_PropertyMaxAllowedCurrentDifference", RequiredType.INTEGER);
@@ -346,6 +350,8 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("ess0/_PropertyMaxBatteryPower", RequiredType.STRING);
 		this.createAndAddHandler("ess0/_PropertyTargetFrequencyOffGrid", RequiredType.STRING);
 		this.createAndAddHandler("ess1/_PropertyMaxBatteryPower", RequiredType.STRING);
+		this.createAndAddHandler("ess1/SerialNumber", RequiredType.STRING);
+		this.createAndAddHandler("ess2/SerialNumber", RequiredType.STRING);
 		this.createAndAddHandler("evcs0/RawActiveCurrentL1", RequiredType.STRING);
 		this.createAndAddHandler("evcs0/RawActiveCurrentL2", RequiredType.STRING);
 		this.createAndAddHandler("evcs0/RawActiveCurrentL3", RequiredType.STRING);

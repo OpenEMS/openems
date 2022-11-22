@@ -12,10 +12,14 @@
                     <ion-icon [color]="evcsComponent.properties['minHwCurrent'] === 10000 ? 'success' : ''"
                         name="car-outline"></ion-icon>
                 </ion-button>
-                <ion-button target="_blank"
-                    href="https://docs.fenecon.de/{{service.getDocsLang()}}/_/latest/fems/fems-app/evcs-keba.html">
-                    <ion-icon name="help-circle-outline"></ion-icon>
-                </ion-button>
+
+                <ng-container [ngSwitch]="evcsComponent.factoryId">
+                    <oe-help-button *ngSwitchCase="'Evcs.Keba.KeContact'" key="EVCS_KEBA_KECONTACT"></oe-help-button>
+                    <oe-help-button *ngSwitchCase="'Evcs.HardyBarth'" key="EVCS_HARDY_BARTH"></oe-help-button>
+                    <oe-help-button *ngSwitchCase="'Evcs.Ocpp.IesKeywattSingle'" key="EVCS_OCPP_IESKEYWATTSINGLE">
+                    </oe-help-button>
+                </ng-container>
+
                 <ion-button (click)="modalCtrl.dismiss()">
                     <ion-icon name="close-outline"></ion-icon>
                 </ion-button>

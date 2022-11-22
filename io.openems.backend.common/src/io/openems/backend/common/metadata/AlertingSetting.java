@@ -1,20 +1,31 @@
 package io.openems.backend.common.metadata;
 
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 import io.openems.common.session.Role;
 
 public class AlertingSetting {
+	private final int id;
 	private final String userId;
 	private final Role userRole;
 	private final ZonedDateTime lastNotification;
 	private final int delayTime;
 
-	public AlertingSetting(String userId, Role userRole, ZonedDateTime lastNotification, int delayTime) {
+	public AlertingSetting(String userId, int delayTime) {
+		this(0, userId, null, null, delayTime);
+	}
+
+	public AlertingSetting(int id, String userId, Role userRole, ZonedDateTime lastNotification, int delayTime) {
+		this.id = id;
 		this.userId = userId;
 		this.userRole = userRole;
 		this.lastNotification = lastNotification;
 		this.delayTime = delayTime;
+	}
+
+	public int getId() {
+		return this.id;
 	}
 
 	public String getUserId() {
@@ -31,5 +42,22 @@ public class AlertingSetting {
 
 	public int getDelayTime() {
 		return this.delayTime;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || this.getClass() != obj.getClass()) {
+			return false;
+		}
+		var other = (AlertingSetting) obj;
+		return this.id == other.id;
 	}
 }

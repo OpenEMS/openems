@@ -44,8 +44,8 @@ public class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 		var p = r.getParams();
 		var timezoneDiff = JsonUtils.getAsInt(p, "timezone");
 		var timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
-		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
-		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
+		var fromDate = JsonUtils.getAsZonedDateWithZeroTime(p, "fromDate", timezone);
+		var toDate = JsonUtils.getAsZonedDateWithZeroTime(p, "toDate", timezone).plusDays(1);
 		return new QueryHistoricTimeseriesExportXlxsRequest(r, fromDate, toDate);
 
 	}

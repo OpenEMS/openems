@@ -176,7 +176,7 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 
 		// Check conditions for force on mode
 		if (this.config.automaticForceOnCtrlEnabled() && surplusPower > this.config.automaticForceOnSurplusPower()
-				&& soc > this.config.automaticForceOnSoc()) {
+				&& soc >= this.config.automaticForceOnSoc()) {
 			this.forceOnState.switchOn();
 			return;
 		}

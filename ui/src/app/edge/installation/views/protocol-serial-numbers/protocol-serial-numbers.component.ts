@@ -72,6 +72,11 @@ export class ProtocolSerialNumbersComponent implements OnInit {
     }
 
     for (const form of this.forms) {
+      for (const fieldSetting of form.fieldSettings) {
+        if (fieldSetting.form.invalid) {
+          return;
+        }
+      }
       if (form.formTower.invalid) {
         return;
       }

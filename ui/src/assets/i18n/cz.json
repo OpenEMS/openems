@@ -361,7 +361,7 @@
           "timeCountdown": "Čas začít"
         },
         "HeatPump": {
-          "aboveSoc": "a o stavu poplatku za",
+          "aboveSoc": "a od státu nabití",
           "belowSoc": "a za stavu nabití",
           "gridBuy": "Z mřížkového nákupu",
           "gridSell": "Z nadměrného napájení",
@@ -501,12 +501,12 @@
           "error": "Chyba při načítání nastavení"
         },
         "interval": {
-          "hours": "hours",
-          "minute": "minute",
-          "minutes": "minutes",
-          "day": "day",
-          "days": "days",
-          "hour": "hour"
+          "hour": "hodina",
+          "hours": "hodiny",
+          "minute": "minuta",
+          "minutes": "minuty",
+          "day": "den",
+          "days": "dny"
         }
       },
       "App": {
