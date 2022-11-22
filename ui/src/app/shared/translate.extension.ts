@@ -53,7 +53,7 @@ export function registerTranslateExtension(translate: TranslateService) {
             {
                 name: 'max',
                 message(err, field: FormlyFieldConfig) {
-                    return translate.stream('INSTALLATION.FORM.MAX', { min: field.formControl.value });
+                    return translate.stream('INSTALLATION.FORM.MAX', { max: field.formControl.value });
                 },
             },
             {
@@ -78,6 +78,12 @@ export function registerTranslateExtension(translate: TranslateService) {
                 name: 'emsBoxSerialNumber',
                 message(err, field: FormlyFieldConfig) {
                     return serialNumber(translate, field, 10);
+                },
+            },
+            {
+                name: 'emsBoxNetztrennstelleSerialNumber',
+                message(err, field: FormlyFieldConfig) {
+                    return serialNumber(translate, field, 4);
                 },
             },
             {

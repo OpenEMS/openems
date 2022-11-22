@@ -1,3 +1,4 @@
+import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { JsonrpcResponseSuccess } from 'src/app/shared/jsonrpc/base';
 import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
@@ -504,5 +505,33 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 reject(reason);
             });
         });
+    }
+
+    public getFields(stringNr: number, numberOfModulesPerString: number) {
+
+        const fields: FormlyFieldConfig[] = this.getCommercial30SerialNumbersFields(stringNr, numberOfModulesPerString);
+
+        if (stringNr === 0) {
+
+            // Adds the ems box field only for Initial String.
+            const emsbox: FormlyFieldConfig = {
+                key: 'emsbox',
+                type: 'input',
+                templateOptions: {
+                    label: 'FEMS Netztrennstelle',
+                    required: true,
+                    placeholder: 'xxxx'
+                },
+                validators: {
+                    validation: ['emsBoxNetztrennstelleSerialNumber']
+                },
+                wrappers: ['input-serial-number']
+            }
+
+            // ems box field is added at a specific position in array, because it is always displayed at specific position in UI.
+            fields.splice(1, 0, emsbox);
+        }
+
+        return fields;
     }
 }

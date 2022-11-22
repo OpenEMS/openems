@@ -11,7 +11,7 @@ import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category } from '../../shared/category';
 import { FeedInSetting, FeedInType } from '../../shared/enums';
 import { ComponentData, SerialNumberFormData } from '../../shared/ibndatatypes';
-import { ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
+import { BaseMode, ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { SafetyCountry } from '../../views/configuration-execute/safety-country';
 import { AcPv } from '../../views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
 import { DcPv } from '../../views/protocol-pv/protocol-pv.component';
@@ -1025,14 +1025,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     // TODO remove
     // system not updated => newest appManager not available
     const isAppManagerAvailable: boolean = AppCenterUtil.isAppManagerAvailable(edge)
-    const confModeRemoveAndConfigure: ConfigurationMode = isAppManagerAvailable ?
-      ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveAndConfigure;
-
-    const confModeRemoveOnly: ConfigurationMode = isAppManagerAvailable ?
-      ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveOnly;
-
-    const confModeUpdateOnly: ConfigurationMode = isAppManagerAvailable ?
-      ConfigurationMode.CreatedByAppManager : ConfigurationMode.UpdateOnly;
+    const baseMode = isAppManagerAvailable ? BaseMode.AppManager : BaseMode.UI;
 
     if (isAppManagerAvailable) {
       componentConfigurator.addInstallAppCallback(() => {
@@ -1080,7 +1073,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'logVerbosity', value: 'NONE' },
         { name: 'invalidateElementsAfterReadErrors', value: 1 },
       ],
-      mode: confModeRemoveAndConfigure,
+      mode: ConfigurationMode.RemoveAndConfigure,
+      baseMode: baseMode
     });
 
     // modbus0
@@ -1098,7 +1092,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'logVerbosity', value: 'NONE' },
         { name: 'invalidateElementsAfterReadErrors', value: 1 },
       ],
-      mode: confModeRemoveAndConfigure,
+      mode: ConfigurationMode.RemoveAndConfigure,
+      baseMode: baseMode
     });
 
     // meter0
@@ -1111,7 +1106,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'modbus.id', value: 'modbus1' },
         { name: 'modbusUnitId', value: 247 },
       ],
-      mode: confModeRemoveAndConfigure,
+      mode: ConfigurationMode.RemoveAndConfigure,
+      baseMode: baseMode
     });
 
     // io0
@@ -1124,7 +1120,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'modbus.id', value: 'modbus0' },
         { name: 'modbusUnitId', value: 2 },
       ],
-      mode: confModeRemoveAndConfigure,
+      mode: ConfigurationMode.RemoveAndConfigure,
+      baseMode: baseMode
     });
 
     // battery0
@@ -1138,7 +1135,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'modbus.id', value: 'modbus0' },
         { name: 'modbusUnitId', value: 1 },
       ],
-      mode: confModeRemoveAndConfigure,
+      mode: ConfigurationMode.RemoveAndConfigure,
+      baseMode: baseMode
     });
 
     // batteryInverter0
@@ -1163,7 +1161,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
             : 'ENABLE',
         },
       ],
-      mode: confModeRemoveAndConfigure,
+      mode: ConfigurationMode.RemoveAndConfigure,
+      baseMode: baseMode
     }
 
     feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
@@ -1191,40 +1190,42 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'modbusUnitId', value: acModbusUnitId },
         { name: 'invert', value: false },
       ],
-      mode: isAcCreated
-        ? confModeRemoveAndConfigure
-        : confModeRemoveOnly,
+
+      mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+      baseMode: baseMode
     });
+
+
     // charger0
     componentConfigurator.add({
       factoryId: 'GoodWe.Charger-PV1',
       componentId: 'charger0',
-      alias: this.pv.dc1.alias,
+      alias: this.pv.dc1.alias ?? "MPPT 1",
       properties: [
         { name: 'enabled', value: true },
         { name: 'essOrBatteryInverter.id', value: 'batteryInverter0' },
         { name: 'modbus.id', value: 'modbus1' },
         { name: 'modbusUnitId', value: 247 },
       ],
-      mode: this.pv.dc1.isSelected
-        ? confModeRemoveAndConfigure
-        : confModeRemoveOnly,
+      mode: this.pv.dc1.isSelected ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+      baseMode: baseMode
     });
+
     // charger1
     componentConfigurator.add({
       factoryId: 'GoodWe.Charger-PV2',
       componentId: 'charger1',
-      alias: this.pv.dc2.alias,
+      alias: this.pv.dc2.alias ?? "MPPT 2",
       properties: [
         { name: 'enabled', value: true },
         { name: 'essOrBatteryInverter.id', value: 'batteryInverter0' },
         { name: 'modbus.id', value: 'modbus1' },
         { name: 'modbusUnitId', value: 247 },
       ],
-      mode: this.pv.dc2.isSelected
-        ? confModeRemoveAndConfigure
-        : confModeRemoveOnly,
+      mode: this.pv.dc2.isSelected ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+      baseMode: baseMode
     });
+
     // ess0
     componentConfigurator.add({
       factoryId: 'Ess.Generic.ManagedSymmetric',
@@ -1236,8 +1237,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'batteryInverter.id', value: 'batteryInverter0' },
         { name: 'battery.id', value: 'battery0' },
       ],
-      mode: confModeRemoveAndConfigure,
+      mode: ConfigurationMode.RemoveAndConfigure,
+      baseMode: baseMode
     });
+
     // predictor0
     componentConfigurator.add({
       factoryId: 'Predictor.PersistenceModel',
@@ -1250,8 +1253,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           value: ['_sum/ProductionActivePower', '_sum/ConsumptionActivePower'],
         },
       ],
-      mode: confModeRemoveAndConfigure,
+      mode: ConfigurationMode.RemoveAndConfigure,
+      baseMode: baseMode
     });
+
     // ctrlGridOptimizedCharge0
     let gridOptimizedCharge = {
       factoryId: 'Controller.Ess.GridOptimizedCharge',
@@ -1266,7 +1271,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'debugMode', value: false },
         { name: 'sellToGridLimitRampPercentage', value: 2 },
       ],
-      mode: confModeRemoveAndConfigure,
+      mode: ConfigurationMode.RemoveAndConfigure,
+      baseMode: baseMode
     }
 
     feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
@@ -1292,8 +1298,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'enabled', value: true },
         { name: 'ess.id', value: 'ess0' },
       ],
-      mode: confModeRemoveAndConfigure,
+      mode: ConfigurationMode.RemoveAndConfigure,
+      baseMode: baseMode
     });
+
     // ctrlBalancing0
     componentConfigurator.add({
       factoryId: 'Controller.Symmetric.Balancing',
@@ -1305,7 +1313,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'meter.id', value: 'meter0' },
         { name: 'targetGridSetpoint', value: 0 },
       ],
-      mode: confModeRemoveAndConfigure,
+      mode: ConfigurationMode.RemoveAndConfigure,
+      baseMode: baseMode
     });
 
     componentConfigurator.add({
@@ -1317,9 +1326,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'modbus.id', value: 'modbus1' },
         { name: 'modbusUnitId', value: 247 },
       ],
-      mode: this.emergencyReserve.isEnabled
-        ? confModeRemoveAndConfigure
-        : confModeRemoveOnly,
+      mode: this.emergencyReserve.isEnabled ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+      baseMode: baseMode
     });
     componentConfigurator.add({
       factoryId: 'Controller.Ess.EmergencyCapacityReserve',
@@ -1334,9 +1342,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           value: this.emergencyReserve.value ?? 5 /* minimum allowed value */,
         },
       ],
-      mode: this.emergencyReserve.isEnabled
-        ? confModeRemoveAndConfigure
-        : confModeRemoveOnly,
+      mode: this.emergencyReserve.isEnabled ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+      baseMode: baseMode
     });
 
     componentConfigurator.add({
@@ -1346,7 +1353,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       properties: [
         { name: 'enablePid', value: false },
       ],
-      mode: confModeUpdateOnly
+      mode: ConfigurationMode.UpdateOnly,
+      baseMode: baseMode
     });
 
     return componentConfigurator;

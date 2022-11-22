@@ -119,11 +119,17 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
         return fields;
     }
 
-    public getFields(towerNr: number, numberOfModulesPerTower: number) {
-
+    /**
+     * Returns thhe common serial number fields for commercial systems.
+     * 
+     * @param stringNr Number of Strings configured.
+     * @param numberOfModulesPerString Number of Modules per String.
+     * @returns the fields.
+     */
+    protected getCommercial30SerialNumbersFields(stringNr: number, numberOfModulesPerString: number): FormlyFieldConfig[] {
         const fields: FormlyFieldConfig[] = [];
 
-        if (towerNr === 0) {
+        if (stringNr === 0) {
 
             fields.push({
                 key: 'batteryInverter',
@@ -141,21 +147,6 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
             });
 
             fields.push({
-                key: 'femsBox',
-                type: 'input',
-                templateOptions: {
-                    label: 'FEMS Anschlussbox/Netztrennstelle',
-                    required: true,
-                    prefix: 'FC',
-                    placeholder: 'xxxxxxxxx'
-                },
-                validators: {
-                    validation: ['emsBoxSerialNumber']
-                },
-                wrappers: ['input-serial-number']
-            });
-
-            fields.push({
                 key: 'bmsBox',
                 type: 'input',
                 templateOptions: {
@@ -164,7 +155,6 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                     prefix: 'WSDEM3822',
                     placeholder: 'xxxxxxxxxx'
                 },
-                // hideExpression: model => model.bmsComponent !== 'master',
                 validators: {
                     validation: ['commercialBmsBoxSerialNumber']
                 },
@@ -180,7 +170,6 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                     prefix: 'WSDESM3822',
                     placeholder: 'xxxxxxxxxx'
                 },
-                // hideExpression: model => model.bmsComponent !== 'submaster',
                 validators: {
                     validation: ['commercialBmsBoxSerialNumber']
                 },
@@ -188,24 +177,7 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
             });
         }
 
-        // Bms Master and Submaster.
-        // const bmsComponents = ([
-        //     { value: "master", label: "Master" },
-        //     { value: "submaster", label: "Submaster" }
-        // ]);
-
-        // fields.push({
-        //     key: "bmsComponent",
-        //     type: "select",
-        //     templateOptions: {
-        //         label: 'BMS Box',
-        //         options: bmsComponents,
-        //         required: true
-        //     },
-        //     wrappers: ['formly-select-field-wrapper']
-        // });
-
-        for (let moduleNr = 0; moduleNr < numberOfModulesPerTower; moduleNr++) {
+        for (let moduleNr = 0; moduleNr < numberOfModulesPerString; moduleNr++) {
             fields.push({
                 key: 'module' + moduleNr,
                 type: 'input',
@@ -223,5 +195,6 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
             });
         }
         return fields;
+
     }
 }
