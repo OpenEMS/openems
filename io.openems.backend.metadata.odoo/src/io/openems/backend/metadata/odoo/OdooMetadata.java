@@ -313,8 +313,8 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 		}
 			break;
 
-		case Edge.Events.ON_SET_LAST_MESSAGE_TIMESTAMP: {
-			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetLastMessageTimestamp.EDGE);
+		case Edge.Events.ON_SET_LASTMESSAGE: {
+			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetLastmessage.EDGE);
 			// Set LastMessage timestamp in Odoo/Postgres
 			this.postgresHandler.getPeriodicWriteWorker().onLastMessage(edge);
 		}

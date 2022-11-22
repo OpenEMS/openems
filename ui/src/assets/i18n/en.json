@@ -505,7 +505,8 @@
     "loggedInAs": "Logged in as:",
     "toEnergymonitor": "To Energymonitor...",
     "type": "Type",
-    "addEdge": "Add new {{ edgeShortName }}"
+    "OFFLINE_SINCE": "Offline since",
+    "ADD_EDGE": "Add new {{ edgeShortName }}"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",

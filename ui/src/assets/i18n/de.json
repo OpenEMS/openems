@@ -505,7 +505,8 @@
     "loggedInAs": "Angemeldet als:",
     "toEnergymonitor": "Zum Energiemonitor...",
     "type": "Typ",
-    "addEdge": "Neues {{ edgeShortName }} hinzufügen"
+    "OFFLINE_SINCE": "Offline seit",
+    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",

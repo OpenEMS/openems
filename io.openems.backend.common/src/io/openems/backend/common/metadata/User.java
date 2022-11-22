@@ -80,7 +80,8 @@ public class User extends AbstractUser {
 						edge.getProducttype(), // Product-Type
 						edge.getVersion(), // Version
 						role, // Role
-						edge.isOnline() // Online-State
+						edge.isOnline(), // Online-State
+						edge.getLastmessage() // Last-Message Timestamp
 				));
 			}
 		}
