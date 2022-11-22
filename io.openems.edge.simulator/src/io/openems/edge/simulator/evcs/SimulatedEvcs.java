@@ -17,7 +17,6 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -40,6 +39,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
 public class SimulatedEvcs extends AbstractManagedEvcsComponent
@@ -65,8 +65,8 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 
 	public SimulatedEvcs() {
 
-		// TODO: Remove this AsymmetricMeterEvcs if we have added another Meter Nature
-		// and a EVCS would be automatically a meter.
+		// TODO: Remove AsymmetricMeterEvcs if the EVCS Nature already implements a new
+		// or parts of the Meter Nature
 		// Therefore, some of the EVCS Nature Channels have to be changed or removed.
 		// Omit SymmetricMeter and add AsymmetricMeterEvcs because of duplicated default
 		// set and get methods in EVCS and SymmetricMeter.
@@ -120,35 +120,21 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 	private double exactEnergySession = 0;
 
 	private void updateChannels() {
-		int chargePowerLimit = this.getChargePowerChannel().getNextValue().orElse(0);
-
-		var chargePowerLimitOpt = this.getSetChargePowerLimitChannel().getNextWriteValueAndReset();
-		if (chargePowerLimitOpt.isPresent()) {
-			chargePowerLimit = chargePowerLimitOpt.get();
-		}
-		try {
-			if (chargePowerLimit > this.getChargePower().orElse(0)) {
-				this.setChargePowerLimitWithFilter(chargePowerLimit);
-			} else {
-				this.setChargePowerLimit(chargePowerLimit);
-			}
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-		}
-		int sentPower = this.getSetChargePowerLimitChannel().getNextValue().orElse(0);
-		this._setSetChargePowerLimit(sentPower);
-		this._setChargePower(sentPower);
+		int chargePowerLimit = this.getSetChargePowerLimit().orElse(0);
+		this._setChargePower(chargePowerLimit);
 
 		/*
-		 * get and store Simulated "meter" Active Power
+		 * Set Simulated "meter" Active Power
 		 */
-		this._setActivePower(sentPower);
-
-		var simulatedActivePowerByThree = TypeUtils.divide(sentPower, 3);
+		this._setActivePower(chargePowerLimit);
+		var simulatedActivePowerByThree = TypeUtils.divide(chargePowerLimit, 3);
 		this._setActivePowerL1(simulatedActivePowerByThree);
 		this._setActivePowerL2(simulatedActivePowerByThree);
 		this._setActivePowerL3(simulatedActivePowerByThree);
 
+		/*
+		 * Set calculated energy
+		 */
 		var timeDiff = ChronoUnit.MILLIS.between(this.lastUpdate, LocalDateTime.now());
 		var energyTransfered = timeDiff / 1000.0 / 60.0 / 60.0 * this.getChargePower().orElse(0);
 
@@ -180,7 +166,7 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 
 	@Override
 	public boolean getConfiguredDebugMode() {
-		return true;
+		return false;
 	}
 
 	@Override
@@ -228,6 +214,9 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 
 	@Override
 	public MeterType getMeterType() {
-		return MeterType.CONSUMPTION_NOT_METERED;
+		// TODO: This should be `MeterType.CONSUMPTION_METERED`, once Evcs actually
+		// implements Meter. For now this quick fix solves issues with calculating
+		// `_sum/GridActivePower`.
+		return MeterType.GRID;
 	}
 }

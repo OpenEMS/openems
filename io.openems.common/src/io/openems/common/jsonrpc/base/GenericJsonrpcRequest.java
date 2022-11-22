@@ -92,6 +92,11 @@ public class GenericJsonrpcRequest extends JsonrpcRequest {
 		this.params = params;
 	}
 
+	public GenericJsonrpcRequest(String method, JsonObject params) {
+		super(method);
+		this.params = params;
+	}
+
 	@Override
 	public JsonObject getParams() {
 		return this.params;

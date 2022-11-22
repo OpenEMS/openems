@@ -16,7 +16,7 @@ apt install gnupg postgresql-common apt-transport-https lsb-release wget
 
 curl -s https://packagecloud.io/install/repositories/timescale/timescaledb/script.deb.sh | bash
 
-apt install timescaledb-2-postgresql-14
+apt install timescaledb-2-postgresql-14 timescaledb-tools
 
 timescaledb-tune --quiet --yes
 

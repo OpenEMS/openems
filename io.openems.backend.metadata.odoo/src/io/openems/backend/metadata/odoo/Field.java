@@ -163,9 +163,6 @@ public interface Field {
 		DEVICE_ODOO_ID("device_id", false), //
 		USER_ODOO_ID("user_id", true), //
 		ROLE("role", false), //
-
-		USER_ID("(SELECT login FROM res_users ru WHERE ru.id = user_id)", true), //
-
 		TIME_TO_WAIT("time_to_wait", true), //
 		LAST_NOTIFICATION("last_notification", true), //
 		; //

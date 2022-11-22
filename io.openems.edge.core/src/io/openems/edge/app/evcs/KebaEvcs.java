@@ -54,10 +54,13 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 public class KebaEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
 
 	public enum Property implements DefaultEnum {
-		ALIAS("KEBA Ladestation"), //
+		// Component-IDs
 		EVCS_ID("evcs0"), //
 		CTRL_EVCS_ID("ctrlEvcs0"), //
-		IP("192.168.25.11");
+		// Properties
+		ALIAS("KEBA Ladestation"), //
+		IP("192.168.25.11") //
+		;
 
 		private final String defaultValue;
 
@@ -91,8 +94,11 @@ public class KebaEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
 
 			var components = this.getComponents(evcsId, alias, "Evcs.Keba.KeContact", ip, ctrlEvcsId);
 
-			return new AppConfiguration(components, Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"),
-					ip.startsWith("192.168.25.") ? Lists.newArrayList("192.168.25.10/24") : null);
+			return new AppConfiguration(//
+					components, //
+					Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"), //
+					ip.startsWith("192.168.25.") ? Lists.newArrayList("192.168.25.10/24") : null //
+			);
 		};
 	}
 
@@ -104,7 +110,7 @@ public class KebaEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
 						.add(JsonFormlyUtil.buildInput(Property.IP) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
 								.setDescription(
-										TranslationUtil.getTranslation(bundle, this.getAppId() + ".Ip.description"))
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".ip.description"))
 								.setDefaultValue(Property.IP.getDefaultValue()) //
 								.isRequired(true) //
 								.setValidation(Validation.IP) //

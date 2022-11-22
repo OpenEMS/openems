@@ -165,8 +165,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthentication(WsData wsData, UUID requestId, User user)
 			throws OpenemsNamedException {
-		this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] connected.");
-
 		wsData.setUserId(user.getId());
 		wsData.setToken(user.getToken());
 		return CompletableFuture.completedFuture(new AuthenticateResponse(requestId, user.getToken(), user,

@@ -36,7 +36,13 @@
               <ion-icon slot="start" name="person-outline" color="primary"></ion-icon>
               <ion-label>
                 <span translate>Menu.otherUser</span>{{' - '}}
-                {{('Role.' + info.role) | translate}}
+                <span [ngSwitch]="info.role">
+                  <span *ngSwitchCase="'admin'" translate>Role.admin</span>
+                  <span *ngSwitchCase="'installer'" translate>Role.installer</span>
+                  <span *ngSwitchCase="'owner'" translate>Role.owner</span>
+                  <span *ngSwitchCase="'guest'" translate>Role.guest</span>
+                  <span *ngSwitchDefault translate>General.fault</span>
+                </span>
               </ion-label>
             </ion-item>
 
@@ -80,14 +86,9 @@
                         <ion-select class="custom-options" interface="popover" formControlName="delayTime"
                           style="max-width: 100% !important; margin: 0; padding: 0;"
                           *ngIf="info.form.value[user.userId].isActivated">
-                          <ion-select-option *ngFor="let option of Delays" [value]="option.value">
+                          <ion-select-option *ngFor="let option of user.options" [value]="option.value">
                             {{option.label}}
                           </ion-select-option>
-                          <ng-container *ngIf="info.form.value[user.userId].delayTime as delay">
-                            <ion-select-option *ngIf="isInvalidDelay(delay)" [value]="delay">
-                              {{getLabelToDelay(delay)}}
-                            </ion-select-option>
-                          </ng-container>
                         </ion-select>
                       </ion-col>
                     </ion-row>

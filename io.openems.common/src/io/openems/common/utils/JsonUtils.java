@@ -4,7 +4,7 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -46,7 +46,7 @@ public class JsonUtils {
 	 * 
 	 * @return list as JsonArray
 	 */
-	public static <T> JsonArray generateJsonArray(List<T> list, Function<T, JsonElement> convert) {
+	public static <T> JsonArray generateJsonArray(Collection<T> list, Function<T, JsonElement> convert) {
 		if (list == null) {
 			return null;
 		} else {
@@ -1285,7 +1285,7 @@ public class JsonUtils {
 	 * Gets the {@link JsonElement} as {@link Optional} {@link UUID}.
 	 *
 	 * @param jElement the {@link JsonElement}
-	 * @return the {@link Optional} {@link Inet4Address} value
+	 * @return the {@link Optional} {@link UUID} value
 	 * @throws OpenemsNamedException on error
 	 */
 	// CHECKSTYLE:OFF
@@ -1997,7 +1997,7 @@ public class JsonUtils {
 	}
 
 	private static Inet4Address toInet4Address(String name) {
-		if (name == null) {
+		if (name == null || name.isBlank()) {
 			return null;
 		}
 		try {
@@ -2011,7 +2011,7 @@ public class JsonUtils {
 	// CHECKSTYLE:OFF
 	private static UUID toUUID(String value) {
 		// CHECKSTYLE:ON
-		if (value == null) {
+		if (value == null || value.isBlank()) {
 			return null;
 		}
 		try {

@@ -1,4 +1,4 @@
-package io.openems.backend.timedata.timescaledb;
+package io.openems.backend.timedata.timescaledb.internal;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -8,24 +8,113 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.gson.JsonElement;
 import com.zaxxer.hikari.HikariDataSource;
+
+import io.openems.backend.timedata.timescaledb.internal.write.Point;
+import io.openems.common.types.ChannelAddress;
 
 public class Schema {
 
-	public static class ChannelMeta {
+	public static class ChannelRecord {
 		public final int id;
 		public final Type type;
 
-		public ChannelMeta(int id, Type type) {
+		public ChannelRecord(int id, Type type) {
 			this.id = id;
 			this.type = type;
 		}
 	}
 
-	private final Map<String /* Edge-ID */, //
-			Map<String /* Component-ID */, //
-					Map<String /* Channel-ID */, //
-							ChannelMeta /* Meta-Info for Channel */>>> channels;
+	private static class Cache {
+
+		/**
+		 * Queries the existing data type mappings.
+		 * 
+		 * @param stmnt {@link Statement}
+		 * @return the {@link Cache}
+		 * @throws SQLException on error
+		 */
+		private static Cache fromDatabase(Statement stmnt) throws SQLException {
+			var resultSet = stmnt.executeQuery("" //
+					+ "SELECT" //
+					+ "    edge.name AS edge," //
+					+ "    component.name AS component," //
+					+ "    channel.name AS channel," //
+					+ "    channel.id AS channelId," //
+					+ "    channel.type AS type " //
+					+ "FROM \"edge\" " //
+					+ "INNER JOIN \"component\" " //
+					+ "ON edge.id = component.edge_id" //
+					+ "    INNER JOIN \"channel\"" //
+					+ "    ON component.id = channel.component_id;"); //
+			var cache = new Cache();
+			while (resultSet.next()) {
+				var edge = resultSet.getString("edge");
+				var component = resultSet.getString("component");
+				var channel = resultSet.getString("channel");
+				var channelId = resultSet.getInt("channelId");
+				var channelType = resultSet.getInt("type");
+				cache.add(edge, component, channel, channelId, channelType);
+			}
+			return cache;
+		}
+
+		private final Map<String /* Edge-ID */, //
+				Map<String /* Component-ID */, //
+						Map<String /* Channel-ID */, //
+								ChannelRecord /* Meta-Info for Channel */>>> channels = new HashMap<String, Map<String, Map<String, ChannelRecord>>>();
+
+		protected Cache() {
+		}
+
+		/**
+		 * Adds a {@link ChannelRecord} to the given Cache Map.
+		 * 
+		 * @param edgeName      the Edge-Name
+		 * @param componentName the Component-Name
+		 * @param channelName   the Channel-Name
+		 * @param channelId     the Channel-Database-ID
+		 * @param typeId        the Type Database-ID
+		 * @return the {@link ChannelRecord}
+		 */
+		public synchronized ChannelRecord add(String edgeName, String componentName, String channelName, int channelId,
+				int typeId) {
+			var type = Type.fromId(typeId);
+			var edge = this.channels.computeIfAbsent(edgeName, //
+					(k) -> new HashMap<String, Map<String, ChannelRecord>>());
+			var component = edge.computeIfAbsent(componentName, //
+					(k) -> new HashMap<String, ChannelRecord>());
+			var channel = component.computeIfAbsent(channelName, //
+					(k) -> new ChannelRecord(channelId, type));
+			return channel;
+		}
+
+		/**
+		 * Gets the {@link ChannelRecord} from local Cache.
+		 * 
+		 * @param edgeId      the Edge-ID
+		 * @param componentId the Component-ID
+		 * @param channelId   the Channel-ID
+		 * @return the {@link ChannelRecord} with a database ID for table 'channel',
+		 *         null if there is no entry yet
+		 */
+		public ChannelRecord get(String edgeId, String componentId, String channelId) {
+			var edge = this.channels.get(edgeId);
+			if (edge == null) {
+				return null;
+			}
+			var component = edge.get(componentId);
+			if (component == null) {
+				return null;
+			}
+			var channel = component.get(channelId);
+			if (channel == null) {
+				return null;
+			}
+			return channel;
+		}
+	}
 
 	/**
 	 * Initialize the database Schema and the Channels Cache.
@@ -42,7 +131,6 @@ public class Schema {
 			createTableEdge(stmnt);
 			createTableComponent(stmnt);
 			createTableChannel(stmnt);
-			createViewMeta(stmnt);
 
 			// Create PL/SQL functions
 			createFunctionGetOrCreateChannelId(stmnt);
@@ -55,90 +143,86 @@ public class Schema {
 				createContinuousAggregate5m(stmnt, type);
 			}
 
-			var channels = queryTypes(stmnt);
-			return new Schema(channels);
+			var cache = Cache.fromDatabase(stmnt);
+			return new Schema(cache);
 		}
 	}
 
-	private Schema(Map<String, Map<String, Map<String, ChannelMeta>>> channels) {
-		this.channels = channels;
+	private final Cache cache;
+
+	private Schema(Cache cache) {
+		this.cache = cache;
 	}
 
 	/**
 	 * Gets the Channel for the given {@link Point}. Adds it if it was not existing
 	 * before.
 	 * 
-	 * @param point the {@link Point}
-	 * @param con   a database {@link Connection}, in case the entry needs to be
-	 *              added
-	 * @return the {@link ChannelMeta}; or null if not in Cache and type cannot be
+	 * @param con            a database {@link Connection}, in case the entry needs
+	 *                       to be added
+	 * @param edgeId         the Edge-ID
+	 * @param channelAddress the {@link ChannelAddress}
+	 * @param value          the {@link JsonElement} value
+	 * @return the {@link ChannelRecord}; or null if not in Cache and type cannot be
 	 *         detected
 	 * @throws SQLException on error while adding
 	 */
-	public ChannelMeta getChannel(Point point, Connection con) throws SQLException {
+	public ChannelRecord getChannel(Connection con, String edgeId, ChannelAddress channelAddress, JsonElement value)
+			throws SQLException {
 		// Cache-Lookup
-		var result = this.getChannelFromCache(point.edgeId, point.channelAddress.getComponentId(),
-				point.channelAddress.getChannelId());
+		var result = this.getChannelFromCache(edgeId, channelAddress.getComponentId(), channelAddress.getChannelId());
 		if (result != null) {
 			return result;
 		}
 		// Missing in Cache -> add to database
-		var type = Type.detect(point.value);
+		var type = Type.detect(value);
 		if (type == null) {
 			// unable to detect
 			return null;
 		}
 		// Get or Create Channel-ID
-		return this.getOrCreateChannel(point, type, con);
+		return this.getOrCreateChannel(con, edgeId, channelAddress, value, type);
 	}
 
 	/**
-	 * Gets the {@link ChannelMeta} from local Cache.
+	 * Gets the {@link ChannelRecord} from local Cache.
 	 * 
 	 * @param edgeId      the Edge-ID
 	 * @param componentId the Component-ID
 	 * @param channelId   the Channel-ID
-	 * @return the database ID for table 'channel', null if there is no entry yet
+	 * @return the {@link ChannelRecord} with a database ID for table 'channel',
+	 *         null if there is no entry yet
 	 */
-	public ChannelMeta getChannelFromCache(String edgeId, String componentId, String channelId) {
-		var edge = this.channels.get(edgeId);
-		if (edge == null) {
-			return null;
-		}
-		var component = edge.get(componentId);
-		if (component == null) {
-			return null;
-		}
-		var channel = component.get(channelId);
-		if (channel == null) {
-			return null;
-		}
-		return channel;
+	public ChannelRecord getChannelFromCache(String edgeId, String componentId, String channelId) {
+		return this.cache.get(edgeId, componentId, channelId);
 	}
 
 	/**
-	 * Gets or creates the {@link ChannelMeta} in the database and adds it to the
+	 * Gets or creates the {@link ChannelRecord} in the database and adds it to the
 	 * local Cache.
 	 * 
-	 * @param point the {@link Point}
-	 * @param type  the {@link Type}
-	 * @param con   the {@link Connection}
-	 * @return the database ID for table 'channel', null if there is no entry yet
+	 * @param con            the {@link Connection}
+	 * @param edgeId         the Edge-ID
+	 * @param channelAddress the {@link ChannelAddress}
+	 * @param value          the {@link JsonElement} value
+	 * @param type           the {@link Type}
+	 * @return the {@link ChannelRecord} with a database ID for table 'channel'
 	 */
-	private ChannelMeta getOrCreateChannel(Point point, Type type, Connection con) throws SQLException {
+	private ChannelRecord getOrCreateChannel(Connection con, String edgeId, ChannelAddress channelAddress,
+			JsonElement value, Type type) throws SQLException {
 		var pst = con.prepareStatement("" //
 				+ "SELECT _channel_id, _channel_type " //
 				+ "FROM openems_get_or_create_channel_id(?, ?, ?, ?);");
-		pst.setString(1, point.edgeId);
-		pst.setString(2, point.channelAddress.getComponentId());
-		pst.setString(3, point.channelAddress.getChannelId());
+		pst.setString(1, edgeId);
+		pst.setString(2, channelAddress.getComponentId());
+		pst.setString(3, channelAddress.getChannelId());
 		pst.setInt(4, type.id);
 		var resultSet = pst.executeQuery();
 		resultSet.next();
 		var channelId = resultSet.getInt("_channel_id");
 		var channelTypeId = resultSet.getInt("_channel_type");
-		return addToCache(this.channels, point.edgeId, point.channelAddress.getComponentId(),
-				point.channelAddress.getChannelId(), channelId, channelTypeId);
+		return this.cache.add(edgeId, channelAddress.getComponentId(), channelAddress.getChannelId(), channelId,
+				channelTypeId);
 	}
 
 	/**
@@ -174,8 +258,9 @@ public class Schema {
 		stmnt.execute("" //
 				+ "CREATE TABLE IF NOT EXISTS \"component\" (" //
 				+ "    id SERIAL PRIMARY KEY," //
-				+ "	   edge_id INTEGER NOT NULL REFERENCES edge," //
+				+ "    edge_id INTEGER NOT NULL REFERENCES edge," //
 				+ "    name TEXT NOT NULL," //
+				+ "    available_since TIMESTAMPTZ," //
 				+ "    UNIQUE(edge_id, name)" //
 				+ ");");
 	}
@@ -200,35 +285,6 @@ public class Schema {
 				+ "    type INTEGER NOT NULL," //
 				+ "    UNIQUE(component_id, name)" //
 				+ ");");
-	}
-
-	/**
-	 * Creates the 'meta' view.
-	 * 
-	 * <p>
-	 * Convenient view on Edge, Component and Channel tables.
-	 * 
-	 * @param stmnt {@link Statement}
-	 * @throws SQLException on error
-	 */
-	private static void createViewMeta(Statement stmnt) throws SQLException {
-		stmnt.execute("" //
-				+ "CREATE OR REPLACE VIEW \"meta\" AS " //
-				+ "SELECT" //
-				+ "    channel.id AS channel_id," //
-				+ "    edge.name AS edge," //
-				+ "    component.name AS component," //
-				+ "    channel.name AS channel," //
-				+ "    CASE " //
-				+ Stream.of(Type.values()) //
-						.map(t -> "WHEN channel.type = " + t.id + " THEN '" + t.sqlDataType + "'") //
-						.collect(Collectors.joining(" ")) //
-				+ "    END AS type " //
-				+ "FROM edge " //
-				+ "INNER JOIN component " //
-				+ "ON edge.id = component.edge_id " //
-				+ "INNER JOIN channel " //
-				+ "ON component.id = channel.component_id;");
 	}
 
 	/**
@@ -372,17 +428,33 @@ public class Schema {
 
 		stmnt.execute("" //
 				+ "CREATE TABLE IF NOT EXISTS \"" + type.tableRaw + "\" (" //
-				+ "    time TIMESTAMPTZ NOT NULL," //
+				+ "    time TIMESTAMPTZ(3) NOT NULL," //
 				+ "    channel_id INTEGER NOT NULL," //
 				+ "    value " + type.sqlDataType + " NULL" //
 				+ ");");
 		stmnt.execute("" //
-				+ "SELECT create_hypertable('" + type.tableRaw + "', 'time', chunk_time_interval => INTERVAL '2 day');");
+				+ "SELECT create_hypertable('" + type.tableRaw
+				// TODO check intervals
+				+ "', 'time', chunk_time_interval => INTERVAL '1 hour');");
 		stmnt.execute("" //
-				+ "CREATE INDEX ix_" + type.tableRaw + "_channel_time " //
-				+ "ON " + type.tableRaw + " (time, channel_id DESC);");
+				+ "CREATE INDEX ix_" + type.tableRaw + "_time_channel " //
+				+ "ON " + type.tableRaw + " (time DESC, channel_id ASC);");
+
+		// Compression. See
+		// https://docs.timescale.com/timescaledb/latest/how-to-guides/compression/about-compression/
 		stmnt.execute("" //
-				+ "SELECT add_retention_policy('" + type.tableRaw + "', INTERVAL '31 days');");
+				+ "ALTER TABLE " + type.tableRaw + " SET (" //
+				+ "    timescaledb.compress," //
+				+ "    timescaledb.compress_segmentby = 'channel_id'" //
+				+ ");");
+		// TODO check interval parameter
+		stmnt.execute("" //
+				+ "SELECT add_compression_policy('" + type.tableRaw + "', INTERVAL '2 days');");
+
+		// TODO check retention interval vs continuous query
+		// stmnt.execute("" //
+		// + "SELECT add_retention_policy('" + type.tableRaw + "', INTERVAL '31
+		// days');");
 	}
 
 	/**
@@ -418,44 +490,29 @@ public class Schema {
 						.collect(Collectors.joining(", "))
 				+ "    FROM \"" + type.tableRaw + "\"" //
 				+ "	   GROUP BY (1,2);");
+
+		// TODO READ Hypertable for materialized view:
+		// SELECT view_name, format('%I.%I', materialization_hypertable_schema,
+		// materialization_hypertable_name) AS materialization_hypertable
+		// FROM timescaledb_information.continuous_aggregates where
+		// view_name='data_integer_5m';
+
+		// TODO Add reorder policy
+		// SELECT
+		// add_reorder_policy('_timescaledb_internal._materialized_hypertable_12',
+		// '_materialized_hypertable_12_channel_id_time_idx');
+
+		// TODO: konfiguriere chunk size
+		// SELECT set_chunk_time_interval('data_integer_raw', INTERVAL '1 hour');
+
 		stmnt.execute("" //
 				+ "SELECT add_continuous_aggregate_policy('" + type.tableAggregate5m + "'," //
+				// TODO remove start_offset temporarily to allow backfill
 				+ "     start_offset => INTERVAL '30 days'," //
 				+ "     end_offset => INTERVAL '1 hours'," //
 				+ "     schedule_interval => INTERVAL '6 hours'" //
 				+ ");");
-	}
 
-	/**
-	 * Queries the existing data type mappings.
-	 * 
-	 * @param stmnt {@link Statement}
-	 * @return the Cache
-	 * @throws SQLException on error
-	 */
-	private static Map<String, Map<String, Map<String, ChannelMeta>>> queryTypes(Statement stmnt) throws SQLException {
-		var channels = new HashMap<String, Map<String, Map<String, ChannelMeta>>>();
-		var resultSet = stmnt.executeQuery("" //
-				+ "SELECT" //
-				+ "    edge.name AS edge," //
-				+ "    component.name AS component," //
-				+ "    channel.name AS channel," //
-				+ "    channel.id AS channelId," //
-				+ "    channel.type AS type " //
-				+ "FROM \"edge\" " //
-				+ "INNER JOIN \"component\" " //
-				+ "ON edge.id = component.edge_id" //
-				+ "    INNER JOIN \"channel\"" //
-				+ "    ON component.id = channel.component_id;"); //
-		while (resultSet.next()) {
-			var edge = resultSet.getString("edge");
-			var component = resultSet.getString("component");
-			var channel = resultSet.getString("channel");
-			var channelId = resultSet.getInt("channelId");
-			var channelType = resultSet.getInt("type");
-			addToCache(channels, edge, component, channel, channelId, channelType);
-		}
-		return channels;
 	}
 
 	private static boolean doesTableExist(Statement stmnt, String tableName) throws SQLException {
@@ -467,29 +524,6 @@ public class Schema {
 				+ ");");
 		resultSet.next();
 		return resultSet.getBoolean(1);
-	}
-
-	/**
-	 * Adds a {@link ChannelMeta} to the given Cache Map.
-	 * 
-	 * @param cache         the Cache
-	 * @param edgeName      the Edge-Name
-	 * @param componentName the Component-Name
-	 * @param channelName   the Channel-Name
-	 * @param channelId     the Channel-Database-ID
-	 * @param typeId        the Type Database-ID
-	 * @return the {@link ChannelMeta}
-	 */
-	private static ChannelMeta addToCache(Map<String, Map<String, Map<String, ChannelMeta>>> cache, String edgeName,
-			String componentName, String channelName, int channelId, int typeId) {
-		var type = Type.fromId(typeId);
-		var edge = cache.computeIfAbsent(edgeName, //
-				(k) -> new HashMap<String, Map<String, ChannelMeta>>());
-		var component = edge.computeIfAbsent(componentName, //
-				(k) -> new HashMap<String, ChannelMeta>());
-		var channel = component.computeIfAbsent(channelName, //
-				(k) -> new ChannelMeta(channelId, type));
-		return channel;
 	}
 
 }

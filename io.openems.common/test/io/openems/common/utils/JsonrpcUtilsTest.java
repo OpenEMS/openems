@@ -1,4 +1,4 @@
-package io.openems.common.websocket;
+package io.openems.common.utils;
 
 import static org.junit.Assert.assertEquals;
 
@@ -8,9 +8,8 @@ import java.util.UUID;
 import org.junit.Test;
 
 import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
-import io.openems.common.utils.JsonUtils;
 
-public class OnRequestHandlerTest {
+public class JsonrpcUtilsTest {
 
 	@Test
 	public void testSimplifyJsonrpcMessage() {
@@ -34,9 +33,7 @@ public class OnRequestHandlerTest {
 						.build())
 				.addProperty("timeout", 123) //
 				.build(), //
-				OnRequestHandler.simplifyJsonrpcMessage(r.toJsonObject()));
-
-		System.out.println(OnRequestHandler.simplifyJsonrpcMessage(r.toJsonObject()));
+				JsonrpcUtils.simplifyJsonrpcMessage(r));
 	}
 
 }

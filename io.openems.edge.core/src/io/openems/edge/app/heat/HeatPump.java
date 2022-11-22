@@ -66,11 +66,13 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
-		ALIAS, //
+		// Component-IDs
 		CTRL_IO_HEAT_PUMP_ID, //
+		// Properties
+		ALIAS, //
 		OUTPUT_CHANNEL_1, //
-		OUTPUT_CHANNEL_2;
-
+		OUTPUT_CHANNEL_2 //
+		;
 	}
 
 	@Activate
@@ -88,20 +90,21 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 			var outputChannel1 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_1, "io0/Relay2");
 			var outputChannel2 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_2, "io0/Relay3");
 
-			var comp = Lists.newArrayList(//
+			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlIoHeatPumpId, alias, "Controller.Io.HeatPump.SgReady",
 							JsonUtils.buildJsonObject() //
 									.addProperty("outputChannel1", outputChannel1) //
 									.addProperty("outputChannel2", outputChannel2) //
-									.build()));
+									.build()) //
+			);
 
 			var componentIdOfRelay = outputChannel1.substring(0, outputChannel1.indexOf('/'));
 			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
 					componentIdOfRelay);
 
 			if (appIdOfRelay == null) {
-				// relay may be created but not as a app
-				return new AppConfiguration(comp);
+				// relay may be created but not as an app
+				return new AppConfiguration(components);
 			}
 
 			var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
@@ -114,7 +117,7 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 							.setSpecificInstanceId(appIdOfRelay) //
 							.build()));
 
-			return new AppConfiguration(comp, null, null, dependencies);
+			return new AppConfiguration(components, null, null, dependencies);
 		};
 	}
 

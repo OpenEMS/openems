@@ -105,16 +105,14 @@ public class InfluxConnector {
 		this.onWriteError = onWriteError;
 
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			int executorQueueSize = this.executor.getQueue().size();
 			int pointsQueueSize = this.pointsQueue.size();
-			this.log.info(new StringBuilder("[monitor] InfluxDB ") //
-					.append("Pool: ").append(this.executor.getPoolSize()).append(", ") //
-					.append("Active: ").append(this.executor.getActiveCount()).append(", ") //
-					.append("Pending: ").append(this.executor.getQueue().size()).append(", ") //
-					.append("Completed: ").append(this.executor.getCompletedTaskCount()).append(", ") //
-					.append((executorQueueSize == EXECUTOR_QUEUE_SIZE) ? "!!!EXECUTOR BACKPRESSURE!!!" : "") //
-					.append("QueuedPoints: ").append(this.pointsQueue.size()).append(", ") //
-					.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? "!!!POINTS BACKPRESSURE!!!" : "") //
+			this.log.info(new StringBuilder("[InfluxDB] [monitor] ") //
+					.append(ThreadPoolUtils.debugLog(this.executor)) //
+					.append(" Queue:") //
+					.append(pointsQueueSize) //
+					.append("/") //
+					.append(POINTS_QUEUE_SIZE) //
+					.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? " !!!POINTS BACKPRESSURE!!!" : "") //
 					.toString());
 		}, 10, 10, TimeUnit.SECONDS);
 
