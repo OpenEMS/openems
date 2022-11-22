@@ -17,19 +17,19 @@ export class SingleAppComponent implements OnInit {
   private static readonly SELECTOR = "appSingle";
   public readonly spinnerId: string = SingleAppComponent.SELECTOR;
 
-  public form = null;
-  public model = null;
+  public form: FormGroup | null = null;
+  public model: any | null = null;
 
-  private appId: string;
-  private app: GetApps.App;
-  private descriptor: GetAppDescriptor.AppDescriptor;
-  private isXL = true;
+  private appId: string | null = null;
+  private app: GetApps.App | null = null;
+  private descriptor: GetAppDescriptor.AppDescriptor | null = null;
+  private isXL: boolean = true;
 
   // for stopping spinner when all responses are recieved
   private readonly requestCount: number = 2;
   private recievedResponse: number = 0;
 
-  private edge: Edge = null;
+  private edge: Edge | null = null;
 
   public constructor(
     private route: ActivatedRoute,
@@ -91,7 +91,7 @@ export class SingleAppComponent implements OnInit {
     this.isXL = 1200 <= window.innerWidth;
   }
 
-  private iFrameStyle() {
+  protected iFrameStyle() {
     let styles = {
       'height': (this.isXL) ? '100%' : window.innerHeight + 'px'
     };
