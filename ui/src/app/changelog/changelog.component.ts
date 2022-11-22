@@ -35,6 +35,19 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.11.2',
+        changes: [
+          Changelog.product(Product.FEMS_SG_READY_WAERMEPUMPE) + "Verbesserung der Logik + Übersetzung",
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
+          Changelog.UI + "Links zur Dokumentation/Hilfe für Apps aktualisiert",
+          Changelog.UI + "Verbesserungen in der historischen Ansicht",
+          "Verbesserungen bei automatischen E-Mail-Benachrichtungen",
+          "Darstellung des Zeitpunkts der letzten Datenübertragung in der Übersicht",
+          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App-Center" },
+          { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für KDK 2PU CT Zähler" },
+        ]
+      },
+      {
         version: '2022.11.1',
         changes: [
           Changelog.openems('2022.11.0'),
