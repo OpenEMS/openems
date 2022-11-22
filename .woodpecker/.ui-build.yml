@@ -6,43 +6,45 @@
 # - git pull
 # - bash drone-docker.sh
 
+clone:  
+  clone:
+    when:
+      branch: 
+        exclude: [master, develop]
+      path:
+        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
+    image: plugins/git
+    settings:
+      depth: 50
+
 pipeline:
   restore-cache:
+    when:
+      branch: 
+        exclude: [master, develop]
+      path:
+        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
     image: drillster/drone-volume-cache
     restore: true
     mount:
-      - /woodpecker/.gradle
       - /woodpecker/.npm
+      - /woodpecker/.ng
     volumes:
       - cache:/cache
     group: restore
 
-  build-java:
-    when:
-      path:
-        include: [ 'io.openems*/**', '**/*gradle*', '**/.woodpecker.yml' ]
-    image: openems-build:latest
-    environment:
-      - GRADLE_USER_HOME=/woodpecker/.gradle
-    commands:
-      - sed --in-place 's#\(VERSION_STRING = .*\)";#\1-'"${CI_COMMIT_BRANCH}"'";#g' io.openems.common/src/io/openems/common/OpenemsConstants.java
-      - ./gradlew build buildEdge
-      - ./gradlew resolve.BackendApp
-      - git diff --exit-code io.openems.backend.application/BackendApp.bndrun
-      - ./gradlew resolve.EdgeApp
-      - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
-      - cp build/openems.jar ui/target
-    group: build
-    
   build-ui:
     when:
+      branch: 
+        exclude: [master, develop]
       path:
-        include: [ 'ui/**', '**/.woodpecker.yml' ]
+        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
     image: openems-build:latest
     commands:
       - cd ui
       - npm ci --prefer-offline --cache /woodpecker/.npm
       - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
+      - node_modules/.bin/ng config cli.cache.path "/woodpecker/.ng"
       - node_modules/.bin/ng build -c "fenecon,fenecon-backend-prod,prod"
       - node_modules/.bin/ng lint
       - export CHROME_BIN=/usr/bin/google-chrome-stable
@@ -51,8 +53,10 @@ pipeline:
 
   refresh-dev:
     when:
+      branch: 
+        exclude: [master, develop]
       path:
-        include: [ 'ui/**', '**/.woodpecker.yml' ]
+        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
     image: appleboy/drone-scp
     host: 10.0.0.40
     user: fenecon-docs
@@ -65,12 +69,33 @@ pipeline:
     target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
     group: refresh
 
+  refresh-location:
+    when:
+      branch: 
+        exclude: [master, develop]
+      path:
+        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
+    image: appleboy/drone-ssh
+    host: 10.0.0.40
+    username: fenecon-docs
+    timeout: 10s
+    key: 
+      from_secret: ssh_key_intranet 
+    script:
+      - /opt/gitea/data/openems-ui-dev/refresh-location.sh ${CI_COMMIT_BRANCH}
+    group: refresh
+
   rebuild-cache:
+    when:
+      branch: 
+        exclude: [master, develop]
+      path:
+        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
     image: drillster/drone-volume-cache
     rebuild: true
     mount:
-      - /woodpecker/.gradle
       - /woodpecker/.npm
+      - /woodpecker/.ng
     volumes:
       - cache:/cache
     group: refresh
