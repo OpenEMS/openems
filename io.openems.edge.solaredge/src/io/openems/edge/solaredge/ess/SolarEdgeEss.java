@@ -88,10 +88,10 @@ public class SolarEdgeEss extends AbstractSunSpecEss
 	 */
 	private void addStaticModbusTasks(ModbusProtocol protocol) throws OpenemsException {
 		protocol.addTask(//
-				new FC3ReadRegistersTask(0xE142, Priority.LOW, //
+				new FC3ReadRegistersTask(0xE174, Priority.LOW, //
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, //
-								new FloatDoublewordElement(0xE142).wordOrder(WordOrder.LSWMSW)), //
-						new DummyRegisterElement(0xE144, 0xE17D), m(SymmetricEss.ChannelId.CAPACITY, //
+								new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW)), //
+						new DummyRegisterElement(0xE176, 0xE17D), m(SymmetricEss.ChannelId.CAPACITY, //
 								new FloatDoublewordElement(0xE17E).wordOrder(WordOrder.LSWMSW)),
 						new DummyRegisterElement(0xE180, 0xE183), //
 						m(SymmetricEss.ChannelId.SOC, //
