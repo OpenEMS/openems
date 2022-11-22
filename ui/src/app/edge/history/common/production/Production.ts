@@ -35,6 +35,5 @@ import { ProductionChartOverviewComponent } from './overview/overview';
     TotalChartComponent,
     ChargerChartComponent
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class Common_Production { }

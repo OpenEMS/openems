@@ -38,12 +38,9 @@ export abstract class AbstractHistoryChartOverView implements OnInit {
     this.updateValues();
   }
 
-  private selector: string = uuidv4();
-
   public ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.service.getConfig().then(config => {
-        console.log("config", config)
         // store important variables publically
         this.edge = edge;
         this.config = config;
@@ -51,11 +48,13 @@ export abstract class AbstractHistoryChartOverView implements OnInit {
 
         this.period = this.service.historyPeriod;
 
+      }).then(() => {
         // announce initialized
         this.isInitialized = true;
 
         // get the channel addresses that should be subscribed and updateValues if data has changed
         this.updateValues();
+
       })
     });
   };

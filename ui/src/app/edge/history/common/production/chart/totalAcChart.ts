@@ -11,7 +11,7 @@ import { ChannelFilter, ChartData } from '../../../shared';
 export class TotalAcChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): ChartData {
-    this.spinnerId = 'productionTotalAcChart2-chart';
+    this.spinnerId = 'productionTotalAcChart-chart';
     return {
       channel:
         [

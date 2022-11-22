@@ -1,14 +1,15 @@
 <oe-chart [title]="'General.production' | translate" [isPopoverNeeded]="true" [showPhases]="showPhases"
-  [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)">
+  [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)"
+  *ngIf="isInitialized">
 
   <!-- Total Chart -->
-  <ng-container>
+  <ng-container *ngIf="showTotal, else singleMeter">
     <productionTotalChart [chartTitle]="'General.total' | translate" [period]="service.historyPeriod"
       [showPhases]="showPhases" [showTotal]="showTotal">
     </productionTotalChart>
   </ng-container>
 
-  <ng-container *ngIf="!showTotal">
+  <ng-template #singleMeter>
 
     <!-- Production TotalAcChart if more than one charger-->
     <productionTotalAcChart *ngIf="productionMeterComponents?.length > 1" [chartTitle]="'General.total'| translate"
@@ -32,5 +33,5 @@
         [component]="component">
       </productionChargerChart>
     </ng-container>
-  </ng-container>
+  </ng-template>
 </oe-chart>

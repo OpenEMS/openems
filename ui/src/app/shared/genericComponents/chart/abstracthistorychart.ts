@@ -32,14 +32,15 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
   public edge: Edge | null = null;
 
-    public loading: boolean = true;
-    public labels: Date[] = [];
-    public datasets: ChartDataSets[] = EMPTY_DATASET;
-    public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
-    public colors: any[] = [];
-    public chartObject: ChartData = this.getChartData();
-    public chartType: 'line' | 'bar' = 'line';
-    protected isDataExisting: boolean = true;
+  public loading: boolean = true;
+  public labels: Date[] = [];
+  public datasets: ChartDataSets[] = EMPTY_DATASET(this.translate);
+  public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
+  public colors: any[] = [];
+  public chartObject: ChartData = null;
+  public chartType: 'line' | 'bar' = 'line';
+  protected isDataExisting: boolean = true;
+  protected config: EdgeConfig = null;
 
   constructor(
     public service: Service,
@@ -49,13 +50,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    this.service.startSpinner(this.spinnerId);
+    // this.startSpinner();
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.service.getConfig().then(config => {
         // store important variables publically
         this.edge = edge;
         this.config = config;
         this.edge = edge;
+
       }).then(() => {
         this.chartObject = this.getChartData()
         this.loadChart();
@@ -72,13 +74,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   }
 
   private updateChart() {
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.loadChart()
   }
 
-  private fillChart(response: QueryHistoricTimeseriesDataResponse | queryHistoricTimeseriesEnergyPerPeriodResponse) {
+  private fillChart(response: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse) {
 
-    if (Utils.areChannelAddressesEmpty(response)) {
+    if (Utils.isDataEmpty(response)) {
       this.datasets = EMPTY_DATASET(this.translate);
       this.labels = []
       return
@@ -205,20 +207,20 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         return;
       });
 
-        } else {
-            // Shows Line-Chart
-            this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-                this.chartType = 'line'
-                this.fillChart(response);
-                this.setChartLabel();
+    } else {
+      // Shows Line-Chart
+      this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+        this.chartType = 'line'
+        this.fillChart(response);
+        this.setChartLabel();
 
-            }).catch(reason => {
-                console.error(reason); // TODO error message
-                this.initializeChart();
-                return;
-            });
-        }
+      }).catch(reason => {
+        console.error(reason); // TODO error message
+        this.initializeChart();
+        return;
+      });
     }
+  }
 
   /**
    * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
@@ -230,82 +232,84 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
    */
   protected queryHistoricTimeseriesData(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesDataResponse> {
 
+    this.isDataExisting = true;
     let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
 
-        let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
-            this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(() => {
-                    let channelAddresses = this.getChannelAddresses().powerChannels;
-                    let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses, resolution);
-                    edge.sendRequest(this.service.websocket, request).then(response => {
-                        let result = (response as QueryHistoricTimeseriesDataResponse)?.result;
-                        if (Object.keys(result).length != 0) {
-                            resolve(response as QueryHistoricTimeseriesDataResponse);
-                        } else {
-                            resolve(new QueryHistoricTimeseriesDataResponse(response.id, {
-                                timestamps: [null], data: { null: null }
-                            }));
-                        }
-                    });
-                })
-            })
-        }).then((response) => {
-
-            // Check if channelAddresses are empty
-            if (Utils.isDataEmpty(response)) {
-
-                // load defaultchart
-                this.isDataExisting = false;
-                this.service.stopSpinner(this.spinnerId)
-                this.initializeChart()
+    let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
+      this.service.getCurrentEdge().then(edge => {
+        this.service.getConfig().then(async () => {
+          let channelAddresses = (await this.getChannelAddresses()).powerChannels;
+          let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses, resolution);
+          edge.sendRequest(this.service.websocket, request).then(response => {
+            let result = (response as QueryHistoricTimeseriesDataResponse)?.result;
+            if (Object.keys(result).length != 0) {
+              resolve(response as QueryHistoricTimeseriesDataResponse);
+            } else {
+              resolve(new QueryHistoricTimeseriesDataResponse(response.id, {
+                timestamps: [null], data: { null: null }
+              }));
             }
-            return response
+          });
         })
+      })
+    }).then((response) => {
 
-        return result
-    }
+      // Check if channelAddresses are empty
+      if (Utils.isDataEmpty(response)) {
 
-    /**
-     * Sends the Historic Timeseries Energy per Period Query and makes sure the result is not empty.
-     * 
-     * @param fromDate the From-Date
-     * @param toDate   the To-Date
-     * @param channelAddresses       the Channel-Addresses
-     */
-    protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date): Promise<queryHistoricTimeseriesEnergyPerPeriodResponse> {
+        // load defaultchart
+        this.isDataExisting = false;
+        this.stopSpinner()
+        this.initializeChart()
+      }
+      return response
+    })
 
+    return result
+  }
+
+  /**
+   * Sends the Historic Timeseries Energy per Period Query and makes sure the result is not empty.
+   * 
+   * @param fromDate the From-Date
+   * @param toDate   the To-Date
+   * @param channelAddresses       the Channel-Addresses
+   */
+  protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> {
+
+    this.isDataExisting = true;
     let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
 
-        let response: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
-            this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(config => {
-                    let channelAddresses = this.getChannelAddresses().energyChannels;
-                    edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
-                        let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse)?.result;
-                        if (Object.keys(result).length != 0) {
-                            resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse);
-                        } else {
-                            resolve(new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
-                                timestamps: [null], data: { null: null }
-                            }));
-                        }
-                    })
-                })
-            });
-        }).then((response) => {
-
-            // Check if channelAddresses are empty
-            if (Utils.isDataEmpty(response)) {
-
-                // load defaultchart
-                this.isDataExisting = false;
-                this.service.stopSpinner(this.spinnerId)
-                this.initializeChart()
+    let result: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
+      this.service.getCurrentEdge().then(edge => {
+        this.service.getConfig().then(async () => {
+          let channelAddresses = (await this.getChannelAddresses()).energyChannels;
+          edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
+            let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse)?.result;
+            if (Object.keys(result).length != 0) {
+              resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse);
+            } else {
+              resolve(new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
+                timestamps: [null], data: { null: null }
+              }));
             }
-            return response
+          })
         })
-        return response
-    }
+      });
+    }).then((response) => {
+
+      // Check if channelAddresses are empty
+      if (Utils.isDataEmpty(response)) {
+
+        // load defaultchart
+        this.isDataExisting = false;
+        this.service.stopSpinner(this.spinnerId)
+        this.initializeChart()
+      }
+      return response
+    })
+    return result
+  }
 
   /**
    * Generates a Tooltip Title string from a 'fromDate' and 'toDate'.
@@ -381,7 +385,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     }
     this.options = options;
     this.loading = false;
-    this.service.stopSpinner(this.spinnerId);
+    this.stopSpinner();
   }
 
   /**
@@ -389,11 +393,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
    * @param spinnerSelector to stop spinner
    */
   protected initializeChart() {
-    EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
+    // EMPTY_DATASET(this.translate)[0].label = this.translate.instant('Edge.History.noData')
     this.datasets = EMPTY_DATASET(this.translate);
     this.labels = [];
     this.loading = false;
-    this.service.stopSpinner(this.spinnerId);
+    this.stopSpinner();
   }
 
   /**
@@ -442,4 +446,26 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
     }
   };
+
+
+  /**
+   * Start NGX-Spinner
+   * 
+   * Spinner will appear inside html tag only
+   * 
+   * @example <ngx-spinner name="YOURSELECTOR"></ngx-spinner>
+   * 
+   * @param selector selector for specific spinner
+   */
+  public startSpinner() {
+    this.service.startSpinner(this.spinnerId);
+  }
+
+  /**
+   * Stop NGX-Spinner
+   * @param selector selector for specific spinner
+   */
+  public stopSpinner() {
+    this.service.stopSpinner(this.spinnerId);
+  }
 }
