@@ -40,7 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public websocket: Websocket,
     private titleService: Title
   ) {
-    service.setLang(Language.getByFilename(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+    service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
   }
 
   ngOnInit() {
