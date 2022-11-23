@@ -29,7 +29,7 @@ export function registerTranslateExtension(translate: TranslateService) {
             {
                 name: 'min',
                 message(err, field: FormlyFieldConfig) {
-                    return translate.stream('INSTALLATION.FORM.MIN', { min: field.formControl.value });
+                    return translate.stream('INSTALLATION.FORM.MIN', { min: field.props.min });
                 },
             },
             {
@@ -53,7 +53,7 @@ export function registerTranslateExtension(translate: TranslateService) {
             {
                 name: 'max',
                 message(err, field: FormlyFieldConfig) {
-                    return translate.stream('INSTALLATION.FORM.MAX', { max: field.formControl.value });
+                    return translate.stream('INSTALLATION.FORM.MAX', { max: field.props.max });
                 },
             },
             {

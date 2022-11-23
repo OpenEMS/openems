@@ -732,7 +732,7 @@
     },
     "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
-    "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a FEMS."
+    "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}."
   },
   "Login": {
     "title": "Login",

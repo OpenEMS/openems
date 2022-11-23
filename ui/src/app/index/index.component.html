@@ -94,7 +94,8 @@
                           {{environment.edgeShortName}} hinzugefügt.</ion-label>
                       </ion-item>
                       <ion-card-content class="ion-text-center">
-                        <ion-text translate>INSTALLATION.CLICK_RECOMMENDATION</ion-text>
+                        <ion-text>{{ 'INSTALLATION.CLICK_RECOMMENDATION' | translate: { edgeShortName:
+                          environment.edgeShortName } }}</ion-text>
                       </ion-card-content>
                     </ng-container>
                     <ng-template #others>
