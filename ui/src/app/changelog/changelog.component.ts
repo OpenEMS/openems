@@ -35,6 +35,13 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.11.3',
+        changes: [
+          "Fehlerbehebungen der Übersetzung",
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistenten",
+        ]
+      },
+      {
         version: '2022.11.2',
         changes: [
           Changelog.product(Product.FEMS_SG_READY_WAERMEPUMPE) + "Verbesserung der Logik + Übersetzung",
