@@ -23,7 +23,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   @Input() public component: EdgeConfig.Component;
   @Input() public showPhases: boolean;
   @Input() public showTotal: boolean;
-  @Input() protected isOnlyChart: boolean = false;
+  @Input() public isOnlyChart: boolean = false;
   protected spinnerId: string = uuidv4();
 
   protected readonly phaseColors: string[] = ['rgb(255,127,80)', 'rgb(0,0,255)', 'rgb(128,128,0)']
