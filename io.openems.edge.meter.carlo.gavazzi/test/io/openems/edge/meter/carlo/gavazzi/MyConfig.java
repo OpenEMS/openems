@@ -1,4 +1,4 @@
-package io.openems.edge.meter.carlo.gavazzi.em300;
+package io.openems.edge.meter.carlo.gavazzi;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
@@ -13,6 +13,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public int modbusUnitId;
 		public MeterType type;
 		public boolean invert;
+		public Model model;
 
 		private Builder() {
 		}
@@ -36,7 +37,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.invert = invert;
 			return this;
 		}
-
+		
+		public Builder setModel(Model model) {
+			this.model = model;
+			return this;
+		}
+		
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -82,5 +88,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public boolean invert() {
 		return this.builder.invert;
 	}
+
+	@Override
+	public Model model() {
+		return this.builder.model;
+	}
+
 
 }

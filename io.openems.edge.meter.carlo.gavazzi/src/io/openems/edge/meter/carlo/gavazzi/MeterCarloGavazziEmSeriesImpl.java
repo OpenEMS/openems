@@ -1,4 +1,4 @@
-package io.openems.edge.meter.carlo.gavazzi.em300;
+package io.openems.edge.meter.carlo.gavazzi;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -18,7 +18,6 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
@@ -32,25 +31,25 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Meter.CarloGavazzi.EM300", //
+		name = "Meter.CarloGavazzi.EM3X0", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
-		implements MeterCarloGavazziEm300, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent {
+public class MeterCarloGavazziEmSeriesImpl extends AbstractOpenemsModbusComponent
+		implements MeterCarloGavazziEmSeries, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent {
 
 	@Reference
 	private ConfigurationAdmin cm;
 
 	private Config config;
 
-	public MeterCarloGavazziEm300Impl() {
+	public MeterCarloGavazziEmSeriesImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
 				AsymmetricMeter.ChannelId.values(), //
-				MeterCarloGavazziEm300.ChannelId.values() //
+				MeterCarloGavazziEmSeries.ChannelId.values() //
 		);
 	}
 
@@ -104,17 +103,17 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 		 * https://www.galoz.co.il/wp-content/uploads/2014/11/EM341-Modbus.pdf
 		 */
 
-		final SymmetricMeter.ChannelId energyChannelId300053;
-		final SymmetricMeter.ChannelId energyChannelId300079;
+		final SymmetricMeter.ChannelId energyChannelA;
+		final SymmetricMeter.ChannelId energyChannelB;
 		if (this.config.invert()) {
-			energyChannelId300053 = SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
-			energyChannelId300079 = SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
+			energyChannelA = SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
+			energyChannelB = SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
 		} else {
-			energyChannelId300053 = SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
-			energyChannelId300079 = SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
+			energyChannelA = SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
+			energyChannelB = SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
 		}
 
-		return new ModbusProtocol(this, //
+		ModbusProtocol modbusProtocol = new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(300001 - offset, Priority.LOW, //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1,
 								new SignedDoublewordElement(300001 - offset).wordOrder(WordOrder.LSWMSW),
@@ -125,16 +124,20 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3,
 								new SignedDoublewordElement(300005 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.SCALE_FACTOR_2)),
+
 				new FC4ReadInputRegistersTask(300013 - offset, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1,
 								new SignedDoublewordElement(300013 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT_IF_TRUE(this.config.invert())),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2,
 								new SignedDoublewordElement(300015 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT_IF_TRUE(this.config.invert())),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3,
 								new SignedDoublewordElement(300017 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+								ElementToChannelConverter.SCALE_FACTOR_2_AND_INVERT_IF_TRUE(this.config.invert()))),
+
+				// NOTE: EM 24 can only read a limited number of registers at once
+				new FC4ReadInputRegistersTask(300019 - offset, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1,
 								new SignedDoublewordElement(300019 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
@@ -146,19 +149,25 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3,
 								new SignedDoublewordElement(300023 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
-										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
-						m(MeterCarloGavazziEm300.ChannelId.APPARENT_POWER_L1,
+										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert()))),
+
+				// NOTE: EM 24 can only read a limited number of registers at once
+				new FC4ReadInputRegistersTask(300025 - offset, Priority.HIGH, //
+						m(MeterCarloGavazziEmSeries.ChannelId.APPARENT_POWER_L1,
 								new SignedDoublewordElement(300025 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
 										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
-						m(MeterCarloGavazziEm300.ChannelId.APPARENT_POWER_L2,
+						m(MeterCarloGavazziEmSeries.ChannelId.APPARENT_POWER_L2,
 								new SignedDoublewordElement(300027 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
 										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
-						m(MeterCarloGavazziEm300.ChannelId.APPARENT_POWER_L3,
+						m(MeterCarloGavazziEmSeries.ChannelId.APPARENT_POWER_L3,
 								new SignedDoublewordElement(300029 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
-										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
+										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert()))),
+
+				// NOTE: EM 24 can only read a limited number of registers at once
+				new FC4ReadInputRegistersTask(300031 - offset, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1,
 								new SignedDoublewordElement(300031 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
@@ -170,31 +179,56 @@ public class MeterCarloGavazziEm300Impl extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3,
 								new SignedDoublewordElement(300035 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
-										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
-						new DummyRegisterElement(300037 - offset, 300040 - offset), //
+										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert()))),
+
+				// NOTE: EM 24 can only read a limited number of registers at once
+				new FC4ReadInputRegistersTask(300041 - offset, Priority.HIGH, //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
 								new SignedDoublewordElement(300041 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
 										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
-						m(MeterCarloGavazziEm300.ChannelId.APPARENT_POWER,
+						m(MeterCarloGavazziEmSeries.ChannelId.APPARENT_POWER,
 								new SignedDoublewordElement(300043 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
 										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert())),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER,
 								new SignedDoublewordElement(300045 - offset).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter
-										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert()))),
+										.SCALE_FACTOR_MINUS_1_AND_INVERT_IF_TRUE(this.config.invert()))));
 
-				new FC4ReadInputRegistersTask(300052 - offset, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300052 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(energyChannelId300053,
-								new SignedDoublewordElement(300053 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						new DummyRegisterElement(300055 - offset, 300078 - offset), //
-						m(energyChannelId300079,
-								new SignedDoublewordElement(300079 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2)));
+		switch (this.config.model()) {
+		case EM_ET_300_SERIES: { // EM/ET300 SERIES
+			modbusProtocol.addTask(new FC4ReadInputRegistersTask(300052 - offset, Priority.LOW, //
+					// 300052 ~ Hz
+					m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300052 - offset),
+							ElementToChannelConverter.SCALE_FACTOR_2),
+					// 300053 ~ kWh (+) TOT
+					m(energyChannelA, new SignedDoublewordElement(300053 - offset).wordOrder(WordOrder.LSWMSW),
+							ElementToChannelConverter.SCALE_FACTOR_2)));
+			modbusProtocol.addTask(new FC4ReadInputRegistersTask(300079 - offset, Priority.LOW, //
+					// 300079 ~ kWh (-) TOT
+					m(energyChannelB, new SignedDoublewordElement(300079 - offset).wordOrder(WordOrder.LSWMSW),
+							ElementToChannelConverter.SCALE_FACTOR_2)));
+			break;
+		}
+		case EM_24_DIN: { // EM24-DIN
+			modbusProtocol.addTask(new FC4ReadInputRegistersTask(300056 - offset, Priority.LOW, //
+					// 300056 ~ Hz
+					m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300056 - offset),
+							ElementToChannelConverter.SCALE_FACTOR_2)));
+			modbusProtocol.addTask(new FC4ReadInputRegistersTask(300063 - offset, Priority.LOW, //
+					// 300063 ~ KWh(+) TOT
+					m(energyChannelA, new SignedDoublewordElement(300063 - offset).wordOrder(WordOrder.LSWMSW),
+							ElementToChannelConverter.SCALE_FACTOR_2)));
+			modbusProtocol.addTask(new FC4ReadInputRegistersTask(300093 - offset, Priority.LOW, //
+					// 300093 ~ KWh(-) TOT
+					m(energyChannelB, new SignedDoublewordElement(300093 - offset).wordOrder(WordOrder.LSWMSW),
+							ElementToChannelConverter.SCALE_FACTOR_2)));
+			break;
+		}
+		}
+
+		return modbusProtocol;
 	}
 
 	@Override
