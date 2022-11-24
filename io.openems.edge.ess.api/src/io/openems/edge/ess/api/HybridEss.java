@@ -119,6 +119,7 @@ public interface HybridEss extends SymmetricEss {
 	 * @param value the next value
 	 */
 	public default void _setDcDischargePower(Integer value) {
+		
 		this.getDcDischargePowerChannel().setNextValue(value);
 	}
 
