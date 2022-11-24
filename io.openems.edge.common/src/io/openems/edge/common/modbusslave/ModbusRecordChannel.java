@@ -113,13 +113,26 @@ public class ModbusRecordChannel extends ModbusRecord {
 
 	@Override
 	public byte[] getValue(OpenemsComponent component) {
-		Channel<?> channel = component.channel(this.channelId);
+		final Object value;
+		if (component != null) {
+			Channel<?> channel = component.channel(this.channelId);
+			if (channel != null) {
+				value = channel.value().get();
+			} else {
+				this.log.warn("Channel [" + component.id() + "/" + this.channelId.id() + "] is not available for "
+						+ this.toString());
+				value = null;
+			}
+		} else {
+			value = null;
+		}
+
 		switch (this.getType()) {
 		case FLOAT32:
 			switch (this.accessMode) {
 			case READ_ONLY:
 			case READ_WRITE:
-				return ModbusRecordFloat32.toByteArray(channel.value().get());
+				return ModbusRecordFloat32.toByteArray(value);
 			case WRITE_ONLY:
 				return ModbusRecordFloat32.UNDEFINED_VALUE;
 			}
@@ -127,7 +140,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			switch (this.accessMode) {
 			case READ_ONLY:
 			case READ_WRITE:
-				return ModbusRecordFloat64.toByteArray(channel.value().get());
+				return ModbusRecordFloat64.toByteArray(value);
 			case WRITE_ONLY:
 				return ModbusRecordFloat64.UNDEFINED_VALUE;
 			}
@@ -135,7 +148,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			switch (this.accessMode) {
 			case READ_ONLY:
 			case READ_WRITE:
-				return ModbusRecordString16.toByteArray(channel.value().get());
+				return ModbusRecordString16.toByteArray(value);
 			case WRITE_ONLY:
 				return ModbusRecordString16.UNDEFINED_VALUE;
 			}
@@ -144,7 +157,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			switch (this.accessMode) {
 			case READ_ONLY:
 			case READ_WRITE:
-				return ModbusRecordUint16.toByteArray(channel.value().get());
+				return ModbusRecordUint16.toByteArray(value);
 			case WRITE_ONLY:
 				return ModbusRecordUint16.UNDEFINED_VALUE;
 			}
@@ -152,7 +165,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 			switch (this.accessMode) {
 			case READ_ONLY:
 			case READ_WRITE:
-				return ModbusRecordUint32.toByteArray(channel.value().get());
+				return ModbusRecordUint32.toByteArray(value);
 			case WRITE_ONLY:
 				return ModbusRecordUint32.UNDEFINED_VALUE;
 			}
@@ -171,7 +184,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 	}
 
 	@Override
-	public void writeValue(OpenemsComponent component, int index, byte byte1, byte byte2) {
+	public void writeValue(int index, byte byte1, byte byte2) {
 		switch (this.accessMode) {
 		case READ_ONLY:
 			// Read-Only Access enabled. Do not write value.
