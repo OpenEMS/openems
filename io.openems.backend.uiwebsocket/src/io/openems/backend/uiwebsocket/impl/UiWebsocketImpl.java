@@ -32,6 +32,7 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -91,7 +92,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	 * @param poolSize  number of threads dedicated to handle the tasks
 	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize, boolean debugMode) {
+	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
 		this.server = new WebsocketServer(this, "Ui.Websocket", port, poolSize, debugMode);
 		this.server.start();
 	}
@@ -213,7 +214,9 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 		var connections = this.server.getConnections();
 		for (var websocket : connections) {
 			WsData wsData = websocket.getAttachment();
-			wsData.sendSubscribedChannels(edgeId, edgeCache);
+			if (wsData != null) {
+				wsData.sendSubscribedChannels(edgeId, edgeCache);
+			}
 		}
 	}
 

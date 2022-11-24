@@ -570,10 +570,10 @@ public class JsonUtilsTest {
 				.addProperty("foo", "bar") //
 				.build();
 		assertEquals(ZonedDateTime.of(2000, 12, 30, 0, 0, 0, 0, ZoneId.of("UTC")),
-				JsonUtils.getAsZonedDateTime(j, "date", ZoneId.of("UTC")));
+				JsonUtils.getAsZonedDateWithZeroTime(j, "date", ZoneId.of("UTC")));
 
 		assertOpenemsError(OpenemsError.JSON_NO_DATE_MEMBER, //
-				() -> JsonUtils.getAsZonedDateTime(j, "foo", ZoneId.of("UTC")) //
+				() -> JsonUtils.getAsZonedDateWithZeroTime(j, "foo", ZoneId.of("UTC")) //
 		);
 	}
 

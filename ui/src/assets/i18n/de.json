@@ -505,7 +505,8 @@
     "loggedInAs": "Angemeldet als:",
     "toEnergymonitor": "Zum Energiemonitor...",
     "type": "Typ",
-    "addEdge": "Neues {{ edgeShortName }} hinzufügen"
+    "OFFLINE_SINCE": "Offline seit",
+    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",
@@ -731,7 +732,8 @@
       "UPDATE_WARNING": "Version muss geupdated werden!"
     },
     "VALUE_WITH_LABEL": "Wert {{ label }}{{ number }} {{ symbol }}",
-    "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}"
+    "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
+    "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen."
   },
   "Login": {
     "title": "Login",

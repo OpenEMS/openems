@@ -37,9 +37,8 @@ public class EdgeCache {
 			var result = this.cacheData.get(address);
 			if (result == null) {
 				return JsonNull.INSTANCE;
-			} else {
-				return result;
 			}
+			return result;
 		}
 	}
 

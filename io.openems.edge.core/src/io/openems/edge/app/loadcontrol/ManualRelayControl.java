@@ -1,6 +1,5 @@
 package io.openems.edge.app.loadcontrol;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -18,7 +17,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.loadcontrol.ManualRelayControl.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -60,11 +58,12 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 public class ManualRelayControl extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property implements DefaultEnum {
-		// User values
+		// Component-IDs
+		CTRL_IO_FIX_DIGITAL_OUTPUT_ID("ctrlIoFixDigitalOutput0"), //
+		// Properties
 		ALIAS("Manuelle Relaissteuerung"), //
 		OUTPUT_CHANNEL("io0/Relay1"), //
-		// Components
-		CTRL_IO_FIX_DIGITAL_OUTPUT_ID("ctrlIoFixDigitalOutput0");
+		;
 
 		private final String defaultValue;
 
@@ -92,17 +91,16 @@ public class ManualRelayControl extends AbstractOpenemsApp<Property> implements 
 			final var ctrlIoFixDigitalOutputId = this.getId(t, p, Property.CTRL_IO_FIX_DIGITAL_OUTPUT_ID);
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-
 			final var outputChannelAddress = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL);
 
-			List<Component> comp = new ArrayList<>();
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlIoFixDigitalOutputId, alias, "Controller.Io.FixDigitalOutput",
+							JsonUtils.buildJsonObject() //
+									.addProperty("outputChannelAddress", outputChannelAddress) //
+									.build()) //
+			);
 
-			comp.add(new EdgeConfig.Component(ctrlIoFixDigitalOutputId, alias, "Controller.Io.FixDigitalOutput",
-					JsonUtils.buildJsonObject() //
-							.addProperty("outputChannelAddress", outputChannelAddress) //
-							.build()));//
-
-			return new AppConfiguration(comp);
+			return new AppConfiguration(components);
 		};
 	}
 

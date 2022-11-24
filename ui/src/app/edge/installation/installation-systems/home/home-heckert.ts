@@ -7,7 +7,7 @@ import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componen
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category } from '../../shared/category';
-import { ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
+import { BaseMode, ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { EmsAppId } from '../../views/heckert-app-installer/heckert-app-installer.component';
 import { View } from '../abstract-ibn';
 import { AbstractHomeIbn } from './abstract-home';
@@ -49,10 +49,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
         // TODO remove
         // system not updated => appManager not fully available
         const isAppManagerAvailable: boolean = AppCenterUtil.isAppManagerAvailable(edge);
-        const confModeRemoveAndConfigure: ConfigurationMode = isAppManagerAvailable ?
-            ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveAndConfigure;
-        const confModeRemoveOnly: ConfigurationMode = isAppManagerAvailable ?
-            ConfigurationMode.CreatedByAppManager : ConfigurationMode.RemoveOnly;
+        const baseMode = isAppManagerAvailable ? BaseMode.AppManager : BaseMode.UI;
 
         let appId: string
         let alias: string
@@ -157,7 +154,8 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                 { name: 'minHwCurrent', value: 6000 },
                 { name: 'maxHwCurrent', value: 32000 }
             ],
-            mode: freeAppId === EmsAppId.HardyBarthSingle ? confModeRemoveAndConfigure : confModeRemoveOnly
+            mode: freeAppId === EmsAppId.HardyBarthSingle ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+            baseMode: baseMode
         });
 
         componentConfigurator.add({
@@ -198,7 +196,8 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                 { name: 'ip', value: '192.168.25.11' },
                 { name: 'minHwCurrent', value: 6000 }
             ],
-            mode: freeAppId === EmsAppId.Keba ? confModeRemoveAndConfigure : confModeRemoveOnly
+            mode: freeAppId === EmsAppId.Keba ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+            baseMode: baseMode
         });
 
         componentConfigurator.add({
@@ -218,7 +217,8 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                 { name: 'powerPerPhase', value: 2000 },
                 { name: 'minimumSwitchingTime', value: 60 }
             ],
-            mode: freeAppId === EmsAppId.HeatingElement ? confModeRemoveAndConfigure : confModeRemoveOnly
+            mode: freeAppId === EmsAppId.HeatingElement ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+            baseMode: baseMode
         });
 
         componentConfigurator.add({
@@ -242,7 +242,8 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                 { name: 'automaticLockSoc', value: 20 },
                 { name: 'minimumSwitchingTime', value: 60 }
             ],
-            mode: freeAppId === EmsAppId.HeatPump ? confModeRemoveAndConfigure : confModeRemoveOnly
+            mode: freeAppId === EmsAppId.HeatPump ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+            baseMode: baseMode
         });
 
         // Add EVCS-Controller if selected app is an EVCS
@@ -262,8 +263,8 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                 { name: 'ess.id', value: 'ess0' },
                 { name: 'energySessionLimit', value: 0 }
             ],
-            mode: isAppEvcs ? (freeAppId === EmsAppId.HardyBarthDouble ?
-                ConfigurationMode.RemoveAndConfigure : confModeRemoveAndConfigure) : ConfigurationMode.RemoveOnly
+            mode: isAppEvcs ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
+            baseMode: freeAppId === EmsAppId.HardyBarthDouble ? BaseMode.UI : baseMode
         });
 
         // Add second EVCS-Controller for HardyBarthDouble if selected

@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
+import { Service } from 'src/app/shared/shared';
 import { COUNTRY_OPTIONS } from 'src/app/shared/type/country';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 
@@ -21,7 +22,10 @@ export class ProtocolCustomerComponent implements OnInit {
   public fields: FormlyFieldConfig[];
   public model;
 
-  constructor(private translate: TranslateService) { }
+  constructor(
+    private translate: TranslateService,
+    private service: Service) { }
+
 
   public ngOnInit() {
     this.form = new FormGroup({});
@@ -37,6 +41,7 @@ export class ProtocolCustomerComponent implements OnInit {
 
   public onNextClicked() {
     if (this.form.invalid) {
+      this.service.toast(this.translate.instant('Edge.Network.mandatoryFields'), 'danger');
       return;
     }
     this.ibn.customer = this.model;
@@ -95,9 +100,9 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'zip',
       type: 'input',
       templateOptions: {
-        type: "number",
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.ZIP'),
-        required: true
+        required: true,
+        pattern: '^[0-9]*$'
       }
     });
 
@@ -157,9 +162,8 @@ export class ProtocolCustomerComponent implements OnInit {
       key: 'phone',
       type: 'input',
       templateOptions: {
-        type: "number",
         label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.PHONE'),
-        required: true
+        required: true,
       }
     });
     return fields;

@@ -31,6 +31,7 @@ public abstract class WsData {
 	/**
 	 * Holds Futures for JSON-RPC Requests.
 	 */
+	// TODO add timeout to requestFutures
 	private final ConcurrentHashMap<UUID, CompletableFuture<JsonrpcResponseSuccess>> requestFutures = new ConcurrentHashMap<>();
 
 	/**

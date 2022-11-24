@@ -85,7 +85,7 @@ export class ConfigurationExecuteComponent implements OnInit {
       }
 
       if (!this.componentConfigurator.allHaveFunctionState(FunctionState.Ok)) {
-        this.service.toast(this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.FUNCTION_TESTError'), 'warning');
+        this.service.toast(this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.FUNCTION_TEST_ERROR'), 'warning');
         return;
       }
     }).finally(() => {

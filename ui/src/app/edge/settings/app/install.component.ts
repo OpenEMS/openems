@@ -16,14 +16,14 @@ export class InstallAppComponent implements OnInit {
   private static readonly SELECTOR = "appInstall";
   public readonly spinnerId: string = InstallAppComponent.SELECTOR;
 
-  public form = null;
-  public model = null;
-  public fields: FormlyFieldConfig[] = null;
+  protected form: FormGroup | null = null;
+  protected fields: FormlyFieldConfig[] = null;
+  protected model: any | null = null;
 
-  private appId: string;
-  private appName: string;
-  private edge: Edge = null;
-  private isInstalling: boolean;
+  private appId: string | null = null;
+  protected appName: string | null = null;
+  private edge: Edge | null = null;
+  protected isInstalling: boolean = false;
 
   public constructor(
     private route: ActivatedRoute,
@@ -65,7 +65,7 @@ export class InstallAppComponent implements OnInit {
     });
   }
 
-  public submit() {
+  protected submit() {
     // remove alias field from properties
     let alias = this.form.value["ALIAS"]
     const clonedFields = {};

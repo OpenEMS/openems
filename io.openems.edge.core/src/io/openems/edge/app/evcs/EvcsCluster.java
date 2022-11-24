@@ -54,8 +54,10 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 public class EvcsCluster extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
-		ALIAS, //
+		// Component-IDs
 		EVCS_CLUSTER_ID, //
+		// Properties
+		ALIAS, //
 		EVCS_IDS //
 		;
 	}
@@ -73,13 +75,14 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 			var evcsClusterId = this.getId(t, p, Property.EVCS_CLUSTER_ID, "evcsCluster0");
 
 			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-
 			var ids = EnumUtils.getAsJsonArray(p, Property.EVCS_IDS);
 
-			var components = Lists.newArrayList(new EdgeConfig.Component(evcsClusterId, alias,
-					"Evcs.Cluster.PeakShaving", JsonUtils.buildJsonObject() //
-							.onlyIf(t.isAddOrUpdate(), j -> j.add("evcs.ids", ids)) //
-							.build()));
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(evcsClusterId, alias, "Evcs.Cluster.PeakShaving",
+							JsonUtils.buildJsonObject() //
+									.onlyIf(t.isAddOrUpdate(), j -> j.add("evcs.ids", ids)) //
+									.build()) //
+			);
 
 			return new AppConfiguration(components);
 		};

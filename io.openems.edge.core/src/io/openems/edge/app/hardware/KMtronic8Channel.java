@@ -56,10 +56,10 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
-		// Components
+		// Component-IDs
 		IO_ID, //
 		MODBUS_ID, //
-		// User-Values
+		// Properties
 		ALIAS, //
 		IP;
 	}
@@ -102,7 +102,7 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 						.add(JsonFormlyUtil.buildInput(Property.IP) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
 								.setDescription(
-										TranslationUtil.getTranslation(bundle, this.getAppId() + ".Ip.description")) //
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".ip.description")) //
 								.setDefaultValue("192.168.1.199") //
 								.isRequired(true) //
 								.setValidation(Validation.IP) //
