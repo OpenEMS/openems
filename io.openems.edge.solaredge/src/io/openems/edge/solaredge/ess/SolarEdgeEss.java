@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 //import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -47,6 +48,7 @@ import io.openems.edge.ess.sunspec.AbstractSunSpecEss;
 import io.openems.edge.ess.sunspec.SunSpecEss;
 import io.openems.edge.meter.api.SymmetricMeter;
 //import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -61,8 +63,9 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class SolarEdgeEss extends AbstractSunSpecEss
 		implements SunSpecEss, SymmetricEss, HybridEss, EssDcCharger, ModbusComponent, OpenemsComponent, ModbusSlave, EventHandler {
 
-	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
+	private static final int READ_FROM_MODBUS_BLOCK = 1;
+	
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
@@ -95,6 +98,7 @@ public class SolarEdgeEss extends AbstractSunSpecEss
 				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				HybridEss.ChannelId.values(), //
+				EssDcCharger.ChannelId.values(), //
 				SunSpecEss.ChannelId.values() //
 		);
 
@@ -134,7 +138,9 @@ public class SolarEdgeEss extends AbstractSunSpecEss
 						m(HybridEss.ChannelId.DC_DISCHARGE_POWER, //
 								new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW),
 								ElementToChannelConverter.INVERT), //						
-						
+						//m(SymmetricEss.ChannelId.ACTIVE_POWER, //
+						//		new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW),
+						//		ElementToChannelConverter.INVERT), //							
 						
 						new DummyRegisterElement(0xE176, 0xE17D), 
 						m(SymmetricEss.ChannelId.CAPACITY, //
@@ -153,7 +159,14 @@ public class SolarEdgeEss extends AbstractSunSpecEss
 		// SymmetricEss.ChannelId.ACTIVE_POWER, //
 		// ElementToChannelConverter.DIRECT_1_TO_1, //
 		// DefaultSunSpecModel.S103.W);
-		
+	
+		this.mapFirstPointToChannel(//
+		SymmetricEss.ChannelId.CONSUMPTION_POWER, //
+		ElementToChannelConverter.DIRECT_1_TO_1, //
+		DefaultSunSpecModel.S103.W);
+/*		
+		 //DefaultSunSpecModel.S103.W);
+*/		
 
 	}
 
@@ -164,11 +177,12 @@ public class SolarEdgeEss extends AbstractSunSpecEss
 	 *
 	 * @param value the next value
 	 */
-	public void _setESSActivePower() {
-		
-		//var value = this.getCurrentChannel().value().get() * this.getVoltageChannel().value().get();
-		var value = this.getEssActivePowerChannel().value().get() * -1;
-		this.getEssActivePowerChannel().setNextValue(value);
+	public void _setActualPower() {
+	
+		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch + Batterie-Ladung/Entladung *-1
+		var value = this.getConsumptionPowerChannel().value().get() + this.getDcDischargePowerChannel().value().get() * -1;
+		this._setActualPower(value);
+	
 	}
 	
 
@@ -185,7 +199,7 @@ public class SolarEdgeEss extends AbstractSunSpecEss
 		
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			//this._setESSActivePower();
+			this._setActualPower();
 			break;	
 		}
 	}	

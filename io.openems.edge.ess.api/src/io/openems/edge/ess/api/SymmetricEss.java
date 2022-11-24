@@ -22,33 +22,47 @@ import io.openems.edge.common.sum.GridMode;
 public interface SymmetricEss extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		
+
 		/**
 		 * Voltage.
 		 *
 		 * <ul>
-		 * <li>Interface: Ess
-		 * <li>Type: Double
-		 * <li>Unit: Volt
-		 * <li>Range: 0..100
+		 * <li>Interface: Ess DC Charger
+		 * <li>Type: Integer
+		 * <li>Unit: mV
 		 * </ul>
 		 */
-		VOLTAGE(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.VOLT) //
-				.persistencePriority(PersistencePriority.HIGH)),
+		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Current.
 		 *
 		 * <ul>
+		 * <li>Interface: Ess DC Charger
+		 * <li>Type: Integer
+		 * <li>Unit: mA
+		 * </ul>
+		 */
+		CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		
+		/**
+		 * State of Charge.
+		 *
+		 * <ul>
 		 * <li>Interface: Ess
-		 * <li>Type: Double
+		 * <li>Type: Integer
 		 * <li>Unit: %
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		CURRENT(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.AMPERE) //
-				.persistencePriority(PersistencePriority.HIGH)),		
-		
+		CONSUMPTION_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)),
+
 		/**
 		 * State of Charge.
 		 *
@@ -412,6 +426,25 @@ public interface SymmetricEss extends OpenemsComponent {
 	public default Value<Integer> getActivePower() {
 		return this.getActivePowerChannel().value();
 	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getConsumptionPowerChannel() {
+		return this.channel(ChannelId.CONSUMPTION_POWER);
+	}
+
+	/**
+	 * Gets the Active Power in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getConsumptionPower() {
+		return this.getConsumptionPowerChannel().value() ;
+	}
 	
 	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
@@ -439,6 +472,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setActivePower(Integer value) {
+		 value = 1234;
 		this.getActivePowerChannel().setNextValue(value);
 	}
 	
@@ -451,6 +485,7 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setActivePower(int value) {
+		 value = 1234;
 		
 		this.getActivePowerChannel().setNextValue(value);
 	}
