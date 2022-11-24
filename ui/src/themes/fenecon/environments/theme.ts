@@ -23,5 +23,6 @@ export const theme = {
 
         SETTINGS_ALERTING: "ui/settings.html#_benachrichtigung",
         SETTINGS_NETWORK_CONFIGURATION: "ui/settings.html#_netzwerkkonfiguration",
+        EVCS_CLUSTER: "fems-app/includes/FEMS_App_Multi-Ladepunkt-Management.html"
     },
 };
