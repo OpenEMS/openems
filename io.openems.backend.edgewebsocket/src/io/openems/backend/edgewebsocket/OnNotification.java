@@ -45,7 +45,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 		// announce incoming message for this Edge
 		this.parent.metadata.getEdge(edgeId).ifPresent(edge -> {
-			edge.setLastMessageTimestamp();
+			edge.setLastmessage();
 		});
 
 		// Handle notification

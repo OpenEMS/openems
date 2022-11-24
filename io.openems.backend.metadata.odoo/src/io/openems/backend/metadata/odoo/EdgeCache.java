@@ -57,13 +57,13 @@ public class EdgeCache {
 		// more simple fields
 		var comment = PgUtils.getAsStringOrElse(rs, EdgeDevice.COMMENT, "");
 		var version = PgUtils.getAsStringOrElse(rs, EdgeDevice.OPENEMS_VERSION, "");
-		var productType = PgUtils.getAsStringOrElse(rs, EdgeDevice.PRODUCT_TYPE, "");
-		var lastMessage = PgUtils.getAsDateOrElse(rs, EdgeDevice.LAST_MESSAGE, null);
+		var producttype = PgUtils.getAsStringOrElse(rs, EdgeDevice.PRODUCTTYPE, "");
+		var lastmessage = PgUtils.getAsDateOrElse(rs, EdgeDevice.LASTMESSAGE, null);
 
 		var edge = this.edgeIdToEdge.get(edgeId);
 		if (edge == null) {
 			// This is new -> create instance of Edge
-			edge = new MyEdge(this.parent, odooId, edgeId, apikey, comment, version, productType, lastMessage);
+			edge = new MyEdge(this.parent, odooId, edgeId, apikey, comment, version, producttype, lastmessage);
 			this.edgeIdToEdge.put(edgeId, edge);
 			this.odooIdToEdgeId.put(odooId, edgeId);
 			this.apikeyToEdgeId.put(apikey, edgeId);
@@ -71,7 +71,8 @@ public class EdgeCache {
 			// Edge exists -> update information
 			edge.setComment(comment);
 			edge.setVersion(SemanticVersion.fromStringOrZero(version));
-			edge.setProducttype(productType);
+			edge.setProducttype(producttype);
+			edge.setLastmessage(lastmessage);
 		}
 
 		return edge;

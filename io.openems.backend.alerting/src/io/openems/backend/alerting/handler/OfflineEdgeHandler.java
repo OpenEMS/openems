@@ -130,8 +130,8 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	 * @return true if vald
 	 */
 	private boolean isValidEdge(Edge edge) {
-		var invalid = edge.getLastMessageTimestamp() == null // was never online
-				|| edge.getLastMessageTimestamp() //
+		var invalid = edge.getLastmessage() == null // was never online
+				|| edge.getLastmessage() //
 						.isBefore(ZonedDateTime.now().minusWeeks(1)); // already offline for a week
 		return !invalid;
 	}
@@ -148,7 +148,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 			if (alertingSettings == null || alertingSettings.isEmpty()) {
 				return null;
 			}
-			var message = new OfflineEdgeMessage(edge.getId(), edge.getLastMessageTimestamp());
+			var message = new OfflineEdgeMessage(edge.getId(), edge.getLastmessage());
 
 			alertingSettings.stream() //
 					.filter(s -> s.getDelayTime() > 0) //
@@ -169,7 +169,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		if (lastMailRecievedAt == null) {
 			return false;
 		}
-		var edgeOfflineSince = edge.getLastMessageTimestamp();
+		var edgeOfflineSince = edge.getLastmessage();
 		if (lastMailRecievedAt.isAfter(edgeOfflineSince)) {
 			return true;
 		}

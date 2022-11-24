@@ -1,0 +1,62 @@
+# Woodpecker-CI
+# 
+# Um den Docker Container fuer build ('openems-build') zu aktualisieren:
+# - ssh auf gitvm
+# - cd /root/fems/tools
+# - git pull
+# - bash drone-docker.sh
+
+clone:  
+  clone:
+    when:
+      branch: 
+        exclude: [master, develop]
+      path:
+        include: [ 'io.openems*/**', '**/*gradle*', '**/.woodpecker.yml', '.woodpecker/**' ]
+    image: plugins/git
+    settings:
+      depth: 50
+
+pipeline:
+  restore-cache:
+    when:
+      branch: 
+        exclude: [master, develop]
+      path:
+        include: [ 'io.openems*/**', '**/*gradle*', '**/.woodpecker.yml', '.woodpecker/**' ]
+    image: drillster/drone-volume-cache
+    restore: true
+    mount:
+      - /woodpecker/.gradle
+    volumes:
+      - cache:/cache
+    group: restore
+
+  build-java:
+    when:
+      branch: 
+        exclude: [master, develop]
+      path:
+        include: [ 'io.openems*/**', '**/*gradle*', '**/.woodpecker.yml', '.woodpecker/**' ]
+    image: openems-build:latest
+    environment:
+      - GRADLE_USER_HOME=/woodpecker/.gradle
+    commands:
+      - ./gradlew build resolve buildEdge
+      - git diff --exit-code io.openems.backend.application/BackendApp.bndrun
+      - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
+    group: build
+
+  rebuild-cache:
+    when:
+      branch: 
+        exclude: [master, develop]
+      path:
+        include: [ 'io.openems*/**', '**/*gradle*', '**/.woodpecker.yml', '.woodpecker/**' ]
+    image: drillster/drone-volume-cache
+    rebuild: true
+    mount:
+      - /woodpecker/.gradle
+    volumes:
+      - cache:/cache
+    group: refresh
