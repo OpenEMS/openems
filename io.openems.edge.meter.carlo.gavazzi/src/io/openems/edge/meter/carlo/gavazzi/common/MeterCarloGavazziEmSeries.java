@@ -1,4 +1,4 @@
-package io.openems.edge.meter.carlo.gavazzi;
+package io.openems.edge.meter.carlo.gavazzi.common;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
