@@ -303,6 +303,9 @@
         "alerting": "Alerting",
         "networkConfiguration": "Network Configuration"
       },
+      "PROFILE": {
+        "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Error while downloading the Modbus Protocol"
+      },
       "More": {
         "manualCommand": "Manual command",
         "manualpqPowerSpecification": "Power specification",

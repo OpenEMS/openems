@@ -302,6 +302,9 @@
         "alerting": "Benachrichtigung",
         "networkConfiguration": "Netzwerkkonfiguration"
       },
+      "PROFILE": {
+        "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Fehler beim Herunterladen des Modbus-Protokolls"
+      },
       "More": {
         "manualCommand": "Manueller Befehl",
         "manualpqPowerSpecification": "Leistungsvorgabe",
