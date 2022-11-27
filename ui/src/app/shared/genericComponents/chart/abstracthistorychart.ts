@@ -159,7 +159,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   }
 
   private loadChart() {
-    this.period = this.service.historyPeriod;
     let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
     if (unit == Unit.DAYS || unit == Unit.MONTHS) {
 
@@ -343,6 +342,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     let chartObject = this.chartObject;
 
+    if (this.chartType == 'bar') {
+      options.scales.xAxes[0].stacked = true;
+      options.scales.yAxes[0].stacked = true;
+    }
+
     options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.period.from, this.period.to).timeFormat;
 
     if (this.chartType == 'bar') {
@@ -352,10 +356,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     }
 
     options.scales.xAxes[0].bounds = 'ticks';
-    options.scales.xAxes[0].stacked = true;
-    options.scales.yAxes[0].stacked = true;
     options.responsive = true;
-    options.maintainAspectRatio = false;
 
     // Chart.pluginService.register(this.showZeroPlugin);
 

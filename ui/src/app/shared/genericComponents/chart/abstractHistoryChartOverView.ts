@@ -29,7 +29,7 @@ export abstract class AbstractHistoryChartOverView implements OnInit {
     public modalCtrl: ModalController,
   ) { }
 
-  public setShowPhases(event: boolean) {
+  protected setShowPhases(event: boolean) {
     this.showPhases = event;
     this.updateValues();
   }

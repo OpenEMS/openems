@@ -16,6 +16,7 @@ export abstract class AbstractHistoryChart {
     public loading: boolean = true;
     protected edge: Edge | null = null;
     protected isDataExisting: boolean = true;
+    public period: DefaultTypes.HistoryPeriod;
 
     //observable is used to fetch new chart data every 10 minutes
     // private refreshChartData = interval(600000);
@@ -50,8 +51,7 @@ export abstract class AbstractHistoryChart {
         public readonly spinnerId: string,
         protected service: Service,
         protected translate: TranslateService,
-    ) {
-    }
+    ) { }
 
     /**
      * Gets the ChannelAddresses that should be queried.

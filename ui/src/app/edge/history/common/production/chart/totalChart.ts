@@ -19,31 +19,31 @@ export class TotalChartComponent extends AbstractHistoryChart {
         [{
           name: 'ProductionDcActualPower',
           powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
-          energyChannel: ChannelAddress.fromString('_sum/ProductionDcActualEnergy'),
+          energyChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
           filter: ChannelFilter.NOT_NULL,
         },
         {
           name: 'ProductionAcActivePowerL1',
           powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
-          energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL1'),
+          energyChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
           filter: ChannelFilter.NOT_NULL,
         },
         {
           name: 'ProductionAcActivePowerL2',
           powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
-          energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL2'),
+          energyChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
           filter: ChannelFilter.NOT_NULL,
         },
         {
           name: 'ProductionAcActivePowerL3',
           powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
-          energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergyL3'),
+          energyChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
           filter: ChannelFilter.NOT_NULL,
         },
         {
           name: 'ProductionActivePower',
           powerChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
-          energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergy'),
+          energyChannel: ChannelAddress.fromString('_sum/ProductionActivePower'),
           filter: ChannelFilter.NOT_NULL,
         },
         ],
@@ -126,7 +126,6 @@ export class TotalChartComponent extends AbstractHistoryChart {
         name: component.id,
         powerChannel: ChannelAddress.fromString(component.id + '/ActivePower'),
         energyChannel: ChannelAddress.fromString(component.id + '/ActivePower'),
-        filter: ChannelFilter.NOT_NULL,
       })
 
     }
@@ -135,7 +134,6 @@ export class TotalChartComponent extends AbstractHistoryChart {
         name: component.id,
         powerChannel: ChannelAddress.fromString(component.id + '/ActualPower'),
         energyChannel: ChannelAddress.fromString(component.id + '/ActualEnergy'),
-        filter: ChannelFilter.NOT_NULL,
       })
     }
 
