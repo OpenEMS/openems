@@ -1,4 +1,4 @@
-package io.openems.edge.meter.sunspec;
+package io.openems.edge.meter.tq.em420;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.common.collect.ImmutableMap;
@@ -28,17 +28,17 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Generic.Sunspec.Meter", //
+		name = "Meter.Tq.Em420", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
-				"type=GRID" //
-		})
-public class GenericSunSpecMeter extends AbstractSunSpecMeter
+		configurationPolicy = ConfigurationPolicy.REQUIRE)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
+public class MeterTqEm420Impl extends AbstractSunSpecMeter
 		implements AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
@@ -49,11 +49,11 @@ public class GenericSunSpecMeter extends AbstractSunSpecMeter
 			.put(DefaultSunSpecModel.S_204, Priority.LOW) //
 			.build();
 
-	private final static int UNIT_ID = 1;
+	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	private Config config;
 
-	public GenericSunSpecMeter() throws OpenemsException {
+	public MeterTqEm420Impl() throws OpenemsException {
 		super(//
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
@@ -66,6 +66,7 @@ public class GenericSunSpecMeter extends AbstractSunSpecMeter
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -73,21 +74,22 @@ public class GenericSunSpecMeter extends AbstractSunSpecMeter
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
-				config.modbus_id(), config.device().readFromCommonBlockNo)) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
 			return;
 		}
 		this.config = config;
 	}
 
 	@Override
-	protected void onSunSpecInitializationCompleted() {
-		super.mapPointsToChannels(config.invert());
-	}
-
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+	
+	@Override
+	protected void onSunSpecInitializationCompleted() {
+		super.mapPointsToChannels(this.config.invert());
 	}
 
 	@Override

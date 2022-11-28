@@ -1,0 +1,11 @@
+= Meter Elgris
+
+Reads the meters Elgris Zero Export and Elgris Smart Meter
+
+Implemented Natures::
+- SymmetricMeter
+- AsymmetricMeter
+
+Note:: Elgris firmware version must be at least 1.15.02 
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.elgris[Source Code icon:github[]]
