@@ -24,7 +24,8 @@
     </ng-container>
 
     <!-- Total DC Chart if more than one charger -->
-    <totalDcChart [chartTitle]="('General.total' | translate) + ' DC'" *ngIf="chargerComponents.length > 1">
+    <totalDcChart [chartTitle]="('General.total' | translate) + ' DC'" *ngIf="chargerComponents.length > 1"
+      [period]="service.historyPeriod">
     </totalDcChart>
 
     <!-- ChargerComponents -->

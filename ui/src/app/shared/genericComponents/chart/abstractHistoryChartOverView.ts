@@ -1,4 +1,4 @@
-import { Directive, Input, OnInit } from "@angular/core";
+import { Directive, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -7,7 +7,7 @@ import { DefaultTypes } from "../../service/defaulttypes";
 import { v4 as uuidv4 } from 'uuid';
 
 @Directive()
-export abstract class AbstractHistoryChartOverView implements OnInit {
+export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges, OnDestroy {
 
   public edge: Edge | null = null;
   public period: DefaultTypes.HistoryPeriod;

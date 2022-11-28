@@ -293,7 +293,6 @@ export function isLabelVisible(label: string, orElse?: boolean): boolean {
   let labelWithoutUnit = "LABEL_" + label;
   let value = sessionStorage.getItem(labelWithoutUnit);
   if (orElse != null && value == null) {
-    console.log("orElse", orElse);
     return orElse;
   } else {
     return value !== 'false';

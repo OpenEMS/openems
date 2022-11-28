@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
-import { HistoryUtils, Utils } from 'src/app/shared/service/utils';
+import { HistoryUtils, Utils } from '../../../../../shared/service/utils';
 import { ChannelAddress } from '../../../../../shared/shared';
 import { ChannelFilter, ChartData, DisplayValues } from '../../../shared';
+import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart'
 
 @Component({
   selector: 'productionTotalChart',
@@ -83,7 +83,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
               return HistoryUtils.CONVERT_WATT_TO_KILOWATT(result) ?? null
             },
             color: 'rgb(' + this.phaseColors[i - 1] + ')',
-            stack: 2
+            stack: 3
           })
         }
 

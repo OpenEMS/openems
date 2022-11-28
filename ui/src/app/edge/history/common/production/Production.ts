@@ -12,10 +12,16 @@ import { ProductionChartOverviewComponent } from './overview/overview';
 @NgModule({
   imports: [
     BrowserModule,
-    SharedModule,
+    SharedModule
   ],
   entryComponents: [
     FlatComponent,
+    ProductionChartOverviewComponent,
+    ProductionMeterChartComponent,
+    TotalDcChartComponent,
+    TotalAcChartComponent,
+    TotalChartComponent,
+    ChargerChartComponent
   ],
   declarations: [
     FlatComponent,

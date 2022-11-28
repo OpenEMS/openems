@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
 import { AbstractHistoryChartOverView } from '../../../../../shared/genericComponents/chart/abstractHistoryChartOverView';
+import { ChannelAddress, EdgeConfig } from '../../../../../shared/shared';
 
 @Component({
   templateUrl: './overview.html'

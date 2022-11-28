@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Directive, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
@@ -19,6 +19,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
   /** Title for Chart, diplayed above the Chart */
   @Input() public chartTitle: string = "";
+
+  /** TODO: workaround with Observables, to not have to pass the period on Initialisation */
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public component: EdgeConfig.Component;
   @Input() public showPhases: boolean;
