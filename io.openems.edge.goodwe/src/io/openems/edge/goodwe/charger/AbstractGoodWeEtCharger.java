@@ -45,10 +45,11 @@ public abstract class AbstractGoodWeEtCharger extends AbstractOpenemsModbusCompo
 		final var startAddress = this.getStartAddress();
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(startAddress, Priority.HIGH, //
-						m(EssDcCharger.ChannelId.VOLTAGE, new UnsignedWordElement(startAddress), //
+						/*m(EssDcCharger.ChannelId.VOLTAGE, new UnsignedWordElement(startAddress), //
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssDcCharger.ChannelId.CURRENT, new UnsignedWordElement(startAddress + 1),
 								ElementToChannelConverter.SCALE_FACTOR_2),
+								*/
 						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(startAddress + 2))));
 	}
 

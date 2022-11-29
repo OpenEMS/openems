@@ -8,8 +8,6 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.DoubleReadChannel;
-import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -22,47 +20,6 @@ import io.openems.edge.common.sum.GridMode;
 public interface SymmetricEss extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		
-
-		/**
-		 * Voltage.
-		 *
-		 * <ul>
-		 * <li>Interface: Ess DC Charger
-		 * <li>Type: Integer
-		 * <li>Unit: mV
-		 * </ul>
-		 */
-		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.persistencePriority(PersistencePriority.HIGH)), //
-		/**
-		 * Current.
-		 *
-		 * <ul>
-		 * <li>Interface: Ess DC Charger
-		 * <li>Type: Integer
-		 * <li>Unit: mA
-		 * </ul>
-		 */
-		CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.persistencePriority(PersistencePriority.HIGH)),
-		
-		/**
-		 * State of Charge.
-		 *
-		 * <ul>
-		 * <li>Interface: Ess
-		 * <li>Type: Integer
-		 * <li>Unit: %
-		 * <li>Range: 0..100
-		 * </ul>
-		 */
-		CONSUMPTION_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH)),
-
 		/**
 		 * State of Charge.
 		 *
@@ -116,38 +73,6 @@ public interface SymmetricEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Negative values for Charge; positive for Discharge") //
 		),
-		/**
-		 * Active Power.
-		 *
-		 * <ul>
-		 * <li>Interface: Ess Symmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: negative values for DisCharge; positive for Charge
-		 * </ul>
-		 */
-		ESS_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Negative values for Charge; positive for Discharge") //
-		),		
-		
-		/**
-		 * Active Power.
-		 *
-		 * <ul>
-		 * <li>Interface: Ess Symmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: negative values for Charge; positive for Discharge
-		 * </ul>
-		 */
-		PV_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Negative values for Charge; positive for Discharge") //
-		),
-		
 		/**
 		 * Reactive Power.
 		 *
@@ -297,25 +222,6 @@ public interface SymmetricEss extends OpenemsComponent {
 	public default IntegerReadChannel getSocChannel() {
 		return this.channel(ChannelId.SOC);
 	}
-	
-	/**
-	 * Gets the Channel for {@link ChannelId#VOLTAGE}.
-	 *
-	 * @return the Channel
-	 */
-	//public default FloatReadChannel getVoltageChannel() {
-	//	return this.channel(ChannelId.VOLTAGE);
-	//}
-	
-	/**
-	 * Gets the Channel for {@link ChannelId#CURRENT}.
-	 *
-	 * @return the Channel
-	 */
-	
-	//public default FloatReadChannel getCurrentChannel() {
-	//	return this.channel(ChannelId.CURRENT);
-	//}	
 
 	/**
 	 * Gets the State of Charge in [%], range 0..100 %. See {@link ChannelId#SOC}.
@@ -428,55 +334,14 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getConsumptionPowerChannel() {
-		return this.channel(ChannelId.CONSUMPTION_POWER);
-	}
-
-	/**
-	 * Gets the Active Power in [W]. Negative values for Charge; positive for
-	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getConsumptionPower() {
-		return this.getConsumptionPowerChannel().value() ;
-	}
-	
-	/**
-	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getEssActivePowerChannel() {
-		return this.channel(ChannelId.ESS_ACTIVE_POWER);
-	}
-
-	/**
-	 * Gets the Active Power in [W]. Negative values for Charge; positive for
-	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getEssActivePower() {
-		return this.getEssActivePowerChannel().value() ;
-	}	
-
-	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
 	 * Channel.
 	 *
 	 * @param value the next value
 	 */
 	public default void _setActivePower(Integer value) {
-		 value = 1234;
 		this.getActivePowerChannel().setNextValue(value);
 	}
-	
-	
 
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
@@ -485,8 +350,6 @@ public interface SymmetricEss extends OpenemsComponent {
 	 * @param value the next value
 	 */
 	public default void _setActivePower(int value) {
-		 value = 1234;
-		
 		this.getActivePowerChannel().setNextValue(value);
 	}
 

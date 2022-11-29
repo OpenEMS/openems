@@ -37,7 +37,7 @@ public interface EssDcCharger extends OpenemsComponent {
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
-		 * Actual Power from PV Producation
+		 * Actual Power.
 		 *
 		 * <ul>
 		 * <li>Interface: Ess DC Charger
@@ -80,7 +80,6 @@ public interface EssDcCharger extends OpenemsComponent {
 		ACTUAL_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)); //
-
 
 		private final Doc doc;
 
@@ -220,8 +219,6 @@ public interface EssDcCharger extends OpenemsComponent {
 		return ModbusSlaveNatureTable.of(SymmetricEss.class, accessMode, 100) //
 				.channel(0, ChannelId.ACTUAL_POWER, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ACTUAL_ENERGY, ModbusType.FLOAT64) //
-				
-				
 				.build();
 	}
 }

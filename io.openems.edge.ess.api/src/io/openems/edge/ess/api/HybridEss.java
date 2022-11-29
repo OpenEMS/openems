@@ -2,7 +2,6 @@ package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -10,8 +9,6 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
 /**
@@ -119,7 +116,6 @@ public interface HybridEss extends SymmetricEss {
 	 * @param value the next value
 	 */
 	public default void _setDcDischargePower(Integer value) {
-		
 		this.getDcDischargePowerChannel().setNextValue(value);
 	}
 
@@ -200,16 +196,4 @@ public interface HybridEss extends SymmetricEss {
 		this.getDcDischargeEnergyChannel().setNextValue(value);
 	}
 
-	/**
-	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
-	 * of this Component.
-	 *
-	 * @param accessMode filters the Modbus-Records that should be shown
-	 * @return the {@link ModbusSlaveNatureTable}
-	 */
-	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(HybridEss.class, accessMode, 100) //
-				.channel(0, ChannelId.DC_DISCHARGE_POWER, ModbusType.UINT16) //
-				.build();
-	}
 }
