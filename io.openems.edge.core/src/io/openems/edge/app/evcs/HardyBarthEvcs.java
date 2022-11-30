@@ -25,6 +25,7 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.DefaultEnum;
+import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -95,10 +96,15 @@ public class HardyBarthEvcs extends AbstractEvcsApp<Property> implements Openems
 
 			var components = this.getComponents(evcsId, alias, "Evcs.HardyBarth", ip, ctrlEvcsId);
 
+			var ips = Lists.newArrayList(//
+					new InterfaceConfiguration("eth0") //
+							.addIp("Evcs", "192.168.25.10/24") //
+			);
+
 			return new AppConfiguration(//
 					components, //
 					Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"), //
-					ip.startsWith("192.168.25.") ? Lists.newArrayList("192.168.25.10/24") : null //
+					ip.startsWith("192.168.25.") ? ips : null //
 			);
 		};
 	}
