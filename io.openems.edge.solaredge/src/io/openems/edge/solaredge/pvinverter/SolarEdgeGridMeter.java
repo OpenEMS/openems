@@ -32,11 +32,11 @@ import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "SolarEdge.Grid-Meter", //
+		name = "SolarEdge.PV-Inverter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				"type=GRID" //
+				"type=PRODUCTION" //
 		})
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //

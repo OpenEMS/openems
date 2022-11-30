@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.pvinverter.sunspec.Phase;
 
-@ObjectClassDefinition(name = "PV-Inverter SolarEdge", //
+@ObjectClassDefinition(name = "Hybrid PV-Inverter SolarEdge", //
 		description = "Implements the SolarEdge PV inverter in connection with SolarEdge Home Battery")
 @interface Config {
 

@@ -5,8 +5,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.meter.api.MeterType;
 
-@ObjectClassDefinition(name = "Meter SolarEdge", //
-		description = "Implements the SolarEdge Meter.")
+@ObjectClassDefinition(name = "PV-Inverter SolarEdge", //
+		description = "Implements the SolarEdge PV inverter.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

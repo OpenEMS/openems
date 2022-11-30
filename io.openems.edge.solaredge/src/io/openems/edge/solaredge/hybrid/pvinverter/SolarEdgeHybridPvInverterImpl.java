@@ -47,7 +47,7 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "SolarEdge.PV-Inverter", //
+		name = "SolarEdge.Hybrid.PV-Inverter", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
