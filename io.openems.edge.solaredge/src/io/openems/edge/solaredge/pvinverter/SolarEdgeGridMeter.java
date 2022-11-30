@@ -46,10 +46,29 @@ public class SolarEdgeGridMeter extends AbstractSunSpecMeter
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
+<<<<<<< Updated upstream:io.openems.edge.solaredge/src/io/openems/edge/solaredge/pvinverter/SolarEdgeGridMeter.java
 			.put(DefaultSunSpecModel.S_201, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_202, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_203, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_204, Priority.LOW) //
+=======
+//			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_102, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_111, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_112, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_113, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_122, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_123, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_124, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_125, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_127, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_128, Priority.LOW) //
+//			.put(DefaultSunSpecModel.S_145, Priority.LOW) //		
+//			.put(DefaultSunSpecModel.S_802, Priority.LOW) //			
+>>>>>>> Stashed changes:io.openems.edge.solaredge/src/io/openems/edge/solaredge/ess/SolarEdgeEss.java
 			.build();
 
 	private static final int READ_FROM_MODBUS_BLOCK = 2;
