@@ -16,3 +16,4 @@ Bundle-Version: 1.0.0.${tstamp}
 	com.ghgande.j2mod
 Bundle-Description: Implements a EMH LZQJ-XC meter. Modbus-Addresses added by operator of measuring \
 	point and are individual
+	
