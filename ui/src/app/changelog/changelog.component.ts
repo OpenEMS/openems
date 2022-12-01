@@ -35,6 +35,12 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.11.4',
+        changes: [
+          Changelog.product(Product.FEMS_MODBUS_TCP_API) + Changelog.GENERAL_OPTIMIZATION,
+        ]
+      },
+      {
         version: '2022.11.3',
         changes: [
           "Fehlerbehebungen der Übersetzung",
