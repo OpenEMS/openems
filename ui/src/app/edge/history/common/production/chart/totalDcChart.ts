@@ -17,7 +17,7 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
           {
             name: 'ProductionDcActual',
             powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
-            energyChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
+            energyChannel: ChannelAddress.fromString('_sum/ProductionDcActiveEnergy'),
             filter: ChannelFilter.NOT_NULL,
           },
         ],

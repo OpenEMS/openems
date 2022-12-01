@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { ChangeDetectorRef, Component, Directive, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
@@ -41,6 +41,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   public chartType: 'line' | 'bar' = 'line';
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
+  private isEnergyPerPeriodRequestAllowed: boolean = false;
 
   constructor(
     public service: Service,
@@ -66,6 +67,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
+
     this.updateChart();
   };
 
@@ -84,8 +86,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   private fillChart(response: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse) {
 
     if (Utils.isDataEmpty(response)) {
-      this.datasets = EMPTY_DATASET(this.translate);
-      this.labels = []
       return
     }
 
@@ -94,16 +94,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     for (let timestamp of result.timestamps) {
       labels.push(new Date(timestamp));
     }
-    this.chartObject.channel.filter(element => {
-      let channelAddress = this.chartType == 'bar' ? element.energyChannel : element.powerChannel;
-      if (channelAddress.toString() in result.data) {
-        return element;
-      }
-    })
+
     let channelData: { name: string, data: number[] }[] = []
 
+    this.isEnergyPerPeriodRequestAllowed = this.chartObject?.channel.every(element => element.powerChannel && element.energyChannel)
     this.chartObject.channel.forEach(element => {
-      let channelAddress = this.chartType == 'bar' ? element.energyChannel : element.powerChannel;
+      let channelAddress = this.chartType == 'bar' ? (this.isEnergyPerPeriodRequestAllowed ? element.energyChannel : element.powerChannel) : element.powerChannel;
       if (channelAddress.toString() in result.data) {
         channelData.push({
           data: result.data[channelAddress.toString()]?.map(value => {
@@ -161,14 +157,33 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   }
 
   private loadChart() {
+    this.datasets = EMPTY_DATASET(this.translate);
+    this.labels = []
     let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
-    if (unit == Unit.DAYS || unit == Unit.MONTHS) {
 
-      // Shows Bar-Chart
-      this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to).then(response => {
-        this.chartType = 'bar';
+    // Check if at least one EnergyChannel does not exist
+    // TODO not best solution, but there need to be a check if for very powerchannel an energychannel is existing
+    // SOLUTION 1: call the queryHistoricTimeseriesEnergyPerPeriod where there is an energychannel, and for rest queryHistoricTimeseriesData
+    // SOLUTION 2: call the queryHistoricTimeseriesEnergyPerPeriod only if there is a energyChannel for every powerChannel
+
+    // SOLUTION 2
+    if ((unit == Unit.DAYS || unit == Unit.MONTHS)) {
+      this.chartType = 'bar';
+
+      let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
+        if (this.isEnergyPerPeriodRequestAllowed) {
+          this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to).then(response => {
+            resolve(response)
+          })
+        } else {
+          this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+            resolve(response)
+          })
+        }
+      })
+
+      result.then((response) => {
         this.fillChart(response);
-
         let barWidthPercentage = 0;
         let categoryGapPercentage = 0;
         switch (this.service.periodString) {
@@ -200,29 +215,21 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
           element.barPercentage = barWidthPercentage;
           element.categoryPercentage = categoryGapPercentage;
         })
+
         this.chartType = 'bar';
         this.setChartLabel();
-
-      }).catch(reason => {
-        console.error(reason); // TODO error message
-        this.initializeChart();
-        return;
-      });
-
+      })
     } else {
       // Shows Line-Chart
       this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
         this.chartType = 'line'
         this.fillChart(response);
         this.setChartLabel();
-
-      }).catch(reason => {
-        console.error(reason); // TODO error message
-        this.initializeChart();
-        return;
-      });
+      })
     }
+
   }
+
 
   /**
    * Sends the Historic Timeseries Data Query and makes sure the result is not empty.
@@ -298,7 +305,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
           })
         })
       });
-    }).then((response) => {
+    }).then(async (response) => {
 
       // Check if channelAddresses are empty
       if (Utils.isDataEmpty(response)) {
@@ -343,15 +350,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   protected setChartLabel() {
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     let chartObject = this.chartObject;
+    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.period.from, this.period.to).timeFormat;
 
     if (this.chartType == 'bar') {
       options.scales.xAxes[0].stacked = true;
       options.scales.yAxes[0].stacked = true;
-    }
-
-    options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.period.from, this.period.to).timeFormat;
-
-    if (this.chartType == 'bar') {
       options.scales.xAxes[0].offset = true;
       options.scales.xAxes[0].ticks.maxTicksLimit = 12;
       options.scales.xAxes[0].ticks.source = 'data';

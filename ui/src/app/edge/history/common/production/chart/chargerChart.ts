@@ -15,7 +15,6 @@ export class ChargerChartComponent extends AbstractHistoryChart {
         [{
           name: 'ActualPower',
           powerChannel: ChannelAddress.fromString(this.component.id + '/ActualPower'),
-          energyChannel: ChannelAddress.fromString(this.component.id + '/ActualEnergy'),
           filter: ChannelFilter.NOT_NULL,
         }],
       displayValues: (channel: { name: string, data: number[] }[]) => {

@@ -14,7 +14,6 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
     let channels: Channels[] = [{
       name: 'ActivePower',
       powerChannel: ChannelAddress.fromString(this.component.id + '/ActivePower'),
-      energyChannel: ChannelAddress.fromString(this.component.id + '/ActivePower'),
       filter: ChannelFilter.NOT_NULL,
     },
     ];
@@ -24,7 +23,6 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
       channels.push({
         name: 'ActivePowerL' + i,
         powerChannel: ChannelAddress.fromString(this.component.id + '/ActivePowerL' + i),
-        energyChannel: ChannelAddress.fromString(this.component.id + '/ActivePowerL' + i),
         filter: ChannelFilter.NOT_NULL,
       })
     }

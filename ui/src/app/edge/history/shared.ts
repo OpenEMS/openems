@@ -320,7 +320,11 @@ export type Resolution = {
 export type Channels = {
   name: string,
   powerChannel: ChannelAddress,
-  energyChannel: ChannelAddress
+
+  /** If there is a corresponding energyChannel for powerChannel  */
+  energyChannel?: ChannelAddress
+
+  /** Choose between predifined filters */
   filter?: ChannelFilter,
   data?: number[],
   converter?: (value: number[]) => number[]
