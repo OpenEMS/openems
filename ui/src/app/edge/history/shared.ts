@@ -320,8 +320,6 @@ export type Resolution = {
 export type Channels = {
   name: string,
   powerChannel: ChannelAddress,
-
-  /** If there is a corresponding energyChannel for powerChannel  */
   energyChannel?: ChannelAddress
 
   /** Choose between predifined filters */

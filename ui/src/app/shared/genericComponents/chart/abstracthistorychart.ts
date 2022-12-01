@@ -41,7 +41,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   public chartType: 'line' | 'bar' = 'line';
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
-  private isEnergyPerPeriodRequestAllowed: boolean = false;
 
   constructor(
     public service: Service,
@@ -96,16 +95,26 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     }
 
     let channelData: { name: string, data: number[] }[] = []
-
-    this.isEnergyPerPeriodRequestAllowed = this.chartObject?.channel.every(element => element.powerChannel && element.energyChannel)
     this.chartObject.channel.forEach(element => {
-      let channelAddress = this.chartType == 'bar' ? (this.isEnergyPerPeriodRequestAllowed ? element.energyChannel : element.powerChannel) : element.powerChannel;
+      let channelAddress;
+      if (this.chartType == 'bar') {
+        if (element.energyChannel) {
+          channelAddress = element.energyChannel
+        } else {
+          return
+        }
+      } else {
+        channelAddress = element.powerChannel
+      }
+
       if (channelAddress.toString() in result.data) {
         channelData.push({
           data: result.data[channelAddress.toString()]?.map(value => {
             if (value == null) {
               return null
             } else {
+
+              // Custom Filters
               switch (element.filter) {
                 case ChannelFilter.NOT_NULL:
                   return value;
@@ -161,6 +170,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     this.labels = []
     let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
 
+
     // Check if at least one EnergyChannel does not exist
     // TODO not best solution, but there need to be a check if for very powerchannel an energychannel is existing
     // SOLUTION 1: call the queryHistoricTimeseriesEnergyPerPeriod where there is an energychannel, and for rest queryHistoricTimeseriesData
@@ -170,19 +180,19 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     if ((unit == Unit.DAYS || unit == Unit.MONTHS)) {
       this.chartType = 'bar';
 
-      let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
-        if (this.isEnergyPerPeriodRequestAllowed) {
-          this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to).then(response => {
-            resolve(response)
-          })
-        } else {
-          this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            resolve(response)
-          })
-        }
-      })
+      // let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
+      //   if (this.isEnergyPerPeriodRequestAllowed) {
+      //     this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to).then(response => {
+      //       resolve(response)
+      //     })
+      //   } else {
+      //     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+      //       resolve(response)
+      //     })
+      //   }
+      // })
 
-      result.then((response) => {
+      this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to).then(response => {
         this.fillChart(response);
         let barWidthPercentage = 0;
         let categoryGapPercentage = 0;
@@ -216,7 +226,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
           element.categoryPercentage = categoryGapPercentage;
         })
 
-        this.chartType = 'bar';
         this.setChartLabel();
       })
     } else {
@@ -279,10 +288,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
   /**
    * Sends the Historic Timeseries Energy per Period Query and makes sure the result is not empty.
+   * Symbolizes First substracted from last Datapoint for each period, only used for cumulated channel
    * 
    * @param fromDate the From-Date
    * @param toDate   the To-Date
-   * @param channelAddresses       the Channel-Addresses
    */
   protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> {
 
@@ -292,17 +301,21 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     let result: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
       this.service.getCurrentEdge().then(edge => {
         this.service.getConfig().then(async () => {
-          let channelAddresses = (await this.getChannelAddresses()).energyChannels;
-          edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
-            let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse)?.result;
-            if (Object.keys(result).length != 0) {
-              resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse);
-            } else {
-              resolve(new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
-                timestamps: [null], data: { null: null }
-              }));
-            }
-          })
+
+          let channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
+          if (channelAddresses.length > 0) {
+
+            edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
+              let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse)?.result;
+              if (Object.keys(result).length != 0) {
+                resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse);
+              } else {
+                resolve(new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
+                  timestamps: [null], data: { null: null }
+                }));
+              }
+            })
+          }
         })
       });
     }).then(async (response) => {
@@ -414,10 +427,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   protected getChannelAddresses(): Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }> {
     return new Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }>(resolve => {
 
-      if (this.chartObject) {
+      if (this.chartObject?.channel) {
         resolve({
-          powerChannels: this.chartObject.channel.map(element => element.powerChannel),
-          energyChannels: this.chartObject.channel.map(element => element.energyChannel)
+          powerChannels: this.chartObject.channel?.map(element => element.powerChannel) ?? [],
+          energyChannels: this.chartObject.channel?.map(element => element.energyChannel) ?? []
         });
       }
     })
