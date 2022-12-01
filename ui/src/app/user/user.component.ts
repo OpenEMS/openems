@@ -56,7 +56,18 @@ export class UserComponent implements OnInit {
       }
     }).then(() => {
       this.service.metadata.subscribe(entry => {
-        this.showInformation = entry?.user.id != 'demo@fenecon.de';
+        if (entry) {
+          // Temporary Solution
+          switch (entry.user.id) {
+            case 'demo@fenecon.de':
+            case 'pv@schachinger-gaerten.de':
+            case 'pv@studentenpark1-straubing.de':
+              this.showInformation = false;
+              break;
+            default:
+              this.showInformation = true;
+          }
+        }
       })
     })
   }

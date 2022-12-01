@@ -1,6 +1,15 @@
-<oe-modal-line [name]="component.alias ?? component.id"
-    [channelAddress]="[{address:component.id + '/ActivePower', unit: Utils.CONVERT_TO_WATT}]">
-</oe-modal-line>
-<oe-modal-line *ngFor="let phase of [1,2,3]" [name]="'Phase L' + phase" [textIndent]="TextIndentation.SIMPLE"
-    [channelAddress]="[{address:component.id + '/VoltageL' + phase, roleIsAtLeast: Role.INSTALLER, unit: Utils.CONVERT_TO_VOLT},{address:component.id + '/CurrentL' + phase,roleIsAtLeast: Role.INSTALLER, unit: Utils.CONVERT_TO_CURRENT},{address:component.id + '/ActivePowerL'+phase, unit: Utils.CONVERT_TO_WATT}]">
-</oe-modal-line>
+<ng-container *ngIf="component">
+
+    <ng-container *ngIf="type === 'GRID', else normal">
+        <oe-modal-line *ngFor="let phase of grid.phases" [name]="phase.name" [textIndent]="TextIndentation.SIMPLE" [values]="[{value:phase.voltage, roleIsAtLeast: Role.INSTALLER,unit: Utils.CONVERT_TO_VOLT},
+        {value:phase.current ,roleIsAtLeast: Role.INSTALLER,unit: Utils.CONVERT_TO_CURRENT}
+        ,{value:phase.power, unit: Utils.CONVERT_TO_WATT}]">
+        </oe-modal-line>
+    </ng-container>
+    <ng-template #normal>
+        <oe-modal-line [name]="component.alias ?? component.id" [channelAddress]="[{address:component.id + '/ActivePower', unit: Utils.CONVERT_TO_WATT}]">
+        </oe-modal-line>
+        <oe-modal-line *ngFor="let phase of grid.phases" [name]="phase.name" [textIndent]="TextIndentation.SIMPLE" [values]="[{value: phase.voltage, roleIsAtLeast: Role.INSTALLER},{value:phase.current,roleIsAtLeast: Role.INSTALLER},{value:phase.power, unit: Utils.CONVERT_TO_WATT}]">
+        </oe-modal-line>
+    </ng-template>
+</ng-container>
