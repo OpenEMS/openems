@@ -170,7 +170,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     this.labels = []
     let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
 
-
     // Check if at least one EnergyChannel does not exist
     // TODO not best solution, but there need to be a check if for very powerchannel an energychannel is existing
     // SOLUTION 1: call the queryHistoricTimeseriesEnergyPerPeriod where there is an energychannel, and for rest queryHistoricTimeseriesData
@@ -179,25 +178,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     // SOLUTION 2
     if ((unit == Unit.DAYS || unit == Unit.MONTHS)) {
       this.chartType = 'bar';
-
-      // let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
-      //   if (this.isEnergyPerPeriodRequestAllowed) {
-      //     this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to).then(response => {
-      //       resolve(response)
-      //     })
-      //   } else {
-      //     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-      //       resolve(response)
-      //     })
-      //   }
-      // })
-
       this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to).then(response => {
         this.fillChart(response);
         let barWidthPercentage = 0;
         let categoryGapPercentage = 0;
         switch (this.service.periodString) {
-
           case DefaultTypes.PeriodString.CUSTOM: {
             barWidthPercentage = 0.7;
             categoryGapPercentage = 0.4;
@@ -225,7 +210,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
           element.barPercentage = barWidthPercentage;
           element.categoryPercentage = categoryGapPercentage;
         })
-
         this.setChartLabel();
       })
     } else {
@@ -236,9 +220,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         this.setChartLabel();
       })
     }
-
   }
-
 
   /**
    * Sends the Historic Timeseries Data Query and makes sure the result is not empty.

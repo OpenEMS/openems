@@ -36,12 +36,10 @@ export class ChartComponent implements OnInit {
     const popover = await this.popoverCtrl.create({
       component: ChartOptionsPopoverComponent,
       event: ev,
-      translucent: true,
       componentProps: {
         showPhases: this.showPhases,
         showTotal: this.showTotal
       },
-      animated: true
     });
 
     await popover.present();
