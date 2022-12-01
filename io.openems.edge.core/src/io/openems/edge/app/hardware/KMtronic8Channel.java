@@ -1,7 +1,6 @@
 package io.openems.edge.app.hardware;
 
 import java.util.EnumMap;
-import java.util.List;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -15,7 +14,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.hardware.KMtronic8Channel.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -25,6 +23,7 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -80,7 +79,7 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 			var modbusId = this.getId(t, p, Property.MODBUS_ID, "modbus10");
 			var ioId = this.getId(t, p, Property.IO_ID, "io1");
 
-			List<Component> comp = Lists.newArrayList(//
+			var comp = Lists.newArrayList(//
 					new EdgeConfig.Component(ioId, alias, "IO.KMtronic", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("modbus.id", modbusId) //
@@ -89,8 +88,17 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 							.addProperty("ip", ip) //
 							.build())//
 			);
-			return new AppConfiguration(comp, null,
-					ip.startsWith("192.168.1.") ? Lists.newArrayList("192.168.1.198/28") : null);
+
+			var ips = Lists.newArrayList(//
+					new InterfaceConfiguration("eth0") //
+							.addIp("Relay", "192.168.1.198/28") //
+			);
+
+			return new AppConfiguration(//
+					comp, //
+					null, //
+					ip.startsWith("192.168.1.") ? ips : null //
+			);
 		};
 	}
 

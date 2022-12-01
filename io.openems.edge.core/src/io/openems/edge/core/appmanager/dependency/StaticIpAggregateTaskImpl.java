@@ -1,6 +1,5 @@
 package io.openems.edge.core.appmanager.dependency;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,6 +11,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtil;
+import io.openems.edge.core.appmanager.InterfaceConfiguration;
 
 @Component
 public class StaticIpAggregateTaskImpl implements AggregateTask, AggregateTask.StaticIpAggregateTask {
@@ -20,8 +20,8 @@ public class StaticIpAggregateTaskImpl implements AggregateTask, AggregateTask.S
 
 	private final ComponentUtil componentUtil;
 
-	private List<String> ips;
-	private List<String> ips2Delete;
+	private List<InterfaceConfiguration> ips;
+	private List<InterfaceConfiguration> ips2Delete;
 
 	@Activate
 	public StaticIpAggregateTaskImpl(@Reference ComponentUtil componentUtil) {
@@ -44,30 +44,36 @@ public class StaticIpAggregateTaskImpl implements AggregateTask, AggregateTask.S
 			this.ips.addAll(instance.ips);
 		}
 		if (oldConfig != null) {
-			var diff = new ArrayList<>(oldConfig.ips);
-			if (instance != null) {
-				diff.removeAll(instance.ips);
-			}
-			this.ips2Delete.addAll(diff);
+			this.ips2Delete.addAll(oldConfig.ips);
 		}
 	}
 
 	@Override
 	public void create(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
-		if (this.isWindows) {
-			return;
-		}
-
-		this.componentUtil.updateHosts(user, this.ips, this.ips2Delete);
+		this.execute(user, otherAppConfigurations, this.ips, this.ips2Delete);
 	}
 
 	@Override
 	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
-		if (System.getProperty("os.name").startsWith("Windows")) {
+		this.execute(user, otherAppConfigurations, null, this.ips2Delete);
+	}
+
+	private void execute(//
+			final User user, //
+			final List<AppConfiguration> otherAppConfigurations, //
+			final List<InterfaceConfiguration> ips, //
+			final List<InterfaceConfiguration> ipsToDelete //
+	) throws OpenemsNamedException {
+		if (this.isWindows) {
 			return;
 		}
-		this.ips.removeAll(AppManagerAppHelperImpl.getStaticIpsFromConfigs(otherAppConfigurations));
-		this.componentUtil.updateHosts(user, null, this.ips2Delete);
+		InterfaceConfiguration.removeDuplicatedIps(ipsToDelete, //
+				AppManagerAppHelperImpl.getStaticIpsFromConfigs(otherAppConfigurations));
+		this.componentUtil.updateHosts(//
+				user, //
+				ips == null ? null : InterfaceConfiguration.summarize(ips), //
+				InterfaceConfiguration.summarize(ipsToDelete) //
+		);
 	}
 
 }

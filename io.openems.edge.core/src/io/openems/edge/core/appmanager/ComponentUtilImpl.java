@@ -35,7 +35,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
-import io.openems.edge.core.host.Inet4AddressWithSubnetmask;
 import io.openems.edge.core.host.NetworkInterface;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
 import io.openems.edge.io.api.DigitalOutput;
@@ -712,65 +711,47 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	@Override
-	public void updateHosts(User user, List<String> ips, List<String> oldIps) throws OpenemsNamedException {
+	public void updateHosts(//
+			final User user, //
+			final List<InterfaceConfiguration> ips, //
+			final List<InterfaceConfiguration> oldIps //
+	) throws OpenemsNamedException {
 		if ((ips == null || ips.isEmpty()) && (oldIps == null || oldIps.isEmpty())) {
 			return;
 		}
-		if (ips == null) {
-			ips = new ArrayList<>();
-		}
-		var errors = new ArrayList<String>();
-		List<String> deleteIps;
-		if (oldIps == null) {
-			deleteIps = new ArrayList<>();
-		} else {
-			deleteIps = new ArrayList<>(oldIps);
-			deleteIps.removeAll(ips);
-		}
 
-		// parse ip s
-		List<Inet4AddressWithSubnetmask> deleteIpAddresses = new ArrayList<>();
-		for (var ip : deleteIps) {
-			try {
-				deleteIpAddresses.add(Inet4AddressWithSubnetmask.fromString(ip));
-			} catch (OpenemsException e) {
-				errors.add("Ip '" + ip + "' can not be parsed.");
-			}
-		}
-
-		List<Inet4AddressWithSubnetmask> ipAddresses = new ArrayList<>(ips.size());
-		for (var ip : ips) {
-			try {
-				ipAddresses.add(Inet4AddressWithSubnetmask.fromString(ip));
-			} catch (OpenemsException e) {
-				errors.add("Ip '" + ip + "' can not be parsed.");
-			}
-		}
+		final var errors = new ArrayList<String>();
 
 		var interfaces = this.getInterfaces();
-		var eth0 = interfaces.stream().filter(t -> t.getName().equals("eth0")).findFirst().get();
-		if (eth0 == null) {
-			return;
-		}
-		interfaces.remove(eth0);
+		interfaces.stream() //
+				.forEach(networkInterface -> {
+					if (oldIps != null) {
+						// remove ip's in the old configuration
+						oldIps.stream() //
+								.filter(t -> t.interfaceName.equals(networkInterface.getName())) //
+								.forEach(t -> {
+									networkInterface.getAddresses().getValue().removeAll(t.getIps());
+								});
+					}
+					if (ips != null) {
+						// add new ip's
+						ips.stream() //
+								.filter(t -> t.interfaceName.equals(networkInterface.getName())) //
+								.forEach(t -> {
+									networkInterface.getAddresses().getValue().addAll(t.getIps());
+								});
+					}
+				});
 
-		// remove already added addresses
-		for (var address : eth0.getAddresses().getValue()) {
-			ipAddresses.remove(address);
-		}
+		ips.stream() //
+				.filter(ic -> !interfaces.stream().anyMatch(i -> i.getName().equals(ic.interfaceName)))
+				.map(ic -> "Can not add Ip-Addresses for interface '" + ic.interfaceName + "'") //
+				.forEach(errors::add);
 
-		// remove ip s from old configuration
-		eth0.getAddresses().getValue().removeAll(deleteIpAddresses);
-
-		// add ip s from new configuration
-		eth0.getAddresses().getValue().addAll(ipAddresses);
-
-		for (var address : ipAddresses) {
-			// TODO add label to IP-Addresses (e.g. for KEBA)
-			eth0.getAddresses().getValue().add(address);
-		}
-
-		interfaces.add(eth0);
+		oldIps.stream() //
+				.filter(ic -> !interfaces.stream().anyMatch(i -> i.getName().equals(ic.interfaceName)))
+				.map(ic -> "Can not remove Ip-Addresses for interface '" + ic.interfaceName + "'") //
+				.forEach(errors::add);
 
 		try {
 			this.updateInterfaces(user, interfaces);
