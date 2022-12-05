@@ -1,48 +1,45 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { filter } from 'rxjs/operators';
+import { AbstractModalLine } from 'src/app/shared/genericComponents/modal/abstract-modal-line';
 import { TextIndentation } from 'src/app/shared/genericComponents/modal/modal-line/modal-line';
-import { GridMode, Service, Utils } from 'src/app/shared/shared';
+import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
-import { EdgeConfig } from '../../edgeconfig';
 
 @Component({
-    selector: 'oe-asymmetricMeter',
+    selector: 'oe-asymmetric-meter',
     templateUrl: './modal.component.html'
 })
-export class AsymmetricMeterComponent implements OnInit {
+export class AsymmetricMeterComponent extends AbstractModalLine implements OnInit {
 
-    @Input() protected component: EdgeConfig.Component;
-    @Input() protected type?: 'GRID' | null = null;
     protected readonly Role = Role;
     protected readonly Utils = Utils;
-    public readonly TextIndentation = TextIndentation;
-    protected grid: { mode: GridMode, buyFromGrid: number, sellToGrid: number, phases?: { name: string, power: number, current: number, voltage: number }[] } =
-        {
-            mode: GridMode.UNDEFINED,
-            buyFromGrid: 0,
-            sellToGrid: 0,
-            phases: []
+    protected readonly TextIndentation = TextIndentation;
+
+    protected readonly phases: { key: string, name: string, power: number | null, current: number | null, voltage: number | null }[] = [
+        { key: "L1", name: "", power: null, current: null, voltage: null },
+        { key: "L2", name: "", power: null, current: null, voltage: null },
+        { key: "L3", name: "", power: null, current: null, voltage: null },
+    ]
+
+    protected getChannelAddresses(): ChannelAddress[] {
+        let channelAddresses: ChannelAddress[] = [];
+        for (let phase of [1, 2, 3]) {
+            channelAddresses.push(
+                new ChannelAddress(this.component.id, 'CurrentL' + phase),
+                new ChannelAddress(this.component.id, 'VoltageL' + phase),
+                new ChannelAddress(this.component.id, 'ActivePowerL' + phase),
+            )
         }
+        return channelAddresses;
+    }
 
-    constructor(public service: Service, public translate: TranslateService) { }
-
-    ngOnInit() {
-        if (this.type == "GRID") {
-            this.service.getCurrentEdge().then((edge) => {
-                edge.currentData.pipe(
-                    filter(currentData => currentData != null))
-                    .subscribe((currentData) => {
-
-                        this.grid.mode = currentData.channel["_sum/GridMode"]
-                        this.grid.phases.forEach((element, index) => {
-                            element.name = "Phase L" + (index + 1) + " " + this.translate.instant(currentData.channel[this.component.id + "/ActivePowerL" + (index + 1)] > 0 ? "General.gridBuyAdvanced" : "General.gridSellAdvanced");
-                            element.power = Math.abs(currentData.channel[this.component.id + "/ActivePowerL" + (index + 1)]) ?? 0;
-                            element.current = currentData.channel[this.component.id + '/CurrentL' + (index + 1)];
-                            element.voltage = currentData.channel[this.component.id + '/VoltageL' + (index + 1)];
-                        });
-                    });
-            });
-        }
+    protected onCurrentData(currentData: CurrentData): void {
+        this.phases.forEach((phase) => {
+            var power = currentData.allComponents[this.component.id + '/ActivePower' + phase.key];
+            phase.name = "Phase " + phase.key;
+            phase.power = Utils.absSafely(power);
+            phase.current = currentData.allComponents[this.component.id + '/Current' + phase.key];
+            phase.voltage = currentData.allComponents[this.component.id + '/Voltage' + phase.key];
+        });
     }
 }

@@ -1,4 +1,4 @@
-import { formatDate, formatNumber } from '@angular/common';
+import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -67,6 +67,19 @@ export class Utils {
     }
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
+  }
+
+  /**
+   * Safely gets the absolute value of a value.
+   * 
+   * @param value
+   */
+  public static absSafely(value: number | null): number | null {
+    if (value == null) {
+      return value;
+    } else {
+      return Math.abs(value);
+    }
   }
 
   /**
