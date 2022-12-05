@@ -1,39 +1,19 @@
 plugins {
-	id "com.github.node-gradle.node" version "2.2.3"
-}
-
-tasks.register('BundlesCompile');
-
-/*
- * disable report generation
- */
-allprojects {
-	repositories {
-		mavenCentral()
-		gradlePluginPortal()
-	}
-
-	tasks.withType(JavaCompile) {
-		options.encoding = 'UTF-8'
-		options.fork = true
-		options.incremental = true
-	}	
-
-	tasks.withType(Test) {
-		maxParallelForks = 2
-		forkEvery = 100
-		reports {
-			html.required = false
-			junitXml.required = false
-		}
-	}	
+	id 'java'
+	id 'biz.aQute.bnd.workspace'
+	id 'com.github.node-gradle.node'
 }
 
 /*
  * setup bnd tasks
+ * disable report generation
  */
 subprojects {
-	if (plugins.hasPlugin("biz.aQute.bnd")) {
+	if (plugins.hasPlugin("biz.aQute.bnd")) {	
+		repositories {
+			gradlePluginPortal()
+		}
+	
 		apply plugin: 'checkstyle'
 
 		checkstyle {
@@ -53,12 +33,28 @@ subprojects {
 		tasks.withType(aQute.bnd.gradle.Export) {
 			dependsOn tasks.withType(aQute.bnd.gradle.Resolve)
 		}
-        
+		
 		tasks.withType(aQute.bnd.gradle.Resolve) {
-			mustRunAfter parent.BundlesCompile
+			mustRunAfter rootProject.subprojects*.assemble
+			shouldRunAfter rootProject.subprojects*.resolve
 		}
 		
-		parent.BundlesCompile.mustRunAfter tasks.withType(JavaCompile)
+		tasks.withType(JavaCompile) {
+			options.encoding = 'UTF-8'
+			options.fork = true
+			options.incremental = true
+		}	
+
+		tasks.withType(Test) {
+			maxParallelForks = 2
+			forkEvery = 100
+			reports {
+				html.required = false
+				junitXml.required = false
+			}
+		}	
+	} else {
+		tasks.each { it.enabled = false }
 	}
 }
 
@@ -86,7 +82,6 @@ task buildComponents() {
  * Build OpenEMS Edge fat-jar
  */
 task buildEdge() {
-	dependsOn BundlesCompile
 	dependsOn ':io.openems.edge.application:export.EdgeApp'
 	doLast {
 		file("${buildDir}/openems.jar").delete()
@@ -102,7 +97,6 @@ task buildEdge() {
  * Build OpenEMS Backend fat-jar
  */
 task buildBackend() {
-	dependsOn BundlesCompile
 	dependsOn ":io.openems.backend.application:export.BackendApp"
 	doLast {
 		file("${buildDir}/openems-backend.jar").delete()

@@ -16,6 +16,9 @@
 -runsystempackages: \
 	sun.misc
 
+-runblacklist:\
+	bnd.identity;id='org.osgi.service.cm',\
+
 -runbundles+: \
 	org.apache.felix.scr;startlevel=10,\
 	org.apache.felix.configadmin;startlevel=11,\

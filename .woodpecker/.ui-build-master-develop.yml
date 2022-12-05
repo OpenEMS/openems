@@ -7,12 +7,16 @@
 # - bash drone-docker.sh
 
 clone:  
-  clone:
+  git-clone:
     when:
       branch: [master, develop]
-    image: plugins/git
+    image: woodpeckerci/plugin-git:v1.6.1
     settings:
-      depth: 50
+      depth: 1
+      lfs: false
+      recursive: false
+      tags: false
+      partial: true
 
 pipeline:
   restore-cache:

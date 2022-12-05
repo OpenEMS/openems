@@ -16,7 +16,7 @@
 	com.sun.net.httpserver
 
 -runblacklist:\
-	com.squareup.okio,\
+	bnd.identity;id='org.osgi.service.cm',\
 
 -runbundles+: \
 	org.apache.felix.scr;startlevel=10,\

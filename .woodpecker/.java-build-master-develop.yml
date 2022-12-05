@@ -7,12 +7,16 @@
 # - bash drone-docker.sh
 
 clone:  
-  clone:
+  git-clone:
     when:
       branch: [master, develop]
-    image: plugins/git
+    image: woodpeckerci/plugin-git:v1.6.1
     settings:
-      depth: 50
+      depth: 1
+      lfs: false
+      recursive: false
+      tags: false
+      partial: true
 
 pipeline:    
   restore-cache: # copy of  restore-cache, executed on master and develop
@@ -22,9 +26,9 @@ pipeline:
     restore: true
     mount:
       - /woodpecker/.gradle
+      - /woodpecker/.m2
     volumes:
       - cache:/cache
-    group: restore
 
   build-java:
     when:
@@ -33,10 +37,11 @@ pipeline:
     environment:
       - GRADLE_USER_HOME=/woodpecker/.gradle
     commands:
-      - ./gradlew build resolve buildEdge
-      - git diff --exit-code io.openems.backend.application/BackendApp.bndrun
-      - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
-    group: build
+      - mkdir -p /woodpecker/.m2 && ln -s /woodpecker/.m2 ~/.m2
+      - ./gradlew build buildEdge
+      - ./gradlew resolve.EdgeApp
+      - ./gradlew resolve.BackendApp
+      - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
     
   rebuild-cache:
     when:
@@ -45,6 +50,6 @@ pipeline:
     rebuild: true
     mount:
       - /woodpecker/.gradle
+      - /woodpecker/.m2
     volumes:
       - cache:/cache
-    group: refresh
