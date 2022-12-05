@@ -35,9 +35,18 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.11.5',
+        changes: [
+          Changelog.UI,
+        ]
+      },
+      {
         version: '2022.11.4',
         changes: [
           Changelog.product(Product.FEMS_MODBUS_TCP_API) + Changelog.GENERAL_OPTIMIZATION,
+          { roleIsAtLeast: Role.INSTALLER, change: "Anzeige von Strom und Spannung des Netzzählers" },
+          { roleIsAtLeast: Role.INSTALLER, change: Changelog.product(Product.HOME) + "Korrektur bei Strom-/Spannungswerten des Netzzählers" },
+          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App-Center" },
         ]
       },
       {
