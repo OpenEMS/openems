@@ -1,6 +1,5 @@
 package io.openems.edge.app.loadcontrol;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -18,7 +17,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.loadcontrol.ThresholdControl.Property;
@@ -61,11 +59,12 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 public class ThresholdControl extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property implements DefaultEnum {
-		// User values
+		// Component-IDs
+		CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID("ctrlIoChannelSingleThreshold0"), //
+		// Properties
 		ALIAS("Schwellwertsteuerung"), //
 		OUTPUT_CHANNELS("['io0/Relay1']"), //
-		// Components
-		CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID("ctrlIoChannelSingleThreshold0");
+		;
 
 		private final String defaultValue;
 
@@ -93,20 +92,19 @@ public class ThresholdControl extends AbstractOpenemsApp<Property> implements Op
 			final var ctrlIoChannelSingleThresholdId = this.getId(t, p, Property.CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID);
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-
 			final var outputChannelAddress = EnumUtils.getAsJsonArray(p, Property.OUTPUT_CHANNELS);
 
-			List<Component> comp = new ArrayList<>();
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlIoChannelSingleThresholdId, alias,
+							"Controller.IO.ChannelSingleThreshold", JsonUtils.buildJsonObject() //
+									.onlyIf(t == ConfigurationTarget.ADD,
+											j -> j.addProperty("inputChannelAddress", "_sum/EssSoc"))
+									.add("outputChannelAddress", outputChannelAddress) //
+									.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("threshold", 50)) //
+									.build()) //
+			);
 
-			comp.add(new EdgeConfig.Component(ctrlIoChannelSingleThresholdId, alias,
-					"Controller.IO.ChannelSingleThreshold", JsonUtils.buildJsonObject() //
-							.onlyIf(t == ConfigurationTarget.ADD,
-									j -> j.addProperty("inputChannelAddress", "_sum/EssSoc"))
-							.add("outputChannelAddress", outputChannelAddress) //
-							.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("threshold", 50)) //
-							.build()));//
-
-			return new AppConfiguration(comp);
+			return new AppConfiguration(components);
 		};
 	}
 

@@ -46,7 +46,8 @@
             <ion-card-content *ngIf="environment.backend === 'OpenEMS Backend'">
               <form (ngSubmit)="doLogin({ username: username.value.trim(), password: password.value.trim() })">
                 <ion-item>
-                  <ion-label position="floating">E-Mail / <span translate>Login.user</span></ion-label>
+                  <ion-label position="floating">E-Mail / <span translate>Login.user</span>
+                  </ion-label>
                   <ion-input #username required type="input" [placeholder]="'E-Mail / ' + ('Login.user' | translate)">
                   </ion-input>
                 </ion-item>
@@ -93,21 +94,21 @@
                           {{environment.edgeShortName}} hinzugefügt.</ion-label>
                       </ion-item>
                       <ion-card-content class="ion-text-center">
-                        <p>Bitte klicken Sie unten auf den "Hinzufügen"-Button wenn sie ein FEMS in Betrieb nehmen
-                          wollen.</p>
+                        <ion-text>{{ 'INSTALLATION.CLICK_RECOMMENDATION' | translate: { edgeShortName:
+                          environment.edgeShortName } }}</ion-text>
                       </ion-card-content>
                     </ng-container>
                     <ng-template #others>
                       <ion-item color="warning" lines="full">
                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
                         <ion-label class="ion-text-wrap ion-text-center">Leider wurde noch kein
-                          {{environment.edgeShortName}}
-                          mit Ihrem Account verknüpft.</ion-label>
+                          {{environment.edgeShortName}} mit Ihrem Account verknüpft.
+                        </ion-label>
                       </ion-item>
                       <ion-card-content class="ion-text-center">
                         <p>Nach dem Ihr {{environment.edgeShortName}} durch einen Installateur in Betrieb genommen
-                          wurde, sehen Sie es an dieser
-                          Stelle.</p>
+                          wurde, sehen Sie es an dieser Stelle.
+                        </p>
                       </ion-card-content>
                     </ng-template>
                   </ng-container>
@@ -119,7 +120,8 @@
                 <ion-grid>
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
-                      <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()"></ion-searchbar>
+                      <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()">
+                      </ion-searchbar>
                     </ion-col>
                   </ion-row>
 
@@ -129,10 +131,15 @@
 
                         <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset"
                           [routerLink]="['/device', edge.id]" [color]="edge.isOnline ? null : 'light'">
+
                           <ion-label>
                             <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
                             <p *ngIf="!edge.isOnline" class="ion-text-wrap">
                               <ion-text translate>Index.deviceOffline</ion-text>
+                              <ion-label *ngIf="edge.lastmessage">
+                                <ion-text translate>Index.OFFLINE_SINCE</ion-text>
+                                : {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
+                              </ion-label>
                             </p>
                           </ion-label>
                           <ion-label>
@@ -169,9 +176,8 @@
                 <ion-icon name="add-outline"></ion-icon>
               </ion-fab-button>
               <ion-fab-list side="top" style="left: 0; align-items: flex-start;" id="blurred">
-                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">{{
-                  'Index.addEdge' | translate: { edgeShortName: environment.edgeShortName } }}
-                </ion-button>
+                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">
+                  {{'Index.ADD_EDGE' | translate: { edgeShortName: environment.edgeShortName } }}</ion-button>
               </ion-fab-list>
             </ion-fab>
 
@@ -182,8 +188,8 @@
                 <ion-icon name="add-outline"></ion-icon>
               </ion-fab-button>
               <ion-fab-list side="top" style="right: 0; align-items: flex-end;">
-                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">{{
-                  'Index.addEdge' | translate: { edgeShortName: environment.edgeShortName } }}</ion-button>
+                <ion-button color="primary" routerLink="/index/installation" routerLinkActive="active">
+                  {{ 'Index.ADD_EDGE' | translate: { edgeShortName: environment.edgeShortName } }}</ion-button>
               </ion-fab-list>
             </ion-fab>
 

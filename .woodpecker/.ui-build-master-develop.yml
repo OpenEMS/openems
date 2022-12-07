@@ -1,0 +1,87 @@
+# Woodpecker-CI
+# 
+# Um den Docker Container fuer build ('openems-build') zu aktualisieren:
+# - ssh auf gitvm
+# - cd /root/fems/tools
+# - git pull
+# - bash drone-docker.sh
+
+clone:  
+  git-clone:
+    when:
+      branch: [master, develop]
+    image: woodpeckerci/plugin-git:v1.6.1
+    settings:
+      depth: 1
+      lfs: false
+      recursive: false
+      tags: false
+      partial: true
+
+pipeline:
+  restore-cache:
+    when:
+      branch: [master, develop]
+    image: drillster/drone-volume-cache
+    restore: true
+    mount:
+      - /woodpecker/.npm
+      - /woodpecker/.ng
+    volumes:
+      - cache:/cache
+    group: restore
+
+  build-ui:
+    when:
+      branch: [master, develop]
+    image: openems-build:latest
+    commands:
+      - cd ui
+      - npm ci --prefer-offline --cache /woodpecker/.npm
+      - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
+      - node_modules/.bin/ng config cli.cache.path "/woodpecker/.ng"
+      - node_modules/.bin/ng build -c "fenecon,fenecon-backend-prod,prod"
+      - node_modules/.bin/ng lint
+      - export CHROME_BIN=/usr/bin/google-chrome-stable
+      - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+    group: build
+
+  refresh-dev:
+    when:
+      branch: [master, develop]
+    image: appleboy/drone-scp
+    host: 10.0.0.40
+    user: fenecon-docs
+    secrets: 
+      - source: ssh_key_intranet 
+        target: scp_key
+    rm: true
+    source: ./ui/target
+    strip_components: 3
+    target: /opt/gitea/data/openems-ui-dev/html/${CI_COMMIT_BRANCH}
+    group: refresh
+
+  refresh-location:
+    when:
+      branch: [master, develop]
+    image: appleboy/drone-ssh
+    host: 10.0.0.40
+    username: fenecon-docs
+    timeout: 10s
+    key: 
+      from_secret: ssh_key_intranet 
+    script:
+      - /opt/gitea/data/openems-ui-dev/refresh-location.sh ${CI_COMMIT_BRANCH}
+    group: refresh
+
+  rebuild-cache:
+    when:
+      branch: [master, develop]
+    image: drillster/drone-volume-cache
+    rebuild: true
+    mount:
+      - /woodpecker/.npm
+      - /woodpecker/.ng
+    volumes:
+      - cache:/cache
+    group: refresh

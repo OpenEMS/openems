@@ -143,7 +143,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             });
 
             fields.push({
-                key: 'femsBox',
+                key: 'emsBox',
                 type: 'input',
                 templateOptions: {
                     label: 'FEMS Anschlussbox',

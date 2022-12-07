@@ -4,11 +4,15 @@ import { ChannelAddress, Edge, EdgeConfig, Websocket } from "src/app/shared/shar
 import { SchedulerId, SchedulerIdBehaviour } from "../../installation-systems/abstract-ibn";
 import { AppCenterUtil } from "../../shared/appcenterutil";
 
+export enum BaseMode {
+    UI = "UI", // This component will be created by the UI
+    AppManager = "created-by-app-manager", // The component will be created by the AppManager
+}
+
 export enum ConfigurationMode {
     RemoveAndConfigure = "remove-and-configure",    // The component will be removed and then configured as specified
     RemoveOnly = "remove-only",                     // The component will only be removed
     UpdateOnly = "update-only",                     // The component gets updated can be used for core components like _power, ...
-    CreatedByAppManager = "created-by-app-manager", // The component will be created by the AppManager
 }
 
 export enum ConfigurationState {
@@ -38,7 +42,8 @@ export type ConfigurationObject = {
     properties?: { name: string, value: any }[],
     mode: ConfigurationMode,
     configState?: ConfigurationState,
-    functionState?: FunctionState
+    functionState?: FunctionState,
+    baseMode?: BaseMode
 }
 
 const DELAY_CLEAR = 5000;          // Time between the clear and the start of the configurations
@@ -224,7 +229,7 @@ export class ComponentConfigurator {
             let configurationObject = preConfiguredObjects[index];
 
             let delay = DELAY_CLEAR;
-            if (configurationObject.mode === ConfigurationMode.CreatedByAppManager) {
+            if (configurationObject.baseMode === BaseMode.AppManager) {
                 delay = 0;
             }
 
@@ -244,7 +249,7 @@ export class ComponentConfigurator {
                 }, delay);
             }
 
-            if (configurationObject.mode === ConfigurationMode.CreatedByAppManager) {
+            if (configurationObject.baseMode === BaseMode.AppManager) {
                 clearNext();
                 return
             }
@@ -302,7 +307,7 @@ export class ComponentConfigurator {
 
                 let timeout = DELAY_CONFIG;
 
-                if (configurationObject.mode !== ConfigurationMode.RemoveOnly) {
+                if (configurationObject.mode === ConfigurationMode.RemoveAndConfigure) {
                     // Only do function test if in RemoveAndConfigure-Mode
                     this.startFunctionTest(configurationObject);
                 } else {
@@ -311,7 +316,7 @@ export class ComponentConfigurator {
                 }
 
                 // component got already created by app manager
-                if (configurationObject.mode === ConfigurationMode.CreatedByAppManager) {
+                if (configurationObject.baseMode === BaseMode.AppManager) {
                     timeout = 0;
                 }
 
@@ -337,7 +342,7 @@ export class ComponentConfigurator {
 
     private configure(configurationObject: ConfigurationObject): Promise<void> {
         return new Promise((resolve, reject) => {
-            if (configurationObject.mode === ConfigurationMode.CreatedByAppManager) {
+            if (configurationObject.baseMode === BaseMode.AppManager) {
                 resolve()
                 return
             }

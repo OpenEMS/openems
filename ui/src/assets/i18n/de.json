@@ -26,7 +26,8 @@
         "storageCharge": "Speicher-Beladung",
         "storageDischarge": "Speicher-Entladung",
         "title": "Energiemonitor",
-        "excelExportWarning": "Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Die Funktion wird voraussichtlich Ende 2022 wieder nutzbar sein."
+        "excelExportWarning": "Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Die Funktion wird voraussichtlich Anfang 2023 wieder nutzbar sein.",
+        "displayWarning": "Die Anzeige von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Die Funktion wird voraussichtlich Anfang 2023 wieder verfügbar sein."
       },
       "Widgets": {
         "autarchyInfo": "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
@@ -301,6 +302,9 @@
         "alerting": "Benachrichtigung",
         "networkConfiguration": "Netzwerkkonfiguration"
       },
+      "PROFILE": {
+        "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Fehler beim Herunterladen des Modbus-Protokolls"
+      },
       "More": {
         "manualCommand": "Manueller Befehl",
         "manualpqPowerSpecification": "Leistungsvorgabe",
@@ -504,7 +508,8 @@
     "loggedInAs": "Angemeldet als:",
     "toEnergymonitor": "Zum Energiemonitor...",
     "type": "Typ",
-    "addEdge": "Neues {{ edgeShortName }} hinzufügen"
+    "OFFLINE_SINCE": "Offline seit",
+    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",
@@ -730,7 +735,8 @@
       "UPDATE_WARNING": "Version muss geupdated werden!"
     },
     "VALUE_WITH_LABEL": "Wert {{ label }}{{ number }} {{ symbol }}",
-    "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}"
+    "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
+    "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen."
   },
   "Login": {
     "title": "Login",

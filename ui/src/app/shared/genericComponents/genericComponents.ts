@@ -15,6 +15,7 @@ import { ModalComponent } from './modal/modal';
 import { ModalButtonsComponent } from './modal/modal-button/modal-button';
 import { ModalInfoLineComponent } from './modal/modal-info-line/modal-info-line';
 import { ModalLineComponent } from './modal/modal-line/modal-line';
+import { ModalLineItemComponent } from './modal/modal-line/modal-line-item/modal-line-item';
 import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/modal-horizontal-line';
 
 @NgModule({
@@ -36,6 +37,7 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ModalLineComponent,
         ModalHorizontalLineComponent,
         ModalComponent,
+        ModalLineItemComponent
     ],
     declarations: [
         PickDateComponent,
@@ -50,6 +52,7 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ModalHorizontalLineComponent,
         ModalComponent,
         ChartComponent,
+        ModalLineItemComponent
     ],
     exports: [
         FlatWidgetComponent,
@@ -64,6 +67,7 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ModalComponent,
         ChartComponent,
         PickDateComponent,
+        ModalLineItemComponent
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 

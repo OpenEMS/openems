@@ -48,7 +48,11 @@ export function BatteryInverterSerialNumberValidator(control: FormControl): Vali
 
 export function EmsBoxSerialNumberValidator(control: FormControl): ValidationErrors {
   // This validator only checks the value after the prefix
-  return /^[FS]\d{9}$/.test(control.value) ? null : { "emsBoxSerialNumber": true };
+  return /^(FH)?[FS]\d{9}$/.test(control.value) ? null : { "emsBoxSerialNumber": true };
+}
+
+export function EmsBoxNetztrennstelleSerialNumberValidator(control: FormControl): ValidationErrors {
+  return /^\d{4}$/.test(control.value) ? null : { "emsBoxNetztrennstelleSerialNumber": true };
 }
 
 export function BoxSerialNumberValidator(control: FormControl): ValidationErrors {
@@ -91,6 +95,7 @@ export function Commercial50BatteryInverterSerialNumberValidator(control: FormCo
         { name: "emailMatch", validation: EmailMatchValidator },
         { name: "batteryInverterSerialNumber", validation: BatteryInverterSerialNumberValidator },
         { name: "emsBoxSerialNumber", validation: EmsBoxSerialNumberValidator },
+        { name: "emsBoxNetztrennstelleSerialNumber", validation: EmsBoxNetztrennstelleSerialNumberValidator },
         { name: "boxSerialNumber", validation: BoxSerialNumberValidator },
         { name: "bmsBoxSerialNumber", validation: BmsBoxSerialNumberValidator },
         { name: "batterySerialNumber", validation: BatterySerialNumberValidator },

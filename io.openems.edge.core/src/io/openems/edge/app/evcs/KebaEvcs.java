@@ -24,6 +24,7 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.DefaultEnum;
+import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -54,10 +55,13 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 public class KebaEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
 
 	public enum Property implements DefaultEnum {
-		ALIAS("KEBA Ladestation"), //
+		// Component-IDs
 		EVCS_ID("evcs0"), //
 		CTRL_EVCS_ID("ctrlEvcs0"), //
-		IP("192.168.25.11");
+		// Properties
+		ALIAS("KEBA Ladestation"), //
+		IP("192.168.25.11") //
+		;
 
 		private final String defaultValue;
 
@@ -91,8 +95,16 @@ public class KebaEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
 
 			var components = this.getComponents(evcsId, alias, "Evcs.Keba.KeContact", ip, ctrlEvcsId);
 
-			return new AppConfiguration(components, Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"),
-					ip.startsWith("192.168.25.") ? Lists.newArrayList("192.168.25.10/24") : null);
+			var ips = Lists.newArrayList(//
+					new InterfaceConfiguration("eth0") //
+							.addIp("Evcs", "192.168.25.10/24") //
+			);
+
+			return new AppConfiguration(//
+					components, //
+					Lists.newArrayList(ctrlEvcsId, "ctrlBalancing0"), //
+					ip.startsWith("192.168.25.") ? ips : null //
+			);
 		};
 	}
 
@@ -104,7 +116,7 @@ public class KebaEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
 						.add(JsonFormlyUtil.buildInput(Property.IP) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
 								.setDescription(
-										TranslationUtil.getTranslation(bundle, this.getAppId() + ".Ip.description"))
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".ip.description"))
 								.setDefaultValue(Property.IP.getDefaultValue()) //
 								.isRequired(true) //
 								.setValidation(Validation.IP) //

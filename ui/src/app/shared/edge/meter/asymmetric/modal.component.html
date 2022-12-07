@@ -1,6 +1,16 @@
-<oe-modal-line [name]="component.alias ?? component.id"
-    [channelAddress]="[{address:component.id + '/ActivePower', unit: Utils.CONVERT_TO_WATT}]">
-</oe-modal-line>
-<oe-modal-line *ngFor="let phase of [1,2,3]" [name]="'Phase L' + phase" [textIndent]="TextIndentation.SIMPLE"
-    [channelAddress]="[{address:component.id + '/VoltageL' + phase, roleIsAtLeast: Role.INSTALLER, unit: Utils.CONVERT_TO_VOLT},{address:component.id + '/CurrentL' + phase,roleIsAtLeast: Role.INSTALLER, unit: Utils.CONVERT_TO_CURRENT},{address:component.id + '/ActivePowerL'+phase, unit: Utils.CONVERT_TO_WATT}]">
-</oe-modal-line>
+<ng-container *ngIf="component">
+    <oe-modal-line [name]="component.alias ?? component.id" [channelAddress]="component.id + '/ActivePower'"
+        [converter]="Utils.CONVERT_TO_WATT">
+    </oe-modal-line>
+    <ng-container *ngFor="let phase of phases">
+        <oe-modal-line [name]="phase.name" [textIndent]="TextIndentation.SIMPLE">
+            <oe-modal-line-item *ngIf="phase.voltage" [value]="phase.voltage" [roleIsAtLeast]="Role.INSTALLER"
+                [converter]="Utils.CONVERT_TO_VOLT">
+            </oe-modal-line-item>
+            <oe-modal-line-item *ngIf="phase.current" [value]="phase.current" [roleIsAtLeast]="Role.INSTALLER"
+                [converter]="Utils.CONVERT_TO_CURRENT">
+            </oe-modal-line-item>
+            <oe-modal-line-item [value]="phase.power" [converter]="Utils.CONVERT_TO_WATT"></oe-modal-line-item>
+        </oe-modal-line>
+    </ng-container>
+</ng-container>

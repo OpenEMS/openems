@@ -166,7 +166,7 @@ public class EdgeConfig {
 			 * @throws OpenemsNamedException on error
 			 */
 			public static Channel fromJson(String channelId, JsonElement json) throws OpenemsNamedException {
-				var type = JsonUtils.getAsEnum(OpenemsType.class, json, "type");
+				final var type = JsonUtils.getAsEnum(OpenemsType.class, json, "type");
 				var accessModeAbbrOpt = JsonUtils.getAsOptionalString(json, "accessMode");
 				var accessMode = AccessMode.READ_ONLY;
 				if (accessModeAbbrOpt.isPresent()) {
@@ -179,7 +179,13 @@ public class EdgeConfig {
 					}
 				}
 				var text = JsonUtils.getAsOptionalString(json, "text").orElse("");
-				var unit = JsonUtils.getAsOptionalEnum(Unit.class, json, "unit").orElse(Unit.NONE);
+				var unitOpt = JsonUtils.getAsOptionalString(json, "unit");
+				final Unit unit;
+				if (unitOpt.isPresent()) {
+					unit = Unit.fromSymbolOrElse(unitOpt.get(), Unit.NONE);
+				} else {
+					unit = Unit.NONE;
+				}
 				var category = JsonUtils.getAsOptionalEnum(ChannelCategory.class, json, "category")
 						.orElse(ChannelCategory.OPENEMS_TYPE);
 				ChannelDetail detail = null;

@@ -321,10 +321,30 @@ export class EdgeConfig {
             switch (component.factoryId) {
                 case 'GoodWe.EmergencyPowerMeter':
                     return true;
-
-                case 'Simulator.Evcs':
-                    return true;
             }
+        }
+        return false;
+    }
+
+    /**
+     * Is the given Meter of type 'GRID'?
+     * 
+     * @param component the Meter Component
+     * @returns true for GRID
+     */
+    public isTypeGrid(component: EdgeConfig.Component) {
+        if (component.properties["type"] == "GRID") {
+            return true;
+        }
+
+        switch (component.factoryId) {
+            case 'GoodWe.Grid-Meter':
+            case 'Kaco.BlueplanetHybrid10.GridMeter':
+            case 'Fenecon.Dess.GridMeter':
+            case 'Fenecon.Mini.GridMeter':
+            case 'Kostal.Piko.GridMeter':
+            case 'SolarEdge.Grid-Meter':
+                return true;
         }
         return false;
     }
