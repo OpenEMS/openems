@@ -1,4 +1,5 @@
 Bundle-Name: OpenEMS Edge Meter Carlo Gavazzi
+Bundle-Description: This implementation covers Carlo Gavazzi EM24, EM300 and EM340
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}

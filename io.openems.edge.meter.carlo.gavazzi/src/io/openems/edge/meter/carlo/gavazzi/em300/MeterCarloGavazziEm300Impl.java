@@ -64,8 +64,10 @@ public class MeterCarloGavazziEm300Impl extends AbstractMeterCarloGavazziEmSerie
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id(), config.invert());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 	}
 
 	@Override
@@ -97,24 +99,18 @@ public class MeterCarloGavazziEm300Impl extends AbstractMeterCarloGavazziEmSerie
 			energyChannelB = SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
 		}
 
-		
-		this.modbusProtocol.addTask(
-				new FC4ReadInputRegistersTask(300052 - offset, Priority.LOW, //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300052 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(energyChannelA,
-								new SignedDoublewordElement(300053 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2),
-						new DummyRegisterElement(300055 - offset, 300078 - offset), //
-						m(energyChannelB,
-								new SignedDoublewordElement(300079 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2)));
-		
-		return this.modbusProtocol;
+		ModbusProtocol modbusProtocol = super.defineModbusProtocol(this.config.invert());
+
+		modbusProtocol.addTask(new FC4ReadInputRegistersTask(300052 - offset, Priority.LOW, //
+				m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300052 - offset),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				m(energyChannelA, new SignedDoublewordElement(300053 - offset).wordOrder(WordOrder.LSWMSW),
+						ElementToChannelConverter.SCALE_FACTOR_2),
+				new DummyRegisterElement(300055 - offset, 300078 - offset), //
+				m(energyChannelB, new SignedDoublewordElement(300079 - offset).wordOrder(WordOrder.LSWMSW),
+						ElementToChannelConverter.SCALE_FACTOR_2)));
+
+		return modbusProtocol;
 	}
 
-	@Override
-	public String debugLog() {
-		return "L:" + this.getActivePower().asString();
-	}
 }

@@ -1,13 +1,13 @@
 = Carlo Gavazzi EM-xxx Meter
 
 Applies to::
-* CARLO GAVAZZI EM330
-* CARLO GAVAZZI EM340
-* CARLO GAVAZZI EM24
+- Carlo Gavazzi EM24
+- Carlo Gavazzi EM330
+- Carlo Gavazzi EM340
 
 
 Implemented Natures::
-* SymmetricMeter
-* AsymmetricMeter
+- SymmetricMeter
+- AsymmetricMeter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.carlo.gavazzi[Source Code icon:github[]]

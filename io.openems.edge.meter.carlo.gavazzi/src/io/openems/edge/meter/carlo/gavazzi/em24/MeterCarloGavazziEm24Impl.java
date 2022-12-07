@@ -63,8 +63,10 @@ public class MeterCarloGavazziEm24Impl extends AbstractMeterCarloGavazziEmSeries
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id(), config.invert());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 	}
 
 	@Override
@@ -72,7 +74,6 @@ public class MeterCarloGavazziEm24Impl extends AbstractMeterCarloGavazziEmSeries
 	protected void deactivate() {
 		super.deactivate();
 	}
-
 
 	@Override
 	public MeterType getMeterType() {
@@ -82,10 +83,6 @@ public class MeterCarloGavazziEm24Impl extends AbstractMeterCarloGavazziEmSeries
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		final var offset = 300000 + 1;
-		/**
-		 * See Modbus definition PDF-file in doc directory and
-		 * https://www.galoz.co.il/wp-content/uploads/2014/11/EM341-Modbus.pdf
-		 */
 
 		final SymmetricMeter.ChannelId energyChannelA;
 		final SymmetricMeter.ChannelId energyChannelB;
@@ -97,24 +94,22 @@ public class MeterCarloGavazziEm24Impl extends AbstractMeterCarloGavazziEmSeries
 			energyChannelB = SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
 		}
 
-				this.modbusProtocol.addTask(new FC4ReadInputRegistersTask(300056 - offset, Priority.LOW, //
-						// 300056 ~ Hz
-						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300056 - offset),
-								ElementToChannelConverter.SCALE_FACTOR_2)));
-				modbusProtocol.addTask(new FC4ReadInputRegistersTask(300063 - offset, Priority.LOW, //
-						// 300063 ~ KWh(+) TOT
-						m(energyChannelA, new SignedDoublewordElement(300063 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2)));
-				modbusProtocol.addTask(new FC4ReadInputRegistersTask(300093 - offset, Priority.LOW, //
-						// 300093 ~ KWh(-) TOT
-						m(energyChannelB, new SignedDoublewordElement(300093 - offset).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.SCALE_FACTOR_2)));
-		
-		return this.modbusProtocol;
+		ModbusProtocol modbusProtocol = super.defineModbusProtocol(this.config.invert());
+
+		modbusProtocol.addTask(new FC4ReadInputRegistersTask(300056 - offset, Priority.LOW, //
+				// 300056 ~ Hz
+				m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(300056 - offset),
+						ElementToChannelConverter.SCALE_FACTOR_2)));
+		modbusProtocol.addTask(new FC4ReadInputRegistersTask(300063 - offset, Priority.LOW, //
+				// 300063 ~ KWh(+) TOT
+				m(energyChannelA, new SignedDoublewordElement(300063 - offset).wordOrder(WordOrder.LSWMSW),
+						ElementToChannelConverter.SCALE_FACTOR_2)));
+		modbusProtocol.addTask(new FC4ReadInputRegistersTask(300093 - offset, Priority.LOW, //
+				// 300093 ~ KWh(-) TOT
+				m(energyChannelB, new SignedDoublewordElement(300093 - offset).wordOrder(WordOrder.LSWMSW),
+						ElementToChannelConverter.SCALE_FACTOR_2)));
+
+		return modbusProtocol;
 	}
 
-	@Override
-	public String debugLog() {
-		return "L:" + this.getActivePower().asString();
-	}
 }
