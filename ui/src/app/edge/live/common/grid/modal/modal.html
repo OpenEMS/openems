@@ -4,10 +4,10 @@
     </oe-modal-line>
 
     <oe-modal-line [name]="'General.gridBuyAdvanced' | translate" [value]="grid.buyFromGrid"
-        [converter]="CONVERT_TO_WATT">
+        [converter]="Utils.CONVERT_TO_WATT">
     </oe-modal-line>
     <oe-modal-line [name]="'General.gridSellAdvanced' | translate" [value]="grid.sellToGrid"
-        [converter]="CONVERT_TO_WATT">
+        [converter]="Utils.CONVERT_TO_WATT">
     </oe-modal-line>
 
     <ng-container *ngFor="let meter of meters">
@@ -17,18 +17,8 @@
 
         <!-- If meter is asymmetric, show Phases -->
         <ng-container *ngIf="meter.isAsymmetric">
-            <ng-container *ngFor="let phase of phases.get(meter.component)">
-                <oe-modal-line [name]="phase.name" [textIndent]="TextIndentation.SIMPLE">
-                    <oe-modal-line-item [value]="phase.voltage" [roleIsAtLeast]="Role.INSTALLER"
-                        [converter]="Utils.CONVERT_TO_VOLT">
-                    </oe-modal-line-item>
-                    <oe-modal-line-item [value]="phase.current" [roleIsAtLeast]="Role.INSTALLER"
-                        [converter]="Utils.CONVERT_TO_CURRENT">
-                    </oe-modal-line-item>
-                    <oe-modal-line-item [value]="phase.power" [converter]="Utils.CONVERT_TO_WATT">
-                    </oe-modal-line-item>
-                </oe-modal-line>
-            </ng-container>
+            <oe-modal-meter-phases [component]="meter.component" [setTranslatedName]="setTranslatedName">
+            </oe-modal-meter-phases>
         </ng-container>
     </ng-container>
 
