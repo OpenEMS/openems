@@ -5,7 +5,7 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
 import { Role } from "../../type/role";
 
@@ -50,10 +50,13 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     public displayValue: string = null;
 
     /** Checks if any value of this line can be seen => hides line if false */
-    protected isAllowed: boolean = true;
+    protected isAllowedToBeSeen: boolean = true;
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
+
+    protected readonly Role = Role;
+    protected readonly Utils = Utils;
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -119,7 +122,8 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
             this.edge = edge;
 
             // Check if user is allowed to see these channel-values
-            if (this.edge.roleIsAtLeast(this.roleIsAtLeast ?? Role.GUEST)) {
+            if (this.edge.roleIsAtLeast(this.roleIsAtLeast)) {
+                this.isAllowedToBeSeen = true;
                 edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
 
                 // call onCurrentData() with latest data
@@ -128,6 +132,8 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
                         this.setValue(currentData.channel[channelAddress.toString()])
                     }
                 });
+            } else {
+                this.isAllowedToBeSeen = false;
             }
         })
 
