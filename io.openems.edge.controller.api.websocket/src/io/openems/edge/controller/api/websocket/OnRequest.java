@@ -208,7 +208,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
 			AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
 		return this.handleAuthentication(wsData, request.getId(),
-				this.parent.userService.authenticate(request.getPassword()), UUID.randomUUID().toString());
+				this.parent.userService.authenticate(request.password), UUID.randomUUID().toString());
 	}
 
 	/**

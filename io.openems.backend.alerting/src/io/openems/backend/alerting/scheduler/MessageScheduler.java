@@ -41,6 +41,9 @@ public class MessageScheduler<T extends Message> {
 			return;
 		}
 		var msg = this.messageForId.get(msgId);
+		if (msg == null) {
+			return;
+		}
 		this.queue.remove(msg);
 		this.messageForId.remove(msgId);
 	}

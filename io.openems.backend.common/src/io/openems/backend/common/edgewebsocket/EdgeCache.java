@@ -10,8 +10,6 @@ import java.util.function.BiConsumer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
-import io.openems.common.types.ChannelAddress;
-
 public class EdgeCache {
 
 	/**
@@ -24,15 +22,15 @@ public class EdgeCache {
 	 */
 	private long lastAppliedTimestamp = 0L;
 
-	private final HashMap<ChannelAddress, JsonElement> cacheData = new HashMap<>();
+	private final HashMap<String, JsonElement> cacheData = new HashMap<>();
 
 	/**
 	 * Gets the channel value from cache.
 	 *
-	 * @param address the {@link ChannelAddress} of the channel
+	 * @param address the Channel-Address of the channel
 	 * @return the value; empty if it is not in cache
 	 */
-	public final JsonElement getChannelValue(ChannelAddress address) {
+	public final JsonElement getChannelValue(String address) {
 		synchronized (this) {
 			var result = this.cacheData.get(address);
 			if (result == null) {
@@ -49,9 +47,9 @@ public class EdgeCache {
 	 * @param onInvalidCache callback on invalid cache. Can be used for a log
 	 *                       message.
 	 */
-	public void complementDataFromCache(SortedMap<Long, Map<ChannelAddress, JsonElement>> incomingDatas,
+	public void complementDataFromCache(SortedMap<Long, Map<String, JsonElement>> incomingDatas,
 			BiConsumer<Instant, Instant> onInvalidCache) {
-		for (Entry<Long, Map<ChannelAddress, JsonElement>> entry : incomingDatas.entrySet()) {
+		for (Entry<Long, Map<String, JsonElement>> entry : incomingDatas.entrySet()) {
 			var incomingTimestamp = entry.getKey();
 			var incomingData = entry.getValue();
 
@@ -73,8 +71,8 @@ public class EdgeCache {
 						this.cacheData.clear();
 					}
 
-				} else if (incomingTimestamp < this.lastAppliedTimestamp + 2 * 60 * 1000) {
-					// Apply Cache only once every two minutes to throttle writes
+				} else if (incomingTimestamp < this.lastAppliedTimestamp + 4 * 60 * 1000) {
+					// Apply Cache only once every four minutes to throttle writes
 
 				} else {
 					// Apply Cache

@@ -28,7 +28,15 @@ public class JsonrpcUtils {
 		}
 		var paramsOpt = JsonUtils.getAsOptionalJsonObject(j, "params");
 		if (paramsOpt.isPresent()) {
-			var payloadOpt = JsonUtils.getAsOptionalJsonObject(paramsOpt.get(), "payload");
+			var params = paramsOpt.get();
+			// hide passwords
+			var password = params.get("password");
+			if (password != null && password.isJsonPrimitive()) {
+				params.addProperty("password", "HIDDEN");
+			}
+
+			// recursive call for payload
+			var payloadOpt = JsonUtils.getAsOptionalJsonObject(params, "payload");
 			if (payloadOpt.isPresent()) {
 				simplifyJsonrpcMessage(payloadOpt.get());
 			}

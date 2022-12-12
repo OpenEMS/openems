@@ -307,8 +307,6 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 			var version = (SemanticVersion) reader.getProperty(Edge.Events.OnSetVersion.VERSION);
 
 			// Set Version in Odoo
-			this.logInfo(this.log, "Edge [" + edge.getId() + "]: Update OpenEMS Edge version to [" + version
-					+ "]. It was [" + edge.getVersion() + "]");
 			this.odooHandler.writeEdge(edge, new FieldValue<>(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
 		}
 			break;
@@ -356,7 +354,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 				oldConfig = this.edgeHandler.getEdgeConfig(edge.getId());
 
 			} catch (OpenemsNamedException e) {
-				oldConfig = new EdgeConfig();
+				oldConfig = EdgeConfig.empty();
 				this.logWarn(this.log, "Edge [" + edge.getId() + "]. " + e.getMessage());
 			}
 
