@@ -2,6 +2,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
 import { Edge, Service, Utils, Widgets, EdgeConfig } from '../../shared/shared';
 import { AdvertWidgets } from 'src/app/shared/type/widget';
+import { SubscribeEdgesRequest } from 'src/app/shared/jsonrpc/request/subscribeEdgesRequest';
 
 @Component({
   selector: 'live',
@@ -23,6 +24,11 @@ export class LiveComponent {
 
   ionViewWillEnter() {
     this.service.setCurrentComponent('', this.route).then(edge => {
+
+      if (edge.isOnline) {
+        this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] }))
+          .catch(error => console.warn(error))
+      }
       this.edge = edge;
     });
     this.service.getConfig().then(config => {

@@ -11,7 +11,7 @@ import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 public class AbstractJsonrpcRequestTest {
 
 	@Test
-	public void testGetFullyQuallifiedMethod() {
+	public void testGetFullyQualifiedMethod() {
 		assertEquals("foo", //
 				new GenericJsonrpcRequest("foo", new JsonObject()) //
 						.getFullyQualifiedMethod());

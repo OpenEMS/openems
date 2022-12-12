@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import io.openems.backend.timedata.timescaledb.internal.Priority;
 import io.openems.backend.timedata.timescaledb.internal.Type;
 import io.openems.common.worker.AbstractImmediateWorker;
 
@@ -18,15 +19,17 @@ public class MergePointsWorker<POINT extends Point> extends AbstractImmediateWor
 	private final HikariDataSource dataSource;
 	private final ExecutorService executor;
 	private final Type type;
+	private final Priority priority;
 	// TODO queue: delete old entries if full; like an EvictingQueue;
 	// https://github.com/google/guava/issues/3882
 	private final BlockingQueue<POINT> queue = new ArrayBlockingQueue<>(TimescaledbWriteHandler.POINTS_QUEUE_SIZE);
 	private long countPoints = 0;
 
-	public MergePointsWorker(HikariDataSource dataSource, ExecutorService executor, Type type) {
+	public MergePointsWorker(HikariDataSource dataSource, ExecutorService executor, Type type, Priority priority) {
 		this.dataSource = dataSource;
 		this.executor = executor;
 		this.type = type;
+		this.priority = priority;
 	}
 
 	public BlockingQueue<POINT> getQueue() {
@@ -50,7 +53,7 @@ public class MergePointsWorker<POINT extends Point> extends AbstractImmediateWor
 		this.countPoints += points.size();
 
 		// Write points async.
-		this.executor.execute(new WritePointsHandler(this.dataSource, this.type, points));
+		this.executor.execute(new WritePointsHandler(this.dataSource, this.type, this.priority, points));
 	}
 
 	/**

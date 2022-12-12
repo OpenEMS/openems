@@ -2,9 +2,9 @@ package io.openems.backend.timedata.timescaledb.internal;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -17,6 +17,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 
 public enum Type {
 	INTEGER(1, "data_integer", "bigint" /* 8 bytes; covers Java byte, int and long */, //
@@ -29,10 +30,12 @@ public enum Type {
 
 	public final int id;
 	public final String sqlDataType;
-	public final String tableRaw;
-	public final String tableAggregate5m;
+	private final String prefix;
 	public final String defaultAggregateFunction; // defaults to first aggregateFunction
 	public final String[] aggregateFunctions;
+
+	private final Map<Priority, String> rawTableName = new EnumMap<>(Priority.class);
+	private final Map<Priority, String> aggregate5mTableName = new EnumMap<>(Priority.class);
 
 	private final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> parseValueFromResultSet;
 	private final ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> subtractFunction;
@@ -42,12 +45,35 @@ public enum Type {
 			ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> subtractFunction) {
 		this.id = id;
 		this.sqlDataType = sqlDataType;
-		this.tableRaw = prefix + "_raw";
-		this.tableAggregate5m = prefix + "_5m";
+		this.prefix = prefix;
 		this.aggregateFunctions = aggregateFunctions;
 		this.defaultAggregateFunction = aggregateFunctions[0];
 		this.parseValueFromResultSet = parseValueFromResultSet;
 		this.subtractFunction = subtractFunction;
+	}
+
+	/**
+	 * Gets the raw table name of the type and the specified priority.
+	 * 
+	 * @param priority the priority of the table
+	 * @return the table name
+	 */
+	public String getRawTableName(Priority priority) {
+		return this.rawTableName.computeIfAbsent(priority, t -> this.baseTableName(priority) + "_raw");
+	}
+
+	/**
+	 * Gets the aggregate table name of the current type and the specified priority.
+	 * 
+	 * @param priority the priority of the table
+	 * @return the table name
+	 */
+	public String getAggregate5mTableName(Priority priority) {
+		return this.aggregate5mTableName.computeIfAbsent(priority, t -> this.baseTableName(priority) + "_5m");
+	}
+
+	private String baseTableName(Priority priority) {
+		return this.prefix + "_" + priority.getTableSuffix();
 	}
 
 	/**
@@ -98,17 +124,12 @@ public enum Type {
 	 */
 	public static Type fromId(int id) {
 		for (var type : Type.values()) {
-			if (id == type.id) {
+			if (type.id == id) {
 				return type;
 			}
 		}
 		return null;
 	}
-
-	private static final Predicate<String> DETECT_INTEGER_PATTERN = //
-			Pattern.compile("^[-+]?[0-9]+$").asPredicate();
-	private static final Predicate<String> DETECT_FLOAT_PATTERN = //
-			Pattern.compile("^[-+]?[0-9]*\\.[0-9]+$").asPredicate();
 
 	/**
 	 * Tries to detect the {@link Type} of a {@link JsonElement} value.
@@ -130,7 +151,7 @@ public enum Type {
 				if (n.getClass().getName().equals("com.google.gson.internal.LazilyParsedNumber")) {
 					// Avoid 'discouraged access'
 					// LazilyParsedNumber stores value internally as String
-					if (DETECT_FLOAT_PATTERN.test(n.toString())) {
+					if (StringUtils.matchesFloatPattern(n.toString())) {
 						return Type.FLOAT;
 					}
 					return Type.INTEGER;
@@ -148,7 +169,7 @@ public enum Type {
 			} else if (p.isString()) {
 				// Strings are parsed if they start with a number or minus
 				var s = p.getAsString();
-				if (DETECT_FLOAT_PATTERN.test(s)) {
+				if (StringUtils.matchesFloatPattern(s)) {
 					try {
 						Double.parseDouble(s); // try parsing to Double
 						return Type.FLOAT;
@@ -156,7 +177,7 @@ public enum Type {
 						return Type.STRING;
 					}
 
-				} else if (DETECT_INTEGER_PATTERN.test(s)) {
+				} else if (StringUtils.matchesIntegerPattern(s)) {
 					try {
 						Long.parseLong(s); // try parsing to Long
 						return Type.INTEGER;
@@ -172,6 +193,9 @@ public enum Type {
 	}
 
 	private static class ParseValueFromResultSet {
+
+		private ParseValueFromResultSet() {
+		}
 
 		private static final JsonElement integers(ResultSet rs, Integer columnIndex) throws SQLException {
 			var value = rs.getLong(columnIndex);
@@ -190,6 +214,9 @@ public enum Type {
 	}
 
 	private static class Subtract {
+
+		private Subtract() {
+		}
 
 		private static final JsonElement integers(JsonElement jA, JsonElement jB) throws OpenemsNamedException {
 			Long a = JsonUtils.getAsType(OpenemsType.LONG, jA);

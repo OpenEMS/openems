@@ -2021,7 +2021,7 @@ public class JsonUtils {
 	}
 
 	private static <E extends Enum<E>> E toEnum(Class<E> enumType, String name) {
-		if (name == null) {
+		if (name == null || name.isBlank()) {
 			return null;
 		}
 		try {
