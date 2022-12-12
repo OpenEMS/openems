@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { HistoryUtils, Utils } from 'src/app/shared/service/utils';
 import { ChannelAddress } from '../../../../../shared/shared';
-import { ChannelFilter, ChartData, DisplayValues } from '../../../shared';
+import { ChannelFilter, ChartData, DisplayValues, YAxisTitle } from '../../../shared';
 
 @Component({
   selector: 'productionTotalAcChart',
@@ -42,7 +42,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
         datasets.push({
           name: this.translate.instant("General.total"),
           setValue: () => {
-            return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channels.find(element => element.name == 'ProductionAcActivePower')?.data)
+            return channels.find(element => element.name == 'ProductionAcActivePower')?.data
           },
           color: "rgb(0,152,204)",
           stack: 0
@@ -55,7 +55,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
               if (!this.showPhases) {
                 return null;
               }
-              return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channels.find(element => element.name == ('ProductionAcActivePowerL' + i))?.data) ?? null
+              return channels.find(element => element.name == ('ProductionAcActivePowerL' + i))?.data ?? null
             },
             color: 'rgb(' + this.phaseColors[i - 1] + ')',
           })
@@ -64,10 +64,9 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
         return datasets
       },
       tooltip: {
-        unit: 'kW',
         formatNumber: '1.1-2'
       },
-      yAxisTitle: "kW",
+      unit: YAxisTitle.ENERGY,
     }
   }
 }

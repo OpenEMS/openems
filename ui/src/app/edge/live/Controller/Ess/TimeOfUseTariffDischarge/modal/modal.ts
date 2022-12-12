@@ -5,7 +5,7 @@ import { Edge, EdgeConfig } from 'src/app/shared/shared';
 
 @Component({
     templateUrl: './modal.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.Default,
 })
 export class ModalComponent extends AbstractModal {
 

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { HistoryUtils, Utils } from '../../../../../shared/service/utils';
 import { ChannelAddress } from '../../../../../shared/shared';
-import { ChannelFilter, ChartData, DisplayValues } from '../../../shared';
+import { ChannelFilter, ChartData, DisplayValues, YAxisTitle } from '../../../shared';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart'
 
 @Component({
@@ -49,7 +49,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
         datasets.push({
           name: this.showTotal == false ? this.translate.instant('General.production') : this.translate.instant('General.total'),
           setValue: () => {
-            return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channel.find(element => element.name == 'ProductionActivePower')?.data)
+            return channel.find(element => element.name == 'ProductionActivePower')?.data
           },
           color: 'rgb(0,152,204)',
           hiddenOnInit: true,
@@ -77,7 +77,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
               } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0) {
                 result = channel.find(element => element.name = 'ProductionAcActivePowerL' + i)?.data
               }
-              return HistoryUtils.CONVERT_WATT_TO_KILOWATT(result) ?? null
+              return result ?? null
             },
             color: 'rgb(' + this.phaseColors[i - 1] + ')',
             stack: 3
@@ -89,7 +89,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
           datasets.push({
             name: component.alias ?? component.id,
             setValue: () => {
-              return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channel.find(element => element.name == component.id)?.data) ?? null
+              return channel.find(element => element.name == component.id)?.data ?? null
             },
             color: 'rgb(253,197,7)',
             stack: 1
@@ -103,7 +103,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
           datasets.push({
             name: component.alias ?? component.id,
             setValue: () => {
-              return HistoryUtils.CONVERT_WATT_TO_KILOWATT(channel.find(element => element.name == component.id)?.data) ?? null
+              return channel.find(element => element.name == component.id)?.data ?? null
             },
             color: chargerColors[i],
             stack: 1
@@ -112,10 +112,9 @@ export class TotalChartComponent extends AbstractHistoryChart {
         return datasets;
       },
       tooltip: {
-        unit: 'kW',
         formatNumber: '1.1-2'
       },
-      yAxisTitle: "kW",
+      unit: YAxisTitle.ENERGY,
     }
 
     for (let component of productionMeterComponents) {

@@ -14,6 +14,7 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
   @Input() public componentId: string;
   protected showTotal: boolean = false;
   protected showPhases: boolean = false;
+  protected isPopoverNeeded: boolean = false;
 
   /**
    * True after this.edge, this.config and this.component are set.
@@ -73,6 +74,7 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
         }
       }
       this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents })
+      this.checkIfPopoverNeeded()
     }).catch(() => {
       // TODO Error Message
     })
@@ -88,6 +90,14 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
     this.stopOnDestroy.complete();
   }
 
+  private checkIfPopoverNeeded() {
+    if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
+      this.isPopoverNeeded = false;
+    } else {
+      this.isPopoverNeeded = true;
+    }
+    console.log("check, ", this.isPopoverNeeded)
+  }
   /**
    * Called on every new data.
    * 

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { AbstractHistoryChartOverView } from '../../../../../shared/genericComponents/chart/abstractHistoryChartOverView';
 import { ChannelAddress, EdgeConfig } from '../../../../../shared/shared';
 

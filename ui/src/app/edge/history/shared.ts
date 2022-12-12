@@ -358,13 +358,18 @@ export type ChartData = {
   displayValues: (data: { name: string, data: number[] }[]) => DisplayValues[],
   tooltip: {
     /** Unit to be displayed as Tooltips unit */
-    unit: '%' | 'kWh' | 'kW',
+    // unit: '%' | 'kWh' | 'kW',
     /** Format of Number displayed */
     formatNumber?: string;
   },
   test?: Function,
   /** Name to be displayed on the left y-axis */
-  yAxisTitle: string,
+  unit: YAxisTitle,
+}
+
+export enum YAxisTitle {
+  PERCENTAGE,
+  ENERGY
 }
 
 export enum ChannelFilter {

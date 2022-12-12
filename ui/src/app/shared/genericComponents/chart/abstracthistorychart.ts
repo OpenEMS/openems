@@ -7,7 +7,7 @@ import { ChartDataSets, ChartLegendLabelItem } from 'chart.js';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
-import { calculateResolution, ChannelFilter, ChartData, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
+import { calculateResolution, ChannelFilter, ChartData, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, isLabelVisible, setLabelVisible, TooltipItem, Unit, YAxisTitle } from '../../../edge/history/shared';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -170,12 +170,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     this.labels = []
     let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
 
-    // Check if at least one EnergyChannel does not exist
-    // TODO not best solution, but there need to be a check if for very powerchannel an energychannel is existing
-    // SOLUTION 1: call the queryHistoricTimeseriesEnergyPerPeriod where there is an energychannel, and for rest queryHistoricTimeseriesData
-    // SOLUTION 2: call the queryHistoricTimeseriesEnergyPerPeriod only if there is a energyChannel for every powerChannel
-
-    // SOLUTION 2
     if ((unit == Unit.DAYS || unit == Unit.MONTHS)) {
       this.chartType = 'bar';
       this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to).then(response => {
@@ -302,6 +296,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       });
     }).then(async (response) => {
 
+      // Convert Wh to kWh
+      for (let [key, value] of Object.entries(response.result.data)) {
+        response.result.data[key] = value.map(element => element / 1000)
+      }
+
       // Check if channelAddresses are empty
       if (Utils.isDataEmpty(response)) {
 
@@ -365,16 +364,16 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       let date = new Date(tooltipItems[0].xLabel);
       return this.toTooltipTitle(this.service.historyPeriod.from, this.service.historyPeriod.to, date);
     }
-    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+    options.tooltips.callbacks.label = (tooltipItem: TooltipItem, data: Data) => {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
 
       // Show floating point number for values between 0 and 1
-      return label + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + chartObject.tooltip.unit;
+      return label + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + this.getToolTipsLabel(chartObject.unit);
     }
 
     // Set Y-Axis Title
-    options.scales.yAxes[0].scaleLabel.labelString = chartObject.yAxisTitle;
+    options.scales.yAxes[0].scaleLabel.labelString = this.getYAxisTitle(chartObject.unit);
 
     // Save Original OnClick because calling onClick overwrites default function
     var original = Chart.defaults.global.legend.onClick;
@@ -396,7 +395,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
    * @param spinnerSelector to stop spinner
    */
   protected initializeChart() {
-    // EMPTY_DATASET(this.translate)[0].label = this.translate.instant('Edge.History.noData')
     this.datasets = EMPTY_DATASET(this.translate);
     this.labels = [];
     this.loading = false;
@@ -420,6 +418,32 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   };
 
   protected abstract getChartData(): ChartData | null
+
+  protected getYAxisTitle(title: YAxisTitle): string {
+    switch (title) {
+      case YAxisTitle.PERCENTAGE:
+        return this.translate.instant("General.percentage")
+      case YAxisTitle.ENERGY:
+        if (this.chartType == 'bar') {
+          return 'kWh'
+        } else {
+          return 'kW'
+        }
+    }
+  }
+
+  protected getToolTipsLabel(title: YAxisTitle) {
+    switch (title) {
+      case YAxisTitle.PERCENTAGE:
+        return '%'
+      case YAxisTitle.ENERGY:
+        if (this.chartType == 'bar') {
+          return 'kWh'
+        } else {
+          return 'kW'
+        }
+    }
+  }
 
   /**
    * Used to show a small bar on the chart if the value is 0

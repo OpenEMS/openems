@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { ChannelAddress, Utils } from '../../../../../shared/shared';
-import { ChannelFilter, ChartData } from '../../../shared';
+import { ChannelFilter, ChartData, YAxisTitle } from '../../../shared';
 
 @Component({
   selector: 'autarchychart',
@@ -38,10 +38,9 @@ export class ChartComponent extends AbstractHistoryChart {
         }]
       },
       tooltip: {
-        unit: '%',
         formatNumber: '1.0-0'
       },
-      yAxisTitle: this.translate.instant("General.percentage"),
+      unit: YAxisTitle.PERCENTAGE,
     }
   }
 }

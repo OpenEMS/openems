@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { HistoryUtils } from 'src/app/shared/service/utils';
 import { ChannelAddress } from '../../../../../shared/shared';
-import { ChannelFilter, ChartData } from '../../../shared';
+import { ChannelFilter, ChartData, YAxisTitle } from '../../../shared';
 
 @Component({
   selector: 'productionChargerChart',
@@ -28,10 +29,9 @@ export class ChargerChartComponent extends AbstractHistoryChart {
         }]
       },
       tooltip: {
-        unit: 'kW',
         formatNumber: '1.1-2'
       },
-      yAxisTitle: 'kW',
+      unit: YAxisTitle.ENERGY,
     }
   }
 }
