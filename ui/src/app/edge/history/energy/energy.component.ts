@@ -174,6 +174,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
   private loadLineChart(chartLabels: EnergyChartLabels) {
     this.chartType = "line";
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+
+      if (Utils.isDataEmpty(response)) {
+        return
+      }
+
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
       // convert labels
@@ -393,9 +398,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
   private loadBarChart(chartLabels: EnergyChartLabels, config: EdgeConfig) {
     this.chartType = "bar";
     this.getEnergyChannelAddresses(config).then(channelAddresses => {
-
       this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to, channelAddresses).then(response => {
-        let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
+
+        if (Utils.isDataEmpty(response)) {
+          return
+        }
+
+        let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse).result;
 
         // convert datasets
         let datasets: ChartDataSets[] = [];
@@ -649,8 +658,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         this.colors = [];
         this.loading = false;
         this.stopSpinner();
-      }).catch(() => {
-        this.loadLineChart(chartLabels);
       })
     })
   }
@@ -761,8 +768,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
           }
           resolve(labels)
-        }).catch(() => {
-          resolve(labels)
+        }).catch((error) => {
+          resolve(error)
         })
       })
     })

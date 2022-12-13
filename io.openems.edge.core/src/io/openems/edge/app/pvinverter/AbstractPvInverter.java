@@ -36,7 +36,6 @@ public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY>> extend
 
 	protected final List<Component> getComponents(String factoryId, String pvInverterId, //
 			String modbusId, String alias, String ip, int port) {
-
 		return Lists.newArrayList(//
 				new EdgeConfig.Component(pvInverterId, alias, factoryId, //
 						JsonUtils.buildJsonObject() //

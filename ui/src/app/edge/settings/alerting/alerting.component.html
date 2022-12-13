@@ -14,11 +14,12 @@
             <ion-label>
               <span>{{user.name}}</span>
             </ion-label>
+            <oe-help-button key="SETTINGS_ALERTING"></oe-help-button>
           </ion-item>
           <ion-card-content *ngIf="currentUserInformation">
             <form>
               <formly-form [model]="currentUserForm.model" [fields]="currentUserForm.fields"
-              [options]="currentUserForm.options" [form]="currentUserForm.formGroup">
+                [options]="currentUserForm.options" [form]="currentUserForm.formGroup">
               </formly-form>
             </form>
           </ion-card-content>
@@ -35,7 +36,13 @@
               <ion-icon slot="start" name="person-outline" color="primary"></ion-icon>
               <ion-label>
                 <span translate>Menu.otherUser</span>{{' - '}}
-                {{('Role.' + info.role) | translate}}
+                <span [ngSwitch]="info.role">
+                  <span *ngSwitchCase="'admin'" translate>Role.admin</span>
+                  <span *ngSwitchCase="'installer'" translate>Role.installer</span>
+                  <span *ngSwitchCase="'owner'" translate>Role.owner</span>
+                  <span *ngSwitchCase="'guest'" translate>Role.guest</span>
+                  <span *ngSwitchDefault translate>General.fault</span>
+                </span>
               </ion-label>
             </ion-item>
 
@@ -64,9 +71,8 @@
                 </ion-item>
                 <ion-item>
                   <ion-grid>
-                    <ion-row *ngFor="let user of info.settings; let i = index;"
-                      [formGroupName]="user.userId" style="align-items: center;"
-                      [ngClass]="(i % 2 === 0) ? '' : 'even-row'">
+                    <ion-row *ngFor="let user of info.settings; let i = index;" [formGroupName]="user.userId"
+                      style="align-items: center;" [ngClass]="(i % 2 === 0) ? '' : 'even-row'">
                       <ion-col size="6">
                         <ion-label>
                           {{user.userId}}
@@ -80,14 +86,9 @@
                         <ion-select class="custom-options" interface="popover" formControlName="delayTime"
                           style="max-width: 100% !important; margin: 0; padding: 0;"
                           *ngIf="info.form.value[user.userId].isActivated">
-                          <ion-select-option *ngFor="let option of Delays" [value]="option.value">
+                          <ion-select-option *ngFor="let option of user.options" [value]="option.value">
                             {{option.label}}
                           </ion-select-option>
-                          <ng-container *ngIf="info.form.value[user.userId].delayTime as delay">
-                            <ion-select-option *ngIf="isInvalidDelay(delay)" [value]="delay">
-                              {{getLabelToDelay(delay)}}
-                            </ion-select-option>
-                          </ng-container>
                         </ion-select>
                       </ion-col>
                     </ion-row>
@@ -112,6 +113,7 @@
               <ion-label color="danger" translate>
                 General.fault
               </ion-label>
+              <oe-help-button key="SETTINGS_ALERTING"></oe-help-button>
             </ion-item>
 
             <ion-card-content>
@@ -133,7 +135,7 @@
       <ion-col size="12" size-md="6">
         <form (ngSubmit)="setUsersAlertingConfig()">
           <ion-button expand="block" type="submit" color="primary" translate>
-          General.save
+            General.save
           </ion-button>
         </form>
       </ion-col>

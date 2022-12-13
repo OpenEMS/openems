@@ -64,8 +64,8 @@ public class QueryHistoricTimeseriesDataRequest extends JsonrpcRequest {
 			timezone = TimeZone.getTimeZone(JsonUtils.getAsString(p, "timezone")).toZoneId();
 		}
 
-		var fromDate = JsonUtils.getAsZonedDateTime(p, "fromDate", timezone);
-		var toDate = JsonUtils.getAsZonedDateTime(p, "toDate", timezone).plusDays(1);
+		var fromDate = JsonUtils.getAsZonedDateWithZeroTime(p, "fromDate", timezone);
+		var toDate = JsonUtils.getAsZonedDateWithZeroTime(p, "toDate", timezone).plusDays(1);
 
 		var jResolutionOpt = JsonUtils.getOptionalSubElement(p, "resolution");
 		final Optional<Resolution> resolution;

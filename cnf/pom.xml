@@ -8,6 +8,14 @@
 	<packaging>pom</packaging>
 
 	<dependencies>
+		<!-- biz -->
+		<dependency>
+			<!-- Bnd Gradle Plugin For The Bnd Workspace -->
+			<!-- On update: also update gradle.properties file -->
+			<groupId>biz.aQute.bnd.workspace</groupId>
+			<artifactId>biz.aQute.bnd.workspace.gradle.plugin</artifactId>
+			<version>6.4.0</version>
+		</dependency>
 		<!-- com -->
 		<dependency>
 			<groupId>com.fazecast</groupId>
@@ -98,6 +106,14 @@
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.4</version>
+		</dependency>
+		<!-- de -->
+		<dependency>
+			<!-- PgBulkInsert is a Java library for Bulk Inserts to PostgreSQL using the Binary COPY Protocol. -->
+			<!-- Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md-->
+			<groupId>de.bytefish</groupId>
+			<artifactId>pgbulkinsert</artifactId>
+			<version>8.1.0</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
@@ -227,6 +243,13 @@
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.junit</artifactId>
 			<version>4.13.2_1</version>
+		</dependency>
+		<dependency>
+			<!-- Checker Qual: annotations for type-checking by the Checker Framework -->
+			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
+			<groupId>org.checkerframework</groupId>
+			<artifactId>checker-qual</artifactId>
+			<version>3.27.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>

@@ -21,6 +21,11 @@ export class LiveComponent {
 
   ionViewWillEnter() {
     this.service.setCurrentComponent('', this.route).then(edge => {
+
+      if (edge.isOnline) {
+        this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] }))
+          .catch(error => console.warn(error))
+      }
       this.edge = edge;
     });
     this.service.getConfig().then(config => {

@@ -361,7 +361,7 @@
           "timeCountdown": "time until start"
         },
         "HeatPump": {
-          "aboveSoc": "et sur l état de charge de",
+          "aboveSoc": "et de l'état de charge de",
           "belowSoc": "et en charge de",
           "gridBuy": "De l achat du réseau de",
           "gridSell": "Par excès d alimentatio de",

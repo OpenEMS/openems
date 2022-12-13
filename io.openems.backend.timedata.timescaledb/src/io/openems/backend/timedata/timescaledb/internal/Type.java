@@ -1,94 +1,95 @@
-package io.openems.backend.timedata.timescaledb;
+package io.openems.backend.timedata.timescaledb.internal;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.backend.timedata.timescaledb.Schema.ChannelMeta;
+import de.bytefish.pgbulkinsert.row.SimpleRow;
+import de.bytefish.pgbulkinsert.row.SimpleRowWriter;
+import io.openems.backend.timedata.timescaledb.internal.write.Point;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingBiConsumer;
 import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 
 public enum Type {
 	INTEGER(1, "data_integer", "bigint" /* 8 bytes; covers Java byte, int and long */, //
-			new String[] { "avg", "min", "max" }, AddValueToStatement.INTEGER, ParseValueFromResultSet.INTEGER,
-			Subtract.INTEGER), //
+			new String[] { "avg", "min", "max" }, ParseValueFromResultSet::integers, Subtract::integers), //
 	FLOAT(2, "data_float", "double precision" /* 8 bytes; covers Java float and double */, //
-			new String[] { "avg", "min", "max" }, AddValueToStatement.FLOAT, ParseValueFromResultSet.FLOAT,
-			Subtract.FLOAT), //
+			new String[] { "avg", "min", "max" }, ParseValueFromResultSet::floats, Subtract::floats), //
 	STRING(3, "data_string", "text" /* variable-length character string */, //
-			new String[] { "max" }, AddValueToStatement.STRING, ParseValueFromResultSet.STRING, Subtract.STRING), //
+			new String[] { "max" }, ParseValueFromResultSet::strings, Subtract::strings), //
 	;
-
-	private static final int IDX_TIME = 1;
-	private static final int IDX_CHANNEL_ID = 2;
-	private static final int IDX_VALUE = 3;
 
 	public final int id;
 	public final String sqlDataType;
-	public final String tableRaw;
-	public final String tableAggregate5m;
+	private final String prefix;
 	public final String defaultAggregateFunction; // defaults to first aggregateFunction
 	public final String[] aggregateFunctions;
 
-	private final String sqlInsert;
-	private final ThrowingBiConsumer<PreparedStatement, JsonElement, Exception> addValueToStatement;
+	private final Map<Priority, String> rawTableName = new EnumMap<>(Priority.class);
+	private final Map<Priority, String> aggregate5mTableName = new EnumMap<>(Priority.class);
+
 	private final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> parseValueFromResultSet;
 	private final ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> subtractFunction;
 
 	private Type(int id, String prefix, String sqlDataType, String[] aggregateFunctions,
-			ThrowingBiConsumer<PreparedStatement, JsonElement, Exception> addValueToStatement,
 			ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> parseValueFromResultSet,
 			ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> subtractFunction) {
 		this.id = id;
 		this.sqlDataType = sqlDataType;
-		this.tableRaw = prefix + "_raw";
-		this.tableAggregate5m = prefix + "_5m";
-		this.sqlInsert = "INSERT INTO " + this.tableRaw + " (time, channel_id, value) VALUES (?, ?, ?);";
+		this.prefix = prefix;
 		this.aggregateFunctions = aggregateFunctions;
 		this.defaultAggregateFunction = aggregateFunctions[0];
-		this.addValueToStatement = addValueToStatement;
 		this.parseValueFromResultSet = parseValueFromResultSet;
 		this.subtractFunction = subtractFunction;
 	}
 
 	/**
-	 * Prepares a {@link PreparedStatement} for inserts to the 'raw' table of this
-	 * {@link Type}.
+	 * Gets the raw table name of the type and the specified priority.
 	 * 
-	 * @param con a database {@link Connection}
-	 * @return the {@link PreparedStatement}
-	 * @throws SQLException on error
+	 * @param priority the priority of the table
+	 * @return the table name
 	 */
-	public PreparedStatement prepareStatement(Connection con) throws SQLException {
-		return con.prepareStatement(this.sqlInsert);
+	public String getRawTableName(Priority priority) {
+		return this.rawTableName.computeIfAbsent(priority, t -> this.baseTableName(priority) + "_raw");
 	}
 
 	/**
-	 * Fills a {@link PreparedStatement} with data (timestamp, channel_id and
-	 * value).
+	 * Gets the aggregate table name of the current type and the specified priority.
 	 * 
-	 * @param pst     the {@link PreparedStatement}; created via
-	 *                {@link #prepareStatement(Connection)}
-	 * @param point   the {@link Point} holding data
-	 * @param channel the {@link ChannelMeta} object
+	 * @param priority the priority of the table
+	 * @return the table name
+	 */
+	public String getAggregate5mTableName(Priority priority) {
+		return this.aggregate5mTableName.computeIfAbsent(priority, t -> this.baseTableName(priority) + "_5m");
+	}
+
+	private String baseTableName(Priority priority) {
+		return this.prefix + "_" + priority.getTableSuffix();
+	}
+
+	/**
+	 * Fills a PgBulkInsert Row-Writer with data (timestamp, channel_id and value).
+	 * 
+	 * @param point the {@link Point} holding data
+	 * @return a {@link Consumer} as required by
+	 *         {@link SimpleRowWriter#startRow(Consumer)}
 	 * @throws Exception on error
 	 */
-	public void fillStatement(PreparedStatement pst, Point point, ChannelMeta channel) throws Exception {
-		pst.setTimestamp(IDX_TIME, Timestamp.from(Instant.ofEpochMilli(point.timestamp)));
-		pst.setInt(IDX_CHANNEL_ID, channel.id);
-		this.addValueToStatement.accept(pst, point.value);
+	public Consumer<SimpleRow> fillRow(Point point) {
+		return row -> {
+			row.setTimeStampTz(0 /* index of 'time' column */, point.timestamp);
+			row.setInteger(1 /* index of 'channel_id' column */, point.channelId);
+			point.addToSimpleRow(row, 2 /* index of 'value' column */);
+		};
 	}
 
 	/**
@@ -123,17 +124,12 @@ public enum Type {
 	 */
 	public static Type fromId(int id) {
 		for (var type : Type.values()) {
-			if (id == type.id) {
+			if (type.id == id) {
 				return type;
 			}
 		}
 		return null;
 	}
-
-	private static final Predicate<String> DETECT_INTEGER_PATTERN = //
-			Pattern.compile("^[-+]?[0-9]+$").asPredicate();
-	private static final Predicate<String> DETECT_FLOAT_PATTERN = //
-			Pattern.compile("^[-+]?[0-9]*\\.[0-9]+$").asPredicate();
 
 	/**
 	 * Tries to detect the {@link Type} of a {@link JsonElement} value.
@@ -155,7 +151,7 @@ public enum Type {
 				if (n.getClass().getName().equals("com.google.gson.internal.LazilyParsedNumber")) {
 					// Avoid 'discouraged access'
 					// LazilyParsedNumber stores value internally as String
-					if (DETECT_FLOAT_PATTERN.test(n.toString())) {
+					if (StringUtils.matchesFloatPattern(n.toString())) {
 						return Type.FLOAT;
 					}
 					return Type.INTEGER;
@@ -173,7 +169,7 @@ public enum Type {
 			} else if (p.isString()) {
 				// Strings are parsed if they start with a number or minus
 				var s = p.getAsString();
-				if (DETECT_FLOAT_PATTERN.test(s)) {
+				if (StringUtils.matchesFloatPattern(s)) {
 					try {
 						Double.parseDouble(s); // try parsing to Double
 						return Type.FLOAT;
@@ -181,7 +177,7 @@ public enum Type {
 						return Type.STRING;
 					}
 
-				} else if (DETECT_INTEGER_PATTERN.test(s)) {
+				} else if (StringUtils.matchesIntegerPattern(s)) {
 					try {
 						Long.parseLong(s); // try parsing to Long
 						return Type.INTEGER;
@@ -196,99 +192,51 @@ public enum Type {
 		return Type.STRING;
 	}
 
-	private static class AddValueToStatement {
-
-		/**
-		 * Parse a {@link JsonElement} value to 'bigint' and adds it to the
-		 * {@link PreparedStatement}.
-		 * 
-		 * @param value the {@link JsonElement} value
-		 */
-		private static final ThrowingBiConsumer<PreparedStatement, JsonElement, Exception> INTEGER = (pst, json) -> {
-			Long value = JsonUtils.getAsType(OpenemsType.LONG, json);
-			if (value != null) {
-				pst.setLong(IDX_VALUE, value);
-			} else {
-				pst.setObject(IDX_VALUE, null);
-			}
-		};
-
-		/**
-		 * Parse a {@link JsonElement} value to 'double precision' and adds it to the
-		 * {@link PreparedStatement}.
-		 * 
-		 * @param value the {@link JsonElement} value
-		 */
-		private static final ThrowingBiConsumer<PreparedStatement, JsonElement, Exception> FLOAT = (pst, json) -> {
-			Double value = JsonUtils.getAsType(OpenemsType.DOUBLE, json);
-			if (value != null) {
-				pst.setDouble(IDX_VALUE, value);
-			} else {
-				pst.setObject(IDX_VALUE, null);
-			}
-		};
-
-		/**
-		 * Parse a {@link JsonElement} value to 'text' and adds it to the
-		 * {@link PreparedStatement}.
-		 * 
-		 * @param value the {@link JsonElement} value
-		 */
-		private static final ThrowingBiConsumer<PreparedStatement, JsonElement, Exception> STRING = (pst, json) -> {
-			String value = JsonUtils.getAsType(OpenemsType.STRING, json);
-			if (value != null) {
-				pst.setString(IDX_VALUE, value);
-			} else {
-				pst.setObject(IDX_VALUE, null);
-			}
-		};
-	}
-
 	private static class ParseValueFromResultSet {
 
-		private static final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> INTEGER = (rs,
-				columnIndex) -> {
+		private ParseValueFromResultSet() {
+		}
+
+		private static final JsonElement integers(ResultSet rs, Integer columnIndex) throws SQLException {
 			var value = rs.getLong(columnIndex);
 			return rs.wasNull() ? JsonNull.INSTANCE : new JsonPrimitive(value);
-		};
+		}
 
-		private static final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> FLOAT = (rs,
-				columnIndex) -> {
+		private static final JsonElement floats(ResultSet rs, Integer columnIndex) throws SQLException {
 			var value = rs.getDouble(columnIndex);
 			return rs.wasNull() ? JsonNull.INSTANCE : new JsonPrimitive(value);
-		};
+		}
 
-		private static final ThrowingBiFunction<ResultSet, Integer, JsonElement, SQLException> STRING = (rs,
-				columnIndex) -> {
+		private static final JsonElement strings(ResultSet rs, Integer columnIndex) throws SQLException {
 			var value = rs.getString(columnIndex);
 			return rs.wasNull() ? JsonNull.INSTANCE : new JsonPrimitive(value);
-		};
+		}
 	}
 
 	private static class Subtract {
 
-		private static final ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> INTEGER = (
-				jA, jB) -> {
+		private Subtract() {
+		}
+
+		private static final JsonElement integers(JsonElement jA, JsonElement jB) throws OpenemsNamedException {
 			Long a = JsonUtils.getAsType(OpenemsType.LONG, jA);
 			Long b = JsonUtils.getAsType(OpenemsType.LONG, jB);
 			if (a != null && b != null) {
 				return new JsonPrimitive(a - b);
 			}
 			return JsonNull.INSTANCE;
-		};
+		}
 
-		private static final ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> FLOAT = (
-				jA, jB) -> {
+		private static final JsonElement floats(JsonElement jA, JsonElement jB) throws OpenemsNamedException {
 			Double a = JsonUtils.getAsType(OpenemsType.DOUBLE, jA);
 			Double b = JsonUtils.getAsType(OpenemsType.DOUBLE, jB);
 			if (a != null && b != null) {
 				return new JsonPrimitive(a - b);
 			}
 			return JsonNull.INSTANCE;
-		};
+		}
 
-		private static final ThrowingBiFunction<JsonElement, JsonElement, JsonElement, OpenemsNamedException> STRING = (
-				jA, jB) -> {
+		private static final JsonElement strings(JsonElement jA, JsonElement jB) throws OpenemsNamedException {
 			String a = JsonUtils.getAsType(OpenemsType.STRING, jA);
 			if (a != null && !a.isBlank()) {
 				return new JsonPrimitive(a);
@@ -298,6 +246,6 @@ public enum Type {
 				return new JsonPrimitive(b);
 			}
 			return JsonNull.INSTANCE;
-		};
+		}
 	}
 }

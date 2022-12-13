@@ -1,4 +1,4 @@
-package io.openems.backend.timedata.timescaledb;
+package io.openems.backend.timedata.timescaledb.internal;
 
 import static org.junit.Assert.assertEquals;
 

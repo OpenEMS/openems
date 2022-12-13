@@ -2,21 +2,21 @@ package io.openems.common.websocket;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
-
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
 import io.openems.common.jsonrpc.base.JsonrpcResponseError;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.JsonrpcUtils;
+import io.openems.common.utils.StringUtils;
 
 public class OnRequestHandler implements Runnable {
 
@@ -37,74 +37,75 @@ public class OnRequestHandler implements Runnable {
 
 	@Override
 	public final void run() {
-		JsonrpcResponse response;
+		CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture;
 		try {
-			CompletableFuture<? extends JsonrpcResponseSuccess> responseFuture = this.parent.getOnRequest().run(this.ws,
-					this.request);
-			// Get success response
-			if (this.request.getTimeout().isPresent() && this.request.getTimeout().get() > 0) {
-				// ...with timeout
-				response = responseFuture.get(this.request.getTimeout().get(), TimeUnit.SECONDS);
-			} else {
-				// ...without timeout
-				response = responseFuture.get();
-			}
-
+			responseFuture = this.parent.getOnRequest().run(this.ws, this.request);
 		} catch (Throwable t) {
-			// Log Error
-			var log = new StringBuilder() //
-					.append("JSON-RPC Error ") //
-					.append("Response \"") //
-					.append(t.getMessage()) //
-					.append("\" ");
-			if (!(t instanceof OpenemsNamedException)) {
-				log //
-						.append("of type ") //
-						.append(t.getClass().getCanonicalName()) //
-						.append("] ");
-			}
-			log //
-					.append("for Request ") //
-					.append(simplifyJsonrpcMessage(this.request.toJsonObject()).toString()); //
-			this.parent.logWarn(this.log, log.toString());
-
-			// Get JSON-RPC Response Error
-			if (t instanceof OpenemsNamedException) {
-				response = new JsonrpcResponseError(this.request.getId(), (OpenemsNamedException) t);
-			} else {
-				response = new JsonrpcResponseError(this.request.getId(), t.getMessage());
-			}
+			this.handleException(t);
+			return;
 		}
 
+		if (this.request.getTimeout().isPresent() && this.request.getTimeout().get() > 0) {
+			// Apply timeout to CompleteableFuture
+			responseFuture.orTimeout(this.request.getTimeout().get(), TimeUnit.SECONDS);
+		}
+
+		// ...without timeout
+		responseFuture.whenComplete((r, ex) -> {
+			if (ex != null) {
+				this.handleException(ex);
+			} else if (r != null) {
+				this.handleResponse(r);
+			} else {
+				this.handleException(
+						new OpenemsNamedException(OpenemsError.JSONRPC_UNHANDLED_METHOD, this.request.getMethod()));
+			}
+		});
+	}
+
+	private void handleResponse(JsonrpcResponse response) {
 		this.responseCallback.accept(response);
 	}
 
-	/**
-	 * Simplifies a {@link JsonrpcMessage} by recursively removing unnecessary
-	 * elements "jsonrpc" and "id".
-	 *
-	 * @param j the {@link JsonrpcMessage#toJsonObject()}
-	 * @return a simplified {@link JsonObject}
-	 */
-	protected static JsonObject simplifyJsonrpcMessage(JsonObject j) {
-		if (j.has("jsonrpc")) {
-			j.remove("jsonrpc");
-			j.remove("id");
+	private void handleException(Throwable t) {
+		// Log Error
+		var log = new StringBuilder() //
+				.append("JSON-RPC Error "); //
+
+		if (t.getMessage() != null && !t.getMessage().isBlank()) {
+			log //
+					.append("\"") //
+					.append(t.getMessage()) //
+					.append("\" ");
 		}
-		if (j.has("params")) {
-			try {
-				var params = JsonUtils.getAsJsonObject(j, "params");
-				if (params.has("payload")) {
-					var originalPayload = JsonUtils.getAsJsonObject(params, "payload");
-					var simplifiedPayload = simplifyJsonrpcMessage(originalPayload);
-					params.add("payload", simplifiedPayload);
-					j.add("params", params);
-				}
-			} catch (OpenemsNamedException e) {
-				// ignore -> do not replace params/payload
+
+		if (!(t instanceof OpenemsNamedException)) {
+			log //
+					.append("of type ") //
+					.append(t.getClass().getSimpleName()) //
+					.append(" ");
+
+			if (t instanceof TimeoutException) {
+				log //
+						.append("[").append(this.request.getTimeout().get()).append("s] ");
 			}
 		}
-		return j;
+
+		log //
+				.append("for Request ") //
+				.append(StringUtils.toShortString(JsonrpcUtils.simplifyJsonrpcMessage(this.request), 100)); //
+		this.parent.logWarn(this.log, log.toString());
+
+		// Get JSON-RPC Response Error
+		if (t instanceof OpenemsNamedException) {
+			this.responseCallback.accept(new JsonrpcResponseError(this.request.getId(), (OpenemsNamedException) t));
+		} else {
+			this.responseCallback.accept(new JsonrpcResponseError(this.request.getId(), t.getMessage()));
+		}
 	}
 
+	// TODO REMOVE DEBUG
+	public String getRequestMethod() {
+		return this.request.getFullyQualifiedMethod();
+	}
 }

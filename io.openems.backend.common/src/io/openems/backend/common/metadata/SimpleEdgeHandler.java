@@ -22,16 +22,16 @@ public class SimpleEdgeHandler implements EdgeHandler {
 
 	/**
 	 * Sets the {@link EdgeConfig} from an {@link EventReader}.
-	 * 
+	 *
 	 * @param reader the {@link EventReader}
 	 */
 	public synchronized void setEdgeConfigFromEvent(EventReader reader) {
-		Edge edge = reader.getProperty(Edge.Events.OnSetConfig.EDGE);
-		EdgeConfig newConfig = reader.getProperty(Edge.Events.OnSetConfig.CONFIG);
+		var edge = (Edge) reader.getProperty(Edge.Events.OnSetConfig.EDGE);
+		var newConfig = (EdgeConfig) reader.getProperty(Edge.Events.OnSetConfig.CONFIG);
 
 		try {
-			EdgeConfig oldConfig = this.getEdgeConfig(edge.getId());
-			EdgeConfigDiff diff = EdgeConfigDiff.diff(newConfig, oldConfig);
+			var oldConfig = this.getEdgeConfig(edge.getId());
+			var diff = EdgeConfigDiff.diff(newConfig, oldConfig);
 			if (!diff.isDifferent()) {
 				return;
 			}
@@ -49,7 +49,7 @@ public class SimpleEdgeHandler implements EdgeHandler {
 
 	@Override
 	public synchronized EdgeConfig getEdgeConfig(String edgeId) throws OpenemsNamedException {
-		return this.data.computeIfAbsent(edgeId, ignore -> new EdgeConfig());
+		return this.data.computeIfAbsent(edgeId, ignore -> EdgeConfig.empty());
 	}
 
 }

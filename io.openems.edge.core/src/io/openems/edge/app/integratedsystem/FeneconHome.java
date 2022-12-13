@@ -127,6 +127,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
+				.setWebsiteUrl("https://fenecon.de/produkte/home/") //
 				.build();
 	}
 
