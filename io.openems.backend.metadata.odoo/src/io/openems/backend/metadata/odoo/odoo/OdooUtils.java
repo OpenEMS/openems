@@ -155,6 +155,12 @@ public class OdooUtils {
 					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 
 				default:
+					// for OpenemsExceptions from Odoo only throw OpenemsException with message for
+					// more readability
+					if (dataName.endsWith("OpenemsException")) {
+						throw new OpenemsException(dataMessage);
+					}
+
 					var exception = "Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
 							+ dataMessage + ";" //
 							+ " Code [" + code + "]" //
