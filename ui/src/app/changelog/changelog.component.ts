@@ -35,10 +35,17 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.11.7',
+        changes: [
+          Changelog.UI,
+          { roleIsAtLeast: Role.ADMIN, change: "Performance-Optimierungen am Backend" },
+        ]
+      },
+      {
         version: '2022.11.6',
         changes: [
           Changelog.UI,
-          { roleIsAtLeast: Role.ADMIN, change: "Commercial Gen2-Batterie: Anpassung der Parameter für die Batterie-Protection" },
+          { roleIsAtLeast: Role.ADMIN, change: "Commercial Gen1-Batterie: Anpassung der Parameter für die Batterie-Protection" },
         ]
       },
       {

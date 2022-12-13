@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -925,6 +926,189 @@ public class OdooHandler {
 	}
 
 	/**
+	 * Gets if the given key can be applied to the given app and edge id.
+	 *
+	 * @param key    the key to be validated
+	 * @param edgeId the edgeId the app should get installed
+	 * @param appId  the appId of the app that should get installed
+	 * @return the Response result as a JsonObject
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getIsKeyApplicable(String key, String edgeId, String appId) throws OpenemsNamedException {
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("key", key) //
+						.addProperty("edgeId", edgeId) //
+						.addPropertyIfNotNull("appId", appId) //
+						.build()) //
+				.build();
+
+		var result = JsonUtils.getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
+				"/openems_app_center/is_key_applyable", request).result);
+		// TODO change in odoo controller and then remove this
+		result.add("isKeyApplicable", result.remove("isKeyApplyable"));
+		return result;
+	}
+
+	/**
+	 * Gets the response to a add install app instance history entry.
+	 *
+	 * @param key        the key to install the app with
+	 * @param edgeId     the id of the edge the app gets installed on
+	 * @param appId      the app that gets installed
+	 * @param instanceId the instanceId of the create instance
+	 * @param userId     the user who added the instance
+	 * @return the result as {@link JsonObject}
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getAddInstallAppInstanceHistory(String key, String edgeId, String appId, UUID instanceId,
+			String userId) throws OpenemsNamedException {
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("key", key) //
+						.addProperty("edgeId", edgeId) //
+						.addProperty("appId", appId) //
+						.addProperty("instanceId", instanceId.toString()) //
+						.addPropertyIfNotNull("userId", userId) //
+						.build()) //
+				.build();
+
+		return JsonUtils.getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
+				"/openems_app_center/add_install_app_instance_history", request).result);
+	}
+
+	/**
+	 * Gets the response to add a deinstall app instance history entry.
+	 *
+	 * @param edgeId     the edge the app gets removed on
+	 * @param appId      the appId of the removed instance
+	 * @param instanceId the instanceId of the removed instance
+	 * @param userId     the user who removed the instance
+	 * @return the result as {@link JsonObject}
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getAddDeinstallAppInstanceHistory(String edgeId, String appId, UUID instanceId, String userId)
+			throws OpenemsNamedException {
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("edgeId", edgeId) //
+						.addProperty("appId", appId) //
+						.addProperty("instanceId", instanceId.toString()) //
+						.addPropertyIfNotNull("userId", userId) //
+						.build()) //
+				.build();
+		return JsonUtils.getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
+				"/openems_app_center/add_deinstall_app_instance_history", request).result);
+	}
+
+	/**
+	 * Gets the response to register a key.
+	 *
+	 * @param edgeId the edgeId the key gets registered on.
+	 * @param appId  the appId the key gets registered to.
+	 * @param key    the key that gets registered
+	 * @param user   the user who registered the key
+	 * @return the result as {@link JsonObject}
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getAddRegisterKeyHistory(String edgeId, String appId, String key, MyUser user)
+			throws OpenemsNamedException {
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("edgeId", edgeId) //
+						.addProperty("key", key) //
+						.addPropertyIfNotNull("appId", appId) //
+						.addProperty("userId", user.getId()) //
+						.build()) //
+				.build();
+		return JsonUtils.getAsJsonObject(
+				OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_app_center/add_register_key_history",
+						"session_id=" + user.getToken(), request).result);
+	}
+
+	/**
+	 * Gets the response to unregister a key.
+	 * 
+	 * @param edgeId the edgeId the registered key was assigned to.
+	 * @param appId  the appId the registered key was assigned to or null if
+	 *               assigned to edge.
+	 * @param key    the registered key
+	 * @param user   the user who deregistered the key
+	 * @return the response result as a {@link JsonObject}
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getAddUnregisterKeyHistory(String edgeId, String appId, String key, MyUser user)
+			throws OpenemsNamedException {
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("edgeId", edgeId) //
+						.addProperty("key", key) //
+						.addPropertyIfNotNull("appId", appId) //
+						.addProperty("user", user.getId()) //
+						.build())
+				.build();
+
+		return JsonUtils.getAsJsonObject(OdooUtils.sendJsonrpcRequest(
+				this.credentials.getUrl() + "/openems_app_center/add_deregister_key_history",
+				"session_id=" + user.getToken(), request).result);
+	}
+
+	/**
+	 * Gets the registered keys to a edge and app.
+	 *
+	 * @param edgeId the edge the key is registered on
+	 * @param appId  the app the key is registered to
+	 * @return the result as {@link JsonObject}
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getRegisteredKeys(String edgeId, String appId) throws OpenemsNamedException {
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("edgeId", edgeId) //
+						.addPropertyIfNotNull("appId", appId) //
+						.build()) //
+				.build();
+		return JsonUtils.getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
+				"/openems_app_center/get_registered_key", request).result);
+	}
+
+	/**
+	 * Gets the possible apps to install with this key.
+	 *
+	 * @param key    the apps of which key
+	 * @param edgeId the apps on which edge
+	 * @return the result as {@link JsonObject}
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getPossibleApps(String key, String edgeId) throws OpenemsNamedException {
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("edgeId", edgeId) //
+						.addProperty("key", key) //
+						.build()) //
+				.build();
+		return JsonUtils.getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
+				"/openems_app_center/get_possible_apps", request).result);
+	}
+
+	/**
+	 * Gets the installed apps.
+	 *
+	 * @param edgeId the apps on which edge
+	 * @return the result as {@link JsonObject}
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getInstalledApps(String edgeId) throws OpenemsNamedException {
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("edgeId", edgeId) //
+						.build()) //
+				.build();
+		return JsonUtils.getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
+				"/openems_app_center/get_installed_apps", request).result);
+	}
+
+	/**
 	 * get all alerting settings for specified edge.
 	 *
 	 * @param edgeId ID of Edge
@@ -1043,4 +1227,5 @@ public class OdooHandler {
 			}
 		}
 	}
+
 }

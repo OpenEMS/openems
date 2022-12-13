@@ -176,8 +176,8 @@ public class Edge {
 	public synchronized void setVersion(SemanticVersion version, boolean callListeners) {
 		if (!Objects.equal(this.version, version)) { // on change
 			if (callListeners) {
-				this.log.info("Edge [" + this.getId() + "]: Update version to [" + version + "]. It was ["
-						+ this.version + "]");
+				this.log.info(
+						"Edge [" + this.getId() + "]: Update version from [" + this.version + "] to [" + version + "]");
 
 				EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_VERSION) //
 						.addArg(Events.OnSetVersion.EDGE, this) //

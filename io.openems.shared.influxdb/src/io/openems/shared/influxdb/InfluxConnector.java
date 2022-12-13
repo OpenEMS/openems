@@ -16,6 +16,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -81,7 +82,7 @@ public class InfluxConnector {
 			new ThreadPoolExecutor.DiscardOldestPolicy());
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 	private final ExecutorService mergePointsExecutor = Executors.newSingleThreadExecutor();
-	private final BlockingQueue<Point> pointsQueue = new ArrayBlockingQueue<>(POINTS_QUEUE_SIZE);
+	private final BlockingQueue<Point> pointsQueue = new LinkedBlockingQueue<>(POINTS_QUEUE_SIZE);
 
 	/**
 	 * The Constructor.
@@ -150,8 +151,7 @@ public class InfluxConnector {
 							try {
 								this.getInfluxConnection().writeApi.writePoints(points);
 							} catch (Throwable t) {
-								this.log.warn("Unable to write points: "
-										+ StringUtils.toShortString(points.toString(), 100) + "; " + t.getMessage());
+								this.log.warn("Unable to write points. " + t.getMessage());
 								this.onWriteError.accept(t);
 							}
 						});

@@ -21,7 +21,6 @@ import org.osgi.service.component.ComponentContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingBiFunction;
@@ -370,7 +369,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			try {
 
 				actualComponent = actualEdgeConfig.getComponentOrError(componentId);
-			} catch (InvalidValueException e) {
+			} catch (OpenemsNamedException e) {
 				missingComponents.add(componentId);
 				continue;
 			}

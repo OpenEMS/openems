@@ -1,7 +1,6 @@
 package io.openems.backend.timedata.timescaledb;
 
 import java.sql.SQLException;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.Metadata;
@@ -71,21 +69,6 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 			this.log.info(new StringBuilder("[TimescaleDB] [monitor] ") //
 					.append(this.timescaledbWriteHandler.debugLog()) //
 					.toString());
-
-			// Store Metrics
-			var data = TreeBasedTable.<Long, ChannelAddress, JsonElement>create();
-			var now = Instant.now().toEpochMilli();
-			this.timescaledbWriteHandler.debugMetrics().forEach((key, value) -> {
-				data.put(now, new ChannelAddress("timescaledb", key), new JsonPrimitive(value));
-			});
-			this.timescaledbReadHandler.debugMetrics().forEach((key, value) -> {
-				data.put(now, new ChannelAddress("timescaledb", key), new JsonPrimitive(value));
-			});
-			try {
-				this.write("backend0", data);
-			} catch (OpenemsException e) {
-				e.printStackTrace();
-			}
 		}, 10, 10, TimeUnit.SECONDS);
 
 	}
@@ -99,7 +82,7 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 	}
 
 	@Override
-	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
+	public void write(String edgeId, TreeBasedTable<Long, String, JsonElement> data) throws OpenemsException {
 		this.timescaledbWriteHandler.write(edgeId, data);
 	}
 

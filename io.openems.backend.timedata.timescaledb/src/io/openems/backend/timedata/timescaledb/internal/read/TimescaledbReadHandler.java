@@ -5,7 +5,6 @@ import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -17,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
-import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -74,9 +72,7 @@ public class TimescaledbReadHandler {
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
-		if (!this.enableReadFromTimescaledb(edgeId, channels)) {
-			return null;
-		}
+		var channelStrings = toStringSet(channels);
 
 		// handle empty call
 		if (channels.isEmpty()) {
@@ -84,60 +80,65 @@ public class TimescaledbReadHandler {
 		}
 
 		var result = Utils.prepareDataMap(fromDate, toDate, channels, resolution);
-		var types = Utils.querySchemaCache(this.assertAndGetSchema(), edgeId, channels);
+		var types = Utils.querySchemaCache(this.assertAndGetSchema(), edgeId, channelStrings);
 
 		// Open ONE database connection
 		try (var con = this.dataSource.getConnection()) {
 
 			// Execute specific query for each Type
 			for (var typeEntry : types.entrySet()) {
-				var type = typeEntry.getKey();
-				var ids = typeEntry.getValue();
+				final var type = typeEntry.getKey();
+				for (var priorityEntry : typeEntry.getValue().entrySet()) {
 
-				// Build custom SQL for PreparedStatement
-				var sql = "SELECT" //
-						+ "    time_bucket(" //
-						+ "        ?::interval," // [1] Resolution
-						+ "        data.time)," //
-						+ "    data.channel_id," //
-						+ "    " + type.defaultAggregateFunction + "(data." + type.defaultAggregateFunction + ") " //
-						+ "FROM " + type.tableAggregate5m + " data " //
-						+ "WHERE" //
-						+ "    data.channel_id IN (" //
-						+ ids.keySet().stream() //
-								.map(c -> "?") // [2++] Channel-ID
-								.collect(Collectors.joining(",")) //
-						+ "    ) AND" //
-						+ "    data.time >= ? AND" // [n-1] FromDate
-						+ "    data.time < ? " // [n] ToDate
-						+ "GROUP BY 1,2";
+					final var priority = priorityEntry.getKey();
+					final var ids = priorityEntry.getValue();
 
-				// Query the database
-				try (var pst = con.prepareStatement(sql)) {
-					// Fill PreparedStatement.
+					// Build custom SQL for PreparedStatement
+					var sql = "SELECT" //
+							+ "    time_bucket(" //
+							+ "        ?::interval," // [1] Resolution
+							+ "        data.time)," //
+							+ "    data.edge_channel_id," //
+							+ "    " + type.defaultAggregateFunction + "(data." + type.defaultAggregateFunction + ") " //
+							+ "FROM " + type.getAggregate5mTableName(priority) + " data " //
+							+ "WHERE" //
+							+ "    data.edge_channel_id IN (" //
+							+ ids.keySet().stream() //
+									.map(c -> "?") // [2++] Channel-ID
+									.collect(Collectors.joining(",")) //
+							+ "    ) AND" //
+							+ "    data.time >= ? AND" // [n-1] FromDate
+							+ "    data.time < ? " // [n] ToDate
+							+ "GROUP BY 1,2";
 
-					// Reference for Java 8 Date and Time classes with PostgreSQL:
-					// https://jdbc.postgresql.org/documentation/query/#using-java-8-date-and-time-classes
-					var i = 1;
-					pst.setString(i++, Utils.toSqlInterval(resolution));
-					for (var id : ids.keySet()) {
-						pst.setInt(i++, id);
+					// Query the database
+					try (var pst = con.prepareStatement(sql)) {
+						// Fill PreparedStatement.
+
+						// Reference for Java 8 Date and Time classes with PostgreSQL:
+						// https://jdbc.postgresql.org/documentation/query/#using-java-8-date-and-time-classes
+						var i = 1;
+						pst.setString(i++, Utils.toSqlInterval(resolution));
+						for (var id : ids.keySet()) {
+							pst.setInt(i++, id);
+						}
+						pst.setObject(i++, fromDate.toOffsetDateTime());
+						pst.setObject(i++, toDate.toOffsetDateTime());
+
+						var rs = pst.executeQuery();
+						while (rs.next()) {
+							var time = rs.getObject(1, OffsetDateTime.class).atZoneSameInstant(fromDate.getZone());
+							var channelAddress = ChannelAddress.fromString(ids.get(rs.getInt(2)));
+							var value = type.parseValueFromResultSet(rs, 3);
+							var resultTime = result.computeIfAbsent(time, t -> new TreeMap<>());
+							resultTime.put(channelAddress, value);
+						}
+
+					} catch (SQLException e) {
+						this.log.error(
+								"Unable to query historic data for type [" + type.name() + "]: " + e.getMessage());
+						// TODO collect exceptions; throw error if everything fails
 					}
-					pst.setObject(i++, fromDate.toOffsetDateTime());
-					pst.setObject(i++, toDate.toOffsetDateTime());
-
-					var rs = pst.executeQuery();
-					while (rs.next()) {
-						var time = rs.getObject(1, OffsetDateTime.class).atZoneSameInstant(fromDate.getZone());
-						var channelAddress = ids.get(rs.getInt(2));
-						var value = type.parseValueFromResultSet(rs, 3);
-						var resultTime = result.computeIfAbsent(time, t -> new TreeMap<>());
-						resultTime.put(channelAddress, value);
-					}
-
-				} catch (SQLException e) {
-					this.log.error("Unable to query historic data for type [" + type.name() + "]: " + e.getMessage());
-					// TODO collect exceptions; throw error if everything fails
 				}
 			}
 		} catch (SQLException e) {
@@ -159,9 +160,7 @@ public class TimescaledbReadHandler {
 	 */
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
-		if (!this.enableReadFromTimescaledb(edgeId, channels)) {
-			return null;
-		}
+		var channelStrings = toStringSet(channels);
 
 		// handle empty call
 		if (channels.isEmpty()) {
@@ -169,47 +168,52 @@ public class TimescaledbReadHandler {
 		}
 
 		var result = Utils.prepareEnergyMap(fromDate, toDate, channels);
-		var types = Utils.querySchemaCache(this.assertAndGetSchema(), edgeId, channels);
+		var types = Utils.querySchemaCache(this.assertAndGetSchema(), edgeId, channelStrings);
 
 		// Open ONE database connection
 		try (var con = this.dataSource.getConnection()) {
 
 			// Execute specific query for each Type
 			for (var typeEntry : types.entrySet()) {
-				var type = typeEntry.getKey();
-				var ids = typeEntry.getValue();
+				final var type = typeEntry.getKey();
+				for (var priorityEntry : typeEntry.getValue().entrySet()) {
 
-				// Build custom SQL for PreparedStatement
-				var sql = "SELECT" //
-						+ "	   d.channel_id," //
-						+ "    LAST(\"max\", d.time) - FIRST(\"min\", d.time) " //
-						+ "FROM " + type.tableAggregate5m + " d " //
-						+ "WHERE" //
-						+ "    d.channel_id = ANY (?) AND" // [1] Channel-ID
-						+ "    d.time >= ? AND" // [2] FromDate
-						+ "    d.time < ?" // [3] ToDate
-						+ "    group by 1;";
-				// Query the database
-				try (var pst = con.prepareStatement(sql)) {
-					// Fill PreparedStatement.
-					// Reference for Java 8 Date and Time classes with PostgreSQL:
-					// https://jdbc.postgresql.org/documentation/query/#using-java-8-date-and-time-classes
-					var i = 1;
-					pst.setArray(i++, con.createArrayOf("INTEGER", ids.keySet().toArray(Integer[]::new)));
-					pst.setObject(i++, fromDate.toOffsetDateTime());
-					pst.setObject(i++, toDate.toOffsetDateTime());
+					final var priority = priorityEntry.getKey();
+					final var ids = priorityEntry.getValue();
 
-					var rs = pst.executeQuery();
-					while (rs.next()) {
-						var channelAddress = type.parseValueFromResultSet(rs, 1).getAsInt();
-						var channel = ids.get(channelAddress);
-						var value = type.parseValueFromResultSet(rs, 2);
-						result.put(channel, value);
+					// Build custom SQL for PreparedStatement
+					var sql = "SELECT" //
+							+ "	   d.edge_channel_id," //
+							+ "    LAST(\"max\", d.time) - FIRST(\"min\", d.time) " //
+							+ "FROM " + type.getAggregate5mTableName(priority) + " d " //
+							+ "WHERE" //
+							+ "    d.edge_channel_id = ANY (?) AND" // [1] Channel-ID
+							+ "    d.time >= ? AND" // [2] FromDate
+							+ "    d.time < ?" // [3] ToDate
+							+ "    group by 1;";
+					// Query the database
+					try (var pst = con.prepareStatement(sql)) {
+						// Fill PreparedStatement.
+						// Reference for Java 8 Date and Time classes with PostgreSQL:
+						// https://jdbc.postgresql.org/documentation/query/#using-java-8-date-and-time-classes
+						var i = 1;
+						pst.setArray(i++, con.createArrayOf("INTEGER", ids.keySet().toArray(Integer[]::new)));
+						pst.setObject(i++, fromDate.toOffsetDateTime());
+						pst.setObject(i++, toDate.toOffsetDateTime());
+
+						var rs = pst.executeQuery();
+						while (rs.next()) {
+							var channelAddress = type.parseValueFromResultSet(rs, 1).getAsInt();
+							var channel = ChannelAddress.fromString(ids.get(channelAddress));
+							var value = type.parseValueFromResultSet(rs, 2);
+							result.put(channel, value);
+						}
+
+					} catch (SQLException e) {
+						this.log.error(
+								"Unable to query historic energy for type [" + type.name() + "]: " + e.getMessage());
+						// TODO collect exceptions; throw error if everything fails
 					}
-
-				} catch (SQLException e) {
-					this.log.error("Unable to query historic energy for type [" + type.name() + "]: " + e.getMessage());
-					// TODO collect exceptions; throw error if everything fails
 				}
 			}
 		} catch (SQLException e) {
@@ -233,9 +237,7 @@ public class TimescaledbReadHandler {
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
-		if (!this.enableReadFromTimescaledb(edgeId, channels)) {
-			return null;
-		}
+		var channelStrings = toStringSet(channels);
 
 		// handle empty call
 		if (channels.isEmpty()) {
@@ -243,73 +245,79 @@ public class TimescaledbReadHandler {
 		}
 
 		var result = Utils.prepareDataMap(fromDate, toDate, channels, resolution);
-		var types = Utils.querySchemaCache(this.assertAndGetSchema(), edgeId, channels);
+		var types = Utils.querySchemaCache(this.assertAndGetSchema(), edgeId, channelStrings);
 
 		// Open ONE database connection
 		try (var con = this.dataSource.getConnection()) {
 
 			// Execute specific query for each Type
 			for (var typeEntry : types.entrySet()) {
-				var type = typeEntry.getKey();
-				var ids = typeEntry.getValue();
+				final var type = typeEntry.getKey();
+				for (var priorityEntry : typeEntry.getValue().entrySet()) {
 
-				// Build custom SQL for PreparedStatement
-				var sql = "SELECT" //
-						+ "    timescaledb_experimental.time_bucket_ng(" //
-						+ "        ?::interval," // [1] Resolution
-						+ "        data.time," //
-						+ "        timezone => ?)," // [2] timezone
-						+ "    data.channel_id," //
-						+ "    LAST(\"max\", data.time)" //
-						+ "FROM " + type.tableAggregate5m + " data " //
-						+ "WHERE" //
-						+ "    data.channel_id = ANY (?) AND" // [3] FromDate
-						+ "    data.time >= ? AND" // [4] FromDate
-						+ "    data.time < ? " // [5] ToDate
-						+ "GROUP BY 1,2";
+					final var priority = priorityEntry.getKey();
+					final var ids = priorityEntry.getValue();
 
-				// Query the database
-				var data = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
-				try (var pst = con.prepareStatement(sql)) {
-					// Fill PreparedStatement.
+					// Build custom SQL for PreparedStatement
+					var sql = "SELECT" //
+							+ "    timescaledb_experimental.time_bucket_ng(" //
+							+ "        ?::interval," // [1] Resolution
+							+ "        data.time," //
+							+ "        timezone => ?)," // [2] timezone
+							+ "    data.edge_channel_id," //
+							+ "    LAST(\"max\", data.time)" //
+							+ "FROM " + type.getAggregate5mTableName(priority) + " data " //
+							+ "WHERE" //
+							+ "    data.edge_channel_id = ANY (?) AND" // [3] Channel IDs
+							+ "    data.time >= ? AND" // [4] FromDate
+							+ "    data.time < ? " // [5] ToDate
+							+ "GROUP BY 1,2";
 
-					// Reference for Java 8 Date and Time classes with PostgreSQL:
-					// https://jdbc.postgresql.org/documentation/query/#using-java-8-date-and-time-classes
-					var i = 1;
-					pst.setString(i++, Utils.toSqlInterval(resolution));
-					pst.setString(i++, fromDate.getZone().getId());
-					pst.setArray(i++, con.createArrayOf("INTEGER", ids.keySet().toArray(Integer[]::new)));
-					pst.setObject(i++, fromDate.minus(resolution.getValue(), resolution.getUnit()).toOffsetDateTime());
-					pst.setObject(i++, toDate.toOffsetDateTime());
+					// Query the database
+					var data = new TreeMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>>();
+					try (var pst = con.prepareStatement(sql)) {
+						// Fill PreparedStatement.
 
-					var rs = pst.executeQuery();
-					while (rs.next()) {
-						var time = rs.getObject(1, OffsetDateTime.class).atZoneSameInstant(fromDate.getZone());
-						var channelAddress = ids.get(rs.getInt(2));
-						var value = type.parseValueFromResultSet(rs, 3);
-						var dataTime = data.computeIfAbsent(time, t -> new TreeMap<>());
-						dataTime.put(channelAddress, value);
-					}
+						// Reference for Java 8 Date and Time classes with PostgreSQL:
+						// https://jdbc.postgresql.org/documentation/query/#using-java-8-date-and-time-classes
+						var i = 1;
+						pst.setString(i++, Utils.toSqlInterval(resolution));
+						pst.setString(i++, fromDate.getZone().getId());
+						pst.setArray(i++, con.createArrayOf("INTEGER", ids.keySet().toArray(Integer[]::new)));
+						pst.setObject(i++,
+								fromDate.minus(resolution.getValue(), resolution.getUnit()).toOffsetDateTime());
+						pst.setObject(i++, toDate.toOffsetDateTime());
 
-				} catch (SQLException e) {
-					this.log.error("Unable to query historic data for type [" + type.name() + "]: " + e.getMessage());
-					// TODO collect exceptions; throw error if everything fails
-				}
-
-				// Calculate delta
-				SortedMap<ChannelAddress, JsonElement> lastEntry = null;
-				for (var entry : data.entrySet()) {
-					if (lastEntry != null) { // ignore first entry with time t-1
-						var time = entry.getKey();
-						for (var id : ids.entrySet()) {
-							var channelAddress = id.getValue();
-							var lastValue = lastEntry.get(id.getValue());
-							var thisValue = entry.getValue().get(channelAddress);
-							var resultTime = result.computeIfAbsent(time, t -> new TreeMap<>());
-							resultTime.put(channelAddress, type.subtract(thisValue, lastValue));
+						var rs = pst.executeQuery();
+						while (rs.next()) {
+							var time = rs.getObject(1, OffsetDateTime.class).atZoneSameInstant(fromDate.getZone());
+							var channelAddress = ChannelAddress.fromString(ids.get(rs.getInt(2)));
+							var value = type.parseValueFromResultSet(rs, 3);
+							var dataTime = data.computeIfAbsent(time, t -> new TreeMap<>());
+							dataTime.put(channelAddress, value);
 						}
+
+					} catch (SQLException e) {
+						this.log.error(
+								"Unable to query historic data for type [" + type.name() + "]: " + e.getMessage());
+						// TODO collect exceptions; throw error if everything fails
 					}
-					lastEntry = entry.getValue();
+
+					// Calculate delta
+					SortedMap<ChannelAddress, JsonElement> lastEntry = null;
+					for (var entry : data.entrySet()) {
+						if (lastEntry != null) { // ignore first entry with time t-1
+							var time = entry.getKey();
+							for (var id : ids.entrySet()) {
+								var channelAddress = ChannelAddress.fromString(id.getValue());
+								var lastValue = lastEntry.get(channelAddress);
+								var thisValue = entry.getValue().get(channelAddress);
+								var resultTime = result.computeIfAbsent(time, t -> new TreeMap<>());
+								resultTime.put(channelAddress, type.subtract(thisValue, lastValue));
+							}
+						}
+						lastEntry = entry.getValue();
+					}
 				}
 			}
 		} catch (SQLException e) {
@@ -327,10 +335,6 @@ public class TimescaledbReadHandler {
 	 * @return the values
 	 */
 	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channels) {
-		if (!this.enableReadFromTimescaledb(edgeId, channels)) {
-			return null;
-		}
-
 		// TODO
 		return Collections.emptyMap();
 	}
@@ -377,24 +381,7 @@ public class TimescaledbReadHandler {
 		return data;
 	}
 
-	// TODO remove after full migration
-	public static final HashSet<String> TIMESCALEDB_READ_TEST = //
-			Sets.newHashSet("edge0" /* local test */, "fems5", "fems888");
-
-	private boolean readFromTimescaledb(String edgeId) {
-		if (!TIMESCALEDB_READ_TEST.contains(edgeId)) {
-			return false;
-		}
-		return true;
-	}
-
-	private boolean enableReadFromTimescaledb(String edgeId, Set<ChannelAddress> channels) {
-		if (!this.readFromTimescaledb(edgeId)) {
-			return false;
-		}
-		// TODO check Channels per Edge-ID
-		// for (var channel : channels) {
-		// }
-		return true;
+	private static Set<String> toStringSet(Set<ChannelAddress> channels) {
+		return channels.stream().map(c -> c.toString()).collect(Collectors.toUnmodifiableSet());
 	}
 }
