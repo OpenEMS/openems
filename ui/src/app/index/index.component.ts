@@ -32,6 +32,7 @@ export class IndexComponent {
   public form: FormGroup;
   public filter: string = '';
   public filteredEdges: Edge[] = [];
+  protected formIsDisabled: boolean = false;
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
   public slice: number = 20;
@@ -105,7 +106,10 @@ export class IndexComponent {
    * @param param data provided in login form
    */
   public doLogin(param: { username?: string, password: string }) {
-    this.websocket.login(new AuthenticateWithPasswordRequest(param));
+    this.formIsDisabled = true;
+    this.websocket.login(new AuthenticateWithPasswordRequest(param)).then(() => {
+      this.formIsDisabled = false;
+    })
   }
 
   doInfinite(infiniteScroll) {

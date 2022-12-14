@@ -8,6 +8,14 @@
 	<packaging>pom</packaging>
 
 	<dependencies>
+		<!-- biz -->
+		<dependency>
+			<!-- Bnd Gradle Plugin For The Bnd Workspace -->
+			<!-- On update: also update gradle.properties file -->
+			<groupId>biz.aQute.bnd.workspace</groupId>
+			<artifactId>biz.aQute.bnd.workspace.gradle.plugin</artifactId>
+			<version>6.4.0</version>
+		</dependency>
 		<!-- com -->
 		<dependency>
 			<groupId>com.fazecast</groupId>
@@ -27,7 +35,7 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.9.1</version>
+			<version>2.10</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -82,12 +90,6 @@
 			<version>2.9.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by com.influxdb: influxdb-client -->
-			<groupId>io.gsonfire</groupId>
-			<artifactId>gson-fire</artifactId>
-			<version>1.8.5</version>
-		</dependency>
-		<dependency>
 			<!-- JavaBeans Activation Framework -->
 			<groupId>com.sun.activation</groupId>
 			<artifactId>javax.activation</artifactId>
@@ -104,6 +106,14 @@
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.4</version>
+		</dependency>
+		<!-- de -->
+		<dependency>
+			<!-- PgBulkInsert is a Java library for Bulk Inserts to PostgreSQL using the Binary COPY Protocol. -->
+			<!-- Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md-->
+			<groupId>de.bytefish</groupId>
+			<artifactId>pgbulkinsert</artifactId>
+			<version>8.1.0</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
@@ -128,7 +138,7 @@
 		<dependency>
 			<groupId>fr.turri</groupId>
 			<artifactId>aXMLRPC</artifactId>
-			<version>1.12.0</version>
+			<version>1.13.0</version>
 		</dependency>
 		<!-- info -->
 		<dependency>
@@ -166,7 +176,7 @@
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.configadmin</artifactId>
-			<version>1.9.24</version>
+			<version>1.9.26</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix EventAdmin -->
@@ -199,7 +209,7 @@
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.servlet-api</artifactId>
-			<version>2.0.0</version>
+			<version>2.1.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Metatype Service -->
@@ -223,19 +233,28 @@
 			<version>4.7.2</version>
 		</dependency>
 		<dependency>
+			<!-- Apache Felix Web Console Service Component Runtime/Declarative Services Plugin -->
+			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/webconsole-plugins/ds/changelog.txt -->
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.webconsole.plugins.ds</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.junit</artifactId>
 			<version>4.13.2_1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.webconsole.plugins.ds</artifactId>
-			<version>2.1.0</version>
+			<!-- Checker Qual: annotations for type-checking by the Checker Framework -->
+			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
+			<groupId>org.checkerframework</groupId>
+			<artifactId>checker-qual</artifactId>
+			<version>3.27.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.12.15</version>
+			<version>0.14.0</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -246,22 +265,22 @@
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>6.5.0</version>
+			<version>6.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>6.5.0</version>
+			<version>6.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>6.5.0</version>
+			<version>6.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>flux-dsl</artifactId>
-			<version>6.5.0</version>
+			<version>6.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
@@ -271,7 +290,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>1.7.20</version>
+			<version>1.7.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
@@ -363,7 +382,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.5.0</version>
+			<version>42.5.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
@@ -375,7 +394,7 @@
 			<!-- Used by io.openems.edge.timedata.rrd4j -->
 			<groupId>org.rrd4j</groupId>
 			<artifactId>rrd4j</artifactId>
-			<version>3.8.1</version>
+			<version>3.8.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

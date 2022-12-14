@@ -59,7 +59,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	private final Logger log = LoggerFactory.getLogger(EdgeConfigWorker.class);
 	private final Queue<ConfigurationEvent> events = new ArrayDeque<>();
 
-	private EdgeConfig cache = null;
+	private EdgeConfig.ActualEdgeConfig.Builder cache = null;
 
 	public EdgeConfigWorker(ComponentManagerImpl parent) {
 		super(parent);
@@ -97,13 +97,15 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			wasConfigUpdated = true;
 		}
 
+		var result = this.cache.buildEdgeConfig();
+
 		if (wasConfigUpdated) {
 			EventBuilder.from(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CONFIG_UPDATE) //
-					.addArg(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY, this.cache) //
+					.addArg(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY, result) //
 					.send();
 		}
 
-		return this.cache;
+		return result;
 	}
 
 	@Override
@@ -139,28 +141,28 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	 *
 	 * @return the {@link EdgeConfig}
 	 */
-	private EdgeConfig buildNewEdgeConfig() {
-		var result = new EdgeConfig();
+	private EdgeConfig.ActualEdgeConfig.Builder buildNewEdgeConfig() {
+		var builder = EdgeConfig.ActualEdgeConfig.create();
 		try {
-			this.readFactories(result);
-			this.readConfigurations(result, null /* no filter: read all */);
-			this.readComponents(result);
+			this.readFactories(builder);
+			this.readConfigurations(builder, null /* no filter: read all */);
+			this.readComponents(builder);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-		return result;
+		return builder;
 	}
 
 	/**
 	 * Update EdgeConfig Channels.
 	 *
-	 * @param config the {@link EdgeConfig}
+	 * @param builder the {@link EdgeConfig} builder
 	 * @return true if this operation changed the {@link EdgeConfig}
 	 */
-	private boolean updateChannels(EdgeConfig config) {
+	private boolean updateChannels(EdgeConfig.ActualEdgeConfig.Builder builder) {
 		var wasConfigUpdated = false;
 		for (OpenemsComponent component : this.parent.getAllComponents()) {
-			var comp = config.getComponents().get(component.id());
+			var comp = builder.getComponents().get(component.id());
 			if (comp == null) {
 				this.log.warn("Component [" + component.id() + "] was missing!");
 				continue;
@@ -237,13 +239,13 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	 * Read all existing configurations, even those that are not properly
 	 * initialized.
 	 *
-	 * @param result the {@link EdgeConfig}
-	 * @param filter the filter string for
-	 *               {@link ConfigurationAdmin#listConfigurations(String)}, null for
-	 *               no filter
+	 * @param builder the {@link EdgeConfig} builder
+	 * @param filter  the filter string for
+	 *                {@link ConfigurationAdmin#listConfigurations(String)}, null
+	 *                for no filter
 	 * @return true if this operation changed the {@link EdgeConfig}
 	 */
-	private boolean readConfigurations(EdgeConfig result, String filter) {
+	private boolean readConfigurations(EdgeConfig.ActualEdgeConfig.Builder builder, String filter) {
 		Configuration[] configs = null;
 		try {
 			configs = this.parent.cm.listConfigurations(filter);
@@ -251,7 +253,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			return false;
 		}
 
-		Set<String> missingComponentIds = new HashSet<>(result.getComponents().keySet());
+		Set<String> missingComponentIds = new HashSet<>(builder.getComponents().keySet());
 		if (configs != null) {
 			for (Configuration config : configs) {
 				var properties = config.getProperties();
@@ -282,7 +284,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					if (factoryPid == null) {
 						continue;
 					}
-					var factory = result.getFactories().get(factoryPid);
+					var factory = builder.getFactories().get(factoryPid);
 					if (factory != null) {
 						var defaultValue = JsonUtils.getAsOptionalString(factory.getPropertyDefaultValue("id"));
 						if (defaultValue.isPresent()) {
@@ -317,7 +319,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				}
 
 				// Read Factory
-				var factory = result.getFactories().get(factoryPid);
+				var factory = builder.getFactories().get(factoryPid);
 
 				// Read all Properties
 				var propertyMap = convertProperties(properties, factory);
@@ -326,7 +328,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				var channels = this.getChannels(componentId);
 
 				// Create EdgeConfig.Component and add it to Result
-				result.addComponent(componentId, new EdgeConfig.Component(config.getPid(), componentId, componentAlias,
+				builder.addComponent(componentId, new EdgeConfig.Component(config.getPid(), componentId, componentAlias,
 						factoryPid, propertyMap, channels));
 			}
 		}
@@ -336,7 +338,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		 */
 		if (filter == null) {
 			for (String missingComponentId : missingComponentIds) {
-				result.removeComponent(missingComponentId);
+				builder.removeComponent(missingComponentId);
 			}
 		}
 		return true;
@@ -345,13 +347,13 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	/**
 	 * Read active, properly initialized Components.
 	 *
-	 * @param result the {@link EdgeConfig}
+	 * @param builder the {@link EdgeConfig} builder
 	 * @return true if this operation changed the {@link EdgeConfig}
 	 */
-	private boolean readComponents(EdgeConfig result) {
+	private boolean readComponents(EdgeConfig.ActualEdgeConfig.Builder builder) {
 		var wasConfigUpdated = false;
 		for (OpenemsComponent component : this.parent.getAllComponents()) {
-			this.readComponent(result, component);
+			this.readComponent(builder, component);
 			wasConfigUpdated = true;
 		}
 		return wasConfigUpdated;
@@ -360,22 +362,22 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	/**
 	 * Read this Component.
 	 *
-	 * @param result    the {@link EdgeConfig}
+	 * @param builder   the {@link EdgeConfig} builder
 	 * @param component the Component
 	 */
-	private void readComponent(EdgeConfig result, OpenemsComponent component) {
+	private void readComponent(EdgeConfig.ActualEdgeConfig.Builder builder, OpenemsComponent component) {
 		var factoryPid = component.serviceFactoryPid();
 		var componentId = component.id();
 
 		// get configuration properties
 		var properties = convertProperties(//
 				component.getComponentContext().getProperties(), //
-				result.getFactories().get(factoryPid));
+				builder.getFactories().get(factoryPid));
 
 		// get Channels
 		var channels = this.getChannels(component);
 
-		var resultComponent = result.getComponent(componentId);
+		var resultComponent = builder.getComponent(componentId);
 		if (resultComponent.isPresent()) {
 			// Update existing properties
 			var resultProperties = resultComponent.get().getProperties();
@@ -400,7 +402,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 		} else {
 			// Create new EdgeConfig.Component and add it to Result
-			result.addComponent(componentId, new EdgeConfig.Component(component.servicePid(), componentId,
+			builder.addComponent(componentId, new EdgeConfig.Component(component.servicePid(), componentId,
 					component.alias(), factoryPid, properties, channels));
 		}
 	}
@@ -408,9 +410,9 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	/**
 	 * Read Factories.
 	 *
-	 * @param result the {@link EdgeConfig}
+	 * @param builder the {@link EdgeConfig} builder
 	 */
-	private void readFactories(EdgeConfig result) {
+	private void readFactories(EdgeConfig.ActualEdgeConfig.Builder builder) {
 		var bundleContext = this.parent.bundleContext;
 		if (bundleContext == null) {
 			// Can be null in JUnit tests
@@ -446,7 +448,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					// Get Natures implemented by this Factory-PID
 					var natures = this.getNatures(bundle, manifest, factoryPid);
 					// Add Factory to config
-					result.addFactory(factoryPid,
+					builder.addFactory(factoryPid,
 							EdgeConfig.Factory.create(factoryPid, objectClassDefinition, natures));
 				}
 			}
@@ -460,7 +462,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					// Get Natures implemented by this Factory-PID
 					var natures = this.getNatures(bundle, manifest, pid);
 					// Add Factory to config
-					result.addFactory(pid, EdgeConfig.Factory.create(pid, objectClassDefinition, natures));
+					builder.addFactory(pid, EdgeConfig.Factory.create(pid, objectClassDefinition, natures));
 				}
 			}
 		}

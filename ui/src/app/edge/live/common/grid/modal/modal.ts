@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
-import { ChannelAddress, CurrentData, GridMode, Utils } from 'src/app/shared/shared';
+import { ChannelAddress, CurrentData, EdgeConfig, GridMode } from 'src/app/shared/shared';
 
 @Component({
   selector: 'modal',
@@ -8,37 +8,46 @@ import { ChannelAddress, CurrentData, GridMode, Utils } from 'src/app/shared/sha
 })
 export class ModalComponent extends AbstractModal {
 
-  public readonly GridMode = GridMode;
-  public grid: { mode: GridMode, buyFromGrid: number, sellToGrid: number, phases?: { name: string, value: number }[] } =
-    {
-      mode: GridMode.UNDEFINED,
-      buyFromGrid: 0,
-      sellToGrid: 0,
-      phases: [
-        { name: "", value: 0 },
-        { name: "", value: 0 },
-        { name: "", value: 0 }
-      ]
-    }
-  public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
+  protected readonly GridMode = GridMode;
+  protected grid: { mode: GridMode, buyFromGrid: number, sellToGrid: number } = { mode: GridMode.UNDEFINED, buyFromGrid: null, sellToGrid: null };
+
+  protected meters: { component: EdgeConfig.Component, isAsymmetric: boolean }[] = []
 
   protected override getChannelAddresses(): ChannelAddress[] {
-    return [
-      new ChannelAddress('_sum', 'GridMode'),
+    let channelAddresses: ChannelAddress[] = [];
+
+    const asymmetricMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter")
+      .filter(comp => comp.isEnabled && this.config.isTypeGrid(comp))
+
+    this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+      .filter(component => component.isEnabled && this.config.isTypeGrid(component))
+      .forEach(component => {
+        var isAsymmetric = asymmetricMeters.filter(element => component.id == element.id).length > 0;
+        this.meters.push({ component: component, isAsymmetric: isAsymmetric });
+      })
+
+    channelAddresses.push(
+      new ChannelAddress("_sum", 'GridMode'),
       new ChannelAddress('_sum', 'GridActivePower'),
       new ChannelAddress('_sum', 'GridActivePowerL1'),
       new ChannelAddress('_sum', 'GridActivePowerL2'),
-      new ChannelAddress('_sum', 'GridActivePowerL3')
-    ]
+      new ChannelAddress('_sum', 'GridActivePowerL3'),
+    )
+    return channelAddresses;
   }
 
   protected override onCurrentData(currentData: CurrentData): void {
+
     this.grid.mode = currentData.allComponents["_sum/GridMode"]
-    this.grid.buyFromGrid = currentData.allComponents["_sum/GridActivePower"] > 0 ? currentData.allComponents["_sum/GridActivePower"] : 0;
-    this.grid.sellToGrid = currentData.allComponents["_sum/GridActivePower"] < 0 ? (currentData.allComponents["_sum/GridActivePower"] * -1) : 0;
-    this.grid.phases?.forEach((element, index) => {
-      element.name = "Phase L" + (index + 1) + " " + this.translate.instant(currentData.allComponents["_sum/GridActivePowerL" + (index + 1)] > 0 ? "General.gridBuyAdvanced" : "General.gridSellAdvanced");
-      element.value = currentData.allComponents["_sum/GridActivePowerL" + (index + 1)] < 0 ? currentData.allComponents["_sum/GridActivePowerL" + (index + 1)] * -1 : currentData.allComponents["_sum/GridActivePowerL" + (index + 1)] ?? 0;
-    })
+    let gridActivePower = currentData.allComponents['_sum/GridActivePower']
+    this.grid.buyFromGrid = gridActivePower > 0 ? gridActivePower : 0;
+    this.grid.sellToGrid = gridActivePower < 0 ? (gridActivePower * -1) : 0;
+  }
+
+  protected setTranslatedName = (power: number | null) => {
+    if (power == null || power == 0) {
+      return "";
+    }
+    return " " + this.translate.instant(power > 0 ? "General.gridBuyAdvanced" : "General.gridSellAdvanced");
   }
 }

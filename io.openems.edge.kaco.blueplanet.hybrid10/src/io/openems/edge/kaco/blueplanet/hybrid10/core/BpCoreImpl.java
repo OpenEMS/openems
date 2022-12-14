@@ -262,7 +262,6 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		if (this.inverter == null || !this.isConnected()) {
 			return null;
 		}
-
 		// In some old systems the data was read only once
 		// if (this.inverter != null && this.inverter.dataReady()) {
 		this.inverter.refresh();

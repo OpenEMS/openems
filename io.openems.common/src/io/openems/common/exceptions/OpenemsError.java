@@ -23,7 +23,7 @@ public enum OpenemsError {
 	COMMON_ROLE_ACCESS_DENIED(1002, "Access to this resource [%s] is denied for User with Role [%s]"), //
 	COMMON_AUTHENTICATION_FAILED(1003, "Authentication failed"), //
 	COMMON_USER_UNDEFINED(1004, "User [%s] is not defined"), //
-	COMMON_ROLE_UNDEFINED(1005, "Role for User [%s] is not defined"), //
+	COMMON_ROLE_UNDEFINED(1005, "Access to this resource [%s] is denied. Role for User [%s] is not defined"), //
 	/*
 	 * Edge errors. 2000-2999
 	 */
@@ -72,7 +72,7 @@ public enum OpenemsError {
 	JSON_NO_INET4ADDRESS(5020, "JSON [%s] is not an IPv4 address"), //
 	JSON_NO_ENUM(5021, "JSON [%s] is not an Enum"), //
 	JSON_NO_FLOAT(5022, "JSON [%s] is not a Float"), //
-	JSON_NO_FLOAT_MEMBER(5030, "JSON [%s:%s] is not a Short"), //
+	JSON_NO_FLOAT_MEMBER(5030, "JSON [%s:%s] is not a Float"), //
 	JSON_NO_SHORT(5023, "JSON [%s] is not a Short"), //
 	JSON_NO_SHORT_MEMBER(5024, "JSON [%s:%s] is not a Short"), //
 	JSON_NO_LONG(5025, "JSON [%s] is not a Short"), //

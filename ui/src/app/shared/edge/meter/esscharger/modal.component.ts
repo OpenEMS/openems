@@ -4,7 +4,7 @@ import { Role } from 'src/app/shared/type/role';
 import { EdgeConfig } from '../../edgeconfig';
 
 @Component({
-    selector: 'oe-essCharger',
+    selector: 'oe-ess-charger',
     templateUrl: './modal.component.html'
 })
 export class EssChargerComponent {

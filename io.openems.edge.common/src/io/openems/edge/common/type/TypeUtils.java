@@ -498,7 +498,7 @@ public class TypeUtils {
 	/**
 	 * Safely multiply Integers.
 	 *
-	 * @param firstFactor first factor of the multiplication
+	 * @param firstFactor    first factor of the multiplication
 	 * @param furtherFactors further factors of the multiplication
 	 * @return the result, possibly null if the first factor is null
 	 */

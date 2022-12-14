@@ -1,0 +1,29 @@
+Bundle-Name: pgbulkinsert
+Bundle-DocURL: https://github.com/PgBulkInsert/PgBulkInsert
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 8.1.0
+
+Include-Resource: \
+	@pgbulkinsert-8.1.0.jar,\
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+Export-Package: \
+    de.bytefish.pgbulkinsert,\
+    de.bytefish.pgbulkinsert.configuration,\
+    de.bytefish.pgbulkinsert.function,\
+	de.bytefish.pgbulkinsert.mapping,\
+	de.bytefish.pgbulkinsert.model,\
+	de.bytefish.pgbulkinsert.pgsql,\
+	de.bytefish.pgbulkinsert.pgsql.constants,\
+	de.bytefish.pgbulkinsert.pgsql.converter,\
+	de.bytefish.pgbulkinsert.pgsql.handlers,\
+	de.bytefish.pgbulkinsert.pgsql.model.geometric,\
+	de.bytefish.pgbulkinsert.pgsql.model.network,\
+	de.bytefish.pgbulkinsert.pgsql.model.range,\
+	de.bytefish.pgbulkinsert.row,\
+	de.bytefish.pgbulkinsert.util,\
+
+-sources: false

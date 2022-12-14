@@ -1,6 +1,5 @@
 package io.openems.edge.app.heat;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -18,7 +17,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.heat.HeatingElement.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -70,8 +68,10 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 public class HeatingElement extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property implements DefaultEnum {
-		ALIAS("Heating Element App"), //
+		// Component-IDs
 		CTRL_IO_HEATING_ELEMENT_ID("ctrlIoHeatingElement0"), //
+		// Properties
+		ALIAS("Heating Element App"), //
 		OUTPUT_CHANNEL_PHASE_L1("io0/Relay1"), //
 		OUTPUT_CHANNEL_PHASE_L2("io0/Relay2"), //
 		OUTPUT_CHANNEL_PHASE_L3("io0/Relay3"), //
@@ -107,14 +107,13 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 			final var outputChannelPhaseL2 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_PHASE_L2);
 			final var outputChannelPhaseL3 = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL_PHASE_L3);
 
-			List<Component> comp = new ArrayList<>();
-			var jsonConfigBuilder = JsonUtils.buildJsonObject();
-
-			comp.add(new EdgeConfig.Component(heatingElementId, alias, "Controller.IO.HeatingElement",
-					jsonConfigBuilder.addProperty("outputChannelPhaseL1", outputChannelPhaseL1) //
-							.addProperty("outputChannelPhaseL2", outputChannelPhaseL2) //
-							.addProperty("outputChannelPhaseL3", outputChannelPhaseL3) //
-							.build()));//
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(heatingElementId, alias, "Controller.IO.HeatingElement",
+							JsonUtils.buildJsonObject().addProperty("outputChannelPhaseL1", outputChannelPhaseL1) //
+									.addProperty("outputChannelPhaseL2", outputChannelPhaseL2) //
+									.addProperty("outputChannelPhaseL3", outputChannelPhaseL3) //
+									.build()) //
+			);
 
 			var componentIdOfRelay = outputChannelPhaseL1.substring(0, outputChannelPhaseL1.indexOf('/'));
 			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
@@ -122,7 +121,7 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 
 			if (appIdOfRelay == null) {
 				// relay may be created but not as a app
-				return new AppConfiguration(comp);
+				return new AppConfiguration(components);
 			}
 
 			var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
@@ -133,9 +132,10 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 					DependencyDeclaration.AppDependencyConfig.create() //
 							.setSpecificInstanceId(appIdOfRelay) //
-							.build()));
+							.build()) //
+			);
 
-			return new AppConfiguration(comp, null, null, dependencies);
+			return new AppConfiguration(components, null, null, dependencies);
 		};
 	}
 

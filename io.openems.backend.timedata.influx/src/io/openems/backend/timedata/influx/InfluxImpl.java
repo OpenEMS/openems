@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import com.influxdb.exceptions.BadRequestException;
@@ -35,6 +36,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.StringUtils;
 import io.openems.shared.influxdb.InfluxConnector;
 
 @Designate(ocd = Config.class, factory = false)
@@ -95,7 +97,7 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 	}
 
 	@Override
-	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
+	public void write(String edgeId, TreeBasedTable<Long, String, JsonElement> data) throws OpenemsException {
 		// parse the numeric EdgeId
 		int influxEdgeId = InfluxImpl.parseNumberFromName(edgeId);
 
@@ -110,14 +112,14 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 	 * @param data         the data
 	 * @throws OpenemsException on error
 	 */
-	private void writeData(int influxEdgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) {
+	private void writeData(int influxEdgeId, TreeBasedTable<Long, String, JsonElement> data) {
 		var dataEntries = data.rowMap().entrySet();
 		if (dataEntries.isEmpty()) {
 			// no data to write
 			return;
 		}
 
-		for (Entry<Long, Map<ChannelAddress, JsonElement>> dataEntry : dataEntries) {
+		for (Entry<Long, Map<String, JsonElement>> dataEntry : dataEntries) {
 			var channelEntries = dataEntry.getValue().entrySet();
 			if (channelEntries.isEmpty()) {
 				// no points to add
@@ -130,8 +132,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 					.measurement(InfluxConnector.MEASUREMENT) //
 					.addTag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
 					.time(timestamp, WritePrecision.MS);
-			for (Entry<ChannelAddress, JsonElement> channelEntry : channelEntries) {
-				this.addValue(point, channelEntry.getKey().toString(), channelEntry.getValue());
+			for (Entry<String, JsonElement> channelEntry : channelEntries) {
+				this.addValue(point, channelEntry.getKey(), channelEntry.getValue());
 			}
 			if (point.hasFields()) {
 				this.influxConnector.write(point);
@@ -201,27 +203,63 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 			// already handled by special case handling
 			return;
 		}
+
 		if (element.isJsonPrimitive()) {
-			var value = element.getAsJsonPrimitive();
-			if (value.isNumber()) {
-				try {
-					builder.addField(field, Long.parseLong(value.toString()));
-				} catch (NumberFormatException e1) {
+			var p = (JsonPrimitive) element;
+			if (p.isNumber()) {
+				// Numbers can be directly converted
+				var n = p.getAsNumber();
+				if (n.getClass().getName().equals("com.google.gson.internal.LazilyParsedNumber")) {
+					// Avoid 'discouraged access'
+					// LazilyParsedNumber stores value internally as String
+					if (StringUtils.matchesFloatPattern(n.toString())) {
+						builder.addField(field, n.doubleValue());
+						return;
+					}
+					builder.addField(field, n.longValue());
+					return;
+
+				} else if (n instanceof Integer || n instanceof Long || n instanceof Short || n instanceof Byte) {
+					builder.addField(field, n.longValue());
+					return;
+
+				}
+				builder.addField(field, n.doubleValue());
+				return;
+
+			} else if (p.isBoolean()) {
+				// Booleans are converted to integer (0/1)
+				builder.addField(field, p.getAsBoolean());
+				return;
+
+			} else if (p.isString()) {
+				// Strings are parsed if they start with a number or minus
+				var s = p.getAsString();
+				if (StringUtils.matchesFloatPattern(s)) {
 					try {
-						builder.addField(field, Double.parseDouble(value.toString()));
-					} catch (NumberFormatException e2) {
-						builder.addField(field, value.getAsNumber());
+						builder.addField(field, Double.parseDouble(s)); // try parsing to Double
+						return;
+					} catch (NumberFormatException e) {
+						builder.addField(field, s);
+						return;
+					}
+
+				} else if (StringUtils.matchesIntegerPattern(s)) {
+					try {
+						builder.addField(field, Long.parseLong(s)); // try parsing to Long
+						return;
+					} catch (NumberFormatException e) {
+						builder.addField(field, s);
+						return;
 					}
 				}
-			} else if (value.isBoolean()) {
-				builder.addField(field, value.getAsBoolean());
-			} else if (value.isString()) {
-				builder.addField(field, value.getAsString());
-			} else {
-				builder.addField(field, value.toString());
+				builder.addField(field, s);
+				return;
 			}
+
 		} else {
 			builder.addField(field, element.toString());
+			return;
 		}
 	}
 

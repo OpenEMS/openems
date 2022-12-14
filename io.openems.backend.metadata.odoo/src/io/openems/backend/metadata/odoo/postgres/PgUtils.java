@@ -2,11 +2,11 @@ package io.openems.backend.metadata.odoo.postgres;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import io.openems.backend.metadata.odoo.Field;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
+import io.openems.backend.metadata.odoo.odoo.OdooUtils;
 import io.openems.common.exceptions.OpenemsException;
 
 public class PgUtils {
@@ -108,12 +108,11 @@ public class PgUtils {
 	 * @throws OpenemsException OpenEMS-Error
 	 */
 	public static ZonedDateTime getAsDate(ResultSet rs, Field field) throws SQLException, OpenemsException {
-		var date = rs.getDate(field.index());
-		var time = rs.getTime(field.index());
-
-		if (date != null || time != null) {
-			ZonedDateTime result = ZonedDateTime.of(date.toLocalDate(), time.toLocalTime(), ZoneId.of("UTC"));
-			return result;
+		var dateTimeStr = rs.getString(field.index());
+		if (dateTimeStr != null) {
+			// FIXME PgUtils should not use OdooUtils internally, but instead use Postgres
+			// methods to handle 'timestamp' database columns
+			return OdooUtils.DateTime.stringToDateTime(dateTimeStr);
 		}
 		throw new OpenemsException("Value of field [" + field.name() + "] is null.");
 	}
