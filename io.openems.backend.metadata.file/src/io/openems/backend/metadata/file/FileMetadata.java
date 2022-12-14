@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +13,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -35,13 +35,11 @@ import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
-import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.OpenemsOEM;
 import io.openems.common.event.EventReader;
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -170,9 +168,9 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
-	public synchronized Collection<Edge> getAllEdges() {
+	public synchronized Collection<Edge> getAllOfflineEdges() {
 		this.refreshData();
-		return Collections.unmodifiableCollection(this.edges.values());
+		return this.edges.values().stream().filter(Edge::isOffline).collect(Collectors.toUnmodifiableList());
 	}
 
 	private synchronized void refreshData() {
@@ -230,47 +228,42 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 
 	@Override
 	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
-		throw new NotImplementedException("FileMetadata.addEdgeToUser()");
+		throw new UnsupportedOperationException("FileMetadata.addEdgeToUser() is not implemented");
 	}
 
 	@Override
 	public Map<String, Object> getUserInformation(User user) throws OpenemsNamedException {
-		throw new NotImplementedException("FileMetadata.getUserInformation()");
+		throw new UnsupportedOperationException("FileMetadata.getUserInformation() is not implemented");
 	}
 
 	@Override
 	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException {
-		throw new NotImplementedException("FileMetadata.setUserInformation()");
+		throw new UnsupportedOperationException("FileMetadata.setUserInformation() is not implemented");
 	}
 
 	@Override
 	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
-		throw new IllegalArgumentException("FileMetadata.getSetupProtocol() is not implemented");
+		throw new UnsupportedOperationException("FileMetadata.getSetupProtocol() is not implemented");
 	}
 
 	@Override
 	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException {
-		throw new NotImplementedException("FileMetadata.getSetupProtocolData() is not implemented");
+		throw new UnsupportedOperationException("FileMetadata.getSetupProtocolData() is not implemented");
 	}
 
 	@Override
 	public int submitSetupProtocol(User user, JsonObject jsonObject) {
-		throw new IllegalArgumentException("FileMetadata.submitSetupProtocol() is not implemented");
+		throw new UnsupportedOperationException("FileMetadata.submitSetupProtocol() is not implemented");
 	}
 
 	@Override
 	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
-		throw new IllegalArgumentException("FileMetadata.registerUser() is not implemented");
+		throw new UnsupportedOperationException("FileMetadata.registerUser() is not implemented");
 	}
 
 	@Override
 	public void updateUserLanguage(User user, Language locale) throws OpenemsNamedException {
 		FileMetadata.LANGUAGE = locale;
-	}
-
-	@Override
-	public Optional<List<EdgeUser>> getUserToEdge(String edgeId) {
-		throw new IllegalArgumentException("FileMetadata.getUserToEdge() is not implemented");
 	}
 
 	@Override
@@ -296,22 +289,22 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 
 	@Override
 	public Optional<String> getSerialNumberForEdge(Edge edge) {
-		return Optional.empty();
+		throw new UnsupportedOperationException("FileMetadata.getSerialNumberForEdge() is not implemented");
 	}
 
 	@Override
 	public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
-		return Collections.emptyList();
+		throw new UnsupportedOperationException("FileMetadata.getUserAlertingSettings() is not implemented");
 	}
 
 	@Override
 	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
-		return null;
+		throw new UnsupportedOperationException("FileMetadata.getUserAlertingSettings() is not implemented");
 	}
 
 	@Override
 	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) {
-		throw new IllegalArgumentException("FileMetadata.setUserAlertingSettings() is not implemented");
+		throw new UnsupportedOperationException("FileMetadata.setUserAlertingSettings() is not implemented");
 	}
 
 }

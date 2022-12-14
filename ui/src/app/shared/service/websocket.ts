@@ -153,8 +153,8 @@ export class Websocket implements WebsocketInterface {
     this.sendRequest(request).then(r => {
       let response = (r as AuthenticateResponse).result;
 
-      let language = Language.getByFilename(response.user.language.toLocaleLowerCase());
-      localStorage.LANGUAGE = language.filename;
+      let language = Language.getByKey(response.user.language.toLocaleLowerCase());
+      localStorage.LANGUAGE = language.key;
       this.service.setLang(language);
       this.status = 'online';
 
@@ -171,7 +171,8 @@ export class Websocket implements WebsocketInterface {
             edge.producttype,
             ("version" in edge) ? edge["version"] : "0.0.0",
             Role.getRole(edge.role),
-            edge.isOnline
+            edge.isOnline,
+            edge.lastmessage
           );
           return map;
         }, {})

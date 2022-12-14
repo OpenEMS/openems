@@ -224,7 +224,8 @@ public interface ComponentUtil {
 	 * @param oldIps the old ip s that were in the old configuration
 	 * @throws OpenemsNamedException on error
 	 */
-	public void updateHosts(User user, List<String> ips, List<String> oldIps) throws OpenemsNamedException;
+	public void updateHosts(User user, List<InterfaceConfiguration> ips, List<InterfaceConfiguration> oldIps)
+			throws OpenemsNamedException;
 
 	/**
 	 * Gets an {@link Optional} of an {@link EdgeConfig.Component}.

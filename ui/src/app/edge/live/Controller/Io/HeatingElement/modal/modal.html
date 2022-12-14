@@ -1,10 +1,10 @@
-<oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
-    <oe-modal-line [name]="'General.state' | translate" [values]="[{value: this.state}]">
+<oe-modal [toolbarButtons]="{url: 'https://docs.fenecon.de/de/_/latest/fems/fems-app/includes/FEMS_App_Heizstab.html'}"
+    [title]="this.component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized">
+    <oe-modal-line [name]="'General.state' | translate" [value]="this.state">
     </oe-modal-line>
 
     <oe-modal-line *ngIf="(activePhases | async) > 0"
-        [name]="'Edge.Index.Widgets.Heatingelement.activeLevel'| translate"
-        [values]="[{value: 'Level ' + (activePhases| async)}]">
+        [name]="'Edge.Index.Widgets.Heatingelement.activeLevel'| translate" [value]="'Level ' + (activePhases| async)">
     </oe-modal-line>
 
     <oe-modal-horizontal-line></oe-modal-horizontal-line>

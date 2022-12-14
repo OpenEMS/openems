@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
+import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { environment } from '../../../../environments';
@@ -50,7 +51,7 @@ export class ProfileComponent {
       edge.sendRequest(this.service.websocket, request).then(response => {
         Utils.downloadXlsx(response as Base64PayloadResponse, "Modbus-TCP-" + edge.id);
       }).catch(reason => {
-        console.warn(reason);
+        this.service.toast(this.translate.instant('Edge.Config.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL') + ": " + (reason as JsonrpcResponseError).error.message, 'danger');
       })
     });
   }
