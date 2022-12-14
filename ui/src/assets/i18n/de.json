@@ -743,7 +743,8 @@
     "passwordLabel": "Passwort",
     "passwordReset": "Passwort zurücksetzen",
     "authenticationFailed": "Authentifizierung fehlgeschlagen",
-    "user": "Benutzer"
+    "user": "Benutzer",
+    "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal."
   },
   "Menu": {
     "aboutUI": "Über OpenEMS",
