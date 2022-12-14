@@ -564,7 +564,8 @@
       "COMMUNICATION_WITH_METER": "Kommunikation mit den Zählern",
       "WAGO_BRIDGE": "Wago Bridge",
       "FIELD_BUS_COUPLER": "Feldbuskoppler",
-      "CONTROL_GRID_POINT": "Ansteuerung der Netztrennstelle"
+      "CONTROL_GRID_POINT": "Ansteuerung der Netztrennstelle",
+      "BATTERY_INTERFACE": "Schnittstelle Batterie"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
@@ -719,7 +720,15 @@
       "SYSTEM_SETUP": "Voreinstellungen",
       "BATTERY_STRING": "Batterie String {{ stringNumber }}",
       "EMS_BOX_HOME": "EMS Box ({{edgeShortName }} Box)",
-      "EMS_BOX_HECKERT": "EMS Box"
+      "EMS_BOX_HECKERT": "EMS Box",
+      "NUMBER_OF_STRINGS": "Anzahl Strings",
+      "MINIMUM_AND_MAXIMUM_STRINGS": "Minimum Strings: {{ min }} und Maximum: {{ max }}",
+      "NUMBER_OF_MODULES_PER_STRINGS": "Anzahl Module pro String",
+      "MODULES_PER_STRINGS_DESCRIPTION": "Modules pro String für Commercial-50 system: {{ number }}",
+      "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Anschlussbox",
+      "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules pro String: {{ min }} und Maximum: {{ max }}",
+      "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }} Anschlussbox",
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "{{ edgeShortName }} Netztrennstelle"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -734,6 +743,24 @@
     },
     "VALUE_WITH_LABEL": "Wert {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
+    "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
+      "BALANCING": "Eigenverbrauchsoptimierung",
+      "PEAK_SHAVING_SYMMETRIC": "Lastspitzenkappung",
+      "PEAK_SHAVING_ASYMMETRIC": "Phasengenaue Lastspitzenkappung",
+      "FEATURE_DESCRIPTION": "Die entsprechende App muss vorhanden sein",
+      "HEADER": "Angaben zum Einsatz des Speichers",
+      "PEAK_SHAVING_SYMMETRIC_HEADER": "Einstellungen Lastspitzenkappung",
+      "PEAK_SHAVING_ASYMMETRIC_HEADER": "Einstellungen Phasen Genaue Lastspitzenkappung"
+    },
+    "CONFIGURATION_PEAK_SHAVING": {
+      "DISCHARGE_ABOVE_VALUE": "Beladung unter - Wert [W]",
+      "CHARGE_BELOW_VALUE": "Beladung unter - Wert [W]",
+      "DISCHARGE_ABOVE_DESCRIPTION": "liegt die Netzbezugsleistung oberhalb von diesem Wert, wird die Batterie entladen.",
+      "CHARGE_BELOW_DESCRIPTION": "liegt die Netzbezugsleistung unterhalb von diesem Wert, wird die Batterie wieder beladen.\nDieser Wert darf max. dem Wert \"Entladung über\" entsprechen.",
+      "DESCRIPTION": "Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.",
+      "DISCHARGE_ABOVE_LABEL": "Entladung über",
+      "CHARGE_BELOW_LABEL": "Beladung unter"
+    },
     "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen."
   },
   "Login": {

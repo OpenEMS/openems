@@ -301,7 +301,7 @@ export abstract class AbstractIbn {
   /**
    * Specific to commercial-50. Retrieves title for peakshaving view based on feature selected. 
    */
-  public getPeakShavingHeader(): string {
+  public getPeakShavingHeader(): Category {
     return null;
   };
 

@@ -78,7 +78,9 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 fieldSettings: this.getFields(i, numberOfModulesPerTower),
                 model: models[i],
                 formTower: new FormGroup({}),
-                header: numberOfTowers === 1 ? 'Speichersystemkomponenten' : ('Batteriestring ' + (i + 1))
+                header: numberOfTowers === 1
+                    ? this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BESS_COMPONENTS')
+                    : this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_STRING', { stringNumber: (i + 1) })
             };
         }
         return forms;
@@ -92,10 +94,10 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
             type: 'input',
             templateOptions: {
                 type: 'number',
-                label: 'Anzahl Strings',
+                label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.NUMBER_OF_STRINGS'),
                 min: 1,
                 max: 2,
-                description: 'Minimum Strings: ' + 1 + ' und Maximum: ' + 2,
+                description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.MINIMUM_AND_MAXIMUM_STRINGS', { min: 1, max: 2 }),
                 required: true
             },
             parsers: [Number],
@@ -107,10 +109,10 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
             type: 'input',
             templateOptions: {
                 type: 'number',
-                label: 'Anzahl Module pro String',
+                label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.NUMBER_OF_MODULES_PER_STRINGS'),
                 min: 9,
                 max: 17,
-                description: 'Minimum modules pro String: ' + 9 + ' und Maximum: ' + 17,
+                description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS', { min: 9, max: 17 }),
                 required: true
             },
             parsers: [Number],
@@ -135,7 +137,7 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 key: 'batteryInverter',
                 type: 'input',
                 templateOptions: {
-                    label: 'Wechselrichter',
+                    label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.INVERTER'),
                     required: true,
                     prefix: 'PWS00',
                     placeholder: 'xxxxxxxxxx'
@@ -182,7 +184,7 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 key: 'module' + moduleNr,
                 type: 'input',
                 templateOptions: {
-                    label: 'Batteriemodul ' + (moduleNr + 1),
+                    label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE') + (moduleNr + 1),
                     required: true,
                     // Note: Edit also validator (substring 12) if removing prefix
                     prefix: 'WSDE213822',

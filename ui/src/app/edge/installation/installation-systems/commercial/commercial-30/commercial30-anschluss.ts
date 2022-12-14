@@ -1,6 +1,7 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
+import { environment } from 'src/environments';
 import { FeedInType } from '../../../shared/enums';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
@@ -243,7 +244,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
                 key: 'emsbox',
                 type: 'input',
                 templateOptions: {
-                    label: 'FEMS Anschlussbox',
+                    label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_CONNECTION_BOX_COMMERCIAL30', { edgeShortName: environment.edgeShortName }),
                     required: true,
                     prefix: 'FC',
                     placeholder: 'xxxxxxxxx'

@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { AbstractCommercial50Ibn } from '../../installation-systems/commercial/commercial-50/abstract-commercial-50';
 import { Commercial50EigenverbrauchsOptimierung } from '../../installation-systems/commercial/commercial-50/commercial50-eigenverbrauchsoptimierung';
 import { Commercial50Lastspitzenkappung } from '../../installation-systems/commercial/commercial-50/commercial50-lastspitzenkappung';
+import { Category } from '../../shared/category';
 
 @Component({
     selector: ConfigurationFeaturesStorageSystemComponent.SELECTOR,
@@ -48,9 +49,9 @@ export class ConfigurationFeaturesStorageSystemComponent implements OnInit {
         const fields: FormlyFieldConfig[] = [];
 
         const label = [
-            { value: 'Eigenverbrauchsoptimierung', label: 'Eigenverbrauchsoptimierung' },
-            { value: 'Lastspitzenkappung', label: 'Lastspitzenkappung' },
-            { value: 'PhasengenaueLastspitzenkappung', label: 'Phasengenaue Lastspitzenkappung' }
+            { value: Category.BALANCING, label: Category.toTranslatedString(Category.BALANCING, this.translate) },
+            { value: Category.PEAK_SHAVING_SYMMETRIC, label: Category.toTranslatedString(Category.PEAK_SHAVING_SYMMETRIC, this.translate) },
+            { value: Category.PEAK_SHAVING_ASYMMETRIC, label: Category.toTranslatedString(Category.PEAK_SHAVING_ASYMMETRIC, this.translate) }
         ];
 
         fields.push({
@@ -58,7 +59,7 @@ export class ConfigurationFeaturesStorageSystemComponent implements OnInit {
             type: 'radio',
             templateOptions: {
                 options: label,
-                description: 'Die entsprechende App muss vorhanden sein',
+                description: this.translate.instant('INSTALLATION.CONFIGURATION_FEATURES_STORAGE_SYSTEM.FEATURE_DESCRIPTION'),
                 required: true,
             },
         });
@@ -72,17 +73,17 @@ export class ConfigurationFeaturesStorageSystemComponent implements OnInit {
         const system = this.form.controls['feature'].value;
 
         switch (system) {
-            case 'Eigenverbrauchsoptimierung':
+            case Category.BALANCING:
                 this.ibn = new Commercial50EigenverbrauchsOptimierung(this.translate);
-                this.ibn.commercial50Feature.feature.type = 'Eigenverbrauchsoptimierung';
+                this.ibn.commercial50Feature.feature.type = Category.BALANCING;
                 break;
-            case 'Lastspitzenkappung':
+            case Category.PEAK_SHAVING_SYMMETRIC:
                 this.ibn = new Commercial50Lastspitzenkappung(this.translate);
-                this.ibn.commercial50Feature.feature.type = 'Lastspitzenkappung';
+                this.ibn.commercial50Feature.feature.type = Category.PEAK_SHAVING_SYMMETRIC;
                 break;
-            case 'PhasengenaueLastspitzenkappung':
+            case Category.PEAK_SHAVING_ASYMMETRIC:
                 this.ibn = new Commercial50Lastspitzenkappung(this.translate);
-                this.ibn.commercial50Feature.feature.type = 'PhasengenaueLastspitzenkappung';
+                this.ibn.commercial50Feature.feature.type = Category.PEAK_SHAVING_ASYMMETRIC;
                 break;
         }
     }

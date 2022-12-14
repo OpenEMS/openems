@@ -518,7 +518,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 key: 'emsbox',
                 type: 'input',
                 templateOptions: {
-                    label: 'FEMS Netztrennstelle',
+                    label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30', { edgeShortName: environment.edgeShortName }),
                     required: true,
                     placeholder: 'xxxx'
                 },

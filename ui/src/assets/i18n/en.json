@@ -563,7 +563,8 @@
       "COMMUNICATION_WITH_METER": "Communication with the Meter",
       "WAGO_BRIDGE": "Wago Bridge",
       "FIELD_BUS_COUPLER": "Fieldbus coupler",
-      "CONTROL_GRID_POINT": "Control of the grid disconnection point"
+      "CONTROL_GRID_POINT": "Control of the grid disconnection point",
+      "BATTERY_INTERFACE": "Battery interface"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",
@@ -718,7 +719,15 @@
       "SYSTEM_SETUP": "System setup",
       "BATTERY_STRING": "Battery String {{ stringNumber }}",
       "EMS_BOX_HOME": "EMS Box ({{edgeShortName }} Box)",
-      "EMS_BOX_HECKERT": "EMS Box"
+      "EMS_BOX_HECKERT": "EMS Box",
+      "MINIMUM_AND_MAXIMUM_STRINGS": "Minimum Strings: {{ min }} and Maximum: {{ max }}",
+      "NUMBER_OF_STRINGS": "Number of Strings",
+      "NUMBER_OF_MODULES_PER_STRINGS": "Number of Modules per String",
+      "MODULES_PER_STRINGS_DESCRIPTION": "Modules per String for Commercial-50 system: {{ number }}",
+      "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Connection Box",
+      "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules per string: {{ min }} and Maximum: {{ max }}",
+      "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }}  Connection Box",
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "{{ edgeShortName }} Grid connection point"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",
@@ -733,6 +742,24 @@
     },
     "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
+    "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
+      "BALANCING": "Self-Consumption optmization",
+      "PEAK_SHAVING_SYMMETRIC": "Peak shaving",
+      "PEAK_SHAVING_ASYMMETRIC": "Phase Accurate Peak shaving",
+      "FEATURE_DESCRIPTION": "The corresponding App must be available",
+      "HEADER": "Information on the use of the Storage system",
+      "PEAK_SHAVING_SYMMETRIC_HEADER": "Peak load shaving settings",
+      "PEAK_SHAVING_ASYMMETRIC_HEADER": "Phases Accurate peak shaving settings"
+    },
+    "CONFIGURATION_PEAK_SHAVING": {
+      "DISCHARGE_ABOVE_VALUE": "Discharging above - Value [W]",
+      "CHARGE_BELOW_VALUE": "Charging below - Value [W]",
+      "DISCHARGE_ABOVE_DESCRIPTION": "If the grid power is above this value, the battery will be discharged.",
+      "CHARGE_BELOW_DESCRIPTION": "if the grid power is below this value, the battery is charged again.\nThis value must not exceed the \"Discharge over\" value.",
+      "DESCRIPTION": "Entered power values refer to individual phases. It is adjusted to the most heavily loaded phase.",
+      "DISCHARGE_ABOVE_LABEL": "Discharge above",
+      "CHARGE_BELOW_LABEL": "Charge below"
+    },
     "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}."
   },
   "Login": {
