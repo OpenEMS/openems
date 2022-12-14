@@ -4,9 +4,9 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, Service } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
+import { COUNTRY_OPTIONS } from '../../../../shared/type/country';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { Category } from '../../shared/category';
-import { COUNTRY_OPTIONS } from '../../../../shared/type/country';
 import { ComponentData, TableData } from '../../shared/ibndatatypes';
 import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
 
@@ -130,7 +130,7 @@ export class ConfigurationSummaryComponent implements OnInit {
     const customer = this.ibn.customer;
     const customerData: ComponentData[] = customer.isCorporateClient ? [{ label: this.translate.instant('Register.Form.company'), value: customer.companyName }] : [];
     tableData.push({
-      header: Category.INSTALLER,
+      header: Category.CUSTOMER,
       rows: customerData.concat([
         { label: this.translate.instant('Register.Form.lastname'), value: customer.lastName },
         { label: this.translate.instant('Register.Form.firstname'), value: customer.firstName },

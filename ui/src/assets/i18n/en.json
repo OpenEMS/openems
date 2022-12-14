@@ -1,14 +1,12 @@
 {
   "About": {
     "build": "This build",
-    "contact": "Please contact our team for further information or suggestions about the system at <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
     "currentDevelopments": "Current developments",
     "developed": "This user interface is developed as open-source software.",
     "faq": "Frequently asked questions (FAQ)",
     "language": "Select language:",
     "openEMS": "More about OpenEMS",
-    "patchnotes": "Changes in the monitoring for this build",
-    "ui": "User interface for FEMS"
+    "patchnotes": "Changes in the monitoring for this build"
   },
   "Edge": {
     "Index": {
@@ -393,7 +391,7 @@
       "advancedMode": "Advanced Mode",
       "submit": "Submit"
     },
-    "title": "FEMS"
+    "title": "{{ edgeShortName }}"
   },
   "General": {
     "active": "Active",
@@ -748,9 +746,8 @@
     "REQUEST_TIMEOUT": "Request timed out. Try again later."
   },
   "Menu": {
-    "aboutUI": "About FEMS",
     "accessLevel": "Access Level",
-    "edgeSettings": "FEMS Settings",
+    "edgeSettings": "Settings",
     "generalSettings": "General Settings",
     "index": "Index",
     "logout": "Sign Out",

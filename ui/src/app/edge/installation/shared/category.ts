@@ -34,7 +34,7 @@ export namespace Category {
             case Category.ADDITIONAL_AC_PRODUCERS:
                 return translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ADDITIONAL_GENERATOR');
             case Category.EMS_DETAILS:
-                return translate.instant('Edge.title');
+                return translate.instant('Edge.title', { edgeShortName: environment.edgeShortName });
             case Category.EMERGENCY_RESERVE:
                 return translate.instant('INSTALLATION.CONFIGURATION_EMERGENCY_RESERVE.TITLE');
             case Category.DC_PV_INSTALLATION:
