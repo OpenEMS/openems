@@ -55,7 +55,6 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
 
         // get the channel addresses that should be subscribed and updateValues if data has changed
         this.updateValues();
-
       })
     });
   };
@@ -92,11 +91,14 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
 
   private checkIfPopoverNeeded() {
     if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
+
+      // Hide popover on month and year
+      this.showTotal = true;
+      this.showPhases = false;
       this.isPopoverNeeded = false;
     } else {
       this.isPopoverNeeded = true;
     }
-    console.log("check, ", this.isPopoverNeeded)
   }
   /**
    * Called on every new data.

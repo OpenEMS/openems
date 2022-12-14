@@ -45,6 +45,8 @@ export class ChartComponent implements OnInit {
   private checkIfPopoverNeeded() {
     if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
       this.isPopoverNeeded = false;
+      this.setShowPhases.emit(false)
+      this.setShowTotal.emit(true)
     } else {
       this.isPopoverNeeded = true;
     }

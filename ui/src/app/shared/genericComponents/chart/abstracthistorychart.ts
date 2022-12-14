@@ -11,6 +11,7 @@ import { calculateResolution, ChannelFilter, ChartData, ChartOptions, DEFAULT_TI
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { HistoryUtils } from '../../service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
@@ -66,7 +67,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-
     this.updateChart();
   };
 
@@ -96,20 +96,17 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
     let channelData: { name: string, data: number[] }[] = []
     this.chartObject.channel.forEach(element => {
-      let channelAddress;
-      if (this.chartType == 'bar') {
-        if (element.energyChannel) {
-          channelAddress = element.energyChannel
-        } else {
-          return
-        }
+      let channelAddress: ChannelAddress = null;
+      if (this.chartType == 'bar' && element.energyChannel) {
+        channelAddress = element.energyChannel
       } else {
         channelAddress = element.powerChannel
       }
 
-      if (channelAddress.toString() in result.data) {
+      if (channelAddress?.toString() in result.data) {
+
         channelData.push({
-          data: result.data[channelAddress.toString()]?.map(value => {
+          data: HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])?.map(value => {
             if (value == null) {
               return null
             } else {
@@ -295,11 +292,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         })
       });
     }).then(async (response) => {
-
-      // Convert Wh to kWh
-      for (let [key, value] of Object.entries(response.result.data)) {
-        response.result.data[key] = value.map(element => element / 1000)
-      }
 
       // Check if channelAddresses are empty
       if (Utils.isDataEmpty(response)) {

@@ -96,7 +96,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
           })
         }
 
-        let chargerColors: string[] = ['rgb(0,223,0)', 'rgb(0,201,0)', 'rgb(0,178,0)', 'rgb(0,156,0)', 'rgb(0,134,0)', 'rgb(0,112,0)', 'rgb(0,89,0)']
+        let chargerColors: string[] = ['rgb(0,223,0)', 'rgb(0,178,0)', 'rgb(0,201,0)', 'rgb(0,134,0)', 'rgb(0,156,0)', 'rgb(0,112,0)', 'rgb(0,89,0)']
         // ChargerComponents
         for (let i = 0; i < chargerComponents.length; i++) {
           let component = chargerComponents[i];

@@ -12,25 +12,25 @@
 
     <!-- Production TotalAcChart if more than one charger-->
     <productionTotalAcChart *ngIf="productionMeterComponents?.length > 1" [chartTitle]="'General.total'| translate"
-      [period]="service.historyPeriod">
+      [period]="service.historyPeriod" [showPhases]="showPhases" [showTotal]="showTotal">
     </productionTotalAcChart>
 
     <!-- ProductionMeters -->
     <ng-container *ngFor="let component of productionMeterComponents">
       <productionMeterchart [chartTitle]="component.alias ?? component.id" [period]="service.historyPeriod"
-        [component]="component" [showPhases]="showPhases">
+        [component]="component" [showPhases]="showPhases" [showTotal]="showTotal">
       </productionMeterchart>
     </ng-container>
 
     <!-- Total DC Chart if more than one charger -->
     <totalDcChart [chartTitle]="('General.total' | translate) + ' DC'" *ngIf="chargerComponents.length > 1"
-      [period]="service.historyPeriod">
+      [period]="service.historyPeriod" [showPhases]="showPhases" [showTotal]="showTotal">
     </totalDcChart>
 
     <!-- ChargerComponents -->
     <ng-container *ngFor="let component of chargerComponents">
       <productionChargerChart [chartTitle]="component.alias ?? component.id" [period]="service.historyPeriod"
-        [component]="component">
+        [component]="component" [showPhases]="showPhases" [showTotal]="showTotal">
       </productionChargerChart>
     </ng-container>
   </ng-template>
