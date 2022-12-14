@@ -26,6 +26,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   @Input() public component: EdgeConfig.Component;
   @Input() public showPhases: boolean;
   @Input() public showTotal: boolean;
+
   @Input() public isOnlyChart: boolean = false;
   protected spinnerId: string = uuidv4();
 
@@ -143,6 +144,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     for (let i = 0; i < this.chartObject.displayValues(channelData).length; i++) {
       let displayValue = this.chartObject.displayValues(channelData)[i];
 
+      // Filter for existing values
       if (displayValue.setValue() != null) {
         datasets.push({
           label: displayValue.name,
@@ -400,9 +402,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     return new Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }>(resolve => {
 
       if (this.chartObject?.channel) {
+
         resolve({
-          powerChannels: this.chartObject.channel?.map(element => element.powerChannel) ?? [],
-          energyChannels: this.chartObject.channel?.map(element => element.energyChannel) ?? []
+          powerChannels: this.chartObject.channel.map(element => element.powerChannel),
+          energyChannels: this.chartObject.channel.map(element => element.energyChannel)
         });
       }
     })

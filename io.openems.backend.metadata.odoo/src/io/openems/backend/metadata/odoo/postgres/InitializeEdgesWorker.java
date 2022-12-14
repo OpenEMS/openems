@@ -111,7 +111,6 @@ public class InitializeEdgesWorker {
 		return connection.prepareStatement(//
 				"SELECT " + Field.getSqlQueryFields(EdgeDevice.values()) //
 						+ " FROM " + EdgeDevice.ODOO_TABLE //
-						+ " WHERE name='fems10004'"
 						+ ";");
 	}
 
