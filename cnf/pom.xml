@@ -8,6 +8,14 @@
 	<packaging>pom</packaging>
 
 	<dependencies>
+		<!-- biz -->
+		<dependency>
+			<!-- Bnd Gradle Plugin For The Bnd Workspace -->
+			<!-- On update: also update gradle.properties file -->
+			<groupId>biz.aQute.bnd.workspace</groupId>
+			<artifactId>biz.aQute.bnd.workspace.gradle.plugin</artifactId>
+			<version>6.4.0</version>
+		</dependency>
 		<!-- com -->
 		<dependency>
 			<groupId>com.fazecast</groupId>
