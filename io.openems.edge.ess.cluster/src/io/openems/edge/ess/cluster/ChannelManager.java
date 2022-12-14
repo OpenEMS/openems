@@ -15,7 +15,6 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 
 public class ChannelManager extends AbstractChannelListenerManager {
-
 	private final EssClusterImpl parent;
 
 	public ChannelManager(EssClusterImpl parent) {
@@ -35,15 +34,12 @@ public class ChannelManager extends AbstractChannelListenerManager {
 		this.calculate(INTEGER_SUM, esss, SymmetricEss.ChannelId.ACTIVE_POWER);
 		this.calculate(INTEGER_SUM, esss, SymmetricEss.ChannelId.REACTIVE_POWER);
 		this.calculate(INTEGER_SUM, esss, SymmetricEss.ChannelId.MAX_APPARENT_POWER);
-
 		this.calculate(LONG_SUM, esss, SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
 		this.calculate(LONG_SUM, esss, SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
-
 		this.calculate(INTEGER_MIN, esss, SymmetricEss.ChannelId.MIN_CELL_VOLTAGE);
 		this.calculate(INTEGER_MAX, esss, SymmetricEss.ChannelId.MAX_CELL_VOLTAGE);
 		this.calculate(INTEGER_MIN, esss, SymmetricEss.ChannelId.MIN_CELL_TEMPERATURE);
 		this.calculate(INTEGER_MAX, esss, SymmetricEss.ChannelId.MAX_CELL_TEMPERATURE);
-
 		// AsymmetricEss
 		this.calculate(INTEGER_SUM, esss, AsymmetricEss.ChannelId.ACTIVE_POWER_L1, //
 				DIVIDE_BY_THREE, SymmetricEss.ChannelId.ACTIVE_POWER);
@@ -57,7 +53,6 @@ public class ChannelManager extends AbstractChannelListenerManager {
 				DIVIDE_BY_THREE, SymmetricEss.ChannelId.REACTIVE_POWER);
 		this.calculate(INTEGER_SUM, esss, AsymmetricEss.ChannelId.REACTIVE_POWER_L3, //
 				DIVIDE_BY_THREE, SymmetricEss.ChannelId.REACTIVE_POWER);
-
 		// ManagedSymmetricEss
 		this.calculate(INTEGER_SUM, esss, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
 		this.calculate(INTEGER_SUM, esss, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
@@ -84,7 +79,6 @@ public class ChannelManager extends AbstractChannelListenerManager {
 					break;
 				}
 			}
-
 			final GridMode result;
 			if (esss.size() == onGrids) {
 				result = GridMode.ON_GRID;
@@ -95,7 +89,6 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			}
 			this.parent._setGridMode(result);
 		};
-
 		for (SymmetricEss ess : esss) {
 			this.addOnChangeListener(ess, SymmetricEss.ChannelId.GRID_MODE, callback);
 		}
@@ -119,12 +112,10 @@ public class ChannelManager extends AbstractChannelListenerManager {
 				socCapacity = TypeUtils.sum(socCapacity, soc.get() * capacity.get());
 				totalCapacity = TypeUtils.sum(totalCapacity, capacity.get());
 			}
-
 			if (socCapacity != null && totalCapacity != null) {
 				this.parent._setSoc(Math.round(socCapacity / Float.valueOf(totalCapacity)));
 			}
 		};
-
 		this.addOnChangeListener(this.parent, SymmetricEss.ChannelId.CAPACITY, callback);
 		for (SymmetricEss ess : esss) {
 			this.addOnChangeListener(ess, SymmetricEss.ChannelId.SOC, callback);
@@ -153,11 +144,9 @@ public class ChannelManager extends AbstractChannelListenerManager {
 				Channel<T> channel = ess.channel(channelId);
 				result = aggregator.apply(result, channel.getNextValue().get());
 			}
-
 			Channel<T> channel = this.parent.channel(channelId);
 			channel.setNextValue(result);
 		};
-
 		for (SymmetricEss ess : esss) {
 			this.addOnChangeListener(ess, channelId, callback);
 		}
@@ -181,11 +170,9 @@ public class ChannelManager extends AbstractChannelListenerManager {
 					result = aggregator.apply(result, channel.getNextValue().get());
 				}
 			}
-
 			Channel<T> channel = this.parent.channel(channelId);
 			channel.setNextValue(result);
 		};
-
 		for (SymmetricEss ess : esss) {
 			if (ess instanceof ManagedSymmetricEss) {
 				this.addOnChangeListener((ManagedSymmetricEss) ess, channelId, callback);
@@ -219,11 +206,9 @@ public class ChannelManager extends AbstractChannelListenerManager {
 					result = aggregator.apply(result, divideFunction.apply(channel.getNextValue().get()));
 				}
 			}
-
 			Channel<Integer> channel = this.parent.channel(asymmetricChannelId);
 			channel.setNextValue(result);
 		};
-
 		for (SymmetricEss ess : esss) {
 			if (ess instanceof AsymmetricEss) {
 				this.addOnChangeListener((AsymmetricEss) ess, asymmetricChannelId, callback);
@@ -232,5 +217,4 @@ public class ChannelManager extends AbstractChannelListenerManager {
 			}
 		}
 	}
-
 }
