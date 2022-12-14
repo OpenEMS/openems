@@ -50,7 +50,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
 
         for (let i = 1; i < 4; i++) {
           datasets.push({
-            name: "ProductionAcActivePowerL" + i,
+            name: "Phase L" + i,
             setValue: () => {
               if (!this.showPhases) {
                 return null;

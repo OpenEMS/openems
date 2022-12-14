@@ -9,12 +9,11 @@ import { v4 as uuidv4 } from 'uuid';
 @Directive()
 export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges, OnDestroy {
 
+  @Input() public componentId: string;
   public edge: Edge | null = null;
   public period: DefaultTypes.HistoryPeriod;
-  @Input() public componentId: string;
   protected showTotal: boolean = false;
   protected showPhases: boolean = false;
-  protected isPopoverNeeded: boolean = false;
 
   /**
    * True after this.edge, this.config and this.component are set.
@@ -73,7 +72,6 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
         }
       }
       this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents })
-      this.checkIfPopoverNeeded()
     }).catch(() => {
       // TODO Error Message
     })
@@ -89,17 +87,6 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
     this.stopOnDestroy.complete();
   }
 
-  private checkIfPopoverNeeded() {
-    if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
-
-      // Hide popover on month and year
-      this.showTotal = true;
-      this.showPhases = false;
-      this.isPopoverNeeded = false;
-    } else {
-      this.isPopoverNeeded = true;
-    }
-  }
   /**
    * Called on every new data.
    * 

@@ -68,16 +68,18 @@ export class TotalChartComponent extends AbstractHistoryChart {
                 return null;
               }
 
-              let result: number[] = [];
+              let effectiveProduction = [];
 
               if (this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").length > 0) {
                 channel.find(element => element.name == 'ProductionDcActualPower')?.data.forEach((value, index) => {
-                  result[index] = Utils.addSafely(channel.find(element => element.name == 'ProductionAcActivePowerL' + i)?.data[index], value / 3)
+                  effectiveProduction[index] = Utils.addSafely(channel.find(
+                    element => element.name == 'ProductionAcActivePowerL' + i)?.data[index], value / 3);
                 })
               } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0) {
-                result = channel.find(element => element.name = 'ProductionAcActivePowerL' + i)?.data
+                effectiveProduction = channel.find(
+                  element => element.name == 'ProductionAcActivePowerL' + i)?.data
               }
-              return result ?? null
+              return effectiveProduction
             },
             color: 'rgb(' + this.phaseColors[i - 1] + ')',
             stack: 3

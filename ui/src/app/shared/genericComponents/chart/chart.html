@@ -7,7 +7,7 @@
           <ion-icon name="close-outline"></ion-icon>
         </ion-button>
       </ion-buttons>
-      <ion-buttons slot="start" *ngIf="isPopoverNeeded">
+      <ion-buttons slot="start" *ngIf="showPopover">
         <ion-button (click)="presentPopover()">
           <ion-icon name="options-outline"></ion-icon>
         </ion-button>

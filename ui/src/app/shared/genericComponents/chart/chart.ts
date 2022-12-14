@@ -22,6 +22,7 @@ export class ChartComponent implements OnInit {
 
   // Manually trigger ChangeDetection through Inputchange
   @Input() private period: DefaultTypes.PeriodString;
+  protected showPopover: boolean = false;
 
   constructor(
     protected service: Service,
@@ -43,12 +44,14 @@ export class ChartComponent implements OnInit {
   }
 
   private checkIfPopoverNeeded() {
-    if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
-      this.isPopoverNeeded = false;
-      this.setShowPhases.emit(false)
-      this.setShowTotal.emit(true)
-    } else {
-      this.isPopoverNeeded = true;
+    if (this.isPopoverNeeded) {
+      if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
+        this.showPopover = false;
+        this.setShowPhases.emit(false)
+        this.setShowTotal.emit(true)
+      } else {
+        this.showPopover = true;
+      }
     }
   }
 

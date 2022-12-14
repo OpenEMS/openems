@@ -1,4 +1,4 @@
-<oe-chart [title]="'General.production' | translate" [isPopoverNeeded]="isPopoverNeeded" [showPhases]="showPhases"
+<oe-chart [title]="'General.production' | translate" [isPopoverNeeded]="true" [showPhases]="showPhases"
   [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)"
   *ngIf="isInitialized" [period]="service.historyPeriod">
   <!-- Total Chart -->
