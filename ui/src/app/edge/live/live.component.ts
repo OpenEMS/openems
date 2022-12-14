@@ -1,6 +1,7 @@
-import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
-import { Edge, Service, Utils, Widgets, EdgeConfig } from '../../shared/shared';
+import { ActivatedRoute } from '@angular/router';
+import { SubscribeEdgesRequest } from 'src/app/shared/jsonrpc/request/subscribeEdgesRequest';
+import { Edge, EdgeConfig, Service, Utils, Widgets } from 'src/app/shared/shared';
 
 @Component({
   selector: 'live',
