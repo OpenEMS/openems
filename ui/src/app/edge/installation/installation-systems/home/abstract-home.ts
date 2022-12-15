@@ -10,11 +10,10 @@ import { environment } from 'src/environments';
 import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category } from '../../shared/category';
 import { FeedInSetting, FeedInType } from '../../shared/enums';
-import { ComponentData, SerialNumberFormData } from '../../shared/ibndatatypes';
+import { AcPv, ComponentData, DcPv, SerialNumberFormData } from '../../shared/ibndatatypes';
+import { Meter } from '../../shared/meter';
 import { BaseMode, ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { SafetyCountry } from '../../views/configuration-execute/safety-country';
-import { AcPv } from '../../views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
-import { DcPv } from '../../views/protocol-pv/protocol-pv.component';
 import { AbstractIbn, SchedulerIdBehaviour, View } from '../abstract-ibn';
 
 type FeneconHome = {
@@ -897,7 +896,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       element.meterType && protocol.items.push({
         category: Category.ADDITIONAL_AC_PRODUCERS,
         name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-        value: element.meterType,
+        value: Meter.toLabelString(element.meterType),
       });
 
       element.modbusCommunicationAddress && protocol.items.push({
@@ -999,12 +998,11 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     // meter1
     const acArray = this.pv.ac;
     const isAcCreated: boolean = acArray.length >= 1;
-
-    // TODO if more than 1 meter should be created, this logic must be changed
     const acAlias: string = isAcCreated ? acArray[0].alias : '';
     const acModbusUnitId: number = isAcCreated
       ? acArray[0].modbusCommunicationAddress
       : 0;
+    const acMeterType: Meter = isAcCreated ? acArray[0].meterType : Meter.SOCOMEC;
 
     let homeAppProperties: FeneconHome = {
       SAFETY_COUNTRY: safetyCountry,
@@ -1054,7 +1052,6 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
             .catch(error => reject(error))
         })
       });
-
     }
 
     // TODO remove components later when progress is shown by appManager
@@ -1178,23 +1175,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
     componentConfigurator.add(goodweconfig);
 
-    // meter1
-    componentConfigurator.add({
-      factoryId: 'Meter.Socomec.Threephase',
-      componentId: 'meter1',
-      alias: acAlias,
-      properties: [
-        { name: 'enabled', value: true },
-        { name: 'type', value: 'PRODUCTION' },
-        { name: 'modbus.id', value: 'modbus1' },
-        { name: 'modbusUnitId', value: acModbusUnitId },
-        { name: 'invert', value: false },
-      ],
-
-      mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-      baseMode: baseMode
-    });
-
+    // PV Meter optional
+    componentConfigurator.add(super.addAcPvMeter('modbus2'));
 
     // charger0
     componentConfigurator.add({

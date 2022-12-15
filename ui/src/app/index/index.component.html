@@ -35,7 +35,7 @@
                   <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                   <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
 
-                  <ion-button type="submit" class="ion-float-right">
+                  <ion-button [disabled]="formIsDisabled" type="submit" class="ion-float-right">
                     <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
                   </ion-button>
                 </div>
@@ -66,7 +66,7 @@
                       href="https://erp.fenecon.de/web/reset_password?" style="text-decoration: none;">
                       <small translate>Login.passwordReset</small>
                     </a>
-                    <ion-button type="submit" class="ion-float-right" size="medium">
+                    <ion-button type="submit" class="ion-float-right" size="medium" [disabled]="formIsDisabled">
                       <small>Login</small>
                       <ion-icon slot="end" name="log-in-outline"></ion-icon>
                     </ion-button>
@@ -138,7 +138,7 @@
                               <ion-text translate>Index.deviceOffline</ion-text>
                               <ion-label *ngIf="edge.lastmessage">
                                 <ion-text translate>Index.OFFLINE_SINCE</ion-text>
-                                : {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
+                                {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
                               </ion-label>
                             </p>
                           </ion-label>

@@ -1,5 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
+import { Category } from '../../../shared/category';
 import { FeedInType } from '../../../shared/enums';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
@@ -32,14 +33,14 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
         this.requiredControllerIds = [];
         if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
             this.requiredControllerIds.push({
-                componentId: "ctrlGridOptimizedCharge0"
-                , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+                componentId: "ctrlGridOptimizedCharge0",
+                behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
             });
         }
 
         this.requiredControllerIds.push({
-            componentId: "ctrlBalancing0"
-            , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
+            componentId: "ctrlBalancing0",
+            behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
         });
     }
 
@@ -53,7 +54,7 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
             componentConfigurator.add({
                 factoryId: 'Controller.Ess.GridOptimizedCharge',
                 componentId: 'ctrlGridOptimizedCharge0',
-                alias: 'Netzdienliche Beladung',
+                alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_OPTIMIZED_CHARGE'),
                 properties: [
                     { name: 'enabled', value: true },
                     { name: 'ess.id', value: 'ess0' },
@@ -77,7 +78,7 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
         componentConfigurator.add({
             factoryId: 'Controller.Symmetric.Balancing',
             componentId: 'ctrlBalancing0',
-            alias: 'Eigenverbrauchsoptimierung',
+            alias: Category.toTranslatedString(Category.BALANCING, this.translate),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'ess.id', value: 'ess0' },

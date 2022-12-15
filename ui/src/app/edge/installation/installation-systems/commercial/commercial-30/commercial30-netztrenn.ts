@@ -7,6 +7,7 @@ import { environment } from 'src/environments';
 import { Category } from '../../../shared/category';
 import { FeedInType } from '../../../shared/enums';
 import { ComponentData } from '../../../shared/ibndatatypes';
+import { Meter } from '../../../shared/meter';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
 import { AbstractCommercial30Ibn } from './abstract-commercial-30';
@@ -73,58 +74,8 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
     }
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket): ComponentConfigurator {
-        const componentConfigurator: ComponentConfigurator = new ComponentConfigurator(edge, config, websocket);
-
-        // modbus0
-        componentConfigurator.add({
-            factoryId: 'Bridge.Modbus.Serial',
-            componentId: 'modbus0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'portName', value: '/dev/ttyAMA0' }, // TODO: Check if this could be changed to default '/dev/ttyAMA0'
-                { name: 'baudRate', value: 9600 }, // TODO: Check if this schould be changed to 57600
-                { name: 'databits', value: 8 },
-                { name: 'stopbits', value: 'ONE' },
-                { name: 'parity', value: 'NONE' },
-                { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: 3 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
-
-        // modbus1
-        componentConfigurator.add({
-            factoryId: 'Bridge.Modbus.Tcp',
-            componentId: 'modbus1',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY_INVERTER'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'ip', value: '192.168.1.11' }, // TODO: Change it to 192.168.1.11 !!!!!
-                { name: 'port', value: '502' },
-                { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: 3 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
-
-        //modbus2
-        componentConfigurator.add({
-            factoryId: 'Bridge.Modbus.Serial',
-            componentId: 'modbus2',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_METER'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'portName', value: '/dev/ttySC0' },
-                { name: 'baudRate', value: 9600 },
-                { name: 'databits', value: 8 },
-                { name: 'stopbits', value: 'ONE' },
-                { name: 'parity', value: 'NONE' },
-                { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: 3 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
+        const invalidateElementsAfterReadErrors: number = 3;
+        const componentConfigurator: ComponentConfigurator = super.getCommercialComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
 
         //modbus3
         componentConfigurator.add({
@@ -139,20 +90,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 { name: 'invalidateElementsAfterReadErrors', value: 3 }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
-        });
-
-        // io0
-        componentConfigurator.add({
-            factoryId: 'IO.KMtronic',
-            componentId: 'io0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.RELAY_BOARD'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'modbus.id', value: 'modbus0' },
-                { name: 'modbusUnitId', value: 6 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
+        }, 3);
 
         // io1
         componentConfigurator.add({
@@ -166,7 +104,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 { name: 'password', value: 'wago' }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
-        });
+        }, 5);
 
         // offGridSwitch0
         componentConfigurator.add({
@@ -182,69 +120,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 { name: 'outputMainContactor', value: 'io1/DigitalOutputM1C1' }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
-        });
-
-        // meter0
-        componentConfigurator.add({
-            factoryId: 'Meter.Socomec.Threephase',
-            componentId: 'meter0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_METER'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'modbus.id', value: 'modbus2' },
-                { name: 'type', value: 'GRID' },
-                { name: 'modbusUnitId', value: 5 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
-
-        // battery0
-        componentConfigurator.add({
-            factoryId: 'Battery.Fenecon.Commercial',
-            componentId: 'battery0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'startStop', value: 'AUTO' },
-                { name: 'modbus.id', value: 'modbus0' },
-                { name: 'batteryStartStopRelay', value: 'io0/Relay8' },
-                { name: 'modbusUnitId', value: 1 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
-
-        // batteryInverter0
-        componentConfigurator.add({
-            factoryId: 'Battery-Inverter.Sinexcel',
-            componentId: 'batteryInverter0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INVERTER'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'modbus.id', value: 'modbus1' },
-                { name: 'startStop', value: 'AUTO' },
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
-
-        // Optional meter2 - aditional AC PV
-        const acArray = this.pv.ac;
-        const isAcCreated: boolean = acArray.length >= 1;
-        const acAlias = isAcCreated ? acArray[0].alias : '';
-        const acModbusUnitId = isAcCreated ? acArray[0].modbusCommunicationAddress : 0;
-
-        componentConfigurator.add({
-            factoryId: 'Meter.Socomec.Threephase',
-            componentId: 'meter1',
-            alias: acAlias,
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'type', value: 'PRODUCTION' },
-                { name: 'modbus.id', value: 'modbus2' },
-                { name: 'modbusUnitId', value: acModbusUnitId },
-                { name: 'invert', value: false }
-            ],
-            mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
-        });
+        }, 6);
 
         // ess0
         componentConfigurator.add({
@@ -259,32 +135,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 { name: 'battery.id', value: 'battery0' }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
-        });
-
-        if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
-            // ctrlGridOptimizedCharge0
-            componentConfigurator.add({
-                factoryId: 'Controller.Ess.GridOptimizedCharge',
-                componentId: 'ctrlGridOptimizedCharge0',
-                alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_OPTIMIZED_CHARGE'),
-                properties: [
-                    { name: 'enabled', value: true },
-                    { name: 'ess.id', value: 'ess0' },
-                    { name: 'meter.id', value: 'meter0' },
-                    { name: 'sellToGridLimitEnabled', value: true },
-                    {
-                        name: 'maximumSellToGridPower',
-                        value: this.feedInLimitation.maximumFeedInPower,
-                    },
-                    { name: 'delayChargeRiskLevel', value: 'MEDIUM' },
-                    { name: 'mode', value: 'AUTOMATIC' },
-                    { name: 'manualTargetTime', value: '17:00' },
-                    { name: 'debugMode', value: false },
-                    { name: 'sellToGridLimitRampPercentage', value: 2 },
-                ],
-                mode: ConfigurationMode.RemoveAndConfigure,
-            });
-        }
+        }, 11);
 
         //Emergency reserve
         componentConfigurator.add({
@@ -303,7 +154,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             mode: this.emergencyReserve.isEnabled
                 ? ConfigurationMode.RemoveAndConfigure
                 : ConfigurationMode.RemoveOnly,
-        });
+        }, 13);
 
         // ctrlBalancing0
         componentConfigurator.add({
@@ -478,7 +329,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             element.meterType && protocol.items.push({
                 category: additionalAcCategory,
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-                value: element.meterType,
+                value: Meter.toLabelString(element.meterType),
             });
 
             element.modbusCommunicationAddress && protocol.items.push({
@@ -518,7 +369,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 key: 'emsbox',
                 type: 'input',
                 templateOptions: {
-                    label: 'FEMS Netztrennstelle',
+                    label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30', { edgeShortName: environment.edgeShortName }),
                     required: true,
                     placeholder: 'xxxx'
                 },

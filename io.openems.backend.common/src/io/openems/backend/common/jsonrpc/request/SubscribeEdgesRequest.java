@@ -1,4 +1,4 @@
-package io.openems.common.jsonrpc.request;
+package io.openems.backend.common.jsonrpc.request;
 
 import java.util.Set;
 import java.util.stream.Collectors;

@@ -88,15 +88,14 @@
     "save": "sauvegarder"
   },
   "Menu": {
-    "aboutUI": "à propos de OpenEMS UI",
     "accessLevel": "Niveau d'accès",
-    "edgeSettings": "Réglages de FEMS",
+    "edgeSettings": "Réglages",
     "generalSettings": "Réglages généraux",
     "index": "Index",
     "logout": "Déconnexion",
     "menu": "Menu",
     "name": "Nom",
-    "overview": "Apperçu FEMS ",
+    "overview": "Tous les systèmes",
     "profile": "Utilisateur",
     "settings": "Réglages",
     "changelog": "Changelog",
@@ -545,12 +544,10 @@
   },
   "About": {
     "build": "This build",
-    "contact": "Veuillez contacter notre équipe pour plus d'informations ou suggestions sur le système à l'adresse<a href =\"mailto:{{ value }}\">{{ value }}</a>.",
     "currentDevelopments": "Développement actuels",
     "developed": "Cet interface utilisateur est développé en tant que logiciel libre.",
     "language": "Sélectionnez la langue:",
-    "openEMS": "Plus au sujet d'OpenEMS",
-    "ui": "interface utilisateur pour OpenEMS"
+    "openEMS": "Plus au sujet d'OpenEMS"
   },
   "Notifications": {
     "authenticationFailed": "Pas de connexion, échec d'authentification .",
