@@ -3,7 +3,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
-import { Country } from '../../../shared/type/country';
+import { Country } from 'src/app/shared/type/country';
 import { Category } from '../shared/category';
 import { FeedInType } from '../shared/enums';
 import { AcPv, ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
