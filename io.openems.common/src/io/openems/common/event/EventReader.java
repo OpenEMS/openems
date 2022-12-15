@@ -14,6 +14,15 @@ public class EventReader {
 	}
 
 	/**
+	 * Get event-topic-String.
+	 * 
+	 * @return topic
+	 */
+	public String getTopic() {
+		return this.event.getTopic();
+	}
+
+	/**
 	 * Get argument as {@link Object}.
 	 * 
 	 * @param propertyId identifier of argument

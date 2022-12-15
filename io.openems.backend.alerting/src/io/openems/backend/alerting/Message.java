@@ -18,6 +18,10 @@ public abstract class Message implements Comparable<Message> {
 	public String getId() {
 		return this.id;
 	}
+	
+	public boolean isValid() {
+		return this.id != null && this.getNotifyStamp() != null;
+	}
 
 	/**
 	 * Returns the time stamp at which this message is supposed to be sent.
