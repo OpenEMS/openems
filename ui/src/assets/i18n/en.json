@@ -572,7 +572,8 @@
       "OTHER": "Other",
       "TITLE_COMMERCIAL": "Circuit breaker at the grid connection point / Counter circuit breaker",
       "TITLE_HOME": "Circuit breaker at the grid connection point",
-      "VALUE": "Value [A]"
+      "VALUE": "Value [A]",
+      "METER_LABEL": "Grid connection point meter type"
     },
     "CONFIGURATION_SUMMARY": {
       "BATTERY_LOCATION": "BESS Location",
@@ -677,7 +678,8 @@
       "MARKED_AS": " MPPT {{number}} (marked as \"PV{{ number}}\")",
       "METER_TYPE_WITH_LABEL": "Type of the sensor {{ label }}{{ number }}",
       "METER_TYPE": "Type of the sensor",
-      "MODBUS_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity(pasrtY) \"n\", Communication Stopbit (StoP) \"1\"",
+      "MODBUS_SOCOMEC_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity(partY) \"n\", Communication Stopbit (StoP) \"1\"",
+      "MODBUS_KDK_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity(partY) \"e\", Communication Stopbit (StoP) \"1\"",
       "MODBUS_WITH_LABEL": "Modbus {{ label }}{{ number }}",
       "MODBUS": "Modbus",
       "MODULE_TYPE_DESCRIPTION": "e.g. Manufuturer and Power",

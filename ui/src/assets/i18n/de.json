@@ -573,7 +573,8 @@
       "OTHER": "Sonstige",
       "TITLE_COMMERCIAL": "Vorsicherung Netzanschlusspunkt / Zählervorsicherung",
       "TITLE_HOME": "Vorsicherung Hausanschlusszähler",
-      "VALUE": "Wert [A]"
+      "VALUE": "Wert [A]",
+      "METER_LABEL": "Netzanschlusspunkt Zählertyp"
     },
     "CONFIGURATION_SUMMARY": {
       "BATTERY_LOCATION": "Standort",
@@ -678,7 +679,8 @@
       "MARKED_AS": " MPPT {{number}} (beschriftet mit \"PV{{ number}}\")",
       "METER_TYPE_WITH_LABEL": "Zählertyp {{ label }}{{ number }}",
       "METER_TYPE": "Zählertyp",
-      "MODBUS_DESCRIPTION": "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (bAud) \"9600\", Kommunikationsparität (PrtY) \"n\", Kommunikations-Stopbit (StoP) \"1\"",
+      "MODBUS_SOCOMEC_DESCRIPTION": "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (baud) \"9600\", Kommunikationsparität (PrtY) \"n\", Kommunikations-Stopbit (StoP) \"1\"",
+      "MODBUS_KDK_DESCRIPTION": "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (baud) \"9600\", Kommunikationsparität (PrtY) \"e\", Kommunikations-Stopbit (StoP) \"1\"",
       "MODBUS_WITH_LABEL": "Modbus Kommunikationsadresse {{ label }}{{ number }}",
       "MODBUS": "Modbus Kommunikationsadresse",
       "MODULE_TYPE_DESCRIPTION": "z. B. Hersteller und Leistung",

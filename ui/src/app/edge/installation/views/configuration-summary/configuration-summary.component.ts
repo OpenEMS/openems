@@ -9,6 +9,7 @@ import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { Category } from '../../shared/category';
 import { ComponentData, TableData } from '../../shared/ibndatatypes';
 import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
+import { Meter } from '../../shared/meter';
 
 @Component({
   selector: ConfigurationSummaryComponent.SELECTOR,
@@ -223,7 +224,7 @@ export class ConfigurationSummaryComponent implements OnInit {
       pvData = pvData.concat([
         {
           label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-          value: ac.meterType
+          value: Meter.toLabelString(ac.meterType)
         },
         {
           label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_WITH_LABEL', { label: label, number: acNr }),

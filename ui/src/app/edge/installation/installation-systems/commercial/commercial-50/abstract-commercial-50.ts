@@ -4,6 +4,7 @@ import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { Category } from '../../../shared/category';
 import { ComponentData, SerialNumberFormData } from '../../../shared/ibndatatypes';
+import { Meter } from '../../../shared/meter';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { AbstractCommercialIbn } from '../abstract-commercial';
 
@@ -301,7 +302,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
 
         // meter0
         componentConfigurator.add({
-            factoryId: 'Meter.Socomec.Threephase',
+            factoryId: Meter.toFactoryId(this.lineSideMeterFuse.meterType),
             componentId: 'meter0',
             alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_METER'),
             properties: [
@@ -356,27 +357,9 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             mode: ConfigurationMode.RemoveAndConfigure
         });
 
-        // Optional meter - AC PV
-        const acArray = this.pv.ac;
-        const isAcCreated: boolean = acArray.length >= 1;
+        // PV Meter optional
+        componentConfigurator.add(super.addAcPvMeter('modbus2'));
 
-        // TODO if more than 1 meter should be created, this logic must be changed
-        const acAlias = isAcCreated ? acArray[0].alias : '';
-        const acModbusUnitId = isAcCreated ? acArray[0].modbusCommunicationAddress : 0;
-
-        componentConfigurator.add({
-            factoryId: 'Meter.Socomec.Threephase',
-            componentId: 'meter1',
-            alias: acAlias,
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'type', value: 'PRODUCTION' },
-                { name: 'modbus.id', value: 'modbus2' },
-                { name: 'modbusUnitId', value: acModbusUnitId },
-                { name: 'invert', value: false }
-            ],
-            mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
-        });
         return componentConfigurator;
     }
 }
