@@ -322,21 +322,23 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 
 		// The "setPacSetPoint" method of the edcom version 8, has no effect
 		// if the default user password is configured
-		switch (this.core.getStableVersion()) {
-		case VERSION_8:
-			this._setUserPasswordNotChangedWithExternalKacoVersion8(true);
-			if (this.core.isDefaultUser()) {
-				return;
-			}
-			if (!this.core.getUserAccessDenied().orElse(true)) {
-				// If the system is at least running, it should not remain in fault state
+		if (!this.config.readOnly()) {
+			switch (this.core.getStableVersion()) {
+			case VERSION_8:
+				this._setUserPasswordNotChangedWithExternalKacoVersion8(true);
+				if (this.core.isDefaultUser()) {
+					return;
+				}
+				if (!this.core.getUserAccessDenied().orElse(true)) {
+					// If the system is at least running, it should not remain in fault state
+					this._setUserPasswordNotChangedWithExternalKacoVersion8(false);
+				}
+				break;
+			case UNDEFINED:
+			case VERSION_7_OR_OLDER:
 				this._setUserPasswordNotChangedWithExternalKacoVersion8(false);
+				break;
 			}
-			break;
-		case UNDEFINED:
-		case VERSION_7_OR_OLDER:
-			this._setUserPasswordNotChangedWithExternalKacoVersion8(false);
-			break;
 		}
 
 		Instant now = Instant.now();
