@@ -35,6 +35,7 @@ import io.openems.common.jsonrpc.request.AuthenticateWithTokenRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
+import io.openems.common.jsonrpc.request.SubscribeEdgesRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest;
 import io.openems.common.jsonrpc.response.AuthenticateResponse;
@@ -110,6 +111,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		case SendLogMessageRequest.METHOD:
 			result = this.handleSendLogMessageRequest(user, SendLogMessageRequest.from(request));
 			break;
+		case SubscribeEdgesRequest.METHOD:
+			result = this.handleSubscribeEdgesRequest(wsData, SubscribeEdgesRequest.from(request));
+			break;
 		}
 
 		if (result != null) {
@@ -145,12 +149,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
 			AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
-		if (request.getUsername().isPresent()) {
+		if (request.usernameOpt.isPresent()) {
 			return this.handleAuthentication(wsData, request.getId(),
-					this.parent.metadata.authenticate(request.getUsername().get(), request.getPassword()));
+					this.parent.metadata.authenticate(request.usernameOpt.get(), request.password));
 		}
-		return this.handleAuthentication(wsData, request.getId(),
-				this.parent.metadata.authenticate(request.getPassword()));
+		return this.handleAuthentication(wsData, request.getId(), this.parent.metadata.authenticate(request.password));
 	}
 
 	/**
@@ -165,8 +168,6 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthentication(WsData wsData, UUID requestId, User user)
 			throws OpenemsNamedException {
-		this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] connected.");
-
 		wsData.setUserId(user.getId());
 		wsData.setToken(user.getToken());
 		return CompletableFuture.completedFuture(new AuthenticateResponse(requestId, user.getToken(), user,
@@ -289,6 +290,23 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			User user, SubscribeChannelsRequest request) throws OpenemsNamedException {
 		// Register subscription in WsData
 		wsData.handleSubscribeChannelsRequest(edgeId, request);
+
+		// JSON-RPC response
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Handles a {@link SubscribeEdgesRequest}.
+	 *
+	 * @param wsData  the WebSocket attachment
+	 * @param request the SubscribeChannelsRequest
+	 * @return the JSON-RPC Success Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeEdgesRequest(WsData wsData,
+			SubscribeEdgesRequest request) throws OpenemsNamedException {
+		// Register subscription in WsData
+		wsData.handleSubscribeEdgesRequest(request.getEdges());
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));

@@ -47,6 +47,7 @@ import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ComponentUtilImpl;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -938,27 +939,23 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	}
 
 	protected static List<EdgeConfig.Component> getComponentsFromConfigs(List<AppConfiguration> configs) {
-		var components = new LinkedList<EdgeConfig.Component>();
-		for (var config : configs) {
-			components.addAll(config.components);
-		}
-		return components;
+		return mapAppConfiguration(configs, c -> c.components);
 	}
 
 	protected static List<String> getSchedulerIdsFromConfigs(List<AppConfiguration> configs) {
-		var ids = new LinkedList<String>();
-		for (var config : configs) {
-			ids.addAll(config.schedulerExecutionOrder);
-		}
-		return ids;
+		return mapAppConfiguration(configs, c -> c.schedulerExecutionOrder);
 	}
 
-	protected static List<String> getStaticIpsFromConfigs(List<AppConfiguration> configs) {
-		var ips = new LinkedList<String>();
-		for (var config : configs) {
-			ips.addAll(config.ips);
-		}
-		return ips;
+	protected static List<InterfaceConfiguration> getStaticIpsFromConfigs(List<AppConfiguration> configs) {
+		return mapAppConfiguration(configs, c -> c.ips);
+	}
+
+	private static <T> List<T> mapAppConfiguration(List<AppConfiguration> configs,
+			Function<AppConfiguration, List<T>> mapper) {
+		return configs.stream() //
+				.map(mapper) //
+				.flatMap(l -> l.stream()) //
+				.collect(Collectors.toList());
 	}
 
 	/**

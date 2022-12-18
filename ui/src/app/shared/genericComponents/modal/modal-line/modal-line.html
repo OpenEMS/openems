@@ -1,4 +1,4 @@
-<table class="full_width" style="line-height: 1.4; margin-top: 0.5%" *ngIf="isAllowed">
+<table class="full_width" style="line-height: 1.4; margin-top: 0.5%" *ngIf="isAllowedToBeSeen">
     <tr *ngIf="textIndent" [style.text-indent]="textIndent">
 
         <!-- Name of Parameter on the left side -->
@@ -7,18 +7,13 @@
         </td>
 
         <!-- Value of Parameter on the right side -->
-        <td *ngIf="displayValue && !control" [style.width]="leftColumnWidth ?? 50 + '%'" class="align_right">
-            <ng-container *ngFor="let value of displayValue; let i = index">
-                <!-- 'Normal' line, name and value  -->
-                <ng-container style="width: min-content;">
-                    {{ value }}
-                    <span *ngIf="i < (displayValue.length -1)">&nbsp;|&nbsp;</span>
-                </ng-container>
-            </ng-container>
+        <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right" *ngIf="displayValue">
+            <!-- 'Normal' line, name and value  -->
+            <ng-container>{{ displayValue }}</ng-container>
         </td>
 
-        <!-- 'Input' Line, name and changeable value -->
         <ng-container *ngIf="formGroup && control">
+            <!-- 'Input' Line, name and changeable value -->
             <td style="width: 30%" class="align_right" *ngIf="control.type === 'INPUT'" [formGroup]="formGroup">
                 <ion-item>
                     <ion-input class="regularFont" type="number" style="text-align: right;"
@@ -27,17 +22,19 @@
                     <ion-label class="regularFont">&nbsp;W&nbsp;</ion-label>
                 </ion-item>
             </td>
+
+            <!-- 'TOGGLE' Line, provides toggle option -->
             <td *ngIf="control.type === 'TOGGLE'" [formGroup]="formGroup"
                 [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.7)': ''" class="align_right">
                 <ion-toggle [formControlName]="controlName">
                 </ion-toggle>
             </td>
 
+            <!-- 'SELECT' Line, provides select dropdown -->
             <td *ngIf="control.type === 'SELECT'" [formGroup]="formGroup">
                 <ng-container *ngIf="control.options">
-                    <ion-select interface="popover" [formControlName]="controlName"
-                        [okText]="translate.instant('General.ok')" [cancelText]="translate.instant('General.cancel')"
-                        style="text-align:end">
+                    <ion-select interface="popover" [formControlName]="controlName" [okText]="'General.ok'| translate"
+                        [cancelText]="'General.cancel'| translate" style="text-align:end">
 
                         <ion-select-option *ngFor="let option of control.options" [value]="option.value">
                             {{option.name}}
@@ -45,10 +42,20 @@
                     </ion-select>
                 </ng-container>
             </td>
-
         </ng-container>
+
+        <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+
+        <ng-template #contentTpl>
+            <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right">
+                <!-- 'Normal' line, name and value  -->
+                <ng-content></ng-content>
+            </td>
+        </ng-template>
     </tr>
     <tr *ngIf="formGroup">
+
+        <!-- 'RANGE' Line, provides a range button from min to max -->
         <td style="width: 100%" *ngIf="control?.type === 'RANGE'">
             <ng-container [formGroup]="formGroup">
                 <ion-range style="width: 100%" color="dark" pin="true" [min]="control.properties.min ?? 1"

@@ -1,11 +1,29 @@
-buildscript {
-	repositories {
-		mavenCentral()
+pluginManagement {
+	plugins {
+		id 'biz.aQute.bnd.workspace' version "${bnd_version}"
+		id 'biz.aQute.bnd' version "${bnd_version}"
+		id 'com.github.node-gradle.node' version "3.5.0"
 	}
-	dependencies { classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:${bnd_version}" }
-	/* Add bnd gradle plugin to buildscript classpath of rootProject */
-	def bndPlugin = files(configurations.classpath.files)
-	gradle.rootProject { buildscript { dependencies { classpath bndPlugin } } }
+	repositories {
+		maven {
+			url = uri(bnd_releases)
+			content {
+				includeGroup('biz.aQute.bnd')
+				includeGroup('biz.aQute.bnd.workspace')
+			}
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
 }
 
-apply plugin: 'biz.aQute.bnd.workspace'
+rootProject.name = 'openems'
+
+rootDir.listFiles().each {
+	if (it.directory) {
+		def files = it.list()
+		if((files.contains(".project") && files.contains("src")) || files.contains("build.gradle")) {
+			include ":${it.name}"
+		}
+	}
+}

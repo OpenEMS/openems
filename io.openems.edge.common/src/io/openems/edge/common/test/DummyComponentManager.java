@@ -130,14 +130,9 @@ public class DummyComponentManager implements ComponentManager {
 	@Override
 	public EdgeConfig getEdgeConfig() {
 		if (this.edgeConfigJson == null) {
-			return new EdgeConfig();
+			return EdgeConfig.empty();
 		}
-		try {
-			return EdgeConfig.fromJson(this.edgeConfigJson);
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-			throw new IllegalArgumentException(e.getMessage());
-		}
+		return EdgeConfig.fromJson(this.edgeConfigJson);
 	}
 
 	@Override

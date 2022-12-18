@@ -61,12 +61,11 @@ public abstract class ModbusRecord {
 	/**
 	 * Sets the write value.
 	 * 
-	 * @param component the actual {@link OpenemsComponent}
-	 * @param index     the buffer index
-	 * @param byte1     the first byte
-	 * @param byte2     the second byte
+	 * @param index the buffer index
+	 * @param byte1 the first byte
+	 * @param byte2 the second byte
 	 */
-	public abstract void writeValue(OpenemsComponent component, int index, byte byte1, byte byte2);
+	public abstract void writeValue(int index, byte byte1, byte byte2);
 
 	/**
 	 * Gets the {@link AccessMode}.

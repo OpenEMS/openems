@@ -16,7 +16,7 @@
 	com.sun.net.httpserver
 
 -runblacklist:\
-	com.squareup.okio,\
+	bnd.identity;id='org.osgi.service.cm',\
 
 -runbundles+: \
 	org.apache.felix.scr;startlevel=10,\
@@ -135,6 +135,7 @@
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi.em300',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
+	bnd.identity;id='io.openems.edge.meter.kdk',\
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
 	bnd.identity;id='io.openems.edge.meter.plexlog',\
 	bnd.identity;id='io.openems.edge.meter.pqplus',\
@@ -167,7 +168,7 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-
+	
 -runbundles: \
 	Java-WebSocket;version='[1.5.3,1.5.4)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -288,6 +289,7 @@
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
+	io.openems.edge.meter.kdk;version=snapshot,\
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
 	io.openems.edge.meter.plexlog;version=snapshot,\
 	io.openems.edge.meter.pqplus;version=snapshot,\

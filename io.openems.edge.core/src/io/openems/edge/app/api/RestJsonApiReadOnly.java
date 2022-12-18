@@ -1,7 +1,6 @@
 package io.openems.edge.app.api;
 
 import java.util.EnumMap;
-import java.util.List;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -95,10 +94,11 @@ public class RestJsonApiReadOnly extends AbstractOpenemsApp<Property> implements
 			}
 			var controllerId = this.getId(t, p, Property.CONTROLLER_ID, "ctrlApiRest0");
 
-			List<EdgeConfig.Component> components = Lists.newArrayList(//
+			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.Rest.ReadOnly",
 							JsonUtils.buildJsonObject() //
-									.build()));
+									.build()) //
+			);
 
 			return new AppConfiguration(components);
 		};

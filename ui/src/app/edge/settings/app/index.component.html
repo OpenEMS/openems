@@ -1,3 +1,44 @@
+<!-- Template for app lists -->
+<ng-template #appsList let-appCatList="appCatList">
+  <ion-col *ngFor="let app of appCatList.apps" size="12" size-lg="6" size-xl="3">
+    <ion-card>
+      <ion-item lines="full" color="primary">
+        <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
+        <ion-label style="white-space: initial">
+          {{ app.name }}</ion-label>
+      </ion-item>
+      <ion-card-content [routerLink]="['single', app.appId]" [queryParams]="{name: app.name}" [state]="app"
+        style="cursor: pointer;">
+        <div [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}"
+          style="display: flex; align-items: center;justify-content: center; ">
+          <img *ngIf="app.image" [src]="app.image" />
+        </div>
+        <p *ngIf="false">
+          <small>Technischer Name: {{ app.appId }}</small><br />
+          <small>Kategorie:
+            <a *ngFor="let c of app.categorys">
+              {{ c.readableName }}
+            </a></small><br />
+          <small>Cardinality: {{ app.cardinality }}</small>
+        </p>
+        <div *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
+          <div *ngIf="app.status.errorCompatibleMessages.length !== 0 ">
+            <small translate>Edge.Config.App.errorCompatible</small><br />
+            <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
+              }}</small><br />
+          </div>
+          <div *ngIf="app.status.errorInstallableMessages.length !== 0 ">
+            <small translate>Edge.Config.App.errorInstallable</small><br />
+            <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
+              }}</small><br />
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </ion-col>
+</ng-template>
+
+<!-- Start of Page -->
 <header></header>
 <ion-content>
 
@@ -64,46 +105,8 @@
                   <ion-col>
                     <ion-grid>
                       <ion-row>
-                        <ion-col *ngFor="let app of appCatList.apps" size="12" size-lg="6" size-xl="3">
-                          <ion-card>
-                            <ion-item lines="full" color="primary">
-                              <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
-                              <ion-label
-                                class="ng-star-inserted sc-ion-label-md-h sc-ion-label-md-s md in-item-color hydrated"
-                                style="white-space: initial">
-                                {{ app.name }}</ion-label>
-                            </ion-item>
-                            <ion-card-content [routerLink]="['single', app.appId]" [queryParams]="{name: app.name}"
-                              [state]="app" style="cursor: pointer;">
-                              <div
-                                [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}"
-                                style="display: flex; align-items: center;justify-content: center; ">
-                                <img *ngIf="app.image" [src]="app.image" />
-                              </div>
-                              <!-- TODO btn Aktivieren -> Installieren -> Deinstallieren -->
-                              <p *ngIf="false">
-                                <small>Technischer Name: {{ app.appId }}</small><br />
-                                <small>Kategorie:
-                                  <a *ngFor="let c of app.categorys">
-                                    {{ c.readableName }}
-                                  </a></small><br />
-                                <small>Cardinality: {{ app.cardinality }}</small>
-                              </p>
-                              <div *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
-                                <div *ngIf="app.status.errorCompatibleMessages.length !== 0 ">
-                                  <small translate>Edge.Config.App.errorCompatible</small><br />
-                                  <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
-                                    }}</small><br />
-                                </div>
-                                <div *ngIf="app.status.errorInstallableMessages.length !== 0 ">
-                                  <small translate>Edge.Config.App.errorInstallable</small><br />
-                                  <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
-                                    }}</small><br />
-                                </div>
-                              </div>
-                            </ion-card-content>
-                          </ion-card>
-                        </ion-col>
+                        <template [ngTemplateOutlet]="appsList"
+                          [ngTemplateOutletContext]="{appCatList: appCatList}"></template>
                       </ion-row>
                     </ion-grid>
                   </ion-col>
@@ -112,45 +115,8 @@
               <ng-template #showNoCategorie>
                 <ion-row>
                   <ng-container *ngFor="let appCatList of appList.appCategories">
-                    <ion-col *ngFor="let app of appCatList.apps" size="12" size-lg="6" size-xl="3">
-                      <ion-card>
-                        <ion-item lines="full" color="primary">
-                          <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
-                          <ion-label
-                            class="ng-star-inserted sc-ion-label-md-h sc-ion-label-md-s md in-item-color hydrated">{{
-                            app.name }}</ion-label>
-                        </ion-item>
-                        <ion-card-content [routerLink]="['single', app.appId]" [queryParams]="{name: app.name}"
-                          [state]="app" style="cursor: pointer;"
-                          [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
-                          <div style="display: flex; align-items: center;justify-content: center; ">
-                            <img *ngIf="app.image" [src]="app.image" />
-                          </div>
-                          <!-- TODO btn Aktivieren -> Installieren -> Deinstallieren -->
-                          <p *ngIf="false">
-                            <small>Technischer Name: {{ app.appId }}</small><br />
-                            <small>Kategorie:
-                              <a *ngFor="let c of app.categorys">
-                                {{ c.readableName }}
-                              </a>
-                            </small><br />
-                            <small>Cardinality: {{ app.cardinality }}</small>
-                          </p>
-                          <div *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
-                            <div *ngIf="app.status.errorCompatibleMessages.length !== 0 ">
-                              <small translate>Edge.Config.App.errorCompatible</small><br />
-                              <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
-                                }}</small><br />
-                            </div>
-                            <div *ngIf="app.status.errorInstallableMessages.length !== 0 ">
-                              <small translate>Edge.Config.App.errorInstallable</small><br />
-                              <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
-                                }}</small><br />
-                            </div>
-                          </div>
-                        </ion-card-content>
-                      </ion-card>
-                    </ion-col>
+                    <template [ngTemplateOutlet]="appsList"
+                      [ngTemplateOutletContext]="{appCatList: appCatList}"></template>
                   </ng-container>
                 </ion-row>
               </ng-template>
@@ -159,7 +125,5 @@
         </ion-grid>
       </ion-col>
     </ion-row>
-
   </ion-grid>
-
 </ion-content>

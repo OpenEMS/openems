@@ -24,14 +24,14 @@ public class EventBuilderTest {
 
 	@Test
 	public void testRead() {
-		Event event = EVENT;
+		var event = EVENT;
 
 		assertEquals(10, (int) event.getProperty("arg1"));
 		assertEquals("String", event.getProperty("arg2"));
 		assertEquals(TEST_OBJECT, event.getProperty("arg3"));
 	}
 
-	private class EventAdminTest implements EventAdmin {
+	private static class EventAdminTest implements EventAdmin {
 		public EventAdminTest() {
 
 		}
@@ -47,7 +47,7 @@ public class EventBuilderTest {
 		}
 	}
 
-	private class TestClass {
+	private static class TestClass {
 
 	}
 }
