@@ -22,7 +22,7 @@ rootProject.name = 'openems'
 rootDir.listFiles().each {
 	if (it.directory) {
 		def files = it.list()
-		if(files.contains(".project") && files.contains("src")) {
+		if((files.contains(".project") && files.contains("src")) || files.contains("build.gradle")) {
 			include ":${it.name}"
 		}
 	}
