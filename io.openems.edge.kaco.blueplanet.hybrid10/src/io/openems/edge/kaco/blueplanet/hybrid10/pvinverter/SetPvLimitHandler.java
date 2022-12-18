@@ -7,8 +7,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ed.data.Settings;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.edge.common.channel.ChannelId;
@@ -55,16 +53,13 @@ public class SetPvLimitHandler implements ThrowingRunnable<OpenemsNamedException
 		if (!Objects.equals(this.lastEpLimit, ePLimit) || this.lastWMaxLimPctTime
 				.isBefore(LocalDateTime.now().minusSeconds(60 /* TODO: how often should it be written? */))) {
 			// Value needs to be set
-			Settings settings = this.parent.core.getSettings();
-			if (settings != null) {
+			var bpData = this.parent.core.getBpData();
+			if (bpData != null) {
 				this.parent.logInfo(this.log, "Apply new limit: " + power + " W (" + ePLimit + " %)");
-				settings.setEPLimit(ePLimit);
+				bpData.settings.setEPLimit(ePLimit);
 
 				this.lastEpLimit = ePLimit;
 				this.lastWMaxLimPctTime = LocalDateTime.now();
-
-			} else {
-				this.parent.logWarn(this.log, "Unable to apply limit: no Settings available.");
 			}
 		}
 	}

@@ -122,14 +122,14 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 									}
 									return null;
 								}))), //
-				
+
 				new FC3ReadRegistersTask(35123, Priority.LOW, //
 						m(GoodWeGridMeter.ChannelId.F_GRID_R, new UnsignedWordElement(35123),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), // //
 						new DummyRegisterElement(35124, 35127), //
 						m(GoodWeGridMeter.ChannelId.F_GRID_S, new UnsignedWordElement(35128),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
-						new DummyRegisterElement(35129, 35132), 
+						new DummyRegisterElement(35129, 35132),
 						m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
@@ -148,7 +148,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 						m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+								ElementToChannelConverter.SCALE_FACTOR_1),
 						new DummyRegisterElement(36015, 36051),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(36052),
 								ElementToChannelConverter.SCALE_FACTOR_2), //

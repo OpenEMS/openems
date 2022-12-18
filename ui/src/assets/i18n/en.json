@@ -744,7 +744,8 @@
     "passwordPlaceholder": "Password",
     "passwordReset": "Reset Password",
     "authenticationFailed": "Authentication Failed",
-    "user": "User"
+    "user": "User",
+    "REQUEST_TIMEOUT": "Request timed out. Try again later."
   },
   "Menu": {
     "aboutUI": "About OpenEMS",
