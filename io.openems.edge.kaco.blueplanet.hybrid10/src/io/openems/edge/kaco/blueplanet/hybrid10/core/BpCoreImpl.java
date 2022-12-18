@@ -286,7 +286,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		this.client.setUserPass(this.config.userkey());
 
 		// Initialize all DataSets
-		this._bpData = BpData.from(client);
+		this._bpData = BpData.from(this.client);
 
 		this.client.start();
 

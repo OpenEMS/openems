@@ -190,9 +190,9 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 					.forEach(c -> this.channel(c).setNextValue(errors.contains(c.getErrorCode())));
 
 			reactivePower = Math.round(//
-					/* L1 */ bpData.inverter.getReactivPower(0) + //
-					/* L2 */ bpData.inverter.getReactivPower(1) + //
-					/* L3 */ bpData.inverter.getReactivPower(2)) //
+					/* L1 */ bpData.inverter.getReactivPower(0) //
+							/* L2 */ + bpData.inverter.getReactivPower(1) //
+							/* L3 */ + bpData.inverter.getReactivPower(2)) //
 					* -1;
 			riso = bpData.inverter.getRIso();
 		}

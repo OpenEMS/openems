@@ -141,9 +141,9 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 			this._setCommunicationFailed(false);
 		} else {
 			this._setCommunicationFailed(//
-					/* if has never been successful */ this.lastSuccessfulCommunication == null || //
-					/* or if more than 24 hours ago */ this.lastSuccessfulCommunication
-							.isBefore(Instant.now().minus(24, ChronoUnit.HOURS)));
+					/* if has never been successful */ this.lastSuccessfulCommunication == null //
+							/* or if more than 24 hours ago */ || this.lastSuccessfulCommunication
+									.isBefore(Instant.now().minus(24, ChronoUnit.HOURS)));
 		}
 
 		if (bpData != null) {
