@@ -17,10 +17,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import com.ed.data.InverterData;
-import com.ed.data.Status;
-import com.ed.data.VectisData;
-
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -106,43 +102,41 @@ public class VectisImpl extends AbstractOpenemsComponent
 		Integer freq = null;
 		VectisStatus vectisStatus = null;
 
-		if (this.core.isConnected()) {
-			VectisData vectis = this.core.getVectis();
-			InverterData inverter = this.core.getInverterData();
+		var bpData = this.core.getBpData();
+		this._setCommunicationFailed(bpData == null);
+
+		if (bpData != null) {
 
 			if (this.config.external()) {
 				// Use external sensor
-				reactivePowerL1 = Math.round(vectis.getReactivePowerExt(0));
-				reactivePowerL2 = Math.round(vectis.getReactivePowerExt(1));
-				reactivePowerL3 = Math.round(vectis.getReactivePowerExt(2));
+				reactivePowerL1 = Math.round(bpData.vectis.getReactivePowerExt(0));
+				reactivePowerL2 = Math.round(bpData.vectis.getReactivePowerExt(1));
+				reactivePowerL3 = Math.round(bpData.vectis.getReactivePowerExt(2));
 				reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
 
-				activePowerL1 = Math.round(vectis.getACPowerExt(0));
-				activePowerL2 = Math.round(vectis.getACPowerExt(1));
-				activePowerL3 = Math.round(vectis.getACPowerExt(2));
+				activePowerL1 = Math.round(bpData.vectis.getACPowerExt(0));
+				activePowerL2 = Math.round(bpData.vectis.getACPowerExt(1));
+				activePowerL3 = Math.round(bpData.vectis.getACPowerExt(2));
 				activePower = activePowerL1 + activePowerL2 + activePowerL3;
 
-				freq = Math.round(vectis.getFrequencyExt());
+				freq = Math.round(bpData.vectis.getFrequencyExt());
 
 			} else {
 				// Use internal sensor
-				reactivePowerL1 = Math.round(vectis.getReactivePower(0));
-				reactivePowerL2 = Math.round(vectis.getReactivePower(1));
-				reactivePowerL3 = Math.round(vectis.getReactivePower(2));
+				reactivePowerL1 = Math.round(bpData.vectis.getReactivePower(0));
+				reactivePowerL2 = Math.round(bpData.vectis.getReactivePower(1));
+				reactivePowerL3 = Math.round(bpData.vectis.getReactivePower(2));
 				reactivePower = reactivePowerL1 + reactivePowerL2 + reactivePowerL3;
 
-				activePowerL1 = Math.round(vectis.getACPower(0));
-				activePowerL2 = Math.round(vectis.getACPower(1));
-				activePowerL3 = Math.round(vectis.getACPower(2));
+				activePowerL1 = Math.round(bpData.vectis.getACPower(0));
+				activePowerL2 = Math.round(bpData.vectis.getACPower(1));
+				activePowerL3 = Math.round(bpData.vectis.getACPower(2));
 				activePower = activePowerL1 + activePowerL2 + activePowerL3;
 
-				freq = Math.round(inverter.getGridFrequency());
+				freq = Math.round(bpData.inverter.getGridFrequency());
 			}
 
-			Status status = this.core.getStatusData();
-			if (status != null) {
-				vectisStatus = VectisStatus.fromInt(status.getPowerGridStatus());
-			}
+			vectisStatus = VectisStatus.fromInt(bpData.status.getPowerGridStatus());
 		}
 
 		this._setReactivePowerL1(reactivePowerL1);
