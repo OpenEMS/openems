@@ -213,7 +213,7 @@
           "timeCountdown": "Spätester Start"
         },
         "HeatPump": {
-          "aboveSoc": "und über Ladezustand von",
+          "aboveSoc": "und ab Ladezustand von",
           "belowSoc": "und unter Ladezustand von",
           "gridBuy": "Ab Netzbezug von",
           "gridSell": "Ab Überschusseinspeisung von",
@@ -300,6 +300,9 @@
         "systemProfile": "Anlagenprofil",
         "alerting": "Benachrichtigung",
         "networkConfiguration": "Netzwerkkonfiguration"
+      },
+      "PROFILE": {
+        "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Fehler beim Herunterladen des Modbus-Protokolls"
       },
       "More": {
         "manualCommand": "Manueller Befehl",
@@ -504,7 +507,8 @@
     "loggedInAs": "Angemeldet als:",
     "toEnergymonitor": "Zum Energiemonitor...",
     "type": "Typ",
-    "addEdge": "Neues {{ edgeShortName }} hinzufügen"
+    "OFFLINE_SINCE": "Offline seit",
+    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",
@@ -684,7 +688,7 @@
       "NUMBER_OF_MODULES": "Anzahl PV-Module",
       "OPEN_MANUAL": "Anleitung öffnen",
       "ORIENTATION_WITH_LABEL": "Ausrichtung {{ label }}{{ number }}",
-      "ORIENTATION": "Ausrichtung {{ label }}{{ number }}",
+      "ORIENTATION": "Ausrichtung",
       "SAVE_TO_CONTINUE": "Speichern Sie zuerst Ihre Eingaben um fortzufahren.",
       "SAVE": "Erzeuger speichern",
       "SHADE_MANAGEMENT_DEACTIVATE": "Schattenmanagement deaktivieren",
@@ -730,7 +734,8 @@
       "UPDATE_WARNING": "Version muss geupdated werden!"
     },
     "VALUE_WITH_LABEL": "Wert {{ label }}{{ number }} {{ symbol }}",
-    "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}"
+    "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
+    "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen."
   },
   "Login": {
     "title": "Login",
@@ -738,7 +743,8 @@
     "passwordLabel": "Passwort",
     "passwordReset": "Passwort zurücksetzen",
     "authenticationFailed": "Authentifizierung fehlgeschlagen",
-    "user": "Benutzer"
+    "user": "Benutzer",
+    "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal."
   },
   "Menu": {
     "aboutUI": "Über OpenEMS",

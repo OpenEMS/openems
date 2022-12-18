@@ -24,7 +24,7 @@ import { Resolution, Unit } from "src/app/edge/history/shared";
  * }
  * </pre>
  */
-export class queryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcRequest {
+export class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcRequest {
 
 
     static METHOD: string = "queryHistoricTimeseriesEnergyPerPeriod";
@@ -35,7 +35,7 @@ export class queryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
         private channels: ChannelAddress[],
         private resolution: Resolution
     ) {
-        super(queryHistoricTimeseriesEnergyPerPeriodRequest.METHOD, {
+        super(QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             fromDate: format(fromDate, 'yyyy-MM-dd'),
             toDate: format(toDate, 'yyyy-MM-dd'),

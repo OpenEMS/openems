@@ -16,6 +16,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -81,7 +82,7 @@ public class InfluxConnector {
 			new ThreadPoolExecutor.DiscardOldestPolicy());
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 	private final ExecutorService mergePointsExecutor = Executors.newSingleThreadExecutor();
-	private final BlockingQueue<Point> pointsQueue = new ArrayBlockingQueue<>(POINTS_QUEUE_SIZE);
+	private final BlockingQueue<Point> pointsQueue = new LinkedBlockingQueue<>(POINTS_QUEUE_SIZE);
 
 	/**
 	 * The Constructor.
@@ -105,16 +106,14 @@ public class InfluxConnector {
 		this.onWriteError = onWriteError;
 
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			int executorQueueSize = this.executor.getQueue().size();
 			int pointsQueueSize = this.pointsQueue.size();
-			this.log.info(new StringBuilder("[monitor] InfluxDB ") //
-					.append("Pool: ").append(this.executor.getPoolSize()).append(", ") //
-					.append("Active: ").append(this.executor.getActiveCount()).append(", ") //
-					.append("Pending: ").append(this.executor.getQueue().size()).append(", ") //
-					.append("Completed: ").append(this.executor.getCompletedTaskCount()).append(", ") //
-					.append((executorQueueSize == EXECUTOR_QUEUE_SIZE) ? "!!!EXECUTOR BACKPRESSURE!!!" : "") //
-					.append("QueuedPoints: ").append(this.pointsQueue.size()).append(", ") //
-					.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? "!!!POINTS BACKPRESSURE!!!" : "") //
+			this.log.info(new StringBuilder("[InfluxDB] [monitor] ") //
+					.append(ThreadPoolUtils.debugLog(this.executor)) //
+					.append(" Queue:") //
+					.append(pointsQueueSize) //
+					.append("/") //
+					.append(POINTS_QUEUE_SIZE) //
+					.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? " !!!POINTS BACKPRESSURE!!!" : "") //
 					.toString());
 		}, 10, 10, TimeUnit.SECONDS);
 
@@ -152,8 +151,7 @@ public class InfluxConnector {
 							try {
 								this.getInfluxConnection().writeApi.writePoints(points);
 							} catch (Throwable t) {
-								this.log.warn("Unable to write points: "
-										+ StringUtils.toShortString(points.toString(), 100) + "; " + t.getMessage());
+								this.log.warn("Unable to write points. " + t.getMessage());
 								this.onWriteError.accept(t);
 							}
 						});

@@ -76,6 +76,10 @@
             "openems-backend-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-dev.ts"
                 }
@@ -83,6 +87,10 @@
             },
             "openems-backend-prod": {
               "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-prod.ts"
@@ -92,6 +100,10 @@
             "openems-edge-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-dev.ts"
                 }
@@ -100,6 +112,10 @@
             "openems-edge-prod": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-prod.ts"
                 }
@@ -107,6 +123,10 @@
             },
             "openems-gitpod": {
               "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/gitpod.ts"

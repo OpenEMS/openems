@@ -23,7 +23,7 @@ public interface Timedata extends CommonTimedataService {
 	 *               the Channel value as JsonElement. Sorted by timestamp.
 	 * @throws OpenemsException on error
 	 */
-	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException;
+	public void write(String edgeId, TreeBasedTable<Long, String, JsonElement> data) throws OpenemsException;
 
 	/**
 	 * Gets the latest values for the given ChannelAddresses.

@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.framework.ServiceReference;
@@ -41,7 +40,6 @@ import io.openems.edge.common.type.TypeUtils;
 public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	private static final String PROPERTY_CHANNEL_ID_PREFIX = "_PROPERTY_";
-	private static final AtomicInteger NEXT_GENERATED_COMPONENT_ID = new AtomicInteger(-1);
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsComponent.class);
 
@@ -114,8 +112,10 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param alias   Human-readable name of this Component. Typically
 	 *                'config.alias()'. Defaults to 'id' if empty
 	 * @param enabled is the Component enabled?
+	 * @throws IllegalArgumentException if 'id' is null
 	 */
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled)
+			throws IllegalArgumentException {
 		// Get the MetaTypeService via ServiceTracker
 		// If we wouldn't do this here, each inheriting Component would have to get an
 		// @Reference to MetaTypeService, which would be cumbersome.
@@ -158,8 +158,10 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param alias   Human-readable name of this Component. Typically
 	 *                'config.alias()'. Defaults to 'id' if empty
 	 * @param enabled is the Component enabled?
+	 * @throws IllegalArgumentException if 'id' is null
 	 */
-	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
+	protected void modified(ComponentContext context, String id, String alias, boolean enabled)
+			throws IllegalArgumentException {
 		this.updateContext(context, id, alias, enabled);
 
 		if (this.isEnabled()) {
@@ -207,15 +209,12 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param alias   Human-readable name of this Component. Typically
 	 *                'config.alias()'. Defaults to 'id' if empty
 	 * @param enabled is the Component enabled?
+	 * @throws IllegalArgumentException if 'id' is null
 	 */
-	private void updateContext(ComponentContext context, String id, String alias, boolean enabled) {
-		if (id == null || id.trim().isEmpty()) {
-			if (this.id == null) {
-				this.id = "_component" + AbstractOpenemsComponent.NEXT_GENERATED_COMPONENT_ID.incrementAndGet();
-			}
-		} else {
-			this.id = id;
-		}
+	private void updateContext(ComponentContext context, String id, String alias, boolean enabled)
+			throws IllegalArgumentException {
+		TypeUtils.assertNull("Component-ID is not allowed to be null", id);
+		this.id = id;
 
 		if (alias == null || alias.trim().isEmpty()) {
 			this.alias = this.id;

@@ -1,6 +1,5 @@
 package io.openems.edge.app.meter;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -13,6 +12,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -63,10 +63,10 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsApp {
 
 	public enum Property {
-		// Components
+		// Component-IDs
 		METER_ID, //
 		MODBUS_ID, //
-		// User-Values
+		// Properties
 		ALIAS, //
 		MODEL, //
 		TYPE, //
@@ -90,7 +90,6 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 			// TODO which modbus should be used(new or already existing from home) only one
 			// meter installed so far.
 
-			// modbusid for connection via tcp bridge
 			var modbusId = this.getId(t, p, Property.MODBUS_ID, "modbus2");
 
 			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
@@ -99,19 +98,18 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 			var ip = this.getValueOrDefault(p, Property.IP, "10.4.0.12");
 			var modbusUnitId = EnumUtils.getAsInt(p, Property.MODBUS_UNIT_ID);
 
-			var components = new ArrayList<EdgeConfig.Component>();
-
-			components.add(new EdgeConfig.Component(meterId, alias, factorieId, //
-					JsonUtils.buildJsonObject() //
-							.addProperty("modbus.id", modbusId) //
-							.addProperty("modbusUnitId", modbusUnitId) //
-							.addProperty("type", type) //
-							.build()));
-
-			components.add(new EdgeConfig.Component(modbusId, "bridge", "Bridge.Modbus.Tcp", //
-					JsonUtils.buildJsonObject() //
-							.addProperty("ip", ip) //
-							.build()));
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(meterId, alias, factorieId, //
+							JsonUtils.buildJsonObject() //
+									.addProperty("modbus.id", modbusId) //
+									.addProperty("modbusUnitId", modbusUnitId) //
+									.addProperty("type", type) //
+									.build()), //
+					new EdgeConfig.Component(modbusId, "bridge", "Bridge.Modbus.Tcp", //
+							JsonUtils.buildJsonObject() //
+									.addProperty("ip", ip) //
+									.build()) //
+			);
 
 			return new AppConfiguration(components);
 		};

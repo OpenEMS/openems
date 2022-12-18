@@ -2,12 +2,12 @@
 
     <!-- Discharge State -->
     <oe-modal-line [name]="'Edge.Index.Widgets.TimeOfUseTariff.storageDischarge' | translate"
-        [channelAddress]="[{address: component.id + '/StateMachine'}]" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE">
+        [channelAddress]="component.id + '/StateMachine'" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE">
     </oe-modal-line>
 
     <!-- Price -->
     <oe-modal-line [name]="'Edge.Index.Widgets.TimeOfUseTariff.currentTariff' | translate"
-        [channelAddress]="[{address: component.id + '/QuarterlyPrices'}]" [converter]="CONVERT_PRICE_TO_CENT_PER_KWH">
+        [channelAddress]="component.id + '/QuarterlyPrices'" [converter]="CONVERT_PRICE_TO_CENT_PER_KWH">
     </oe-modal-line>
 
     <oe-modal-horizontal-line></oe-modal-horizontal-line>

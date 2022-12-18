@@ -56,13 +56,13 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 		}
 		var result = new HashMap<ChannelAddress, JsonElement>();
 		for (var channelAddress : channelAddresses) {
-			result.put(channelAddress, edgeCache.getChannelValue(channelAddress));
+			result.put(channelAddress, edgeCache.getChannelValue(channelAddress.toString()));
 		}
 		return result;
 	}
 
 	@Override
-	public void write(String edgeId, TreeBasedTable<Long, ChannelAddress, JsonElement> data) throws OpenemsException {
+	public void write(String edgeId, TreeBasedTable<Long, String, JsonElement> data) throws OpenemsException {
 		// get existing or create new EdgeCache
 		var edgeCache = this.edgeCacheMap.get(edgeId);
 		if (edgeCache == null) {

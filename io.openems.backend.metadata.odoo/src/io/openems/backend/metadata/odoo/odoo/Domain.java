@@ -1,6 +1,8 @@
 package io.openems.backend.metadata.odoo.odoo;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import io.openems.backend.metadata.odoo.Field;
 
@@ -61,7 +63,7 @@ public class Domain {
 		 * Returns results greater than given input (other value greater than - '10').
 		 * <br/>
 		 * e.g.: [('input', '>', '10')] => 11, 12, 13
-		 * 
+		 *
 		 */
 		GT(">"),
 		/**
@@ -108,15 +110,28 @@ public class Domain {
 	/**
 	 * Allows to create a domain with a dotted field. This allows following foreign
 	 * key constraints.
-	 * 
+	 *
 	 * @param fields   in order of notation. e.g [Field[userId], Field[name]] =>
 	 *                 'userId.name'.
 	 * @param operator as comparison operator
 	 * @param value    to compare against
 	 */
 	public Domain(Field[] fields, Operator operator, Object value) {
-		this.field = String.join(".", Arrays.stream(fields).map(Field::id).toArray(String[]::new));
+		this.field = Arrays.stream(fields).map(Field::id).collect(Collectors.joining("."));
 		this.operator = operator.value;
 		this.value = value;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!Domain.class.isInstance(obj)) {
+			return false;
+		}
+		var other = (Domain) obj;
+		return Objects.equals(this.field, other.field) && Objects.equals(this.operator, other.operator)
+				&& Objects.equals(this.value, other.value);
 	}
 }
