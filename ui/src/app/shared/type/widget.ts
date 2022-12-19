@@ -1,6 +1,6 @@
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
-import { Utils } from '../shared';
+import { Service, Utils } from '../shared';
 
 export enum WidgetClass {
     'Energymonitor',
@@ -47,7 +47,7 @@ export class Widget {
     componentId: string
 }
 
-export class AdvertWidget {
+export type AdvertWidget = {
     name: string;
     title?: string;
 }
@@ -58,6 +58,8 @@ export class AdvertWidgets {
 
         let list: AdvertWidget[] = [];
 
+        //Temporarily removing from displaying this advertise.
+        /*
         if (edge.producttype == ProductType.HOME) {
             list.push({
                 name: 'FeneconHomeExtension',
@@ -65,10 +67,21 @@ export class AdvertWidgets {
             })
         }
 
-		list.push({
-			name: 'Alerting',
-			title: 'Neue Benachrichtigungsfunktion jetzt verfügbar!'
-		})
+        list.push({
+            name: 'Alerting',
+            title: 'Neue Benachrichtigungsfunktion jetzt verfügbar!'
+        })
+        */
+
+
+        // If EmergencyreserveController not installed
+        if (edge.producttype == ProductType.HOME && config.getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve").length == 0) {
+            list.push({
+                name: 'FeneconAvu',
+                title: 'FENECON AVU'
+            })
+        }
+
 
         list = Utils.shuffleArray(list);
         return new AdvertWidgets(list);

@@ -8,6 +8,7 @@ import { environment } from 'src/environments';
 import { Category } from '../../shared/category';
 import { FeedInType } from '../../shared/enums';
 import { ComponentData } from '../../shared/ibndatatypes';
+import { Meter } from '../../shared/meter';
 import { AbstractIbn } from '../abstract-ibn';
 
 export abstract class AbstractCommercialIbn extends AbstractIbn {
@@ -35,8 +36,10 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         category: Category;
         fixedValue?: number;
         otherValue?: number;
+        meterType: Meter;
     } = {
-            category: Category.LINE_SIDE_METER_FUSE_COMMERCIAL
+            category: Category.LINE_SIDE_METER_FUSE_COMMERCIAL,
+            meterType: Meter.SOCOMEC
         }
 
     public numberOfModulesPerTower: number;
@@ -63,6 +66,20 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             validators: {
                 validation: ["onlyPositiveInteger"]
             }
+        });
+
+        fields.push({
+            key: "meterType",
+            type: "select",
+            templateOptions: {
+                label: this.translate.instant('INSTALLATION.CONFIGURATION_LINE_SIDE_METER_FUSE.METER_LABEL'),
+                required: true,
+                options: [
+                    { label: "SOCOMEC", value: Meter.SOCOMEC },
+                    { label: "KDK", value: Meter.KDK }
+                ]
+            },
+            defaultValue: Meter.SOCOMEC
         });
         return fields;
     }
@@ -326,7 +343,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             element.meterType && protocol.items.push({
                 category: Category.ADDITIONAL_AC_PRODUCERS,
                 name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-                value: element.meterType,
+                value: Meter.toLabelString(element.meterType),
             });
 
             element.modbusCommunicationAddress && protocol.items.push({

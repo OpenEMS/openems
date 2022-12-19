@@ -10,11 +10,10 @@ import { environment } from 'src/environments';
 import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category } from '../../shared/category';
 import { FeedInSetting, FeedInType } from '../../shared/enums';
-import { ComponentData, SerialNumberFormData } from '../../shared/ibndatatypes';
+import { AcPv, ComponentData, DcPv, SerialNumberFormData } from '../../shared/ibndatatypes';
+import { Meter } from '../../shared/meter';
 import { BaseMode, ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
 import { SafetyCountry } from '../../views/configuration-execute/safety-country';
-import { AcPv } from '../../views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
-import { DcPv } from '../../views/protocol-pv/protocol-pv.component';
 import { AbstractIbn, SchedulerIdBehaviour, View } from '../abstract-ibn';
 
 type FeneconHome = {
@@ -23,6 +22,7 @@ type FeneconHome = {
   MAX_FEED_IN_POWER?: number,
   FEED_IN_SETTING: string,
   HAS_AC_METER: boolean,
+  AC_METER_TYPE?: string,
   HAS_DC_PV1: boolean,
   DC_PV1_ALIAS?: string,
   HAS_DC_PV2: boolean,
@@ -897,7 +897,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       element.meterType && protocol.items.push({
         category: Category.ADDITIONAL_AC_PRODUCERS,
         name: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE_WITH_LABEL', { label: label, number: acNr }),
-        value: element.meterType,
+        value: Meter.toLabelString(element.meterType),
       });
 
       element.modbusCommunicationAddress && protocol.items.push({
@@ -999,12 +999,11 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     // meter1
     const acArray = this.pv.ac;
     const isAcCreated: boolean = acArray.length >= 1;
-
-    // TODO if more than 1 meter should be created, this logic must be changed
     const acAlias: string = isAcCreated ? acArray[0].alias : '';
     const acModbusUnitId: number = isAcCreated
       ? acArray[0].modbusCommunicationAddress
       : 0;
+    const acMeterType: Meter = isAcCreated ? acArray[0].meterType : Meter.SOCOMEC;
 
     let homeAppProperties: FeneconHome = {
       SAFETY_COUNTRY: safetyCountry,
@@ -1012,6 +1011,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       ...(feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: feedInLimitation.maximumFeedInPower }),
       FEED_IN_SETTING: feedInSetting,
       HAS_AC_METER: isAcCreated,
+      ...(isAcCreated && { AC_METER_TYPE: Meter.toAppAcMeterType(acMeterType) }),
       HAS_DC_PV1: this.pv.dc1.isSelected,
       ...(this.pv.dc1.isSelected && { DC_PV1_ALIAS: this.pv.dc1.alias }),
       HAS_DC_PV2: this.pv.dc2.isSelected,
@@ -1041,20 +1041,18 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
               if (acMeters.length == 0) {
                 reject(this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.AC_NOT_CREATED'))
               }
-              AppCenterUtil.getAppInstance(edge, websocket, "App.Meter.Socomec", acMeters[0].instanceId)
+
+              AppCenterUtil.getAppInstance(edge, websocket, Meter.toAppId(acMeterType), acMeters[0].instanceId)
                 .then(instance => {
                   // update meter with existing properties
                   instance.properties["MODBUS_UNIT_ID"] = acModbusUnitId
                   AppCenterUtil.updateApp(edge, websocket, instance.instanceId, acAlias, instance.properties)
-                    .then(response => resolve(response))
-                    .catch(error => reject(error))
-                })
-                .catch(error => reject(error))
-            })
-            .catch(error => reject(error))
+                    .then(resolve)
+                    .catch(reject)
+                }).catch(reject)
+            }).catch(reject)
         })
       });
-
     }
 
     // TODO remove components later when progress is shown by appManager
@@ -1178,23 +1176,8 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
 
     componentConfigurator.add(goodweconfig);
 
-    // meter1
-    componentConfigurator.add({
-      factoryId: 'Meter.Socomec.Threephase',
-      componentId: 'meter1',
-      alias: acAlias,
-      properties: [
-        { name: 'enabled', value: true },
-        { name: 'type', value: 'PRODUCTION' },
-        { name: 'modbus.id', value: 'modbus1' },
-        { name: 'modbusUnitId', value: acModbusUnitId },
-        { name: 'invert', value: false },
-      ],
-
-      mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly,
-      baseMode: baseMode
-    });
-
+    // PV Meter optional
+    componentConfigurator.add(super.addAcPvMeter('modbus2'));
 
     // charger0
     componentConfigurator.add({

@@ -7,15 +7,6 @@ import { HomeFeneconIbn } from '../../installation-systems/home/home-fenecon';
 import { HomeHeckertIbn } from '../../installation-systems/home/home-heckert';
 import { DIRECTIONS_OPTIONS } from '../../shared/options';
 
-export type DcPv = {
-  isSelected: boolean,
-  alias: string,
-  value: number,
-  orientation: string,
-  moduleType: string,
-  modulesPerString: number
-}
-
 @Component({
   selector: "protocol-pv",
   templateUrl: './protocol-pv.component.html'

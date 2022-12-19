@@ -1,6 +1,7 @@
 import { FormGroup } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { Category } from "./category";
+import { Meter } from "./meter";
 
 export type ComponentData = {
     label: string;
@@ -17,4 +18,23 @@ export type SerialNumberFormData = {
 export type TableData = {
     header: Category;
     rows: ComponentData[]
+};
+
+export type AcPv = {
+    alias: string,
+    value: number,
+    orientation: string,
+    moduleType: string,
+    modulesPerString: number,
+    meterType: Meter,
+    modbusCommunicationAddress: number
+};
+
+export type DcPv = {
+    isSelected: boolean,
+    alias: string,
+    value: number,
+    orientation: string,
+    moduleType: string,
+    modulesPerString: number
 };

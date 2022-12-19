@@ -32,10 +32,8 @@ public class OfflineEdgeMessage extends Message {
 
 	@Override
 	public ZonedDateTime getNotifyStamp() {
-		if (this.recipients.isEmpty()) {
-			return null;
-		}
-		return this.offlineAt.plusMinutes(this.recipients.firstKey());
+		var minutes = this.recipients.isEmpty() ? 0 : this.recipients.firstKey();
+		return this.offlineAt.plusMinutes(minutes);
 	}
 
 	/**
@@ -87,6 +85,6 @@ public class OfflineEdgeMessage extends Message {
 	@Override
 	public String toString() {
 		var rec = this.getCurrentRecipients().stream().map(AlertingSetting::getUserId).collect(Collectors.joining(","));
-		return "[for=" + this.getEdgeId() + ", to=[" + rec + "]]";
+		return "OfflineEdgeMessage{for=" + this.getEdgeId() + ", to=[" + rec + "], at=" + this.getNotifyStamp() + "}";
 	}
 }

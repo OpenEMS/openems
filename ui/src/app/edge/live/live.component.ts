@@ -1,8 +1,9 @@
-import { ActivatedRoute } from '@angular/router';
 import { Component } from '@angular/core';
-import { Edge, Service, Utils, Widgets, EdgeConfig } from '../../shared/shared';
-import { AdvertWidgets } from 'src/app/shared/type/widget';
+import { ActivatedRoute } from '@angular/router';
 import { SubscribeEdgesRequest } from 'src/app/shared/jsonrpc/request/subscribeEdgesRequest';
+import { Edge, EdgeConfig, Service, Utils, Widgets } from 'src/app/shared/shared';
+import { AdvertWidgets } from 'src/app/shared/type/widget';
+import { environment } from 'src/environments';
 
 @Component({
   selector: 'live',
@@ -25,7 +26,7 @@ export class LiveComponent {
   ionViewWillEnter() {
     this.service.setCurrentComponent('', this.route).then(edge => {
 
-      if (edge.isOnline) {
+      if (environment.backend == 'OpenEMS Backend' && edge.isOnline) {
         this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] }))
           .catch(error => console.warn(error))
       }

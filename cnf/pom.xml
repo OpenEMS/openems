@@ -8,6 +8,14 @@
 	<packaging>pom</packaging>
 
 	<dependencies>
+		<!-- biz -->
+		<dependency>
+			<!-- Bnd Gradle Plugin For The Bnd Workspace -->
+			<!-- On update: also update gradle.properties file -->
+			<groupId>biz.aQute.bnd.workspace</groupId>
+			<artifactId>biz.aQute.bnd.workspace.gradle.plugin</artifactId>
+			<version>6.4.0</version>
+		</dependency>
 		<!-- com -->
 		<dependency>
 			<groupId>com.fazecast</groupId>
@@ -248,7 +256,7 @@
 			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
-			<version>3.27.0</version>
+			<version>3.28.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
@@ -289,7 +297,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>1.7.21</version>
+			<version>1.7.22</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>

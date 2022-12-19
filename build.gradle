@@ -5,15 +5,35 @@ plugins {
 }
 
 /*
- * setup bnd tasks
  * disable report generation
+ */
+allprojects {
+	repositories {
+		mavenCentral()
+		gradlePluginPortal()
+	}
+
+	tasks.withType(JavaCompile) {
+		options.encoding = 'UTF-8'
+		options.fork = true
+		options.incremental = true
+	}	
+
+	tasks.withType(Test) {
+		maxParallelForks = 2
+		forkEvery = 100
+		reports {
+			html.required = false
+			junitXml.required = false
+		}
+	}	
+}
+
+/*
+ * setup bnd tasks
  */
 subprojects {
 	if (plugins.hasPlugin("biz.aQute.bnd")) {	
-		repositories {
-			gradlePluginPortal()
-		}
-	
 		apply plugin: 'checkstyle'
 
 		checkstyle {
@@ -33,28 +53,6 @@ subprojects {
 		tasks.withType(aQute.bnd.gradle.Export) {
 			dependsOn tasks.withType(aQute.bnd.gradle.Resolve)
 		}
-		
-		tasks.withType(aQute.bnd.gradle.Resolve) {
-			mustRunAfter rootProject.subprojects*.assemble
-			shouldRunAfter rootProject.subprojects*.resolve
-		}
-		
-		tasks.withType(JavaCompile) {
-			options.encoding = 'UTF-8'
-			options.fork = true
-			options.incremental = true
-		}	
-
-		tasks.withType(Test) {
-			maxParallelForks = 2
-			forkEvery = 100
-			reports {
-				html.required = false
-				junitXml.required = false
-			}
-		}	
-	} else {
-		tasks.each { it.enabled = false }
 	}
 }
 
@@ -84,11 +82,11 @@ task buildComponents() {
 task buildEdge() {
 	dependsOn ':io.openems.edge.application:export.EdgeApp'
 	doLast {
-		file("${buildDir}/openems.jar").delete()
+		file("${buildDir}/openems-edge.jar").delete()
 		copy {
 			from file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
 			into file("${buildDir}")
-			rename ("EdgeApp.jar", "openems.jar")
+			rename ("EdgeApp.jar", "openems-edge.jar")
 		}
 	}
 }
