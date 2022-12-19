@@ -65,27 +65,6 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
             mode: ConfigurationMode.RemoveAndConfigure
         });
 
-        // Optional meter2 - aditional AC PV
-        const acArray = this.pv.ac;
-        const isAcCreated: boolean = acArray.length >= 1;
-        const acAlias: string = isAcCreated ? acArray[0].alias : '';
-        const acModbusUnitId: number = isAcCreated ? acArray[0].modbusCommunicationAddress : 0;
-        const acMeterType: Meter = isAcCreated ? acArray[0].meterType : Meter.SOCOMEC;
-
-        componentConfigurator.add({
-            factoryId: Meter.toFactoryId(acMeterType),
-            componentId: 'meter1',
-            alias: acAlias,
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'type', value: 'PRODUCTION' },
-                { name: 'modbus.id', value: 'modbus2' },
-                { name: 'modbusUnitId', value: acModbusUnitId },
-                { name: 'invert', value: false }
-            ],
-            mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
-        });
-
         if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
             // ctrlGridOptimizedCharge0
             componentConfigurator.add({

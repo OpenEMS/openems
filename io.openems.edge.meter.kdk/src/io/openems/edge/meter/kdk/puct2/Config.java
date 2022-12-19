@@ -26,7 +26,7 @@ import io.openems.edge.meter.api.MeterType;
 	int modbusUnitId() default 1;
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
-	MeterType meterType() default MeterType.GRID;
+	MeterType type() default MeterType.GRID;
 
 	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
 	boolean invert() default false;
