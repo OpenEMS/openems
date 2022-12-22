@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,18 +142,25 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	 * @return {@link OfflineEdgeMessage} generated from edge
 	 */
 	protected OfflineEdgeMessage getEdgeMessage(Edge edge) {
+		if (edge == null) {
+			this.log.warn("Called method getEdgeMessage with edge=null");
+			return null;
+		}
 		try {
 			var alertingSettings = this.metadata.getUserAlertingSettings(edge.getId());
 			if (alertingSettings == null || alertingSettings.isEmpty()) {
 				return null;
 			}
 			var message = new OfflineEdgeMessage(edge.getId(), edge.getLastmessage());
-
-			alertingSettings.stream() //
-					.filter(s -> s.getDelayTime() > 0) //
-					.filter(s -> !this.mailAlreadyReceived(edge, s)) //
-					.forEach(s -> message.addRecipient(s));
-
+			if (!message.isValid()) {
+				this.log.warn("Invalid OfflineEdgeMessage " + message.toString());
+				return null;
+			}
+			for (var setting : alertingSettings) {
+				if (setting.getDelayTime() > 0 && this.shouldReceiveMail(edge, setting)) {
+					message.addRecipient(setting);
+				}
+			}
 			if (!message.isEmpty()) {
 				return message;
 			}
@@ -164,17 +170,17 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		return null;
 	}
 
-	private boolean mailAlreadyReceived(Edge edge, AlertingSetting setting) {
+	private boolean shouldReceiveMail(Edge edge, AlertingSetting setting) {
 		var lastMailRecievedAt = setting.getLastNotification();
 		if (lastMailRecievedAt == null) {
-			return false;
+			return true;
 		}
 		var edgeOfflineSince = edge.getLastmessage();
 		if (lastMailRecievedAt.isAfter(edgeOfflineSince)) {
-			return true;
+			return false;
 		}
 		var nextMailRecieveAt = edgeOfflineSince.plus(setting.getDelayTime(), ChronoUnit.MINUTES);
-		return !nextMailRecieveAt.isAfter(lastMailRecievedAt);
+		return nextMailRecieveAt.isAfter(lastMailRecievedAt);
 	}
 
 	/**
@@ -225,12 +231,10 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		var reader = new EventReader(event);
-
+	public void handleEvent(EventReader event) {
 		switch (event.getTopic()) {
 		case Edge.Events.ON_SET_ONLINE:
-			this.handleEdgeOnSetOnline(reader);
+			this.handleEdgeOnSetOnline(event);
 			break;
 
 		case Metadata.Events.AFTER_IS_INITIALIZED:

@@ -1,12 +1,7 @@
 package io.openems.edge.kaco.blueplanet.hybrid10.core;
 
 import com.ed.data.BatteryData;
-import com.ed.data.EnergyMeter;
 import com.ed.data.InverterData;
-import com.ed.data.Settings;
-import com.ed.data.Status;
-import com.ed.data.SystemInfo;
-import com.ed.data.VectisData;
 
 import io.openems.common.channel.Level;
 import io.openems.common.types.OpenemsType;
@@ -19,34 +14,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface BpCore extends OpenemsComponent {
 
 	/**
-	 * Gets the {@link BatteryData}.
-	 * 
-	 * @return {@link BatteryData}
-	 */
-	public BatteryData getBatteryData();
-
-	/**
-	 * Gets the {@link InverterData}.
-	 * 
-	 * @return {@link InverterData}
-	 */
-	public InverterData getInverterData();
-
-	/**
-	 * Gets the {@link Status}.
-	 * 
-	 * @return {@link Status}
-	 */
-	public Status getStatusData();
-
-	/**
-	 * Is the Client connected?.
-	 * 
-	 * @return true if connected
-	 */
-	public boolean isConnected();
-
-	/**
 	 * Is the default user logged in?.
 	 * 
 	 * @return true if the default password for user was not changed
@@ -54,32 +21,13 @@ public interface BpCore extends OpenemsComponent {
 	public boolean isDefaultUser();
 
 	/**
-	 * Gets the {@link Settings}.
+	 * Gets the {@link BpData}, including {@link BatteryData}, {@link InverterData},
+	 * etc.
 	 * 
-	 * @return {@link Settings}
+	 * @return {@link BpData}, null if data is not available - e.g. on communication
+	 *         error
 	 */
-	public Settings getSettings();
-
-	/**
-	 * Gets the {@link VectisData}.
-	 * 
-	 * @return {@link VectisData}
-	 */
-	public VectisData getVectis();
-
-	/**
-	 * Gets the {@link EnergyMeter}.
-	 * 
-	 * @return {@link EnergyMeter}
-	 */
-	public EnergyMeter getEnergyMeter();
-
-	/**
-	 * Gets the {@link SystemInfo}.
-	 * 
-	 * @return {@link SystemInfo}
-	 */
-	public SystemInfo getSystemInfo();
+	public BpData getBpData();
 
 	/**
 	 * Gets the {@link StableVersion}.
@@ -89,8 +37,6 @@ public interface BpCore extends OpenemsComponent {
 	public StableVersion getStableVersion();
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
-				.text("Communication to KACO blueplanet hybrid 10 failed. Please check the network connection and the status of the inverter")), //
 		USER_ACCESS_DENIED(Doc.of(Level.FAULT) //
 				/*
 				 * Additional text when we are able to ensure the functionality of the external
@@ -117,35 +63,6 @@ public interface BpCore extends OpenemsComponent {
 		public Doc doc() {
 			return this.doc;
 		}
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#COMMUNICATION_FAILED}.
-	 * 
-	 * @return the Channel
-	 */
-	public default StateChannel getCommunicationFailedChannel() {
-		return this.channel(ChannelId.COMMUNICATION_FAILED);
-	}
-
-	/**
-	 * Gets the Slave Communication Failed State. See
-	 * {@link ChannelId#COMMUNICATION_FAILED}.
-	 * 
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getCommunicationFailed() {
-		return this.getCommunicationFailedChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#USER_ACCESS_DENIED} Channel.
-	 * 
-	 * @param value the next value
-	 */
-	public default void _setCommunicationFailed(boolean value) {
-		this.getCommunicationFailedChannel().setNextValue(value);
 	}
 
 	/**

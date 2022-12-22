@@ -35,6 +35,27 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.12.2',
+        changes: [
+          "Implementierung KDK 420506PRO20-U (2PU CT) Zähler"
+        ]
+      },
+      {
+        version: '2022.12.1',
+        changes: [
+          Changelog.openems('2022.12.0'),
+          Changelog.UI + "Verbesserung Login/Session-Management",
+          "Verbesserungen Inbetriebnahmeassistent Commercial: englische Übersetzung und Unterstützung KDK-Zähler",
+          Changelog.product(Product.FEMS_KEBA) + "Anzeige Ladeleistung und Status am Display",
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Vorbereitungen für Key-Modell" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Verhindere mehrfaches Klicken des Login-Button; unterscheide Authentifizierungs-Fehler vs. Odoo-Timeout" },
+          { roleIsAtLeast: Role.ADMIN, change: "ESS-Cluster: Unterstützung für Start-Stop von mehreren ESS" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.HOME) + "Korrektur bei Frequenzmessung des Netzzählers" },
+          { roleIsAtLeast: Role.ADMIN, change: "Backend Alerting: Verhinderung von negativen Seiteneffekten beim Abarbeiten von Meldungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Aktualisierung/Bereinigung der Werbewidgets" },
+        ]
+      },
+      {
         version: '2022.11.7',
         changes: [
           Changelog.UI,

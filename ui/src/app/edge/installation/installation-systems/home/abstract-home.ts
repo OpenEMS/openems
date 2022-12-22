@@ -22,6 +22,7 @@ type FeneconHome = {
   MAX_FEED_IN_POWER?: number,
   FEED_IN_SETTING: string,
   HAS_AC_METER: boolean,
+  AC_METER_TYPE?: string,
   HAS_DC_PV1: boolean,
   DC_PV1_ALIAS?: string,
   HAS_DC_PV2: boolean,
@@ -1010,6 +1011,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       ...(feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION && { MAX_FEED_IN_POWER: feedInLimitation.maximumFeedInPower }),
       FEED_IN_SETTING: feedInSetting,
       HAS_AC_METER: isAcCreated,
+      ...(isAcCreated && { AC_METER_TYPE: Meter.toAppAcMeterType(acMeterType) }),
       HAS_DC_PV1: this.pv.dc1.isSelected,
       ...(this.pv.dc1.isSelected && { DC_PV1_ALIAS: this.pv.dc1.alias }),
       HAS_DC_PV2: this.pv.dc2.isSelected,
@@ -1039,17 +1041,16 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
               if (acMeters.length == 0) {
                 reject(this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.AC_NOT_CREATED'))
               }
-              AppCenterUtil.getAppInstance(edge, websocket, "App.Meter.Socomec", acMeters[0].instanceId)
+
+              AppCenterUtil.getAppInstance(edge, websocket, Meter.toAppId(acMeterType), acMeters[0].instanceId)
                 .then(instance => {
                   // update meter with existing properties
                   instance.properties["MODBUS_UNIT_ID"] = acModbusUnitId
                   AppCenterUtil.updateApp(edge, websocket, instance.instanceId, acAlias, instance.properties)
-                    .then(response => resolve(response))
-                    .catch(error => reject(error))
-                })
-                .catch(error => reject(error))
-            })
-            .catch(error => reject(error))
+                    .then(resolve)
+                    .catch(reject)
+                }).catch(reject)
+            }).catch(reject)
         })
       });
     }

@@ -6,6 +6,38 @@ export enum Meter {
 export namespace Meter {
 
     /**
+     * The meter type for the home app.
+     * 
+     * Can be different on edge side.
+     * 
+     * @param meter the meter
+     * @returns the type for the home app
+     */
+    export function toAppAcMeterType(meter: Meter): string {
+        switch (meter) {
+            case Meter.SOCOMEC:
+                return 'SOCOMEC';
+            case Meter.KDK:
+                return 'KDK';
+        }
+    }
+
+    /**
+     * The app id of the meter in the edge.
+     * 
+     * @param meter the meter 
+     * @returns the app id
+     */
+    export function toAppId(meter: Meter): string {
+        switch (meter) {
+            case Meter.SOCOMEC:
+                return 'App.Meter.Socomec';
+            case Meter.KDK:
+                return 'App.Meter.Kdk';
+        }
+    }
+
+    /**
      * Returns the factory id of the meter type selected.
      * 
      * @param meter The Meter.

@@ -15,8 +15,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import com.ed.data.InverterData;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -93,9 +91,12 @@ public class BpChargerImpl extends AbstractOpenemsComponent
 
 	private void updateChannels() {
 		Integer actualPower = null;
-		InverterData inverter = this.core.getInverterData();
-		if (inverter != null) {
-			actualPower = Math.round(inverter.getPvPower());
+
+		var bpData = this.core.getBpData();
+		this._setCommunicationFailed(bpData == null);
+
+		if (bpData != null) {
+			actualPower = Math.round(bpData.inverter.getPvPower());
 		}
 		this._setActualPower(actualPower);
 

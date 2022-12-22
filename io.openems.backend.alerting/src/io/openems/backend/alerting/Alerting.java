@@ -1,5 +1,9 @@
 package io.openems.backend.alerting;
 
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -12,12 +16,15 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import io.openems.backend.alerting.handler.OfflineEdgeHandler;
 import io.openems.backend.alerting.scheduler.Scheduler;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.common.event.EventReader;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -31,7 +38,12 @@ import io.openems.backend.common.metadata.Metadata;
 })
 public class Alerting extends AbstractOpenemsBackendComponent implements EventHandler {
 
+	private static final byte THREAD_POOL_SIZE = 2;
+	private static final byte THREAD_QUEUE_WARNING_THRESHOLD = 50;
+
 	private final Logger log = LoggerFactory.getLogger(Alerting.class);
+
+	private final ThreadPoolExecutor eventHandler;
 
 	@Reference
 	protected Metadata metadata;
@@ -46,6 +58,8 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		super("Alerting");
 
 		this.scheduler = scheduler;
+		this.eventHandler = new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 1, TimeUnit.HOURS, new LinkedBlockingDeque<>(), //
+				new ThreadFactoryBuilder().setNameFormat(Alerting.class.getSimpleName() + ".EventHandler-%d").build());
 	}
 
 	public Alerting() {
@@ -74,8 +88,15 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	@Override
 	public void handleEvent(Event event) {
-		for (Handler<?> handlerInstance : this.handler) {
-			handlerInstance.handleEvent(event);
+		this.eventHandler.execute(() -> {
+			var reader = new EventReader(event);
+			for (Handler<?> handlerInstance : this.handler) {
+				handlerInstance.handleEvent(reader);
+			}
+		});
+		int queueSize = this.eventHandler.getQueue().size();
+		if (queueSize % THREAD_QUEUE_WARNING_THRESHOLD == 0) {
+			this.logWarn(this.log, queueSize + " tasks in the EventHandlerQueue!");
 		}
 	}
 }
