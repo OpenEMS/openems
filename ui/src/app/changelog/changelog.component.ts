@@ -35,6 +35,13 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.12.3',
+        changes: [
+          Changelog.UI,
+          "Inbetriebnahmeassistent: Fehlerbehebung"
+        ]
+      },
+      {
         version: '2022.12.2',
         changes: [
           "Implementierung KDK 420506PRO20-U (2PU CT) Zähler"
