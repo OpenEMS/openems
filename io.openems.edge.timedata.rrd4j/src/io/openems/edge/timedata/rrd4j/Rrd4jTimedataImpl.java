@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -167,7 +168,8 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 			// If no Channel can be read successfully: throw exception; otherwise return the
 			// available data
 			if (errorCounter == channels.size()) {
-				throw new OpenemsException("No valid Channel available");
+				throw new OpenemsException("None of the requested Channels is available: "
+						+ channels.stream().map(c -> c.toString()).collect(Collectors.joining(", ")));
 			}
 
 		} catch (Exception e) {

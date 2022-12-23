@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { SendLogMessage } from "../jsonrpc/request/sendLogMessage";
+import { LogMessageNotification } from "../jsonrpc/notification/logMessageNotification";
 import { Service } from "./service";
 
 /**
@@ -23,8 +23,8 @@ export class Logger {
      * @param level the log level
      * @param msg the message to be logged
      */
-    private log(level: Level, msg: string) {
-        this.service.websocket.sendRequest(new SendLogMessage({ level, msg })).catch(err => console.log(err));
+    private sendLogMessageNotification(level: Level, msg: string) {
+        this.service.websocket.sendNotification(new LogMessageNotification({ level: level, msg: msg }));
     }
 
     /**
@@ -33,7 +33,7 @@ export class Logger {
      * @param msg the message to be logged
      */
     public debug(msg: string) {
-        this.log(Level.DEBUG, msg);
+        this.sendLogMessageNotification(Level.DEBUG, msg);
     }
 
     /**
@@ -42,7 +42,7 @@ export class Logger {
      * @param msg the message to be logged
      */
     public info(msg: string) {
-        this.log(Level.INFO, msg);
+        this.sendLogMessageNotification(Level.INFO, msg);
     }
 
     /**
@@ -51,7 +51,7 @@ export class Logger {
      * @param msg the message to be logged
      */
     public warn(msg: string) {
-        this.log(Level.WARNING, msg);
+        this.sendLogMessageNotification(Level.WARNING, msg);
     }
 
     /**
@@ -60,7 +60,7 @@ export class Logger {
      * @param msg the message to be logged
      */
     public error(msg: string) {
-        this.log(Level.ERROR, msg);
+        this.sendLogMessageNotification(Level.ERROR, msg);
     }
 
 }
