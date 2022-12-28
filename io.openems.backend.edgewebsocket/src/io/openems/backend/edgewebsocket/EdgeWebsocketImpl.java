@@ -85,6 +85,11 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 					.append(this.server != null ? this.server.getConnections().size() : "initializing") //
 					.toString());
 		}, 10, 10, TimeUnit.SECONDS);
+
+		if (this.metadata.isInitialized()) {
+			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+		}
+
 	}
 
 	@Deactivate
@@ -101,8 +106,10 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
 	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
-		this.server = new WebsocketServer(this, this.getName(), port, poolSize, debugMode);
-		this.server.start();
+		if (this.server == null) {
+			this.server = new WebsocketServer(this, this.getName(), port, poolSize, debugMode);
+			this.server.start();
+		}
 	}
 
 	/**

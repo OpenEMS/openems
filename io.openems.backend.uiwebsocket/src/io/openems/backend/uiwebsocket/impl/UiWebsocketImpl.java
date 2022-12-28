@@ -68,6 +68,10 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	@Activate
 	private void activate(Config config) {
 		this.config = config;
+
+		if (this.metadata.isInitialized()) {
+			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+		}
 	}
 
 	@Deactivate
@@ -84,8 +88,10 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
 	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
-		this.server = new WebsocketServer(this, "Ui.Websocket", port, poolSize, debugMode);
-		this.server.start();
+		if (this.server == null) {
+			this.server = new WebsocketServer(this, "Ui.Websocket", port, poolSize, debugMode);
+			this.server.start();
+		}
 	}
 
 	/**

@@ -23,8 +23,10 @@ public abstract class AbstractMetadata extends AbstractOpenemsBackendComponent i
 	 * Make sure to call this method once initialized!.
 	 */
 	protected void setInitialized() {
-		this.isInitialized.set(true);
-		EventBuilder.post(this.getEventAdmin(), Events.AFTER_IS_INITIALIZED);
+		if (this.isInitialized.get() == false) {
+			this.isInitialized.set(true);
+			EventBuilder.post(this.getEventAdmin(), Events.AFTER_IS_INITIALIZED);
+		}
 	}
 
 	@Override
