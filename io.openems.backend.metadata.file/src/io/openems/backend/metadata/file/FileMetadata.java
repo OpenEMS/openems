@@ -38,6 +38,7 @@ import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
+import io.openems.common.OpenemsConstants;
 import io.openems.common.OpenemsOEM;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
@@ -101,7 +102,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 	@Activate
 	private void activate(Config config) {
 		this.log.info("Activate [path=" + config.path() + "]");
-		this.path = config.path();
+		this.path = OpenemsConstants.getOpenemsDataDir() + "/" + config.path();
 
 		// Read the data async
 		CompletableFuture.runAsync(() -> {
