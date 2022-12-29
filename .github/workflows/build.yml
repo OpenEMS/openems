@@ -32,7 +32,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Build all Java packages
-        run: ./gradlew build --info
+        run: ./gradlew build
 
       - name: Resolve OpenEMS bundles
         run: ./gradlew resolve
