@@ -20,7 +20,7 @@
         "angular-mydatepicker": "^0.11.5",
         "chart.js": "^2.9.4",
         "classlist.js": "^1.1.20150312",
-        "compare-versions": "^5.0.1",
+        "compare-versions": "^5.0.3",
         "d3": "^7.8.0",
         "date-fns": "^2.29.3",
         "file-saver-es": "^2.0.5",
