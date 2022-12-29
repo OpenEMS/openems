@@ -1177,7 +1177,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     componentConfigurator.add(goodweconfig);
 
     // PV Meter optional
-    componentConfigurator.add(super.addAcPvMeter('modbus2'));
+    componentConfigurator.add(super.addAcPvMeter('modbus1'));
 
     // charger0
     componentConfigurator.add({

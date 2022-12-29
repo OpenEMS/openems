@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, take } from 'rxjs/operators';
+import { SubscribeEdgesRequest } from 'src/app/shared/jsonrpc/request/subscribeEdgesRequest';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
+
 import { AbstractIbn, View } from './installation-systems/abstract-ibn';
 import { Commercial30AnschlussIbn } from './installation-systems/commercial/commercial-30/commercial30-anschluss';
 import { Commercial30NetztrennIbn } from './installation-systems/commercial/commercial-30/commercial30-netztrenn';
@@ -99,6 +101,7 @@ export class InstallationComponent implements OnInit {
         .subscribe(metadata => {
           this.edge = metadata.edges[edgeString.id];
           this.displayViewAtIndex(viewIndex);
+          this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [this.edge.id] }))
         });
     } else {
       this.displayViewAtIndex(viewIndex);

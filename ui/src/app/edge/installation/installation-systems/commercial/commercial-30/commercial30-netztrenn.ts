@@ -154,21 +154,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             mode: this.emergencyReserve.isEnabled
                 ? ConfigurationMode.RemoveAndConfigure
                 : ConfigurationMode.RemoveOnly,
-        }, 13);
-
-        // ctrlBalancing0
-        componentConfigurator.add({
-            factoryId: 'Controller.Symmetric.Balancing',
-            componentId: 'ctrlBalancing0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.SELF_CONSUMPTION'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'ess.id', value: 'ess0' },
-                { name: 'meter.id', value: 'meter0' },
-                { name: 'targetGridSetpoint', value: 0 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
+        }, 12);
 
         return componentConfigurator;
     }

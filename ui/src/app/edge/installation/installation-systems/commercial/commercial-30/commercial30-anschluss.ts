@@ -63,46 +63,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
                 { name: 'battery.id', value: 'battery0' }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
-        });
-
-        if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
-            // ctrlGridOptimizedCharge0
-            componentConfigurator.add({
-                factoryId: 'Controller.Ess.GridOptimizedCharge',
-                componentId: 'ctrlGridOptimizedCharge0',
-                alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.GRID_OPTIMIZED_CHARGE'),
-                properties: [
-                    { name: 'enabled', value: true },
-                    { name: 'ess.id', value: 'ess0' },
-                    { name: 'meter.id', value: 'meter0' },
-                    { name: 'sellToGridLimitEnabled', value: true },
-                    {
-                        name: 'maximumSellToGridPower',
-                        value: this.feedInLimitation.maximumFeedInPower,
-                    },
-                    { name: 'delayChargeRiskLevel', value: 'MEDIUM' },
-                    { name: 'mode', value: 'AUTOMATIC' },
-                    { name: 'manualTargetTime', value: '17:00' },
-                    { name: 'debugMode', value: false },
-                    { name: 'sellToGridLimitRampPercentage', value: 2 },
-                ],
-                mode: ConfigurationMode.RemoveAndConfigure,
-            });
-        }
-
-        // ctrlBalancing0
-        componentConfigurator.add({ // Clearify with Productmanagement if a different App like peak shaving could be selected in IBN
-            factoryId: 'Controller.Symmetric.Balancing',
-            componentId: 'ctrlBalancing0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.SELF_CONSUMPTION'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'ess.id', value: 'ess0' },
-                { name: 'meter.id', value: 'meter0' },
-                { name: 'targetGridSetpoint', value: 0 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
+        }, 7);
 
         return componentConfigurator;
     }
