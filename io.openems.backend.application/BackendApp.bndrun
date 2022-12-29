@@ -110,7 +110,7 @@
 	org.ops4j.pax.logging.pax-logging-api;version='[2.0.14,2.0.15)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.0.14,2.0.15)',\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\
-	org.osgi.service.jdbc;version='[1.0.1,1.0.2)',\
+	org.osgi.service.jdbc;version='[1.1.0,1.1.1)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
 	org.postgresql.jdbc;version='[42.5.1,42.5.2)',\
