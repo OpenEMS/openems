@@ -109,7 +109,7 @@
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.0.14,2.0.15)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.0.14,2.0.15)',\
-	org.osgi.service.component;version='[1.5.0,1.5.1)',\
+	org.osgi.service.component;version='[1.5.1,1.5.2)',\
 	org.osgi.service.jdbc;version='[1.0.1,1.0.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
