@@ -35,6 +35,14 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.12.4',
+        changes: [
+          Changelog.UI,
+          "Inbetriebnahmeassistent: Fehlerbehebung",
+          Changelog.library(Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY, Library.NGX_COOKIE_SERVICE, Library.D3, Library.FASTEXCEL, Library.OSGI_UTIL_PROMISE),
+        ]
+      },
+      {
         version: '2022.12.3',
         changes: [
           Changelog.UI,
