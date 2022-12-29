@@ -27,7 +27,7 @@
 @import "variables";
 
 /* ngx-spinner */
-@import "ngx-spinner/animations/ball-clip-rotate-multiple.css";
+@import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
 
 formly-wrapper-ion-form-field,
 formly-input-serial-number,
@@ -51,9 +51,10 @@ formly-field-ion-radio {
     }
 }
 
-.line-break{
-    formly-wrapper-ion-form-field > ion-item > ion-label > span > small,
-    formly-field-ion-radio > ion-list > ion-radio-group > ion-item > ion-label {
+.line-break {
+
+    formly-wrapper-ion-form-field>ion-item>ion-label>span>small,
+    formly-field-ion-radio>ion-list>ion-radio-group>ion-item>ion-label {
         white-space: pre-line !important;
         line-height: 1.6 !important;
     }
@@ -192,7 +193,7 @@ formly-input-section {
 
 // style to color table rows with translusent background
 .even-row {
-  background-color: rgba(var(--ion-color-primary-rgb), 0.2);
+    background-color: rgba(var(--ion-color-primary-rgb), 0.2);
 }
 
 // Added styles for alertController, because alertController doesn't take ionic default style
