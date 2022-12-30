@@ -46,7 +46,7 @@ pipeline:
     image: openems-build:latest
     commands:
       - cd ui
-      - npm ci --prefer-offline --cache /woodpecker/.npm
+      - npm ci --prefer-offline --cache /woodpecker/.npm --force
       - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
       - node_modules/.bin/ng config cli.cache.path "/woodpecker/.ng"
       - node_modules/.bin/ng build -c "fenecon,fenecon-backend-prod,prod"
