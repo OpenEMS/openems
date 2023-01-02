@@ -55,4 +55,9 @@ public class StringUtilsTest {
 		assertTrue(StringUtils.matchesFloatPattern("208.6"));
 	}
 
+	@Test
+	public void testReverse() {
+		Assert.assertEquals("OpenEMS", StringUtils.reverse("SMEnepO"));
+	}
+
 }
