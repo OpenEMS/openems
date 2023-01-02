@@ -35,6 +35,14 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.12.7',
+        changes: [
+          Changelog.UI,
+          "Inbetriebnahmeassistent: Fehlerbehebung",
+          { roleIsAtLeast: Role.ADMIN, change: "App Center KDK-Zähler: Fehlerbehebung" },
+        ]
+      },
+      {
         version: '2022.12.5',
         changes: [
           Changelog.product(Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Fehlerbehebung bei Kompatibilität mit älterer Firmware des GoodWe Wechselrichters",
