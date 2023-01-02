@@ -37,9 +37,13 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2022.12.7',
         changes: [
-          Changelog.UI,
           "Inbetriebnahmeassistent: Fehlerbehebung",
-          { roleIsAtLeast: Role.ADMIN, change: "App Center KDK-Zähler: Fehlerbehebung" },
+        ]
+      },
+      {
+        version: '2022.12.6',
+        changes: [
+          Changelog.UI,
         ]
       },
       {
