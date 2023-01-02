@@ -149,7 +149,7 @@ export class InstallationComponent implements OnInit {
    * @param index index of the desired view.
    */
   public displayViewAtIndex(index: number) {
-    this.logger.debug("View: " + Object.keys(View)[Object.values(View).indexOf(this.ibn.views[index])] + " Edge: " + this.edge.id)
+    this.logger.debug("View: " + Object.keys(View)[Object.values(View).indexOf(this.ibn.views[index])] + " Edge: " + this.edge?.id)
     this.removeUpdateView();
     const viewCount = this.ibn.views.length;
     if (index >= 0 && index < viewCount) {

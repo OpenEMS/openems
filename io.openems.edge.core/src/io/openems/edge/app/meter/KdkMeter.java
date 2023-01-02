@@ -88,7 +88,7 @@ public class KdkMeter extends AbstractMeterApp<Property> implements OpenemsApp {
 							JsonUtils.buildJsonObject() //
 									.addProperty("modbus.id", modbusId) //
 									.addProperty("modbusUnitId", modbusUnitId) //
-									.addProperty("meterType", type) //
+									.addProperty("type", type) //
 									.build()) //
 			);
 
