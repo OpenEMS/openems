@@ -31,8 +31,11 @@ export class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
     ) {
         super(QueryHistoricTimeseriesEnergyRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            fromDate: format(fromDate, 'yyyy-MM-dd'),
-            toDate: format(toDate, 'yyyy-MM-dd'),
+            // fromDate: format(fromDate, 'yyyy-MM-dd'),
+            // toDate: format(toDate, 'yyyy-MM-dd'),
+            fromDate: "2023-01-01",
+            toDate: "2023-01-03",
+
             channels: JsonRpcUtils.channelsToStringArray(channels)
         });
         // delete local fields, otherwise they are sent with the JSON-RPC Request
