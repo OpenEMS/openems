@@ -35,6 +35,90 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2022.12.7',
+        changes: [
+          "Inbetriebnahmeassistent: Fehlerbehebung",
+        ]
+      },
+      {
+        version: '2022.12.6',
+        changes: [
+          Changelog.UI,
+        ]
+      },
+      {
+        version: '2022.12.5',
+        changes: [
+          Changelog.product(Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW) + "Fehlerbehebung bei Kompatibilität mit älterer Firmware des GoodWe Wechselrichters",
+          { roleIsAtLeast: Role.ADMIN, change: "Besseres Logging von UI-Fehlern im Backend, z. B. für IBN" },
+        ]
+      },
+      {
+        version: '2022.12.4',
+        changes: [
+          Changelog.UI,
+          "Inbetriebnahmeassistent: Fehlerbehebung",
+          Changelog.library(Library.ANGULAR, Library.IONIC, Library.NGX_FORMLY, Library.NGX_COOKIE_SERVICE, Library.D3, Library.FASTEXCEL, Library.OSGI_UTIL_PROMISE),
+        ]
+      },
+      {
+        version: '2022.12.3',
+        changes: [
+          Changelog.UI,
+          "Inbetriebnahmeassistent: Fehlerbehebung"
+        ]
+      },
+      {
+        version: '2022.12.2',
+        changes: [
+          "Implementierung KDK 420506PRO20-U (2PU CT) Zähler"
+        ]
+      },
+      {
+        version: '2022.12.1',
+        changes: [
+          Changelog.openems('2022.12.0'),
+          Changelog.UI + "Verbesserung Login/Session-Management",
+          "Verbesserungen Inbetriebnahmeassistent Commercial: englische Übersetzung und Unterstützung KDK-Zähler",
+          Changelog.product(Product.FEMS_KEBA) + "Anzeige Ladeleistung und Status am Display",
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Vorbereitungen für Key-Modell" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Verhindere mehrfaches Klicken des Login-Button; unterscheide Authentifizierungs-Fehler vs. Odoo-Timeout" },
+          { roleIsAtLeast: Role.ADMIN, change: "ESS-Cluster: Unterstützung für Start-Stop von mehreren ESS" },
+          { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.HOME) + "Korrektur bei Frequenzmessung des Netzzählers" },
+          { roleIsAtLeast: Role.ADMIN, change: "Backend Alerting: Verhinderung von negativen Seiteneffekten beim Abarbeiten von Meldungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Aktualisierung/Bereinigung der Werbewidgets" },
+        ]
+      },
+      {
+        version: '2022.11.7',
+        changes: [
+          Changelog.UI,
+          { roleIsAtLeast: Role.ADMIN, change: "Performance-Optimierungen am Backend" },
+        ]
+      },
+      {
+        version: '2022.11.6',
+        changes: [
+          Changelog.UI,
+          { roleIsAtLeast: Role.ADMIN, change: "Commercial Gen1-Batterie: Anpassung der Parameter für die Batterie-Protection" },
+        ]
+      },
+      {
+        version: '2022.11.5',
+        changes: [
+          Changelog.UI,
+        ]
+      },
+      {
+        version: '2022.11.4',
+        changes: [
+          Changelog.product(Product.FEMS_MODBUS_TCP_API) + Changelog.GENERAL_OPTIMIZATION,
+          { roleIsAtLeast: Role.INSTALLER, change: "Anzeige von Strom und Spannung des Netzzählers" },
+          { roleIsAtLeast: Role.INSTALLER, change: Changelog.product(Product.HOME) + "Korrektur bei Strom-/Spannungswerten des Netzzählers" },
+          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App-Center" },
+        ]
+      },
+      {
         version: '2022.11.3',
         changes: [
           "Fehlerbehebungen der Übersetzung",

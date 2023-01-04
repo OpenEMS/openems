@@ -1,5 +1,7 @@
 package io.openems.common.utils;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -46,6 +48,16 @@ public class StringUtilsTest {
 		Assert.assertEquals(anyActive.length(), StringUtils.matchWildcard(activePower, anyActive));
 		Assert.assertEquals(1, StringUtils.matchWildcard(activePower, any));
 		Assert.assertEquals(-1, StringUtils.matchWildcard(activePower, foobar));
+	}
+
+	@Test
+	public void testMatchesFloatPattern() {
+		assertTrue(StringUtils.matchesFloatPattern("208.6"));
+	}
+
+	@Test
+	public void testReverse() {
+		Assert.assertEquals("OpenEMS", StringUtils.reverse("SMEnepO"));
 	}
 
 }

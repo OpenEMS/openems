@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { Category } from '../../shared/category';
 
 @Component({
     selector: ConfigurationPeakShavingComponent.SELECTOR,
@@ -21,13 +23,13 @@ export class ConfigurationPeakShavingComponent implements OnInit {
     protected header: string;
     protected showDescription: boolean;
 
-    constructor() { }
+    constructor(private translate: TranslateService) { }
 
     ngOnInit(): void {
         this.form = new FormGroup({});
         this.fields = this.getFields();
-        this.header = this.ibn.getPeakShavingHeader();
-        this.showDescription = this.header == 'Einstellungen Phasengenaue Lastspitzenkappung' ? true : false
+        this.header = Category.toTranslatedString(this.ibn.getPeakShavingHeader(), this.translate);
+        this.showDescription = this.header == Category.toTranslatedString(Category.PEAK_SHAVING_ASYMMETRIC_HEADER, this.translate) ? true : false
         this.model = {};
     }
 
@@ -53,9 +55,9 @@ export class ConfigurationPeakShavingComponent implements OnInit {
             type: 'input',
             className: 'overflow-wrapper',
             templateOptions: {
-                label: 'Entladung über - Wert [W]:',
+                label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.DISCHARGE_ABOVE_VALUE'),
                 type: 'number',
-                description: 'liegt die Netzbezugsleistung oberhalb von diesem Wert, wird die Batterie entladen.',
+                description: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.DISCHARGE_ABOVE_DESCRIPTION'),
                 required: true,
             },
         });
@@ -65,10 +67,9 @@ export class ConfigurationPeakShavingComponent implements OnInit {
             type: 'input',
             className: 'line-break',
             templateOptions: {
-                label: 'Beladung unter - Wert [W]:',
+                label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.CHARGE_BELOW_VALUE'),
                 type: 'number',
-                description: `liegt die Netzbezugsleistung unterhalb von diesem Wert, wird die Batterie wieder beladen.
-                Dieser Wert darf max. dem Wert "Entladung über" entsprechen.`,
+                description: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.CHARGE_BELOW_DESCRIPTION'),
                 required: true,
             },
             expressionProperties: {

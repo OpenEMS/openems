@@ -1,5 +1,6 @@
 import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
+import { Category } from '../../../shared/category';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
 import { AbstractCommercial50Ibn } from './abstract-commercial-50';
@@ -44,15 +45,15 @@ export class Commercial50Lastspitzenkappung extends AbstractCommercial50Ibn {
         let entladungÜber: number;
         let beladungUnter: number;
 
-        if (this.commercial50Feature.feature.type === 'Lastspitzenkappung') {
+        if (this.commercial50Feature.feature.type === Category.PEAK_SHAVING_SYMMETRIC) {
             factoryId = 'Controller.Symmetric.PeakShaving';
-            alias = 'Lastspitzenkappung';
+            alias = Category.toTranslatedString(Category.PEAK_SHAVING_SYMMETRIC, this.translate);
         } else {
             factoryId = 'Controller.Asymmetric.PeakShaving';
-            alias = 'Phasengenaue Lastspitzenkappung';
+            alias = Category.toTranslatedString(Category.PEAK_SHAVING_ASYMMETRIC, this.translate);
         }
 
-        if (this.commercial50Feature.feature.type !== 'Eigenverbrauchsoptimierung') {
+        if (this.commercial50Feature.feature.type !== Category.BALANCING) {
             entladungÜber = this.commercial50Feature.feature.entladungÜber
             beladungUnter = this.commercial50Feature.feature.beladungUnter
         }

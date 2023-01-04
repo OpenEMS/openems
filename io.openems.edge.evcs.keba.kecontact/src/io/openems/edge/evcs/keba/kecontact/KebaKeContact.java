@@ -233,6 +233,9 @@ public class KebaKeContact extends AbstractManagedEvcsComponent
 
 	@Override
 	public boolean applyDisplayText(String text) throws OpenemsException {
+		if (!this.config.useDisplay()) {
+			return false;
+		}
 		if (text.length() > 23) {
 			text = text.substring(0, 23);
 		}

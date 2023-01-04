@@ -64,7 +64,7 @@ public class WriteHandler implements Runnable {
 		if (energyLimit > 0 && this.parent.getEnergySession().orElse(0) >= energyLimit) {
 
 			try {
-				this.parent.setDisplayText(energyLimit + " Wh limit reached");
+				this.parent.setDisplayText(energyLimit + " Wh erreicht");
 			} catch (OpenemsNamedException e) {
 				e.printStackTrace();
 			}
@@ -140,6 +140,7 @@ public class WriteHandler implements Runnable {
 
 			if (sent) {
 				this.logDebug("Setting EVCS " + this.parent.alias() + " charge power to " + power + " W");
+				this.parent.setDisplayText(power + " W");
 
 				this.parent._setSetChargePowerLimit(power);
 				this.nextPowerWrite = LocalDateTime.now().plusSeconds(this.parent.getWriteInterval());

@@ -1,14 +1,12 @@
 {
   "About": {
     "build": "This build",
-    "contact": "Please contact our team for further information or suggestions about the system at <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
     "currentDevelopments": "Current developments",
     "developed": "This user interface is developed as open-source software.",
     "faq": "Frequently asked questions (FAQ)",
     "language": "Select language:",
     "openEMS": "More about OpenEMS",
-    "patchnotes": "Changes in the monitoring for this build",
-    "ui": "User interface for FEMS"
+    "patchnotes": "Changes in the monitoring for this build"
   },
   "Edge": {
     "Index": {
@@ -26,8 +24,8 @@
         "storageCharge": "Storage-Charge",
         "storageDischarge": "Storage-Discharge",
         "title": "Energymonitor",
-        "excelExportWarning": "The display and export of data over a longer period of time is currently only possible to a limited extent. The function is expected to be usable again at the start of 2023.",
-        "displayWarning": "The display of data over a longer period of time is currently only possible to a limited extent. \nThe feature is expected to be available again in early 2023."
+        "excelExportWarning": "The display and export of data over a longer period of time is currently only possible to a limited extent. We are working on providing this function again soon.",
+        "displayWarning": "The display of data over a longer period of time is currently only possible to a limited extent. We are working on providing this function again soon."
       },
       "Widgets": {
         "autarchyInfo": "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
@@ -393,7 +391,7 @@
       "advancedMode": "Advanced Mode",
       "submit": "Submit"
     },
-    "title": "FEMS"
+    "title": "{{ edgeShortName }}"
   },
   "General": {
     "active": "Active",
@@ -565,7 +563,8 @@
       "COMMUNICATION_WITH_METER": "Communication with the Meter",
       "WAGO_BRIDGE": "Wago Bridge",
       "FIELD_BUS_COUPLER": "Fieldbus coupler",
-      "CONTROL_GRID_POINT": "Control of the grid disconnection point"
+      "CONTROL_GRID_POINT": "Control of the grid disconnection point",
+      "BATTERY_INTERFACE": "Battery interface"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",
@@ -573,7 +572,8 @@
       "OTHER": "Other",
       "TITLE_COMMERCIAL": "Circuit breaker at the grid connection point / Counter circuit breaker",
       "TITLE_HOME": "Circuit breaker at the grid connection point",
-      "VALUE": "Value [A]"
+      "VALUE": "Value [A]",
+      "METER_LABEL": "Grid connection point meter type"
     },
     "CONFIGURATION_SUMMARY": {
       "BATTERY_LOCATION": "BESS Location",
@@ -678,7 +678,8 @@
       "MARKED_AS": " MPPT {{number}} (marked as \"PV{{ number}}\")",
       "METER_TYPE_WITH_LABEL": "Type of the sensor {{ label }}{{ number }}",
       "METER_TYPE": "Type of the sensor",
-      "MODBUS_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity(pasrtY) \"n\", Communication Stopbit (StoP) \"1\"",
+      "MODBUS_SOCOMEC_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"n\", Communication Stopbit (StoP) \"1\"",
+      "MODBUS_KDK_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"e\", Communication Stopbit (StoP) \"1\"",
       "MODBUS_WITH_LABEL": "Modbus {{ label }}{{ number }}",
       "MODBUS": "Modbus",
       "MODULE_TYPE_DESCRIPTION": "e.g. Manufuturer and Power",
@@ -720,7 +721,15 @@
       "SYSTEM_SETUP": "System setup",
       "BATTERY_STRING": "Battery String {{ stringNumber }}",
       "EMS_BOX_HOME": "EMS Box ({{edgeShortName }} Box)",
-      "EMS_BOX_HECKERT": "EMS Box"
+      "EMS_BOX_HECKERT": "EMS Box",
+      "MINIMUM_AND_MAXIMUM_STRINGS": "Minimum Strings: {{ min }} and Maximum: {{ max }}",
+      "NUMBER_OF_STRINGS": "Number of Strings",
+      "NUMBER_OF_MODULES_PER_STRINGS": "Number of Modules per String",
+      "MODULES_PER_STRINGS_DESCRIPTION": "Modules per String for Commercial-50 system: {{ number }}",
+      "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Connection Box",
+      "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules per string: {{ min }} and Maximum: {{ max }}",
+      "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }}  Connection Box",
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "{{ edgeShortName }} Grid connection point"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",
@@ -735,6 +744,24 @@
     },
     "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
+    "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
+      "BALANCING": "Self-Consumption optmization",
+      "PEAK_SHAVING_SYMMETRIC": "Peak shaving",
+      "PEAK_SHAVING_ASYMMETRIC": "Phase Accurate Peak shaving",
+      "FEATURE_DESCRIPTION": "The corresponding App must be available",
+      "HEADER": "Information on the use of the Storage system",
+      "PEAK_SHAVING_SYMMETRIC_HEADER": "Peak load shaving settings",
+      "PEAK_SHAVING_ASYMMETRIC_HEADER": "Phases Accurate peak shaving settings"
+    },
+    "CONFIGURATION_PEAK_SHAVING": {
+      "DISCHARGE_ABOVE_VALUE": "Discharging above - Value [W]",
+      "CHARGE_BELOW_VALUE": "Charging below - Value [W]",
+      "DISCHARGE_ABOVE_DESCRIPTION": "If the grid power is above this value, the battery will be discharged.",
+      "CHARGE_BELOW_DESCRIPTION": "if the grid power is below this value, the battery is charged again.\nThis value must not exceed the \"Discharge over\" value.",
+      "DESCRIPTION": "Entered power values refer to individual phases. It is adjusted to the most heavily loaded phase.",
+      "DISCHARGE_ABOVE_LABEL": "Discharge above",
+      "CHARGE_BELOW_LABEL": "Charge below"
+    },
     "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}."
   },
   "Login": {
@@ -744,12 +771,12 @@
     "passwordPlaceholder": "Password",
     "passwordReset": "Reset Password",
     "authenticationFailed": "Authentication Failed",
-    "user": "User"
+    "user": "User",
+    "REQUEST_TIMEOUT": "Request timed out. Try again later."
   },
   "Menu": {
-    "aboutUI": "About FEMS",
     "accessLevel": "Access Level",
-    "edgeSettings": "FEMS Settings",
+    "edgeSettings": "Settings",
     "generalSettings": "General Settings",
     "index": "Index",
     "logout": "Sign Out",

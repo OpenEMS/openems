@@ -18,7 +18,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.SystemLog;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
@@ -103,10 +102,9 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 			for (Entry<String, JsonElement> entry : timedata.entrySet()) {
 				var timestamp = Long.parseLong(entry.getKey());
 				var values = JsonUtils.getAsJsonObject(entry.getValue());
-				Map<ChannelAddress, JsonElement> data = new HashMap<>();
+				Map<String, JsonElement> data = new HashMap<>();
 				for (Entry<String, JsonElement> value : values.entrySet()) {
-					var address = ChannelAddress.fromString(value.getKey());
-					data.put(address, value.getValue());
+					data.put(value.getKey(), value.getValue());
 				}
 				d.add(timestamp, data);
 			}

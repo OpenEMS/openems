@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, take } from 'rxjs/operators';
-import { Edge, Service, Websocket } from 'src/app/shared/shared';
+import { SubscribeEdgesRequest } from 'src/app/shared/jsonrpc/request/subscribeEdgesRequest';
+import { Edge, Logger, Service, Websocket } from 'src/app/shared/shared';
+
 import { AbstractIbn, View } from './installation-systems/abstract-ibn';
 import { Commercial30AnschlussIbn } from './installation-systems/commercial/commercial-30/commercial30-anschluss';
 import { Commercial30NetztrennIbn } from './installation-systems/commercial/commercial-30/commercial30-netztrenn';
@@ -32,7 +34,8 @@ export class InstallationComponent implements OnInit {
     private service: Service,
     private router: Router,
     public websocket: Websocket,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private logger: Logger
   ) { }
 
   public ngOnInit() {
@@ -99,6 +102,7 @@ export class InstallationComponent implements OnInit {
         .subscribe(metadata => {
           this.edge = metadata.edges[edgeString.id];
           this.displayViewAtIndex(viewIndex);
+          this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [this.edge.id] }))
         });
     } else {
       this.displayViewAtIndex(viewIndex);
@@ -145,6 +149,7 @@ export class InstallationComponent implements OnInit {
    * @param index index of the desired view.
    */
   public displayViewAtIndex(index: number) {
+    this.logger.debug("View: " + Object.keys(View)[Object.values(View).indexOf(this.ibn.views[index])] + " Edge: " + this.edge?.id)
     this.removeUpdateView();
     const viewCount = this.ibn.views.length;
     if (index >= 0 && index < viewCount) {

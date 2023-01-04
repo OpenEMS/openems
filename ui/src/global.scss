@@ -27,300 +27,255 @@
 @import "variables";
 
 /* ngx-spinner */
-@import "ngx-spinner/animations/ball-clip-rotate-multiple.css";
+@import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
 
 formly-wrapper-ion-form-field,
 formly-input-serial-number,
 formly-select-field-wrapper,
 formly-field-ion-radio {
-  ion-label {
-    line-height: 1.2;
-    font-size: 0.6em;
+    ion-label {
+        line-height: 1.2;
+        font-size: 0.6em;
 
-    span {
-      white-space: initial;
+        span {
+            white-space: initial;
 
-      small {
-        white-space: initial;
-      }
+            small {
+                white-space: initial;
+            }
+        }
+
+        slot {
+            white-space: initial;
+        }
     }
-
-    slot {
-      white-space: initial;
-    }
-  }
-}
-
-ion-modal.auto-height {
-  &.bottom {
-    align-items: flex-end;
-  }
-
-  --height: auto;
-
-  --width: auto;
-
-  .ion-page {
-    position: relative;
-    display: block;
-    contain: content;
-
-    .inner-content {
-      max-height: 80vh;
-      overflow: auto;
-      padding: 10px;
-    }
-  }
-}
-
-ion-modal#example-modal {
-  --width: fit-content;
-  --min-width: 250px;
-  --height: fit-content;
-  --border-radius: 6px;
-  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
 }
 
 .line-break {
 
-  formly-wrapper-ion-form-field>ion-item>ion-label>span>small,
-  formly-field-ion-radio>ion-list>ion-radio-group>ion-item>ion-label {
-    white-space: pre-line !important;
-    line-height: 1.6 !important;
-  }
+    formly-wrapper-ion-form-field>ion-item>ion-label>span>small,
+    formly-field-ion-radio>ion-list>ion-radio-group>ion-item>ion-label {
+        white-space: pre-line !important;
+        line-height: 1.6 !important;
+    }
 }
 
 .margin-top {
-  ion-item {
+    ion-item {
 
-    margin-top: 2%;
-  }
+        margin-top: 2%;
+    }
 }
 
 .active {
-  color: $primary-color;
+    color: $primary-color;
 }
 
 .primary-color {
-  fill: $primary-color;
+    fill: $primary-color;
 }
 
 .primary-color-contrast {
-  fill: $primary-color-contrast;
+    fill: $primary-color-contrast;
 }
 
 .secondary-color {
-  fill: $secondary-color;
+    fill: $secondary-color;
 }
 
 .secondary-color-contrast {
-  fill: $secondary-color-contrast;
+    fill: $secondary-color-contrast;
 }
 
 html.ios {
-  --ion-default-font: -apple-system, BlinkMacSystemFont, $font-family;
+    --ion-default-font: -apple-system, BlinkMacSystemFont, $font-family;
 }
 
 html.md {
-  --ion-default-font: $font-family;
+    --ion-default-font: $font-family;
 }
 
 //252px for the exact width of my-date-range-picker in PickDateComponent
 .pickdate-popover .popover-content {
-  width: 251px;
-  position: center;
-  overflow-y: hidden;
-  overflow-x: hidden;
+    width: 251px;
+    position: center;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 .slides {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  height: 100%;
-  padding: 0 1% 1% 0;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 100%;
+    padding: 0 1% 1% 0;
 
-  .swiper-wrapper {
-    align-items: center;
-  }
+    .swiper-wrapper {
+        align-items: center;
+    }
 }
 
 .white-space-initial {
-  white-space: initial !important;
+    white-space: initial !important;
 }
 
 ion-label {
-  font-family: Arial, Helvetica, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 ion-item.noPadding {
-  --ion-safe-area-right: 0.1;
+    --ion-safe-area-right: 0.1;
 }
 
 mat-card.single {
-  margin: 20px;
+    margin: 20px;
 }
 
 mat-card.single_leftright {
-  margin-left: 20px;
-  margin-right: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 mat-card.single_top {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 
 table.full_width {
-  width: 100%;
+    width: 100%;
 }
 
 .bold {
-  font-weight: 600;
+    font-weight: 600;
 }
 
 td.align_right {
-  text-align: right;
+    text-align: right;
 }
 
 table {
-  border-collapse: collapse;
+    border-collapse: collapse;
 }
 
 .underline {
-  border-bottom: 1pt solid lightgray;
+    border-bottom: 1pt solid lightgray;
 }
 
 .gray_color {
-  color: gray;
+    color: gray;
 }
 
 button.activated {
-  color: black;
-  background-color: lightgreen;
+    color: black;
+    background-color: lightgreen;
 }
 
 #toast-container {
-  font-family: $font-family;
+    font-family: $font-family;
 }
 
 // 360px is approximate min. width of mobile devices
 ion-toast.container {
-  text-align: center;
-  --min-width: 360px;
+    text-align: center;
+    --min-width: 360px;
 }
 
 .no-scroll {
-  overflow-y: hidden;
-  overflow-x: hidden;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 /*
 * Applies to ngx-formly sections
 */
 formly-input-section {
-  flex: auto; // use all remaining space in a row
+    flex: auto; // use all remaining space in a row
 }
 
 // style to color table rows with translusent background
 .even-row {
-  background-color: rgba(var(--ion-color-primary-rgb), 0.2);
+    background-color: rgba(var(--ion-color-primary-rgb), 0.2);
 }
 
 // Added styles for alertController, because alertController doesn't take ionic default style
 .alertController {
-  .alert-head {
-    text-align: center !important;
+    .alert-head {
+        text-align: center !important;
 
-    .alert-sub-title {
-      font-size: large;
-      font-weight: bold;
-      color: $primary-color;
+        .alert-sub-title {
+            font-size: large;
+            font-weight: bold;
+            color: $primary-color;
+        }
     }
-  }
 
-  .alert-message {
-    text-align: center;
-  }
-
-  .alert-wrapper {
-    width: 25% !important;
-
-    .alert-button-group {
-      justify-content: center;
-      display: grid;
-      grid-template-columns: auto auto;
-      column-gap: 35%;
-
-      .alert-button {
-        color: $primary-color;
-        font-size: small;
-      }
+    .alert-message {
+        text-align: center;
     }
-  }
-}
 
-.alertwithoutHeaderAndFooter {
-  .alert-head {
-    display: none;
-  }
+    .alert-wrapper {
+        width: 25% !important;
 
-  .alert-wrapper {
-    width: fit-content;
-    justify-content: center;
+        .alert-button-group {
+            justify-content: center;
+            display: grid;
+            grid-template-columns: auto auto;
+            column-gap: 35%;
 
-    .alert-button-group {
-      display: none;
+            .alert-button {
+                color: $primary-color;
+                font-size: small;
+            }
+        }
     }
-  }
 }
 
 :root {
 
-  // Used in IBN, dynamicFeedInLimitation
-  formly-field-ion-select {
-    ion-select::part(text) {
-      white-space: initial !important;
+    // Used in IBN, dynamicFeedInLimitation
+    formly-field-ion-select {
+        ion-select::part(text) {
+            white-space: initial !important;
+        }
     }
-  }
 
 
-  // Used in GridOptimizedCharge & Heatingelement, because ion-picker is not accessible via ion-datetime tag
-  ion-picker {
-    justify-content: center !important;
-    max-width: 100% !important;
-  }
+    // Used in GridOptimizedCharge & Heatingelement, because ion-picker is not accessible via ion-datetime tag
+    ion-picker {
+        justify-content: center !important;
+        max-width: 100% !important;
+    }
 
-  // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesn't work with global.scss
-  // this class is used to get the same style like in a html table
-  ion-label.regularFont {
-    font-family: $font-family;
-    font-size: 14px;
-  }
+    // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesn't work with global.scss
+    // this class is used to get the same style like in a html table
+    ion-label.regularFont {
+        font-family: $font-family;
+        font-size: 14px;
+    }
 
-  // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesn't work with global.scss
-  // this class is used to get the same style like in a html table
-  ion-label.regularFont {
-    font-family: $font-family;
-    font-size: 14px;
-  }
+    // CSS class is here because ion-label is inside ion-item tag, CSS within ion-item doesn't work with global.scss
+    // this class is used to get the same style like in a html table
+    ion-label.regularFont {
+        font-family: $font-family;
+        font-size: 14px;
+    }
 
-  // CSS class is used to get the same style like in a html table
-  ion-select {
-    font-family: $font-family;
-    font-size: 14px;
-  }
+    // CSS class is used to get the same style like in a html table
+    ion-select {
+        font-family: $font-family;
+        font-size: 14px;
+    }
 
-  .alert-wrapper {
-    max-width: 100%;
-    width: 100%;
-  }
+    .alert-wrapper {
+        max-width: 100%;
+        width: 100%;
+    }
 
-  ion-input.regularFont {
-    font-family: $font-family;
-    font-size: 14px;
-  }
+    ion-input.regularFont {
+        font-family: $font-family;
+        font-size: 14px;
+    }
 
-  ion-toggle {
-    --background-checked: var(--ion-color-primary-tint);
-  }
+    ion-toggle {
+        --background-checked: var(--ion-color-primary-tint);
+    }
 }

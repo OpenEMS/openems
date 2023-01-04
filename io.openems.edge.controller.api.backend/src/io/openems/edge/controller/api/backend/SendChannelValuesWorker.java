@@ -4,8 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -15,14 +13,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.Table;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -60,7 +56,7 @@ public class SendChannelValuesWorker {
 	/**
 	 * Keeps the values of last successful send.
 	 */
-	private Table<String, String, JsonElement> lastAllValues = ImmutableTable.of();
+	private ImmutableMap<String, JsonElement> lastAllValues = ImmutableMap.of();
 
 	protected SendChannelValuesWorker(BackendApiImpl parent) {
 		this.parent = parent;
@@ -102,7 +98,7 @@ public class SendChannelValuesWorker {
 	 * @param enabledComponents the enabled components
 	 * @return collected data
 	 */
-	private ImmutableTable<String, String, JsonElement> collectData(List<OpenemsComponent> enabledComponents) {
+	private ImmutableMap<String, JsonElement> collectData(List<OpenemsComponent> enabledComponents) {
 		try {
 			return enabledComponents.parallelStream() //
 					.flatMap(component -> component.channels().parallelStream()) //
@@ -112,9 +108,8 @@ public class SendChannelValuesWorker {
 							&& channel.channelDoc().getPersistencePriority()
 									.isAtLeast(this.parent.config.persistencePriority()))
 					.collect(//
-							ImmutableTable.toImmutableTable(//
-									c -> c.address().getComponentId(), //
-									c -> c.address().getChannelId(), //
+							ImmutableMap.toImmutableMap(//
+									c -> c.address().toString(), //
 									c -> c.value().asJson(), //
 									// simple/stupid merge function to avoid
 									// 'java.lang.IllegalArgumentException Duplicate Key'
@@ -126,7 +121,7 @@ public class SendChannelValuesWorker {
 			// ConcurrentModificationException can happen if Channels are dynamically added
 			// or removed
 			this.parent.logWarn(this.log, "Unable to collect date: " + e.getMessage());
-			return ImmutableTable.of();
+			return ImmutableMap.of();
 		}
 	}
 
@@ -138,10 +133,10 @@ public class SendChannelValuesWorker {
 
 		private final SendChannelValuesWorker parent;
 		private final Instant timestamp;
-		private final ImmutableTable<String, String, JsonElement> allValues;
+		private final ImmutableMap<String, JsonElement> allValues;
 
 		public SendTask(SendChannelValuesWorker parent, Instant timestamp,
-				ImmutableTable<String, String, JsonElement> allValues) {
+				ImmutableMap<String, JsonElement> allValues) {
 			this.parent = parent;
 			this.timestamp = timestamp;
 			this.allValues = allValues;
@@ -151,16 +146,16 @@ public class SendChannelValuesWorker {
 		public void run() {
 			// Holds the data of the last successful send. If the table is empty, it is also
 			// used as a marker to send all data.
-			final Table<String, String, JsonElement> lastAllValues;
+			final ImmutableMap<String, JsonElement> lastAllValues;
 
 			if (this.parent.sendValuesOfAllChannels.getAndSet(false)) {
 				// Send values of all Channels once in a while
-				lastAllValues = ImmutableTable.of();
+				lastAllValues = ImmutableMap.of();
 
 			} else if (Duration.between(this.parent.lastSendValuesOfAllChannels, this.timestamp)
 					.getSeconds() > SEND_VALUES_OF_ALL_CHANNELS_AFTER_SECONDS) {
 				// Send values of all Channels if explicitly asked for
-				lastAllValues = ImmutableTable.of();
+				lastAllValues = ImmutableMap.of();
 
 			} else {
 				// Actually use the kept 'lastSentValues'
@@ -174,14 +169,14 @@ public class SendChannelValuesWorker {
 			final var timestampMillis = this.timestamp.toEpochMilli() / cycleTime * cycleTime;
 
 			// Prepare message values
-			Map<ChannelAddress, JsonElement> sendValuesMap = new HashMap<>();
+			var sendValuesMap = new HashMap<String, JsonElement>();
 
 			// Collect Changed values
-			for (Entry<String, Map<String, JsonElement>> row : this.allValues.rowMap().entrySet()) {
-				for (Entry<String, JsonElement> column : row.getValue().entrySet()) {
-					if (!Objects.equals(column.getValue(), lastAllValues.get(row.getKey(), column.getKey()))) {
-						sendValuesMap.put(new ChannelAddress(row.getKey(), column.getKey()), column.getValue());
-					}
+			for (var entry : this.allValues.entrySet()) {
+				var channelAddress = entry.getKey();
+				var value = entry.getValue();
+				if (!Objects.equals(value, lastAllValues.get(channelAddress))) {
+					sendValuesMap.put(channelAddress, value);
 				}
 			}
 

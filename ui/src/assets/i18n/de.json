@@ -1,14 +1,12 @@
 {
   "About": {
     "build": "Dieser Build",
-    "contact": "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser Team unter <a href=\"mailto:{{value}}\">{{ value }}</a>.",
     "currentDevelopments": "Aktuelle Entwicklungen",
     "developed": "Diese Benutzeroberfläche wird als Open-Source-Software entwickelt.",
     "faq": "Häufig gestellte Fragen (FAQ)",
     "language": "Sprache wählen:",
     "openEMS": "Mehr zu OpenEMS",
-    "patchnotes": "Änderungen im Monitoring zu diesem Build",
-    "ui": "Benutzeroberfläche für FEMS"
+    "patchnotes": "Änderungen im Monitoring zu diesem Build"
   },
   "Edge": {
     "Index": {
@@ -26,8 +24,8 @@
         "storageCharge": "Speicher-Beladung",
         "storageDischarge": "Speicher-Entladung",
         "title": "Energiemonitor",
-        "excelExportWarning": "Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Die Funktion wird voraussichtlich Anfang 2023 wieder nutzbar sein.",
-        "displayWarning": "Die Anzeige von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Die Funktion wird voraussichtlich Anfang 2023 wieder verfügbar sein."
+        "excelExportWarning": "Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben.",
+        "displayWarning": "Die Anzeige von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben."
       },
       "Widgets": {
         "autarchyInfo": "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
@@ -391,7 +389,7 @@
       "advancedMode": "erweiterte Ansicht",
       "submit": "Anwenden"
     },
-    "title": "FEMS"
+    "title": "{{ edgeShortName }}"
   },
   "General": {
     "active": "Aktiv",
@@ -566,7 +564,8 @@
       "COMMUNICATION_WITH_METER": "Kommunikation mit den Zählern",
       "WAGO_BRIDGE": "Wago Bridge",
       "FIELD_BUS_COUPLER": "Feldbuskoppler",
-      "CONTROL_GRID_POINT": "Ansteuerung der Netztrennstelle"
+      "CONTROL_GRID_POINT": "Ansteuerung der Netztrennstelle",
+      "BATTERY_INTERFACE": "Schnittstelle Batterie"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
@@ -574,7 +573,8 @@
       "OTHER": "Sonstige",
       "TITLE_COMMERCIAL": "Vorsicherung Netzanschlusspunkt / Zählervorsicherung",
       "TITLE_HOME": "Vorsicherung Hausanschlusszähler",
-      "VALUE": "Wert [A]"
+      "VALUE": "Wert [A]",
+      "METER_LABEL": "Netzanschlusspunkt Zählertyp"
     },
     "CONFIGURATION_SUMMARY": {
       "BATTERY_LOCATION": "Standort",
@@ -679,7 +679,8 @@
       "MARKED_AS": " MPPT {{number}} (beschriftet mit \"PV{{ number}}\")",
       "METER_TYPE_WITH_LABEL": "Zählertyp {{ label }}{{ number }}",
       "METER_TYPE": "Zählertyp",
-      "MODBUS_DESCRIPTION": "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (bAud) \"9600\", Kommunikationsparität (PrtY) \"n\", Kommunikations-Stopbit (StoP) \"1\"",
+      "MODBUS_SOCOMEC_DESCRIPTION": "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (baud) \"9600\", Kommunikationsparität (PrtY) \"n\", Kommunikations-Stopbit (StoP) \"1\"",
+      "MODBUS_KDK_DESCRIPTION": "Der Zähler muss mit den folgenden Parametern konfiguriert werden: Kommunikationsgeschwindigkeit (baud) \"9600\", Kommunikationsparität (PrtY) \"e\", Kommunikations-Stopbit (StoP) \"1\"",
       "MODBUS_WITH_LABEL": "Modbus Kommunikationsadresse {{ label }}{{ number }}",
       "MODBUS": "Modbus Kommunikationsadresse",
       "MODULE_TYPE_DESCRIPTION": "z. B. Hersteller und Leistung",
@@ -721,7 +722,15 @@
       "SYSTEM_SETUP": "Voreinstellungen",
       "BATTERY_STRING": "Batterie String {{ stringNumber }}",
       "EMS_BOX_HOME": "EMS Box ({{edgeShortName }} Box)",
-      "EMS_BOX_HECKERT": "EMS Box"
+      "EMS_BOX_HECKERT": "EMS Box",
+      "NUMBER_OF_STRINGS": "Anzahl Strings",
+      "MINIMUM_AND_MAXIMUM_STRINGS": "Minimum Strings: {{ min }} und Maximum: {{ max }}",
+      "NUMBER_OF_MODULES_PER_STRINGS": "Anzahl Module pro String",
+      "MODULES_PER_STRINGS_DESCRIPTION": "Modules pro String für Commercial-50 system: {{ number }}",
+      "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Anschlussbox",
+      "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules pro String: {{ min }} und Maximum: {{ max }}",
+      "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }} Anschlussbox",
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "{{ edgeShortName }} Netztrennstelle"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -736,6 +745,24 @@
     },
     "VALUE_WITH_LABEL": "Wert {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
+    "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
+      "BALANCING": "Eigenverbrauchsoptimierung",
+      "PEAK_SHAVING_SYMMETRIC": "Lastspitzenkappung",
+      "PEAK_SHAVING_ASYMMETRIC": "Phasengenaue Lastspitzenkappung",
+      "FEATURE_DESCRIPTION": "Die entsprechende App muss vorhanden sein",
+      "HEADER": "Angaben zum Einsatz des Speichers",
+      "PEAK_SHAVING_SYMMETRIC_HEADER": "Einstellungen Lastspitzenkappung",
+      "PEAK_SHAVING_ASYMMETRIC_HEADER": "Einstellungen Phasen Genaue Lastspitzenkappung"
+    },
+    "CONFIGURATION_PEAK_SHAVING": {
+      "DISCHARGE_ABOVE_VALUE": "Beladung unter - Wert [W]",
+      "CHARGE_BELOW_VALUE": "Beladung unter - Wert [W]",
+      "DISCHARGE_ABOVE_DESCRIPTION": "liegt die Netzbezugsleistung oberhalb von diesem Wert, wird die Batterie entladen.",
+      "CHARGE_BELOW_DESCRIPTION": "liegt die Netzbezugsleistung unterhalb von diesem Wert, wird die Batterie wieder beladen.\nDieser Wert darf max. dem Wert \"Entladung über\" entsprechen.",
+      "DESCRIPTION": "Eingetragene Leistungswerte beziehen sich auf einzelne Phasen. Es wird auf die jeweils am stärksten belastete Phase ausgeregelt.",
+      "DISCHARGE_ABOVE_LABEL": "Entladung über",
+      "CHARGE_BELOW_LABEL": "Beladung unter"
+    },
     "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen."
   },
   "Login": {
@@ -744,10 +771,10 @@
     "passwordLabel": "Passwort",
     "passwordReset": "Passwort zurücksetzen",
     "authenticationFailed": "Authentifizierung fehlgeschlagen",
-    "user": "Benutzer"
+    "user": "Benutzer",
+    "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal."
   },
   "Menu": {
-    "aboutUI": "Über FEMS",
     "accessLevel": "Zugriffslevel",
     "edgeSettings": "Einstellungen",
     "generalSettings": "Allgemeine Einstellungen",

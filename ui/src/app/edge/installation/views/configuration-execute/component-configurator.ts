@@ -64,11 +64,16 @@ export class ComponentConfigurator {
      * Adds a configuration object to be configured
      * and determines its configuration state before.
      * 
-     * @param configurationObject 
+     * @param configurationObject the ConfigurationObject.
+     * @param index Index of component to be added.
      */
-    public add(configurationObject: ConfigurationObject) {
+    public add(configurationObject: ConfigurationObject, index?: number) {
         this.refreshConfigurationState(configurationObject);
-        this.configurationObjects.push(configurationObject);
+        if (index) {
+            this.configurationObjects.splice(index, 0, configurationObject);
+        } else {
+            this.configurationObjects.push(configurationObject);
+        }
     }
 
     public addInstallAppCallback(installAppCallback: () => Promise<any>) {

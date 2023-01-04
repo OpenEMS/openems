@@ -6,57 +6,62 @@
 # - git pull
 # - bash drone-docker.sh
 
-clone:  
-  clone:
+clone:
+  git-clone:
     when:
-      branch: 
+      branch:
         exclude: [master, develop]
       path:
-        include: [ 'io.openems*/**', '**/*gradle*', '**/.woodpecker.yml', '.woodpecker/**' ]
-    image: plugins/git
+        include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
+    image: woodpeckerci/plugin-git:v1.6.1
     settings:
-      depth: 50
+      depth: 1
+      lfs: false
+      recursive: false
+      tags: false
+      partial: true
 
 pipeline:
   restore-cache:
     when:
-      branch: 
+      branch:
         exclude: [master, develop]
       path:
-        include: [ 'io.openems*/**', '**/*gradle*', '**/.woodpecker.yml', '.woodpecker/**' ]
+        include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
     image: drillster/drone-volume-cache
     restore: true
     mount:
       - /woodpecker/.gradle
+      - /woodpecker/.m2
     volumes:
       - cache:/cache
-    group: restore
 
   build-java:
     when:
-      branch: 
+      branch:
         exclude: [master, develop]
       path:
-        include: [ 'io.openems*/**', '**/*gradle*', '**/.woodpecker.yml', '.woodpecker/**' ]
+        include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
     image: openems-build:latest
     environment:
       - GRADLE_USER_HOME=/woodpecker/.gradle
     commands:
-      - ./gradlew build resolve buildEdge
-      - git diff --exit-code io.openems.backend.application/BackendApp.bndrun
-      - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
-    group: build
+      - mkdir -p /woodpecker/.m2 && ln -s /woodpecker/.m2 ~/.m2
+      - ./gradlew build
+      - ./gradlew resolve.EdgeApp
+      - ./gradlew resolve.BackendApp
+      - git diff --exit-code io.openems.edge.application/EdgeApp.bndrun io.openems.backend.application/BackendApp.bndrun
 
   rebuild-cache:
     when:
-      branch: 
+      branch:
         exclude: [master, develop]
       path:
-        include: [ 'io.openems*/**', '**/*gradle*', '**/.woodpecker.yml', '.woodpecker/**' ]
+        include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
     image: drillster/drone-volume-cache
     rebuild: true
     mount:
       - /woodpecker/.gradle
+      - /woodpecker/.m2
     volumes:
       - cache:/cache
-    group: refresh

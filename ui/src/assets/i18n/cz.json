@@ -88,15 +88,14 @@
     "save": "Save"
   },
   "Menu": {
-    "aboutUI": "About FEMS",
     "accessLevel": "Úroveň přístupu",
-    "edgeSettings": "FEMS Předvolby",
+    "edgeSettings": "Předvolby",
     "generalSettings": "Obecné Nastavení",
     "index": "Přehled",
     "logout": "Odhlásit",
     "menu": "Menu",
     "name": "Název",
-    "overview": "FEMS Přehled",
+    "overview": "Všechny systémy",
     "settings": "nastavení",
     "user": "Uživatel",
     "changelog": "Changelog"
@@ -510,7 +509,7 @@
         }
       },
       "App": {
-        "header": "Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi FEMS.",
+        "header": "Správce aplikací je v současné době v první testovací verzi.",
         "installed": "Nainstalováno",
         "available": "Dostupné na",
         "incompatible": "Nekompatibilní",
@@ -549,8 +548,7 @@
     "faq": "Často kladené otázky (FAQ)",
     "language": "Zvolte jazyk:",
     "openEMS": "Více o OpenEMS",
-    "patchnotes": "Změny v monitorování tohoto sestavení",
-    "ui": "Uživatelské rozhraní pro FEMS"
+    "patchnotes": "Změny v monitorování tohoto sestavení"
   },
   "Notifications": {
     "authenticationFailed": "Žádné připojení: Ověření uživatele selhalo.",

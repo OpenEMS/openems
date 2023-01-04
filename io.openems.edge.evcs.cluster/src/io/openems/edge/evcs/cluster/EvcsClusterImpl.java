@@ -371,6 +371,7 @@ public class EvcsClusterImpl extends AbstractOpenemsComponent
 						} else {
 							managedEvcs.getChargeStateHandler()
 									.applyNewChargeState(ChargeState.WAITING_FOR_AVAILABLE_POWER);
+							managedEvcs.setDisplayText("Warte auf Leistung");
 							managedEvcs.setChargePowerLimit(0);
 						}
 

@@ -14,6 +14,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
@@ -23,6 +25,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
@@ -56,6 +59,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 })
 public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implements GoodWeGridMeter, AsymmetricMeter,
 		SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
+
+	private final Logger log = LoggerFactory.getLogger(GoodWeGridMeterImpl.class);
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -101,7 +106,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		return new ModbusProtocol(this, //
+		var protocol = new ModbusProtocol(this, //
 
 				// States
 				new FC3ReadRegistersTask(36003, Priority.LOW,
@@ -123,7 +128,20 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 									return null;
 								}))), //
 
+				new FC3ReadRegistersTask(35123, Priority.LOW, //
+						m(GoodWeGridMeter.ChannelId.F_GRID_R, new UnsignedWordElement(35123),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), // //
+						new DummyRegisterElement(35124, 35127), //
+						m(GoodWeGridMeter.ChannelId.F_GRID_S, new UnsignedWordElement(35128),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2),
+						new DummyRegisterElement(35129, 35132),
+						m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
+						m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
+
 				// Active and reactive power, Power factor and frequency
+				// Voltage, current and Grid Frequency of each phase
 				new FC3ReadRegistersTask(36005, Priority.HIGH, //
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(36005),
 								ElementToChannelConverter.INVERT), //
@@ -135,32 +153,44 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 						m(GoodWeGridMeter.ChannelId.METER_POWER_FACTOR, new UnsignedWordElement(36013),
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedWordElement(36014),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2)), //
+								ElementToChannelConverter.SCALE_FACTOR_1)));
 
-				// Voltage, current and Grid Frequency of each phase
-				new FC3ReadRegistersTask(35121, Priority.LOW, //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(35121),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(35122),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWeGridMeter.ChannelId.F_GRID_R, new UnsignedWordElement(35123),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						new DummyRegisterElement(35124, 35125), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(35126),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(35127),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWeGridMeter.ChannelId.F_GRID_S, new UnsignedWordElement(35128),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						new DummyRegisterElement(35129, 35130), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(35131),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(35132),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1), //
-						m(GoodWeGridMeter.ChannelId.F_GRID_T, new UnsignedWordElement(35133),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2), //
-						m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_2))); //
+		// Handles different DSP versions
+		ModbusUtils.readELementOnce(protocol, new UnsignedWordElement(35016), true) //
+				.thenAccept(dspVersion -> {
+					try {
+						if (dspVersion >= 4) {
+							this.handleDspVersion4(protocol);
+						}
+					} catch (OpenemsException e) {
+						this.logError(this.log, "Unable to add task for modbus protocol");
+					}
+				});
+
+		return protocol;
+	}
+
+	/**
+	 * Adds Registers that are available from DSP version 4.
+	 * 
+	 * @param protocol the {@link ModbusProtocol}
+	 * @throws OpenemsException on error
+	 */
+	private void handleDspVersion4(ModbusProtocol protocol) throws OpenemsException {
+		protocol.addTask(//
+				new FC3ReadRegistersTask(36052, Priority.LOW, //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(36052),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(36053),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(36054),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedWordElement(36055),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedWordElement(36056),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedWordElement(36057),
+								ElementToChannelConverter.SCALE_FACTOR_2))); //
 	}
 
 	@Override

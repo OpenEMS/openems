@@ -4,6 +4,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, take } from 'rxjs/operators';
 import { AddEdgeToUserRequest } from 'src/app/shared/jsonrpc/request/addEdgeToUserRequest';
+import { SubscribeEdgesRequest } from 'src/app/shared/jsonrpc/request/subscribeEdgesRequest';
 import { AddEdgeToUserResponse } from 'src/app/shared/jsonrpc/response/addEdgeToUserResponse';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
@@ -103,6 +104,7 @@ export class PreInstallationComponent implements OnInit {
 
         this.edgeChange.emit(this.edge);
         this.nextViewEvent.emit();
+        this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [this.edge.id] }))
       })
       .catch((reason) => {
         this.service.toast(this.translate.instant('INSTALLATION.PRE_INSTALLATION.AUTHENTICATION_FAILED'), 'danger');

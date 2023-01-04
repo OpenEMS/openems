@@ -149,13 +149,18 @@ public class OdooUtils {
 
 				switch (dataName) {
 				case "odoo.exceptions.AccessDenied":
-					throw new OpenemsException(
-							"Access Denied for Request [" + request.toString() + "] to URL [" + url + "]");
+					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 
 				case "odoo.http.SessionExpiredException":
-					throw new OpenemsException("Session Expired for Request to URL [" + url + "]");
+					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 
 				default:
+					// for OpenemsExceptions from Odoo only throw OpenemsException with message for
+					// more readability
+					if (dataName.endsWith("OpenemsException")) {
+						throw new OpenemsException(dataMessage);
+					}
+
 					var exception = "Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
 							+ dataMessage + ";" //
 							+ " Code [" + code + "]" //
@@ -242,6 +247,10 @@ public class OdooUtils {
 	 */
 	protected static String login(Credentials credentials, String username, String password)
 			throws OpenemsNamedException {
+		if (username.isBlank() || password.isBlank()) {
+			// Do not even send request if username or password are blank
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
 		var request = JsonUtils.buildJsonObject() //
 				.addProperty("jsonrpc", "2.0") //
 				.addProperty("method", "call") //

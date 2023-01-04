@@ -83,15 +83,14 @@
     "save": "Opslaan"
   },
   "Menu": {
-    "aboutUI": "Over FEMS",
     "accessLevel": "Toegangsniveau",
-    "edgeSettings": "FEMS instellingen",
+    "edgeSettings": "instellingen",
     "generalSettings": "Algemene instellingen",
     "index": "Overzicht",
     "logout": "Uitloggen",
     "menu": "Menu",
     "name": "Naam",
-    "overview": "FEMS overzicht",
+    "overview": "Alle systemen",
     "settings": "Instellingen",
     "user": "Gebruiker",
     "changelog": "Changelog",
@@ -540,14 +539,12 @@
   },
   "About": {
     "build": "Versie",
-    "contact": "Voor meer informatie of suggesties over het systeem, neem contact op met het team via <a href=\"mailto:{{value}}\">{{value}}</a>.",
     "currentDevelopments": "Huidige ontwikkelingen",
     "developed": "Deze gebruikersinterface is ontwikkeld als open-source-software.",
     "faq": "Veel Gestelde Vragen (FAQ)",
     "language": "Selecteer taal:",
     "openEMS": "Meer over OpenEMS",
-    "patchnotes": "Veranderingen in de monitoring voor deze build",
-    "ui": "Gebruikersinterface voor FEMS"
+    "patchnotes": "Veranderingen in de monitoring voor deze build"
   },
   "Notifications": {
     "authenticationFailed": "Geen verbinding.Autorisatie mislukt.",

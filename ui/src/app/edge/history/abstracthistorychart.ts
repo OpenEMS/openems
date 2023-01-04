@@ -2,12 +2,11 @@ import { Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
 import { differenceInDays, differenceInMonths } from 'date-fns';
+import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
+import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
-import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
@@ -16,7 +15,6 @@ export abstract class AbstractHistoryChart {
     public loading: boolean = true;
     protected edge: Edge | null = null;
     protected isDataExisting: boolean = true;
-    public period: DefaultTypes.HistoryPeriod;
 
     //observable is used to fetch new chart data every 10 minutes
     // private refreshChartData = interval(600000);
@@ -27,7 +25,7 @@ export abstract class AbstractHistoryChart {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     public labels: Date[] = [];
-    public datasets: ChartDataSets[] = EMPTY_DATASET(this.translate);
+    public datasets: ChartDataSets[] = EMPTY_DATASET;
     public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
     public colors = []
     // prevents subscribing more than once
@@ -51,7 +49,8 @@ export abstract class AbstractHistoryChart {
         public readonly spinnerId: string,
         protected service: Service,
         protected translate: TranslateService,
-    ) { }
+    ) {
+    }
 
     /**
      * Gets the ChannelAddresses that should be queried.
@@ -152,9 +151,9 @@ export abstract class AbstractHistoryChart {
      * @returns period for Tooltip Header
      */
     protected toTooltipTitle(fromDate: Date, toDate: Date, date: Date): string {
-        if (this.service.periodString == DefaultTypes.PeriodString.YEAR) {
+        if (this.service.periodString == 'year') {
             return date.toLocaleDateString('default', { month: 'long' });
-        } else if (this.service.periodString == DefaultTypes.PeriodString.MONTH) {
+        } else if (this.service.periodString == 'month') {
             return date.toLocaleDateString('default', { day: '2-digit', month: 'long' });
         } else {
             return date.toLocaleString('default', { day: '2-digit', month: '2-digit', year: '2-digit', }) + ' ' + date.toLocaleTimeString('default', { hour12: false, hour: '2-digit', minute: '2-digit' });
@@ -246,7 +245,7 @@ export abstract class AbstractHistoryChart {
      */
     protected initializeChart() {
         EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
-        this.datasets = EMPTY_DATASET(this.translate);
+        this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;
         this.stopSpinner();

@@ -79,30 +79,33 @@ public class Utils {
 	}
 
 	/**
-	 * Gets the database Channel-IDs for the given ChannelAddresses from the Schema
+	 * Gets the database Channel-IDs for the given Channel-Addresses from the Schema
 	 * Cache.
 	 * 
 	 * @param schema           the {@link Schema}
 	 * @param edgeId           the Edge-ID
-	 * @param channelAddresses a {@link Set} of {@link ChannelAddress}es
-	 * @return a map of {@link Type}s to Channel-IDs to {@link ChannelAddress}es
+	 * @param channelAddresses a {@link Set} of Channel-Addresses
+	 * @return a map of {@link Type}s to {@link Priority}s to Channel-IDs to
+	 *         Channel-Addresses
 	 */
-	public static Map<Type, Map<Integer, ChannelAddress>> querySchemaCache(Schema schema, String edgeId,
-			Set<ChannelAddress> channelAddresses) {
-		var result = new EnumMap<Type, Map<Integer, ChannelAddress>>(Type.class);
+	public static Map<Type, Map<Priority, Map<Integer, String>>> querySchemaCache(Schema schema, String edgeId,
+			Set<String> channelAddresses) {
+		var result = new EnumMap<Type, Map<Priority, Map<Integer, String>>>(Type.class);
 		var missingChannels = new ArrayList<String>();
 		for (var channelAddress : channelAddresses) {
-			var meta = schema.getChannelFromCache(edgeId, channelAddress.getComponentId(),
-					channelAddress.getChannelId());
+			var meta = schema.getChannelFromCache(edgeId, channelAddress);
 			if (meta == null) {
-				missingChannels.add(channelAddress.toString());
+				missingChannels.add(channelAddress);
 				continue;
 			}
-			var ids = result.computeIfAbsent(meta.type, (m) -> new HashMap<Integer, ChannelAddress>());
+			var priorityMap = result.computeIfAbsent(meta.type,
+					(m) -> new EnumMap<Priority, Map<Integer, String>>(Priority.class));
+			var ids = priorityMap.computeIfAbsent(meta.priority, t -> new HashMap<>());
 			ids.put(meta.id, channelAddress);
 		}
 
 		if (!missingChannels.isEmpty()) {
+			// may happen if the edge never wrote to this channel
 			LOG.warn("Missing Cache for [" + edgeId + "]: " + String.join(", ", missingChannels));
 		}
 		return result;

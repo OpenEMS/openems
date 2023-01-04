@@ -5,7 +5,15 @@ import static io.openems.edge.core.appmanager.ConfigurationTarget.VALIDATE;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -23,6 +31,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.integratedsystem.FeneconHome.Property;
+import io.openems.edge.app.meter.KdkMeter;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
@@ -99,6 +108,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 
 		// External AC PV
 		HAS_AC_METER, //
+		AC_METER_TYPE, //
 
 		// DC PV Charger 1
 		HAS_DC_PV1, //
@@ -118,6 +128,73 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 		;
 	}
 
+	private static enum AcMeterType {
+		SOCOMEC("App.Meter.Socomec.Name", AcMeterType::socomecMeter), //
+		KDK("App.Meter.Kdk.Name", AcMeterType::kdkMeter), //
+		;
+
+		private final String displayName;
+		private final Function<String, DependencyDeclaration> dependencyFunction;
+
+		private AcMeterType(String displayName, Function<String, DependencyDeclaration> dependencyFunction) {
+			this.displayName = Objects.requireNonNull(displayName);
+			this.dependencyFunction = Objects.requireNonNull(dependencyFunction);
+		}
+
+		public String getDisplayName(ResourceBundle resourceBundle) {
+			return TranslationUtil.getTranslation(resourceBundle, this.displayName);
+		}
+
+		public final DependencyDeclaration getDependency(String modbusIdExternal) {
+			return this.dependencyFunction.apply(modbusIdExternal);
+		}
+
+		private static DependencyDeclaration meter(DependencyDeclaration.AppDependencyConfig config) {
+			return new DependencyDeclaration("AC_METER", //
+					DependencyDeclaration.CreatePolicy.ALWAYS, //
+					DependencyDeclaration.UpdatePolicy.ALWAYS, //
+					DependencyDeclaration.DeletePolicy.IF_MINE, //
+					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+					config);
+		}
+
+		private static DependencyDeclaration socomecMeter(String modbusIdExternal) {
+			return meter(DependencyDeclaration.AppDependencyConfig.create() //
+					.setAppId("App.Meter.Socomec") //
+					.setInitialProperties(JsonUtils.buildJsonObject() //
+							.addProperty(SocomecMeter.Property.TYPE.name(), "PRODUCTION") //
+							.addProperty(SocomecMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
+							.addProperty(SocomecMeter.Property.MODBUS_UNIT_ID.name(), 6) //
+							.build())
+					.setProperties(JsonUtils.buildJsonObject() //
+							.addProperty(SocomecMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
+							.build())
+					.build());
+		}
+
+		private static DependencyDeclaration kdkMeter(String modbusIdExternal) {
+			return meter(DependencyDeclaration.AppDependencyConfig.create() //
+					.setAppId("App.Meter.Kdk") //
+					.setInitialProperties(JsonUtils.buildJsonObject() //
+							.addProperty(KdkMeter.Property.TYPE.name(), "PRODUCTION") //
+							.addProperty(KdkMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
+							.addProperty(KdkMeter.Property.MODBUS_UNIT_ID.name(), 6) //
+							.build())
+					.setProperties(JsonUtils.buildJsonObject() //
+							.addProperty(KdkMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
+							.build())
+					.build());
+		}
+
+		public static final Set<Entry<String, String>> getMeterTypeOptions(ResourceBundle resourceBundle) {
+			return Stream.of(AcMeterType.values()) //
+					.map(t -> Map.entry(t.getDisplayName(resourceBundle), t.name())) //
+					.collect(Collectors.toSet());
+		}
+
+	}
+
 	@Activate
 	public FeneconHome(@Reference ComponentManager componentManager, ComponentContext context,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
@@ -135,22 +212,24 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, //
 			AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
-			var essId = "ess0";
-			var modbusIdInternal = "modbus0";
-			var modbusIdExternal = "modbus1";
+			final var essId = "ess0";
+			final var modbusIdInternal = "modbus0";
+			final var modbusIdExternal = "modbus1";
 
-			var hasEmergencyReserve = EnumUtils.getAsOptionalBoolean(p, Property.HAS_EMERGENCY_RESERVE).orElse(false);
-			var emergencyReserveEnabled = EnumUtils.getAsOptionalBoolean(p, Property.EMERGENCY_RESERVE_ENABLED)
+			final var hasEmergencyReserve = EnumUtils.getAsOptionalBoolean(p, Property.HAS_EMERGENCY_RESERVE)
 					.orElse(false);
-			var rippleControlReceiverActive = EnumUtils.getAsOptionalBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_ACTIV)
+			final var emergencyReserveEnabled = EnumUtils.getAsOptionalBoolean(p, Property.EMERGENCY_RESERVE_ENABLED)
 					.orElse(false);
-			var shadowManagmentDisabled = EnumUtils.getAsOptionalBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED)
+			final var rippleControlReceiverActive = EnumUtils
+					.getAsOptionalBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_ACTIV).orElse(false);
+			final var shadowManagmentDisabled = EnumUtils.getAsOptionalBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED)
 					.orElse(false);
+			final var hasAcMeter = EnumUtils.getAsOptionalBoolean(p, Property.HAS_AC_METER).orElse(false);
 
 			// Battery-Inverter Settings
-			var safetyCountry = EnumUtils.getAsString(p, Property.SAFETY_COUNTRY);
-			int maxFeedInPower;
-			String feedInSetting = EnumUtils.getAsOptionalString(p, Property.FEED_IN_SETTING).orElse("UNDEFINED");
+			final var safetyCountry = EnumUtils.getAsString(p, Property.SAFETY_COUNTRY);
+			final int maxFeedInPower;
+			final String feedInSetting = EnumUtils.getAsOptionalString(p, Property.FEED_IN_SETTING).orElse("UNDEFINED");
 			if (!rippleControlReceiverActive) {
 				maxFeedInPower = EnumUtils.getAsInt(p, Property.MAX_FEED_IN_POWER);
 			} else {
@@ -300,20 +379,6 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.build()));
 			}
 
-			var hasAcMeter = EnumUtils.getAsOptionalBoolean(p, Property.HAS_AC_METER).orElse(false);
-
-			// remove components that were in the old configuration but now are a dependency
-			if (t == ConfigurationTarget.DELETE) {
-				components.add(new EdgeConfig.Component("ctrlGridOptimizedCharge0", "",
-						"Controller.Ess.GridOptimizedCharge", JsonUtils.buildJsonObject().build()));
-				components.add(new EdgeConfig.Component("ctrlBalancing0", "", "Controller.Symmetric.Balancing",
-						JsonUtils.buildJsonObject().build()));
-				if (hasAcMeter) {
-					components.add(new EdgeConfig.Component("meter1", "", "Meter.Socomec.Threephase",
-							JsonUtils.buildJsonObject().build()));
-				}
-			}
-
 			/*
 			 * Set Execution Order for Scheduler.
 			 */
@@ -359,23 +424,10 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			);
 
 			if (hasAcMeter) {
-				dependencies.add(new DependencyDeclaration("AC_METER", //
-						DependencyDeclaration.CreatePolicy.ALWAYS, //
-						DependencyDeclaration.UpdatePolicy.ALWAYS, //
-						DependencyDeclaration.DeletePolicy.IF_MINE, //
-						DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
-						DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
-						DependencyDeclaration.AppDependencyConfig.create() //
-								.setAppId("App.Meter.Socomec") //
-								.setInitialProperties(JsonUtils.buildJsonObject() //
-										.addProperty(SocomecMeter.Property.TYPE.name(), "PRODUCTION") //
-										.addProperty(SocomecMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
-										.addProperty(SocomecMeter.Property.MODBUS_UNIT_ID.name(), 6) //
-										.build())
-								.setProperties(JsonUtils.buildJsonObject() //
-										.addProperty(SocomecMeter.Property.MODBUS_ID.name(), modbusIdExternal) //
-										.build())
-								.build()));
+				var type = EnumUtils.getAsOptionalEnum(AcMeterType.class, p, Property.AC_METER_TYPE);
+				// for older versions this property is undefined
+				dependencies.add(type.orElse(AcMeterType.SOCOMEC) //
+						.getDependency(modbusIdExternal));
 			}
 
 			return new AppConfiguration(components, schedulerExecutionOrder, null, dependencies);
@@ -453,13 +505,20 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 											.get().getAsString());
 								}).build())
 						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_AC_METER) //
-								.setLabel(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".hasAcMeterSocomec.label")) //
+								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".hasAcMeter.label")) //
 								.isRequired(true) //
 								.setDefaultValue(this.componentUtil //
 										.getComponent("meter1", "Meter.Socomec.Threephase") //
 										.isPresent()) //
 								.build())
+						.add(JsonFormlyUtil.buildSelect(Property.AC_METER_TYPE) //
+								.setLabel(
+										TranslationUtil.getTranslation(bundle, this.getAppId() + ".acMeterType.label")) //
+								.setOptions(AcMeterType.getMeterTypeOptions(bundle)) //
+								.onlyShowIfChecked(Property.HAS_AC_METER) //
+								.setDefaultValue(AcMeterType.SOCOMEC.name()) //
+								.isRequired(true) //
+								.build()) //
 						.add(JsonFormlyUtil.buildCheckbox(Property.HAS_DC_PV1) //
 								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".hasDcPV1.label")) //
 								.isRequired(true) //

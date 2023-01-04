@@ -6,24 +6,28 @@
 # - git pull
 # - bash drone-docker.sh
 
-clone:  
-  clone:
+clone:
+  git-clone:
     when:
-      branch: 
+      branch:
         exclude: [master, develop]
       path:
-        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
-    image: plugins/git
+        include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
+    image: woodpeckerci/plugin-git:v1.6.1
     settings:
-      depth: 50
+      depth: 1
+      lfs: false
+      recursive: false
+      tags: false
+      partial: true
 
 pipeline:
   restore-cache:
     when:
-      branch: 
+      branch:
         exclude: [master, develop]
       path:
-        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
+        include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: drillster/drone-volume-cache
     restore: true
     mount:
@@ -35,14 +39,14 @@ pipeline:
 
   build-ui:
     when:
-      branch: 
+      branch:
         exclude: [master, develop]
       path:
-        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
+        include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: openems-build:latest
     commands:
       - cd ui
-      - npm ci --prefer-offline --cache /woodpecker/.npm
+      - npm ci --prefer-offline --cache /woodpecker/.npm --force
       - sed --in-place s#/m/#/${CI_COMMIT_BRANCH}/#g angular.json
       - node_modules/.bin/ng config cli.cache.path "/woodpecker/.ng"
       - node_modules/.bin/ng build -c "fenecon,fenecon-backend-prod,prod"
@@ -53,15 +57,15 @@ pipeline:
 
   refresh-dev:
     when:
-      branch: 
+      branch:
         exclude: [master, develop]
       path:
-        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
+        include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: appleboy/drone-scp
     host: 10.0.0.40
     user: fenecon-docs
-    secrets: 
-      - source: ssh_key_intranet 
+    secrets:
+      - source: ssh_key_intranet
         target: scp_key
     rm: true
     source: ./ui/target
@@ -71,26 +75,26 @@ pipeline:
 
   refresh-location:
     when:
-      branch: 
+      branch:
         exclude: [master, develop]
       path:
-        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
+        include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: appleboy/drone-ssh
     host: 10.0.0.40
     username: fenecon-docs
     timeout: 10s
-    key: 
-      from_secret: ssh_key_intranet 
+    key:
+      from_secret: ssh_key_intranet
     script:
       - /opt/gitea/data/openems-ui-dev/refresh-location.sh ${CI_COMMIT_BRANCH}
     group: refresh
 
   rebuild-cache:
     when:
-      branch: 
+      branch:
         exclude: [master, develop]
       path:
-        include: [ 'ui/**', '**/.woodpecker.yml', '.woodpecker/**' ]
+        include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: drillster/drone-volume-cache
     rebuild: true
     mount:

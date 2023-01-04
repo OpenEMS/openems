@@ -1,7 +1,7 @@
 import { registerLocaleData } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import localDE from '@angular/common/locales/de';
-import { LOCALE_ID, NgModule } from '@angular/core';
+import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy } from '@angular/router';
@@ -21,6 +21,7 @@ import { IndexModule } from './index/index.module';
 import { RegistrationModule } from './registration/registration.module';
 import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popover.component';
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
+import { MyErrorHandler } from './shared/service/myerrorhandler';
 import { SharedModule } from './shared/shared.module';
 import { StatusSingleComponent } from './shared/status/single/status.component';
 import { registerTranslateExtension } from './shared/translate.extension';
@@ -59,7 +60,7 @@ import { UserModule } from './user/user.module';
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     CookieService,
-    // { provide: ErrorHandler, useExisting: Service },
+    { provide: ErrorHandler, useClass: MyErrorHandler },
     { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
     // Use factory for formly. This allows us to use translations in validationMessages.
     { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },

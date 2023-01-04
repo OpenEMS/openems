@@ -4,17 +4,8 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Service, Utils } from 'src/app/shared/shared';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
+import { Meter } from '../../shared/meter';
 import { DIRECTIONS_OPTIONS } from '../../shared/options';
-
-export type AcPv = {
-  alias: string,
-  value: number,
-  orientation: string,
-  moduleType: string,
-  modulesPerString: number,
-  meterType: string,
-  modbusCommunicationAddress: number
-}
 
 @Component({
   selector: "protocol-additional-ac-producers",
@@ -28,7 +19,7 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
 
   public form: FormGroup;
   public fields: FormlyFieldConfig[];
-  public model;
+  protected model;
   public insertModeEnabled: boolean;
 
   constructor(
@@ -128,10 +119,11 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
         label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.METER_TYPE'),
         required: true,
         options: [
-          { label: "SOCOMEC", value: "socomec" }
+          { label: "SOCOMEC", value: Meter.SOCOMEC },
+          { label: "KDK", value: Meter.KDK }
         ]
       },
-      defaultValue: "socomec"
+      defaultValue: Meter.SOCOMEC
     });
 
     fields.push({
@@ -140,7 +132,6 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       templateOptions: {
         type: "number",
         label: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS'),
-        description: this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_DESCRIPTION'),
         required: true,
         min: 6
       },
@@ -148,7 +139,17 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
       validators: {
         validation: ["onlyPositiveInteger"]
       },
-      defaultValue: 6
+      defaultValue: 6,
+      expressions: {
+        // Change the modbus description based on the meter selected above.
+        'templateOptions.description': (form) => {
+          if (form.model.meterType === Meter.SOCOMEC) {
+            return this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_SOCOMEC_DESCRIPTION')
+          } else {
+            return this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_KDK_DESCRIPTION')
+          }
+        }
+      }
     });
 
     return fields;

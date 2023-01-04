@@ -3,13 +3,13 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtocolRequest';
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+import { Country } from 'src/app/shared/type/country';
 import { Category } from '../shared/category';
-import { Country } from '../../../shared/type/country';
 import { FeedInType } from '../shared/enums';
-import { ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
-import { ComponentConfigurator } from '../views/configuration-execute/component-configurator';
+import { AcPv, ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
+import { Meter } from '../shared/meter';
+import { ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../views/configuration-execute/component-configurator';
 import { EmsApp } from '../views/heckert-app-installer/heckert-app-installer.component';
-import { AcPv } from '../views/protocol-additional-ac-producers/protocol-additional-ac-producers.component';
 
 export enum View {
   Completion,
@@ -105,6 +105,7 @@ export abstract class AbstractIbn {
     category: Category;
     fixedValue?: number;
     otherValue?: number;
+    meterType?: Meter;
   };
 
   // protocol-dynamic-feed-in-limitation
@@ -301,8 +302,38 @@ export abstract class AbstractIbn {
   /**
    * Specific to commercial-50. Retrieves title for peakshaving view based on feature selected. 
    */
-  public getPeakShavingHeader(): string {
+  public getPeakShavingHeader(): Category {
     return null;
   };
 
+  /**
+   * Returns the pv meter configuration object.
+   * 
+   * @param modbusId modbus unit id.
+   * @returns ConfigurationObject.
+   */
+  public addAcPvMeter(modbusId: string): ConfigurationObject {
+
+    const acArray: AcPv[] = this.pv.ac;
+    const isAcCreated: boolean = acArray.length >= 1;
+    const acAlias: string = isAcCreated ? acArray[0].alias : '';
+    const acModbusUnitId: number = isAcCreated ? acArray[0].modbusCommunicationAddress : 0;
+    const acMeterType: Meter = isAcCreated ? acArray[0].meterType : Meter.SOCOMEC;
+
+    const configurationObject: ConfigurationObject = {
+      factoryId: Meter.toFactoryId(acMeterType),
+      componentId: 'meter1',
+      alias: acAlias,
+      properties: [
+        { name: 'enabled', value: true },
+        { name: 'type', value: 'PRODUCTION' },
+        { name: 'modbus.id', value: modbusId },
+        { name: 'modbusUnitId', value: acModbusUnitId },
+        { name: 'invert', value: false }
+      ],
+      mode: isAcCreated ? ConfigurationMode.RemoveAndConfigure : ConfigurationMode.RemoveOnly
+    }
+
+    return configurationObject;
+  }
 }

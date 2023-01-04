@@ -1,8 +1,8 @@
 plugins {
-	id "com.github.node-gradle.node" version "2.2.3"
+	id 'java'
+	id 'biz.aQute.bnd.workspace'
+	id 'com.github.node-gradle.node'
 }
-
-tasks.register('BundlesCompile');
 
 /*
  * disable report generation
@@ -33,7 +33,7 @@ allprojects {
  * setup bnd tasks
  */
 subprojects {
-	if (plugins.hasPlugin("biz.aQute.bnd")) {
+	if (plugins.hasPlugin("biz.aQute.bnd")) {	
 		apply plugin: 'checkstyle'
 
 		checkstyle {
@@ -53,12 +53,6 @@ subprojects {
 		tasks.withType(aQute.bnd.gradle.Export) {
 			dependsOn tasks.withType(aQute.bnd.gradle.Resolve)
 		}
-        
-		tasks.withType(aQute.bnd.gradle.Resolve) {
-			mustRunAfter parent.BundlesCompile
-		}
-		
-		parent.BundlesCompile.mustRunAfter tasks.withType(JavaCompile)
 	}
 }
 
@@ -86,14 +80,13 @@ task buildComponents() {
  * Build OpenEMS Edge fat-jar
  */
 task buildEdge() {
-	dependsOn BundlesCompile
 	dependsOn ':io.openems.edge.application:export.EdgeApp'
 	doLast {
-		file("${buildDir}/openems.jar").delete()
+		file("${buildDir}/openems-edge.jar").delete()
 		copy {
 			from file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
 			into file("${buildDir}")
-			rename ("EdgeApp.jar", "openems.jar")
+			rename ("EdgeApp.jar", "openems-edge.jar")
 		}
 	}
 }
@@ -102,7 +95,6 @@ task buildEdge() {
  * Build OpenEMS Backend fat-jar
  */
 task buildBackend() {
-	dependsOn BundlesCompile
 	dependsOn ":io.openems.backend.application:export.BackendApp"
 	doLast {
 		file("${buildDir}/openems-backend.jar").delete()

@@ -3,6 +3,7 @@ package io.openems.common.websocket;
 import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -66,6 +67,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	private final int port;
 	private final WebSocketServer ws;
 	private final DebugMode debugMode;
+	private final Collection<WebSocket> connections = ConcurrentHashMap.newKeySet();
 
 	/**
 	 * Construct an {@link AbstractWebsocketServer}.
@@ -84,7 +86,10 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		this.port = port;
-		this.ws = new WebSocketServer(new InetSocketAddress(port)) {
+		this.ws = new WebSocketServer(new InetSocketAddress(port),
+				/* AVAILABLE_PROCESSORS */ Runtime.getRuntime().availableProcessors(), //
+				/* drafts, no filter */ Collections.emptyList(), //
+				this.connections) {
 
 			@Override
 			public void onStart() {
@@ -169,6 +174,39 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				} catch (Throwable t) {
 					AbstractWebsocketServer.this.handleInternalErrorSync(t, WebsocketUtils.getWsDataString(ws));
 				}
+			}
+
+			@Override
+			protected boolean removeConnection(WebSocket ws) {
+				return AbstractWebsocketServer.this.connections.remove(ws);
+
+				// TODO overridden method also does:
+				// if (isclosed.get() && connections.isEmpty()) {
+				// selectorthread.interrupt();
+				// }
+			}
+
+			@Override
+			protected boolean addConnection(WebSocket ws) {
+				return AbstractWebsocketServer.this.connections.add(ws);
+
+				// TODO overridden method also does:
+				// if (!isclosed.get()) {
+				// synchronized (connections) {
+				// return this.connections.add(ws);
+				// }
+				// } else {
+				// // This case will happen when a new connection gets ready while the server is
+				// // already stopping.
+				// ws.close(CloseFrame.GOING_AWAY);
+				// return true;// for consistency sake we will make sure that both onOpen will
+				// be called
+				// }
+			}
+
+			@Override
+			public Collection<WebSocket> getConnections() {
+				return AbstractWebsocketServer.this.connections;
 			}
 		};
 		// Allow the port to be reused. See
