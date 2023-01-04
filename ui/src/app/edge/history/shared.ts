@@ -3,6 +3,7 @@ import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js'
 import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
 import { Colors } from 'ng2-charts';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChannelAddress, Service } from 'src/app/shared/shared';
 
 export interface Dataset {
@@ -342,6 +343,7 @@ export enum Unit {
 
 export type DisplayValues = {
   name: string,
+  nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
   /** The values to be displayed in Chart */
   setValue: () => number[],
 
@@ -362,7 +364,6 @@ export type ChartData = {
     /** Format of Number displayed */
     formatNumber?: string;
   },
-  test?: Function,
   /** Name to be displayed on the left y-axis */
   unit: YAxisTitle,
 }

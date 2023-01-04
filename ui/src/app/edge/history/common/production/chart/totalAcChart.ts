@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { HistoryUtils, Utils } from 'src/app/shared/service/utils';
 import { ChannelAddress } from '../../../../../shared/shared';
 import { ChannelFilter, ChartData, DisplayValues, YAxisTitle } from '../../../shared';
@@ -41,6 +42,9 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
 
         datasets.push({
           name: this.translate.instant("General.total"),
+          nameSuffix: (energyPeriodResponse: QueryHistoricTimeseriesEnergyResponse) => {
+            return energyPeriodResponse.result.data['_sum/ProductionAcActiveEnergy'] ?? null
+          },
           setValue: () => {
             return channels.find(element => element.name == 'ProductionAcActivePower')?.data
           },

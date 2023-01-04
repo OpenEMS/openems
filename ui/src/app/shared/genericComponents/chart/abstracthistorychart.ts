@@ -7,10 +7,12 @@ import { ChartDataSets, ChartLegendLabelItem } from 'chart.js';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
-import { calculateResolution, ChannelFilter, ChartData, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, isLabelVisible, setLabelVisible, TooltipItem, Unit, YAxisTitle } from '../../../edge/history/shared';
+import { calculateResolution, ChannelFilter, ChartData, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, DisplayValues, EMPTY_DATASET, isLabelVisible, setLabelVisible, TooltipItem, Unit, YAxisTitle } from '../../../edge/history/shared';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
+import { QueryHistoricTimeseriesEnergyRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
 import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { QueryHistoricTimeseriesEnergyResponse } from '../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { HistoryUtils } from '../../service/utils';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared";
 
@@ -83,13 +85,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     this.loadChart()
   }
 
-  private fillChart(response: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse) {
+  private fillChart(energyPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse, energyResponse?: QueryHistoricTimeseriesEnergyResponse) {
 
-    if (Utils.isDataEmpty(response)) {
+    if (Utils.isDataEmpty(energyPeriodResponse)) {
       return
     }
 
-    let result = response.result;
+    let result = energyPeriodResponse.result;
     let labels: Date[] = [];
     for (let timestamp of result.timestamps) {
       labels.push(new Date(timestamp));
@@ -105,7 +107,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       }
 
       if (channelAddress?.toString() in result.data) {
-
         channelData.push({
           data: HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])?.map(value => {
             if (value == null) {
@@ -141,23 +142,37 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     let colors: any[] = [];
 
     // Fill datasets, labels and colors
-    for (let i = 0; i < this.chartObject.displayValues(channelData).length; i++) {
-      let displayValue = this.chartObject.displayValues(channelData)[i];
+    let displayValues: DisplayValues[] = this.chartObject.displayValues(channelData);
 
-      // Filter for existing values
-      if (displayValue.setValue() != null) {
+    // TODO for each
+    displayValues.forEach(element => {
+      let values = element.setValue()
+      let nameSuffix = null;
+
+      // Check if energyResponse is available
+      if (energyResponse) {
+        nameSuffix = element.nameSuffix
+          ?
+          (element.nameSuffix(energyResponse) != null
+            ? element.nameSuffix(energyResponse)
+            : null)
+          : null;
+      }
+
+      this.getLabelName(element.name, nameSuffix)      // Filter existing values
+      if (values) {
         datasets.push({
-          label: displayValue.name,
-          data: displayValue.setValue(),
-          hidden: !isLabelVisible(displayValue.name, !(displayValue.hiddenOnInit)),
-          ...(displayValue.stack && { stack: displayValue.stack.toString() })
+          label: this.getLabelName(element.name, nameSuffix),
+          data: values,
+          hidden: !isLabelVisible(element.name, !(element.hiddenOnInit)),
+          ...(element.stack && { stack: element.stack.toString() })
         })
         colors.push({
-          backgroundColor: 'rgba(' + (this.chartType == 'bar' ? displayValue.color.split('(').pop().split(')')[0] + ',0.4)' : displayValue.color.split('(').pop().split(')')[0] + ',0.05)'),
-          borderColor: 'rgba(' + displayValue.color.split('(').pop().split(')')[0] + ',1)',
+          backgroundColor: 'rgba(' + (this.chartType == 'bar' ? element.color.split('(').pop().split(')')[0] + ',0.4)' : element.color.split('(').pop().split(')')[0] + ',0.05)'),
+          borderColor: 'rgba(' + element.color.split('(').pop().split(')')[0] + ',1)',
         })
       }
-    }
+    })
 
     this.datasets = datasets;
     this.colors = colors;
@@ -171,41 +186,44 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
     if ((unit == Unit.DAYS || unit == Unit.MONTHS)) {
       this.chartType = 'bar';
-      this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to).then(response => {
-        this.fillChart(response);
-        let barWidthPercentage = 0;
-        let categoryGapPercentage = 0;
-        switch (this.service.periodString) {
-          case DefaultTypes.PeriodString.CUSTOM: {
-            barWidthPercentage = 0.7;
-            categoryGapPercentage = 0.4;
-          }
-          case DefaultTypes.PeriodString.MONTH: {
-            if (this.service.isSmartphoneResolution == true) {
-              barWidthPercentage = 1;
-              categoryGapPercentage = 0.6;
-            } else {
-              barWidthPercentage = 0.9;
-              categoryGapPercentage = 0.8;
+      this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to).then(energyPerPeriodResponse => {
+        this.queryHistoricTimeseriesEnergy(this.period.from, this.period.to).then((energyResponse) => {
+          this.setChartLabel();
+          this.fillChart(energyPerPeriodResponse, energyResponse);
+          let barWidthPercentage = 0;
+          let categoryGapPercentage = 0;
+          switch (this.service.periodString) {
+            case DefaultTypes.PeriodString.CUSTOM: {
+              barWidthPercentage = 0.7;
+              categoryGapPercentage = 0.4;
+            }
+            case DefaultTypes.PeriodString.MONTH: {
+              if (this.service.isSmartphoneResolution == true) {
+                barWidthPercentage = 1;
+                categoryGapPercentage = 0.6;
+              } else {
+                barWidthPercentage = 0.9;
+                categoryGapPercentage = 0.8;
+              }
+            }
+            case DefaultTypes.PeriodString.YEAR: {
+              if (this.service.isSmartphoneResolution == true) {
+                barWidthPercentage = 1;
+                categoryGapPercentage = 0.6;
+              } else {
+                barWidthPercentage = 0.8;
+                categoryGapPercentage = 0.8;
+              }
             }
           }
-          case DefaultTypes.PeriodString.YEAR: {
-            if (this.service.isSmartphoneResolution == true) {
-              barWidthPercentage = 1;
-              categoryGapPercentage = 0.6;
-            } else {
-              barWidthPercentage = 0.8;
-              categoryGapPercentage = 0.8;
-            }
-          }
-        }
-        this.datasets.forEach(element => {
-          element.barPercentage = barWidthPercentage;
-          element.categoryPercentage = categoryGapPercentage;
+          this.datasets.forEach(element => {
+            element.barPercentage = barWidthPercentage;
+            element.categoryPercentage = categoryGapPercentage;
+          })
         })
-        this.setChartLabel();
       })
     } else {
+
       // Shows Line-Chart
       this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
         this.chartType = 'line'
@@ -308,6 +326,46 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     return result
   }
 
+
+  /**
+   * Sends the Historic Timeseries Energy per Period Query and makes sure the result is not empty.
+   * Symbolizes First substracted from last Datapoint for each period, only used for cumulated channel
+   * 
+   * @param fromDate the From-Date
+   * @param toDate   the To-Date
+   */
+  protected queryHistoricTimeseriesEnergy(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesEnergyResponse> {
+
+    this.isDataExisting = true;
+
+    let result: Promise<QueryHistoricTimeseriesEnergyResponse> = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
+      this.service.getCurrentEdge().then(edge => {
+        this.service.getConfig().then(async () => {
+
+          let channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
+
+          if (channelAddresses.length > 0) {
+            edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyRequest(fromDate, toDate, channelAddresses)).then(response => {
+              let result = (response as QueryHistoricTimeseriesEnergyResponse)?.result;
+              if (Object.keys(result).length != 0) {
+                resolve(response as QueryHistoricTimeseriesEnergyResponse);
+              } else {
+                resolve(new QueryHistoricTimeseriesEnergyResponse(response.id, {
+                  data: { null: null }
+                }));
+              }
+            })
+          }
+        })
+      });
+    })
+
+    // load defaultchart
+    this.service.stopSpinner(this.spinnerId)
+    this.initializeChart()
+    return result
+  }
+
   /**
    * Generates a Tooltip Title string from a 'fromDate' and 'toDate'.
    * 
@@ -362,6 +420,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
 
+      // TODO remove
+      if (this.chartType == 'bar') {
+        return label
+      }
       // Show floating point number for values between 0 and 1
       return label + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + this.getToolTipsLabel(chartObject.unit);
     }
@@ -400,9 +462,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
    */
   protected getChannelAddresses(): Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }> {
     return new Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }>(resolve => {
-
       if (this.chartObject?.channel) {
-
         resolve({
           powerChannels: this.chartObject.channel.map(element => element.powerChannel),
           energyChannels: this.chartObject.channel.map(element => element.energyChannel)
@@ -411,8 +471,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     })
 
   };
-
-  protected abstract getChartData(): ChartData | null
 
   protected getYAxisTitle(title: YAxisTitle): string {
     switch (title) {
@@ -438,6 +496,26 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
           return 'kW'
         }
     }
+  }
+
+  protected getLabelName(baseName: string, suffix?: number | string): string {
+    if (suffix !== null) {
+      switch (this.chartObject.unit) {
+        case YAxisTitle.ENERGY:
+          if (typeof suffix == 'number') {
+            return baseName + ": " + formatNumber(suffix / 1000, 'de', "1.0-2") + " kWh";
+          } else {
+            return baseName + ": " + suffix + " kWh";
+          }
+        case YAxisTitle.PERCENTAGE:
+          if (typeof suffix == 'number') {
+            return baseName + ": " + formatNumber(suffix, 'de', "1.0-1") + " %";
+          } else {
+            return baseName + ": " + suffix + " %";
+          }
+      }
+    }
+    return baseName;
   }
 
   /**
@@ -469,7 +547,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     }
   };
 
-
   /**
    * Start NGX-Spinner
    * 
@@ -490,4 +567,5 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   public stopSpinner() {
     this.service.stopSpinner(this.spinnerId);
   }
+  protected abstract getChartData(): ChartData | null
 }
