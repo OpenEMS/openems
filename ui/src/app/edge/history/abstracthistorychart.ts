@@ -25,7 +25,7 @@ export abstract class AbstractHistoryChart {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     public labels: Date[] = [];
-    public datasets: ChartDataSets[] = EMPTY_DATASET;
+    public datasets: ChartDataSets[] = EMPTY_DATASET(this.translate);
     public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
     public colors = []
     // prevents subscribing more than once
@@ -245,7 +245,7 @@ export abstract class AbstractHistoryChart {
      */
     protected initializeChart() {
         EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
-        this.datasets = EMPTY_DATASET;
+        this.datasets = EMPTY_DATASET(this.translate);
         this.labels = [];
         this.loading = false;
         this.stopSpinner();
