@@ -31,6 +31,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -256,13 +257,16 @@ public class RestHandler extends AbstractHandler {
 			// type
 			j.addProperty("type", channel.getType().name());
 			// accessMode
-			j.addProperty("accessMode", channel.channelDoc().getAccessMode().getAbbreviation());
+			var accessMode = channel.channelDoc().getAccessMode();
+			j.addProperty("accessMode", accessMode.getAbbreviation());
 			// text
 			j.addProperty("text", channel.channelDoc().getText());
 			// unit
 			j.addProperty("unit", channel.channelDoc().getUnit().getSymbol());
-			// value
-			j.add("value", channel.value().asJson());
+			if(accessMode != AccessMode.WRITE_ONLY) {
+				// value
+				j.add("value", channel.value().asJson());
+			}
 			channeljson.add(j);
 		}
 
