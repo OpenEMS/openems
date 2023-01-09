@@ -138,34 +138,32 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       }
     })
 
+    // Fill datasets, labels and colors
     let datasets: ChartDataSets[] = [];
     let colors: any[] = [];
-
-    // Fill datasets, labels and colors
     let displayValues: DisplayValues[] = this.chartObject.displayValues(channelData);
 
     // TODO for each
     displayValues.forEach(element => {
-      let values = element.setValue()
+      let values: number[] = element.setValue()
       let nameSuffix = null;
 
       // Check if energyResponse is available
       if (energyResponse) {
-        nameSuffix = element.nameSuffix
-          ?
-          (element.nameSuffix(energyResponse) != null
-            ? element.nameSuffix(energyResponse)
-            : null)
+        nameSuffix = element.nameSuffix ? (element.nameSuffix(energyResponse) != null
+          ? element.nameSuffix(energyResponse)
+          : null)
           : null;
       }
 
-      this.getLabelName(element.name, nameSuffix)      // Filter existing values
+      // Filter existing values
       if (values) {
         datasets.push({
           label: this.getLabelName(element.name, nameSuffix),
           data: values,
           hidden: !isLabelVisible(element.name, !(element.hiddenOnInit)),
-          ...(element.stack && { stack: element.stack.toString() })
+          ...(element.stack && { stack: element.stack.toString() }),
+          maxBarThickness: 100
         })
         colors.push({
           backgroundColor: 'rgba(' + (this.chartType == 'bar' ? element.color.split('(').pop().split(')')[0] + ',0.4)' : element.color.split('(').pop().split(')')[0] + ',0.05)'),

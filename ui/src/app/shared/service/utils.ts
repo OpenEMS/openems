@@ -530,14 +530,46 @@ export class Utils {
     });
   }
 
+  public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
+    return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true)
+  }
+
+}
+
+export namespace QueryUtils {
+
   /**
    * Checks if at least on element in the JSON-RPC-Response Arrays contains a non null value
    * 
    * @param arg The JSON-RPC-Response
    * @returns true if all datapoints are null
    */
-  public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
+  export function isChartDataEmpty(arg: JsonrpcResponseSuccess): boolean {
     return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true)
+  }
+
+  /**
+   * Checks if at least on element in the JSON-RPC-Response Arrays contains a non null value
+   * 
+   * @param arg The JSON-RPC-Response
+   * @returns true if all datapoints are null
+   */
+  export function isLabelDataEmpty(arg: JsonrpcResponseSuccess): boolean {
+    return Object.values(arg.result['data'])?.map(element => element as number)?.every(element => element != null ?? true)
+  }
+
+  export function isDataEmpty(values: number[]): boolean {
+    return false;
+  }
+
+  export function isAllowedToBeShown(values: number[] | number) {
+
+    // if([values].length > 1){
+    //   isChartDataEmpty(values)    
+    // }else{
+    //   isLabelDataEmpty(values)
+    // }
+    throw new Error('Function not implemented.');
   }
 }
 
