@@ -263,8 +263,8 @@ public class RestHandler extends AbstractHandler {
 			j.addProperty("text", channel.channelDoc().getText());
 			// unit
 			j.addProperty("unit", channel.channelDoc().getUnit().getSymbol());
-			if(accessMode != AccessMode.WRITE_ONLY) {
-				// value
+			// value
+			if (accessMode != AccessMode.WRITE_ONLY) {
 				j.add("value", channel.value().asJson());
 			}
 			channeljson.add(j);
