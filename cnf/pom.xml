@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.10</version>
+			<version>2.10.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -63,7 +63,7 @@
 			<!-- Used by com.squareup.okhttp3: okhttp -->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.2.0</version>
+			<version>3.3.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -249,7 +249,7 @@
 			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
-			<version>3.28.0</version>
+			<version>3.29.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
