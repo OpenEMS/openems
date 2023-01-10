@@ -11,6 +11,7 @@ import { ChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
 import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
+import { ChartOptionsPopoverComponent } from './chartoptions/popover/popover.component';
 import { DirectiveModule } from './directive/directive';
 import { MeterModule } from './edge/meter/meter.module';
 import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
@@ -81,7 +82,6 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
   ],
   declarations: [
     // components
-    ChartOptionsComponent,
     HeaderComponent,
     PercentageBarComponent,
     // formly
@@ -89,7 +89,9 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyWrapperFormFieldComponent,
     RepeatTypeComponent,
     FormlyWrapperInputSerialNumber,
-    FormlySelectFieldWrapperComponent
+    FormlySelectFieldWrapperComponent,
+    ChartOptionsComponent,
+    ChartOptionsPopoverComponent
   ],
   exports: [
     // modules
@@ -109,16 +111,18 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     Generic_ComponentsModule,
     MeterModule,
     // components
-    ChartOptionsComponent,
     HeaderComponent,
     PercentageBarComponent,
+    ChartOptionsComponent,
+    ChartOptionsPopoverComponent
   ],
   providers: [
     appRoutingProviders,
     Service,
     Utils,
     Websocket,
-    Logger
+    Logger,
+    CommonModule
   ]
 })
 

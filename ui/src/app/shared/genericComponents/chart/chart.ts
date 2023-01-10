@@ -2,9 +2,9 @@ import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } fro
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { ChartOptionsPopoverComponent } from "../../chartoptions/popover/popover.component";
 import { DefaultTypes } from "../../service/defaulttypes";
 import { Edge, Service } from "../../shared";
-import { ChartOptionsPopoverComponent } from "./chartoptions/popover/popover.component";
 
 @Component({
   selector: 'oe-chart',

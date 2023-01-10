@@ -10,7 +10,7 @@ export class ProductionChartOverviewComponent extends AbstractHistoryChartOverVi
   protected productionMeterComponents: EdgeConfig.Component[] = [];
 
   protected override getChannelAddresses(): ChannelAddress[] {
-    //   //  Get Chargers
+    //  Get Chargers
     this.chargerComponents =
       this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
         .filter(component => component.isEnabled);

@@ -329,10 +329,6 @@ export type Channels = {
   converter?: (value: number[]) => number[]
 }
 
-export type ToBeRenamed = {
-  channelname: string, label: string, values: number[]
-}
-
 export enum Unit {
   SECONDS = "Seconds",
   MINUTES = "Minutes",
@@ -349,6 +345,7 @@ export type DisplayValues = {
 
   hiddenOnInit?: boolean,
   /** color in rgb-Format */
+  noStrokeThroughLegend?: boolean,
   color: string,
   filter?: ChannelFilter,
   stack?: number,
@@ -360,7 +357,6 @@ export type ChartData = {
   displayValues: (data: { name: string, data: number[] }[]) => DisplayValues[],
   tooltip: {
     /** Unit to be displayed as Tooltips unit */
-    // unit: '%' | 'kWh' | 'kW',
     /** Format of Number displayed */
     formatNumber?: string;
   },

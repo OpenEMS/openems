@@ -1,9 +1,10 @@
 import { formatNumber } from '@angular/common';
-import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Directive, ElementRef, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { ChartDataSets, ChartLegendLabelItem } from 'chart.js';
+import { isThisQuarter } from 'date-fns';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
@@ -45,6 +46,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   public chartType: 'line' | 'bar' = 'line';
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
+  private legendOptions: { label: string, noStrokeThroughLegend: boolean }[] = [];
 
   constructor(
     public service: Service,
@@ -86,108 +88,125 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   }
 
   private fillChart(energyPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse, energyResponse?: QueryHistoricTimeseriesEnergyResponse) {
-
-    if (Utils.isDataEmpty(energyPeriodResponse)) {
-      return
-    }
-
-    let result = energyPeriodResponse.result;
-    let labels: Date[] = [];
-    for (let timestamp of result.timestamps) {
-      labels.push(new Date(timestamp));
-    }
-
-    let channelData: { name: string, data: number[] }[] = []
-    this.chartObject.channel.forEach(element => {
-      let channelAddress: ChannelAddress = null;
-      if (this.chartType == 'bar' && element.energyChannel) {
-        channelAddress = element.energyChannel
-      } else {
-        channelAddress = element.powerChannel
+    return new Promise<void>(resolve => {
+      if (Utils.isDataEmpty(energyPeriodResponse)) {
+        return
       }
 
-      if (channelAddress?.toString() in result.data) {
-        channelData.push({
-          data: HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])?.map(value => {
-            if (value == null) {
-              return null
-            } else {
+      let result = energyPeriodResponse.result;
+      let labels: Date[] = [];
+      for (let timestamp of result.timestamps) {
+        labels.push(new Date(timestamp));
+      }
 
-              // Custom Filters
-              switch (element.filter) {
-                case ChannelFilter.NOT_NULL:
-                  return value;
-                case ChannelFilter.NOT_NULL_OR_NEGATIVE:
-                  if (value > 0) {
+      let channelData: { name: string, data: number[] }[] = []
+      this.chartObject.channel.forEach(element => {
+        let channelAddress: ChannelAddress = null;
+        if (this.chartType == 'bar' && element.energyChannel) {
+          channelAddress = element.energyChannel
+        } else {
+          channelAddress = element.powerChannel
+        }
+
+        if (channelAddress?.toString() in result.data) {
+          channelData.push({
+            data: HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])?.map(value => {
+              if (value == null) {
+                return null
+              } else {
+
+                // Custom Filters
+                switch (element.filter) {
+                  case ChannelFilter.NOT_NULL:
                     return value;
-                  } else {
-                    return 0;
-                  }
-                case ChannelFilter.NOT_NULL_OR_POSITIVE:
-                  if (value < 0) {
-                    return value;
-                  } else {
-                    return 0;
-                  }
-                default:
-                  return value
+                  case ChannelFilter.NOT_NULL_OR_NEGATIVE:
+                    if (value > 0) {
+                      return value;
+                    } else {
+                      return 0;
+                    }
+                  case ChannelFilter.NOT_NULL_OR_POSITIVE:
+                    if (value < 0) {
+                      return value;
+                    } else {
+                      return 0;
+                    }
+                  default:
+                    return value
+                }
               }
-            }
-          }) ?? null, name: element.name
-        })
-      }
+            }) ?? null, name: element.name
+          })
+        }
+      })
+
+      // Fill datasets, labels and colors
+      let datasets: ChartDataSets[] = [];
+      let colors: any[] = [];
+      let displayValues: DisplayValues[] = this.chartObject.displayValues(channelData);
+
+      // TODO for each
+
+      displayValues.forEach(element => {
+        let values: number[] = element.setValue()
+        let nameSuffix = null;
+
+        // Check if energyResponse is available
+        if (energyResponse) {
+          nameSuffix = element.nameSuffix
+            ? (element.nameSuffix(energyResponse) != null
+              ? element.nameSuffix(energyResponse)
+              : null)
+            : null;
+        }
+
+        // Filter existing values
+        if (values) {
+          let label = this.getLabelName(element.name, nameSuffix);
+          datasets.push({
+            label: label,
+            data: values,
+            hidden: element.noStrokeThroughLegend ?? !isLabelVisible(element.name, !(element.hiddenOnInit)),
+            ...(element.stack && { stack: element.stack.toString() }),
+            maxBarThickness: 100,
+          })
+          this.legendOptions.push({
+            label: label,
+            noStrokeThroughLegend: element.noStrokeThroughLegend
+          })
+          colors.push({
+            backgroundColor: 'rgba(' + (this.chartType == 'bar' ? element.color.split('(').pop().split(')')[0] + ',0.4)' : element.color.split('(').pop().split(')')[0] + ',0.05)'),
+            borderColor: 'rgba(' + element.color.split('(').pop().split(')')[0] + ',1)',
+          })
+        }
+      })
+
+      this.datasets = datasets;
+      this.colors = colors;
+      this.labels = labels;
+      resolve()
     })
 
-    // Fill datasets, labels and colors
-    let datasets: ChartDataSets[] = [];
-    let colors: any[] = [];
-    let displayValues: DisplayValues[] = this.chartObject.displayValues(channelData);
-
-    // TODO for each
-    displayValues.forEach(element => {
-      let values: number[] = element.setValue()
-      let nameSuffix = null;
-
-      // Check if energyResponse is available
-      if (energyResponse) {
-        nameSuffix = element.nameSuffix ? (element.nameSuffix(energyResponse) != null
-          ? element.nameSuffix(energyResponse)
-          : null)
-          : null;
-      }
-
-      // Filter existing values
-      if (values) {
-        datasets.push({
-          label: this.getLabelName(element.name, nameSuffix),
-          data: values,
-          hidden: !isLabelVisible(element.name, !(element.hiddenOnInit)),
-          ...(element.stack && { stack: element.stack.toString() }),
-          maxBarThickness: 100
-        })
-        colors.push({
-          backgroundColor: 'rgba(' + (this.chartType == 'bar' ? element.color.split('(').pop().split(')')[0] + ',0.4)' : element.color.split('(').pop().split(')')[0] + ',0.05)'),
-          borderColor: 'rgba(' + element.color.split('(').pop().split(')')[0] + ',1)',
-        })
-      }
-    })
-
-    this.datasets = datasets;
-    this.colors = colors;
-    this.labels = labels;
   }
 
   private loadChart() {
+
     this.datasets = EMPTY_DATASET(this.translate);
     this.labels = []
     let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
 
     if ((unit == Unit.DAYS || unit == Unit.MONTHS)) {
+
+      // Shows barchart
       this.chartType = 'bar';
-      this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to).then(energyPerPeriodResponse => {
-        this.queryHistoricTimeseriesEnergy(this.period.from, this.period.to).then((energyResponse) => {
+      Promise.all([
+        this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to),
+        this.queryHistoricTimeseriesEnergy(this.period.from, this.period.to)
+      ]).then(response => {
+        this.fillChart(response[0], response[1]).then(() => {
           this.setChartLabel();
-          this.fillChart(energyPerPeriodResponse, energyResponse);
+        }).finally(() => {
+
           let barWidthPercentage = 0;
           let categoryGapPercentage = 0;
           switch (this.service.periodString) {
@@ -223,11 +242,16 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     } else {
 
       // Shows Line-Chart
-      this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-        this.chartType = 'line'
-        this.fillChart(response);
-        this.setChartLabel();
-      })
+      Promise.all([
+        this.queryHistoricTimeseriesData(this.period.from, this.period.to),
+        this.queryHistoricTimeseriesEnergy(this.period.from, this.period.to)
+      ])
+        .then(response => {
+          this.chartType = 'line'
+          this.fillChart(response[0], response[1]);
+          this.setChartLabel();
+          this.stopSpinner()
+        })
     }
   }
 
@@ -414,16 +438,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       let date = new Date(tooltipItems[0].xLabel);
       return this.toTooltipTitle(this.service.historyPeriod.from, this.service.historyPeriod.to, date);
     }
+
     options.tooltips.callbacks.label = (tooltipItem: TooltipItem, data: Data) => {
       let label = data.datasets[tooltipItem.datasetIndex].label;
-      let value = tooltipItem.yLabel;
+      let value = tooltipItem.value;
 
-      // TODO remove
-      if (this.chartType == 'bar') {
-        return label
-      }
       // Show floating point number for values between 0 and 1
-      return label + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + this.getToolTipsLabel(chartObject.unit);
+      return label.split(":")[0] + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + this.getToolTipsLabel(chartObject.unit);
     }
 
     // Set Y-Axis Title
@@ -439,6 +460,26 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       setLabelVisible(legendItem.text, !chart.isDatasetVisible(legendItemIndex));
       original.call(this, event, legendItem);
     }
+
+    let legendOptions = this.legendOptions;
+    options.legend.labels.generateLabels = function (chart: Chart) {
+
+      let chartLegendLabelItems: ChartLegendLabelItem[] = [];
+      chart.data.datasets.forEach((dataset, index) => {
+        let isHidden = legendOptions?.find(el => el.label == dataset.label)?.noStrokeThroughLegend ?? null
+        chartLegendLabelItems.push({
+          text: dataset.label,
+          datasetIndex: index,
+          fillStyle: dataset.backgroundColor.toString(),
+          hidden: isHidden ? !isHidden : !chart.isDatasetVisible(index),
+          lineWidth: 2,
+          strokeStyle: dataset.borderColor.toString()
+        })
+      })
+
+      return chartLegendLabelItems;
+    }
+
     this.options = options;
     this.loading = false;
     this.stopSpinner();
@@ -541,7 +582,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
           }
         }
       }
-
     }
   };
 

@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { ChartOptionsPopoverComponent } from '../chartoptions/popover/popover.component';
 import { PickDateComponent } from '../pickdate/pickdate.component';
 import { PipeModule } from '../pipe/pipe';
 import { ChartComponent } from './chart/chart';
@@ -28,7 +27,7 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         PipeModule,
         ReactiveFormsModule,
         RouterModule,
-        TranslateModule.forRoot()
+        TranslateModule.forRoot(),
     ],
     entryComponents: [
         PickDateComponent,
@@ -43,7 +42,6 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ModalComponent,
         ModalLineItemComponent,
         ModalPhasesComponent,
-        ChartOptionsPopoverComponent
     ],
     declarations: [
         PickDateComponent,
@@ -60,7 +58,6 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ModalLineItemComponent,
         ModalPhasesComponent,
         ChartComponent,
-        ChartOptionsPopoverComponent
     ],
     exports: [
         FlatWidgetComponent,
@@ -77,7 +74,6 @@ import { ModalHorizontalLineComponent } from './modal/model-horizontal-line/moda
         ModalPhasesComponent,
         ChartComponent,
         PickDateComponent,
-        ChartOptionsPopoverComponent
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 

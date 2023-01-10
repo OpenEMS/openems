@@ -31,5 +31,3 @@ npm-debug.log*
 /www
 /cache
 /.angular/cache
-
-/src/global.scss

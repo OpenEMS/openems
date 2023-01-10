@@ -31,13 +31,11 @@ import { UserModule } from './user/user.module';
 @NgModule({
   declarations: [
     AppComponent,
-    ChartOptionsPopoverComponent,
     PickDatePopoverComponent,
     StatusSingleComponent,
     SystemLogComponent,
   ],
   entryComponents: [
-    ChartOptionsPopoverComponent,
     PickDatePopoverComponent,
   ],
   imports: [
