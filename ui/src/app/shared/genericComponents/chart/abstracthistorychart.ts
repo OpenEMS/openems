@@ -165,7 +165,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         datasets.push({
           label: label,
           data: values,
-          hidden: element.strokeThroughHidingStyle ?? !isLabelVisible(element.name, !(element.hiddenOnInit)),
+          hidden: element.hiddenOnInit ?? !isLabelVisible(element.name, !(element.hiddenOnInit)),
           ...(element.stack && { stack: element.stack.toString() }),
           maxBarThickness: 100,
         })
