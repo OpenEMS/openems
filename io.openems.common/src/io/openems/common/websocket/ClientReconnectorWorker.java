@@ -95,7 +95,7 @@ public class ClientReconnectorWorker extends AbstractWorker {
 	 * @param attachmentSupplier the supplier for the new attachment
 	 * @throws Exception on error
 	 */
-	protected static <T> void resetWebSocketClient(WebSocketClient ws, Supplier<T> attachmentSupplier)
+	protected static <T extends WsData> void resetWebSocketClient(WebSocketClient ws, Supplier<T> attachmentSupplier)
 			throws Exception {
 		/*
 		 * Get methods and fields via Reflection
@@ -168,7 +168,9 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		closeLatchField.set(ws, new CountDownLatch(1));
 		// this.engine = new WebSocketImpl(this, this.draft); -> to reflection
 		final var newEngine = new WebSocketImpl(ws, draft);
-		newEngine.setAttachment(attachmentSupplier.get());
+		final var newAttachment = attachmentSupplier.get();
+		newAttachment.setWebsocket(ws);
+		newEngine.setAttachment(newAttachment);
 		engineField.set(ws, newEngine);
 	}
 
