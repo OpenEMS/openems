@@ -137,8 +137,11 @@
                             <p *ngIf="!edge.isOnline" class="ion-text-wrap">
                               <ion-text translate>Index.deviceOffline</ion-text>
                               <ion-label *ngIf="edge.lastmessage">
-                                <ion-text translate>Index.OFFLINE_SINCE</ion-text>
-                                {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
+                                <ion-text style="white-space: initial"><span translate>
+                                    Index.OFFLINE_SINCE
+                                  </span>
+                                  {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
+                                </ion-text>
                               </ion-label>
                             </p>
                           </ion-label>

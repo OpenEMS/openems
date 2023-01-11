@@ -123,6 +123,12 @@ export class IndexComponent {
    * @param param data provided in login form
    */
   public doLogin(param: { username?: string, password: string }) {
+
+    // Prevent that user submits multiple times
+    if (this.formIsDisabled) {
+      return
+    }
+
     this.formIsDisabled = true;
     this.websocket.login(new AuthenticateWithPasswordRequest(param)).then(() => {
       this.formIsDisabled = false;
