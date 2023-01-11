@@ -70,30 +70,30 @@ export class Service extends AbstractService {
   ) {
     super();
     // add language
-    translate.addLangs(Language.ALL.map(l => l.filename));
+    translate.addLangs(Language.ALL.map(l => l.key));
     // this language will be used as a fallback when a translation isn't found in the current language
-    translate.setDefaultLang(Language.DEFAULT.filename);
+    translate.setDefaultLang(Language.DEFAULT.key);
 
     // initialize history period
     this.historyPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
 
     // React on Language Change and update language
     translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.setLang(Language.getByFilename(event.lang));
+      this.setLang(Language.getByKey(event.lang));
     });
   }
 
   public setLang(language: Language) {
     if (language !== null) {
-      this.translate.use(language.filename);
+      this.translate.use(language.key);
     } else {
-      this.translate.use(Language.DEFAULT.filename);
+      this.translate.use(Language.DEFAULT.key);
     }
     // TODO set locale for date-fns: https://date-fns.org/docs/I18n
   }
 
   public getDocsLang(): string {
-    if (this.translate.currentLang == "German") {
+    if (this.translate.currentLang == "de") {
       return "de";
     } else {
       return "en";

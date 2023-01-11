@@ -1,7 +1,6 @@
 package io.openems.edge.app.timeofusetariff;
 
 import java.util.EnumMap;
-import java.util.List;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -16,7 +15,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.timeofusetariff.Tibber.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -79,19 +77,18 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 			}
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
+			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
+
 			final var ctrlEssTimeOfUseTariffDischargeId = this.getId(t, p,
 					Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID, "ctrlEssTimeOfUseTariffDischarge0");
-
 			final var timeOfUseTariffId = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID, "timeOfUseTariff0");
-
-			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
 
 			if (t == ConfigurationTarget.ADD && (accessToken == null || accessToken.isBlank())) {
 				throw new OpenemsException("Access Token is required!");
 			}
 
 			// TODO ess id may be changed
-			List<Component> comp = Lists.newArrayList(//
+			var comp = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, alias,
 							"Controller.Ess.Time-Of-Use-Tariff.Discharge", JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
@@ -102,7 +99,7 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 									.build())//
 			);
 
-			return new AppConfiguration(comp, Lists.newArrayList("ctrlEssTimeOfUseTariffDischarge0", "ctrlBalancing0"));
+			return new AppConfiguration(comp, Lists.newArrayList(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0"));
 		};
 	}
 

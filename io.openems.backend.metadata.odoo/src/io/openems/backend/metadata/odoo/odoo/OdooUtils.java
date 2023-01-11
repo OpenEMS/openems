@@ -7,14 +7,21 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonElement;
@@ -30,16 +37,10 @@ import io.openems.common.utils.JsonUtils;
 
 public class OdooUtils {
 
+	private static final Logger log = LoggerFactory.getLogger(OdooUtils.class);
+
 	private OdooUtils() {
 	}
-
-	public static final String DEFAULT_SERVER_DATE_FORMAT = "yyyy-MM-dd";
-	public static final String DEFAULT_SERVER_TIME_FORMAT = "HH:mm:ss";
-	public static final String DEFAULT_SERVER_DATETIME_FORMAT = OdooUtils.DEFAULT_SERVER_DATE_FORMAT + " "
-			+ OdooUtils.DEFAULT_SERVER_TIME_FORMAT;
-
-	public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter
-			.ofPattern(OdooUtils.DEFAULT_SERVER_DATETIME_FORMAT);
 
 	/**
 	 * Wrapper for the reply of a call to
@@ -148,11 +149,10 @@ public class OdooUtils {
 
 				switch (dataName) {
 				case "odoo.exceptions.AccessDenied":
-					throw new OpenemsException(
-							"Access Denied for Request [" + request.toString() + "] to URL [" + url + "]");
+					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 
 				case "odoo.http.SessionExpiredException":
-					throw new OpenemsException("Session Expired for Request to URL [" + url + "]");
+					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 
 				default:
 					var exception = "Exception for Request [" + request.toString() + "] to URL [" + url + "]: " //
@@ -216,7 +216,7 @@ public class OdooUtils {
 	 * @return SuccessResponseAndHeaders response as Future
 	 * @throws OpenemsNamedException on error
 	 */
-	protected static Future<SuccessResponseAndHeaders> sendAdminJsonrpcRequestAsyc(Credentials credentials, String url,
+	protected static Future<SuccessResponseAndHeaders> sendAdminJsonrpcRequestAsync(Credentials credentials, String url,
 			JsonObject request) throws OpenemsNamedException {
 		var completableFuture = new CompletableFuture<SuccessResponseAndHeaders>();
 		completableFuture.completeAsync(() -> {
@@ -241,6 +241,10 @@ public class OdooUtils {
 	 */
 	protected static String login(Credentials credentials, String username, String password)
 			throws OpenemsNamedException {
+		if (username.isBlank() || password.isBlank()) {
+			// Do not even send request if username or password are blank
+			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+		}
 		var request = JsonUtils.buildJsonObject() //
 				.addProperty("jsonrpc", "2.0") //
 				.addProperty("method", "call") //
@@ -250,9 +254,8 @@ public class OdooUtils {
 						.addProperty("password", password) //
 						.build()) //
 				.build();
-		SuccessResponseAndHeaders response = OdooUtils
-				.sendJsonrpcRequest(credentials.getUrl() + "/web/session/authenticate", request);
-		var sessionIdOpt = OdooHandler.getFieldFromSetCookieHeader(response.headers, "session_id");
+		var response = OdooUtils.sendJsonrpcRequest(credentials.getUrl() + "/web/session/authenticate", request);
+		var sessionIdOpt = getFieldFromSetCookieHeader(response.headers, "session_id");
 		if (!sessionIdOpt.isPresent()) {
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 		}
@@ -302,9 +305,7 @@ public class OdooUtils {
 		try {
 			// Execute XML request
 			var resultObjs = (Object[]) OdooUtils.executeKw(credentials, model, "search", paramsDomain, Map.of());
-			// Parse results
-			Integer[] resultMaps = Arrays.copyOf(resultObjs, resultObjs.length, Integer[].class);
-			return resultMaps;
+			return Arrays.copyOf(resultObjs, resultObjs.length, Integer[].class);
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to search from Odoo: " + e.getMessage());
 		}
@@ -320,6 +321,7 @@ public class OdooUtils {
 	 * @return the record as a Map
 	 * @throws OpenemsException on error
 	 */
+	@SuppressWarnings("unchecked")
 	protected static Map<String, Object> readOne(Credentials credentials, String model, int id, Field... fields)
 			throws OpenemsException {
 		// Create request params
@@ -333,9 +335,7 @@ public class OdooUtils {
 			var resultObjs = (Object[]) OdooUtils.executeKw(credentials, model, "read", paramsIds, paramsFields);
 			// Parse results
 			for (var resultObj : resultObjs) {
-				@SuppressWarnings("unchecked")
-				var result = (Map<String, Object>) resultObj;
-				return result;
+				return (Map<String, Object>) resultObj;
 			}
 			throw new OpenemsException("No matching entry found for id [" + id + "]");
 		} catch (Throwable e) {
@@ -353,16 +353,14 @@ public class OdooUtils {
 	 * @return the records as a Map array
 	 * @throws OpenemsException on error
 	 */
+	@SuppressWarnings("unchecked")
 	protected static Map<String, Object>[] readMany(Credentials credentials, String model, Integer[] ids,
 			Field... fields) throws OpenemsException {
 		var fieldStrings = getAsStringArray(fields);
 		try {
 			// Execute XML request
 			var result = (Object[]) OdooUtils.executeKw(credentials, model, "read", new Object[] { ids, fieldStrings });
-			// Parse results
-			@SuppressWarnings("unchecked")
-			var resultMaps = (Map<String, Object>[]) Arrays.copyOf(result, result.length, Map[].class);
-			return resultMaps;
+			return Arrays.copyOf(result, result.length, Map[].class);
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
 		}
@@ -378,6 +376,7 @@ public class OdooUtils {
 	 * @return the records as a Map array
 	 * @throws OpenemsException on error
 	 */
+	@SuppressWarnings("unchecked")
 	protected static Map<String, Object>[] searchRead(Credentials credentials, String model, Field[] fields,
 			Domain... domains) throws OpenemsException {
 		// Create request params
@@ -390,10 +389,7 @@ public class OdooUtils {
 		try {
 			// Execute XML request
 			var result = (Object[]) OdooUtils.executeKw(credentials, model, "search_read", paramsDomain, paramsFields);
-			// Parse results
-			@SuppressWarnings("unchecked")
-			var resultMaps = (Map<String, Object>[]) Arrays.copyOf(result, result.length, Map[].class);
-			return resultMaps;
+			return Arrays.copyOf(result, result.length, Map[].class);
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
 		}
@@ -481,7 +477,7 @@ public class OdooUtils {
 			if (resultObj == null) {
 				throw new OpenemsException("Not created.");
 			}
-			return OdooUtils.getAsInteger(resultObj);
+			return OdooUtils.getAsOptional(resultObj, Integer.class).orElse(null);
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to write to Odoo: " + e.getMessage());
 		}
@@ -530,30 +526,19 @@ public class OdooUtils {
 	}
 
 	/**
-	 * Return the Object type-safe as a {@link Optional} String; or otherwise as an
-	 * empty {@link Optional}.
+	 * Return the Object type-safe as a {@link Optional} of type T; or otherwise as
+	 * an empty {@link Optional}.
 	 *
+	 * @param <T>    expected type
 	 * @param object the value as object
+	 * @param type   the expected type of object
 	 * @return the value as {@link Optional} String
 	 */
-	protected static Optional<String> getAsOptionalString(Object object) {
-		if (object instanceof String) {
-			return Optional.of((String) object);
+	protected static <T extends Object> Optional<T> getAsOptional(Object object, Class<T> type) {
+		if (type.isInstance(object)) {
+			return Optional.of(type.cast(object));
 		}
 		return Optional.empty();
-	}
-
-	/**
-	 * Return the Object type-safe as a Integer; or otherwise null.
-	 *
-	 * @param object the value as object
-	 * @return the value as Integer
-	 */
-	protected static Integer getAsInteger(Object object) {
-		if (object instanceof Integer) {
-			return (Integer) object;
-		}
-		return null;
 	}
 
 	/**
@@ -608,4 +593,134 @@ public class OdooUtils {
 		}
 	}
 
+	/**
+	 * Return Field value in values and cast it to type.
+	 *
+	 * @param <T>    expected type of value
+	 * @param field  to search for
+	 * @param values map with values to search in
+	 * @param type   to cast into
+	 * @return value found in map casted to type or null on error
+	 */
+	public static <T> T getAs(Field field, Map<String, ?> values, Class<T> type) {
+		return getAsOrElse(field, values, type, null);
+	}
+
+	/**
+	 * Return Field value in values and cast it to type.
+	 *
+	 * @param <T>       expected type of value
+	 * @param field     to search for
+	 * @param values    map with values to search in
+	 * @param type      to cast into
+	 * @param alternate value to return
+	 * @return value found in map casted to type or alternate on error
+	 */
+	public static <T> T getAsOrElse(Field field, Map<String, ?> values, Class<T> type, T alternate) {
+		if (field == null || values == null || type == null) {
+			var warningMsg = new StringBuilder().append("[getAsOrElse] missing parameter (")
+					.append(field == null ? "field is null, " : "").append(values == null ? "values is null, " : "")
+					.append(type == null ? "type is null, " : "").toString();
+			log.warn(warningMsg);
+			return alternate;
+		}
+
+		if (!values.containsKey(field.id())) {
+			return alternate;
+		}
+
+		var entry = values.get(field.id());
+		var entryType = entry.getClass();
+
+		// Entry equals false if table value is null;
+		if (entryType.isAssignableFrom(Boolean.class) && !type.isAssignableFrom(Boolean.class)
+				&& !Boolean.class.cast(entry)) {
+			return null;
+		}
+
+		try {
+			return type.cast(entry);
+		} catch (Throwable t) {
+			log.warn(t.getMessage());
+			return alternate;
+		}
+	}
+
+	/**
+	 * Get field from the 'Set-Cookie' field in HTTP headers.
+	 *
+	 * <p>
+	 * Per <a href=
+	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
+	 * all variants of 'cookie' are accepted.
+	 *
+	 * @param headers   the HTTP headers
+	 * @param fieldname the field name
+	 * @return value as optional
+	 */
+	private static Optional<String> getFieldFromSetCookieHeader(Map<String, List<String>> headers, String fieldname) {
+		for (Entry<String, List<String>> header : headers.entrySet()) {
+			var key = header.getKey();
+			if (key != null && key.equalsIgnoreCase("Set-Cookie")) {
+				for (String cookie : header.getValue()) {
+					for (String cookieVariable : cookie.split("; ")) {
+						var keyValue = cookieVariable.split("=");
+						if (keyValue.length == 2) {
+							if (keyValue[0].equals(fieldname)) {
+								return Optional.ofNullable(keyValue[1]);
+							}
+						}
+					}
+				}
+			}
+		}
+		return Optional.empty();
+	}
+
+	public static class DateTime {
+
+		public static final ZoneId SERVER_TIMEZONE = ZoneId.of("UTC");
+		public static final String SERVER_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+		public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern(SERVER_DATETIME_FORMAT)
+				.withZone(SERVER_TIMEZONE);
+
+		/**
+		 * Convert {@link String} in {@link OdooUtils.DEFAULT_SERVER_DATETIME_FORMAT}
+		 * and UTC into {@link ZonedDateTime}.
+		 *
+		 * @param dateTimeString string in
+		 *                       {@link OdooUtils.DEFAULT_SERVER_DATETIME_FORMAT} format
+		 * @return ZonedDateTime representation, or null on error.
+		 */
+		public static ZonedDateTime stringToDateTime(String dateTimeString) {
+			if (dateTimeString == null) {
+				return null;
+			}
+			try {
+				// Cut to format length
+				var formatLength = SERVER_DATETIME_FORMAT.length();
+				dateTimeString = dateTimeString.substring(0,
+						formatLength > dateTimeString.length() ? dateTimeString.length() : formatLength);
+
+				return ZonedDateTime.parse(dateTimeString, DATETIME_FORMATTER);
+			} catch (DateTimeParseException e) {
+				log.warn("'" + dateTimeString + "' is not of format " + SERVER_DATETIME_FORMAT, e);
+				return null;
+			}
+		}
+
+		/**
+		 * Convert {@link ZonedDateTime} into {@link String} in
+		 * {@link OdooUtils.DEFAULT_SERVER_DATETIME_FORMAT} and UTC.
+		 *
+		 * @param dateTime to parse
+		 * @return String in {@link OdooUtils.DEFAULT_SERVER_DATETIME_FORMAT}
+		 */
+		public static String dateTimeToString(ZonedDateTime dateTime) {
+			if (dateTime == null) {
+				return null;
+			}
+			return dateTime.format(DATETIME_FORMATTER);
+		}
+	}
 }

@@ -1,7 +1,10 @@
 package io.openems.edge.kaco.blueplanet.hybrid10.pvinverter;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,10 +22,6 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.ed.data.InverterData;
-import com.ed.data.Settings;
-import com.ed.data.Status;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -72,6 +71,8 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 
 	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
 			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+
+	private Instant lastSuccessfulCommunication = null;
 
 	public BpPvInverterImpl() {
 		super(//
@@ -129,30 +130,33 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 		Integer reactivePower = null;
 		Integer activePowerLimit = null;
 
-		if (!this.core.isConnected()) {
-			this.logWarn(this.log, "Core is not connected!");
+		var bpData = this.core.getBpData();
 
+		/*
+		 * Handle Communication Failed State: Pure PV-Inverter is unreachable during the
+		 * night because it has no battery supply. Ignore error for 24 hours.
+		 */
+		if (bpData != null) {
+			this.lastSuccessfulCommunication = Instant.now();
+			this._setCommunicationFailed(false);
 		} else {
-			Settings settings = this.core.getSettings();
-			if (settings != null) {
-				float eplimitPerc = settings.getEPLimit() / 100;
-				activePowerLimit = (int) (BpPvInverter.MAX_APPARENT_POWER * eplimitPerc);
-			}
+			this._setCommunicationFailed(//
+					/* if has never been successful */ this.lastSuccessfulCommunication == null //
+							/* or if more than 24 hours ago */ || this.lastSuccessfulCommunication
+									.isBefore(Instant.now().minus(24, ChronoUnit.HOURS)));
+		}
 
-			Status status = this.core.getStatusData();
-			if (status != null) {
-				// Set error channels
-				List<String> errors = status.getErrors();
-				for (ErrorChannelId channelId : ErrorChannelId.values()) {
-					this.channel(channelId).setNextValue(errors.contains(channelId.getErrorCode()));
-				}
-			}
+		if (bpData != null) {
+			float eplimitPerc = bpData.settings.getEPLimit() / 100;
+			activePowerLimit = (int) (BpPvInverter.MAX_APPARENT_POWER * eplimitPerc);
 
-			InverterData inverter = this.core.getInverterData();
-			if (inverter != null) {
-				activePower = (int) inverter.getPvPower();
-				reactivePower = 0;
-			}
+			// Set error channels
+			List<String> errors = bpData.status.getErrors();
+			Stream.of(ErrorChannelId.values()) //
+					.forEach(c -> this.channel(c).setNextValue(errors.contains(c.getErrorCode())));
+
+			activePower = Math.round(bpData.inverter.getPvPower());
+			reactivePower = 0;
 		}
 
 		this._setActivePower(activePower);

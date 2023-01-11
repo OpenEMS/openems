@@ -4,7 +4,8 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -46,7 +47,7 @@ public class JsonUtils {
 	 * 
 	 * @return list as JsonArray
 	 */
-	public static <T> JsonArray generateJsonArray(List<T> list, Function<T, JsonElement> convert) {
+	public static <T> JsonArray generateJsonArray(Collection<T> list, Function<T, JsonElement> convert) {
 		if (list == null) {
 			return null;
 		} else {
@@ -261,6 +262,23 @@ public class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link ZonedDateTime} value to the {@link JsonObject}.
+		 * 
+		 * <p>
+		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
+		 * 
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, ZonedDateTime value) {
+			if (value != null) {
+				this.j.addProperty(property, value.format(DateTimeFormatter.ISO_INSTANT));
+			}
+			return this;
+		}
+
+		/**
 		 * Add a {@link Boolean} value to the {@link JsonObject}.
 		 *
 		 * @param property the key
@@ -331,7 +349,7 @@ public class JsonUtils {
 		}
 
 		/**
-		 * Add a {@link Enum} value to the {@link JsonObject}.
+		 * Add a {@link Enum} value to the {@link JsonObject} if it is not null.
 		 *
 		 * @param property the key
 		 * @param value    the value
@@ -340,6 +358,24 @@ public class JsonUtils {
 		public JsonObjectBuilder addPropertyIfNotNull(String property, Enum<?> value) {
 			if (value != null) {
 				this.j.addProperty(property, value.name());
+			}
+			return this;
+		}
+
+		/**
+		 * Add a {@link ZonedDateTime} value to the {@link JsonObject} if it is not
+		 * null.
+		 * 
+		 * <p>
+		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
+		 * 
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addPropertyIfNotNull(String property, ZonedDateTime value) {
+			if (value != null) {
+				this.addProperty(property, value);
 			}
 			return this;
 		}
@@ -1285,7 +1321,7 @@ public class JsonUtils {
 	 * Gets the {@link JsonElement} as {@link Optional} {@link UUID}.
 	 *
 	 * @param jElement the {@link JsonElement}
-	 * @return the {@link Optional} {@link Inet4Address} value
+	 * @return the {@link Optional} {@link UUID} value
 	 * @throws OpenemsNamedException on error
 	 */
 	// CHECKSTYLE:OFF
@@ -1680,7 +1716,7 @@ public class JsonUtils {
 	 * @return the {@link ZonedDateTime}
 	 * @throws OpenemsNamedException on parse error
 	 */
-	public static ZonedDateTime getAsZonedDateTime(JsonElement element, String memberName, ZoneId timezone)
+	public static ZonedDateTime getAsZonedDateWithZeroTime(JsonElement element, String memberName, ZoneId timezone)
 			throws OpenemsNamedException {
 		var date = JsonUtils.getAsString(element, memberName).split("-");
 		try {
@@ -1985,7 +2021,7 @@ public class JsonUtils {
 	}
 
 	private static <E extends Enum<E>> E toEnum(Class<E> enumType, String name) {
-		if (name == null) {
+		if (name == null || name.isBlank()) {
 			return null;
 		}
 		try {
@@ -1997,7 +2033,7 @@ public class JsonUtils {
 	}
 
 	private static Inet4Address toInet4Address(String name) {
-		if (name == null) {
+		if (name == null || name.isBlank()) {
 			return null;
 		}
 		try {
@@ -2011,7 +2047,7 @@ public class JsonUtils {
 	// CHECKSTYLE:OFF
 	private static UUID toUUID(String value) {
 		// CHECKSTYLE:ON
-		if (value == null) {
+		if (value == null || value.isBlank()) {
 			return null;
 		}
 		try {
