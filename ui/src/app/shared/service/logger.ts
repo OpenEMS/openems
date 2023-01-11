@@ -25,6 +25,7 @@ export class Logger {
      * @param msg the message to be logged
      */
     private sendLogMessageNotification(level: Level, msg: string) {
+
         if (environment.production == true) {
             this.service.websocket.sendNotification(new LogMessageNotification({ level: level, msg: msg }));
         }
