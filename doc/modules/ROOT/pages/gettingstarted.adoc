@@ -315,7 +315,7 @@ NOTE: The *Metadata* service provider is responsible for authentication of Edge 
 .Configuration of Backend Metadata.Dummy
 image::config-backend-metadata.dummy.png[Configuration of Backend Metadata.Dummy]
 +
-NOTE: In the example we are configuring the _**Metadata.Dummy**_ service. It takes no configuration parameters, so just press btn:[Save]. In a production system you would want to use a real implementation like _**Metadata.File**_, which uses a static JSON file as input, or _**Metadata.Odoo**_, which uses the *Odoo* business software for authentication and IoT device management. This will require the https://github.com/OpenEMS/odoo-openems[Odoo-OpenEMS-Addon] to be installed on your Odoo instance. See the https://gitpod.io/#https://github.com/OpenEMS/openems/tree/master[OpenEMS Live-Demo Gitpod workspace] for a full, production ready example configuration. For more information see → xref:simulation/gitpod.adoc[Gitpod Workspace]
+NOTE: In the example we are configuring the _**Metadata.Dummy**_ service. It takes no configuration parameters, so just press btn:[Save]. In a production system you would want to use a real implementation like _**Metadata.File**_, which uses a static JSON file as input, or _**Metadata.Odoo**_, which uses the *Odoo* business software for authentication and IoT device management. This will require the https://github.com/OpenEMS/odoo-openems[Odoo-OpenEMS-Addon] to be installed on your Odoo instance. See the https://gitpod.io/#https://github.com/OpenEMS/openems/tree/main[OpenEMS Live-Demo Gitpod workspace] for a full, production ready example configuration. For more information see → xref:simulation/gitpod.adoc[Gitpod Workspace]
 
 === Configure OpenEMS Edge
 
