@@ -37,10 +37,8 @@ export class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
     ) {
         super(QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            // fromDate: format(fromDate, 'yyyy-MM-dd'),
-            // toDate: format(toDate, 'yyyy-MM-dd'),
-            fromDate: "2023-01-01",
-            toDate: "2023-01-03",
+            fromDate: format(fromDate, 'yyyy-MM-dd'),
+            toDate: format(toDate, 'yyyy-MM-dd'),
             channels: JsonRpcUtils.channelsToStringArray(channels),
             resolution: resolution
         });

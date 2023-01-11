@@ -29,16 +29,6 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
     public modalCtrl: ModalController,
   ) { }
 
-  protected setShowPhases(event: boolean) {
-    this.showPhases = event;
-    this.updateValues();
-  }
-
-  protected setShowTotal(event: boolean) {
-    this.showTotal = event;
-    this.updateValues();
-  }
-
   public ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.service.getConfig().then(config => {

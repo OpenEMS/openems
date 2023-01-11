@@ -356,11 +356,10 @@ export type ChartData = {
   // displayValues: (data: ChannelData[]) => {
   displayValues: (data: { name: string, data: number[] }[]) => DisplayValues[],
   tooltip: {
-    /** Unit to be displayed as Tooltips unit */
     /** Format of Number displayed */
     formatNumber?: string;
   },
-  /** Name to be displayed on the left y-axis */
+  /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
   unit: YAxisTitle,
 }
 

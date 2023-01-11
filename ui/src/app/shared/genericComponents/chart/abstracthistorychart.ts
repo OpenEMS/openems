@@ -5,9 +5,11 @@ import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { ChartDataSets, ChartLegendLabelItem } from 'chart.js';
 import { isThisQuarter } from 'date-fns';
+import { NgxSpinnerService } from 'ngx-spinner';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
+
 import { calculateResolution, ChannelFilter, ChartData, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, DisplayValues, EMPTY_DATASET, isLabelVisible, setLabelVisible, TooltipItem, Unit, YAxisTitle } from '../../../edge/history/shared';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
@@ -56,7 +58,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   ) { }
 
   ngOnInit() {
-    // this.startSpinner();
+    this.startSpinner();
     this.service.setCurrentComponent('', this.route).then(edge => {
       this.service.getConfig().then(config => {
         // store important variables publically
@@ -88,110 +90,104 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   }
 
   private fillChart(energyPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse, energyResponse?: QueryHistoricTimeseriesEnergyResponse) {
-    return new Promise<void>(resolve => {
-      if (Utils.isDataEmpty(energyPeriodResponse)) {
-        return
+    if (Utils.isDataEmpty(energyPeriodResponse)) {
+      return
+    }
+
+    let result = energyPeriodResponse.result;
+    let labels: Date[] = [];
+    for (let timestamp of result.timestamps) {
+      labels.push(new Date(timestamp));
+    }
+
+    let channelData: { name: string, data: number[] }[] = []
+    this.chartObject.channel.forEach(element => {
+      let channelAddress: ChannelAddress = null;
+      if (this.chartType == 'bar' && element.energyChannel) {
+        channelAddress = element.energyChannel
+      } else {
+        channelAddress = element.powerChannel
       }
 
-      let result = energyPeriodResponse.result;
-      let labels: Date[] = [];
-      for (let timestamp of result.timestamps) {
-        labels.push(new Date(timestamp));
-      }
+      if (channelAddress?.toString() in result.data) {
+        channelData.push({
+          data: HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])?.map(value => {
+            if (value == null) {
+              return null
+            } else {
 
-      let channelData: { name: string, data: number[] }[] = []
-      this.chartObject.channel.forEach(element => {
-        let channelAddress: ChannelAddress = null;
-        if (this.chartType == 'bar' && element.energyChannel) {
-          channelAddress = element.energyChannel
-        } else {
-          channelAddress = element.powerChannel
-        }
-
-        if (channelAddress?.toString() in result.data) {
-          channelData.push({
-            data: HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])?.map(value => {
-              if (value == null) {
-                return null
-              } else {
-
-                // Custom Filters
-                switch (element.filter) {
-                  case ChannelFilter.NOT_NULL:
+              // Custom Filters
+              switch (element.filter) {
+                case ChannelFilter.NOT_NULL:
+                  return value;
+                case ChannelFilter.NOT_NULL_OR_NEGATIVE:
+                  if (value > 0) {
                     return value;
-                  case ChannelFilter.NOT_NULL_OR_NEGATIVE:
-                    if (value > 0) {
-                      return value;
-                    } else {
-                      return 0;
-                    }
-                  case ChannelFilter.NOT_NULL_OR_POSITIVE:
-                    if (value < 0) {
-                      return value;
-                    } else {
-                      return 0;
-                    }
-                  default:
-                    return value
-                }
+                  } else {
+                    return 0;
+                  }
+                case ChannelFilter.NOT_NULL_OR_POSITIVE:
+                  if (value < 0) {
+                    return value;
+                  } else {
+                    return 0;
+                  }
+                default:
+                  return value
               }
-            }) ?? null, name: element.name
-          })
-        }
-      })
-
-      // Fill datasets, labels and colors
-      let datasets: ChartDataSets[] = [];
-      let colors: any[] = [];
-      let displayValues: DisplayValues[] = this.chartObject.displayValues(channelData);
-
-      // TODO for each
-
-      displayValues.forEach(element => {
-        let values: number[] = element.setValue()
-        let nameSuffix = null;
-
-        // Check if energyResponse is available
-        if (energyResponse) {
-          nameSuffix = element.nameSuffix
-            ? (element.nameSuffix(energyResponse) != null
-              ? element.nameSuffix(energyResponse)
-              : null)
-            : null;
-        }
-
-        // Filter existing values
-        if (values) {
-          let label = this.getLabelName(element.name, nameSuffix);
-          datasets.push({
-            label: label,
-            data: values,
-            hidden: element.noStrokeThroughLegend ?? !isLabelVisible(element.name, !(element.hiddenOnInit)),
-            ...(element.stack && { stack: element.stack.toString() }),
-            maxBarThickness: 100,
-          })
-          this.legendOptions.push({
-            label: label,
-            noStrokeThroughLegend: element.noStrokeThroughLegend
-          })
-          colors.push({
-            backgroundColor: 'rgba(' + (this.chartType == 'bar' ? element.color.split('(').pop().split(')')[0] + ',0.4)' : element.color.split('(').pop().split(')')[0] + ',0.05)'),
-            borderColor: 'rgba(' + element.color.split('(').pop().split(')')[0] + ',1)',
-          })
-        }
-      })
-
-      this.datasets = datasets;
-      this.colors = colors;
-      this.labels = labels;
-      resolve()
+            }
+          }) ?? null, name: element.name
+        })
+      }
     })
+
+    // Fill datasets, labels and colors
+    let datasets: ChartDataSets[] = [];
+    let colors: any[] = [];
+    let displayValues: DisplayValues[] = this.chartObject.displayValues(channelData);
+
+    displayValues.forEach(element => {
+      let values: number[] = element.setValue()
+      let nameSuffix = null;
+
+      // Check if energyResponse is available
+      if (energyResponse) {
+        nameSuffix = element.nameSuffix
+          ? (element.nameSuffix(energyResponse) != null
+            ? element.nameSuffix(energyResponse)
+            : null)
+          : null;
+      }
+
+      // Filter existing values
+      if (values) {
+        let label = this.getLabelName(element.name, nameSuffix);
+        datasets.push({
+          label: label,
+          data: values,
+          hidden: element.noStrokeThroughLegend ?? !isLabelVisible(element.name, !(element.hiddenOnInit)),
+          ...(element.stack && { stack: element.stack.toString() }),
+          maxBarThickness: 100,
+        })
+        this.legendOptions.push({
+          label: label,
+          noStrokeThroughLegend: element.noStrokeThroughLegend
+        })
+        colors.push({
+          backgroundColor: 'rgba(' + (this.chartType == 'bar' ? element.color.split('(').pop().split(')')[0] + ',0.4)' : element.color.split('(').pop().split(')')[0] + ',0.05)'),
+          borderColor: 'rgba(' + element.color.split('(').pop().split(')')[0] + ',1)',
+        })
+      }
+    })
+
+    this.datasets = datasets;
+    this.colors = colors;
+    this.labels = labels;
 
   }
 
   private loadChart() {
 
-    this.datasets = EMPTY_DATASET(this.translate);
     this.labels = []
     let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
 
@@ -203,40 +199,39 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to),
         this.queryHistoricTimeseriesEnergy(this.period.from, this.period.to)
       ]).then(response => {
-        this.fillChart(response[0], response[1]).then(() => {
-          this.setChartLabel();
-        }).finally(() => {
+        this.fillChart(response[0], response[1])
+        this.setChartLabel();
+      }).finally(() => {
 
-          let barWidthPercentage = 0;
-          let categoryGapPercentage = 0;
-          switch (this.service.periodString) {
-            case DefaultTypes.PeriodString.CUSTOM: {
-              barWidthPercentage = 0.7;
-              categoryGapPercentage = 0.4;
-            }
-            case DefaultTypes.PeriodString.MONTH: {
-              if (this.service.isSmartphoneResolution == true) {
-                barWidthPercentage = 1;
-                categoryGapPercentage = 0.6;
-              } else {
-                barWidthPercentage = 0.9;
-                categoryGapPercentage = 0.8;
-              }
-            }
-            case DefaultTypes.PeriodString.YEAR: {
-              if (this.service.isSmartphoneResolution == true) {
-                barWidthPercentage = 1;
-                categoryGapPercentage = 0.6;
-              } else {
-                barWidthPercentage = 0.8;
-                categoryGapPercentage = 0.8;
-              }
+        let barWidthPercentage = 0;
+        let categoryGapPercentage = 0;
+        switch (this.service.periodString) {
+          case DefaultTypes.PeriodString.CUSTOM: {
+            barWidthPercentage = 0.7;
+            categoryGapPercentage = 0.4;
+          }
+          case DefaultTypes.PeriodString.MONTH: {
+            if (this.service.isSmartphoneResolution == true) {
+              barWidthPercentage = 1;
+              categoryGapPercentage = 0.6;
+            } else {
+              barWidthPercentage = 0.9;
+              categoryGapPercentage = 0.8;
             }
           }
-          this.datasets.forEach(element => {
-            element.barPercentage = barWidthPercentage;
-            element.categoryPercentage = categoryGapPercentage;
-          })
+          case DefaultTypes.PeriodString.YEAR: {
+            if (this.service.isSmartphoneResolution == true) {
+              barWidthPercentage = 1;
+              categoryGapPercentage = 0.6;
+            } else {
+              barWidthPercentage = 0.8;
+              categoryGapPercentage = 0.8;
+            }
+          }
+        }
+        this.datasets.forEach(element => {
+          element.barPercentage = barWidthPercentage;
+          element.categoryPercentage = categoryGapPercentage;
         })
       })
     } else {
@@ -250,7 +245,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
           this.chartType = 'line'
           this.fillChart(response[0], response[1]);
           this.setChartLabel();
-          this.stopSpinner()
         })
     }
   }
@@ -282,6 +276,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                 timestamps: [null], data: { null: null }
               }));
             }
+          }).catch(() => {
+            this.initializeChart()
           });
         })
       })
@@ -292,12 +288,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
         // load defaultchart
         this.isDataExisting = false;
-        this.stopSpinner()
         this.initializeChart()
       }
       return response
     })
-
     return result
   }
 
@@ -329,6 +323,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                   timestamps: [null], data: { null: null }
                 }));
               }
+            }).catch(() => {
+              this.initializeChart()
             })
           }
         })
@@ -340,7 +336,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
         // load defaultchart
         this.isDataExisting = false;
-        this.service.stopSpinner(this.spinnerId)
+        this.stopSpinner()
         this.initializeChart()
       }
       return response
@@ -376,15 +372,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                   data: { null: null }
                 }));
               }
+            }).catch(() => {
+              this.initializeChart()
             })
           }
         })
       });
     })
 
-    // load defaultchart
-    this.service.stopSpinner(this.spinnerId)
-    this.initializeChart()
     return result
   }
 
@@ -444,6 +439,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       let value = tooltipItem.value;
 
       // Show floating point number for values between 0 and 1
+      // TODO find better workaround for legend labels
       return label.split(":")[0] + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + this.getToolTipsLabel(chartObject.unit);
     }
 
@@ -466,12 +462,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
       let chartLegendLabelItems: ChartLegendLabelItem[] = [];
       chart.data.datasets.forEach((dataset, index) => {
-        let isHidden = legendOptions?.find(el => el.label == dataset.label)?.noStrokeThroughLegend ?? null
+        let isHidden = !(legendOptions?.find(el => el.label == dataset.label)?.noStrokeThroughLegend) ?? null
         chartLegendLabelItems.push({
           text: dataset.label,
           datasetIndex: index,
           fillStyle: dataset.backgroundColor.toString(),
-          hidden: isHidden ? !isHidden : !chart.isDatasetVisible(index),
+          hidden: isHidden != null ? isHidden : !chart.isDatasetVisible(index),
           lineWidth: 2,
           strokeStyle: dataset.borderColor.toString()
         })
@@ -493,7 +489,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     this.datasets = EMPTY_DATASET(this.translate);
     this.labels = [];
     this.loading = false;
-    this.stopSpinner();
+    this.stopSpinner()
   }
 
   /**
@@ -537,21 +533,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     }
   }
 
-  protected getLabelName(baseName: string, suffix?: number | string): string {
-    if (suffix !== null) {
+  protected getLabelName(baseName: string, suffix?: number): string {
+    if (suffix != null) {
       switch (this.chartObject.unit) {
         case YAxisTitle.ENERGY:
-          if (typeof suffix == 'number') {
-            return baseName + ": " + formatNumber(suffix / 1000, 'de', "1.0-2") + " kWh";
-          } else {
-            return baseName + ": " + suffix + " kWh";
-          }
+          return baseName + ": " + formatNumber(suffix / 1000, 'de', "1.0-2") + " kWh";
         case YAxisTitle.PERCENTAGE:
-          if (typeof suffix == 'number') {
-            return baseName + ": " + formatNumber(suffix, 'de', "1.0-1") + " %";
-          } else {
-            return baseName + ": " + suffix + " %";
-          }
+          return baseName + ": " + formatNumber(suffix, 'de', "1.0-1") + " %";
       }
     }
     return baseName;

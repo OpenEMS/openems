@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { HistoryUtils, Utils } from '../../../../../shared/service/utils';
+import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+import { Utils } from '../../../../../shared/service/utils';
 import { ChannelAddress } from '../../../../../shared/shared';
 import { ChannelFilter, Channels, ChartData, DisplayValues, YAxisTitle } from '../../../shared';
-import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart'
-import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 
 @Component({
   selector: 'productionTotalChart',
@@ -113,7 +113,9 @@ export class TotalChartComponent extends AbstractHistoryChart {
         }
 
         // ProductionMeters
-        for (let component of productionMeterComponents) {
+        let productionMeterColors: string[] = ['rgb(253,197,7)', 'rgb(202, 158, 6', 'rgb(228, 177, 6)', 'rgb(177, 138, 5)', 'rgb(152, 118, 4)']
+        for (let i = 0; i < productionMeterComponents.length; i++) {
+          let component = productionMeterComponents[i]
           datasets.push({
             name: component.alias ?? component.id,
             nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
@@ -122,12 +124,12 @@ export class TotalChartComponent extends AbstractHistoryChart {
             setValue: () => {
               return channel.find(element => element.name == component.id)?.data ?? null
             },
-            color: 'rgb(253,197,7)',
+            color: productionMeterColors[Math.min(i, (productionMeterColors.length - 1))],
             stack: 1,
           })
         }
 
-        let chargerColors: string[] = ['rgb(0,223,0)', 'rgb(0,178,0)', 'rgb(0,201,0)', 'rgb(0,134,0)', 'rgb(0,156,0)', 'rgb(0,112,0)', 'rgb(0,89,0)']
+        let chargerColors: string[] = ['rgb(0,223,0)', 'rgb(0,178,0)', 'rgb(0,201,0)', 'rgb(0,134,0)', 'rgb(0,156,0)']
         // ChargerComponents
         for (let i = 0; i < chargerComponents.length; i++) {
           let component = chargerComponents[i];
@@ -139,7 +141,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
             setValue: () => {
               return channel.find(element => element.name == component.id)?.data ?? null
             },
-            color: chargerColors[i],
+            color: chargerColors[Math.min(i, (chargerColors.length - 1))],
             stack: 1
           })
         }
