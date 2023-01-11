@@ -48,7 +48,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   public chartType: 'line' | 'bar' = 'line';
   protected isDataExisting: boolean = true;
   protected config: EdgeConfig = null;
-  private legendOptions: { label: string, noStrokeThroughLegend: boolean }[] = [];
+  private legendOptions: { label: string, strokeThroughHidingStyle: boolean }[] = [];
 
   constructor(
     public service: Service,
@@ -165,13 +165,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         datasets.push({
           label: label,
           data: values,
-          hidden: element.noStrokeThroughLegend ?? !isLabelVisible(element.name, !(element.hiddenOnInit)),
+          hidden: element.strokeThroughHidingStyle ?? !isLabelVisible(element.name, !(element.hiddenOnInit)),
           ...(element.stack && { stack: element.stack.toString() }),
           maxBarThickness: 100,
         })
         this.legendOptions.push({
           label: label,
-          noStrokeThroughLegend: element.noStrokeThroughLegend
+          strokeThroughHidingStyle: element.strokeThroughHidingStyle
         })
         colors.push({
           backgroundColor: 'rgba(' + (this.chartType == 'bar' ? element.color.split('(').pop().split(')')[0] + ',0.4)' : element.color.split('(').pop().split(')')[0] + ',0.05)'),
@@ -462,7 +462,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
       let chartLegendLabelItems: ChartLegendLabelItem[] = [];
       chart.data.datasets.forEach((dataset, index) => {
-        let isHidden = !(legendOptions?.find(el => el.label == dataset.label)?.noStrokeThroughLegend) ?? null
+
+        // No striktrhough label if hidden
+        let isHidden = legendOptions?.find(element => element.label == dataset.label)?.strokeThroughHidingStyle ?? null
         chartLegendLabelItems.push({
           text: dataset.label,
           datasetIndex: index,

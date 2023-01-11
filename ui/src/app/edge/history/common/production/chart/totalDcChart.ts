@@ -31,7 +31,7 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
           setValue: () => {
             return channel.find(element => element.name == 'ProductionDcActual')?.data ?? null
           },
-          noStrokeThroughLegend: true,
+          strokeThroughHiddingStyle: false,
           color: 'rgb(0,152,204)'
         }]
       },

@@ -344,8 +344,9 @@ export type DisplayValues = {
   setValue: () => number[],
 
   hiddenOnInit?: boolean,
+  /** default: true, stroke through label for hidden dataset */
+  strokeThroughHidingStyle?: boolean,
   /** color in rgb-Format */
-  noStrokeThroughLegend?: boolean,
   color: string,
   filter?: ChannelFilter,
   stack?: number,
