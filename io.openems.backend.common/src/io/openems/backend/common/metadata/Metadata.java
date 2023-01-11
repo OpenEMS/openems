@@ -14,7 +14,6 @@ import org.osgi.service.event.EventAdmin;
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.event.BackendEventConstants;
 import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
@@ -28,17 +27,6 @@ import io.openems.common.types.EdgeConfig.Component.Channel.ChannelDetailState;
 
 @ProviderType
 public interface Metadata {
-
-	/**
-	 * Was the Metadata service fully initialized?.
-	 *
-	 * <p>
-	 * The service might take some time in the beginning to establish a connection
-	 * or to cache data from an external database.
-	 *
-	 * @return true if it is initialized
-	 */
-	public boolean isInitialized();
 
 	/**
 	 * Authenticates the User by username and password.
@@ -324,15 +312,6 @@ public interface Metadata {
 	 * @return {@link EventAdmin}
 	 */
 	public EventAdmin getEventAdmin();
-
-	/**
-	 * Defines Events a Metadata can throw.
-	 */
-	public static final class Events {
-		private static final String TOPIC_BASE = BackendEventConstants.TOPIC_BASE + "metadata/";
-
-		public static final String AFTER_IS_INITIALIZED = Events.TOPIC_BASE + "TOPIC_AFTER_IS_INITIALIZED";
-	}
 
 	/**
 	 * Get serial number for the given {@link Edge}.

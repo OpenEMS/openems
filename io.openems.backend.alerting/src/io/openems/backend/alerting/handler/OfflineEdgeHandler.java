@@ -47,9 +47,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 
 		this.mss = mss;
 		this.msgScheduler = mss.register(this);
-		if (this.metadata.isInitialized()) {
-			this.handleMetadataAfterInitialize();
-		}
+		this.initOfflineEdges();
 	}
 
 	@Override
@@ -205,7 +203,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	 * Check Metadata for all OfflineEdges. Waits given in initialDelay, before
 	 * executing.
 	 */
-	private void handleMetadataAfterInitialize() {
+	private void initOfflineEdges() {
 		if (this.initialDelay <= 0) {
 			this.checkMetadata();
 		} else {
@@ -231,10 +229,6 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		switch (event.getTopic()) {
 		case Edge.Events.ON_SET_ONLINE:
 			this.handleEdgeOnSetOnline(reader);
-			break;
-
-		case Metadata.Events.AFTER_IS_INITIALIZED:
-			this.handleMetadataAfterInitialize();
 			break;
 		}
 	}

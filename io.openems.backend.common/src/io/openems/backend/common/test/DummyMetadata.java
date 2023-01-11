@@ -20,10 +20,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
 
 public class DummyMetadata implements Metadata {
-	@Override
-	public boolean isInitialized() {
-		return false;
-	}
 
 	@Override
 	public Optional<Edge> getEdge(String edgeId) {

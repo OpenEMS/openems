@@ -12,10 +12,9 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.event.Event;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.EventAdmin;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +44,7 @@ import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		immediate = true //
 )
-@EventTopics({ //
-		Metadata.Events.AFTER_IS_INITIALIZED //
-})
-public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket, EventHandler {
+public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
 
@@ -69,33 +65,39 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile UiWebsocket uiWebsocket;
 
-	public EdgeWebsocketImpl() {
-		super("Edge.Websocket");
-		this.systemLogHandler = new SystemLogHandler(this);
-	}
-
-	private Config config;
-
 	@Activate
-	private void activate(Config config) {
+	public EdgeWebsocketImpl(Config config) {
+		super("Edge.Websocket");
 		this.config = config;
+		this.systemLogHandler = new SystemLogHandler(this);
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
 			this.log.info(new StringBuilder("[monitor] ") //
 					.append("Edge-Connections: ")
 					.append(this.server != null ? this.server.getConnections().size() : "initializing") //
 					.toString());
 		}, 10, 10, TimeUnit.SECONDS);
-
-		if (this.metadata.isInitialized()) {
-			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
-		}
-
 	}
+
+	private Config config;
 
 	@Deactivate
 	private void deactivate() {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		this.stopServer();
+	}
+
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MANDATORY //
+	)
+	protected void bindMetadata(Metadata metadata) {
+		this.metadata = metadata;
+		this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+	}
+
+	protected void unbindMetadata(Metadata metadata) {
+		this.metadata = null;
 	}
 
 	/**
@@ -257,12 +259,4 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		this.systemLogHandler.handleSystemLogNotification(edgeId, notification);
 	}
 
-	@Override
-	public void handleEvent(Event event) {
-		switch (event.getTopic()) {
-		case Metadata.Events.AFTER_IS_INITIALIZED:
-			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
-			break;
-		}
-	}
 }

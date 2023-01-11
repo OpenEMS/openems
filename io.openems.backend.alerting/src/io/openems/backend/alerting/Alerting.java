@@ -3,8 +3,10 @@ package io.openems.backend.alerting;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -26,45 +28,53 @@ import io.openems.backend.common.metadata.Metadata;
 		immediate = true //
 )
 @EventTopics({ //
-		Edge.Events.ON_SET_ONLINE, //
-		Metadata.Events.AFTER_IS_INITIALIZED //
+		Edge.Events.ON_SET_ONLINE //
 })
 public class Alerting extends AbstractOpenemsBackendComponent implements EventHandler {
 
+	@Component(//
+			service = StartParameter.class //
+	)
+	public static class StartParameter {
+
+		protected final Metadata metadata;
+		protected final Mailer mailer;
+
+		@Activate
+		public StartParameter(@Reference Metadata metadata, @Reference Mailer mailer) {
+			this.metadata = metadata;
+			this.mailer = mailer;
+		}
+
+	}
+
 	private final Logger log = LoggerFactory.getLogger(Alerting.class);
 
-	@Reference
-	protected Metadata metadata;
-
-	@Reference
-	protected Mailer mailer;
-
+	private final int initialDelay;
 	protected final Scheduler scheduler;
 	protected Handler<?>[] handler = {};
 
-	protected Alerting(Scheduler scheduler) {
-		super("Alerting");
-
-		this.scheduler = scheduler;
-	}
-
-	public Alerting() {
-		this(new Scheduler());
-	}
-
 	@Activate
-	protected void activate(Config config) {
-		this.logInfo(this.log, "Activate");
-		this.scheduler.start();
+	public Alerting(Config config) {
+		super("Alerting");
+		this.initialDelay = config.initialDelay();
+		this.scheduler = new Scheduler();
 
-		this.handler = new Handler[] {
-				new OfflineEdgeHandler(this.scheduler, this.mailer, this.metadata, config.initialDelay()) };
+		this.logInfo(this.log, "Activate");
 	}
 
-	@Deactivate
-	protected void deactivate() {
-		this.logInfo(this.log, "Deactivate");
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MANDATORY //
+	)
+	protected void bindStartParameter(StartParameter params) {
+		this.scheduler.start();
+		this.handler = new Handler[] {
+				new OfflineEdgeHandler(this.scheduler, params.mailer, params.metadata, this.initialDelay) };
+	}
 
+	protected void unbindStartParameter(StartParameter params) {
 		for (Handler<?> handlerInstance : this.handler) {
 			handlerInstance.stop();
 		}

@@ -3,32 +3,20 @@ package io.openems.backend.alerting;
 import static org.junit.Assert.assertEquals;
 
 import java.lang.annotation.Annotation;
+import java.time.ZonedDateTime;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.osgi.service.event.Event;
 
+import com.google.gson.JsonElement;
+
+import io.openems.backend.alerting.Alerting.StartParameter;
+import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.test.DummyMetadata;
 
 public class AlertingTest {
-
-	private static final Config testConf = new Config() {
-
-		@Override
-		public Class<? extends Annotation> annotationType() {
-			return null;
-		}
-
-		@Override
-		public String webconsole_configurationFactory_nameHint() {
-			return null;
-		}
-
-		@Override
-		public int initialDelay() {
-			return 15;
-		}
-	};
 
 	private static Config conf = new Config() {
 		@Override
@@ -47,42 +35,50 @@ public class AlertingTest {
 		}
 	};
 
+	private DummyAlerting alerting;
+
+	@Before
+	public void test() {
+		this.alerting = new DummyAlerting(conf);
+
+		var params = new StartParameter(new DummyMetadata(), new DummyMailer());
+		this.alerting.bindStartParameter(params);
+	}
+
 	@Test
 	public void testActivateAndDeactivate() {
-		var alerting = new DummyAlerting();
-		alerting.metadata = new DummyMetadata();
+		assertEquals(1, this.alerting.handlerCount());
 
-		// Activate
-		alerting.activate(conf);
+		this.alerting.unbindStartParameter(null);
 
-		assertEquals(1, alerting.handlerCount());
-
-		// Deactivate
-		alerting.deactivate();
-
-		assertEquals(0, alerting.handlerCount());
+		assertEquals(0, this.alerting.handlerCount());
 	}
 
 	@Test
 	public void testHandleEvent() {
-		final var alerting = new DummyAlerting();
+		assertEquals(null, this.alerting.lastEvent);
+
 		final var event = new Event("TestEvent", Map.of());
+		this.alerting.handleEvent(event);
 
-		alerting.activate(testConf);
+		assertEquals(event, this.alerting.lastEvent);
+	}
 
-		assertEquals(null, alerting.lastEvent);
+	static class DummyMailer implements Mailer {
 
-		alerting.handleEvent(event);
+		@Override
+		public void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
+			throw new UnsupportedOperationException();
+		}
 
-		assertEquals(event, alerting.lastEvent);
 	}
 
 	/* ********** */
 	static class DummyAlerting extends Alerting {
 		Event lastEvent;
 
-		public DummyAlerting() {
-			super.metadata = new DummyMetadata();
+		public DummyAlerting(Config config) {
+			super(config);
 		}
 
 		private int handlerCount() {

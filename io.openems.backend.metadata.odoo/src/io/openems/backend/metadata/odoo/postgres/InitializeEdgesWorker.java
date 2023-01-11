@@ -20,17 +20,15 @@ public class InitializeEdgesWorker {
 	private final Logger log = LoggerFactory.getLogger(InitializeEdgesWorker.class);
 	protected final PostgresHandler parent;
 	private final HikariDataSource dataSource;
-	private final Runnable onFinished;
 
 	/**
 	 * Executor for subscriptions task.
 	 */
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-	public InitializeEdgesWorker(PostgresHandler parent, HikariDataSource dataSource, Runnable onFinished) {
+	public InitializeEdgesWorker(PostgresHandler parent, HikariDataSource dataSource) {
 		this.parent = parent;
 		this.dataSource = dataSource;
-		this.onFinished = onFinished;
 	}
 
 	/**
@@ -47,7 +45,6 @@ public class InitializeEdgesWorker {
 				this.parent.logWarn(this.log, "Caching Edges from Postgres [canceled]");
 				this.logError("Unable to connect do dataSource. ", e);
 			}
-			this.onFinished.run();
 		});
 	}
 

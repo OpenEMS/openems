@@ -26,15 +26,12 @@ public class PostgresHandler {
 	private final InitializeEdgesWorker initializeEdgesWorker;
 	private final PeriodicWriteWorker periodicWriteWorker;
 
-	public PostgresHandler(OdooMetadata parent, EdgeCache edgeCache, Config config, Runnable onInitialized)
-			throws SQLException {
+	public PostgresHandler(OdooMetadata parent, EdgeCache edgeCache, Config config) throws SQLException {
 		this.parent = parent;
 		this.edgeCache = edgeCache;
 		this.dataSource = this.getDataSource(config);
 		this.edge = new PgEdgeHandler(this.dataSource);
-		this.initializeEdgesWorker = new InitializeEdgesWorker(this, this.dataSource, () -> {
-			onInitialized.run();
-		});
+		this.initializeEdgesWorker = new InitializeEdgesWorker(this, this.dataSource);
 		this.initializeEdgesWorker.start();
 		this.periodicWriteWorker = new PeriodicWriteWorker(this);
 		this.periodicWriteWorker.start();

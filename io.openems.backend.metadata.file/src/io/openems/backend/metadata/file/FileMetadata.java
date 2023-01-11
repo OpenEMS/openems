@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.AbstractMetadata;
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
@@ -75,7 +75,7 @@ import io.openems.common.utils.JsonUtils;
 @EventTopics({ //
 		Edge.Events.ON_SET_CONFIG //
 })
-public class FileMetadata extends AbstractMetadata implements Metadata, EventHandler {
+public class FileMetadata extends AbstractOpenemsBackendComponent implements Metadata, EventHandler {
 
 	private static final String USER_ID = "admin";
 	private static final String USER_NAME = "Administrator";
@@ -218,7 +218,6 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 				this.user.setRole(edge.getId(), Role.ADMIN);
 			}
 		}
-		this.setInitialized();
 	}
 
 	private static User generateUser() {

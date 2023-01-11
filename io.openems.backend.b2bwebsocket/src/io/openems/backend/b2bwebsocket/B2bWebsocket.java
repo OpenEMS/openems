@@ -10,9 +10,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.event.propertytypes.EventTopics;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
@@ -31,10 +29,7 @@ import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-@EventTopics({ //
-		Metadata.Events.AFTER_IS_INITIALIZED //
-})
-public class B2bWebsocket extends AbstractOpenemsBackendComponent implements EventHandler {
+public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 
 	public static final int DEFAULT_PORT = 8076;
 
@@ -43,7 +38,6 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent implements Eve
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile JsonRpcRequestHandler jsonRpcRequestHandler;
 
-	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Metadata metadata;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
@@ -52,21 +46,32 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent implements Eve
 	protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(10,
 			new ThreadFactoryBuilder().setNameFormat("B2bWebsocket-%d").build());
 
-	public B2bWebsocket() {
+	@Activate
+	public B2bWebsocket(Config config) {
 		super("Backend2Backend.Websocket");
+		this.config = config;
 	}
 
 	private Config config;
-
-	@Activate
-	private void activate(Config config) {
-		this.config = config;
-	}
 
 	@Deactivate
 	private void deactivate() {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
 		this.stopServer();
+	}
+
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MANDATORY //
+	)
+	protected void bindMetadata(Metadata metadata) {
+		this.metadata = metadata;
+		this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+	}
+
+	protected void unbindMetadata(Metadata metadata) {
+		this.metadata = null;
 	}
 
 	/**
@@ -105,12 +110,4 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent implements Eve
 		super.logError(log, message);
 	}
 
-	@Override
-	public void handleEvent(Event event) {
-		switch (event.getTopic()) {
-		case Metadata.Events.AFTER_IS_INITIALIZED:
-			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
-			break;
-		}
-	}
 }

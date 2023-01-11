@@ -83,11 +83,6 @@ public class Dummy {
 		}
 
 		@Override
-		public boolean isInitialized() {
-			return true;
-		}
-
-		@Override
 		public Optional<Edge> getEdge(String edgeId) {
 			return this.edges.stream().filter(e -> e.getId() == edgeId).findFirst();
 		}

@@ -1,5 +1,6 @@
 package io.openems.backend.metadata.dummy;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -27,12 +27,14 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.AbstractMetadata;
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
+import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
@@ -54,7 +56,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 @EventTopics({ //
 		Edge.Events.ON_SET_CONFIG //
 })
-public class DummyMetadata extends AbstractMetadata implements Metadata, EventHandler {
+public class DummyMetadata extends AbstractOpenemsBackendComponent implements Metadata, Mailer, EventHandler {
 
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
@@ -76,11 +78,6 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 		super("Metadata.Dummy");
 		this.eventAdmin = eventadmin;
 		this.logInfo(this.log, "Activate");
-
-		// Allow the services some time to settle
-		this.executor.schedule(() -> {
-			this.setInitialized();
-		}, 10, TimeUnit.SECONDS);
 	}
 
 	@Deactivate
@@ -171,7 +168,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public Collection<Edge> getAllOfflineEdges() {
-		return  this.edges.values().stream().filter(Edge::isOffline).collect(Collectors.toUnmodifiableList());
+		return this.edges.values().stream().filter(Edge::isOffline).collect(Collectors.toUnmodifiableList());
 	}
 
 	private static Optional<Integer> parseNumberFromName(String name) {
@@ -266,5 +263,10 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 	@Override
 	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) {
 		throw new UnsupportedOperationException("DummyMetadata.setUserAlertingSettings() is not implemented");
+	}
+
+	@Override
+	public void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
+		this.logInfo(this.log, "Mail sent...");
 	}
 }

@@ -31,7 +31,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.metadata.AbstractMetadata;
+import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
@@ -64,7 +64,7 @@ import io.openems.common.utils.ThreadPoolUtils;
 @EventTopics({ //
 		Edge.Events.ALL_EVENTS //
 })
-public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, EventHandler {
+public class OdooMetadata extends AbstractOpenemsBackendComponent implements Metadata, Mailer, EventHandler {
 
 	private static final int EXECUTOR_MIN_THREADS = 1;
 	private static final int EXECUTOR_MAX_THREADS = 50;
@@ -105,9 +105,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 				+ "Database [" + config.database() + "]");
 
 		this.odooHandler = new OdooHandler(this, this.edgeCache, config);
-		this.postgresHandler = new PostgresHandler(this, this.edgeCache, config, () -> {
-			this.setInitialized();
-		});
+		this.postgresHandler = new PostgresHandler(this, this.edgeCache, config);
 	}
 
 	@Deactivate

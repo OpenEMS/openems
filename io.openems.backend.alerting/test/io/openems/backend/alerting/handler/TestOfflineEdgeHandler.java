@@ -108,11 +108,6 @@ public class TestOfflineEdgeHandler {
 		private final ZonedDateTime yesterday = this.now.minusDays(1);
 
 		@Override
-		public boolean isInitialized() {
-			return true;
-		}
-
-		@Override
 		public Collection<Edge> getAllOfflineEdges() {
 			var edges = new ArrayList<Edge>(OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS + 1);
 			for (var i = 0; i <= OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS; i++) {

@@ -11,9 +11,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.event.propertytypes.EventTopics;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
@@ -38,10 +38,7 @@ import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		immediate = true //
 )
-@EventTopics({ //
-		Metadata.Events.AFTER_IS_INITIALIZED //
-})
-public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket, EventHandler {
+public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket {
 
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
@@ -59,25 +56,32 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	@Reference
 	protected volatile Timedata timeData;
 
-	public UiWebsocketImpl() {
+	@Activate
+	public UiWebsocketImpl(Config config) {
 		super("Ui.Websocket");
+		this.config = config;
 	}
 
 	private Config config;
-
-	@Activate
-	private void activate(Config config) {
-		this.config = config;
-
-		if (this.metadata.isInitialized()) {
-			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
-		}
-	}
 
 	@Deactivate
 	private void deactivate() {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		this.stopServer();
+	}
+
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MANDATORY //
+	)
+	protected void bindMetadata(Metadata metadata) {
+		this.metadata = metadata;
+		this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+	}
+
+	protected void unbindMetadata(Metadata metadata) {
+		this.metadata = null;
 	}
 
 	/**
@@ -201,15 +205,6 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 			}
 		}
 		return result;
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		switch (event.getTopic()) {
-		case Metadata.Events.AFTER_IS_INITIALIZED:
-			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
-			break;
-		}
 	}
 
 	@Override
