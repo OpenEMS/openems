@@ -20,8 +20,11 @@
 
 -runbundles+: \
 	org.apache.felix.scr;startlevel=10,\
-	org.eclipse.equinox.event;startlevel=11,\
-	org.ops4j.pax.logging.pax-logging-log4j2;startlevel=12
+	org.apache.felix.configadmin;startlevel=11,\
+	org.apache.felix.eventadmin;startlevel=12,\
+	org.ops4j.pax.logging.pax-logging-api;startlevel=13,\
+	org.ops4j.pax.logging.pax-logging-log4j2;startlevel=14,\
+	io.openems.edge.application;startlevel=15,\
 
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
