@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import { environment } from "src/environments";
 import { LogMessageNotification } from "../jsonrpc/notification/logMessageNotification";
 import { Service } from "./service";
 
@@ -24,7 +25,10 @@ export class Logger {
      * @param msg the message to be logged
      */
     private sendLogMessageNotification(level: Level, msg: string) {
-        this.service.websocket.sendNotification(new LogMessageNotification({ level: level, msg: msg }));
+
+        if (environment.production == true) {
+            this.service.websocket.sendNotification(new LogMessageNotification({ level: level, msg: msg }));
+        }
     }
 
     /**

@@ -83,8 +83,8 @@ update_fems_branches() {
     echo "# Fetch remotes"
     git fetch
 
-    echo "# Update branch fems/master"
-    git checkout master
+    echo "# Update branch fems/main"
+    git checkout main
     git pull
 
     echo "# Update branch fems/develop"
@@ -149,7 +149,7 @@ prepare_next_snapshot() {
 
 push_to_remote() {
     git push -u origin develop
-    git push -u origin master
+    git push -u origin main
 }
 
 main; exit

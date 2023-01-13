@@ -115,7 +115,8 @@ public class SocomecMeter extends AbstractMeterApp<Property> implements OpenemsA
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "modbusUnitId.description")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, "App.Meter.modbusUnitId.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(6) //
 								.setMin(0) //
