@@ -5,7 +5,7 @@ docker pull adoptopenjdk/openjdk11
 
 docker build -t openems-build:latest -<<EOF
 FROM adoptopenjdk/openjdk11
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 
 RUN apt-get update  \
         && apt-get install -y git nodejs wget curl unzip xvfb libxi6 libgconf-2-4 fonts-liberation \
