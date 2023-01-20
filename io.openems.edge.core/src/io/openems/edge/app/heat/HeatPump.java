@@ -136,16 +136,16 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[0])) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".outputChannel1.label"))
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".outputChannel1.description"))
+								.setDescription(TranslationUtil.getTranslation(bundle, //
+										"App.Heat.outputChannel.description")) //
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_2) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[1])) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".outputChannel2.label"))
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".outputChannel2.description"))
+								.setDescription(TranslationUtil.getTranslation(bundle, //
+										"App.Heat.outputChannel.description")) //
 								.build())
 						.build())
 				.build();
