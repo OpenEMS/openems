@@ -123,6 +123,14 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 									.build()) //
 			);
 
+			final var schedulerIds = Lists.newArrayList(//
+			        "ctrlEmergencyCapacityReserve0",
+					controllerId, //
+					"ctrlGridOptimizedCharge0", //
+					"ctrlEssSurplusFeedToGrid0", //
+					"ctrlBalancing0" //
+			);
+
 			var dependencies = Lists.newArrayList(//
 					new DependencyDeclaration("READ_ONLY", //
 							DependencyDeclaration.CreatePolicy.NEVER, //
@@ -139,7 +147,7 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 									.build()) //
 			);
 
-			return new AppConfiguration(components, null, null, dependencies);
+			return new AppConfiguration(components, schedulerIds, null, dependencies);
 		};
 	}
 
