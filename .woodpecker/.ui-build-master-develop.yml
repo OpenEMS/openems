@@ -9,7 +9,7 @@
 clone:  
   git-clone:
     when:
-      branch: [master, develop]
+      branch: [main, develop]
     image: woodpeckerci/plugin-git:v1.6.1
     settings:
       depth: 1
@@ -21,7 +21,7 @@ clone:
 pipeline:
   restore-cache:
     when:
-      branch: [master, develop]
+      branch: [main, develop]
     image: drillster/drone-volume-cache
     restore: true
     mount:
@@ -33,7 +33,7 @@ pipeline:
 
   build-ui:
     when:
-      branch: [master, develop]
+      branch: [main, develop]
     image: openems-build:latest
     commands:
       - cd ui
@@ -48,7 +48,7 @@ pipeline:
 
   refresh-dev:
     when:
-      branch: [master, develop]
+      branch: [main, develop]
     image: appleboy/drone-scp
     host: 10.0.0.40
     user: fenecon-docs
@@ -63,7 +63,7 @@ pipeline:
 
   refresh-location:
     when:
-      branch: [master, develop]
+      branch: [main, develop]
     image: appleboy/drone-ssh
     host: 10.0.0.40
     username: fenecon-docs
@@ -76,7 +76,7 @@ pipeline:
 
   rebuild-cache:
     when:
-      branch: [master, develop]
+      branch: [main, develop]
     image: drillster/drone-volume-cache
     rebuild: true
     mount:

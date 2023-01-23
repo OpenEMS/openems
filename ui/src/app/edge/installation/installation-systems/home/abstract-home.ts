@@ -1067,7 +1067,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'baudRate', value: 9600 },
         { name: 'databits', value: 8 },
         { name: 'stopbits', value: 'ONE' },
-        { name: 'parity', value: 'NONE' },
+        { name: 'parity', value: Meter.toParityString(acMeterType) },
         { name: 'logVerbosity', value: 'NONE' },
         { name: 'invalidateElementsAfterReadErrors', value: 1 },
       ],

@@ -17,10 +17,6 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
-import io.openems.edge.app.evcs.KebaEvcs;
-import io.openems.edge.app.integratedsystem.FeneconHome;
-import io.openems.edge.app.timeofusetariff.AwattarHourly;
-import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
@@ -34,11 +30,6 @@ public class AppManagerAppHelperImplTest {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
-	private FeneconHome homeApp;
-	private KebaEvcs kebaEvcsApp;
-	private AwattarHourly awattarApp;
-	private StromdaoCorrently stromdao;
-
 	private TestADependencyToC testAApp;
 	private TestBDependencyToC testBApp;
 	private TestC testCApp;
@@ -46,24 +37,16 @@ public class AppManagerAppHelperImplTest {
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			this.homeApp = new FeneconHome(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.FENECON.Home"), t.cm, t.componentUtil);
-			this.kebaEvcsApp = new KebaEvcs(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Evcs.Keba"), t.cm, t.componentUtil);
-			this.awattarApp = new AwattarHourly(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.TimeVariablePrice.Awattar"), t.cm, t.componentUtil);
-			this.stromdao = new StromdaoCorrently(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.TimeVariablePrice.Stromdao"), t.cm, t.componentUtil);
+			return ImmutableList.of(//
+					Apps.feneconHome(t), //
+					Apps.kebaEvcs(t), //
+					Apps.awattarHourly(t), //
+					Apps.stromdaoCorrently(t), //
 
-			this.testAApp = new TestADependencyToC(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Test.TestADependencyToC"), t.cm, t.componentUtil);
-			this.testBApp = new TestBDependencyToC(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Test.TestBDependencyToC"), t.cm, t.componentUtil);
-			this.testCApp = new TestC(t.componentManger, AppManagerTestBundle.getComponentContext("App.Test.TestC"),
-					t.cm, t.componentUtil);
-
-			return ImmutableList.of(this.homeApp, this.kebaEvcsApp, this.awattarApp, this.stromdao, this.testAApp,
-					this.testBApp, this.testCApp);
+					this.testAApp = Apps.testADependencyToC(t), //
+					this.testBApp = Apps.testBDependencyToC(t), //
+					this.testCApp = Apps.testC(t) //
+			);
 		});
 
 	}

@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -68,7 +69,6 @@ import io.openems.edge.core.componentmanager.ComponentManagerImpl;
 public class AppManagerImpl extends AbstractOpenemsComponent
 		implements AppManager, OpenemsComponent, JsonApi, ConfigurationListener {
 
-	// TODO maybe a worker which resolves defective apps
 	private final AppValidateWorker worker;
 	private final AppInstallWorker appInstallWorker;
 
@@ -109,6 +109,10 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 		this.worker.activate(this.id());
 		this.appInstallWorker.activate(this.id());
 
+		// resolve dependencies
+		CompletableFuture.delayedExecutor(1, TimeUnit.MINUTES) //
+				.execute(new ResolveDependencies(componentContext.getBundleContext()));
+
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
@@ -141,7 +145,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return the list of instantiated apps
 	 */
 	public final List<OpenemsAppInstance> getInstantiatedApps() {
-		return Collections.unmodifiableList(this.instantiatedApps);
+		return Collections.unmodifiableList(new ArrayList<>(this.instantiatedApps));
 	}
 
 	/**

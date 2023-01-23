@@ -115,4 +115,14 @@ public class StringUtils {
 	public static boolean matchesFloatPattern(String string) {
 		return DETECT_FLOAT_PATTERN.test(string);
 	}
+
+	/**
+	 * Causes this character sequence to be replaced by the reverse of the sequence.
+	 * 
+	 * @param string to be reversed.
+	 * @return reversed String.
+	 */
+	public static String reverse(String string) {
+		return new StringBuilder(string).reverse().toString();
+	}
 }

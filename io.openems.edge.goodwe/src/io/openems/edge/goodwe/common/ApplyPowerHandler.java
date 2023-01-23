@@ -90,9 +90,6 @@ public class ApplyPowerHandler {
 	private static Result handleSmartMode(AbstractGoodWe goodWe, int activePowerSetPoint, int pvProduction,
 			int gridActivePower, int essActivePower, int maxAcImport, int maxAcExport) throws OpenemsNamedException {
 
-		// Is Balancing to zero active?
-		var diffBalancing = activePowerSetPoint - (gridActivePower + essActivePower);
-
 		// Is Surplus-Feed-In active?
 		final var surplusPower = goodWe.getSurplusPower();
 		var diffSurplus = Integer.MAX_VALUE;
@@ -100,20 +97,11 @@ public class ApplyPowerHandler {
 			diffSurplus = activePowerSetPoint - surplusPower;
 		}
 
-		// Is charging from AC at maximum?
-		// PV = 10.000
-		// Max AC import = 3.000
-		// ActivePowerSetPoint = 3.000
-		var diffMaxAcImport = activePowerSetPoint - maxAcImport;
+		// Is Balancing to zero active?
+		var diffBalancing = activePowerSetPoint - (gridActivePower + essActivePower);
 
-		// Is discharging from AC at maximum?
-		// PV = 0
-		// Max AC import = 8.000
-		// ActivePowerSetPoint = 8.000
-		var diffMaxAcExport = activePowerSetPoint - maxAcExport;
+		if (diffBalancing > -1 && diffBalancing < 1 || diffSurplus > -1 && diffSurplus < 1) {
 
-		if (diffBalancing > -1 && diffBalancing < 1 || diffSurplus > -1 && diffSurplus < 1
-				|| diffMaxAcImport > -1 && diffMaxAcImport < 1 || diffMaxAcExport > -1 && diffMaxAcExport < 1) {
 			// avoid rounding errors
 			return handleInternalMode();
 		}
