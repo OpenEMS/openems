@@ -219,13 +219,13 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   }
 
   /**
-   * Converts a value in €/MWh to €/kWh.
+   * Converts a value in €/MWh to €Ct./kWh.
    * 
    * @param price the price value
    * @returns  the converted price
    */
   private formatPrice(price: number): number {
-    if (price == null || price == NaN) {
+    if (price == null || Number.isNaN(price)) {
       return null;
     } else if (price == 0) {
       return 0;
@@ -251,6 +251,9 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   protected setLabel(config: EdgeConfig) {
     let options = this.createDefaultChartOptions();
     let translate = this.translate;
+
+    // Scale prices y-axis between min-/max-values, not from zero
+    options.scales.yAxes[0].ticks.beginAtZero = false;
 
     // Adds second y-axis to chart
     options.scales.yAxes.push({
