@@ -27,10 +27,8 @@ export class ChargerChartComponent extends AbstractHistoryChart {
           nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
             return energyResponse.result.data[this.component.id + '/ActualEnergy']
           },
-          setValue: () => {
-            return data['ActualPower']
-          },
-          color: 'rgb(0,152,204)'
+          setValue: () => data['ActualPower'],
+          color: 'rgb(0,152,204)',
         }]
       },
       tooltip: {
