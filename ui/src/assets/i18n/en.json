@@ -368,7 +368,8 @@
         "deleteApp": "Delete app",
         "updateApp": "Update app",
         "errorInstallable": "installation errors",
-        "errorCompatible": "Compatibility errors"
+        "errorCompatible": "Compatibility errors",
+        "notAvailable": "Not available"
       }
     },
     "Service": {

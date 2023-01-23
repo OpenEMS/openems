@@ -96,6 +96,7 @@ export class UpdateAppComponent implements OnInit {
   }
 
   protected submit(instance: MyInstance) {
+    this.service.startSpinnerTransparentBackground(instance.instanceId);
     instance.isUpdateting = true
     // remove alias field from properties
     let alias = instance.form.value["ALIAS"]
@@ -124,14 +125,16 @@ export class UpdateAppComponent implements OnInit {
         }
         instance.properties = res.result.instance.properties
         instance.properties["ALIAS"] = res.result.instance.alias
-        instance.isUpdateting = false
       }).catch(reason => {
         this.service.toast("Error updating App:" + reason.error.message, 'danger');
+      }).finally(() => {
         instance.isUpdateting = false
+        this.service.stopSpinner(instance.instanceId);
       });
   }
 
   protected delete(instance: MyInstance) {
+    this.service.startSpinnerTransparentBackground(instance.instanceId);
     instance.isDeleting = true
     this.edge.sendRequest(this.websocket,
       new ComponentJsonApiRequest({
@@ -146,6 +149,7 @@ export class UpdateAppComponent implements OnInit {
         this.service.toast("Error deleting App:" + reason.error.message, 'danger');
       }).finally(() => {
         instance.isDeleting = false
+        this.service.stopSpinner(instance.instanceId);
       })
   }
 }

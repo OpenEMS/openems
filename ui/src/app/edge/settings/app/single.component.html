@@ -17,7 +17,8 @@
               <div style="display: flex; align-items: center;justify-content: center;">
                 <img *ngIf="app.image" [src]="app.image" />
               </div>
-              <div>
+              <!-- This button will be invisible until the feature gets implemented -->
+              <div *ngIf="false">
                 <ion-button style="width: 100%;" disabled translate>Edge.Config.App.buyApp</ion-button>
               </div>
               <div>

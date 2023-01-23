@@ -30,6 +30,7 @@ import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.Parity;
 import io.openems.edge.app.integratedsystem.FeneconHome.Property;
 import io.openems.edge.app.meter.KdkMeter;
 import io.openems.edge.app.meter.SocomecMeter;
@@ -129,16 +130,23 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 	}
 
 	private static enum AcMeterType {
-		SOCOMEC("App.Meter.Socomec.Name", AcMeterType::socomecMeter), //
-		KDK("App.Meter.Kdk.Name", AcMeterType::kdkMeter), //
+		SOCOMEC("App.Meter.Socomec.Name", Parity.NONE, AcMeterType::socomecMeter), //
+		KDK("App.Meter.Kdk.Name", Parity.EVEN, AcMeterType::kdkMeter), //
 		;
 
 		private final String displayName;
+		private final Parity parity;
 		private final Function<String, DependencyDeclaration> dependencyFunction;
 
-		private AcMeterType(String displayName, Function<String, DependencyDeclaration> dependencyFunction) {
+		private AcMeterType(String displayName, Parity parity,
+				Function<String, DependencyDeclaration> dependencyFunction) {
 			this.displayName = Objects.requireNonNull(displayName);
+			this.parity = Objects.requireNonNull(parity);
 			this.dependencyFunction = Objects.requireNonNull(dependencyFunction);
+		}
+
+		public Parity getParity() {
+			return this.parity;
 		}
 
 		public String getDisplayName(ResourceBundle resourceBundle) {
@@ -225,6 +233,9 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			final var shadowManagmentDisabled = EnumUtils.getAsOptionalBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED)
 					.orElse(false);
 			final var hasAcMeter = EnumUtils.getAsOptionalBoolean(p, Property.HAS_AC_METER).orElse(false);
+			// for older versions this property is undefined
+			final var acType = EnumUtils.getAsOptionalEnum(AcMeterType.class, p, Property.AC_METER_TYPE) //
+					.orElse(AcMeterType.SOCOMEC);
 
 			// Battery-Inverter Settings
 			final var safetyCountry = EnumUtils.getAsString(p, Property.SAFETY_COUNTRY);
@@ -259,7 +270,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("baudRate", 9600) //
 									.addProperty("databits", 8) //
 									.addProperty("stopbits", "ONE") //
-									.addProperty("parity", "NONE") //
+									.addProperty("parity", (!hasAcMeter ? Parity.NONE : acType.getParity()).name()) //
 									.addProperty("logVerbosity", "NONE") //
 									.onlyIf(t == ConfigurationTarget.ADD, //
 											j -> j.addProperty("invalidateElementsAfterReadErrors", 1)) //
@@ -424,10 +435,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			);
 
 			if (hasAcMeter) {
-				var type = EnumUtils.getAsOptionalEnum(AcMeterType.class, p, Property.AC_METER_TYPE);
-				// for older versions this property is undefined
-				dependencies.add(type.orElse(AcMeterType.SOCOMEC) //
-						.getDependency(modbusIdExternal));
+				dependencies.add(acType.getDependency(modbusIdExternal));
 			}
 
 			return new AppConfiguration(components, schedulerExecutionOrder, null, dependencies);

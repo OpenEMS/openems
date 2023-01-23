@@ -412,10 +412,11 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 								for (var list : Lists.newArrayList(this.temporaryApps.currentlyCreatingApps(),
 										this.temporaryApps.currentlyModifiedApps())) {
 									modifiedOrCreatedApps = list;
-									replaceApp = modifiedOrCreatedApps.stream() //
+									var foundReplaceApp = modifiedOrCreatedApps.stream() //
 											.filter(i -> i.equals(instance)) //
 											.findAny().orElse(null);
-									if (replaceApp != null) {
+									if (foundReplaceApp != null) {
+										replaceApp = foundReplaceApp;
 										break;
 									}
 								}
@@ -1051,7 +1052,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					.collect(Collectors.toList());
 			OpenemsAppInstance availableApp = null;
 			for (var neededApp : neededApps) {
-				if (this.getAppsWithDependencyTo(neededApp).isEmpty()) {
+				if (this.appManagerUtil.getAppsWithDependencyTo(neededApp).isEmpty()) {
 					availableApp = neededApp;
 					break;
 				}
@@ -1066,13 +1067,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			return Optional.empty();
 		}
 		return null;
-	}
-
-	private List<OpenemsAppInstance> getAppsWithDependencyTo(OpenemsAppInstance instance) {
-		return this.getAppManagerImpl().getInstantiatedApps().stream()
-				.filter(t -> t.dependencies != null && !t.dependencies.isEmpty())
-				.filter(t -> t.dependencies.stream().anyMatch(d -> d.instanceId.equals(instance.instanceId)))
-				.collect(Collectors.toList());
 	}
 
 	private static enum IncludeApp {
@@ -1244,7 +1238,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			var instances = this.getAppManagerImpl().getInstantiatedApps().stream()
 					.filter(i -> i.appId.equals(config.appId)).collect(Collectors.toList());
 			for (var instance : instances) {
-				var existingDependencies = this.getAppsWithDependencyTo(instance);
+				var existingDependencies = this.appManagerUtil.getAppsWithDependencyTo(instance);
 				if (existingDependencies.isEmpty()) {
 					return config;
 				}

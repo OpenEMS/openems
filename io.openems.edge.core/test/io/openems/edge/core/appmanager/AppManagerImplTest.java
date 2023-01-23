@@ -19,8 +19,6 @@ import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.integratedsystem.FeneconHome;
-import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
-import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.common.host.Host;
@@ -31,8 +29,6 @@ public class AppManagerImplTest {
 	private AppManagerTestBundle appManagerTestBundle;
 
 	private FeneconHome homeApp;
-	private GridOptimizedCharge gridOptimizedCharge;
-	private SelfConsumptionOptimization selfConsumptionOptimization;
 
 	private KebaEvcs kebaEvcsApp;
 	private AwattarHourly awattarApp;
@@ -262,25 +258,15 @@ public class AppManagerImplTest {
 				.build();
 
 		this.appManagerTestBundle = new AppManagerTestBundle(componentConfig, initialConfig, t -> {
+			return ImmutableList.of(//
+					this.homeApp = Apps.feneconHome(t), //
+					Apps.gridOptimizedCharge(t), //
+					Apps.selfConsumptionOptimization(t), //
 
-			this.homeApp = new FeneconHome(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.FENECON.Home"), t.cm, t.componentUtil);
-			this.gridOptimizedCharge = new GridOptimizedCharge(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.PvSelfConsumption.GridOptimizedCharge"), t.cm,
-					t.componentUtil);
-			this.selfConsumptionOptimization = new SelfConsumptionOptimization(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.PvSelfConsumption.SelfConsumptionOptimization"), t.cm,
-					t.componentUtil);
-
-			this.kebaEvcsApp = new KebaEvcs(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Evcs.Keba"), t.cm, t.componentUtil);
-			this.awattarApp = new AwattarHourly(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.TimeVariablePrice.Awattar"), t.cm, t.componentUtil);
-			this.stromdao = new StromdaoCorrently(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.TimeVariablePrice.Stromdao"), t.cm, t.componentUtil);
-
-			return ImmutableList.of(this.homeApp, this.gridOptimizedCharge, this.selfConsumptionOptimization,
-					this.kebaEvcsApp, this.awattarApp, this.stromdao);
+					this.kebaEvcsApp = Apps.kebaEvcs(t), //
+					this.awattarApp = Apps.awattarHourly(t), //
+					this.stromdao = Apps.stromdaoCorrently(t) //
+			);
 		});
 
 	}

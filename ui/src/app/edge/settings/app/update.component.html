@@ -21,6 +21,9 @@
                   [disabled]="varinstance.isDeleting || varinstance.isUpdateting" translate>
                   Edge.Config.App.deleteApp
                 </ion-button>
+                <div *ngIf="varinstance.isDeleting || varinstance.isUpdateting" style="min-height: 100px;">
+                </div>
+                <ngx-spinner [name]="varinstance.instanceId"></ngx-spinner>
               </ion-item>
             </ion-card-content>
           </form>

@@ -518,7 +518,8 @@
         "deleteApp": "Eliminar la aplicación",
         "updateApp": "Actualizar la aplicación",
         "errorInstallable": "Errores de instalación",
-        "errorCompatible": "Errores de compatibilidad"
+        "errorCompatible": "Errores de compatibilidad",
+        "notAvailable": "No disponible"
       }
     },
     "Service": {
