@@ -461,7 +461,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       let chartLegendLabelItems: ChartLegendLabelItem[] = [];
       chart.data.datasets.forEach((dataset, index) => {
 
-        // No striktrhough label if hidden
+        // No strikethrough label if hidden
         let isHidden = legendOptions?.find(element => element.label == dataset.label)?.strokeThroughHidingStyle ?? null
         chartLegendLabelItems.push({
           text: dataset.label,
