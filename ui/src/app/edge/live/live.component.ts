@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { DataService } from 'src/app/shared/genericComponents/shared/dataservice';
+import { LiveDataService } from 'src/app/shared/genericComponents/shared/livedataservice';
 import { SubscribeEdgesRequest } from 'src/app/shared/jsonrpc/request/subscribeEdgesRequest';
 import { Edge, EdgeConfig, Service, Utils, Widgets } from 'src/app/shared/shared';
 import { AdvertWidgets } from 'src/app/shared/type/widget';
@@ -7,7 +9,13 @@ import { environment } from 'src/environments';
 
 @Component({
   selector: 'live',
-  templateUrl: './live.component.html'
+  templateUrl: './live.component.html',
+  providers: [
+    {
+      provide: DataService,
+      useClass: LiveDataService
+    }
+  ]
 })
 export class LiveComponent {
 

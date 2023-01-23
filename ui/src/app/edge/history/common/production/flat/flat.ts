@@ -1,12 +1,13 @@
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from '../../../../../shared/shared';
 import { Component } from '@angular/core';
-import { AbstractHistoryWidget } from 'src/app/shared/genericComponents/abstracthistorywidget';
+import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
+
+import { ChannelAddress, EdgeConfig, Utils } from '../../../../../shared/shared';
 
 @Component({
   selector: 'productionWidget',
   templateUrl: './flat.html'
 })
-export class FlatComponent extends AbstractHistoryWidget {
+export class FlatComponent extends AbstractFlatWidget {
 
   public productionMeterComponents: EdgeConfig.Component[] = [];
   public chargerComponents: EdgeConfig.Component[] = [];

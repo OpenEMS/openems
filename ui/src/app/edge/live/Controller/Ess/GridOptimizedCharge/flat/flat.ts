@@ -28,19 +28,19 @@ export class FlatComponent extends AbstractFlatWidget {
         ]
     }
     protected override onCurrentData(currentData: CurrentData) {
-        this.mode = currentData.thisComponent['_PropertyMode'];
+        this.mode = currentData.allComponents[this.componentId + '/_PropertyMode'];
 
         // Check if Grid feed in limitation is avoided
-        if (currentData.thisComponent['SellToGridLimitState'] == 0 ||
-            (currentData.thisComponent['SellToGridLimitState'] == 3
-                && currentData.thisComponent['DelayChargeState'] != 0
-                && currentData.thisComponent['SellToGridLimitMinimumChargeLimit'] > 0)) {
+        if (currentData.allComponents[this.componentId + '/SellToGridLimitState'] == 0 ||
+            (currentData.allComponents[this.componentId + '/SellToGridLimitState'] == 3
+                && currentData.allComponents[this.componentId + '/DelayChargeState'] != 0
+                && currentData.allComponents[this.componentId + '/SellToGridLimitMinimumChargeLimit'] > 0)) {
             this.isSellToGridLimitAvoided = true;
         }
 
-        this.sellToGridLimitMinimumChargeLimit = currentData.thisComponent['SellToGridLimitMinimumChargeLimit']
+        this.sellToGridLimitMinimumChargeLimit = currentData.allComponents[this.componentId + '/SellToGridLimitMinimumChargeLimit']
 
-        switch (currentData.thisComponent['DelayChargeState']) {
+        switch (currentData.allComponents[this.componentId + '/DelayChargeState']) {
             case -1:
                 this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.notDefined')
                 break;
@@ -67,7 +67,7 @@ export class FlatComponent extends AbstractFlatWidget {
                 break;
         }
 
-        this.delayChargeMaximumChargeLimit = currentData.thisComponent['DelayChargeMaximumChargeLimit']
+        this.delayChargeMaximumChargeLimit = currentData.allComponents[this.componentId + '/DelayChargeMaximumChargeLimit']
     }
 
     async presentModal() {

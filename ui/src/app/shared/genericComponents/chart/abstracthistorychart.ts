@@ -1,11 +1,9 @@
 import { formatNumber } from '@angular/common';
-import { ChangeDetectorRef, Directive, ElementRef, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { ChartDataSets, ChartLegendLabelItem } from 'chart.js';
-import { isThisQuarter } from 'date-fns';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
@@ -100,7 +98,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       labels.push(new Date(timestamp));
     }
 
-    let channelData: { name: string, data: number[] }[] = []
+    let channelData: { data: { [name: string]: number[] } } = { data: {} };
     this.chartObject.channel.forEach(element => {
       let channelAddress: ChannelAddress = null;
       if (this.chartType == 'bar' && element.energyChannel) {
@@ -110,8 +108,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       }
 
       if (channelAddress?.toString() in result.data) {
-        channelData.push({
-          data: HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])?.map(value => {
+        channelData.data[element.name] =
+          HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])?.map(value => {
             if (value == null) {
               return null
             } else {
@@ -136,15 +134,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                   return value
               }
             }
-          }) ?? null, name: element.name
-        })
+          }) ?? null
       }
     })
 
     // Fill datasets, labels and colors
     let datasets: ChartDataSets[] = [];
     let colors: any[] = [];
-    let displayValues: DisplayValues[] = this.chartObject.displayValues(channelData);
+    let displayValues: DisplayValues[] = this.chartObject.displayValues(channelData.data);
 
     displayValues.forEach(element => {
       let values: number[] = element.setValue()
@@ -169,10 +166,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
           ...(element.stack && { stack: element.stack.toString() }),
           maxBarThickness: 100,
         })
+
         this.legendOptions.push({
           label: label,
           strokeThroughHidingStyle: element.strokeThroughHidingStyle
         })
+
         colors.push({
           backgroundColor: 'rgba(' + (this.chartType == 'bar' ? element.color.split('(').pop().split(')')[0] + ',0.4)' : element.color.split('(').pop().split(')')[0] + ',0.05)'),
           borderColor: 'rgba(' + element.color.split('(').pop().split(')')[0] + ',1)',
@@ -183,7 +182,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     this.datasets = datasets;
     this.colors = colors;
     this.labels = labels;
-
   }
 
   private loadChart() {

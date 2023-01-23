@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { HistoryUtils } from 'src/app/shared/service/utils';
+
 import { ChannelAddress } from '../../../../../shared/shared';
 import { ChannelFilter, Channels, ChartData, DisplayValues, YAxisTitle } from '../../../shared';
 
@@ -31,7 +32,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
     }
     return {
       channel: channels,
-      displayValues: (channel: { name: string, data: number[] }[]) => {
+      displayValues: (data: { [name: string]: number[] }) => {
         let datasets: DisplayValues[] = [];
         datasets.push({
           name: this.translate.instant('General.production'),
@@ -39,7 +40,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
             return energyPeriodResponse?.result.data[this.component.id + '/ActiveProductionEnergy'] ?? null
           },
           setValue: () => {
-            return channel.find(element => element.name == 'ActivePower')?.data
+            return data['ActivePower']
           },
           color: 'rgb(0,152,204)'
         })
@@ -50,7 +51,7 @@ export class ProductionMeterChartComponent extends AbstractHistoryChart {
             datasets.push({
               name: "Erzeugung Phase L" + i,
               setValue: () => {
-                return channel.find(element => element.name == ('ActivePowerL' + i))?.data ?? null
+                return data['ActivePowerL' + i] ?? null
               },
               color: this.phaseColors[i - 1]
             })

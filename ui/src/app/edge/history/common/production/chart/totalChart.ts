@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
+
 import { Utils } from '../../../../../shared/service/utils';
 import { ChannelAddress } from '../../../../../shared/shared';
 import { ChannelFilter, Channels, ChartData, DisplayValues, YAxisTitle } from '../../../shared';
@@ -63,7 +64,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
 
     let chartObject: ChartData = {
       channel: channels,
-      displayValues: (channel: { name: string, data: number[] }[]) => {
+      displayValues: (data: { [name: string]: number[] }) => {
         let datasets: DisplayValues[] = [];
         datasets.push({
           name: this.showTotal == false ? this.translate.instant('General.production') : this.translate.instant('General.total'),
@@ -71,7 +72,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
             return energyQueryResponse?.result.data['_sum/ProductionActiveEnergy'] ?? null
           },
           setValue: () => {
-            return channel.find(element => element.name == 'ProductionActivePower')?.data
+            return data['ProductionActivePower']
           },
           color: 'rgb(0,152,204)',
           hiddenOnInit: true,
@@ -94,13 +95,11 @@ export class TotalChartComponent extends AbstractHistoryChart {
               let effectiveProduction = [];
 
               if (this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").length > 0) {
-                channel.find(element => element.name == 'ProductionDcActualPower')?.data.forEach((value, index) => {
-                  effectiveProduction[index] = Utils.addSafely(channel.find(
-                    element => element.name == 'ProductionAcActivePowerL' + i)?.data[index], value / 3);
+                data['ProductionDcActualPower'].forEach((value, index) => {
+                  effectiveProduction[index] = Utils.addSafely(data['ProductionAcActivePowerL' + i][index], value / 3);
                 })
               } else if (this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0) {
-                effectiveProduction = channel.find(
-                  element => element.name == 'ProductionAcActivePowerL' + i)?.data
+                effectiveProduction = data['ProductionAcActivePowerL' + i]
               }
               return effectiveProduction
             },
@@ -122,7 +121,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
               return energyResponse.result.data[component.id + '/ActiveProductionEnergy'] ?? null
             },
             setValue: () => {
-              return channel.find(element => element.name == component.id)?.data ?? null
+              return data[component.id] ?? null
             },
             color: productionMeterColors[Math.min(i, (productionMeterColors.length - 1))],
             stack: 1,
@@ -139,7 +138,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
               return energyValues.result.data[new ChannelAddress(component.id, 'ActualEnergy').toString()]
             },
             setValue: () => {
-              return channel.find(element => element.name == component.id)?.data ?? null
+              return data[component.id] ?? null
             },
             color: chargerColors[Math.min(i, (chargerColors.length - 1))],
             stack: 1

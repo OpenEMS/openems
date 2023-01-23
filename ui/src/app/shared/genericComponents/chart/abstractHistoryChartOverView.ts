@@ -3,8 +3,8 @@ import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+
 import { DefaultTypes } from "../../service/defaulttypes";
-import { v4 as uuidv4 } from 'uuid';
 
 @Directive()
 export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges, OnDestroy {
@@ -62,7 +62,7 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
           thisComponent[channelAddress.channelId] = result.data[ca];
         }
       }
-      this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents })
+      this.onCurrentData({ allComponents: allComponents })
     }).catch(() => {
       // TODO Error Message
     })
@@ -100,5 +100,12 @@ export abstract class AbstractHistoryChartOverView implements OnInit, OnChanges,
    */
   protected getChannelAddresses(): ChannelAddress[] {
     return [];
+  }
+
+  protected setShowTotal(event) {
+    this.showTotal = event;
+  }
+  protected setShowPhases(event) {
+    this.showPhases = event;
   }
 }

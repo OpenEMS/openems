@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { HistoryUtils } from 'src/app/shared/service/utils';
+
 import { ChannelAddress } from '../../../../../shared/shared';
 import { ChannelFilter, ChartData, YAxisTitle } from '../../../shared';
 
@@ -22,14 +23,14 @@ export class TotalDcChartComponent extends AbstractHistoryChart {
             filter: ChannelFilter.NOT_NULL,
           },
         ],
-      displayValues: (channel: { name: string, data: number[] }[]) => {
+      displayValues: (data: { [name: string]: number[] }) => {
         return [{
           name: this.translate.instant('General.production'),
           nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
             return energyResponse.result.data['_sum/ProductionDcActiveEnergy']
           },
           setValue: () => {
-            return channel.find(element => element.name == 'ProductionDcActual')?.data ?? null
+            return data['ProductionDcActual'] ?? null
           },
           strokeThroughHiddingStyle: false,
           color: 'rgb(0,152,204)'

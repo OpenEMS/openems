@@ -1,13 +1,21 @@
-import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { DataService } from 'src/app/shared/genericComponents/shared/dataservice';
+import { HistoryDataService } from 'src/app/shared/genericComponents/shared/historydataservice';
+import { HeaderComponent } from 'src/app/shared/header/header.component';
 import { Edge, EdgeConfig, Service, Widgets } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
-import { HeaderComponent } from 'src/app/shared/header/header.component';
-import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'history',
-  templateUrl: './history.component.html'
+  templateUrl: './history.component.html',
+  providers: [
+    {
+      provide: DataService,
+      useClass: HistoryDataService
+    }
+  ]
 })
 export class HistoryComponent implements OnInit {
 

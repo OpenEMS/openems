@@ -1,4 +1,4 @@
-import { Directive, Inject, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { Directive, Inject, Injectable, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -34,8 +34,7 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
     @Inject(Service) public service: Service,
     @Inject(ModalController) protected modalController: ModalController,
     @Inject(TranslateService) protected translate: TranslateService
-  ) {
-  }
+  ) { }
 
   public ngOnInit() {
     this.service.setCurrentComponent('', this.route).then(edge => {
@@ -57,7 +56,7 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
 
   public updateValues() {
     let channelAddresses = this.getChannelAddresses();
-    this.onCurrentData({ thisComponent: {}, allComponents: {} })
+    this.onCurrentData({ allComponents: {} })
     this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
       let result = response.result;
       let thisComponent = {};
@@ -65,11 +64,8 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
       for (let channelAddress of channelAddresses) {
         let ca = channelAddress.toString();
         allComponents[ca] = result.data[ca]
-        if (channelAddress.componentId === this.componentId) {
-          thisComponent[channelAddress.channelId] = result.data[ca];
-        }
       }
-      this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents })
+      this.onCurrentData({ allComponents: allComponents })
     }).catch(() => {
       // TODO Error Message
     })

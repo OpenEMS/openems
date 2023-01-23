@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { HistoryUtils } from 'src/app/shared/service/utils';
+
 import { ChannelAddress } from '../../../../../shared/shared';
 import { ChannelFilter, ChartData, YAxisTitle } from '../../../shared';
 
@@ -20,14 +21,14 @@ export class ChargerChartComponent extends AbstractHistoryChart {
           energyChannel: ChannelAddress.fromString(this.component.id + '/ActualEnergy'),
           filter: ChannelFilter.NOT_NULL,
         }],
-      displayValues: (channel: { name: string, data: number[] }[]) => {
+      displayValues: (data: { [name: string]: number[] }) => {
         return [{
           name: this.translate.instant('General.production'),
           nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => {
             return energyResponse.result.data[this.component.id + '/ActualEnergy']
           },
           setValue: () => {
-            return channel.find(element => element.name == 'ActualPower')?.data ?? null
+            return data['ActualPower']
           },
           color: 'rgb(0,152,204)'
         }]

@@ -45,10 +45,10 @@ export class FlatComponent extends AbstractFlatWidget {
 
     protected override onCurrentData(currentData: CurrentData) {
 
-        this.workMode = currentData.thisComponent['_PropertyWorkMode']
+        this.workMode = currentData.allComponents[this.componentId + '/_PropertyWorkMode']
 
         // get current mode
-        switch (currentData.thisComponent[FlatComponent.PROPERTY_MODE]) {
+        switch (currentData.allComponents[this.componentId + '/' + FlatComponent.PROPERTY_MODE]) {
             case 'MANUAL_ON': {
                 this.mode = 'General.on';
                 break;
@@ -78,7 +78,7 @@ export class FlatComponent extends AbstractFlatWidget {
 
             // Check forced heat
             // TODO: Use only Status if edge version is latest [2022.8]
-            this.runState = currentData.thisComponent['Status'];
+            this.runState = currentData.allComponents[this.componentId + '/Status'];
 
             if (this.runState == Status.ActiveForced) {
                 this.state = 'Edge.Index.Widgets.Heatingelement.activeForced';

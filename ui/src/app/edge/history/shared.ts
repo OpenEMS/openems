@@ -355,7 +355,7 @@ export type DisplayValues = {
 export type ChartData = {
   channel: Channels[],
   // displayValues: (data: ChannelData[]) => {
-  displayValues: (data: { name: string, data: number[] }[]) => DisplayValues[],
+  displayValues: (data: { [name: string]: number[] }) => DisplayValues[],
   tooltip: {
     /** Format of Number displayed */
     formatNumber?: string;

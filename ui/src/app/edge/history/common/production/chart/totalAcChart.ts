@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { HistoryUtils, Utils } from 'src/app/shared/service/utils';
+
 import { ChannelAddress } from '../../../../../shared/shared';
 import { ChannelFilter, ChartData, DisplayValues, YAxisTitle } from '../../../shared';
 
@@ -37,7 +38,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
             filter: ChannelFilter.NOT_NULL_OR_NEGATIVE,
           }
         ],
-      displayValues: (channels: { name: string, data: number[] }[]) => {
+      displayValues: (data: { [name: string]: number[] }) => {
         let datasets: DisplayValues[] = []
 
         datasets.push({
@@ -46,7 +47,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
             return energyPeriodResponse.result.data['_sum/ProductionAcActiveEnergy'] ?? null
           },
           setValue: () => {
-            return channels.find(element => element.name == 'ProductionAcActivePower')?.data
+            return data['ProductionAcActivePower']
           },
           color: "rgb(0,152,204)",
           stack: 0
@@ -59,7 +60,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
               if (!this.showPhases) {
                 return null;
               }
-              return channels.find(element => element.name == ('ProductionAcActivePowerL' + i))?.data ?? null
+              return data['ProductionAcActivePowerL' + i] ?? null
             },
             color: 'rgb(' + this.phaseColors[i - 1] + ')',
           })
