@@ -32,7 +32,7 @@ export class HistoryDataService extends DataService {
           if (Object.entries(this.channelAddresses).length > 0
             && (this.date.value?.from != this.service.historyPeriod.from
               || this.date.value?.to != this.service.historyPeriod.to)) {
-            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesEnergyRequest(this.service.historyPeriod.from, this.service.historyPeriod.from, Object.values(this.channelAddresses)))
+            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesEnergyRequest(this.service.historyPeriod.from, this.service.historyPeriod.to, Object.values(this.channelAddresses)))
               .then((response) => {
                 let allComponents = {};
                 let result = (response as QueryHistoricTimeseriesEnergyResponse).result
