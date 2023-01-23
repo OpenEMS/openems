@@ -18,6 +18,7 @@ import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
+import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
@@ -36,16 +37,10 @@ public class TestFeneconHome {
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			this.homeApp = new FeneconHome(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.FENECON.Home"), t.cm, t.componentUtil);
-			this.gridOptimizedCharge = new GridOptimizedCharge(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.PvSelfConsumption.GridOptimizedCharge"), t.cm,
-					t.componentUtil);
-			this.selfConsumptionOptimization = new SelfConsumptionOptimization(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.PvSelfConsumption.SelfConsumptionOptimization"), t.cm,
-					t.componentUtil);
-			this.socomecMeter = new SocomecMeter(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Meter.Socomec"), t.cm, t.componentUtil);
+			this.homeApp = Apps.feneconHome(t);
+			this.gridOptimizedCharge = Apps.gridOptimizedCharge(t);
+			this.selfConsumptionOptimization = Apps.selfConsumptionOptimization(t);
+			this.socomecMeter = Apps.socomecMeter(t);
 			return ImmutableList.of(this.homeApp, this.gridOptimizedCharge, this.selfConsumptionOptimization,
 					this.socomecMeter);
 		});

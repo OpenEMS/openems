@@ -514,7 +514,8 @@
         "deleteApp": "App verwijderen",
         "updateApp": "App bijwerken",
         "errorInstallable": "Installatiefouten",
-        "errorCompatible": "Compatibiliteitsfouten"
+        "errorCompatible": "Compatibiliteitsfouten",
+        "notAvailable": "Niet beschikbaar"
       }
     },
     "Service": {

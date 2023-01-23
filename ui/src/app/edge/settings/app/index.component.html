@@ -9,9 +9,32 @@
           {{ app.name }}</ion-label>
       </ion-item>
       <ion-card-content>
-        <div
-          [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
-          <img *ngIf="app.image" [src]="app.image" />
+        <div>
+          <div
+            [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
+            <img *ngIf="app.image" [src]="app.image" />
+          </div>
+
+          <ng-container *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-label class="ion-text-center">
+                    <h3 translate>Edge.Config.App.notAvailable</h3>
+                  </ion-label>
+                  <br />
+                  <ion-label>
+                    <div *ngFor="let message of app.status.errorCompatibleMessages">{{ message
+                      }}</div>
+                  </ion-label>
+                  <ion-label>
+                    <div *ngFor="let message of app.status.errorInstallableMessages">{{ message
+                      }}</div>
+                  </ion-label>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ng-container>
         </div>
         <p *ngIf="false">
           <small>Technischer Name: {{ app.appId }}</small><br />
@@ -21,18 +44,6 @@
             </a></small><br />
           <small>Cardinality: {{ app.cardinality }}</small>
         </p>
-        <div *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
-          <div *ngIf="app.status.errorCompatibleMessages.length !== 0 ">
-            <small translate>Edge.Config.App.errorCompatible</small><br />
-            <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
-              }}</small><br />
-          </div>
-          <div *ngIf="app.status.errorInstallableMessages.length !== 0 ">
-            <small translate>Edge.Config.App.errorInstallable</small><br />
-            <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
-              }}</small><br />
-          </div>
-        </div>
       </ion-card-content>
     </ion-card>
   </ion-col>

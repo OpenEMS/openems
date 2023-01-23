@@ -152,8 +152,8 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 								}) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".outputChannel.label")) //
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".outputChannel.description")) //
+								.setDescription(TranslationUtil.getTranslation(bundle, //
+										"App.Heat.outputChannel.description")) //
 								.build())
 						.build())
 				.build();

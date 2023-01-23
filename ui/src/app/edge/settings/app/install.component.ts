@@ -55,17 +55,18 @@ export class InstallAppComponent implements OnInit {
           this.appName = appAssistant.name;
           this.model = {};
           this.form = new FormGroup({});
-          this.service.stopSpinner(this.spinnerId);
 
-        })
-        .catch(reason => {
+        }).catch(reason => {
           console.error(reason.error);
           this.service.toast("Error while receiving App Assistant for [" + appId + "]: " + reason.error.message, 'danger');
+        }).finally(() => {
+          this.service.stopSpinner(this.spinnerId);
         });
     });
   }
 
   protected submit() {
+    this.service.startSpinnerTransparentBackground(this.appId);
     // remove alias field from properties
     let alias = this.form.value["ALIAS"]
     const clonedFields = {};
@@ -101,6 +102,7 @@ export class InstallAppComponent implements OnInit {
         this.service.toast("Error installing App:" + reason.error.message, 'danger');
       }).finally(() => {
         this.isInstalling = false
+        this.service.stopSpinner(this.appId);
       });
   }
 
