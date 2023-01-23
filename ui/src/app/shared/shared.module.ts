@@ -91,7 +91,6 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyWrapperInputSerialNumber,
     FormlySelectFieldWrapperComponent,
     ChartOptionsComponent,
-    ChartOptionsPopoverComponent
   ],
   exports: [
     // modules
@@ -114,7 +113,6 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     HeaderComponent,
     PercentageBarComponent,
     ChartOptionsComponent,
-    ChartOptionsPopoverComponent
   ],
   providers: [
     appRoutingProviders,

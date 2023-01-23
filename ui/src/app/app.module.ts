@@ -19,6 +19,7 @@ import { SettingsModule as EdgeSettingsModule } from './edge/settings/settings.m
 import { SystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { IndexModule } from './index/index.module';
 import { RegistrationModule } from './registration/registration.module';
+import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popover.component';
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
 import { MyErrorHandler } from './shared/service/myerrorhandler';
 import { SharedModule } from './shared/shared.module';
@@ -30,12 +31,14 @@ import { UserModule } from './user/user.module';
 @NgModule({
   declarations: [
     AppComponent,
+    ChartOptionsPopoverComponent,
     PickDatePopoverComponent,
     StatusSingleComponent,
     SystemLogComponent,
   ],
   entryComponents: [
     PickDatePopoverComponent,
+    ChartOptionsPopoverComponent
   ],
   imports: [
     AngularMyDatePickerModule,
