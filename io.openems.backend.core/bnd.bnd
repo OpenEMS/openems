@@ -7,7 +7,6 @@ Bundle-Description: Supportive services that are used throughout OpenEMS Backend
 -buildpath: \
 	${buildpath},\
 	io.openems.backend.common,\
-	io.openems.backend.timedata.timescaledb,\
 	io.openems.common
 
 -testpath: \

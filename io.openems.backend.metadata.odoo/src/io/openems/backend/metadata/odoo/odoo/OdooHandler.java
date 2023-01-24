@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -36,6 +37,7 @@ import io.openems.backend.metadata.odoo.odoo.OdooUtils.SuccessResponseAndHeaders
 import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
@@ -151,7 +153,6 @@ public class OdooHandler {
 	 */
 	public void assignEdgeToUser(MyUser user, MyEdge edge, OdooUserRole userRole) throws OpenemsNamedException {
 		this.assignEdgeToUser(user.getOdooId(), edge.getOdooId(), userRole);
-		this.parent.authenticate(user.getToken());
 	}
 
 	/**
@@ -172,10 +173,15 @@ public class OdooHandler {
 			return;
 		}
 
-		OdooUtils.create(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL, //
+		var fields = Lists.newArrayList(//
 				new FieldValue<>(Field.EdgeDeviceUserRole.USER_ODOO_ID, userId), //
 				new FieldValue<>(Field.EdgeDeviceUserRole.DEVICE_ODOO_ID, edgeId), //
-				new FieldValue<>(Field.EdgeDeviceUserRole.ROLE, userRole.getOdooRole()));
+				new FieldValue<>(Field.EdgeDeviceUserRole.ROLE, userRole.getOdooRole()) //
+		);
+		if (userRole.equals(OdooUserRole.OWNER)) {
+			fields.add(new FieldValue<>(Field.EdgeDeviceUserRole.TIME_TO_WAIT, 60));
+		}
+		OdooUtils.create(this.credentials, Field.EdgeDeviceUserRole.ODOO_MODEL, fields.toArray(FieldValue[]::new));
 	}
 
 	/**
@@ -944,9 +950,7 @@ public class OdooHandler {
 				.build();
 
 		var result = JsonUtils.getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
-				"/openems_app_center/is_key_applyable", request).result);
-		// TODO change in odoo controller and then remove this
-		result.add("isKeyApplicable", result.remove("isKeyApplyable"));
+				"/openems_app_center/is_key_applicable", request).result);
 		return result;
 	}
 
@@ -1226,6 +1230,48 @@ public class OdooHandler {
 						new FieldValue<>(Field.EdgeDeviceUserRole.TIME_TO_WAIT, setting.getDelayTime()));
 			}
 		}
+	}
+
+	/**
+	 * Gets the Edges of the given user matching the {@link PaginationOptions}.
+	 * 
+	 * @param user              the current {@link MyUser}
+	 * @param paginationOptions the {@link PaginationOptions}
+	 * @return the edges
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getEdges(MyUser user, PaginationOptions paginationOptions) throws OpenemsNamedException {
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("page", paginationOptions.getPage()) //
+						.addProperty("limit", paginationOptions.getLimit()) //
+						.addPropertyIfNotNull("query", paginationOptions.getQuery()) //
+						.build()) //
+				.build();
+
+		return JsonUtils
+				.getAsJsonObject(OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/get_edges",
+						"session_id=" + user.getToken(), request).result);
+	}
+
+	/**
+	 * Gets the edge with the {@link Role} of the user.
+	 * 
+	 * @param user   the current {@link MyUser}
+	 * @param edgeId the id of the edge
+	 * @return the edge with the role of the user
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonObject getEdgeWithRole(MyUser user, String edgeId) throws OpenemsNamedException {
+		var request = JsonUtils.buildJsonObject() //
+				.add("params", JsonUtils.buildJsonObject() //
+						.addProperty("edge_id", edgeId) //
+						.build()) //
+				.build();
+
+		return JsonUtils.getAsJsonObject(
+				OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_backend/get_edge_with_role",
+						"session_id=" + user.getToken(), request).result);
 	}
 
 }

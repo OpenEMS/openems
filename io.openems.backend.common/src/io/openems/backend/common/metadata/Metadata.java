@@ -20,7 +20,9 @@ import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component.Channel;
@@ -341,5 +343,25 @@ public interface Metadata {
 	 * @return Serial number or empty {@link Optional}
 	 */
 	public Optional<String> getSerialNumberForEdge(Edge edge);
+
+	/**
+	 * Gets a map of Edge-IDs with the role of the given user.
+	 * 
+	 * @param user              {@link User} the current user
+	 * @param paginationOptions the options of the requesting page
+	 * @return the role to the Edge-IDs
+	 * @throws OpenemsNamedException on error
+	 */
+	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions) throws OpenemsNamedException;
+
+	/**
+	 * Gets the Role for a edge of the current user.
+	 * 
+	 * @param user   {@link User} the current user
+	 * @param edgeId the Edge-ID
+	 * @return the role to the edge
+	 * @throws OpenemsNamedException on error
+	 */
+	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException;
 
 }

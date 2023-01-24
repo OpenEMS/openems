@@ -1,9 +1,12 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { MenuController, ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter, first, takeUntil } from 'rxjs/operators';
 import { environment } from 'src/environments';
+
+import { SubscribeEdgesRequest } from '../jsonrpc/request/subscribeEdgesRequest';
 import { PickDateComponent } from '../pickdate/pickdate.component';
 import { ChannelAddress, Edge, Service, Websocket } from '../shared';
 import { StatusSingleComponent } from '../status/single/status.component';
@@ -30,6 +33,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public router: Router,
         public service: Service,
         public websocket: Websocket,
+        private activatedRoute: ActivatedRoute
     ) { }
 
     ngOnInit() {
@@ -42,6 +46,18 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         ).subscribe(event => {
             window.scrollTo(0, 0);
             this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
+        })
+
+        this.activatedRoute.params.pipe(filter(route => route && route['edgeId']), first()).subscribe(route => {
+            const edgeId: string = route['edgeId'];
+            if (this.service.metadata.value?.edges[edgeId]) {
+                this.websocket.sendSafeRequest(new SubscribeEdgesRequest({ edges: [edgeId] }))
+                return
+            }
+
+            this.service.updateCurrentEdgeInMetadata(edgeId).catch(() => {
+                this.router.navigateByUrl("/index", { replaceUrl: true });
+            })
         })
 
         // subscribe for single status component
