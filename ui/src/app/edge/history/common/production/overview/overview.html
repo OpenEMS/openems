@@ -1,6 +1,6 @@
-<oe-chart [title]="'General.production' | translate" [isPopoverNeeded]="true" [showPhases]="showPhases"
-  [showTotal]="showTotal" (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)"
-  *ngIf="isInitialized" [period]="service.historyPeriod">
+<oe-chart [title]="'General.production' | translate" [showPhases]="showPhases" [showTotal]="showTotal"
+  (setShowTotal)="setShowTotal($event)" (setShowPhases)="setShowPhases($event)" *ngIf="isInitialized"
+  [period]="service.historyPeriod">
   <!-- Total Chart -->
   <ng-container *ngIf="showTotal, else singleMeter">
     <productionTotalChart [period]="service.historyPeriod" [showPhases]="showPhases" [showTotal]="showTotal">

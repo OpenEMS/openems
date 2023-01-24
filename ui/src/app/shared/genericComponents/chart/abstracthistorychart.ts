@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Directive, Input, OnChanges, OnInit } from '@angular
 import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
-import { ChartDataSets, ChartLegendLabelItem } from 'chart.js';
+import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
@@ -163,13 +163,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
           label: label,
           data: values,
           hidden: element.hiddenOnInit ?? !isLabelVisible(element.name, !(element.hiddenOnInit)),
-          ...(element.stack && { stack: element.stack.toString() }),
+          ...(element.stack != null && { stack: element.stack.toString() }),
           maxBarThickness: 100,
         })
 
         this.legendOptions.push({
           label: label,
-          strokeThroughHidingStyle: element.strokeThroughHidingStyle
+          strokeThroughHidingStyle: element.noStrokeThroughLegendIfHidden,
         })
 
         colors.push({
@@ -411,6 +411,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
   protected setChartLabel() {
     let options = <ChartOptions>Utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     let chartObject = this.chartObject;
+    let tooltipsLabel = this.getToolTipsLabel(chartObject.unit);
+
     options.scales.xAxes[0].time.unit = calculateResolution(this.service, this.period.from, this.period.to).timeFormat;
 
     if (this.chartType == 'bar') {
@@ -419,6 +421,24 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       options.scales.xAxes[0].offset = true;
       options.scales.xAxes[0].ticks.maxTicksLimit = 12;
       options.scales.xAxes[0].ticks.source = 'data';
+
+      // Enables tooltip for each datasetindex / stack
+      options.tooltips.mode = 'x';
+
+      options.tooltips.callbacks.afterTitle = function (item: ChartTooltipItem[], data: ChartData) {
+
+        // If only one item in stack do not show sum of values
+        if (item.length <= 1) {
+          return null;
+        }
+
+        let totalValue = item.filter(element => !element.label.includes(chartObject.tooltip.afterTitle)).reduce((a, e) => a + parseFloat(<string>e.yLabel), 0);
+        if (chartObject.tooltip.afterTitle) {
+          return chartObject.tooltip.afterTitle + ": " + formatNumber(totalValue, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
+        }
+
+        return null;
+      }
     }
 
     options.scales.xAxes[0].bounds = 'ticks';
@@ -432,13 +452,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
       return this.toTooltipTitle(this.service.historyPeriod.from, this.service.historyPeriod.to, date);
     }
 
+
     options.tooltips.callbacks.label = (tooltipItem: TooltipItem, data: Data) => {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.value;
 
       // Show floating point number for values between 0 and 1
       // TODO find better workaround for legend labels
-      return label.split(":")[0] + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + this.getToolTipsLabel(chartObject.unit);
+      return label.split(":")[0] + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + tooltipsLabel;
     }
 
     // Set Y-Axis Title
@@ -537,7 +558,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     if (suffix != null) {
       switch (this.chartObject.unit) {
         case YAxisTitle.ENERGY:
-          return baseName + ": " + formatNumber(suffix / 1000, 'de', "1.0-2") + " kWh";
+          return baseName + ": " + formatNumber(suffix / 1000, 'de', "1.0-1") + " kWh";
         case YAxisTitle.PERCENTAGE:
           return baseName + ": " + formatNumber(suffix, 'de', "1.0-1") + " %";
       }

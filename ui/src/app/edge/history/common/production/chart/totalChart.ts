@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
+import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 
 import { Utils } from '../../../../../shared/service/utils';
@@ -15,6 +16,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
   protected override getChartData(): ChartData {
     let productionMeterComponents = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => this.config.isProducer(component));
     let chargerComponents = this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
+
     let channels: Channels[] = [{
       name: 'ProductionDcActualPower',
       powerChannel: ChannelAddress.fromString('_sum/ProductionDcActualPower'),
@@ -76,7 +78,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
           },
           color: 'rgb(0,152,204)',
           hiddenOnInit: true,
-          strokeThroughHidingStyle: false,
+          noStrokeThroughLegendIfHidden: false,
           stack: 2,
         })
 
@@ -87,6 +89,9 @@ export class TotalChartComponent extends AbstractHistoryChart {
         for (let i = 1; i < 4; i++) {
           datasets.push({
             name: "Phase L" + i,
+            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
+              return energyValues.result.data['_sum/ProductionAcActiveEnergyL' + i]
+            },
             setValue: () => {
               if (!this.showPhases) {
                 return null;
@@ -105,9 +110,6 @@ export class TotalChartComponent extends AbstractHistoryChart {
             },
             color: 'rgb(' + this.phaseColors[i - 1] + ')',
             stack: 3,
-            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-              return energyValues.result.data['_sum/ProductionAcActiveEnergyL' + i]
-            }
           })
         }
 
@@ -147,7 +149,8 @@ export class TotalChartComponent extends AbstractHistoryChart {
         return datasets;
       },
       tooltip: {
-        formatNumber: '1.1-2'
+        formatNumber: '1.1-2',
+        afterTitle: this.translate.instant('General.total')
       },
       unit: YAxisTitle.ENERGY,
     }

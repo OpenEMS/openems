@@ -3,6 +3,7 @@ import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js'
 import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
 import { Colors } from 'ng2-charts';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChannelAddress, Service } from 'src/app/shared/shared';
 
@@ -339,16 +340,19 @@ export enum Unit {
 
 export type DisplayValues = {
   name: string,
+  /** suffix to the name */
   nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
   /** The values to be displayed in Chart */
   setValue: () => number[],
-
+  /** If dataset should be hidden on Init */
   hiddenOnInit?: boolean,
   /** default: true, stroke through label for hidden dataset */
-  strokeThroughHidingStyle?: boolean,
+  noStrokeThroughLegendIfHidden?: boolean,
   /** color in rgb-Format */
   color: string,
+  /** Choose between predefined ChannelFilters */
   filter?: ChannelFilter,
+  /** the stack for barChart */
   stack?: number,
 }
 
@@ -358,7 +362,8 @@ export type ChartData = {
   displayValues: (data: { [name: string]: number[] }) => DisplayValues[],
   tooltip: {
     /** Format of Number displayed */
-    formatNumber?: string;
+    formatNumber: string,
+    afterTitle?: string
   },
   /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
   unit: YAxisTitle,
