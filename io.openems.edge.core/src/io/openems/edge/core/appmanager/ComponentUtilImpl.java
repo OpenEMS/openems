@@ -10,6 +10,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,7 +19,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 
-import com.google.common.base.Objects;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -72,7 +72,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 	 * @return true if they match
 	 */
 	public static boolean equals(JsonElement expected, JsonElement actual) {
-		if (Objects.equal(expected, actual)) {
+		if (Objects.equals(expected, actual)) {
 			return true;
 		}
 
@@ -182,7 +182,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 		}
 
 		// Validate the Component Factory (i.e. is the Component of the correct type)
-		if (!Objects.equal(expectedComponent.getFactoryId(), actualComponent.getFactoryId())) {
+		if (!Objects.equals(expectedComponent.getFactoryId(), actualComponent.getFactoryId())) {
 			componentErrors.add("Factory-ID: " //
 					+ "expected '" + expectedComponent.getFactoryId() + "', " //
 					+ "got '" + actualComponent.getFactoryId() + "'");
@@ -241,7 +241,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 		}
 
 		// Validate the Component Factory (i.e. is the Component of the correct type)
-		if (!Objects.equal(expectedComponent.getFactoryId(), actualComponent.getFactoryId())) {
+		if (!Objects.equals(expectedComponent.getFactoryId(), actualComponent.getFactoryId())) {
 			return false;
 		}
 
@@ -421,13 +421,12 @@ public class ComponentUtilImpl implements ComponentUtil {
 	@Override
 	public List<String> getAvailableRelays(String ioId, List<String> ignoreIds) throws OpenemsNamedException {
 		var digitalOutput = this.componentManager.getComponent(ioId);
-		if (digitalOutput instanceof DigitalOutput) {
-			return new ArrayList<>();
+		if (!(digitalOutput instanceof DigitalOutput)) {
+			return Collections.emptyList();
 		}
 		List<String> availableIos = new LinkedList<>();
-		var component = digitalOutput;
 		for (var i = 0; i < ((DigitalOutput) digitalOutput).digitalOutputChannels().length; i++) {
-			var ioName = component.id() + "/Relay" + (i + 1);
+			var ioName = digitalOutput.id() + "/Relay" + (i + 1);
 			if (!this.anyComponentUses(ioName, ignoreIds)) {
 				availableIos.add(ioName);
 			}
@@ -474,11 +473,8 @@ public class ComponentUtilImpl implements ComponentUtil {
 	public String getNextAvailableId(String baseName, int startingNumber, List<Component> components) {
 		for (var i = startingNumber; true; i++) {
 			var id = baseName + i;
-			try {
-				this.componentManager.getComponent(id);
+			if (this.componentManager.getEdgeConfig().getComponent(id).isPresent()) {
 				continue;
-			} catch (OpenemsNamedException e) {
-				// component with id not found
 			}
 			if (components.stream().anyMatch(t -> t.getId().equals(id))) {
 				continue;

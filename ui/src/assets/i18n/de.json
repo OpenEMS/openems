@@ -360,14 +360,30 @@
         "installed": "Installiert",
         "available": "Verfügbar",
         "incompatible": "Inkompatibel",
-        "buyApp": "App kaufen",
+        "buyApp": "Lizenzschlüssel kaufen",
         "modifyApp": "App bearbeiten",
         "createApp": "App installieren",
         "deleteApp": "App entfernen",
         "updateApp": "App aktualisieren",
         "errorInstallable": "Installierungs fehler",
         "errorCompatible": "Kompatibilitäts fehler",
-        "notAvailable": "Nicht verfügbar"
+        "notAvailable": "Nicht verfügbar",
+        "Key": {
+          "enterKey": "Geben Sie hier den Lizenzschlüssel ein, den Sie mit der Bestellung der App erhalten haben",
+          "useRegisteredKey": "Bereits registrierten Lizenzschlüssel einlösen?",
+          "registeredKey": "Registrierte Lizenzschlüssel",
+          "key": "Lizenzschlüssel",
+          "validateKey": "Lizenzschlüssel validieren",
+          "useKey": "Lizenzschlüssel einlösen",
+          "registerKey": "Lizenzschlüssel registrieren",
+          "alreadyRegisteredDifferentSystem": "Lizenzschlüssel wurde bereits auf einem anderen System registriert! Wenn Sie fortfahren, wird die andere Registrierung entfernt.",
+          "failedLoadingRegisterKey": "Bereits registrierte Schlüssel konnten nicht abgerufen werden",
+          "successRegisterKey": "Schlüssel wurde erfolgreich registriert",
+          "failedRegisterKey": "Registrierung des Schlüssels fehlgeschlagen",
+          "alreadyRegisteredDifferentApp": "Key wurde bereits für eine App auf diesem System registriert! \nWenn Sie fortfahren, wird die andere Registrierung entfernt.",
+          "valid": "Lizenzschlüssel ist gültig",
+          "invalid": "Lizenzschlüssel ist ungültig"
+        }
       }
     },
     "Service": {

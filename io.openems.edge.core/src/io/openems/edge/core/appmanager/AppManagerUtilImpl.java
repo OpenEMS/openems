@@ -41,20 +41,13 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 		if (alias != null) {
 			properties.addProperty("ALIAS", alias);
 		}
-		AppConfiguration config = null;
-		OpenemsNamedException error = null;
 		try {
-			config = app.getAppConfiguration(target, properties, language);
-		} catch (OpenemsNamedException e) {
-			error = e;
+			return app.getAppConfiguration(target, properties, language);
+		} finally {
+			if (alias != null) {
+				properties.remove("ALIAS");
+			}
 		}
-		if (alias != null) {
-			properties.remove("ALIAS");
-		}
-		if (error != null) {
-			throw error;
-		}
-		return config;
 	}
 
 	@Override

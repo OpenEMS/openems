@@ -151,7 +151,7 @@ public class TestFeneconHome {
 		var fullConfig = fullSettings();
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request("App.FENECON.Home", "alias", fullConfig));
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", fullConfig));
 
 		// make sure every dependency got installed
 		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 4);

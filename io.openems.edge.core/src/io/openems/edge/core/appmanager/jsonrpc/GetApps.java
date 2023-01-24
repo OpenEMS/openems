@@ -3,9 +3,6 @@ package io.openems.edge.core.appmanager.jsonrpc;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -101,44 +98,12 @@ public class GetApps {
 				List<OpenemsAppInstance> instantiatedApps, Language language, Validator validator) {
 			return availableApps.parallelStream() //
 					.map(app -> {
-						// TODO don't show integrated systems for normal users
-						/*
-						 * if(app.getCategory()==OpenemsAppCategory.INTEGRATED_SYSTEM) { continue; }
-						 */
-						// Map Instantiated-Apps to Available-Apps
-						var instanceIds = JsonUtils.buildJsonArray();
-						for (var instantiatedApp : instantiatedApps) {
-							if (app.getAppId().equals(instantiatedApp.appId)) {
-								instanceIds.add(instantiatedApp.instanceId.toString());
-							}
-						}
-						var categorys = JsonUtils.buildJsonArray().build();
-						for (var cat : app.getCategorys()) {
-							categorys.add(cat.toJsonObject(language));
-						}
-
-						final var imageFuture = CompletableFuture.supplyAsync(app::getImage);
-						final var statusFuture = CompletableFuture
-								.supplyAsync(() -> validator.toJsonObject(app.getValidatorConfig(), language));
 						try {
-							final String image = imageFuture.get();
-							final JsonObject status = statusFuture.get();
-
-							return JsonUtils.buildJsonObject() //
-									.add("categorys", categorys) //
-									.addProperty("cardinality", app.getCardinality().name()) //
-									.addProperty("appId", app.getAppId()) //
-									.addProperty("name", app.getName(language)) //
-									.addPropertyIfNotNull("image", image) //
-									.add("status", status) //
-									.add("instanceIds", instanceIds.build()) //
-									.build();
-						} catch (InterruptedException | CancellationException e) {
+							return GetApp.createJsonObjectOf(app, validator, instantiatedApps, language);
+						} catch (OpenemsNamedException e) {
 							e.printStackTrace();
-						} catch (ExecutionException e) {
-							e.getCause().printStackTrace();
+							return null;
 						}
-						return null;
 					}) //
 					.filter(Objects::nonNull) //
 					.collect(JsonUtils.toJsonArray());
