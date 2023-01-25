@@ -35,6 +35,14 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.1.2',
+        changes: [
+          Changelog.GENERAL_OPTIMIZATION,
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Aktiviere App-Keys" },
+          { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Fix-State-of-Charge-/Prepare-Battery-Extension-Controller" },
+        ]
+      },
+      {
         version: '2023.1.1',
         changes: [
           Changelog.openems('2023.1.0'),
