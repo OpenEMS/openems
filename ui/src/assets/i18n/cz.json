@@ -517,7 +517,8 @@
         "modifyApp": "upravit aplikaci",
         "createApp": "vytvořit aplikaci",
         "deleteApp": "odstranit aplikaci",
-        "updateApp": "aktualizace aplikace"
+        "updateApp": "aktualizace aplikace",
+        "notAvailable": "Není k dispozici"
       }
     },
     "Service": {

@@ -1,7 +1,7 @@
 package io.openems.edge.core.appmanager.jsonrpc;
 
-import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -86,10 +86,11 @@ public class GetAppInstances {
 
 		private final JsonArray instances;
 
-		public Response(UUID id, List<OpenemsAppInstance> instances) {
+		public Response(UUID id, Stream<OpenemsAppInstance> instances) {
 			super(id);
 
-			this.instances = instances.stream().map(OpenemsAppInstance::toJsonObject).collect(JsonUtils.toJsonArray());
+			this.instances = instances.map(OpenemsAppInstance::toJsonObject) //
+					.collect(JsonUtils.toJsonArray());
 		}
 
 		@Override

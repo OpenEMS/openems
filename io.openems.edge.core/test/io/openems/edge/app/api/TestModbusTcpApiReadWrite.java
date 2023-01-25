@@ -15,6 +15,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
+import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 
@@ -30,12 +31,10 @@ public class TestModbusTcpApiReadWrite {
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			this.modbusTcpApiReadOnly = new ModbusTcpApiReadOnly(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Api.ModbusTcp.ReadOnly"), t.cm, t.componentUtil);
-			this.modbusTcpApiReadWrite = new ModbusTcpApiReadWrite(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Api.ModbusTcp.ReadWrite"), t.cm, t.componentUtil);
-
-			return ImmutableList.of(this.modbusTcpApiReadOnly, this.modbusTcpApiReadWrite);
+			return ImmutableList.of(//
+					this.modbusTcpApiReadOnly = Apps.modbusTcpApiReadOnly(t), //
+					this.modbusTcpApiReadWrite = Apps.modbusTcpApiReadWrite(t) //
+			);
 		});
 	}
 
@@ -43,7 +42,7 @@ public class TestModbusTcpApiReadWrite {
 	public void testDeactivateReadOnly() throws Exception {
 		// create ReadOnly app
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
-				this.modbusTcpApiReadOnly.getAppId(), "alias", JsonUtils.buildJsonObject().build()));
+				this.modbusTcpApiReadOnly.getAppId(), "key", "alias", JsonUtils.buildJsonObject().build()));
 
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
@@ -57,12 +56,13 @@ public class TestModbusTcpApiReadWrite {
 
 		// create ReadWrite app
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.modbusTcpApiReadWrite.getAppId(), "alias", JsonUtils.buildJsonObject() //
-						.addProperty("API_TIMEOUT", 60) //
-						.add("COMPONENT_IDS", JsonUtils.buildJsonArray() //
-								.add("_sum") //
-								.build()) //
-						.build()));
+				new AddAppInstance.Request(this.modbusTcpApiReadWrite.getAppId(), "key", "alias",
+						JsonUtils.buildJsonObject() //
+								.addProperty("API_TIMEOUT", 60) //
+								.add("COMPONENT_IDS", JsonUtils.buildJsonArray() //
+										.add("_sum") //
+										.build()) //
+								.build()));
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 

@@ -1,18 +1,26 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.Optional;
+
 import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	public static class Builder {
-		public String apps;
+	protected static class Builder {
+		private String apps;
+		private String key;
 
 		private Builder() {
 		}
 
 		public Builder setApps(String apps) {
 			this.apps = apps;
+			return this;
+		}
+
+		public Builder setKey(String key) {
+			this.key = key;
 			return this;
 		}
 
@@ -40,6 +48,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String apps() {
 		return this.builder.apps;
+	}
+
+	@Override
+	public String keyForFreeApps() {
+		return Optional.ofNullable(this.builder.key).orElse("");
 	}
 
 }

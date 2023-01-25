@@ -1,4 +1,3 @@
-import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base"
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest"
 import { Edge, Websocket } from "src/app/shared/shared"
 import { AddAppInstance } from "../../settings/app/jsonrpc/addAppInstance"
@@ -20,7 +19,7 @@ export class AppCenterUtil {
      * @param properties the properties of the new instance
      * @returns a Promise of the new instance
      */
-    public static createOrUpdateApp(edge: Edge, websocket: Websocket, appId: string, alias: string, properties: {})
+    public static createOrUpdateApp(edge: Edge, websocket: Websocket, appId: string, alias: string, properties: {}, key: string)
         : Promise<GetAppInstances.AppInstance> {
         return new Promise<GetAppInstances.AppInstance>((resolve, reject) => {
             AppCenterUtil.getAppInstances(edge, websocket, appId)
@@ -34,7 +33,7 @@ export class AppCenterUtil {
                             .then(response => resolve(response.result.instance))
                             .catch(error => reject(error))
                     } else {
-                        AppCenterUtil.createAppInstance(edge, websocket, appId, alias, properties)
+                        AppCenterUtil.createAppInstance(edge, websocket, appId, alias, properties, key)
                             .then(response => {
                                 let result = response as AddAppInstance.Response
                                 resolve(result.result.instance)
@@ -180,13 +179,14 @@ export class AppCenterUtil {
      * @param properties the propertes of the new instance
      * @returns a Promise of AddAppInstance.Response
      */
-    public static createAppInstance(edge: Edge, websocket: Websocket, appId: string, alias: string, properties: {})
+    public static createAppInstance(edge: Edge, websocket: Websocket, appId: string, alias: string, properties: {}, key: string)
         : Promise<AddAppInstance.Response> {
         return new Promise<AddAppInstance.Response>((resolve, reject) => {
             edge.sendRequest(websocket,
                 new ComponentJsonApiRequest({
                     componentId: "_appManager",
                     payload: new AddAppInstance.Request({
+                        key: key,
                         appId: appId,
                         alias: alias,
                         properties: properties
@@ -205,6 +205,11 @@ export class AppCenterUtil {
      */
     public static isAppManagerAvailable(edge: Edge): boolean {
         return edge.isVersionAtLeast('2021.19.1') && !edge.isSnapshot()
+    }
+
+    // TODO this key will probably removed with a separate request for installing integrated systems
+    public static keyForIntegratedSystems(): string {
+        return '0000-0000-0000-0001'
     }
 
 }

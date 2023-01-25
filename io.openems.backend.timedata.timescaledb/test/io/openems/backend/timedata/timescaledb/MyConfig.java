@@ -14,6 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		public String database;
 		public boolean isReadOnly;
 		public int poolSize;
+		public String[] enableWriteChannelAddresses;
 
 		private Builder() {
 		}
@@ -55,6 +56,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPoolSize(int poolSize) {
 			this.poolSize = poolSize;
+			return this;
+		}
+
+		public Builder setEnableWriteChannelAddresses(String[] enableWriteChannelAddresses) {
+			this.enableWriteChannelAddresses = enableWriteChannelAddresses;
 			return this;
 		}
 
@@ -112,6 +118,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int poolSize() {
 		return this.builder.poolSize;
+	}
+
+	@Override
+	public String[] enableWriteChannelAddresses() {
+		return this.builder.enableWriteChannelAddresses;
 	}
 
 }

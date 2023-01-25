@@ -8,12 +8,16 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ServiceScope;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.ComponentUtil;
 
-@Component(name = CheckRelayCount.COMPONENT_NAME)
+@Component(//
+		name = CheckRelayCount.COMPONENT_NAME, //
+		scope = ServiceScope.PROTOTYPE //
+)
 public class CheckRelayCount extends AbstractCheckable implements Checkable {
 
 	public static final String COMPONENT_NAME = "Validator.Checkable.CheckRelayCount";

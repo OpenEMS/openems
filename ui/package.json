@@ -1,6 +1,6 @@
 {
     "name": "openems-ui",
-    "version": "2022.12.7",
+    "version": "2023.1.2",
     "license": "AGPL-3.0",
     "private": true,
     "dependencies": {
@@ -14,14 +14,14 @@
         "@angular/service-worker": "~15.0.4",
         "@ionic/angular": "^6.4.1",
         "@ngx-formly/core": "^6.0.4",
-        "@ngx-formly/ionic": "^6.0.4",
+        "@ngx-formly/ionic": "^6.1.0",
         "@ngx-formly/schematics": "^6.0.4",
         "@ngx-translate/core": "^14.0.0",
         "angular-mydatepicker": "^0.11.5",
         "chart.js": "^2.9.4",
         "classlist.js": "^1.1.20150312",
         "compare-versions": "^5.0.3",
-        "d3": "^7.8.0",
+        "d3": "^7.8.1",
         "date-fns": "^2.29.3",
         "file-saver-es": "^2.0.5",
         "ng2-charts": "^2.4.3",
@@ -65,9 +65,6 @@
         "protractor": "~7.0.0",
         "ts-node": "~10.9.1",
         "typescript": "~4.8.4"
-    },
-    "engines": {
-        "node": "< 17.0.0"
     },
     "scripts": {
         "lint": "ng lint",

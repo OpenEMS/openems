@@ -414,7 +414,7 @@ public class OdooUtils {
 			throws OpenemsException {
 		try {
 			// Execute XML request
-			var resultObj = (Object[]) executeKw(credentials, "ir.model.data", "get_object_reference",
+			var resultObj = (Object[]) executeKw(credentials, "ir.model.data", "check_object_reference",
 					new Object[] { module, name });
 			if (resultObj == null) {
 				throw new OpenemsException(

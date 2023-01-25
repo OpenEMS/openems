@@ -16,6 +16,9 @@ import io.openems.edge.core.appmanager.InterfaceConfiguration;
 @Component
 public class StaticIpAggregateTaskImpl implements AggregateTask, AggregateTask.StaticIpAggregateTask {
 
+	/**
+	 * Setting ip configuration only works on Linux devices.
+	 */
 	private final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
 
 	private final ComponentUtil componentUtil;
@@ -26,7 +29,6 @@ public class StaticIpAggregateTaskImpl implements AggregateTask, AggregateTask.S
 	@Activate
 	public StaticIpAggregateTaskImpl(@Reference ComponentUtil componentUtil) {
 		this.componentUtil = componentUtil;
-
 	}
 
 	@Override

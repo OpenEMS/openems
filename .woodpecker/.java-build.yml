@@ -10,7 +10,7 @@ clone:
   git-clone:
     when:
       branch:
-        exclude: [master, develop]
+        exclude: [main, develop]
       path:
         include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
     image: woodpeckerci/plugin-git:v1.6.1
@@ -25,7 +25,7 @@ pipeline:
   restore-cache:
     when:
       branch:
-        exclude: [master, develop]
+        exclude: [main, develop]
       path:
         include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
     image: drillster/drone-volume-cache
@@ -39,7 +39,7 @@ pipeline:
   build-java:
     when:
       branch:
-        exclude: [master, develop]
+        exclude: [main, develop]
       path:
         include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
     image: openems-build:latest
@@ -55,7 +55,7 @@ pipeline:
   rebuild-cache:
     when:
       branch:
-        exclude: [master, develop]
+        exclude: [main, develop]
       path:
         include: [ 'io.openems*/**', '**/*gradle*', '.woodpecker/.java-build.yml' ]
     image: drillster/drone-volume-cache

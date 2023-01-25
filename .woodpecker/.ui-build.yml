@@ -10,7 +10,7 @@ clone:
   git-clone:
     when:
       branch:
-        exclude: [master, develop]
+        exclude: [main, develop]
       path:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: woodpeckerci/plugin-git:v1.6.1
@@ -25,7 +25,7 @@ pipeline:
   restore-cache:
     when:
       branch:
-        exclude: [master, develop]
+        exclude: [main, develop]
       path:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: drillster/drone-volume-cache
@@ -40,7 +40,7 @@ pipeline:
   build-ui:
     when:
       branch:
-        exclude: [master, develop]
+        exclude: [main, develop]
       path:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: openems-build:latest
@@ -58,7 +58,7 @@ pipeline:
   refresh-dev:
     when:
       branch:
-        exclude: [master, develop]
+        exclude: [main, develop]
       path:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: appleboy/drone-scp
@@ -76,7 +76,7 @@ pipeline:
   refresh-location:
     when:
       branch:
-        exclude: [master, develop]
+        exclude: [main, develop]
       path:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: appleboy/drone-ssh
@@ -92,7 +92,7 @@ pipeline:
   rebuild-cache:
     when:
       branch:
-        exclude: [master, develop]
+        exclude: [main, develop]
       path:
         include: [ 'ui/**', '.woodpecker/.ui-build.yml' ]
     image: drillster/drone-volume-cache

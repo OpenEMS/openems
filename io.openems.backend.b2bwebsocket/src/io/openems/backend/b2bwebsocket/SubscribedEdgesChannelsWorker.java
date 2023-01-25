@@ -127,8 +127,8 @@ public class SubscribedEdgesChannelsWorker {
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast("EdgesCurrentDataNotification", edgeId, Role.GUEST);
 
-			var values = this.parent.timeData.getChannelValues(edgeId, this.channels);
-			for (var entry : values.entrySet()) {
+			var data = this.parent.edgeWebsocket.getChannelValues(edgeId, this.channels);
+			for (var entry : data.entrySet()) {
 				result.addValue(edgeId, entry.getKey(), entry.getValue());
 			}
 		}

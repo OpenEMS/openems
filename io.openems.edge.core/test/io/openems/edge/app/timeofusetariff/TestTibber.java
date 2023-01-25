@@ -15,6 +15,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
+import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 public class TestTibber {
@@ -28,9 +29,7 @@ public class TestTibber {
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
-					this.tibber = new Tibber(t.componentManger,
-							AppManagerTestBundle.getComponentContext("App.TimeOfUseTariff.Tibber"), t.cm,
-							t.componentUtil));
+					this.tibber = Apps.tibber(t));
 		});
 	}
 
@@ -40,7 +39,7 @@ public class TestTibber {
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
 		var response = (AddAppInstance.Response) this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.tibber.getAppId(), "alias", properties)).get();
+				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties)).get();
 
 		assertFalse(response.instance.properties.has("ACCESS_TOKEN"));
 

@@ -17,10 +17,6 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
-import io.openems.edge.app.evcs.KebaEvcs;
-import io.openems.edge.app.integratedsystem.FeneconHome;
-import io.openems.edge.app.timeofusetariff.AwattarHourly;
-import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
@@ -34,11 +30,6 @@ public class AppManagerAppHelperImplTest {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
-	private FeneconHome homeApp;
-	private KebaEvcs kebaEvcsApp;
-	private AwattarHourly awattarApp;
-	private StromdaoCorrently stromdao;
-
 	private TestADependencyToC testAApp;
 	private TestBDependencyToC testBApp;
 	private TestC testCApp;
@@ -46,24 +37,16 @@ public class AppManagerAppHelperImplTest {
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			this.homeApp = new FeneconHome(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.FENECON.Home"), t.cm, t.componentUtil);
-			this.kebaEvcsApp = new KebaEvcs(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Evcs.Keba"), t.cm, t.componentUtil);
-			this.awattarApp = new AwattarHourly(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.TimeVariablePrice.Awattar"), t.cm, t.componentUtil);
-			this.stromdao = new StromdaoCorrently(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.TimeVariablePrice.Stromdao"), t.cm, t.componentUtil);
+			return ImmutableList.of(//
+					Apps.feneconHome(t), //
+					Apps.kebaEvcs(t), //
+					Apps.awattarHourly(t), //
+					Apps.stromdaoCorrently(t), //
 
-			this.testAApp = new TestADependencyToC(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Test.TestADependencyToC"), t.cm, t.componentUtil);
-			this.testBApp = new TestBDependencyToC(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Test.TestBDependencyToC"), t.cm, t.componentUtil);
-			this.testCApp = new TestC(t.componentManger, AppManagerTestBundle.getComponentContext("App.Test.TestC"),
-					t.cm, t.componentUtil);
-
-			return ImmutableList.of(this.homeApp, this.kebaEvcsApp, this.awattarApp, this.stromdao, this.testAApp,
-					this.testBApp, this.testCApp);
+					this.testAApp = Apps.testADependencyToC(t), //
+					this.testBApp = Apps.testBDependencyToC(t), //
+					this.testCApp = Apps.testC(t) //
+			);
 		});
 
 	}
@@ -73,7 +56,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING.name())
 								.build()));
@@ -81,7 +64,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING.name())
 								.build()));
@@ -94,7 +77,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.ALWAYS.name())
 								.build()));
@@ -102,7 +85,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.ALWAYS.name())
 								.build()));
@@ -115,7 +98,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.NEVER.name())
 								.build()));
@@ -123,7 +106,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("CREATE_POLICY", DependencyDeclaration.CreatePolicy.NEVER.name())
 								.build()));
@@ -136,7 +119,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.NEVER.name()) //
 								.addProperty("NUMBER", 1) //
@@ -160,7 +143,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.ALWAYS.name()) //
 								.addProperty("NUMBER", 1) //
@@ -169,7 +152,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject().build()));
 
 		assertEquals(3, this.appManagerTestBundle.sut.getInstantiatedApps().size());
@@ -190,7 +173,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("UPDATE_POLICY", DependencyDeclaration.UpdatePolicy.IF_MINE.name()) //
 								.addProperty("NUMBER", 1) //
@@ -209,7 +192,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, instance.properties.get(TestC.Property.NUMBER.name()).getAsInt());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject().build()));
 
 		assertEquals(3, this.appManagerTestBundle.sut.getInstantiatedApps().size());
@@ -230,7 +213,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DELETE_POLICY", DependencyDeclaration.DeletePolicy.NEVER.name()) //
 								.build()));
@@ -249,7 +232,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DELETE_POLICY", DependencyDeclaration.DeletePolicy.ALWAYS.name()) //
 								.build()));
@@ -257,7 +240,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject().build()));
 
 		assertEquals(3, this.appManagerTestBundle.sut.getInstantiatedApps().size());
@@ -274,7 +257,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DELETE_POLICY", DependencyDeclaration.DeletePolicy.IF_MINE.name()) //
 								.build()));
@@ -282,7 +265,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testBApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testBApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject().build()));
 
 		assertEquals(3, this.appManagerTestBundle.sut.getInstantiatedApps().size());
@@ -299,7 +282,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DEPENDENCY_DELETE_POLICY",
 										DependencyDeclaration.DependencyDeletePolicy.ALLOWED.name()) //
@@ -319,7 +302,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DEPENDENCY_DELETE_POLICY",
 										DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED.name()) //
@@ -338,7 +321,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DEPENDENCY_UPDATE_POLICY",
 										DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL.name()) //
@@ -368,7 +351,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.testAApp.getAppId(), "", //
+				new AddAppInstance.Request(this.testAApp.getAppId(), "key", "", //
 						JsonUtils.buildJsonObject() //
 								.addProperty("DEPENDENCY_UPDATE_POLICY",
 										DependencyDeclaration.DependencyUpdatePolicy.ALLOW_NONE.name()) //
@@ -391,7 +374,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
-				this.testAApp.getAppId(), "", //
+				this.testAApp.getAppId(), "key", "", //
 				JsonUtils.buildJsonObject() //
 						.addProperty("DEPENDENCY_UPDATE_POLICY",
 								DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES.name()) //

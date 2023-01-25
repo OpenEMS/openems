@@ -6,10 +6,11 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.openems.common.OpenemsConstants;
-import io.openems.common.jsonrpc.response.AuthenticateResponse.EdgeMetadata;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Role;
 
 public class Utils {
+
 	/**
 	 * Gets the EdgeMetadata for one Edge.
 	 *
@@ -27,4 +28,5 @@ public class Utils {
 				ZonedDateTime.now() // now
 		));
 	}
+
 }

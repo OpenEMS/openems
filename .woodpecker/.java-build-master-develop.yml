@@ -9,7 +9,7 @@
 clone:  
   git-clone:
     when:
-      branch: [master, develop]
+      branch: [main, develop]
     image: woodpeckerci/plugin-git:v1.6.1
     settings:
       depth: 1
@@ -19,9 +19,9 @@ clone:
       partial: true
 
 pipeline:    
-  restore-cache: # copy of  restore-cache, executed on master and develop
+  restore-cache: # copy of  restore-cache, executed on main and develop
     when:
-      branch: [master, develop]
+      branch: [main, develop]
     image: drillster/drone-volume-cache
     restore: true
     mount:
@@ -32,7 +32,7 @@ pipeline:
 
   build-java:
     when:
-      branch: [master, develop]
+      branch: [main, develop]
     image: openems-build:latest
     environment:
       - GRADLE_USER_HOME=/woodpecker/.gradle
@@ -45,7 +45,7 @@ pipeline:
     
   rebuild-cache:
     when:
-      branch: [master, develop]
+      branch: [main, develop]
     image: drillster/drone-volume-cache
     rebuild: true
     mount:

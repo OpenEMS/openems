@@ -1,6 +1,7 @@
 package io.openems.edge.core.appmanager.jsonrpc;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.google.gson.JsonArray;
@@ -95,34 +96,17 @@ public class GetApps {
 
 		private static JsonArray createAppsArray(List<OpenemsApp> availableApps,
 				List<OpenemsAppInstance> instantiatedApps, Language language, Validator validator) {
-			var result = JsonUtils.buildJsonArray();
-			for (var app : availableApps) {
-				// TODO don't show integrated systems for normal users
-				/*
-				 * if(app.getCategory()==OpenemsAppCategory.INTEGRATED_SYSTEM) { continue; }
-				 */
-				// Map Instantiated-Apps to Available-Apps
-				var instanceIds = JsonUtils.buildJsonArray();
-				for (var instantiatedApp : instantiatedApps) {
-					if (app.getAppId().equals(instantiatedApp.appId)) {
-						instanceIds.add(instantiatedApp.instanceId.toString());
-					}
-				}
-				var categorys = JsonUtils.buildJsonArray().build();
-				for (var cat : app.getCategorys()) {
-					categorys.add(cat.toJsonObject(language));
-				}
-				result.add(JsonUtils.buildJsonObject() //
-						.add("categorys", categorys) //
-						.addProperty("cardinality", app.getCardinality().name()) //
-						.addProperty("appId", app.getAppId()) //
-						.addProperty("name", app.getName(language)) //
-						.addPropertyIfNotNull("image", app.getImage()) //
-						.add("status", validator.toJsonObject(app.getValidatorConfig(), language)) //
-						.add("instanceIds", instanceIds.build()) //
-						.build());
-			}
-			return result.build();
+			return availableApps.parallelStream() //
+					.map(app -> {
+						try {
+							return GetApp.createJsonObjectOf(app, validator, instantiatedApps, language);
+						} catch (OpenemsNamedException e) {
+							e.printStackTrace();
+							return null;
+						}
+					}) //
+					.filter(Objects::nonNull) //
+					.collect(JsonUtils.toJsonArray());
 		}
 
 		private final JsonArray apps;

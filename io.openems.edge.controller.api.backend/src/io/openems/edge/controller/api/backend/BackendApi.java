@@ -10,9 +10,10 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.controller.api.Controller;
 
-public interface BackendApi extends Controller, OpenemsComponent, PaxAppender, EventHandler {
+public interface BackendApi extends Controller, JsonApi, OpenemsComponent, PaxAppender, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		API_WORKER_LOG(Doc.of(OpenemsType.STRING) //
@@ -58,4 +59,11 @@ public interface BackendApi extends Controller, OpenemsComponent, PaxAppender, E
 	public default StateChannel getUnableToSendChannel() {
 		return this.channel(ChannelId.UNABLE_TO_SEND);
 	}
+	
+	/**
+	 * Gets if the edge is currently connected to the backend.
+	 * 
+	 * @return true if it is connected
+	 */
+	public boolean isConnected();
 }

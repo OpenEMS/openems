@@ -116,7 +116,8 @@ public class KdkMeter extends AbstractMeterApp<Property> implements OpenemsApp {
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "modbusUnitId.description")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, "App.Meter.modbusUnitId.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(1) //
 								.setMin(0) //

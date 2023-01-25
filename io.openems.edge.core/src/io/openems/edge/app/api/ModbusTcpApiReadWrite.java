@@ -150,6 +150,14 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 									.add("component.ids", controllerIds).build()) //
 			);
 
+			final var schedulerIds = Lists.newArrayList(//
+			        "ctrlEmergencyCapacityReserve0",
+					controllerId, //
+					"ctrlGridOptimizedCharge0", //
+					"ctrlEssSurplusFeedToGrid0", //
+					"ctrlBalancing0" //
+			);
+
 			var dependencies = Lists.newArrayList(//
 					new DependencyDeclaration("READ_ONLY", //
 							DependencyDeclaration.CreatePolicy.NEVER, //
@@ -166,7 +174,7 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 									.build()) //
 			);
 
-			return new AppConfiguration(components, null, null, dependencies);
+			return new AppConfiguration(components, schedulerIds, null, dependencies);
 		};
 	}
 

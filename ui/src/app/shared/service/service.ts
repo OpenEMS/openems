@@ -9,11 +9,17 @@ import { environment } from 'src/environments';
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
 import { JsonrpcResponseError } from '../jsonrpc/base';
+import { GetEdgeRequest } from '../jsonrpc/request/getEdgeRequest';
+import { GetEdgesRequest } from '../jsonrpc/request/getEdgesRequest';
 import { QueryHistoricTimeseriesEnergyRequest } from '../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
+import { SubscribeEdgesRequest } from '../jsonrpc/request/subscribeEdgesRequest';
+import { GetEdgeResponse } from '../jsonrpc/response/getEdgeResponse';
+import { GetEdgesResponse } from '../jsonrpc/response/getEdgesResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from '../jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { User } from '../jsonrpc/shared';
 import { ChannelAddress } from '../shared';
 import { Language } from '../type/language';
+import { Role } from '../type/role';
 import { AdvertWidgets } from '../type/widget';
 import { AbstractService } from './abstractservice';
 import { DefaultTypes } from './defaulttypes';
@@ -303,6 +309,81 @@ export class Service extends AbstractService {
       }, 100);
     }
     return response;
+  }
+
+  /**
+   * Gets the page for the given number.
+   * 
+   * @param page the page number
+   * @param query the query to restrict the edgeId
+   * @param limit the number of edges to be retrieved
+   * @returns a Promise
+   */
+  public getEdges(page: number, query?: string, limit?: number): Promise<Edge[]> {
+    return new Promise<Edge[]>((resolve) => {
+      this.websocket.sendSafeRequest(
+        new GetEdgesRequest({
+          page: page,
+          ...(query && query != "" && { query: query }),
+          ...(limit && { limit: limit })
+        })).then((response) => {
+
+          const result = (response as GetEdgesResponse).result;
+
+          // TODO change edges-map to array or other way around
+          let value = this.metadata.value;
+          let mappedResult = [];
+          for (let edge of result.edges) {
+            let mappedEdge = new Edge(
+              edge.id,
+              edge.comment,
+              edge.producttype,
+              ("version" in edge) ? edge["version"] : "0.0.0",
+              Role.getRole(edge.role.toString()),
+              edge.isOnline,
+              edge.lastmessage
+            );
+            value.edges[edge.id] = mappedEdge
+            mappedResult.push(mappedEdge)
+          }
+
+          this.metadata.next(value)
+          resolve(mappedResult)
+        })
+    })
+  }
+
+  /**
+   * Updates the currentEdge in metadata
+   * 
+   * @param edgeId the edgeId
+   * @returns a empty Promise
+   */
+  public updateCurrentEdgeInMetadata(edgeId: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (this.metadata?.value?.edges['edgeId']) {
+        return
+      }
+
+      this.websocket.sendSafeRequest(new GetEdgeRequest({ edgeId: edgeId })).then((response) => {
+        this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edgeId] })).then(() => {
+          let edge = (response as GetEdgeResponse).result.edge
+          let value = this.metadata.value;
+          value.edges[edge.id] = new Edge(
+            edge.id,
+            edge.comment,
+            edge.producttype,
+            ("version" in edge) ? edge["version"] : "0.0.0",
+            Role.getRole(edge.role.toString()),
+            edge.isOnline,
+            edge.lastmessage
+          );
+
+          this.metadata.next(value)
+          resolve()
+        })
+      }).catch(() => reject())
+    })
   }
 
   private queryEnergyQueue: {

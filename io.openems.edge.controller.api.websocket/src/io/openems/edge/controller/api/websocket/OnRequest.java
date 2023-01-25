@@ -24,6 +24,7 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.jsonrpc.request.GetEdgesRequest;
 import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
@@ -34,6 +35,7 @@ import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.AuthenticateResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
+import io.openems.common.jsonrpc.response.GetEdgesResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Language;
@@ -77,6 +79,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		case EdgeRpcRequest.METHOD:
 			return this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
+
+		case GetEdgesRequest.METHOD:
+			return this.handleGetEdgesRequest(user, GetEdgesRequest.from(request));
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -453,6 +458,19 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 		}
 		this.parent.handleSubscribeSystemLogRequest(token, request);
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Handles a {@link GetEdgesRequest}.
+	 *
+	 * @param user    the {@link User}
+	 * @param request the {@link GetEdgesRequest}
+	 * @return the {@link GetEdgesResponse} Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgesRequest(User user, GetEdgesRequest request) {
+		return CompletableFuture.completedFuture(//
+				new GetEdgesResponse(request.getId(), Utils.getEdgeMetadata(user.getGlobalRole())));
 	}
 
 }

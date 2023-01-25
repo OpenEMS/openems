@@ -1,5 +1,6 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -89,5 +90,14 @@ public interface AppManagerUtil {
 			Language language) throws OpenemsNamedException {
 		return this.getAppConfiguration(target, this.getAppById(instance.appId), instance, language);
 	}
+
+	/**
+	 * Gets all {@link OpenemsAppInstance Instances} which have a dependency to the
+	 * given {@link OpenemsAppInstance instance}.
+	 * 
+	 * @param instance the instance which is referenced
+	 * @return the referencing instances
+	 */
+	public List<OpenemsAppInstance> getAppsWithDependencyTo(OpenemsAppInstance instance);
 
 }

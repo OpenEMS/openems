@@ -3,6 +3,7 @@ package io.openems.common.session;
 import java.util.Collections;
 import java.util.NavigableMap;
 import java.util.Optional;
+import java.util.TreeMap;
 
 /**
  * Represents a User; shared by OpenEMS Backend
@@ -34,7 +35,11 @@ public abstract class AbstractUser {
 	/**
 	 * Roles per Edge-ID.
 	 */
-	private final NavigableMap<String, Role> roles;
+	private final NavigableMap<String, Role> roles = new TreeMap<>();
+
+	protected AbstractUser(String id, String name, Language language, Role globalRole) {
+		this(id, name, language, globalRole, new TreeMap<>());
+	}
 
 	protected AbstractUser(String id, String name, Language language, Role globalRole,
 			NavigableMap<String, Role> roles) {
@@ -42,7 +47,7 @@ public abstract class AbstractUser {
 		this.name = name;
 		this.language = language;
 		this.globalRole = globalRole;
-		this.roles = roles;
+		this.roles.putAll(roles);
 	}
 
 	public String getId() {

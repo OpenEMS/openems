@@ -20,6 +20,10 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
 
     public override readonly emsBoxLabel = Category.EMS_BOX_LABEL_HECKERT;
 
+    // TODO remove when all customers have a key to install the app
+    // TODO set key
+    private readonly keyForHeckertApps: string = '7ApR-6DEM-CRIs-I8md';
+
     constructor(translate: TranslateService) {
         super([
             View.PreInstallation,
@@ -116,7 +120,7 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
                     } else {
                         Promise.all(deletePromise)
                             .finally(() => {
-                                AppCenterUtil.createOrUpdateApp(edge, websocket, appId, alias, properties)
+                                AppCenterUtil.createOrUpdateApp(edge, websocket, appId, alias, properties, this.keyForHeckertApps)
                                     .then(value => resolve(value))
                                     .catch(error => reject(error))
                             });
@@ -384,4 +388,5 @@ export class HomeHeckertIbn extends AbstractHomeIbn {
         });
         return false;
     }
+
 }

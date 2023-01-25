@@ -43,6 +43,8 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 	public void reset() {
 		this.components = new LinkedList<>();
 		this.components2Delete = new LinkedList<>();
+		this.createdComponents = new LinkedList<>();
+		this.deletedComponents = new LinkedList<>();
 	}
 
 	@Override
@@ -64,7 +66,6 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 
 	@Override
 	public void create(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
-		this.createdComponents = new ArrayList<>(this.components.size());
 		var errors = new LinkedList<String>();
 		var otherAppComponents = AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigurations);
 		// create components
@@ -77,6 +78,12 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 			var foundComponentWithSameId = this.componentManager.getEdgeConfig().getComponent(comp.getId())
 					.orElse(null);
 			if (foundComponentWithSameId != null) {
+				// check if the found component has the same factory id
+				if (!foundComponentWithSameId.getFactoryId().equals(comp.getFactoryId())) {
+					errors.add("Configuration of component with id '" + foundComponentWithSameId.getId()
+							+ "' can not be rewritten. Because the component has a different factoryId.");
+					continue;
+				}
 
 				var isSameConfigWithoutAlias = ComponentUtilImpl.isSameConfigurationWithoutAlias(null, comp,
 						foundComponentWithSameId);
@@ -132,7 +139,6 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
-
 	}
 
 	/**
@@ -143,7 +149,6 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 	 */
 	@Override
 	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
-		this.deletedComponents = new ArrayList<>(this.components2Delete.size());
 		List<String> errors = new ArrayList<>();
 		var notMyComponents = AppManagerAppHelperImpl.getComponentsFromConfigs(otherAppConfigurations);
 		for (var comp : this.components2Delete) {

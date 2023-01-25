@@ -35,6 +35,25 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.1.2',
+        changes: [
+          Changelog.GENERAL_OPTIMIZATION,
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Aktiviere App-Keys" },
+          { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Fix-State-of-Charge-/Prepare-Battery-Extension-Controller" },
+        ]
+      },
+      {
+        version: '2023.1.1',
+        changes: [
+          Changelog.openems('2023.1.0'),
+          Changelog.product(Product.HOME) + "Verbesserungen Inbetriebnahmeassistent für KDK-Zähler (Modbus/RTU Parität)",
+          Changelog.product(Product.HOME) + "Verbesserung SMART-Mode bei Vorgabe einer maximalen Be-/Entladeleistung",
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + "Historie-Chart: Skalierung der Preis-Achse",
+          Changelog.library(Library.NGX_FORMLY, Library.IONIC, Library.JNA, Library.D3),
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Verbesserung der Geschwindigkeit, automatische Installation von Abhängigkeiten, UI-Verbesserungen, Schreibzugriff-Apps, Übersetzungen/Begriffe" },
+        ]
+      },
+      {
         version: '2022.12.7',
         changes: [
           "Inbetriebnahmeassistent: Fehlerbehebung",

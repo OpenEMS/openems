@@ -11,7 +11,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import de.bytefish.pgbulkinsert.row.SimpleRowWriter;
 import de.bytefish.pgbulkinsert.row.SimpleRowWriter.Table;
 import de.bytefish.pgbulkinsert.util.PostgreSqlUtils;
-import io.openems.backend.timedata.timescaledb.internal.Priority;
 import io.openems.backend.timedata.timescaledb.internal.Type;
 
 public class WritePointsHandler implements Runnable {
@@ -23,12 +22,12 @@ public class WritePointsHandler implements Runnable {
 	private final List<Point> points;
 	private final Table table;
 
-	public WritePointsHandler(HikariDataSource dataSource, Type type, Priority priority, List<Point> points) {
+	public WritePointsHandler(HikariDataSource dataSource, Type type, List<Point> points) {
 		this.dataSource = dataSource;
 		this.type = type;
 		this.points = points;
 
-		this.table = new SimpleRowWriter.Table(null, type.getRawTableName(priority), new String[] { //
+		this.table = new SimpleRowWriter.Table(null, type.rawTableName, new String[] { //
 				"time", //
 				"edge_channel_id", //
 				"value" //

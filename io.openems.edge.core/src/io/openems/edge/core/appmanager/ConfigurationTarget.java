@@ -1,7 +1,5 @@
 package io.openems.edge.core.appmanager;
 
-import org.osgi.service.metatype.annotations.AttributeDefinition;
-
 public enum ConfigurationTarget {
 
 	/**
@@ -20,16 +18,6 @@ public enum ConfigurationTarget {
 	 * Configuration will be used to delete. Only cares about the Component-IDs
 	 */
 	DELETE,
-
-	/**
-	 * Configuration will be used to remove properties that should not be saved in
-	 * the configuration. e.g. removes passwords
-	 * 
-	 * <p>
-	 * NOTE: this will be removed when the properties also have something like
-	 * {@link AttributeDefinition}.
-	 */
-	DELETE_NOT_SAVED_PROPERTIES,
 
 	/**
 	 * Configuration will be used to test which ids can be replaced even though it
