@@ -1,0 +1,37 @@
+[Unit]
+Description=OpenEMS Backend
+After=network.target
+
+[Service]
+User=fems
+Group=fems
+Type=simple
+WorkingDirectory=/opt/openems-backend
+LimitCORE=infinity
+LimitRTPRIO=2
+LimitRTTIME=60000000
+CPUSchedulingPolicy=rr
+CPUSchedulingPriority=1
+ExecStart=/usr/lib/jvm/java-17-openjdk-amd64/bin/java \
+    -Xms45G -Xmx200G \
+    -Dorg.osgi.framework.storage=/opt/openems-backend/org.osgi.framework.storage \
+    -Dosgi.clean=true \
+    -Dfelix.cm.dir=/opt/openems-backend/config.d \
+    -Dorg.apache.felix.eventadmin.Timeout=0 \
+    -Dorg.apache.felix.http.host=localhost \
+    -Dorg.ops4j.pax.logging.DefaultServiceLog.level=INFO \
+    -Dcom.sun.management.jmxremote.port=9010 \
+    -Dcom.sun.management.jmxremote.rmi.port=9011 \
+    -Dcom.sun.management.jmxremote.local.only=false \
+    -Dcom.sun.management.jmxremote.authenticate=false \
+    -Dcom.sun.management.jmxremote.ssl=false \
+    -Djava.rmi.server.hostname=localhost \
+    -XX:+ExitOnOutOfMemoryError \
+    -XX:+UseZGC \
+    -jar /opt/openems-backend/openems-backend.jar
+SuccessExitStatus=143
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -139,21 +139,21 @@
             </ion-card-content>
           </ion-card>
         </ion-col>
-
-        <ion-col size="12" size-sm="4" *ngIf="edge.isVersionAtLeast('2022.1.0')">
-          <ion-card>
-            <ion-item lines="full" color="light">
-              <ion-icon slot="start" size="large" color="primary" name="add-outline"></ion-icon>
-              <ion-label translate>{{ environment.edgeShortName }} App Center</ion-label>
-            </ion-item>
-            <ion-card-content>
-              <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/app">
-                <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
-              </ion-button>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
       </ng-container>
+
+      <ion-col size="12" size-sm="4" *ngIf="canSeeAppCenter">
+        <ion-card>
+          <ion-item lines="full" color="light">
+            <ion-icon slot="start" size="large" color="primary" name="add-outline"></ion-icon>
+            <ion-label translate>{{ environment.edgeShortName }} App Center</ion-label>
+          </ion-item>
+          <ion-card-content>
+            <ion-button class="ion-float-right" routerLink="/device/{{ edge.id }}/settings/app">
+              <ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
 
       <ng-container *ngIf="edge.roleIsAtLeast('owner')">
         <ng-container *ngIf="!edge.isVersionAtLeast('2021.19.1'),else newUpdate">

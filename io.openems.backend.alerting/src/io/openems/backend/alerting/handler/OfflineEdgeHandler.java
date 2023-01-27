@@ -91,6 +91,8 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	}
 
 	private void checkMetadata() {
+		this.log.info("[OfflineEdgeHandler] check Metadata for Offline Edges");
+		
 		var msgs = new LinkedList<OfflineEdgeMessage>();
 		var count = new AtomicInteger();
 		var validOfflineEges = this.metadata.getAllOfflineEdges().stream() //
@@ -202,6 +204,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		if (this.isValidEdge(edge)) {
 			var msg = this.getEdgeMessage(edge);
 			if (msg != null) {
+				this.log.info("Schedule Alerting-Message " + msg.toString());
 				this.msgScheduler.schedule(msg);
 			}
 		}
@@ -215,18 +218,19 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		if (this.initialDelay <= 0) {
 			this.checkMetadata();
 		} else {
-			final var timer = MinuteTimer.getInstance();
-			final var checkAt = ZonedDateTime.now().plusMinutes(this.initialDelay);
-
-			this.initMetadata = () -> {
-				var seconds = ChronoUnit.SECONDS.between(ZonedDateTime.now(), checkAt);
-				if (seconds < 30) {
-					this.checkMetadata();
-					timer.unsubscribe(this.initMetadata);
-					this.initMetadata = null;
+			this.initMetadata = new Runnable() {
+				final ZonedDateTime checkAt = ZonedDateTime.now().plusMinutes(OfflineEdgeHandler.this.initialDelay);
+				
+				@Override
+				public void run() {
+					if (ZonedDateTime.now().isAfter(this.checkAt)) {
+						OfflineEdgeHandler.this.checkMetadata();
+						MinuteTimer.getInstance().unsubscribe(this);
+						OfflineEdgeHandler.this.initMetadata = null;
+					}
 				}
 			};
-			timer.subscribe(this.initMetadata);
+			MinuteTimer.getInstance().subscribe(this.initMetadata);
 		}
 	}
 

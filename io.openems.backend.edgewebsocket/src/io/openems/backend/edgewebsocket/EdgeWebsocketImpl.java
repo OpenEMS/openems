@@ -1,9 +1,14 @@
 package io.openems.backend.edgewebsocket;
 
+import java.time.Instant;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
@@ -22,12 +27,17 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.TreeBasedTable;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
+
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
-import io.openems.backend.common.timedata.Timedata;
+import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -39,6 +49,7 @@ import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
@@ -52,6 +63,9 @@ import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 		Metadata.Events.AFTER_IS_INITIALIZED //
 })
 public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket, EventHandler {
+
+	private static final String EDGE_ID = "backend0";
+	private static final String COMPONENT_ID = "edgewebsocket";
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
 
@@ -67,7 +81,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	protected volatile AppCenterMetadata.EdgeData appCenterMetadata;
 
 	@Reference
-	protected volatile Timedata timedata;
+	protected volatile TimedataManager timedataManager;
 
 	@Reference
 	protected volatile EventAdmin eventAdmin;
@@ -86,10 +100,11 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	private void activate(Config config) {
 		this.config = config;
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			this.log.info(new StringBuilder("[monitor] ") //
-					.append("Edge-Connections: ")
-					.append(this.server != null ? this.server.getConnections().size() : "initializing") //
-					.toString());
+			var data = TreeBasedTable.<Long, String, JsonElement>create();
+			var now = Instant.now().toEpochMilli();
+			data.put(now, COMPONENT_ID + "/Connections",
+					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
+			this.timedataManager.write(EDGE_ID, data);
 		}, 10, 10, TimeUnit.SECONDS);
 	}
 
@@ -263,5 +278,23 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
 			break;
 		}
+	}
+
+	@Override
+	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
+		Map<ChannelAddress, JsonElement> result = channelAddresses.stream() //
+				.collect(Collectors.toMap(Function.identity(), c -> JsonNull.INSTANCE));
+		var ws = this.getWebSocketForEdgeId(edgeId);
+		if (ws == null) {
+			return result;
+		}
+		var wsData = (WsData) ws.getAttachment();
+		if (wsData == null) {
+			return result;
+		}
+		for (var channelAddress : channelAddresses) {
+			result.put(channelAddress, wsData.edgeCache.getChannelValue(channelAddress.toString()));
+		}
+		return result;
 	}
 }

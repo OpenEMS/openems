@@ -23,9 +23,9 @@ public class OpenemsAppInstance {
 
 	public OpenemsAppInstance(String appId, String alias, UUID instanceId, JsonObject properties,
 			List<Dependency> dependencies) {
-		this.appId = appId;
+		this.appId = Objects.requireNonNull(appId);
 		this.alias = alias;
-		this.instanceId = instanceId;
+		this.instanceId = Objects.requireNonNull(instanceId);
 		this.properties = properties;
 		this.dependencies = dependencies;
 	}

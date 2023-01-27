@@ -42,7 +42,7 @@ public class TestModbusTcpApiReadWrite {
 	public void testDeactivateReadOnly() throws Exception {
 		// create ReadOnly app
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
-				this.modbusTcpApiReadOnly.getAppId(), "alias", JsonUtils.buildJsonObject().build()));
+				this.modbusTcpApiReadOnly.getAppId(), "key", "alias", JsonUtils.buildJsonObject().build()));
 
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
@@ -56,12 +56,13 @@ public class TestModbusTcpApiReadWrite {
 
 		// create ReadWrite app
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.modbusTcpApiReadWrite.getAppId(), "alias", JsonUtils.buildJsonObject() //
-						.addProperty("API_TIMEOUT", 60) //
-						.add("COMPONENT_IDS", JsonUtils.buildJsonArray() //
-								.add("_sum") //
-								.build()) //
-						.build()));
+				new AddAppInstance.Request(this.modbusTcpApiReadWrite.getAppId(), "key", "alias",
+						JsonUtils.buildJsonObject() //
+								.addProperty("API_TIMEOUT", 60) //
+								.add("COMPONENT_IDS", JsonUtils.buildJsonArray() //
+										.add("_sum") //
+										.build()) //
+								.build()));
 
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 

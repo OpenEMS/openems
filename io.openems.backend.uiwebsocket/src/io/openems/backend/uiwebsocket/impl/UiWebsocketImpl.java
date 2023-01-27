@@ -1,10 +1,12 @@
 package io.openems.backend.uiwebsocket.impl;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -17,15 +19,21 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
+import com.google.common.collect.TreeBasedTable;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.common.metadata.Metadata;
-import io.openems.backend.common.timedata.Timedata;
+import io.openems.backend.common.metadata.User;
+import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.AbstractJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
@@ -43,6 +51,9 @@ import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 })
 public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements UiWebsocket, EventHandler {
 
+	private static final String EDGE_ID = "backend0";
+	private static final String COMPONENT_ID = "uiwebsocket";
+
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	protected WebsocketServer server = null;
@@ -57,7 +68,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	protected volatile EdgeWebsocket edgeWebsocket;
 
 	@Reference
-	protected volatile Timedata timeData;
+	protected volatile TimedataManager timedataManager;
 
 	public UiWebsocketImpl() {
 		super("Ui.Websocket");
@@ -68,6 +79,13 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 	@Activate
 	private void activate(Config config) {
 		this.config = config;
+		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
+			var data = TreeBasedTable.<Long, String, JsonElement>create();
+			var now = Instant.now().toEpochMilli();
+			data.put(now, COMPONENT_ID + "/Connections",
+					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
+			this.timedataManager.write(EDGE_ID, data);
+		}, 10, 10, TimeUnit.SECONDS);
 	}
 
 	@Deactivate
@@ -217,4 +235,26 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 		}
 	}
 
+	/**
+	 * Gets the authenticated User or throws an Exception if User is not
+	 * authenticated.
+	 *
+	 * @param wsData  the WebSocket attachment
+	 * @param request the {@link AbstractJsonrpcRequest}
+	 * @return the {@link User}
+	 * @throws OpenemsNamedException if User is not authenticated
+	 */
+	public User assertUser(WsData wsData, AbstractJsonrpcRequest request) throws OpenemsNamedException {
+		var userIdOpt = wsData.getUserId();
+		if (!userIdOpt.isPresent()) {
+			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED
+					.exception("User-ID is empty. Ignoring request [" + request.getMethod() + "]");
+		}
+		var userOpt = this.metadata.getUser(userIdOpt.get());
+		if (!userOpt.isPresent()) {
+			throw OpenemsError.COMMON_USER_NOT_AUTHENTICATED.exception("User with ID [" + userIdOpt.get()
+					+ "] is unknown. Ignoring request [" + request.getMethod() + "]");
+		}
+		return userOpt.get();
+	}
 }

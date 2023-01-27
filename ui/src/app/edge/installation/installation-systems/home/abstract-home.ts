@@ -1030,7 +1030,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     if (isAppManagerAvailable) {
       componentConfigurator.addInstallAppCallback(() => {
         return new Promise((resolve, reject) => {
-          AppCenterUtil.createOrUpdateApp(edge, websocket, "App.FENECON.Home", "FENECON Home", homeAppProperties)
+          AppCenterUtil.createOrUpdateApp(edge, websocket, "App.FENECON.Home", "FENECON Home", homeAppProperties, AppCenterUtil.keyForIntegratedSystems())
             .then(instance => {
               if (!isAcCreated) {
                 resolve(instance)

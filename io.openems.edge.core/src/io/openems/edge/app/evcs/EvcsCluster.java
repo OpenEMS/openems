@@ -1,6 +1,7 @@
 package io.openems.edge.app.evcs;
 
 import java.util.EnumMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -20,16 +21,18 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.EvcsCluster.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
-import io.openems.edge.core.appmanager.AppAssistant;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
 
 /**
  * Describes a evcs cluster.
@@ -51,15 +54,51 @@ import io.openems.edge.core.appmanager.TranslationUtil;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.Evcs.Cluster")
-public class EvcsCluster extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Property, BundleParamter>
+		implements OpenemsApp {
 
-	public static enum Property {
+	public static enum Property implements Type<Property, EvcsCluster, BundleParamter> {
 		// Component-IDs
-		EVCS_CLUSTER_ID, //
+		EVCS_CLUSTER_ID(AppDef.of(EvcsCluster.class) //
+				.setDefaultValue("evcsCluster0")), //
 		// Properties
-		ALIAS, //
-		EVCS_IDS //
+		ALIAS(AppDef.of(EvcsCluster.class) //
+				.setDefaultValueToAppName()), //
+		EVCS_IDS(AppDef.of(EvcsCluster.class) //
+				.setLabel("EVCS-IDs") //
+				.setTranslatedDescriptionWithAppPrefix(".evcsIds.description") //
+				.setField(JsonFormlyUtil::buildSelect, (v, b) -> {
+					b.setOptions(
+							v.app.componentUtil.getEnabledComponentsOfStartingId("evcs").stream()
+									.filter(t -> !t.id().startsWith("evcsCluster")).collect(Collectors.toList()),
+							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
+							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
+							.isRequired(true) //
+							.isMulti(true);
+				}) //
+				.bidirectional(EVCS_CLUSTER_ID, "evcs.ids")) //
 		;
+
+		private final AppDef<EvcsCluster, Property, BundleParamter> def;
+
+		private Property(AppDef<EvcsCluster, Property, BundleParamter> def) {
+			this.def = def;
+		}
+
+		@Override
+		public Property self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<EvcsCluster, Property, BundleParamter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<EvcsCluster>, BundleParamter> getParamter() {
+			return BundleParamter.functionOf(AbstractOpenemsApp::getTranslationBundle);
+		}
 	}
 
 	@Activate
@@ -72,40 +111,20 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
 
-			var evcsClusterId = this.getId(t, p, Property.EVCS_CLUSTER_ID, "evcsCluster0");
+			var evcsClusterId = this.getId(t, p, Property.EVCS_CLUSTER_ID);
 
-			var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
+			var alias = this.getValueOrDefault(p, l, Property.ALIAS);
 			var ids = EnumUtils.getAsJsonArray(p, Property.EVCS_IDS);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(evcsClusterId, alias, "Evcs.Cluster.PeakShaving",
 							JsonUtils.buildJsonObject() //
-									.onlyIf(t.isAddOrUpdate(), j -> j.add("evcs.ids", ids)) //
+									.add("evcs.ids", ids) //
 									.build()) //
 			);
 
 			return new AppConfiguration(components);
 		};
-	}
-
-	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
-		return AppAssistant.create(this.getName(language)) //
-				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildSelect(Property.EVCS_IDS) //
-								.setLabel("EVCS-IDs") //
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".evcsIds.description")) //
-								.setOptions(this.componentUtil.getEnabledComponentsOfStartingId("evcs").stream()
-										.filter(t -> !t.id().startsWith("evcsCluster")).collect(Collectors.toList()),
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
-										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE)
-								.isRequired(true) //
-								.isMulti(true) //
-								.build())
-						.build())
-				.build();
 	}
 
 	@Override
@@ -128,6 +147,11 @@ public class EvcsCluster extends AbstractOpenemsApp<Property> implements Openems
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE;
+	}
+
+	@Override
+	protected EvcsCluster getApp() {
+		return this;
 	}
 
 }

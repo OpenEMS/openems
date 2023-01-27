@@ -358,18 +358,34 @@
       },
       "App": {
         "header": "The App Manager is currently in a first test version.",
-        "updateAvailable": "There is a new {{ edgeShortName }} version is available! Please update the {{ edgeShortName }} so that all new {{ edgeShortName }} Apps are displayed in the App Center.",
+        "updateAvailable": "There is a new {{ edgeShortName }} version available! Please update the {{ edgeShortName }} so that all new {{ edgeShortName }} Apps are displayed in the App Center.",
         "installed": "Installed",
         "available": "Available",
         "incompatible": "Incompatible",
-        "buyApp": "Buy app",
+        "buyApp": "Buy licence key",
         "modifyApp": "Modify app",
         "createApp": "Install app",
         "deleteApp": "Delete app",
         "updateApp": "Update app",
-        "errorInstallable": "installation errors",
+        "errorInstallable": "Installation errors",
         "errorCompatible": "Compatibility errors",
-        "notAvailable": "Not available"
+        "notAvailable": "Not available",
+        "Key": {
+          "enterKey": "Enter the license key you received when you ordered the app here",
+          "useRegisteredKey": "Redeem already registered licence key?",
+          "registeredKey": "Registered licence keys",
+          "successRegisterKey": "successfully registered Key",
+          "failedRegisterKey": "failed registering Key",
+          "failedLoadingRegisterKey": "failed to get already registered Keys",
+          "key": "licence key",
+          "validateKey": "validate licence key",
+          "useKey": "redeem licence key",
+          "registerKey": "register licence key",
+          "valid": "licence key is valid",
+          "invalid": "licence key is invalid",
+          "alreadyRegisteredDifferentSystem": "Key already got registered on a different System! If you continue the other registration will get removed.",
+          "alreadyRegisteredDifferentApp": "Key already got registered for an app on this System! If you continue the other registration will get removed."
+        }
       }
     },
     "Service": {

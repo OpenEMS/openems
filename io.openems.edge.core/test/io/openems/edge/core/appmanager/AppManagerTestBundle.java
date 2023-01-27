@@ -44,6 +44,7 @@ public class AppManagerTestBundle {
 
 	public final AppManagerImpl sut;
 	public final AppManagerUtil appManagerUtil;
+	public final AppCenterBackendUtil appCenterBackendUtil;
 
 	public final CheckablesBundle checkablesBundle;
 
@@ -99,6 +100,7 @@ public class AppManagerTestBundle {
 					.setApps(JsonUtils.buildJsonArray() //
 							.build() //
 							.toString())
+					.setKey("0000-0000-0000-0000") //
 					.build();
 		}
 
@@ -127,6 +129,7 @@ public class AppManagerTestBundle {
 		this.componentManger.addComponent(this.sut);
 		this.componentManger.setConfigurationAdmin(this.cm);
 		this.appManagerUtil = new AppManagerUtilImpl(this.componentManger);
+		this.appCenterBackendUtil = new DummyAppCenterBackendUtil();
 		ReflectionUtils.setAttribute(this.appManagerUtil.getClass(), this.appManagerUtil, "appManager", this.sut);
 
 		this.checkablesBundle = new CheckablesBundle(
@@ -155,6 +158,7 @@ public class AppManagerTestBundle {
 				.addReference("componentManager", this.componentManger) //
 				.addReference("appHelper", appManagerAppHelper) //
 				.addReference("validator", this.validator) //
+				.addReference("backendUtil", this.appCenterBackendUtil) //
 				.addReference("availableApps", availableAppsSupplier.apply(this)) //
 				.activate(initialAppManagerConfig);
 

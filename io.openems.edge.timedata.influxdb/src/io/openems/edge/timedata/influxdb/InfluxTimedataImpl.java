@@ -81,8 +81,8 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(),
-				config.bucket(), config.isReadOnly(), //
+		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
+				config.apiKey(), config.bucket(), config.isReadOnly(), 5, //
 				(throwable) -> {
 					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage());
 				});
