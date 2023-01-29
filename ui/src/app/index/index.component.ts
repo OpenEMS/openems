@@ -50,13 +50,16 @@ export class IndexComponent implements OnDestroy {
     private route: ActivatedRoute,
   ) { }
 
-  async ionViewWillEnter() {
-
+  ngOnInit() {
+    this.page = 0;
     this.filteredEdges = [];
     this.limitReached = false;
     this.service.metadata.pipe(filter(metadata => !!metadata), take(1)).subscribe(() => {
       this.init()
     })
+  }
+
+  async ionViewWillEnter() {
 
     // Execute Login-Request if url path matches 'demo' 
     if (this.route.snapshot.routeConfig.path == 'demo') {
@@ -107,7 +110,12 @@ export class IndexComponent implements OnDestroy {
 
     this.formIsDisabled = true;
     this.websocket.login(new AuthenticateWithPasswordRequest(param))
-      .finally(() => this.formIsDisabled = false);
+      .finally(() => {
+
+        // Unclean
+        this.ngOnInit();
+        this.formIsDisabled = false
+      });
   }
 
   private init() {
