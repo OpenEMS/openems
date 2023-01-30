@@ -32,6 +32,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "No of Cycles", description = "How many Cycles till data is written to InfluxDB.")
 	int noOfCycles() default 1;
 
+	@AttributeDefinition(name = "Use FLUX Queries?", description = "If true FLUX query language is used, else InfluxQL will be used.")
+	boolean useFluxQueries() default true;
+
 	@AttributeDefinition(name = "Read-Only mode", description = "Activates the read-only mode. Then no data is written to InfluxDB.")
 	boolean isReadOnly() default false;
 

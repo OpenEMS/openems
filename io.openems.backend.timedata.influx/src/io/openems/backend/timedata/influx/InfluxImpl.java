@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -38,6 +39,8 @@ import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
 import io.openems.shared.influxdb.InfluxConnector;
+import io.openems.shared.influxdb.InfluxConnectorFluxQL;
+import io.openems.shared.influxdb.InfluxConnectorInfluxQL;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -57,9 +60,21 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 
 	private InfluxConnector influxConnector = null;
 
+	private Consumer<Throwable> onWriteError;
+
 	public InfluxImpl() {
 		super("Timedata.InfluxDB");
 		this.fieldTypeConflictHandler = new FieldTypeConflictHandler(this);
+		this.onWriteError = (throwable) -> {
+			if (throwable instanceof BadRequestException) {
+				this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
+
+			} else {
+				this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName() + ": "
+						+ throwable.getMessage());
+			}
+		};
+
 	}
 
 	@Reference
@@ -75,17 +90,15 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 				+ (config.isReadOnly() ? ";READ_ONLY_MODE" : "") //
 				+ "]");
 
-		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(),
-				config.bucket(), config.isReadOnly(), //
-				(throwable) -> {
-					if (throwable instanceof BadRequestException) {
-						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
-
-					} else {
-						this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
-								+ ": " + throwable.getMessage());
-					}
-				});
+		if (config.useFluxQueries()) {
+			this.influxConnector = new InfluxConnectorFluxQL(URI.create(config.url()), config.org(), config.apiKey(),
+					config.bucket(), config.isReadOnly(), //
+					this.onWriteError);
+		} else {
+			this.influxConnector = new InfluxConnectorInfluxQL(URI.create(config.url()), config.org(), config.apiKey(),
+					config.bucket(), config.isReadOnly(), //
+					this.onWriteError);
+		}
 	}
 
 	@Deactivate

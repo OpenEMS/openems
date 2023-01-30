@@ -2,11 +2,13 @@ package io.openems.edge.timedata.influxdb;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -35,6 +37,8 @@ import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.shared.influxdb.InfluxConnector;
+import io.openems.shared.influxdb.InfluxConnectorFluxQL;
+import io.openems.shared.influxdb.InfluxConnectorInfluxQL;
 
 /**
  * Provides read and write access to InfluxDB.
@@ -62,6 +66,10 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 
 	private Config config;
 
+	private Consumer<Throwable> onWriteError = (throwable) -> {
+		this.logError(this.log, "Unable to write to InfluxDB (flux): " + throwable.getMessage());
+	};
+
 	public InfluxTimedataImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -81,11 +89,15 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(),
-				config.bucket(), config.isReadOnly(), //
-				(throwable) -> {
-					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage());
-				});
+		if (this.config.useFluxQueries()) {
+			this.influxConnector = new InfluxConnectorFluxQL(URI.create(config.url()), config.org(), config.apiKey(),
+					config.bucket(), config.isReadOnly(), //
+					this.onWriteError);
+		} else {
+			this.influxConnector = new InfluxConnectorInfluxQL(URI.create(config.url()), config.org(), config.apiKey(),
+					config.bucket(), config.isReadOnly(), //
+					this.onWriteError);
+		}
 	}
 
 	@Override
@@ -204,8 +216,27 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
-		// TODO implement this method
-		return CompletableFuture.completedFuture(Optional.empty());
+		// Prepare result
+		final var result = new CompletableFuture<Optional<Object>>();
+		CompletableFuture.runAsync(() -> {
+
+			// ignore edgeId as Points are also written without Edge-ID
+			Optional<Integer> influxEdgeId = Optional.empty();
+			Set<ChannelAddress> channelAddresses = new HashSet<ChannelAddress>();
+			channelAddresses.add(channelAddress);
+			SortedMap<ChannelAddress, JsonElement> queryResult = this.influxConnector.queryChannelValues(influxEdgeId,
+					channelAddresses);
+
+			if (queryResult == null || queryResult.get(channelAddress) == null) {
+				result.complete(Optional.empty());
+			}
+			try {
+				result.complete(Optional.of(queryResult.get(channelAddress)));
+			} catch (Exception e) {
+				result.complete(Optional.empty());
+			}
+		});
+		return result;
 	}
 
 }
