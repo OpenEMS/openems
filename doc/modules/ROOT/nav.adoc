@@ -28,3 +28,4 @@
 ** xref:simulation/ui-history.adoc[UI History Simulation]
 * xref:documentation.adoc[Documentation]
 * https://openems.github.io/openems.io/javadoc/[Javadoc]
+* xref:contribution.adoc[Contribution Guidelines]
