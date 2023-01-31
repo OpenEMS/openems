@@ -198,6 +198,22 @@ export class Service extends AbstractService {
   }
 
   public getCurrentEdge(): Promise<Edge> {
+
+    // Subscribe to edge if not already set
+    if (this.currentEdge.value == null) {
+      this.currentActivatedRoute.params.pipe(filter(route => route && route['edgeId']), first()).subscribe(route => {
+        const edgeId: string = route['edgeId'];
+        if (this.metadata.value?.edges[edgeId]) {
+          this.websocket.sendSafeRequest(new SubscribeEdgesRequest({ edges: [edgeId] }))
+          return
+        }
+
+        this.updateCurrentEdgeInMetadata(edgeId).catch(() => {
+          this.router.navigateByUrl("/index", { replaceUrl: true });
+        })
+      })
+    }
+
     return this.currentEdge.pipe(
       filter(edge => edge != null),
       first()
@@ -320,7 +336,7 @@ export class Service extends AbstractService {
    * @returns a Promise
    */
   public getEdges(page: number, query?: string, limit?: number): Promise<Edge[]> {
-    return new Promise<Edge[]>((resolve) => {
+    return new Promise<Edge[]>((resolve, reject) => {
       this.websocket.sendSafeRequest(
         new GetEdgesRequest({
           page: page,
@@ -349,6 +365,8 @@ export class Service extends AbstractService {
 
           this.metadata.next(value)
           resolve(mappedResult)
+        }).catch((err) => {
+          reject(err)
         })
     })
   }

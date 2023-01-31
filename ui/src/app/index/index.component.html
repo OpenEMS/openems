@@ -120,7 +120,8 @@
                 <ion-grid>
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
-                      <ion-searchbar [(ngModel)]="filter" [debounce]="500" (ionChange)="searchOnChange($event)">
+                      <ion-searchbar [(ngModel)]="filter" [debounce]="500" (ionChange)="searchOnChange($event)"
+                        *ngIf="!onlyOneEdgeAvailable">
                       </ion-searchbar>
                     </ion-col>
                   </ion-row>
@@ -128,6 +129,7 @@
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
                       <ion-list lines="full">
+                        <ngx-spinner [name]="spinnerId"></ngx-spinner>
 
                         <ng-container *ngFor="let edge of filteredEdges; let i=index">
                           <ion-item lines="inset" [routerLink]="['/device', edge.id]"

@@ -35,6 +35,12 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.1.3',
+        changes: [
+          Changelog.GENERAL_OPTIMIZATION + " an der Übersicht 'Alle Systeme'"
+        ]
+      },
+      {
         version: '2023.1.2',
         changes: [
           Changelog.GENERAL_OPTIMIZATION,
