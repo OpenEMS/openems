@@ -28,6 +28,9 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 		// Send all Channel values
 		this.parent.sendChannelValuesWorker.sendValuesOfAllChannelsOnce();
+
+		// Resend data
+		this.parent.resendHistoricDataWorker.resendHistoricData();
 	}
 
 }

@@ -65,6 +65,8 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	protected final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 
+	protected final ResendHistoricDataWorker resendHistoricDataWorker = new ResendHistoricDataWorker(this);
+
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(BackendApiImpl.class);
