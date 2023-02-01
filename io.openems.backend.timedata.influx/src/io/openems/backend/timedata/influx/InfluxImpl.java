@@ -7,9 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
@@ -75,8 +72,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 				+ (config.isReadOnly() ? ";READ_ONLY_MODE" : "") //
 				+ "]");
 
-		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(),
-				config.bucket(), config.isReadOnly(), //
+		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
+				config.apiKey(), config.bucket(), config.isReadOnly(), //
 				(throwable) -> {
 					if (throwable instanceof BadRequestException) {
 						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
@@ -288,16 +285,17 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 
 	@Override
 	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
-		try {
-			var influxEdgeId = Optional.of(InfluxImpl.parseNumberFromName(edgeId));
-			return this.influxConnector.queryChannelValues(influxEdgeId, channelAddresses);
-
-		} catch (OpenemsException e) {
-			this.logError(this.log, e.getMessage());
-			e.printStackTrace();
-
-			return channelAddresses.stream().collect(Collectors.toMap(Function.identity(), c -> JsonNull.INSTANCE));
-		}
+//		try {
+//			var influxEdgeId = Optional.of(InfluxImpl.parseNumberFromName(edgeId));
+//			return this.influxConnector.queryChannelValues(influxEdgeId, channelAddresses);
+//
+//		} catch (OpenemsException e) {
+//			this.logError(this.log, e.getMessage());
+//			e.printStackTrace();
+//
+//			return channelAddresses.stream().collect(Collectors.toMap(Function.identity(), c -> JsonNull.INSTANCE));
+//		}
+		return null;
 	}
 
 	@Override
