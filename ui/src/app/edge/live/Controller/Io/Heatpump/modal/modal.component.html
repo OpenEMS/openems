@@ -2,6 +2,7 @@
   <ion-toolbar class="ion-justify-content-center" color="primary">
     <ion-title>{{ component.alias }}</ion-title>
     <ion-buttons slot="end">
+      <oe-help-button key="CONTROLLER_IO_HEAT_PUMP_SG_READY"></oe-help-button>
       <ion-button (click)="modalCtrl.dismiss()">
         <ion-icon name="close-outline"></ion-icon>
       </ion-button>
@@ -15,7 +16,7 @@
       <table *ngIf="(edge.currentData | async)['channel'] as currentData" class="full_width">
         <tr [ngSwitch]="currentData[component.id + '/Status']">
           <td style="width:65%" translate>General.state</td>
-          <td *ngIf="currentData[this.component.id + '/State'] != 3" style="width:35%" class="align_right" translate>
+          <td *ngIf="currentData[this.component.id + '/State'] !== 3" style="width:35%" class="align_right" translate>
             <ng-container *ngSwitchCase="-1">
               Edge.Index.Widgets.HeatPump.undefined
             </ng-container>
@@ -32,7 +33,7 @@
               Edge.Index.Widgets.HeatPump.switchOnCom
             </ng-container>
           </td>
-          <td *ngIf="currentData[this.component.id + '/State'] == 3" style="width:35%" class="align_right">
+          <td *ngIf="currentData[this.component.id + '/State'] === 3" style="width:35%" class="align_right">
             <ion-icon name="help-outline"></ion-icon>
           </td>
         </tr>
@@ -105,11 +106,13 @@
       <!-- Automatic Mode -->
       <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC'">
         <ion-card-content class="underline">
+
+          <!-- Switch Togglebutton -->
           <ion-item
-            (click)="updateAutomaticEnableMode(formGroup.controls.automaticRecommendationCtrlEnabled.value == true? false:true,'automaticRecommendationCtrlEnabled')"
+            (click)="updateAutomaticEnableMode(formGroup.controls.automaticRecommendationCtrlEnabled.value !== true,'automaticRecommendationCtrlEnabled')"
             class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnRec</ion-label>
-            <ion-toggle [checked]="formGroup.controls.automaticRecommendationCtrlEnabled.value == true"></ion-toggle>
+            <ion-toggle [checked]="formGroup.controls.automaticRecommendationCtrlEnabled.value === true"></ion-toggle>
           </ion-item>
 
           <table class="full_width">
@@ -142,11 +145,11 @@
 
         <ion-card-content class="underline">
           <ion-item
-            (click)="updateAutomaticEnableMode(formGroup.controls.automaticForceOnCtrlEnabled.value == true? false:true,'automaticForceOnCtrlEnabled')"
+            (click)="updateAutomaticEnableMode(formGroup.controls.automaticForceOnCtrlEnabled.value !== true,'automaticForceOnCtrlEnabled')"
             class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnCom
             </ion-label>
-            <ion-toggle [checked]="formGroup.controls.automaticForceOnCtrlEnabled.value == true"></ion-toggle>
+            <ion-toggle [checked]="formGroup.controls.automaticForceOnCtrlEnabled.value === true"></ion-toggle>
           </ion-item>
 
           <ng-container>
@@ -200,7 +203,7 @@
 
         <ion-card-content class="underline">
           <ion-item
-            (click)="updateAutomaticEnableMode(formGroup.controls.automaticLockCtrlEnabled.value == true? false:true,'automaticLockCtrlEnabled')"
+            (click)="updateAutomaticEnableMode(formGroup.controls.automaticLockCtrlEnabled.value !== true,'automaticLockCtrlEnabled')"
             class="ion-no-padding" lines="none" style="cursor: pointer;">
             <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.lock</ion-label>
             <ion-toggle [checked]="formGroup.controls.automaticLockCtrlEnabled.value"></ion-toggle>
@@ -271,7 +274,7 @@
         </ion-icon>
       </ion-fab-button>
     </ion-fab>
-    <ion-grid *ngIf="loading == true">
+    <ion-grid *ngIf="loading === true">
       <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </ion-grid>
   </ng-container>

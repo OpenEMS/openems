@@ -7,7 +7,7 @@ import { ChannelFilter, ChartData } from '../../../shared';
     selector: 'autarchychart',
     templateUrl: '../../../../../shared/genericComponents/chart/abstracthistorychart.html',
 })
-export class Chart extends AbstractHistoryChart {
+export class ChartComponent extends AbstractHistoryChart {
 
     protected override getChartData(): ChartData {
         this.spinnerId = 'autarchy-chart';

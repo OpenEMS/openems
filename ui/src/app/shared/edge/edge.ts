@@ -1,5 +1,5 @@
+import { compareVersions } from 'compare-versions';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { cmp } from 'semver-compare-multi';
 import { JsonrpcRequest, JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { CurrentDataNotification } from '../jsonrpc/notification/currentDataNotification';
 import { EdgeConfigNotification } from '../jsonrpc/notification/edgeConfigNotification';
@@ -27,7 +27,8 @@ export class Edge {
     public readonly producttype: string,
     public readonly version: string,
     public readonly role: Role,
-    public isOnline: boolean
+    public isOnline: boolean,
+    public readonly lastmessage: Date
   ) { }
 
   // holds currently subscribed channels, identified by source id
@@ -256,24 +257,6 @@ export class Edge {
   }
 
   /**
-   * System Execute
-   * 
-   * TODO deprecated
-   */
-  public systemExecute(password: string, command: string, background: boolean, timeout: number): void {
-    console.warn("Edge.systemExecute()", password, command);
-    // let replyStream = this.sendMessageWithReply(DefaultMessages.systemExecute(this.edgeId, password, command, background, timeout));
-    // // wait for reply
-    // return new Promise((resolve, reject) => {
-    //   replyStream.pipe(first()).subscribe(reply => {
-    //     let output = (reply as DefaultMessages.SystemExecuteReply).system.output;
-    //     this.removeReplyStream(reply);
-    //     resolve(output);
-    //   });
-    // })
-  }
-
-  /**
    * Returns whether the given version is higher than the Edge' version
    * 
    * Example: {{ edge.isVersionAtLeast('2018.9') }}
@@ -281,7 +264,16 @@ export class Edge {
    * @param version 
    */
   public isVersionAtLeast(version: string): boolean {
-    return cmp(this.version, version) >= 0;
+    return compareVersions(this.version, version) >= 0;
+  }
+
+  /**
+   * Determines if the verion of the edge is a snapshot.
+   * 
+   * @returns true if the verion of the edge is a snapshot
+   */
+  public isSnapshot(): boolean {
+    return this.version.includes("SNAPSHOT");
   }
 
   /**

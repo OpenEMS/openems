@@ -42,6 +42,8 @@ public class GoodWeBatteryInverterImplTest {
 	private static final ChannelAddress CHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_ID, "ChargeMaxCurrent");
 	private static final ChannelAddress WBMS_CHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_INVERTER_ID,
 			"WbmsChargeMaxCurrent");
+	private static final ChannelAddress WBMS_DISCHARGE_MAX_CURRENT = new ChannelAddress(BATTERY_INVERTER_ID,
+			"WbmsDischargeMaxCurrent");
 	private static final ChannelAddress WBMS_VOLTAGE = new ChannelAddress(BATTERY_INVERTER_ID, "WbmsVoltage");
 	private static final ChannelAddress MAX_APPARENT_POWER = new ChannelAddress(BATTERY_INVERTER_ID,
 			"MaxApparentPower");
@@ -373,6 +375,7 @@ public class GoodWeBatteryInverterImplTest {
 						.build()) //
 				.next(new TestCase() //
 						.input(WBMS_CHARGE_MAX_CURRENT, 0) //
+						.input(WBMS_DISCHARGE_MAX_CURRENT, 1) //
 						.input(WBMS_VOLTAGE, 325) //
 						.input(MAX_APPARENT_POWER, 10000) //
 						.onExecuteWriteCallbacks(() -> {

@@ -1,14 +1,14 @@
-import { Component, Input } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Service, EdgeConfig, Edge, Websocket } from '../../../../shared/shared';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared';
 
 @Component({
     selector: DelayedSellToGridModalComponent.SELECTOR,
     templateUrl: './modal.component.html'
 })
-export class DelayedSellToGridModalComponent {
+export class DelayedSellToGridModalComponent implements OnInit {
 
     @Input() component: EdgeConfig.Component;
     @Input() edge: Edge;

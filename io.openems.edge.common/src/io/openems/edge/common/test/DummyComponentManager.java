@@ -130,14 +130,9 @@ public class DummyComponentManager implements ComponentManager {
 	@Override
 	public EdgeConfig getEdgeConfig() {
 		if (this.edgeConfigJson == null) {
-			return new EdgeConfig();
+			return EdgeConfig.empty();
 		}
-		try {
-			return EdgeConfig.fromJson(this.edgeConfigJson);
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-			throw new IllegalArgumentException(e.getMessage());
-		}
+		return EdgeConfig.fromJson(this.edgeConfigJson);
 	}
 
 	@Override
@@ -248,13 +243,19 @@ public class DummyComponentManager implements ComponentManager {
 			throw new OpenemsException("Can not update Component Config. ConfigurationAdmin is null!");
 		}
 		try {
-			for (var configuration : this.configurationAdmin.listConfigurations(request.getComponentId())) {
+			for (var configuration : this.configurationAdmin.listConfigurations(null)) {
+				final var props = configuration.getProperties();
+				if (props == null) {
+					continue;
+				}
+				if (props.get("id") == null || !props.get("id").equals(request.getComponentId())) {
+					continue;
+				}
 				var properties = new Hashtable<String, JsonElement>();
 				for (var property : request.getProperties()) {
 					properties.put(property.getName(), property.getValue());
 				}
 				configuration.update(properties);
-				break;
 			}
 			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 		} catch (IOException | InvalidSyntaxException e) {

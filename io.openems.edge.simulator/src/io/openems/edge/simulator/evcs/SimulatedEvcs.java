@@ -17,15 +17,15 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
@@ -39,9 +39,10 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class SimulatedEvcs extends AbstractOpenemsComponent
+public class SimulatedEvcs extends AbstractManagedEvcsComponent
 		implements SymmetricMeter, AsymmetricMeter, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
 	@Reference
@@ -63,6 +64,12 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	}
 
 	public SimulatedEvcs() {
+
+		// TODO: Remove AsymmetricMeterEvcs if the EVCS Nature already implements a new
+		// or parts of the Meter Nature
+		// Therefore, some of the EVCS Nature Channels have to be changed or removed.
+		// Omit SymmetricMeter and add AsymmetricMeterEvcs because of duplicated default
+		// set and get methods in EVCS and SymmetricMeter.
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				AsymmetricMeterEvcs.ChannelId.values(), //
@@ -76,14 +83,18 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
+	private Config config;
+
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this._setMaximumHardwarePower(22080);
-		this._setMinimumHardwarePower(4200);
+		this.config = config;
 		this._setPhases(3);
-		this._setStatus(Status.CHARGING);
 		this._setPowerPrecision(1);
+		this._setStatus(Status.READY_FOR_CHARGING);
+		this._setChargingstationCommunicationFailed(false);
+		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
+		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
 	}
 
 	@Override
@@ -97,8 +108,9 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 		if (!this.isEnabled()) {
 			return;
 		}
+		super.handleEvent(event);
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS:
 			this.updateChannels();
 			break;
 		}
@@ -108,35 +120,21 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	private double exactEnergySession = 0;
 
 	private void updateChannels() {
-		int chargePowerLimit = this.getChargePower().orElse(0);
-
-		var chargePowerLimitOpt = this.getSetChargePowerLimitChannel().getNextWriteValueAndReset();
-		if (chargePowerLimitOpt.isPresent()) {
-			chargePowerLimit = chargePowerLimitOpt.get();
-		}
-		try {
-			if (chargePowerLimit > this.getChargePower().orElse(0)) {
-				this.setChargePowerLimitWithFilter(chargePowerLimit);
-			} else {
-				this.setChargePowerLimit(chargePowerLimit);
-			}
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-		}
-		int sentPower = this.getSetChargePowerLimitChannel().getNextWriteValue().orElse(0);
-		this._setSetChargePowerLimit(sentPower);
-		this._setChargePower(sentPower);
+		int chargePowerLimit = this.getSetChargePowerLimit().orElse(0);
+		this._setChargePower(chargePowerLimit);
 
 		/*
-		 * get and store Simulated "meter" Active Power
+		 * Set Simulated "meter" Active Power
 		 */
-		this._setActivePower(sentPower);
-
-		var simulatedActivePowerByThree = TypeUtils.divide(sentPower, 3);
+		this._setActivePower(chargePowerLimit);
+		var simulatedActivePowerByThree = TypeUtils.divide(chargePowerLimit, 3);
 		this._setActivePowerL1(simulatedActivePowerByThree);
 		this._setActivePowerL2(simulatedActivePowerByThree);
 		this._setActivePowerL3(simulatedActivePowerByThree);
 
+		/*
+		 * Set calculated energy
+		 */
 		var timeDiff = ChronoUnit.MILLIS.between(this.lastUpdate, LocalDateTime.now());
 		var energyTransfered = timeDiff / 1000.0 / 60.0 / 60.0 * this.getChargePower().orElse(0);
 
@@ -157,27 +155,68 @@ public class SimulatedEvcs extends AbstractOpenemsComponent
 	}
 
 	@Override
+	public int getConfiguredMaximumHardwarePower() {
+		return this.config.maxHwPower();
+	}
+
+	@Override
+	public int getConfiguredMinimumHardwarePower() {
+		return this.config.minHwPower();
+	}
+
+	@Override
+	public boolean getConfiguredDebugMode() {
+		return false;
+	}
+
+	@Override
+	public boolean applyChargePowerLimit(int power) throws OpenemsException {
+		this._setSetChargePowerLimit(power);
+		this._setChargePower(power);
+		this._setStatus(power > 0 ? Status.CHARGING : Status.CHARGING_REJECTED);
+		return true;
+	}
+
+	@Override
+	public boolean pauseChargeProcess() throws OpenemsException {
+		return this.applyChargePowerLimit(0);
+	}
+
+	@Override
+	public int getMinimumTimeTillChargingLimitTaken() {
+		return 10;
+	}
+
+	@Override
+	public boolean applyDisplayText(String text) throws OpenemsException {
+		return false;
+	}
+
+	@Override
 	public Value<Long> getActiveConsumptionEnergy() {
-		return ManagedEvcs.super.getActiveConsumptionEnergy();
-	}
-
-	@Override
-	public MeterType getMeterType() {
-		return MeterType.CONSUMPTION_NOT_METERED;
-	}
-
-	@Override
-	public void _setActiveConsumptionEnergy(Long value) {
-		ManagedEvcs.super._setActiveConsumptionEnergy(value);
+		return this.getActiveConsumptionEnergyChannel().getNextValue();
 	}
 
 	@Override
 	public void _setActiveConsumptionEnergy(long value) {
-		ManagedEvcs.super._setActiveConsumptionEnergy(value);
+		this.channel(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY).setNextValue(value);
+	}
+
+	@Override
+	public void _setActiveConsumptionEnergy(Long value) {
+		this.channel(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY).setNextValue(value);
 	}
 
 	@Override
 	public LongReadChannel getActiveConsumptionEnergyChannel() {
-		return ManagedEvcs.super.getActiveConsumptionEnergyChannel();
+		return this.channel(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		// TODO: This should be `MeterType.CONSUMPTION_METERED`, once Evcs actually
+		// implements Meter. For now this quick fix solves issues with calculating
+		// `_sum/GridActivePower`.
+		return MeterType.GRID;
 	}
 }

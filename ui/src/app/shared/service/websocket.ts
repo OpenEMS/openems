@@ -17,11 +17,11 @@ import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
 import { LogoutRequest } from '../jsonrpc/request/logoutRequest';
 import { RegisterUserRequest } from '../jsonrpc/request/registerUserRequest';
 import { AuthenticateResponse } from '../jsonrpc/response/authenticateResponse';
-import { LanguageTag } from '../translate/language';
+import { Language } from '../type/language';
 import { Role } from '../type/role';
 import { Service } from './service';
-import { WsData } from './wsdata';
 import { WebsocketInterface } from './websocketInterface';
+import { WsData } from './wsdata';
 
 @Injectable()
 export class Websocket implements WebsocketInterface {
@@ -149,44 +149,65 @@ export class Websocket implements WebsocketInterface {
    * 
    * @param request the JSON-RPC Request
    */
-  public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest) {
-    this.sendRequest(request).then(r => {
-      let response = (r as AuthenticateResponse).result;
+  public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.sendRequest(request).then(r => {
+        let response = (r as AuthenticateResponse).result;
 
-      localStorage.LANGUAGE = response.user.language;
-      this.service.setLang(LanguageTag[localStorage.LANGUAGE])
-      this.status = 'online';
+        let language = Language.getByKey(response.user.language.toLocaleLowerCase());
+        localStorage.LANGUAGE = language.key;
+        this.service.setLang(language);
+        this.status = 'online';
+        // received login token -> save in cookie
+        this.cookieService.set('token', response.token, { expires: 365, path: '/', sameSite: 'Strict' });
 
-      // received login token -> save in cookie
-      this.cookieService.set('token', response.token, { expires: 365, path: '/', sameSite: 'Strict' });
+        // Metadata
+        this.service.metadata.next({
+          user: response.user,
+          edges: response.edges.reduce((map, edge) => {
+            map[edge.id] = new Edge(
+              edge.id,
+              edge.comment,
+              edge.producttype,
+              ("version" in edge) ? edge["version"] : "0.0.0",
+              Role.getRole(edge.role),
+              edge.isOnline,
+              edge.lastmessage
+            );
+            return map;
+          }, {})
+        });
 
-      // Metadata
-      this.service.metadata.next({
-        user: response.user,
-        edges: response.edges.reduce((map, edge) => {
-          map[edge.id] = new Edge(
-            edge.id,
-            edge.comment,
-            edge.producttype,
-            ("version" in edge) ? edge["version"] : "0.0.0",
-            Role.getRole(edge.role),
-            edge.isOnline
-          );
-          return map;
-        }, {})
-      });
-
-      // Resubscribe Channels
-      this.service.getCurrentEdge().then(edge => {
-        if (edge != null) {
-          edge.subscribeChannelsOnReconnect(this);
-        }
-      });
-
-    }).catch(reason => {
-      this.service.toast(this.translate.instant('Login.authenticationFailed'), 'danger');
-      this.onLoggedOut();
+        // Resubscribe Channels
+        this.service.getCurrentEdge().then(edge => {
+          if (edge != null) {
+            edge.subscribeChannelsOnReconnect(this);
+          }
+        });
+        resolve()
+      }).catch(reason => {
+        this.checkErrorCode(reason)
+        resolve()
+      })
     })
+  }
+
+  private checkErrorCode(reason: JsonrpcResponseError) {
+
+    // TODO create global Errorhandler
+    switch (reason.error.code) {
+      case 1003:
+        this.service.toast(this.translate.instant('Login.authenticationFailed'), 'danger');
+        this.onLoggedOut()
+        break;
+      case 1:
+        this.service.toast(this.translate.instant("Login.REQUEST_TIMEOUT"), "danger")
+        this.status = 'waiting for credentials';
+        this.service.onLogout();
+        break;
+      default:
+        this.onLoggedOut()
+    }
   }
 
   /**

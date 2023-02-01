@@ -2,10 +2,7 @@
   <ion-toolbar mode="md" class="ion-justify-content-center" color="primary">
     <ion-title>{{ component.alias }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button target="_blank"
-        href="https://docs.fenecon.de/{{service.getDocsLang()}}/_/latest/fems/fems-app/schwellwertsteuerung.html">
-        <ion-icon name="help-circle-outline"></ion-icon>
-      </ion-button>
+      <oe-help-button key="CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD"></oe-help-button>
       <ion-button (click)="modalCtrl.dismiss()">
         <ion-icon name="close-outline"></ion-icon>
       </ion-button>
@@ -24,13 +21,11 @@
                 <td style="width: 65%" translate>
                   General.state
                 </td>
-                <td style="width: 35%" class="align_right" translate>
-                  <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help-outline"></ion-icon>
-                  <ng-container *ngIf="currentData.channel[outputChannel] == 1">
-                    General.on
-                  </ng-container>
-                  <ng-container *ngIf="currentData.channel[outputChannel] == 0">
-                    General.off
+                <td style="width: 35%" class="align_right">
+                  <ng-container [ngSwitch]="currentData.channel[outputChannel]">
+                    <span *ngSwitchCase="1" translate>General.on</span>
+                    <span *ngSwitchCase="0" translate>General.off</span>
+                    <ion-icon *ngSwitchDefault name="help-outline"></ion-icon>
                   </ng-container>
                 </td>
               </tr>
@@ -67,7 +62,7 @@
               </ion-segment-button>
             </ion-segment>
           </ion-card-content>
-          <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC' && loading == false">
+          <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC' && !loading">
             <form [formGroup]="formGroup">
               <ng-container *ngIf="inputMode.value === 'OTHER'">
                 <ion-card-content class="underline">

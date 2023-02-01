@@ -1,7 +1,6 @@
 package io.openems.edge.app.pvselfconsumption;
 
 import java.util.EnumMap;
-import java.util.List;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -15,7 +14,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge.Property;
@@ -57,13 +55,14 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
-		// User values
+		// Component-IDs
+		CTRL_GRID_OPTIMIZED_CHARGE_ID,
+		// Properties
 		ALIAS, //
 		SELL_TO_GRID_LIMIT_ENABLED, //
 		MAXIMUM_SELL_TO_GRID_POWER, //
-		// Components
-		CTRL_GRID_OPTIMIZED_CHARGE_ID;
-
+		MODE, //
+		;
 	}
 
 	@Activate
@@ -76,13 +75,14 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
 
-			final var ctrlIoFixDigitalOutputId = this.getId(t, p, Property.CTRL_GRID_OPTIMIZED_CHARGE_ID,
+			final var ctrlGridOptimizedChargeId = this.getValueOrDefault(p, Property.CTRL_GRID_OPTIMIZED_CHARGE_ID,
 					"ctrlGridOptimizedCharge0");
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
-
 			final var sellToGridLimitEnabled = EnumUtils.getAsOptionalBoolean(p, Property.SELL_TO_GRID_LIMIT_ENABLED)
 					.orElse(true);
+			final var mode = EnumUtils.getAsOptionalString(p, Property.MODE)
+					.orElse(sellToGridLimitEnabled ? "AUTOMATIC" : "OFF");
 
 			final int maximumSellToGridPower;
 			if (sellToGridLimitEnabled) {
@@ -91,20 +91,23 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 				maximumSellToGridPower = 0;
 			}
 
-			List<Component> comp = Lists.newArrayList(new EdgeConfig.Component(ctrlIoFixDigitalOutputId, alias,
-					"Controller.Ess.GridOptimizedCharge", JsonUtils.buildJsonObject() //
-							.addProperty("enabled", true) //
-							.onlyIf(t == ConfigurationTarget.ADD, //
-									j -> j.addProperty("ess.id", "ess0") //
-											.addProperty("meter.id", "meter0"))
-							.addProperty("sellToGridLimitEnabled", sellToGridLimitEnabled) //
-							// always set the maximumSellToGridPower value
-							.addProperty("maximumSellToGridPower", maximumSellToGridPower) //
-							.build()));//
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlGridOptimizedChargeId, alias, "Controller.Ess.GridOptimizedCharge",
+							JsonUtils.buildJsonObject() //
+									.addProperty("enabled", true) //
+									.onlyIf(t == ConfigurationTarget.ADD, //
+											j -> j.addProperty("ess.id", "ess0") //
+													.addProperty("meter.id", "meter0"))
+									.addProperty("sellToGridLimitEnabled", sellToGridLimitEnabled) //
+									// always set the maximumSellToGridPower value
+									.addProperty("maximumSellToGridPower", maximumSellToGridPower) //
+									.onlyIf(t != ConfigurationTarget.VALIDATE, j -> j.addProperty("mode", mode))//
+									.build()) //
+			);
 
 			var schedulerExecutionOrder = Lists.newArrayList("ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0");
 
-			return new AppConfiguration(comp, schedulerExecutionOrder);
+			return new AppConfiguration(components, schedulerExecutionOrder);
 		};
 	}
 
@@ -128,6 +131,11 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 										this.getAppId() + ".maximumSellToGridPower.label")) //
 								.setDescription(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".maximumSellToGridPower.description")) //
+								.build())
+						.add(JsonFormlyUtil.buildSelect(Property.MODE) //
+								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".mode.label")) //
+								.setOptions(Lists.newArrayList("OFF", "AUTOMATIC", "MANUAL")) //
+								.setDefaultValue("AUTOMATIC") //
 								.build())
 						.build())
 				.build();

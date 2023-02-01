@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -36,13 +37,15 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	private LogVerbosity logVerbosity = LogVerbosity.NONE;
 	private int invalidateElementsAfterReadErrors = 1;
 
-	// private final Logger log =
-	// LoggerFactory.getLogger(AbstractModbusBridge.class);
-	private final ModbusWorker worker = new ModbusWorker(this);
+	protected final ModbusWorker worker = new ModbusWorker(this);
 
 	protected AbstractModbusBridge(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
+		throw new IllegalArgumentException("Use the other activate() method.");
 	}
 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
@@ -62,7 +65,12 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		this.closeModbusConnection();
 	}
 
-	protected abstract Cycle getCycle();
+	/**
+	 * Gets the {@link Cycle}.
+	 * 
+	 * @return the Cycle
+	 */
+	public abstract Cycle getCycle();
 
 	/**
 	 * Adds the protocol.

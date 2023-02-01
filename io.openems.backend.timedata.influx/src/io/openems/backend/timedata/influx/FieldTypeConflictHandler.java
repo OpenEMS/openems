@@ -21,10 +21,10 @@ public class FieldTypeConflictHandler {
 			"^.*partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
 
 	private final Logger log = LoggerFactory.getLogger(FieldTypeConflictHandler.class);
-	private final Influx parent;
+	private final InfluxImpl parent;
 	private final ConcurrentHashMap<String, BiConsumer<Point, JsonElement>> specialCaseFieldHandlers = new ConcurrentHashMap<>();
 
-	public FieldTypeConflictHandler(Influx parent) {
+	public FieldTypeConflictHandler(InfluxImpl parent) {
 		this.parent = parent;
 	}
 
@@ -42,7 +42,6 @@ public class FieldTypeConflictHandler {
 			throws IllegalStateException, IllegalArgumentException {
 		var matcher = FieldTypeConflictHandler.FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(message);
 		if (!matcher.find()) {
-			this.parent.logWarn(this.log, "Unable to add special field handler for message [" + message + "]");
 			return false;
 		}
 		var field = matcher.group("channel");
@@ -61,8 +60,11 @@ public class FieldTypeConflictHandler {
 			this.parent.logWarn(this.log, "Unable to add special field handler for [" + field + "] from [" + thisType
 					+ "] to [" + requiredType.name().toLowerCase() + "]");
 		}
-		this.parent.logInfo(this.log, "Add special field handler for [" + field + "] from [" + thisType + "] to ["
-				+ requiredType.name().toLowerCase() + "]");
+		this.parent.logInfo(this.log,
+				"Add handler for [" + field + "] from [" + thisType + "] to [" + requiredType.name().toLowerCase()
+				+ "]")
+		;
+
 		return true;
 	}
 
@@ -70,9 +72,12 @@ public class FieldTypeConflictHandler {
 		STRING, INTEGER, FLOAT;
 	}
 
-	private BiConsumer<Point, JsonElement> createAndAddHandler(String field, RequiredType requiredType) {
+	private BiConsumer<Point, JsonElement> createAndAddHandler(String field, RequiredType requiredType)
+			throws IllegalStateException {
 		var handler = this.createHandler(field, requiredType);
-		this.specialCaseFieldHandlers.put(field, handler);
+		if (this.specialCaseFieldHandlers.put(field, handler) != null) {
+			throw new IllegalStateException("Handler for field [" + field + "] was already existing");
+		}
 		return handler;
 	}
 

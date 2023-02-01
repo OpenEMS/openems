@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { Flat } from './flat/flat';
-import { Chart } from './chart/chart';
+import { FlatComponent } from './flat/flat';
+import { ChartComponent } from './chart/chart';
 import { AutarchyChartOverviewComponent } from './overview/overview';
 
 @NgModule({
@@ -11,16 +11,16 @@ import { AutarchyChartOverviewComponent } from './overview/overview';
         SharedModule,
     ],
     entryComponents: [
-        Flat,
+        FlatComponent,
     ],
     declarations: [
-        Flat,
-        Chart,
+        FlatComponent,
+        ChartComponent,
         AutarchyChartOverviewComponent
     ],
     exports: [
-        Flat,
-        Chart,
+        FlatComponent,
+        ChartComponent,
         AutarchyChartOverviewComponent
     ]
 })

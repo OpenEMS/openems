@@ -157,6 +157,7 @@ public class AppManagerImplTest {
 								.addProperty("meter.id", "meter0") //
 								.addProperty("sellToGridLimitEnabled", true) //
 								.addProperty("maximumSellToGridPower", maxFeedInPower) //
+								.addProperty("mode", "AUTOMATIC") //
 								.build()) //
 						.build()) //
 				.add("ctrlEssSurplusFeedToGrid0", JsonUtils.buildJsonObject() //
@@ -186,6 +187,12 @@ public class AppManagerImplTest {
 										.add("ctrlEssSurplusFeedToGrid0") //
 										.add("ctrlBalancing0") //
 										.build()) //
+								.build()) //
+						.build()) //
+				.add("_power", JsonUtils.buildJsonObject() //
+						.addProperty("factoryId", "Ess.Power") //
+						.add("properties", JsonUtils.buildJsonObject() //
+								.addProperty("enablePid", false) //
 								.build()) //
 						.build()) //
 				.add(Host.SINGLETON_COMPONENT_ID, JsonUtils.buildJsonObject() //
@@ -239,6 +246,7 @@ public class AppManagerImplTest {
 								.add("properties", JsonUtils.buildJsonObject() //
 										.addProperty("SELL_TO_GRID_LIMIT_ENABLED", true) //
 										.addProperty("MAXIMUM_SELL_TO_GRID_POWER", maxFeedInPower) //
+										.addProperty("MODE", "AUTOMATIC") //
 										.build()) //
 								.build())
 						.add(JsonUtils.buildJsonObject() //

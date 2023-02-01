@@ -130,12 +130,12 @@ public class ModbusProtocol {
 	 * Deactivate the {@link ModbusProtocol}.
 	 */
 	public void deactivate() {
-		var readTasks = this.readTaskManager.getAllTasks();
+		var readTasks = this.readTaskManager.getTasks();
 		for (ReadTask readTask : readTasks) {
 			readTask.deactivate();
 		}
 
-		var writeTasks = this.writeTaskManager.getAllTasks();
+		var writeTasks = this.writeTaskManager.getTasks();
 		for (WriteTask writeTask : writeTasks) {
 			writeTask.deactivate();
 		}

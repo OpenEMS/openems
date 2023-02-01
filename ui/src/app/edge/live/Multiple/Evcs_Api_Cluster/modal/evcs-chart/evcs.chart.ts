@@ -9,10 +9,10 @@ import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 
 @Component({
-  selector: EvcsChart.SELECTOR,
+  selector: EvcsChartComponent.SELECTOR,
   templateUrl: './evcs.chart.html'
 })
-export class EvcsChart implements OnInit, OnChanges {
+export class EvcsChartComponent implements OnInit, OnChanges {
 
   @Input() evcsMap: { [sourceId: string]: EdgeConfig.Component };
   @Input() edge: Edge;

@@ -1,4 +1,5 @@
 export enum GridMode {
+    UNDEFINED = 0,
     ON_GRID = 1,
     OFF_GRID = 2,
 }

@@ -5,4 +5,4 @@ import { FieldWrapper } from '@ngx-formly/core';
     selector: 'formly-input-serial-number',
     templateUrl: './input-serial-number-wrapper.html',
 })
-export class FormlyInputSerialNumberWrapper extends FieldWrapper { }
+export class FormlyInputSerialNumberWrapperComponent extends FieldWrapper { }

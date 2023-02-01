@@ -1,29 +1,26 @@
 import { ActivatedRoute } from "@angular/router";
-import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { Edge, EdgeConfig, ChannelAddress } from "../../shared";
-import { LanguageTag } from "../../translate/language";
-import { AdvertWidgets } from "../../type/widget";
-import { DefaultTypes } from "../defaulttypes";
 import { BehaviorSubject } from "rxjs";
+import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import { ChannelAddress, Edge, EdgeConfig } from "../../shared";
+import { Language } from "../../type/language";
 import { Role } from "../../type/role";
+import { AdvertWidgets } from "../../type/widget";
 import { AbstractService } from "../abstractservice";
+import { DefaultTypes } from "../defaulttypes";
 
 export class DummyService extends AbstractService {
 
     private readonly edge = new Edge("edge0", "comment", "productype"
-        , "1234-56-78", Role.ADMIN, true);
+        , "1234.56.78", Role.ADMIN, true, new Date());
 
     private readonly edgeConfig = new EdgeConfig(this.edge, undefined);
 
     currentEdge: BehaviorSubject<Edge> = new BehaviorSubject(this.edge);
 
-    setLang(id: LanguageTag) {
+    setLang(id: Language) {
         throw new Error("Method not implemented.");
     }
     getDocsLang(): string {
-        throw new Error("Method not implemented.");
-    }
-    browserLangToLangTag(browserLang: string): LanguageTag {
         throw new Error("Method not implemented.");
     }
     notify(notification: DefaultTypes.Notification) {
@@ -61,7 +58,7 @@ export class DummyService extends AbstractService {
     toast(message: string, level: "success" | "warning" | "danger") {
         throw new Error("Method not implemented.");
     }
-    isAdvertAllowed(edge: Edge, advertWidgets: AdvertWidgets) {
+    showAdvertWidgets(advertWidgets: AdvertWidgets) {
         throw new Error("Method not implemented.");
     }
     isPartnerAllowed(edge: Edge): boolean {

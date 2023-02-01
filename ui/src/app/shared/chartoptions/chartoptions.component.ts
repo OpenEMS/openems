@@ -10,8 +10,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ChartOptionsComponent {
 
-    @Input() public showPhases: boolean;
-    @Input() public showTotal: boolean;
+    @Input() public showPhases: boolean | null;
+    @Input() public showTotal: boolean | null;
     @Output() setShowPhases = new EventEmitter<boolean>();
     @Output() setShowTotal = new EventEmitter<boolean>();
 
@@ -22,14 +22,18 @@ export class ChartOptionsComponent {
     ) { }
 
     async presentPopover(ev: any) {
+        let componentProps = {};
+        if (this.showPhases !== null) {
+            componentProps['showPhases'] = this.showPhases;
+        }
+        if (this.showTotal !== null) {
+            componentProps['showTotal'] = this.showTotal;
+        }
         const popover = await this.popoverCtrl.create({
             component: ChartOptionsPopoverComponent,
             event: ev,
             translucent: false,
-            componentProps: {
-                showPhases: this.showPhases,
-                showTotal: this.showTotal
-            }
+            componentProps: componentProps
         });
         await popover.present();
         popover.onDidDismiss().then((data) => {

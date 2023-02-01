@@ -9,7 +9,7 @@ import { Mode, WorkMode } from 'src/app/shared/type/general';
     selector: 'heatingelement-modal',
     templateUrl: './modal.html',
 })
-export class Modal extends AbstractModal implements OnInit {
+export class ModalComponent extends AbstractModal implements OnInit {
 
     private static PROPERTY_MODE: string = '_PropertyMode';
     protected activePhases: BehaviorSubject<number> = new BehaviorSubject(0);
@@ -34,7 +34,7 @@ export class Modal extends AbstractModal implements OnInit {
             outputChannelPhaseOne,
             outputChannelPhaseTwo,
             outputChannelPhaseThree,
-            new ChannelAddress(this.component.id, Modal.PROPERTY_MODE),
+            new ChannelAddress(this.component.id, ModalComponent.PROPERTY_MODE),
             new ChannelAddress(this.component.id, '_PropertyWorkMode')
         ]
         return channelAddresses
@@ -43,7 +43,7 @@ export class Modal extends AbstractModal implements OnInit {
     protected override onCurrentData(currentData: CurrentData) {
 
         // get current mode
-        this.mode = currentData.thisComponent[Modal.PROPERTY_MODE];
+        this.mode = currentData.thisComponent[ModalComponent.PROPERTY_MODE];
 
         let value = 0;
         this.outputChannelArray.forEach(element => {

@@ -1,34 +1,32 @@
-<oe-modal [title]="component.alias"
-    [toolbarButtons]="{url:'https://docs.fenecon.de/de/_/latest/fems/fems-app/includes/FEMS_App_Netzdienliche_Beladung.html', icon: {name: 'help-circle-outline'}}"
-    [component]="component" [formGroup]="formGroup" *ngIf="isInitialized && formGroup">
+<oe-modal [title]="component.alias" helpKey="CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE" [component]="component"
+    [formGroup]="formGroup" *ngIf="isInitialized && formGroup">
     <ng-container *ngIf="formGroup.value.mode !=='OFF'">
 
         <!-- SellToGridLimit or DelayCharge -->
-        <oe-modal-line [name]="'General.state' | translate" [values]="[{value:state}]">
+        <oe-modal-line [name]="'General.state' | translate" [value]="state">
         </oe-modal-line>
 
         <!-- Minimum-/ Maximum- Charge-Limit -->
         <oe-modal-line *ngIf="chargeLimit" [name]="chargeLimit.name" [converter]="CONVERT_TO_WATT"
-            [values]="[{value:chargeLimit.value}]">
+            [value]="chargeLimit.value">
         </oe-modal-line>
 
         <!--DelayCharge target minute-->
-        <oe-modal-line *ngIf="targetMinute && this.delayChargeState != DelayChargeState.NO_REMAINING_TIME"
+        <oe-modal-line *ngIf="targetMinute && this.delayChargeState !== DelayChargeState.NO_REMAINING_TIME"
             leftColumnWidth="70" [name]="'Edge.Index.Widgets.GridOptimizedCharge.endTimeLong'| translate"
-            [converter]="CONVERT_MINUTE_TO_TIME_OF_DAY" [channelAddress]="[{address: component.id + '/TargetMinute'}]">
+            [converter]="CONVERT_MINUTE_TO_TIME_OF_DAY" [value]="targetMinute">
         </oe-modal-line>
 
         <!-- Capacity (visible for admin only)-->
         <oe-modal-line *ngIf="isAtLeastAdmin" leftColumnWidth="70"
             [name]="'Edge.Index.Widgets.GridOptimizedCharge.storageCapacity' | translate"
-            [converter]="CONVERT_TO_WATTHOURS" [values]="[{value:channelCapacity}]">
+            [converter]="CONVERT_TO_WATTHOURS" [value]="channelCapacity">
         </oe-modal-line>
 
         <!--Sell to grid limit-->
         <oe-modal-line *ngIf="formGroup.value.sellToGridLimitEnabled"
             [name]="'Edge.Index.Widgets.GridOptimizedCharge.maximumGridFeedIn' | translate" leftColumnWidth="70"
-            [converter]="CONVERT_TO_WATT"
-            [channelAddress]="[{address:component.id + '/_PropertyMaximumSellToGridPower'}]">
+            [converter]="CONVERT_TO_WATT" [channelAddress]="component.id + '/_PropertyMaximumSellToGridPower'">
         </oe-modal-line>
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
     </ng-container>
@@ -84,8 +82,11 @@
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
         <oe-modal-info-line
-            *ngIf="targetMinute != null && delayChargeMaximumChargeLimit != null;else defaultEndTimeDescription"
-            [info]="'Edge.Index.Widgets.GridOptimizedCharge.endTimeDetailedDescription'| translate: {value1:delayChargeMaximumChargeLimit | unitvalue:'W', value2:(targetMinute * 60)} | formatSecondsToDuration">
+            *ngIf="targetMinute !== null && delayChargeMaximumChargeLimit !== null;else defaultEndTimeDescription"
+            [info]="[{text:
+                'Edge.Index.Widgets.GridOptimizedCharge.endTimeDetailedDescription'| translate:
+                 {value1:delayChargeMaximumChargeLimit | unitvalue:'W', value2:(targetMinute * 60) | formatSecondsToDuration}
+                }]">
         </oe-modal-info-line>
 
         <ng-template #defaultEndTimeDescription>
@@ -97,7 +98,7 @@
 
         <!--Predicted soc chart-->
         <ng-container
-            *ngIf="delayChargeState != DelayChargeState.NO_REMAINING_TIME && delayChargeState != DelayChargeState.TARGET_MINUTE_NOT_CALCULATED">
+            *ngIf="delayChargeState !== DelayChargeState.NO_REMAINING_TIME && delayChargeState !== DelayChargeState.TARGET_MINUTE_NOT_CALCULATED">
 
             <!-- Description -->
             <oe-modal-info-line
@@ -105,7 +106,7 @@
             </oe-modal-info-line>
 
             <!-- Chart -->
-            <predictionChart *ngIf="targetEpochSeconds != null" padding-bottom padding-top [refresh]="refreshChart"
+            <predictionChart *ngIf="targetEpochSeconds !== null" padding-bottom padding-top [refresh]="refreshChart"
                 [component]="component" [edge]="edge" [targetEpochSeconds]="targetEpochSeconds"
                 [chargeStartEpochSeconds]="chargeStartEpochSeconds">
             </predictionChart>

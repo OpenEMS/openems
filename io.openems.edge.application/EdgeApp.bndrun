@@ -1,4 +1,4 @@
--runfw: org.apache.felix.framework;version='[7.0.3,7.0.3]'
+-runfw: org.apache.felix.framework;version='[7.0.5,7.0.5]'
 -runee: JavaSE-11
 -runprovidedcapabilities: ${native_capability}
 
@@ -16,12 +16,15 @@
 	com.sun.net.httpserver
 
 -runblacklist:\
-	com.squareup.okio,\
+	bnd.identity;id='org.osgi.service.cm',\
 
 -runbundles+: \
 	org.apache.felix.scr;startlevel=10,\
-	org.eclipse.equinox.event;startlevel=11,\
-	org.ops4j.pax.logging.pax-logging-log4j2;startlevel=12
+	org.apache.felix.configadmin;startlevel=11,\
+	org.apache.felix.eventadmin;startlevel=12,\
+	org.ops4j.pax.logging.pax-logging-api;startlevel=13,\
+	org.ops4j.pax.logging.pax-logging-log4j2;startlevel=14,\
+	io.openems.edge.application;startlevel=15,\
 
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
@@ -30,6 +33,8 @@
 	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
 	bnd.identity;id='org.apache.felix.inventory',\
+	bnd.identity;id='org.apache.felix.eventadmin',\
+	bnd.identity;id='org.apache.felix.metatype',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
@@ -122,6 +127,9 @@
 	bnd.identity;id='io.openems.edge.io.revpi',\
 	bnd.identity;id='io.openems.edge.io.shelly',\
 	bnd.identity;id='io.openems.edge.io.wago',\
+	bnd.identity;id='io.openems.edge.io.weidmueller',\
+	bnd.identity;id='io.openems.edge.kaco.blueplanet.hybrid10',\
+	bnd.identity;id='io.openems.edge.katek.edcom',\
 	bnd.identity;id='io.openems.edge.kostal.piko',\
 	bnd.identity;id='io.openems.edge.meter.abb',\
 	bnd.identity;id='io.openems.edge.meter.artemes.am2',\
@@ -130,6 +138,7 @@
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi.em300',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
+	bnd.identity;id='io.openems.edge.meter.kdk',\
 	bnd.identity;id='io.openems.edge.meter.microcare.sdm630',\
 	bnd.identity;id='io.openems.edge.meter.plexlog',\
 	bnd.identity;id='io.openems.edge.meter.pqplus',\
@@ -140,6 +149,7 @@
 	bnd.identity;id='io.openems.edge.meter.sunspec',\
 	bnd.identity;id='io.openems.edge.meter.virtual',\
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
+	bnd.identity;id='io.openems.edge.meter.ziehl',\
 	bnd.identity;id='io.openems.edge.onewire.thermometer',\
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.predictor.similardaymodel',\
@@ -161,17 +171,16 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-
+	
 -runbundles: \
 	Java-WebSocket;version='[1.5.3,1.5.4)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
 	com.ghgande.j2mod;version='[2.5.5,2.5.6)',\
-	com.google.gson;version='[2.9.1,2.9.2)',\
+	com.google.gson;version='[2.10.1,2.10.2)',\
 	com.google.guava;version='[31.1.0,31.1.1)',\
 	com.google.guava.failureaccess;version='[1.0.1,1.0.2)',\
-	com.squareup.okio;version='[3.2.0,3.2.1)',\
-	com.sun.jna;version='[5.12.1,5.12.2)',\
-	io.gsonfire;version='[1.8.5,1.8.6)',\
+	com.squareup.okio;version='[3.3.0,3.3.1)',\
+	com.sun.jna;version='[5.13.0,5.13.1)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.battery.api;version=snapshot,\
@@ -271,6 +280,9 @@
 	io.openems.edge.io.revpi;version=snapshot,\
 	io.openems.edge.io.shelly;version=snapshot,\
 	io.openems.edge.io.wago;version=snapshot,\
+	io.openems.edge.io.weidmueller;version=snapshot,\
+	io.openems.edge.kaco.blueplanet.hybrid10;version=snapshot,\
+	io.openems.edge.katek.edcom;version=snapshot,\
 	io.openems.edge.kostal.piko;version=snapshot,\
 	io.openems.edge.meter.abb;version=snapshot,\
 	io.openems.edge.meter.api;version=snapshot,\
@@ -280,6 +292,7 @@
 	io.openems.edge.meter.carlo.gavazzi.em300;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
+	io.openems.edge.meter.kdk;version=snapshot,\
 	io.openems.edge.meter.microcare.sdm630;version=snapshot,\
 	io.openems.edge.meter.plexlog;version=snapshot,\
 	io.openems.edge.meter.pqplus;version=snapshot,\
@@ -290,6 +303,7 @@
 	io.openems.edge.meter.sunspec;version=snapshot,\
 	io.openems.edge.meter.virtual;version=snapshot,\
 	io.openems.edge.meter.weidmueller;version=snapshot,\
+	io.openems.edge.meter.ziehl;version=snapshot,\
 	io.openems.edge.onewire.thermometer;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
@@ -336,30 +350,32 @@
 	io.openems.wrapper.retrofit-converter-scalars;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
 	io.openems.wrapper.sdnotify;version=snapshot,\
-	io.reactivex.rxjava3.rxjava;version='[3.1.5,3.1.6)',\
+	io.reactivex.rxjava3.rxjava;version='[3.1.6,3.1.7)',\
+	javax.jmdns;version='[3.4.1,3.4.2)',\
 	javax.xml.soap-api;version='[1.4.0,1.4.1)',\
 	org.apache.commons.commons-csv;version='[1.9.0,1.9.1)',\
 	org.apache.commons.commons-fileupload;version='[1.4.0,1.4.1)',\
 	org.apache.commons.commons-io;version='[2.8.0,2.8.1)',\
 	org.apache.commons.math3;version='[3.6.1,3.6.2)',\
-	org.apache.felix.configadmin;version='[1.9.24,1.9.25)',\
+	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
-	org.apache.felix.http.jetty;version='[4.1.14,4.1.15)',\
-	org.apache.felix.http.servlet-api;version='[2.0.0,2.0.1)',\
+	org.apache.felix.http.jetty;version='[4.2.2,4.2.3)',\
+	org.apache.felix.http.servlet-api;version='[2.1.0,2.1.1)',\
 	org.apache.felix.inventory;version='[1.1.0,1.1.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
-	org.apache.felix.scr;version='[2.1.30,2.1.31)',\
+	org.apache.felix.scr;version='[2.2.6,2.2.7)',\
 	org.apache.felix.webconsole;version='[4.7.2,4.7.3)',\
-	org.apache.felix.webconsole.plugins.ds;version='[2.1.0,2.1.1)',\
+	org.apache.felix.webconsole.plugins.ds;version='[2.2.0,2.2.1)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[1.7.10,1.7.11)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[1.8.0,1.8.1)',\
 	org.jsoup;version='[1.15.3,1.15.4)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.0.14,2.0.15)',\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.0.14,2.0.15)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.2.1,2.2.2)',\
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.2.1,2.2.2)',\
+	org.osgi.service.component;version='[1.5.1,1.5.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
-	org.osgi.util.promise;version='[1.2.0,1.2.1)',\
+	org.osgi.util.promise;version='[1.3.0,1.3.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
-	rrd4j;version='[3.8.1,3.8.2)'
+	rrd4j;version='[3.8.2,3.8.3)'

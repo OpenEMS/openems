@@ -23,12 +23,8 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
-import io.openems.edge.core.appmanager.TranslationUtil;
 
 /**
  * Describes a App for Fronius PV-Inverter.
@@ -56,15 +52,15 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 public class FroniusPvInverter extends AbstractPvInverter<Property> implements OpenemsApp {
 
 	public static enum Property {
-		// Components
+		// Component-IDs
 		PV_INVERTER_ID, //
 		MODBUS_ID, //
-		// User-Values
+		// Properties
 		ALIAS, //
-		IP, // the ip for the modbus
+		IP, //
 		PORT, //
-		MODBUS_UNIT_ID;
-
+		MODBUS_UNIT_ID //
+		;
 	}
 
 	@Activate
@@ -96,32 +92,14 @@ public class FroniusPvInverter extends AbstractPvInverter<Property> implements O
 
 	@Override
 	public AppAssistant getAppAssistant(Language language) {
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
 		return AppAssistant.create(this.getName(language)) //
 				.fields(JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildInput(Property.IP) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "App.PvInverter.ip.description")) //
-								.setDefaultValue("192.168.178.85") //
-								.isRequired(true) //
-								.setValidation(Validation.IP) //
+						.add(AbstractPvInverter.buildIp(language, Property.IP) //
 								.build()) //
-						.add(JsonFormlyUtil.buildInput(Property.PORT) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "port")) //
-								.setDescription(
-										TranslationUtil.getTranslation(bundle, "App.PvInverter.port.description")) //
-								.setInputType(Type.NUMBER) //
-								.setDefaultValue(502) //
-								.setMin(0) //
-								.isRequired(true) //
+						.add(AbstractPvInverter.buildPort(language, Property.PORT) //
 								.build()) //
-						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
-								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "modbusUnitId.description")) //
-								.setInputType(Type.NUMBER) //
+						.add(AbstractPvInverter.buildModbusUnitId(language, Property.MODBUS_UNIT_ID) //
 								.setDefaultValue(1) //
-								.setMin(0) //
-								.isRequired(true) //
 								.build()) //
 						.build())
 				.build();

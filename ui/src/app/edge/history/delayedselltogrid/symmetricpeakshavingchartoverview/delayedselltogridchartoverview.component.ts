@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Service, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: DelayedSellToGridChartOverviewComponent.SELECTOR,
     templateUrl: './delayedselltogridchartoverview.component.html'
 })
-export class DelayedSellToGridChartOverviewComponent {
+export class DelayedSellToGridChartOverviewComponent implements OnInit {
 
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;

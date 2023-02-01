@@ -1,15 +1,15 @@
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, Service, EdgeConfig, Utils, } from '../../../shared/shared';
-import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Cumulated } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: StorageComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class StorageComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class StorageComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
 

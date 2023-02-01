@@ -37,6 +37,7 @@ import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -99,7 +100,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @param poolSize  number of threads dedicated to handle the tasks
 	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize, boolean debugMode) {
+	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
 		this.server = new WebsocketServer(this, this.getName(), port, poolSize, debugMode);
 		this.server.start();
 	}
@@ -228,6 +229,11 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	}
 
 	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
+	}
+
+	@Override
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
 			String token, SubscribeSystemLogRequest request) throws OpenemsNamedException {
 		return this.systemLogHandler.handleSubscribeSystemLogRequest(edgeId, user, token, request);
@@ -249,6 +255,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		switch (event.getTopic()) {
 		case Metadata.Events.AFTER_IS_INITIALIZED:
 			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+			break;
 		}
 	}
 }

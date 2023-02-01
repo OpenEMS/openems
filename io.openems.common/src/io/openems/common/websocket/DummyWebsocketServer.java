@@ -94,7 +94,7 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 	private final DummyWebsocketServer.Builder builder;
 
 	private DummyWebsocketServer(DummyWebsocketServer.Builder builder) {
-		super("DummyWebsocketServer", 0 /* auto-select port */, 1 /* pool size */, false);
+		super("DummyWebsocketServer", 0 /* auto-select port */, 1 /* pool size */, DebugMode.OFF, null);
 		this.builder = builder;
 	}
 
@@ -135,7 +135,12 @@ public class DummyWebsocketServer extends AbstractWebsocketServer<WsData> implem
 
 	@Override
 	protected void logWarn(Logger log, String message) {
-		log.info(message);
+		log.warn(message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		log.error(message);
 	}
 
 	@Override

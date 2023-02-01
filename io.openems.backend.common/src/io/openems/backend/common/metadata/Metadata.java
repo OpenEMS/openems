@@ -68,10 +68,10 @@ public interface Metadata {
 
 	/**
 	 * Handles operations with Edge.
-	 * 
+	 *
 	 * <p>
 	 * To be completed. This should eventually replace Edge.
-	 * 
+	 *
 	 * @return an {@link EdgeHandler}
 	 */
 	public EdgeHandler edge();
@@ -83,14 +83,6 @@ public interface Metadata {
 	 * @return the Edge-ID or Empty
 	 */
 	public abstract Optional<String> getEdgeIdForApikey(String apikey);
-
-	/**
-	 * Get all EdgeUsers to EdgeID.
-	 *
-	 * @param edgeId the Edge-ID
-	 * @return the List of Users as Optional
-	 */
-	public abstract Optional<List<EdgeUser>> getUserToEdge(String edgeId);
 
 	/**
 	 * Get an Edge by its unique Edge-ID.
@@ -133,11 +125,11 @@ public interface Metadata {
 	public abstract Optional<User> getUser(String userId);
 
 	/**
-	 * Gets all Edges.
+	 * Gets all Offline-Edges.
 	 *
 	 * @return collection of Edges.
 	 */
-	public abstract Collection<Edge> getAllEdges();
+	public abstract Collection<Edge> getAllOfflineEdges();
 
 	/**
 	 * Assigns Edge with given setupPassword to the logged in user and returns it.
@@ -297,13 +289,34 @@ public interface Metadata {
 	public void updateUserLanguage(User user, Language language) throws OpenemsNamedException;
 
 	/**
-	 * Gets an EdgeUserRole to Edge and User.
+	 * Gets all the alerting settings for given edge id.
 	 *
-	 * @param edgeId the Edge
-	 * @param userId the User
-	 * @return EdgeUser or null
+	 *
+	 * @param edgeId the Edge ID
+	 * @return List of {@link AlertingSetting}
+	 * @throws OpenemsException on error
 	 */
-	public Optional<EdgeUser> getEdgeUserTo(String edgeId, String userId);
+	public List<AlertingSetting> getUserAlertingSettings(String edgeId) throws OpenemsException;
+
+	/**
+	 * Gets the alerting settings for given edge id and userId.
+	 *
+	 * @param edgeId the Edge ID
+	 * @param userId the User ID
+	 * @return List of {@link UserRoleDelayTime}
+	 * @throws OpenemsException on error
+	 */
+	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException;
+
+	/**
+	 * Sets the alerting settings for the given list of users.
+	 *
+	 * @param user   {@link User} the current user
+	 * @param edgeId the Edge-ID
+	 * @param users  list of users to update
+	 * @throws OpenemsException on error
+	 */
+	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) throws OpenemsException;
 
 	/**
 	 * Returns an EventAdmin, used by Edge objects.
@@ -320,5 +333,13 @@ public interface Metadata {
 
 		public static final String AFTER_IS_INITIALIZED = Events.TOPIC_BASE + "TOPIC_AFTER_IS_INITIALIZED";
 	}
+
+	/**
+	 * Get serial number for the given {@link Edge}.
+	 *
+	 * @param edge {@link Edge} to search for serial number
+	 * @return Serial number or empty {@link Optional}
+	 */
+	public Optional<String> getSerialNumberForEdge(Edge edge);
 
 }

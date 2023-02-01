@@ -3,13 +3,13 @@ import { BehaviorSubject } from 'rxjs';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { Mode, WorkMode } from 'src/app/shared/type/general';
-import { Modal } from '../modal/modal';
+import { ModalComponent } from '../modal/modal';
 
 @Component({
     selector: 'Controller_Io_HeatingElement',
     templateUrl: './flat.html'
 })
-export class Flat extends AbstractFlatWidget {
+export class FlatComponent extends AbstractFlatWidget {
 
     private outputChannelArray: ChannelAddress[] = [];
     private static PROPERTY_MODE: string = '_PropertyMode';
@@ -37,7 +37,7 @@ export class Flat extends AbstractFlatWidget {
             new ChannelAddress(this.component.id, 'ForceStartAtSecondsOfDay'),
             ...this.outputChannelArray,
             new ChannelAddress(this.component.id, 'Status'),
-            new ChannelAddress(this.component.id, Flat.PROPERTY_MODE),
+            new ChannelAddress(this.component.id, FlatComponent.PROPERTY_MODE),
             new ChannelAddress(this.component.id, '_PropertyWorkMode')
         ]
         return channelAddresses
@@ -48,7 +48,7 @@ export class Flat extends AbstractFlatWidget {
         this.workMode = currentData.thisComponent['_PropertyWorkMode']
 
         // get current mode
-        switch (currentData.thisComponent[Flat.PROPERTY_MODE]) {
+        switch (currentData.thisComponent[FlatComponent.PROPERTY_MODE]) {
             case 'MANUAL_ON': {
                 this.mode = 'General.on';
                 break;
@@ -93,7 +93,7 @@ export class Flat extends AbstractFlatWidget {
 
     async presentModal() {
         const modal = await this.modalController.create({
-            component: Modal,
+            component: ModalComponent,
             componentProps: {
                 component: this.component
             }

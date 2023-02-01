@@ -7,6 +7,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -15,10 +16,13 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +46,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.ThreadPoolUtils;
 import okhttp3.OkHttpClient;
@@ -77,7 +82,7 @@ public class InfluxConnector {
 			new ThreadPoolExecutor.DiscardOldestPolicy());
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 	private final ExecutorService mergePointsExecutor = Executors.newSingleThreadExecutor();
-	private final BlockingQueue<Point> pointsQueue = new ArrayBlockingQueue<>(POINTS_QUEUE_SIZE);
+	private final BlockingQueue<Point> pointsQueue = new LinkedBlockingQueue<>(POINTS_QUEUE_SIZE);
 
 	/**
 	 * The Constructor.
@@ -101,16 +106,14 @@ public class InfluxConnector {
 		this.onWriteError = onWriteError;
 
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			int executorQueueSize = this.executor.getQueue().size();
 			int pointsQueueSize = this.pointsQueue.size();
-			this.log.info(new StringBuilder("[monitor] InfluxDB ") //
-					.append("Pool: ").append(this.executor.getPoolSize()).append(", ") //
-					.append("Active: ").append(this.executor.getActiveCount()).append(", ") //
-					.append("Pending: ").append(this.executor.getQueue().size()).append(", ") //
-					.append("Completed: ").append(this.executor.getCompletedTaskCount()).append(", ") //
-					.append((executorQueueSize == EXECUTOR_QUEUE_SIZE) ? "!!!EXECUTOR BACKPRESSURE!!!" : "") //
-					.append("QueuedPoints: ").append(this.pointsQueue.size()).append(", ") //
-					.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? "!!!POINTS BACKPRESSURE!!!" : "") //
+			this.log.info(new StringBuilder("[InfluxDB] [monitor] ") //
+					.append(ThreadPoolUtils.debugLog(this.executor)) //
+					.append(" Queue:") //
+					.append(pointsQueueSize) //
+					.append("/") //
+					.append(POINTS_QUEUE_SIZE) //
+					.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? " !!!POINTS BACKPRESSURE!!!" : "") //
 					.toString());
 		}, 10, 10, TimeUnit.SECONDS);
 
@@ -148,8 +151,7 @@ public class InfluxConnector {
 							try {
 								this.getInfluxConnection().writeApi.writePoints(points);
 							} catch (Throwable t) {
-								this.log.warn("Unable to write points: "
-										+ StringUtils.toShortString(points.toString(), 100) + "; " + t.getMessage());
+								this.log.warn("Unable to write points. " + t.getMessage());
 								this.onWriteError.accept(t);
 							}
 						});
@@ -201,13 +203,14 @@ public class InfluxConnector {
 		var options = InfluxDBClientOptions.builder() //
 				.url(this.url.toString()) //
 				.org(this.org) //
-				.authenticateToken(String.format(this.apiKey).toCharArray()) //
 				.bucket(this.bucket) //
-				.okHttpClient(okHttpClientBuilder) //
-				.build();
+				.okHttpClient(okHttpClientBuilder); //
+		if (this.apiKey != null && !this.apiKey.isBlank()) {
+			options.authenticateToken(String.format(this.apiKey).toCharArray()); //
+		}
 
 		var client = InfluxDBClientFactory //
-				.create(options) //
+				.create(options.build()) //
 				.enableGzip();
 
 		// Keep default WriteOptions from
@@ -442,6 +445,53 @@ public class InfluxConnector {
 	}
 
 	/**
+	 * Queries the latest available channel values.
+	 *
+	 * @param influxEdgeId     the unique, numeric Edge-ID; or Empty to query all
+	 *                         Edges
+	 * @param channelAddresses the {@link ChannelAddress}es
+	 * @return a map of {@link ChannelAddress}es and values
+	 * @throws OpenemsException on error
+	 */
+	public Map<ChannelAddress, JsonElement> queryChannelValues(Optional<Integer> influxEdgeId,
+			Set<ChannelAddress> channelAddresses) {
+		var result = channelAddresses.stream()
+				.collect(Collectors.toMap(Function.identity(), c -> (JsonElement) JsonNull.INSTANCE));
+		try {
+			for (var channelAddress : channelAddresses) {
+				// prepare query
+				var builder = new StringBuilder() //
+						.append("from(bucket: \"").append("db/default").append("\")") //
+						.append("|> range(start: -5m)") //
+						.append("|> filter(fn: (r) => ") //
+						.append("r._measurement == \"").append(MEASUREMENT).append("\" ");
+				if (influxEdgeId.isPresent()) {
+					builder.append("and r." + OpenemsOEM.INFLUXDB_TAG + " == \"" + influxEdgeId.get() + "\" ");
+				}
+				builder //
+						.append("and r._field == \"").append(channelAddress.toString()).append("\")") //
+						.append("|> last()");
+				var query = builder.toString();
+
+				// Execute query
+				var queryResult = this.executeQuery(query);
+
+				for (FluxTable fluxTable : queryResult) {
+					for (FluxRecord record : fluxTable.getRecords()) {
+						result.put(channelAddress, JsonUtils.getAsJsonElement(record.getValue()));
+					}
+				}
+			}
+
+		} catch (OpenemsException e) {
+			this.log.error(e.getMessage());
+			e.printStackTrace();
+
+		}
+		return result;
+	}
+
+	/**
 	 * Converts the QueryResult of a Historic-Data query to a properly typed Table.
 	 *
 	 * @param queryResult the Query-Result
@@ -571,4 +621,5 @@ public class InfluxConnector {
 		}
 		this.pointsQueue.offer(point);
 	}
+
 }

@@ -51,7 +51,7 @@ export class ExecuteSystemUpdate {
         return new Promise<SystemUpdateState>((resolve, reject) => {
             // if the version is a SNAPSHOT always set the udpate state
             // to updated with the current SNAPSHOT version
-            if (this.edge.version.includes("SNAPSHOT")) {
+            if (this.edge.isSnapshot()) {
                 let updateState = { updated: { version: this.edge.version } }
                 this.setSystemUpdateState(updateState);
                 this.stopRefreshSystemUpdateState();

@@ -9,6 +9,7 @@
 ** xref:edge/controller.adoc[Controller]
 ** xref:edge/bridge.adoc[Bridge]
 ** xref:edge/device_service.adoc[Device & Service]
+** xref:edge/timedata.adoc[Timedata]
 ** xref:edge/implement.adoc[Implementing a Device]
 ** xref:edge/build.adoc[Build OpenEMS Edge]
 ** xref:edge/deploy.adoc[Deploy OpenEMS Edge]
@@ -25,5 +26,7 @@
 ** xref:simulation/gitpod.adoc[Live-Demo on Gitpod]
 ** xref:simulation/realtime.adoc[Real-Time Simulation]
 ** xref:simulation/ui-history.adoc[UI History Simulation]
-* xref:documentation.adoc[Documentation]
+* Contribute
+** xref:contribute/coding-guidelines.adoc[Coding Guidelines]
+** xref:contribute/documentation.adoc[Documentation]
 * https://openems.github.io/openems.io/javadoc/[Javadoc]

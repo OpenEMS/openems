@@ -32,6 +32,7 @@ export class IndexComponent {
   public form: FormGroup;
   public filter: string = '';
   public filteredEdges: Edge[] = [];
+  protected formIsDisabled: boolean = false;
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
   public slice: number = 20;
@@ -65,23 +66,6 @@ export class IndexComponent {
 
         this.updateFilteredEdges();
       })
-  }
-
-
-  async ionViewWillEnter() {
-
-    // Execute Login-Request if url path matches 'demo' 
-    if (this.route.snapshot.routeConfig.path == 'demo') {
-
-      // Wait for Websocket
-      await new Promise((resolve) => setTimeout(() => {
-        if (this.websocket.status == 'waiting for credentials') {
-          resolve(this.websocket.login(new AuthenticateWithPasswordRequest({ username: 'demo@fenecon.de', password: 'femsdemo' })))
-        }
-      }, 2000)).then(() => { this.service.setCurrentComponent('', this.route) });
-    } else {
-      this.service.setCurrentComponent('', this.route);
-    }
   }
 
   updateFilteredEdges() {
@@ -122,7 +106,10 @@ export class IndexComponent {
    * @param param data provided in login form
    */
   public doLogin(param: { username?: string, password: string }) {
-    this.websocket.login(new AuthenticateWithPasswordRequest(param));
+    this.formIsDisabled = true;
+    this.websocket.login(new AuthenticateWithPasswordRequest(param)).then(() => {
+      this.formIsDisabled = false;
+    })
   }
 
   doInfinite(infiniteScroll) {

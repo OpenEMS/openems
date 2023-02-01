@@ -7,14 +7,12 @@
 # Basic definitions
 release_date=$(date --iso-8601)
 openems_constants="io.openems.common/src/io/openems/common/OpenemsConstants.java"
-single_document="doc/modules/ROOT/pages/single_document.adoc"
 package_json="ui/package.json"
 package_lock="ui/package-lock.json"
 user_component="ui/src/app/user/user.component.html"
 
 # Reset files
 git checkout $openems_constants
-git checkout $single_document
 git checkout $package_json
 git checkout $package_lock
 git checkout $user_component
@@ -29,9 +27,6 @@ echo "#            date: $release_date"
 
 echo "# Update $openems_constants"
 sed --in-place 's/\(public .* VERSION_STRING = "\)SNAPSHOT\(".*$\)/\1\2/' $openems_constants
-
-echo "# Update $single_document"
-sed --in-place "s/\(^Version \).*$/\1$new_version/" $single_document
 
 echo "# Update $package_json" 
 sed --in-place "s/\(\"version\": \"\).*\(\".*$\)/\1$new_version\2/" $package_json

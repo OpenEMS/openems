@@ -62,7 +62,8 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
       "DC_PV2_ALIAS":"PV 2",
       "HAS_EMERGENCY_RESERVE":true,
       "EMERGENCY_RESERVE_ENABLED":true,
-      "EMERGENCY_RESERVE_SOC":20
+      "EMERGENCY_RESERVE_SOC":20,
+      "SHADOW_MANAGEMENT_DISABLED":false
     },
     "dependencies": [
     	{
@@ -126,6 +127,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
+				.setWebsiteUrl("https://fenecon.de/produkte/home/") //
 				.build();
 	}
 
@@ -148,13 +150,11 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 			// Battery-Inverter Settings
 			var safetyCountry = EnumUtils.getAsString(p, Property.SAFETY_COUNTRY);
 			int maxFeedInPower;
-			String feedInSetting;
+			String feedInSetting = EnumUtils.getAsOptionalString(p, Property.FEED_IN_SETTING).orElse("UNDEFINED");
 			if (!rippleControlReceiverActive) {
 				maxFeedInPower = EnumUtils.getAsInt(p, Property.MAX_FEED_IN_POWER);
-				feedInSetting = EnumUtils.getAsString(p, Property.FEED_IN_SETTING);
 			} else {
 				maxFeedInPower = 0;
-				feedInSetting = "UNDEFINED";
 			}
 
 			var bundle = AbstractOpenemsApp.getTranslationBundle(l);
@@ -170,8 +170,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("parity", "NONE") //
 									.addProperty("logVerbosity", "NONE") //
 									.onlyIf(t == ConfigurationTarget.ADD, //
-											j -> j.addProperty("invalidateElementsAfterReadErrors", 1) //
-			).build()),
+											j -> j.addProperty("invalidateElementsAfterReadErrors", 1)) //
+									.build()),
 					new EdgeConfig.Component(modbusIdExternal,
 							TranslationUtil.getTranslation(bundle, this.getAppId() + "." + modbusIdExternal + ".alias"),
 							"Bridge.Modbus.Serial", JsonUtils.buildJsonObject() //
@@ -182,7 +182,8 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("stopbits", "ONE") //
 									.addProperty("parity", "NONE") //
 									.addProperty("logVerbosity", "NONE") //
-									.addProperty("invalidateElementsAfterReadErrors", 1) //
+									.onlyIf(t == ConfigurationTarget.ADD, //
+											j -> j.addProperty("invalidateElementsAfterReadErrors", 1)) //
 									.build()),
 					new EdgeConfig.Component("meter0",
 							TranslationUtil.getTranslation(bundle, this.getAppId() + ".meter0.alias"),
@@ -246,7 +247,10 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 							"Controller.Ess.Hybrid.Surplus-Feed-To-Grid", JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("ess.id", essId) //
-									.build()) //
+									.build()), //
+					new EdgeConfig.Component("_power", "", "Ess.Power", JsonUtils.buildJsonObject() //
+							.addProperty("enablePid", false) //
+							.build()) //
 			);
 
 			if (EnumUtils.getAsOptionalBoolean(p, Property.HAS_DC_PV1).orElse(false)) {
@@ -332,6 +336,9 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 							.setProperties(JsonUtils.buildJsonObject() //
 									.addProperty(GridOptimizedCharge.Property.SELL_TO_GRID_LIMIT_ENABLED.name(),
 											!rippleControlReceiverActive) //
+									.onlyIf(t != VALIDATE, //
+											j -> j.addProperty(GridOptimizedCharge.Property.MODE.name(),
+													!rippleControlReceiverActive ? "AUTOMATIC" : "OFF")) //
 									.addProperty(GridOptimizedCharge.Property.MAXIMUM_SELL_TO_GRID_POWER.name(),
 											maxFeedInPower) //
 									.build())
@@ -429,6 +436,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.onlyShowIfNotChecked(Property.RIPPLE_CONTROL_RECEIVER_ACTIV) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(0) //
+								.setMin(0) //
 								.onlyIf(batteryInverter.isPresent(), f -> {
 									f.setDefaultValue(batteryInverter.get() //
 											.getProperty("feedPowerPara").get());
@@ -438,8 +446,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 										this.getAppId() + ".feedInSettings.label")) //
 								.isRequired(true) //
 								.setDefaultValue("UNDEFINED") //
-								.onlyShowIfNotChecked(Property.RIPPLE_CONTROL_RECEIVER_ACTIV) //
-								.setOptions(this.getFeedInSettingsOptions(), t -> t, t -> t) //
+								.setOptions(this.getFeedInSettingsOptions()) //
 								.onlyIf(batteryInverter.isPresent(), f -> {
 									f.setDefaultValue(batteryInverter.get() //
 											.getProperty("setfeedInPowerSettings") //
@@ -505,16 +512,13 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.setDefaultValue(emergencyReserveEnabled) //
 								.onlyShowIfChecked(Property.HAS_EMERGENCY_RESERVE) //
 								.build())
-						.add(JsonFormlyUtil.buildInput(Property.EMERGENCY_RESERVE_SOC) //
+						.add(JsonFormlyUtil.buildRange(Property.EMERGENCY_RESERVE_SOC) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".reserveEnergy.label")) //
-								.setInputType(Type.NUMBER) //
-								.setMin(0) //
+								.setMin(5) //
 								.setMax(100) //
 								.setDefaultValue(5) //
 								.onlyShowIfChecked(Property.EMERGENCY_RESERVE_ENABLED) //
-								// TODO only gets shown when toggling the checkbox 'EMERGENCY_RESERVE_ENABLED'
-								// twice
 								.onlyIf(emergencyReserveEnabled, f -> { //
 									f.setDefaultValue(
 											emergencyController.get().getProperty("reserveSoc").get().getAsNumber());
@@ -525,6 +529,11 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 										this.getAppId() + ".shadowManagementDisabled.label")) //
 								.setDescription(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".shadowManagementDisabled.description")) //
+								.onlyIf(batteryInverter.isPresent(), t -> {
+									batteryInverter.get().getProperty("mpptForShadowEnable").ifPresent(value -> {
+										t.setDefaultValue(value.getAsString().equals("DISABLE"));
+									});
+								}) //
 								.build())
 						.build()) //
 				.build();

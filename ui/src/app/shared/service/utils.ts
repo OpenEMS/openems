@@ -1,7 +1,8 @@
-import { formatDate, formatNumber } from '@angular/common';
+import { formatNumber } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
 
 export class Utils {
@@ -66,6 +67,19 @@ export class Utils {
     }
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
+  }
+
+  /**
+   * Safely gets the absolute value of a value.
+   * 
+   * @param value
+   */
+  public static absSafely(value: number | null): number | null {
+    if (value == null) {
+      return value;
+    } else {
+      return Math.abs(value);
+    }
   }
 
   /**
@@ -335,21 +349,24 @@ export class Utils {
       } else if (value === 'AUTOMATIC') {
         return translate.instant('General.automatic');
       } else {
-        console.log("value", value, value === 'AUTOMATIC')
         return '-';
       }
     }
   }
 
   /**
-   * Converts Minute from start of day to daytime
+   * Converts Minute from start of day to daytime in 'HH:mm' format.
    * 
-   * @param value the value to parse
    * @returns converted value
    */
-  public static CONVERT_MINUTE_TO_TIME_OF_DAY = (value: number): string => {
-    return formatDate(value * 60 * 1000, 'HH:mm', 'UTC') + ' h'
-  }
+  public static CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService) => {
+    return (value: number): string => {
+      var date: Date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setMinutes(value);
+      return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: '2-digit', minute: '2-digit' });
+    }
+  };
 
   /**
    * Converts Price to Cent per kWh [Cent / kWh]
@@ -495,5 +512,25 @@ export class Utils {
    */
   public static shuffleArray(array: any[]): any[] {
     return array.sort(() => Math.random() - 0.5)
+  }
+
+  /**
+   * Checks if multiple array elements exist in the source object.
+   * returns true only if all the elements in the array exist in the source Object.
+   * 
+   * @param arrayToCheck The array with elements that needs to be checked.
+   * @param source the source Object.
+   * @returns the value.
+   */
+  public static isArrayExistingInSource(arrayToCheck: string[], source: any): boolean {
+    return arrayToCheck.every(value => {
+      if (value in source) {
+        return true;
+      }
+    });
+  }
+
+  public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
+    return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true)
   }
 }

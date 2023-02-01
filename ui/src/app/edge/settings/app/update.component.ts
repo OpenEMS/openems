@@ -27,12 +27,12 @@ export class UpdateAppComponent implements OnInit {
   private static readonly SELECTOR = "appUpdate";
   public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
 
-  public instances: MyInstance[] = [];
-  public forms: FormGroup[] = [];
+  protected instances: MyInstance[] = [];
+  protected forms: FormGroup[] = [];
 
-  private edge: Edge = null;
+  private edge: Edge | null = null;
 
-  private appName: string;
+  protected appName: string | null = null;
 
   public constructor(
     private route: ActivatedRoute,
@@ -45,7 +45,8 @@ export class UpdateAppComponent implements OnInit {
   public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     let appId = this.route.snapshot.params["appId"];
-    this.service.setCurrentComponent("App " + appId, this.route).then(edge => {
+    let appName = this.route.snapshot.queryParams['name'];
+    this.service.setCurrentComponent(appName, this.route).then(edge => {
       this.edge = edge;
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
@@ -94,7 +95,7 @@ export class UpdateAppComponent implements OnInit {
     });
   }
 
-  public submit(instance: MyInstance) {
+  protected submit(instance: MyInstance) {
     instance.isUpdateting = true
     // remove alias field from properties
     let alias = instance.form.value["ALIAS"]
@@ -130,7 +131,7 @@ export class UpdateAppComponent implements OnInit {
       });
   }
 
-  public delete(instance: MyInstance) {
+  protected delete(instance: MyInstance) {
     instance.isDeleting = true
     this.edge.sendRequest(this.websocket,
       new ComponentJsonApiRequest({
