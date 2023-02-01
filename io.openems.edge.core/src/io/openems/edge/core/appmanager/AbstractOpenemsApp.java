@@ -29,6 +29,7 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
+import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.dependency.Dependency;
@@ -188,10 +189,9 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> //
 	 */
 	protected String getId(ConfigurationTarget t, EnumMap<PROPERTY, JsonElement> map, PROPERTY p, String defaultId) {
 		if (t == ConfigurationTarget.TEST) {
-			if (map.containsKey(p)) {
-				return map.get(p).getAsString() + p.name() + ":" + defaultId;
-			}
-			return p.name();
+			return EnumUtils.getAsOptionalString(map, p) //
+					.map(id -> id + p.name() + ":" + defaultId) //
+					.orElse(p.name());
 		}
 		return this.getValueOrDefault(map, p, defaultId);
 	}
