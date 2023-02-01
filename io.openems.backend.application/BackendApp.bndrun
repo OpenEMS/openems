@@ -10,8 +10,8 @@
 
 -runproperties: \
 	org.osgi.service.http.port=8079,\
-	openems.data.dir=c:/openems-backend-data,\
-	felix.cm.dir=c:/openems-backend-config,\
+	felix.cm.dir=c:/openems-backend/config,\
+	openems.data.dir=c:/openems-backend/data,\
 	org.apache.felix.eventadmin.Timeout=0,\
 	org.ops4j.pax.logging.DefaultServiceLog.level=INFO
 
