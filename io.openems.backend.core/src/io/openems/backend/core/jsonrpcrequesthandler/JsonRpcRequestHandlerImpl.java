@@ -26,7 +26,7 @@ import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse;
 import io.openems.backend.common.jsonrpc.response.GetEdgesStatusResponse.EdgeInfo;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
-import io.openems.backend.common.timedata.Timedata;
+import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
@@ -53,7 +53,7 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 	protected volatile Metadata metadata;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
-	private volatile Timedata timedata;
+	protected volatile TimedataManager timedataManager;
 
 	private final EdgeRpcRequestHandler edgeRpcRequestHandler;
 	protected Config config;
@@ -75,11 +75,6 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 
 	private void updateConfig(Config config) {
 		this.config = config;
-	}
-
-	// TODO remove eventually
-	protected Timedata getTimedata(String edgeId) {
-		return this.timedata;
 	}
 
 	/**
@@ -160,8 +155,8 @@ public class JsonRpcRequestHandlerImpl extends AbstractOpenemsBackendComponent i
 			// assure read permissions of this User for this Edge.
 			user.assertEdgeRoleIsAtLeast(GetEdgesStatusRequest.METHOD, edgeId, Role.GUEST);
 
-			var values = this.getTimedata(edgeId).getChannelValues(edgeId, request.getChannels());
-			for (var entry : values.entrySet()) {
+			var data = this.edgeWebsocket.getChannelValues(edgeId, request.getChannels());
+			for (var entry : data.entrySet()) {
 				response.addValue(edgeId, entry.getKey(), entry.getValue());
 			}
 		}

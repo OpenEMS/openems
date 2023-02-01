@@ -1,9 +1,13 @@
 package io.openems.backend.edgewebsocket;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
@@ -20,11 +24,14 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
-import io.openems.backend.common.timedata.Timedata;
+import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.backend.common.uiwebsocket.UiWebsocket;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -36,6 +43,7 @@ import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
@@ -61,7 +69,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	protected volatile Metadata metadata;
 
 	@Reference
-	protected volatile Timedata timedata;
+	protected volatile TimedataManager timedataManager;
 
 	@Reference
 	protected volatile EventAdmin eventAdmin;
@@ -257,5 +265,23 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
 			break;
 		}
+	}
+
+	@Override
+	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
+		Map<ChannelAddress, JsonElement> result = channelAddresses.stream() //
+				.collect(Collectors.toMap(Function.identity(), c -> JsonNull.INSTANCE));
+		var ws = this.getWebSocketForEdgeId(edgeId);
+		if (ws == null) {
+			return result;
+		}
+		var wsData = (WsData) ws.getAttachment();
+		if (wsData == null) {
+			return result;
+		}
+		for (var channelAddress : channelAddresses) {
+			result.put(channelAddress, wsData.edgeCache.getChannelValue(channelAddress.toString()));
+		}
+		return result;
 	}
 }
