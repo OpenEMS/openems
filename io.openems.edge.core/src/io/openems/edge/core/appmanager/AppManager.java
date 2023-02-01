@@ -12,9 +12,6 @@ import io.openems.edge.common.jsonapi.JsonApi;
  */
 public interface AppManager extends OpenemsComponent, JsonApi {
 
-	public static final String SINGLETON_SERVICE_PID = "Core.AppManager";
-	public static final String SINGLETON_COMPONENT_ID = "_appManager";
-
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		WRONG_APP_CONFIGURATION(Doc.of(Level.WARNING) //
 				.text("App-Manager configuration is wrong")), //
@@ -35,23 +32,18 @@ public interface AppManager extends OpenemsComponent, JsonApi {
 		}
 	}
 
-	/**
-	 * Gets the Channel for {@link ChannelId#WRONG_APP_CONFIGURATION}.
-	 *
-	 * @return the Channel
-	 */
-	public default StateChannel getWrongAppConfigurationChannel() {
-		return this.channel(ChannelId.WRONG_APP_CONFIGURATION);
-	}
+	public static final String SINGLETON_SERVICE_PID = "Core.AppManager";
+
+	public static final String SINGLETON_COMPONENT_ID = "_appManager";
 
 	/**
-	 * Gets the Wrong-App-Configuration Warning State. See
-	 * {@link ChannelId#WRONG_APP_CONFIGURATION}.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#DEFECTIVE_APP}
+	 * Channel.
 	 *
-	 * @return the Channel {@link Value}
+	 * @param value the next value
 	 */
-	public default Value<Boolean> getWrongAppConfiguration() {
-		return this.getWrongAppConfigurationChannel().value();
+	public default void _setDefectiveApp(boolean value) {
+		this.getDefectiveAppChannel().setNextValue(value);
 	}
 
 	/**
@@ -65,15 +57,6 @@ public interface AppManager extends OpenemsComponent, JsonApi {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#DEFECTIVE_APP}.
-	 *
-	 * @return the Channel
-	 */
-	public default StateChannel getDefectiveAppChannel() {
-		return this.channel(ChannelId.DEFECTIVE_APP);
-	}
-
-	/**
 	 * Gets the Defective-App Warning State. See {@link ChannelId#DEFECTIVE_APP}.
 	 *
 	 * @return the Channel {@link Value}
@@ -83,13 +66,31 @@ public interface AppManager extends OpenemsComponent, JsonApi {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#DEFECTIVE_APP}
-	 * Channel.
+	 * Gets the Channel for {@link ChannelId#DEFECTIVE_APP}.
 	 *
-	 * @param value the next value
+	 * @return the Channel
 	 */
-	public default void _setDefectiveApp(boolean value) {
-		this.getDefectiveAppChannel().setNextValue(value);
+	public default StateChannel getDefectiveAppChannel() {
+		return this.channel(ChannelId.DEFECTIVE_APP);
+	}
+
+	/**
+	 * Gets the Wrong-App-Configuration Warning State. See
+	 * {@link ChannelId#WRONG_APP_CONFIGURATION}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getWrongAppConfiguration() {
+		return this.getWrongAppConfigurationChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#WRONG_APP_CONFIGURATION}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getWrongAppConfigurationChannel() {
+		return this.channel(ChannelId.WRONG_APP_CONFIGURATION);
 	}
 
 }

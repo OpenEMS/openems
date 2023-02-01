@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,7 +35,7 @@ import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.core.host.NetworkInterface.Inet4AddressWithNetmask;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
@@ -47,7 +49,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	private static final Path UDEV_PATH = Paths.get("/etc/udev/rules.d/99-usb-serial.rules");
 
 	private static enum Block {
-		UNDEFINED, MATCH, NETWORK
+		UNDEFINED, MATCH, NETWORK, ADDRESS
 	}
 
 	private final HostImpl parent;
@@ -56,12 +58,6 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		this.parent = parent;
 	}
 
-	/**
-	 * Gets the current network configuration for systemd-networkd.
-	 *
-	 * @return the current network configuration
-	 * @throws OpenemsException on error
-	 */
 	@Override
 	public NetworkConfiguration getNetworkConfiguration() throws OpenemsNamedException {
 		var path = Paths.get(NETWORK_BASE_PATH).toFile();
@@ -99,15 +95,8 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		return new NetworkConfiguration(interfaces);
 	}
 
-	/**
-	 * Handles a SetNetworkConfigRequest for systemd-networkd.
-	 *
-	 * @param oldNetworkConfiguration the current/old network configuration
-	 * @param request                 the JSON-RPC request
-	 * @throws OpenemsException on error
-	 */
 	@Override
-	public void handleSetNetworkConfigRequest(NetworkConfiguration oldNetworkConfiguration,
+	public void handleSetNetworkConfigRequest(User user, NetworkConfiguration oldNetworkConfiguration,
 			SetNetworkConfigRequest request) throws OpenemsNamedException {
 		var isChanged = false;
 		var networkInterfaces = request.getNetworkInterface();
@@ -129,9 +118,12 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		// write configuration files
 		IOException writeException = null;
 		for (Entry<String, NetworkInterface<?>> entry : oldNetworkConfiguration.getInterfaces().entrySet()) {
+			if (!networkInterfaces.stream().anyMatch(i -> i.getName().equals(entry.getKey()))) {
+				continue;
+			}
 			NetworkInterface<?> iface = entry.getValue();
 			var file = (File) iface.getAttachment();
-			var lines = this.toFileFormat(iface);
+			var lines = this.toFileFormat(user, iface);
 			try {
 				Files.write(file.toPath(), lines, StandardCharsets.US_ASCII);
 			} catch (IOException e) {
@@ -188,31 +180,44 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	/**
 	 * Converts the NetworkInterface object to systemd-networkd file format.
 	 *
+	 * @param user  the User
 	 * @param iface the input network interface configuration
 	 * @return a list of strings for writing it to a file
+	 * @throws OpenemsNamedException on error
 	 */
-	private List<String> toFileFormat(NetworkInterface<?> iface) {
+	private List<String> toFileFormat(User user, NetworkInterface<?> iface) throws OpenemsNamedException {
 		List<String> result = new ArrayList<>();
+		result.add("# changedBy:" //
+				+ user.getName());
+		result.add("# changedAt:" //
+				+ LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString() //
+		);
 		result.add("[Match]");
 		result.add("Name=" + iface.getName());
 		result.add("");
 
 		result.add("[Network]");
-		if (iface.getDhcp().isSetAndNotNull()) {
-			result.add("DHCP=" + (iface.getDhcp().getValue() ? "yes" : "no"));
-		}
-		if (iface.getLinkLocalAddressing().isSetAndNotNull()) {
-			result.add("LinkLocalAddressing=" + (iface.getLinkLocalAddressing().getValue() ? "yes" : "no"));
-		}
 		if (iface.getGateway().isSetAndNotNull()) {
 			result.add("Gateway=" + iface.getGateway().getValue().getHostAddress());
+		}
+		if (iface.getDhcp().isSetAndNotNull()) {
+			result.add("DHCP=" + (iface.getDhcp().getValue() ? "yes" : "no"));
 		}
 		if (iface.getDns().isSetAndNotNull()) {
 			result.add("DNS=" + iface.getDns().getValue().getHostAddress());
 		}
+		if (iface.getLinkLocalAddressing().isSetAndNotNull()) {
+			result.add("LinkLocalAddressing=" + (iface.getLinkLocalAddressing().getValue() ? "yes" : "no"));
+		}
 		if (iface.getAddresses().isSetAndNotNull()) {
-			for (Inet4AddressWithNetmask address : iface.getAddresses().getValue()) {
+			for (var address : iface.getAddresses().getValue()) {
+				final var label = address.getLabel();
+				result.add("");
+				result.add("[Address]");
 				result.add("Address=" + address.toString());
+				if (!label.isBlank()) {
+					result.add("Label=" + label);
+				}
 			}
 		}
 		return result;
@@ -348,14 +353,19 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 		}
 	}
 
-	private static final Pattern MATCH_NAME = Pattern.compile("^Name=([a-zA-Z0-9*]+)$");
-	private static final Pattern NETWORK_ADDRESS = Pattern
+	private static final Pattern MATCH_NAME = Pattern //
+			.compile("^Name=([a-zA-Z0-9*]+)$");
+	private static final Pattern ADDRESS_LABEL = Pattern //
+			.compile("^Label=([a-zA-Z*]+)$");
+	private static final Pattern NETWORK_ADDRESS = Pattern //
 			.compile("^Address=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + "/\\d+)$");
-	private static final Pattern NETWORK_DHCP = Pattern.compile("^DHCP=(\\w+)$");
-	private static final Pattern NETWORK_LINK_LOCAL_ADDRESSING = Pattern.compile("^LinkLocalAddressing=(\\w+)$");
-	private static final Pattern NETWORK_GATEWAY = Pattern
+	private static final Pattern NETWORK_DHCP = Pattern //
+			.compile("^DHCP=(\\w+)$");
+	private static final Pattern NETWORK_LINK_LOCAL_ADDRESSING = Pattern //
+			.compile("^LinkLocalAddressing=(\\w+)$");
+	private static final Pattern NETWORK_GATEWAY = Pattern //
 			.compile("^Gateway=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
-	private static final Pattern NETWORK_DNS = Pattern
+	private static final Pattern NETWORK_DNS = Pattern //
 			.compile("^DNS=(" + NetworkConfiguration.PATTERN_INET4ADDRESS + ")$");
 
 	/**
@@ -377,16 +387,26 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			throws OpenemsNamedException {
 		var currentBlock = Block.UNDEFINED;
 		final var name = new AtomicReference<String>();
-		final var dhcp = new AtomicReference<ConfigurationProperty<Boolean>>(ConfigurationProperty.asNotSet());
-		final var linkLocalAddressing = new AtomicReference<ConfigurationProperty<Boolean>>(
+		final var dhcp = new AtomicReference<ConfigurationProperty<Boolean>>(//
 				ConfigurationProperty.asNotSet());
-		final var gateway = new AtomicReference<ConfigurationProperty<Inet4Address>>(ConfigurationProperty.asNotSet());
-		final var dns = new AtomicReference<ConfigurationProperty<Inet4Address>>(ConfigurationProperty.asNotSet());
-		final var addresses = new AtomicReference<ConfigurationProperty<Set<Inet4AddressWithNetmask>>>(
+		final var linkLocalAddressing = new AtomicReference<ConfigurationProperty<Boolean>>(//
 				ConfigurationProperty.asNotSet());
+		final var gateway = new AtomicReference<ConfigurationProperty<Inet4Address>>(//
+				ConfigurationProperty.asNotSet());
+		final var dns = new AtomicReference<ConfigurationProperty<Inet4Address>>(//
+				ConfigurationProperty.asNotSet());
+		final var addresses = new AtomicReference<ConfigurationProperty<Set<Inet4AddressWithSubnetmask>>>(//
+				ConfigurationProperty.asNotSet());
+
+		// holds the latest found address
+		final var tmpAddress = new AtomicReference<Inet4AddressWithSubnetmask>();
 
 		for (String line : lines) {
 			line = line.trim();
+			if (line.isBlank()) {
+				continue;
+			}
+
 			/*
 			 * Find current configuration block
 			 */
@@ -397,6 +417,10 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 					break;
 				case "[Network]":
 					currentBlock = Block.NETWORK;
+					break;
+				case "[Address]":
+					tmpAddress.set(null);
+					currentBlock = Block.ADDRESS;
 					break;
 				default:
 					currentBlock = Block.UNDEFINED;
@@ -415,14 +439,6 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				});
 				break;
 			case NETWORK:
-				onMatchString(NETWORK_ADDRESS, line, property -> {
-					var content = addresses.get().getValue();
-					if (content == null) {
-						content = new HashSet<>();
-					}
-					content.add(Inet4AddressWithNetmask.fromString(property));
-					addresses.set(ConfigurationProperty.of(content));
-				});
 				onMatchString(NETWORK_DHCP, line, property -> {
 					dhcp.set(ConfigurationProperty.of(property.toLowerCase().equals("yes")));
 				});
@@ -435,13 +451,52 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				onMatchInet4Address(NETWORK_DNS, line, property -> {
 					dns.set(ConfigurationProperty.of(property));
 				});
+				onMatchString(NETWORK_ADDRESS, line, property -> {
+					var addressDetails = addresses.get().getValue();
+					if (addressDetails == null) {
+						addressDetails = new HashSet<>();
+					}
+					addressDetails.add(Inet4AddressWithSubnetmask.fromString("" /* empty default label */, property));
+					addresses.set(ConfigurationProperty.of(addressDetails));
+				});
 				break;
 			case UNDEFINED:
+				break;
+			case ADDRESS:
+				onMatchString(NETWORK_ADDRESS, line, property -> {
+					// Storing here temporarily so that we can use it if when we find label.
+					var address = Inet4AddressWithSubnetmask.fromString("" /* empty default label */, property);
+					tmpAddress.set(address);
+
+					var addressDetails = addresses.get().getValue();
+					if (addressDetails == null) {
+						addressDetails = new HashSet<>();
+					}
+					// Add it with empty label now, later replace with label if we find one.
+					addressDetails.add(address);
+					addresses.set(ConfigurationProperty.of(addressDetails));
+				});
+				onMatchString(ADDRESS_LABEL, line, property -> {
+					// IP address contains Only static labels or with no labels.
+					var addressDetails = addresses.get().getValue();
+					var address = tmpAddress.get();
+					if (addressDetails == null || address == null) {
+						// ignore label
+						return;
+					}
+
+					// Replace the value with static or any other label in future.
+					addressDetails.remove(address);
+					address = new Inet4AddressWithSubnetmask(property, address.getInet4Address(),
+							address.getSubnetmaskAsCidr());
+					addressDetails.add(address);
+				});
+				break;
+			default:
 				break;
 			}
 		}
 		return new NetworkInterface<>(name.get(), //
 				dhcp.get(), linkLocalAddressing.get(), gateway.get(), dns.get(), addresses.get(), attachment);
 	}
-
 }

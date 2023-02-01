@@ -28,11 +28,15 @@ import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.AsymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Asymmetric.BalancingCosPhi", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Controller.Asymmetric.BalancingCosPhi", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 public class CosPhi extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public final static CosPhiDirection DEFAULT_DIRECTION = CosPhiDirection.CAPACITIVE;
-	public final static double DEFAULT_COS_PHI = 1d;
+	public static final CosPhiDirection DEFAULT_DIRECTION = CosPhiDirection.CAPACITIVE;
+	public static final double DEFAULT_COS_PHI = 1d;
 
 	private final Logger log = LoggerFactory.getLogger(CosPhi.class);
 

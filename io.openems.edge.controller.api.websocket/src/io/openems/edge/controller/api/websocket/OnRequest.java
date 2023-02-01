@@ -36,9 +36,9 @@ import io.openems.common.jsonrpc.response.AuthenticateResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.websocket.SubscribedChannelsWorker;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
@@ -208,7 +208,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	private CompletableFuture<JsonrpcResponseSuccess> handleAuthenticateWithPasswordRequest(WsData wsData,
 			AuthenticateWithPasswordRequest request) throws OpenemsNamedException {
 		return this.handleAuthentication(wsData, request.getId(),
-				this.parent.userService.authenticate(request.getPassword()), UUID.randomUUID().toString());
+				this.parent.userService.authenticate(request.password), UUID.randomUUID().toString());
 	}
 
 	/**
@@ -231,8 +231,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			this.parent.sessionTokens.put(token, user);
 			this.parent.logInfo(this.log, "User [" + user.getId() + ":" + user.getName() + "] connected.");
 
-			return CompletableFuture.completedFuture(
-					new AuthenticateResponse(requestId, token, user, Utils.getEdgeMetadata(user.getRole())));
+			return CompletableFuture.completedFuture(new AuthenticateResponse(requestId, token, user,
+					Utils.getEdgeMetadata(user.getRole()), Language.DEFAULT));
 		}
 		wsData.unsetUser();
 		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
@@ -249,9 +249,8 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeChannelsRequest(WsData wsData, User user,
 			SubscribeChannelsRequest request) throws OpenemsNamedException {
-		// activate SubscribedChannelsWorker
-		SubscribedChannelsWorker worker = wsData.getSubscribedChannelsWorker();
-		worker.handleSubscribeChannelsRequest(user.getRole(), request);
+		// Register subscription in WsData
+		wsData.handleSubscribeChannelsRequest(request);
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
@@ -302,8 +301,9 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricTimeseriesExportXlxsRequest(User user,
 			QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
-		return CompletableFuture.completedFuture(this.parent.getTimedata()
-				.handleQueryHistoricTimeseriesExportXlxsRequest(null /* ignore Edge-ID */, request));
+		return CompletableFuture.completedFuture(
+				this.parent.getTimedata().handleQueryHistoricTimeseriesExportXlxsRequest(null /* ignore Edge-ID */,
+						request, user.getLanguage()));
 	}
 
 	/**
@@ -417,7 +417,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// handle null response
 		if (responseFuture == null) {
-			OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getPayload().getMethod());
+			throw OpenemsError.JSONRPC_UNHANDLED_METHOD.exception(request.getPayload().getMethod());
 		}
 
 		// Wrap reply in new JsonrpcResponseSuccess

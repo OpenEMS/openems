@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -12,7 +12,7 @@ import { Data, TooltipItem } from '../shared';
     selector: 'consumptionMeterChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class ConsumptionMeterChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class ConsumptionMeterChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
@@ -26,13 +26,11 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("consumption-meter-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = "consumption-meter-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -42,7 +40,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.colors = [];
@@ -67,7 +65,7 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
                         return value / 1000; // convert to kW
                     }
                 });
-                if (address.channelId == "ActivePower") {
+                if (address.channelId == "ActivePower" && address.componentId == this.componentId) {
                     datasets.push({
                         label: this.translate.instant('General.consumption'),
                         data: activePowerData,
@@ -81,7 +79,8 @@ export class ConsumptionMeterChartComponent extends AbstractHistoryChart impleme
             })
             this.datasets = datasets;
             this.loading = false;
-            this.service.stopSpinner(this.spinnerId);
+            this.stopSpinner();
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

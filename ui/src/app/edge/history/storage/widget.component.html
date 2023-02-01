@@ -6,7 +6,7 @@
         <ion-label translate>General.storageSystem</ion-label>
     </ion-item>
     <ion-card-content>
-        <ng-container *ngIf="data && edge && service.isKwhAllowed(edge); else noData">
+        <ng-container *ngIf="data && edge; else noData">
             <table class="full_width">
                 <tr>
                     <td style="width:65%" translate>General.chargePower</td>

@@ -157,7 +157,7 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 	/**
 	 * Sets the Active Power Limit in [W]. See {@link ChannelId#ACTIVE_POWER_LIMIT}.
 	 *
-	 * @return the Channel
+	 * @param value the Integer value
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setActivePowerLimit(Integer value) throws OpenemsNamedException {
@@ -167,16 +167,22 @@ public interface ManagedSymmetricPvInverter extends SymmetricMeter, OpenemsCompo
 	/**
 	 * Sets the Active Power Limit in [W]. See {@link ChannelId#ACTIVE_POWER_LIMIT}.
 	 *
-	 * @return the Channel
+	 * @param value the int value
 	 * @throws OpenemsNamedException on error
 	 */
 	public default void setActivePowerLimit(int value) throws OpenemsNamedException {
 		this.getActivePowerLimitChannel().setNextWriteValue(value);
 	}
 
+	/**
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+	 * of this Component.
+	 *
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
+	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(ManagedSymmetricPvInverter.class, accessMode, 100) //
 				.build();
 	}
-
 }

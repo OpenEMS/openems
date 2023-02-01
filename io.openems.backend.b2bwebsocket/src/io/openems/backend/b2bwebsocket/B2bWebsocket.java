@@ -10,6 +10,9 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
@@ -20,6 +23,7 @@ import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -27,7 +31,10 @@ import io.openems.common.utils.ThreadPoolUtils;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class B2bWebsocket extends AbstractOpenemsBackendComponent {
+@EventTopics({ //
+		Metadata.Events.AFTER_IS_INITIALIZED //
+})
+public class B2bWebsocket extends AbstractOpenemsBackendComponent implements EventHandler {
 
 	public static final int DEFAULT_PORT = 8076;
 
@@ -51,20 +58,14 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 
 	private Config config;
 
-	private final Runnable startServerWhenMetadataIsInitialized = () -> {
-		this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
-	};
-
 	@Activate
 	private void activate(Config config) {
 		this.config = config;
-		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 	}
 
 	@Deactivate
 	private void deactivate() {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 5);
-		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
 		this.stopServer();
 	}
 
@@ -75,7 +76,7 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 	 * @param poolSize  number of threads dedicated to handle the tasks
 	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize, boolean debugMode) {
+	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
 		this.server = new WebsocketServer(this, this.getName(), port, poolSize, debugMode);
 		this.server.start();
 	}
@@ -97,5 +98,19 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent {
 	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case Metadata.Events.AFTER_IS_INITIALIZED:
+			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+			break;
+		}
 	}
 }

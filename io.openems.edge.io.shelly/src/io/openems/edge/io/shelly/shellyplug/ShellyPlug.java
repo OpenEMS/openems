@@ -4,19 +4,18 @@ import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
-import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.meter.api.SymmetricMeter;
 
-public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandler {
+public interface ShellyPlug extends DigitalOutput, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -41,17 +40,6 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 		RELAY(new BooleanDoc() //
 				.accessMode(AccessMode.READ_WRITE) //
 				.onInit(new BooleanWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_RELAY))), //
-		/**
-		 * Active Power.
-		 *
-		 * <ul>
-		 * <li>Interface: ShellyPlug
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * </ul>
-		 */
-		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)),
 		/**
 		 * Slave Communication Failed Fault.
 		 *
@@ -97,7 +85,7 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 	 *
 	 * @param value the next value
 	 */
-	public default void _setRelay(boolean value) {
+	public default void _setRelay(Boolean value) {
 		this.getRelayChannel().setNextValue(value);
 	}
 
@@ -109,45 +97,6 @@ public interface ShellyPlug extends DigitalOutput, OpenemsComponent, EventHandle
 	 */
 	public default void setRelay(boolean value) throws OpenemsNamedException {
 		this.getRelayChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getActivePowerChannel() {
-		return this.channel(ChannelId.ACTIVE_POWER);
-	}
-
-	/**
-	 * Gets the Active Power in [W]. Negative values for Charge; positive for
-	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getActivePower() {
-		return this.getActivePowerChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setActivePower(Integer value) {
-		this.getActivePowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setActivePower(int value) {
-		this.getActivePowerChannel().setNextValue(value);
 	}
 
 	/**

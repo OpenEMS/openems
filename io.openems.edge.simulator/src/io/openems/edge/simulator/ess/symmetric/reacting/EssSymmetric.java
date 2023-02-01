@@ -15,8 +15,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
@@ -41,15 +41,16 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.EssSymmetric.Reacting", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSymmetricEss, SymmetricEss,
 		OpenemsComponent, TimedataProvider, EventHandler, StartStoppable, ModbusSlave {
 
 	/**
-	 * Current Energy in the battery [Wms], based on SoC
+	 * Current Energy in the battery [Wms], based on SoC.
 	 */
 	private long energy = 0;
 
@@ -95,8 +96,8 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 				/ 100 * this.config.initialSoc() /* [current SoC] */);
 		this._setSoc(config.initialSoc());
 		this._setMaxApparentPower(config.maxApparentPower());
-		this._setAllowedChargePower(config.maxApparentPower() * -1);
-		this._setAllowedDischargePower(config.maxApparentPower());
+		this._setAllowedChargePower(config.capacity() * -1);
+		this._setAllowedDischargePower(config.capacity());
 		this._setGridMode(config.gridMode());
 		this._setCapacity(config.capacity());
 	}
@@ -132,7 +133,9 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().asString() //
-				+ "|L:" + this.getActivePower().asString();
+				+ "|L:" + this.getActivePower().asString() //
+				+ "|Allowed:" + this.getAllowedChargePower().asStringWithoutUnit() + ";"
+				+ this.getAllowedDischargePower().asString();
 	}
 
 	@Override
@@ -202,12 +205,12 @@ public class EssSymmetric extends AbstractOpenemsComponent implements ManagedSym
 		if (soc == 100) {
 			this._setAllowedChargePower(0);
 		} else {
-			this._setAllowedChargePower(this.config.maxApparentPower() * -1);
+			this._setAllowedChargePower(this.config.capacity() * -1);
 		}
 		if (soc == 0) {
 			this._setAllowedDischargePower(0);
 		} else {
-			this._setAllowedDischargePower(this.config.maxApparentPower());
+			this._setAllowedDischargePower(this.config.capacity());
 		}
 	}
 

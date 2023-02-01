@@ -40,9 +40,9 @@ public class DummyTimeOfUseTariffProvider implements TimeOfUseTariff {
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		// return null if the dateTime is empty.
+		// return empty TimeOfUsePrice if the dateTime is empty.
 		if (this.prices.getUpdateTime() == null) {
-			return null;
+			return TimeOfUsePrices.empty(ZonedDateTime.now());
 		}
 		return this.prices;
 	}

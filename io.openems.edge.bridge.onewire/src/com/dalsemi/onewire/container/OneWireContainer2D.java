@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2004 Maxim Integrated Products, All Rights Reserved.
  *
@@ -345,3 +346,4 @@ public class OneWireContainer2D extends OneWireContainer {
 		}
 	}
 }
+// CHECKSTYLE:ON

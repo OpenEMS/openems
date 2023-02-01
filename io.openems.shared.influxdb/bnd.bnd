@@ -6,10 +6,10 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
-	io.openems.wrapper.influxdb-client,\
+	io.openems.wrapper.influxdb-client-core,\
+	io.openems.wrapper.influxdb-client-java,\
+	io.openems.wrapper.influxdb-flux-dsl,\
 	io.openems.wrapper.okhttp,\
-	io.projectreactor.reactor-core;version='3.3.13',\
-	javax.ws.rs-api;version='2.1.99',\
-	io.reactivex.rxjava2.rxjava
+
 -testpath: \
 	${testpath},\

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { MenuController, ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
@@ -12,7 +12,7 @@ import { StatusSingleComponent } from '../status/single/status.component';
     selector: 'header',
     templateUrl: './header.component.html'
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     @ViewChild(PickDateComponent, { static: false }) PickDateComponent: PickDateComponent
 
@@ -113,6 +113,12 @@ export class HeaderComponent {
         if (file === 'live') {
             urlArray.pop();
         }
+
+        // fix url for App "settings/app/install" and "settings/app/update"
+        if (urlArray.slice(-3, -1).join('/') === "settings/app") {
+            urlArray.pop();
+        }
+
         // re-join the url
         backUrl = urlArray.join('/') || '/';
 

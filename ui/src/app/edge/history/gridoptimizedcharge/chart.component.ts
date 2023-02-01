@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { differenceInDays } from 'date-fns';
@@ -13,26 +13,25 @@ import { ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, TooltipItem } from '../
   selector: 'gridOptimizedChargeChart',
   templateUrl: '../abstracthistorychart.html'
 })
-export class GridOptimizedChargeChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class GridOptimizedChargeChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public component: EdgeConfig.Component;
 
   ngOnChanges() {
     this.updateChart();
-  };
+  }
 
   constructor(
     protected service: Service,
     protected translate: TranslateService,
     private route: ActivatedRoute,
   ) {
-    super(service, translate);
+    super("gridOptimizedCharge-chart", service, translate);
   }
 
   ngOnInit() {
-    this.spinnerId = 'gridOptimizedCharge-chart';
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.service.setCurrentComponent('', this.route);
     this.setLabel()
   }
@@ -43,7 +42,7 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
 
   protected updateChart() {
     this.autoSubscribeChartRefresh();
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -171,12 +170,14 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart impl
         }
         this.datasets = datasets;
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+        this.stopSpinner();
+
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
         return;
       });
+
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();

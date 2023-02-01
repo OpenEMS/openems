@@ -11,9 +11,12 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import eu.chargetime.ocpp.model.Request;
@@ -29,21 +32,24 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.MeasuringEvcs;
-import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.api.Phases;
+import io.openems.edge.evcs.ocpp.common.AbstractManagedOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 import io.openems.edge.evcs.ocpp.common.OcppProfileType;
 import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
+import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
-@Component( //
+@Component(//
 		name = "Evcs.Ocpp.Abl", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-		})
-public class Abl extends AbstractOcppEvcsComponent
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
+public class Abl extends AbstractManagedOcppEvcsComponent
 		implements Evcs, MeasuringEvcs, ManagedEvcs, OpenemsComponent, EventHandler {
 
 	// Default value for the hardware limit
@@ -59,12 +65,15 @@ public class Abl extends AbstractOcppEvcsComponent
 	 * all of them, but in particular it is not supporting the information of the
 	 * current power.
 	 */
-	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<>( //
-			Arrays.asList( //
+	private static final HashSet<OcppInformations> MEASUREMENTS = new HashSet<>(//
+			Arrays.asList(//
 					OcppInformations.values()) //
 	);
 
 	private Config config;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -73,17 +82,17 @@ public class Abl extends AbstractOcppEvcsComponent
 	protected ComponentManager componentManager;
 
 	public Abl() {
-		super( //
+		super(//
 				PROFILE_TYPES, //
 				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
-				AbstractOcppEvcsComponent.ChannelId.values(), //
+				AbstractManagedOcppEvcsComponent.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), MeasuringEvcs.ChannelId.values() //
 		);
 	}
 
 	@Activate
-	public void activate(ComponentContext context, Config config) {
+	protected void activate(ComponentContext context, Config config) {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
@@ -107,40 +116,34 @@ public class Abl extends AbstractOcppEvcsComponent
 	}
 
 	@Override
-	public Integer getConfiguredMaximumHardwarePower() {
-		// TODO: Set dynamically. Problem: No phases calculation possible.
-		return (int) (this.config.maxHwCurrent() / 1000.0) * 230 * 3;
-	}
-
-	@Override
-	public Integer getConfiguredMinimumHardwarePower() {
-		// TODO: Set dynamically. Problem: No phases calculation possible.
-		return (int) (this.config.minHwCurrent() / 1000.0) * 230 * 3;
-	}
-
-	@Override
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
 	}
 
 	@Override
 	public OcppStandardRequests getStandardRequests() {
-		AbstractOcppEvcsComponent evcs = this;
+		AbstractManagedOcppEvcsComponent evcs = this;
 
-		return chargePower -> {
+		return new OcppStandardRequests() {
 
-			var request = new DataTransferRequest("ABL");
+			@Override
+			public Request setChargePowerLimit(int chargePower) {
+				var request = new DataTransferRequest("ABL");
+				var phases = evcs.getPhasesAsInt();
+				var target = Math.round(chargePower / phases / 230.0);
+				var maxCurrent = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT) / phases / 230;
 
-			int phases = evcs.getPhases().orElse(3);
+				target = target > maxCurrent ? maxCurrent : target;
+				request.setMessageId("SetLimit");
+				request.setData("logicalid=" + Abl.this.config.limitId() + ";value=" + String.valueOf(target));
+				return request;
+			}
 
-			var target = Math.round(chargePower / phases / 230.0) /* voltage */ ;
-
-			var maxCurrent = evcs.getMaximumHardwarePower().orElse(DEFAULT_HARDWARE_LIMIT) / phases / 230;
-			target = target > maxCurrent ? maxCurrent : target;
-
-			request.setMessageId("SetLimit");
-			request.setData("logicalid=" + Abl.this.config.limitId() + ";value=" + String.valueOf(target));
-			return request;
+			@Override
+			public Request setDisplayText(String text) {
+				// Feature not supported
+				return null;
+			}
 		};
 	}
 
@@ -184,6 +187,32 @@ public class Abl extends AbstractOcppEvcsComponent
 
 	@Override
 	public boolean returnsSessionEnergy() {
+		// TODO: Not tested for now
 		return false;
+	}
+
+	@Override
+	public boolean getConfiguredDebugMode() {
+		return false;
+	}
+
+	@Override
+	public int getConfiguredMinimumHardwarePower() {
+		return Math.round(this.config.minHwCurrent() / 1000f) * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
+	}
+
+	@Override
+	public int getConfiguredMaximumHardwarePower() {
+		return Math.round(this.config.maxHwCurrent() / 1000f) * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
+	}
+
+	@Override
+	public int getMinimumTimeTillChargingLimitTaken() {
+		return 30;
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

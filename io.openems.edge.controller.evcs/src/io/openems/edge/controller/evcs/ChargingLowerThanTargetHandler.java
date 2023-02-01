@@ -78,7 +78,7 @@ public class ChargingLowerThanTargetHandler {
 	 * Returns the calculated maximum charge power depending on the current charge
 	 * power and the current maximum charge power.
 	 *
-	 * @param chargingPower current charge power
+	 * @param currentChargePower current charge power
 	 * @return the current charge power or one of the past charge power values
 	 */
 	private Integer calculateMaximumPower(int currentChargePower) {

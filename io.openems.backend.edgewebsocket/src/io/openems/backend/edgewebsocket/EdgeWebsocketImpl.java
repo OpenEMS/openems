@@ -1,6 +1,9 @@
 package io.openems.backend.edgewebsocket;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
 import org.osgi.service.component.annotations.Activate;
@@ -9,6 +12,10 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +36,8 @@ import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.jsonrpc.request.AuthenticatedRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
+import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -36,19 +45,26 @@ import io.openems.common.jsonrpc.response.AuthenticatedRpcResponse;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		immediate = true //
 )
-public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket {
+@EventTopics({ //
+		Metadata.Events.AFTER_IS_INITIALIZED //
+})
+public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implements EdgeWebsocket, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocketImpl.class);
 
 	private WebsocketServer server = null;
 
 	private final SystemLogHandler systemLogHandler;
+	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
 
 	@Reference
 	protected volatile Metadata metadata;
 
 	@Reference
 	protected volatile Timedata timedata;
+
+	@Reference
+	protected volatile EventAdmin eventAdmin;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
 	protected volatile UiWebsocket uiWebsocket;
@@ -60,19 +76,20 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 
 	private Config config;
 
-	private final Runnable startServerWhenMetadataIsInitialized = () -> {
-		this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
-	};
-
 	@Activate
 	private void activate(Config config) {
 		this.config = config;
-		this.metadata.addOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
+		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
+			this.log.info(new StringBuilder("[monitor] ") //
+					.append("Edge-Connections: ")
+					.append(this.server != null ? this.server.getConnections().size() : "initializing") //
+					.toString());
+		}, 10, 10, TimeUnit.SECONDS);
 	}
 
 	@Deactivate
 	private void deactivate() {
-		this.metadata.removeOnIsInitializedListener(this.startServerWhenMetadataIsInitialized);
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		this.stopServer();
 	}
 
@@ -83,7 +100,7 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @param poolSize  number of threads dedicated to handle the tasks
 	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize, boolean debugMode) {
+	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
 		this.server = new WebsocketServer(this, this.getName(), port, poolSize, debugMode);
 		this.server.start();
 	}
@@ -104,6 +121,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @return true if it is online
 	 */
 	protected boolean isOnline(String edgeId) {
+		if (this.server == null) {
+			return false;
+		}
 		return this.server.isOnline(edgeId);
 	}
 
@@ -157,6 +177,9 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @return the WebSocket connection
 	 */
 	private final WebSocket getWebSocketForEdgeId(String edgeId) {
+		if (this.server == null) {
+			return null;
+		}
 		for (WebSocket ws : this.server.getConnections()) {
 			WsData wsData = ws.getAttachment();
 			var wsEdgeIdOpt = wsData.getEdgeId();
@@ -172,9 +195,42 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 		super.logInfo(log, message);
 	}
 
+	/**
+	 * Logs a info message with Edge-ID.
+	 * 
+	 * @param log     the {@link Logger}
+	 * @param edgeId  the Edge-ID
+	 * @param message the message
+	 */
+	protected void logInfo(Logger log, String edgeId, String message) {
+		if (edgeId == null) {
+			edgeId = "UNKNOWN";
+		}
+		super.logInfo(log, "[" + edgeId + "] " + message);
+	}
+
 	@Override
 	protected void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
+	}
+
+	/**
+	 * Logs a warning message with Edge-ID.
+	 * 
+	 * @param log     the {@link Logger}
+	 * @param edgeId  the Edge-ID
+	 * @param message the message
+	 */
+	protected void logWarn(Logger log, String edgeId, String message) {
+		if (edgeId == null) {
+			edgeId = "UNKNOWN";
+		}
+		super.logWarn(log, "[" + edgeId + "] " + message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
 	}
 
 	@Override
@@ -191,6 +247,15 @@ public class EdgeWebsocketImpl extends AbstractOpenemsBackendComponent implement
 	 * @param notification the SystemLogNotification
 	 */
 	public void handleSystemLogNotification(String edgeId, SystemLogNotification notification) {
-		this.systemLogHandler.handleSystemLogNotification(edgeId, null, notification);
+		this.systemLogHandler.handleSystemLogNotification(edgeId, notification);
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case Metadata.Events.AFTER_IS_INITIALIZED:
+			this.startServer(this.config.port(), this.config.poolSize(), this.config.debugMode());
+			break;
+		}
 	}
 }

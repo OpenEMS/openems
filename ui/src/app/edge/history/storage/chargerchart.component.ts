@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -11,8 +11,7 @@ import { Data, TooltipItem } from '../shared';
     selector: 'storageChargerChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class StorageChargerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
-
+export class StorageChargerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
@@ -26,15 +25,13 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     constructor(
         protected service: Service,
         protected translate: TranslateService,
-        private route: ActivatedRoute,
+        private route: ActivatedRoute
     ) {
-        super(service, translate);
+        super("storage-charger-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = "storage-charger-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -44,7 +41,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.colors = [];
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -82,7 +79,8 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
             })
             this.datasets = datasets;
             this.loading = false;
-            this.service.stopSpinner(this.spinnerId);
+            this.stopSpinner();
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

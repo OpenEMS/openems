@@ -1,4 +1,3 @@
-import { is } from 'date-fns/locale';
 import { ChannelAddress } from '../type/channeladdress';
 import { Widgets } from '../type/widget';
 import { Edge } from './edge';
@@ -262,9 +261,8 @@ export class EdgeConfig {
         }
         // Do we have a Meter with type PRODUCTION?
         for (let component of this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")) {
-            if (component.isEnabled) {
-
-                return this.isProducer(component);
+            if (component.isEnabled && this.isProducer(component)) {
+                return true;
             }
         }
         return false;
@@ -316,6 +314,29 @@ export class EdgeConfig {
                 case 'GoodWe.EmergencyPowerMeter':
                     return true;
             }
+        }
+        return false;
+    }
+
+    /**
+     * Is the given Meter of type 'GRID'?
+     * 
+     * @param component the Meter Component
+     * @returns true for GRID
+     */
+    public isTypeGrid(component: EdgeConfig.Component) {
+        if (component.properties["type"] == "GRID") {
+            return true;
+        }
+
+        switch (component.factoryId) {
+            case 'GoodWe.Grid-Meter':
+            case 'Kaco.BlueplanetHybrid10.GridMeter':
+            case 'Fenecon.Dess.GridMeter':
+            case 'Fenecon.Mini.GridMeter':
+            case 'Kostal.Piko.GridMeter':
+            case 'SolarEdge.Grid-Meter':
+                return true;
         }
         return false;
     }
@@ -575,6 +596,7 @@ export module EdgeConfig {
         public readonly accessMode: "RO" | "RW" | "WO";
         public readonly unit: string;
         public readonly category: "OPENEMS_TYPE" | "ENUM" | "STATE";
+        public readonly level: "INFO" | "OK" | "WARNING" | "FAULT";
     }
 
     export class Component {

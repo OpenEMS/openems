@@ -1,16 +1,16 @@
-import { ChangeDetectorRef, Directive, Inject, Input, OnDestroy } from "@angular/core";
+import { ChangeDetectorRef, Directive, Inject, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
-import { Icon } from "../../type/widget";
+import { Role } from "../../type/role";
 
 @Directive()
-export abstract class AbstractModalLine implements OnDestroy {
+export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges {
 
     /** FormGroup */
     @Input() formGroup: FormGroup;
@@ -18,7 +18,7 @@ export abstract class AbstractModalLine implements OnDestroy {
     /** component */
     @Input() component: EdgeConfig.Component = null;
 
-    /** Component-Properties ControlName */
+    /** FormGroup ControlName */
     @Input() controlName: string;
 
     /**
@@ -31,11 +31,9 @@ export abstract class AbstractModalLine implements OnDestroy {
     converter = (value: any): string => { return value }
 
     /** Name for parameter, displayed on the left side*/
-    @Input()
-    name: string;
-
-    /** value defines value of the parameter, displayed on the right */
-    @Input() value: number;
+    @Input() name: string;
+    @Input() value: number | string;
+    @Input() roleIsAtLeast?: Role = Role.GUEST;
 
     /** Channel defines the channel, you need for this line */
     @Input()
@@ -50,9 +48,15 @@ export abstract class AbstractModalLine implements OnDestroy {
      * displayValue is the displayed @Input value in html
      */
     public displayValue: string = null;
+
+    /** Checks if any value of this line can be seen => hides line if false */
+    protected isAllowedToBeSeen: boolean = true;
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
+
+    protected readonly Role = Role;
+    protected readonly Utils = Utils;
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -108,21 +112,31 @@ export abstract class AbstractModalLine implements OnDestroy {
     }
 
     /** value defines value of the parameter, displayed on the right */
-    protected setValue(value: any) {
-        this.displayValue = this.converter(value);
+    protected setValue(value: number | string) {
+        this.displayValue = this.converter(value)
     }
 
     /** Subscribe on HTML passed Channels */
     protected subscribe(channelAddress: ChannelAddress) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
-            edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
 
-            // call onCurrentData() with latest data
-            edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                this.setValue(currentData.channel[channelAddress.toString()]);
-            });
-        });
+            // Check if user is allowed to see these channel-values
+            if (this.edge.roleIsAtLeast(this.roleIsAtLeast)) {
+                this.isAllowedToBeSeen = true;
+                edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
+
+                // call onCurrentData() with latest data
+                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                    if (currentData.channel[channelAddress.toString()] != null) {
+                        this.setValue(currentData.channel[channelAddress.toString()])
+                    }
+                });
+            } else {
+                this.isAllowedToBeSeen = false;
+            }
+        })
+
     }
 
     public ngOnDestroy() {

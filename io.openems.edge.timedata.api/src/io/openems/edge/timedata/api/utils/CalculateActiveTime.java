@@ -119,7 +119,7 @@ public class CalculateActiveTime {
 	/**
 	 * Calculate the active time.
 	 *
-	 * @param isActive
+	 * @param isActive currently active?
 	 */
 	private void calculateActiveTime(boolean isActive) {
 		if (this.lastTimestamp != null && this.lastStoredActiveTime != null && this.lastIsActive && isActive) {

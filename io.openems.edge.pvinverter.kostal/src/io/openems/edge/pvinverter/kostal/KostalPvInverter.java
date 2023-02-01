@@ -31,9 +31,11 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
+import io.openems.edge.pvinverter.sunspec.Phase;
 import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -45,8 +47,9 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 				"type=PRODUCTION" //
 		})
-public class KostalPvInverter extends AbstractSunSpecPvInverter implements SunSpecPvInverter,
-		ManagedSymmetricPvInverter, SymmetricMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
+public class KostalPvInverter extends AbstractSunSpecPvInverter
+		implements SunSpecPvInverter, ManagedSymmetricPvInverter, AsymmetricMeter, SymmetricMeter, ModbusComponent,
+		OpenemsComponent, EventHandler, ModbusSlave {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) // from 40003
@@ -71,6 +74,7 @@ public class KostalPvInverter extends AbstractSunSpecPvInverter implements SunSp
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				SymmetricMeter.ChannelId.values(), //
+				AsymmetricMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				SunSpecPvInverter.ChannelId.values() //
 		);
@@ -85,7 +89,7 @@ public class KostalPvInverter extends AbstractSunSpecPvInverter implements SunSp
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
+				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK, Phase.ALL)) {
 			return;
 		}
 	}

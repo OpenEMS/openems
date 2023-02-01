@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import eu.chargetime.ocpp.AuthenticationException;
 import eu.chargetime.ocpp.JSONServer;
 import eu.chargetime.ocpp.NotConnectedException;
 import eu.chargetime.ocpp.OccurenceConstraintException;
@@ -31,7 +32,7 @@ import eu.chargetime.ocpp.model.core.ChangeAvailabilityRequest;
 import eu.chargetime.ocpp.model.core.GetConfigurationConfirmation;
 import eu.chargetime.ocpp.model.core.GetConfigurationRequest;
 import eu.chargetime.ocpp.model.core.KeyValueType;
-import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.common.AbstractManagedOcppEvcsComponent;
 
 public class MyJsonServer {
 
@@ -73,8 +74,11 @@ public class MyJsonServer {
 	/**
 	 * Starting the OCPP Server. Responds to every connecting/disconnecting charging
 	 * station.
+	 * 
+	 * @param ip   the IP address
+	 * @param port the port
 	 */
-	public void activate(String ip, int port) {
+	protected void activate(String ip, int port) {
 
 		this.server.open(ip, port, new ServerEvents() {
 
@@ -95,7 +99,7 @@ public class MyJsonServer {
 				}
 				MyJsonServer.this.parent.activeEvcsSessions.put(sessionIndex, presentEvcss);
 
-				for (AbstractOcppEvcsComponent evcs : presentEvcss) {
+				for (AbstractManagedOcppEvcsComponent evcs : presentEvcss) {
 					evcs.newSession(MyJsonServer.this.parent, sessionIndex);
 					MyJsonServer.this.sendInitialRequests(sessionIndex, evcs);
 				}
@@ -109,7 +113,7 @@ public class MyJsonServer {
 						new ArrayList<>());
 
 				if (sessionEvcss != null) {
-					for (AbstractOcppEvcsComponent ocppEvcs : sessionEvcss) {
+					for (AbstractManagedOcppEvcsComponent ocppEvcs : sessionEvcss) {
 						ocppEvcs.lostSession();
 					}
 				}
@@ -124,10 +128,16 @@ public class MyJsonServer {
 				MyJsonServer.this.parent.ocppSessions.remove(ocppId);
 				MyJsonServer.this.parent.activeEvcsSessions.remove(sessionIndex);
 			}
+
+			@Override
+			public void authenticateSession(SessionInformation arg0, String arg1, byte[] arg2)
+					throws AuthenticationException {
+				MyJsonServer.this.logDebug("authenticateSession " + arg0 + "; " + arg1);
+			}
 		});
 	}
 
-	public void deactivate() {
+	protected void deactivate() {
 		this.server.close();
 	}
 
@@ -172,7 +182,7 @@ public class MyJsonServer {
 	 * @param sessionIndex given session
 	 * @param ocppEvcs     given evcs
 	 */
-	protected void sendInitialRequests(UUID sessionIndex, AbstractOcppEvcsComponent ocppEvcs) {
+	protected void sendInitialRequests(UUID sessionIndex, AbstractManagedOcppEvcsComponent ocppEvcs) {
 		// Setting the Evcss of this session id to available
 		var changeAvailabilityRequest = new ChangeAvailabilityRequest(ocppEvcs.getConfiguredConnectorId(),
 				AvailabilityType.Operative);
@@ -193,11 +203,11 @@ public class MyJsonServer {
 	 *
 	 * @param evcss given evcss
 	 */
-	protected void sendPermanentRequests(List<AbstractOcppEvcsComponent> evcss) {
+	protected void sendPermanentRequests(List<AbstractManagedOcppEvcsComponent> evcss) {
 		if (evcss == null) {
 			return;
 		}
-		for (AbstractOcppEvcsComponent ocppEvcs : evcss) {
+		for (AbstractManagedOcppEvcsComponent ocppEvcs : evcss) {
 			var requiredRequests = ocppEvcs.getRequiredRequestsDuringConnection();
 			for (Request request : requiredRequests) {
 				this.sendDefault(ocppEvcs.getSessionId(), request);

@@ -47,7 +47,7 @@ public class StringWriteChannel extends StringReadChannel implements WriteChanne
 	/**
 	 * Internal method. Do not call directly.
 	 *
-	 * @param value
+	 * @param value the value as {@link String}
 	 */
 	@Deprecated
 	@Override

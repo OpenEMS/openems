@@ -31,6 +31,7 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 		// - customeredit values -> this.api.sendGetRequest("/customer.json");
 		// - rfidtags -> this.api.sendGetRequest("/rfidtags.json");
 		// - chargelogs -> this.api.sendGetRequest("/chargelogs.json");
+		// - Read separate saliaconf.json and set minimum and maximum dynamically
 
 		var json = this.parent.api.sendGetRequest("/api");
 		if (json == null) {
@@ -114,9 +115,6 @@ public class HardyBarthReadWorker extends AbstractCycleWorker {
 		if (phases != null) {
 			this.parent.debugLog("Used phases: " + phases);
 		}
-
-		this.parent._setMinimumHardwarePower(this.parent.config.minHwCurrent() / 1000 * 3 * 230);
-		this.parent._setMaximumHardwarePower(this.parent.config.maxHwCurrent() / 1000 * 3 * 230);
 
 		// CHARGE_POWER
 		var chargePowerLong = (Long) this.getValueFromJson(Evcs.ChannelId.CHARGE_POWER, json, value -> {

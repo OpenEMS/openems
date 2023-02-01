@@ -5,8 +5,10 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
+import { Role } from "../../type/role";
+import { TextIndentation } from "./modal-line/modal-line";
 
 @Directive()
 export abstract class AbstractModal implements OnInit, OnDestroy {
@@ -18,6 +20,14 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
     public config: EdgeConfig = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
     public formGroup: FormGroup | null = null;
+
+    /** Enum for User Role */
+    public readonly Role = Role;
+
+    /** Enum for Indentation */
+    public readonly TextIndentation = TextIndentation;
+
+    public readonly Utils = Utils;
 
     private selector: string = uuidv4();
 
@@ -45,37 +55,39 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 this.config = config;
 
                 // If component is passed
+                let channelAddresses: ChannelAddress[] = [];
+
+                // get the channel addresses that should be subscribed
+                channelAddresses = this.getChannelAddresses();
                 if (this.component != null) {
                     this.component = config.components[this.component.id];
 
-                    // get the channel addresses that should be subscribed
-                    let channelAddresses: ChannelAddress[] = this.getChannelAddresses();
                     let channelIds = this.getChannelIds();
                     for (let channelId of channelIds) {
                         channelAddresses.push(new ChannelAddress(this.component.id, channelId));
                     }
-                    if (channelAddresses.length != 0) {
-                        this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
-                    }
-
-                    // call onCurrentData() with latest data
-                    edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                        let allComponents = {};
-                        let thisComponent = {};
-                        for (let channelAddress of channelAddresses) {
-                            let ca = channelAddress.toString();
-                            allComponents[ca] = currentData.channel[ca];
-                            if (channelAddress.componentId === this.component.id) {
-                                thisComponent[channelAddress.channelId] = currentData.channel[ca];
-                            }
-                        }
-                        this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
-                    });
-                    this.formGroup = this.getFormGroup();
-
-                    // announce initialized
-                    this.isInitialized = true;
                 }
+                if (channelAddresses.length != 0) {
+                    this.edge.subscribeChannels(this.websocket, this.selector, channelAddresses);
+                }
+
+                // call onCurrentData() with latest data
+                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                    let allComponents = {};
+                    let thisComponent = {};
+                    for (let channelAddress of channelAddresses) {
+                        let ca = channelAddress.toString();
+                        allComponents[ca] = currentData.channel[ca];
+                        if (channelAddress.componentId === this.component?.id) {
+                            thisComponent[channelAddress.channelId] = currentData.channel[ca];
+                        }
+                    }
+                    this.onCurrentData({ thisComponent: thisComponent, allComponents: allComponents });
+                });
+                this.formGroup = this.getFormGroup();
+
+                // announce initialized
+                this.isInitialized = true;
             });
         });
     };
@@ -113,6 +125,6 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
 
     /** Gets the FormGroup of the current Component */
     protected getFormGroup(): FormGroup | null {
-        return null;
+        return null
     }
 }

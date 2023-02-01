@@ -29,6 +29,7 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Phase;
+import io.openems.edge.controller.io.heatingelement.enums.Status;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -119,18 +120,22 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		Status runState = Status.UNDEFINED;
+
 		// Handle Mode AUTOMATIC, MANUAL_OFF or MANUAL_ON
 		switch (this.config.mode()) {
 		case AUTOMATIC:
-			this.modeAutomatic();
+			runState = this.modeAutomatic();
 			break;
 
 		case MANUAL_OFF:
 			this.modeManualOff();
+			runState = Status.INACTIVE;
 			break;
 
 		case MANUAL_ON:
 			this.modeManualOn();
+			runState = Status.ACTIVE;
 			break;
 		}
 
@@ -141,6 +146,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		var totalPhaseTime = phase1Time + phase2Time + phase3Time;
 
 		// Update Channels
+		this.channel(ControllerHeatingElement.ChannelId.STATUS).setNextValue(runState);
 		this.channel(ControllerHeatingElement.ChannelId.PHASE1_TIME).setNextValue(phase1Time);
 		this.channel(ControllerHeatingElement.ChannelId.PHASE2_TIME).setNextValue(phase2Time);
 		this.channel(ControllerHeatingElement.ChannelId.PHASE3_TIME).setNextValue(phase3Time);
@@ -176,14 +182,16 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	/**
 	 * Handle Mode "Automatic".
 	 *
+	 * @return run state
 	 * @throws IllegalArgumentException on error.
 	 * @throws OpenemsNamedException    on error.
 	 */
-	protected void modeAutomatic() throws IllegalArgumentException, OpenemsNamedException {
+	protected Status modeAutomatic() throws IllegalArgumentException, OpenemsNamedException {
 		// Get the input channel addresses
 		IntegerReadChannel gridActivePowerChannel = this.sum.channel(Sum.ChannelId.GRID_ACTIVE_POWER);
 		int gridActivePower = gridActivePowerChannel.value().getOrError();
 		IntegerReadChannel essDischargePowerChannel = this.sum.getEssDischargePowerChannel();
+
 		int essDischargePower = essDischargePowerChannel.value().orElse(0 /* if there is no storage */);
 		if (essDischargePower < 0) { // we are only interested in discharging, not charging
 			essDischargePower = 0;
@@ -209,25 +217,41 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 			targetLevel = Level.LEVEL_0;
 		}
 
-		// Do we need to force-heat?
+		// Apply hysteresis
+		targetLevel = this.applyHysteresis(targetLevel);
+
+		Status runState;
+		runState = targetLevel.equals(Level.LEVEL_0) || targetLevel.equals(Level.UNDEFINED) ? Status.INACTIVE
+				: Status.ACTIVE;
+
 		var now = LocalTime.now(this.componentManager.getClock());
 		var configuredEndTime = LocalTime.parse(this.config.endTime());
 		var latestForceChargeStartTime = this.calculateLatestForceHeatingStartTime();
-		if (now.isAfter(latestForceChargeStartTime) && now.isBefore(configuredEndTime)) {
-			if (targetLevel.getValue() < this.config.defaultLevel().getValue()) {
-				targetLevel = this.config.defaultLevel(); // force-heat with configured default level
+
+		/*
+		 * Force heat is active if the minimum time for the configured mode is not
+		 * reached and no time left to heat automatically
+		 */
+		if (this.config.workMode().equals(WorkMode.TIME)) {
+			if (now.isAfter(configuredEndTime) || latestForceChargeStartTime == null) {
+				this.channel(ControllerHeatingElement.ChannelId.FORCE_START_AT_SECONDS_OF_DAY).setNextValue(null);
+			} else {
+
+				// Force-heat with configured default level or higher
+				if (now.isAfter(latestForceChargeStartTime)
+						&& targetLevel.getValue() <= this.config.defaultLevel().getValue()) {
+					targetLevel = this.config.defaultLevel();
+					runState = Status.ACTIVE_FORCED;
+				}
+
+				this.channel(ControllerHeatingElement.ChannelId.FORCE_START_AT_SECONDS_OF_DAY)
+						.setNextValue(latestForceChargeStartTime.toSecondOfDay());
 			}
 		}
 
-		// Apply Hysteresis
-		targetLevel = this.applyHysteresis(targetLevel);
-
-		// Update Channel
-		this.channel(ControllerHeatingElement.ChannelId.FORCE_START_AT_SECONDS_OF_DAY)
-				.setNextValue(latestForceChargeStartTime.toSecondOfDay());
-
 		// Apply Level
 		this.applyLevel(targetLevel);
+		return runState;
 	}
 
 	/**
@@ -270,17 +294,19 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Calculates the time from when force-heating needs to start latest.
+	 * Calculates the start time of force-heating.
 	 *
-	 * @return the time, or {@link LocalTime#MAX} if no force-heating is required
+	 * @return the time or null, if the minimum has already been reached
 	 */
 	private LocalTime calculateLatestForceHeatingStartTime() {
 		var totalPhaseTime = this.phase1.getTotalDuration().getSeconds() //
 				+ this.phase2.getTotalDuration().getSeconds() //
 				+ this.phase3.getTotalDuration().getSeconds(); // [s]
 		var remainingTotalPhaseTime = this.minimumTotalPhaseTime - totalPhaseTime; // [s]
-		if (remainingTotalPhaseTime < 0) {
-			return LocalTime.MAX;
+
+		// Minimum already reached
+		if (remainingTotalPhaseTime <= 0) {
+			return null;
 		}
 		var endTime = LocalTime.parse(this.config.endTime());
 		switch (this.config.defaultLevel()) {

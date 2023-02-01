@@ -1,14 +1,14 @@
-import { AbstractHistoryWidget } from '../abstracthistorywidget';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryWidget } from '../abstracthistorywidget';
 
 @Component({
     selector: GridOptimizedChargeWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
@@ -19,6 +19,7 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
 
     public activeTimeSellToGridLimit: number | null = null;
     public activeTimeDelayCharge: number | null = null;
+    public activeTimeAvoidLowCharging: number | null = null;
     public activeTimeNoChargeLimit: number | null = null;
 
     public edge: Edge = null;
@@ -48,19 +49,21 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
     };
 
     protected updateValues() {
+
         this.service.getConfig().then(config => {
             this.getChannelAddresses(this.edge, config).then(channels => {
                 this.service.queryEnergy(this.period.from, this.period.to, channels).then(response => {
                     let result = response.result;
-
                     if (this.componentId + '/DelayChargeTime' in result.data) {
                         this.activeTimeDelayCharge = result.data[this.componentId + '/DelayChargeTime'];
                     }
-
                     if (this.componentId + '/SellToGridLimitTime' in result.data) {
                         this.activeTimeSellToGridLimit = result.data[this.componentId + '/SellToGridLimitTime'];
                     }
-
+                    if (this.componentId + '/AvoidLowChargingTime' in result.data) {
+                        this.activeTimeAvoidLowCharging = result.data[this.componentId + '/AvoidLowChargingTime'];
+                    }
+                    // Not displayed to focus on the active time
                     if (this.componentId + '/NoLimitationTime' in result.data) {
                         this.activeTimeNoChargeLimit = result.data[this.componentId + '/NoLimitationTime'];
                     }
@@ -74,6 +77,7 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
             let channeladdresses = [
                 new ChannelAddress(this.componentId, 'DelayChargeTime'),
                 new ChannelAddress(this.componentId, 'SellToGridLimitTime'),
+                new ChannelAddress(this.componentId, 'AvoidLowChargingTime'),
                 new ChannelAddress(this.componentId, 'NoLimitationTime'),
             ];
             resolve(channeladdresses);

@@ -13,7 +13,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,12 +60,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "Battery-Inverter.Refu.REFUstore88k", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE,//
-		}
-
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements ManagedSymmetricBatteryInverter,
 		SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, RefuStore88k, TimedataProvider, StartStoppable {
 
@@ -223,7 +222,7 @@ public class RefuStore88kImpl extends AbstractOpenemsModbusComponent implements 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException { // Register
 		return new ModbusProtocol(this, //
-				new FC3ReadRegistersTask(SUNSPEC_1, Priority.ONCE, //
+				new FC3ReadRegistersTask(SUNSPEC_1, Priority.LOW, //
 						m(RefuStore88kChannelId.ID_1, new UnsignedWordElement(SUNSPEC_1)), // 40002
 						m(RefuStore88kChannelId.L_1, new UnsignedWordElement(SUNSPEC_1 + 1)), // 40003
 						m(RefuStore88kChannelId.MN, new StringWordElement(SUNSPEC_1 + 2, 16)), // 40004

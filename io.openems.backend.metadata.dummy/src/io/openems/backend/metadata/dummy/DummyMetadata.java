@@ -1,19 +1,28 @@
 package io.openems.backend.metadata.dummy;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,51 +30,62 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.AbstractMetadata;
+import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Edge.State;
+import io.openems.backend.common.metadata.EdgeHandler;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
-import io.openems.common.channel.Level;
-import io.openems.common.exceptions.NotImplementedException;
+import io.openems.common.OpenemsOEM;
+import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.request.UpdateUserLanguageRequest.Language;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
-import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfigDiff;
-import io.openems.common.utils.StringUtils;
+import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Metadata.Dummy", //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		immediate = true //
 )
-public class DummyMetadata extends AbstractMetadata implements Metadata {
+@EventTopics({ //
+		Edge.Events.ON_SET_CONFIG //
+})
+public class DummyMetadata extends AbstractMetadata implements Metadata, EventHandler {
 
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(DummyMetadata.class);
 
+	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+	private final EventAdmin eventAdmin;
 	private final AtomicInteger nextUserId = new AtomicInteger(-1);
 	private final AtomicInteger nextEdgeId = new AtomicInteger(-1);
 
 	private final Map<String, User> users = new HashMap<>();
 	private final Map<String, MyEdge> edges = new HashMap<>();
+	private final SimpleEdgeHandler edgeHandler = new SimpleEdgeHandler();
 
 	private Language defaultLanguage = Language.DE;
 
-	public DummyMetadata() {
-		super("Metadata.Dummy");
-		this.setInitialized();
-	}
-
 	@Activate
-	private void activate() {
+	public DummyMetadata(@Reference EventAdmin eventadmin) {
+		super("Metadata.Dummy");
+		this.eventAdmin = eventadmin;
 		this.logInfo(this.log, "Activate");
+
+		// Allow the services some time to settle
+		this.executor.schedule(() -> {
+			this.setInitialized();
+		}, 10, TimeUnit.SECONDS);
 	}
 
 	@Deactivate
 	private void deactivate() {
+		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
 		this.logInfo(this.log, "Deactivate");
 	}
 
@@ -77,7 +97,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		for (String edgeId : this.edges.keySet()) {
 			roles.put(edgeId, Role.ADMIN);
 		}
-		var user = new User(username, name, token, Role.ADMIN, roles, this.defaultLanguage.name());
+		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN, roles);
 		this.users.put(user.getId(), user);
 		return user;
 	}
@@ -119,12 +139,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 			edgeId = "edge" + id;
 		}
 		setupPassword = edgeId;
-		var edge = new MyEdge(edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, State.ACTIVE, "", "", Level.OK,
-				new EdgeConfig());
-		edge.onSetConfig(config -> {
-			this.logInfo(this.log, "Edge [" + edgeId + "]. Update config: "
-					+ StringUtils.toShortString(EdgeConfigDiff.diff(config, edge.getConfig()).getAsHtml(), 100));
-		});
+		var edge = new MyEdge(this, edgeId, apikey, setupPassword, "OpenEMS Edge #" + id, "", "");
 		this.edges.put(edgeId, edge);
 		return Optional.ofNullable(edgeId);
 
@@ -155,8 +170,8 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 	}
 
 	@Override
-	public Collection<Edge> getAllEdges() {
-		return Collections.unmodifiableCollection(this.edges.values());
+	public Collection<Edge> getAllOfflineEdges() {
+		return  this.edges.values().stream().filter(Edge::isOffline).collect(Collectors.toUnmodifiableList());
 	}
 
 	private static Optional<Integer> parseNumberFromName(String name) {
@@ -174,32 +189,37 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 
 	@Override
 	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
-		throw new NotImplementedException("DummyMetadata.addEdgeToUser()");
+		throw new UnsupportedOperationException("DummyMetadata.addEdgeToUser() is not implemented");
 	}
 
 	@Override
 	public Map<String, Object> getUserInformation(User user) throws OpenemsNamedException {
-		throw new NotImplementedException("DummyMetadata.getUserInformation()");
+		throw new UnsupportedOperationException("DummyMetadata.getUserInformation() is not implemented");
 	}
 
 	@Override
 	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException {
-		throw new NotImplementedException("DummyMetadata.setUserInformation()");
+		throw new UnsupportedOperationException("DummyMetadata.setUserInformation() is not implemented");
 	}
 
 	@Override
 	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
-		throw new IllegalArgumentException("DummyMetadata.getSetupProtocol() is not implemented");
+		throw new UnsupportedOperationException("DummyMetadata.getSetupProtocol() is not implemented");
+	}
+
+	@Override
+	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException {
+		throw new UnsupportedOperationException("DummyMetadata.getSetupProtocolData() is not implemented");
 	}
 
 	@Override
 	public int submitSetupProtocol(User user, JsonObject jsonObject) {
-		throw new IllegalArgumentException("DummyMetadata.submitSetupProtocol() is not implemented");
+		throw new UnsupportedOperationException("DummyMetadata.submitSetupProtocol() is not implemented");
 	}
 
 	@Override
-	public void registerUser(JsonObject jsonObject) throws OpenemsNamedException {
-		throw new IllegalArgumentException("DummyMetadata.registerUser() is not implemented");
+	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
+		throw new UnsupportedOperationException("DummyMetadata.registerUser() is not implemented");
 	}
 
 	@Override
@@ -207,4 +227,44 @@ public class DummyMetadata extends AbstractMetadata implements Metadata {
 		this.defaultLanguage = language;
 	}
 
+	@Override
+	public EventAdmin getEventAdmin() {
+		return this.eventAdmin;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		var reader = new EventReader(event);
+
+		switch (event.getTopic()) {
+		case Edge.Events.ON_SET_CONFIG:
+			this.edgeHandler.setEdgeConfigFromEvent(reader);
+			break;
+		}
+	}
+
+	@Override
+	public EdgeHandler edge() {
+		return this.edgeHandler;
+	}
+
+	@Override
+	public Optional<String> getSerialNumberForEdge(Edge edge) {
+		throw new UnsupportedOperationException("DummyMetadata.getSerialNumberForEdge() is not implemented");
+	}
+
+	@Override
+	public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
+		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
+	}
+
+	@Override
+	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
+		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
+	}
+
+	@Override
+	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) {
+		throw new UnsupportedOperationException("DummyMetadata.setUserAlertingSettings() is not implemented");
+	}
 }

@@ -43,6 +43,12 @@ public class GetDeviceResponse extends JsonrpcResponseSuccess {
 		final String description;
 		final JsonObject details;
 
+		/**
+		 * Extracts {@link Device} info from a {@link OneWireContainer}.
+		 * 
+		 * @param owc the {@link OneWireContainer}
+		 * @return the {@link Device}
+		 */
 		public static Device from(OneWireContainer owc) {
 			final var details = new JsonObject();
 
@@ -80,6 +86,11 @@ public class GetDeviceResponse extends JsonrpcResponseSuccess {
 		super(id);
 	}
 
+	/**
+	 * Add a {@link Device}.
+	 * 
+	 * @param device the {@link Device}
+	 */
 	public void addDevice(Device device) {
 		this.devices.add(device);
 	}

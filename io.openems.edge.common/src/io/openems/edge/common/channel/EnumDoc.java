@@ -39,7 +39,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 	/**
 	 * Initial-Value. Default: none
 	 *
-	 * @param initialValue
+	 * @param initialValue the initial value as {@link OptionsEnum}
 	 * @return myself
 	 */
 	public EnumDoc initialValue(OptionsEnum initialValue) {
@@ -60,7 +60,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 			io.openems.edge.common.channel.ChannelId channelId) {
 		switch (this.getAccessMode()) {
 		case READ_ONLY:
-			return new EnumReadChannel(component, channelId, this, this.getUndefinedOption());
+			return new EnumReadChannel(component, channelId, this, this.getUndefinedOption(), this.getDebounce());
 		case READ_WRITE:
 		case WRITE_ONLY:
 			return new EnumWriteChannel(component, channelId, this, this.getUndefinedOption());
@@ -133,7 +133,7 @@ public class EnumDoc extends AbstractDoc<Integer> {
 
 	/**
 	 * Gets the name of the Option or 'UNDEFINED' if there is no option with that
-	 * value
+	 * value.
 	 *
 	 * @param value the integer value of the Option
 	 * @return the name of the Option as a String
@@ -159,5 +159,26 @@ public class EnumDoc extends AbstractDoc<Integer> {
 				.filter(option -> !option.isUndefined()) //
 				.map(option -> (option.getValue() + ":" + option.getName())) //
 				.collect(Collectors.joining(", "));
+	}
+
+	protected int debounce = 0;
+
+	/**
+	 * Debounce the Enum-Channel value: The EnumChannel is only set to the given
+	 * value after it had been set to the same value for at least "debounce" times.
+	 * 
+	 * <p>
+	 * Currently only working for read-only.
+	 * 
+	 * @param debounce "debounce" times
+	 * @return EnumDoc
+	 */
+	public EnumDoc debounce(int debounce) {
+		this.debounce = debounce;
+		return this;
+	}
+
+	public int getDebounce() {
+		return this.debounce;
 	}
 }

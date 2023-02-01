@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 2004 Maxim Integrated Products, All Rights Reserved.
@@ -1041,3 +1042,4 @@ class MemoryBankEEPROM implements OTPMemoryBank {
 		throw new OneWireException("This memory bank does not support redirection.");
 	}
 }
+// CHECKSTYLE:ON

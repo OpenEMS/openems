@@ -1,6 +1,7 @@
 package io.openems.edge.batteryinverter.sinexcel;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -13,15 +14,10 @@ import io.openems.edge.batteryinverter.sinexcel.enums.Baudrate;
 import io.openems.edge.batteryinverter.sinexcel.enums.BlackStartMode;
 import io.openems.edge.batteryinverter.sinexcel.enums.CpuType;
 import io.openems.edge.batteryinverter.sinexcel.enums.DcVoltageLevel;
-import io.openems.edge.batteryinverter.sinexcel.enums.EnableDisable;
 import io.openems.edge.batteryinverter.sinexcel.enums.Epo;
 import io.openems.edge.batteryinverter.sinexcel.enums.FrequencyVariationRate;
-import io.openems.edge.batteryinverter.sinexcel.enums.GridCodeSelection;
 import io.openems.edge.batteryinverter.sinexcel.enums.InterfaceType;
-import io.openems.edge.batteryinverter.sinexcel.enums.InverterWiringTopology;
 import io.openems.edge.batteryinverter.sinexcel.enums.ModulePowerLevel;
-import io.openems.edge.batteryinverter.sinexcel.enums.OutputFrequencyLevel;
-import io.openems.edge.batteryinverter.sinexcel.enums.OutputVoltageLevel;
 import io.openems.edge.batteryinverter.sinexcel.enums.PhaseAngleAbrupt;
 import io.openems.edge.batteryinverter.sinexcel.enums.PowerRisingMode;
 import io.openems.edge.batteryinverter.sinexcel.enums.ProtocolSelection;
@@ -31,6 +27,7 @@ import io.openems.edge.batteryinverter.sinexcel.enums.SinglePhaseMode;
 import io.openems.edge.batteryinverter.sinexcel.enums.StartMode;
 import io.openems.edge.batteryinverter.sinexcel.enums.Switch;
 import io.openems.edge.batteryinverter.sinexcel.statemachine.StateMachine.State;
+import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
@@ -102,7 +99,18 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 				.accessMode(AccessMode.READ_ONLY)), //
 		ALERT_STATUS(Doc.of(Level.WARNING) //
 				.accessMode(AccessMode.READ_ONLY)), //
-		INVERTER_GRID_MODE(Doc.of(OpenemsType.BOOLEAN) //
+		BATTERY_INVERTER_STATE(new BooleanDoc() //
+				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE)//
+				.onInit(c -> { //
+					var channel = (BooleanReadChannel) c;
+					var self = (Sinexcel) channel.getComponent();
+					channel.onChange((oldValue, newValue) -> {
+						var value = newValue.asOptional();
+						self._setInverterState(value.orElse(null));
+					});
+				})), //
+		INVERTER_GRID_MODE(new BooleanDoc() //
+				.debounce(5, Debounce.FALSE_VALUES_IN_A_ROW_TO_SET_FALSE) //
 				.text("On Grid") //
 				.onInit(c -> { //
 					var channel = (BooleanReadChannel) c;
@@ -361,10 +369,6 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		COS_PHI(Doc.of(OpenemsType.FLOAT) //
 				.accessMode(AccessMode.READ_ONLY)), //
 
-		// TODO delete later, just for info what's inside ;)
-		REACTIVE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.accessMode(AccessMode.READ_ONLY)), //
-
 		// Temperature of DC heat sink
 		TEMPERATURE_OF_AC_HEAT_SINK(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY)//
@@ -394,10 +398,10 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		DC_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY)//
 				.unit(Unit.MILLIAMPERE)), //
-		DC_CHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_WRITE)//
 				.unit(Unit.WATT_HOURS)), //
-		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.INTEGER) //
+		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
 				.accessMode(AccessMode.READ_WRITE)//
 				.unit(Unit.WATT_HOURS)), //
 		TEMPERATURE_OF_DC_DC_HEAT_SINK(Doc.of(OpenemsType.INTEGER) //
@@ -463,9 +467,9 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 				.accessMode(AccessMode.READ_WRITE)), //
 		SET_GRID_MODE(Doc.of(SinexcelGridMode.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		BUZZER_ENABLE(Doc.of(EnableDisable.values()) //
+		BUZZER_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		RESTORE_FACTORY_SETTING(Doc.of(EnableDisable.values()) //
+		RESTORE_FACTORY_SETTING(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// To Start operation, only 1 will be accepted. Reading back value makes no
 		// sense
@@ -477,8 +481,8 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		// clear failure flag,when fault occurs, the system will stop and indicates
 		// fault.starting is invalid until the fault source is actually removed and this
 		// register is written 1. Reading back value makes no sense
-		CLEAR_FAILURE_COMMAND(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE)), //
+		CLEAR_FAILURE(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.WRITE_ONLY)), //
 		// set the module to on grid mode. Reading back value makes no sense
 		SET_ON_GRID_MODE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -497,12 +501,12 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 				.accessMode(AccessMode.READ_WRITE)), //
 		GRID_STOP(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		OUTPUT_VOLTAGE_LEVEL(Doc.of(OutputVoltageLevel.values()) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		OUTPUT_FREQUENCY_LEVEL(Doc.of(OutputFrequencyLevel.values()) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		INVERTER_WIRING_TOPOLOGY(Doc.of(InverterWiringTopology.values()) //
-				.accessMode(AccessMode.READ_ONLY)), //
+		VOLTAGE_LEVEL(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		FREQUENCY_LEVEL(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		INVERTER_WIRING_TOPOLOGY(Doc.of(OpenemsType.BOOLEAN) //
+				.accessMode(AccessMode.READ_WRITE)), //
 		SWITCHING_DEVICE_ACCESS_SETTING(Doc.of(Switch.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		MODULE_POWER_LEVEL(Doc.of(ModulePowerLevel.values()) //
@@ -511,9 +515,9 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 				.accessMode(AccessMode.READ_ONLY)), //
 		CPU_TYPE(Doc.of(CpuType.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		OFF_GRID_AND_PARALLEL_ENABLE(Doc.of(EnableDisable.values()) //
+		OFF_GRID_AND_PARALLEL_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		SET_DC_SOFT_START_EXTERNAL_CONTROL(Doc.of(EnableDisable.values()) //
+		SET_DC_SOFT_START_EXTERNAL_CONTROL(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		GRID_OVER_VOLTAGE_PROTECTION_AMPLITUDE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -560,12 +564,12 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		// latest versions) and be certified to have anti-islanding protection such that
 		// the synchronous inverter will automatically disconnect upon a utility system
 		// interruption
-		ANTI_ISLANDING(Doc.of(EnableDisable.values()) //
+		ANTI_ISLANDING(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// Frequency and Voltage Ride-Through.
 		// The ability to withstand voltage or frequency excursions outside defined
 		// limits without tripping or malfunctioning
-		FREQUENCY_VOLTAGE_RIDE_THROUGH(Doc.of(EnableDisable.values()) //
+		FREQUENCY_VOLTAGE_RIDE_THROUGH(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// Grid-tied mode only, voltage and frequency setpoint the only setpoints
 		REACTIVE_POWER_CONTROL_MODE(Doc.of(ReactivePowerControlMode.values()) //
@@ -579,16 +583,16 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		ACTIVE_POWER_CONTROL_MODE(Doc.of(ActivePowerControlMode.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// Grid-tied mode only, voltage and frequency setpoint the only setpoints
-		GRID_VOLTAGE_ASYMMETRIC_DETECTON(Doc.of(EnableDisable.values()) //
+		GRID_VOLTAGE_ASYMMETRIC_DETECTON(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// Grid-tied mode only
-		CONTINUOUS_OVERVOLTAGE_DETECTION(Doc.of(EnableDisable.values()) //
+		CONTINUOUS_OVERVOLTAGE_DETECTION(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// Grid-tied mode only,detect whether the grid is on-service at powered-up.
-		GRID_EXISTENCE_DETECTION_ON(Doc.of(EnableDisable.values()) //
+		GRID_EXISTENCE_DETECTION_ON(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)),
 		// Grid-tied mode only
-		NEUTRAL_FLOATING_DETECTION(Doc.of(EnableDisable.values()) //
+		NEUTRAL_FLOATING_DETECTION(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// if disabled, the inverter will start the AC voltage, then close the relay. In
 		// some off-grid cases, such as there are inductive loads or transformer, the
@@ -598,9 +602,9 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		OFF_GRID_BLACKSTART_MODE(Doc.of(BlackStartMode.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// Grid tied mode only. take effect after power off.
-		GRID_CODE_SELCETION(Doc.of(GridCodeSelection.values()) //
+		GRID_CODE_SELECTION(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_CONNECTED_ACTIVE_CAPACITY_LIMITATION_FUNCTION(Doc.of(EnableDisable.values()) //
+		GRID_CONNECTED_ACTIVE_CAPACITY_LIMITATION_FUNCTION(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		GRID_ACTIVE_POWER_CAPACITY_SETTING(Doc.of(OpenemsType.FLOAT) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -608,7 +612,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		SINGLE_PHASE_MODE_SELECTION(Doc.of(SinglePhaseMode.values()) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// Overvoltage drop active enable (only for EN50549 certification)
-		OVER_VOLTAGE_DROP_ACTIVE(Doc.of(EnableDisable.values()) //
+		OVER_VOLTAGE_DROP_ACTIVE(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		// 0-Manual start,1-Auto start,default:0
 		START_UP_MODE(Doc.of(StartMode.values()) //
@@ -621,7 +625,7 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 		BATTERY_VOLTAGE_PROTECTION_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.VOLT)), //
-		LEAKAGE_CURRENT_DC_COMPONENT_DETECTOR(Doc.of(EnableDisable.values()) //
+		LEAKAGE_CURRENT_DC_COMPONENT_DETECTOR(Doc.of(OpenemsType.BOOLEAN) //
 				.accessMode(AccessMode.READ_WRITE)), //
 		RESUME_AND_LIMIT_FREQUENCY(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)), //
@@ -910,5 +914,23 @@ public interface Sinexcel extends OffGridBatteryInverter, ManagedSymmetricBatter
 	 */
 	public default void setStopInverter() throws OpenemsNamedException {
 		this.getStopInverterChannel().setNextWriteValue(true); // true = STOP
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#CLEAR_FAILURE}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanWriteChannel getClearFailureChannel() {
+		return this.channel(ChannelId.CLEAR_FAILURE);
+	}
+
+	/**
+	 * Clear inverter failures. See {@link ChannelId#CLEAR_FAILURE}.
+	 *
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setClearFailure() throws OpenemsNamedException {
+		this.getClearFailureChannel().setNextWriteValue(true);
 	}
 }

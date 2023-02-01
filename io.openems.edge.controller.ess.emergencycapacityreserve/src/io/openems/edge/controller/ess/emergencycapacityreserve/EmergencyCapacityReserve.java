@@ -48,7 +48,14 @@ public interface EmergencyCapacityReserve extends Controller, OpenemsComponent {
 		 * Configured reserve SoC is out of range [5,100].
 		 */
 		RANGE_OF_RESERVE_SOC_OUTSIDE_ALLOWED_VALUE(Doc.of(Level.WARNING) //
-				.text("Reserve SoC does not fit in range 5 to 100"));
+				.text("Reserve SoC does not fit in range 5 to 100")),
+
+		/**
+		 * Holds the actual reserve soc value. Holds null if reserve soc is disabled.
+		 */
+		ACTUAL_RESERVE_SOC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.text("The reserve soc value")); //
 
 		private final Doc doc;
 
@@ -61,8 +68,6 @@ public interface EmergencyCapacityReserve extends Controller, OpenemsComponent {
 			return this.doc;
 		}
 	}
-
-	public Config getConfig();
 
 	/**
 	 * Gets the Channel for {@link ChannelId#STATE_MACHINE}.
@@ -216,6 +221,35 @@ public interface EmergencyCapacityReserve extends Controller, OpenemsComponent {
 	 */
 	public default void _setRangeOfReserveSocOutsideAllowedValue(boolean value) {
 		this.channel(ChannelId.RANGE_OF_RESERVE_SOC_OUTSIDE_ALLOWED_VALUE).setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTUAL_RESERVE_SOC}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActualReserveSocChannel() {
+		return this.channel(ChannelId.ACTUAL_RESERVE_SOC);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTUAL_RESERVE_SOC} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActualReserveSoc(Integer value) {
+		this.getActualReserveSocChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the SoC value if Reserve SoC is enabled and returns null otherwise. See
+	 * {@link ChannelId#ACTUAL_RESERVE_SOC}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActualReserveSoc() {
+		return this.getActualReserveSocChannel().value();
 	}
 
 }

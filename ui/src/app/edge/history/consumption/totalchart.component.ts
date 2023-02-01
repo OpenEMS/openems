@@ -1,18 +1,18 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
-import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from '../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { formatNumber } from '@angular/common';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from '../shared';
 
 @Component({
     selector: 'consumptionTotalChart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class ConsumptionTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class ConsumptionTotalChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public showPhases: boolean;
@@ -20,7 +20,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
     // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
 
-    ngOnChanges() {
+    public ngOnChanges() {
         this.updateChart();
     };
 
@@ -29,24 +29,22 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("consumption-total-chart", service, translate);
     }
 
-
-    ngOnInit() {
-        this.spinnerId = "consumption-total-chart";
-        this.service.startSpinner(this.spinnerId);
+    public ngOnInit() {
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
         this.setLabel()
     }
 
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.unsubscribeChartRefresh()
     }
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
             this.service.getCurrentEdge().then(edge => {
@@ -61,7 +59,6 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     }
                     this.labels = labels;
 
-
                     // gather EVCS consumption
                     let totalEvcsConsumption: number[] = [];
                     config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
@@ -70,19 +67,23 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                             component.factoryId == 'Evcs.Cluster.PeakShaving' ||
                             component.factoryId == 'Evcs.Cluster.SelfConsumption'))
                         .forEach(component => {
-                            totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
-                                return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
-                            });
-                        })
+                            if (result.data[component.id + '/ChargePower']) {
+                                totalEvcsConsumption = result.data[component.id + '/ChargePower'].map((value, index) => {
+                                    return Utils.addSafely(totalEvcsConsumption[index], value / 1000)
+                                });
+                            }
+                        });
 
-                    // gather consumptionMetered cosumption
+                    // gather consumptionMetered consumption
                     let totalMeteredConsumption: number[] = [];
                     config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
                         .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component))
                         .forEach(component => {
-                            totalMeteredConsumption = result.data[component.id + '/ActivePower'].map((value, index) => {
-                                return Utils.addSafely(totalMeteredConsumption[index], value / 1000)
-                            })
+                            if (result.data[component.id + '/ActivePower']) {
+                                totalMeteredConsumption = result.data[component.id + "/ActivePower"].map((value, index) => {
+                                    return Utils.addSafely(totalMeteredConsumption[index], value / 1000)
+                                });
+                            }
                         })
 
                     // gather other Consumption (Total - EVCS - consumptionMetered)
@@ -90,9 +91,8 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     otherConsumption = result.data['_sum/ConsumptionActivePower'].map((value, index) => {
 
                         if (value != null) {
-
-                            // Check if either totalEvcsConsumption or totalMeteredConsumption is not null
-                            return Utils.subtractSafely(Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]), totalMeteredConsumption[index]);
+                            // Check if either totalEvcsConsumption or totalMeteredConsumption is not null and the endValue not below 0
+                            return Utils.roundSlightlyNegativeValues(Utils.subtractSafely(Utils.subtractSafely(value / 1000, totalEvcsConsumption[index]), totalMeteredConsumption[index]));
                         }
                     })
                     // convert datasets
@@ -102,15 +102,21 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     let evcsRedColor = 255;
                     let evcsGreenColor = 255;
                     let evcsBlueColor = 255;
-
                     let evcsIndex = 0;
 
                     //EVCS Component Array
-                    let regularEvcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs").filter(component => !(component.factoryId == 'Evcs.Cluster' ||
-                        component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption'));
+                    let regularEvcsComponents = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+                        .filter(component => !(
+                            component.factoryId == 'Evcs.Cluster' ||
+                            component.factoryId == 'Evcs.Cluster.PeakShaving'
+                            || component.factoryId == 'Evcs.Cluster.SelfConsumption'
+                        ));
 
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach((channelAddress, index) => {
+                            if (!Object.keys(result.data).includes(channelAddress.toString())) {
+                                result.data[channelAddress.toString()] = [].fill(null);
+                            }
                             let component = config.getComponent(channelAddress.componentId);
                             let data = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
@@ -190,7 +196,8 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                         });
                                     }
                                 }
-                                if (regularEvcsComponents.length > 1 && totalEvcsConsumption != []) {
+
+                                if (regularEvcsComponents.length > 1 && totalEvcsConsumption.length != 0) {
                                     if (!this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.total') + ')' in datasets) {
                                         datasets.push({
                                             label: this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.total') + ')',
@@ -227,7 +234,6 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                             borderColor: 'rgba(' + evcsRedColor.toString() + ',' + evcsGreenColor.toString() + ',' + evcsBlueColor.toString() + ',1)'
                                         })
                                     }
-
                                 } else if (regularEvcsComponents.length == 1) {
                                     if (channelAddress.channelId == "ChargePower") {
                                         datasets.push({
@@ -242,7 +248,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                     }
                                 }
 
-                                if (totalMeteredConsumption != []) {
+                                if (totalMeteredConsumption.length != 0) {
                                     if (channelAddress.channelId == "ActivePower") {
                                         datasets.push({
                                             label: (component.id == component.alias ? component.id : component.alias),
@@ -261,17 +267,19 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
 
                                     // Check if Evcs is in config
                                     config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-                                        .filter(component =>
-                                            !(component.factoryId == 'Evcs.Cluster' || component.factoryId == 'Evcs.Cluster.PeakShaving' || component.factoryId == 'Evcs.Cluster.SelfConsumption'))
-                                        .length > 0
-
+                                        .filter(component => !(
+                                            component.factoryId == 'Evcs.Cluster' ||
+                                            component.factoryId == 'Evcs.Cluster.PeakShaving' ||
+                                            component.factoryId == 'Evcs.Cluster.SelfConsumption'
+                                        )).length > 0
                                     ||
 
                                     // Check if SymmetricMeter is in config
                                     config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
                                         .filter(component =>
-                                            component.isEnabled && config.isTypeConsumptionMetered(component))
-                                        .length > 0
+                                            component.isEnabled &&
+                                            config.isTypeConsumptionMetered(component)
+                                        ).length > 0
                                 )) {
                                     datasets.push({
                                         label: this.translate.instant('General.otherConsumption'),
@@ -288,17 +296,20 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                     });
                     this.datasets = datasets;
                     this.loading = false;
-                    this.service.stopSpinner(this.spinnerId);
+                    this.stopSpinner();
+
                 }).catch(reason => {
                     console.error(reason); // TODO error message
                     this.initializeChart();
                     return;
                 });
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

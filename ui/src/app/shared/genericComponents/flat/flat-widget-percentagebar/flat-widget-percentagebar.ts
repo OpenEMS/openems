@@ -5,4 +5,4 @@ import { AbstractFlatWidgetLine } from "../abstract-flat-widget-line";
     selector: 'oe-flat-widget-percentagebar',
     templateUrl: './flat-widget-percentagebar.html'
 })
-export class FlatWidgetPercentagebar extends AbstractFlatWidgetLine { }
+export class FlatWidgetPercentagebarComponent extends AbstractFlatWidgetLine { }

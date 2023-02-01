@@ -32,7 +32,7 @@ public class SocketConnection {
 		return this.unitID;
 	}
 
-	public void open() throws OpenemsException {
+	protected void open() throws OpenemsException {
 		if (this.socket != null && this.socket.isConnected()) {
 			return;
 		}
@@ -46,7 +46,7 @@ public class SocketConnection {
 		}
 	}
 
-	public void close() {
+	protected void close() {
 		if (this.in != null) {
 			try {
 				this.in.close();

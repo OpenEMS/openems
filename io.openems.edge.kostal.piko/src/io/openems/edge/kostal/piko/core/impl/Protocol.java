@@ -25,7 +25,7 @@ public class Protocol {
 		this.socketConnection = socketConnection;
 	}
 
-	public void execute(List<ReadTask> nextReadTasks) {
+	protected void execute(List<ReadTask> nextReadTasks) {
 		for (ReadTask task : nextReadTasks) {
 			try {
 				this.socketConnection.open();
@@ -109,7 +109,6 @@ public class Protocol {
 
 	private byte[] sendAndReceive(int address) throws OpenemsException {
 
-		byte[] results = null;
 		/*
 		 * convert address to byte array
 		 */
@@ -160,7 +159,7 @@ public class Protocol {
 		/*
 		 * Extract value
 		 */
-		results = new byte[datas.length - 7];
+		byte[] results = new byte[datas.length - 7];
 
 		for (var i = 5; i < datas.length - 2; i++) {
 			results[i - 5] = datas[i];

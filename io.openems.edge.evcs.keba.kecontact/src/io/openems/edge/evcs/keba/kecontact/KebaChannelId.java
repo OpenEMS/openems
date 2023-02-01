@@ -27,7 +27,7 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	DIP_SWITCH_2(Doc.of(OpenemsType.STRING) //
 			.text("The second eight dip switch settings as binary")),
 	DIP_SWITCH_MAX_HW(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.AMPERE) //
+			.unit(Unit.MILLIAMPERE) //
 			.text("The raw maximum limit configured by the dip switches")),
 
 	/*
@@ -39,7 +39,8 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 			.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
 	ERROR_2(Doc.of(OpenemsType.INTEGER) //
 			.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
-	PLUG(Doc.of(Plug.values())), ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN) //
+	PLUG(Doc.of(Plug.values())), //
+	ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
 	ENABLE_USER(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Enable condition via UDP")), //
@@ -49,7 +50,8 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	MAX_CURR_PERCENT(Doc.of(OpenemsType.INTEGER) //
 			.text("Current preset value via Control pilot in 0,1% of the PWM value")), //
 	CURR_USER(Doc.of(OpenemsType.INTEGER) //
-			.unit(Unit.MILLIAMPERE).text("Current preset value of the user via UDP; Default = 63000mA")), //
+			.unit(Unit.MILLIAMPERE) //
+			.text("Current preset value of the user via UDP; Default = 63000mA")), //
 	CURR_FAILSAFE(Doc.of(OpenemsType.INTEGER) //
 			.unit(Unit.MILLIAMPERE) //
 			.text("Current preset value for the Failsafe function")), //
@@ -72,14 +74,30 @@ public enum KebaChannelId implements io.openems.edge.common.channel.ChannelId {
 	/*
 	 * Report 3
 	 */
-	VOLTAGE_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).text("Voltage on L1")), //
-	VOLTAGE_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).text("Voltage on L2")), //
-	VOLTAGE_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).text("Voltage on L3")), //
-	CURRENT_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L1")), //
-	CURRENT_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L2")), //
-	CURRENT_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).text("Current on L3")), //
-	ACTUAL_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIWATT).text("Total real power")), //
-	COS_PHI(Doc.of(OpenemsType.INTEGER).unit(Unit.PERCENT).text("Power factor")), //
+	VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.VOLT) //
+			.text("Voltage on L1")), //
+	VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.VOLT) //
+			.text("Voltage on L2")), //
+	VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.VOLT) //
+			.text("Voltage on L3")), //
+	CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIAMPERE) //
+			.text("Current on L1")), //
+	CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIAMPERE) //
+			.text("Current on L2")), //
+	CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIAMPERE) //
+			.text("Current on L3")), //
+	ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.MILLIWATT) //
+			.text("Total real power")), //
+	COS_PHI(Doc.of(OpenemsType.INTEGER) //
+			.unit(Unit.PERCENT) //
+			.text("Power factor")), //
 	ENERGY_TOTAL(Doc.of(OpenemsType.LONG) //
 			.unit(Unit.WATT_HOURS) //
 			.text("Total power consumption (persistent) without current loading session. "

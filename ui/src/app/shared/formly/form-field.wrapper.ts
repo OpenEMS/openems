@@ -6,4 +6,4 @@ import { FieldWrapper } from '@ngx-formly/core';
     templateUrl: './form-field.wrapper.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FormlyWrapperFormField extends FieldWrapper { }
+export class FormlyWrapperFormFieldComponent extends FieldWrapper { }

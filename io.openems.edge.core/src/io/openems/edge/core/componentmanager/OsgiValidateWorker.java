@@ -160,8 +160,8 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 					break;
 				}
 				case ComponentConfigurationDTO.UNSATISFIED_REFERENCE: {
-					defectDetails = "Unsatisfied reference for " + //
-							Stream.of(configuration.unsatisfiedReferences) //
+					defectDetails = "Unsatisfied reference for " //
+							+ Stream.of(configuration.unsatisfiedReferences) //
 									.map(ref -> {
 										var result = new StringBuilder().append(ref.name);
 										if (ref.target != null && !ref.target.isEmpty()) {
@@ -352,13 +352,13 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 
 	@Override
 	public String debugLog() {
-		var defectiveComponents = "";
+		String defectiveComponents;
 		synchronized (this.defectiveComponents) {
 			defectiveComponents = this.defectiveComponents.entrySet().stream() //
 					.map(e -> e.getKey() + "[" + e.getValue() + "]") //
 					.collect(Collectors.joining(" "));
 		}
-		var duplicatedComponents = "";
+		String duplicatedComponents;
 		synchronized (this.duplicatedComponentIds) {
 			duplicatedComponents = String.join(",", this.duplicatedComponentIds);
 		}

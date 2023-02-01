@@ -3,7 +3,7 @@ package io.openems.edge.kostal.piko.ess;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "KOSTAL PIKO ESS", //
 		description = "The energy storage system implementation of a KOSTAL PIKO.")
 @interface Config {

@@ -58,6 +58,34 @@ public class BitsWordElement extends UnsignedWordElement {
 	 * @return myself for builder pattern
 	 */
 	public BitsWordElement bit(int bitIndex, ChannelId channelId, BitConverter converter) {
+		return this.bit(bitIndex, channelId, converter, new ChannelMetaInfoBit(this.getStartAddress(), bitIndex));
+	}
+
+	/**
+	 * Adds a mapping for a given bit.
+	 *
+	 * @param bitIndex           the index of the bit; a number between 0 and 15
+	 * @param channelId          the Channel-ID
+	 * @param channelMetaInfoBit an object that holds meta information about the
+	 *                           Channel
+	 * @return myself for builder pattern
+	 */
+	public BitsWordElement bit(int bitIndex, ChannelId channelId, ChannelMetaInfoBit channelMetaInfoBit) {
+		return this.bit(bitIndex, channelId, BitConverter.DIRECT_1_TO_1, channelMetaInfoBit);
+	}
+
+	/**
+	 * Adds a mapping for a given bit.
+	 *
+	 * @param bitIndex           the index of the bit; a number between 0 and 15
+	 * @param channelId          the Channel-ID
+	 * @param converter          the Bit-Converter
+	 * @param channelMetaInfoBit an object that holds meta information about the
+	 *                           Channel
+	 * @return myself for builder pattern
+	 */
+	public BitsWordElement bit(int bitIndex, ChannelId channelId, BitConverter converter,
+			ChannelMetaInfoBit channelMetaInfoBit) {
 		if (bitIndex < 0 || bitIndex > 15) {
 			throw new IllegalArgumentException("Bit-Index must be between 0 and 15 for Channel-ID [" + channelId + "]");
 		}
@@ -72,7 +100,7 @@ public class BitsWordElement extends UnsignedWordElement {
 		var channelWrapper = new ChannelWrapper(booleanChannel, converter);
 
 		// Set Channel-Source
-		channel.setMetaInfo(new ChannelMetaInfoBit(this.getStartAddress(), bitIndex));
+		channel.setMetaInfo(channelMetaInfoBit);
 
 		// Add Modbus Address and Bit-Index to Channel Source
 		if (channel instanceof WriteChannel<?>) {
@@ -199,7 +227,8 @@ public class BitsWordElement extends UnsignedWordElement {
 			new IllegalArgumentException(
 					"The following BooleanWriteChannels have no Write-Value: " + channelsWithMissingWriteValue.stream() //
 							.map(ChannelAddress::toString) //
-							.collect(Collectors.joining(","))).printStackTrace();
+							.collect(Collectors.joining(",")))
+					.printStackTrace();
 			return Optional.empty();
 		}
 
@@ -220,9 +249,10 @@ public class BitsWordElement extends UnsignedWordElement {
 
 		// Log Debug
 		if (this.isDebug()) {
-			this.log.info("BitsWordElement [" + this + "]: next write value is to [" //
-					+ String.format("%16s", Integer.toBinaryString(result.getValue())).replace(' ', '0') + //
-					"/0x" + String.format("%4s", Integer.toHexString(result.getValue())).replace(' ', '0') + "].");
+			this.log.info("BitsWordElement [" + this + "]: " //
+					+ "next write value is ["
+					+ String.format("%16s", Integer.toBinaryString(result.getValue())).replace(' ', '0') //
+					+ "/0x" + String.format("%4s", Integer.toHexString(result.getValue())).replace(' ', '0') + "].");
 		}
 
 		return Optional.of(new Register[] { result });

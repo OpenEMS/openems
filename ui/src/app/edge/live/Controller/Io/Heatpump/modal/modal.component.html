@@ -1,0 +1,281 @@
+<ion-header>
+  <ion-toolbar class="ion-justify-content-center" color="primary">
+    <ion-title>{{ component.alias }}</ion-title>
+    <ion-buttons slot="end">
+      <oe-help-button key="CONTROLLER_IO_HEAT_PUMP_SG_READY"></oe-help-button>
+      <ion-button (click)="modalCtrl.dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="!loading">
+    <ion-card-content class="underline">
+      <table *ngIf="(edge.currentData | async)['channel'] as currentData" class="full_width">
+        <tr [ngSwitch]="currentData[component.id + '/Status']">
+          <td style="width:65%" translate>General.state</td>
+          <td *ngIf="currentData[this.component.id + '/State'] !== 3" style="width:35%" class="align_right" translate>
+            <ng-container *ngSwitchCase="-1">
+              Edge.Index.Widgets.HeatPump.undefined
+            </ng-container>
+            <ng-container *ngSwitchCase="0">
+              Edge.Index.Widgets.HeatPump.lock
+            </ng-container>
+            <ng-container *ngSwitchCase="1">
+              Edge.Index.Widgets.HeatPump.normalOperation
+            </ng-container>
+            <ng-container *ngSwitchCase="2">
+              Edge.Index.Widgets.HeatPump.switchOnRec
+            </ng-container>
+            <ng-container *ngSwitchCase="3">
+              Edge.Index.Widgets.HeatPump.switchOnCom
+            </ng-container>
+          </td>
+          <td *ngIf="currentData[this.component.id + '/State'] === 3" style="width:35%" class="align_right">
+            <ion-icon name="help-outline"></ion-icon>
+          </td>
+        </tr>
+        <tr>
+          <td style="width:65%" translate>General.mode</td>
+          <td *ngIf="component.properties['mode'] === 'MANUAL'" style="width: 35%" class="align_right" translate>
+            General.manually
+          </td>
+          <td *ngIf="component.properties['mode'] === 'AUTOMATIC'" style="width: 35%" class="align_right" translate>
+            General.automatic
+          </td>
+        </tr>
+      </table>
+    </ion-card-content>
+    <ion-card-content class="underline">
+      <table class="full_width">
+        <tr>
+          <td translate>
+            General.mode
+          </td>
+        </tr>
+      </table>
+      <!-- Controller Mode -->
+      <ion-segment (ionChange)="updateControllerMode($event)" [value]="component.properties['mode']" scrollable="false">
+        <ion-segment-button value="MANUAL">
+          <ion-label translate>
+            General.manually
+          </ion-label>
+          <ion-icon color="success" style="width:40px" name="power-outline"></ion-icon>
+        </ion-segment-button>
+        <ion-segment-button value="AUTOMATIC">
+          <ion-label translate>
+            General.automatic
+          </ion-label>
+          <ion-icon style="width:40px" name="sunny-outline">
+          </ion-icon>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-card-content>
+    <!-- Manual Mode -->
+    <form [formGroup]="formGroup">
+      <ng-container *ngIf="component.properties['mode'] === 'MANUAL'">
+        <ion-card-content *ngIf="formGroup.value.workMode !== 'NONE'">
+          <ion-list>
+            <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('FORCE_ON')"
+              lines="none">
+              <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnCom</ion-label>
+              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'FORCE_ON'">
+              </ion-toggle>
+            </ion-item>
+            <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('RECOMMENDATION')"
+              lines="none">
+              <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnRec</ion-label>
+              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'RECOMMENDATION'">
+              </ion-toggle>
+            </ion-item>
+            <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('REGULAR')"
+              lines="none">
+              <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.normalOperation</ion-label>
+              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'REGULAR'">
+              </ion-toggle>
+            </ion-item>
+            <ion-item class="ion-no-padding" style="cursor: pointer;" (click)="updateManualMode('LOCK')" lines="none">
+              <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.lock</ion-label>
+              <ion-toggle style="pointer-events: none" [checked]="formGroup.value.manualState === 'LOCK'"></ion-toggle>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ng-container>
+      <!-- Automatic Mode -->
+      <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC'">
+        <ion-card-content class="underline">
+
+          <!-- Switch Togglebutton -->
+          <ion-item
+            (click)="updateAutomaticEnableMode(formGroup.controls.automaticRecommendationCtrlEnabled.value !== true,'automaticRecommendationCtrlEnabled')"
+            class="ion-no-padding" lines="none" style="cursor: pointer;">
+            <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnRec</ion-label>
+            <ion-toggle [checked]="formGroup.controls.automaticRecommendationCtrlEnabled.value === true"></ion-toggle>
+          </ion-item>
+
+          <table class="full_width">
+            <tr>
+              <td style="width: 65%" translate>
+                Edge.Index.Widgets.HeatPump.gridSell
+              </td>
+              <td style="width: 35%" class="align_right">
+                <ion-item class="ion-no-padding" lines="inset">
+                  <ion-input id="automaticRecommendationSurplusPower"
+                    formControlName="automaticRecommendationSurplusPower" class="regularFont" type="number"
+                    style="text-align: end;">
+                  </ion-input>
+                  <ion-label class="regularFont">&nbsp;W</ion-label>
+                </ion-item>
+              </td>
+            </tr>
+          </table>
+
+          <table class="full_width" *ngIf="formGroup.controls.automaticRecommendationSurplusPower.dirty">
+            <tr>
+              <td style="width: 100%">
+                <ion-text color="danger" translate>
+                  Edge.Index.Widgets.HeatPump.moreThanMaxPower
+                </ion-text>
+              </td>
+            </tr>
+          </table>
+        </ion-card-content>
+
+        <ion-card-content class="underline">
+          <ion-item
+            (click)="updateAutomaticEnableMode(formGroup.controls.automaticForceOnCtrlEnabled.value !== true,'automaticForceOnCtrlEnabled')"
+            class="ion-no-padding" lines="none" style="cursor: pointer;">
+            <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.switchOnCom
+            </ion-label>
+            <ion-toggle [checked]="formGroup.controls.automaticForceOnCtrlEnabled.value === true"></ion-toggle>
+          </ion-item>
+
+          <ng-container>
+            <table class="full_width">
+              <tr>
+                <td style="width: 65%" translate>
+                  Edge.Index.Widgets.HeatPump.gridSell
+                </td>
+                <td style="width: 35%" class="align_right">
+                  <ion-item class="ion-no-padding" lines="inset">
+                    <ion-input type="number" formControlName="automaticForceOnSurplusPower" class="regularFont"
+                      style="text-align: end;">
+                    </ion-input>
+                    <ion-label class="regularFont">&nbsp;W</ion-label>
+                  </ion-item>
+                </td>
+              </tr>
+            </table>
+            <table class="full_width" *ngIf="formGroup.controls.automaticForceOnSurplusPower.dirty">
+              <tr>
+                <td style="width: 100%">
+                  <ion-text color="danger" translate>
+                    Edge.Index.Widgets.HeatPump.moreThanMaxPower
+                  </ion-text>
+                </td>
+              </tr>
+            </table>
+            <table class="full_width">
+              <tr>
+                <td style="width: 65%;" translate>
+                  Edge.Index.Widgets.HeatPump.aboveSoc</td>
+                <td style="width: 35%" class="align_right ion-padding-end">
+                  {{ formGroup.controls.automaticForceOnSoc.value | unitvalue:'%' }}
+                </td>
+              </tr>
+            </table>
+            <table class="full_width">
+              <tr>
+                <ion-range formControlName="automaticForceOnSoc" pin color="dark" min="1" max="100">
+                  <ion-label slot="start">
+                    {{ 0 | unitvalue:'%' }}
+                  </ion-label>
+                  <ion-label slot="end">
+                    {{ 100 | unitvalue:'%' }}
+                  </ion-label>
+                </ion-range>
+              </tr>
+            </table>
+          </ng-container>
+        </ion-card-content>
+
+        <ion-card-content class="underline">
+          <ion-item
+            (click)="updateAutomaticEnableMode(formGroup.controls.automaticLockCtrlEnabled.value !== true,'automaticLockCtrlEnabled')"
+            class="ion-no-padding" lines="none" style="cursor: pointer;">
+            <ion-label class="regularFont" translate>Edge.Index.Widgets.HeatPump.lock</ion-label>
+            <ion-toggle [checked]="formGroup.controls.automaticLockCtrlEnabled.value"></ion-toggle>
+          </ion-item>
+          <ng-container>
+            <table class="full_width">
+              <tr>
+                <td style="width: 65%" translate>
+                  Edge.Index.Widgets.HeatPump.gridBuy
+                </td>
+                <td style="width: 35%" class="align_right">
+                  <ion-item class="ion-no-padding" lines="inset">
+                    <ion-input type="number" formControlName="automaticLockGridBuyPower" class="regularFont"
+                      style="text-align: end;">
+                    </ion-input>
+                    <ion-label class="regularFont">&nbsp;W</ion-label>
+                  </ion-item>
+                </td>
+              </tr>
+            </table>
+            <table class="full_width">
+              <tr>
+                <td style="width: 65%;" translate>
+                  Edge.Index.Widgets.HeatPump.belowSoc</td>
+                <td style="width: 35%" class="align_right ion-padding-end">
+                  {{ formGroup.controls.automaticLockSoc.value | unitvalue:'%' }}
+                </td>
+              </tr>
+            </table>
+            <table class="full_width">
+              <tr>
+                <ion-range formControlName="automaticLockSoc" pin color="dark" min="1" max="100">
+                  <ion-label slot="start">
+                    {{ 0 | unitvalue:'%' }}
+                  </ion-label>
+                  <ion-label slot="end">
+                    {{ 100 | unitvalue:'%' }}
+                  </ion-label>
+                </ion-range>
+              </tr>
+            </table>
+          </ng-container>
+        </ion-card-content>
+        <ion-card-content class="underline">
+          <table class="full_width">
+            <tr>
+              <td style="width: 65%" translate>
+                Edge.Index.Widgets.Singlethreshold.minSwitchingTime
+              </td>
+              <td style="width: 35%" class="align_right">
+                <ion-item lines="inset" class="ion-no-padding">
+                  <ion-input formControlName="minimumSwitchingTime" class="regularFont" type="number"
+                    style="text-align: end;">
+                  </ion-input>
+                  <ion-label class="regularFont">&nbsp;s</ion-label>
+                </ion-item>
+              </td>
+            </tr>
+          </table>
+        </ion-card-content>
+      </ng-container>
+    </form>
+
+
+    <ion-fab *ngIf="formGroup.dirty" class="ion-padding-bottom" vertical="bottom" horizontal="center" slot="fixed">
+      <ion-fab-button (click)="applyChanges()">
+        <ion-icon size="large" name="checkmark-circle-outline">
+        </ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+    <ion-grid *ngIf="loading === true">
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    </ion-grid>
+  </ng-container>
+</ion-content>

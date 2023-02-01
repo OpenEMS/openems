@@ -26,6 +26,7 @@ import org.osgi.service.event.EventHandler;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingRunnable;
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
@@ -290,8 +291,8 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			for (ChannelValue input : this.inputs) {
 				var component = components.get(input.address.getComponentId());
 				if (component == null) {
-					throw new IllegalArgumentException("On TestCase [" + this.description + "]: " + //
-							"the component [" + input.address.getComponentId() + "] " //
+					throw new IllegalArgumentException("On TestCase [" + this.description + "]: " //
+							+ "the component [" + input.address.getComponentId() + "] " //
 							+ "was not added to the OpenEMS Component test framework!");
 				}
 				Channel<?> channel = component.channel(input.address.getChannelId());
@@ -510,9 +511,8 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		this.callActivate(config);
 
 		if (configChangeCount != this.getConfigChangeCount()) {
-			// deactivate + recursive call
-			this.callDeactivate();
-			this.activate(config);
+			// Config change detected
+			this.callModified(config);
 		}
 
 		// Now SUT can be added to the list, as it does have an ID now
@@ -536,10 +536,15 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 
 	private void callActivate(AbstractComponentConfig config)
 			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		this.callActivateOrModified("activate", config);
+	}
+
+	private boolean callActivateOrModified(String methodName, AbstractComponentConfig config)
+			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Class<?> clazz = this.sut.getClass();
 		var methods = clazz.getDeclaredMethods();
 		for (Method method : methods) {
-			if (!method.getName().equals("activate")) {
+			if (!method.getName().equals(methodName)) {
 				continue;
 			}
 			var args = new Object[method.getParameterCount()];
@@ -567,7 +572,20 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 			}
 			method.setAccessible(true);
 			method.invoke(this.sut, args);
+			return true;
+		}
+		return false;
+	}
+
+	private void callModified(AbstractComponentConfig config) throws Exception {
+		var hasModified = this.callActivateOrModified("modified", config);
+		if (hasModified) {
 			return;
+
+		} else {
+			// Has no modified() method -> Deactivate + recursive activate
+			this.callDeactivate();
+			this.activate(config);
 		}
 	}
 

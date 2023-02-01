@@ -14,6 +14,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import io.openems.common.test.AbstractComponentConfig;
+
 /**
  * Simulates a ConfigurationAdmin for the OpenEMS Component test framework.
  */
@@ -122,12 +124,12 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 
 	@Override
 	public Configuration getConfiguration(String pid) throws IOException {
-		return this.configurations.get(pid);
+		return this.getOrCreateEmptyConfiguration(pid);
 	}
 
 	@Override
 	public Configuration getConfiguration(String pid, String location) throws IOException {
-		return this.configurations.get(pid);
+		return this.getOrCreateEmptyConfiguration(pid);
 	}
 
 	@Override

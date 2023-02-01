@@ -19,10 +19,25 @@ public interface BoschBpts5HybridCore extends OpenemsComponent {
 
 	public void setMeter(BoschBpts5HybridMeter boschBpts5HybridMeter);
 
+	/**
+	 * Gets the {@link BoschBpts5HybridEss}.
+	 * 
+	 * @return the {@link BoschBpts5HybridEss}
+	 */
 	public Optional<BoschBpts5HybridEss> getEss();
 
+	/**
+	 * Gets the {@link BoschBpts5HybridPv}.
+	 * 
+	 * @return the {@link BoschBpts5HybridPv}
+	 */
 	public Optional<BoschBpts5HybridPv> getPv();
 
+	/**
+	 * Gets the {@link BoschBpts5HybridMeter}.
+	 * 
+	 * @return the {@link BoschBpts5HybridMeter}
+	 */
 	public Optional<BoschBpts5HybridMeter> getMeter();
 
 	public enum CoreChannelId implements io.openems.edge.common.channel.ChannelId {

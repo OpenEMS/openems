@@ -51,12 +51,12 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 	private Config config;
 
 	/**
-	 * Minimum reserve SoC value in [%]
+	 * Minimum reserve SoC value in [%].
 	 */
 	private static final int reservSocMinValue = 5;
 
 	/**
-	 * Maximum reserve SoC value in [%]
+	 * Maximum reserve SoC value in [%].
 	 */
 	private static final int reservSocMaxValue = 100;
 
@@ -95,8 +95,10 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		var context = this.handleStateMachine();
+		Integer actualReserveSoc = null;
 
 		if (this.config.isReserveSocEnabled()) {
+			actualReserveSoc = this.config.reserveSoc();
 			var activePowerConstraint = this.rampFilter.getFilteredValueAsInteger(context.getTargetPower(),
 					context.getRampPower());
 
@@ -115,6 +117,9 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 			this._setDebugRampPower(context.getRampPower());
 		}
 
+		// Set the actual reserve Soc. This channel is used mainly for visualization in
+		// UI.
+		this._setActualReserveSoc(actualReserveSoc);
 	}
 
 	/**
@@ -193,10 +198,4 @@ public class EmergencyCapacityReserveImpl extends AbstractOpenemsComponent
 				.mapToInt(Value::get) //
 				.findFirst();
 	}
-
-	@Override
-	public Config getConfig() {
-		return this.config;
-	}
-
 }

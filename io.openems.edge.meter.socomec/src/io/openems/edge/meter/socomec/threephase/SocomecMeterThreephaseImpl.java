@@ -102,12 +102,9 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0xc55C),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E)), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564)), //
 						new DummyRegisterElement(0xc566, 0xc567), //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0xc568),
 								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), //
@@ -162,12 +159,9 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 								ElementToChannelConverter.SCALE_FACTOR_1), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564)), //
 						new DummyRegisterElement(0xc566, 0xc567), //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0xc568),
 								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), //
@@ -221,12 +215,9 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 								ElementToChannelConverter.SCALE_FACTOR_1), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564)), //
 						new DummyRegisterElement(0xc566, 0xc567), //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0xc568),
 								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), //
@@ -280,12 +271,9 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 								ElementToChannelConverter.SCALE_FACTOR_1), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0xc560)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564)), //
 						new DummyRegisterElement(0xc566, 0xc567), //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0xc568),
 								ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE(this.config.invert())), //
@@ -338,12 +326,9 @@ public class SocomecMeterThreephaseImpl extends AbstractSocomecMeter implements 
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedDoublewordElement(0x4810),
 								ElementToChannelConverter.SCALE_FACTOR_1), //
 						new DummyRegisterElement(0x4812, 0x4819), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0x481A), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0x481C), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0x481E), //
-								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(0x481A)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0x481C)), //
+						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0x481E)), //
 						new DummyRegisterElement(0x4820, 0x482B), //
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(0x482C), //
 								ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())), //

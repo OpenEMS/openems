@@ -37,7 +37,7 @@ public class Resolution {
 	 * @param date to remove InfluxDB offset
 	 * @return Date without offset
 	 */
-	public ZonedDateTime revertInfluxDBOffset(ZonedDateTime date) {
+	public ZonedDateTime revertInfluxDbOffset(ZonedDateTime date) {
 		switch (this.unit) {
 		case DAYS:
 		case MONTHS:

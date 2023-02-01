@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -11,7 +11,7 @@ import { Data, TooltipItem } from './../shared';
     selector: 'delayedselltogridgchart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class DelayedSellToGridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class DelayedSellToGridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
@@ -25,13 +25,11 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("delayedsellTogrid-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = 'delayedsellTogrid-chart';
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -41,7 +39,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -176,12 +174,14 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                 }
                 this.datasets = datasets;
                 this.loading = false;
-                this.service.stopSpinner(this.spinnerId);
+                this.stopSpinner();
+
             }).catch(reason => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
             });
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

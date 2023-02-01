@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -91,3 +92,4 @@ public class Humidity extends TaggedDevice implements TaggedSensor {
 		return (int) (d + (d > 0 ? 0.5 : -0.5));
 	}
 }
+// CHECKSTYLE:ON

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999-2001 Maxim Integrated Products, All Rights Reserved.
@@ -495,3 +496,4 @@ class TAGHandler implements ErrorHandler, DocumentHandler {
 	private Vector<OWPath> branchPaths; // to hold all OWPaths to 1-Wire devices.
 
 }
+// CHECKSTYLE:ON

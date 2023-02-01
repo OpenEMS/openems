@@ -1,0 +1,19 @@
+<oe-flat-widget *ngIf="isInitialized" button (click)="presentModal()" [title]="component.alias"
+  [icon]="{name: icon.name}">
+  <oe-flat-widget-line [name]="'General.state' | translate" [value]="state"></oe-flat-widget-line>
+  <oe-flat-widget-line [name]="'General.mode' | translate" [value]="mode"></oe-flat-widget-line>
+
+  <ng-container *ngIf="modeValue === 'AUTOMATIC'">
+    <oe-flat-widget-line [name]="'Edge.Index.Widgets.Singlethreshold.dependendOn' | translate" [value]="dependendOn"
+      leftColumnWidth="20">
+    </oe-flat-widget-line>
+    <oe-flat-widget-line *ngIf="isOtherInputAddress" [name]="'General.currentValue' | translate"
+      [value]="dependendOnValue + ' ' + unitOfInputChannel">
+    </oe-flat-widget-line>
+
+    <ng-container *ngIf="outputChannelValue !== null">
+      <oe-flat-widget-line [converter]="switchConverter" [name]="switchState" [value]="switchValue">
+      </oe-flat-widget-line>
+    </ng-container>
+  </ng-container>
+</oe-flat-widget>

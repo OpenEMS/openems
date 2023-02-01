@@ -8,8 +8,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,26 +22,32 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.io.shelly.common.ShellyApi;
+import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "IO.Shelly.Plug", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE//
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class ShellyPlugImpl extends AbstractOpenemsComponent
-		implements ShellyPlug, DigitalOutput, OpenemsComponent, EventHandler {
+		implements ShellyPlug, DigitalOutput, SymmetricMeter, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(ShellyPlugImpl.class);
 
 	private final BooleanWriteChannel[] digitalOutputChannels;
 	private ShellyApi shellyApi = null;
+	private MeterType meterType = null;
 
 	public ShellyPlugImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
+				SymmetricMeter.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
 				ShellyPlug.ChannelId.values() //
 		);
@@ -54,6 +60,7 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.shellyApi = new ShellyApi(config.ip());
+		this.meterType = config.type();
 	}
 
 	@Override
@@ -104,6 +111,7 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 	private void eventBeforeProcessImage() {
 		Boolean relayIson = null;
 		Integer power = null;
+		Long energy = null;
 		try {
 			var json = this.shellyApi.getStatus();
 			var relays = JsonUtils.getAsJsonArray(json, "relays");
@@ -112,6 +120,7 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 			var meters = JsonUtils.getAsJsonArray(json, "meters");
 			var meter1 = JsonUtils.getAsJsonObject(meters.get(0));
 			power = Math.round(JsonUtils.getAsFloat(meter1, "power"));
+			energy = JsonUtils.getAsLong(meter1, "total") /* Unit: Wm */ / 60 /* Wh */;
 
 			this._setSlaveCommunicationFailed(false);
 
@@ -121,6 +130,7 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 		}
 		this._setRelay(relayIson);
 		this._setActivePower(power);
+		this._setActiveProductionEnergy(energy);
 	}
 
 	/**
@@ -148,6 +158,11 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 			return;
 		}
 		this.shellyApi.setRelayTurn(index, writeValue.get());
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return this.meterType;
 	}
 
 }

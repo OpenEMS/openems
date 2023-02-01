@@ -2,9 +2,8 @@ package io.openems.backend.common.metadata;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,39 +11,35 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Objects;
 import com.google.gson.JsonObject;
 
-import io.openems.common.channel.Level;
-import io.openems.common.types.EdgeConfig;
+import io.openems.backend.common.event.BackendEventConstants;
+import io.openems.common.event.EventBuilder;
 import io.openems.common.types.SemanticVersion;
 import io.openems.common.utils.JsonUtils;
 
 public class Edge {
 
 	private final Logger log = LoggerFactory.getLogger(Edge.class);
-
-	public enum State {
-		ACTIVE, INACTIVE, TEST, INSTALLED_ON_STOCK, OFFLINE;
-	}
+	private final Metadata parent;
 
 	private final String id;
 	private String comment;
-	private State state;
 	private SemanticVersion version;
 	private String producttype;
-	private Level sumState;
-	private EdgeConfig config;
-	private ZonedDateTime lastMessage = null;
-	private ZonedDateTime lastUpdate = null;
+	private ZonedDateTime lastmessage = null;
 	private boolean isOnline = false;
 
-	public Edge(String id, String comment, State state, String version, String producttype, Level sumState,
-			EdgeConfig config) {
+	private final List<EdgeUser> user;
+
+	public Edge(Metadata parent, String id, String comment, String version, String producttype,
+			ZonedDateTime lastmessage) {
 		this.id = id;
 		this.comment = comment;
-		this.state = state;
 		this.version = SemanticVersion.fromStringOrZero(version);
 		this.producttype = producttype;
-		this.sumState = sumState;
-		this.config = config;
+		this.lastmessage = lastmessage;
+
+		this.parent = parent;
+		this.user = new ArrayList<>();
 	}
 
 	public String getId() {
@@ -62,10 +57,6 @@ public class Edge {
 		this.comment = comment;
 	}
 
-	public EdgeConfig getConfig() {
-		return this.config;
-	}
-
 	/**
 	 * Gets this {@link Edge} as {@link JsonObject}.
 	 *
@@ -78,6 +69,7 @@ public class Edge {
 				.addProperty("version", this.version.toString()) //
 				.addProperty("producttype", this.producttype) //
 				.addProperty("online", this.isOnline) //
+				.addPropertyIfNotNull("lastmessage", this.lastmessage) //
 				.build();
 	}
 
@@ -86,32 +78,19 @@ public class Edge {
 		return "Edge [" //
 				+ "id=" + this.id + ", " //
 				+ "comment=" + this.comment + ", " //
-				+ "state=" + this.state + ", " //
 				+ "version=" + this.version + ", " //
 				+ "producttype=" + this.producttype + ", " //
-				+ "deprecatedConfig=" + (this.config.toString().isEmpty() ? "NOT_SET" : "set") + ", " //
-				+ "lastMessage=" + this.lastMessage + ", " //
-				+ "lastUpdate=" + this.lastUpdate + ", " //
+				+ "lastmessage=" + this.lastmessage + ", " //
 				+ "isOnline=" + this.isOnline //
 				+ "]";
 	}
 
-	/*
-	 * Online
-	 */
-	private final List<Consumer<Boolean>> onSetOnline = new CopyOnWriteArrayList<>();
-
-	/**
-	 * Add a Listener for Set-Online events.
-	 *
-	 * @param listener the listener
-	 */
-	public void onSetOnline(Consumer<Boolean> listener) {
-		this.onSetOnline.add(listener);
-	}
-
 	public boolean isOnline() {
 		return this.isOnline;
+	}
+
+	public boolean isOffline() {
+		return !this.isOnline;
 	}
 
 	/**
@@ -120,132 +99,56 @@ public class Edge {
 	 * @param isOnline true if the Edge is online
 	 */
 	public synchronized void setOnline(boolean isOnline) {
-		this.onSetOnline.forEach(listener -> listener.accept(isOnline));
-		this.isOnline = isOnline;
-	}
+		if (this.isOnline != isOnline) {
+			EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_ONLINE) //
+					.addArg(Events.OnSetOnline.EDGE, this) //
+					.addArg(Events.OnSetOnline.IS_ONLINE, isOnline) //
+					.send(); //
 
-	/*
-	 * Config
-	 */
-	private final List<Consumer<EdgeConfig>> onSetConfig = new CopyOnWriteArrayList<>();
-
-	/**
-	 * Adds a listener for reception of new EdgeConfig. The listener is called
-	 * before the new config is applied.
-	 *
-	 * @param listener the Listener
-	 */
-	public void onSetConfig(Consumer<EdgeConfig> listener) {
-		this.onSetConfig.add(listener);
-	}
-
-	/**
-	 * Sets the configuration for this Edge and calls the SetConfig-Listeners.
-	 *
-	 * @param config the configuration
-	 */
-	public synchronized void setConfig(EdgeConfig config) {
-		this.setConfig(config, true);
-	}
-
-	/**
-	 * Sets the configuration for this Edge.
-	 *
-	 * @param config        the configuration
-	 * @param callListeners whether to call the SetConfig-Listeners
-	 */
-	public synchronized void setConfig(EdgeConfig config, boolean callListeners) {
-		if (callListeners) {
-			this.onSetConfig.forEach(listener -> listener.accept(config));
+			this.isOnline = isOnline;
 		}
-		this.config = config;
-	}
-
-	/*
-	 * State
-	 */
-	public void setState(State state) {
-		this.state = state;
-	}
-
-	public State getState() {
-		return this.state;
-	}
-
-	/*
-	 * Last Message
-	 */
-	private final List<Runnable> onSetLastMessageTimestamp = new CopyOnWriteArrayList<>();
-
-	/**
-	 * Add a Listener for Set-Last-Message events.
-	 *
-	 * @param listener the listener
-	 */
-	public void onSetLastMessage(Runnable listener) {
-		this.onSetLastMessageTimestamp.add(listener);
 	}
 
 	/**
-	 * Sets the Last-Message-Timestamp and calls the SetLastMessage-Listeners.
+	 * Sets the Last-Message-Timestamp to now() and calls the
+	 * setLastmessage-Listeners.
 	 */
-	public synchronized void setLastMessageTimestamp() {
-		this.setLastMessageTimestamp(true);
+	public synchronized void setLastmessage() {
+		this.setLastmessage(ZonedDateTime.now(ZoneOffset.UTC));
+	}
+
+	/**
+	 * Sets the Last-Message-Timestamp and calls the setLastmessage-Listeners.
+	 * 
+	 * @param timestamp the Last-Message-Timestamp
+	 */
+	public synchronized void setLastmessage(ZonedDateTime timestamp) {
+		this.setLastmessage(timestamp, true);
 	}
 
 	/**
 	 * Sets the Last-Message-Timestamp.
 	 *
-	 * @param callListeners whether to call the SetLastMessage-Listeners
+	 * @param timestamp     the Last-Message-Timestamp
+	 * @param callListeners whether to call the setLastmessage-Listeners
 	 */
-	public synchronized void setLastMessageTimestamp(boolean callListeners) {
+	public synchronized void setLastmessage(ZonedDateTime timestamp, boolean callListeners) {
 		if (callListeners) {
-			this.onSetLastMessageTimestamp.forEach(Runnable::run);
+			EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_LASTMESSAGE) //
+					.addArg(Events.OnSetLastmessage.EDGE, this) //
+					.send(); //
 		}
-		var now = ZonedDateTime.now(ZoneOffset.UTC);
-		this.lastMessage = now;
+		var now = timestamp;
+		this.lastmessage = now;
 	}
-
-	public ZonedDateTime getLastMessageTimestamp() {
-		return this.lastMessage;
-	}
-
-	/*
-	 * Last Update
-	 */
-	private final List<Runnable> onSetLastUpdateTimestamp = new CopyOnWriteArrayList<>();
 
 	/**
-	 * Add a Listener for Set-Last-Update events.
+	 * Returns the Last-Message-Timestamp.
 	 *
-	 * @param listener the listener
+	 * @return Last-Message-Timestamp in UTC Timezone
 	 */
-	public void onSetLastUpdate(Runnable listener) {
-		this.onSetLastUpdateTimestamp.add(listener);
-	}
-
-	/**
-	 * Sets the Last-Message-Timestamp and calls the SetLastUpdate-Listeners.
-	 */
-	public synchronized void setLastUpdateTimestamp() {
-		this.setLastUpdateTimestamp(true);
-	}
-
-	/**
-	 * Sets the Last-Update-Timestamp.
-	 *
-	 * @param callListeners whether to call the SetLastUpdate-Listeners
-	 */
-	public synchronized void setLastUpdateTimestamp(boolean callListeners) {
-		if (callListeners) {
-			this.onSetLastUpdateTimestamp.forEach(Runnable::run);
-		}
-		var now = ZonedDateTime.now(ZoneOffset.UTC);
-		this.lastUpdate = now;
-	}
-
-	public ZonedDateTime getLastUpdateTimestamp() {
-		return this.lastUpdate;
+	public ZonedDateTime getLastmessage() {
+		return this.lastmessage;
 	}
 
 	/*
@@ -253,17 +156,6 @@ public class Edge {
 	 */
 	public SemanticVersion getVersion() {
 		return this.version;
-	}
-
-	private final List<Consumer<SemanticVersion>> onSetVersion = new CopyOnWriteArrayList<>();
-
-	/**
-	 * Add a Listener for Set-Version events.
-	 *
-	 * @param listener the listener
-	 */
-	public void onSetVersion(Consumer<SemanticVersion> listener) {
-		this.onSetVersion.add(listener);
 	}
 
 	/**
@@ -284,9 +176,13 @@ public class Edge {
 	public synchronized void setVersion(SemanticVersion version, boolean callListeners) {
 		if (!Objects.equal(this.version, version)) { // on change
 			if (callListeners) {
-				this.log.info("Edge [" + this.getId() + "]: Update version to [" + version + "]. It was ["
-						+ this.version + "]");
-				this.onSetVersion.forEach(listener -> listener.accept(version));
+				this.log.info(
+						"Edge [" + this.getId() + "]: Update version from [" + this.version + "] to [" + version + "]");
+
+				EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_VERSION) //
+						.addArg(Events.OnSetVersion.EDGE, this) //
+						.addArg(Events.OnSetVersion.VERSION, version) //
+						.send(); //
 			}
 			this.version = version;
 		}
@@ -297,17 +193,6 @@ public class Edge {
 	 */
 	public String getProducttype() {
 		return this.producttype;
-	}
-
-	private final List<Consumer<String>> onSetProducttype = new CopyOnWriteArrayList<>();
-
-	/**
-	 * Add a Listener for Set-Product-Type events.
-	 *
-	 * @param listener the listener
-	 */
-	public void onSetProducttype(Consumer<String> listener) {
-		this.onSetProducttype.add(listener);
 	}
 
 	/**
@@ -330,52 +215,85 @@ public class Edge {
 			if (callListeners) {
 				this.log.info("Edge [" + this.getId() + "]: Update Product-Type to [" + producttype + "]. It was ["
 						+ this.producttype + "]");
-				this.onSetProducttype.forEach(listener -> listener.accept(producttype));
+
+				EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_PRODUCTTYPE) //
+						.addArg(Events.OnSetProducttype.EDGE, this) //
+						.addArg(Events.OnSetProducttype.PRODUCTTYPE, producttype) //
+						.send(); //
 			}
 			this.producttype = producttype;
 		}
 	}
 
-	/*
-	 * Sum-State (value of channel "_sum/State").
-	 */
-	public Level getSumState() {
-		return this.sumState;
-	}
-
-	private final List<Consumer<Level>> onSetSumState = new CopyOnWriteArrayList<>();
-
 	/**
-	 * Add a Listener for Set-Sum-State events.
+	 * Add User to UserList.
 	 *
-	 * @param listener the listener
+	 * @param user to add
 	 */
-	public void onSetSumState(Consumer<Level> listener) {
-		this.onSetSumState.add(listener);
+	public synchronized void addUser(EdgeUser user) {
+		this.user.add(user);
 	}
 
 	/**
-	 * Sets the sumState and calls the SetSumState-Listeners.
+	 * Get list of users.
 	 *
-	 * @param sumState the sumState
+	 * @return user as List of EdgeUser
 	 */
-	public synchronized void setSumState(Level sumState) {
-		this.setSumState(sumState, true);
+	public List<EdgeUser> getUser() {
+		return this.user;
 	}
 
 	/**
-	 * Sets the version.
-	 *
-	 * @param sumState      the sumState
-	 * @param callListeners whether to call the SetSumState-Listeners
+	 * Defines all Events an Edge can throw.
 	 */
-	public synchronized void setSumState(Level sumState, boolean callListeners) {
-		if (!Objects.equal(this.sumState, sumState)) { // on change
-			if (callListeners) {
-				this.onSetSumState.forEach(listener -> listener.accept(sumState));
-			}
-			this.sumState = sumState;
+	public static final class Events {
+
+		private Events() {
 		}
-	}
 
+		private static final String TOPIC_BASE = BackendEventConstants.TOPIC_BASE + "edge/";
+		public static final String ALL_EVENTS = Events.TOPIC_BASE + "*";
+
+		public static final String ON_SET_ONLINE = Events.TOPIC_BASE + "ON_SET_ONLINE";
+
+		public static final class OnSetOnline {
+			public static final String EDGE = "Edge:Edge";
+			public static final String IS_ONLINE = "IsOnline:boolean";
+		}
+
+		public static final String ON_SET_VERSION = Events.TOPIC_BASE + "ON_SET_VERSION";
+
+		public static final class OnSetVersion {
+			public static final String EDGE = "Edge:Edge";
+			public static final String VERSION = "Version:SemanticVersion";
+		}
+
+		public static final String ON_SET_PRODUCTTYPE = Events.TOPIC_BASE + "ON_SET_PRODUCTTYPE";
+
+		public static final class OnSetProducttype {
+			public static final String EDGE = "Edge:Edge";
+			public static final String PRODUCTTYPE = "Producttype:String";
+		}
+
+		public static final String ON_SET_SUM_STATE = Events.TOPIC_BASE + "ON_SET_SUM_STATE";
+
+		public static final class OnSetSumState {
+			public static final String EDGE = "Edge:Edge";
+			public static final String SUM_STATE = "SumState:Level";
+		}
+
+		public static final String ON_SET_CONFIG = Events.TOPIC_BASE + "ON_SET_CONFIG";
+
+		public static final class OnSetConfig {
+			public static final String EDGE = "Edge:Edge";
+			public static final String CONFIG = "Config:EdgeConfig";
+		}
+
+		public static final String ON_SET_LASTMESSAGE = Events.TOPIC_BASE + "ON_SET_LASTMESSAGE";
+
+		public static final class OnSetLastmessage {
+			public static final String EDGE = "Edge:Edge";
+		}
+
+	}
 }

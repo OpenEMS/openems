@@ -3,7 +3,7 @@ package io.openems.edge.controller.symmetric.randompower;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition( //
+@ObjectClassDefinition(//
 		name = "Controller Random Power Symmetric", //
 		description = "Defines a random power within fixed max/min power to a symmetric energy storage system.")
 @interface Config {

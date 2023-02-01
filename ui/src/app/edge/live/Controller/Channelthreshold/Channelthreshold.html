@@ -1,8 +1,8 @@
-<oe-flat-widget *ngIf="isInitialized" [icon]="{name: icon.name, color:icon.color}"
-  [title]="component.alias | translate">
-  <oe-flat-widget-line *ngIf="component.id != component.alias" [name]="component.alias | translate" [value]="state">
-  </oe-flat-widget-line>
-  <oe-flat-widget-line *ngIf="component.id == component.alias" [name]="outputChannel.channelId | translate"
-    [value]="state">
-  </oe-flat-widget-line>
-</oe-flat-widget>
+<ng-container *ngIf="isInitialized">
+  <ng-container *ngVar="(component.id === component.alias ? outputChannel.channelId : component.alias) as name">
+    <oe-flat-widget [icon]="{name: icon.name, color:icon.color}" [title]="name | translate">
+      <oe-flat-widget-line [name]="name | translate" [value]="state">
+      </oe-flat-widget-line>
+    </oe-flat-widget>
+  </ng-container>
+</ng-container>

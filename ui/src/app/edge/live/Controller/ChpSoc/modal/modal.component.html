@@ -2,17 +2,13 @@
     <ion-toolbar color="primary">
         <ion-title>{{ component.alias }}</ion-title>
         <ion-buttons slot="end">
-            <ion-button target="_blank"
-                href="https://docs.fenecon.de/{{service.getDocsLang()}}/_/latest/fems/fems-app/bhkw.html">
-                <ion-icon name="help-circle-outline"></ion-icon>
-            </ion-button>
+            <oe-help-button key="CONTROLLER_CHP_SOC"></oe-help-button>
             <ion-button (click)="modalCtrl.dismiss()">
                 <ion-icon name="close-outline"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
 </ion-header>
-
 
 <ion-content>
     <ng-container *ngIf="edge.currentData | async as currentData">
@@ -48,7 +44,7 @@
                 </ion-segment-button>
             </ion-segment>
         </ion-card-content>
-        <ng-container *ngIf="component.properties['mode'] == 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
+        <ng-container *ngIf="component.properties['mode'] === 'AUTOMATIC' && edge.roleIsAtLeast('owner')">
             <ion-card-content class="underline">
                 <table class="full_width">
                     <tr>
@@ -96,13 +92,11 @@
             <table class="full_width">
                 <tr>
                     <td style="width:65%" translate>General.state</td>
-                    <td style="width:35%" class="align_right" translate>
-                        <ion-icon *ngIf="currentData.channel[outputChannel] == null" name="help-outline"></ion-icon>
-                        <ng-container *ngIf="currentData.channel[outputChannel] == 1">
-                            General.active
-                        </ng-container>
-                        <ng-container *ngIf="currentData.channel[outputChannel] == 0">
-                            General.inactive
+                    <td style="width:35%" class="align_right">
+                        <ng-container [ngSwitch]="currentData.channel[outputChannel]">
+                            <span *ngSwitchCase="1" translate>General.active</span>
+                            <span *ngSwitchCase="0" translate>General.inactive</span>
+                            <ion-icon *ngSwitchDefault name="help-outline"></ion-icon>
                         </ng-container>
                     </td>
                 </tr>

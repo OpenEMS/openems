@@ -137,8 +137,8 @@ public interface OpenemsComponent {
 	 *
 	 * @param channelName the Channel-ID as a string
 	 * @param <T>         the expected typed Channel
-	 * @throws IllegalArgumentException on error
 	 * @return the Channel or throw Exception
+	 * @throws IllegalArgumentException on error
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends Channel<?>> T channel(String channelName) throws IllegalArgumentException {
@@ -205,11 +205,11 @@ public interface OpenemsComponent {
 	}
 
 	/**
-	 * Used for Modbus/TCP Api Controller. Provides a modbus table for the Channels
+	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
 	 * of this Component.
 	 *
-	 * @param accessMode the {@link AccessMode} of the Controller
-	 * @return a {@link ModbusSlaveNatureTable}
+	 * @param accessMode filters the Modbus-Records that should be shown
+	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(OpenemsComponent.class, accessMode, 80) //
@@ -318,8 +318,7 @@ public interface OpenemsComponent {
 	 * @param pid    PID of the calling component (use 'config.service_pid()' or
 	 *               '(String)prop.get(Constants.SERVICE_PID)'; if null, PID filter
 	 *               is not added to the resulting target filter
-	 * @param member Name of the Method or Field with the Reference annotation, e.g.
-	 *
+	 * @param member Name of the Method or Field with the Reference annotation
 	 * @param ids    Component IDs to be filtered for; for empty list, no ids are
 	 *               added to the target filter
 	 *
@@ -327,8 +326,50 @@ public interface OpenemsComponent {
 	 *         activate() method.
 	 */
 	public static boolean updateReferenceFilter(ConfigurationAdmin cm, String pid, String member, String... ids) {
+		final var filter = ConfigUtils.generateReferenceTargetFilter(pid, ids);
+		return updateReferenceFilterRaw(cm, pid, member, filter);
+	}
+
+	/**
+	 * Sets a target filter for a Declarative Service @Reference member.
+	 *
+	 * <p>
+	 * Use this method only if you know what you are doing. Usually you will want to
+	 * use the
+	 * {@link #updateReferenceFilter(ConfigurationAdmin, String, String, String...)}
+	 * method instead.
+	 *
+	 * <p>
+	 * Usage:
+	 *
+	 * <pre>
+	 * updateReferenceFilterRaw(config.service_pid(), "Controllers", "(enabled=true)");
+	 * </pre>
+	 *
+	 * @param cm     a ConfigurationAdmin instance. Get one using
+	 *
+	 *               <pre>
+	 *               &#64;Reference
+	 *               ConfigurationAdmin cm;
+	 *               </pre>
+	 *
+	 * @param pid    PID of the calling component (use 'config.service_pid()' or
+	 *               '(String)prop.get(Constants.SERVICE_PID)'; if null, PID filter
+	 *               is not added to the resulting target filter
+	 * @param member Name of the Method or Field with the Reference annotation, e.g.
+	 *
+	 * @param filter The filter attribute
+	 *
+	 * @return true if the filter was updated. You may use it to abort the
+	 *         activate() method.
+	 */
+	public static boolean updateReferenceFilterRaw(ConfigurationAdmin cm, String pid, String member, String filter) {
+		if (cm == null) {
+			throw new IllegalArgumentException("ConfigurationAdmin is null for updateReferenceFilterRaw" //
+					+ "(pid=\"" + pid + "\",member=\"" + member + "\",filter=\"" + filter + "\")");
+		}
+
 		final var targetProperty = member + ".target";
-		final var requiredTarget = ConfigUtils.generateReferenceTargetFilter(pid, ids);
 		/*
 		 * read existing target filter
 		 */
@@ -336,12 +377,12 @@ public interface OpenemsComponent {
 		try {
 			c = cm.getConfiguration(pid, "?");
 			var properties = c.getProperties();
-			var existingTarget = (String) properties.get(targetProperty);
+			var existingFilter = (String) properties.get(targetProperty);
 			/*
 			 * update target filter if required
 			 */
-			if (!requiredTarget.equals(existingTarget)) {
-				properties.put(targetProperty, requiredTarget);
+			if (!filter.equals(existingFilter)) {
+				properties.put(targetProperty, filter);
 				c.update(properties);
 				return true;
 			}
@@ -363,6 +404,7 @@ public interface OpenemsComponent {
 	 * &#64;Designate(factory = false)
 	 * </pre>
 	 *
+	 * <p>
 	 * By design it is required for these Singleton Components to have a predefined
 	 * Component-ID, like '_cycle', '_sum', etc. This method makes sure the
 	 * Component-ID matches this predefined ID - and if not automatically adjusts
@@ -375,6 +417,7 @@ public interface OpenemsComponent {
 	 * &#64;Component(property = { "id=_cycle" })
 	 * </pre>
 	 *
+	 * <p>
 	 * for this purpose. Unfortunately this is not sufficient to have the 'id'
 	 * property listed in EdgeConfig, ConfigurationAdmin, etc. This is why this
 	 * workaround is required.
@@ -480,8 +523,9 @@ public interface OpenemsComponent {
 	 */
 	public static void logDebug(OpenemsComponent component, Logger log, String message) {
 		// TODO use log.debug(String, Object...) to improve speed
-		if (component != null) {
-			log.debug("[" + component.id() + "] " + message);
+		var id = getComponentIdentifier(component);
+		if (id != null) {
+			log.debug("[" + id + "] " + message);
 		} else {
 			log.debug(message);
 		}
@@ -495,8 +539,9 @@ public interface OpenemsComponent {
 	 * @param message   the message
 	 */
 	public static void logInfo(OpenemsComponent component, Logger log, String message) {
-		if (component != null) {
-			log.info("[" + component.id() + "] " + message);
+		var id = getComponentIdentifier(component);
+		if (id != null) {
+			log.info("[" + id + "] " + message);
 		} else {
 			log.info(message);
 		}
@@ -510,8 +555,9 @@ public interface OpenemsComponent {
 	 * @param message   the message
 	 */
 	public static void logWarn(OpenemsComponent component, Logger log, String message) {
-		if (component != null) {
-			log.warn("[" + component.id() + "] " + message);
+		var id = getComponentIdentifier(component);
+		if (id != null) {
+			log.warn("[" + id + "] " + message);
 		} else {
 			log.warn(message);
 		}
@@ -525,11 +571,23 @@ public interface OpenemsComponent {
 	 * @param message   the message
 	 */
 	public static void logError(OpenemsComponent component, Logger log, String message) {
-		if (component != null) {
-			log.error("[" + component.id() + "] " + message);
+		var id = getComponentIdentifier(component);
+		if (id != null) {
+			log.error("[" + id + "] " + message);
 		} else {
 			log.error(message);
 		}
+	}
+
+	private static String getComponentIdentifier(OpenemsComponent component) {
+		if (component == null) {
+			return null;
+		}
+		var id = component.id();
+		if (id != null && !id.isBlank()) {
+			return id;
+		}
+		return component.getClass().getSimpleName();
 	}
 
 }

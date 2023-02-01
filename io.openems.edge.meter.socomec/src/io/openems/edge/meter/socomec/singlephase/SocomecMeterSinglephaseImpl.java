@@ -117,20 +117,16 @@ public class SocomecMeterSinglephaseImpl extends AbstractSocomecMeter implements
 						new DummyRegisterElement(0xc55A, 0xc55D), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new UnsignedDoublewordElement(0xc55E)), //
 						m(new UnsignedDoublewordElement(0xc560)) //
-								.m(SymmetricMeter.ChannelId.CURRENT,
-										ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert())) //
-								.m(AsymmetricMeter.ChannelId.CURRENT_L1, new ElementToChannelConverterChain(//
-										ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert()), //
+								.m(SymmetricMeter.ChannelId.CURRENT, ElementToChannelConverter.SCALE_FACTOR_1) //
+								.m(AsymmetricMeter.ChannelId.CURRENT_L1,
 										ElementToChannelConverter
-												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1))) //
-								.m(AsymmetricMeter.ChannelId.CURRENT_L2, new ElementToChannelConverterChain(//
-										ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert()), //
+												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L1)) //
+								.m(AsymmetricMeter.ChannelId.CURRENT_L2,
 										ElementToChannelConverter
-												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2))) //
-								.m(AsymmetricMeter.ChannelId.CURRENT_L3, new ElementToChannelConverterChain(//
-										ElementToChannelConverter.INVERT_IF_TRUE(this.config.invert()), //
+												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L2)) //
+								.m(AsymmetricMeter.ChannelId.CURRENT_L3,
 										ElementToChannelConverter
-												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3))) //
+												.SET_ZERO_IF_TRUE(this.config.phase() != SinglePhase.L3)) //
 								.build(), //
 						new DummyRegisterElement(0xc562, 0xc567), //
 						m(new SignedDoublewordElement(0xc568)) //

@@ -28,8 +28,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,16 +73,17 @@ import io.openems.edge.timedata.api.Timedata;
 @Component(//
 		name = SimulatorApp.SINGLETON_SERVICE_PID, //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+})
 public class SimulatorApp extends AbstractOpenemsComponent
 		implements SimulatorDatasource, ClockProvider, OpenemsComponent, JsonApi, EventHandler, Timedata {
 
-	public final static String SINGLETON_SERVICE_PID = "Simulator.App";
-	public final static String SINGLETON_COMPONENT_ID = "_simulator";
+	public static final String SINGLETON_SERVICE_PID = "Simulator.App";
+	public static final String SINGLETON_COMPONENT_ID = "_simulator";
 
 	private static final long MILLISECONDS_BETWEEN_LOGS = 5_000;
 
@@ -147,8 +148,18 @@ public class SimulatorApp extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext componentContext, Config config) throws OpenemsException {
+	private void activate(ComponentContext componentContext, Config config) throws OpenemsException {
 		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, config.enabled());
+
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
+		}
+	}
+
+	@Activate
+	private void modified(ComponentContext componentContext, Config config) throws OpenemsException {
+		super.modified(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, config.enabled());
+
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}

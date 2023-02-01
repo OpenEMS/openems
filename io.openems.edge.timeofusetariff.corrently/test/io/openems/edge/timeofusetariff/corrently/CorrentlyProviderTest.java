@@ -2,6 +2,7 @@ package io.openems.edge.timeofusetariff.corrently;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.time.ZonedDateTime;
 import java.util.SortedMap;
@@ -93,10 +94,14 @@ public class CorrentlyProviderTest {
 
 	@Test
 	public void emptyStringTest() throws OpenemsNamedException {
-		// Parsing with empty string
-		SortedMap<ZonedDateTime, Float> prices = CorrentlyImpl.parsePrices("");
+		try {
+			// Parsing with empty string
+			CorrentlyImpl.parsePrices("");
+		} catch (OpenemsNamedException e) {
+			// expected
+			return;
+		}
 
-		// To check if the map is empty.
-		assertTrue(prices.isEmpty());
+		fail("Expected Exception");
 	}
 }

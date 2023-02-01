@@ -1,36 +1,34 @@
-import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ChannelAddress, EdgeConfig, Service } from '../../../shared/shared';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { Data, TooltipItem } from './../shared';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { TranslateService } from '@ngx-translate/core';
+import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+import { ChannelAddress, EdgeConfig, Service } from '../../../shared/shared';
+import { AbstractHistoryChart } from '../abstracthistorychart';
+import { Data, TooltipItem } from './../shared';
 
 @Component({
     selector: 'heatpumpchart',
     templateUrl: '../abstracthistorychart.html'
 })
-export class HeatPumpChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class HeatPumpChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public component: EdgeConfig.Component;
 
     ngOnChanges() {
         this.updateChart();
-    };
+    }
 
     constructor(
         protected service: Service,
         protected translate: TranslateService,
         private route: ActivatedRoute,
     ) {
-        super(service, translate);
+        super("heatpump-chart", service, translate);
     }
 
-
     ngOnInit() {
-        this.spinnerId = "heatpump-chart";
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.service.setCurrentComponent('', this.route);
     }
 
@@ -40,7 +38,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
 
     protected updateChart() {
         this.autoSubscribeChartRefresh();
-        this.service.startSpinner(this.spinnerId);
+        this.startSpinner();
         this.loading = true;
         this.colors = [];
         this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -77,7 +75,8 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
             }
             this.datasets = datasets;
             this.loading = false;
-            this.service.stopSpinner(this.spinnerId);
+            this.stopSpinner();
+
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

@@ -1,10 +1,7 @@
 package io.openems.edge.core.host;
 
 import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -23,69 +20,15 @@ public class NetworkInterface<A> {
 	/**
 	 * This default address is always added to eth0.
 	 */
-	private static final Inet4AddressWithNetmask DEFAULT_ETH0_ADDRESS;
+	public static final Inet4AddressWithSubnetmask DEFAULT_ETH0_ADDRESS;
+	private static final String DEFAULT_ETH0_LABEL = "fallback";
+	private static final String DEFAULT_ETH0_IP_NETMASK = "192.168.100.100/24";
 
 	static {
 		try {
-			DEFAULT_ETH0_ADDRESS = Inet4AddressWithNetmask.fromString("192.168.100.100/24");
+			DEFAULT_ETH0_ADDRESS = Inet4AddressWithSubnetmask.fromString(DEFAULT_ETH0_LABEL, DEFAULT_ETH0_IP_NETMASK);
 		} catch (OpenemsException e) {
 			throw new RuntimeException("Failed to create DEFAULT_ETH0_ADDRESS instance in static block.", e);
-		}
-	}
-
-	/**
-	 * Helper class for wrapping an IPv4 address together with its netmask.
-	 */
-	public static class Inet4AddressWithNetmask {
-		private final Inet4Address inet4Address;
-		private final int netmask;
-
-		public Inet4AddressWithNetmask(Inet4Address inet4Address, int netmask) {
-			this.inet4Address = inet4Address;
-			this.netmask = netmask;
-		}
-
-		@Override
-		public String toString() {
-			return this.inet4Address.getHostAddress() + "/" + this.netmask;
-		}
-
-		/**
-		 * Parse a string in the form "192.168.100.100/24" to an IPv4 address.
-		 *
-		 * @param value the string
-		 * @return the new {@link Inet4AddressWithNetmask}
-		 * @throws OpenemsException on error
-		 */
-		public static Inet4AddressWithNetmask fromString(String value) throws OpenemsException {
-			var arr = value.split("/");
-			try {
-				return new Inet4AddressWithNetmask((Inet4Address) InetAddress.getByName(arr[0]),
-						Integer.parseInt(arr[1]));
-			} catch (NumberFormatException | UnknownHostException | IndexOutOfBoundsException e) {
-				throw new OpenemsException(
-						"Unable to parse Inet4Address with netmask from [" + value + "]: " + e.getMessage());
-			}
-		}
-
-		@Override
-		public int hashCode() {
-			return this.toString().hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			} else if (this.getClass() != obj.getClass()) {
-				return false;
-			} else {
-				var other = (Inet4AddressWithNetmask) obj;
-				return Objects.equals(this.toString(), other.toString());
-			}
 		}
 	}
 
@@ -98,6 +41,7 @@ public class NetworkInterface<A> {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static NetworkInterface<?> from(String name, JsonObject j) throws OpenemsNamedException {
+
 		// Gateway
 		ConfigurationProperty<Inet4Address> gateway;
 		{
@@ -133,14 +77,18 @@ public class NetworkInterface<A> {
 		}
 
 		// Addresses
-		ConfigurationProperty<Set<Inet4AddressWithNetmask>> addresses;
+		ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> addresses;
 		{
 			ConfigurationProperty<JsonArray> addressesArray = ConfigurationProperty
 					.fromJsonElement(JsonUtils.getOptionalSubElement(j, "addresses"), JsonUtils::getAsJsonArray);
 			if (addressesArray.isSet()) {
-				Set<Inet4AddressWithNetmask> value = new HashSet<>();
-				for (JsonElement address : addressesArray.getValue()) {
-					value.add(Inet4AddressWithNetmask.fromString(JsonUtils.getAsString(address)));
+				var value = new HashSet<Inet4AddressWithSubnetmask>();
+				for (JsonElement element : addressesArray.getValue()) {
+					var label = JsonUtils.getAsString(element, "label");
+					var address = JsonUtils.getAsInet4Address(element, "address");
+					var subnetmask = JsonUtils.getAsInet4Address(element, "subnetmask");
+					var cidr = Inet4AddressWithSubnetmask.getCidrFromSubnetmask(subnetmask);
+					value.add(new Inet4AddressWithSubnetmask(label, address, cidr));
 				}
 				addresses = ConfigurationProperty.of(value);
 			} else {
@@ -148,8 +96,11 @@ public class NetworkInterface<A> {
 			}
 		}
 
+		// DHCP
 		ConfigurationProperty<Boolean> dhcp = ConfigurationProperty
 				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "dhcp"), JsonUtils::getAsBoolean);
+
+		// linkLocalAddressing
 		ConfigurationProperty<Boolean> linkLocalAddressing = ConfigurationProperty
 				.fromJsonElement(JsonUtils.getOptionalSubElement(j, "linkLocalAddressing"), JsonUtils::getAsBoolean);
 
@@ -161,7 +112,7 @@ public class NetworkInterface<A> {
 	private ConfigurationProperty<Boolean> linkLocalAddressing;
 	private ConfigurationProperty<Inet4Address> gateway;
 	private ConfigurationProperty<Inet4Address> dns;
-	private ConfigurationProperty<Set<Inet4AddressWithNetmask>> addresses;
+	private ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> addresses;
 
 	/**
 	 * An arbitrary attachment to this NetworkInterface. Can be used to store e.g. a
@@ -169,17 +120,20 @@ public class NetworkInterface<A> {
 	 */
 	private final A attachment;
 
-	public NetworkInterface(String name, ConfigurationProperty<Boolean> dhcp,
-			ConfigurationProperty<Boolean> linkLocalAddressing, ConfigurationProperty<Inet4Address> gateway,
-			ConfigurationProperty<Inet4Address> dns, ConfigurationProperty<Set<Inet4AddressWithNetmask>> addresses,
+	public NetworkInterface(String name, //
+			ConfigurationProperty<Boolean> dhcp, //
+			ConfigurationProperty<Boolean> linkLocalAddressing, //
+			ConfigurationProperty<Inet4Address> gateway, //
+			ConfigurationProperty<Inet4Address> dns, //
+			ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> addresses, //
 			A attachment) throws OpenemsException {
 		this.name = name;
 		this.dhcp = dhcp;
 		this.linkLocalAddressing = linkLocalAddressing;
 		this.gateway = gateway;
 		this.dns = dns;
-		this.addresses = addresses;
 		this.attachment = attachment;
+		this.addresses = addresses;
 	}
 
 	/**
@@ -219,21 +173,21 @@ public class NetworkInterface<A> {
 	}
 
 	/**
+	 * Gets the addresses configured in the network.
+	 * 
+	 * @return the addresses mapped with label.
+	 */
+	public ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> getAddresses() {
+		return this.addresses;
+	}
+
+	/**
 	 * Gets the network interface DNS server.
 	 *
 	 * @return the DNS server
 	 */
 	public ConfigurationProperty<Inet4Address> getDns() {
 		return this.dns;
-	}
-
-	/**
-	 * Gets the network interface addresses.
-	 *
-	 * @return the addresses
-	 */
-	public ConfigurationProperty<Set<Inet4AddressWithNetmask>> getAddresses() {
-		return this.addresses;
 	}
 
 	/**
@@ -254,9 +208,9 @@ public class NetworkInterface<A> {
 	 *
 	 * @return all addresses
 	 */
-	public ConfigurationProperty<Set<Inet4AddressWithNetmask>> getAddressesIncludingDefaults() {
-		if (this.name.equals("eth0") || !this.addresses.isSet()) {
-			Set<Inet4AddressWithNetmask> value = new HashSet<>(this.addresses.getValue());
+	public ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> getAddressesIncludingDefaults() {
+		if (this.name.equals("eth0") || !this.getAddresses().isSet()) {
+			var value = new HashSet<Inet4AddressWithSubnetmask>(this.getAddresses().getValue());
 			// add default eth0 network address
 			value.add(DEFAULT_ETH0_ADDRESS);
 			return ConfigurationProperty.of(value);
@@ -273,35 +227,39 @@ public class NetworkInterface<A> {
 	 *   "linkLocalAddressing": boolean,
 	 *   "gateway": string,
 	 *   "dns": string,
-	 *   "addresses": string[]
+	 *   "addresses": [{ 
+	 *     "label": string, 
+	 *     "address": string, 
+	 *     "subnetmask": string 
+	 *   }]
 	 * }
 	 * </pre>
 	 *
 	 * @return configuration as JSON
+	 * @throws OpenemsNamedException on error.
 	 */
 	public JsonObject toJson() {
-		var result = new JsonObject();
-		if (this.dhcp.isSet()) {
-			result.addProperty("dhcp", this.dhcp.getValue());
-		}
-		if (this.linkLocalAddressing.isSet()) {
-			result.addProperty("linkLocalAddressing", this.linkLocalAddressing.getValue());
-		}
-		if (this.gateway.isSet()) {
-			result.addProperty("gateway", this.gateway.getValue().getHostAddress());
-		}
-		if (this.dns.isSet()) {
-			result.addProperty("dns", this.dns.getValue().getHostAddress());
-		}
-		if (this.getAddresses().isSet()) {
-			var jAddresses = new JsonArray();
-			for (Inet4AddressWithNetmask address : this.getAddresses().getValue()) {
-				jAddresses.add(address.toString());
-			}
-			result.add("addresses", jAddresses);
-		}
-
-		return result;
+		var result = JsonUtils.buildJsonObject() //
+				.onlyIf(this.dhcp.isSet(), //
+						b -> b.addProperty("dhcp", this.dhcp.getValue()))
+				.onlyIf(this.linkLocalAddressing.isSet(), //
+						b -> b.addProperty("linkLocalAddressing", this.linkLocalAddressing.getValue()))
+				.onlyIf(!this.gateway.isNull(), //
+						b -> b.addProperty("gateway", this.gateway.getValue().getHostAddress()))
+				.onlyIf(!this.dns.isNull(), //
+						b -> b.addProperty("dns", this.dns.getValue().getHostAddress()))
+				.onlyIf(this.addresses.isSet(), //
+						b -> {
+							var arr = JsonUtils.buildJsonArray();
+							for (var address : this.addresses.getValue()) {
+								arr.add(JsonUtils.buildJsonObject() //
+										.addProperty("label", address.getLabel())
+										.addProperty("address", address.getInet4Address().getHostAddress())
+										.addProperty("subnetmask", address.getSubnetmaskAsString()).build());
+							}
+							b.add("addresses", arr.build());
+						});
+		return result.build();
 	}
 
 	/**
@@ -344,7 +302,7 @@ public class NetworkInterface<A> {
 			}
 			isChanged = true;
 		}
-		if (change.getAddresses().isSet()) { // uses original addresses without additional default network addresses
+		if (change.getAddresses().isSet()) {
 			if (change.getAddresses() == null) {
 				this.addresses = ConfigurationProperty.asNotSet();
 			} else {

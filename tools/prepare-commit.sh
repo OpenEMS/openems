@@ -63,6 +63,16 @@ for D in *; do
 					touch ${D}/test/.gitignore
 				fi
 
+				# verify explicit encoding for Eclipse IDE; avoids 'Project has no explicit encoding set' warnings
+				if [ ! -f "./${D}/.settings/org.eclipse.core.resources.prefs" ]; then
+					echo "${D}/.settings/org.eclipse.core.resources.prefs -> missing"
+					mkdir "${D}/.settings"
+					cat <<EOT > "${D}/.settings/org.eclipse.core.resources.prefs"
+eclipse.preferences.version=1
+encoding/<project>=UTF-8
+EOT
+				fi
+
 				# Set default .classpath file
 				if [ -f "${D}/.classpath" ]; then
 					cat <<EOT > "${D}/.classpath"
@@ -81,11 +91,6 @@ for D in *; do
 EOT
 				fi
 
-				# Remove .settings directory
-				if [ -d "${D}/.settings" ]; then
-					rm -R "${D}/.settings"
-				fi
-
 				# Verify bnd.bnd file
 				if [ -f "${D}/bnd.bnd" ]; then
 					start=$(grep -n '${buildpath},' "${D}/bnd.bnd" | grep -Eo '^[^:]+' | head -n1)
@@ -95,7 +100,7 @@ EOT
 					else
 						(
 							head -n $start "${D}/bnd.bnd"; # before 'buildpath'
-							head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | sort; # the 'buildpath'
+							head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | LC_COLLATE=C sort; # the 'buildpath'
 							tail -n +$(expr $end - 1) "${D}/bnd.bnd" # after 'buildpath'
 						) > "${D}/bnd.bnd.new"
 						if [ $? -eq 0 ]; then
@@ -123,6 +128,8 @@ echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
 for D in io.openems.edge.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle
@@ -145,6 +152,8 @@ echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
+echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
 for D in io.openems.backend.*; do
 	if [[ "$D" == *api ]]; then
 		continue # ignore api bundle

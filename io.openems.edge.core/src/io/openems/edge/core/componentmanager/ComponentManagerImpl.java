@@ -10,7 +10,6 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -22,10 +21,9 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.MetaTypeService;
@@ -89,18 +87,6 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	@Reference
 	protected ServiceComponentRuntime serviceComponentRuntime;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(&(enabled=true)(!(service.factoryPid=Core.ComponentManager)))")
-	private volatile List<OpenemsComponent> enabledComponents = new CopyOnWriteArrayList<>();
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE, //
-			target = "(!(service.factoryPid=Core.ComponentManager))")
-	private volatile List<OpenemsComponent> allComponents = new CopyOnWriteArrayList<>();
-
 	public ComponentManagerImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -113,16 +99,30 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext componentContext, BundleContext bundleContext) throws OpenemsException {
+	private void activate(ComponentContext componentContext, BundleContext bundleContext) throws OpenemsException {
 		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.bundleContext = bundleContext;
+
+		for (ComponentManagerWorker worker : this.workers) {
+			worker.activate(this.id());
+		}
 
 		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
 			return;
 		}
+	}
+
+	@Modified
+	private void modified(ComponentContext componentContext, BundleContext bundleContext) {
+		super.modified(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
+		this.bundleContext = bundleContext;
 
 		for (ComponentManagerWorker worker : this.workers) {
-			worker.activate(this.id());
+			worker.modified(this.id());
+		}
+
+		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
+			return;
 		}
 	}
 
@@ -138,24 +138,117 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public List<OpenemsComponent> getEnabledComponents() {
-		return Collections.unmodifiableList(this.enabledComponents);
+		return this.getComponentsViaService("(&(enabled=true)(!(service.factoryPid=Core.ComponentManager)))");
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T extends OpenemsComponent> List<T> getEnabledComponentsOfType(Class<T> clazz) {
-		List<T> result = new ArrayList<>();
-		for (OpenemsComponent component : this.enabledComponents) {
-			if (component.getClass().isInstance(clazz)) {
-				result.add((T) component);
-			}
-		}
-		return result;
+		return this.getComponentsViaService(clazz, "(enabled=true)");
 	}
 
 	@Override
 	public List<OpenemsComponent> getAllComponents() {
-		return Collections.unmodifiableList(this.allComponents);
+		return this.getComponentsViaService("(!(service.factoryPid=" + ComponentManager.SINGLETON_SERVICE_PID + "))");
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
+		var component = this.getComponentViaService(componentId, true);
+		if (component != null) {
+			return (T) component;
+		}
+		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends OpenemsComponent> T getPossiblyDisabledComponent(String componentId)
+			throws OpenemsNamedException {
+		var component = this.getComponentViaService(componentId);
+		if (component != null) {
+			return (T) component;
+		}
+		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
+	}
+
+	/**
+	 * Gets the components via OSGi service reference.
+	 *
+	 * @param filter the filter for the components
+	 * @return the components matching the filter
+	 */
+	private List<OpenemsComponent> getComponentsViaService(String filter) {
+		return this.getComponentsViaService(OpenemsComponent.class, filter);
+	}
+
+	/**
+	 * Gets the components via OSGi service reference.
+	 * 
+	 * @param <T>    the class type
+	 * @param clazz  The class under whose name the service was registered. Must not
+	 *               be {@code null}.
+	 * @param filter the filter for the components
+	 * @return the components matching the filter
+	 */
+	private <T> List<T> getComponentsViaService(Class<T> clazz, String filter) {
+		if (this.bundleContext == null) {
+			// Can be null in JUnit tests
+			return Collections.emptyList();
+		}
+
+		try {
+			var serviceReferences = this.bundleContext.getServiceReferences(clazz, filter);
+
+			var allComponents = new ArrayList<T>(serviceReferences.size());
+			for (var reference : serviceReferences) {
+				var component = this.bundleContext.getService(reference);
+				if (component == null) {
+					continue;
+				}
+				allComponents.add(component);
+				this.bundleContext.ungetService(reference);
+			}
+			return allComponents;
+
+		} catch (InvalidSyntaxException e) {
+			// filter invalid
+			e.printStackTrace();
+			return Collections.emptyList();
+		}
+	}
+
+	/**
+	 * Gets the component via OSGi service reference. Be careful, that the Component
+	 * might not be 'enabled'.
+	 *
+	 * @param <T>         the type of the component
+	 * @param componentId the id of the component
+	 * @return the component or null if not found
+	 */
+	private <T extends OpenemsComponent> T getComponentViaService(String componentId) {
+		return this.getComponentViaService(componentId, false);
+	}
+
+	/**
+	 * Gets the component via OSGi service reference.
+	 *
+	 * @param <T>            the type of the component
+	 * @param componentId    the id of the component
+	 * @param hasToBeEnabled if the component has to be enabled
+	 * @return the component or null if not found
+	 */
+	@SuppressWarnings("unchecked")
+	private <T extends OpenemsComponent> T getComponentViaService(String componentId, boolean hasToBeEnabled) {
+		var filter = "(id=" + componentId + ")";
+		if (hasToBeEnabled) {
+			filter = "(&(enabled=true)" + filter + ")";
+		}
+		var components = this.getComponentsViaService(filter);
+		if (components.isEmpty()) {
+			return null;
+		}
+		return (T) components.get(0);
 	}
 
 	@Override
@@ -238,7 +331,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	protected CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
+	public CompletableFuture<JsonrpcResponseSuccess> handleCreateComponentConfigRequest(User user,
 			CreateComponentConfigRequest request) throws OpenemsNamedException {
 		// Get Component-ID from Request
 		String componentId = null;
@@ -314,7 +407,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	protected CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
+	public CompletableFuture<JsonrpcResponseSuccess> handleUpdateComponentConfigRequest(User user,
 			UpdateComponentConfigRequest request) throws OpenemsNamedException {
 		var config = this.getExistingConfigForId(request.getComponentId());
 
@@ -370,7 +463,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	protected CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
+	public CompletableFuture<JsonrpcResponseSuccess> handleDeleteComponentConfigRequest(User user,
 			DeleteComponentConfigRequest request) throws OpenemsNamedException {
 		var config = this.getExistingConfigForId(request.getComponentId());
 

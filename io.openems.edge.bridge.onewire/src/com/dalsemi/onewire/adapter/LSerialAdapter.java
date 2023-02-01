@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 2001 Maxim Integrated Products, All Rights Reserved.
  *
@@ -1218,3 +1219,4 @@ public class LSerialAdapter extends DSPortAdapter {
 	 * port_id.getName()); } } }
 	 */
 }
+// CHECKSTYLE:ON

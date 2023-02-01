@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -10,14 +10,14 @@ import { calculateActiveTimeOverPeriod } from '../shared';
     selector: ChpSocWidgetComponent.SELECTOR,
     templateUrl: './widget.component.html'
 })
-export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges {
+export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnInit, OnChanges, OnDestroy {
 
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
 
     private static readonly SELECTOR = "chpsocWidget";
 
-    public activeTimeOverPeriod: string = null;
+    public activeSecondsOverPeriod: number = null;
     public edge: Edge = null;
     public component: EdgeConfig.Component = null;
 
@@ -51,7 +51,7 @@ export class ChpSocWidgetComponent extends AbstractHistoryWidget implements OnIn
             this.service.getConfig().then(config => {
                 let result = (response as QueryHistoricTimeseriesDataResponse).result;
                 let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
-                this.activeTimeOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
+                this.activeSecondsOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
             });
         });
     };

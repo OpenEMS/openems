@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999 Maxim Integrated Products, All Rights Reserved.
  *
@@ -1200,3 +1201,4 @@ public class OneWireContainer33 extends OneWireContainer {
 		return this.memoryPages[page].readAuthenticatedPage(mbPage, pagedata, offset, computed_mac, macStart);
 	}
 }
+// CHECKSTYLE:ON

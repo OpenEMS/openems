@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 
 public class LinearCoefficient {
 
-	private final static DecimalFormat VALUE_FORMAT = new DecimalFormat("+0.#;-#");
+	private static final DecimalFormat VALUE_FORMAT = new DecimalFormat("+0.#;-#");
 
 	protected final Coefficient coefficient;
 	protected final double value;

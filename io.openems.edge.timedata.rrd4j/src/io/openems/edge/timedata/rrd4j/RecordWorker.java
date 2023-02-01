@@ -93,7 +93,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {
 			for (Channel<?> channel : component.channels()) {
 				var doc = channel.channelDoc();
-				if ( // Ignore Low-Priority Channels
+				if (// Ignore Low-Priority Channels
 				doc.getPersistencePriority().isLowerThan(this.parent.persistencePriority)
 						// Ignore WRITE_ONLY Channels
 						|| channel.channelDoc().getAccessMode() == AccessMode.WRITE_ONLY) {
@@ -214,6 +214,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 		case KILOVOLT_AMPERE_REACTIVE:
 		case KILOWATT:
 		case MICROOHM:
+		case MICROAMPERE:
+		case MICROVOLT:
 		case MILLIAMPERE_HOURS:
 		case MILLIAMPERE:
 		case MILLIHERTZ:

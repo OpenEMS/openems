@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -30,7 +29,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
 
 @Designate(ocd = Config.class, factory = true)
@@ -90,6 +88,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		}
 
 		this.config = config;
+		this.evcs._setChargeMode(config.chargeMode());
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcs", config.evcs_id())) {
 			return;
@@ -150,6 +149,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			case READY_FOR_CHARGING:
 			case CHARGING_FINISHED:
 				this.evcs._setMaximumPower(null);
+				break;
 			case CHARGING:
 				break;
 			}
@@ -181,29 +181,21 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				break;
 			}
 
-			Channel<Integer> minimumHardwarePowerChannel = this.evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
-			if (nextChargePower < minimumHardwarePowerChannel.value()
-					.orElse(0)) { /* charging under 6A isn't possible */
-				nextChargePower = 0;
-			}
-
-			this.evcs._setMinimumPower(this.config.defaultChargeMinPower());
 			nextMinPower = this.config.defaultChargeMinPower();
+			this.evcs._setMinimumPower(nextMinPower);
 			break;
 
 		case FORCE_CHARGE:
 			this.evcs._setMinimumPower(0);
-			nextChargePower = this.config.forceChargeMinPower() * this.evcs.getPhases().orElse(3);
+			nextChargePower = this.config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
 			break;
 		}
 
-		if (nextChargePower < nextMinPower) {
-			nextChargePower = nextMinPower;
-		}
+		nextChargePower = Math.max(nextChargePower, nextMinPower);
 
-		// charging under minimum hardware power isn't possible
-		Channel<Integer> minimumHardwarePowerChannel = this.evcs.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER);
-		if (nextChargePower < minimumHardwarePowerChannel.value().orElse(0)) {
+		// Charging under minimum hardware power isn't possible
+		var minimumHardwarePower = this.evcs.getMinimumHardwarePower().orElse(0);
+		if (nextChargePower < minimumHardwarePower) {
 			nextChargePower = 0;
 		}
 
@@ -294,8 +286,8 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	/**
 	 * Calculate result depending on the current evcs power and grid power.
 	 *
-	 * @param evcs
-	 * @return
+	 * @param evcs the {@link ManagedEvcs}
+	 * @return the excess power
 	 */
 	private int calculateExcessPowerAfterEss(ManagedEvcs evcs) {
 		int buyFromGrid = this.sum.getGridActivePower().orElse(0);

@@ -17,7 +17,7 @@ import com.google.common.collect.Multimaps;
  * A useful application for MetaTasksManager is to provide a list of Tasks that
  * need to be handled on an OpenEMS Cycle run.
  *
- * @param <T>
+ * @param <T> the type of the actual {@link ManagedTask}
  */
 public class MetaTasksManager<T extends ManagedTask> {
 
@@ -37,8 +37,8 @@ public class MetaTasksManager<T extends ManagedTask> {
 	/**
 	 * Adds a TasksManager.
 	 *
-	 * @param sourceId a source identifier
-	 * @param task     the TasksManager
+	 * @param sourceId     a source identifier
+	 * @param tasksManager the TasksManager
 	 */
 	public synchronized void addTasksManager(String sourceId, TasksManager<T> tasksManager) {
 		this.tasksManagers.put(sourceId, tasksManager);
@@ -47,8 +47,8 @@ public class MetaTasksManager<T extends ManagedTask> {
 	/**
 	 * Removes a TasksManager.
 	 *
-	 * @param sourceId a source identifier
-	 * @param task     the TasksManager
+	 * @param sourceId     a source identifier
+	 * @param tasksManager the TasksManager
 	 */
 	public synchronized void removeTasksManager(String sourceId, TasksManager<T> tasksManager) {
 		this.tasksManagers.remove(sourceId, tasksManager);
@@ -64,8 +64,9 @@ public class MetaTasksManager<T extends ManagedTask> {
 	}
 
 	/**
-	 * Gets one task that with the given Priority sequentially.
+	 * Gets the next task with the given Priority sequentially.
 	 *
+	 * @param priority the {@link Priority}
 	 * @return the next task; null if there are no tasks with the given Priority
 	 */
 	public synchronized T getOneTask(Priority priority) {
@@ -73,7 +74,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 		if (tasks.isEmpty()) {
 			// refill the queue
 			for (TasksManager<T> tasksManager : this.tasksManagers.values()) {
-				tasks.addAll(tasksManager.getAllTasks(priority));
+				tasks.addAll(tasksManager.getTasks(priority));
 			}
 		}
 
@@ -90,7 +91,7 @@ public class MetaTasksManager<T extends ManagedTask> {
 	public Multimap<String, T> getAllTasksBySourceId(Priority priority) {
 		Multimap<String, T> result = ArrayListMultimap.create();
 		for (Entry<String, TasksManager<T>> entry : this.tasksManagers.entries()) {
-			result.putAll(entry.getKey(), entry.getValue().getAllTasks(priority));
+			result.putAll(entry.getKey(), entry.getValue().getTasks(priority));
 		}
 		return result;
 	}
@@ -98,13 +99,12 @@ public class MetaTasksManager<T extends ManagedTask> {
 	/**
 	 * Gets all Tasks with by their Source-ID.
 	 *
-	 * @param priority the priority
 	 * @return a list of tasks
 	 */
 	public Multimap<String, T> getAllTasksBySourceId() {
 		Multimap<String, T> result = ArrayListMultimap.create();
 		for (Entry<String, TasksManager<T>> entry : this.tasksManagers.entries()) {
-			result.putAll(entry.getKey(), entry.getValue().getAllTasks());
+			result.putAll(entry.getKey(), entry.getValue().getTasks());
 		}
 		return result;
 	}

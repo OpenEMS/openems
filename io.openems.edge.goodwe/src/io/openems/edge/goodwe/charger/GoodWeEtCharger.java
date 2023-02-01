@@ -1,9 +1,6 @@
 package io.openems.edge.goodwe.charger;
 
-import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -13,10 +10,6 @@ public interface GoodWeEtCharger extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		V(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
-		I(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)),
 		HAS_NO_DC_PV(Doc.of(Level.INFO) //
 				.text("This GoodWe has no DC-PV. Chargers can be deleted."));
 

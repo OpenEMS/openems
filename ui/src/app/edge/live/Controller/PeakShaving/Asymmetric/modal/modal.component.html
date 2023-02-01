@@ -32,7 +32,7 @@
                             General.measuredValue<span>&nbsp;L1</span>
                         </td>
                         <td style="width: 35%" class="align_right"
-                            [class.bold]="(mostStressedPhase | async)?.name == 'L1'">
+                            [class.bold]="(mostStressedPhase | async)?.name === 'L1'">
                             <ng-container *ngIf="(currentData[meterId + '/ActivePowerL1'] || true) as value">
                                 {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
                             </ng-container>
@@ -44,7 +44,7 @@
                             General.measuredValue<span>&nbsp;L2</span>
                         </td>
                         <td style="width: 35%" class="align_right"
-                            [class.bold]="(mostStressedPhase | async)?.name == 'L2'">
+                            [class.bold]="(mostStressedPhase | async)?.name === 'L2'">
                             <ng-container *ngIf="(currentData[meterId + '/ActivePowerL2'] || true) as value">
                                 {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
                             </ng-container>
@@ -56,7 +56,7 @@
                             General.measuredValue<span>&nbsp;L3</span>
                         </td>
                         <td style="width: 35%" class="align_right"
-                            [class.bold]="(mostStressedPhase | async)?.name == 'L3'">
+                            [class.bold]="(mostStressedPhase | async)?.name === 'L3'">
                             <ng-container *ngIf="(currentData[meterId + '/ActivePowerL3'] || true) as value">
                                 {{ (value >= 0 ? value : 0) | unitvalue:'W' }}
                             </ng-container>
@@ -118,7 +118,7 @@
             </ion-icon>
         </ion-fab-button>
     </ion-fab>
-    <ion-grid *ngIf="loading == true">
+    <ion-grid *ngIf="loading === true">
         <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </ion-grid>
 </ion-content>

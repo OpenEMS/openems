@@ -1,24 +1,24 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
-import { ChartData, ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { differenceInDays, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
+import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { saveAs } from 'file-saver-es';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
-import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { calculateResolution, ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, Resolution, setLabelVisible, TooltipItem, Unit } from './../shared';
+import { calculateResolution, ChartData, ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../shared';
 import { EnergyModalComponent } from './modal/modal.component';
 
 type EnergyChartLabels = {
@@ -36,22 +36,21 @@ type EnergyChartLabels = {
   selector: 'energy',
   templateUrl: './energy.component.html'
 })
-export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
+export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
   private static readonly EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
   private static readonly EXCEL_EXTENSION = '.xlsx';
 
-  public chartType: string = "line";
-
   private config: EdgeConfig | null = null;
-
   private stopOnDestroy: Subject<void> = new Subject<void>();
+
+  public chartType: string = "line";
 
   @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
     this.updateChart();
-  };
+  }
 
   constructor(
     protected service: Service,
@@ -62,7 +61,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
     private unitpipe: UnitvaluePipe,
     private platform: Platform
   ) {
-    super(service, translate);
+    super("energy-chart", service, translate);
   }
 
   // EXPORT WILL MOVE TO MODAL WHEN KWH ARE READY
@@ -71,6 +70,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
    * Export historic data to Excel file.
    */
   public exportToXlxs() {
+    this.startSpinner();
     this.service.getCurrentEdge().then(edge => {
       edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.from, this.service.historyPeriod.to)).then(response => {
         let r = response as Base64PayloadResponse;
@@ -104,19 +104,17 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         console.warn(reason);
       })
     })
+    this.stopSpinner();
   }
 
 
   ngOnInit() {
-    this.spinnerId = "energy-chart";
     this.service.setCurrentComponent('', this.route);
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
 
     this.platform.ready().then(() => {
       this.service.isSmartphoneResolutionSubject.pipe(takeUntil(this.stopOnDestroy)).subscribe(value => {
-        if (this.service.isKwhAllowed(this.edge)) {
-          this.updateChart();
-        }
+        this.updateChart();
       })
     })
     // Timeout is used to prevent ExpressionChangedAfterItHasBeenCheckedError
@@ -132,19 +130,19 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   /**
    * checks if kWh Chart is allowed to be shown
    */
-  private isKwhChart(service: Service): boolean {
+  private isBarChart(service: Service): boolean {
     let unit = calculateResolution(this.service, this.period.from, this.period.to).resolution.unit;
-    if (service.isKwhAllowed(this.edge) == true &&
-      unit == Unit.DAYS || unit == Unit.MONTHS) {
+    if (unit == Unit.DAYS || unit == Unit.MONTHS) {
       return true;
     }
     return false;
   }
 
-
   protected updateChart() {
+    this.colors = [];
+    this.datasets = [];
     this.loading = true;
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.autoSubscribeChartRefresh();
     this.service.getCurrentEdge().then(edge => {
       this.service.getConfig().then(config => {
@@ -155,10 +153,10 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
         // Load Linechart or BarChart 
         this.generateLabels().then(chartLabels => {
-          if (this.isKwhChart(this.service) == false) {
-            this.loadLineChart(chartLabels);
-          } else if (this.isKwhChart(this.service) == true) {
+          if (this.isBarChart(this.service)) {
             this.loadBarChart(chartLabels, config);
+          } else {
+            this.loadLineChart(chartLabels);
           }
         })
       }).catch(reason => {
@@ -176,6 +174,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   private loadLineChart(chartLabels: EnergyChartLabels) {
     this.chartType = "line";
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+
+      if (Utils.isDataEmpty(response)) {
+        return
+      }
+
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
       // convert labels
@@ -383,7 +386,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
 
       this.datasets = datasets;
       this.loading = false;
-      this.service.stopSpinner(this.spinnerId);
+      this.stopSpinner();
+
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();
@@ -394,9 +398,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
   private loadBarChart(chartLabels: EnergyChartLabels, config: EdgeConfig) {
     this.chartType = "bar";
     this.getEnergyChannelAddresses(config).then(channelAddresses => {
-
       this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to, channelAddresses).then(response => {
-        let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
+
+        if (Utils.isDataEmpty(response)) {
+          return
+        }
+
+        let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse).result;
 
         // convert datasets
         let datasets: ChartDataSets[] = [];
@@ -649,9 +657,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
         this.datasets = datasets;
         this.colors = [];
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
-      }).catch(() => {
-        this.loadLineChart(chartLabels);
+        this.stopSpinner();
       })
     })
   }
@@ -671,7 +677,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             result.push(new ChannelAddress('_sum', 'EssDcChargeEnergy'))
             result.push(new ChannelAddress('_sum', 'EssDcDischargeEnergy'));
             break;
-          case 'Production':
+          case 'Common_Production':
             result.push(
               new ChannelAddress('_sum', 'ProductionActiveEnergy'))
             break;
@@ -697,7 +703,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
             result.push(new ChannelAddress('_sum', 'EssSoc'))
             result.push(new ChannelAddress('_sum', 'EssActivePower'));
             break;
-          case 'Production':
+          case 'Common_Production':
             result.push(
               new ChannelAddress('_sum', 'ProductionActivePower'),
               new ChannelAddress('_sum', 'ProductionDcActualPower'));
@@ -725,51 +731,47 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       }
 
       // Generate kWh labels
-      if (this.service.isKwhAllowed(this.edge) == true) {
-        this.getEnergyChannelAddresses(this.config).then(channelAddresses => {
-          this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
-            let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-            if ('_sum/ProductionActiveEnergy' in result.data && response.result.data["_sum/ProductionActiveEnergy"] != null) {
-              let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
-              labels.production += " " + this.unitpipe.transform(kwhProductionValue, "kWh").toString();
-            }
-            if ('_sum/GridBuyActiveEnergy' in result.data && response.result.data["_sum/GridBuyActiveEnergy"] != null) {
-              let kwhGridBuyValue = response.result.data["_sum/GridBuyActiveEnergy"];
-              labels.gridBuy += " " + this.unitpipe.transform(kwhGridBuyValue, "kWh").toString();
-            }
-            if ('_sum/GridSellActiveEnergy' in result.data && response.result.data["_sum/GridSellActiveEnergy"] != null) {
-              let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
-              labels.gridSell += " " + this.unitpipe.transform(kwhGridSellValue, "kWh").toString();
-            }
-            if ('_sum/EssDcChargeEnergy' in result.data && response.result.data["_sum/EssDcChargeEnergy"] != null) {
-              let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
-              labels.charge += " " + this.unitpipe.transform(kwhChargeValue, "kWh").toString();
-            }
-            if ('_sum/EssDcDischargeEnergy' in result.data && response.result.data["_sum/EssDcDischargeEnergy"] != null) {
-              let kwhDischargeValue = response.result.data["_sum/EssDcDischargeEnergy"];
-              labels.discharge += " " + this.unitpipe.transform(kwhDischargeValue, "kWh").toString();
-            }
-            if ('_sum/ConsumptionActiveEnergy' in result.data && response.result.data["_sum/ConsumptionActiveEnergy"] != null) {
-              let kwhConsumptionValue = response.result.data["_sum/ConsumptionActiveEnergy"];
-              labels.consumption += " " + this.unitpipe.transform(kwhConsumptionValue, "kWh").toString();
-            }
-            if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data
-              && response.result.data["_sum/ProductionActiveEnergy"] != null && response.result.data["_sum/EssDcChargeEnergy"] != null
-              && response.result.data["_sum/GridSellActiveEnergy"]) {
-              let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"]
-              let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
-              let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
-              let directConsumptionValue = kwhProductionValue - kwhGridSellValue - kwhChargeValue;
-              labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
-            }
-            resolve(labels)
-          }).catch(() => {
-            resolve(labels)
-          })
+      this.getEnergyChannelAddresses(this.config).then(channelAddresses => {
+        this.service.queryEnergy(this.period.from, this.period.to, channelAddresses).then(response => {
+          let result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+          if ('_sum/ProductionActiveEnergy' in result.data && response.result.data["_sum/ProductionActiveEnergy"] != null) {
+            let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"];
+            labels.production += " " + this.unitpipe.transform(kwhProductionValue, "kWh").toString();
+          }
+          if ('_sum/GridBuyActiveEnergy' in result.data && response.result.data["_sum/GridBuyActiveEnergy"] != null) {
+            let kwhGridBuyValue = response.result.data["_sum/GridBuyActiveEnergy"];
+            labels.gridBuy += " " + this.unitpipe.transform(kwhGridBuyValue, "kWh").toString();
+          }
+          if ('_sum/GridSellActiveEnergy' in result.data && response.result.data["_sum/GridSellActiveEnergy"] != null) {
+            let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
+            labels.gridSell += " " + this.unitpipe.transform(kwhGridSellValue, "kWh").toString();
+          }
+          if ('_sum/EssDcChargeEnergy' in result.data && response.result.data["_sum/EssDcChargeEnergy"] != null) {
+            let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
+            labels.charge += " " + this.unitpipe.transform(kwhChargeValue, "kWh").toString();
+          }
+          if ('_sum/EssDcDischargeEnergy' in result.data && response.result.data["_sum/EssDcDischargeEnergy"] != null) {
+            let kwhDischargeValue = response.result.data["_sum/EssDcDischargeEnergy"];
+            labels.discharge += " " + this.unitpipe.transform(kwhDischargeValue, "kWh").toString();
+          }
+          if ('_sum/ConsumptionActiveEnergy' in result.data && response.result.data["_sum/ConsumptionActiveEnergy"] != null) {
+            let kwhConsumptionValue = response.result.data["_sum/ConsumptionActiveEnergy"];
+            labels.consumption += " " + this.unitpipe.transform(kwhConsumptionValue, "kWh").toString();
+          }
+          if ('_sum/ProductionActiveEnergy' in result.data && '_sum/EssDcChargeEnergy' in result.data && '_sum/GridSellActiveEnergy' in result.data
+            && response.result.data["_sum/ProductionActiveEnergy"] != null && response.result.data["_sum/EssDcChargeEnergy"] != null
+            && response.result.data["_sum/GridSellActiveEnergy"]) {
+            let kwhProductionValue = response.result.data["_sum/ProductionActiveEnergy"]
+            let kwhChargeValue = response.result.data["_sum/EssDcChargeEnergy"];
+            let kwhGridSellValue = response.result.data["_sum/GridSellActiveEnergy"];
+            let directConsumptionValue = kwhProductionValue - kwhGridSellValue - kwhChargeValue;
+            labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
+          }
+          resolve(labels)
+        }).catch((error) => {
+          resolve(error)
         })
-      } else {
-        resolve(labels)
-      }
+      })
     })
   }
 
@@ -1033,7 +1035,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnChanges {
       }
 
       let value = tooltipItem.yLabel;
-      if (label == translate.instant('General.soc')) {
+      if (label == translate.instant('General.soc').split(" ")[0]) {
         return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
       } else {
         return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";

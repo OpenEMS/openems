@@ -18,8 +18,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 
@@ -33,6 +33,7 @@ import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -50,9 +51,12 @@ import io.openems.edge.timedata.api.Timedata;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
-				"org.ops4j.pax.logging.appender.name=Controller.Api.Websocket", //
-				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CONFIG_UPDATE //
+				"org.ops4j.pax.logging.appender.name=Controller.Api.Websocket" //
 		})
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CONFIG_UPDATE, //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class WebsocketApi extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent, PaxAppender, EventHandler {
 
@@ -62,7 +66,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 
 	public static final int DEFAULT_PORT = 8075;
 
-	private final static int POOL_SIZE = 10;
+	private static final int POOL_SIZE = 10;
 
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
@@ -123,7 +127,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
-		this.startServer(config.port(), POOL_SIZE, false);
+		this.startServer(config.port(), POOL_SIZE, DebugMode.OFF);
 	}
 
 	@Override
@@ -141,7 +145,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	 * @param poolSize  number of threads dedicated to handle the tasks
 	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize, boolean debugMode) {
+	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
 		this.server = new WebsocketServer(this, "Websocket Api", port, poolSize, debugMode);
 		this.server.start();
 	}
@@ -168,6 +172,11 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	@Override
 	protected final void logWarn(Logger log, String message) {
 		super.logWarn(log, message);
+	}
+
+	@Override
+	protected void logError(Logger log, String message) {
+		super.logError(log, message);
 	}
 
 	@Override
@@ -221,6 +230,14 @@ public class WebsocketApi extends AbstractOpenemsComponent
 			var config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
 			var message = new EdgeConfigNotification(config);
 			this.server.broadcastMessage(new EdgeRpcNotification(WebsocketApi.EDGE_ID, message));
+			break;
+
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			for (var ws : this.server.getConnections()) {
+				WsData wsData = ws.getAttachment();
+				wsData.sendSubscribedChannels();
+			}
+			break;
 		}
 	}
 

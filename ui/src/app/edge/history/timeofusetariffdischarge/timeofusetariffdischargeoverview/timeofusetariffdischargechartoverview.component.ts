@@ -1,12 +1,12 @@
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Component } from '@angular/core';
-import { Service, Utils, EdgeConfig, Edge } from '../../../../shared/shared';
+import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
 
 @Component({
     selector: TimeOfUseTariffDischargeChartOverviewComponent.SELECTOR,
     templateUrl: './timeofusetariffdischargechartoverview.component.html'
 })
-export class TimeOfUseTariffDischargeChartOverviewComponent {
+export class TimeOfUseTariffDischargeChartOverviewComponent implements OnInit {
 
     private static readonly SELECTOR = "timeofusetariffdischarge-chart-overview";
 

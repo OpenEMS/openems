@@ -4,11 +4,13 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
 
 @Directive()
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
+
+    public readonly Utils = Utils;
 
     @Input()
     protected componentId: string;

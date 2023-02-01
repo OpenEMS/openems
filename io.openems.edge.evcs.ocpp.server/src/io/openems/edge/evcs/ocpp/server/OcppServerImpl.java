@@ -19,8 +19,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,15 +35,18 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.ocpp.common.AbstractOcppEvcsComponent;
+import io.openems.edge.evcs.ocpp.common.AbstractManagedOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.OcppServer;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Evcs.Ocpp.Server", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
+@EventTopics({ //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+})
 public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsComponent, OcppServer, EventHandler {
 
 	public static final String DEFAULT_IP = "0.0.0.0";
@@ -62,12 +65,12 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	/**
 	 * Currently connected sessions with their related evcs components.
 	 */
-	protected final Map<UUID, List<AbstractOcppEvcsComponent>> activeEvcsSessions = new HashMap<>();
+	protected final Map<UUID, List<AbstractManagedOcppEvcsComponent>> activeEvcsSessions = new HashMap<>();
 
 	/**
 	 * Currently configured ocpp evcss.
 	 */
-	protected Map<String, List<AbstractOcppEvcsComponent>> ocppEvcss = new HashMap<>();
+	protected Map<String, List<AbstractManagedOcppEvcsComponent>> ocppEvcss = new HashMap<>();
 
 	/**
 	 * Current sessions (Existing connections between server and evcs hardware).
@@ -85,14 +88,14 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	 */
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addEvcs(Evcs evcs) {
-		if (!(evcs instanceof AbstractOcppEvcsComponent) || evcs == null) {
+		if (!(evcs instanceof AbstractManagedOcppEvcsComponent) || evcs == null) {
 			return;
 		}
-		var ocppEvcs = (AbstractOcppEvcsComponent) evcs;
+		var ocppEvcs = (AbstractManagedOcppEvcsComponent) evcs;
 		var presentEvcss = this.ocppEvcss.get(ocppEvcs.getConfiguredOcppId());
 
 		if (presentEvcss == null) {
-			List<AbstractOcppEvcsComponent> initEvcssArr = new ArrayList<>();
+			var initEvcssArr = new ArrayList<AbstractManagedOcppEvcsComponent>();
 			initEvcssArr.add(ocppEvcs);
 			this.ocppEvcss.put(ocppEvcs.getConfiguredOcppId(), initEvcssArr);
 		} else {
@@ -115,10 +118,10 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	 * @param evcs Evcs that should be removed
 	 */
 	protected void removeEvcs(Evcs evcs) {
-		if (!(evcs instanceof AbstractOcppEvcsComponent) || evcs == null) {
+		if (!(evcs instanceof AbstractManagedOcppEvcsComponent) || evcs == null) {
 			return;
 		}
-		var ocppEvcs = (AbstractOcppEvcsComponent) evcs;
+		var ocppEvcs = (AbstractManagedOcppEvcsComponent) evcs;
 		var evcss = this.activeEvcsSessions.get(ocppEvcs.getSessionId());
 		if (evcss != null) {
 			if (evcss.size() < 2) {
@@ -156,7 +159,8 @@ public class OcppServerImpl extends AbstractOpenemsComponent implements OpenemsC
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			for (Entry<UUID, List<AbstractOcppEvcsComponent>> evcsSessions : this.activeEvcsSessions.entrySet()) {
+			for (Entry<UUID, List<AbstractManagedOcppEvcsComponent>> evcsSessions : this.activeEvcsSessions
+					.entrySet()) {
 				this.myJsonServer.sendPermanentRequests(evcsSessions.getValue());
 			}
 			break;

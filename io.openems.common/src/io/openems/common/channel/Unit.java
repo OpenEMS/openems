@@ -1,5 +1,8 @@
 package io.openems.common.channel;
 
+import java.util.HashSet;
+import java.util.stream.Stream;
+
 import com.google.common.base.CaseFormat;
 
 import io.openems.common.types.OpenemsType;
@@ -27,7 +30,7 @@ public enum Unit {
 	/**
 	 * On or Off.
 	 */
-	ON_OFF(""),
+	ON_OFF("On/Off"), // Symbol is ignored in #format()
 
 	// ##########
 	// Power
@@ -82,6 +85,11 @@ public enum Unit {
 	 */
 	MILLIVOLT("mV", VOLT, -3),
 
+	/**
+	 * Unit of Voltage [uV].
+	 */
+	MICROVOLT("uV", VOLT, -6),
+
 	// ##########
 	// Current
 	// ##########
@@ -95,6 +103,11 @@ public enum Unit {
 	 * Unit of Current [mA].
 	 */
 	MILLIAMPERE("mA", AMPERE, -3),
+
+	/**
+	 * Unit of Current [uA].
+	 */
+	MICROAMPERE("uA", AMPERE, -6),
 
 	// ##########
 	// Electric Charge
@@ -216,7 +229,7 @@ public enum Unit {
 	/**
 	 * Unit of cumulated time [s].
 	 */
-	CUMULATED_SECONDS("sec"),
+	CUMULATED_SECONDS("sec[Σ]"),
 
 	// ##########
 	// Resistance
@@ -295,8 +308,10 @@ public enum Unit {
 		case EUROS_PER_MEGAWATT_HOUR:
 		case HERTZ:
 		case MILLIAMPERE:
+		case MICROAMPERE:
 		case MILLIHERTZ:
 		case MILLIVOLT:
+		case MICROVOLT:
 		case PERCENT:
 		case VOLT:
 		case VOLT_AMPERE:
@@ -337,5 +352,31 @@ public enum Unit {
 	public String toString() {
 		return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.name())
 				+ (this.symbol.isEmpty() ? "" : " [" + this.symbol + "]");
+	}
+
+	/**
+	 * Finds a Unit by its Symbol.
+	 * 
+	 * @param symbol      the Symbol
+	 * @param defaultUnit the defaultUnit; this value is returned if no Unit with
+	 *                    the given Symbol exists
+	 * @return the Unit; or the defaultUnit if it was not found
+	 */
+	public static Unit fromSymbolOrElse(String symbol, Unit defaultUnit) {
+		return Stream.of(Unit.values()) //
+				.filter(u -> u.symbol == symbol) //
+				.findFirst() //
+				.orElse(defaultUnit);
+	}
+
+	/*
+	 * Static check for non-duplicated Symbols.
+	 */
+	static {
+		if (!Stream.of(Unit.values())//
+				.map(u -> u.symbol) //
+				.allMatch(new HashSet<>()::add)) {
+			throw new IllegalArgumentException("Symbols in Unit must be unique!");
+		}
 	}
 }

@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999 - 2007 Maxim Integrated Products, All Rights Reserved.
@@ -1243,3 +1244,4 @@ public class TMEXAdapter extends DSPortAdapter {
 		}
 	}
 }
+// CHECKSTYLE:ON

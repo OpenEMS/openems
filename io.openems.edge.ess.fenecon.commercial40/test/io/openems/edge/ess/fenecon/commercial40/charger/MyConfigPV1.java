@@ -1,7 +1,7 @@
 package io.openems.edge.ess.fenecon.commercial40.charger;
 
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfigPV1 extends AbstractComponentConfig implements ConfigPV1 {

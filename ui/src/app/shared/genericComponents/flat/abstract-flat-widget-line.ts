@@ -36,7 +36,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     /** 
      * displayValue is the displayed @Input value in html
      */
-    public displayValue: string = null;
+    public displayValue: string | null = null;
 
     /**
      * selector used for subscribe

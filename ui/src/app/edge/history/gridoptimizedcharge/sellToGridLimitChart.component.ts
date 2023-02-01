@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
@@ -12,7 +12,7 @@ import { Data, TooltipItem } from '../shared';
   selector: 'sellToGridLimitChart',
   templateUrl: '../abstracthistorychart.html'
 })
-export class SellToGridLimitChartComponent extends AbstractHistoryChart implements OnInit, OnChanges {
+export class SellToGridLimitChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public component: EdgeConfig.Component;
@@ -22,20 +22,19 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
   ngOnChanges() {
     this.gridMeter = this.component.properties['meter.id'];
     this.updateChart();
-  };
+  }
 
   constructor(
     protected service: Service,
     protected translate: TranslateService,
     private route: ActivatedRoute,
   ) {
-    super(service, translate);
+    super("gridOptimizedCharge-chart", service, translate);
   }
 
   ngOnInit() {
     this.gridMeter = this.component.properties['meter.id'];
-    this.spinnerId = 'gridOptimizedCharge-chart';
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.service.setCurrentComponent('', this.route);
     this.setLabel()
   }
@@ -46,7 +45,7 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
 
   protected updateChart() {
     this.autoSubscribeChartRefresh();
-    this.service.startSpinner(this.spinnerId);
+    this.startSpinner();
     this.colors = [];
     this.loading = true;
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
@@ -159,15 +158,16 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart implemen
             borderColor: 'rgba(45,143,171,1)'
           })
         }
-
         this.datasets = datasets;
         this.loading = false;
-        this.service.stopSpinner(this.spinnerId);
+        this.stopSpinner();
+
       }).catch(reason => {
         console.error(reason); // TODO error message
         this.initializeChart();
         return;
       });
+
     }).catch(reason => {
       console.error(reason); // TODO error message
       this.initializeChart();

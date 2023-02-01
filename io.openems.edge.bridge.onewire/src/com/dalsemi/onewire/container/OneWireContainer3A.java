@@ -1,3 +1,4 @@
+// CHECKSTYLE:OFF
 /*---------------------------------------------------------------------------
  * Copyright (C) 1999,2000 Maxim Integrated Products, All Rights Reserved.
  *
@@ -576,3 +577,4 @@ public class OneWireContainer3A extends OneWireContainer implements SwitchContai
 	}
 
 }
+// CHECKSTYLE:ON

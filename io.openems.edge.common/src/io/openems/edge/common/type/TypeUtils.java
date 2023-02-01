@@ -498,15 +498,17 @@ public class TypeUtils {
 	/**
 	 * Safely multiply Integers.
 	 *
-	 * @param factors the factors of the multiplication
-	 * @return the result, possibly null if all factors are null
+	 * @param firstFactor    first factor of the multiplication
+	 * @param furtherFactors further factors of the multiplication
+	 * @return the result, possibly null if the first factor is null
 	 */
-	public static Integer multiply(Integer... factors) {
-		Integer result = null;
-		for (Integer factor : factors) {
-			if (result == null) {
-				result = factor;
-			} else if (factor != null) {
+	public static Integer multiply(Integer firstFactor, Integer... furtherFactors) {
+		if (firstFactor == null) {
+			return null;
+		}
+		int result = firstFactor;
+		for (Integer factor : furtherFactors) {
+			if (factor != null) {
 				result *= factor;
 			}
 		}
