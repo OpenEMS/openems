@@ -37,7 +37,13 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2023.1.3',
         changes: [
-          Changelog.GENERAL_OPTIMIZATION + " an der Übersicht 'Alle Systeme'"
+          "Fehlerbehebung am Online-Monitoring: Anzeige der Live-Daten nach Aktualisierung der Seite im Browser",
+        ]
+      },
+      {
+        version: '2023.1.3',
+        changes: [
+          Changelog.GENERAL_OPTIMIZATION + " an der Übersicht 'Alle Systeme'",
         ]
       },
       {
