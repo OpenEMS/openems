@@ -81,7 +81,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Tcp',
             componentId: 'modbus3',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.WAGO_BRIDGE'),
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.WEIDMUELLER_BRIDGE'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'ip', value: '192.168.1.50' },
@@ -94,14 +94,13 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
 
         // io1
         componentConfigurator.add({
-            factoryId: 'IO.WAGO',
+            factoryId: 'IO.Weidmueller.UR20',
             componentId: 'io1',
             alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.FIELD_BUS_COUPLER'),
             properties: [
                 { name: 'enabled', value: true },
                 { name: 'modbus.id', value: 'modbus3' },
-                { name: 'username', value: 'admin' },
-                { name: 'password', value: 'wago' }
+                { name: 'modbusUnitId', value: 1 },
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         }, 5);
@@ -113,11 +112,11 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.CONTROL_GRID_POINT'),
             properties: [
                 { name: 'enabled', value: true },
-                { name: 'inputGridStatus', value: 'io1/DigitalInputM1C2' },
-                { name: 'inputGroundingContactor', value: 'io1/DigitalInputM1C3' },
-                { name: 'inputMainContactor', value: 'io1/DigitalInputM1C1' },
-                { name: 'outputGroundingContactor', value: 'io1/DigitalOutputM1C2' },
-                { name: 'outputMainContactor', value: 'io1/DigitalOutputM1C1' }
+                { name: 'inputGridStatus', value: 'io1/DigitalInputM0C2' },
+                { name: 'inputGroundingContactor', value: 'io1/DigitalInputM0C3' },
+                { name: 'inputMainContactor', value: 'io1/DigitalInputM0C1' },
+                { name: 'outputGroundingContactor', value: 'io1/DigitalOutputM0C2' },
+                { name: 'outputMainContactor', value: 'io1/DigitalOutputM0C1' }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         }, 6);
