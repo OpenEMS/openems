@@ -73,13 +73,31 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 	@Override
 	public AppAssistant getAppAssistant(Language language) {
 		final var parameter = this.singletonParameter(language);
+		final var alias = this.getAlias(language, parameter.get());
 		return AppAssistant.create(this.getName(language)) //
+				.onlyIf(alias != null, t -> t.setAlias(alias)) //
 				.fields(Arrays.stream(this.propertyValues()) //
 						.filter(p -> p.def().getField() != null) //
 						.map(p -> p.def().getField()
 								.apply(new AppDef.FieldValues<>(this.getApp(), p, language, parameter.get())).build()) //
 						.collect(JsonUtils.toJsonArray())) //
 				.build();
+	}
+
+	private final String getAlias(Language language, PARAMETER parameter) {
+		return Arrays.stream(this.propertyValues()) //
+				.filter(p -> p.name().equals("ALIAS")) //
+				.findFirst() //
+				.flatMap(p -> {
+					final var defaultValueFunction = p.def().getDefaultValue();
+					if (defaultValueFunction == null) {
+						return Optional.empty();
+					}
+					var defaultValue = defaultValueFunction
+							.apply(new AppDef.FieldValues<>(this.getApp(), p, language, parameter));
+					return JsonUtils.getAsOptionalString(defaultValue);
+				}) //
+				.orElse(null);
 	}
 
 	@Override

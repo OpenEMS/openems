@@ -581,7 +581,8 @@
       "WAGO_BRIDGE": "Wago Bridge",
       "FIELD_BUS_COUPLER": "Fieldbus coupler",
       "CONTROL_GRID_POINT": "Control of the grid disconnection point",
-      "BATTERY_INTERFACE": "Battery interface"
+      "BATTERY_INTERFACE": "Battery interface",
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",

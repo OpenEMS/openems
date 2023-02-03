@@ -96,6 +96,9 @@ public class TestFeneconHome {
 			default:
 				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			}
+			if (expectedDependencies == 0 && instance.dependencies == null) {
+				continue;
+			}
 			assertEquals(expectedDependencies, instance.dependencies.size());
 		}
 	}
@@ -142,6 +145,9 @@ public class TestFeneconHome {
 			default:
 				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			}
+			if (expectedDependencies == 0 && instance.dependencies == null) {
+				continue;
+			}
 			assertEquals(expectedDependencies, instance.dependencies.size());
 		}
 
@@ -174,6 +180,9 @@ public class TestFeneconHome {
 				break;
 			default:
 				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
+			}
+			if (expectedDependencies == 0 && instance.dependencies == null) {
+				continue;
 			}
 			assertEquals(expectedDependencies, instance.dependencies.size());
 		}

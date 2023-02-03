@@ -26,5 +26,7 @@
 ** xref:simulation/gitpod.adoc[Live-Demo on Gitpod]
 ** xref:simulation/realtime.adoc[Real-Time Simulation]
 ** xref:simulation/ui-history.adoc[UI History Simulation]
-* xref:documentation.adoc[Documentation]
+* Contribute
+** xref:contribute/coding-guidelines.adoc[Coding Guidelines]
+** xref:contribute/documentation.adoc[Documentation]
 * https://openems.github.io/openems.io/javadoc/[Javadoc]

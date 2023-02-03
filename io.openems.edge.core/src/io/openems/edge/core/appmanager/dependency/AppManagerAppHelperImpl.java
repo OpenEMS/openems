@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -57,6 +56,7 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration.AppDepen
 import io.openems.edge.core.appmanager.validator.Validator;
 
 @Component(//
+		immediate = true, //
 		scope = ServiceScope.SINGLETON //
 )
 public class AppManagerAppHelperImpl implements AppManagerAppHelper {
@@ -728,22 +728,47 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	}
 
 	private final OpenemsAppInstance fixInstance(OpenemsAppInstance instance, Language language) {
-		final var returnInstance = new OpenemsAppInstance(instance.appId, instance.alias, instance.instanceId, //
-				Optional.ofNullable(instance.properties).orElse(new JsonObject()), instance.dependencies);
 
-		var app = this.appManagerUtil.getAppById(returnInstance.appId);
+		final var app = this.appManagerUtil.getAppById(instance.appId);
+		final var properties = Optional.ofNullable(instance.properties).orElse(new JsonObject());
+		final var aliasFromDefaultValue = new AtomicReference<String>(null);
 		try {
 			Arrays.stream(app.getProperties()) //
-					.filter(t -> !returnInstance.properties.has(t.name)) //
+					.filter(t -> !properties.has(t.name)) //
 					.forEach(appProperty -> {
-						returnInstance.properties.add(appProperty.name,
-								appProperty.getDefaultValue(language).orElse(JsonNull.INSTANCE));
+						appProperty.getDefaultValue(language).ifPresent(defaultValue -> {
+							// mapping default value of alias
+							if (appProperty.name.equals("ALIAS")) {
+								final var stringDefaultValue = JsonUtils.getAsOptionalString(defaultValue).orElse(null);
+								if (stringDefaultValue == null) {
+									this.log.warn("Default value of ALIAS property in App '" + instance.appId
+											+ "' is not a String!");
+									return;
+								}
+								aliasFromDefaultValue.set(stringDefaultValue);
+								return;
+							}
+							// otherwise set as a property
+							properties.add(appProperty.name, defaultValue);
+						});
 					});
 		} catch (UnsupportedOperationException e) {
 			// get properties not supported
 		}
 
-		return returnInstance;
+		var alias = instance.alias;
+		if (alias == null) {
+			alias = aliasFromDefaultValue.get();
+		}
+		if (alias == null) {
+			alias = app.getName(language);
+		}
+		if (alias == null) {
+			alias = app.getAppId();
+		}
+
+		return new OpenemsAppInstance(instance.appId, alias, instance.instanceId, //
+				properties, instance.dependencies);
 	}
 
 	private final DependencyDeclaration getNeededDependencyTo(OpenemsAppInstance instance, String appId,
