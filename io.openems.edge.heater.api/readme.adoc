@@ -29,9 +29,3 @@ There are four different ways to control a ManagedHeater:
 * controlled by operation mode - see _ManagedHeaterByOperationMode_. 
 * controlled by thermal heat power setpoint - planned to be added in the future.
 * controlled by flow temperature setpoint - planned to be added in the future.
- 
-
-
- 
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.heater.api[Source Code icon:github[]]
