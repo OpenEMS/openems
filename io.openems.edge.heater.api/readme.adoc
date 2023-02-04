@@ -1,24 +1,35 @@
-= Heater API 
+= Heater 
 
-General Natures for heating devices. Heating devices are separated into 
+The heat sector is separated into different kind of Heaters.  
 
-* `Chp` - Combined Heat and Power devices which can be monitored
-* `ManagedChp` - manageable Combined Heat and Power devices
-* `Heatpump` - Heatpumps which can be monitored
-* `ManagedHeatpump` - manageable heatpumps (most probably SG ready heatpumps) 
-* `Heater` - heater devices base nature 
-* `ManagedHeaterByOperationMode` - heater devices which can be managed by operation mode
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/Chp.java[Chp icon:code[]]::
+Combined heat and power plants to monitor.
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/ManagedChp.java[ManagedChp icon:code[]]::
+Controllable combined heat and power plants.
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/Heatpump.java[Heatpump icon:code[]]::
+Heatpumps to monitor.
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/ManagedHeatpump.java[ManagedHeatpump icon:code[]]::
+Controllable heatpumps (SG ready like heatpumps).
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/Heater.java[Heater icon:code[]]::
+Heater devices base nature. Also usable for e.g. gas heaters.    
+
+link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.heater.api/src/io/openems/edge/heater/api/ManagedHeaterByOperationMode.java[ManagedHeaterByOperationMode icon:code[]]::
+Controllable heater devices - managed by operation mode.
+
 
 *Note:* 
 
-* in principle, manageable heaters can be controlled in four different ways:
-** controlled by operation mode  (currently provided)
-** controlled by thermal heat power setpoint (may be added in the future)
-** controlled by flow temperature setpoint (may be added in the future)
-** controlled by electric production power (see ManagedChp)
+There are four different ways to control a ManagedHeater:
 
-* as there are currently no hydrogen natures, the `Chp` nature can be used. Both 
-provide heat end electrical power.
+* controlled by electric production power - see _ManagedChp_.
+* controlled by operation mode - see _ManagedHeaterByOperationMode_. 
+* controlled by thermal heat power setpoint - planned to be added in the future.
+* controlled by flow temperature setpoint - planned to be added in the future.
+ 
 
 
  
