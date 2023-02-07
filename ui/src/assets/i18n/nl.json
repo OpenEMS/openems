@@ -123,10 +123,10 @@
     },
     "Form": {
       "user": {
-        "acceptPrivacyPolicy": "Door een FENECON account aan te maken, verklaar ik dat ik de FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacybeleid</a> en Gebruiksvoorwaarden heb gelezen en ermee akkoord ga.*"
+        "acceptPrivacyPolicy": "Door een FENECON account aan te maken, verklaar ik dat ik de FENECON <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Privacybeleid</a> en Gebruiksvoorwaarden heb gelezen en ermee akkoord ga.*"
       },
       "installer": {
-        "acceptPrivacyPolicy": "Door een FENECON installateursaccount aan te maken verklaar ik dat ik het FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacybeleid</a> en de Gebruiksvoorwaarden heb gelezen en ermee akkoord ga.*"
+        "acceptPrivacyPolicy": "Door een FENECON installateursaccount aan te maken verklaar ik dat ik het FENECON <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Privacybeleid</a> en de Gebruiksvoorwaarden heb gelezen en ermee akkoord ga.*"
       },
       "contactDetails": "Contactgegevens",
       "companyName": "Bedrijfsnaam",
@@ -141,8 +141,8 @@
       "password": "Wachtwoord",
       "confirmPassword": "Bevestig wachtwoord",
       "isElectrician": "Ik bevestig dat mijn bedrijf is ingeschreven in het installateursregister en dat ik daarmee bevoegd ben om een opslagsysteem aan te sluiten en in bedrijf te stellen.*",
-      "acceptPrivacyPolicy": "Door een FENECON installateursaccount aan te maken, verklaar ik dat ik het<a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">privacybeleid</a> en de gebruiksvoorwaarden van FENECON heb gelezen en ermee akkoord ga.*",
-      "acceptAgb": "Ik bevestig de <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+      "acceptPrivacyPolicy": "Door een FENECON installateursaccount aan te maken, verklaar ik dat ik het<a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">privacybeleid</a> en de gebruiksvoorwaarden van FENECON heb gelezen en ermee akkoord ga.*",
+      "acceptAgb": "Ik bevestig de <a target=\"_blank\" href=\"https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/\">AGB</a>.*",
       "subscribeNewsletter": "Ik wil me graag abonneren op de FENECON nieuwsbrief om al het laatste nieuws van FENECON te ontvangen."
     },
     "button": "Maken",
