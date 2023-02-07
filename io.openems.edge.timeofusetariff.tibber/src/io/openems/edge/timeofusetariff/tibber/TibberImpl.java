@@ -80,7 +80,7 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 			this.channel(Tibber.ChannelId.FILTER_IS_REQUIRED).setNextValue(false);
 
 			// Parse the response for the prices
-			this.prices.set(Utils.parsePrices(response.body().string(), config.filter()));
+			this.prices.set(Utils.parsePrices(response.body().string(), this.config.filter()));
 
 			// store the time stamp
 			this.updateTimeStamp = ZonedDateTime.now();

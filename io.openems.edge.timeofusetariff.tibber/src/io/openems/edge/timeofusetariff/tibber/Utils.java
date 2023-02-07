@@ -139,9 +139,8 @@ public class Utils {
 	}
 
 	/**
-	 * Generate a GraphQL query
+	 * Generate a GraphQL query.
 	 * 
-	 * @param homeId the Home-ID, or null
 	 * @return a query string
 	 */
 	protected static String generateGraphQl() {
