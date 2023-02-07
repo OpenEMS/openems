@@ -25,6 +25,5 @@ export function getPredefinedKey(edge: Edge): string {
 }
 
 export function hasKeyModel(edge: Edge): boolean {
-    // TODO change version before release
-    return edge.isVersionAtLeast('2023.1.1')
+    return edge.isVersionAtLeast('2023.1.2')
 }

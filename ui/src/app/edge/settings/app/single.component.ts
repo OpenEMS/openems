@@ -84,6 +84,10 @@ export class SingleAppComponent implements OnInit, OnDestroy {
         ).subscribe(next => {
           let appManager = next.getComponent("_appManager")
           let newKeyForFreeApps = appManager.properties["keyForFreeApps"]
+          if (!newKeyForFreeApps) {
+            // no key in config
+            this.increaseReceivedResponse();
+          }
           if (this.keyForFreeApps === newKeyForFreeApps) {
             return;
           }
@@ -100,6 +104,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                 return app.appId == this.appId
               })
             })
+          }).finally(() => {
             this.increaseReceivedResponse();
           })
         })
