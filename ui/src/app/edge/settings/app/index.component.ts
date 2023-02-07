@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -20,7 +20,7 @@ import { canEnterKey } from './permissions';
   selector: IndexComponent.SELECTOR,
   templateUrl: './index.component.html'
 })
-export class IndexComponent implements OnDestroy {
+export class IndexComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = 'app-index';
   public readonly spinnerId: string = IndexComponent.SELECTOR;
@@ -72,8 +72,7 @@ export class IndexComponent implements OnDestroy {
   ) {
   }
 
-  private ionViewWillEnter() {
-    // gets always called when entering the page
+  public ngOnInit() {
     this.init()
   }
 

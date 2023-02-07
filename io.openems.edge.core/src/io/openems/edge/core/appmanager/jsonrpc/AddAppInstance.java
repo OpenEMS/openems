@@ -63,7 +63,7 @@ public class AddAppInstance {
 			var p = r.getParams();
 			var key = JsonUtils.getAsString(p, "key");
 			var appId = JsonUtils.getAsString(p, "appId");
-			var alias = JsonUtils.getAsString(p, "alias");
+			var alias = JsonUtils.getAsOptionalString(p, "alias").orElse(null);
 			var properties = JsonUtils.getAsJsonObject(p, "properties");
 			return new Request(r, key, appId, alias, properties);
 		}
@@ -94,7 +94,7 @@ public class AddAppInstance {
 		public JsonObject getParams() {
 			return JsonUtils.buildJsonObject() //
 					.addProperty("appId", this.appId) //
-					.addProperty("alias", this.alias) //
+					.addPropertyIfNotNull("alias", this.alias) //
 					.add("properties", this.properties) //
 					.build();
 		}

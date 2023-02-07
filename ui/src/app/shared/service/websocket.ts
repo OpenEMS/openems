@@ -187,7 +187,8 @@ export class Websocket implements WebsocketInterface {
 
   private checkErrorCode(reason: JsonrpcResponseError) {
 
-    // TODO create global Errorhandler
+
+    // TODO create global Errorhandler for any type of error
     switch (reason.error.code) {
       case 1003:
         this.service.toast(this.translate.instant('Login.authenticationFailed'), 'danger');

@@ -1,10 +1,11 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { environment } from 'src/environments';
+
 import { AuthenticateWithPasswordRequest } from '../shared/jsonrpc/request/authenticateWithPasswordRequest';
 import { Edge, Service, Utils, Websocket } from '../shared/shared';
 import { Role } from '../shared/type/role';
@@ -13,7 +14,7 @@ import { Role } from '../shared/type/role';
   selector: 'index',
   templateUrl: './index.component.html'
 })
-export class IndexComponent implements OnDestroy {
+export class IndexComponent implements OnInit, OnDestroy {
 
   public environment = environment;
 
@@ -41,6 +42,10 @@ export class IndexComponent implements OnDestroy {
   private readonly limit: number = 20;
   /** True, if all available edges for this user had been retrieved */
   private limitReached: boolean = false;
+
+  protected onlyOneEdgeAvailable: boolean = false;
+
+  protected spinnerId: string = 'index'
 
   constructor(
     public service: Service,
@@ -128,6 +133,7 @@ export class IndexComponent implements OnDestroy {
         .subscribe(metadata => {
 
           let edgeIds = Object.keys(metadata.edges);
+          this.onlyOneEdgeAvailable = edgeIds.length <= 1;
           this.noEdges = edgeIds.length === 0;
           this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");
 
@@ -155,6 +161,8 @@ export class IndexComponent implements OnDestroy {
       this.loadNextPage().then((edges) => {
         this.filteredEdges.push(...edges);
         infiniteScroll.target.complete();
+      }).catch(() => {
+        infiniteScroll.target.complete();
       })
     }, 200);
   }
@@ -165,7 +173,9 @@ export class IndexComponent implements OnDestroy {
   }
 
   loadNextPage(): Promise<Edge[]> {
-    return new Promise<Edge[]>((resolve) => {
+
+    this.service.startSpinnerTransparentBackground(this.spinnerId)
+    return new Promise<Edge[]>((resolve, reject) => {
       if (this.limitReached) {
         resolve([])
         return
@@ -173,7 +183,9 @@ export class IndexComponent implements OnDestroy {
       this.service.getEdges(this.page, this.query, this.limit).then((edges) => {
         this.limitReached = edges.length < this.limit;
         resolve(edges)
+      }).catch((err) => {
+        reject(err)
       })
-    })
+    }).finally(() => this.service.stopSpinner(this.spinnerId))
   }
 }

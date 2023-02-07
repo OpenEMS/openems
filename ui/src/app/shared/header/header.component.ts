@@ -1,14 +1,12 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { MenuController, ModalController } from '@ionic/angular';
-import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
-import { filter, first, takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { environment } from 'src/environments';
 
-import { SubscribeEdgesRequest } from '../jsonrpc/request/subscribeEdgesRequest';
 import { PickDateComponent } from '../pickdate/pickdate.component';
-import { ChannelAddress, Edge, Service, Websocket } from '../shared';
+import { Edge, Service, Websocket } from '../shared';
 import { StatusSingleComponent } from '../status/single/status.component';
 
 @Component({
@@ -32,13 +30,12 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public modalCtrl: ModalController,
         public router: Router,
         public service: Service,
-        public websocket: Websocket,
-        private activatedRoute: ActivatedRoute
+        public websocket: Websocket
     ) { }
 
     ngOnInit() {
         // set inital URL
-        this.updateUrl(window.location.pathname);
+        this.updateUrl(this.router.routerState.snapshot.url);
         // update backUrl on navigation events
         this.router.events.pipe(
             takeUntil(this.ngUnsubscribe),
@@ -46,27 +43,6 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         ).subscribe(event => {
             window.scrollTo(0, 0);
             this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
-        })
-
-        this.activatedRoute.params.pipe(filter(route => route && route['edgeId']), first()).subscribe(route => {
-            const edgeId: string = route['edgeId'];
-            if (this.service.metadata.value?.edges[edgeId]) {
-                this.websocket.sendSafeRequest(new SubscribeEdgesRequest({ edges: [edgeId] }))
-                return
-            }
-
-            this.service.updateCurrentEdgeInMetadata(edgeId).catch(() => {
-                this.router.navigateByUrl("/index", { replaceUrl: true });
-            })
-        })
-
-        // subscribe for single status component
-        this.service.currentEdge.pipe(takeUntil(this.ngUnsubscribe)).subscribe(edge => {
-            if (edge != null) {
-                edge.subscribeChannels(this.websocket, '', [
-                    new ChannelAddress('_sum', 'State'),
-                ]);
-            }
         })
     }
 

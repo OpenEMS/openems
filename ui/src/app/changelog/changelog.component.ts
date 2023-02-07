@@ -35,6 +35,27 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.2.1',
+        changes: [
+          Changelog.openems('2023.2.0'),
+          Changelog.product(Product.COMMERCIAL_30) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.FEMS_REST_JSON_API) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.library(Library.ANGULAR, Library.NGX_FORMLY, Library.IONIC, Library.D3),
+        ]
+      },
+      {
+        version: '2023.1.3',
+        changes: [
+          "Fehlerbehebung am Online-Monitoring: Anzeige der Live-Daten nach Aktualisierung der Seite im Browser",
+        ]
+      },
+      {
+        version: '2023.1.3',
+        changes: [
+          Changelog.GENERAL_OPTIMIZATION + " an der Übersicht 'Alle Systeme'",
+        ]
+      },
+      {
         version: '2023.1.2',
         changes: [
           Changelog.GENERAL_OPTIMIZATION,

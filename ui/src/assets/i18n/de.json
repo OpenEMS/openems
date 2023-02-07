@@ -582,7 +582,8 @@
       "WAGO_BRIDGE": "Wago Bridge",
       "FIELD_BUS_COUPLER": "Feldbuskoppler",
       "CONTROL_GRID_POINT": "Ansteuerung der Netztrennstelle",
-      "BATTERY_INTERFACE": "Schnittstelle Batterie"
+      "BATTERY_INTERFACE": "Schnittstelle Batterie",
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
@@ -820,10 +821,10 @@
     },
     "Form": {
       "user": {
-        "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*"
+        "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*"
       },
       "installer": {
-        "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*"
+        "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*"
       },
       "contactDetails": "Kontaktdaten",
       "company": "Firma",
@@ -839,8 +840,8 @@
       "password": "Passwort",
       "confirmPassword": "Passwort wiederholen",
       "isElectrician": "Hiermit bestätige ich, dass mein Betrieb ins Installateursverzeichnis eingetragen ist und somit bin ich berechtigt ein Speichersystem anzuschließen und in Betrieb zu nehmen.*",
-      "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*",
-      "acceptAgb": "Hiermit bestätige ich die <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+      "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*",
+      "acceptAgb": "Hiermit bestätige ich die <a target=\"_blank\" href=\"https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/\">AGB</a>.*",
       "subscribeNewsletter": "Ich möchte den FENECON Newsletter abonnieren um immer alle Neuigkeiten von FENECON zu erhalten."
     },
     "button": "Anlegen",

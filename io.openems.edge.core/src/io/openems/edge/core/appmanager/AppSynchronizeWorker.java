@@ -24,12 +24,23 @@ public class AppSynchronizeWorker extends AbstractWorker {
 	private boolean shouldRun = true;
 	private boolean validBackendResponse = false;
 
+	private static final int WAIT_AFTER_TRIGGER_TIME = 3 * 60_000;
+	private boolean wasTriggered = false;
+	private boolean isTriggered = false;
+
+	private final Object synchronizationLock = new Object();
+
 	protected AppSynchronizeWorker(AppManagerImpl parent) {
 		this.parent = parent;
 	}
 
 	@Override
 	protected void forever() throws Throwable {
+		if (this.isTriggered) {
+			this.isTriggered = false;
+			this.wasTriggered = true;
+			return;
+		}
 		this.syncAppsWithBackend();
 	}
 
@@ -38,51 +49,68 @@ public class AppSynchronizeWorker extends AbstractWorker {
 	 * 
 	 * @return true if successful else false
 	 */
-	public synchronized boolean syncAppsWithBackend() {
-		List<Instance> installedAppsOfBackend;
-		try {
-			installedAppsOfBackend = this.parent.backendUtil.getInstalledApps();
-		} catch (OpenemsNamedException ex) {
-			this.validBackendResponse = false;
-			return false;
-		}
-		var installedAppsOfEdge = this.parent.getInstantiatedApps();
-
-		var appsWhichNotExist = new ArrayList<Instance>();
-		// only validates the installed apps from the backend; not validating instance
-		// that are installed on the edge and are not logged in the backend
-		for (var installedBackendApp : installedAppsOfBackend) {
-			if (installedAppsOfEdge.stream() //
-					.anyMatch(t -> t.appId.equals(installedBackendApp.appId)
-							&& t.instanceId.equals(installedBackendApp.instanceId))) {
-				// app exists like it should
-				continue;
-			} else {
-				// app does not exist
-				appsWhichNotExist.add(installedBackendApp);
+	public boolean syncAppsWithBackend() throws InterruptedException {
+		synchronized (this.synchronizationLock) {
+			List<Instance> installedAppsOfBackend;
+			try {
+				installedAppsOfBackend = this.parent.backendUtil.getInstalledApps();
+			} catch (OpenemsNamedException ex) {
+				this.validBackendResponse = false;
+				return false;
 			}
-		}
+			var installedAppsOfEdge = this.parent.getInstantiatedApps();
 
-		this.parent._setAppsNotSyncedWithBackend(!appsWhichNotExist.isEmpty());
-
-		if (appsWhichNotExist.isEmpty()) {
-			this.shouldRun = false;
-		} else {
-			for (var instance : appsWhichNotExist) {
-				try {
-					this.parent.backendUtil.addDeinstallAppInstanceHistory(null, instance.appId, instance.instanceId);
-				} catch (OpenemsNamedException ex) {
-					this.log.error("Can not add deintall app instance entry to database!", ex);
+			var appsWhichNotExist = new ArrayList<Instance>();
+			// only validates the installed apps from the backend; not validating instance
+			// that are installed on the edge and are not logged in the backend
+			for (var installedBackendApp : installedAppsOfBackend) {
+				if (installedAppsOfEdge.stream() //
+						.anyMatch(t -> t.appId.equals(installedBackendApp.appId)
+								&& t.instanceId.equals(installedBackendApp.instanceId))) {
+					// app exists like it should
+					continue;
+				} else {
+					// app does not exist
+					appsWhichNotExist.add(installedBackendApp);
 				}
 			}
+
+			this.parent._setAppsNotSyncedWithBackend(!appsWhichNotExist.isEmpty());
+
+			if (appsWhichNotExist.isEmpty()) {
+				this.shouldRun = false;
+			} else {
+				for (var instance : appsWhichNotExist) {
+					try {
+						this.parent.backendUtil.addDeinstallAppInstanceHistory(null, instance.appId,
+								instance.instanceId);
+					} catch (OpenemsNamedException ex) {
+						this.log.error("Can not add deintall app instance entry to database!", ex);
+					}
+				}
+			}
+			return true;
 		}
-		return true;
+	}
+
+	/**
+	 * Gets the lock for synchronizing apps with the backend. Should be used when
+	 * apps get installed/updated/removed.
+	 * 
+	 * @return the lock
+	 */
+	public final Object getSynchronizationLock() {
+		return this.synchronizationLock;
 	}
 
 	@Override
 	protected int getCycleTime() {
 		if (!this.shouldRun) {
 			return ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN;
+		}
+		if (this.wasTriggered) {
+			this.wasTriggered = false;
+			return WAIT_AFTER_TRIGGER_TIME;
 		}
 		if (!this.validBackendResponse) {
 			return NO_BACKEND_CONNECTION_CYCLE_TIME;
@@ -102,6 +130,7 @@ public class AppSynchronizeWorker extends AbstractWorker {
 	@Override
 	public void triggerNextRun() {
 		this.shouldRun = true;
+		this.isTriggered = true;
 		super.triggerNextRun();
 	}
 

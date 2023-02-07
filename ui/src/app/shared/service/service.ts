@@ -122,7 +122,7 @@ export class Service extends AbstractService {
   }
 
   public setCurrentComponent(currentPageTitle: string | { languageKey: string }, activatedRoute: ActivatedRoute): Promise<Edge> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       // Set the currentPageTitle only once per ActivatedRoute
       if (this.currentActivatedRoute != activatedRoute) {
         if (typeof currentPageTitle === 'string') {
@@ -142,66 +142,23 @@ export class Service extends AbstractService {
       }
       this.currentActivatedRoute = activatedRoute;
 
-      // Get Edge-ID. If not existing -> resolve null
-      let route = activatedRoute.snapshot;
-      let edgeId = route.params["edgeId"];
-      if (edgeId == null) {
-        // allow modal components to get edge id
-        if (route.url.length == 0) {
-          this.getCurrentEdge().then(edge => {
-            resolve(edge);
-          })
-        } else {
-          resolve(null);
-        }
-      }
-
-      let subscription: Subscription = null;
-      let onError = () => {
-        if (subscription != null) {
-          subscription.unsubscribe();
-        }
-        setCurrentEdge.apply(null);
-        // redirect to index
-        this.router.navigate(['/index']);
-      }
-
-      let timeout = setTimeout(() => {
-        console.error("Timeout while setting current edge");
-        //  onError();
-      }, Service.TIMEOUT);
-
-      let setCurrentEdge = (edge: Edge) => {
-        clearTimeout(timeout);
-        if (edge != this.currentEdge.value) {
-          if (edge != null) {
-            edge.markAsCurrentEdge(this.websocket);
-          }
-          this.currentEdge.next(edge);
-        }
+      this.getCurrentEdge().then(edge => {
         resolve(edge);
-      }
-
-      subscription = this.metadata
-        .pipe(
-          filter(metadata => metadata != null && edgeId in metadata.edges),
-          first(),
-          map(metadata => metadata.edges[edgeId])
-        )
-        .subscribe(edge => {
-          setCurrentEdge(edge);
-        }, error => {
-          console.error("Error while setting current edge: ", error);
-          onError();
-        })
+      }).catch(reject)
     });
   }
 
   public getCurrentEdge(): Promise<Edge> {
-    return this.currentEdge.pipe(
-      filter(edge => edge != null),
-      first()
-    ).toPromise();
+    // TODO maybe timeout
+    return new Promise<Edge>((resolve) => {
+      this.currentEdge.pipe(
+        filter(edge => edge != null),
+        first(),
+      ).toPromise().then(resolve);
+      if (this.currentEdge.value) {
+        resolve(this.currentEdge.value)
+      }
+    })
   }
 
   public getConfig(): Promise<EdgeConfig> {
@@ -320,7 +277,7 @@ export class Service extends AbstractService {
    * @returns a Promise
    */
   public getEdges(page: number, query?: string, limit?: number): Promise<Edge[]> {
-    return new Promise<Edge[]>((resolve) => {
+    return new Promise<Edge[]>((resolve, reject) => {
       this.websocket.sendSafeRequest(
         new GetEdgesRequest({
           page: page,
@@ -349,6 +306,8 @@ export class Service extends AbstractService {
 
           this.metadata.next(value)
           resolve(mappedResult)
+        }).catch((err) => {
+          reject(err)
         })
     })
   }
@@ -359,30 +318,32 @@ export class Service extends AbstractService {
    * @param edgeId the edgeId
    * @returns a empty Promise
    */
-  public updateCurrentEdgeInMetadata(edgeId: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      if (this.metadata?.value?.edges['edgeId']) {
-        return
+  public updateCurrentEdge(edgeId: string): Promise<Edge> {
+    return new Promise<Edge>((resolve, reject) => {
+      const existingEdge = this.metadata.value?.edges[edgeId];
+      if (existingEdge) {
+        this.currentEdge.next(existingEdge)
+        resolve(existingEdge);
+        return;
       }
-
       this.websocket.sendSafeRequest(new GetEdgeRequest({ edgeId: edgeId })).then((response) => {
-        this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edgeId] })).then(() => {
-          let edge = (response as GetEdgeResponse).result.edge
-          let value = this.metadata.value;
-          value.edges[edge.id] = new Edge(
-            edge.id,
-            edge.comment,
-            edge.producttype,
-            ("version" in edge) ? edge["version"] : "0.0.0",
-            Role.getRole(edge.role.toString()),
-            edge.isOnline,
-            edge.lastmessage
-          );
+        let edgeData = (response as GetEdgeResponse).result.edge
+        let value = this.metadata.value;
+        const currentEdge = new Edge(
+          edgeData.id,
+          edgeData.comment,
+          edgeData.producttype,
+          ("version" in edgeData) ? edgeData["version"] : "0.0.0",
+          Role.getRole(edgeData.role.toString()),
+          edgeData.isOnline,
+          edgeData.lastmessage
+        );
 
-          this.metadata.next(value)
-          resolve()
-        })
-      }).catch(() => reject())
+        this.currentEdge.next(currentEdge)
+        value.edges[edgeData.id] = currentEdge
+        this.metadata.next(value)
+        resolve(currentEdge)
+      }).catch(reject)
     })
   }
 
