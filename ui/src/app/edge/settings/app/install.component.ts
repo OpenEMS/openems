@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
 import { AddAppInstance } from './jsonrpc/addAppInstance';
@@ -31,6 +32,8 @@ export class InstallAppComponent implements OnInit {
     protected utils: Utils,
     private websocket: Websocket,
     private service: Service,
+    private router: Router,
+    private translate: TranslateService,
   ) {
   }
 
@@ -100,12 +103,13 @@ export class InstallAppComponent implements OnInit {
         if (result.warnings && result.warnings.length > 0) {
           this.service.toast(result.warnings.join(';'), 'warning');
         } else {
-          this.service.toast('Successfully installed App', 'success');
+          this.service.toast(this.translate.instant('Edge.Config.App.successInstall'), 'success')
         }
 
         this.form.markAsPristine();
+        this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
       }).catch(reason => {
-        this.service.toast('Error installing App: ' + reason.error.message, 'danger');
+        this.service.toast(this.translate.instant('Edge.Config.App.failInstall', { error: reason.error.message }), 'danger')
       }).finally(() => {
         this.isInstalling = false
         this.service.stopSpinner(this.appId);

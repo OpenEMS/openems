@@ -384,7 +384,13 @@
           "valid": "Lizenzschlüssel ist gültig",
           "invalid": "Lizenzschlüssel ist ungültig",
           "invalidPattern": "Eingabe ist ungültig"
-        }
+        },
+        "successInstall": "App erfolgreich installiert",
+        "failInstall": "Installation der App fehlgeschlagen: {{error}}",
+        "successUpdate": "App erfolgreich aktualisiert",
+        "failUpdate": "Fehler während der Aktualisierung: {{error}}",
+        "successDelete": "App erfolgreich entfernt",
+        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}"
       }
     },
     "Service": {
