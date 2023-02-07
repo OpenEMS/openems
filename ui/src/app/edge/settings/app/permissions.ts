@@ -9,7 +9,7 @@ export function canSeeAppCenter(edge: Edge): boolean {
 }
 
 export function canEnterKey(edge: Edge, user: User): boolean {
-    return false
+    return true
 }
 
 export function hasPredefinedKey(edge: Edge): boolean {

@@ -382,7 +382,8 @@
           "failedRegisterKey": "Registrierung des Schlüssels fehlgeschlagen",
           "alreadyRegisteredDifferentApp": "Key wurde bereits für eine App auf diesem System registriert! \nWenn Sie fortfahren, wird die andere Registrierung entfernt.",
           "valid": "Lizenzschlüssel ist gültig",
-          "invalid": "Lizenzschlüssel ist ungültig"
+          "invalid": "Lizenzschlüssel ist ungültig",
+          "invalidPattern": "Eingabe ist ungültig"
         }
       }
     },
