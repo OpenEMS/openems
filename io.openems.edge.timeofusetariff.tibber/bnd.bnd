@@ -12,4 +12,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.wrapper.okhttp,\
 
 -testpath: \
+	com.squareup.okio,\
+	io.openems.wrapper.kotlinx-coroutines-core-jvm,\
+	io.openems.wrapper.okhttp,\
+	org.jetbrains.kotlin.osgi-bundle,\
 	${testpath}
