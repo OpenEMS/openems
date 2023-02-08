@@ -3,11 +3,8 @@ package io.openems.edge.timeofusetariff.tibber;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.TreeMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -22,8 +19,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.common.collect.ImmutableSortedMap;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
@@ -58,8 +53,7 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 
 	private ZonedDateTime updateTimeStamp = null;
 
-	private final Runnable task = () -> {
-
+	protected final Runnable task = () -> {
 		/*
 		 * Update Map of prices
 		 */
@@ -68,27 +62,13 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 				.url(TIBBER_API_URL) //
 				.header("Authorization", this.config.accessToken()) //
 				.post(RequestBody.create(JsonUtils.buildJsonObject() //
-						.addProperty("query", "{\n" //
-								+ "  viewer {\n" //
-								+ "    homes {\n" //
-								+ "      currentSubscription{\n" //
-								+ "        priceInfo{\n" //
-								+ "          today {\n" //
-								+ "            total\n" //
-								+ "            startsAt\n" //
-								+ "          }\n" //
-								+ "          tomorrow {\n" //
-								+ "            total\n" //
-								+ "            startsAt\n" //
-								+ "          }\n" //
-								+ "        }\n" //
-								+ "      }\n" //
-								+ "    }\n" //
-								+ "  }\n" //
-								+ "}") //
+						.addProperty("query", Utils.generateGraphQl()) //
 						.build().toString(), MediaType.parse("application/json"))) //
 				.build();
-		int httpStatusCode;
+		int httpStatusCode = 0;
+		var filterIsRequired = false;
+		var unableToUpdatePrices = false;
+
 		try (var response = client.newCall(request).execute()) {
 			httpStatusCode = response.code();
 
@@ -96,18 +76,27 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 				throw new IOException("Unexpected code " + response);
 			}
 
+			// Initialize status channel to false
+			this.channel(Tibber.ChannelId.FILTER_IS_REQUIRED).setNextValue(false);
+
 			// Parse the response for the prices
-			this.prices.set(TibberImpl.parsePrices(response.body().string()));
+			this.prices.set(Utils.parsePrices(response.body().string(), this.config.filter()));
 
 			// store the time stamp
 			this.updateTimeStamp = ZonedDateTime.now();
 
 		} catch (IOException | OpenemsNamedException e) {
+			if (e instanceof FoundMultipleHomesException) {
+				filterIsRequired = true;
+			} else {
+				unableToUpdatePrices = true;
+			}
 			e.printStackTrace();
-			httpStatusCode = 0;
 		}
 
 		this.channel(Tibber.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
+		this.channel(Tibber.ChannelId.FILTER_IS_REQUIRED).setNextValue(filterIsRequired);
+		this.channel(Tibber.ChannelId.UNABLE_TO_UPDATE_PRICES).setNextValue(unableToUpdatePrices);
 
 		/*
 		 * Schedule next price update for 2 pm
@@ -135,7 +124,7 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (!config.enabled()) {
@@ -161,52 +150,5 @@ public class TibberImpl extends AbstractOpenemsComponent implements TimeOfUseTar
 
 		return TimeOfUseTariffUtils.getNext24HourPrices(Clock.systemDefaultZone() /* can be mocked for testing */,
 				this.prices.get(), this.updateTimeStamp);
-	}
-
-	/**
-	 * Parse the Tibber JSON to the Price Map.
-	 *
-	 * @param jsonData the Tibber JSON
-	 * @return the Price Map
-	 * @throws OpenemsNamedException on error
-	 */
-	public static ImmutableSortedMap<ZonedDateTime, Float> parsePrices(String jsonData) throws OpenemsNamedException {
-		var result = new TreeMap<ZonedDateTime, Float>();
-
-		var line = JsonUtils.parseToJsonObject(jsonData);
-		var homes = JsonUtils.getAsJsonObject(line, "data") //
-				.getAsJsonObject("viewer") //
-				.getAsJsonArray("homes");
-
-		for (JsonElement home : homes) {
-
-			var priceInfo = JsonUtils.getAsJsonObject(home, "currentSubscription") //
-					.getAsJsonObject("priceInfo");
-
-			// Price info for today and tomorrow.
-			var today = JsonUtils.getAsJsonArray(priceInfo, "today");
-			var tomorrow = JsonUtils.getAsJsonArray(priceInfo, "tomorrow");
-
-			// Adding to an array to avoid individual variables for individual for loops.
-			JsonArray[] days = { today, tomorrow };
-
-			// parse the arrays for price and time stamps.
-			for (JsonArray day : days) {
-				for (JsonElement element : day) {
-					// Multiply the price with 1000 to make it EUR/MWh.
-					var marketPrice = JsonUtils.getAsFloat(element, "total") * 1000;
-					var startTimeStamp = ZonedDateTime
-							.parse(JsonUtils.getAsString(element, "startsAt"), DateTimeFormatter.ISO_DATE_TIME)
-							.withZoneSameInstant(ZoneId.systemDefault());
-
-					// Adding the values in the Map.
-					result.put(startTimeStamp, marketPrice);
-					result.put(startTimeStamp.plusMinutes(15), marketPrice);
-					result.put(startTimeStamp.plusMinutes(30), marketPrice);
-					result.put(startTimeStamp.plusMinutes(45), marketPrice);
-				}
-			}
-		}
-		return ImmutableSortedMap.copyOf(result);
 	}
 }
