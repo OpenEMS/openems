@@ -72,7 +72,9 @@ public class KacoBlueplanet extends AbstractSunSpecPvInverter implements SunSpec
 	// .put(DefaultSunSpecModel.S_160, Priority.LOW) // from 40792
 	// .put(SunSpecModel.S_64204, Priority.LOW) // from 40842
 
-	private static final int UNIT_ID = 1;
+	// We had a Kaco nx3 for testing, which had a modbus ID of 3. A static modbus ID of 1 worked for TCP (no idea why),
+	// but not for RTU. To get this plugin working with the Kaco nx3 on a RTU connection, the modbus ID must be configurable.
+	//private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	@Reference
@@ -98,7 +100,7 @@ public class KacoBlueplanet extends AbstractSunSpecPvInverter implements SunSpec
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id(), READ_FROM_MODBUS_BLOCK, Phase.ALL)) {
 			return;
 		}
