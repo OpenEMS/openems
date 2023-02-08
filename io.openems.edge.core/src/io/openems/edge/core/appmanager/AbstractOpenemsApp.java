@@ -548,6 +548,11 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> //
 	}
 
 	@Override
+	public OpenemsAppPermissions getAppPermissions() {
+		return OpenemsAppPermissions.create().build();
+	}
+
+	@Override
 	public String getName(Language language) {
 		return AbstractOpenemsApp.getTranslation(language, this.getAppId() + ".Name");
 	}
