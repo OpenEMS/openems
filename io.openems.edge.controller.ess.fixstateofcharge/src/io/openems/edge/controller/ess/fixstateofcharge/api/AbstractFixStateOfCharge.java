@@ -47,7 +47,7 @@ import io.openems.edge.timedata.api.Timedata;
 public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		implements FixStateOfCharge, Controller, OpenemsComponent {
 
-	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	private static final long INFO_DISPLAY_TIME = 1; // h
 
@@ -214,10 +214,11 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 			this._setDebugSetActivePower(null);
 			this._setDebugSetActivePowerRaw(null);
 			this._setDebugRampPower(rampPower);
+			this.updateEssWarningChannels(null);
 			return;
 		}
 
-		this.setEssWarningChannel(activePower);
+		this.updateEssWarningChannels(activePower);
 
 		// Calculate AC-Setpoint depending on the DC production
 		activePower = this.calculateAcLimit(activePower);
@@ -316,7 +317,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 	/**
 	 * Helper to parse the given date and time into LocalDateTime.
 	 * 
-	 * @param date      date e.g. "27.10.2022"
+	 * @param date      date e.g. "2022-10-23"
 	 * @param time      tima e.g. "08:30"
 	 * @param formatter DateTimeFormatter
 	 * @return parsed LocalDateTime
@@ -404,7 +405,13 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		this._setDebugRampPower(null);
 	}
 
-	private void setEssWarningChannel(Integer activePower) {
+	private void updateEssWarningChannels(Integer activePower) {
+		if (activePower == null) {
+			this._setCtrlIsBlockingEss(false);
+			this._setCtrlIsChargingEss(false);
+			this._setCtrlIsDischargingEss(false);
+			return;
+		}
 
 		this._setCtrlIsBlockingEss(activePower == 0);
 		this._setCtrlIsChargingEss(activePower < 0);
