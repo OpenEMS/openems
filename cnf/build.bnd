@@ -74,5 +74,5 @@ testpath: \
 	Edge_Timedata;member=${filter;${p};io\.openems\.edge\.timedata\..*},\
 	Edge_TimeOfUseTariff;member=${filter;${p};io\.openems\.edge\.timeofusetariff\..*},\
 
-javac.source: 11
-javac.target: 11
+javac.source: 17
+javac.target: 17
