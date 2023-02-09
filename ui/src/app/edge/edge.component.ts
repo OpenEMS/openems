@@ -7,20 +7,20 @@ import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared"
 @Component({
     selector: "edge",
     template: `
-    <router-outlet class="fullscreen"></router-outlet>
+        <router-outlet class="fullscreen">
+        </router-outlet>
     `,
     styles: [`
     .fullscreen {
         position: absolute;
-        left: 0px;
-        right: 0px;
-        top: 0px;
-        bottom: 0px;
+        top: 0;
+        left: 0;
+        right: 0;
         height: 100%;
     }
     :host ::ng-deep  ion-content{
         position: absolute;
-        height: 100%;
+        height: 94%;
     }
 `]
 })
