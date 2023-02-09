@@ -19,7 +19,7 @@ public interface Heatpump extends Heater {
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 	/**
-	 * Electric consumption power used by the CHP at the moment.
+	 * Electric consumption power used by the Heatpump at the moment.
 	 *
 	 * <ul>
 	 * <li>Interface: Heatpump
