@@ -16,14 +16,6 @@ export function hasPredefinedKey(edge: Edge): boolean {
     return edge.roleIsAtLeast(Role.ADMIN);
 }
 
-export function getPredefinedKey(edge: Edge): string {
-    // TODO this feature will be removed in the future when the keys got rolled out completely
-    if (edge.roleIsAtLeast(Role.ADMIN)) {
-        return "8fyk-Gma9-EUO3-j3gi";  // TODO set key before release
-    }
-    return "";
-}
-
 export function hasKeyModel(edge: Edge): boolean {
     return edge.isVersionAtLeast('2023.1.2')
 }

@@ -13,7 +13,7 @@ import { GetApps } from './jsonrpc/getApps';
 import { AppCenter } from './keypopup/appCenter';
 import { AppCenterGetPossibleApps } from './keypopup/appCenterGetPossibleApps';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
-import { canEnterKey, getPredefinedKey, hasKeyModel, hasPredefinedKey } from './permissions';
+import { canEnterKey, hasKeyModel, hasPredefinedKey } from './permissions';
 
 @Component({
   selector: SingleAppComponent.SELECTOR,
@@ -62,13 +62,6 @@ export class SingleAppComponent implements OnInit, OnDestroy {
   public ngOnInit() {
     this.service.startSpinner(this.spinnerId);
     this.updateIsXL();
-
-    // get key if passed 
-    this.route.queryParams.subscribe(params => {
-      if (params['appKey']) {
-        this.key = params['appKey'];
-      }
-    });
 
     this.appId = this.route.snapshot.params['appId'];
     this.appName = this.route.snapshot.queryParams['name'];
@@ -121,8 +114,14 @@ export class SingleAppComponent implements OnInit, OnDestroy {
       this.hasPredefinedKey = hasPredefinedKey(edge);
 
       // set appname, image ...
-      if ('appId' in history.state) {
-        this.setApp(history.state)
+      const state = history?.state
+      if (state && 'app' in history.state) {
+        if ('app' in history.state) {
+          this.setApp(history.state['app'])
+        }
+        if ('appKey' in history.state) {
+          this.key = history.state['appKey']
+        }
       } else {
         edge.sendRequest(this.websocket,
           new ComponentJsonApiRequest({
@@ -204,18 +203,15 @@ export class SingleAppComponent implements OnInit, OnDestroy {
   }
 
   protected installApp(appId: string) {
-    if (this.key != null || this.hasPredefinedKey) {
+    if (this.key != null) {
       let key = this.key
-      if (this.hasPredefinedKey) {
-        key = getPredefinedKey(this.edge);
-      }
       // if key already set navigate directly to installation view
       this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
-        , { queryParams: { appKey: key, name: this.appName } });
+        , { queryParams: { name: this.appName }, state: { appKey: key } });
       return;
     }
     // if the version is not high enough and the edge doesnt support installing apps via keys directly navigate to installation
-    if (!hasKeyModel(this.edge)) {
+    if (!hasKeyModel(this.edge) || this.hasPredefinedKey) {
       this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
         , { queryParams: { name: this.appName } });
       return;

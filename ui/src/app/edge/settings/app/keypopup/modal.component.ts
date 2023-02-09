@@ -202,7 +202,7 @@ export class KeyModalComponent implements OnInit {
                 this.modalCtrl.dismiss({ 'key': this.getSelectedKey() });
                 // navigate to App install view and pass valid key
                 this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
-                    , { queryParams: { appKey: this.getRawAppKey(), name: this.appName } });
+                    , { queryParams: { name: this.appName }, state: { appKey: this.getRawAppKey() } });
                 this.service.stopSpinner(this.spinnerId);
                 break;
             case KeyValidationBehaviour.REGISTER:

@@ -242,7 +242,7 @@ export class IndexComponent implements OnInit, OnDestroy {
   protected onAppClicked(app: GetApps.App): void {
     if (this.key != null) {
       this.router.navigate(['device/' + (this.edge.id) + '/settings/app/single/' + app.appId]
-        , { queryParams: { appKey: this.key.keyId, name: app.name }, state: app });
+        , { queryParams: { name: app.name }, state: { app: app, appKey: this.key.keyId } });
     } else {
       this.router.navigate(['device/' + (this.edge.id) + '/settings/app/single/' + app.appId], { queryParams: { name: app.name }, state: app });
     }
