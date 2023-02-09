@@ -47,7 +47,7 @@ public interface Heatpump extends Heater {
 		.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * Min electric power the CHP needs to run.
+	 * Min electric power the Heatpump needs to run.
 	 *
 	 * <ul>
 	 * <li>Interface: Heatpump
