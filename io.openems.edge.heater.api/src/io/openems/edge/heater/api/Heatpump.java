@@ -33,7 +33,7 @@ public interface Heatpump extends Heater {
 		.accessMode(AccessMode.READ_ONLY)), //
 
 	/**
-	 * Max electric power the CHP can consume.
+	 * Max electric power the Heatpump can consume.
 	 *
 	 * <ul>
 	 * <li>Interface: Heatpump
