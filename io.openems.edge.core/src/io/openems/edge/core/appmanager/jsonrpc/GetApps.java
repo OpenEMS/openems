@@ -12,6 +12,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
@@ -95,8 +96,16 @@ public class GetApps {
 	public static class Response extends JsonrpcResponseSuccess {
 
 		private static JsonArray createAppsArray(List<OpenemsApp> availableApps,
-				List<OpenemsAppInstance> instantiatedApps, Language language, Validator validator) {
-			return availableApps.parallelStream() //
+				List<OpenemsAppInstance> instantiatedApps, Role userRole, Language language, Validator validator) {
+			return availableApps.stream() //
+					.filter(app -> {
+						final var permissions = app.getAppPermissions();
+						if (!userRole.isAtLeast(permissions.canSee)) {
+							return false;
+						}
+						return true;
+					}) //
+					.parallel() //
 					.map(app -> {
 						try {
 							return GetApp.createJsonObjectOf(app, validator, instantiatedApps, language);
@@ -112,9 +121,9 @@ public class GetApps {
 		private final JsonArray apps;
 
 		public Response(UUID id, List<OpenemsApp> availableApps, List<OpenemsAppInstance> instantiatedApps,
-				Language language, Validator validator) {
+				Role userRole, Language language, Validator validator) {
 			super(id);
-			this.apps = createAppsArray(availableApps, instantiatedApps, language, validator);
+			this.apps = createAppsArray(availableApps, instantiatedApps, userRole, language, validator);
 		}
 
 		@Override

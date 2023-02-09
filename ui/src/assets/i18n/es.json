@@ -126,10 +126,10 @@
     },
     "Form": {
       "user": {
-        "acceptPrivacyPolicy": "Al crear una cuenta de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de Privacidad</a> y las Condiciones de Uso de FENECON.*"
+        "acceptPrivacyPolicy": "Al crear una cuenta de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Política de Privacidad</a> y las Condiciones de Uso de FENECON.*"
       },
       "installer": {
-        "acceptPrivacyPolicy": "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de privacidad</a> y las Condiciones de uso de FENECON.*"
+        "acceptPrivacyPolicy": "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Política de privacidad</a> y las Condiciones de uso de FENECON.*"
       },
       "contactDetails": "Datos de contacto",
       "companyName": "Nombre de la empresa",
@@ -144,8 +144,8 @@
       "password": "Contraseña",
       "confirmPassword": "Confirmar contraseña",
       "isElectrician": "Confirmo que mi empresa está inscrita en el registro de instaladores y, por tanto, estoy autorizado a conectar y poner en marcha un sistema de almacenamiento.",
-      "acceptPrivacyPolicy": "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la  <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de privacidad</a> y las condiciones de uso de FENECON.*",
-      "acceptAgb": "Confirmo el <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+      "acceptPrivacyPolicy": "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la  <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Política de privacidad</a> y las condiciones de uso de FENECON.*",
+      "acceptAgb": "Confirmo el <a target=\"_blank\" href=\"https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/\">AGB</a>.*",
       "subscribeNewsletter": "Me gustaría suscribirme al boletín de FENECON para recibir todas las novedades de FENECON."
     },
     "button": "Crear",

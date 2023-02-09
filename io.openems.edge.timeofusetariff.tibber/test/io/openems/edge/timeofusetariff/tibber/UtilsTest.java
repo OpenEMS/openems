@@ -1,8 +1,8 @@
 package io.openems.edge.timeofusetariff.tibber;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.time.ZonedDateTime;
 import java.util.SortedMap;
@@ -10,30 +10,18 @@ import java.util.SortedMap;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.common.test.ComponentTest;
 
-public class TibberProviderTest {
-
-	private static final String CTRL_ID = "ctrl0";
-
-	@Test
-	public void test() throws Exception {
-		var tibber = new TibberImpl();
-		new ComponentTest(tibber) //
-				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setAccessToken("dummy") //
-						.build()) //
-		;
-	}
+public class UtilsTest {
 
 	@Test
 	public void nonEmptyStringTest() throws OpenemsNamedException {
 		// Parsing with custom data
-		SortedMap<ZonedDateTime, Float> prices = TibberImpl.parsePrices("{\n" //
+		SortedMap<ZonedDateTime, Float> prices = Utils.parsePrices("{\n" //
 				+ "  \"data\": {\n" + "    \"viewer\": {\n" //
 				+ "      \"homes\": [\n" //
 				+ "        {\n" //
+				+ "          \"id\": \"foo-bar\",\n" //
+				+ "          \"appNickname\": \"my-alias\",\n" //
 				+ "          \"currentSubscription\": {\n" //
 				+ "            \"priceInfo\": {\n" //
 				+ "              \"today\": [\n" //
@@ -141,7 +129,7 @@ public class TibberProviderTest {
 				+ "      ]\n" //
 				+ "    }\n" //
 				+ "  }\n" //
-				+ "}"); //
+				+ "}", null); //
 
 		// To check if the Map is not empty
 		assertFalse(prices.isEmpty());
@@ -153,19 +141,35 @@ public class TibberProviderTest {
 
 		// To check 15 minutes values are taken instead of one hour values.
 		assertTrue(prices.containsKey(firstHour.plusMinutes(15)));
+	}
 
+	@Test(expected = OpenemsNamedException.class)
+	public void emptyStringTest() throws OpenemsNamedException {
+		// Parsing with empty string
+		Utils.parsePrices("", null);
 	}
 
 	@Test
-	public void emptyStringTest() {
-		try {
-			// Parsing with empty string
-			TibberImpl.parsePrices("");
-		} catch (OpenemsNamedException e) {
-			// expected
-			return;
-		}
-
-		fail("Expected Exception");
+	public void generateGraphQlTest() {
+		assertEquals("{\n" //
+				+ "  viewer {\n" //
+				+ "    homes {\n" //
+				+ "      id\n" //
+				+ "      appNickname\n" //
+				+ "      currentSubscription{\n" //
+				+ "        priceInfo{\n" //
+				+ "          today {\n" //
+				+ "            total\n" //
+				+ "            startsAt\n" //
+				+ "          }\n" //
+				+ "          tomorrow {\n" //
+				+ "            total\n" //
+				+ "            startsAt\n" //
+				+ "          }\n" //
+				+ "        }\n" //
+				+ "      }\n" //
+				+ "    }\n" //
+				+ "  }\n" //
+				+ "}", Utils.generateGraphQl());
 	}
 }

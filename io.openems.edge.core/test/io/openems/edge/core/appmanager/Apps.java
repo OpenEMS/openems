@@ -14,6 +14,7 @@ import io.openems.edge.app.TestC;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
+import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.integratedsystem.FeneconHome;
@@ -211,6 +212,18 @@ public class Apps {
 	 */
 	public static final SocomecMeter socomecMeter(AppManagerTestBundle t) {
 		return app(t, SocomecMeter::new, "App.Meter.Socomec");
+	}
+
+	// ess-controller
+
+	/**
+	 * Test method for creating a {@link PrepareBatteryExtension}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PrepareBatteryExtension prepareBatteryExtension(AppManagerTestBundle t) {
+		return app(t, PrepareBatteryExtension::new, "App.Ess.PrepareBatteryExtension");
 	}
 
 	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructor<T> constructor, String appId) {

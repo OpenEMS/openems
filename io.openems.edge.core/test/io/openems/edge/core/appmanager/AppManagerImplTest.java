@@ -174,11 +174,31 @@ public class AppManagerImplTest {
 								.addProperty("targetGridSetpoint", 0) //
 								.build()) //
 						.build()) //
+				.add("ctrlPrepareBatteryExtension0", JsonUtils.buildJsonObject() //
+						.addProperty("factoryId", "Controller.Ess.PrepareBatteryExtension") //
+						.addProperty("alias", "Batterie Erweiterung vorbereitung") //
+						.add("properties", JsonUtils.buildJsonObject() //
+								.addProperty("enabled", true) //
+								.addProperty("targetSoc", 30) //
+								.addProperty("enabled", true) //
+								.addProperty("ess_id", "ess0") //
+								.addProperty("isRunning", false) //
+								.addProperty("targetDate", "01.01.2000") //
+								.addProperty("targetTime", "08:00") //
+								.addProperty("targetTimeSpecified", false) //
+								.addProperty("targetTimeBuffer", 30) //
+								.addProperty("selfTermination", true) //
+								.addProperty("terminationBuffer", 120) //
+								.addProperty("conditionalTermination", true) //
+								.addProperty("endCondition", "CAPACITY_CHANGED") //
+								.build()) //
+						.build()) //
 				.add("scheduler0", JsonUtils.buildJsonObject() //
 						.addProperty("factoryId", "Scheduler.AllAlphabetically") //
 						.add("properties", JsonUtils.buildJsonObject() //
 								.addProperty("enabled", true) //
 								.add("controllers.ids", JsonUtils.buildJsonArray() //
+										.add("ctrlPrepareBatteryExtension0") //
 										.add("ctrlGridOptimizedCharge0") //
 										.add("ctrlEssSurplusFeedToGrid0") //
 										.add("ctrlBalancing0") //
@@ -254,6 +274,14 @@ public class AppManagerImplTest {
 										.addProperty("METER_ID", meterId) //
 										.build()) //
 								.build())
+						.add(JsonUtils.buildJsonObject() //
+								.addProperty("appId", "App.Ess.PrepareBatteryExtension") //
+								.addProperty("alias", "") //
+								.addProperty("instanceId", UUID.randomUUID().toString()) //
+								.add("properties", JsonUtils.buildJsonObject() //
+										.addProperty("TARGET_SOC", 30) //
+										.build()) //
+								.build())
 						.build().toString()) //
 				.build();
 
@@ -262,6 +290,7 @@ public class AppManagerImplTest {
 					this.homeApp = Apps.feneconHome(t), //
 					Apps.gridOptimizedCharge(t), //
 					Apps.selfConsumptionOptimization(t), //
+					Apps.prepareBatteryExtension(t), //
 
 					this.kebaEvcsApp = Apps.kebaEvcs(t), //
 					this.awattarApp = Apps.awattarHourly(t), //
@@ -273,7 +302,7 @@ public class AppManagerImplTest {
 
 	@Test
 	public void testAppValidateWorker() throws OpenemsException, Exception {
-		assertEquals(this.appManagerTestBundle.sut.instantiatedApps.size(), 3);
+		assertEquals(this.appManagerTestBundle.sut.instantiatedApps.size(), 4);
 
 		this.appManagerTestBundle.assertNoValidationErrors();
 	}

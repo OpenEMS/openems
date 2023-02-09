@@ -31,7 +31,7 @@ public @interface ConfigPrepareBatteryExtension {
 	@AttributeDefinition(name = "Target time specified", description = "If target time specified is set to false, the SoC will be reached as fast as possible.")
 	boolean targetTimeSpecified() default false;
 
-	@AttributeDefinition(name = " Target date [DD.MM.YYYY]", description = "Target date to reach the targetSoc, e.g. 27.10.2022")
+	@AttributeDefinition(name = "Target date [YYYY-MM-DD]", description = "Target date to reach the targetSoc, e.g. 2022-10-15")
 	String targetDate();
 
 	@AttributeDefinition(name = " Target time [HH:MM]", description = "Target time to reach the targetSoc, e.g. 08:00.")

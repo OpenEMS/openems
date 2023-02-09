@@ -31,6 +31,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.Parity;
+import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.integratedsystem.FeneconHome.Property;
 import io.openems.edge.app.meter.KdkMeter;
 import io.openems.edge.app.meter.SocomecMeter;
@@ -86,6 +87,10 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
     	},
     	{
         	"key": "SELF_CONSUMTION_OPTIMIZATION",
+        	"instanceId": UUID
+    	},
+    	{
+        	"key": "PREPARE_BATTERY_EXTENSION",
         	"instanceId": UUID
     	}
     ],
@@ -430,6 +435,18 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.setProperties(JsonUtils.buildJsonObject() //
 											.addProperty(SelfConsumptionOptimization.Property.ESS_ID.name(), essId) //
 											.addProperty(SelfConsumptionOptimization.Property.METER_ID.name(), "meter0") //
+											.build())
+									.build()),
+					new DependencyDeclaration("PREPARE_BATTERY_EXTENSION", //
+							DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+							DependencyDeclaration.UpdatePolicy.NEVER, //
+							DependencyDeclaration.DeletePolicy.IF_MINE, //
+							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+							DependencyDeclaration.AppDependencyConfig.create() //
+									.setAppId("App.Ess.PrepareBatteryExtension") //
+									.setProperties(JsonUtils.buildJsonObject() //
+											.addProperty(PrepareBatteryExtension.Property.TARGET_SOC.name(), 30) //
 											.build())
 									.build()) //
 			);

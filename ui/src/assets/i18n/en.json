@@ -384,8 +384,15 @@
           "valid": "licence key is valid",
           "invalid": "licence key is invalid",
           "alreadyRegisteredDifferentSystem": "Key already got registered on a different System! If you continue the other registration will get removed.",
-          "alreadyRegisteredDifferentApp": "Key already got registered for an app on this System! If you continue the other registration will get removed."
-        }
+          "alreadyRegisteredDifferentApp": "Key already got registered for an app on this System! If you continue the other registration will get removed.",
+          "invalidPattern": "Input is invalid"
+        },
+        "successInstall": "Successfully installed App",
+        "failInstall": "Error installing App '{{error}}'",
+        "successUpdate": "Successfully updated App",
+        "failUpdate": "Error updating App '{{error}}'",
+        "successDelete": "Successfully deleted App",
+        "failDelete": "Error deleting App '{{error}}'"
       }
     },
     "Service": {
@@ -821,10 +828,10 @@
     },
     "Form": {
       "user": {
-        "acceptPrivacyPolicy": "By creating a FENECON account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*"
+        "acceptPrivacyPolicy": "By creating a FENECON account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/en/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*"
       },
       "installer": {
-        "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*"
+        "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/en/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*"
       },
       "contactDetails": "Contact Details",
       "companyName": "Company name",
@@ -839,8 +846,8 @@
       "password": "Password",
       "confirmPassword": "Confirm password",
       "isElectrician": "I confirm that my company is registered in the installer register and i am therefore authorised to connect and commission a storage system.",
-      "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
-      "acceptAgb": "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+      "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/en/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
+      "acceptAgb": "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/gtc/\">AGB</a>.*",
       "subscribeNewsletter": "I would like to subscribe to the FENECON newsletter to receive all the latest news from FENECON.",
       "company": "Company"
     },

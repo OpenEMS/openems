@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InfiniteScrollCustomEvent } from '@ionic/angular';
@@ -14,7 +14,7 @@ import { Role } from '../shared/type/role';
   selector: 'index',
   templateUrl: './index.component.html'
 })
-export class IndexComponent implements OnDestroy {
+export class IndexComponent implements OnInit, OnDestroy {
 
   public environment = environment;
 

@@ -3,34 +3,34 @@ package io.openems.edge.controller.ess.fixstateofcharge.api;
 public class ConfigProperties {
 
 	// Is Running. Set controller ON or OFF
-	private boolean isRunning;
+	private final boolean isRunning;
 
 	// Target SoC
-	private int targetSoc;
+	private final int targetSoc;
 
 	// Target time specified
-	private boolean targetTimeSpecified;
+	private final boolean targetTimeSpecified;
 
-	// Target date [DD.MM.YYYY]
-	private String targetDate;
+	// Target date [YYYY-MM-DD]
+	private final String targetDate;
 
 	// Target time [HH:MM]
-	private String targetTime;
+	private final String targetTime;
 
 	// Target time buffer
-	int targetTimeBuffer;
+	private final int targetTimeBuffer;
 
 	// Terminates itself at the end
-	private boolean selfTermination;
+	private final boolean selfTermination;
 
 	// Terminate time buffer in min
-	private int terminationBuffer;
+	private final int terminationBuffer;
 
 	// Terminates itself after separate conditon
-	private boolean conditionalTermination;
+	private final boolean conditionalTermination;
 
 	// Condition for termination
-	private EndCondition endCondition;
+	private final EndCondition endCondition;
 
 	public ConfigProperties(boolean isRunning, int targetSoc, boolean targetTimeSpecified, String targetDate,
 			String targetTime, int targetTimeBuffer, boolean selfTermination, int terminationBuffer,
@@ -86,5 +86,4 @@ public class ConfigProperties {
 	public EndCondition getEndCondition() {
 		return this.endCondition;
 	}
-
 }

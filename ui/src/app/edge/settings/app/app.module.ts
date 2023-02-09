@@ -6,10 +6,25 @@ import { SingleAppComponent } from './single.component';
 import { UpdateAppComponent } from './update.component';
 import { KeyModalComponent } from './keypopup/modal.component';
 import { FormControl, ValidationErrors } from '@angular/forms';
-import { FormlyModule } from '@ngx-formly/core';
+import { FormlyModule, FORMLY_CONFIG } from '@ngx-formly/core';
+import { TranslateExtension } from 'src/app/shared/translate.extension';
+import { TranslateService } from '@ngx-translate/core';
 
 export function KeyValidator(control: FormControl): ValidationErrors {
   return /^(.{4}-){3}.{4}$/.test(control.value) ? null : { 'key': true };
+}
+
+export function registerTranslateExtension(translate: TranslateService) {
+  return {
+    validationMessages: [
+      {
+        name: 'key',
+        message() {
+          return translate.stream('Edge.Config.App.Key.invalidPattern');
+        },
+      },
+    ]
+  };
 }
 
 @NgModule({
@@ -36,6 +51,10 @@ export function KeyValidator(control: FormControl): ValidationErrors {
     InstallAppComponent,
     SingleAppComponent,
     UpdateAppComponent,
+  ],
+  providers: [
+    // Use factory for formly. This allows us to use translations in validationMessages.
+    { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
   ],
 })
 export class AppModule { }

@@ -122,9 +122,64 @@ export class KeyModalComponent implements OnInit {
             },
             validators: {
                 validation: ['key'],
+            },
+            hooks: {
+                onInit: (field) => {
+                    field.formControl.valueChanges.subscribe((next) => {
+                        const nextInput = KeyModalComponent.transformInput(next)
+                        if (!nextInput) {
+                            return;
+                        }
+                        field.formControl.setValue(nextInput)
+                    });
+                }
             }
         });
         return fields;
+    }
+
+    /**
+     * Transformes the input so that the input matches the pattern 'XXXX-XXXX-XXXX-XXXX'.
+     * 
+     * Prevents the user from typing in an invalid key.
+     * Gets automatically called when the user types something in. 
+     * 
+     * @param value the value to transform
+     * @returns the transformed value or null if there was no change to the given value
+     */
+    private static transformInput(value: string): string {
+        // remove spaces
+        let trimmed = value.replace(/\s+/g, '');
+
+        // trimm max length of input
+        if (trimmed.length > 19) {
+            trimmed = trimmed.substring(0, 19);
+        }
+
+        // remove last dash
+        let hasDashAsLastChar = trimmed.substring(trimmed.length - 1, trimmed.length) == "-"
+        trimmed = trimmed.replace(/-/g, '');
+
+        let numbers = [];
+
+        // push single parts into array
+        numbers.push(trimmed.substring(0, 4));
+        if (trimmed.substring(4, 8) !== '') numbers.push(trimmed.substring(4, 8));
+        if (trimmed.substring(8, 12) != '') numbers.push(trimmed.substring(8, 12));
+        if (trimmed.substring(12, 16) != '') numbers.push(trimmed.substring(12, 16));
+
+        // join parts so it matches 'XXXX-XXXX-XXXX-XXXX'
+        let modifiedValue = numbers.join('-');
+        // readd last 
+        if (hasDashAsLastChar) {
+            modifiedValue += '-';
+        }
+
+        // if there was no change to the original value return null
+        if (modifiedValue === value) {
+            return null;
+        }
+        return modifiedValue;
     }
 
 
@@ -147,7 +202,7 @@ export class KeyModalComponent implements OnInit {
                 this.modalCtrl.dismiss({ 'key': this.getSelectedKey() });
                 // navigate to App install view and pass valid key
                 this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
-                    , { queryParams: { appKey: this.getRawAppKey(), name: this.appName } });
+                    , { queryParams: { name: this.appName }, state: { appKey: this.getRawAppKey() } });
                 this.service.stopSpinner(this.spinnerId);
                 break;
             case KeyValidationBehaviour.REGISTER:
