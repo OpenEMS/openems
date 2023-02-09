@@ -12,7 +12,7 @@ import io.openems.edge.common.channel.value.Value;
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
- * generalized nature for Combined Heat and Power devices which can be
+ * Generalized nature for Combined Heat and Power devices which can be
  * monitored. As there are currently no hydrogen natures, the `Chp` nature can
  * be used. Both provide heat end electrical power.
  */
