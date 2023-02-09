@@ -2,21 +2,21 @@
 
 Implementation of the Kostal PV inverters.
 
-Tested on
+Tested on::
 - Kostal Plenticore 5.5
 - Kostal Pico 5.5
 
-With versions:
+With versions::
 - UI Version: 01.18.05255
 - MC version: 01.47
 - IOC version: 01.45
 
 Older versions had problems with the implementation of sunspec.
 
-Configuration in Kostal UI:
+Configuration in Kostal UI::
 Modbus must be active and byte order must be big-endian for sunspec.
 
-Implemented Natures:
+Implemented Natures::
 - SymmetricMeter
 - ManagedSymmetricPvInverter
 

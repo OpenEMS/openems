@@ -2,10 +2,10 @@
 
 Implementation of the Fronius PV inverters.
 
-Tested on
+Tested on::
 - [Fronius Symo]
 
-Implemented Natures:
+Implemented Natures::
 - SymmetricMeter
 - ManagedSymmetricPvInverter
 
