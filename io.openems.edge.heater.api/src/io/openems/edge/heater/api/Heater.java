@@ -25,7 +25,7 @@ public interface Heater extends OpenemsComponent {
     public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 	/**
-	 * Temperature value of the outgoing hot water.
+	 * Temperature value of the outgoing water flow.
 	 *
 	 * <ul>
 	 * <li>Interface: Heater
