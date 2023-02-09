@@ -13,7 +13,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 
 /**
- * A generalized nature for a combined heat and power generator (chp).
+ * A generalized nature for a managed combined heat and power generator (chp).
  */
 @ProviderType
 public interface ManagedChp extends Chp, ManagedHeaterByOperationMode {
