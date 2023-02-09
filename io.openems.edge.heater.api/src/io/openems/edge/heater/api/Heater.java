@@ -114,7 +114,7 @@ public interface Heater extends OpenemsComponent {
 		.persistencePriority(PersistencePriority.HIGH)), //
 
 	/**
-	 * all kinds of Heater errors.
+	 * All kinds of Heater errors.
 	 *
 	 * <ul>
 	 * <li>Interface: Heater
