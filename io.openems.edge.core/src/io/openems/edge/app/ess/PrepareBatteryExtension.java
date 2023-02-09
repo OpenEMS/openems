@@ -143,7 +143,7 @@ public class PrepareBatteryExtension extends
 											b -> b.addProperty("enabled", true) //
 													.addProperty("ess_id", "ess0") //
 													.addProperty("isRunning", false) //
-													.addProperty("targetDate", "01.01.2000") //
+													.addProperty("targetDate", "2000-01-01") //
 													.addProperty("targetTime", "08:00") //
 													.addProperty("targetTimeSpecified", false) //
 													.addProperty("targetTimeBuffer", 30) //
