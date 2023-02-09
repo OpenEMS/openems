@@ -3,7 +3,7 @@ package io.openems.edge.heater.api;
 import io.openems.common.types.OptionsEnum;
 
 /**
- * managing a heater by an OperationMode has some advantages. Using it the
+ * Managing a heater by an OperationMode has some advantages. Using it the
  * control of the heating device is reduced, but complexity of the controller
  * logic is also reduced! Some heater react immediately (within seconds), some
  * within minutes. The intention is, that if the device is controlled by state,
