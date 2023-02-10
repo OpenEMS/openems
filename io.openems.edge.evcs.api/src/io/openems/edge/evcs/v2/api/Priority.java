@@ -14,7 +14,7 @@ public enum Priority implements OptionsEnum {
     /**
      * EVCS is used for cars with average standing times.
      */
-    MEDIUM(2, "Medium"), //
+    REGULAR(2, "Regular"), //
     /**
      * EVCS should be charged as fast as possible.
      */
