@@ -124,7 +124,7 @@ public interface Evcs extends OpenemsComponent {
 	 * The current for all three phases in mA.
 	 * 
 	 * <p>
-	 * See Evcs.initializeCurrentSumChannels() also.
+	 * See helper Evcs.initializeCurrentChannel() also.
 	 *
 	 * <ul>
 	 * <li>Interface: Evcs
@@ -333,21 +333,21 @@ public interface Evcs extends OpenemsComponent {
     }
 
     /**
-     * Initializes Channel listeners to sum current for L1 + L2 + L3 and add the
-     * value to the current channel.
+     * Initializes Channel listeners to set a generic current, which is maxOf(L1,
+     * L2, L3) and put the value to the current channel.
      *
      * @param evcs the {@link Evcs}
      */
-    public static void initializeCurrentSumChannels(Evcs evcs) {
-	final Consumer<Value<Integer>> currentSum = ignore -> {
-	    evcs._setCurrent(TypeUtils.sum(//
+    public static void initializeCurrentChannel(Evcs evcs) {
+	final Consumer<Value<Integer>> currentMax = ignore -> {
+	    evcs._setCurrent(TypeUtils.max(//
 		    evcs.getCurrentL1Channel().getNextValue().get(), //
 		    evcs.getCurrentL2Channel().getNextValue().get(), //
 		    evcs.getCurrentL3Channel().getNextValue().get())); //
 	};
-	evcs.getCurrentL1Channel().onSetNextValue(currentSum);
-	evcs.getCurrentL2Channel().onSetNextValue(currentSum);
-	evcs.getCurrentL3Channel().onSetNextValue(currentSum);
+	evcs.getCurrentL1Channel().onSetNextValue(currentMax);
+	evcs.getCurrentL2Channel().onSetNextValue(currentMax);
+	evcs.getCurrentL3Channel().onSetNextValue(currentMax);
     }
 
     /**
