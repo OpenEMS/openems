@@ -51,10 +51,10 @@ public interface ManagedEvcs extends Evcs {
 	 * Gets a rough estimation of the time precision the chargepoint has.
 	 * 
 	 * <p>
-	 * It is the time in ms between setting charge power and the time the charge
+	 * It is the time in s between setting charge power and the time the charge
 	 * power is applied to the vehicle. Some chargepoints react within milliseconds
-	 * and some within 30s. This allows some controllers to work with cloud based
-	 * chargepoints as well.
+	 * and some within 30s. This might allow some controllers to work with cloud
+	 * based chargepoints as well.
 	 * 
 	 * <p>
 	 * Note that this is only a very rough estimate. It depends on used connection
@@ -65,12 +65,12 @@ public interface ManagedEvcs extends Evcs {
 	 * <li>Interface: ManagedEvcs
 	 * <li>Read Only
 	 * <li>Type: Integer
-	 * <li>Unit: Milliseconds
+	 * <li>Unit: Seconds
 	 * </ul>
 	 */
 
 	TIME_PRECISION(Doc.of(OpenemsType.INTEGER) //
-		.unit(Unit.MILLISECONDS) //
+		.unit(Unit.SECONDS) //
 		.accessMode(AccessMode.READ_ONLY) //
 		.persistencePriority(PersistencePriority.LOW)),
 
