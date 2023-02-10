@@ -19,7 +19,12 @@ public enum ChargingType implements OptionsEnum {
     /**
      * general AC Plugs.
      */
-    AC(2, "AC");
+    AC(2, "AC"), //
+     /**
+     * Plugs using the Tesla Supercharger standard.
+     */
+     SUPERCHARGER(3, "Supercharger");
+    
 
     private final int value;
     private final String name;
