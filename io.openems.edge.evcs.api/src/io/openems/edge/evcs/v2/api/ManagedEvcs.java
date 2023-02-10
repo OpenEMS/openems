@@ -284,7 +284,7 @@ public interface ManagedEvcs extends Evcs {
     }
 
     /**
-     * Gets the priority of the EVCS in [ms]. See {@link ChannelId#PRIORITY}.
+     * Gets the priority of the EVCS. See {@link ChannelId#PRIORITY}.
      *
      * @return the Channel {@link Value}
      */
