@@ -35,6 +35,23 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.2.3',
+        changes: [
+          Changelog.UI,
+        ]
+      },
+      {
+        version: '2023.2.2',
+        changes: [
+          Changelog.UI,
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.FEMS_TIBBER) + "Fehlerbehebungen bei mehreren registrierten Zählern",
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Verbesserungen an Keys, Navigation, Übersetzungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fix-State-of-Charge-/Prepare-Battery-Extension-Controller: Änderung der Datums-Konfiguration, Automatische Installation auf Home-Systemen" },
+          Changelog.library(Library.POSTGRESQL, Library.FASTEXCEL),
+        ]
+      },
+      {
         version: '2023.2.1',
         changes: [
           Changelog.openems('2023.2.0'),

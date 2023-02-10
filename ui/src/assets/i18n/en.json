@@ -384,8 +384,15 @@
           "valid": "licence key is valid",
           "invalid": "licence key is invalid",
           "alreadyRegisteredDifferentSystem": "Key already got registered on a different System! If you continue the other registration will get removed.",
-          "alreadyRegisteredDifferentApp": "Key already got registered for an app on this System! If you continue the other registration will get removed."
-        }
+          "alreadyRegisteredDifferentApp": "Key already got registered for an app on this System! If you continue the other registration will get removed.",
+          "invalidPattern": "Input is invalid"
+        },
+        "successInstall": "Successfully installed App",
+        "failInstall": "Error installing App '{{error}}'",
+        "successUpdate": "Successfully updated App",
+        "failUpdate": "Error updating App '{{error}}'",
+        "successDelete": "Successfully deleted App",
+        "failDelete": "Error deleting App '{{error}}'"
       }
     },
     "Service": {

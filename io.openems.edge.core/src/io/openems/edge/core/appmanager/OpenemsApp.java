@@ -90,6 +90,13 @@ public interface OpenemsApp {
 	public ValidatorConfig getValidatorConfig();
 
 	/**
+	 * Gets the {@link OpenemsAppPermissions} of this {@link OpenemsApp}.
+	 * 
+	 * @return the permissions
+	 */
+	public OpenemsAppPermissions getAppPermissions();
+
+	/**
 	 * Validate the {@link OpenemsApp}.
 	 *
 	 * @param instance the app instance

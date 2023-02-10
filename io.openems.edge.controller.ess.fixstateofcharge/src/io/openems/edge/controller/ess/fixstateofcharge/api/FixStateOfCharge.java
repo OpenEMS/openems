@@ -416,16 +416,6 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	public default void _setCtrlIsBlockingEss(Boolean value) {
-		this.getCtrlIsBlockingEssChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#CTRL_IS_BLOCKING_ESS} Channel.
-	 *
-	 * @param value the next value
-	 */
 	public default void _setCtrlIsBlockingEss(boolean value) {
 		this.getCtrlIsBlockingEssChannel().setNextValue(value);
 	}
@@ -447,16 +437,6 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 	 */
 	public default Value<Boolean> getCtrlIsChargingEss() {
 		return this.getCtrlIsChargingEssChannel().getNextValue();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#CTRL_IS_CHARGING_ESS} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setCtrlIsChargingEss(Boolean value) {
-		this.getCtrlIsChargingEssChannel().setNextValue(value);
 	}
 
 	/**
@@ -494,16 +474,6 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	public default void _setCtrlIsDischargingEss(Boolean value) {
-		this.getCtrlIsDischargingEssChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#CTRL_IS_DISCHARGING_ESS} Channel.
-	 *
-	 * @param value the next value
-	 */
 	public default void _setCtrlIsDischargingEss(boolean value) {
 		this.getCtrlIsDischargingEssChannel().setNextValue(value);
 	}
@@ -525,16 +495,6 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 	 */
 	public default Value<Boolean> getCtrlWasSelfTerminated() {
 		return this.getCtrlWasSelfTerminatedChannel().getNextValue();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#CTRL_WAS_SELF_TERMINATED} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setCtrlWasSelfTerminated(Boolean value) {
-		this.getCtrlWasSelfTerminatedChannel().setNextValue(value);
 	}
 
 	/**

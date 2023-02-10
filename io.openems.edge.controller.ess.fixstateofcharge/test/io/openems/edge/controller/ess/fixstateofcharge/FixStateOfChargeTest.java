@@ -39,7 +39,7 @@ public class FixStateOfChargeTest {
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss(ESS_ID, 10_000);
 
 	// Defaults
-	private static final String DEFAULT_TARGET_DATE = "27.10.2022";
+	private static final String DEFAULT_TARGET_DATE = "2022-10-27";
 	private static final String DEFAULT_TARGET_TIME = "10:30";
 
 	// Ess channels

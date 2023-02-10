@@ -699,7 +699,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	private CompletableFuture<JsonrpcResponseSuccess> handleGetAppsRequest(User user, GetApps.Request request)
 			throws OpenemsNamedException {
 		return CompletableFuture.completedFuture(new GetApps.Response(request.id, this.availableApps,
-				this.instantiatedApps, user.getLanguage(), this.validator));
+				this.instantiatedApps, user.getRole(), user.getLanguage(), this.validator));
 	}
 
 	@Override

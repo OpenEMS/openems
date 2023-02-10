@@ -48,7 +48,8 @@ public class ResolveDependenciesTest {
 					return Apps.of(t, //
 							Apps::feneconHome, //
 							Apps::gridOptimizedCharge, //
-							Apps::selfConsumptionOptimization //
+							Apps::selfConsumptionOptimization, //
+							Apps::prepareBatteryExtension //
 					);
 				});
 	}
@@ -57,7 +58,7 @@ public class ResolveDependenciesTest {
 	public void testResolveDependencies() {
 		assertEquals(1, this.testBundle.sut.getInstantiatedApps().size());
 		ResolveDependencies.resolveDependencies(this.user, this.testBundle.sut, this.testBundle.appManagerUtil);
-		assertEquals(3, this.testBundle.sut.getInstantiatedApps().size());
+		assertEquals(4, this.testBundle.sut.getInstantiatedApps().size());
 	}
 
 }

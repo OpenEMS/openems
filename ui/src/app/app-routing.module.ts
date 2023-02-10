@@ -44,6 +44,7 @@ import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './ed
 import { IndexComponent } from './index/index.component';
 import { UserComponent } from './user/user.component';
 import { EdgeComponent } from './edge/edge.component';
+import { HistoryParentComponent } from './edge/history/historyparent.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
@@ -58,28 +59,31 @@ const routes: Routes = [
   {
     path: 'device/:edgeId', component: EdgeComponent, children: [
       { path: '', redirectTo: 'live', pathMatch: 'full' },
-
       { path: 'live', component: EdgeLiveComponent },
-      { path: 'history', component: EdgeHistoryComponent },
-      // History Chart Pages
-      { path: 'history/:componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },
-      { path: 'history/:componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
-      { path: 'history/:componentId/delayedselltogridchart', component: DelayedSellToGridChartOverviewComponent },
-      { path: 'history/:componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
-      { path: 'history/:componentId/gridOptimizedChargeChart', component: GridOptimizedChargeChartOverviewComponent },
-      { path: 'history/:componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
-      { path: 'history/:componentId/heatpumpchart', component: HeatPumpChartOverviewComponent },
-      { path: 'history/:componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
-      { path: 'history/:componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartOverviewComponent },
-      { path: 'history/:componentId/timeslotpeakshavingchart', component: TimeslotPeakshavingChartOverviewComponent },
-      { path: 'history/:componentId/timeOfUseTariffDischargeChart', component: TimeOfUseTariffDischargeChartOverviewComponent },
-      { path: 'history/autarchychart', component: AutarchyChartOverviewComponent },
-      { path: 'history/consumptionchart', component: ConsumptionChartOverviewComponent },
-      { path: 'history/gridchart', component: GridChartOverviewComponent },
-      { path: 'history/productionchart', component: ProductionChartOverviewComponent },
-      { path: 'history/selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
-      { path: 'history/storagechart', component: StorageChartOverviewComponent },
+      {
+        path: 'history', component: HistoryParentComponent, children: [
+          { path: '', component: EdgeHistoryComponent },
+          // History Chart Pages
+          { path: ':componentId/asymmetricpeakshavingchart', component: AsymmetricPeakshavingChartOverviewComponent },
+          { path: ':componentId/channelthresholdchart', component: ChannelthresholdChartOverviewComponent },
+          { path: ':componentId/delayedselltogridchart', component: DelayedSellToGridChartOverviewComponent },
+          { path: ':componentId/fixdigitaloutputchart', component: FixDigitalOutputChartOverviewComponent },
+          { path: ':componentId/gridOptimizedChargeChart', component: GridOptimizedChargeChartOverviewComponent },
+          { path: ':componentId/heatingelementchart', component: HeatingelementChartOverviewComponent },
+          { path: ':componentId/heatpumpchart', component: HeatPumpChartOverviewComponent },
+          { path: ':componentId/singlethresholdchart', component: SinglethresholdChartOverviewComponent },
+          { path: ':componentId/symmetricpeakshavingchart', component: SymmetricPeakshavingChartOverviewComponent },
+          { path: ':componentId/timeslotpeakshavingchart', component: TimeslotPeakshavingChartOverviewComponent },
+          { path: ':componentId/timeOfUseTariffDischargeChart', component: TimeOfUseTariffDischargeChartOverviewComponent },
+          { path: 'autarchychart', component: AutarchyChartOverviewComponent },
+          { path: 'consumptionchart', component: ConsumptionChartOverviewComponent },
+          { path: 'gridchart', component: GridChartOverviewComponent },
+          { path: 'productionchart', component: ProductionChartOverviewComponent },
+          { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
+          { path: 'storagechart', component: StorageChartOverviewComponent },
 
+        ]
+      },
 
       { path: 'settings', component: EdgeSettingsComponent },
       { path: 'settings/channels', component: EdgeSettingsChannelsComponent },

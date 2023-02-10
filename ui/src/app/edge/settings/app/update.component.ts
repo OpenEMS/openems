@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
 import { DeleteAppInstance } from './jsonrpc/deleteAppInstance';
@@ -39,6 +40,8 @@ export class UpdateAppComponent implements OnInit {
     protected utils: Utils,
     private websocket: Websocket,
     private service: Service,
+    private router: Router,
+    private translate: TranslateService,
   ) {
   }
 
@@ -121,12 +124,12 @@ export class UpdateAppComponent implements OnInit {
         if (result.warnings && result.warnings.length > 0) {
           this.service.toast(result.warnings.join(';'), 'warning');
         } else {
-          this.service.toast('Successfully updated App', 'success');
+          this.service.toast(this.translate.instant('Edge.Config.App.successUpdate'), 'success');
         }
         instance.properties = result.instance.properties;
         instance.properties['ALIAS'] = result.instance.alias;
       }).catch(reason => {
-        this.service.toast('Error updating App:' + reason.error.message, 'danger');
+        this.service.toast(this.translate.instant('Edge.Config.App.failUpdate', { error: reason.error.message }), 'danger');
       }).finally(() => {
         instance.isUpdating = false
         this.service.stopSpinner(instance.instanceId);
@@ -143,10 +146,11 @@ export class UpdateAppComponent implements OnInit {
           instanceId: instance.instanceId
         })
       })).then(response => {
-        this.instances.splice(this.instances.indexOf(instance), 1)
-        this.service.toast('Successfully deleted App', 'success');
+        this.instances.splice(this.instances.indexOf(instance), 1);
+        this.service.toast(this.translate.instant('Edge.Config.App.successDelete'), 'success');
+        this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
       }).catch(reason => {
-        this.service.toast('Error deleting App:' + reason.error.message, 'danger');
+        this.service.toast(this.translate.instant('Edge.Config.App.failDelete', { error: reason.error.message }), 'danger');
       }).finally(() => {
         instance.isDeleting = false
         this.service.stopSpinner(instance.instanceId);
