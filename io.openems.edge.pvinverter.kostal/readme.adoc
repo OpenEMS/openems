@@ -2,22 +2,23 @@
 
 Implementation of the Kostal PV inverters.
 
-Tested on::
-- Kostal Plenticore 5.5
-- Kostal Pico 5.5
+== Compatibility
 
-With versions::
-- UI Version: 01.18.05255
-- MC version: 01.47
-- IOC version: 01.45
+** Kostal Plenticore 5.5
+** Kostal Pico 5.5
+
+== Additional application notes
+
+Experience from testing this plugin showed that it works with versions:
+
+* UI Version: 01.18.05255
+* MC version: 01.47
+* IOC version: 01.45
 
 Older versions had problems with the implementation of sunspec.
 
 Configuration in Kostal UI::
 Modbus must be active and byte order must be big-endian for sunspec.
 
-Implemented Natures::
-- SymmetricMeter
-- ManagedSymmetricPvInverter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.kostal[Source Code icon:github[]]

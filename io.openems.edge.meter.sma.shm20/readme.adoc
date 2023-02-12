@@ -12,11 +12,10 @@ Implementation of the SMA Sunny Home Manager SHM 2.0.
 
 == Additional application notes
 
-
 Experiences from testing this plugin:
 
 * The SHM 2.0 can not be accessed directly. It must be connected to a SMA inverter. The SHM2.0 is read out through the SMA inverter. 
-* It does not work with SMA STP 25000TL-30 ( Device Type: 9285 ). Right now it is unclear why STP 15.000 works and STP25.000 not.  
+* It does not work with SMA STP 25000TL-30 ( Device Type: 9285 ). Right now it is unclear why STP 15.000 works and STP25.000 does not work.  
 
  
    

@@ -2,11 +2,9 @@
 
 Implementation of the Fronius PV inverters.
 
-Tested on::
-- [Fronius Symo]
+== Compatibility
 
-Implemented Natures::
-- SymmetricMeter
-- ManagedSymmetricPvInverter
+** Fronius Symo
+
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.fronius[Source Code icon:github[]]
