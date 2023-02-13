@@ -4,7 +4,9 @@
 	<groupId>local</groupId>
 	<artifactId>central</artifactId>
 	<version>0.0.0</version>
-
+	<properties>
+		<slf4j.version>2.0.6</slf4j.version>
+	</properties>
 	<packaging>pom</packaging>
 
 	<dependencies>
@@ -47,6 +49,35 @@
 			<artifactId>failureaccess</artifactId>
 			<version>1.0.1</version>
 		</dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <!-- include Pi4J Core -->
+        <dependency>
+            <groupId>com.pi4j</groupId>
+            <artifactId>pi4j-core</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
+        <!-- include Pi4J Plugins (Platforms and I/O Providers) -->
+        <dependency>
+            <groupId>com.pi4j</groupId>
+            <artifactId>pi4j-plugin-raspberrypi</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pi4j</groupId>
+            <artifactId>pi4j-plugin-pigpio</artifactId>
+            <version>2.2.0</version>
+        </dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
