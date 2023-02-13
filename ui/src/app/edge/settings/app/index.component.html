@@ -1,15 +1,16 @@
 <!-- Template for app lists -->
 <ng-template #appsList let-appCatList="appCatList">
   <ion-col *ngFor="let app of appCatList.apps" size="12" size-lg="6" size-xl="3">
-    <ion-card style="width: 100%; cursor: pointer" (click)="onAppClicked(app)">
-      <ion-item lines="full" color="primary">
+    <ion-card style="width: 100%;">
+      <ion-item lines="full" color="primary" style="cursor: pointer" (click)="onAppClicked(app)">
         <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
         <ion-label style="white-space: initial">
           {{ app.name }}</ion-label>
       </ion-item>
       <ion-card-content>
         <div>
-          <div style="display: flex; align-items: center; justify-content: center"
+          <div style="display: flex; align-items: center; justify-content: center; cursor: pointer"
+            (click)="onAppClicked(app)"
             [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
             <img *ngIf="app.image" [src]="app.image" />
           </div>
@@ -23,12 +24,14 @@
                   </ion-label>
                   <br />
                   <ion-label>
-                    <div *ngFor="let message of app.status.errorCompatibleMessages">{{ message
-                      }}</div>
+                    <div *ngFor="let message of app.status.errorCompatibleMessages">
+                      <span [innerHTML]="message"></span>
+                    </div>
                   </ion-label>
                   <ion-label>
-                    <div *ngFor="let message of app.status.errorInstallableMessages">{{ message
-                      }}</div>
+                    <div *ngFor="let message of app.status.errorInstallableMessages">
+                      <span [innerHTML]="message"></span>
+                    </div>
                   </ion-label>
                 </ion-col>
               </ion-row>
