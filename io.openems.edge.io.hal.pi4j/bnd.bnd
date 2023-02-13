@@ -11,4 +11,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.wrapper.pi4j, \
 	
 -testpath: \
-	${testpath}
+	${testpath},\
+	io.openems.wrapper.pi4j
+	
+-runrequires: \

@@ -45,6 +45,12 @@ public class Pi4JComponent extends AbstractOpenemsComponent implements Pi4JInter
 		this.config = config;
 		this.pi4j = Pi4J.newAutoContext();
 		this.pi4j.platforms().describe().print(System.out);
+		this.pi4j = Pi4J.newContextBuilder()
+				.noAutoDetectPlatforms()
+				.addPlatform(new OpenEmsRaspberryPiPlatform())
+				.autoDetectProviders()
+				.build();
+//		System.out.println(pi4j.platforms().getAll());
 //		context. .platforms().describe().print(System.out);
 	}
 

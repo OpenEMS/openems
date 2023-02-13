@@ -381,4 +381,4 @@
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.8.2,3.8.3)',\
 	io.openems.edge.io.hal.pi4j;version=snapshot,\
-	pi4j-core;version='[2.2.0,2.2.1)'
+	io.openems.wrapper.pi4j;version=snapshot

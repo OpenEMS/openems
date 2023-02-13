@@ -8,7 +8,10 @@ Include-Resource: \
 	@pi4j-plugin-pigpio-2.2.0.jar,\
 	@pi4j-plugin-raspberrypi-2.2.0.jar,\
 
--metatypeannotations: *
+Bundle-ClassPath: ., \
+	@pi4j-library-pigpio-2.2.0.jar,\
+	@pi4j-plugin-pigpio-2.2.0.jar,\
+	@pi4j-plugin-raspberrypi-2.2.0.jar,\
 
 	
 -sources: false
@@ -81,4 +84,14 @@ Export-Package: \
 	com.pi4j.registry.impl,\
 	com.pi4j.runtime,\
 	com.pi4j.runtime.impl,\
-	com.pi4j.util
+	com.pi4j.util,\
+	com.pi4j.plugin.mock,\
+	com.pi4j.plugin.mock.platform,\
+	com.pi4j.plugin.mock.provider,\
+	com.pi4j.plugin.mock.provider.gpio,\
+	com.pi4j.plugin.mock.provider.gpio.analog,\
+	com.pi4j.plugin.mock.provider.gpio.digital,\
+	com.pi4j.plugin.mock.provider.i2c,\
+	com.pi4j.plugin.mock.provider.pwm,\
+	com.pi4j.plugin.mock.provider.serial,\
+	com.pi4j.plugin.mock.provider.spi

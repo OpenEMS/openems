@@ -29,4 +29,5 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	com.pi4j:pi4j-library-pigpio,\
 	com.pi4j:pi4j-plugin-pigpio,\
 	com.pi4j:pi4j-plugin-raspberrypi,\
+	com.pi4j:pi4j-plugin-mock,\
 	pi4j-core

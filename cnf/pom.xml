@@ -79,6 +79,11 @@
             <version>2.2.0</version>
         </dependency>
 		<dependency>
+            <groupId>com.pi4j</groupId>
+            <artifactId>pi4j-plugin-mock</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
