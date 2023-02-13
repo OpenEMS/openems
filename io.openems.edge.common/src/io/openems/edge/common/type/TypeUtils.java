@@ -707,6 +707,27 @@ public class TypeUtils {
 		}
 		return sum / count;
 	}
+	
+	/**
+	 * Safely finds the average value of all values.
+	 *
+	 * @param values the {@link Integer} values
+	 * @return the average value; or null if all values are null
+	 */
+	public static Integer averageInt(Integer... values) {
+		var count = 0;
+		var sum = 0;
+		for (Integer value : values) {
+			if (value != null) {
+				count++;
+				sum += value;
+			}
+		}
+		if (count == 0) {
+			return null;
+		}
+		return (int) Math.round(sum / count);
+	}
 
 	/**
 	 * Safely finds the average value of all values and rounds the result to an
