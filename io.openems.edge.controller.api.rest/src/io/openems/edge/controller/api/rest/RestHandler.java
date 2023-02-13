@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -219,29 +218,16 @@ public class RestHandler extends AbstractHandler {
 			HttpServletResponse response) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP GET", Role.GUEST);
 
-		List<Channel<?>> channellist = new ArrayList<>();
-
 		if (this.parent.isDebugModeEnabled()) {
 			this.parent.logInfo(this.log,
 					"REST call by User [" + user.getName() + "]: GET Channel [" + channelAddress.toString() + "]");
 		}
 
-		// Build list of all channels where components are enabled
-		var componentList = this.parent.getComponentManager().getEnabledComponents();
-		for (OpenemsComponent component : componentList) {
-			// Loop over enabled ComponentIds, look for exact or RegExp match
-			if (this.matchesSafely(component.id(), channelAddress.getComponentId())) {
-				for (Channel<?> channel : component.channels()) {
-					// Loop over attached channels, look for exact or RegExp match
-					if (this.matchesSafely(channelAddress.getChannelId(), channel.channelId().id())) {
-						channellist.add(channel);
-					}
-				}
-			}
-		}
+		var components = this.parent.getComponentManager().getEnabledComponents();
+		var channels = getChannels(components, channelAddress);
 
 		// Return with error when no matching channel was found
-		if (channellist.size() == 0) {
+		if (channels.size() == 0) {
 			this.parent.logWarn(this.log, "REST call by User [" + user.getName() + "]: GET Channel ["
 					+ channelAddress.toString() + "] Result [No Match]");
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -250,7 +236,7 @@ public class RestHandler extends AbstractHandler {
 
 		// Creating JSON response for all matched channels
 		var channeljson = new JsonArray();
-		for (Channel<?> channel : channellist) {
+		for (Channel<?> channel : channels) {
 			var j = new JsonObject();
 			// name
 			j.addProperty("address", channel.address().toString());
@@ -283,19 +269,21 @@ public class RestHandler extends AbstractHandler {
 	}
 
 	/**
-	 * Safely matches a regular expression against a string.
-	 *
-	 * @param str   the string
-	 * @param regex the regular expression
-	 * @return true on match
-	 * @throws OpenemsException on error
+	 * Gets a list of Channels that match the {@link ChannelAddress}; regular
+	 * expressions are allowed.
+	 * 
+	 * @param components     a list of {@link OpenemsComponent}s
+	 * @param channelAddress the {@link ChannelAddress} of the GET request
+	 * @return a list of matching {@link Channel}s
+	 * @throws PatternSyntaxException on regular expression error
 	 */
-	private boolean matchesSafely(String str, String regex) throws OpenemsException {
-		try {
-			return Pattern.matches(str, regex);
-		} catch (PatternSyntaxException e) {
-			throw new OpenemsException("Syntax error in regular expression [" + regex + "]");
-		}
+	protected static List<Channel<?>> getChannels(List<OpenemsComponent> components, ChannelAddress channelAddress)
+			throws PatternSyntaxException {
+		return components.stream() //
+				.filter(component -> Pattern.matches(channelAddress.getComponentId(), component.id())) //
+				.flatMap(component -> component.channels().stream()) //
+				.filter(channel -> Pattern.matches(channelAddress.getChannelId(), channel.channelId().id()))
+				.collect(Collectors.toList());
 	}
 
 	private void sendErrorResponse(Request baseRequest, HttpServletResponse response, UUID jsonrpcId, Throwable ex) {

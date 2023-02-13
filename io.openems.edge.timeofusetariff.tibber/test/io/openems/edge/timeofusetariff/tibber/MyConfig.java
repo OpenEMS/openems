@@ -8,6 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public static class Builder {
 		private String id;
 		public String accessToken;
+		public String filter;
 
 		private Builder() {
 		}
@@ -19,6 +20,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setAccessToken(String accessToken) {
 			this.accessToken = accessToken;
+			return this;
+		}
+
+		public Builder setFilter(String filter) {
+			this.filter = filter;
 			return this;
 		}
 
@@ -46,6 +52,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String accessToken() {
 		return this.builder.accessToken;
+	}
+
+	@Override
+	public String filter() {
+		return this.builder.filter;
 	}
 
 }
