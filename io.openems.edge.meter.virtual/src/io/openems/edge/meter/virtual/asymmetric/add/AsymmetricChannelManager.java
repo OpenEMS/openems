@@ -24,7 +24,8 @@ public class AsymmetricChannelManager extends ChannelManager {
 	 * 
 	 */
 	public void activate(List<? extends SymmetricMeter> meters) {
-		 super.activate(meters);
+		// Calculate the symmetric meter channels
+		super.activate(meters);
 
 		List<AsymmetricMeter> asymmetricMeters = new ArrayList<>();
 
