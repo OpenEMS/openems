@@ -8,7 +8,7 @@ import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/j
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { v4 as uuidv4 } from 'uuid';
 
-import { calculateResolution, ChannelFilter, ChartData, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, DisplayValues, EMPTY_DATASET, isLabelVisible, setLabelVisible, TooltipItem, Unit, YAxisTitle } from '../../../edge/history/shared';
+import { calculateResolution, ChartData, ChartOptions, createEmptyDataset, DEFAULT_TIME_CHART_OPTIONS, DisplayValues, isLabelVisible, setLabelVisible, TooltipItem, Unit, YAxisTitle } from '../../../edge/history/shared';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesEnergyRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyRequest';
@@ -39,7 +39,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
   public loading: boolean = true;
   public labels: Date[] = [];
-  public datasets: ChartDataSets[] = EMPTY_DATASET(this.translate);
+  public datasets: ChartDataSets[] = createEmptyDataset(this.translate);
   public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
   public colors: any[] = [];
   public chartObject: ChartData = null;
@@ -99,7 +99,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     }
 
     let channelData: { data: { [name: string]: number[] } } = { data: {} };
-    this.chartObject.channel.forEach(element => {
+    this.chartObject.input.forEach(element => {
       let channelAddress: ChannelAddress = null;
       if (this.chartType == 'bar' && element.energyChannel) {
         channelAddress = element.energyChannel
@@ -109,32 +109,19 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
       if (channelAddress?.toString() in result.data) {
         channelData.data[element.name] =
-          HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])?.map(value => {
-            if (value == null) {
-              return null
-            } else {
-
-              // Custom Filters
-              switch (element.filter) {
-                case ChannelFilter.NOT_NULL:
-                  return value;
-                case ChannelFilter.NOT_NULL_OR_NEGATIVE:
-                  if (value > 0) {
-                    return value;
-                  } else {
-                    return 0;
-                  }
-                case ChannelFilter.NOT_NULL_OR_POSITIVE:
-                  if (value < 0) {
-                    return value;
-                  } else {
-                    return 0;
-                  }
-                default:
-                  return value
+          HistoryUtils.CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS(result.data[channelAddress.toString()])
+            ?.map(value => {
+              if (value == null) {
+                return null;
               }
-            }
-          }) ?? null
+
+              if (element.converter) {
+                return element.converter(value);
+              }
+
+              return value;
+
+            }) ?? null
       }
     })
 
@@ -144,7 +131,6 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     let displayValues: DisplayValues[] = this.chartObject.displayValues(channelData.data);
 
     displayValues.forEach(element => {
-      let values: number[] = element.setValue()
       let nameSuffix = null;
 
       // Check if energyResponse is available
@@ -507,7 +493,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
    * @param spinnerSelector to stop spinner
    */
   protected initializeChart() {
-    this.datasets = EMPTY_DATASET(this.translate);
+    this.datasets = createEmptyDataset(this.translate);
     this.labels = [];
     this.loading = false;
     this.stopSpinner()
@@ -518,10 +504,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
    */
   protected getChannelAddresses(): Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }> {
     return new Promise<{ powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] }>(resolve => {
-      if (this.chartObject?.channel) {
+      if (this.chartObject?.input) {
         resolve({
-          powerChannels: this.chartObject.channel.map(element => element.powerChannel),
-          energyChannels: this.chartObject.channel.map(element => element.energyChannel)
+          powerChannels: this.chartObject.input.map(element => element.powerChannel),
+          energyChannels: this.chartObject.input.map(element => element.energyChannel)
         });
       }
     })

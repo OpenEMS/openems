@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-import { HistoryUtils, Utils } from 'src/app/shared/service/utils';
 
 import { ChannelAddress } from '../../../../../shared/shared';
-import { ChannelFilter, ChartData, DisplayValues, YAxisTitle } from '../../../shared';
+import { ChannelData, ChartData, DisplayValues, YAxisTitle } from '../../../shared';
 
 @Component({
   selector: 'productionTotalAcChart',
@@ -14,31 +13,27 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
 
   protected override getChartData(): ChartData {
     return {
-      channel:
+      input:
         [
           {
             name: 'ProductionAcActivePower',
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePower'),
             energyChannel: ChannelAddress.fromString('_sum/ProductionAcActiveEnergy'),
-            filter: ChannelFilter.NOT_NULL_OR_NEGATIVE,
           },
           {
             name: 'ProductionAcActivePowerL1',
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL1'),
-            filter: ChannelFilter.NOT_NULL_OR_NEGATIVE,
           },
           {
             name: 'ProductionAcActivePowerL2',
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL2'),
-            filter: ChannelFilter.NOT_NULL_OR_NEGATIVE,
           },
           {
             name: 'ProductionAcActivePowerL3',
             powerChannel: ChannelAddress.fromString('_sum/ProductionAcActivePowerL3'),
-            filter: ChannelFilter.NOT_NULL_OR_NEGATIVE,
           }
         ],
-      displayValues: (data: { [name: string]: number[] }) => {
+      output: (data: ChannelData) => {
         let datasets: DisplayValues[] = []
 
         datasets.push({
@@ -46,7 +41,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
           nameSuffix: (energyPeriodResponse: QueryHistoricTimeseriesEnergyResponse) => {
             return energyPeriodResponse.result.data['_sum/ProductionAcActiveEnergy'] ?? null
           },
-          setValue: () => {
+          converter: () => {
             return data['ProductionAcActivePower']
           },
           color: "rgb(0,152,204)",
@@ -56,7 +51,7 @@ export class TotalAcChartComponent extends AbstractHistoryChart {
         for (let i = 1; i < 4; i++) {
           datasets.push({
             name: "Phase L" + i,
-            setValue: () => {
+            converter: () => {
               if (!this.showPhases) {
                 return null;
               }

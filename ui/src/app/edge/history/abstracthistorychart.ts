@@ -7,7 +7,7 @@ import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/js
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
-import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
+import { calculateResolution, ChartOptions, createEmptyDataset, DEFAULT_TIME_CHART_OPTIONS, Resolution, TooltipItem } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
 export abstract class AbstractHistoryChart {
@@ -25,7 +25,7 @@ export abstract class AbstractHistoryChart {
     // private ngUnsubscribe: Subject<void> = new Subject<void>();
 
     public labels: Date[] = [];
-    public datasets: ChartDataSets[] = EMPTY_DATASET(this.translate);
+    public datasets: ChartDataSets[] = createEmptyDataset(this.translate);
     public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
     public colors = []
     // prevents subscribing more than once
@@ -244,8 +244,7 @@ export abstract class AbstractHistoryChart {
      * @param spinnerSelector to stop spinner
      */
     protected initializeChart() {
-        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
-        this.datasets = EMPTY_DATASET(this.translate);
+        this.datasets = createEmptyDataset(this.translate);
         this.labels = [];
         this.loading = false;
         this.stopSpinner();

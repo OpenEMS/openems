@@ -1,9 +1,7 @@
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
 import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
-import { Colors } from 'ng2-charts';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { ChannelAddress, Service } from 'src/app/shared/shared';
 
@@ -13,11 +11,14 @@ export interface Dataset {
   hidden: boolean;
 }
 
-export const EMPTY_DATASET = (translate: TranslateService) => [{
-  label: translate.instant("Edge.History.noData"),
-  data: [],
-  hidden: false
-}];
+/**
+ * Data from a subscription to Channel or from a historic data query.
+ * 
+ * TODO Lukas refactor
+ */
+export type ChannelData = {
+  [name: string]: number[]
+}
 
 export type Data = {
   labels: Date,
@@ -215,6 +216,20 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
   },
 };
 
+/**
+ * Creates an empty dataset for ChartJS with translated error message.
+ * 
+ * @param translate the TranslateService
+ * @returns a dataset
+ */
+export function createEmptyDataset(translate: TranslateService): ChartDataSets[] {
+  return [{
+    label: translate.instant("Edge.History.noData"),
+    data: [],
+    hidden: false
+  }];
+}
+
 export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse['result']) {
   let startDate = startOfDay(new Date(queryResult.timestamps[0]));
   let endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
@@ -227,14 +242,14 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
 };
 
 /**
-   * Calculates resolution from passed Dates for queryHistoricTime-SeriesData und -EnergyPerPeriod &&
-   * Calculates timeFormat from passed Dates for xAxes of chart
-   * 
-   * @param service the Service
-   * @param fromDate the From-Date
-   * @param toDate the To-Date
-   * @returns resolution and timeformat
-   */
+ * Calculates resolution from passed Dates for queryHistoricTime-SeriesData und -EnergyPerPeriod &&
+ * Calculates timeFormat from passed Dates for xAxes of chart
+ * 
+ * @param service the Service
+ * @param fromDate the From-Date
+ * @param toDate the To-Date
+ * @returns resolution and timeformat
+ */
 export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' } {
 
   let days = Math.abs(differenceInDays(toDate, fromDate));
@@ -319,15 +334,13 @@ export type Resolution = {
   value: number,
   unit: Unit
 }
-export type Channels = {
+export type InputChannel = {
   name: string,
   powerChannel: ChannelAddress,
   energyChannel?: ChannelAddress
 
-  /** Choose between predifined filters */
-  filter?: ChannelFilter,
-  data?: number[],
-  converter?: (value: number[]) => number[]
+  /** Choose between predefined converters */
+  converter?: (value: number) => number | null,
 }
 
 export enum Unit {
@@ -342,24 +355,23 @@ export type DisplayValues = {
   name: string,
   /** suffix to the name */
   nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string,
-  /** The values to be displayed in Chart */
-  setValue: () => number[],
+  /** Convert the values to be displayed in Chart */
+  converter: () => number[],
   /** If dataset should be hidden on Init */
   hiddenOnInit?: boolean,
   /** default: true, stroke through label for hidden dataset */
   noStrokeThroughLegendIfHidden?: boolean,
   /** color in rgb-Format */
   color: string,
-  /** Choose between predefined ChannelFilters */
-  filter?: ChannelFilter,
   /** the stack for barChart */
   stack?: number,
 }
 
 export type ChartData = {
-  channel: Channels[],
-  // displayValues: (data: ChannelData[]) => {
-  displayValues: (data: { [name: string]: number[] }) => DisplayValues[],
+  /** Input Channels that need to be queried from the database */
+  input: InputChannel[],
+  /** Output Channels that will be shown in the chart */
+  output: (data: ChartData) => DisplayValues[],
   tooltip: {
     /** Format of Number displayed */
     formatNumber: string,
@@ -374,8 +386,21 @@ export enum YAxisTitle {
   ENERGY
 }
 
-export enum ChannelFilter {
-  NOT_NULL,
-  NOT_NULL_OR_NEGATIVE,
-  NOT_NULL_OR_POSITIVE
+export namespace ValueConverter {
+
+  export const NEGATIVE_AS_ZERO = (value) => {
+    if (value > 0) {
+      return value;
+    } else {
+      return 0;
+    }
+  }
+
+  export const NON_NEGATIVE = (value) => {
+    if (value >= 0) {
+      return value;
+    } else {
+      return null;
+    }
+  }
 }

@@ -37,8 +37,8 @@ import { UserModule } from './user/user.module';
     SystemLogComponent,
   ],
   entryComponents: [
+    ChartOptionsPopoverComponent,
     PickDatePopoverComponent,
-    ChartOptionsPopoverComponent
   ],
   imports: [
     AngularMyDatePickerModule,

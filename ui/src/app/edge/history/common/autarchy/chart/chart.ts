@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
+import { ChannelData, ChartData, ValueConverter, YAxisTitle } from 'src/app/edge/history/shared';
 import { AbstractHistoryChart } from 'src/app/shared/genericComponents/chart/abstracthistorychart';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
-
-import { ChannelAddress, Utils } from '../../../../../shared/shared';
-import { ChannelFilter, ChartData, YAxisTitle } from '../../../shared';
+import { ChannelAddress, Utils } from 'src/app/shared/shared';
 
 @Component({
   selector: 'autarchychart',
@@ -14,26 +13,25 @@ export class ChartComponent extends AbstractHistoryChart {
   protected override getChartData(): ChartData {
     this.spinnerId = 'autarchy-chart';
     return {
-      channel:
+      input:
         [{
           name: 'Consumption',
           powerChannel: ChannelAddress.fromString('_sum/ConsumptionActivePower'),
           energyChannel: ChannelAddress.fromString('_sum/ConsumptionActiveEnergy'),
-          filter: ChannelFilter.NOT_NULL,
         },
         {
           name: 'GridBuy',
           powerChannel: ChannelAddress.fromString('_sum/GridActivePower'),
           energyChannel: ChannelAddress.fromString('_sum/GridBuyActiveEnergy'),
-          filter: ChannelFilter.NOT_NULL_OR_NEGATIVE,
+          converter: ValueConverter.NON_NEGATIVE, // i.e. not GridSell
         }],
-      displayValues: (data: { [name: string]: number[] }) => {
+      output: (data: ChannelData) => {
         return [{
           name: this.translate.instant('General.autarchy'),
           nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
             return Utils.calculateAutarchy(energyValues?.result.data['_sum/GridBuyActiveEnergy'] ?? null, energyValues?.result.data['_sum/ConsumptionActiveEnergy'] ?? null)
           },
-          setValue: () => {
+          converter: () => {
             return data['Consumption']
               ?.map((value, index) =>
                 Utils.calculateAutarchy(data['GridBuy'][index], value)
