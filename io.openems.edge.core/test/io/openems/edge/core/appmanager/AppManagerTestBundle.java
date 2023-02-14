@@ -211,7 +211,7 @@ public class AppManagerTestBundle {
 		this.checkablesBundle = new CheckablesBundle(
 				new CheckCardinality(this.sut, this.appManagerUtil,
 						getComponentContext(CheckCardinality.COMPONENT_NAME)), //
-				new CheckRelayCount(this.componentUtil, getComponentContext(CheckRelayCount.COMPONENT_NAME)) //
+				new CheckRelayCount(this.componentUtil, getComponentContext(CheckRelayCount.COMPONENT_NAME), null) //
 		);
 
 		var dummyValidator = new DummyValidator();

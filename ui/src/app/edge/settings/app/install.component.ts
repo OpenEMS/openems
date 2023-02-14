@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
 import { AddAppInstance } from './jsonrpc/addAppInstance';
@@ -15,10 +17,12 @@ import { hasPredefinedKey } from './permissions';
   selector: InstallAppComponent.SELECTOR,
   templateUrl: './install.component.html'
 })
-export class InstallAppComponent implements OnInit {
+export class InstallAppComponent implements OnInit, OnDestroy {
 
   private static readonly SELECTOR = 'app-install';
   public readonly spinnerId: string = InstallAppComponent.SELECTOR;
+
+  private stopOnDestroy: Subject<void> = new Subject<void>()
 
   protected form: FormGroup | null = null;
   protected fields: FormlyFieldConfig[] = null;
@@ -54,7 +58,12 @@ export class InstallAppComponent implements OnInit {
     this.appId = appId;
     this.service.setCurrentComponent(appName, this.route).then(edge => {
       this.edge = edge
-      this.hasPredefinedKey = hasPredefinedKey(edge);
+
+      this.service.metadata
+        .pipe(takeUntil(this.stopOnDestroy))
+        .subscribe(entry => {
+          this.hasPredefinedKey = hasPredefinedKey(edge, entry.user);
+        });
       edge.sendRequest(this.websocket,
         new ComponentJsonApiRequest({
           componentId: '_appManager',
@@ -77,6 +86,11 @@ export class InstallAppComponent implements OnInit {
           this.service.stopSpinner(this.spinnerId);
         });
     });
+  }
+
+  public ngOnDestroy(): void {
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
   }
 
   /**

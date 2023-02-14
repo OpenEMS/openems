@@ -110,8 +110,8 @@ export class SingleAppComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.stopOnDestroy))
         .subscribe(entry => {
           this.canEnterKey = canEnterKey(edge, entry.user);
+          this.hasPredefinedKey = hasPredefinedKey(edge, entry.user);
         });
-      this.hasPredefinedKey = hasPredefinedKey(edge);
 
       // set appname, image ...
       const state = history?.state
