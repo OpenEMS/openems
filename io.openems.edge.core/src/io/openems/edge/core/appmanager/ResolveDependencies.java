@@ -113,8 +113,11 @@ public class ResolveDependencies implements Runnable {
 					try {
 						LOG.info(String.format("Resolving dependency with installing %s!", config.appId));
 						var future = appManagerImpl.handleAddAppInstanceRequest(user, //
-								new AddAppInstance.Request(config.appId, config.alias != null ? config.alias : "",
-										config.initialProperties));
+								new AddAppInstance.Request(//
+										config.appId, "key", //
+										config.alias, //
+										config.initialProperties),
+								true);
 						future.get();
 					} catch (OpenemsNamedException | InterruptedException | ExecutionException e) {
 						e.printStackTrace();

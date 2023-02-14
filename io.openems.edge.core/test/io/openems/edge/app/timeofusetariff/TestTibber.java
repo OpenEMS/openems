@@ -39,7 +39,7 @@ public class TestTibber {
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
 		var response = (AddAppInstance.Response) this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.tibber.getAppId(), "alias", properties)).get();
+				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties)).get();
 
 		assertFalse(response.instance.properties.has("ACCESS_TOKEN"));
 

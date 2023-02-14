@@ -21,30 +21,21 @@
               <div *ngIf="false">
                 <ion-button style="width: 100%;" disabled translate>Edge.Config.App.buyApp</ion-button>
               </div>
+              <div *ngIf="!isFreeApp">
+                <ion-button style="width: 100%;" (click)="registerKey(app.appId)" translate>
+                  Edge.Config.App.Key.registerKey</ion-button>
+              </div>
               <div>
                 <ion-button style="width: 100%;" [disabled]="app.instanceIds.length === 0"
                   [routerLink]="['../../update', app.appId]" [queryParams]="{name: app.name}" translate>
                   Edge.Config.App.modifyApp</ion-button>
               </div>
-              <div>
-                <ion-button style="width: 100%;"
-                  [disabled]="(app.cardinality !== 'MULTIPLE' && app.instanceIds.length !== 0) || app.status.name !== 'INSTALLABLE'"
-                  [routerLink]="['../../install', app.appId]" [queryParams]="{name: app.name}" translate>
-                  Edge.Config.App.createApp
-                  <!-- TODO later rename to 'aktivieren' -->
+              <div *ngIf="!isFreeApp">
+                <ion-button style="width: 100%;" [disabled]="(app.cardinality !== 'MULTIPLE' && app.instanceIds.length !== 0) 
+                  || app.status.name !== 'INSTALLABLE' 
+                  || !(canEnterKey || hasPredefinedKey)" (click)="installApp(app.appId)"
+                  translate>Edge.Config.App.createApp
                 </ion-button>
-              </div>
-              <div *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
-                <div *ngIf="app.status.errorCompatibleMessages.length !== 0 ">
-                  <small translate>Edge.Config.App.errorCompatible</small><br />
-                  <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
-                    }}</small><br />
-                </div>
-                <div *ngIf="app.status.errorInstallableMessages.length !== 0 ">
-                  <small translate>Edge.Config.App.errorInstallable</small><br />
-                  <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
-                    }}</small><br />
-                </div>
               </div>
             </ion-card-content>
 

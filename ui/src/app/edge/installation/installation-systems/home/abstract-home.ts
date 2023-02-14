@@ -1030,7 +1030,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     if (isAppManagerAvailable) {
       componentConfigurator.addInstallAppCallback(() => {
         return new Promise((resolve, reject) => {
-          AppCenterUtil.createOrUpdateApp(edge, websocket, "App.FENECON.Home", "FENECON Home", homeAppProperties)
+          AppCenterUtil.createOrUpdateApp(edge, websocket, "App.FENECON.Home", "FENECON Home", homeAppProperties, AppCenterUtil.keyForIntegratedSystems())
             .then(instance => {
               if (!isAcCreated) {
                 resolve(instance)
@@ -1067,7 +1067,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         { name: 'baudRate', value: 9600 },
         { name: 'databits', value: 8 },
         { name: 'stopbits', value: 'ONE' },
-        { name: 'parity', value: Meter.toParityString(acMeterType) },
+        { name: 'parity', value: 'NONE' },
         { name: 'logVerbosity', value: 'NONE' },
         { name: 'invalidateElementsAfterReadErrors', value: 1 },
       ],

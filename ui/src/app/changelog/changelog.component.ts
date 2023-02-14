@@ -35,6 +35,59 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.2.4',
+        changes: [
+          Changelog.UI,
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Start Demo-Test, Meldung freie Digital-/Relaisausgänge" },
+        ]
+      },
+      {
+        version: '2023.2.3',
+        changes: [
+          Changelog.UI,
+        ]
+      },
+      {
+        version: '2023.2.2',
+        changes: [
+          Changelog.UI,
+          Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.FEMS_TIBBER) + "Fehlerbehebungen bei mehreren registrierten Zählern",
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Verbesserungen an Keys, Navigation, Übersetzungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fix-State-of-Charge-/Prepare-Battery-Extension-Controller: Änderung der Datums-Konfiguration, Automatische Installation auf Home-Systemen" },
+          Changelog.library(Library.POSTGRESQL, Library.FASTEXCEL),
+        ]
+      },
+      {
+        version: '2023.2.1',
+        changes: [
+          Changelog.openems('2023.2.0'),
+          Changelog.product(Product.COMMERCIAL_30) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.FEMS_REST_JSON_API) + Changelog.GENERAL_OPTIMIZATION,
+          Changelog.library(Library.ANGULAR, Library.NGX_FORMLY, Library.IONIC, Library.D3),
+        ]
+      },
+      {
+        version: '2023.1.3',
+        changes: [
+          "Fehlerbehebung am Online-Monitoring: Anzeige der Live-Daten nach Aktualisierung der Seite im Browser",
+        ]
+      },
+      {
+        version: '2023.1.3',
+        changes: [
+          Changelog.GENERAL_OPTIMIZATION + " an der Übersicht 'Alle Systeme'",
+        ]
+      },
+      {
+        version: '2023.1.2',
+        changes: [
+          Changelog.GENERAL_OPTIMIZATION,
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Aktiviere App-Keys" },
+          { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Fix-State-of-Charge-/Prepare-Battery-Extension-Controller" },
+        ]
+      },
+      {
         version: '2023.1.1',
         changes: [
           Changelog.openems('2023.1.0'),

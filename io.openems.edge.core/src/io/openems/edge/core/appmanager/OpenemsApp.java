@@ -74,11 +74,27 @@ public interface OpenemsApp {
 	public OpenemsAppCardinality getCardinality();
 
 	/**
+	 * Gets all {@link OpenemsAppPropertyDefinition} of the app.
+	 * 
+	 * @return the {@link OpenemsAppPropertyDefinition
+	 *         OpenemsAppPropertyDefinitions}
+	 * @throws UnsupportedOperationException if not implemented
+	 */
+	public OpenemsAppPropertyDefinition[] getProperties();
+
+	/**
 	 * Gets the {@link ValidatorConfig} of this {@link OpenemsApp}.
 	 *
 	 * @return the ValidatorConfig
 	 */
 	public ValidatorConfig getValidatorConfig();
+
+	/**
+	 * Gets the {@link OpenemsAppPermissions} of this {@link OpenemsApp}.
+	 * 
+	 * @return the permissions
+	 */
+	public OpenemsAppPermissions getAppPermissions();
 
 	/**
 	 * Validate the {@link OpenemsApp}.

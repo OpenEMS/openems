@@ -29,6 +29,7 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
+import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.dependency.Dependency;
@@ -37,7 +38,8 @@ import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
-public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implements OpenemsApp {
+public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> //
+		implements OpenemsApp {
 
 	protected final ComponentManager componentManager;
 	protected final ConfigurationAdmin cm;
@@ -138,35 +140,12 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			throws OpenemsNamedException {
 		var errors = new ArrayList<String>();
 		var enumMap = this.convertToEnumMap(target != ConfigurationTarget.TEST ? errors : new ArrayList<>(), config);
-		var c = this.configuration(errors, target, language, enumMap);
-
-		// TODO remove and maybe add @AttributeDefinition above enums
-		// this is for removing passwords so they do not get saved
-		if (config.size() != enumMap.size()) {
-			// remove entries that got removed
-			var toRemoveKeys = new LinkedList<String>();
-			for (var configEntry : config.entrySet()) {
-				var key = configEntry.getKey();
-				var contains = false;
-				for (var entry : enumMap.entrySet()) {
-					if (entry.getKey().name().equals(key)) {
-						contains = true;
-						break;
-					}
-				}
-				if (!contains) {
-					toRemoveKeys.add(key);
-				}
-			}
-			for (var key : toRemoveKeys) {
-				config.remove(key);
-			}
-		}
+		var configuration = this.configuration(errors, target, language, enumMap);
 
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
-		return c;
+		return configuration;
 	}
 
 	@Override
@@ -210,10 +189,9 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	 */
 	protected String getId(ConfigurationTarget t, EnumMap<PROPERTY, JsonElement> map, PROPERTY p, String defaultId) {
 		if (t == ConfigurationTarget.TEST) {
-			if (map.containsKey(p)) {
-				return map.get(p).getAsString() + p.name() + ":" + defaultId;
-			}
-			return p.name();
+			return EnumUtils.getAsOptionalString(map, p) //
+					.map(id -> id + p.name() + ":" + defaultId) //
+					.orElse(p.name());
 		}
 		return this.getValueOrDefault(map, p, defaultId);
 	}
@@ -227,7 +205,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	 * @param dependecies the dependencies of the current instance
 	 * @return a list of validation errors. Empty list says 'no errors'
 	 */
-	private List<String> getValidationErrors(JsonObject jProperties, List<Dependency> dependecies) {
+	protected List<String> getValidationErrors(JsonObject jProperties, List<Dependency> dependecies) {
 		final var errors = new ArrayList<String>();
 
 		final var properties = this.convertToEnumMap(errors, jProperties);
@@ -360,18 +338,18 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	 */
 	private void validateComponentConfigurations(ArrayList<String> errors, EdgeConfig actualEdgeConfig,
 			AppConfiguration expectedAppConfiguration) {
-		var missingComponents = new ArrayList<String>();
-		for (Component expectedComponent : expectedAppConfiguration.components) {
+		var missingComponents = new ArrayList<Component>();
+		for (var expectedComponent : expectedAppConfiguration.components) {
 			var componentId = expectedComponent.getId();
 
 			// Get Actual Component Configuration
 			Component actualComponent;
-			try {
-
-				actualComponent = actualEdgeConfig.getComponentOrError(componentId);
-			} catch (OpenemsNamedException e) {
-				missingComponents.add(componentId);
+			var tempFoundComponent = actualEdgeConfig.getComponent(componentId);
+			if (tempFoundComponent.isEmpty()) {
+				missingComponents.add(expectedComponent);
 				continue;
+			} else {
+				actualComponent = tempFoundComponent.get();
 			}
 			// ALIAS should not be validated because it can be different depending on the
 			// language
@@ -381,7 +359,9 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 		if (!missingComponents.isEmpty()) {
 			errors.add("Missing Component" //
 					+ (missingComponents.size() > 1 ? "s" : "") + ":" //
-					+ missingComponents.stream().collect(Collectors.joining(",")));
+					+ missingComponents.stream() //
+							.map(c -> c.getId() + "[" + c.getFactoryId() + "]") //
+							.collect(Collectors.joining(",")));
 		}
 	}
 
@@ -568,6 +548,11 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	}
 
 	@Override
+	public OpenemsAppPermissions getAppPermissions() {
+		return OpenemsAppPermissions.create().build();
+	}
+
+	@Override
 	public String getName(Language language) {
 		return AbstractOpenemsApp.getTranslation(language, this.getAppId() + ".Name");
 	}
@@ -580,6 +565,15 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			return image;
 		}
 		return OpenemsApp.FALLBACK_IMAGE;
+	}
+
+	@Override
+	public OpenemsAppPropertyDefinition[] getProperties() {
+		throw new UnsupportedOperationException();
+	}
+
+	protected final PROPERTY[] propertyValues() {
+		return this.getPropertyClass().getEnumConstants();
 	}
 
 	protected static String getTranslation(Language language, String key) {

@@ -360,14 +360,37 @@
         "installed": "Installiert",
         "available": "Verfügbar",
         "incompatible": "Inkompatibel",
-        "buyApp": "App kaufen",
+        "buyApp": "Lizenzschlüssel kaufen",
         "modifyApp": "App bearbeiten",
         "createApp": "App installieren",
         "deleteApp": "App entfernen",
         "updateApp": "App aktualisieren",
         "errorInstallable": "Installierungs fehler",
         "errorCompatible": "Kompatibilitäts fehler",
-        "notAvailable": "Nicht verfügbar"
+        "notAvailable": "Nicht verfügbar",
+        "Key": {
+          "enterKey": "Geben Sie hier den Lizenzschlüssel ein, den Sie mit der Bestellung der App erhalten haben",
+          "useRegisteredKey": "Bereits registrierten Lizenzschlüssel einlösen?",
+          "registeredKey": "Registrierte Lizenzschlüssel",
+          "key": "Lizenzschlüssel",
+          "validateKey": "Lizenzschlüssel validieren",
+          "useKey": "Lizenzschlüssel einlösen",
+          "registerKey": "Lizenzschlüssel registrieren",
+          "alreadyRegisteredDifferentSystem": "Lizenzschlüssel wurde bereits auf einem anderen System registriert! Wenn Sie fortfahren, wird die andere Registrierung entfernt.",
+          "failedLoadingRegisterKey": "Bereits registrierte Schlüssel konnten nicht abgerufen werden",
+          "successRegisterKey": "Schlüssel wurde erfolgreich registriert",
+          "failedRegisterKey": "Registrierung des Schlüssels fehlgeschlagen",
+          "alreadyRegisteredDifferentApp": "Key wurde bereits für eine App auf diesem System registriert! \nWenn Sie fortfahren, wird die andere Registrierung entfernt.",
+          "valid": "Lizenzschlüssel ist gültig",
+          "invalid": "Lizenzschlüssel ist ungültig",
+          "invalidPattern": "Eingabe ist ungültig"
+        },
+        "successInstall": "App erfolgreich installiert",
+        "failInstall": "Installation der App fehlgeschlagen: {{error}}",
+        "successUpdate": "App erfolgreich aktualisiert",
+        "failUpdate": "Fehler während der Aktualisierung: {{error}}",
+        "successDelete": "App erfolgreich entfernt",
+        "failDelete": "Entfernen der App fehlgeschlagen: {{error}}"
       }
     },
     "Service": {
@@ -566,7 +589,8 @@
       "WAGO_BRIDGE": "Wago Bridge",
       "FIELD_BUS_COUPLER": "Feldbuskoppler",
       "CONTROL_GRID_POINT": "Ansteuerung der Netztrennstelle",
-      "BATTERY_INTERFACE": "Schnittstelle Batterie"
+      "BATTERY_INTERFACE": "Schnittstelle Batterie",
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
@@ -804,10 +828,10 @@
     },
     "Form": {
       "user": {
-        "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*"
+        "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*"
       },
       "installer": {
-        "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*"
+        "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*"
       },
       "contactDetails": "Kontaktdaten",
       "company": "Firma",
@@ -823,8 +847,8 @@
       "password": "Passwort",
       "confirmPassword": "Passwort wiederholen",
       "isElectrician": "Hiermit bestätige ich, dass mein Betrieb ins Installateursverzeichnis eingetragen ist und somit bin ich berechtigt ein Speichersystem anzuschließen und in Betrieb zu nehmen.*",
-      "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*",
-      "acceptAgb": "Hiermit bestätige ich die <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+      "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*",
+      "acceptAgb": "Hiermit bestätige ich die <a target=\"_blank\" href=\"https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/\">AGB</a>.*",
       "subscribeNewsletter": "Ich möchte den FENECON Newsletter abonnieren um immer alle Neuigkeiten von FENECON zu erhalten."
     },
     "button": "Anlegen",

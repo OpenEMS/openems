@@ -9,6 +9,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "Configures the TimescaleDB Timedata provider")
 public @interface Config {
 
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
+	String id() default "timedata0";
+
 	@AttributeDefinition(name = "Host", description = "The TimescaleDB/PostgresDB host")
 	String host() default "localhost";
 
@@ -29,6 +32,9 @@ public @interface Config {
 
 	@AttributeDefinition(name = "Number of Threads", description = "Pool-Size: the number of threads dedicated to handle the tasks")
 	int poolSize() default 10;
+
+	@AttributeDefinition(name = "Enable Write for Channel-Addresses", description = "")
+	String[] enableWriteChannelAddresses();
 
 	String webconsole_configurationFactory_nameHint() default "Timedata.TimescaleDB";
 

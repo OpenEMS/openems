@@ -36,17 +36,54 @@ systemctl restart postgresql
 cd /tmp
 su postgres -c psql
 
-CREATE DATABASE data;
-
 CREATE USER openems WITH ENCRYPTED PASSWORD 'password';
 
-GRANT ALL PRIVILEGES ON DATABASE data TO openems;
+CREATE DATABASE data OWNER openems;
 
 # Use 'data' db
 \c data
 
 CREATE EXTENSION IF NOT EXISTS timescaledb;
-CREATE EXTENSION IF NOT EXISTS tablefunc;
+
+exit
+
+psql -X --host=127.0.0.1 -W -U openems data
+
+# Execute output of SchemaGenerator.java
+
+----
+
+== Update TimescaleDB extension
+
+[source,bash]
+----
+su postgres -c psql
+\c data
+ALTER EXTENSION timescaledb UPDATE;
+exit
+----
+
+== Delete all data
+
+Be aware: following commands DELETE ALL YOUR DATA!
+
+[source,bash]
+----
+cd /tmp
+su postgres -c psql
+
+REVOKE CONNECT ON DATABASE data FROM PUBLIC;
+exit
+
+systemctl restart postgresql
+su postgres -c psql
+
+DROP DATABASE data;
+CREATE DATABASE data OWNER openems;
+
+\c data
+
+CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 exit
 ----

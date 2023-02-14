@@ -2,8 +2,8 @@ package io.openems.backend.timedata.timescaledb.internal.write;
 
 import java.sql.SQLException;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -20,9 +20,6 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.timedata.timescaledb.Config;
-import io.openems.backend.timedata.timescaledb.DoubleKeyMap;
-import io.openems.backend.timedata.timescaledb.SimpleDoubleKeyMap;
-import io.openems.backend.timedata.timescaledb.internal.Priority;
 import io.openems.backend.timedata.timescaledb.internal.Schema;
 import io.openems.backend.timedata.timescaledb.internal.Type;
 import io.openems.backend.timedata.timescaledb.internal.Utils;
@@ -33,9 +30,9 @@ import io.openems.common.worker.AbstractWorker;
 
 public class TimescaledbWriteHandler {
 
-	public static final int POINTS_QUEUE_SIZE = 1_000_000;
+	public static final int POINTS_QUEUE_SIZE = 10_000;
 	public static final int MAX_POINTS_PER_WRITE = 10_000;
-	public static final int MAX_AGGREGATE_WAIT = 10; // [s]
+	public static final int MAX_AGGREGATE_WAIT = 60; // [s]
 
 	private final Logger log = LoggerFactory.getLogger(TimescaledbWriteHandler.class);
 
@@ -51,50 +48,45 @@ public class TimescaledbWriteHandler {
 
 	private final boolean isReadOnly;
 
-	private final HashSet<String> enableWriteEdgeIds = new HashSet<>();
-
 	// #1 step: split data to points
 	private final SplitDataWorker splitPointsWorker;
 
 	// #2 step: split points to typed queues
-	private final DoubleKeyMap<Type, Priority, QueueHandler<?>> queueHandler;
+	private final EnumMap<Type, QueueHandler<?>> queueHandlers;
 
-	public TimescaledbWriteHandler(Config config, Consumer<Schema> onInitializedSchema) throws SQLException {
+	public TimescaledbWriteHandler(Config config, Set<String> enableWriteChannelAddresses,
+			Consumer<Schema> onInitializedSchema) throws SQLException {
 		this.isReadOnly = config.isReadOnly();
 
 		this.dataSource = Utils.getDataSource(//
 				config.host(), config.port(), config.database(), //
-				config.user(), config.password(), config.poolSize());
+				config.user(), config.password(), config.poolSize() + 1 /* one more than write threads */);
 
 		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(config.poolSize(),
 				new ThreadFactoryBuilder().setNameFormat("TimescaleDB-%d").build());
 
 		// Prepare typed merge points workers
-		this.queueHandler = new SimpleDoubleKeyMap<>(new EnumMap<>(Type.class), //
-				t -> new EnumMap<>(Priority.class));
+		this.queueHandlers = new EnumMap<>(Type.class);
 		for (var type : Type.values()) {
-			for (var priority : Priority.values()) {
-				this.queueHandler.put(type, priority, //
-						QueueHandler.of(type, priority, this.dataSource, this.executor));
-			}
+			this.queueHandlers.put(type, QueueHandler.of(type, this.dataSource, this.executor));
 		}
 
 		// Split incoming data to Points and add to typed queues
 		this.splitPointsWorker = new SplitDataWorker(//
 				this.dataSource, //
 				this.executor, //
-				this.queueHandler, //
+				this.queueHandlers, //
+				enableWriteChannelAddresses, //
 				(schema) -> {
 					// only after Schema is initialized -> start all dependent workers
 					onInitializedSchema.accept(schema);
-					this.streamHandler().forEach(h -> h.activate());
+					this.streamHandlers().forEach(h -> h.activate());
 				});
 		this.splitPointsWorker.activate("TimescaleDB-SplitPoints");
 	}
 
-	private final Stream<QueueHandler<?>> streamHandler() {
-		return this.queueHandler.values().stream() //
-				.flatMap(t -> t.values().stream()); //
+	private final Stream<QueueHandler<?>> streamHandlers() {
+		return this.queueHandlers.values().stream(); //
 	}
 
 	/**
@@ -103,7 +95,7 @@ public class TimescaledbWriteHandler {
 	public void deactivate() {
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
 		this.splitPointsWorker.deactivate();
-		this.streamHandler() //
+		this.streamHandlers() //
 				.map(QueueHandler::getMergePointsWorker) //
 				.forEach(AbstractWorker::deactivate);
 		if (this.dataSource != null) {
@@ -120,10 +112,6 @@ public class TimescaledbWriteHandler {
 	 * @throws OpenemsException on error
 	 */
 	public void write(String edgeId, TreeBasedTable<Long, String, JsonElement> data) {
-		if (!this.enableWriteToTimescaledb(edgeId)) {
-			return;
-		}
-
 		if (this.isReadOnly) {
 			this.log.info("Read-Only-Mode is activated. Not writing points: "
 					+ StringUtils.toShortString(data.toString(), 100));
@@ -142,7 +130,7 @@ public class TimescaledbWriteHandler {
 		var sb = new StringBuilder() //
 				.append(ThreadPoolUtils.debugLog(this.executor)) //
 				.append(" SPLIT:").append(this.splitPointsWorker.debugLog());
-		this.streamHandler().forEach((t) -> {
+		this.streamHandlers().forEach((t) -> {
 			sb.append(" ").append(t.debugLog());
 		});
 		return sb;
@@ -155,13 +143,5 @@ public class TimescaledbWriteHandler {
 	 */
 	public Map<String, Number> debugMetrics() {
 		return ThreadPoolUtils.debugMetrics(this.executor);
-	}
-
-	private boolean enableWriteToTimescaledb(String edgeId) {
-		if (this.enableWriteEdgeIds.contains(edgeId)) {
-			return true;
-		}
-
-		return false;
 	}
 }

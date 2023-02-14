@@ -7,6 +7,7 @@ import { AddEdgeToUserRequest } from 'src/app/shared/jsonrpc/request/addEdgeToUs
 import { SubscribeEdgesRequest } from 'src/app/shared/jsonrpc/request/subscribeEdgesRequest';
 import { AddEdgeToUserResponse } from 'src/app/shared/jsonrpc/response/addEdgeToUserResponse';
 import { Edge, Service, Websocket } from 'src/app/shared/shared';
+import { Role } from 'src/app/shared/type/role';
 import { environment } from 'src/environments';
 
 @Component({
@@ -64,13 +65,11 @@ export class PreInstallationComponent implements OnInit {
           return;
         }
 
-        this.service.metadata
-          .pipe(
-            filter(metadata => metadata != null),
-            take(1))
-          .subscribe(metadata => {
-            this.edge = metadata.edges[edge.id];
-          });
+        // TODO either add lastmessage and role to response or call getEdgeRequest 
+        this.edge = new Edge(
+          edge.id,
+          edge.comment, edge.producttype, edge.version, Role.INSTALLER, edge.online, null
+        )
 
         // Get metadata
         const metadata = this.service.metadata?.getValue();
@@ -83,18 +82,27 @@ export class PreInstallationComponent implements OnInit {
         // Add edge to metadata
         metadata.edges[edge.id] = this.edge;
 
+        // Update metadata
+        this.service.metadata.next({
+          user: metadata.user,
+          edges: metadata.edges,
+        });
+
+        this.service.metadata
+          .pipe(
+            filter(metadata => metadata != null),
+            take(1))
+          .subscribe(metadata => {
+            this.edge = metadata.edges[edge.id];
+          });
+
+
         // Add to session Storage.
         sessionStorage.setItem('edge', JSON.stringify(edge));
         if (emsBoxSerialNumber) {
           // Store Fems Box Serial number only if it is existing in Odoo.
           sessionStorage.setItem('emsBoxSerialNumber', emsBoxSerialNumber);
         }
-
-        // Update metadata
-        this.service.metadata.next({
-          user: metadata.user,
-          edges: metadata.edges,
-        });
 
         // Start installation process
         this.service.toast(

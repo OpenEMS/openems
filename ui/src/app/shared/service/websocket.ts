@@ -14,9 +14,11 @@ import { SystemLogNotification } from '../jsonrpc/notification/systemLogNotifica
 import { AuthenticateWithPasswordRequest } from '../jsonrpc/request/authenticateWithPasswordRequest';
 import { AuthenticateWithTokenRequest } from '../jsonrpc/request/authenticateWithTokenRequest';
 import { EdgeRpcRequest } from '../jsonrpc/request/edgeRpcRequest';
+import { GetEdgesRequest } from '../jsonrpc/request/getEdgesRequest';
 import { LogoutRequest } from '../jsonrpc/request/logoutRequest';
 import { RegisterUserRequest } from '../jsonrpc/request/registerUserRequest';
 import { AuthenticateResponse } from '../jsonrpc/response/authenticateResponse';
+import { GetEdgesResponse } from '../jsonrpc/response/getEdgesResponse';
 import { Language } from '../type/language';
 import { Role } from '../type/role';
 import { Service } from './service';
@@ -29,7 +31,9 @@ export class Websocket implements WebsocketInterface {
   private readonly wsdata = new WsData();
 
   private socket: WebSocketSubject<any>;
-  public status: 'initial' // before first connection attempt
+
+  public status:
+    'initial' // before first connection attempt
     | 'connecting' // trying to connect to backend
     | 'authenticating' // sent authentication request; waiting for response
     | 'waiting for credentials' // login is required. Waiting for credentials input
@@ -152,30 +156,19 @@ export class Websocket implements WebsocketInterface {
   public login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest): Promise<void> {
     return new Promise<void>((resolve) => {
       this.sendRequest(request).then(r => {
-        let response = (r as AuthenticateResponse).result;
+        let authenticateResponse = (r as AuthenticateResponse).result;
 
-        let language = Language.getByKey(response.user.language.toLocaleLowerCase());
+        let language = Language.getByKey(authenticateResponse.user.language.toLocaleLowerCase());
         localStorage.LANGUAGE = language.key;
         this.service.setLang(language);
         this.status = 'online';
         // received login token -> save in cookie
-        this.cookieService.set('token', response.token, { expires: 365, path: '/', sameSite: 'Strict' });
+        this.cookieService.set('token', authenticateResponse.token, { expires: 365, path: '/', sameSite: 'Strict' });
 
         // Metadata
         this.service.metadata.next({
-          user: response.user,
-          edges: response.edges.reduce((map, edge) => {
-            map[edge.id] = new Edge(
-              edge.id,
-              edge.comment,
-              edge.producttype,
-              ("version" in edge) ? edge["version"] : "0.0.0",
-              Role.getRole(edge.role),
-              edge.isOnline,
-              edge.lastmessage
-            );
-            return map;
-          }, {})
+          user: authenticateResponse.user,
+          edges: {}
         });
 
         // Resubscribe Channels
@@ -194,7 +187,8 @@ export class Websocket implements WebsocketInterface {
 
   private checkErrorCode(reason: JsonrpcResponseError) {
 
-    // TODO create global Errorhandler
+
+    // TODO create global Errorhandler for any type of error
     switch (reason.error.code) {
       case 1003:
         this.service.toast(this.translate.instant('Login.authenticationFailed'), 'danger');
@@ -273,6 +267,27 @@ export class Websocket implements WebsocketInterface {
     } else {
       return Promise.reject("Websocket is not connected or authenticated! Unable to send Request: " + JSON.stringify(request));
     }
+  }
+
+  /**
+     * Waits until Websocket is 'online' and then 
+     * sends a safe JSON-RPC Request to a Websocket and promises a callback.
+     * 
+     * @param request the JSON-RPC Request
+     */
+  public sendSafeRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
+    return new Promise<JsonrpcResponseSuccess>((resolve, reject) => {
+      let interval = setInterval(() => {
+
+        // TODO: Status should be Observable, furthermore status should be like state-machine
+        if (this.status == 'online') {
+          clearInterval(interval)
+          this.sendRequest(request)
+            .then((response) => resolve(response))
+            .catch((err) => reject(err))
+        }
+      }, 500)
+    })
   }
 
   /**

@@ -9,7 +9,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -36,6 +38,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.SystemLogNotification;
 import io.openems.common.types.EdgeConfig;
@@ -46,6 +50,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.jsonapi.JsonApi;
+import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.common.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
@@ -63,7 +69,7 @@ import io.openems.edge.timedata.api.Timedata;
 		EdgeEventConstants.TOPIC_CONFIG_UPDATE //
 })
 public class BackendApiImpl extends AbstractOpenemsComponent
-		implements BackendApi, Controller, OpenemsComponent, PaxAppender, EventHandler {
+		implements BackendApi, Controller, JsonApi, OpenemsComponent, PaxAppender, EventHandler {
 
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
 
@@ -241,8 +247,11 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	@Override
 	public boolean isConnected() {
-		return this.websocket.isConnected();
+		return Optional.ofNullable(this.websocket) //
+				.map(WebsocketClient::isConnected) //
+				.orElse(false);
 	}
 
 	/**
@@ -271,4 +280,12 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		}
 		return this.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
 	}
+
+	@Override
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleJsonrpcRequest(User user, JsonrpcRequest request)
+			throws OpenemsNamedException {
+		// delegates request to actual backend
+		return this.websocket.sendRequest(request);
+	}
+
 }

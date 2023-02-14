@@ -1,7 +1,14 @@
 package io.openems.backend.b2bwebsocket;
 
+import java.time.Instant;
+
 import org.slf4j.Logger;
 
+import com.google.common.collect.TreeBasedTable;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
+import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
@@ -15,6 +22,13 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	public WebsocketServer(B2bWebsocket parent, String name, int port, int poolSize, DebugMode debugMode) {
 		super(name, port, poolSize, debugMode, (executor) -> {
+			// Store Metrics
+			var data = TreeBasedTable.<Long, String, JsonElement>create();
+			var now = Instant.now().toEpochMilli();
+			ThreadPoolUtils.debugMetrics(executor).forEach((key, value) -> {
+				data.put(now, "b2bwebsocket/" + key, new JsonPrimitive(value));
+			});
+			parent.timedataManager.write("backend0", data);
 		});
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);

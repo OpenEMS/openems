@@ -1,15 +1,15 @@
 package io.openems.backend.timedata.influx;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
@@ -48,13 +47,14 @@ import io.openems.shared.influxdb.InfluxConnector;
 		}, //
 		immediate = true //
 )
-public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influx, Timedata {
+public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timedata {
 
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(InfluxImpl.class);
 	private final FieldTypeConflictHandler fieldTypeConflictHandler;
 
+	private Config config;
 	private InfluxConnector influxConnector = null;
 
 	public InfluxImpl() {
@@ -67,6 +67,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 
 	@Activate
 	private void activate(Config config) throws OpenemsException, IllegalArgumentException {
+		this.config = config;
+
 		this.logInfo(this.log, "Activate [" //
 				+ "url=" + config.url() + ";"//
 				+ "bucket=" + config.bucket() + ";"//
@@ -75,8 +77,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 				+ (config.isReadOnly() ? ";READ_ONLY_MODE" : "") //
 				+ "]");
 
-		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(),
-				config.bucket(), config.isReadOnly(), //
+		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
+				config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(), //
 				(throwable) -> {
 					if (throwable instanceof BadRequestException) {
 						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
@@ -164,10 +166,20 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 		throw new OpenemsException("Unable to parse number from name [" + name + "]");
 	}
 
+	// TODO remove before release
+	private static void assertLongDuration(ZonedDateTime fromDate, ZonedDateTime toDate) throws OpenemsException {
+		if (Duration.between(fromDate, toDate).toDays() > 31) {
+			throw new OpenemsException(
+					"Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit leider nicht möglich");
+		}
+	}
+
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
+		assertLongDuration(fromDate, toDate);
+
 		// parse the numeric EdgeId
 		Optional<Integer> influxEdgeId = Optional.of(InfluxImpl.parseNumberFromName(edgeId));
 
@@ -177,6 +189,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 	@Override
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		assertLongDuration(fromDate, toDate);
+
 		// parse the numeric EdgeId
 		Optional<Integer> influxEdgeId = Optional.of(InfluxImpl.parseNumberFromName(edgeId));
 		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);
@@ -186,9 +200,37 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
+		assertLongDuration(fromDate, toDate);
+
 		// parse the numeric EdgeId
 		Optional<Integer> influxEdgeId = Optional.of(InfluxImpl.parseNumberFromName(edgeId));
 		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution);
+	}
+
+	private static final Set<String> WHITELIST_PROPERTIES = Set.of("_PropertyLowThreshold", "_PropertyHighThreshold",
+			"_PropertySellToGridPowerLimit", "_PropertyContinuousSellToGridPower", "_PropertyMaximumSellToGridPower",
+			"_PropertyPeakShavingPower", "_PropertyRechargePower", "_PropertyReserveSoc",
+			"_PropertyIsReserveSocEnabled", "_PropertyMode", "_PropertyPower", "_PropertyWorkMode", "_PropertyEnabled");
+
+	private static final Predicate<String> SUNSPEC_PATTERN = Pattern.compile("^S[0-9]+.*$").asPredicate();
+
+	private boolean isBlacklisted(String channelAddress) {
+		var c = channelAddress.split("/");
+		var channelId = c[1];
+
+		// _Property
+		if (channelId.startsWith("_") && !WHITELIST_PROPERTIES.contains(channelId)) {
+			return true;
+		}
+		// State
+		if (channelId.equals("State") && !c[0].equals("_sum")) {
+			return true;
+		}
+		// SunSpec Channels
+		if (SUNSPEC_PATTERN.test(channelId)) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -199,8 +241,10 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 	 * @param element the value
 	 */
 	private void addValue(Point builder, String field, JsonElement element) {
-		if (element == null || element.isJsonNull() || this.specialCaseFieldHandling(builder, field, element)) {
-			// already handled by special case handling
+		if (element == null || element.isJsonNull() //
+				|| this.isBlacklisted(field) // Channel-Address is blacklisted
+				// already handled by special case handling
+				|| this.specialCaseFieldHandling(builder, field, element)) {
 			return;
 		}
 
@@ -287,20 +331,6 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 	}
 
 	@Override
-	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
-		try {
-			var influxEdgeId = Optional.of(InfluxImpl.parseNumberFromName(edgeId));
-			return this.influxConnector.queryChannelValues(influxEdgeId, channelAddresses);
-
-		} catch (OpenemsException e) {
-			this.logError(this.log, e.getMessage());
-			e.printStackTrace();
-
-			return channelAddresses.stream().collect(Collectors.toMap(Function.identity(), c -> JsonNull.INSTANCE));
-		}
-	}
-
-	@Override
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
 	}
@@ -310,4 +340,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 		super.logWarn(log, message);
 	}
 
+	@Override
+	public String id() {
+		return this.config.id();
+	}
 }

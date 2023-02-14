@@ -38,6 +38,10 @@ public interface CommonTimedataService {
 		var energyData = this.queryHistoricEnergy(edgeId, request.getFromDate(), request.getToDate(),
 				QueryHistoricTimeseriesExportXlsxResponse.ENERGY_CHANNELS);
 
+		if (powerData == null || energyData == null) {
+			return null;
+		}
+
 		try {
 			return new QueryHistoricTimeseriesExportXlsxResponse(request.getId(), edgeId, request.getFromDate(),
 					request.getToDate(), powerData, energyData, language);

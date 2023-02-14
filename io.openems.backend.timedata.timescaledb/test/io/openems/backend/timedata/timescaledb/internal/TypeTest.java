@@ -15,8 +15,13 @@ public class TypeTest {
 	@Test
 	public void testDetect() throws OpenemsNamedException {
 		{
-			var j = new JsonPrimitive("101180500005");
+			var j = new JsonPrimitive("101180500");
 			assertEquals(Type.INTEGER, Type.detect(j));
+			assertEquals((Integer) 101180500, JsonUtils.getAsType(OpenemsType.INTEGER, j));
+		}
+		{
+			var j = new JsonPrimitive("101180500005");
+			assertEquals(Type.LONG, Type.detect(j));
 			assertEquals((Long) 101180500005L, JsonUtils.getAsType(OpenemsType.LONG, j));
 		}
 		{

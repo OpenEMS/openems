@@ -92,20 +92,21 @@ export class InstallationComponent implements OnInit {
     // display view after loading edge
     // => update view needs to get removed if version is to low
     if (sessionStorage?.edge) {
+
       // The prototype can't be saved as JSON,
       // so it has to get instantiated here again)
-      const edgeString = JSON.parse(sessionStorage.getItem('edge'));
-      this.service.metadata
-        .pipe(
-          filter(metadata => metadata != null),
-          take(1))
-        .subscribe(metadata => {
-          this.edge = metadata.edges[edgeString.id];
-          this.displayViewAtIndex(viewIndex);
-          this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [this.edge.id] }))
-        });
+      const edgeId = JSON.parse(sessionStorage.getItem('edge')).id;
+      this.service.updateCurrentEdge(edgeId).then((edge) => {
+        this.edge = edge;
+        this.displayViewAtIndex(viewIndex);
+        this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [this.edge.id] }))
+      }).catch(() => {
+        // View with index 0 will always be the Pre-InstallationView, 
+        //so if there is non subscribable edge due to being offline or not reachable, the IBN will be directed back to its initial page.
+        this.displayViewAtIndex(0);
+      })
     } else {
-      this.displayViewAtIndex(viewIndex);
+      this.displayViewAtIndex(0);
     }
   }
 

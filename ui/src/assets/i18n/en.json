@@ -358,18 +358,41 @@
       },
       "App": {
         "header": "The App Manager is currently in a first test version.",
-        "updateAvailable": "There is a new {{ edgeShortName }} version is available! Please update the {{ edgeShortName }} so that all new {{ edgeShortName }} Apps are displayed in the App Center.",
+        "updateAvailable": "There is a new {{ edgeShortName }} version available! Please update the {{ edgeShortName }} so that all new {{ edgeShortName }} Apps are displayed in the App Center.",
         "installed": "Installed",
         "available": "Available",
         "incompatible": "Incompatible",
-        "buyApp": "Buy app",
+        "buyApp": "Buy licence key",
         "modifyApp": "Modify app",
         "createApp": "Install app",
         "deleteApp": "Delete app",
         "updateApp": "Update app",
-        "errorInstallable": "installation errors",
+        "errorInstallable": "Installation errors",
         "errorCompatible": "Compatibility errors",
-        "notAvailable": "Not available"
+        "notAvailable": "Not available",
+        "Key": {
+          "enterKey": "Enter the license key you received when you ordered the app here",
+          "useRegisteredKey": "Redeem already registered licence key?",
+          "registeredKey": "Registered licence keys",
+          "successRegisterKey": "successfully registered Key",
+          "failedRegisterKey": "failed registering Key",
+          "failedLoadingRegisterKey": "failed to get already registered Keys",
+          "key": "licence key",
+          "validateKey": "validate licence key",
+          "useKey": "redeem licence key",
+          "registerKey": "register licence key",
+          "valid": "licence key is valid",
+          "invalid": "licence key is invalid",
+          "alreadyRegisteredDifferentSystem": "Key already got registered on a different System! If you continue the other registration will get removed.",
+          "alreadyRegisteredDifferentApp": "Key already got registered for an app on this System! If you continue the other registration will get removed.",
+          "invalidPattern": "Input is invalid"
+        },
+        "successInstall": "Successfully installed App",
+        "failInstall": "Error installing App '{{error}}'",
+        "successUpdate": "Successfully updated App",
+        "failUpdate": "Error updating App '{{error}}'",
+        "successDelete": "Successfully deleted App",
+        "failDelete": "Error deleting App '{{error}}'"
       }
     },
     "Service": {
@@ -565,7 +588,8 @@
       "WAGO_BRIDGE": "Wago Bridge",
       "FIELD_BUS_COUPLER": "Fieldbus coupler",
       "CONTROL_GRID_POINT": "Control of the grid disconnection point",
-      "BATTERY_INTERFACE": "Battery interface"
+      "BATTERY_INTERFACE": "Battery interface",
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",
@@ -804,10 +828,10 @@
     },
     "Form": {
       "user": {
-        "acceptPrivacyPolicy": "By creating a FENECON account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*"
+        "acceptPrivacyPolicy": "By creating a FENECON account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/en/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*"
       },
       "installer": {
-        "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*"
+        "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/en/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*"
       },
       "contactDetails": "Contact Details",
       "companyName": "Company name",
@@ -822,8 +846,8 @@
       "password": "Password",
       "confirmPassword": "Confirm password",
       "isElectrician": "I confirm that my company is registered in the installer register and i am therefore authorised to connect and commission a storage system.",
-      "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
-      "acceptAgb": "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
+      "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/en/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
+      "acceptAgb": "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/gtc/\">AGB</a>.*",
       "subscribeNewsletter": "I would like to subscribe to the FENECON newsletter to receive all the latest news from FENECON.",
       "company": "Company"
     },

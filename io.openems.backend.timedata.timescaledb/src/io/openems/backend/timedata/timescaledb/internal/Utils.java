@@ -85,12 +85,11 @@ public class Utils {
 	 * @param schema           the {@link Schema}
 	 * @param edgeId           the Edge-ID
 	 * @param channelAddresses a {@link Set} of Channel-Addresses
-	 * @return a map of {@link Type}s to {@link Priority}s to Channel-IDs to
-	 *         Channel-Addresses
+	 * @return a map of {@link Type}s to Channel-IDs to Channel-Addresses
 	 */
-	public static Map<Type, Map<Priority, Map<Integer, String>>> querySchemaCache(Schema schema, String edgeId,
+	public static Map<Type, Map<Integer, String>> querySchemaCache(Schema schema, String edgeId,
 			Set<String> channelAddresses) {
-		var result = new EnumMap<Type, Map<Priority, Map<Integer, String>>>(Type.class);
+		var result = new EnumMap<Type, Map<Integer, String>>(Type.class);
 		var missingChannels = new ArrayList<String>();
 		for (var channelAddress : channelAddresses) {
 			var meta = schema.getChannelFromCache(edgeId, channelAddress);
@@ -98,9 +97,7 @@ public class Utils {
 				missingChannels.add(channelAddress);
 				continue;
 			}
-			var priorityMap = result.computeIfAbsent(meta.type,
-					(m) -> new EnumMap<Priority, Map<Integer, String>>(Priority.class));
-			var ids = priorityMap.computeIfAbsent(meta.priority, t -> new HashMap<>());
+			var ids = result.computeIfAbsent(meta.type, t -> new HashMap<>());
 			ids.put(meta.id, channelAddress);
 		}
 

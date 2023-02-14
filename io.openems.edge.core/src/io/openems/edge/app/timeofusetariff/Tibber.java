@@ -1,6 +1,7 @@
 package io.openems.edge.app.timeofusetariff;
 
 import java.util.EnumMap;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,17 +20,18 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.timeofusetariff.Tibber.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
-import io.openems.edge.core.appmanager.AppAssistant;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
+import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.Type;
 
 /**
  * Describes a App for Tibber.
@@ -52,13 +54,48 @@ import io.openems.edge.core.appmanager.TranslationUtil;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.TimeOfUseTariff.Tibber")
-public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.Parameter.BundleParamter>
+		implements OpenemsApp {
 
-	public static enum Property {
-		ALIAS, //
-		CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID, //
-		TIME_OF_USE_TARIF_ID, //
-		ACCESS_TOKEN;
+	public static enum Property implements Type<Property, Tibber, Type.Parameter.BundleParamter> {
+		// Components
+		CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID(AppDef.of(Tibber.class) //
+				.setDefaultValue("ctrlEssTimeOfUseTariffDischarge0")), //
+		TIME_OF_USE_TARIF_ID(AppDef.of(Tibber.class) //
+				.setDefaultValue("timeOfUseTariff0")), //
+
+		// Properties
+		ALIAS(AppDef.of(Tibber.class) //
+				.setDefaultValueToAppName()),
+		ACCESS_TOKEN(AppDef.of(Tibber.class) //
+				.setTranslatedLabelWithAppPrefix(".accessToken.label") //
+				.setTranslatedDescriptionWithAppPrefix(".accessToken.description") //
+				.setField(JsonFormlyUtil::buildInput, //
+						(f, i) -> i.setInputType(InputBuilder.Type.PASSWORD) //
+								.isRequired(true)) //
+				.setAllowedToSave(false)), //
+		;
+
+		private final AppDef<Tibber, Property, Type.Parameter.BundleParamter> def;
+
+		private Property(AppDef<Tibber, Property, Type.Parameter.BundleParamter> def) {
+			this.def = def;
+		}
+
+		@Override
+		public Property self() {
+			return this;
+		}
+
+		@Override
+		public AppDef<Tibber, Property, Type.Parameter.BundleParamter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<Tibber>, Type.Parameter.BundleParamter> getParamter() {
+			return Type.Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
+		}
 
 	}
 
@@ -71,11 +108,6 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
-			if (t == ConfigurationTarget.DELETE_NOT_SAVED_PROPERTIES) {
-				p.remove(Property.ACCESS_TOKEN);
-				return new AppConfiguration();
-			}
-
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
 			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
 
@@ -104,23 +136,6 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 	}
 
 	@Override
-	public AppAssistant getAppAssistant(Language language) {
-		var bundle = AbstractOpenemsApp.getTranslationBundle(language);
-		return AppAssistant.create(this.getName(language)).fields(//
-				JsonUtils.buildJsonArray() //
-						.add(JsonFormlyUtil.buildInput(Property.ACCESS_TOKEN) //
-								.setLabel(
-										TranslationUtil.getTranslation(bundle, this.getAppId() + ".accessToken.label")) //
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".accessToken.description")) //
-								.setInputType(Type.PASSWORD) //
-								.isRequired(true) //
-								.build()) //
-						.build()) //
-				.build();
-	}
-
-	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
 				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-tibber/") //
@@ -140,6 +155,11 @@ public class Tibber extends AbstractOpenemsApp<Property> implements OpenemsApp {
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
+	}
+
+	@Override
+	protected Tibber getApp() {
+		return this;
 	}
 
 }

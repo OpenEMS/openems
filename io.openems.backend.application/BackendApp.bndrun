@@ -10,7 +10,9 @@
 
 -runproperties: \
 	org.osgi.service.http.port=8079,\
-	felix.cm.dir=c:/openems-backend-config,\
+	felix.cm.dir=c:/openems-backend/config,\
+	openems.data.dir=c:/openems-backend/data,\
+	org.apache.felix.eventadmin.Timeout=0,\
 	org.ops4j.pax.logging.DefaultServiceLog.level=INFO
 
 -runsystempackages: \
@@ -37,6 +39,7 @@
 	bnd.identity;id='org.apache.felix.inventory',\
 	bnd.identity;id='org.apache.felix.eventadmin',\
 	bnd.identity;id='org.apache.felix.metatype',\
+	bnd.identity;id='io.openems.wrapper.pgbulkinsert',\
 	bnd.identity;id='io.openems.backend.alerting',\
 	bnd.identity;id='io.openems.backend.application',\
 	bnd.identity;id='io.openems.backend.b2brest',\
@@ -92,20 +95,20 @@
 	io.openems.wrapper.retrofit-converter-gson;version=snapshot,\
 	io.openems.wrapper.retrofit-converter-scalars;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
-	io.reactivex.rxjava3.rxjava;version='[3.1.5,3.1.6)',\
+	io.reactivex.rxjava3.rxjava;version='[3.1.6,3.1.7)',\
 	org.apache.commons.commons-csv;version='[1.9.0,1.9.1)',\
-	org.apache.commons.commons-fileupload;version='[1.4.0,1.4.1)',\
-	org.apache.commons.commons-io;version='[2.8.0,2.8.1)',\
+	org.apache.commons.commons-fileupload;version='[1.5.0,1.5.1)',\
+	org.apache.commons.commons-io;version='[2.11.0,2.11.1)',\
 	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
 	org.apache.felix.http.jetty;version='[4.2.2,4.2.3)',\
 	org.apache.felix.http.servlet-api;version='[2.1.0,2.1.1)',\
 	org.apache.felix.inventory;version='[1.1.0,1.1.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
-	org.apache.felix.scr;version='[2.2.4,2.2.5)',\
+	org.apache.felix.scr;version='[2.2.6,2.2.7)',\
 	org.apache.felix.webconsole;version='[4.7.2,4.7.3)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.2.0,2.2.1)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[1.8.0,1.8.1)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[1.8.10,1.8.11)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.2.1,2.2.2)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.2.1,2.2.2)',\
@@ -113,5 +116,5 @@
 	org.osgi.service.jdbc;version='[1.1.0,1.1.1)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.3.0,1.3.1)',\
-	org.postgresql.jdbc;version='[42.5.1,42.5.2)',\
+	org.postgresql.jdbc;version='[42.5.3,42.5.4)',\
 	reactive-streams;version='[1.0.4,1.0.5)'

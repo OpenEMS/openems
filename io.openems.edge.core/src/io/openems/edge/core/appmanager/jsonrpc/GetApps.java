@@ -3,9 +3,6 @@ package io.openems.edge.core.appmanager.jsonrpc;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -15,6 +12,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
@@ -98,47 +96,23 @@ public class GetApps {
 	public static class Response extends JsonrpcResponseSuccess {
 
 		private static JsonArray createAppsArray(List<OpenemsApp> availableApps,
-				List<OpenemsAppInstance> instantiatedApps, Language language, Validator validator) {
-			return availableApps.parallelStream() //
+				List<OpenemsAppInstance> instantiatedApps, Role userRole, Language language, Validator validator) {
+			return availableApps.stream() //
+					.filter(app -> {
+						final var permissions = app.getAppPermissions();
+						if (!userRole.isAtLeast(permissions.canSee)) {
+							return false;
+						}
+						return true;
+					}) //
+					.parallel() //
 					.map(app -> {
-						// TODO don't show integrated systems for normal users
-						/*
-						 * if(app.getCategory()==OpenemsAppCategory.INTEGRATED_SYSTEM) { continue; }
-						 */
-						// Map Instantiated-Apps to Available-Apps
-						var instanceIds = JsonUtils.buildJsonArray();
-						for (var instantiatedApp : instantiatedApps) {
-							if (app.getAppId().equals(instantiatedApp.appId)) {
-								instanceIds.add(instantiatedApp.instanceId.toString());
-							}
-						}
-						var categorys = JsonUtils.buildJsonArray().build();
-						for (var cat : app.getCategorys()) {
-							categorys.add(cat.toJsonObject(language));
-						}
-
-						final var imageFuture = CompletableFuture.supplyAsync(app::getImage);
-						final var statusFuture = CompletableFuture
-								.supplyAsync(() -> validator.toJsonObject(app.getValidatorConfig(), language));
 						try {
-							final String image = imageFuture.get();
-							final JsonObject status = statusFuture.get();
-
-							return JsonUtils.buildJsonObject() //
-									.add("categorys", categorys) //
-									.addProperty("cardinality", app.getCardinality().name()) //
-									.addProperty("appId", app.getAppId()) //
-									.addProperty("name", app.getName(language)) //
-									.addPropertyIfNotNull("image", image) //
-									.add("status", status) //
-									.add("instanceIds", instanceIds.build()) //
-									.build();
-						} catch (InterruptedException | CancellationException e) {
+							return GetApp.createJsonObjectOf(app, validator, instantiatedApps, language);
+						} catch (OpenemsNamedException e) {
 							e.printStackTrace();
-						} catch (ExecutionException e) {
-							e.getCause().printStackTrace();
+							return null;
 						}
-						return null;
 					}) //
 					.filter(Objects::nonNull) //
 					.collect(JsonUtils.toJsonArray());
@@ -147,9 +121,9 @@ public class GetApps {
 		private final JsonArray apps;
 
 		public Response(UUID id, List<OpenemsApp> availableApps, List<OpenemsAppInstance> instantiatedApps,
-				Language language, Validator validator) {
+				Role userRole, Language language, Validator validator) {
 			super(id);
-			this.apps = createAppsArray(availableApps, instantiatedApps, language, validator);
+			this.apps = createAppsArray(availableApps, instantiatedApps, userRole, language, validator);
 		}
 
 		@Override

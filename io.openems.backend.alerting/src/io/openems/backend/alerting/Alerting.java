@@ -1,6 +1,6 @@
 package io.openems.backend.alerting;
 
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -58,7 +58,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		super("Alerting");
 
 		this.scheduler = scheduler;
-		this.eventHandler = new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 1, TimeUnit.HOURS, new LinkedBlockingDeque<>(), //
+		this.eventHandler = new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 1, TimeUnit.HOURS, new LinkedBlockingQueue<>(), //
 				new ThreadFactoryBuilder().setNameFormat(Alerting.class.getSimpleName() + ".EventHandler-%d").build());
 	}
 
@@ -88,14 +88,14 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	@Override
 	public void handleEvent(Event event) {
+		var reader = new EventReader(event);
 		this.eventHandler.execute(() -> {
-			var reader = new EventReader(event);
 			for (Handler<?> handlerInstance : this.handler) {
 				handlerInstance.handleEvent(reader);
 			}
 		});
 		int queueSize = this.eventHandler.getQueue().size();
-		if (queueSize % THREAD_QUEUE_WARNING_THRESHOLD == 0) {
+		if (queueSize > 0 && queueSize % THREAD_QUEUE_WARNING_THRESHOLD == 0) {
 			this.logWarn(this.log, queueSize + " tasks in the EventHandlerQueue!");
 		}
 	}

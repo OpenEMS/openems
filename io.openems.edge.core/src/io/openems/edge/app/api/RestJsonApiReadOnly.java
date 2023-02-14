@@ -1,14 +1,17 @@
 package io.openems.edge.app.api;
 
 import java.util.EnumMap;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
@@ -19,14 +22,19 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.RestJsonApiReadOnly.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.AppDef;
+import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
 
 /**
  * Describes a App for ReadOnly Rest JSON Api.
@@ -47,15 +55,47 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
   }
  * </pre>
  */
-@org.osgi.service.component.annotations.Component(name = "App.Api.RestJson.ReadOnly")
-public class RestJsonApiReadOnly extends AbstractOpenemsApp<Property> implements OpenemsApp {
+@Component(name = "App.Api.RestJson.ReadOnly")
+public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApiReadOnly, Property, BundleParamter>
+		implements OpenemsApp {
 
-	public static enum Property {
+	public static enum Property implements Type<Property, RestJsonApiReadOnly, BundleParamter> {
 		// Components
-		CONTROLLER_ID, //
+		CONTROLLER_ID(AppDef.of(RestJsonApiReadOnly.class) //
+				.setDefaultValue("ctrlApiRest0")), //
 		// Properties
-		ACTIVE, //
+		ALIAS(AppDef.of(RestJsonApiReadOnly.class) //
+				.setDefaultValueToAppName()),
+		ACTIVE(AppDef.of(RestJsonApiReadOnly.class) //
+				.setDefaultValue((v) -> {
+					var active = v.app.componentManager.getEdgeConfig()
+							.getComponentIdsByFactory("Controller.Api.Rest.ReadWrite").isEmpty();
+					return new JsonPrimitive(active);
+				}) //
+				.setField(JsonFormlyUtil::buildCheckbox)), //
 		;
+
+		private final AppDef<RestJsonApiReadOnly, Property, BundleParamter> def;
+
+		private Property(AppDef<RestJsonApiReadOnly, Property, BundleParamter> def) {
+			this.def = def;
+		}
+
+		@Override
+		public AppDef<RestJsonApiReadOnly, Property, BundleParamter> def() {
+			return this.def;
+		}
+
+		@Override
+		public Property self() {
+			return this;
+		}
+
+		@Override
+		public Function<GetParameterValues<RestJsonApiReadOnly>, BundleParamter> getParamter() {
+			return Type.Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
+		}
+
 	}
 
 	@Activate
@@ -93,7 +133,7 @@ public class RestJsonApiReadOnly extends AbstractOpenemsApp<Property> implements
 			if (!EnumUtils.getAsOptionalBoolean(p, Property.ACTIVE).orElse(true)) {
 				return new AppConfiguration();
 			}
-			var controllerId = this.getId(t, p, Property.CONTROLLER_ID, "ctrlApiRest0");
+			var controllerId = this.getId(t, p, Property.CONTROLLER_ID);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.Rest.ReadOnly",
@@ -108,6 +148,11 @@ public class RestJsonApiReadOnly extends AbstractOpenemsApp<Property> implements
 	@Override
 	protected Class<Property> getPropertyClass() {
 		return Property.class;
+	}
+
+	@Override
+	protected RestJsonApiReadOnly getApp() {
+		return this;
 	}
 
 }

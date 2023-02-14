@@ -1,16 +1,23 @@
 package io.openems.edge.core.appmanager;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.ComponentServiceObjects;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -18,6 +25,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.common.host.Host;
@@ -25,11 +34,16 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentContext;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 import io.openems.edge.core.appmanager.dependency.ComponentAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.dependency.SchedulerAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.StaticIpAggregateTaskImpl;
+import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Request;
+import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
+import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.Checkable;
@@ -44,6 +58,7 @@ public class AppManagerTestBundle {
 
 	public final AppManagerImpl sut;
 	public final AppManagerUtil appManagerUtil;
+	public final AppCenterBackendUtil appCenterBackendUtil;
 
 	public final CheckablesBundle checkablesBundle;
 
@@ -99,6 +114,7 @@ public class AppManagerTestBundle {
 					.setApps(JsonUtils.buildJsonArray() //
 							.build() //
 							.toString())
+					.setKey("0000-0000-0000-0000") //
 					.build();
 		}
 
@@ -123,16 +139,79 @@ public class AppManagerTestBundle {
 		final var schedulerTask = new SchedulerAggregateTaskImpl(componentTask, this.componentUtil);
 		final var staticIpTask = new StaticIpAggregateTaskImpl(this.componentUtil);
 
-		this.sut = new AppManagerImpl();
+		this.sut = new AppManagerImpl() {
+
+			@Activate
+			@Override
+			protected void activate(ComponentContext componentContext, Config config) {
+				super.activate(componentContext, config);
+			}
+
+			@Modified
+			@Override
+			protected void modified(ComponentContext componentContext, Config config) throws OpenemsNamedException {
+				super.modified(componentContext, config);
+			}
+
+			@Deactivate
+			@Override
+			protected void deactivate() {
+				super.deactivate();
+			}
+
+			@Override
+			public CompletableFuture<? extends JsonrpcResponseSuccess> handleAddAppInstanceRequest(User user,
+					Request request, boolean ignoreBackend) throws OpenemsNamedException {
+				final var response = super.handleAddAppInstanceRequest(user, request, ignoreBackend);
+				this.modifyWithCurrentConfig();
+				return response;
+			}
+
+			@Override
+			public CompletableFuture<? extends JsonrpcResponseSuccess> handleDeleteAppInstanceRequest(User user,
+					DeleteAppInstance.Request request) throws OpenemsNamedException {
+				final var response = super.handleDeleteAppInstanceRequest(user, request);
+				this.modifyWithCurrentConfig();
+				return response;
+			}
+
+			@Override
+			public CompletableFuture<? extends JsonrpcResponseSuccess> handleUpdateAppInstanceRequest(User user,
+					UpdateAppInstance.Request request) throws OpenemsNamedException {
+				final var response = super.handleUpdateAppInstanceRequest(user, request);
+				this.modifyWithCurrentConfig();
+				return response;
+			}
+
+			private final void modifyWithCurrentConfig() throws OpenemsNamedException {
+				final var config = MyConfig.create() //
+						.setApps(this.instantiatedApps.stream() //
+								.map(OpenemsAppInstance::toJsonObject) //
+								.collect(JsonUtils.toJsonArray()) //
+								.toString())
+						.setKey("0000-0000-0000-0000") //
+						.build();
+				DummyComponentContext context;
+				try {
+					context = DummyComponentContext.from(config);
+				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+					throw new OpenemsException(e);
+				}
+				this.modified(context, config);
+			}
+
+		};
 		this.componentManger.addComponent(this.sut);
 		this.componentManger.setConfigurationAdmin(this.cm);
 		this.appManagerUtil = new AppManagerUtilImpl(this.componentManger);
+		this.appCenterBackendUtil = new DummyAppCenterBackendUtil();
+
 		ReflectionUtils.setAttribute(this.appManagerUtil.getClass(), this.appManagerUtil, "appManager", this.sut);
 
 		this.checkablesBundle = new CheckablesBundle(
 				new CheckCardinality(this.sut, this.appManagerUtil,
 						getComponentContext(CheckCardinality.COMPONENT_NAME)), //
-				new CheckRelayCount(this.componentUtil, getComponentContext(CheckRelayCount.COMPONENT_NAME)) //
+				new CheckRelayCount(this.componentUtil, getComponentContext(CheckRelayCount.COMPONENT_NAME), null) //
 		);
 
 		var dummyValidator = new DummyValidator();
@@ -141,6 +220,26 @@ public class AppManagerTestBundle {
 
 		var appManagerAppHelper = new AppManagerAppHelperImpl(this.componentManger, this.componentUtil, this.validator,
 				componentTask, schedulerTask, staticIpTask);
+
+		final var csoAppManagerAppHelper = new ComponentServiceObjects<AppManagerAppHelper>() {
+
+			@Override
+			public AppManagerAppHelper getService() {
+				return appManagerAppHelper;
+			}
+
+			@Override
+			public void ungetService(AppManagerAppHelper service) {
+				// empty for test
+			}
+
+			@Override
+			public ServiceReference<AppManagerAppHelper> getServiceReference() {
+				// not needed for test
+				return null;
+			}
+
+		};
 
 		// use this so the appManagerAppHelper does not has to be a OpenemsComponent and
 		// the attribute can still be private
@@ -153,11 +252,11 @@ public class AppManagerTestBundle {
 		new ComponentTest(this.sut) //
 				.addReference("cm", this.cm) //
 				.addReference("componentManager", this.componentManger) //
-				.addReference("appHelper", appManagerAppHelper) //
+				.addReference("csoAppManagerAppHelper", csoAppManagerAppHelper) //
 				.addReference("validator", this.validator) //
+				.addReference("backendUtil", this.appCenterBackendUtil) //
 				.addReference("availableApps", availableAppsSupplier.apply(this)) //
 				.activate(initialAppManagerConfig);
-
 	}
 
 	/**

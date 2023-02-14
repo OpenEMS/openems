@@ -1,6 +1,8 @@
 package io.openems.backend.timedata.timescaledb.internal.write;
 
 import java.sql.SQLException;
+import java.util.EnumMap;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -14,8 +16,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.zaxxer.hikari.HikariDataSource;
 
-import io.openems.backend.timedata.timescaledb.DoubleKeyMap;
-import io.openems.backend.timedata.timescaledb.internal.Priority;
 import io.openems.backend.timedata.timescaledb.internal.Schema;
 import io.openems.backend.timedata.timescaledb.internal.Schema.ChannelRecord;
 import io.openems.backend.timedata.timescaledb.internal.Type;
@@ -45,18 +45,21 @@ public class SplitDataWorker extends AbstractImmediateWorker {
 	private final ExecutorService executor;
 	private final BlockingQueue<WriteData> sourceQueue = new LinkedBlockingQueue<>(
 			TimescaledbWriteHandler.POINTS_QUEUE_SIZE);
-	private final DoubleKeyMap<Type, Priority, QueueHandler<?>> queueHandler;
+	private final EnumMap<Type, QueueHandler<?>> queueHandlers;
 	private final Consumer<Schema> onInitializedSchema;
+	private final Set<String> enableWriteChannelAddresses;
 
 	private Schema schema;
 
 	public SplitDataWorker(HikariDataSource dataSource, //
 			ExecutorService executor, //
-			DoubleKeyMap<Type, Priority, QueueHandler<?>> queueHandler, //
+			EnumMap<Type, QueueHandler<?>> queueHandlers, //
+			Set<String> enableWriteChannelAddresses, //
 			Consumer<Schema> onInitializedSchema) {
 		this.dataSource = dataSource;
 		this.executor = executor;
-		this.queueHandler = queueHandler;
+		this.queueHandlers = queueHandlers;
+		this.enableWriteChannelAddresses = enableWriteChannelAddresses;
 		this.onInitializedSchema = onInitializedSchema;
 	}
 
@@ -85,33 +88,47 @@ public class SplitDataWorker extends AbstractImmediateWorker {
 		var data = this.sourceQueue.take();
 
 		for (var cell : data.table.cellSet()) {
+			final var channelAddress = cell.getColumnKey();
+			// Write this Channel?
+			if (!this.enableWriteChannelAddresses.contains(channelAddress)) {
+				continue;
+			}
+
+			final var value = cell.getValue();
+			final var timestamp = cell.getRowKey();
+
 			// Cache-Lookup
-			var channel = schema.getChannelFromCache(data.edgeId, cell.getColumnKey());
+			var channel = schema.getChannelFromCache(data.edgeId, channelAddress);
 			if (channel != null) {
 				// Channel exists in Cache -> immediately forward to typed queue
-				this.addToTypedQueue(channel, cell.getRowKey(), cell.getValue());
+				this.addToTypedQueue(channel, timestamp, cell.getValue());
 
 			} else {
 				// Channel missing in Cache -> async
 				this.executor.execute(() -> {
 					try (var con = this.dataSource.getConnection()) {
-						var channelRecord = schema.getChannel(con, data.edgeId, cell.getColumnKey(), cell.getValue());
+						var channelRecord = schema.getChannel(con, data.edgeId, channelAddress, value);
 						if (channelRecord != null) {
 							// Ok -> add to queue
-							this.addToTypedQueue(channelRecord, cell.getRowKey(), cell.getValue());
+							this.addToTypedQueue(channelRecord, timestamp, cell.getValue());
 							return;
 						}
 
 						if (cell.getValue() != null && cell.getValue() != JsonNull.INSTANCE) {
 							// Error and value was not null
 							this.log.error("Unable to get ChannelRecord for Channel " //
-									+ "[" + data.edgeId + "/" + cell.getColumnKey() + "=" + cell.getValue() + "]");
+									+ "[" + data.edgeId + "/" + channelAddress + "=" + cell.getValue() + "]");
 						}
 
 					} catch (SQLException e) {
 						this.log.error("Unable to get ChannelRecord for Channel " //
-								+ "[" + data.edgeId + "/" + cell.getColumnKey() + "=" + cell.getValue() + "]: "
+								+ "[" + data.edgeId + "/" + channelAddress + "=" + cell.getValue() + "]: "
 								+ e.getMessage());
+					} catch (Throwable e) {
+						this.log.error("Unable to get ChannelRecord for Channel " //
+								+ "[" + data.edgeId + "/" + channelAddress + "=" + cell.getValue() + "]: "
+								+ e.getMessage());
+						e.printStackTrace();
 					}
 				});
 
@@ -128,7 +145,7 @@ public class SplitDataWorker extends AbstractImmediateWorker {
 	 */
 	private void addToTypedQueue(ChannelRecord channel, long timestamp, JsonElement json) {
 		try {
-			this.queueHandler.get(channel.type, channel.priority).offer(channel, timestamp, json);
+			this.queueHandlers.get(channel.type).offer(channel, timestamp, json);
 		} catch (OpenemsNamedException e) {
 			this.log.warn("Unable to parse [" + json + "] to [" + channel.type + "] for Channel-ID [" + channel.id
 					+ "]: " + e.getMessage());

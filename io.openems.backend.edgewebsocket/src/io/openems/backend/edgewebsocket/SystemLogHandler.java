@@ -2,7 +2,6 @@ package io.openems.backend.edgewebsocket;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,7 +81,7 @@ public class SystemLogHandler {
 			// No Tokens exist, but we still receive Notification? -> send unsubscribe
 			try {
 				var dummyGuestUser = new User("internal", "UnsubscribeSystemLogNotification",
-						UUID.randomUUID().toString(), Language.EN, Role.GUEST, new TreeMap<>());
+						UUID.randomUUID().toString(), Language.EN, Role.GUEST);
 				this.parent.send(edgeId, dummyGuestUser, SubscribeSystemLogRequest.unsubscribe());
 				this.parent.logInfo(this.log, edgeId, "Was still sending SystemLogNotification. Sent unsubscribe.");
 
@@ -104,7 +103,7 @@ public class SystemLogHandler {
 				// error -> send unsubscribe
 				try {
 					var dummyGuestUser = new User("internal", "UnsubscribeSystemLogNotification",
-							UUID.randomUUID().toString(), Language.EN, Role.GUEST, new TreeMap<>());
+							UUID.randomUUID().toString(), Language.EN, Role.GUEST);
 					this.handleSubscribeSystemLogRequest(edgeId, dummyGuestUser, token,
 							SubscribeSystemLogRequest.unsubscribe());
 

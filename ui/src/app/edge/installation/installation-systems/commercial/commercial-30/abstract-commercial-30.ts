@@ -262,7 +262,7 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 { name: 'baudRate', value: 9600 },
                 { name: 'databits', value: 8 },
                 { name: 'stopbits', value: 'ONE' },
-                { name: 'parity', value: Meter.toParityString(this.lineSideMeterFuse.meterType) },
+                { name: 'parity', value: 'NONE' },
                 { name: 'logVerbosity', value: 'NONE' },
                 { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
             ],

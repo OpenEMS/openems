@@ -1,5 +1,6 @@
 package io.openems.common.utils;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
@@ -53,6 +54,7 @@ public class StringUtilsTest {
 	@Test
 	public void testMatchesFloatPattern() {
 		assertTrue(StringUtils.matchesFloatPattern("208.6"));
+		assertFalse(StringUtils.matchesIntegerPattern("001004        \""));
 	}
 
 	@Test

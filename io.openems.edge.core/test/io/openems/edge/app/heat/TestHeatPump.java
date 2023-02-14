@@ -62,19 +62,20 @@ public class TestHeatPump {
 	public void testNotRemovingDependenciesFromRelay() throws Exception {
 		// install usual free apps
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
-				this.modbusTcpApiReadOnly.getAppId(), "alias", JsonUtils.buildJsonObject().build()));
+				this.modbusTcpApiReadOnly.getAppId(), "key", "alias", JsonUtils.buildJsonObject().build()));
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
-				this.restJsonApiReadOnly.getAppId(), "alias", JsonUtils.buildJsonObject().build()));
+				this.restJsonApiReadOnly.getAppId(), "key", "alias", JsonUtils.buildJsonObject().build()));
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// install home
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.homeApp.getAppId(), "alias", TestFeneconHome.fullSettings()));
+				new AddAppInstance.Request(this.homeApp.getAppId(), "key", "alias", TestFeneconHome.fullSettings()));
+
 		assertEquals(6, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// create heat pump
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request(this.heatPump.getAppId(), "alias", JsonUtils.buildJsonObject().build()));
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user, new AddAppInstance.Request(
+				this.heatPump.getAppId(), "key", "alias", JsonUtils.buildJsonObject().build()));
 
 		assertEquals(7, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 

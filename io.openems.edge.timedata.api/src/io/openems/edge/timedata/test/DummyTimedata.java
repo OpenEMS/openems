@@ -2,6 +2,7 @@ package io.openems.edge.timedata.test;
 
 import java.time.ZonedDateTime;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -99,7 +100,15 @@ public class DummyTimedata extends AbstractOpenemsComponent implements Timedata 
 
 	@Override
 	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
-		return CompletableFuture.completedFuture(Optional.empty());
-	}
 
+		var result = this.data.entrySet() //
+				.stream() //
+				.sorted((o1, o2) -> o2.getKey().compareTo(o1.getKey())).map(Entry::getValue) //
+				.map(t -> t.get(channelAddress)) //
+				.filter(Objects::nonNull) //
+				.map(t -> (Object) t.getAsInt()) //
+				.findFirst();
+
+		return CompletableFuture.completedFuture(result);
+	}
 }

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -15,8 +14,8 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.core.host.NetworkConfiguration;
 
 /**
  * Source https://formly.dev/examples/introduction.
@@ -101,7 +100,7 @@ public class JsonFormlyUtil {
 	 * </pre>
 	 *
 	 */
-	private abstract static class FormlyBuilder<T extends FormlyBuilder<T>> {
+	public abstract static class FormlyBuilder<T extends FormlyBuilder<T>> implements OnlyIf<T>, Self<T> {
 
 		protected final JsonObject jsonObject = new JsonObject();
 		protected final JsonObject templateOptions = new JsonObject();
@@ -122,7 +121,7 @@ public class JsonFormlyUtil {
 
 		private final T setType(String type) {
 			this.jsonObject.addProperty("type", type);
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setKey(String key) {
@@ -131,7 +130,7 @@ public class JsonFormlyUtil {
 			} else if (this.jsonObject.has("key")) {
 				this.jsonObject.remove("key");
 			}
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDefaultValue(String defaultValue) {
@@ -141,7 +140,7 @@ public class JsonFormlyUtil {
 				this.jsonObject.remove("defaultValue");
 			}
 
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDefaultValue(Boolean defaultValue) {
@@ -151,7 +150,7 @@ public class JsonFormlyUtil {
 				this.jsonObject.remove("defaultValue");
 			}
 
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDefaultValue(Number defaultValue) {
@@ -161,7 +160,7 @@ public class JsonFormlyUtil {
 				this.jsonObject.remove("defaultValue");
 			}
 
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDefaultValue(JsonElement defaultValue) {
@@ -171,7 +170,7 @@ public class JsonFormlyUtil {
 				this.jsonObject.remove("defaultValue");
 			}
 
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDefaultValueWithStringSupplier(Supplier<String> supplieDefaultValue) {
@@ -182,13 +181,19 @@ public class JsonFormlyUtil {
 			return this.setDefaultValue(supplieDefaultValue.get());
 		}
 
+		/**
+		 * Sets if the input is required. Default: 'false'
+		 * 
+		 * @param isRequired if the input is required
+		 * @return this
+		 */
 		public final T isRequired(boolean isRequired) {
 			if (isRequired) {
 				this.templateOptions.addProperty("required", isRequired);
 			} else if (this.templateOptions.has("required")) {
 				this.templateOptions.remove("required");
 			}
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setLabel(String label) {
@@ -197,38 +202,38 @@ public class JsonFormlyUtil {
 			} else if (this.templateOptions.has("label")) {
 				this.templateOptions.remove("label");
 			}
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDescription(String description) {
 			this.templateOptions.addProperty("description", description);
-			return this.getSelf();
+			return this.self();
 		}
 
 		/**
-		 * Call a method on a FormlyBuilder if the expression is true.
-		 *
-		 * @param expression the expression
-		 * @param consumer   allows a lambda function on {@link FormlyBuilder}
-		 * @return the {@link JsonObjectBuilder}
+		 * Only shows the input if the given property is checked.
+		 * 
+		 * @param <PROPERTEY> the type of the property
+		 * @param property    the property to be checked
+		 * @return this
 		 */
-		public T onlyIf(boolean expression, Consumer<T> consumer) {
-			if (expression) {
-				consumer.accept(this.getSelf());
-			}
-			return this.getSelf();
-		}
-
 		public final <PROPERTEY extends Enum<PROPERTEY>> T onlyShowIfChecked(PROPERTEY property) {
 			this.getExpressionProperties().addProperty("templateOptions.required", "model." + property.name());
 			this.jsonObject.addProperty("hideExpression", "!model." + property.name());
-			return this.getSelf();
+			return this.self();
 		}
 
+		/**
+		 * Only shows the input if the given property is not checked.
+		 * 
+		 * @param <PROPERTEY> the type of the property
+		 * @param property    the property to be not checked
+		 * @return this
+		 */
 		public final <PROPERTEY extends Enum<PROPERTEY>> T onlyShowIfNotChecked(PROPERTEY property) {
 			this.getExpressionProperties().addProperty("templateOptions.required", "!model." + property.name());
 			this.jsonObject.addProperty("hideExpression", "model." + property.name());
-			return this.getSelf();
+			return this.self();
 		}
 
 		public JsonObject build() {
@@ -248,8 +253,9 @@ public class JsonFormlyUtil {
 			return this.expressionProperties;
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
-		private final T getSelf() {
+		public T self() {
 			return (T) this;
 		}
 
@@ -307,7 +313,8 @@ public class JsonFormlyUtil {
 		}
 
 		public static enum Validation {
-			IP("(\\d{1,3}\\.){3}\\d{1,3}", "Input is not a valid IP Address!"), //
+			// TODO translation
+			IP(NetworkConfiguration.PATTERN_INET4ADDRESS, "Input is not a valid IP Address!"), //
 			;
 
 			private String pattern;

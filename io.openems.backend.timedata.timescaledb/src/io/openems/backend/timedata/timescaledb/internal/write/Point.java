@@ -16,9 +16,29 @@ public abstract class Point {
 
 	public static final class IntPoint extends Point {
 
+		public final int value;
+
+		public IntPoint(int channelId, ZonedDateTime timestamp, int value) {
+			super(channelId, timestamp);
+			this.value = value;
+		}
+
+		@Override
+		public void addToSimpleRow(SimpleRow row, int column) {
+			row.setInteger(column, this.value);
+		}
+
+		@Override
+		public String toString() {
+			return "IntPoint [" + this.timestamp + ": " + this.channelId + "=" + this.value + "]";
+		}
+	}
+
+	public static final class LongPoint extends Point {
+
 		public final long value;
 
-		public IntPoint(int channelId, ZonedDateTime timestamp, long value) {
+		public LongPoint(int channelId, ZonedDateTime timestamp, long value) {
 			super(channelId, timestamp);
 			this.value = value;
 		}
@@ -30,22 +50,22 @@ public abstract class Point {
 
 		@Override
 		public String toString() {
-			return "IntPoint [" + this.timestamp + ": " + this.channelId + "=" + this.value + "]";
+			return "LongPoint [" + this.timestamp + ": " + this.channelId + "=" + this.value + "]";
 		}
 	}
 
 	public static final class FloatPoint extends Point {
 
-		public final double value;
+		public final float value;
 
-		public FloatPoint(int channelId, ZonedDateTime timestamp, double value) {
+		public FloatPoint(int channelId, ZonedDateTime timestamp, float value) {
 			super(channelId, timestamp);
 			this.value = value;
 		}
 
 		@Override
 		public void addToSimpleRow(SimpleRow row, int column) {
-			row.setDouble(column, this.value);
+			row.setFloat(column, this.value);
 		}
 
 		@Override

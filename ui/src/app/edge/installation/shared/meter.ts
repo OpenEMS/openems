@@ -66,19 +66,4 @@ export namespace Meter {
                 return 'KDK';
         }
     }
-
-    /**
-     * Returns the parity of the meter selected as string.
-     * 
-     * @param meter The meter type.
-     * @returns the meter label as string.
-     */
-    export function toParityString(meter: Meter): string {
-        switch (meter) {
-            case Meter.SOCOMEC:
-                return 'NONE';
-            case Meter.KDK:
-                return 'EVEN';
-        }
-    }
 }
