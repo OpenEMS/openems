@@ -35,6 +35,13 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.2.4',
+        changes: [
+          Changelog.UI,
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Start Demo-Test, Meldung freie Digital-/Relaisausgänge" },
+        ]
+      },
+      {
         version: '2023.2.3',
         changes: [
           Changelog.UI,
