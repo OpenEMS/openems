@@ -2,8 +2,31 @@
 
 Implementation of the KACO blueplanet series PV inverters.
 
-Implemented Natures::
-- ManagedSymmetricPvInverter
-- SymmetricMeter
+== Compatibility
+
+** NX3 M2 Series
+*** https://kaco-newenergy.com/de/produkte/blueplanet-3.0-20.0-NX3-M2/[KACO Blueplanet NX3 M2]
+** TL3 Series
+*** KACO blueplanet 3.0 TL3 - 10.0 TL3
+*** KACO blueplanet 15.0 TL3 + 20.0 TL3
+*** KACO blueplanet 29.0 TL3 LV
+*** KACO blueplanet 50.0 TL3
+*** KACO blueplanet 60.0 TL3
+*** KACO blueplanet 87.0 TL3 - 125 TL3
+*** KACO blueplanet 125 TL3 - 165 TL3
+
+== Additional application notes
+
+Experiences from testing this plugin with a KACO Blueplanet NX3 M2:
+
+* Modbus Unit-ID was 3, for both Modbus TCP and RTU. Modbus TCP also worked with Unit-ID 1, but RTU only worked with 3.
+* When using the Wlan module to connect via Modbus TCP, make sure no cable is plugged into the RJ45 socket used for Modbus RTU.
+If there is a cable plugged in, it will still work, but you will get a lot of connection errors.
+* Similar situation when using Modbus RTU - unplug the Wlan module. Modbus RTU still works with the Wlan module plugged in,
+but you will get a lot of connection errors.
+* The Wlan module that handles the Modbus TCP connection does not automatically reconnect to the configured Wlan router if it
+looses the connection (for example, when the router is restarted), or if the router is not reachable when the inverter starts up.
+* To reconnect, the inverter needs to restart. Since the NX3 usually shuts down over night and restarts in the morning, this is not
+too much of a problem.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.kaco.blueplanet[Source Code icon:github[]]
