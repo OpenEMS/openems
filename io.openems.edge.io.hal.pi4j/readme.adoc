@@ -1,3 +1,8 @@
-= io.openems.edge.io.hal.pi4j
+= OpenEMS Integration for Pi4J Library
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.hal.pi4j[Source Code icon:github[]]
+
+== Modberry NPE x500 CM4
+
+Digital IO is mapped as follows:
+
+image::npe_x500_cm4_io.png[Pinout of the Modberry NPE x500 CM4 made by Techbase.,800]

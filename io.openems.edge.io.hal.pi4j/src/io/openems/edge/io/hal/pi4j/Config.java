@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "IO Rasberry Pi Hardware Abstraction Layer io.openems.edge.io.hal.pi4j", //
+		name = "IO Raspberry Pi Hardware Abstraction Layer", //
 		description = "")
 @interface Config {
 
@@ -17,6 +17,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	String webconsole_configurationFactory_nameHint() default "IO Rasbperry Pi Hardware Abstraction Layer io.openems.edge.io.hal.pi4j [{id}]";
+	String webconsole_configurationFactory_nameHint() default "IO Raspberry Pi Hardware Abstraction Layer [{id}]";
 
 }
