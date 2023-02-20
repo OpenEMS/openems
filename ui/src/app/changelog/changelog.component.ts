@@ -35,6 +35,13 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.2.5',
+        changes: [
+          Changelog.UI,
+          "Netzwerkkonfiguration: Fehlerbehebung bei Benutzernamen mit Umlauten",
+        ]
+      },
+      {
         version: '2023.2.4',
         changes: [
           Changelog.UI,
