@@ -387,7 +387,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.5.3</version>
+			<version>42.5.4</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
