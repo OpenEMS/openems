@@ -1,0 +1,3 @@
+= io.openems.edge.io.hal.api
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.hal.api[Source Code icon:github[]]
