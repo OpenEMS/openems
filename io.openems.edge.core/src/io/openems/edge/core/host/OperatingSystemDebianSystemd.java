@@ -78,7 +78,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				/*
 				 * Parse the content of the network configuration file
 				 */
-				var lines = Files.readAllLines(file.toPath(), StandardCharsets.US_ASCII);
+				var lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
 				NetworkInterface<File> networkInterface = parseSystemdNetworkdConfigurationFile(lines, file);
 
 				// check for null value
@@ -125,7 +125,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			var file = (File) iface.getAttachment();
 			var lines = this.toFileFormat(user, iface);
 			try {
-				Files.write(file.toPath(), lines, StandardCharsets.US_ASCII);
+				Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
 			} catch (IOException e) {
 				writeException = e;
 			}
@@ -187,9 +187,9 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	 */
 	private List<String> toFileFormat(User user, NetworkInterface<?> iface) throws OpenemsNamedException {
 		List<String> result = new ArrayList<>();
-		result.add("# changedBy:" //
+		result.add("# changedBy: " //
 				+ user.getName());
-		result.add("# changedAt:" //
+		result.add("# changedAt: " //
 				+ LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString() //
 		);
 		result.add("[Match]");
@@ -346,7 +346,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			if (!Files.exists(UDEV_PATH)) {
 				return "";
 			}
-			var lines = Files.readAllLines(UDEV_PATH, StandardCharsets.US_ASCII);
+			var lines = Files.readAllLines(UDEV_PATH, StandardCharsets.UTF_8);
 			return String.join("\n", lines);
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to read file [" + UDEV_PATH + "]: " + e.getMessage());
