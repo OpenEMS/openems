@@ -1,7 +1,6 @@
 package io.openems.backend.timedata.dummy;
 
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,31 +33,21 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 	private final Logger log = LoggerFactory.getLogger(TimedataDummy.class);
 	private final Map<String, EdgeCache> edgeCacheMap = new HashMap<>();
 
+	private Config config;
+
 	public TimedataDummy() {
 		super("Timedata.Dummy");
 	}
 
 	@Activate
 	private void activate(Config config) throws OpenemsException {
+		this.config = config;
 		this.logInfo(this.log, "Activate");
 	}
 
 	@Deactivate
 	private void deactivate() {
 		this.logInfo(this.log, "Deactivate");
-	}
-
-	@Override
-	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
-		var edgeCache = this.edgeCacheMap.get(edgeId);
-		if (edgeCache == null) {
-			return Collections.emptyMap();
-		}
-		var result = new HashMap<ChannelAddress, JsonElement>();
-		for (var channelAddress : channelAddresses) {
-			result.put(channelAddress, edgeCache.getChannelValue(channelAddress.toString()));
-		}
-		return result;
 	}
 
 	@Override
@@ -70,13 +59,8 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 			this.edgeCacheMap.put(edgeId, edgeCache);
 		}
 
-		// Complement incoming data with data from Cache, because only changed values
-		// are transmitted
-		edgeCache.complementDataFromCache(data.rowMap(), //
-				(incomingTimestamp, cacheTimestamp) -> this.log.info(//
-						"Edge [" + edgeId + "]: invalidate cache. " //
-								+ "Incoming [" + incomingTimestamp + "]. " //
-								+ "Cache [" + cacheTimestamp + "]"));
+		// Update the Data Cache
+		edgeCache.update(data.rowMap());
 	}
 
 	@Override
@@ -102,4 +86,8 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 		return new TreeMap<>();
 	}
 
+	@Override
+	public String id() {
+		return this.config.id();
+	}
 }

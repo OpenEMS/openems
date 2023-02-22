@@ -128,9 +128,7 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId, User user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		var timedata = this.parent.getTimedata(edgeId);
-
-		var historicData = timedata.queryHistoricData(edgeId, request);
+		var historicData = this.parent.timedataManager.queryHistoricData(edgeId, request);
 
 		// JSON-RPC response
 		return CompletableFuture
@@ -148,9 +146,7 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(String edgeId, User user,
 			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
-		var timedata = this.parent.getTimedata(edgeId);
-
-		var data = timedata.queryHistoricEnergy(//
+		var data = this.parent.timedataManager.queryHistoricEnergy(//
 				edgeId, request.getFromDate(), request.getToDate(), request.getChannels());
 
 		// JSON-RPC response
@@ -168,9 +164,7 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyPerPeriodRequest(String edgeId,
 			User user, QueryHistoricTimeseriesEnergyPerPeriodRequest request) throws OpenemsNamedException {
-		var timedata = this.parent.getTimedata(edgeId);
-
-		var data = timedata.queryHistoricEnergyPerPeriod(//
+		var data = this.parent.timedataManager.queryHistoricEnergyPerPeriod(//
 				edgeId, request.getFromDate(), request.getToDate(), request.getChannels(), request.getResolution());
 
 		// JSON-RPC response
@@ -189,10 +183,8 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricTimeseriesExportXlxsRequest(String edgeId,
 			User user, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
-		var timedata = this.parent.getTimedata(edgeId);
-
-		return CompletableFuture.completedFuture(
-				timedata.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request, user.getLanguage()));
+		return CompletableFuture.completedFuture(this.parent.timedataManager
+				.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request, user.getLanguage()));
 	}
 
 	/**
