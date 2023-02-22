@@ -21,15 +21,39 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	@Override
 	public void run(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
-		var user = this.parent.assertUser(wsData, notification);
+		User user = null;
+		try {
+			user = this.parent.assertUser(wsData, notification);
+		} catch (OpenemsNamedException e) {
+			// ignore
+		}
 
 		switch (notification.getMethod()) {
 		case LogMessageNotification.METHOD:
-			this.handleLogMessageNotification(user, LogMessageNotification.from(notification));
-			return;
+			if (user == null) {
+				// User is not authenticated!
+				this.handleUnauthenticatedLogMessageNotification(LogMessageNotification.from(notification));
+				return;
+
+			} else {
+				this.handleLogMessageNotification(user, LogMessageNotification.from(notification));
+				return;
+			}
 		}
 
 		this.parent.logWarn(this.log, "Unhandled Notification: " + notification);
+	}
+
+	/**
+	 * Handles a {@link LogMessageNotification} with not-authenticated user. Logs
+	 * given message from request.
+	 *
+	 * @param notification the {@link LogMessageNotification}
+	 */
+	private void handleUnauthenticatedLogMessageNotification(LogMessageNotification notification) {
+		this.parent.logInfo(this.log, "User [NOT AUTHENTICATED] " //
+				+ notification.level.getName() + "-Message: " //
+				+ notification.msg);
 	}
 
 	/**

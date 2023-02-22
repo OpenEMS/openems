@@ -166,7 +166,7 @@ public final class AppCenterHandler {
 	) throws OpenemsNamedException {
 		var result = metadataCall.apply(metadata, requestMapper.apply(request.getPayload()));
 		if (result == null) {
-			if (resultMapper == null) {
+			if (resultMapper != null) {
 				LOG.warn("Got no result for request " + request.getPayload().getMethod() + " but expected one!");
 			}
 			return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.id));

@@ -37,6 +37,9 @@ import io.openems.shared.influxdb.QueryLanguageConfig;
 	@AttributeDefinition(name = "Number of Threads", description = "Pool-Size: the number of threads dedicated to handle the tasks")
 	int poolSize() default 10;
 
+	@AttributeDefinition(name = "Number of max scheduled tasks", description = "Max-Size of Queued tasks.")
+	int maxQueueSize() default 5000;
+
 	String webconsole_configurationFactory_nameHint() default "Timedata InfluxDB";
 
 }

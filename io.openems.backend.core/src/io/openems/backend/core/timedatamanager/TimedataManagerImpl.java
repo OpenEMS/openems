@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -99,51 +100,81 @@ public class TimedataManagerImpl extends AbstractOpenemsBackendComponent impleme
 		this.updateSortedTimedatas();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * <p>
+	 * The {@link TimedataManager} implementation never returns null, but throws an
+	 * Exception instead
+	 */
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
-		for (var timedata : this.timedatas.get()) {
+		var timedatas = this.timedatas.get();
+		for (var timedata : timedatas) {
 			var data = timedata.queryHistoricData(edgeId, fromDate, toDate, channels, resolution);
 			if (data != null) {
 				return data;
 			}
 		}
 		// no result
-		this.logWarn(this.log, "No timedata result for 'queryHistoricData' on Edge=" + edgeId + "; FromDate=" + fromDate
-				+ "; ToDate=" + toDate + "; Channels=" + channels + "; Resolution=" + resolution);
-		return null;
+		this.logWarn(this.log,
+				"No timedata result for 'queryHistoricData' on Edge=" + edgeId + "; FromDate=" + fromDate + "; ToDate="
+						+ toDate + "; Channels=" + channels + "; Resolution=" + resolution + " from "
+						+ timedatas.stream().map(t -> t.id()).collect(Collectors.joining(", ")));
+		throw new OpenemsException("Unable to query historic data. Result is null");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * <p>
+	 * The {@link TimedataManager} implementation never returns null, but throws an
+	 * Exception instead
+	 */
 	@Override
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
-		for (var timedata : this.timedatas.get()) {
+		var timedatas = this.timedatas.get();
+		for (var timedata : timedatas) {
 			var data = timedata.queryHistoricEnergy(edgeId, fromDate, toDate, channels);
 			if (data != null) {
 				return data;
 			}
 		}
 		// no result
-		this.logWarn(this.log, "No timedata result for 'queryHistoricEnergy' on Edge=" + edgeId + "; FromDate="
-				+ fromDate + "; ToDate=" + toDate + "; Channels=" + channels);
-		return null;
+		this.logWarn(this.log,
+				"No timedata result for 'queryHistoricEnergy' on Edge=" + edgeId + "; FromDate=" + fromDate
+						+ "; ToDate=" + toDate + "; Channels=" + channels + " from "
+						+ timedatas.stream().map(t -> t.id()).collect(Collectors.joining(", ")));
+		throw new OpenemsException("Unable to query historic data. Result is null");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * <p>
+	 * The {@link TimedataManager} implementation never returns null, but throws an
+	 * Exception instead
+	 */
 	@Override
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
 			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
 			throws OpenemsNamedException {
-		for (var timedata : this.timedatas.get()) {
+		var timedatas = this.timedatas.get();
+		for (var timedata : timedatas) {
 			var data = timedata.queryHistoricEnergyPerPeriod(edgeId, fromDate, toDate, channels, resolution);
 			if (data != null) {
 				return data;
 			}
 		}
 		// no result
-		this.logWarn(this.log, "No timedata result for 'queryHistoricEnergyPerPeriod' on Edge=" + edgeId + "; FromDate="
-				+ fromDate + "; ToDate=" + toDate + "; Channels=" + channels + "; Resolution=" + resolution);
-		return null;
+		this.logWarn(this.log,
+				"No timedata result for 'queryHistoricEnergyPerPeriod' on Edge=" + edgeId + "; FromDate=" + fromDate
+						+ "; ToDate=" + toDate + "; Channels=" + channels + "; Resolution=" + resolution + " from "
+						+ timedatas.stream().map(t -> t.id()).collect(Collectors.joining(", ")));
+		throw new OpenemsException("Unable to query historic energy per period. Result is null");
 	}
 
 	@Override

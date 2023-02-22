@@ -102,8 +102,6 @@ public class VirtualAdd extends AbstractOpenemsComponent
 		}
 
 		final var meterFrequency = new CalculateAverage();
-		final var meterMinActivePower = new CalculateIntegerSum();
-		final var meterMaxActivePower = new CalculateIntegerSum();
 		final var meterActivePower = new CalculateIntegerSum();
 		final var meterReactivePower = new CalculateIntegerSum();
 		final var meterActiveProductionEnergy = new CalculateLongSum();
@@ -113,19 +111,15 @@ public class VirtualAdd extends AbstractOpenemsComponent
 
 		for (SymmetricMeter meter : meters) {
 			meterFrequency.addValue(meter.getFrequencyChannel());
-			meterMinActivePower.addValue(meter.getMinActivePowerChannel());
-			meterMaxActivePower.addValue(meter.getMaxActivePowerChannel());
 			meterActivePower.addValue(meter.getActivePowerChannel());
 			meterReactivePower.addValue(meter.getReactivePowerChannel());
-			meterActiveConsumptionEnergy.addValue(this.getActiveConsumptionEnergyChannel());
+			meterActiveConsumptionEnergy.addValue(meter.getActiveConsumptionEnergyChannel());
 			meterActiveProductionEnergy.addValue(meter.getActiveProductionEnergyChannel());
 			meterVoltage.addValue(meter.getVoltageChannel());
 			meterCurrent.addValue(meter.getCurrentChannel());
 		}
 
 		this.getFrequencyChannel().setNextValue(meterFrequency.calculate());
-		this._setMinActivePower(meterMinActivePower.calculate());
-		this._setMaxActivePower(meterMaxActivePower.calculate());
 		this._setActivePower(meterActivePower.calculate());
 		this._setReactivePower(meterReactivePower.calculate());
 		this._setActiveConsumptionEnergy(meterActiveConsumptionEnergy.calculate());
