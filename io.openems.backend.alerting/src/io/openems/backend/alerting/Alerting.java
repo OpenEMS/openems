@@ -43,7 +43,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	private final Logger log = LoggerFactory.getLogger(Alerting.class);
 
-	private final ThreadPoolExecutor eventHandler;
+	private final ThreadPoolExecutor executor;
 
 	@Reference
 	protected Metadata metadata;
@@ -52,13 +52,13 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	protected Mailer mailer;
 
 	protected final Scheduler scheduler;
-	protected Handler<?>[] handler = {};
+	protected Handler<?>[] handlers = {};
 
 	protected Alerting(Scheduler scheduler) {
 		super("Alerting");
 
 		this.scheduler = scheduler;
-		this.eventHandler = new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 1, TimeUnit.HOURS, new LinkedBlockingQueue<>(), //
+		this.executor = new ThreadPoolExecutor(0, THREAD_POOL_SIZE, 1, TimeUnit.HOURS, new LinkedBlockingQueue<>(), //
 				new ThreadFactoryBuilder().setNameFormat(Alerting.class.getSimpleName() + ".EventHandler-%d").build());
 	}
 
@@ -71,7 +71,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		this.logInfo(this.log, "Activate");
 		this.scheduler.start();
 
-		this.handler = new Handler[] {
+		this.handlers = new Handler[] {
 				new OfflineEdgeHandler(this.scheduler, this.mailer, this.metadata, config.initialDelay()) };
 	}
 
@@ -79,22 +79,23 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	protected void deactivate() {
 		this.logInfo(this.log, "Deactivate");
 
-		for (Handler<?> handlerInstance : this.handler) {
-			handlerInstance.stop();
+		for (var handler : this.handlers) {
+			handler.stop();
 		}
-		this.handler = new Handler<?>[0];
+		this.handlers = new Handler<?>[0];
 		this.scheduler.stop();
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		var reader = new EventReader(event);
-		this.eventHandler.execute(() -> {
-			for (Handler<?> handlerInstance : this.handler) {
-				handlerInstance.handleEvent(reader);
+		for (var handler : this.handlers) {
+			var task = handler.getEventHandler(reader);
+			if (task != null) {
+				this.executor.execute(task);
 			}
-		});
-		int queueSize = this.eventHandler.getQueue().size();
+		}
+		int queueSize = this.executor.getQueue().size();
 		if (queueSize > 0 && queueSize % THREAD_QUEUE_WARNING_THRESHOLD == 0) {
 			this.logWarn(this.log, queueSize + " tasks in the EventHandlerQueue!");
 		}

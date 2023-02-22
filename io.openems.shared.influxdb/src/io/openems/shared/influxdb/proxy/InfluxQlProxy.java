@@ -169,6 +169,10 @@ public class InfluxQlProxy extends QueryProxy {
 	 */
 	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> convertHistoricDataQueryResult(
 			InfluxQLQueryResult queryResult, ZonedDateTime fromDate) throws OpenemsNamedException {
+		if (queryResult == null) {
+			throw new OpenemsException("Historic data values are not available. QueryResult is null");
+		}
+
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
 		for (var result : queryResult.getResults()) {
 			var seriess = result.getSeries();
@@ -234,6 +238,10 @@ public class InfluxQlProxy extends QueryProxy {
 	 */
 	private static SortedMap<ChannelAddress, JsonElement> convertHistoricEnergyResult(InfluxQLQueryResult queryResult,
 			Optional<Integer> influxEdgeId, Set<ChannelAddress> channels) throws OpenemsNamedException {
+		if (queryResult == null) {
+			throw new OpenemsException("Energy values are not available. QueryResult is null");
+		}
+
 		SortedMap<ChannelAddress, JsonElement> map = new TreeMap<>();
 		for (Result result : queryResult.getResults()) {
 			var seriess = result.getSeries();

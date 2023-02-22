@@ -52,6 +52,7 @@ import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -298,11 +299,15 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 
 		switch (event.getTopic()) {
 		case Edge.Events.ON_SET_ONLINE: {
-			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetOnline.EDGE);
+			var edgeId = reader.getString(Edge.Events.OnSetOnline.EDGE_ID);
 			var isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
 
-			// Set OpenEMS Is Connected in Odoo/Postgres
-			this.postgresHandler.getPeriodicWriteWorker().onSetOnline(edge, isOnline);
+			this.getEdge(edgeId).ifPresent(edge -> {
+				if (edge instanceof MyEdge) {
+					// Set OpenEMS Is Connected in Odoo/Postgres
+					this.postgresHandler.getPeriodicWriteWorker().onSetOnline((MyEdge) edge, isOnline);
+				}
+			});
 		}
 			break;
 
@@ -454,6 +459,19 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 	@Override
 	public JsonObject sendGetInstalledApps(String edgeId) throws OpenemsNamedException {
 		return this.odooHandler.getInstalledApps(edgeId);
+	}
+
+	@Override
+	public void supplyKeyIfNeeded(User user, String edgeId, JsonrpcRequest request) {
+		// TODO may only be for fenecon employees/admins
+		if (!user.getRole(edgeId).map(r -> r.isAtLeast(Role.INSTALLER)).orElse(false)) {
+			return;
+		}
+		if (request.getParams().has("key")) {
+			return;
+		}
+		// TODO may be dynamically set
+		request.getParams().addProperty("key", "8fyk-Gma9-EUO3-j3gi");
 	}
 
 	@Override

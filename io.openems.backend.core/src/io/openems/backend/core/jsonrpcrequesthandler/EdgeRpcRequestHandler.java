@@ -285,6 +285,11 @@ public class EdgeRpcRequestHandler {
 			ComponentJsonApiRequest componentJsonApiRequest) throws OpenemsNamedException {
 		user.assertEdgeRoleIsAtLeast(ComponentJsonApiRequest.METHOD, edgeId, Role.GUEST);
 
+		if ("addAppInstance".equals(componentJsonApiRequest.getPayload().getMethod()) //
+				&& this.parent.appCenterMetadata != null) {
+			this.parent.appCenterMetadata.supplyKeyIfNeeded(user, edgeId, componentJsonApiRequest.getPayload());
+		}
+
 		return this.parent.edgeWebsocket.send(edgeId, user, componentJsonApiRequest);
 	}
 }

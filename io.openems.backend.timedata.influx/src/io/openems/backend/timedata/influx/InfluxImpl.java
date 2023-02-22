@@ -78,7 +78,7 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timed
 				+ "]");
 
 		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
-				config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(), //
+				config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(), config.maxQueueSize(), //
 				(throwable) -> {
 					if (throwable instanceof BadRequestException) {
 						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
