@@ -37,6 +37,9 @@ import io.openems.shared.influxdb.QueryLanguageConfig;
 	@AttributeDefinition(name = "No of Cycles", description = "How many Cycles till data is written to InfluxDB.")
 	int noOfCycles() default 1;
 
+	@AttributeDefinition(name = "Number of max scheduled tasks", description = "Max-Size of Queued tasks.")
+	int maxQueueSize() default 5000;
+
 	@AttributeDefinition(name = "Read-Only mode", description = "Activates the read-only mode. Then no data is written to InfluxDB.")
 	boolean isReadOnly() default false;
 

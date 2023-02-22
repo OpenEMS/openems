@@ -69,10 +69,11 @@ public class InfluxConnector {
 	 * @param isReadOnly    If true, a 'Read-Only-Mode' is activated, where no data
 	 *                      is actually written to the database
 	 * @param poolSize      the number of threads dedicated to handle the tasks
+	 * @param maxQueueSize 	queue size limit for executor
 	 * @param onWriteError  A consumer for write-errors
 	 */
 	public InfluxConnector(QueryLanguageConfig queryLanguage, URI url, String org, String apiKey, String bucket,
-			boolean isReadOnly, int poolSize, Consumer<Throwable> onWriteError) {
+			boolean isReadOnly, int poolSize, int maxQueueSize, Consumer<Throwable> onWriteError) {
 		this.queryProxy = QueryProxy.from(queryLanguage);
 		this.url = url;
 		this.org = org;
@@ -80,7 +81,8 @@ public class InfluxConnector {
 		this.bucket = bucket;
 		this.isReadOnly = isReadOnly;
 
-		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
+		this.executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS,
+				new LinkedBlockingQueue<Runnable>(maxQueueSize), //
 				new ThreadFactoryBuilder().setNameFormat("InfluxDB-%d").build());
 
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
