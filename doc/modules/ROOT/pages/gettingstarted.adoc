@@ -71,6 +71,60 @@ Menu: btn:[File] →  btn:[Import...] → btn:[Bndtools] → btn:[Existing Bnd W
 
 . Eclipse will now spend some time importing and building OpenEMS Edge and Backend. Close the *Welcome* window to follow the progress till you eventually see the full tree of OpenEMS projects (or bundles) in the *Bndtools Explorer* and all errors and warnings in the *Problems* tab disappear.
 
+== Setup Intellij IDE for OpenEMS
+
+. Prepare Intellij IDE
+.. Download http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html[Java SE Development Kit 8 icon:external-link[]] and install it
+.. We use the Amdatu Plugin. So first check if it is working with the newest Version, so check the homepage https://plugins.jetbrains.com/plugin/10639-amdatu/versions[Amdatu schauen icon:external-link[]].
+.. With the toolbox you can select the right version https://www.jetbrains.com/toolbox-app/download/[Intellij Version icon:external-link[]].
+.. You can even disable in the Toolbox auto-Updates, also you can select a previous if the update was done accidently
+.. Search under Plugins "Amdatu" und "Checkstyle" suchen
++
+.intellij settings
+image::intellij-settings.png[Settings]
++
+.Install plugins
+image::intellij-plugins.png[Plugins]
+.. Preparing your project with intellij
++
+.intellij project import from existing source
+image::intellij-project-import.png[]
+.Select directory to import
+image::intellij-select-directory.png[]
+.. Select Bnd/bndtools
++
+.Bnd import
+image::intellij-import-bnd.png[]
+.. Build edge in intellij
++
+.build.gradle
+image::intellij-build-gradle.png[]
+.. or alternativly make an configuration "edit configuration"
++
+.build gradle over configuration
+image::intellij-build-gradle.png[]
+.. creating a new modul
++
+.creating a modul
+image::intellij-new-module.png[]
++
+Rightclick on a existing modul: New -> Module
++
+Amdatu-> Project Template Project (Stringtemplate)
+
+== Hints - intellij problems
+.. If you have some problems - for example java version is not found. look in File->Project Structure ->Project
++
+.check java version
+image::intellij-java.png[]
+.. If there is the module not right loaded, you can see that the blue square is not present
++
+.not loaded modules
+image::intellij-load-modul.png[]
++
+That get be fixed by Tools->Amdatu->Refresh-Workspace. If it is still not working, File->Invalidate Caches/Restart
+
+
 == Run OpenEMS Edge and start Simulator
 
 . Run OpenEMS Edge
