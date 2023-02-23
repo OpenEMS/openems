@@ -1,0 +1,9 @@
+= Hardy Barth Charging Station (Salia)
+
+This component implements the Salia charging station by the manufacturer Hardy Barth: https://www.echarge.de/de/home
+
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station)
+* ManagedEvcs
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.dezony[Source Code icon:github[]]
