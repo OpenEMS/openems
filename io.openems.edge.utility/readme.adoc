@@ -1,0 +1,169 @@
+= Utility
+
+This Bundle provides Utility classes.
+For easier Pullrequests: The readme.adoc will be provided, however modules will be added one at a time.
+
+
+
+== Classes
+
+* Calculator
+** CalculatorAdder
+** CalculatorMultiplier
+** IntervalToIntervalCalculator
+
+* ChannelTransmitter
+* Comparator
+* ConditionApplier
+* SwapConfigEntries
+* InformationHolderImpl
+* OpenEMSComponentInformation
+* BitIntegerConverter
+** BitsToIntegerConverter
+** IntegerToBisConverter
+* LifeTick
+* MinMaxToChannel
+* TimeFrameHandler
+* ToggleSwitch
+** AutomatedToggleSwitchImpl
+** UtilityToggleSwitch
+* VirtualChannel
+** VirtualChannel
+** VirtualChannelModbus
+
+=== Calculator
+
+The Calculator are used to solve very simple equations. Usually for Edge cases, such as adding simple static values to a MeterValue or something else.
+Note: The calculator solve equation "from left to right" e.g. get each entry in order and solve your equation.
+
+==== CalculatorAdder
+
+Configure a List of Values (static and/or channel Addresses) and add them up, round them to a decimal value and write the result into another ChannelAddress.
+To subtract a value just add a "-" character as the first character of the corresponding value entry. (Doesn't matter if it is a static value or a ChannelAddress).
+
+==== CalculatorMultiplier
+
+Configure a List of Values (static and/or channel Addresses) and multiply them, round them to a decimal value and write the result into another ChannelAddress.
+To divide a value just add a "/" character as the first character of the corresponding value entry. (Doesn't matter if it is a static value or a ChannelAddress).
+
+==== IntervalToIntervalCalculator
+
+This Component is used to map a value of an Interval A to calculate a value of another Interval B
+By using the equation:
+Formula: y = mx + h
+m = [d-c/b-a] = slope
+h = (bc-ad)/(b-a) = constant
+a = minValue of Interval A
+b = maxValue of Interval A
+c = minPercentage of Interval B
+d = maxPercentage of Interval B
+
+
+=== Comparator
+
+This Component compares a Value to another Value. The type of Comparison is configurable.
+You can use:
+* EQUALS
+* GREATER
+* LESS
+* GREATER_OR_EQUALS
+* LESSER_OR_EQUALS
+* NOT_EQUALS
+* BIT_EQUALS
+
+If the comparison is true -> set the output channelAddress to true, otherwise false.
+
+=== ConditionApplier
+
+This is basically a configurable if else / if  / else component.
+By setting up InputValues ("Conditions") where you can say this conditon should be false/true
+and connect those conditions via or/and/xor
+if the condition applies you can write a channelValue/static value to an output or if the  condition does not apply (else branch) you can write a different channelValue/static.
+
+Basically you can configure
+if(CONDITIONS APPLY){
+WRITE ACTIVE VALUE TO A CHANNEL(optional)
+} else {
+WRITE_INACTIVE_VALUE TO A CHANNEL (optional)
+}
+
+=== SwapConfigEntries
+
+This component allows a cluster of the same component to get listed and "switched" between active and inactive modes.
+That means:
+1 Component gets an "active" configuration (you can configure that)
+the other Components receive an "inactive" configuration (you can configure that as well)
+
+After a configurable amount of time switch those components (active to inactive, inactive to active) after the principle of round robin.
+
+This can be used for a clustered (heatpump) system where only one pump should run at a time but change after 24h or something.
+
+=== InformationHolderImpl
+
+This Component receives an EnableSignal (BooleanWriteChannel) as long as this is written to true, hold an active value (static or channelAddress value) when the EnableSignal is missing, hold the Active value for a configurable amount of time, after that -> use the inactive value (static or channelAddress).
+
+=== OpenEMSComponentInformation
+
+This is simply a component that displays the Channel/Writechannel of an OpenEMS Component. This is purely for information uses if you want to configure other UtilityComponents and don't know the ChannelAddresses etc.
+
+=== BitsIntegerConverter
+
+These converters are used to convert Bits to an Integer or to Integer to Bits.
+This is useful for e.g. ModbusComponents who are sending "ErrorBits" as an Integer, where each bit means a different error.
+
+==== BitsToIntegerConverter
+
+This Converts its set BitChannels to a Integer/Long output.
+
+==== IntegerToBitsConverter
+
+This converts a received Integer/Long to each of its bits values.
+And setting those to true/false, depending on the Integer.
+
+
+=== LifeTick
+
+This is a simple component counting from a min to a maxValue and resets its value.
+This can be used in Conjunction with a ChannelTransmitter to simply count up and send a LifeValue.
+
+=== MinMaxToChannel
+
+Configure n many channel and get the Min/Max value of those channel. Currently, only working with IntegerReadChannel. TODO Long and Float/Double compatibility.
+
+=== TimeFrameHandler
+
+This is a component used for checking if the Edge is in a certain TimeFrame (e.g. are you within X and Y seconds, minutes, hours, days, months, years, day_of_year) etc.
+Especially useful for a Heatperiod (e.g. October to April)
+
+=== ToggleSwitch
+
+This is a typical ToggleSwitch: Change your state when the "Button" is pressed and released.
+This is realised by Writing a Boolean Value to the EnableSignal channel.
+After that, the ToggleSwitch state is changed, and set to a Value A or Value B
+where Value A and B can be configured with a static value or channelAddress (and getting the vlaue of this channel)
+
+
+==== ToggleSwitch
+
+This is the implementation of the previously described ToggleSwitch.
+
+==== AutomatedToggleSwitch
+This is the implementation of the previusly described Toggleswitch, with the addition:
+That it  switches its states automatically after a conifigured amount of time.
+IDEAL for a Lifebit toggle that should change it states after each "cycle".
+
+=== VirtualChannel
+
+Virtual Channel are basically variables you can create on runtime. And use as you please (basically variables for the utility components).
+
+Basically tell the component how many Long, Double , Boolean and String channel you want. Optionally tell the Component how you want to name it and then optionally write down the default value.
+But those are optional. If you tell the component how many channel you need of each type, it creates those.
+
+==== VirtualChannel
+
+This is the implementation of the previously described component.
+
+==== VirtualChannelModbus
+
+This is somewhat like the Virtual Channel. But restricted to ModbusCommunication and only 1 Channel per component can be created.
+This is due to the complexity of the configuration.
