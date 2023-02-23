@@ -1,0 +1,15 @@
+Bundle-Name: OpenEMS Edge io.openems.edge.evcs.mennekes
+Bundle-Vendor: OpenEMS Association e.V.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.common,\
+	io.openems.edge.bridge.modbus;version=latest,\
+	io.openems.edge.evcs.api;version=latest,\
+	io.openems.edge.timedata.api
+
+-testpath: \
+	${testpath}
