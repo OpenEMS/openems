@@ -3,7 +3,7 @@ package io.openems.edge.evcs.schneider.parking;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition(name = "Evcs Schneider Ev Parking", description = "Implements the Schneider Ev Parking electric vehicle charging station.")
+@ObjectClassDefinition(name = "Evcs Schneider Ev Parking BETA", description = "Implements the Schneider Ev Parking electric vehicle charging station.")
 @interface Config {
 
     @AttributeDefinition(name = "Component-Id", description = "Unique Id for the EVCS.")

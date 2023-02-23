@@ -30,7 +30,7 @@ public class SchneiderReadHandler {
         this.parent._setEnergySession(this.energySession);
 
     }
-    
+
     /**
      * Reads the Status from the ModbusRegister and interprets it into the CPWState and the OpenEms EVCS Status.
      */
