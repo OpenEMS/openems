@@ -72,6 +72,7 @@ public interface Webasto extends OpenemsComponent {
 
     /**
      * Gets the Value of {@link Webasto.ChannelId#ALIVE_REGISTER}.
+     * @param value the value
      */
     default void _setAliveValue(int value) throws OpenemsError.OpenemsNamedException {
         WriteChannel<Integer> channel = this.getAliveChannel();

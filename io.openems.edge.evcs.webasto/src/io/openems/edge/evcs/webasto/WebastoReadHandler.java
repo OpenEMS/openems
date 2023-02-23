@@ -6,9 +6,11 @@ import io.openems.edge.evcs.api.Status;
 public class WebastoReadHandler {
 
     WebastoImpl parent;
-    WebastoReadHandler(WebastoImpl parent){
+
+    WebastoReadHandler(WebastoImpl parent) {
         this.parent = parent;
     }
+
     void run() {
         this.setPhaseCount();
         this.setStatus();
@@ -23,16 +25,16 @@ public class WebastoReadHandler {
                 this.parent._setStatus(Status.STARTING);
                 break;
             case (1):
-            case(5):
+            case (5):
                 this.parent._setStatus(Status.READY_FOR_CHARGING);
                 break;
             case (2):
-            case(3):
-            case(4):
+            case (3):
+            case (4):
                 this.parent._setStatus(Status.CHARGING);
                 break;
             case (7):
-            case(8):
+            case (8):
                 this.parent._setStatus(Status.ERROR);
         }
     }
@@ -55,7 +57,6 @@ public class WebastoReadHandler {
         this.parent._setPhases(phases);
 
     }
-
 
 
 }

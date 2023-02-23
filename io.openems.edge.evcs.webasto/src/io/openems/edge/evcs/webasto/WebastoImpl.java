@@ -316,7 +316,7 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent implements Opene
 
     @Override
     public boolean pauseChargeProcess() throws Exception {
-        return applyChargePowerLimit(0);
+        return this.applyChargePowerLimit(0);
     }
 
     @Override
