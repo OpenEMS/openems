@@ -80,7 +80,7 @@ public class SchneiderImpl extends AbstractOpenemsModbusComponent implements Ope
     }
 
     @Activate
-    void activate(ComponentContext context, Config config) throws  OpenemsException {
+    void activate(ComponentContext context, Config config) throws OpenemsException {
         super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
                 "Modbus", config.modbusBridgeId());
         this.minCurrent = config.minHwCurrent();
@@ -261,7 +261,7 @@ public class SchneiderImpl extends AbstractOpenemsModbusComponent implements Ope
 
     @Override
     public boolean pauseChargeProcess() throws Exception {
-        return applyChargePowerLimit(0);
+        return this.applyChargePowerLimit(0);
     }
 
     @Override

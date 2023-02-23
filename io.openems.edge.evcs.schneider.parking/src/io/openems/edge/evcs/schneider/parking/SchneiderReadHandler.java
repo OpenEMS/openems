@@ -24,17 +24,18 @@ public class SchneiderReadHandler {
      * Sets all the Channels regarding Energy.
      */
     private void setEnergySession() {
-        int currentEnergy = this.parent.getStationEnergyLSB() + this.parent.getStationEnergyMSB();
+        int currentEnergy = this.parent.getStationEnergyLsb() + this.parent.getStationEnergyMsb();
         this.parent._setActiveConsumptionEnergy(currentEnergy);
         this.energySession += currentEnergy;
         this.parent._setEnergySession(this.energySession);
 
     }
+    
     /**
      * Reads the Status from the ModbusRegister and interprets it into the CPWState and the OpenEms EVCS Status.
      */
     private void setStatus() {
-        int status = this.parent.getCPWState();
+        int status = this.parent.getCpwState();
         switch (status) {
             case 0:
             case 6:
