@@ -1,0 +1,7 @@
+= Schneider Parking Charging Station
+
+This component implements the Schneider Parking charging station, which is controlled and read out using the proprietary TCP protocol.
+
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station)
+* ManagedEvcs
