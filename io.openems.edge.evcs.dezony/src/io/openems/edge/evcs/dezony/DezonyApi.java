@@ -22,13 +22,10 @@ public class DezonyApi {
 
 	private final String baseUrl;
 
-	private final String authorizationHeader;
-
 	private final DezonyImpl dezonyImpl;
 
-	public DezonyApi(String ip, DezonyImpl dezonyImpl) {
-		this.baseUrl = "http://" + ip;
-		this.authorizationHeader = "Basic ";
+	public DezonyApi(String ip, int port, DezonyImpl dezonyImpl) {
+		this.baseUrl = "http://" + ip + ":" + port;
 		this.dezonyImpl = dezonyImpl;
 	}
 
@@ -40,7 +37,7 @@ public class DezonyApi {
 	 * @throws OpenemsNamedException on error
 	 */
 	public JsonElement sendGetRequest(String endpoint) throws OpenemsNamedException {
-		var putRequestFailed = false;
+		var getRequestFailed = false;
 		JsonObject result = null;
 
 		try {
@@ -51,7 +48,6 @@ public class DezonyApi {
 			var con = (HttpURLConnection) url.openConnection();
 
 			// Set general information
-			con.setRequestProperty("Authorization", this.authorizationHeader);
 			con.setRequestMethod("GET");
 			con.setConnectTimeout(5000);
 			con.setReadTimeout(5000);
@@ -72,25 +68,26 @@ public class DezonyApi {
 
 			// Get response code
 			var status = con.getResponseCode();
+		
 			if (status >= 300) {
-				putRequestFailed = true;
+				getRequestFailed = true;
 				throw new OpenemsException(
-						"Error while reading from Hardy Barth API. Response code: " + status + ". " + body);
+						"Error while reading from dezony API. Response code: " + status + ". " + body);
 			}
-			putRequestFailed = false;
+			getRequestFailed = false;
 			// Parse response to JSON
 			result = JsonUtils.parseToJsonObject(body);
 		} catch (OpenemsNamedException | IOException e) {
-			putRequestFailed = true;
+			getRequestFailed = true;
 		}
 
 		// Set state and return result
-		this.dezonyImpl._setChargingstationCommunicationFailed(putRequestFailed);
+		this.dezonyImpl._setChargingstationCommunicationFailed(getRequestFailed);
 		return result;
 	}
 
 	/**
-	 * Sends a get request to the Hardy Barth.
+	 * Sends a get request to the dezony.
 	 *
 	 * @param endpoint the REST Api endpoint @return a JsonObject or
 	 *                 JsonArray @throws OpenemsNamedException on error @throws
@@ -111,7 +108,6 @@ public class DezonyApi {
 			var connection = (HttpURLConnection) url.openConnection();
 
 			// Set general information
-			connection.setRequestProperty("Authorization", this.authorizationHeader);
 			connection.setRequestMethod("PUT");
 			connection.setDoOutput(true);
 			connection.setConnectTimeout(5000);
@@ -142,7 +138,7 @@ public class DezonyApi {
 				// Respond error status-code
 				putRequestFailed = true;
 				throw new OpenemsException(
-						"Error while reading from Hardy Barth API. Response code: " + status + ". " + body);
+						"Error while reading from dezony API. Response code: " + status + ". " + body);
 			}
 			// Result OK
 			result = JsonUtils.parseToJsonObject(body);
@@ -151,7 +147,7 @@ public class DezonyApi {
 		}
 
 		// Set state and return result
-		this.dezonyImpl._setChargingstationCommunicationFailed(putRequestFailed);
+		this.dezonyImpl._setChargingstationCommunicationFailed(false);
 		return result;
 	}
 }

@@ -77,7 +77,7 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 		this._setPowerPrecision(230);
 
 		if (config.enabled()) {
-			this.api = new DezonyApi(config.ip(), this);
+			this.api = new DezonyApi(config.ip(), config.port(), this);
 
 			// Reading the given values
 			this.readWorker.activate(config.id());

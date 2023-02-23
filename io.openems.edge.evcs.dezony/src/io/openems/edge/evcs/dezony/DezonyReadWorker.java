@@ -33,23 +33,23 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 		// - chargelogs -> this.api.sendGetRequest("/chargelogs.json");
 		// - Read separate saliaconf.json and set minimum and maximum dynamically
 
-		var json = this.parent.api.sendGetRequest("/api");
+		var json = this.parent.api.sendGetRequest("/api/v1/state");
 		if (json == null) {
 			return;
 		}
 
 		// Set value for every Dezony.ChannelId
-		for (Dezony.ChannelId channelId : Dezony.ChannelId.values()) {
-			var jsonPaths = channelId.getJsonPaths();
-			var value = this.getValueFromJson(channelId, json, channelId.converter, jsonPaths);
-
-			// Set the channel-value
-			this.parent.channel(channelId).setNextValue(value);
-
-			if (channelId.equals(Dezony.ChannelId.RAW_SALIA_PUBLISH)) {
-				this.parent.masterEvcs = false;
-			}
-		}
+//		for (Dezony.ChannelId channelId : Dezony.ChannelId.values()) {
+//			var jsonPaths = channelId.getJsonPaths();
+//			var value = this.getValueFromJson(channelId, json, channelId.converter, jsonPaths);
+//
+//			// Set the channel-value
+//			this.parent.channel(channelId).setNextValue(value);
+//
+//			if (channelId.equals(Dezony.ChannelId.RAW_SALIA_PUBLISH)) {
+//				this.parent.masterEvcs = false;
+//			}
+//		}
 
 		// Set value for every Evcs.ChannelId
 		this.setEvcsChannelIds(json);
@@ -62,75 +62,75 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 	 */
 	private void setEvcsChannelIds(JsonElement json) {
 
-		// ENERGY_SESSION
-		var energy = (Double) this.getValueFromJson(Evcs.ChannelId.ENERGY_SESSION, OpenemsType.STRING, json, value -> {
-			if (value == null) {
-				return null;
-			}
-			Double rawEnergy = null;
-			String[] chargedata = value.toString().split("\\|");
-			if (chargedata.length == 3) {
-				Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, chargedata[2]);
-				rawEnergy = doubleValue * 1000;
-			}
-			return rawEnergy;
-
-		}, "secc", "port0", "salia", "chargedata");
-		this.parent._setEnergySession(energy == null ? null : (int) Math.round(energy));
-
-		// ACTIVE_CONSUMPTION_ENERGY
-		var activeConsumptionEnergy = (Long) this.getValueFromJson(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY, json,
-				value -> {
-					Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, value);
-					return TypeUtils.getAsType(OpenemsType.LONG, doubleValue);
-
-				}, "secc", "port0", "metering", "energy", "active_import", "actual"); //
-		this.parent._setActiveConsumptionEnergy(activeConsumptionEnergy);
-
-		// PHASES
-		var powerL1 = (Long) this.getValueForChannel(Dezony.ChannelId.RAW_ACTIVE_POWER_L1, json);
-		var powerL2 = (Long) this.getValueForChannel(Dezony.ChannelId.RAW_ACTIVE_POWER_L2, json);
-		var powerL3 = (Long) this.getValueForChannel(Dezony.ChannelId.RAW_ACTIVE_POWER_L3, json);
-
-		Integer phases = null;
-		if (powerL1 != null && powerL2 != null && powerL3 != null) {
-
-			var sum = powerL1 + powerL2 + powerL3;
-
-			if (sum > 900) {
-				phases = 0;
-
-				if (powerL1 >= 300) {
-					phases += 1;
-				}
-				if (powerL2 >= 300) {
-					phases += 1;
-				}
-				if (powerL3 >= 300) {
-					phases += 1;
-				}
-			}
-		}
-		this.parent._setPhases(phases);
-		if (phases != null) {
-			this.parent.debugLog("Used phases: " + phases);
-		}
-
-		// CHARGE_POWER
-		var chargePowerLong = (Long) this.getValueFromJson(Evcs.ChannelId.CHARGE_POWER, json, value -> {
-			Integer integerValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
-			if (integerValue == null) {
-				return null;
-			}
-
-			long activePower = Math.round(integerValue * Dezony.SCALE_FACTOR_MINUS_1);
-
-			// Ignore the consumption of the charger itself
-			return activePower < 100 ? 0 : activePower;
-		}, "secc", "port0", "metering", "power", "active_total", "actual");
-
-		//
-		this.parent._setChargePower(chargePowerLong == null ? null : chargePowerLong.intValue());
+//		// ENERGY_SESSION
+//		var energy = (Double) this.getValueFromJson(Evcs.ChannelId.ENERGY_SESSION, OpenemsType.STRING, json, value -> {
+//			if (value == null) {
+//				return null;
+//			}
+//			Double rawEnergy = null;
+//			String[] chargedata = value.toString().split("\\|");
+//			if (chargedata.length == 3) {
+//				Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, chargedata[2]);
+//				rawEnergy = doubleValue * 1000;
+//			}
+//			return rawEnergy;
+//
+//		}, "secc", "port0", "salia", "chargedata");
+//		this.parent._setEnergySession(energy == null ? null : (int) Math.round(energy));
+//
+//		// ACTIVE_CONSUMPTION_ENERGY
+//		var activeConsumptionEnergy = (Long) this.getValueFromJson(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY, json,
+//				value -> {
+//					Double doubleValue = TypeUtils.getAsType(OpenemsType.DOUBLE, value);
+//					return TypeUtils.getAsType(OpenemsType.LONG, doubleValue);
+//
+//				}, "secc", "port0", "metering", "energy", "active_import", "actual"); //
+//		this.parent._setActiveConsumptionEnergy(activeConsumptionEnergy);
+//
+//		// PHASES
+//		var powerL1 = (Long) this.getValueForChannel(Dezony.ChannelId.RAW_ACTIVE_POWER_L1, json);
+//		var powerL2 = (Long) this.getValueForChannel(Dezony.ChannelId.RAW_ACTIVE_POWER_L2, json);
+//		var powerL3 = (Long) this.getValueForChannel(Dezony.ChannelId.RAW_ACTIVE_POWER_L3, json);
+//
+//		Integer phases = null;
+//		if (powerL1 != null && powerL2 != null && powerL3 != null) {
+//
+//			var sum = powerL1 + powerL2 + powerL3;
+//
+//			if (sum > 900) {
+//				phases = 0;
+//
+//				if (powerL1 >= 300) {
+//					phases += 1;
+//				}
+//				if (powerL2 >= 300) {
+//					phases += 1;
+//				}
+//				if (powerL3 >= 300) {
+//					phases += 1;
+//				}
+//			}
+//		}
+//		this.parent._setPhases(phases);
+//		if (phases != null) {
+//			this.parent.debugLog("Used phases: " + phases);
+//		}
+//
+//		// CHARGE_POWER
+//		var chargePowerLong = (Long) this.getValueFromJson(Evcs.ChannelId.CHARGE_POWER, json, value -> {
+//			Integer integerValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
+//			if (integerValue == null) {
+//				return null;
+//			}
+//
+//			long activePower = Math.round(integerValue * Dezony.SCALE_FACTOR_MINUS_1);
+//
+//			// Ignore the consumption of the charger itself
+//			return activePower < 100 ? 0 : activePower;
+//		}, "secc", "port0", "metering", "power", "active_total", "actual");
+//
+//		//
+//		this.parent._setChargePower(chargePowerLong == null ? null : chargePowerLong.intValue());
 
 		// STATUS
 		var status = (Status) this.getValueFromJson(Dezony.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, json, value -> {
@@ -139,16 +139,18 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 				return Status.UNDEFINED;
 			}
 
-			Status rawStatus = Status.UNDEFINED;
+			var rawStatus = Status.UNDEFINED;
+			
 			switch (stringValue) {
-			case "A":
-				rawStatus = Status.NOT_READY_FOR_CHARGING;
+			case "IDLE":
+				rawStatus = Status.READY_FOR_CHARGING;
 				break;
-			case "B":
+			case "CAR_CONNECTED":
 				rawStatus = Status.READY_FOR_CHARGING;
 
 				// Detect if the car is full
-				int chargePower = chargePowerLong == null ? 0 : chargePowerLong.intValue();
+//				int chargePower = chargePowerLong == null ? 0 : chargePowerLong.intValue();
+				int chargePower = 2;
 				if (this.parent.getSetChargePowerLimit().orElse(0) >= this.parent.getMinimumHardwarePower().orElse(0)
 						&& chargePower <= 0) {
 
@@ -166,11 +168,13 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 					}
 				}
 				break;
-			case "C":
-			case "D":
+			case "CHARGING":
 				rawStatus = Status.CHARGING;
 				break;
-			case "E":
+			case "CHARGING_FINISHED":
+				rawStatus = Status.CHARGING_FINISHED;
+				break;
+			case "CHARGING_ERROR":
 			case "F":
 				rawStatus = Status.ERROR;
 				break;
@@ -182,7 +186,7 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 				this.chargingFinishedCounter = 0;
 			}
 			return rawStatus;
-		}, "secc", "port0", "ci", "charge", "cp", "status");
+		}, "state");
 
 		this.parent._setStatus(status);
 	}

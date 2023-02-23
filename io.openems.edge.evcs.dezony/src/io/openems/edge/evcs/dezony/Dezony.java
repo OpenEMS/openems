@@ -39,7 +39,7 @@ public interface Dezony {
 		 * <li>F = Failure
 		 * </ul>
 		 */
-		RAW_CHARGE_STATUS_CHARGEPOINT(Doc.of(OpenemsType.STRING), "secc", "port0", "ci", "charge", "cp", "status"), //
+		RAW_CHARGE_STATUS_CHARGEPOINT(Doc.of(OpenemsType.STRING), "state"), //
 
 		// SALIA
 		RAW_SALIA_CHARGE_MODE(Doc.of(OpenemsType.STRING), "secc", "port0", "salia", "chargemode"), //
