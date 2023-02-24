@@ -45,6 +45,16 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 		// Set value for every Evcs.ChannelId
 		this.setEvcsChannelIds(json);
 	}
+	
+	// TODO: Implement setting maximum power
+	private void setMaximumPower(JsonElement json) {
+		final var power = (Integer) this.getValueFromJson(Evcs.ChannelId.MAXIMUM_POWER, OpenemsType.INTEGER, json, value -> {			
+			return value;
+		}, "charging_current");
+		
+		
+		this.parent._setMaximumPower((int) Math.round(power * (double) this.parent.getPhasesAsInt() * 230.0));
+	}
 
 	
 	private void setEnergySession(JsonElement json) {
@@ -65,6 +75,7 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 		// ACTIVE_CONSUMPTION_ENERGY
 		final var activeConsumptionEnergyArray = this.getArrayFromJson(json,"currDataPoint"); //
 		long activeConsumptionEnergy = 0;
+		var chargePower = 0;
 		
 		Integer powerL1 = 0;
 		Integer powerL2 = 0;
@@ -95,7 +106,7 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 			}
 			
 			if (key.getAsString().equals("ptotal")) {
-				final var chargePower = object.get("value").isJsonNull() ? null :object.get("value").getAsInt();
+				chargePower = object.get("value").isJsonNull() ? null :object.get("value").getAsInt();
 				this.parent._setChargePower(chargePower);
 			}
 		}
