@@ -39,6 +39,8 @@ NOTE: OpenEMS uses the **git** version control system via the popular GitHub pla
 
 == Setup Eclipse IDE for OpenEMS Edge and Backend
 
+NOTE: Eclipse IDE is the recommended development environment for newcomers to OpenEMS. If you are more familiar with IntelliJ IDEA, feel free to use it. Follow xref:intellij.adoc[this guide].
+
 . Prepare Eclipse IDE
 .. Download Java Development Kit (JDK) 11 and install it. We recommend the https://adoptium.net/?variant=openjdk11&jvmVariant=hotspot[OpenJDK Temurin builds by the Adoptium project]
 .. Download https://www.eclipse.org[Eclipse for Java icon:external-link[]], install and start it
@@ -70,6 +72,8 @@ image::eclipse-select-jdk.png[Set the Java Development Kit in Eclipse IDE]
 Menu: btn:[File] →  btn:[Import...] → btn:[Bndtools] → btn:[Existing Bnd Workspace] → your source code directory should have been selected as *Root Directory* automatically → btn:[Finish] → "Switch to Bndtools perspective?" btn:[Yes]
 
 . Eclipse will now spend some time importing and building OpenEMS Edge and Backend. Close the *Welcome* window to follow the progress till you eventually see the full tree of OpenEMS projects (or bundles) in the *Bndtools Explorer* and all errors and warnings in the *Problems* tab disappear.
+
+// TODO add Setup of Checkstyle
 
 == Run OpenEMS Edge and start Simulator
 
