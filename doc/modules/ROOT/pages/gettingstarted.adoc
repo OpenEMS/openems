@@ -209,51 +209,13 @@ INFO  [socket.AbstractWebsocketServer] Starting [Websocket Api] websocket server
 +
 NOTE: The Controller Api Websocket is required so that OpenEMS UI can connect to OpenEMS Edge locally.
 
-== OpenEMS UI - Fast usage
-
-. check that edge is running and the websocket is running on port 8085
-. Open https://openemsuilocal.consolinno.de[OpenEMS UI fast usage icon:external-link[]]
-. Login with password "admin"
-
-
-
-== Setup Visual Studio Code for OpenEMS UI
-
-. Download https://nodejs.org[node.js LTS icon:external-link[]] and install it.
-. Download https://code.visualstudio.com/[Visual Studio Code icon:external-link[]], install and start it.
-. Open OpenEMS UI source code in Visual Studio Code:
-+
-Menu: btn:[File] → btn:[Open Folder...] → Select the `ui` directory inside the downloaded source code (for example `C:\Users\your.user\git\openems\ui`) → btn:[Select directory]
-
-. Open the integrated terminal:
-+
-Menu: btn:[Terminal] → btn:[New Terminal]
-
-. Install https://cli.angular.io/[Angular CLI icon:external-link[]]:
-+
-`npm install -g @angular/cli`
-+
-NOTE: If you receive an error message that the command `npm` could not be found, make sure that node.js is installed and restart Visual Studio Code.
-
-. Resolve and download dependencies:
-+
-`npm install`
-
 == Run OpenEMS UI
 
-. In Visual Studios integrated terminal type...
-+
-`ng serve -c openems-edge-dev`
-+
-NOTE: If you receive an error message, that you have no rights to execute "ng serve", set `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.
-+
-The log shows:
-+
-```
-NG Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/
-```
+NOTE: If you plan to actively develop on OpenEMS UI, you can now also setup a development environment for it using xref:ui/setup-ide.adoc[this guide]. Otherwise just go ahead with the hosted version:
 
-. Open a browser at http://localhost:4200
+. Make sure OpenEMS Edge is running locally and the websocket is running on port `8085`.
+
+. Open https://openemsuilocal.consolinno.de[https://openemsuilocal.consolinno.de icon:external-link[]]
 
 . You should see OpenEMS UI. Log in as user "guest" by leaving the standard password and clicking the login button. Alternatively type "admin" in the password field to log in with extended permissions.
 +
