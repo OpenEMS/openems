@@ -26,6 +26,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
@@ -47,7 +48,7 @@ import io.openems.edge.evcs.api.WriteHandler;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Evcs.Mennekes", //
+		name = "Evcs.Mennekes.Professional", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -55,15 +56,15 @@ import io.openems.edge.evcs.api.WriteHandler;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent
-		implements Evcs, ManagedEvcs, OpenemsComponent, ModbusComponent, EventHandler, MennekesAmtron {
+public class MennekesAmtronProfessionalImpl extends AbstractOpenemsModbusComponent
+		implements Evcs, ManagedEvcs, OpenemsComponent, ModbusComponent, EventHandler, MennekesAmtronProfessional {
 
-	private final Logger log = LoggerFactory.getLogger(MennekesAmtronImpl.class);
+	private final Logger log = LoggerFactory.getLogger(MennekesAmtronProfessionalImpl.class);
 
 	// TODO: Add functionality to distinguish between firmware version. For firmware
 	// version >= 5.22 there are several new registers. Currently it is programmed
 	// for firmware version 5.14.
-	private boolean softwareVersionSmallerThan_5_22 = true;
+	// private boolean softwareVersionSmallerThan_5_22 = true;
 
 	protected Config config;
 
@@ -83,13 +84,13 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent
 	 */
 	private final WriteHandler writeHandler = new WriteHandler(this);
 
-	public MennekesAmtronImpl() {
+	public MennekesAmtronProfessionalImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
-				MennekesAmtron.ChannelId.values());
+				MennekesAmtronProfessional.ChannelId.values());
 	}
 
 	@Override
@@ -162,41 +163,41 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent
 		// there are several new registers.
 		ModbusProtocol modbusProtocol = new ModbusProtocol(this,
 				new FC3ReadRegistersTask(100, Priority.HIGH,
-						m(MennekesAmtron.ChannelId.RAW_FIRMWARE_VERSION,
+						m(MennekesAmtronProfessional.ChannelId.RAW_FIRMWARE_VERSION,
 								new UnsignedDoublewordElement(100).wordOrder(WordOrder.MSWLSW))),
 				new FC3ReadRegistersTask(104, Priority.HIGH,
-						m(MennekesAmtron.ChannelId.OCPP_CP_STATUS, new UnsignedWordElement(104)),
-						m(MennekesAmtron.ChannelId.ERROR_CODES_1, new UnsignedDoublewordElement(105)),
-						m(MennekesAmtron.ChannelId.ERROR_CODES_2, new UnsignedDoublewordElement(107)),
-						m(MennekesAmtron.ChannelId.ERROR_CODES_3, new UnsignedDoublewordElement(109)),
-						m(MennekesAmtron.ChannelId.ERROR_CODES_4, new UnsignedDoublewordElement(111))),
+						m(MennekesAmtronProfessional.ChannelId.OCPP_CP_STATUS, new UnsignedWordElement(104)),
+						m(MennekesAmtronProfessional.ChannelId.ERROR_CODES_1, new UnsignedDoublewordElement(105)),
+						m(MennekesAmtronProfessional.ChannelId.ERROR_CODES_2, new UnsignedDoublewordElement(107)),
+						m(MennekesAmtronProfessional.ChannelId.ERROR_CODES_3, new UnsignedDoublewordElement(109)),
+						m(MennekesAmtronProfessional.ChannelId.ERROR_CODES_4, new UnsignedDoublewordElement(111))),
 				new FC3ReadRegistersTask(122, Priority.HIGH,
-						m(MennekesAmtron.ChannelId.VEHICLE_STATE, new UnsignedWordElement(122))),
+						m(MennekesAmtronProfessional.ChannelId.VEHICLE_STATE, new UnsignedWordElement(122))),
 				new FC3ReadRegistersTask(131, Priority.HIGH,
-						m(MennekesAmtron.ChannelId.SAFE_CURRENT, new UnsignedWordElement(131))),
+						m(MennekesAmtronProfessional.ChannelId.SAFE_CURRENT, new UnsignedWordElement(131))),
 				new FC3ReadRegistersTask(200, Priority.HIGH,
 						m(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(200))),
 				new FC3ReadRegistersTask(206, Priority.HIGH,
-						m(MennekesAmtron.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(206)),
-						m(MennekesAmtron.ChannelId.ACTIVE_POWER_L2, new UnsignedDoublewordElement(208)),
-						m(MennekesAmtron.ChannelId.ACTIVE_POWER_L3, new UnsignedDoublewordElement(210)),
-						m(MennekesAmtron.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(212)),
-						m(MennekesAmtron.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(214)),
-						m(MennekesAmtron.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(216))),
+						m(MennekesAmtronProfessional.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(206)),
+						m(MennekesAmtronProfessional.ChannelId.ACTIVE_POWER_L2, new UnsignedDoublewordElement(208)),
+						m(MennekesAmtronProfessional.ChannelId.ACTIVE_POWER_L3, new UnsignedDoublewordElement(210)),
+						m(MennekesAmtronProfessional.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(212)),
+						m(MennekesAmtronProfessional.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(214)),
+						m(MennekesAmtronProfessional.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(216))),
 
 				// TODO: Check Nature Channels - if some missing, eg. session energy
 				new FC3ReadRegistersTask(705, Priority.HIGH,
 						m(Evcs.ChannelId.ENERGY_SESSION, new UnsignedWordElement(705)),
-						m(MennekesAmtron.ChannelId.MAX_CURRENT_EV, new UnsignedWordElement(706)),
-						m(MennekesAmtron.ChannelId.RAW_CHARGING_SESSION_START_TIME, new UnsignedDoublewordElement(707)),
-						m(MennekesAmtron.ChannelId.CHARGE_DURATION, new UnsignedWordElement(709)),
-						m(MennekesAmtron.ChannelId.RAW_CHARGING_STOP_TIME, new UnsignedDoublewordElement(710)),
-						m(MennekesAmtron.ChannelId.MIN_CURRENT_LIMIT, new UnsignedWordElement(712))),
+						m(MennekesAmtronProfessional.ChannelId.MAX_CURRENT_EV, new UnsignedWordElement(706)),
+						new DummyRegisterElement(707, 708),
+						m(MennekesAmtronProfessional.ChannelId.CHARGE_DURATION, new UnsignedWordElement(709)),
+						new DummyRegisterElement(710, 711), //
+						m(MennekesAmtronProfessional.ChannelId.MIN_CURRENT_LIMIT, new UnsignedWordElement(712))),
 
 				new FC3ReadRegistersTask(1000, Priority.HIGH,
-						m(MennekesAmtron.ChannelId.EMS_CURRENT_LIMIT, new UnsignedWordElement(1000))),
+						m(MennekesAmtronProfessional.ChannelId.EMS_CURRENT_LIMIT, new UnsignedWordElement(1000))),
 				new FC16WriteRegistersTask(1000,
-						m(MennekesAmtron.ChannelId.APPLY_CURRENT_LIMIT, new UnsignedWordElement(1000))));
+						m(MennekesAmtronProfessional.ChannelId.APPLY_CURRENT_LIMIT, new UnsignedWordElement(1000))));
 
 		// Calculates required Channels from other existing Channels.
 		this.addCalculateChannelListeners();
@@ -254,9 +255,9 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void addStatusListener() {
-		this.channel(MennekesAmtron.ChannelId.OCPP_CP_STATUS).onSetNextValue(s -> {
+		this.channel(MennekesAmtronProfessional.ChannelId.OCPP_CP_STATUS).onSetNextValue(s -> {
 			var currentStatus = Status.UNDEFINED;
-			OcppStateMennekes rawState = s.asEnum();
+			MennekesOcppState rawState = s.asEnum();
 			/**
 			 * Maps the raw state into a {@link Status}.
 			 */

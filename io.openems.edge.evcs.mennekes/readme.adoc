@@ -1,3 +1,9 @@
 = io.openems.edge.evcs.mennekes
 
+This component implements the Mennekes Professional charging station by the manufacturer Mennekes
+
+Implemented Natures:
+* Evcs (Electric Vehicle Charging Station)
+* ManagedEvcs
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.mennekes[Source Code icon:github[]]

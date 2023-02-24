@@ -2,7 +2,7 @@ package io.openems.edge.evcs.mennekes;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum OcppStateMennekes implements OptionsEnum{
+public enum MennekesOcppState implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	AVAILABLE(0, "Available"), //
 	OCCUPIED(1, "Occupied"), //
@@ -19,7 +19,7 @@ public enum OcppStateMennekes implements OptionsEnum{
 	private final int value;
 	private final String name;
 
-	private OcppStateMennekes(int value, String name) {
+	private MennekesOcppState(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}
@@ -38,9 +38,4 @@ public enum OcppStateMennekes implements OptionsEnum{
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
 	}
-	
-	
-	
-	
-
 }

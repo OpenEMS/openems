@@ -20,7 +20,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  * <p>
  * Defines the interface for Mennekes Amtron Professional (eichrechtskonform)
  */
-public interface MennekesAmtron extends OpenemsComponent {
+public interface MennekesAmtronProfessional extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -42,7 +42,7 @@ public interface MennekesAmtron extends OpenemsComponent {
 				.text("Saves the Firmware Version as Long, hast to converted to hex to interpret").onInit(channel -> {
 					channel.onUpdate(newValue -> {
 						StringReadChannel firmwareVersionChannel = channel.getComponent()
-								.channel(MennekesAmtron.ChannelId.FIRMWARE_VERSION);
+								.channel(MennekesAmtronProfessional.ChannelId.FIRMWARE_VERSION);
 						var rawFirmwareVersionValue = newValue.asOptional();
 						if (rawFirmwareVersionValue.isPresent()) {
 							int rawFirmwareVersion = (int) rawFirmwareVersionValue.get();
@@ -58,7 +58,7 @@ public interface MennekesAmtron extends OpenemsComponent {
 						}
 					});
 				})),
-		OCPP_CP_STATUS(Doc.of(OcppStateMennekes.values()).initialValue(OcppStateMennekes.UNDEFINED)),
+		OCPP_CP_STATUS(Doc.of(MennekesOcppState.values()).initialValue(MennekesOcppState.UNDEFINED)),
 
 		/**
 		 * ERROR CODES 1.
@@ -242,30 +242,6 @@ public interface MennekesAmtron extends OpenemsComponent {
 		 */
 		MIN_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)),
 
-
-		/**
-		 * RAW SCHEDULED DEPARTURE TIME.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		RAW_SCHEDULED_DEPARTURE_TIME(Doc.of(OpenemsType.INTEGER)),
-
-
-		/**
-		 * SCHEDULED DEPARTURE YEAR.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * <li>Unit: YEAR
-		 * </ul>
-		 */
-
-		RAW_SCHEDULED_DEPARTURE_DATE(Doc.of(OpenemsType.INTEGER)),
-
 		/**
 		 * CHARGE DURATION.
 		 *
@@ -276,147 +252,6 @@ public interface MennekesAmtron extends OpenemsComponent {
 		 * </ul>
 		 */
 		CHARGE_DURATION(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS)),
-
-		/**
-		 * CHARGING SESSION START TIME.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: String
-		 * </ul>
-		 */
-		CHARGING_SESSION_START_TIME(Doc.of(OpenemsType.STRING)),
-
-		/**
-		 * RAW CHARGING SESSION START TIME.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		RAW_CHARGING_SESSION_START_TIME(Doc.of(OpenemsType.INTEGER)),
-
-		/**
-		 * RAW CHARGING STOP TIME.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		RAW_CHARGING_STOP_TIME(Doc.of(OpenemsType.INTEGER)),
-
-		/**
-		 * RAW CHARGING STOP TIME.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-
-		// OCPP-Data
-
-		/**
-		 * OCPP ID TAG.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: String
-		 * </ul>
-		 */
-		OCPP_ID_TAG(Doc.of(OpenemsType.STRING)),
-
-		/**
-		 * RAW ID TAG 1.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		RAW_ID_TAG_1(Doc.of(OpenemsType.INTEGER)),
-
-		/**
-		 * RAW ID TAG 2.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		RAW_ID_TAG_2(Doc.of(OpenemsType.INTEGER)),
-
-		/**
-		 * RAW ID TAG 3.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		RAW_ID_TAG_3(Doc.of(OpenemsType.INTEGER)),
-
-		/**
-		 * RAW ID TAG 4.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		RAW_ID_TAG_4(Doc.of(OpenemsType.INTEGER)),
-
-		/**
-		 * RAW ID TAG 5.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		RAW_ID_TAG_5(Doc.of(OpenemsType.INTEGER)),
-
-		/**
-		 * OCPP EVCCID TAG.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: String
-		 * </ul>
-		 */
-		OCPP_EVCCID_TAG(Doc.of(OpenemsType.STRING)),
-
-		/**
-		 * RAW EVCCID TAG 1.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		RAW_EVCCID_TAG_1(Doc.of(OpenemsType.INTEGER)),
-
-		/**
-		 * RAW EVCCID TAG 2.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		RAW_EVCCID_TAG_2(Doc.of(OpenemsType.INTEGER)),
-
-		/**
-		 * RAW EVCCID TAG 3.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * </ul>
-		 */
-		RAW_EVCCID_TAG_3(Doc.of(OpenemsType.INTEGER)),
 
 		// Energy Management Control
 
@@ -468,9 +303,10 @@ public interface MennekesAmtron extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#FIRMWARE_VERSION
+	 * Gets the Channel for {@link ChannelId#FIRMWARE_VERSION}.
+	 * 
+	 * @return returns the channel
 	 *
-	 * @return the Channel
 	 */
 	public default StringReadChannel getFirmwareVersionChannel() {
 		return this.channel(ChannelId.FIRMWARE_VERSION);
@@ -508,7 +344,7 @@ public interface MennekesAmtron extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#RAW_FIRMWARE_VERSION
+	 * Gets the Channel for {@link ChannelId#RAW_FIRMWARE_VERSION}.
 	 *
 	 * @return the Channel
 	 */
@@ -521,7 +357,7 @@ public interface MennekesAmtron extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	public default Channel<OcppStateMennekes> getOcppCpStatusChannel() {
+	public default Channel<MennekesOcppState> getOcppCpStatusChannel() {
 		return this.channel(ChannelId.OCPP_CP_STATUS);
 	}
 
@@ -531,12 +367,12 @@ public interface MennekesAmtron extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default OcppStateMennekes getOcppCpStatus() {
+	public default MennekesOcppState getOcppCpStatus() {
 		return this.getOcppCpStatusChannel().value().asEnum();
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#ERROR_CODES_1
+	 * Gets the Channel for {@link ChannelId#ERROR_CODES_1}.
 	 *
 	 * @return the Channel
 	 */
@@ -545,7 +381,7 @@ public interface MennekesAmtron extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#ERROR_CODES_2
+	 * Gets the Channel for {@link ChannelId#ERROR_CODES_2}.
 	 *
 	 * @return the Channel
 	 */
@@ -554,7 +390,7 @@ public interface MennekesAmtron extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#ERROR_CODES_3
+	 * Gets the Channel for {@link ChannelId#ERROR_CODES_3}.
 	 *
 	 * @return the Channel
 	 */
@@ -563,7 +399,7 @@ public interface MennekesAmtron extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#ERROR_CODES_4
+	 * Gets the Channel for {@link ChannelId#ERROR_CODES_4}.
 	 *
 	 * @return the Channel
 	 */
@@ -734,7 +570,7 @@ public interface MennekesAmtron extends OpenemsComponent {
 	 * Internal method to set the 'nextValue' on {@link ChannelId#EMS_CURRENT_LIMIT}
 	 * Channel. Sets the value in Ampere as an Integer-Value.
 	 *
-	 * @param value the next value
+	 * @return returns the EMS current limit
 	 */
 
 	public default Value<Integer> getEmsCurrentLimit() {
@@ -748,115 +584,5 @@ public interface MennekesAmtron extends OpenemsComponent {
 	 */
 	public default IntegerReadChannel getEmsCurrentLimitChannel() {
 		return this.channel(ChannelId.EMS_CURRENT_LIMIT);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#RAW_CHARGING_SESSION_START_TIME
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getRawChargingSessionStartTimeChannel() {
-		return this.channel(ChannelId.RAW_CHARGING_SESSION_START_TIME);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#RAW_CHARGING_END_TIME
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getRawChargingEndTimeChannel() {
-		return this.channel(ChannelId.RAW_CHARGING_STOP_TIME);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#RAW_SCHEDULED_DEPARTURE_TIME
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getRawScheduledDepartureTimeChannel() {
-		return this.channel(ChannelId.RAW_SCHEDULED_DEPARTURE_TIME);
-	}
-
-	/**
-	 * Gets the Firmware Version as an Integer. See
-	 * {@link ChannelId#RAW_SCHEDULED_DEPARTURE_TIME}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-
-	public default Value<Integer> getRawScheduledDepartureTime() {
-		return this.getRawScheduledDepartureTimeChannel().value();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#RAW_SCHEDULED_DEPARTURE_DATE
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getRawScheduledDepartureDateChannel() {
-		return this.channel(ChannelId.RAW_SCHEDULED_DEPARTURE_DATE);
-	}
-
-	/**
-	 * Gets the Firmware Version as an Integer. See
-	 * {@link ChannelId#RAW_SCHEDULED_DEPARTURE_DATE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-
-	public default Value<Integer> getRawScheduledDepartureDate() {
-		return this.getRawScheduledDepartureDateChannel().value();
-	}
-
-	public default IntegerReadChannel getRawIdTag1Channel() {
-		return this.channel(ChannelId.RAW_ID_TAG_1);
-	}
-
-	public default IntegerReadChannel getRawIdTag2Channel() {
-		return this.channel(ChannelId.RAW_ID_TAG_2);
-	}
-
-	public default IntegerReadChannel getRawIdTag3Channel() {
-		return this.channel(ChannelId.RAW_ID_TAG_3);
-	}
-
-	public default IntegerReadChannel getRawIdTag4Channel() {
-		return this.channel(ChannelId.RAW_ID_TAG_4);
-	}
-
-	public default IntegerReadChannel getRawIdTag5Channel() {
-		return this.channel(ChannelId.RAW_ID_TAG_5);
-	}
-
-	public default Value<Integer> getRawIdTag1() {
-		return this.getRawIdTag1Channel().value();
-	}
-
-	public default Value<Integer> getRawIdTag2() {
-		return this.getRawIdTag2Channel().value();
-	}
-
-	public default Value<Integer> getRawIdTag3() {
-		return this.getRawIdTag3Channel().value();
-	}
-
-	public default Value<Integer> getRawIdTag4() {
-		return this.getRawIdTag4Channel().value();
-	}
-
-	public default Value<Integer> getRawIdTag5() {
-		return this.getRawIdTag5Channel().value();
-	}
-
-	public default StringReadChannel getOcppIdTagChannel() {
-		return this.channel(ChannelId.OCPP_ID_TAG);
-	}
-
-	public default Value<String> getOcppIdTag() {
-		return this.getOcppIdTagChannel().value();
-	}
-
-	public default void _setOcppIdTag(String id) {
-		this.getOcppIdTagChannel().setNextValue(id);
 	}
 }
