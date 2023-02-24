@@ -15,6 +15,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsException;
@@ -52,8 +53,12 @@ import io.openems.edge.evcs.webasto.api.Webasto;
 public class WebastoImpl extends AbstractOpenemsModbusComponent
 		implements OpenemsComponent, Webasto, Evcs, ManagedEvcs, EventHandler {
 
+	private final Logger log = LoggerFactory.getLogger(WebastoImpl.class);
+
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	private Config config;
 
 	private int minCurrent;
 	private int maxCurrent;
@@ -85,7 +90,9 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbusBridgeId());
+				config.modbus_id());
+		this.config = config;
+
 		this.minCurrent = config.minHwCurrent();
 		this.maxCurrent = config.maxHwCurrent();
 		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
@@ -197,7 +204,7 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "Webasto UNITE " + this.getActivePower() + "W";
+		return "Limit:" + this.getSetChargePowerLimit().orElse(null) + "|" + this.getStatus().getName();
 	}
 
 	@Override
@@ -259,6 +266,9 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void logDebug(String message) {
+		if (this.config.debugMode()) {
+			this.logInfo(this.log, message);
+		}
 	}
 
 	@Override
@@ -273,7 +283,6 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 		}
 		this.readHandler.run();
 		this.writeHandler.run();
-
 	}
 
 }
