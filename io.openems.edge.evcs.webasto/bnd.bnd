@@ -6,9 +6,9 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.evcs.api,\
-	io.openems.edge.bridge.modbus,\
 
 -testpath: \
 	${testpath}
