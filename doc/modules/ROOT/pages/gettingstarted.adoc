@@ -205,6 +205,14 @@ INFO  [socket.AbstractWebsocketServer] Starting [Websocket Api] websocket server
 +
 NOTE: The Controller Api Websocket is required so that OpenEMS UI can connect to OpenEMS Edge locally.
 
+== OpenEMS UI - Fast usage
+
+. check that edge is running and the websocket is running on port 8085
+. Open https://openemsuilocal.consolinno.de[OpenEMS UI fast usage icon:external-link[]]
+. Login with password "admin"
+
+
+
 == Setup Visual Studio Code for OpenEMS UI
 
 . Download https://nodejs.org[node.js LTS icon:external-link[]] and install it.
