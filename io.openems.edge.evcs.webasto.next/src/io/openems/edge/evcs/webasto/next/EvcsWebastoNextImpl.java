@@ -24,6 +24,7 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
@@ -51,7 +52,6 @@ import io.openems.edge.evcs.webasto.next.enums.ChargePointState;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-
 public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 		implements EvcsWebastoNext, Evcs, ManagedEvcs, ModbusComponent, OpenemsComponent, EventHandler {
 
@@ -106,6 +106,9 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 		Evcs.addCalculatePowerLimitListeners(this);
 
 		this.applyConfig(context, config);
+
+		this.getModbusCommunicationFailedChannel()
+				.onSetNextValue(t -> this._setChargingstationCommunicationFailed(t.orElse(false)));
 	}
 
 	@Modified
@@ -122,8 +125,12 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 		this._setChargingType(ChargingType.AC);
 		this._setFixedMinimumHardwarePower(config.minHwCurrent() / 1000 * 3 * 230);
 		this._setFixedMaximumHardwarePower(config.maxHwCurrent() / 1000 * 3 * 230);
+		/*
+		 * TODO: PowerPrecision need to be tested if it is really a 1A step because for
+		 * limits set as power [W], is is normally PowerPrecision of 1 (Anyways, Channel
+		 * is no used for now)
+		 */
 		this._setPowerPrecision(230);
-
 	}
 
 	@Override
@@ -138,7 +145,7 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(1000, Priority.HIGH,
 						m(EvcsWebastoNext.ChannelId.CHARGE_POINT_STATE, new UnsignedWordElement(1000)), //
-						m(ManagedEvcs.ChannelId.CHARGE_STATE, new UnsignedWordElement(1001)), //
+						new DummyRegisterElement(1001), // Charge State - Set already by the WriteHandler
 						m(EvcsWebastoNext.ChannelId.EVSE_STATE, new UnsignedWordElement(1002))), //
 				new FC3ReadRegistersTask(1004, Priority.LOW,
 						m(EvcsWebastoNext.ChannelId.CABLE_STATE, new UnsignedWordElement(1004))), //
@@ -277,7 +284,7 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public int getMinimumTimeTillChargingLimitTaken() {
-		return 10;
+		return 30;
 	}
 
 	@Override
@@ -290,7 +297,6 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 		if (this.config.debugMode()) {
 			this.logInfo(this.log, message);
 		}
-
 	}
 
 	@Override

@@ -20,8 +20,8 @@ public class EvcsWebastoNextTest {
 						.setModbusId(MODBUS_ID) //
 						.setId(EVCS_ID) //
 						.setModbusUnitId(1) //
-						.setMaxHwCurrent(32) //
-						.setMinHwCurrent(6) //
+						.setMaxHwCurrent(32000) //
+						.setMinHwCurrent(6000) //
 						.build()); //
 	}
 

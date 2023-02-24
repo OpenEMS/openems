@@ -16,55 +16,6 @@ import io.openems.edge.evcs.webasto.next.enums.StartCancelChargingSession;
 
 public interface EvcsWebastoNext extends OpenemsComponent {
 
-	/**
-	 * Gets the Channel for {@link ChannelId#LIFE_BIT}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerWriteChannel getLifeBitChannel() {
-		return this.channel(ChannelId.LIFE_BIT);
-	}
-
-	/**
-	 * Sets the Channel for {@link ChannelId#LIFE_BIT}.
-	 * 
-	 * @param value {@link Integer}
-	 * @throws OpenemsNamedException on error.
-	 */
-	public default void setLifeBit(Integer value) throws OpenemsNamedException {
-		this.getLifeBitChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#EV_SET_CHARGE_POWER_LIMIT}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerWriteChannel getEvSetChargePowerLimitChannel() {
-		return this.channel(ChannelId.EV_SET_CHARGE_POWER_LIMIT);
-	}
-
-	/**
-	 * Gets the EvSetChargePowerLimit. See
-	 * {@link ChannelId#EV_SET_CHARGE_POWER_LIMIT}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getEvSetChargePowerLimit() {
-		return this.getEvSetChargePowerLimitChannel().value();
-	}
-
-	/**
-	 * Sets the EvSetChargePowerLimit. See
-	 * {@link ChannelId#EV_SET_CHARGE_POWER_LIMIT}.
-	 * 
-	 * @param value {@link Integer}.
-	 * @throws OpenemsNamedException on error.
-	 */
-	public default void setEvSetChargePowerLimit(Integer value) throws OpenemsNamedException {
-		this.getEvSetChargePowerLimitChannel().setNextWriteValue(value);
-	}
-
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		EV_SET_CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER)//
@@ -128,21 +79,25 @@ public interface EvcsWebastoNext extends OpenemsComponent {
 
 		SMART_VEHICLE_DETECTED(Doc.of(OpenemsType.BOOLEAN) //
 				.unit(Unit.NONE)), //
+
 		SAFE_CURRENT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.AMPERE)//
 				.accessMode(AccessMode.READ_WRITE)), //
+
 		COM_TIMEOUT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
+
 		CHARGE_CURRENT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.AMPERE)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
+
 		LIFE_BIT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.NONE)//
 				.accessMode(AccessMode.READ_WRITE)), //
+
 		START_CANCEL_CHARGING_SESSION(Doc.of(StartCancelChargingSession.values())//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-
 		;
 
 		private final Doc doc;
@@ -155,5 +110,54 @@ public interface EvcsWebastoNext extends OpenemsComponent {
 		public Doc doc() {
 			return this.doc;
 		}
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#LIFE_BIT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getLifeBitChannel() {
+		return this.channel(ChannelId.LIFE_BIT);
+	}
+
+	/**
+	 * Sets the Channel for {@link ChannelId#LIFE_BIT}.
+	 * 
+	 * @param value {@link Integer}
+	 * @throws OpenemsNamedException on error.
+	 */
+	public default void setLifeBit(Integer value) throws OpenemsNamedException {
+		this.getLifeBitChannel().setNextWriteValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#EV_SET_CHARGE_POWER_LIMIT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getEvSetChargePowerLimitChannel() {
+		return this.channel(ChannelId.EV_SET_CHARGE_POWER_LIMIT);
+	}
+
+	/**
+	 * Gets the EvSetChargePowerLimit. See
+	 * {@link ChannelId#EV_SET_CHARGE_POWER_LIMIT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getEvSetChargePowerLimit() {
+		return this.getEvSetChargePowerLimitChannel().value();
+	}
+
+	/**
+	 * Sets the EvSetChargePowerLimit. See
+	 * {@link ChannelId#EV_SET_CHARGE_POWER_LIMIT}.
+	 * 
+	 * @param value {@link Integer}.
+	 * @throws OpenemsNamedException on error.
+	 */
+	public default void setEvSetChargePowerLimit(Integer value) throws OpenemsNamedException {
+		this.getEvSetChargePowerLimitChannel().setNextWriteValue(value);
 	}
 }
