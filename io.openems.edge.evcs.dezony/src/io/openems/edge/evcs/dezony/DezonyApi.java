@@ -87,37 +87,27 @@ public class DezonyApi {
 	}
 
 	/**
-	 * Sends a get request to the dezony.
+	 * Sends a post request to the dezony.
 	 *
 	 * @param endpoint the REST Api endpoint @return a JsonObject or
 	 *                 JsonArray @throws OpenemsNamedException on error @throws
-	 * @param key      The key in the properties
-	 * @param value    The value of the key property
 	 * @return A JsonObject
 	 * @throws OpenemsNamedException on error
 	 */
-	public JsonObject sendPutRequest(String endpoint, String key, String value) throws OpenemsNamedException {
+	public JsonObject sendPostRequest(String endpoint) throws OpenemsNamedException {
 		var putRequestFailed = false;
 		JsonObject result = null;
 
 		try {
-			// Create URL like "http://192.168.8.101/api/"
-			var url = new URL(this.baseUrl + endpoint);
-
-			// Open http url connection
-			var connection = (HttpURLConnection) url.openConnection();
+			final var url = new URL(this.baseUrl + endpoint);
+			final var connection = (HttpURLConnection) url.openConnection();
 
 			// Set general information
-			connection.setRequestMethod("PUT");
+			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);
 
-			// Write "topic" and "value" on request properties
-			var osw = new OutputStreamWriter(connection.getOutputStream());
-			osw.write("{\"" + key + "\":\"" + value + "\"}");
-			osw.flush();
-			osw.close();
 
 			String body;
 			try (var in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
