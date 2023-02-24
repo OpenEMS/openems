@@ -146,24 +146,21 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 				rawStatus = Status.READY_FOR_CHARGING;
 
 				// Detect if the car is full
-//				int chargePower = chargePowerLong == null ? 0 : chargePowerLong.intValue();
-//				int chargePower = 2;
-//				if (this.parent.getSetChargePowerLimit().orElse(0) >= this.parent.getMinimumHardwarePower().orElse(0)
-//						&& chargePower <= 0) {
-//
-//					if (this.chargingFinishedCounter >= 90) {
-//						rawStatus = Status.CHARGING_FINISHED;
-//					} else {
-//						this.chargingFinishedCounter++;
-//					}
-//				} else {
-//					this.chargingFinishedCounter = 0;
-//
-//					// Charging rejected because we are forcing to pause charging
-//					if (this.parent.getSetChargePowerLimit().orElse(0) == 0) {
-//						rawStatus = Status.CHARGING_REJECTED;
-//					}
-//				}
+				if (this.parent.getSetChargePowerLimit().orElse(0) >= this.parent.getMinimumHardwarePower().orElse(0)) {
+
+					if (this.chargingFinishedCounter >= 90) {
+						rawStatus = Status.CHARGING_FINISHED;
+					} else {
+						this.chargingFinishedCounter++;
+					}
+				} else {
+					this.chargingFinishedCounter = 0;
+
+					// Charging rejected because we are forcing to pause charging
+					if (this.parent.getSetChargePowerLimit().orElse(0) == 0) {
+						rawStatus = Status.CHARGING_REJECTED;
+					}
+				}
 				break;
 			case "CHARGING":
 				rawStatus = Status.CHARGING;
