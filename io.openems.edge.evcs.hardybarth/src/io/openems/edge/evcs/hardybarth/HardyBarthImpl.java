@@ -72,8 +72,8 @@ public class HardyBarthImpl extends AbstractManagedEvcsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		this._setChargingType(ChargingType.AC);
-		this._setFixedMinimumHardwarePower(config.minHwCurrent() / 1000 * 3 * 230);
-		this._setFixedMaximumHardwarePower(config.maxHwCurrent() / 1000 * 3 * 230);
+		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
+		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
 		this._setPowerPrecision(230);
 
 		if (config.enabled()) {

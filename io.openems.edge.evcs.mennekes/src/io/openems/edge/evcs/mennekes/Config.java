@@ -23,12 +23,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 1;
 
-	@AttributeDefinition(name = "Minimum hardware power", description = "Minimum charging power of the Charger in W.", required = true)
-	int minHwPower() default 5000;
+	@AttributeDefinition(name = "Minimum hardware current", description = "Minimum current of the Charger in mA.", required = true)
+	int minHwCurrent() default 6000;
 
-	@AttributeDefinition(name = "Maximum hardware power", description = "Maximum charging power of the Charger in W.", required = true)
-	int maxHwPower() default 75000;
-	
+	@AttributeDefinition(name = "Maximum hardware current", description = "Maximum current of the Charger in mA.", required = true)
+	int maxHwCurrent() default 32000;
+
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 	

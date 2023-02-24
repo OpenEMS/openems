@@ -1,9 +1,6 @@
 package io.openems.edge.evcs.mennekes;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.function.Consumer;
-import java.util.function.IntFunction;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -25,10 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -36,22 +31,19 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.ChargeStateHandler;
+import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.api.WriteHandler;
-import io.openems.edge.timedata.api.Timedata;
-import io.openems.edge.timedata.api.TimedataProvider;
-import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -63,8 +55,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent implements Evcs, ManagedEvcs, OpenemsComponent,
-		ModbusComponent, EventHandler, TimedataProvider, MennekesAmtron {
+public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent
+		implements Evcs, ManagedEvcs, OpenemsComponent, ModbusComponent, EventHandler, MennekesAmtron {
 
 	private final Logger log = LoggerFactory.getLogger(MennekesAmtronImpl.class);
 
@@ -75,17 +67,6 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent implement
 
 	@Reference
 	protected ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private volatile Timedata timedata = null;
-
-	/**
-	 * Calculates the value for total energy in [Wh].
-	 * 
-	 * <p>
-	 * Accumulates the energy by calling this.calculateTotalEnergy.update(power);
-	 */
-	private CalculateEnergyFromPower calculateTotalEnergy;
 
 	/**
 	 * Handles charge states.
@@ -140,10 +121,10 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent implement
 
 	private void applyConfig(ComponentContext context, Config config) {
 		this.config = config;
-		this.calculateTotalEnergy = new CalculateEnergyFromPower(this, Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
-		this._setFixedMinimumHardwarePower(config.minHwPower());
-		this._setFixedMaximumHardwarePower(config.maxHwPower());
-		this._setPowerPrecision(1);
+		this._setChargingType(ChargingType.AC);
+		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
+		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
+		this._setPowerPrecision(230);
 		this._setPhases(3);
 	}
 
@@ -164,9 +145,6 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent implement
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.calculateTotalEnergy.update(this.getChargePower().orElse(0));
-			break;
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			this.writeHandler.run();
 			break;
@@ -177,94 +155,153 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent implement
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
 		ModbusProtocol modbusProtocol = new ModbusProtocol(this,
-				new FC3ReadRegistersTask(100, Priority.HIGH, 
-				m(MennekesAmtron.ChannelId.RAW_FIRMWARE_VERSION,
-						new UnsignedDoublewordElement(100).wordOrder(WordOrder.MSWLSW))
-				));
+				new FC3ReadRegistersTask(100, Priority.HIGH,
+						m(MennekesAmtron.ChannelId.RAW_FIRMWARE_VERSION,
+								new UnsignedDoublewordElement(100).wordOrder(WordOrder.MSWLSW)).debug()),
+				new FC3ReadRegistersTask(104, Priority.HIGH,
+						m(MennekesAmtron.ChannelId.OCPP_CP_STATUS, new UnsignedWordElement(104)),
+						m(MennekesAmtron.ChannelId.ERROR_CODES_1, new UnsignedDoublewordElement(105)),
+						m(MennekesAmtron.ChannelId.ERROR_CODES_2, new UnsignedDoublewordElement(107)),
+						m(MennekesAmtron.ChannelId.ERROR_CODES_3, new UnsignedDoublewordElement(109)),
+						m(MennekesAmtron.ChannelId.ERROR_CODES_4, new UnsignedDoublewordElement(111))),
+				new FC3ReadRegistersTask(122, Priority.HIGH,
+						m(MennekesAmtron.ChannelId.VEHICLE_STATE, new UnsignedWordElement(122))),
+				new FC3ReadRegistersTask(131, Priority.HIGH,
+						m(MennekesAmtron.ChannelId.SAFE_CURRENT, new UnsignedWordElement(131))),
+				new FC3ReadRegistersTask(200, Priority.HIGH,
+						m(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(200))),
+				new FC3ReadRegistersTask(206, Priority.HIGH,
+						m(MennekesAmtron.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(206)),
+						m(MennekesAmtron.ChannelId.ACTIVE_POWER_L2, new UnsignedDoublewordElement(208)),
+						m(MennekesAmtron.ChannelId.ACTIVE_POWER_L3, new UnsignedDoublewordElement(210)),
+						m(MennekesAmtron.ChannelId.CURRENT_L1, new UnsignedDoublewordElement(212)),
+						m(MennekesAmtron.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(214)),
+						m(MennekesAmtron.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(216))),
+
+				// TODO: Check Nature Channels - if some missing, eg. session energy
 				
+				new FC3ReadRegistersTask(1000, Priority.HIGH,
+						m(MennekesAmtron.ChannelId.EMS_CURRENT_LIMIT, new UnsignedWordElement(1000))),
+				new FC16WriteRegistersTask(1000, //
+						m(MennekesAmtron.ChannelId.APPLY_CURRENT_LIMIT, new UnsignedWordElement(1000))) //
+		);
+
+		// Calculates required Channels from other existing Channels.
+		this.addCalculateChannelListeners();
+
+		this.addStatusListener();
+
 		return modbusProtocol;
 	}
 
-	/*
-	 * TODO: Remove if the charge power register returns valid values with newer
-	 * firmware versions.
-	 */
-//	private void addCalculatePowerListeners() {
-//
-//		// Calculate power from voltage and current
-//		final Consumer<Value<Double>> calculatePower = ignore -> {
-//			this._setChargePower(TypeUtils.getAsType(OpenemsType.INTEGER, TypeUtils.multiply(//
-//					this.getChargingVoltageChannel().getNextValue().get(), //
-//					this.getChargingCurrentChannel().getNextValue().get() //
-//			)));
-//		};
-//		this.getChargingVoltageChannel().onSetNextValue(calculatePower);
-//		this.getChargingCurrentChannel().onSetNextValue(calculatePower);
-//	}
+	private void addCalculateChannelListeners() {
 
-//	private void addStatusListener() {
-//		this.channel(MennekesAmtron.ChannelId.RAW_STATUS).onSetNextValue(s -> {
-//			AvailableState rawState = s.asEnum();
-//			/**
-//			 * Maps the raw state into a {@link Status}.
-//			 */
-//			switch (rawState) {
-//			case AVAILABLE:
-//				this._setStatus(Status.NOT_READY_FOR_CHARGING);
-//				break;
-//			case PREPARING_TAG_ID_READY:
-//				this._setStatus(Status.READY_FOR_CHARGING);
-//				break;
-//			case CHARGING:
-//			case PREPARING_EV_READY:
-//				this._setStatus(Status.CHARGING);
-//				break;
-//			case RESERVED:
-//			case SUSPENDED_EV:
-//			case SUSPENDED_EV_SE:
-//				this._setStatus(Status.CHARGING_REJECTED);
-//				break;
-//			case FINISHING:
-//				this._setStatus(Status.CHARGING_FINISHED);
-//				break;
-//			case FAULTED:
-//			case UNAVAILABLE:
-//			case UNAVAILABLE_CONNECTION_OBJECT:
-//				this._setStatus(Status.ERROR);
-//				break;
-//			case UNAVAILABLE_FW_UPDATE:
-//			case UNDEFINED:
-//			default:
-//				this._setStatus(Status.UNDEFINED);
-//			}
-//		});
-//	}
+		// TODO: Process Error Codes
+		final Consumer<Value<Integer>> processErrorCodes = ignore -> {
+			String error1 = Integer.toHexString(this.getErrorCode1Channel().getNextValue().orElse(0));
+			String error2 = Integer.toHexString(this.getErrorCode2Channel().getNextValue().orElse(0));
+			String error3 = Integer.toHexString(this.getErrorCode3Channel().getNextValue().orElse(0));
+			String error4 = Integer.toHexString(this.getErrorCode4Channel().getNextValue().orElse(0));
+			String errorcode = error4 + error3 + error2 + error1;
+			int result = Integer.parseInt(errorcode);
+			this._setChargingstationCommunicationFailed(result > 0);
+			if (result > 0) {
+				this.log.error("An Error has accured. Error code: " + errorcode
+						+ " Error Code processing not yet implemented.");
+			}
+		};
+		this.getErrorCode1Channel().onSetNextValue(processErrorCodes);
+		this.getErrorCode2Channel().onSetNextValue(processErrorCodes);
+		this.getErrorCode3Channel().onSetNextValue(processErrorCodes);
+		this.getErrorCode4Channel().onSetNextValue(processErrorCodes);
+
+		// TODO: Power is given by the charger since firmware 5.22
+		final Consumer<Value<Integer>> powerChannels = ignore -> {
+
+			this._setChargePower(TypeUtils.sum(this.getActivePowerL1().orElse(0), this.getActivePowerL2().orElse(0),
+					this.getActivePowerL3().orElse(0)));
+
+			int phases = 0;
+			int powerThreshold = 50; // in W
+			if (this.getActivePowerL1().orElse(0) > powerThreshold) {
+				phases = phases + 1;
+			}
+			if (this.getActivePowerL2().orElse(0) > powerThreshold) {
+				phases = phases + 1;
+			}
+			if (this.getActivePowerL3().orElse(0) > powerThreshold) {
+				phases = phases + 1;
+			}
+			this._setPhases(phases);
+		};
+
+		this.getActivePowerL1Channel().onSetNextValue(powerChannels);
+		this.getActivePowerL2Channel().onSetNextValue(powerChannels);
+		this.getActivePowerL3Channel().onSetNextValue(powerChannels);
+	}
+
+	private void addStatusListener() {
+		this.channel(MennekesAmtron.ChannelId.OCPP_CP_STATUS).onSetNextValue(s -> {
+			var currentStatus = Status.UNDEFINED;
+			OcppStateMennekes rawState = s.asEnum();
+			/**
+			 * Maps the raw state into a {@link Status}.
+			 */
+			switch (rawState) {
+
+			case AVAILABLE:
+				this._setStatus(Status.NOT_READY_FOR_CHARGING);
+				break;
+			case CHARGING:
+				currentStatus = Status.CHARGING;
+				break;
+			case FAULTED:
+				currentStatus = Status.ERROR;
+				break;
+			case FINISHING:
+				currentStatus = Status.CHARGING_FINISHED;
+				break;
+			case PREPARING:
+				currentStatus = Status.READY_FOR_CHARGING;
+				break;
+			case RESERVED:
+				currentStatus = Status.NOT_READY_FOR_CHARGING;
+				break;
+			case SUSPENDEDEV:
+			case SUSPENDEDEVSE:
+				currentStatus = Status.CHARGING_REJECTED;
+				break;
+			case OCCUPIED:
+				if (this.isCharging()) {
+					currentStatus = Status.CHARGING;
+				} else {
+					currentStatus = Status.ENERGY_LIMIT_REACHED;
+				}
+				break;
+			case UNAVAILABLE:
+				currentStatus = Status.ERROR;
+				break;
+			case UNDEFINED:
+				break;
+			}
+
+			this._setStatus(currentStatus);
+		});
+	}
 
 	@Override
 	public int getConfiguredMinimumHardwarePower() {
-		return this.config.minHwPower();
+		return Math.round(this.config.minHwCurrent() / 1000f) * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
 	}
 
 	@Override
 	public int getConfiguredMaximumHardwarePower() {
-		return this.config.maxHwPower();
+		return Math.round(this.config.maxHwCurrent() / 1000f) * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
 	}
 
 	@Override
 	public boolean getConfiguredDebugMode() {
 		return this.config.debugMode();
-	}
-
-//	@Override
-//	public boolean applyChargePowerLimit(int power) throws Exception {
-//		this.setApplyChargePowerLimit(power);
-//		return true;
-//	}
-
-	@Override
-	public boolean pauseChargeProcess() throws Exception {
-		// Alpitronic is running into a fault state if the applied power is 0
-		return this.applyChargePowerLimit(this.config.minHwPower());
 	}
 
 	@Override
@@ -274,7 +311,7 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent implement
 
 	@Override
 	public int getMinimumTimeTillChargingLimitTaken() {
-		return 10;
+		return 30;
 	}
 
 	@Override
@@ -294,122 +331,31 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent implement
 		return "Limit:" + this.getSetChargePowerLimit().orElse(null) + "|" + this.getStatus().getName();
 	}
 
-	@Override
-	public Timedata getTimedata() {
-		return this.timedata;
-	}
-
-//	private void writeChargePowerChannel() {
-//		int power = this.getActivePowerL1().orElse(0);
-//		power = power + this.getActivePowerL2().orElse(0);
-//		power = power + this.getActivePowerL3().orElse(0);
-//		this._setChargePower(power);
-//	}
-
-//	private void writePhasesChannel() {
-//		int phases = 0;
-//		int powerThreshold = 50; // in W
-//		if (this.getActivePowerL1().orElse(0) > powerThreshold) {
-//			phases = phases + 1;
-//		}
-//		if (this.getActivePowerL2().orElse(0) > powerThreshold) {
-//			phases = phases + 1;
-//		}
-//		if (this.getActivePowerL3().orElse(0) > powerThreshold) {
-//			phases = phases + 1;
-//		}
-//		this._setPhases(phases);
-//	}
-
-	private void setEvcsStatus() {
-		OcppStateMennekes currentOcppState = this.getOcppCpStatus();
-		Status currentStatus = Status.UNDEFINED;
-		switch (currentOcppState) {
-		case AVAILABLE:
-			currentStatus = Status.READY_FOR_CHARGING;
-			break;
-		case CHARGING:
-			currentStatus = Status.CHARGING;
-			break;
-		case FAULTED:
-			currentStatus = Status.ERROR;
-			break;
-		case FINISHING:
-			currentStatus = Status.CHARGING_FINISHED;
-			break;
-		case PREPARING:
-			currentStatus = Status.READY_FOR_CHARGING;
-			break;
-		case RESERVED:
-			currentStatus = Status.NOT_READY_FOR_CHARGING;
-			break;
-		case SUSPENDEDEV:
-			currentStatus = Status.CHARGING_REJECTED;
-			break;
-		case SUSPENDEDEVSE:
-			currentStatus = Status.CHARGING_REJECTED;
-			break;
-//		case OCCUPIED:
-//			if (this.isCharging() || this.isStoppedByEms()) {
-//				currentStatus = Status.CHARGING;
-//			}
-//			if (!this.isCharging() && !this.isStoppedByEms() && this.chargingSession.isStarted()) {
-//				currentStatus = Status.ENERGY_LIMIT_REACHED;
-//			}
-//			if (!this.isCharging() && !this.isStoppedByEms() && this.chargingSession.isInitialized()) {
-//				currentStatus = Status.NOT_READY_FOR_CHARGING;
-//			}
-//			break;
-//		case UNAVAILABLE:
-//			this.logInfo("Charging Station is Unavailable.");
-//			this._setChargingstationCommunicationFailed(true);
-//			currentStatus = Status.ERROR;
-//			break;
-		}
-	}
-
-	private void setCommunicationStatusChannel() {
-		this._setChargingstationCommunicationFailed(this.getModbusCommunicationFailed().orElse(true));
-	}
-
-//	private void setMinimumHardwarePowerChannel() {
-//		int phases = this.getPhasesChannel().getNextValue().orElse(0);
-//		if (phases == 0) {
-//			phases = 3;
-//		}
-//		int minPower = this.voltageOnePhase * this.getMinCurrentLimit().orElse(6) * phases;
-//		this._setMinimumHardwarePower(minPower);
-//	}
-
-//	private void setMaximumHardwarePowerChannel() {
-//		int phases = this.getPhases().orElse(0);
-//		if (phases == 0) {
-//			phases = 3;
-//		}
-//		int maxPower = phases * MAX_HARDWARE_CURRENT * this.voltageOnePhase;
-//		this._setMaximumHardwarePower(maxPower);
-//	}
-
-	private void printAllChannels() {
-		Collection<Channel<?>> listOfChannels = this.channels();
-		Iterator<Channel<?>> iterator = listOfChannels.iterator();
-		for (iterator = (Iterator<Channel<?>>) listOfChannels.iterator(); ((Iterator<Channel<?>>) iterator)
-				.hasNext();) {
-			Channel<?> channel = iterator.next();
-			String name = channel.channelId().id();
-			System.out.println(name + ": " + channel.getNextValue().asString());
-		}
-	}
-
-	private void printChannel(Channel<?> channel) {
-		String name = channel.channelId().id();
-		System.out.println(name + ": " + channel.getNextValue().asString());
+	public boolean isCharging() {
+		return this.getChargePower().orElse(0) > 0;
 	}
 
 	@Override
 	public boolean applyChargePowerLimit(int power) throws Exception {
-		// TODO Auto-generated method stub
-		return false;
+		var phases = this.getPhasesAsInt();
+		var current = Math.round(power / phases / 230f);
+
+		/*
+		 * Limits the charging value because Mennekes knows only values between 6 and 32
+		 * A
+		 */
+		current = Math.min(current, 32);
+
+		if (current < 6) {
+			current = 0;
+		}
+
+		this.setApplyCurrentLimit(current);
+		return true;
 	}
 
+	@Override
+	public boolean pauseChargeProcess() throws Exception {
+		return this.applyChargePowerLimit(0);
+	}
 }
