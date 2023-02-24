@@ -1,3 +1,12 @@
-= io.openems.edge.evcs.wabsto.next
+= EVCS Webasto Next Electrical Vehicle Charging Station 
+
+This implementation allows to read and write to the Webasto Next EVCS. 
+
+== Technical Data
+
+* Rated current: 16A Single phase, 32A 3-phase
+* Charging cable: Type 2, up to 32A / 400V AC
+* Max. charging power: 11 or 22kW (3-phase), 3.7 or 7.4kW single phase
+* Communication protocol: Modbus TCP
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.wabsto.next[Source Code icon:github[]]

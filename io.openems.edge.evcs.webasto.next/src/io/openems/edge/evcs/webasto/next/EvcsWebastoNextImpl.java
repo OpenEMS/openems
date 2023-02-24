@@ -60,8 +60,6 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 	private Config config = null;
 
 	private static final int DEFAULT_LIFE_BIT = 1;
-	
-	private long energyAtStartOfSession;
 
 	/**
 	 * Handles charge states.
@@ -136,9 +134,7 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-		/*
-		 * Cannot read the gaps, therefore there are so many tasks
-		 */
+		// Cannot read the gaps, therefore there are so many tasks
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(1000, Priority.HIGH,
 						m(EvcsWebastoNext.ChannelId.CHARGE_POINT_STATE, new UnsignedWordElement(1000)), //
@@ -174,9 +170,10 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 						m(EvcsWebastoNext.ChannelId.MAX_CABLE_CURRENT, new UnsignedWordElement(1106))),
 				new FC3ReadRegistersTask(1108, Priority.LOW,
 						m(EvcsWebastoNext.ChannelId.MAX_EV_CURRENT, new UnsignedWordElement(1108))),
-				//TODO EvcsWebastoNext.ChannelId.LAST_ENERGY_SESSION: This register remains 0 during the session, 
-				// and set a value at the end. But for the UI we need the 
-				// Energy charged during the session is running as well. 
+				// TODO EvcsWebastoNext.ChannelId.LAST_ENERGY_SESSION: This register remains 0
+				// during the session,
+				// and set a value at the end. But for the UI we need the
+				// Energy charged during the session is running as well.
 				new FC3ReadRegistersTask(1502, Priority.LOW,
 						m(EvcsWebastoNext.ChannelId.LAST_ENERGY_SESSION, new UnsignedWordElement(1502))),
 				new FC3ReadRegistersTask(1504, Priority.LOW,
@@ -296,14 +293,6 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 
 	}
 
-	private void updateLifeBit() {
-		try {
-			this.setLifeBit(DEFAULT_LIFE_BIT);
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-		}
-	}
-
 	@Override
 	public void handleEvent(Event event) {
 		if (!this.isEnabled()) {
@@ -314,6 +303,14 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 			this.writeHandler.run();
 			this.updateLifeBit();
 			break;
+		}
+	}
+
+	private void updateLifeBit() {
+		try {
+			this.setLifeBit(DEFAULT_LIFE_BIT);
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
 		}
 	}
 }

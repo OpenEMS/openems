@@ -7,7 +7,7 @@ public enum CableState implements OptionsEnum {
 	NO_CABLE_ATTACHED(0, "No cable attached"), //
 	CABLE_ATTACHED_WITHOUT_CAR(1, "Cable attached, no car attached"), //
 	CABLE_ATTACHED_WITH_CAR(2, "Cable attached, car attached"), //
-	CABLE_ATTACHED_WITH_CAR_AND_LOCKED(3, "Cable attached, car attached and locked"), //
+	CABLE_ATTACHED_WITH_CAR_AND_LOCKED(3, "Cable attached, car attached and locked")//
 	;
 
 	private final int value;
