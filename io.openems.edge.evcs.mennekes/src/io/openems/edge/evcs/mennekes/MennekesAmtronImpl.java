@@ -60,6 +60,11 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(MennekesAmtronImpl.class);
 
+	// TODO: Add functionality to distinguish between firmware version. For firmware
+	// version >= 5.22 there are several new registers. Currently it is programmed
+	// for firmware version 5.14.
+	private boolean softwareVersionSmallerThan_5_22 = true;
+
 	protected Config config;
 
 	@Reference
@@ -153,11 +158,12 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-
+		// TODO: Distinguish between firmware version. For firmware version >= 5.22
+		// there are several new registers.
 		ModbusProtocol modbusProtocol = new ModbusProtocol(this,
 				new FC3ReadRegistersTask(100, Priority.HIGH,
 						m(MennekesAmtron.ChannelId.RAW_FIRMWARE_VERSION,
-								new UnsignedDoublewordElement(100).wordOrder(WordOrder.MSWLSW)).debug()),
+								new UnsignedDoublewordElement(100).wordOrder(WordOrder.MSWLSW))),
 				new FC3ReadRegistersTask(104, Priority.HIGH,
 						m(MennekesAmtron.ChannelId.OCPP_CP_STATUS, new UnsignedWordElement(104)),
 						m(MennekesAmtron.ChannelId.ERROR_CODES_1, new UnsignedDoublewordElement(105)),
@@ -179,12 +185,18 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent
 						m(MennekesAmtron.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(216))),
 
 				// TODO: Check Nature Channels - if some missing, eg. session energy
-				
+				new FC3ReadRegistersTask(705, Priority.HIGH,
+						m(Evcs.ChannelId.ENERGY_SESSION, new UnsignedWordElement(705)),
+						m(MennekesAmtron.ChannelId.MAX_CURRENT_EV, new UnsignedWordElement(706)),
+						m(MennekesAmtron.ChannelId.RAW_CHARGING_SESSION_START_TIME, new UnsignedDoublewordElement(707)),
+						m(MennekesAmtron.ChannelId.CHARGE_DURATION, new UnsignedWordElement(709)),
+						m(MennekesAmtron.ChannelId.RAW_CHARGING_STOP_TIME, new UnsignedDoublewordElement(710)),
+						m(MennekesAmtron.ChannelId.MIN_CURRENT_LIMIT, new UnsignedWordElement(712))),
+
 				new FC3ReadRegistersTask(1000, Priority.HIGH,
 						m(MennekesAmtron.ChannelId.EMS_CURRENT_LIMIT, new UnsignedWordElement(1000))),
-				new FC16WriteRegistersTask(1000, //
-						m(MennekesAmtron.ChannelId.APPLY_CURRENT_LIMIT, new UnsignedWordElement(1000))) //
-		);
+				new FC16WriteRegistersTask(1000,
+						m(MennekesAmtron.ChannelId.APPLY_CURRENT_LIMIT, new UnsignedWordElement(1000))));
 
 		// Calculates required Channels from other existing Channels.
 		this.addCalculateChannelListeners();
@@ -221,7 +233,7 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent
 			this._setChargePower(TypeUtils.sum(this.getActivePowerL1().orElse(0), this.getActivePowerL2().orElse(0),
 					this.getActivePowerL3().orElse(0)));
 
-			int phases = 0;
+			int phases = 3;
 			int powerThreshold = 50; // in W
 			if (this.getActivePowerL1().orElse(0) > powerThreshold) {
 				phases = phases + 1;
@@ -238,6 +250,7 @@ public class MennekesAmtronImpl extends AbstractOpenemsModbusComponent
 		this.getActivePowerL1Channel().onSetNextValue(powerChannels);
 		this.getActivePowerL2Channel().onSetNextValue(powerChannels);
 		this.getActivePowerL3Channel().onSetNextValue(powerChannels);
+
 	}
 
 	private void addStatusListener() {

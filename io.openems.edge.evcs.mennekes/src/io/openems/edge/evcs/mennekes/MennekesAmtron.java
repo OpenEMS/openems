@@ -15,10 +15,10 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**
- * Hypercharger EV charging protocol interface.
+ * Mennekes Amtron Professional charging protocol interface.
  * 
  * <p>
- * Defines the interface for Alpitronic Hypercharger
+ * Defines the interface for Mennekes Amtron Professional (eichrechtskonform)
  */
 public interface MennekesAmtron extends OpenemsComponent {
 
@@ -242,38 +242,6 @@ public interface MennekesAmtron extends OpenemsComponent {
 		 */
 		MIN_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE)),
 
-		/**
-		 * SCHEDULED DEPARTURE TIME.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: String *
-		 * </ul>
-		 */
-
-		SCHEDULED_DEPARTURE_TIME(Doc.of(OpenemsType.STRING)),
-
-		/**
-		 * SCHEDULED DEPARTURE HOUR.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * <li>Unit: HOUR
-		 * </ul>
-		 */
-		SCHEDULED_DEPARTURE_HOUR(Doc.of(OpenemsType.INTEGER).unit(Unit.HOUR)),
-
-		/**
-		 * SCHEDULED DEPARTURE MINUTE.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * <li>Unit: Minute
-		 * </ul>
-		 */
-		SCHEDULED_DEPARTURE_MINUTE(Doc.of(OpenemsType.INTEGER).unit(Unit.MINUTE)),
 
 		/**
 		 * RAW SCHEDULED DEPARTURE TIME.
@@ -285,15 +253,6 @@ public interface MennekesAmtron extends OpenemsComponent {
 		 */
 		RAW_SCHEDULED_DEPARTURE_TIME(Doc.of(OpenemsType.INTEGER)),
 
-		/**
-		 * SCHEDULED DEPARTURE DATE.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: String
-		 * </ul>
-		 */
-		SCHEDULED_DEPARTURE_DATE(Doc.of(OpenemsType.STRING)),
 
 		/**
 		 * SCHEDULED DEPARTURE YEAR.
@@ -304,38 +263,7 @@ public interface MennekesAmtron extends OpenemsComponent {
 		 * <li>Unit: YEAR
 		 * </ul>
 		 */
-//		SCHEDULED_DEPARTURE_YEAR(Doc.of(OpenemsType.INTEGER).unit(Unit.YEAR)),
-//		
-//		/**
-//		 * SCHEDULED DEPARTURE MONTH.
-//		 *
-//		 * <ul>
-//		 * <li>Interface: MennekesAmtron 
-//		 * <li>Type: Integer
-//		 * <li>Unit: MONTH
-//		 * </ul>
-//		 */
-//		SCHEDULED_DEPARTURE_MONTH(Doc.of(OpenemsType.INTEGER).unit(Unit.MONTH)),
-//		
-//		/**
-//		 * SCHEDULED DEPARTURE DAY.
-//		 *
-//		 * <ul>
-//		 * <li>Interface: MennekesAmtron 
-//		 * <li>Type: Integer
-//		 * <li>Unit: DAY
-//		 * </ul>
-//		 */
-//		SCHEDULED_DEPARTURE_DAY(Doc.of(OpenemsType.INTEGER).unit(Unit.DAY)),
-//		
-//		/**
-//		 * RAW SCHEDULED DEPARTURE DATE.
-//		 *
-//		 * <ul>
-//		 * <li>Interface: MennekesAmtron 
-//		 * <li>Type: Integer
-//		 * </ul>
-//		 */
+
 		RAW_SCHEDULED_DEPARTURE_DATE(Doc.of(OpenemsType.INTEGER)),
 
 		/**
@@ -368,38 +296,6 @@ public interface MennekesAmtron extends OpenemsComponent {
 		 * </ul>
 		 */
 		RAW_CHARGING_SESSION_START_TIME(Doc.of(OpenemsType.INTEGER)),
-
-		/**
-		 * CHARGING STOP TIME .
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: String
-		 * </ul>
-		 */
-		CHARGING_STOP_TIME(Doc.of(OpenemsType.STRING)),
-
-		/**
-		 * CHARGING STOP HOUR .
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * <li>Unit: HOUR
-		 * </ul>
-		 */
-		CHARGING_STOP_HOUR(Doc.of(OpenemsType.INTEGER).unit(Unit.HOUR)),
-
-		/**
-		 * CHARGING STOP MINUTE.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Type: Integer
-		 * <li>Unit: MINUTE
-		 * </ul>
-		 */
-		CHARGING_STOP_MINUTE(Doc.of(OpenemsType.INTEGER).unit(Unit.MINUTE)),
 
 		/**
 		 * RAW CHARGING STOP TIME.
@@ -535,18 +431,6 @@ public interface MennekesAmtron extends OpenemsComponent {
 		 * </ul>
 		 */
 		EMS_CURRENT_LIMIT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)),
-
-		/**
-		 * EMS CURRENT LIMIT WRITE.
-		 *
-		 * <ul>
-		 * <li>Interface: MennekesAmtron
-		 * <li>Writable
-		 * <li>Type: Integer
-		 * <li>Unit: AMPERE
-		 * </ul>
-		 */
-		EMS_CURRENT_LIMIT_WRITE(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.WRITE_ONLY))
 
 		;
 
@@ -864,39 +748,6 @@ public interface MennekesAmtron extends OpenemsComponent {
 	 */
 	public default IntegerReadChannel getEmsCurrentLimitChannel() {
 		return this.channel(ChannelId.EMS_CURRENT_LIMIT);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#EMS_CURRENT_LIMIT_WRITE}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerWriteChannel getEmsCurrentLimitWriteChannel() {
-		return this.channel(ChannelId.EMS_CURRENT_LIMIT_WRITE);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#EMS_CURRENT_LIMIT_WRITE} Channel.
-	 *
-	 * @param value the next value
-	 * @throws OpenemsNamedException
-	 */
-	public default void _setEmsCurrentLimitWrite(Integer value) throws OpenemsNamedException {
-		this.getEmsCurrentLimitWriteChannel().setNextWriteValue(value);
-		this.getEmsCurrentLimitWriteChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#EMS_CURRENT_LIMIT_WRITE} Channel.
-	 *
-	 * @param value the next value
-	 * @throws OpenemsNamedException
-	 */
-	public default void _setEmsCurrentLimitWrite(int value) throws OpenemsNamedException {
-		this.getEmsCurrentLimitWriteChannel().setNextWriteValue(value);
-		this.getEmsCurrentLimitWriteChannel().setNextValue(value);
 	}
 
 	/**
