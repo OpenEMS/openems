@@ -74,7 +74,6 @@ EOT
 				fi
 
 				# Set default .classpath file
-				if [ -f "${D}/.classpath" ]; then
 					cat <<EOT > "${D}/.classpath"
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
@@ -88,6 +87,35 @@ EOT
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
+EOT
+
+				# Set default .classpath file
+				if [ ! -f "${D}/.project" ]; then
+					cat <<EOT > "${D}/.project"
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>${D}</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>bndtools.core.bndbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>bndtools.core.bndnature</nature>
+	</natures>
+</projectDescription>
+
 EOT
 				fi
 
