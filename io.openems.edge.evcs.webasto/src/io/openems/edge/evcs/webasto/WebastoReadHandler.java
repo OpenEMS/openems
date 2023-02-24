@@ -5,13 +5,13 @@ import io.openems.edge.evcs.api.Status;
 
 public class WebastoReadHandler {
 
-    WebastoImpl parent;
+    private final WebastoImpl parent;
 
-    WebastoReadHandler(WebastoImpl parent) {
+    protected WebastoReadHandler(WebastoImpl parent) {
         this.parent = parent;
     }
 
-    void run() {
+    protected void run() {
         this.setPhaseCount();
         this.setStatus();
         this.parent._setChargePower((int) this.parent.getActivePower());
