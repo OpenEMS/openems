@@ -1,5 +1,21 @@
 package io.openems.edge.evcs.webasto;
 
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
+import org.osgi.service.metatype.annotations.Designate;
+
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -23,33 +39,18 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.WriteHandler;
 import io.openems.edge.evcs.webasto.api.Webasto;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
-import org.osgi.service.event.propertytypes.EventTopics;
-import org.osgi.service.metatype.annotations.Designate;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Evcs.Webasto.Unite", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(//
+		name = "Evcs.Webasto.Unite", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE //
+)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE})
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+})
 public class WebastoImpl extends AbstractOpenemsModbusComponent
-		implements
-			OpenemsComponent,
-			Webasto,
-			Evcs,
-			ManagedEvcs,
-			EventHandler {
+		implements OpenemsComponent, Webasto, Evcs, ManagedEvcs, EventHandler {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -57,11 +58,6 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 	private int minCurrent;
 	private int maxCurrent;
 	private WebastoReadHandler readHandler;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -107,6 +103,11 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
 	}
 
 	@Override
