@@ -1,6 +1,7 @@
-= EVCS Webasto Next Electrical Vehicle Charging Station 
+= EVCS Webasto Next Electrical Vehicle Charging Station (BETA)
 
-This implementation allows to read and write to the Webasto Next EVCS. 
+This implementation allows to read and write to the Webasto Next EVCS.
+The EVCS is not fully tested e.g. EnergySession is still missing.
 
 == Technical Data
 
