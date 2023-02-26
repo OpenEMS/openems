@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.webasto;
+package io.openems.edge.evcs.webasto.unite;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;

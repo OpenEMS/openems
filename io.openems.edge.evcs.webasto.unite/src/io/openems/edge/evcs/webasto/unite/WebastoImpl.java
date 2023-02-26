@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.webasto;
+package io.openems.edge.evcs.webasto.unite;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
@@ -40,7 +40,7 @@ import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.WriteHandler;
-import io.openems.edge.evcs.webasto.api.Webasto;
+import io.openems.edge.evcs.webasto.unite.api.Webasto;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.webasto;
+package io.openems.edge.evcs.webasto.unite;
 
 import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Status;

@@ -1,4 +1,4 @@
-package io.openems.edge.evcs.webasto.api;
+package io.openems.edge.evcs.webasto.unite.api;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
