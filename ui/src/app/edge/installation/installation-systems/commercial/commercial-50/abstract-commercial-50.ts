@@ -195,23 +195,6 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             });
         }
 
-        // Bms Master and Submaster.
-        // const bmsComponents = ([
-        //     { value: 'master', label: 'Master' },
-        //     { value: 'submaster', label: 'Submaster' }
-        // ]);
-
-        // fields.push({
-        //     key: 'bmsComponent',
-        //     type: 'select',
-        //     templateOptions: {
-        //         label: 'BMS Box',
-        //         options: bmsComponents,
-        //         required: true
-        //     },
-        //     wrappers: ['formly-select-field-wrapper']
-        // });
-
         for (let moduleNr = 0; moduleNr < numberOfModulesPerTower; moduleNr++) {
             fields.push({
                 key: 'module' + moduleNr,

@@ -64,6 +64,9 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 
 	@Override
 	public void send(ZonedDateTime sentAt, List<OfflineEdgeMessage> pack) {
+		// Ensure Edge is still offline before sending mail.
+		pack.removeIf((msg) -> !this.isEdgeOffline(msg.getEdgeId()));
+
 		var params = JsonUtils.generateJsonArray(pack, OfflineEdgeMessage::getParams);
 
 		this.mailer.sendMail(sentAt, OfflineEdgeMessage.TEMPLATE, params);
@@ -77,7 +80,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	}
 
 	private void tryReschedule(OfflineEdgeMessage msg) {
-		if (msg.update() && this.isEdgeOffline(msg.getEdgeId())) {
+		if (msg.update()) {
 			this.msgScheduler.schedule(msg);
 		}
 	}
@@ -92,7 +95,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 
 	private void checkMetadata() {
 		this.log.info("[OfflineEdgeHandler] check Metadata for Offline Edges");
-		
+
 		var msgs = new LinkedList<OfflineEdgeMessage>();
 		var count = new AtomicInteger();
 		var validOfflineEges = this.metadata.getAllOfflineEdges().stream() //
@@ -185,26 +188,14 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		return nextMailRecieveAt.isAfter(lastMailRecievedAt);
 	}
 
-	/**
-	 * Handler for when the Edge.OnSetOnline Event was thrown.
-	 *
-	 * @param reader Reader for Event parameters
-	 */
-	private void handleEdgeOnSetOnline(EventReader reader) {
-		var edge = (Edge) reader.getProperty(Edge.Events.OnSetOnline.EDGE);
-		var isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
-		if (isOnline) {
-			this.msgScheduler.remove(edge.getId());
-		} else {
-			this.tryAddEdge(edge);
-		}
+	protected void tryRemoveEdge(Edge edge) {
+		this.msgScheduler.remove(edge.getId());
 	}
 
 	protected void tryAddEdge(Edge edge) {
 		if (this.isValidEdge(edge)) {
 			var msg = this.getEdgeMessage(edge);
 			if (msg != null) {
-				this.log.info("Schedule Alerting-Message " + msg.toString());
 				this.msgScheduler.schedule(msg);
 			}
 		}
@@ -220,7 +211,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		} else {
 			this.initMetadata = new Runnable() {
 				final ZonedDateTime checkAt = ZonedDateTime.now().plusMinutes(OfflineEdgeHandler.this.initialDelay);
-				
+
 				@Override
 				public void run() {
 					if (ZonedDateTime.now().isAfter(this.checkAt)) {
@@ -235,15 +226,32 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	}
 
 	@Override
-	public void handleEvent(EventReader event) {
+	public Runnable getEventHandler(EventReader event) {
 		switch (event.getTopic()) {
 		case Edge.Events.ON_SET_ONLINE:
-			this.handleEdgeOnSetOnline(event);
-			break;
+			var edgeId = event.getString(Edge.Events.OnSetOnline.EDGE_ID);
+			var isOnline = event.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
+			return () -> {
+				var edgeOpt = this.metadata.getEdge(edgeId);
+				edgeOpt.ifPresentOrElse((edge) -> {
+					// Ensure that the online-state has not changed
+					if (edge.isOnline() == isOnline) {
+						if (isOnline) {
+							this.tryRemoveEdge(edge);
+						} else {
+							this.tryAddEdge(edge);
+						}
+					}
+				}, () -> {
+					this.log.warn("Edge with id: " + edgeId + " not found");
+				});
+			};
 
 		case Metadata.Events.AFTER_IS_INITIALIZED:
-			this.handleMetadataAfterInitialize();
-			break;
+			return this::handleMetadataAfterInitialize;
+
+		default:
+			return null;
 		}
 	}
 

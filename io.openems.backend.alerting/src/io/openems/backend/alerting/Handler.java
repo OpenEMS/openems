@@ -31,6 +31,7 @@ public interface Handler<T extends Message> {
 	 * Handle given event.
 	 * 
 	 * @param event to handle
+	 * @return Runnable to be scheduled in executor
 	 */
-	public void handleEvent(EventReader event);
+	public Runnable getEventHandler(EventReader event);
 }

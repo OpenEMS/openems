@@ -1,0 +1,63 @@
+= IntelliJ IDEA
+:imagesdir: ../assets/images
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+== Setup IntelliJ IDEA for OpenEMS Edge and Backend
+
+. Prepare Intellij IDEA
+.. Download Java Development Kit (JDK) 11 and install it. We recommend the https://adoptium.net/?variant=openjdk11&jvmVariant=hotspot[OpenJDK Temurin builds by the Adoptium project]
+.. We use the Amdatu Plugin. Please confirm that the plugin is compatible with the latest version. See the https://plugins.jetbrains.com/plugin/10639-amdatu/versions[Amdatu homepage icon:external-link[]].
+.. With the toolbox you can select the right version https://www.jetbrains.com/toolbox-app/download/[Intellij Version icon:external-link[]].
+.. To avoid incompatible updates, you may disable Auto-Updates in the Toolbox. It is also possible to select a earlier version if the update was done accidentally
+.. Search under Plugins "Amdatu" und "Checkstyle"
++
+.IntelliJ settings
+image::intellij-settings.png[Settings]
++
+.Install plugins
+image::intellij-plugins.png[Plugins]
+.. Preparing your project with intellij
++
+.IntelliJ project import from existing source
+image::intellij-project-import.png[]
+.Select directory to import
+image::intellij-select-directory.png[]
+.. Select Bnd/bndtools
++
+.Bnd import
+image::intellij-import-bnd.png[]
+.. Build OpenEMS Edge in IntelliJ
++
+.build.gradle
+image::intellij-build-gradle.png[]
+.. or alternativly make an configuration "edit configuration"
++
+.build gradle over configuration
+image::intellij-add-configuration.png[]
+.. creating a new module
++
+.creating a modul
+image::intellij-new-module.png[]
++
+Rightclick on an existing module: New -> Module
++
+Amdatu-> Project Template Project (Stringtemplate)
+
+== Hints - intellij problems
+.. If you have some problems - for example java version is not found: look in File -> Project Structure -> Project
++
+.check java version
+image::intellij-java.png[]
+.. If there is the module not correctly loaded, you can see that the blue square is not present
++
+.not loaded modules
+image::intellij-load-modul.png[]
++
+This can be fixed via Tools -> Amdatu -> Refresh-Workspace. If it is still not working: File -> Invalidate Caches/Restart

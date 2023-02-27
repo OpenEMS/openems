@@ -14,7 +14,8 @@ import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
 import { DirectiveModule } from './directive/directive';
 import { MeterModule } from './edge/meter/meter.module';
 import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
-import { FormlySelectFieldWrapperComponent } from './formly/formly-select-field.wrapper';
+import { FormlySelectFieldModalComponent } from './formly/formly-select-field-modal.component';
+import { FormlySelectFieldExtendedWrapperComponent } from './formly/formly-select-field.extended';
 import { InputTypeComponent } from './formly/input';
 import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
 import { RepeatTypeComponent } from './formly/repeat';
@@ -61,7 +62,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
       wrappers: [
         { name: 'form-field', component: FormlyWrapperFormFieldComponent },
         { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
-        { name: 'formly-select-field-wrapper', component: FormlySelectFieldWrapperComponent }
+        { name: 'formly-select-extended-wrapper', component: FormlySelectFieldExtendedWrapperComponent }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
@@ -77,7 +78,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
       ],
     }),
     PipeModule,
-    Generic_ComponentsModule
+    Generic_ComponentsModule,
+    TranslateModule
   ],
   declarations: [
     // components
@@ -89,7 +91,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyWrapperFormFieldComponent,
     RepeatTypeComponent,
     FormlyWrapperInputSerialNumber,
-    FormlySelectFieldWrapperComponent
+    FormlySelectFieldExtendedWrapperComponent,
+    FormlySelectFieldModalComponent
   ],
   exports: [
     // modules

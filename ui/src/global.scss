@@ -31,7 +31,6 @@
 
 formly-wrapper-ion-form-field,
 formly-input-serial-number,
-formly-select-field-wrapper,
 formly-field-ion-radio {
     ion-label {
         line-height: 1.2;
@@ -299,4 +298,8 @@ ion-modal.auto-height {
             padding: 10px;
         }
     }
+}
+
+ion-modal.full-width {
+    --width: 100%;
 }

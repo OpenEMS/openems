@@ -261,7 +261,7 @@
 			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
-			<version>3.29.0</version>
+			<version>3.31.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
@@ -388,7 +388,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.5.3</version>
+			<version>42.5.4</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->
