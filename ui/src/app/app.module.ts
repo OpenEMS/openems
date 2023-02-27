@@ -10,6 +10,7 @@ import { FORMLY_CONFIG } from '@ngx-formly/core';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AngularMyDatePickerModule } from 'angular-mydatepicker';
 import { CookieService } from 'ngx-cookie-service';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ChangelogModule } from './changelog/changelog.module';
@@ -22,6 +23,7 @@ import { RegistrationModule } from './registration/registration.module';
 import { ChartOptionsPopoverComponent } from './shared/chartoptions/popover/popover.component';
 import { PickDatePopoverComponent } from './shared/pickdate/popover/popover.component';
 import { MyErrorHandler } from './shared/service/myerrorhandler';
+import { Pagination } from './shared/service/pagination';
 import { SharedModule } from './shared/shared.module';
 import { StatusSingleComponent } from './shared/status/single/status.component';
 import { registerTranslateExtension } from './shared/translate.extension';
@@ -64,6 +66,7 @@ import { UserModule } from './user/user.module';
     { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
     // Use factory for formly. This allows us to use translations in validationMessages.
     { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
+    Pagination
   ],
   bootstrap: [AppComponent],
 })
