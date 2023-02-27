@@ -49,6 +49,34 @@ image::intellij-new-module.png[]
 Rightclick on an existing module: New -> Module
 +
 Amdatu-> Project Template Project (Stringtemplate)
++
+.. add Support for Eclipse Code Formatting
++
+Search for 'Adapter for Eclipse Code Formatter' in the Plugin store
++
+.download Adapter for Eclipse Code Formatter
+image::intellij-code-formatter.png[]
++
+After restarting the IDE go to Settings -> Other Settings -> Adapter for Eclipse Code Formatter
++
+.Adapter Settings
+image::intellij-code-formatter-settings.png[]
++
+Check the radiobutton for "Use Eclipse's Code Formatter"
++
+.Enable Adapter
+image::intellij-code-formatter-enable.png[]
++
+Type in your Eclipse installation folder
++
+.Set Eclipse Path
+image::intellij-code-formatter-path.png[]
++
+Choose 'Eclipse 2.1 [built-in]' as a formatter config
++
+.Choose Format
+image::intellij-code-formatter-format.png[]
+Now Reformat Code will use the Eclipse format (e.g. Use TAB instead of Whitespaces)
 
 == Hints - intellij problems
 .. If you have some problems - for example java version is not found: look in File -> Project Structure -> Project
