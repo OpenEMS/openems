@@ -18,9 +18,9 @@ public class DigitalOutputTest extends AbstractHardwareTest {
     
     @Test
     public void testDigitalOutputToggle() {
-    	digitalOutput.setState(false);
-    	assertTrue(digitalOutput.isOff());
-    	digitalOutput.on();
-    	assertTrue(digitalOutput.isOn());
+    	this.digitalOutput.setState(false);
+    	assertTrue(this.digitalOutput.isOff());
+    	this.digitalOutput.on();
+    	assertTrue(this.digitalOutput.isOn());
     }
 }

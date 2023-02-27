@@ -7,12 +7,11 @@ import io.openems.edge.io.hal.api.ButtonPressCallback;
 
 public class Pi4jButton implements PressButton {
 
-	private final DigitalInput din; 
+	private final DigitalInput din;
+
 	public Pi4jButton(DigitalInput din, ButtonPressCallback callback) {
 		this.din = din;
-		this.din.addListener(status -> {
-			callback.onButtonPress();
-		});
+		this.din.addListener(status -> callback.onButtonPress());
 	}
 
 	@Override

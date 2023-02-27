@@ -17,12 +17,14 @@ public class Cm4Hardware {
 		LED_2(27);
 		
 		private int gpio;
+
 		Led(int gpio) {
 			this.gpio = gpio;
 		}
 		
 		/**
 		 * Get GPIO of the LED.
+		 * @return number of the GPIO which the LED is occupying.
 		 */
 		public int getGpio() {
 			return this.gpio;
@@ -34,8 +36,10 @@ public class Cm4Hardware {
 		 * User button 1.
 		 */
 		BUTTON_1(13);
-		
+
+
 		private int gpio;
+
 		Button(int gpio) {
 			this.gpio = gpio;
 		}

@@ -1,5 +1,6 @@
 package io.openems.edge.io.hal.pi4j;
 
+import io.openems.edge.io.hal.api.Led;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,6 +23,9 @@ import io.openems.edge.io.hal.pi4j.modberry.ModBerryX500CM4;
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 
+import java.util.Objects;
+import java.util.Optional;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -36,7 +40,9 @@ public class Pi4JComponent extends AbstractOpenemsComponent implements Pi4JInter
 	
 	private Config config;
 	private Context pi4j;
-	
+
+	private Led led;
+
 	public Pi4JComponent() {
 		super(OpenemsComponent.ChannelId.values(),
 				Pi4JInterface.ChannelId.values());
@@ -48,7 +54,7 @@ public class Pi4JComponent extends AbstractOpenemsComponent implements Pi4JInter
 	}
 	
 	public ModBerryX500CM4 getInstance() {
-		return new ModBerryX500CM4(pi4j);
+		return new ModBerryX500CM4(this.pi4j);
 	}
 
 
@@ -64,19 +70,19 @@ public class Pi4JComponent extends AbstractOpenemsComponent implements Pi4JInter
 				.autoDetectProviders()
 				.build();
 		
-		var hardware = getInstance();
-		hardware.getLed(Cm4Hardware.Led.LED_1);
+		var hardware = this.getInstance();
+		this.led = hardware.getLed(Cm4Hardware.Led.LED_1);
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		this.pi4j.shutdown();
-		this.logError(log, "Shutting down Pi4J context.");
+		this.logError(this.log, "Shutting down Pi4J context.");
 		super.deactivate();
 	}
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		// No op
+		Optional.ofNullable(this.led).ifPresent(Led::toggle);
 	}
 }

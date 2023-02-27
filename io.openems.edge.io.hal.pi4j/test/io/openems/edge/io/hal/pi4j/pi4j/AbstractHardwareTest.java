@@ -33,7 +33,7 @@ public abstract class AbstractHardwareTest {
 	
 	@Before
 	public final void setUpBase() throws Exception {
-		pi4j = Pi4J.newContextBuilder()
+		this.pi4j = Pi4J.newContextBuilder()
 				.add(new MockPlatform())
 				.add(
 						MockAnalogInputProvider.newInstance(),
@@ -50,15 +50,15 @@ public abstract class AbstractHardwareTest {
 	
 	@After
 	public final void tearDownBase() throws Exception {
-		pi4j.shutdown();
+		this.pi4j.shutdown();
 	}
 	
 	protected MockDigitalInput toMock(DigitalInput digitalInput) {
-		return toMock(MockDigitalInput.class, digitalInput);
+		return this.toMock(MockDigitalInput.class, digitalInput);
 	}
 	
     protected MockDigitalOutput toMock(DigitalOutput digitalOutput) {
-        return toMock(MockDigitalOutput.class, digitalOutput);
+        return this.toMock(MockDigitalOutput.class, digitalOutput);
     }
 
     protected MockDigitalOutput[] toMock(DigitalOutput[] digitalOutputs) {
@@ -66,15 +66,15 @@ public abstract class AbstractHardwareTest {
     }
 
     protected MockPwm toMock(Pwm pwm) {
-        return toMock(MockPwm.class, pwm);
+        return this.toMock(MockPwm.class, pwm);
     }
 
     protected MockI2C toMock(I2C i2c) {
-        return toMock(MockI2C.class, i2c);
+        return this.toMock(MockI2C.class, i2c);
     }
 
     protected MockSpi toMock(Spi spi) {
-        return toMock(MockSpi.class, spi);
+        return this.toMock(MockSpi.class, spi);
     }
 	
     private <T> T toMock(Class<T> type, Object instance) {

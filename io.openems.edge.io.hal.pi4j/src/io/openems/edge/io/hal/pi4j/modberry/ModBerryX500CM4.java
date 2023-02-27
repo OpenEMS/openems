@@ -18,9 +18,14 @@ public class ModBerryX500CM4 {
 	public ModBerryX500CM4(Context pi4j) {
 		this.pi4j = pi4j;
 	}
-	
+
+	/**
+	 * Gets one of the Modberry LEDs.
+	 * @param led to select which LED you want to control.
+	 * @return a LED object ready for blinking.
+	 */
 	public Led getLed(Cm4Hardware.Led led) {
-		var handle = this.pi4j.digitalOutput().create(DigitalOutputConfigBuilder.newInstance(pi4j)
+		var handle = this.pi4j.digitalOutput().create(DigitalOutputConfigBuilder.newInstance(this.pi4j)
 				.address(led.getGpio())
 				.id("User LED " + led.toString())
 				.initial(DigitalState.LOW)
@@ -28,9 +33,17 @@ public class ModBerryX500CM4 {
 		
 		return new Pi4jLed(handle);
 	}
-	
+
+	/**
+	 * Creates the built-in button of the Modberry X500.
+	 * For each button it can be queried if it is currently pressed or the caller can register a callback
+	 * for getting notified on button press.
+	 * @param btn specifies which button you want.
+	 * @param callback gets called every time the button is pressed.
+	 * @return a PressButton object ready to use.
+	 */
 	public PressButton getButton(Cm4Hardware.Button btn, ButtonPressCallback callback) {
-		var handle = this.pi4j.digitalInput().create(DigitalInputConfigBuilder.newInstance(pi4j)
+		var handle = this.pi4j.digitalInput().create(DigitalInputConfigBuilder.newInstance(this.pi4j)
 				.address(btn.getGpio())
 				.id("User Button " + btn.toString())
 				.debounce(100L)
