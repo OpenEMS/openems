@@ -35,6 +35,18 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.2.6',
+        changes: [
+          Changelog.UI + "Fehlerbehebung beim Reconnect der Websocket-Verbindung",
+          Changelog.library(Library.POSTGRESQL, Library.GRADLE),
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Verbesserungen an Keys" },
+          { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Alpitronic Hypercharger DC" },
+          { roleIsAtLeast: Role.ADMIN, change: "Bugfix Meter.Virtual.Symmetric.Add: Energiewerte" },
+          { roleIsAtLeast: Role.ADMIN, change: "Bugfix SolarEdge Grid-Meter (SunSpec Meter): Energie je Phase" },
+          { roleIsAtLeast: Role.ADMIN, change: "IBN-Assistent/Backend: Verbesserung der Fehlerhandlings" },
+        ]
+      },
+      {
         version: '2023.2.5',
         changes: [
           Changelog.UI,
