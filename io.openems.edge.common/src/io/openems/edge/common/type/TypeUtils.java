@@ -726,8 +726,7 @@ public class TypeUtils {
 		if (count == 0) {
 			return null;
 		}
-		return Math.round(sum / count);
-		// TODO add JUnit test
+		return Math.round(sum / count);		
 	}
 
 	/**

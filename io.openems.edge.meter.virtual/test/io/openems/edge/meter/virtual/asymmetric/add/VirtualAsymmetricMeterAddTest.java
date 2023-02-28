@@ -1,11 +1,12 @@
 package io.openems.edge.meter.virtual.asymmetric.add;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.test.DummyAsymmetricMeter;
@@ -42,18 +43,16 @@ public class VirtualAsymmetricMeterAddTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new AsymmetricVirtualAdd()) //
-				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
-
-				.addReference("addMeter", new DummyAsymmetricMeter(METER_ID_1)) //
-				.addReference("addMeter", new DummyAsymmetricMeter(METER_ID_2)) //
-
+				.addReference("meters", //
+						List.of(new DummyAsymmetricMeter(METER_ID_1), //
+								new DummyAsymmetricMeter(METER_ID_2))) //
 				.activate(MyConfig.create() //
 						.setId(METER_ID) //
 						.setMeterIds(METER_ID_1, METER_ID_2) //
 						.setType(MeterType.GRID) //
 						.build())
-				.next(new TestCase() //
+				.next(new TestCase("one") //
 						.input(METER_ID_1_ACTIVEPOWER, 6_000) //
 						.input(METER_ID_1_ACTIVEPOWER_L1, 2_000) //
 						.input(METER_ID_1_ACTIVEPOWER_L2, 2_000) //
@@ -63,10 +62,10 @@ public class VirtualAsymmetricMeterAddTest {
 						.input(METER_ID_2_ACTIVEPOWER_L2, 2_500) //
 						.input(METER_ID_2_ACTIVEPOWER_L3, 2_500) //
 						.input(METER_ID_1_VOLTAGE, 10) //
-						.input(METER_ID_2_VOLTAGE, 20)
+						.input(METER_ID_2_VOLTAGE, 20) //
 						.input(METER_ID_1_FREQUENCY, 49) //
 						.input(METER_ID_2_FREQUENCY, 51)) //
-				.next(new TestCase() //
+				.next(new TestCase("two") //
 						.output(METER_POWER, 13_500) //
 						.output(METER_POWER_L1, 4_500) //
 						.output(METER_POWER_L2, 4_500) //
