@@ -11,10 +11,7 @@ public class ConfigProperties {
 	// Target time specified
 	private final boolean targetTimeSpecified;
 
-	// Target date [YYYY-MM-DD]
-	private final String targetDate;
-
-	// Target time [HH:MM]
+	// Target time [YYYY-MM-DDTHH:MM]
 	private final String targetTime;
 
 	// Target time buffer
@@ -32,13 +29,12 @@ public class ConfigProperties {
 	// Condition for termination
 	private final EndCondition endCondition;
 
-	public ConfigProperties(boolean isRunning, int targetSoc, boolean targetTimeSpecified, String targetDate,
-			String targetTime, int targetTimeBuffer, boolean selfTermination, int terminationBuffer,
-			boolean conditionalTermination, EndCondition endCondition) {
+	public ConfigProperties(boolean isRunning, int targetSoc, boolean targetTimeSpecified, String targetTime,
+			int targetTimeBuffer, boolean selfTermination, int terminationBuffer, boolean conditionalTermination,
+			EndCondition endCondition) {
 		this.isRunning = isRunning;
 		this.targetSoc = targetSoc;
 		this.targetTimeSpecified = targetTimeSpecified;
-		this.targetDate = targetDate;
 		this.targetTime = targetTime;
 		this.targetTimeBuffer = targetTimeBuffer;
 		this.selfTermination = selfTermination;
@@ -57,10 +53,6 @@ public class ConfigProperties {
 
 	public boolean isTargetTimeSpecified() {
 		return this.targetTimeSpecified;
-	}
-
-	public String getTargetDate() {
-		return this.targetDate;
 	}
 
 	public String getTargetTime() {

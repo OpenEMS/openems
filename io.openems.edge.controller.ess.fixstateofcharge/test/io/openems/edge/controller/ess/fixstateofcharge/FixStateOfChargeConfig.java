@@ -19,7 +19,6 @@ public class FixStateOfChargeConfig extends AbstractComponentConfig implements C
 		public int terminationBuffer;
 		public boolean conditionalTermination;
 		public EndCondition endCondition;
-		public String targetDate;
 
 		private Builder() {
 		}
@@ -50,11 +49,6 @@ public class FixStateOfChargeConfig extends AbstractComponentConfig implements C
 
 		public Builder setSpecifyTargetTime(boolean targetTimeSpecified) {
 			this.targetTimeSpecified = targetTimeSpecified;
-			return this;
-		}
-
-		public Builder setTargetDate(String targetDate) {
-			this.targetDate = targetDate;
 			return this;
 		}
 
@@ -118,11 +112,6 @@ public class FixStateOfChargeConfig extends AbstractComponentConfig implements C
 	@Override
 	public boolean targetTimeSpecified() {
 		return this.builder.targetTimeSpecified;
-	}
-
-	@Override
-	public String targetDate() {
-		return this.builder.targetDate;
 	}
 
 	@Override

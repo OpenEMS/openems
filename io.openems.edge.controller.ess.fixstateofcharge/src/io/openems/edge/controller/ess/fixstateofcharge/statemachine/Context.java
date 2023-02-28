@@ -1,7 +1,7 @@
 package io.openems.edge.controller.ess.fixstateofcharge.statemachine;
 
 import java.time.Clock;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 import io.openems.edge.common.statemachine.AbstractContext;
@@ -28,10 +28,10 @@ public class Context extends AbstractContext<AbstractFixStateOfCharge> {
 	private Float lastTargetPower;
 
 	private float rampPower;
-	private LocalDateTime targetDateTime;
+	private ZonedDateTime targetDateTime;
 
 	public Context(AbstractFixStateOfCharge parent, ConfigProperties config, Sum sum, int maxApparentPower, int soc,
-			int targetSoc, LocalDateTime targetDateTime, Clock clock) {
+			int targetSoc, ZonedDateTime targetDateTime, Clock clock) {
 		super(parent);
 		this.config = config;
 		this.maxApparentPower = maxApparentPower;
@@ -74,7 +74,7 @@ public class Context extends AbstractContext<AbstractFixStateOfCharge> {
 		this.rampPower = rampPower;
 	}
 
-	public LocalDateTime getTargetTime() {
+	public ZonedDateTime getTargetTime() {
 		return this.targetDateTime;
 	}
 
@@ -84,7 +84,10 @@ public class Context extends AbstractContext<AbstractFixStateOfCharge> {
 	 * @return target time already passed
 	 */
 	public boolean passedTargetTime() {
-		var time = LocalDateTime.now(this.clock);
+		if (this.targetDateTime == null) {
+			return false;
+		}
+		var time = ZonedDateTime.now(this.clock);
 		if (time.isAfter(this.targetDateTime)) {
 			return true;
 		}
@@ -134,5 +137,14 @@ public class Context extends AbstractContext<AbstractFixStateOfCharge> {
 		var capacity = this.getParent().getEss().getCapacity().orElse(8_800);
 		return Math.round(Math.min(this.maxApparentPower * AbstractFixStateOfCharge.BOUNDARIES_POWER_FACTOR,
 				capacity * (1f / 6f)));
+	}
+
+	/**
+	 * Check if the target time should be considered.
+	 * 
+	 * @return is target time specified and valid
+	 */
+	protected boolean considerTargetTime() {
+		return this.config.isTargetTimeSpecified() && this.targetDateTime != null;
 	}
 }
