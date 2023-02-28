@@ -105,7 +105,12 @@
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
-			<version>1.4</version>
+			<version>1.5</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.11.0</version>
 		</dependency>
 		<!-- de -->
 		<dependency>
@@ -249,12 +254,12 @@
 			<!-- Changelog: https://github.com/typetools/checker-framework/blob/master/docs/CHANGELOG.md -->
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
-			<version>3.29.0</version>
+			<version>3.31.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.14.17</version>
+			<version>0.14.18</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv5 Client -->
@@ -301,7 +306,7 @@
 			<!-- HTML processing -->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.15.3</version>
+			<version>1.15.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -382,7 +387,7 @@
 			<!-- Used by io.openems.backend.metadata.odoo -->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.5.3</version>
+			<version>42.5.4</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb -->

@@ -26,6 +26,13 @@ public class FieldTypeConflictHandler {
 
 	public FieldTypeConflictHandler(InfluxImpl parent) {
 		this.parent = parent;
+		this.initializePredefinedHandlers();
+	}
+
+	/**
+	 * Add some already known Handlers.
+	 */
+	private void initializePredefinedHandlers() {
 	}
 
 	/**
@@ -62,7 +69,9 @@ public class FieldTypeConflictHandler {
 		}
 		this.parent.logInfo(this.log,
 				"Add handler for [" + field + "] from [" + thisType + "] to [" + requiredType.name().toLowerCase()
-				+ "]")
+						+ "]\n" //
+						+ "Add predefined FieldTypeConflictHandler: this.createAndAddHandler(\"" + field
+						+ "\", RequiredType." + requiredType.name() + ");");
 		;
 
 		return true;

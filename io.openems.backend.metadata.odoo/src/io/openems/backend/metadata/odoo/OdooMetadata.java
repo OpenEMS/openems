@@ -290,11 +290,15 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 
 		switch (event.getTopic()) {
 		case Edge.Events.ON_SET_ONLINE: {
-			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetOnline.EDGE);
+			var edgeId = reader.getString(Edge.Events.OnSetOnline.EDGE_ID);
 			var isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
 
-			// Set OpenEMS Is Connected in Odoo/Postgres
-			this.postgresHandler.getPeriodicWriteWorker().onSetOnline(edge, isOnline);
+			this.getEdge(edgeId).ifPresent(edge -> {
+				if (edge instanceof MyEdge) {
+					// Set OpenEMS Is Connected in Odoo/Postgres
+					this.postgresHandler.getPeriodicWriteWorker().onSetOnline((MyEdge) edge, isOnline);
+				}
+			});
 		}
 			break;
 

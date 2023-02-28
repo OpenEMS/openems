@@ -219,7 +219,6 @@ public interface ManagedEvcs extends Evcs {
 		 */
 		SET_CHARGE_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE) //
 				.persistencePriority(PersistencePriority.HIGH) //
 				.accessMode(AccessMode.READ_WRITE)), //
 

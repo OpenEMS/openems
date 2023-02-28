@@ -70,8 +70,15 @@ public class MinuteTimer {
 	}
 
 	private void cycle() {
-		this.subs.forEach(Runnable::run);
+		this.log.info("[Alerting-MinuteTimer] cycle");
 		this.thread = this.scheduler.schedule(this::cycle, this.millisToNextMinute(), TimeUnit.MILLISECONDS);
+		this.subs.forEach((sub) -> {
+			try {
+				sub.run();
+			} catch (Throwable t) {
+				this.log.error(t.getMessage());
+			}
+		});
 	}
 
 	private void stop() {
