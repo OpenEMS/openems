@@ -1,7 +1,5 @@
 package io.openems.edge.meter.virtual.asymmetric.add;
 
-import java.util.List;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -9,6 +7,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
@@ -38,8 +38,17 @@ public class AsymmetricVirtualAdd extends AbstractVirtualAddMeter<AsymmetricMete
 	@Reference
 	private ConfigurationAdmin configurationAdmin;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
-	protected List<AsymmetricMeter> meters;
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE)
+	protected void addMeter(AsymmetricMeter meter) {
+		super.addMeter(meter);
+	}
+
+	protected void removeMeter(AsymmetricMeter meter) {
+		super.removeMeter(meter);
+	}
 
 	private Config config;
 
@@ -82,11 +91,6 @@ public class AsymmetricVirtualAdd extends AbstractVirtualAddMeter<AsymmetricMete
 				AsymmetricMeter.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(AsymmetricVirtualAdd.class, accessMode, 100) //
 						.build());
-	}
-
-	@Override
-	protected List<AsymmetricMeter> getMeters() {
-		return this.meters;
 	}
 
 	@Override

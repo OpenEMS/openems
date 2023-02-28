@@ -1,7 +1,5 @@
 package io.openems.edge.meter.virtual.asymmetric.add;
 
-import java.util.List;
-
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
@@ -44,9 +42,10 @@ public class VirtualAsymmetricMeterAddTest {
 	public void test() throws Exception {
 		new ComponentTest(new AsymmetricVirtualAdd()) //
 				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
-				.addReference("meters", //
-						List.of(new DummyAsymmetricMeter(METER_ID_1), //
-								new DummyAsymmetricMeter(METER_ID_2))) //
+
+				.addReference("addMeter", new DummyAsymmetricMeter(METER_ID_1))
+				.addReference("addMeter", new DummyAsymmetricMeter(METER_ID_2))
+
 				.activate(MyConfig.create() //
 						.setId(METER_ID) //
 						.setMeterIds(METER_ID_1, METER_ID_2) //

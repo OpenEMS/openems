@@ -1,7 +1,5 @@
 package io.openems.edge.meter.virtual.symmetric.add;
 
-import java.util.List;
-
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
@@ -9,6 +7,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.test.DummyAsymmetricMeter;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
 public class VirtualSymmetricMeterAddTest {
@@ -37,11 +36,12 @@ public class VirtualSymmetricMeterAddTest {
 	public void test() throws Exception {
 		new ComponentTest(new SymmetricVirtualAdd()) //
 				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
-				.addReference("meters", //
-						List.of(new DummySymmetricMeter(METER_ID_1), //
-								new DummySymmetricMeter(METER_ID_2), //
-								new DummySymmetricMeter(METER_ID_3), //
-								new DummySymmetricMeter(METER_ID_4))) //
+				
+				.addReference("addMeter", new DummySymmetricMeter(METER_ID_1))
+				.addReference("addMeter", new DummySymmetricMeter(METER_ID_2))
+				.addReference("addMeter", new DummySymmetricMeter(METER_ID_3))
+				.addReference("addMeter", new DummySymmetricMeter(METER_ID_4))
+				
 				.activate(MyConfig.create() //
 						.setId(METER_ID) //
 						.setMeterIds(METER_ID_1, METER_ID_2, METER_ID_3, METER_ID_4) //

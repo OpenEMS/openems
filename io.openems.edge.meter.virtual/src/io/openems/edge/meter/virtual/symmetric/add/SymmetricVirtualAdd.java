@@ -1,7 +1,5 @@
 package io.openems.edge.meter.virtual.symmetric.add;
 
-import java.util.List;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -9,6 +7,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
@@ -23,7 +23,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.VirtualMeter;
-import io.openems.edge.meter.virtual.asymmetric.add.AsymmetricChannelManager;
 import io.openems.edge.meter.virtual.common.AbstractVirtualAddMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -37,13 +36,22 @@ import io.openems.edge.meter.virtual.common.AbstractVirtualAddMeter;
 public class SymmetricVirtualAdd extends AbstractVirtualAddMeter<SymmetricMeter>
 		implements VirtualMeter, SymmetricMeter, OpenemsComponent, ModbusSlave {
 
-	private final AsymmetricChannelManager channelManager = new AsymmetricChannelManager(this);
+	private final SymmetricChannelManager channelManager = new SymmetricChannelManager(this);
 
 	@Reference
 	private ConfigurationAdmin configurationAdmin;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
-	protected List<SymmetricMeter> meters;
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE)
+	protected void addMeter(SymmetricMeter meter) {
+		super.addMeter(meter);
+	}
+
+	protected void removeMeter(SymmetricMeter meter) {
+		super.removeMeter(meter);
+	}
 
 	private Config config;
 
@@ -84,11 +92,6 @@ public class SymmetricVirtualAdd extends AbstractVirtualAddMeter<SymmetricMeter>
 				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(SymmetricVirtualAdd.class, accessMode, 100) //
 						.build());
-	}
-
-	@Override
-	protected List<SymmetricMeter> getMeters() {
-		return this.meters;
 	}
 
 	@Override

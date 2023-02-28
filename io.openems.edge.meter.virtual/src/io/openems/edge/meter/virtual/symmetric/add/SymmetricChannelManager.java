@@ -10,7 +10,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.meter.api.SymmetricMeter;
 
-public abstract class SymmetricChannelManager extends AbstractChannelListenerManager {
+public class SymmetricChannelManager extends AbstractChannelListenerManager {
 
 	public static final BiFunction<Integer, Integer, Integer> INTEGER_SUM = TypeUtils::sum;
 	public static final BiFunction<Long, Long, Long> LONG_SUM = TypeUtils::sum;
@@ -36,6 +36,11 @@ public abstract class SymmetricChannelManager extends AbstractChannelListenerMan
 		this.calculate(INTEGER_SUM, meters, SymmetricMeter.ChannelId.CURRENT);
 		this.calculate(INTEGER_AVG, meters, SymmetricMeter.ChannelId.FREQUENCY);
 		this.calculate(INTEGER_AVG, meters, SymmetricMeter.ChannelId.VOLTAGE);
+	}
+
+	public void update(List<? extends SymmetricMeter> meters) {
+		this.deactivate();
+		this.activate(meters);
 	}
 
 	/**

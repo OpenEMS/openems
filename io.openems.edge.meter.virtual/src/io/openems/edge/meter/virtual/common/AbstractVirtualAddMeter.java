@@ -1,5 +1,6 @@
 package io.openems.edge.meter.virtual.common;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -17,11 +18,25 @@ public abstract class AbstractVirtualAddMeter<METER extends SymmetricMeter> exte
 
 	protected abstract SymmetricChannelManager getChannelManager();
 
-	protected abstract List<METER> getMeters();
+	private final List<METER> meters = new ArrayList<>();
 
 	protected AbstractVirtualAddMeter(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
+	}
+
+	protected void addMeter(METER meter) {
+		synchronized (this.meters) {
+			this.meters.add(meter);
+			this.getChannelManager().update(this.meters);
+		}
+	}
+
+	protected void removeMeter(METER meter) {
+		synchronized (this.meters) {
+			this.meters.remove(meter);
+			this.getChannelManager().update(this.meters);
+		}
 	}
 
 	@Override
@@ -36,8 +51,6 @@ public abstract class AbstractVirtualAddMeter<METER extends SymmetricMeter> exte
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Meter", meterIds)) {
 			return;
 		}
-
-		this.getChannelManager().activate(this.getMeters());
 	}
 
 	@Override
@@ -48,7 +61,7 @@ public abstract class AbstractVirtualAddMeter<METER extends SymmetricMeter> exte
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().asString();
+		return this.getActivePower().asString();
 	}
 
 }
