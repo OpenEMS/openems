@@ -9,9 +9,9 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.meter.api.AsymmetricMeter;
 import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.meter.virtual.common.ChannelManager;
+import io.openems.edge.meter.virtual.symmetric.add.SymmetricChannelManager;
 
-public class AsymmetricChannelManager extends ChannelManager {
+public class AsymmetricChannelManager extends SymmetricChannelManager {
 
 	public AsymmetricChannelManager(SymmetricMeter parent) {
 		super(parent);
@@ -80,7 +80,7 @@ public class AsymmetricChannelManager extends ChannelManager {
 				Channel<T> channel = meter.channel(channelId);
 				result = aggregator.apply(result, channel.getNextValue().get());
 			}
-			Channel<T> channel = this.getParent().channel(channelId);
+			Channel<T> channel = this.parent.channel(channelId);
 			channel.setNextValue(result);
 		};
 		for (AsymmetricMeter meter : meters) {

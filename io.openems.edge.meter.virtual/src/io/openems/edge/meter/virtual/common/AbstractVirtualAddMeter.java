@@ -6,18 +6,18 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.VirtualMeter;
+import io.openems.edge.meter.virtual.symmetric.add.SymmetricChannelManager;
 
 public abstract class AbstractVirtualAddMeter<METER extends SymmetricMeter> extends AbstractOpenemsComponent
 		implements VirtualMeter, SymmetricMeter, OpenemsComponent, ModbusSlave {
 
-	protected abstract ComponentManager getComponentManager();
+	protected abstract SymmetricChannelManager getChannelManager();
 
-	protected abstract List<? extends SymmetricMeter> getMeters();
+	protected abstract List<METER> getMeters();
 
 	protected AbstractVirtualAddMeter(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
@@ -36,11 +36,19 @@ public abstract class AbstractVirtualAddMeter<METER extends SymmetricMeter> exte
 		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Meter", meterIds)) {
 			return;
 		}
+
+		this.getChannelManager().activate(this.getMeters());
 	}
 
 	@Override
 	protected void deactivate() {
+		this.getChannelManager().deactivate();
 		super.deactivate();
+	}
+
+	@Override
+	public String debugLog() {
+		return "L:" + this.getActivePower().asString();
 	}
 
 }

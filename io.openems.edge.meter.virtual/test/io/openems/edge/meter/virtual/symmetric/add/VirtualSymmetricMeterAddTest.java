@@ -43,7 +43,7 @@ public class VirtualSymmetricMeterAddTest {
 				.addReference("addMeter", new DummySymmetricMeter(METER_ID_3)) //
 				.addReference("addMeter", new DummySymmetricMeter(METER_ID_4)) //
 
-				.activate(MySymmetricMeterConfig.create() //
+				.activate(MyConfig.create() //
 						.setId(METER_ID) //
 						.setMeterIds(METER_ID_1, METER_ID_2) //
 						.setType(MeterType.GRID) //

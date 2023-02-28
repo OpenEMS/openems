@@ -707,7 +707,7 @@ public class TypeUtils {
 		}
 		return sum / count;
 	}
-	
+
 	/**
 	 * Safely finds the average value of all values.
 	 *
@@ -716,7 +716,7 @@ public class TypeUtils {
 	 */
 	public static Integer averageInt(Integer... values) {
 		var count = 0;
-		var sum = 0;
+		float sum = 0;
 		for (Integer value : values) {
 			if (value != null) {
 				count++;
@@ -726,7 +726,8 @@ public class TypeUtils {
 		if (count == 0) {
 			return null;
 		}
-		return (int) Math.round(sum / count);
+		return Math.round(sum / count);
+		// TODO add JUnit test
 	}
 
 	/**

@@ -48,7 +48,7 @@ public class VirtualAsymmetricMeterAddTest {
 				.addReference("addMeter", new DummyAsymmetricMeter(METER_ID_1)) //
 				.addReference("addMeter", new DummyAsymmetricMeter(METER_ID_2)) //
 
-				.activate(MyAsymmetricMeterConfig.create() //
+				.activate(MyConfig.create() //
 						.setId(METER_ID) //
 						.setMeterIds(METER_ID_1, METER_ID_2) //
 						.setType(MeterType.GRID) //

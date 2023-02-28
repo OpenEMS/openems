@@ -1,10 +1,10 @@
-package io.openems.edge.meter.virtual.symmetric.add;
+package io.openems.edge.meter.virtual.asymmetric.add;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.meter.api.MeterType;
 
 @SuppressWarnings("all")
-public class MySymmetricMeterConfig extends AbstractComponentConfig implements Config {
+public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 
@@ -36,8 +36,8 @@ public class MySymmetricMeterConfig extends AbstractComponentConfig implements C
 			return this;
 		}
 
-		public MySymmetricMeterConfig build() {
-			return new MySymmetricMeterConfig(this);
+		public MyConfig build() {
+			return new MyConfig(this);
 		}
 
 	}
@@ -53,7 +53,7 @@ public class MySymmetricMeterConfig extends AbstractComponentConfig implements C
 
 	private final Builder builder;
 
-	private MySymmetricMeterConfig(Builder builder) {
+	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
 	}
