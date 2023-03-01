@@ -85,9 +85,6 @@ public interface Webasto extends OpenemsComponent {
 		CABLE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE) //
 				.accessMode(AccessMode.READ_ONLY)), //
-		SESSION_ENERGY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS) //
-				.accessMode(AccessMode.READ_ONLY)), //
 		SESSION_START_TIME(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		SESSION_DURATION(Doc.of(OpenemsType.INTEGER) //
@@ -129,8 +126,7 @@ public interface Webasto extends OpenemsComponent {
 	/**
 	 * Gets the Value of {@link Webasto.ChannelId#ALIVE_REGISTER}.
 	 * 
-	 * @param value
-	 *            the value
+	 * @param value the value
 	 */
 	default void _setAliveValue(int value) throws OpenemsError.OpenemsNamedException {
 		WriteChannel<Integer> channel = this.getAliveChannel();
@@ -153,25 +149,6 @@ public interface Webasto extends OpenemsComponent {
 	 */
 	default int getActivePower() {
 		Channel<Integer> channel = this.getActivePowerChannel();
-		return channel.value().orElse(channel.getNextValue().orElse(0));
-	}
-
-	/**
-	 * Gets the Channel for {@link Webasto.ChannelId#SESSION_ENERGY}.
-	 *
-	 * @return the Channel
-	 */
-	default Channel<Integer> getSessionEnergyChannel() {
-		return this.channel(ChannelId.SESSION_ENERGY);
-	}
-
-	/**
-	 * Gets the Channel for {@link Webasto.ChannelId#SESSION_ENERGY}.
-	 *
-	 * @return the Channel
-	 */
-	default int getSessionEnergy() {
-		Channel<Integer> channel = this.getSessionEnergyChannel();
 		return channel.value().orElse(channel.getNextValue().orElse(0));
 	}
 
@@ -274,10 +251,8 @@ public interface Webasto extends OpenemsComponent {
 	 * Sets a value into the CurrentLimit register. See
 	 * {@link Webasto.ChannelId#CHARGING_CURRENT}.
 	 *
-	 * @param value
-	 *            the next write value
-	 * @throws OpenemsError.OpenemsNamedException
-	 *             on error
+	 * @param value the next write value
+	 * @throws OpenemsError.OpenemsNamedException on error
 	 */
 	default void setCurrentLimit(int value) throws OpenemsError.OpenemsNamedException {
 		WriteChannel<Integer> channel = this.getCurrentLimitChannel();
