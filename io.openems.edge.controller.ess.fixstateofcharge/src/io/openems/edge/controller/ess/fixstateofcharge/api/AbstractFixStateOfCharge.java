@@ -2,8 +2,7 @@ package io.openems.edge.controller.ess.fixstateofcharge.api;
 
 import java.io.IOException;
 import java.time.Clock;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -47,16 +46,14 @@ import io.openems.edge.timedata.api.Timedata;
 public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		implements FixStateOfCharge, Controller, OpenemsComponent {
 
-	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
 	private static final long INFO_DISPLAY_TIME = 1; // h
 
 	private final StateMachine stateMachine = new StateMachine(State.IDLE);
 
 	private RampFilter rampFilter = new RampFilter();
 
-	// Configured TargetTime as LocalTime
-	private LocalDateTime targetDateTime;
+	// Configured TargetTime as ZonedDateTime
+	private ZonedDateTime targetDateTime;
 
 	/**
 	 * Default power factor is applied to the maximum allowed charge power of the
@@ -303,29 +300,21 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		if (!this.config.isTargetTimeSpecified()) {
 			return;
 		}
+
+		/*
+		 * Try to parse ZonedDateTime format e.g. 2023-12-15T13:47:20+01:00
+		 */
 		try {
-			this.targetDateTime = AbstractFixStateOfCharge.parseDateTime(this.config.getTargetDate(),
-					this.config.getTargetTime(), DATE_TIME_FORMATTER);
+			this.targetDateTime = ZonedDateTime.parse(this.config.getTargetTime());
 			this.channel(FixStateOfCharge.ChannelId.NO_VALID_TARGET_TIME).setNextValue(false);
+
 		} catch (DateTimeParseException e) {
+
 			this.targetDateTime = null;
 			this.logError(this.log, "Not able to parse target time: " + e.getMessage());
 			this.channel(FixStateOfCharge.ChannelId.NO_VALID_TARGET_TIME).setNextValue(true);
-		}
-	}
 
-	/**
-	 * Helper to parse the given date and time into LocalDateTime.
-	 * 
-	 * @param date      date e.g. "2022-10-23"
-	 * @param time      tima e.g. "08:30"
-	 * @param formatter DateTimeFormatter
-	 * @return parsed LocalDateTime
-	 */
-	public static LocalDateTime parseDateTime(String date, String time, DateTimeFormatter formatter)
-			throws DateTimeParseException {
-		var dateTime = date + " " + time;
-		return LocalDateTime.parse(dateTime, formatter);
+		}
 	}
 
 	/**
@@ -562,7 +551,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 	 * @return charge power as negative value, discharge power as positive value
 	 */
 	public static Integer calculateTargetPower(int soc, int targetSoc, int capacity, Clock clock,
-			LocalDateTime targetTime) {
+			ZonedDateTime targetTime) {
 		var remainingSoC = Math.abs(soc - targetSoc);
 
 		// Calculate the remaining capacity with remaining soc plus one, to avoid very
@@ -574,7 +563,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		var remainingCapacity = Math.round(capacity * (remainingSoC) * 36);
 
 		// Remaining time in seconds till the target time - buffer.
-		var remainingTime = ChronoUnit.SECONDS.between(LocalDateTime.now(clock), targetTime);
+		var remainingTime = ChronoUnit.SECONDS.between(ZonedDateTime.now(clock), targetTime);
 
 		// Passed target time - do not divide by zero
 		if (remainingTime <= 0) {

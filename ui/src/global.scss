@@ -277,6 +277,13 @@ formly-input-section {
     ion-toggle {
         --background-checked: var(--ion-color-primary-tint);
     }
+
+    ion-spinner {
+        transform: scale(1.5);
+        left: 25%;
+        width: 50%;
+        color: var(--ion-color-primary);
+    }
 }
 
 // auto height for modals
