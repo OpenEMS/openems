@@ -38,6 +38,11 @@ public class SymmetricChannelManager extends AbstractChannelListenerManager {
 		this.calculate(INTEGER_AVG, meters, SymmetricMeter.ChannelId.VOLTAGE);
 	}
 
+	/**
+	 * Deactivates and activates the component.
+	 * 
+	 * @param meters the List of < ? extends {@link SymmetricMeter}>
+	 */
 	public void update(List<? extends SymmetricMeter> meters) {
 		this.deactivate();
 		this.activate(meters);
