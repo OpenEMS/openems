@@ -1,6 +1,5 @@
 package io.openems.backend.edgewebsocket;
 
-import java.util.OptionalDouble;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 

@@ -3,9 +3,6 @@ package io.openems.backend.timedata.influx;
 import java.net.URI;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -25,6 +22,8 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.influxdb.client.domain.WritePrecision;
@@ -68,7 +67,7 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timed
 	private InfluxConnector influxConnector = null;
 
 	// edgeId, channelIds which are timestamped channels
-	private final Map<Integer, Set<String>> timestampedChannelsForEdge = new HashMap<>();
+	private final Multimap<Integer, String> timestampedChannelsForEdge = HashMultimap.create();
 
 	public InfluxImpl() {
 		super("Timedata.InfluxDB");
@@ -121,7 +120,7 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timed
 			if (!isOnline) {
 				try {
 					var influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
-					this.timestampedChannelsForEdge.remove(influxEdgeId);
+					this.timestampedChannelsForEdge.removeAll(influxEdgeId);
 				} catch (OpenemsException e) {
 					e.printStackTrace();
 				}
@@ -141,9 +140,7 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timed
 					influxEdgeId, //
 					notification, //
 					channel -> {
-						this.timestampedChannelsForEdge //
-								.computeIfAbsent(influxEdgeId, t -> new HashSet<>()) //
-								.add(channel);
+						this.timestampedChannelsForEdge.put(influxEdgeId, channel);
 						return true;
 					});
 		} catch (OpenemsException e) {

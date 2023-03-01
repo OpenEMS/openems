@@ -144,6 +144,12 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 		var result = this.odooHandler.authenticateSession(sessionId);
 
 		// Parse Result
+		var jUser = JsonUtils.getAsJsonObject(result, "user");
+		var odooUserId = JsonUtils.getAsInt(jUser, "id");
+		var login = JsonUtils.getAsString(jUser, "login");
+		var name = JsonUtils.getAsString(jUser, "name");
+		var language = Language.from(JsonUtils.getAsString(jUser, "language"));
+		var globalRole = Role.getRole(JsonUtils.getAsString(jUser, "global_role"));
 		var jDevices = JsonUtils.getAsJsonArray(result, "devices");
 		NavigableMap<String, Role> roles = new TreeMap<>();
 		for (JsonElement device : jDevices) {
@@ -151,19 +157,12 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 			var role = Role.getRole(JsonUtils.getAsString(device, "role"));
 			roles.put(edgeId, role);
 		}
-		var jUser = JsonUtils.getAsJsonObject(result, "user");
-		var odooUserId = JsonUtils.getAsInt(jUser, "id");
 
-		var user = new MyUser(//
-				odooUserId, //
-				JsonUtils.getAsString(jUser, "login"), //
-				JsonUtils.getAsString(jUser, "name"), //
-				sessionId, //
-				Language.from(JsonUtils.getAsString(jUser, "language")), //
-				Role.getRole(JsonUtils.getAsString(jUser, "global_role")), //
-				roles);
-
-		return this.users.putIfAbsent(user.getId(), user);
+		// Return existing or newly created User
+		return this.users.computeIfAbsent(login, (ignore) -> {
+			// Add User if it does not exist
+			return new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles);
+		});
 	}
 
 	@Override
