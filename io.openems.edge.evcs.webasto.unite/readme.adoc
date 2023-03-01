@@ -1,4 +1,4 @@
-= Webasto UNITE EVCS
+= Webasto UNITE EVCS (BETA)
 
 This component implements the Webasto UNITE charging station, which is controlled and read out using the proprietary TCP protocol.
 It collects all relevant information into the given Nature Channels and its own Channels and sends charging commands that have been set by another controllers.
