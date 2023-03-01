@@ -163,8 +163,7 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 				Role.getRole(JsonUtils.getAsString(jUser, "global_role")), //
 				roles);
 
-		this.users.put(user.getId(), user);
-		return user;
+		return this.users.putIfAbsent(user.getId(), user);
 	}
 
 	@Override

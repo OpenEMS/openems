@@ -53,6 +53,7 @@ public class MergePointsWorker extends AbstractImmediateWorker {
 				try {
 					this.parent.getInfluxConnection().writeApi.writePoints(points);
 				} catch (Throwable t) {
+					this.parent.queryProxy.queryLimit.increase();
 					this.log.warn("Unable to write points. " + t.getMessage());
 					this.onWriteError.accept(t);
 				}

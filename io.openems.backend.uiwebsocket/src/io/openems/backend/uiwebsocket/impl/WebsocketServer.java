@@ -13,6 +13,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcMessage;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 
@@ -35,7 +36,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 			ThreadPoolUtils.debugMetrics(executor).forEach((key, value) -> {
 				data.put(now, "uiwebsocket/" + key, new JsonPrimitive(value));
 			});
-			parent.timedataManager.write("backend0", data);
+			parent.timedataManager.write("backend0", new TimestampedDataNotification(data));
 		});
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);

@@ -2,6 +2,7 @@ package io.openems.shared.influxdb;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -13,6 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +25,10 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.WriteApiBlocking;
+import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
+import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
@@ -36,7 +40,7 @@ import okhttp3.OkHttpClient;
 
 public class InfluxConnector {
 
-	public static final String MEASUREMENT = "data";
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private static final int CONNECT_TIMEOUT = 10; // [s]
 	private static final int READ_TIMEOUT = 60; // [s]
@@ -48,7 +52,7 @@ public class InfluxConnector {
 
 	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
-	private final QueryProxy queryProxy;
+	protected final QueryProxy queryProxy;
 	private final URI url;
 	private final String org;
 	private final String apiKey;
@@ -69,7 +73,7 @@ public class InfluxConnector {
 	 * @param isReadOnly    If true, a 'Read-Only-Mode' is activated, where no data
 	 *                      is actually written to the database
 	 * @param poolSize      the number of threads dedicated to handle the tasks
-	 * @param maxQueueSize 	queue size limit for executor
+	 * @param maxQueueSize  queue size limit for executor
 	 * @param onWriteError  A consumer for write-errors
 	 */
 	public InfluxConnector(QueryLanguageConfig queryLanguage, URI url, String org, String apiKey, String bucket,
@@ -170,18 +174,20 @@ public class InfluxConnector {
 	 * @param fromDate     the From-Date
 	 * @param toDate       the To-Date
 	 * @param channels     the Channels to query
+	 * @param measurement  the measurement
 	 * @return a map between ChannelAddress and value
 	 * @throws OpenemsException on error
 	 */
 	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(Optional<Integer> influxEdgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
+			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, String measurement)
+			throws OpenemsNamedException {
 		// handle empty call
 		if (channels.isEmpty()) {
 			return new TreeMap<>();
 		}
 
-		return this.queryProxy.queryHistoricEnergy(this.getInfluxConnection(), this.bucket, influxEdgeId, fromDate,
-				toDate, channels);
+		return this.queryProxy.queryHistoricEnergy(this.getInfluxConnection(), this.bucket, measurement, influxEdgeId,
+				fromDate, toDate, channels);
 	}
 
 	/**
@@ -192,19 +198,20 @@ public class InfluxConnector {
 	 * @param toDate       the To-Date
 	 * @param channels     the Channels to query
 	 * @param resolution   the resolution in seconds
+	 * @param measurement  the measurement
 	 * @return the historic data as Map
 	 * @throws OpenemsException on error
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(
 			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
-			Resolution resolution) throws OpenemsNamedException {
+			Resolution resolution, String measurement) throws OpenemsNamedException {
 		// handle empty call
 		if (channels.isEmpty()) {
 			return new TreeMap<>();
 		}
 
-		return this.queryProxy.queryHistoricEnergyPerPeriod(this.getInfluxConnection(), this.bucket, influxEdgeId,
-				fromDate, toDate, channels, resolution);
+		return this.queryProxy.queryHistoricEnergyPerPeriod(this.getInfluxConnection(), this.bucket, measurement,
+				influxEdgeId, fromDate, toDate, channels, resolution);
 	}
 
 	/**
@@ -215,20 +222,21 @@ public class InfluxConnector {
 	 * @param toDate       the To-Date
 	 * @param channels     the Channels to query
 	 * @param resolution   the resolution in seconds
+	 * @param measurement  the measurement
 	 * @return the historic data as Map
 	 * @throws OpenemsException on error
 	 */
 	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(
 			Optional<Integer> influxEdgeId, ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels,
-			Resolution resolution) throws OpenemsNamedException {
+			Resolution resolution, String measurement) throws OpenemsNamedException {
 
 		// handle empty call
 		if (channels.isEmpty()) {
 			return new TreeMap<>();
 		}
 
-		return this.queryProxy.queryHistoricData(this.getInfluxConnection(), this.bucket, influxEdgeId, fromDate,
-				toDate, channels, resolution);
+		return this.queryProxy.queryHistoricData(this.getInfluxConnection(), this.bucket, measurement, influxEdgeId,
+				fromDate, toDate, channels, resolution);
 	}
 
 	/**
@@ -244,6 +252,61 @@ public class InfluxConnector {
 			return;
 		}
 		this.pointsQueue.offer(point);
+	}
+
+	/**
+	 * Gets the edges which already have the available since field set. Mapped from
+	 * edgeId to timestamp of availableSince.
+	 * 
+	 * @return the map
+	 * @throws OpenemsNamedException on error
+	 */
+	public Map<Integer, Map<String, Long>> queryAvailableSince() throws OpenemsNamedException {
+		return this.queryProxy.queryAvailableSince(this.getInfluxConnection(), this.bucket);
+	}
+
+	/**
+	 * Builds a {@link Point} which set the
+	 * {@link QueryProxy.AVAILABLE_SINCE_COLUMN_NAME} field to the new value.
+	 * 
+	 * @param influxEdgeId            the id of the edge
+	 * @param availableSinceTimestamp the new timestamp
+	 * @param channel                 the channels
+	 * @return the {@link Point}
+	 */
+	public Point buildUpdateAvailableSincePoint(//
+			int influxEdgeId, //
+			String channel, //
+			long availableSinceTimestamp //
+	) {
+		return Point.measurement(QueryProxy.AVAILABLE_SINCE_MEASUREMENT) //
+				.addTag(OpenemsOEM.INFLUXDB_TAG, String.valueOf(influxEdgeId)) //
+				.addTag(QueryProxy.CHANNEL_TAG, channel) //
+				.time(0, WritePrecision.S) //
+				.addField(QueryProxy.AVAILABLE_SINCE_COLUMN_NAME, availableSinceTimestamp);
+	}
+
+	/**
+	 * Parses the number of an Edge from its name string.
+	 *
+	 * <p>
+	 * e.g. translates "edge0" to "0".
+	 *
+	 * @param name the edge name
+	 * @return the number
+	 * @throws OpenemsException on error
+	 */
+	public static Integer parseNumberFromName(String name) throws OpenemsException {
+		try {
+			var matcher = NAME_NUMBER_PATTERN.matcher(name);
+			if (matcher.find()) {
+				var nameNumberString = matcher.group(1);
+				return Integer.parseInt(nameNumberString);
+			}
+		} catch (NullPointerException e) {
+			/* ignore */
+		}
+		throw new OpenemsException("Unable to parse number from name [" + name + "]");
 	}
 
 }
