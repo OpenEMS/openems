@@ -40,9 +40,10 @@ export class HistoryComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-    });
+    this.service.setCurrentComponent('', this.route)
+    this.service.currentEdge.subscribe((edge) => {
+      this.edge = edge
+    })
     this.service.getConfig().then(config => {
       // gather ControllerIds of Channelthreshold Components
       // for (let controllerId of

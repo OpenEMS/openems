@@ -175,6 +175,7 @@ export class Websocket implements WebsocketInterface {
         this.service.getCurrentEdge().then(edge => {
 
           this.pagination.getAndSubscribeEdge(edge).then(() => {
+            edge.subscribeChannelsSuccessful = true;
             if (edge != null) {
               edge.subscribeChannelsOnReconnect(this);
             }

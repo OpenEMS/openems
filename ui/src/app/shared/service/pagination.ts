@@ -24,7 +24,9 @@ export class Pagination {
         this.edge = edge;
         this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] }))
       }).then(() => {
-        this.edge.sendRequest(this.service.websocket, new GetEdgeConfigRequest())
+        this.edge.subscribeChannels(this.service.websocket, '', [
+          new ChannelAddress('_sum', 'State'),
+        ]);
       })
         .finally(resolve)
         .catch(() => {
