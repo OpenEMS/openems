@@ -1,5 +1,6 @@
 package io.openems.edge.evcs.webasto.unite;
 
+import io.openems.edge.evcs.api.ChargingType;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
@@ -52,7 +53,12 @@ import io.openems.edge.evcs.webasto.unite.api.Webasto;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 public class WebastoImpl extends AbstractOpenemsModbusComponent
-		implements OpenemsComponent, Webasto, Evcs, ManagedEvcs, EventHandler {
+		implements
+			OpenemsComponent,
+			Webasto,
+			Evcs,
+			ManagedEvcs,
+			EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(WebastoImpl.class);
 
@@ -61,8 +67,6 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 
 	private Config config;
 
-	private int minCurrent;
-	private int maxCurrent;
 	private WebastoReadHandler readHandler;
 
 	@Reference
@@ -93,9 +97,8 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
 				config.modbus_id());
 		this.config = config;
-
-		this.minCurrent = config.minHwCurrent();
-		this.maxCurrent = config.maxHwCurrent();
+		this._setChargingType(ChargingType.AC);
+		this._setPowerPrecision(230); // 230 would be 1A steps
 		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
 		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
 		this.readHandler = new WebastoReadHandler(this);
@@ -121,35 +124,35 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this,
-				new FC4ReadInputRegistersTask(100, Priority.HIGH,
+				new FC4ReadInputRegistersTask(100, Priority.LOW,
 						m(Webasto.ChannelId.SERIAL_NUMBER, new StringWordElement(100, 25))),
-				new FC4ReadInputRegistersTask(130, Priority.HIGH,
+				new FC4ReadInputRegistersTask(130, Priority.LOW,
 						m(Webasto.ChannelId.CHARGE_POINT_ID, new StringWordElement(130, 50))),
-				new FC4ReadInputRegistersTask(190, Priority.HIGH,
+				new FC4ReadInputRegistersTask(190, Priority.LOW,
 						m(Webasto.ChannelId.BRAND, new StringWordElement(190, 10))),
-				new FC4ReadInputRegistersTask(210, Priority.HIGH,
+				new FC4ReadInputRegistersTask(210, Priority.LOW,
 						m(Webasto.ChannelId.MODEL, new StringWordElement(210, 5))),
-				new FC4ReadInputRegistersTask(230, Priority.HIGH,
+				new FC4ReadInputRegistersTask(230, Priority.LOW,
 						m(Webasto.ChannelId.FIRMWARE_VERSION, new StringWordElement(230, 50))),
-				new FC4ReadInputRegistersTask(290, Priority.HIGH,
+				new FC4ReadInputRegistersTask(290, Priority.LOW,
 						m(Webasto.ChannelId.DATE, new UnsignedDoublewordElement(290))),
-				new FC4ReadInputRegistersTask(294, Priority.HIGH,
+				new FC4ReadInputRegistersTask(294, Priority.LOW,
 						m(Webasto.ChannelId.TIME, new UnsignedDoublewordElement(294))),
-				new FC4ReadInputRegistersTask(400, Priority.HIGH,
+				new FC4ReadInputRegistersTask(400, Priority.LOW,
 						m(Webasto.ChannelId.CHARGE_POINT_POWER, new UnsignedDoublewordElement(400))),
-				new FC4ReadInputRegistersTask(404, Priority.HIGH,
+				new FC4ReadInputRegistersTask(404, Priority.LOW,
 						m(Webasto.ChannelId.NUMBER_OF_PHASES, new UnsignedWordElement(404))),
-				new FC4ReadInputRegistersTask(1000, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1000, Priority.LOW,
 						m(Webasto.ChannelId.CHARGE_POINT_STATE, new UnsignedWordElement(1000))),
-				new FC4ReadInputRegistersTask(1001, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1001, Priority.LOW,
 						m(Webasto.ChannelId.CHARGING_STATE, new UnsignedWordElement(1001))),
-				new FC4ReadInputRegistersTask(1002, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1002, Priority.LOW,
 						m(Webasto.ChannelId.EQUIPMENT_STATE, new UnsignedWordElement(1002))),
-				new FC4ReadInputRegistersTask(1004, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1004, Priority.LOW,
 						m(Webasto.ChannelId.CABLE_STATE, new UnsignedWordElement(1004))),
-				new FC4ReadInputRegistersTask(1006, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1006, Priority.LOW,
 						m(Webasto.ChannelId.EVSE_FAULT_CODE, new UnsignedDoublewordElement(1006))),
-				new FC4ReadInputRegistersTask(1008, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1008, Priority.LOW,
 						m(Webasto.ChannelId.CURRENT_L1, new UnsignedWordElement(1008))),
 				new FC4ReadInputRegistersTask(1010, Priority.HIGH,
 						m(Webasto.ChannelId.CURRENT_L2, new UnsignedWordElement(1010))),
@@ -157,11 +160,11 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 						m(Webasto.ChannelId.CURRENT_L3, new UnsignedWordElement(1012))),
 				new FC4ReadInputRegistersTask(1014, Priority.HIGH,
 						m(Webasto.ChannelId.VOLTAGE_L1, new UnsignedWordElement(1014))),
-				new FC4ReadInputRegistersTask(1016, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1016, Priority.LOW,
 						m(Webasto.ChannelId.VOLTAGE_L2, new UnsignedWordElement(1016))),
-				new FC4ReadInputRegistersTask(1018, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1018, Priority.LOW,
 						m(Webasto.ChannelId.VOLTAGE_L3, new UnsignedWordElement(1018))),
-				new FC4ReadInputRegistersTask(1020, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1020, Priority.LOW,
 						m(Webasto.ChannelId.ACTIVE_POWER_TOTAL, new UnsignedDoublewordElement(1020))),
 				new FC4ReadInputRegistersTask(1024, Priority.HIGH,
 						m(Webasto.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(1024))),
@@ -171,27 +174,27 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 						m(Webasto.ChannelId.ACTIVE_POWER_L3, new UnsignedDoublewordElement(1032))),
 				new FC4ReadInputRegistersTask(1036, Priority.HIGH,
 						m(Webasto.ChannelId.METER_READING, new UnsignedDoublewordElement(1036))),
-				new FC4ReadInputRegistersTask(1100, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1100, Priority.LOW,
 						m(Webasto.ChannelId.SESSION_MAX_CURRENT, new UnsignedWordElement(1100))),
-				new FC4ReadInputRegistersTask(1102, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1102, Priority.LOW,
 						m(Webasto.ChannelId.EVSE_MIN_CURRENT, new UnsignedWordElement(1102))),
-				new FC4ReadInputRegistersTask(1104, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1104, Priority.LOW,
 						m(Webasto.ChannelId.EVSE_MAX_CURRENT, new UnsignedWordElement(1104))),
-				new FC4ReadInputRegistersTask(1106, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1106, Priority.LOW,
 						m(Webasto.ChannelId.CABLE_MAX_CURRENT, new UnsignedWordElement(1106))),
-				new FC4ReadInputRegistersTask(1502, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1502, Priority.LOW,
 						m(Webasto.ChannelId.SESSION_ENERGY, new UnsignedDoublewordElement(1502))),
-				new FC4ReadInputRegistersTask(1504, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1504, Priority.LOW,
 						m(Webasto.ChannelId.SESSION_START_TIME, new UnsignedDoublewordElement(1504))),
-				new FC4ReadInputRegistersTask(1508, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1508, Priority.LOW,
 						m(Webasto.ChannelId.SESSION_DURATION, new UnsignedDoublewordElement(1508))),
-				new FC4ReadInputRegistersTask(1512, Priority.HIGH,
+				new FC4ReadInputRegistersTask(1512, Priority.LOW,
 						m(Webasto.ChannelId.SESSION_END_TIME, new UnsignedDoublewordElement(1512))),
-				new FC3ReadRegistersTask(2000, Priority.HIGH,
+				new FC3ReadRegistersTask(2000, Priority.LOW,
 						m(Webasto.ChannelId.FAILSAFE_CURRENT, new UnsignedWordElement(2000))),
-				new FC3ReadRegistersTask(2002, Priority.HIGH,
+				new FC3ReadRegistersTask(2002, Priority.LOW,
 						m(Webasto.ChannelId.FAILSAFE_TIMEOUT, new UnsignedWordElement(2002))),
-				new FC3ReadRegistersTask(5004, Priority.HIGH,
+				new FC3ReadRegistersTask(5004, Priority.LOW,
 						m(Webasto.ChannelId.CHARGING_CURRENT, new UnsignedWordElement(5004))),
 				new FC3ReadRegistersTask(6000, Priority.HIGH,
 						m(Webasto.ChannelId.ALIVE_REGISTER, new UnsignedWordElement(6000))),
@@ -215,12 +218,12 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public int getConfiguredMinimumHardwarePower() {
-		return Math.round(this.minCurrent / 1000f) * Evcs.DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
+		return Math.round(this.config.minHwCurrent() / 1000f) * Evcs.DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
 	}
 
 	@Override
 	public int getConfiguredMaximumHardwarePower() {
-		return Math.round(this.maxCurrent / 1000f) * Evcs.DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
+		return Math.round(this.config.maxHwCurrent() / 1000f) * Evcs.DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
 	}
 
 	@Override

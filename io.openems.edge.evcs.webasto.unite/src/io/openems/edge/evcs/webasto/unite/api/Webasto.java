@@ -12,43 +12,98 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface Webasto extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		SERIAL_NUMBER(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_ONLY)),
-		CHARGE_POINT_ID(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_ONLY)),
-		BRAND(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_ONLY)),
-		MODEL(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_ONLY)),
-		FIRMWARE_VERSION(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_ONLY)),
-		DATE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		TIME(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		CHARGE_POINT_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)),
-		NUMBER_OF_PHASES(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		CHARGE_POINT_STATE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		CHARGING_STATE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		EQUIPMENT_STATE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		CABLE_STATE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		EVSE_FAULT_CODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		CURRENT_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY)),
-		CURRENT_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY)),
-		CURRENT_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY)),
-		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
-		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
-		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
-		ACTIVE_POWER_TOTAL(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)),
-		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)),
-		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)),
-		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)),
-		METER_READING(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		SESSION_MAX_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)),
-		EVSE_MIN_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)),
-		EVSE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)),
-		CABLE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_ONLY)),
-		SESSION_ENERGY(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT_HOURS).accessMode(AccessMode.READ_ONLY)),
-		SESSION_START_TIME(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		SESSION_DURATION(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		SESSION_END_TIME(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
-		FAILSAFE_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)),
-		FAILSAFE_TIMEOUT(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE)),
-		CHARGING_CURRENT(Doc.of(OpenemsType.INTEGER).unit(Unit.AMPERE).accessMode(AccessMode.READ_WRITE)),
-		ALIVE_REGISTER(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE));
+		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		CHARGE_POINT_ID(Doc.of(OpenemsType.STRING) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		BRAND(Doc.of(OpenemsType.STRING) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		MODEL(Doc.of(OpenemsType.STRING) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		FIRMWARE_VERSION(Doc.of(OpenemsType.STRING) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		DATE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		TIME(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		CHARGE_POINT_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		NUMBER_OF_PHASES(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		CHARGE_POINT_STATE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		CHARGING_STATE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		EQUIPMENT_STATE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		CABLE_STATE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		EVSE_FAULT_CODE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		ACTIVE_POWER_TOTAL(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		METER_READING(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		SESSION_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		EVSE_MIN_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		EVSE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		CABLE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		SESSION_ENERGY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT_HOURS) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		SESSION_START_TIME(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		SESSION_DURATION(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		SESSION_END_TIME(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_ONLY)), //
+		FAILSAFE_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		FAILSAFE_TIMEOUT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		CHARGING_CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.AMPERE) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		ALIVE_REGISTER(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)); //
 
 		private final Doc doc;
 
@@ -74,7 +129,8 @@ public interface Webasto extends OpenemsComponent {
 	/**
 	 * Gets the Value of {@link Webasto.ChannelId#ALIVE_REGISTER}.
 	 * 
-	 * @param value the value
+	 * @param value
+	 *            the value
 	 */
 	default void _setAliveValue(int value) throws OpenemsError.OpenemsNamedException {
 		WriteChannel<Integer> channel = this.getAliveChannel();
@@ -218,8 +274,10 @@ public interface Webasto extends OpenemsComponent {
 	 * Sets a value into the CurrentLimit register. See
 	 * {@link Webasto.ChannelId#CHARGING_CURRENT}.
 	 *
-	 * @param value the next write value
-	 * @throws OpenemsError.OpenemsNamedException on error
+	 * @param value
+	 *            the next write value
+	 * @throws OpenemsError.OpenemsNamedException
+	 *             on error
 	 */
 	default void setCurrentLimit(int value) throws OpenemsError.OpenemsNamedException {
 		WriteChannel<Integer> channel = this.getCurrentLimitChannel();
