@@ -11,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String essId = null;
 		public int power;
 		public Mode mode;
+		public HybridEssMode hybridEssMode;
 
 		private Builder() {
 		}
@@ -35,6 +36,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setHybridEssMode(HybridEssMode hybridEssMode) {
+			this.hybridEssMode = hybridEssMode;
+			return this;
+		}
+		
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -74,6 +80,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public Mode mode() {
 		return this.builder.mode;
+	}
+
+	@Override
+	public HybridEssMode hybridEssMode() {
+		return this.builder.hybridEssMode;
 	}
 
 }
