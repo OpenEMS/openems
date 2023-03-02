@@ -150,7 +150,8 @@ public abstract class QueryProxy {
 	public static class RandomLimit {
 		private static final double MAX_LIMIT = 0.95;
 		private static final double MIN_LIMIT = 0;
-		private static final double STEP = 0.01;
+		private static final double STEP_UP = 0.10;
+		private static final double STEP_DOWN = 0.01;
 
 		private double limit = 0;
 
@@ -158,7 +159,7 @@ public abstract class QueryProxy {
 		 * Increases the current limit.
 		 */
 		public synchronized void increase() {
-			this.limit += STEP;
+			this.limit += STEP_UP;
 			if (this.limit > MAX_LIMIT) {
 				this.limit = MAX_LIMIT;
 			}
@@ -168,7 +169,7 @@ public abstract class QueryProxy {
 		 * Decreases the current limit.
 		 */
 		public synchronized void decrease() {
-			this.limit -= STEP;
+			this.limit -= STEP_DOWN;
 			if (this.limit <= MIN_LIMIT) {
 				this.limit = MIN_LIMIT;
 			}

@@ -28,7 +28,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-import com.influxdb.exceptions.BadRequestException;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.metadata.Edge;
@@ -91,14 +90,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timed
 
 		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
 				config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(), config.maxQueueSize(), //
-				(throwable) -> {
-					if (throwable instanceof BadRequestException) {
-						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
-
-					} else {
-						this.logError(this.log, "Unable to write to InfluxDB. " + throwable.getClass().getSimpleName()
-								+ ": " + throwable.getMessage());
-					}
+				(e) -> {
+					this.fieldTypeConflictHandler.handleException(e);
 				});
 	}
 

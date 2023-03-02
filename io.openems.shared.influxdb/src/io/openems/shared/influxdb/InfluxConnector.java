@@ -27,6 +27,7 @@ import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.WriteApiBlocking;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
+import com.influxdb.exceptions.BadRequestException;
 
 import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -77,7 +78,7 @@ public class InfluxConnector {
 	 * @param onWriteError  A consumer for write-errors
 	 */
 	public InfluxConnector(QueryLanguageConfig queryLanguage, URI url, String org, String apiKey, String bucket,
-			boolean isReadOnly, int poolSize, int maxQueueSize, Consumer<Throwable> onWriteError) {
+			boolean isReadOnly, int poolSize, int maxQueueSize, Consumer<BadRequestException> onWriteError) {
 		this.queryProxy = QueryProxy.from(queryLanguage);
 		this.url = url;
 		this.org = org;
