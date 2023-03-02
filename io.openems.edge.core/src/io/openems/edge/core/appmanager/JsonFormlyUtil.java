@@ -13,7 +13,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.host.NetworkConfiguration;
 
@@ -666,6 +668,10 @@ public class JsonFormlyUtil {
 						.build());
 			}
 			return this.setOptions(options.build());
+		}
+
+		public SelectBuilder setOptions(OptionsFactory factory, Language l) {
+			return this.setOptions(factory.options(l));
 		}
 
 		/**

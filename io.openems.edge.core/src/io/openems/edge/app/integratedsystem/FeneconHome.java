@@ -30,7 +30,9 @@ import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.Parity;
+import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.integratedsystem.FeneconHome.Property;
 import io.openems.edge.app.meter.KdkMeter;
@@ -243,7 +245,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 					.orElse(AcMeterType.SOCOMEC);
 
 			// Battery-Inverter Settings
-			final var safetyCountry = EnumUtils.getAsString(p, Property.SAFETY_COUNTRY);
+			final var safetyCountry = EnumUtils.getAsEnum(SafetyCountry.class, p, Property.SAFETY_COUNTRY);
 			final int maxFeedInPower;
 			final String feedInSetting = EnumUtils.getAsOptionalString(p, Property.FEED_IN_SETTING).orElse("UNDEFINED");
 			if (!rippleControlReceiverActive) {
@@ -311,7 +313,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 									.addProperty("enabled", true) //
 									.addProperty("modbus.id", modbusIdExternal) //
 									.addProperty("modbusUnitId", 247) //
-									.addProperty("safetyCountry", safetyCountry) //
+									.addProperty("safetyCountry", safetyCountry.name()) //
 									.addProperty("backupEnable", //
 											hasEmergencyReserve ? "ENABLE" : "DISABLE") //
 									.addProperty("feedPowerEnable", rippleControlReceiverActive ? "DISABLE" : "ENABLE") //
@@ -473,26 +475,11 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".safetyCountry.label")) //
 								.isRequired(true) //
-								.setOptions(JsonUtils.buildJsonArray() //
-										.add(JsonUtils.buildJsonObject() //
-												.addProperty("label", //
-														TranslationUtil.getTranslation(bundle, "germany")) //
-												.addProperty("value", "GERMANY") //
-												.build()) //
-										.add(JsonUtils.buildJsonObject() //
-												.addProperty("label", //
-														TranslationUtil.getTranslation(bundle, "austria")) //
-												.addProperty("value", "AUSTRIA") //
-												.build()) //
-										.add(JsonUtils.buildJsonObject() //
-												.addProperty("label", //
-														TranslationUtil.getTranslation(bundle, "switzerland")) //
-												.addProperty("value", "SWITZERLAND") //
-												.build()) //
-										.build()) //
+								.setOptions(OptionsFactory.of(SafetyCountry.class), language) //
 								.onlyIf(batteryInverter.isPresent(), f -> {
-									f.setDefaultValue(batteryInverter.get() //
+									final var setting = SafetyCountry.valueOf(batteryInverter.get() //
 											.getProperty("safetyCountry").get().getAsString());
+									f.setDefaultValue(setting.name());
 								}).build())
 						.add(JsonFormlyUtil.buildCheckbox(Property.RIPPLE_CONTROL_RECEIVER_ACTIV) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
