@@ -98,6 +98,8 @@ public class InfluxConnector {
 					.append("/") //
 					.append(POINTS_QUEUE_SIZE) //
 					.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? " !!!POINTS BACKPRESSURE!!!" : "") //
+					.append(" Limit:") //
+					.append(this.queryProxy.queryLimit) //
 					.toString());
 		}, 10, 10, TimeUnit.SECONDS);
 

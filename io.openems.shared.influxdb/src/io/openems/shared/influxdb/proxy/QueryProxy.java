@@ -186,8 +186,12 @@ public abstract class QueryProxy {
 
 	public final RandomLimit queryLimit = new RandomLimit();
 
+	public boolean isLimitReached() {
+		return Math.random() < this.queryLimit.getLimit();
+	}
+
 	protected void assertQueryLimit() throws OpenemsException {
-		if (Math.random() < this.queryLimit.getLimit()) {
+		if (this.isLimitReached()) {
 			throw new OpenemsException("InfluxDB read is temporarily blocked [" + this.queryLimit + "].");
 		}
 	}

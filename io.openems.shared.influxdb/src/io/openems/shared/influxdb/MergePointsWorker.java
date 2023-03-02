@@ -50,8 +50,12 @@ public class MergePointsWorker extends AbstractImmediateWorker {
 		 */
 		if (!points.isEmpty()) {
 			this.parent.executor.execute(() -> {
+				if (this.parent.queryProxy.isLimitReached()) {
+					return;
+				}
 				try {
 					this.parent.getInfluxConnection().writeApi.writePoints(points);
+					this.parent.queryProxy.queryLimit.decrease();
 				} catch (Throwable t) {
 					this.parent.queryProxy.queryLimit.increase();
 					this.log.warn("Unable to write points. " + t.getMessage());
