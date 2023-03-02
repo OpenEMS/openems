@@ -129,7 +129,7 @@
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
                       <ion-list lines="full">
-                        <ngx-spinner [name]="spinnerId"></ngx-spinner>
+                        <ion-spinner *ngIf="loading" [name]="'crescent'"></ion-spinner>
 
                         <ng-container *ngFor="let edge of filteredEdges; let i=index">
                           <ion-item lines="inset" [routerLink]="['/device', edge.id]"

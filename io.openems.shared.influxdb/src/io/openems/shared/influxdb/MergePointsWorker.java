@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.influxdb.client.write.Point;
+import com.influxdb.exceptions.BadRequestException;
 
 import io.openems.common.worker.AbstractImmediateWorker;
 
@@ -21,9 +22,9 @@ public class MergePointsWorker extends AbstractImmediateWorker {
 	private final Logger log = LoggerFactory.getLogger(MergePointsWorker.class);
 
 	private final InfluxConnector parent;
-	private final Consumer<Throwable> onWriteError;
+	private final Consumer<BadRequestException> onWriteError;
 
-	public MergePointsWorker(InfluxConnector parent, Consumer<Throwable> onWriteError) {
+	public MergePointsWorker(InfluxConnector parent, Consumer<BadRequestException> onWriteError) {
 		this.parent = parent;
 		this.onWriteError = onWriteError;
 	}
@@ -50,11 +51,19 @@ public class MergePointsWorker extends AbstractImmediateWorker {
 		 */
 		if (!points.isEmpty()) {
 			this.parent.executor.execute(() -> {
+				if (this.parent.queryProxy.isLimitReached()) {
+					return;
+				}
 				try {
 					this.parent.getInfluxConnection().writeApi.writePoints(points);
+					this.parent.queryProxy.queryLimit.decrease();
 				} catch (Throwable t) {
-					this.log.warn("Unable to write points. " + t.getMessage());
-					this.onWriteError.accept(t);
+					this.parent.queryProxy.queryLimit.increase();
+					this.log.warn(
+							"Unable to write to InfluxDB. " + t.getClass().getSimpleName() + ": " + t.getMessage());
+					if (t instanceof BadRequestException) {
+						this.onWriteError.accept((BadRequestException) t);
+					}
 				}
 			});
 		}

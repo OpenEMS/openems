@@ -235,8 +235,10 @@
             "notStarted": "Noch nicht gestartet",
             "delayed": "Verzögert",
             "allowsDischarge": "Freigegeben",
-            "standby": "Standby"
-          }
+            "standby": "Standby",
+            "CHARGING": "Aufladen"
+          },
+          "CHARGED": "Aufgeladen"
         }
       }
     },

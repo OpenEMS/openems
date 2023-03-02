@@ -64,7 +64,7 @@ public abstract class AbstractDoc<T> implements Doc {
 	/**
 	 * PersistencePriority for this Channel.
 	 */
-	private PersistencePriority persistencePriority = PersistencePriority.VERY_LOW;
+	private PersistencePriority persistencePriority = PersistencePriority.LOW;
 
 	/**
 	 * Sets the {@link PersistencePriority}. Defaults to

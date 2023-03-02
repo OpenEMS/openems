@@ -32,7 +32,6 @@ export class IndexComponent implements OnInit, OnDestroy {
   public form: FormGroup;
   public filteredEdges: Edge[] = [];
 
-  protected formIsDisabled: boolean = false;
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
@@ -43,9 +42,10 @@ export class IndexComponent implements OnInit, OnDestroy {
   /** True, if all available edges for this user had been retrieved */
   private limitReached: boolean = false;
 
+  protected formIsDisabled: boolean = false;
   protected onlyOneEdgeAvailable: boolean = false;
-
-  protected spinnerId: string = 'index'
+  protected spinnerId: string = 'index';
+  protected loading: boolean = false;
 
   constructor(
     public service: Service,
@@ -174,18 +174,20 @@ export class IndexComponent implements OnInit, OnDestroy {
 
   loadNextPage(): Promise<Edge[]> {
 
-    this.service.startSpinnerTransparentBackground(this.spinnerId)
+    this.loading = true;
     return new Promise<Edge[]>((resolve, reject) => {
       if (this.limitReached) {
         resolve([])
         return
       }
-      this.service.getEdges(this.page, this.query, this.limit).then((edges) => {
-        this.limitReached = edges.length < this.limit;
-        resolve(edges)
-      }).catch((err) => {
-        reject(err)
-      })
-    }).finally(() => this.service.stopSpinner(this.spinnerId))
+      this.service.getEdges(this.page, this.query, this.limit)
+        .then((edges) => {
+          this.limitReached = edges.length < this.limit;
+          resolve(edges)
+        }).catch((err) => {
+          reject(err)
+        })
+    }).finally(() =>
+      this.loading = false)
   }
 }
