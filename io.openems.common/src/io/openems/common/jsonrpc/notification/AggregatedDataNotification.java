@@ -41,4 +41,8 @@ public class AggregatedDataNotification extends AbstractDataNotification {
 		super(AggregatedDataNotification.METHOD, data);
 	}
 
+	public AggregatedDataNotification() {
+		super(AggregatedDataNotification.METHOD, TreeBasedTable.create());
+	}
+
 }

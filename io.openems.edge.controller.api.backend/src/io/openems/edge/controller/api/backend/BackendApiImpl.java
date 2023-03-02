@@ -75,9 +75,6 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 
 	protected final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 
-	protected final SendAggregatedChannelValuesWorker sendAggregatedChannelValuesWorker //
-			= new SendAggregatedChannelValuesWorker(this);
-
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(BackendApiImpl.class);
@@ -165,8 +162,6 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 		// Create Websocket instance
 		this.websocket = new WebsocketClient(this, name, uri, httpHeaders, proxy);
 		this.websocket.start();
-
-		this.sendAggregatedChannelValuesWorker.activate(this.id());
 	}
 
 	@Override
@@ -174,7 +169,6 @@ public class BackendApiImpl extends AbstractOpenemsComponent
 	protected void deactivate() {
 		super.deactivate();
 		this.sendChannelValuesWorker.deactivate();
-		this.sendAggregatedChannelValuesWorker.deactivate();
 		if (this.websocket != null) {
 			this.websocket.stop();
 		}
