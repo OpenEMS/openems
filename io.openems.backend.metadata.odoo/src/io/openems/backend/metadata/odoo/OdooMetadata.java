@@ -158,15 +158,19 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 			roles.put(edgeId, role);
 		}
 
-		// Return existing or newly created User
-		return this.users.computeIfAbsent(login, (ignore) -> {
-			// Add User if it does not exist
-			return new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles);
-		});
+		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles);
+		var oldUser = this.users.put(login, user);
+		if (oldUser != null) {
+			oldUser.getEdgeRoles().forEach((edgeId, role) -> {
+				user.setRole(edgeId, role);
+			});
+		}
+		return user;
 	}
 
 	@Override
 	public void logout(User user) {
+		this.users.remove(user.getId());
 		this.odooHandler.logout(user.getToken());
 	}
 
