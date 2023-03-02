@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -48,6 +49,7 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.internal.OpenemsTypeDoc;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -353,15 +355,25 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 	/**
 	 * Generates a Channel-ID for channels that are specific to a tower.
 	 *
-	 * @param tower           number of the Tower
-	 * @param channelIdSuffix e.g. "STATUS_ALARM"
-	 * @param openemsType     specified type e.g. "INTEGER"
+	 * @param tower               number of the Tower
+	 * @param channelIdSuffix     e.g. "STATUS_ALARM"
+	 * @param openemsType         specified type e.g. "INTEGER"
+	 * @param additionalDocConfig the additional doc configuration
 	 * @return a channel with Channel-ID "TOWER_1_STATUS_ALARM"
 	 */
-	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType) {
-		var channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix, Doc.of(openemsType));
+	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType,
+			Consumer<OpenemsTypeDoc<?>> additionalDocConfig) {
+		final var doc = Doc.of(openemsType);
+		if (additionalDocConfig != null) {
+			additionalDocConfig.accept(doc);
+		}
+		var channelId = new ChannelIdImpl("TOWER_" + tower + "_" + channelIdSuffix, doc);
 		this.addChannel(channelId);
 		return channelId;
+	}
+
+	private ChannelIdImpl generateTowerChannel(int tower, String channelIdSuffix, OpenemsType openemsType) {
+		return this.generateTowerChannel(tower, channelIdSuffix, openemsType, null);
 	}
 
 	/**
@@ -721,7 +733,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 										new UnsignedDoublewordElement(towerOffset + 47)),
 								m(this.generateTowerChannel(tower, "ACC_DISCHARGE_ENERGY", OpenemsType.INTEGER),
 										new UnsignedDoublewordElement(towerOffset + 49)),
-								m(this.generateTowerChannel(tower, "BMS_SERIAL_NUMBER", OpenemsType.STRING),
+								m(this.generateTowerChannel(tower, "BMS_SERIAL_NUMBER", OpenemsType.STRING,
+										doc -> doc.persistencePriority(PersistencePriority.HIGH)),
 										new UnsignedDoublewordElement(towerOffset + 51),
 										new ElementToChannelConverter(value -> {
 											Integer intValue = TypeUtils.getAsType(OpenemsType.INTEGER, value);
@@ -782,7 +795,8 @@ public class FeneconHomeBatteryImpl extends AbstractOpenemsModbusComponent imple
 
 					var channelId = new ChannelIdImpl(//
 							"TOWER_" + tower + "_MODULE_" + module + "_SERIAL_NUMBER", //
-							Doc.of(OpenemsType.STRING));
+							Doc.of(OpenemsType.STRING)//
+									.persistencePriority(PersistencePriority.HIGH));
 					this.addChannel(channelId);
 
 					this.getModbusProtocol().addTasks(//

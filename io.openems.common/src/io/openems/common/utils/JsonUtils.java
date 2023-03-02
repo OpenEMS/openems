@@ -510,6 +510,19 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Gets the member of the {@link JsonElement} as {@link Optional}
+	 * {@link JsonPrimitive}.
+	 *
+	 * @param jElement   the {@link JsonElement}
+	 * @param memberName the name of the member
+	 * @return the {@link Optional} {@link JsonPrimitive} value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static Optional<JsonPrimitive> getAsOptionalPrimitive(JsonElement jElement, String memberName) {
+		return Optional.ofNullable(toPrimitive(toSubElement(jElement, memberName)));
+	}
+
+	/**
 	 * Gets the member of the {@link JsonElement} as {@link JsonElement}.
 	 *
 	 * @param jElement   the {@link JsonElement}
