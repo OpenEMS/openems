@@ -86,10 +86,10 @@ public class AlertingTest {
 		}
 
 		private int handlerCount() {
-			if (super.handler == null) {
+			if (super.handlers == null) {
 				return 0;
 			}
-			return super.handler.length;
+			return super.handlers.length;
 		}
 
 		@Override
