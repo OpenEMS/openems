@@ -5,9 +5,11 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.evcs.api.Evcs.ChannelId;
 import io.openems.edge.evcs.webasto.next.enums.CableState;
 import io.openems.edge.evcs.webasto.next.enums.ChargePointState;
 import io.openems.edge.evcs.webasto.next.enums.EvseErrorCode;
@@ -42,13 +44,13 @@ public interface EvcsWebastoNext extends OpenemsComponent {
 				.unit(Unit.MILLIAMPERE)), //
 
 		POWER_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
+				.unit(Unit.WATT)), //
 
 		POWER_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
+				.unit(Unit.WATT)), //
 
 		POWER_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE)), //
+				.unit(Unit.WATT)), //
 
 		MAX_HW_CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.AMPERE)), //
@@ -159,5 +161,62 @@ public interface EvcsWebastoNext extends OpenemsComponent {
 	 */
 	public default void setEvSetChargePowerLimit(Integer value) throws OpenemsNamedException {
 		this.getEvSetChargePowerLimitChannel().setNextWriteValue(value);
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#POWER_L1}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getPowerL1Channel() {
+		return this.channel(ChannelId.POWER_L1);
+	}
+	
+	/**
+	 * Gets the Power on phase 1 in [W]. See
+	 * {@link ChannelId#POWER_L1}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPowerL1() {
+		return this.getPowerL1Channel().value();
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#POWER_L2}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getPowerL2Channel() {
+		return this.channel(ChannelId.POWER_L2);
+	}
+	
+	/**
+	 * Gets the Power on phase 2 in [W]. See
+	 * {@link ChannelId#POWER_L2}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPowerL2() {
+		return this.getPowerL2Channel().value();
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#POWER_L3}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getPowerL3Channel() {
+		return this.channel(ChannelId.POWER_L3);
+	}
+	
+	/**
+	 * Gets the Power on phase 3 in [W]. See
+	 * {@link ChannelId#POWER_L3}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPowerL3() {
+		return this.getPowerL3Channel().value();
 	}
 }

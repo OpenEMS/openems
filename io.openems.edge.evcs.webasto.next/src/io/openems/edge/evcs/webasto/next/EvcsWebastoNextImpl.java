@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.webasto.next;
 
+import java.util.function.Consumer;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -30,6 +32,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -60,6 +63,7 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 	private Config config = null;
 
 	private static final int DEFAULT_LIFE_BIT = 1;
+	private static final int DETECT_PHASE_ACTIVITY = 100; //W
 
 	/**
 	 * Handles charge states.
@@ -207,6 +211,7 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 						m(EvcsWebastoNext.ChannelId.LIFE_BIT, new UnsignedWordElement(6000))) //
 		);
 		this.addStatusListener();
+		this.addPhasesListener();
 		return modbusProtocol;
 	}
 
@@ -239,6 +244,29 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 			}
 		});
 	}
+	
+	private void addPhasesListener() {
+		final Consumer<Value<Integer>> setPhases = ignore -> {
+			var phases = 0;
+			if (this.getPowerL1().orElse(0) > DETECT_PHASE_ACTIVITY) {
+				phases++;
+			}
+			if (this.getPowerL2().orElse(0) > DETECT_PHASE_ACTIVITY) {
+				phases++;
+			}
+			if (this.getPowerL3().orElse(0) > DETECT_PHASE_ACTIVITY) {
+				phases++;
+			}
+			if (phases == 0) {
+				phases = 3;
+			}
+			this._setPhases(phases);
+		};
+		this.getPowerL1Channel().onUpdate(setPhases);
+		this.getPowerL2Channel().onUpdate(setPhases);
+		this.getPowerL3Channel().onUpdate(setPhases);
+	}
+
 
 	@Override
 	public String debugLog() {
