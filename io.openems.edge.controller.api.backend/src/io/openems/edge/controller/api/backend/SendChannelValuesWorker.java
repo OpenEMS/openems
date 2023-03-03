@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -176,10 +177,14 @@ public class SendChannelValuesWorker {
 								.isAtLeast(this.parent.config.aggregationPriority()))
 				.forEach(channel -> {
 					try {
+						// This is the highest timestamp before `startTime`. If existing it is used for
+						// the tailMap to make sure we get a Value even for Channels where the value has
+						// not changed within the last 5 minutes.
+						var channelStartTime = Optional.ofNullable(channel.getPastValues().floorKey(startTime))
+								.orElse(startTime);
+
 						var value = channel.getPastValues() //
-								// TODO the value that was 'active' at `startTime` is dropped here. This might
-								// cause a problem especially if data is coming in bigger distances.
-								.tailMap(startTime, true) //
+								.tailMap(channelStartTime, true) //
 								.entrySet() //
 								.stream() //
 								.filter(e -> e.getKey().isBefore(endTime)) //
