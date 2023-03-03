@@ -2,6 +2,7 @@ package io.openems.edge.common.meta;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -22,7 +23,8 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		VERSION(Doc.of(OpenemsType.STRING));
+		VERSION(Doc.of(OpenemsType.STRING) //
+				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;
 

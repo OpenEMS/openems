@@ -35,6 +35,12 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.2.10',
+        changes: [
+          "Fehlerbehebung/Verbesserung bei der Datenübertragung zum Backend",
+        ]
+      },
+      {
         version: '2023.2.9',
         changes: [
           Changelog.UI,
