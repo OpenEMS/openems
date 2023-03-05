@@ -1,12 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<groupId>local</groupId>
 	<artifactId>central</artifactId>
 	<version>0.0.0</version>
-
 	<packaging>pom</packaging>
-
 	<dependencies>
 		<!-- biz -->
 		<dependency>
@@ -198,23 +195,24 @@
 			<version>7.0.5</version>
 		</dependency>
 		<dependency>
+			<!-- Apache Felix HTTP Service -->
+			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.http.jetty</artifactId>
+			<version>5.0.4</version>
+		</dependency>
+		<dependency>
+			<!-- Apache Felix Servlet API -->
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.http.servlet-api</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+		<dependency>
 			<!-- Apache Felix Inventory -->
 			<!-- Changelog: https://github.com/apache/felix-dev/blob/master/inventory/changelog.txt -->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.inventory</artifactId>
 			<version>1.1.0</version>
-		</dependency>
-		<dependency>
-			<!-- Apache Felix HTTP Service -->
-			<!-- Changelog: https://github.com/apache/felix-dev/commits/master/http -->
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.http.jetty</artifactId>
-			<version>4.2.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.http.servlet-api</artifactId>
-			<version>2.1.0</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Metatype Service -->
