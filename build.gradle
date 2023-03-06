@@ -76,11 +76,27 @@ task buildComponents() {
 	}
 }
 
+task cleanAndBuild() {
+	subprojects.each { proj ->
+		proj.tasks.each { task -> 
+			if ( task.name == 'clean' ) {
+				dependsOn(task)
+			}
+			else if ( task.name == 'jar' ) {
+				dependsOn(task)
+				task.mustRunAfter proj.tasks.findByName('clean')
+			}
+		}
+	}
+}
+
 /*
  * Build OpenEMS Edge fat-jar
  */
 task buildEdge() {
+	dependsOn ':cleanAndBuild'
 	dependsOn ':io.openems.edge.application:export.EdgeApp'
+	tasks.findByPath(':io.openems.edge.application:export.EdgeApp').mustRunAfter tasks.findByPath(':cleanAndBuild')
 	doLast {
 		file("${buildDir}/openems-edge.jar").delete()
 		copy {
@@ -95,7 +111,9 @@ task buildEdge() {
  * Build OpenEMS Backend fat-jar
  */
 task buildBackend() {
-	dependsOn ":io.openems.backend.application:export.BackendApp"
+	dependsOn ':cleanAndBuild'
+	dependsOn ':io.openems.backend.application:export.BackendApp'
+	tasks.findByPath(':io.openems.backend.application:export.BackendApp').mustRunAfter tasks.findByPath(':cleanAndBuild')
 	doLast {
 		file("${buildDir}/openems-backend.jar").delete()
 		copy {
