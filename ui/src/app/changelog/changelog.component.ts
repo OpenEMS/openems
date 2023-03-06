@@ -35,6 +35,14 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.3.1',
+        changes: [
+          Changelog.openems('2023.3.0'),
+          "Fehlerbehebung/Verbesserung bei der Datenübertragung zum Backend",
+          Changelog.library(Library.FASTEXCEL, Library.APACHE_FELIX_HTTP_JETTY),
+        ]
+      },
+      {
         version: '2023.2.11',
         changes: [
           "Fehlerbehebung/Verbesserung bei der Datenübertragung zum Backend",
@@ -107,13 +115,8 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2023.1.3',
         changes: [
-          "Fehlerbehebung am Online-Monitoring: Anzeige der Live-Daten nach Aktualisierung der Seite im Browser",
-        ]
-      },
-      {
-        version: '2023.1.3',
-        changes: [
           Changelog.GENERAL_OPTIMIZATION + " an der Übersicht 'Alle Systeme'",
+          "Fehlerbehebung am Online-Monitoring: Anzeige der Live-Daten nach Aktualisierung der Seite im Browser",
         ]
       },
       {
