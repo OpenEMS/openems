@@ -34,6 +34,9 @@ import io.openems.shared.influxdb.QueryLanguageConfig;
 	@AttributeDefinition(name = "Bucket", description = "The bucket name; for InfluxDB v1: 'database/retentionPolicy', e.g. 'db/data'")
 	String bucket();
 
+	@AttributeDefinition(name = "Measurement", description = "The InfluxDB measurement")
+	String measurement() default "data";
+
 	@AttributeDefinition(name = "No of Cycles", description = "How many Cycles till data is written to InfluxDB.")
 	int noOfCycles() default 1;
 

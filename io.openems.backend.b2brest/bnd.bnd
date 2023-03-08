@@ -8,8 +8,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	Java-WebSocket,\
 	io.openems.backend.common,\
 	io.openems.common,\
-	javax.servlet-api,\
-	org.apache.felix.http.jetty
+	org.apache.felix.http.jetty,\
+	org.apache.felix.http.servlet-api,\
 
 -testpath: \
 	${testpath}

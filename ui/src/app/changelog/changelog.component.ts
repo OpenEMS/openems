@@ -35,6 +35,32 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.3.1',
+        changes: [
+          Changelog.openems('2023.3.0'),
+          "Fehlerbehebung/Verbesserung bei der Datenübertragung zum Backend",
+          Changelog.library(Library.FASTEXCEL, Library.APACHE_FELIX_HTTP_JETTY),
+        ]
+      },
+      {
+        version: '2023.2.11',
+        changes: [
+          "Fehlerbehebung/Verbesserung bei der Datenübertragung zum Backend",
+        ]
+      },
+      {
+        version: '2023.2.9',
+        changes: [
+          Changelog.UI,
+          "Reduzierung der Datenübertragung zum Backend",
+          { roleIsAtLeast: Role.ADMIN, change: "Fix-State-of-Charge-/Prepare-Battery-Extension-Controller: Änderung des Datum-Formats" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Routing-Fehler, Blockieren auf Übersicht-Seite, Browser-Kompatibilität" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI: Feldtest für neuen Time-Of-Use Controller" },
+          { roleIsAtLeast: Role.ADMIN, change: "Backend: Handling von aggregierten Daten, InfluxDB adaptives Lese-/Schreib-Limit, Fehlerbehebung bei Logout" },
+          { roleIsAtLeast: Role.ADMIN, change: "FENECON Home-App: Länder Schweden, Tschechien und Niederlande" },
+        ]
+      },
+      {
         version: '2023.2.6',
         changes: [
           Changelog.UI + "Fehlerbehebung beim Reconnect der Websocket-Verbindung",
@@ -89,13 +115,8 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2023.1.3',
         changes: [
-          "Fehlerbehebung am Online-Monitoring: Anzeige der Live-Daten nach Aktualisierung der Seite im Browser",
-        ]
-      },
-      {
-        version: '2023.1.3',
-        changes: [
           Changelog.GENERAL_OPTIMIZATION + " an der Übersicht 'Alle Systeme'",
+          "Fehlerbehebung am Online-Monitoring: Anzeige der Live-Daten nach Aktualisierung der Seite im Browser",
         ]
       },
       {

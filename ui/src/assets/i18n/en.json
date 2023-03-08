@@ -236,8 +236,10 @@
             "notStarted": "Controller has not yet started",
             "delayed": "Delayed",
             "allowsDischarge": "Allows Discharge",
-            "standby": "Standby"
-          }
+            "standby": "Standby",
+            "CHARGING": "Charging"
+          },
+          "CHARGED": "Charged"
         }
       }
     },

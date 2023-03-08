@@ -15,7 +15,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
@@ -23,6 +22,8 @@ import io.openems.backend.common.edgewebsocket.EdgeCache;
 import io.openems.backend.common.timedata.Timedata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 
@@ -51,7 +52,7 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 	}
 
 	@Override
-	public void write(String edgeId, TreeBasedTable<Long, String, JsonElement> data) throws OpenemsException {
+	public void write(String edgeId, TimestampedDataNotification data) {
 		// get existing or create new EdgeCache
 		var edgeCache = this.edgeCacheMap.get(edgeId);
 		if (edgeCache == null) {
@@ -60,7 +61,12 @@ public class TimedataDummy extends AbstractOpenemsBackendComponent implements Ti
 		}
 
 		// Update the Data Cache
-		edgeCache.update(data.rowMap());
+		edgeCache.update(data.getData().rowMap());
+	}
+
+	@Override
+	public void write(String edgeId, AggregatedDataNotification data) {
+		this.logWarn(this.log, "Timedata.Dummy do not support write of AggregatedDataNotification");
 	}
 
 	@Override

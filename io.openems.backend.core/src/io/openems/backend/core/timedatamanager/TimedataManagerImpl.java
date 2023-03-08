@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
@@ -28,6 +27,10 @@ import io.openems.backend.common.timedata.Timedata;
 import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingTriConsumer;
+import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
+import io.openems.common.jsonrpc.notification.AbstractDataNotification;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 
@@ -178,10 +181,23 @@ public class TimedataManagerImpl extends AbstractOpenemsBackendComponent impleme
 	}
 
 	@Override
-	public void write(String edgeId, TreeBasedTable<Long, String, JsonElement> data) {
+	public void write(String edgeId, AggregatedDataNotification data) {
+		this.write(edgeId, data, Timedata::write);
+	}
+
+	@Override
+	public void write(String edgeId, TimestampedDataNotification data) {
+		this.write(edgeId, data, Timedata::write);
+	}
+
+	private <T extends AbstractDataNotification> void write(//
+			final String edgeId, //
+			final T data, //
+			final ThrowingTriConsumer<Timedata, String, T, OpenemsException> method //
+	) {
 		for (var timedata : this.timedatas.get()) {
 			try {
-				timedata.write(edgeId, data);
+				method.accept(timedata, edgeId, data);
 			} catch (OpenemsException e) {
 				this.logWarn(this.log, "Timedata write failed for Edge=" + edgeId);
 			}

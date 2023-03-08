@@ -580,7 +580,13 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> //
 		return TranslationUtil.getTranslation(getTranslationBundle(language), key);
 	}
 
-	protected static ResourceBundle getTranslationBundle(Language language) {
+	/**
+	 * Gets the {@link ResourceBundle} based on the given {@link Language}.
+	 * 
+	 * @param language the {@link Language} of the translations
+	 * @return the {@link ResourceBundle}
+	 */
+	public static ResourceBundle getTranslationBundle(Language language) {
 		if (language == null) {
 			language = Language.DEFAULT;
 		}
