@@ -1027,9 +1027,8 @@ public class OdooHandler {
 						.addProperty("userId", user.getId()) //
 						.build()) //
 				.build();
-		return JsonUtils.getAsJsonObject(
-				OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_app_center/add_register_key_history",
-						"session_id=" + user.getToken(), request).result);
+		return JsonUtils.getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
+				"/openems_app_center/add_register_key_history", request).result);
 	}
 
 	/**
@@ -1054,9 +1053,8 @@ public class OdooHandler {
 						.build())
 				.build();
 
-		return JsonUtils.getAsJsonObject(OdooUtils.sendJsonrpcRequest(
-				this.credentials.getUrl() + "/openems_app_center/add_deregister_key_history",
-				"session_id=" + user.getToken(), request).result);
+		return JsonUtils.getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
+				"/openems_app_center/add_deregister_key_history", request).result);
 	}
 
 	/**
