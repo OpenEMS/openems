@@ -30,7 +30,7 @@ public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY>> extend
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.PV_INVERTER };
 	}
 

@@ -128,7 +128,7 @@ public class SelfConsumptionOptimization extends AbstractOpenemsApp<Property> im
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.PV_SELF_CONSUMPTION };
 	}
 

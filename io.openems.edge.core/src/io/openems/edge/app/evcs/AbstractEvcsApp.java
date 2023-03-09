@@ -22,7 +22,7 @@ public abstract class AbstractEvcsApp<PROPERTY extends Enum<PROPERTY>> extends A
 	}
 
 	@Override
-	public final OpenemsAppCategory[] getCategorys() {
+	public final OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.EVCS };
 	}
 

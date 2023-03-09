@@ -24,15 +24,16 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.AppDef;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
 /**
  * Describes a App for ReadOnly Modbus/TCP Api.
@@ -55,10 +56,11 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
  */
 @Component(name = "App.Api.ModbusTcp.ReadOnly")
 public class ModbusTcpApiReadOnly
-		extends AbstractOpenemsAppWithProps<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParamter>
+		extends AbstractOpenemsAppWithProps<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParameter>
 		implements OpenemsApp {
 
-	public static enum Property implements Type<Property, ModbusTcpApiReadOnly, Type.Parameter.BundleParamter> {
+	public static enum Property
+			implements Type<Property, ModbusTcpApiReadOnly, Type.Parameter.BundleParameter>, Nameable {
 		// Components
 		CONTROLLER_ID(AppDef.of(ModbusTcpApiReadOnly.class) //
 				.setDefaultValue("ctrlApiModbusTcp0")), //
@@ -66,21 +68,21 @@ public class ModbusTcpApiReadOnly
 		ALIAS(AppDef.of(ModbusTcpApiReadOnly.class) //
 				.setDefaultValueToAppName()),
 		ACTIVE(AppDef.of(ModbusTcpApiReadOnly.class) //
-				.setDefaultValue((v) -> {
-					var active = v.app.componentManager.getEdgeConfig()
+				.setDefaultValue((app, prop, l, param) -> {
+					var active = app.componentManager.getEdgeConfig()
 							.getComponentIdsByFactory("Controller.Api.ModbusTcp.ReadWrite").size() == 0;
 					return new JsonPrimitive(active);
 				})), //
 		;
 
-		private AppDef<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParamter> def;
+		private AppDef<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParameter> def;
 
-		private Property(AppDef<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParamter> def) {
+		private Property(AppDef<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public AppDef<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParamter> def() {
+		public AppDef<ModbusTcpApiReadOnly, Property, Type.Parameter.BundleParameter> def() {
 			return this.def;
 		}
 
@@ -90,7 +92,7 @@ public class ModbusTcpApiReadOnly
 		}
 
 		@Override
-		public Function<GetParameterValues<ModbusTcpApiReadOnly>, BundleParamter> getParamter() {
+		public Function<GetParameterValues<ModbusTcpApiReadOnly>, BundleParameter> getParamter() {
 			return Type.Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 
@@ -110,7 +112,7 @@ public class ModbusTcpApiReadOnly
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.API };
 	}
 

@@ -117,7 +117,7 @@ public class MqttApi extends AbstractOpenemsApp<Property> implements OpenemsApp 
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.API };
 	}
 

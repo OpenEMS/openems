@@ -103,7 +103,7 @@ public class AwattarHourly extends AbstractOpenemsApp<Property> implements Opene
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TIME_OF_USE_TARIFF };
 	}
 

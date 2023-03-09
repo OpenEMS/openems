@@ -3,17 +3,20 @@ package io.openems.edge.core.appmanager;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.session.Language;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.FormlyBuilder;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
 /**
  * AppDef short for definition of a property for an app.
@@ -22,47 +25,108 @@ import io.openems.edge.core.appmanager.JsonFormlyUtil.FormlyBuilder;
  * @param <PROPERTY>  the type of the property
  * @param <PARAMETER> the type of the paramters
  */
-public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
-		PROPERTY extends Enum<PROPERTY> & Type<PROPERTY, APP, PARAMETER>, //
+public class AppDef<APP extends OpenemsApp, //
+		PROPERTY extends Nameable, //
 		PARAMETER extends Type.Parameter> //
 		implements OnlyIf<AppDef<APP, PROPERTY, PARAMETER>>, Self<AppDef<APP, PROPERTY, PARAMETER>> {
 
-	public static final class FieldValues<APP, PROPERTY, PARAMETER> {
-		public final APP app;
-		public final PROPERTY property;
-		public final Language language;
-		public final PARAMETER parameter;
+	private static final Logger LOG = LoggerFactory.getLogger(AppDef.class);
 
-		public FieldValues(APP app, PROPERTY property, Language language, PARAMETER parameter) {
-			super();
-			this.app = app;
-			this.property = property;
-			this.language = language;
-			this.parameter = parameter;
-		}
+	/**
+	 * Functional interface function with field values.
+	 * 
+	 * @param <A> the type of the app
+	 * @param <P> the type of the property
+	 * @param <M> the type of the parameter
+	 * @param <O> the type of the return parameter
+	 */
+	@FunctionalInterface
+	public static interface FieldValuesSupplier<A, P, M, O> {
+
+		/**
+		 * A function with the values of the current field.
+		 * 
+		 * @param app       the current app
+		 * @param property  the current property
+		 * @param l         the current language
+		 * @param parameter the current provided parameters
+		 * @return the output of the function
+		 */
+		public O get(A app, P property, Language l, M parameter);
+
+	}
+
+	/**
+	 * Functional interface with field values and a extra parameter and and return
+	 * value.
+	 *
+	 * @param <A> the type of the app
+	 * @param <P> the type of the property
+	 * @param <M> the type of the parameter
+	 * @param <T> the type of the additional parameter
+	 * @param <O> the type of the return parameter
+	 */
+	@FunctionalInterface
+	public static interface FieldValuesFunction<A, P, M, T, O> {
+
+		/**
+		 * A function with the values of the current field and one extra parameter.
+		 * 
+		 * @param app       the current app
+		 * @param property  the current property
+		 * @param l         the current language
+		 * @param parameter the current provided parameters
+		 * @param first     the extra parameter
+		 * @return the output of the function
+		 */
+		public O apply(A app, P property, Language l, M parameter, T first);
+
+	}
+
+	/**
+	 * Functional interface with field values and a extra parameter.
+	 *
+	 * @param <A> the type of the app
+	 * @param <P> the type of the property
+	 * @param <M> the type of the parameter
+	 * @param <T> the type of the additional parameter
+	 */
+	@FunctionalInterface
+	public static interface FieldValuesConsumer<A, P, M, T> {
+
+		/**
+		 * A Consumer with the values of the current field and one extra parameter.
+		 * 
+		 * @param app       the current app
+		 * @param property  the current property
+		 * @param l         the current language
+		 * @param parameter the current provided parameters
+		 * @param first     the extra parameter
+		 */
+		public void accept(A app, P property, Language l, M parameter, T first);
 
 	}
 
 	/**
 	 * Function to get the label of the field.
 	 */
-	private Function<FieldValues<APP, PROPERTY, PARAMETER>, String> label;
+	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, String> label;
 
 	/**
 	 * Function to get the description of the field.
 	 */
-	private Function<FieldValues<APP, PROPERTY, PARAMETER>, String> description;
+	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, String> description;
 
 	/**
 	 * Function to get the default value of the field (can be any JsonElement =>
 	 * JsonArray, JsonPrimitiv(Number, String, Boolean, Character).
 	 */
-	private Function<FieldValues<APP, PROPERTY, PARAMETER>, JsonElement> defaultValue;
+	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, JsonElement> defaultValue;
 
 	/**
 	 * Function to get the {@link FormlyBuilder} for the input.
 	 */
-	private Function<FieldValues<APP, PROPERTY, PARAMETER>, FormlyBuilder<?>> field;
+	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, FormlyBuilder<?>> field;
 
 	/**
 	 * Determines if the property should get visibly saved in the AppManager
@@ -73,7 +137,27 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	/**
 	 * Function for bidirectional binding of a component.
 	 */
-	private BiFunction<FieldValues<APP, PROPERTY, PARAMETER>, JsonObject, JsonElement> bidirectionalValue;
+	private FieldValuesFunction<? super APP, ? super PROPERTY, ? super PARAMETER, JsonObject, JsonElement> bidirectionalValue;
+
+	/**
+	 * Function to get the {@link ResourceBundle} for translations.
+	 */
+	private Function<? super PARAMETER, ResourceBundle> translationBundleSupplier;
+
+	/**
+	 * Creates a {@link AppDef} of a subclass of an
+	 * {@link AbstractOpenemsAppWithProps}.
+	 * 
+	 * @param <APP>       the type of the app
+	 * @param <PROPERTY>  the type of the property
+	 * @param <PARAMETER> the type of the parameter
+	 * @return the {@link AppDef}
+	 */
+	public static final <APP extends OpenemsApp, //
+			PROPERTY extends Nameable, //
+			PARAMETER extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> of() {
+		return new AppDef<APP, PROPERTY, PARAMETER>();
+	}
 
 	/**
 	 * Creates a {@link AppDef} of a subclass of an
@@ -87,11 +171,92 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * @return the {@link AppDef}
 	 */
 	public static final <APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
-			PROPERTY extends Enum<PROPERTY> & Type<PROPERTY, APP, PARAMETER>, //
-			PARAMETER extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> of(//
+			PROPERTY extends Enum<PROPERTY> & Nameable & Type<PROPERTY, APP, PARAMETER>, //
+			PARAMETER extends Type.Parameter.BundleParameter> AppDef<APP, PROPERTY, PARAMETER> of(//
 					final Class<APP> clazz //
 	) {
+		return new AppDef<APP, PROPERTY, PARAMETER>() //
+				.setTranslationBundleSupplier(BundleParameter::getBundle);
+	}
+
+	/**
+	 * Creates a {@link AppDef} of a subclass of an {@link OpenemsApp}.
+	 * 
+	 * @param <APP>         the type of the app
+	 * @param <PROPERTY>    the type of the property
+	 * @param <PARAMETER>   the type of the parameter
+	 * @param propertyClass the {@link Class} of the PROPERTY
+	 * @return the {@link AppDef}
+	 */
+	public static final <APP extends OpenemsApp, //
+			PROPERTY extends Nameable & Type<? extends PROPERTY, ? extends APP, ? extends PARAMETER>, //
+			PARAMETER extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> genericOf(//
+					final Class<PROPERTY> propertyClass //
+	) {
 		return new AppDef<APP, PROPERTY, PARAMETER>();
+	}
+
+	/**
+	 * Creates a copy of the otherDef.
+	 * 
+	 * @param <APP>         the type of the app
+	 * @param <PROPERTY>    the type of the property
+	 * @param <PARAMETER>   the type of the parameter
+	 * @param propertyClass the class of the current property
+	 * @param otherDef      the other {@link AppDef}
+	 * @return the new {@link AppDef} //
+	 */
+	public static final <//
+			APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER> & OpenemsApp, //
+			PROPERTY extends Enum<PROPERTY> & Nameable & Type<PROPERTY, APP, PARAMETER>, //
+			PARAMETER extends Type.Parameter.BundleParameter> //
+	AppDef<APP, PROPERTY, PARAMETER> copyOf(//
+			final Class<PROPERTY> propertyClass, //
+			final AppDef<OpenemsApp, Nameable, Type.Parameter.BundleParameter> otherDef //
+	) {
+		final var def = new AppDef<APP, PROPERTY, PARAMETER>();
+		def.translationBundleSupplier = otherDef.translationBundleSupplier;
+		def.label = otherDef.label;
+		def.description = otherDef.description;
+		def.defaultValue = otherDef.defaultValue;
+		def.field = otherDef.field;
+		def.isAllowedToSave = otherDef.isAllowedToSave;
+		def.bidirectionalValue = otherDef.bidirectionalValue;
+		return def;
+	}
+
+	/**
+	 * Creates a copy of the otherDef.
+	 * 
+	 * @param <APP>         the type of the app
+	 * @param <PROPERTY>    the type of the property
+	 * @param <PARAMETER>   the type of the parameter
+	 * @param <APPO>        the type of the app from the otherDef
+	 * @param <PROPERTYO>   the type of the property from the otherDef
+	 * @param <PARAMETERO>  the type of the parameter from the otherDef
+	 * @param propertyClass the class of the current property
+	 * @param otherDef      the other {@link AppDef}
+	 * @return the new {@link AppDef}
+	 */
+	public static final <//
+			APP extends APPO, //
+			PROPERTY extends PROPERTYO, //
+			PARAMETER extends PARAMETERO, //
+			APPO extends OpenemsApp, //
+			PROPERTYO extends Nameable & Type<? extends PROPERTY, ? extends APP, ? extends PARAMETER>, //
+			PARAMETERO extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> copyOfGeneric(//
+					final Class<PROPERTY> propertyClass, //
+					final AppDef<APPO, PROPERTYO, PARAMETERO> otherDef //
+	) {
+		final var def = new AppDef<APP, PROPERTY, PARAMETER>();
+		def.translationBundleSupplier = otherDef.translationBundleSupplier;
+		def.label = otherDef.label;
+		def.description = otherDef.description;
+		def.defaultValue = otherDef.defaultValue;
+		def.field = otherDef.field;
+		def.isAllowedToSave = otherDef.isAllowedToSave;
+		def.bidirectionalValue = otherDef.bidirectionalValue;
+		return def;
 	}
 
 	/**
@@ -111,6 +276,13 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 		return this;
 	}
 
+	public final AppDef<APP, PROPERTY, PARAMETER> setTranslationBundleSupplier(//
+			final Function<PARAMETER, ResourceBundle> bundleSupplier //
+	) {
+		this.translationBundleSupplier = bundleSupplier;
+		return this;
+	}
+
 	/**
 	 * Gets if the property is allowed to be saved.
 	 * 
@@ -127,7 +299,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * @return this
 	 */
 	public final AppDef<APP, PROPERTY, PARAMETER> setLabel(//
-			final Function<FieldValues<APP, PROPERTY, PARAMETER>, String> label //
+			final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, String> label //
 	) {
 		this.label = label;
 		return this;
@@ -142,7 +314,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	public final AppDef<APP, PROPERTY, PARAMETER> setLabel(//
 			final String label //
 	) {
-		return this.setLabel(t -> label);
+		return this.setLabel((app, prop, t, param) -> label);
 	}
 
 	/**
@@ -187,7 +359,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * @return this
 	 */
 	public final AppDef<APP, PROPERTY, PARAMETER> setDescription(//
-			final Function<FieldValues<APP, PROPERTY, PARAMETER>, String> description //
+			final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, String> description //
 	) {
 		this.description = description;
 		return this;
@@ -235,7 +407,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * @return this
 	 */
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
-			final Function<FieldValues<APP, PROPERTY, PARAMETER>, JsonElement> defaultValue //
+			final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, JsonElement> defaultValue //
 	) {
 		this.defaultValue = defaultValue;
 		return this;
@@ -243,9 +415,9 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 
 	private final <T> AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
 			final Function<T, JsonPrimitive> converter, //
-			final Function<FieldValues<APP, PROPERTY, PARAMETER>, T> value //
+			final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, T> value //
 	) {
-		return this.setDefaultValue(t -> converter.apply(value.apply(t)));
+		return this.setDefaultValue((app, prop, l, param) -> converter.apply(value.get(app, prop, l, param)));
 	}
 
 	/**
@@ -258,7 +430,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
 			final String s //
 	) {
-		return this.setDefaultValue(JsonPrimitive::new, ignore -> s);
+		return this.setDefaultValue(JsonPrimitive::new, (app, prop, l, param) -> s);
 	}
 
 	/**
@@ -271,7 +443,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
 			final Boolean b //
 	) {
-		return this.setDefaultValue(JsonPrimitive::new, ignore -> b);
+		return this.setDefaultValue(JsonPrimitive::new, (app, prop, l, param) -> b);
 	}
 
 	/**
@@ -284,7 +456,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
 			final Number n //
 	) {
-		return this.setDefaultValue(JsonPrimitive::new, ignore -> n);
+		return this.setDefaultValue(JsonPrimitive::new, (app, prop, l, param) -> n);
 	}
 
 	/**
@@ -297,7 +469,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
 			final Character c //
 	) {
-		return this.setDefaultValue(JsonPrimitive::new, ignore -> c);
+		return this.setDefaultValue(JsonPrimitive::new, (app, prop, l, param) -> c);
 	}
 
 	/**
@@ -307,7 +479,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * @return this
 	 */
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValueString(//
-			final Function<FieldValues<APP, PROPERTY, PARAMETER>, String> defaultValue //
+			final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, String> defaultValue //
 	) {
 		return this.setDefaultValue(JsonPrimitive::new, defaultValue);
 	}
@@ -319,7 +491,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * @return this
 	 */
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValueNumber(//
-			final Function<FieldValues<APP, PROPERTY, PARAMETER>, Number> defaultValue //
+			final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, Number> defaultValue //
 	) {
 		return this.setDefaultValue(JsonPrimitive::new, defaultValue);
 	}
@@ -331,7 +503,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * @return this
 	 */
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValueBoolean(//
-			final Function<FieldValues<APP, PROPERTY, PARAMETER>, Boolean> defaultValue //
+			final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, Boolean> defaultValue //
 	) {
 		return this.setDefaultValue(JsonPrimitive::new, defaultValue);
 	}
@@ -343,7 +515,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * @return this
 	 */
 	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValueCharacter(//
-			final Function<FieldValues<APP, PROPERTY, PARAMETER>, Character> defaultValue //
+			final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, Character> defaultValue //
 	) {
 		return this.setDefaultValue(JsonPrimitive::new, defaultValue);
 	}
@@ -358,12 +530,23 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 		return this.setDefaultValueString(AppDef::fieldValuesToAppName);
 	}
 
-	private static final <APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
-			PROPERTY extends Enum<PROPERTY> & Type<PROPERTY, APP, PARAMETER>, //
-			PARAMETER extends Type.Parameter> String fieldValuesToAppName(//
-					final FieldValues<APP, PROPERTY, PARAMETER> f //
+	private static final <APP extends OpenemsApp, //
+			PROPERTY, //
+			PARAMETER> //
+	String fieldValuesToAppName(//
+			final APP app, //
+			final PROPERTY prop, //
+			final Language language, //
+			final PARAMETER param //
 	) {
-		return f.app.getName(f.language);
+		return app.getName(language);
+	}
+
+	public AppDef<APP, PROPERTY, PARAMETER> setFieldFunction(//
+			final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, FormlyBuilder<?>> field //
+	) {
+		this.field = field;
+		return this;
 	}
 
 	/**
@@ -376,16 +559,13 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 */
 	public final <T extends FormlyBuilder<?>> AppDef<APP, PROPERTY, PARAMETER> setField(//
 			final Function<PROPERTY, T> fieldSupplier, //
-			final BiConsumer<FieldValues<APP, PROPERTY, PARAMETER>, T> additionalSettings //
+			final FieldValuesConsumer<APP, PROPERTY, PARAMETER, T> additionalSettings //
 	) {
 		Objects.requireNonNull(fieldSupplier);
-		this.field = (v) -> {
-			final var field = fieldSupplier.apply(v.property);
-			doIfPresent(v, this.label, field::setLabel);
-			doIfPresent(v, this.description, field::setDescription);
-			doIfPresent(v, this.defaultValue, field::setDefaultValue);
+		this.field = (app, property, language, parameter) -> {
+			final var field = fieldSupplier.apply(property);
 			if (additionalSettings != null) {
-				additionalSettings.accept(v, field);
+				additionalSettings.accept(app, property, language, parameter, field);
 			}
 			return field;
 		};
@@ -406,6 +586,29 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	}
 
 	/**
+	 * Wraps the existing field. If the existing field is not set the wrapper will
+	 * not be executed.
+	 * 
+	 * @param wrapper the wrapper of the current field
+	 * @return this
+	 */
+	public final AppDef<APP, PROPERTY, PARAMETER> wrapField(//
+			final FieldValuesConsumer<? super APP, ? super PROPERTY, ? super PARAMETER, FormlyBuilder<?>> wrapper//
+	) {
+		final var oldField = this.field;
+		if (oldField == null) {
+			return this;
+		}
+		Objects.requireNonNull(wrapper);
+		this.field = (app, prop, l, param) -> {
+			var field = oldField.get(app, prop, l, param);
+			wrapper.accept(app, prop, l, param, field);
+			return field;
+		};
+		return this;
+	}
+
+	/**
 	 * Executes the {@link Consumer} if the valueProvider can provide an instance
 	 * with the given values.
 	 * 
@@ -413,48 +616,57 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * @param <PROPERTY>    the type of the property
 	 * @param <PARAMETER>   the type of the parameters
 	 * @param <T>           the type of the provided instance
-	 * @param values        the values to pass to the valueProvider
+	 * @param app           the app
+	 * @param property      the property
+	 * @param language      the {@link Language}
+	 * @param parameter     the parameter
 	 * @param valueProvider the provider of the instance
 	 * @param consumer      the consumer to consume the instance
 	 */
 	private static final <APP, PROPERTY, PARAMETER, T> void doIfPresent(//
-			final FieldValues<APP, PROPERTY, PARAMETER> values, //
-			final Function<FieldValues<APP, PROPERTY, PARAMETER>, T> valueProvider, //
+			final APP app, //
+			final PROPERTY property, //
+			final Language language, //
+			final PARAMETER parameter, //
+			final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, T> valueProvider, //
 			final Consumer<T> consumer //
 	) {
 		if (valueProvider == null) {
 			return;
 		}
-		var result = valueProvider.apply(values);
+		var result = valueProvider.get(app, property, language, parameter);
 		consumer.accept(result);
 	}
 
 	private final Optional<ResourceBundle> usingTranslation(//
-			final FieldValues<APP, PROPERTY, PARAMETER> v //
+			final PARAMETER parameter //
 	) {
-		return Optional.ofNullable(v.property.translationBundleSupplier()) //
-				.map(t -> t.apply(v.parameter));
+		return Optional.ofNullable(this.translationBundleSupplier) //
+				.map(t -> t.apply(parameter));
 	}
 
-	private final Function<FieldValues<APP, PROPERTY, PARAMETER>, String> translate(//
+	private final FieldValuesSupplier<APP, PROPERTY, PARAMETER, String> translate(//
 			final String key, //
 			final Object... params //
 	) {
-		return v -> {
-			return this.usingTranslation(v) //
+		return (app, prop, t, param) -> {
+			return this.usingTranslation(param) //
 					.map(b -> TranslationUtil.getTranslation(b, key, params)) //
 					.orElse(null); //
 		};
 	}
 
-	private final Function<FieldValues<APP, PROPERTY, PARAMETER>, String> translateWithAppPrefix(//
+	private final FieldValuesSupplier<APP, PROPERTY, PARAMETER, String> translateWithAppPrefix(//
 			final String key, //
 			final Object... params //
 	) {
-		return v -> {
-			return this.usingTranslation(v) //
-					.map(b -> TranslationUtil.getTranslation(b, v.app.getApp().getAppId() + key, params)) //
-					.orElse(null); //
+		return (app, prop, t, param) -> {
+			return this.usingTranslation(param) //
+					.map(b -> TranslationUtil.getTranslation(b, app.getAppId() + key, params)) //
+					.orElseGet(() -> {
+						LOG.warn("No bundle supplier for Key '" + key + "'!");
+						return key;
+					});
 		};
 	}
 
@@ -463,7 +675,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * 
 	 * @return the function
 	 */
-	public Function<FieldValues<APP, PROPERTY, PARAMETER>, String> getLabel() {
+	public FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, String> getLabel() {
 		return this.label;
 	}
 
@@ -472,7 +684,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * 
 	 * @return the function
 	 */
-	public Function<FieldValues<APP, PROPERTY, PARAMETER>, String> getDescription() {
+	public FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, String> getDescription() {
 		return this.description;
 	}
 
@@ -481,7 +693,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * 
 	 * @return the function
 	 */
-	public final Function<FieldValues<APP, PROPERTY, PARAMETER>, JsonElement> getDefaultValue() {
+	public final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, JsonElement> getDefaultValue() {
 		return this.defaultValue;
 	}
 
@@ -490,8 +702,17 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * 
 	 * @return the function
 	 */
-	public final Function<FieldValues<APP, PROPERTY, PARAMETER>, FormlyBuilder<?>> getField() {
-		return this.field;
+	public final FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, FormlyBuilder<?>> getField() {
+		if (this.field == null) {
+			return null;
+		}
+		return (app, property, l, parameter) -> {
+			final var field = this.field.get(app, property, l, parameter);
+			doIfPresent(app, property, l, parameter, this.label, field::setLabel);
+			doIfPresent(app, property, l, parameter, this.description, field::setDescription);
+			doIfPresent(app, property, l, parameter, this.defaultValue, field::setDefaultValue);
+			return field;
+		};
 	}
 
 	/**
@@ -502,7 +723,7 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * 
 	 * @return the function to get the value
 	 */
-	public BiFunction<FieldValues<APP, PROPERTY, PARAMETER>, JsonObject, JsonElement> getBidirectionalValue() {
+	public FieldValuesFunction<? super APP, ? super PROPERTY, ? super PARAMETER, JsonObject, JsonElement> getBidirectionalValue() {
 		return this.bidirectionalValue;
 	}
 
@@ -522,15 +743,18 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 	 * the component doesn't exist or the property of the value is null then null is
 	 * returned inside the bidirectional function.
 	 * 
-	 * @param propOfComponentId the key to get the component id from a configuration
-	 * @param property          the property of the component
+	 * @param propOfComponentId        the key to get the component id from a
+	 *                                 configuration
+	 * @param property                 the property of the component
+	 * @param componentManagerFunction the function to get the component manager
 	 * @return this
 	 */
 	public AppDef<APP, PROPERTY, PARAMETER> bidirectional(//
 			final PROPERTY propOfComponentId, //
-			final String property //
+			final String property, //
+			final Function<? super APP, ComponentManager> componentManagerFunction //
 	) {
-		this.bidirectionalValue = (t, properties) -> {
+		this.bidirectionalValue = (app, prop, l, param, properties) -> {
 			if (properties == null) {
 				return null;
 			}
@@ -538,12 +762,11 @@ public class AppDef<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAM
 			if (componentId == null) {
 				return null;
 			}
-			final var componentManager = t.app.componentManager;
+			final var componentManager = componentManagerFunction.apply(app);
 			final var optionalComponent = componentManager.getEdgeConfig() //
 					.getComponent(componentId.getAsString());
 			return optionalComponent.map(component -> {
-				var value = component.getProperty(property);
-				return value.orElse(null);
+				return component.getProperty(property).orElse(null);
 			}).orElse(null);
 		};
 		// set allowedToSave automatically to false

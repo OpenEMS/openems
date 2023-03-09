@@ -104,8 +104,8 @@ public class CheckCardinality extends AbstractCheckable implements Checkable {
 				if (app.getCardinality() != OpenemsAppCardinality.SINGLE_IN_CATEGORY) {
 					continue;
 				}
-				for (var cat : app.getCategorys()) {
-					for (var catOther : this.openemsApp.getCategorys()) {
+				for (var cat : app.getCategories()) {
+					for (var catOther : this.openemsApp.getCategories()) {
 						if (cat == catOther) {
 							return cat;
 						}

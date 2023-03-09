@@ -127,7 +127,7 @@ public class KMtronic8Channel extends AbstractOpenemsApp<Property> implements Op
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.HARDWARE };
 	}
 
