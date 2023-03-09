@@ -64,7 +64,7 @@ public class TestADependencyToC extends AbstractOpenemsApp<Property> implements 
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TEST };
 	}
 

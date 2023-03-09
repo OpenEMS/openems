@@ -25,16 +25,17 @@ import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
 /**
  * Describes a App for ReadOnly Rest JSON Api.
@@ -56,10 +57,10 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
  * </pre>
  */
 @Component(name = "App.Api.RestJson.ReadOnly")
-public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApiReadOnly, Property, BundleParamter>
+public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApiReadOnly, Property, BundleParameter>
 		implements OpenemsApp {
 
-	public static enum Property implements Type<Property, RestJsonApiReadOnly, BundleParamter> {
+	public static enum Property implements Type<Property, RestJsonApiReadOnly, BundleParameter>, Nameable {
 		// Components
 		CONTROLLER_ID(AppDef.of(RestJsonApiReadOnly.class) //
 				.setDefaultValue("ctrlApiRest0")), //
@@ -67,22 +68,22 @@ public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApi
 		ALIAS(AppDef.of(RestJsonApiReadOnly.class) //
 				.setDefaultValueToAppName()),
 		ACTIVE(AppDef.of(RestJsonApiReadOnly.class) //
-				.setDefaultValue((v) -> {
-					var active = v.app.componentManager.getEdgeConfig()
+				.setDefaultValue((app, prop, l, param) -> {
+					var active = app.componentManager.getEdgeConfig()
 							.getComponentIdsByFactory("Controller.Api.Rest.ReadWrite").isEmpty();
 					return new JsonPrimitive(active);
 				}) //
 				.setField(JsonFormlyUtil::buildCheckbox)), //
 		;
 
-		private final AppDef<RestJsonApiReadOnly, Property, BundleParamter> def;
+		private final AppDef<RestJsonApiReadOnly, Property, BundleParameter> def;
 
-		private Property(AppDef<RestJsonApiReadOnly, Property, BundleParamter> def) {
+		private Property(AppDef<RestJsonApiReadOnly, Property, BundleParameter> def) {
 			this.def = def;
 		}
 
 		@Override
-		public AppDef<RestJsonApiReadOnly, Property, BundleParamter> def() {
+		public AppDef<RestJsonApiReadOnly, Property, BundleParameter> def() {
 			return this.def;
 		}
 
@@ -92,7 +93,7 @@ public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApi
 		}
 
 		@Override
-		public Function<GetParameterValues<RestJsonApiReadOnly>, BundleParamter> getParamter() {
+		public Function<GetParameterValues<RestJsonApiReadOnly>, BundleParameter> getParamter() {
 			return Type.Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 
@@ -118,7 +119,7 @@ public class RestJsonApiReadOnly extends AbstractOpenemsAppWithProps<RestJsonApi
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.API };
 	}
 

@@ -21,7 +21,7 @@ public abstract class AbstractMeterApp<PROPERTY extends Enum<PROPERTY>> extends 
 	}
 
 	@Override
-	public final OpenemsAppCategory[] getCategorys() {
+	public final OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.METER };
 	}
 

@@ -13,46 +13,81 @@ import org.osgi.service.component.ComponentContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
-import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.Type.GetParameterValues;
 import io.openems.edge.core.appmanager.dependency.Dependency;
 
-public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
-		PROPERTY extends Enum<PROPERTY> & Type<PROPERTY, APP, PARAMETER>, PARAMETER extends Type.Parameter> //
-		extends AbstractOpenemsApp<PROPERTY> implements OpenemsApp {
+public abstract class AbstractOpenemsAppWithProps<//
+		APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
+		PROPERTY extends Enum<PROPERTY> & Nameable & Type<PROPERTY, APP, PARAMETER>, //
+		PARAMETER extends Type.Parameter //
+> extends AbstractOpenemsApp<PROPERTY> implements OpenemsApp {
 
 	protected AbstractOpenemsAppWithProps(ComponentManager componentManager, ComponentContext componentContext,
 			ConfigurationAdmin cm, ComponentUtil componentUtil) {
 		super(componentManager, componentContext, cm, componentUtil);
 	}
 
-	protected String getId(ConfigurationTarget target, EnumMap<PROPERTY, JsonElement> map, PROPERTY property) {
+	protected String getId(ConfigurationTarget target, EnumMap<PROPERTY, JsonElement> map, PROPERTY property)
+			throws OpenemsException {
 		final var parameter = this.singletonParameter(Language.DEFAULT);
 		var componentId = Optional.ofNullable(property.def().getDefaultValue())
-				.map(t -> t.apply(new AppDef.FieldValues<>(this.getApp(), property, Language.DEFAULT, parameter.get()))
-						.getAsString())
-				.orElseThrow(() -> new RuntimeException(
+				.map(t -> t.get(this.getApp(), property, Language.DEFAULT, parameter.get()).getAsString())
+				.orElseThrow(() -> new OpenemsException(
 						"No default value set for Property '" + property + "' in app '" + this.getAppId() + "'"));
 		return super.getId(target, map, property, componentId);
 	}
 
-	protected String getValueOrDefault(//
+	protected JsonElement getValueOrDefault(//
 			final EnumMap<PROPERTY, JsonElement> map, //
 			final Language l, //
 			final PROPERTY property //
 	) throws OpenemsNamedException {
 		if (map.containsKey(property)) {
-			return EnumUtils.getAsString(map, property);
+			return map.get(property);
 		}
-		final var parameter = this.singletonParameter(Language.DEFAULT);
-		final var values = new AppDef.FieldValues<>(this.getApp(), property, Language.DEFAULT, parameter.get());
-		final var defaultValue = property.def().getDefaultValue().apply(values);
+		final var parameter = this.singletonParameter(l);
+		if (property.def().getDefaultValue() == null) {
+			throw OpenemsError.JSON_HAS_NO_MEMBER.exception(property,
+					StringUtils.toShortString(map.toString(), 100).replace("%", "%%"));
+		}
+		return property.def().getDefaultValue().get(this.getApp(), property, l, parameter.get());
+	}
 
-		return JsonUtils.getAsString(defaultValue);
+	protected String getString(//
+			final EnumMap<PROPERTY, JsonElement> map, //
+			final Language l, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsString(this.getValueOrDefault(map, l, property));
+	}
+
+	protected int getInt(//
+			final EnumMap<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsInt(this.getValueOrDefault(map, Language.DEFAULT, property));
+	}
+
+	protected <E extends Enum<E>> E getEnum(//
+			final EnumMap<PROPERTY, JsonElement> map, //
+			final Class<E> enumType, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsEnum(enumType, this.getValueOrDefault(map, Language.DEFAULT, property));
+	}
+
+	protected boolean getBoolean(//
+			final EnumMap<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsBoolean(this.getValueOrDefault(map, Language.DEFAULT, property));
 	}
 
 	@Override
@@ -78,8 +113,7 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 				.onlyIf(alias != null, t -> t.setAlias(alias)) //
 				.fields(Arrays.stream(this.propertyValues()) //
 						.filter(p -> p.def().getField() != null) //
-						.map(p -> p.def().getField()
-								.apply(new AppDef.FieldValues<>(this.getApp(), p, language, parameter.get())).build()) //
+						.map(p -> p.def().getField().get(this.getApp(), p, language, parameter.get()).build()) //
 						.collect(JsonUtils.toJsonArray())) //
 				.build();
 	}
@@ -93,8 +127,7 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 					if (defaultValueFunction == null) {
 						return Optional.empty();
 					}
-					var defaultValue = defaultValueFunction
-							.apply(new AppDef.FieldValues<>(this.getApp(), p, language, parameter));
+					var defaultValue = defaultValueFunction.get(this.getApp(), p, language, parameter);
 					return JsonUtils.getAsOptionalString(defaultValue);
 				}) //
 				.orElse(null);
@@ -163,8 +196,7 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 	) {
 		return this.functionMapper(property, AppDef::getDefaultValue, defaultValue -> {
 			return l -> {
-				return defaultValue.apply(//
-						new AppDef.FieldValues<>(this.getApp(), property, l, parameter));
+				return defaultValue.get(this.getApp(), property, l, parameter);
 			};
 		});
 	}
@@ -175,10 +207,8 @@ public abstract class AbstractOpenemsAppWithProps<APP extends AbstractOpenemsApp
 	) {
 		return this.functionMapper(property, AppDef::getBidirectionalValue, bidirectionalValue -> {
 			return config -> {
-				return bidirectionalValue.apply(//
-						new AppDef.FieldValues<>(this.getApp(), property, //
-								Language.DEFAULT, parameter),
-						config //
+				return bidirectionalValue.apply(this.getApp(), property, //
+						Language.DEFAULT, parameter, config //
 				);
 			};
 		});

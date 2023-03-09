@@ -54,7 +54,7 @@ public class TestC extends AbstractOpenemsApp<Property> implements OpenemsApp {
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TEST };
 	}
 
