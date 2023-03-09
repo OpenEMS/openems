@@ -1,0 +1,30 @@
+<ng-container *ngIf="edge">
+    <ion-header>
+        <ion-toolbar color="primary">
+            <ion-title translate>General.temperature</ion-title>
+            <ion-buttons slot="end">
+                <ion-button routerLink="/device/{{edge.id}}/history">
+                    <ion-icon name="close-outline"></ion-icon>
+                </ion-button>
+            </ion-buttons>
+        </ion-toolbar>
+        <ion-toolbar color="primary">
+            <ion-buttons class="ion-justify-content-center">
+                <pickdate></pickdate>
+            </ion-buttons>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content>
+        <ng-container>
+            <ion-card-content>
+                <table class="full_width">
+                    <tr>
+                        <td style="width: 100%" class="ion-padding"></td>
+                    </tr>
+                </table>
+                <thermometerChart [period]="service.historyPeriod">
+                </thermometerChart>
+            </ion-card-content>
+        </ng-container>
+    </ion-content>
+</ng-container>

@@ -458,6 +458,7 @@
     "state": "State",
     "storageSystem": "Storage System",
     "systemState": "System state",
+    "temperature": "Temperature",
     "total": "total",
     "totalState": "Total state",
     "warning": "Warning",

@@ -59,6 +59,7 @@
     "state": "Etat",
     "storageSystem": "Système de stockage",
     "systemState": "System state",
+    "temperature": "Température",
     "total": "total",
     "totalState": "Total state",
     "warning": "Warning",

@@ -457,6 +457,7 @@
     "state": "Zustand",
     "storageSystem": "Speichersystem",
     "systemState": "Systemzustand",
+    "temperature": "Temperatur",
     "total": "Gesamt",
     "totalState": "Gesamtstatus",
     "warning": "Warnung",
