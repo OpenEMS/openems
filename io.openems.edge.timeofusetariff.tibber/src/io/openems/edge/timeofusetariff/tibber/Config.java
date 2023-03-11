@@ -21,5 +21,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Access Token", description = "Access token for the Tibber API", type = AttributeType.PASSWORD)
 	String accessToken() default "";
 
+	@AttributeDefinition(name = "Filter for Home", description = "For multiple 'Homes', add either an ID (format UUID) or 'appNickname' for unambiguous identification", required = false)
+	String filter() default "";
+
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff Tibber [{id}]";
 }

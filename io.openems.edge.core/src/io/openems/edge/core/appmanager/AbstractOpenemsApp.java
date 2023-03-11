@@ -21,7 +21,6 @@ import org.osgi.service.component.ComponentContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingBiFunction;
@@ -37,7 +36,6 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
-import io.openems.edge.core.host.Inet4AddressWithSubnetmask;
 
 public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implements OpenemsApp {
 
@@ -55,11 +53,11 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 	}
 
 	/**
-	 * Provides a factory for {@link AppConfiguration}s.
+	 * Provides a factory for {@link AppConfiguration AppConfigurations}.
 	 *
 	 * @return a {@link ThrowingFunction} that creates a {@link AppConfiguration}
 	 *         from a {@link EnumMap} of configuration properties for a given
-	 *         {@link ConfigurationTarget}.
+	 *         {@link ConfigurationTarget} in the specified language.
 	 */
 	protected abstract ThrowingTriFunction<//
 			ConfigurationTarget, // ADD, UPDATE, VALIDATE, DELETE or TEST
@@ -371,7 +369,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			try {
 
 				actualComponent = actualEdgeConfig.getComponentOrError(componentId);
-			} catch (InvalidValueException e) {
+			} catch (OpenemsNamedException e) {
 				missingComponents.add(componentId);
 				continue;
 			}
@@ -393,34 +391,35 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> implem
 			return;
 		}
 
-		List<Inet4AddressWithSubnetmask> addresses = new ArrayList<>(expectedAppConfiguration.ips.size());
-		for (var address : expectedAppConfiguration.ips) {
-			try {
-				addresses.add(Inet4AddressWithSubnetmask.fromString(address));
-			} catch (OpenemsException e) {
-				errors.add("Could not parse ip '" + address + "'.");
-			}
-		}
-
 		try {
 			var interfaces = this.componentUtil.getInterfaces();
-			var eth0 = interfaces.stream().filter(t -> t.getName().equals("eth0")).findFirst().get();
-			var eth0Adresses = eth0.getAddresses();
+			expectedAppConfiguration.ips.stream() //
+					.forEach(i -> {
+						var existingInterface = interfaces.stream() //
+								.filter(t -> t.getName().equals(i.interfaceName)) //
+								.findFirst().orElse(null);
 
-			var availableAddresses = new LinkedList<Inet4AddressWithSubnetmask>();
-			for (var address : addresses) {
-				for (var eth0Address : eth0Adresses.getValue()) {
-					if (eth0Address.isInSameNetwork(address)) {
-						availableAddresses.add(address);
-						break;
-					}
-				}
-			}
+						if (existingInterface == null) {
+							errors.add("Interface '" + i.interfaceName + "' not found.");
+							return;
+						}
 
-			addresses.removeAll(availableAddresses);
-			for (var address : addresses) {
-				errors.add("Address '" + address + "' is not added.");
-			}
+						var missingIps = i.getIps().stream() //
+								.filter(ip -> {
+									if (existingInterface.getAddresses().getValue().stream() //
+											.anyMatch(existingIp -> existingIp.isInSameNetwork(ip))) {
+										return false;
+									}
+									return true;
+								}).collect(Collectors.toList());
+
+						if (missingIps.isEmpty()) {
+							return;
+						}
+						errors.add("Address '"
+								+ missingIps.stream().map(t -> t.toString()).collect(Collectors.joining(", ")) + "' "
+								+ (missingIps.size() > 1 ? "are" : "is") + " not added on " + i.interfaceName);
+					});
 		} catch (NullPointerException | IllegalStateException | OpenemsNamedException e) {
 			errors.add("Can not validate host config!");
 			errors.add(e.getMessage());

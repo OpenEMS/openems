@@ -1,7 +1,7 @@
 # This OSGi fragment for gson exports the `com.google.gson.internal.bind.util`
 # package which is required by `io.openems.wrapper.influxdb-client`
 
-Fragment-Host: com.google.gson
+Fragment-Host: com.google.gson;bundle-version="2.10.1"
 
 Export-Package: \
 	com.google.gson.internal.bind,\

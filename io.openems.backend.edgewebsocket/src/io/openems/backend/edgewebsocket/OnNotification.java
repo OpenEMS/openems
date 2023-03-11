@@ -45,7 +45,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 		// announce incoming message for this Edge
 		this.parent.metadata.getEdge(edgeId).ifPresent(edge -> {
-			edge.setLastMessageTimestamp();
+			edge.setLastmessage();
 		});
 
 		// Handle notification
@@ -106,17 +106,13 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 			throws OpenemsNamedException {
 		var edgeId = wsData.assertEdgeId(message);
 
-		// Complement incoming data with data from Cache, because only changed values
-		// are transmitted
 		var data = message.getData();
-		wsData.edgeCache.complementDataFromCache(data.rowMap(), //
-				(incomingTimestamp, cacheTimestamp) -> this.log.info(//
-						"Edge [" + edgeId + "]: invalidate cache. " //
-								+ "Incoming [" + incomingTimestamp + "]. " //
-								+ "Cache [" + cacheTimestamp + "]"));
+
+		// Update the Data Cache
+		wsData.edgeCache.update(data.rowMap());
 
 		try {
-			this.parent.timedata.write(edgeId, data);
+			this.parent.timedataManager.write(edgeId, data);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}

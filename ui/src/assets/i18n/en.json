@@ -26,7 +26,8 @@
         "storageCharge": "Storage-Charge",
         "storageDischarge": "Storage-Discharge",
         "title": "Energymonitor",
-        "excelExportWarning": "The display and export of data over a longer period of time is currently only possible to a limited extent. Please try again later."
+        "excelExportWarning": "The display and export of data over a longer period of time is currently only possible to a limited extent. The function is expected to be usable again at the start of 2023.",
+        "displayWarning": "The display of data over a longer period of time is currently only possible to a limited extent. \nThe feature is expected to be available again in early 2023."
       },
       "Widgets": {
         "autarchyInfo": "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
@@ -214,7 +215,7 @@
           "timeCountdown": "time until start"
         },
         "HeatPump": {
-          "aboveSoc": "and above the state of charge of",
+          "aboveSoc": "and from the state of charge of",
           "belowSoc": "and below state of charge of",
           "gridBuy": "From grid purchase of",
           "gridSell": "From excess feed-in of",
@@ -301,6 +302,9 @@
         "systemProfile": "System Profile",
         "alerting": "Alerting",
         "networkConfiguration": "Network Configuration"
+      },
+      "PROFILE": {
+        "ERROR_DOWNLOADING_MODBUS_PROTOCOL": "Error while downloading the Modbus Protocol"
       },
       "More": {
         "manualCommand": "Manual command",
@@ -504,7 +508,8 @@
     "loggedInAs": "Logged in as:",
     "toEnergymonitor": "To Energymonitor...",
     "type": "Type",
-    "addEdge": "Add new {{ edgeShortName }}"
+    "OFFLINE_SINCE": "Offline since",
+    "ADD_EDGE": "Add new {{ edgeShortName }}"
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",
@@ -683,7 +688,7 @@
       "NUMBER_OF_MODULES": "Number of PV module",
       "OPEN_MANUAL": "Open manual",
       "ORIENTATION_WITH_LABEL": "{{ label }}{{ number }} Orientation",
-      "ORIENTATION": "Orientation {{ label }}{{ number }}",
+      "ORIENTATION": "Orientation",
       "SAVE_TO_CONTINUE": "First save your entries to continue.",
       "SAVE": "Save generator",
       "SHADE_MANAGEMENT_DEACTIVATE": "Deactivate Shade management",
@@ -729,7 +734,8 @@
       "UPDATE_WARNING": "Version must be updated!"
     },
     "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}",
-    "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}"
+    "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
+    "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}."
   },
   "Login": {
     "title": "Login",
@@ -738,7 +744,8 @@
     "passwordPlaceholder": "Password",
     "passwordReset": "Reset Password",
     "authenticationFailed": "Authentication Failed",
-    "user": "User"
+    "user": "User",
+    "REQUEST_TIMEOUT": "Request timed out. Try again later."
   },
   "Menu": {
     "aboutUI": "About OpenEMS",

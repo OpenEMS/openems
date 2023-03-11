@@ -355,7 +355,7 @@
           "timeCountdown": "Tijd om te beginnen"
         },
         "HeatPump": {
-          "aboveSoc": "en over de staat van beschuldiging van",
+          "aboveSoc": "en van staat van last van",
           "belowSoc": "en onder staat van beschuldiging van",
           "gridBuy": "Vanaf netaankoop van",
           "gridSell": "Van overtollige toevoer van",

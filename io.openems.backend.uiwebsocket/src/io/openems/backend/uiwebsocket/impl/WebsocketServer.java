@@ -20,7 +20,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnError onError;
 	private final OnClose onClose;
 
-	public WebsocketServer(UiWebsocketImpl parent, String name, int port, int poolSize, boolean debugMode) {
+	public WebsocketServer(UiWebsocketImpl parent, String name, int port, int poolSize, DebugMode debugMode) {
 		super(name, port, poolSize, debugMode, (executor) -> {
 		});
 		this.parent = parent;

@@ -50,7 +50,7 @@ public class User extends AbstractUser {
 	public Role assertEdgeRoleIsAtLeast(String resource, String edgeId, Role role) throws OpenemsNamedException {
 		var thisRoleOpt = this.getRole(edgeId);
 		if (!thisRoleOpt.isPresent()) {
-			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(this.getId());
+			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(resource, this.getId());
 		}
 		var thisRole = thisRoleOpt.get();
 		if (!thisRole.isAtLeast(role)) {
@@ -80,7 +80,8 @@ public class User extends AbstractUser {
 						edge.getProducttype(), // Product-Type
 						edge.getVersion(), // Version
 						role, // Role
-						edge.isOnline() // Online-State
+						edge.isOnline(), // Online-State
+						edge.getLastmessage() // Last-Message Timestamp
 				));
 			}
 		}

@@ -11,6 +11,7 @@
             <ion-toggle (ionChange)="form.model.advancedMode = !form.model.advancedMode; 
               hideOrShowFields(i,form.model.advancedMode)">
             </ion-toggle>
+            <oe-help-button key="SETTINGS_NETWORK_CONFIGURATION"></oe-help-button>
           </ion-item>
           <ion-card-content>
             <form (ngSubmit)="submit(form)">

@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -34,7 +35,6 @@ import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
-import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
@@ -193,8 +193,8 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	}
 
 	@Override
-	public Collection<Edge> getAllEdges() {
-		return this.edgeCache.getAllEdges();
+	public Collection<Edge> getAllOfflineEdges() {
+		return this.edgeCache.getAllEdges().stream().filter(Edge::isOffline).collect(Collectors.toList());
 	}
 
 	/**
@@ -285,38 +285,20 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	}
 
 	@Override
-	public Optional<List<EdgeUser>> getUserToEdge(String edgeId) {
-		Edge edge = this.edgeCache.getEdgeFromEdgeId(edgeId);
-		if (edge == null) {
-			return Optional.empty();
-		} else {
-			return Optional.ofNullable(edge.getUser());
-		}
-	}
-
-	@Override
-	public void sendAlertingMail(ZonedDateTime stamp, List<EdgeUser> user, String edgeId) {
-		try {
-			this.odooHandler.sendNotificationMailAsync(user, stamp, edgeId);
-			user.forEach(u -> {
-				u.setLastNotification(stamp);
-			});
-		} catch (OpenemsNamedException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
 	public void handleEvent(Event event) {
 		var reader = new EventReader(event);
 
 		switch (event.getTopic()) {
 		case Edge.Events.ON_SET_ONLINE: {
-			MyEdge edge = reader.getProperty(Edge.Events.OnSetOnline.EDGE);
-			boolean isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
+			var edgeId = reader.getString(Edge.Events.OnSetOnline.EDGE_ID);
+			var isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
 
-			// Set OpenEMS Is Connected in Odoo/Postgres
-			this.postgresHandler.getPeriodicWriteWorker().onSetOnline(edge, isOnline);
+			this.getEdge(edgeId).ifPresent(edge -> {
+				if (edge instanceof MyEdge) {
+					// Set OpenEMS Is Connected in Odoo/Postgres
+					this.postgresHandler.getPeriodicWriteWorker().onSetOnline((MyEdge) edge, isOnline);
+				}
+			});
 		}
 			break;
 
@@ -325,34 +307,32 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 			break;
 
 		case Edge.Events.ON_SET_VERSION: {
-			MyEdge edge = reader.getProperty(Edge.Events.OnSetVersion.EDGE);
-			SemanticVersion version = reader.getProperty(Edge.Events.OnSetVersion.VERSION);
+			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetVersion.EDGE);
+			var version = (SemanticVersion) reader.getProperty(Edge.Events.OnSetVersion.VERSION);
 
 			// Set Version in Odoo
-			this.logInfo(this.log, "Edge [" + edge.getId() + "]: Update OpenEMS Edge version to [" + version
-					+ "]. It was [" + edge.getVersion() + "]");
 			this.odooHandler.writeEdge(edge, new FieldValue<>(Field.EdgeDevice.OPENEMS_VERSION, version.toString()));
 		}
 			break;
 
-		case Edge.Events.ON_SET_LAST_MESSAGE_TIMESTAMP: {
-			MyEdge edge = reader.getProperty(Edge.Events.OnSetLastMessageTimestamp.EDGE);
+		case Edge.Events.ON_SET_LASTMESSAGE: {
+			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetLastmessage.EDGE);
 			// Set LastMessage timestamp in Odoo/Postgres
 			this.postgresHandler.getPeriodicWriteWorker().onLastMessage(edge);
 		}
 			break;
 
 		case Edge.Events.ON_SET_SUM_STATE: {
-			MyEdge edge = reader.getProperty(Edge.Events.OnSetSumState.EDGE);
-			Level sumState = reader.getProperty(Edge.Events.OnSetSumState.SUM_STATE);
+			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetSumState.EDGE);
+			var sumState = (Level) reader.getProperty(Edge.Events.OnSetSumState.SUM_STATE);
 			// Set Sum-State in Odoo/Postgres
 			this.postgresHandler.getPeriodicWriteWorker().onSetSumState(edge, sumState);
 		}
 			break;
 
 		case Edge.Events.ON_SET_PRODUCTTYPE: {
-			MyEdge edge = reader.getProperty(Edge.Events.OnSetProducttype.EDGE);
-			String producttype = reader.getString(Edge.Events.OnSetProducttype.PRODUCTTYPE);
+			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetProducttype.EDGE);
+			var producttype = reader.getString(Edge.Events.OnSetProducttype.PRODUCTTYPE);
 			// Set Producttype in Odoo/Postgres
 			this.executor.execute(() -> {
 				try {
@@ -370,19 +350,19 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 
 	private void onSetConfigEvent(EventReader reader) {
 		this.executor.execute(() -> {
-			MyEdge edge = reader.getProperty(Edge.Events.OnSetConfig.EDGE);
-			EdgeConfig newConfig = reader.getProperty(Edge.Events.OnSetConfig.CONFIG);
+			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetConfig.EDGE);
+			var newConfig = (EdgeConfig) reader.getProperty(Edge.Events.OnSetConfig.CONFIG);
 
 			EdgeConfig oldConfig;
 			try {
 				oldConfig = this.edgeHandler.getEdgeConfig(edge.getId());
 
 			} catch (OpenemsNamedException e) {
-				oldConfig = new EdgeConfig();
+				oldConfig = EdgeConfig.empty();
 				this.logWarn(this.log, "Edge [" + edge.getId() + "]. " + e.getMessage());
 			}
 
-			EdgeConfigDiff diff = EdgeConfigDiff.diff(newConfig, oldConfig);
+			var diff = EdgeConfigDiff.diff(newConfig, oldConfig);
 			if (diff.isDifferent()) {
 				// Update "EdgeConfigUpdate"
 				this.logInfo(this.log, "Edge [" + edge.getId() + "]. Update config: " + diff.toString());
@@ -409,26 +389,33 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	public EdgeHandler edge() {
 		return this.edgeHandler;
 	}
-	
+
 	@Override
 	public Optional<String> getSerialNumberForEdge(Edge edge) {
 		return this.odooHandler.getSerialNumberForEdge(edge);
 	}
 
 	@Override
+	public void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
+		try {
+			this.odooHandler.sendNotificationMailAsync(sendAt, template, params);
+		} catch (OpenemsNamedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
 	public List<AlertingSetting> getUserAlertingSettings(String edgeId) throws OpenemsException {
 		return this.odooHandler.getUserAlertingSettings(edgeId);
 	}
-	
+
 	@Override
 	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
 		return this.odooHandler.getUserAlertingSettings(edgeId, userId);
 	}
 
 	@Override
-	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users)
-			throws OpenemsException {
+	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) throws OpenemsException {
 		this.odooHandler.setUserAlertingSettings((MyUser) user, edgeId, users);
 	}
-
 }

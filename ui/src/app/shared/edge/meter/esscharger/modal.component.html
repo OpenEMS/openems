@@ -1,3 +1,10 @@
-<oe-modal-line [name]="component.alias ?? component.id"
-    [channelAddress]="[{address:component.id + '/Voltage', roleIsAtLeast: Role.INSTALLER, unit: Utils.CONVERT_TO_VOLT},{address:component.id + '/Current',roleIsAtLeast: Role.INSTALLER, unit: Utils.CONVERT_TO_CURRENT},{address:component.id + '/ActualPower', unit: Utils.CONVERT_TO_WATT}]">
-</oe-modal-line>
+<ng-container *ngIf="component">
+    <oe-modal-line [name]="component.alias ?? component.id">
+        <oe-modal-line-item [channelAddress]="component.id + '/Voltage'" [roleIsAtLeast]="Role.INSTALLER"
+            [converter]="Utils.CONVERT_TO_VOLT"></oe-modal-line-item>
+        <oe-modal-line-item [channelAddress]="component.id + '/Current'" [roleIsAtLeast]="Role.INSTALLER"
+            [converter]="Utils.CONVERT_TO_CURRENT"></oe-modal-line-item>
+        <oe-modal-line-item [channelAddress]="component.id + '/ActualPower'" [converter]="Utils.CONVERT_TO_WATT">
+        </oe-modal-line-item>
+    </oe-modal-line>
+</ng-container>

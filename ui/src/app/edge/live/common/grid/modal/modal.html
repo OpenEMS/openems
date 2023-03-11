@@ -1,17 +1,29 @@
 <oe-modal *ngIf="isInitialized" [title]="'General.grid'| translate">
+
     <oe-modal-line *ngIf="grid.mode === GridMode.OFF_GRID" [name]="'General.offGrid' | translate">
     </oe-modal-line>
-    <oe-modal-line [name]="'General.gridBuyAdvanced' | translate" [values]="[{value: grid.buyFromGrid}]"
-        [converter]="CONVERT_TO_WATT"></oe-modal-line>
-    <oe-modal-line [name]="'General.gridSellAdvanced' | translate" [values]="[{value: grid.sellToGrid}]"
-        [converter]="CONVERT_TO_WATT"></oe-modal-line>
 
-    <!-- 3 Phases -->
-    <oe-modal-line *ngFor="let phase of grid.phases" [textIndent]="TextIndentation.SIMPLE" [name]="phase.name"
-        [values]="[{value: phase.value}]" [converter]="CONVERT_TO_WATT"></oe-modal-line>
+    <oe-modal-line [name]="'General.gridBuyAdvanced' | translate" [value]="grid.buyFromGrid"
+        [converter]="Utils.CONVERT_TO_WATT">
+    </oe-modal-line>
+    <oe-modal-line [name]="'General.gridSellAdvanced' | translate" [value]="grid.sellToGrid"
+        [converter]="Utils.CONVERT_TO_WATT">
+    </oe-modal-line>
+
+    <ng-container *ngFor="let meter of meters">
+        <oe-modal-line *ngIf="meters.length > 1" [name]="meter.component.alias ?? meter.component.id"
+            [channelAddress]="meter.component.id + '/ActivePower'" [converter]="Utils.CONVERT_TO_WATT">
+        </oe-modal-line>
+
+        <!-- If meter is asymmetric, show Phases -->
+        <ng-container *ngIf="meter.isAsymmetric">
+            <oe-modal-meter-phases [component]="meter.component" [setTranslatedName]="setTranslatedName">
+            </oe-modal-meter-phases>
+        </ng-container>
+    </ng-container>
 
     <!-- Info Text -->
-    <oe-modal-info-line [info]="'Edge.Index.Widgets.phasesInfo' | translate"
-        rowStyle="color: var(--ion-color-step-600, #666666);">
+    <oe-modal-info-line [info]="'Edge.Index.Widgets.phasesInfo' | translate">
     </oe-modal-info-line>
+
 </oe-modal>

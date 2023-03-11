@@ -17,6 +17,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
@@ -76,12 +77,39 @@ public class EssFixActivePowerImpl extends AbstractOpenemsComponent
 		switch (this.config.mode()) {
 		case MANUAL_ON:
 			// Apply Active-Power Set-Point
-			this.ess.setActivePowerEquals(this.config.power());
+			var acPower = getAcPower(this.ess, this.config.hybridEssMode(), this.config.power());
+			this.ess.setActivePowerEquals(acPower);
 			break;
 
 		case MANUAL_OFF:
 			// Do nothing
 			break;
 		}
+	}
+
+	/**
+	 * Gets the required AC power set-point for AC- or Hybrid-ESS.
+	 * 
+	 * @param ess           the {@link ManagedSymmetricEss}; checked for
+	 *                      {@link HybridEss}
+	 * @param hybridEssMode the {@link HybridEssMode}
+	 * @param power         the configured target power
+	 * @return the AC power set-point
+	 */
+	protected static Integer getAcPower(ManagedSymmetricEss ess, HybridEssMode hybridEssMode, int power) {
+		switch (hybridEssMode) {
+		case TARGET_AC:
+			return power;
+
+		case TARGET_DC:
+			if (ess instanceof HybridEss) {
+				var pv = ess.getActivePower().orElse(0) - ((HybridEss) ess).getDcDischargePower().orElse(0);
+				return pv + power;
+			} else {
+				return power;
+			}
+		}
+
+		return null; /* should never happen */
 	}
 }

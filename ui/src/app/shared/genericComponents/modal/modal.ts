@@ -26,6 +26,8 @@ export class ModalComponent {
 
     @Input() toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | null = null;
 
+    @Input() helpKey: string | null = null;
+
     public readonly Role = Role;
 
     private edge: Edge = null;

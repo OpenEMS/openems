@@ -318,8 +318,7 @@ public interface OpenemsComponent {
 	 * @param pid    PID of the calling component (use 'config.service_pid()' or
 	 *               '(String)prop.get(Constants.SERVICE_PID)'; if null, PID filter
 	 *               is not added to the resulting target filter
-	 * @param member Name of the Method or Field with the Reference annotation, e.g.
-	 *
+	 * @param member Name of the Method or Field with the Reference annotation
 	 * @param ids    Component IDs to be filtered for; for empty list, no ids are
 	 *               added to the target filter
 	 *
@@ -524,8 +523,9 @@ public interface OpenemsComponent {
 	 */
 	public static void logDebug(OpenemsComponent component, Logger log, String message) {
 		// TODO use log.debug(String, Object...) to improve speed
-		if (component != null) {
-			log.debug("[" + component.id() + "] " + message);
+		var id = getComponentIdentifier(component);
+		if (id != null) {
+			log.debug("[" + id + "] " + message);
 		} else {
 			log.debug(message);
 		}
@@ -539,8 +539,9 @@ public interface OpenemsComponent {
 	 * @param message   the message
 	 */
 	public static void logInfo(OpenemsComponent component, Logger log, String message) {
-		if (component != null) {
-			log.info("[" + component.id() + "] " + message);
+		var id = getComponentIdentifier(component);
+		if (id != null) {
+			log.info("[" + id + "] " + message);
 		} else {
 			log.info(message);
 		}
@@ -554,8 +555,9 @@ public interface OpenemsComponent {
 	 * @param message   the message
 	 */
 	public static void logWarn(OpenemsComponent component, Logger log, String message) {
-		if (component != null) {
-			log.warn("[" + component.id() + "] " + message);
+		var id = getComponentIdentifier(component);
+		if (id != null) {
+			log.warn("[" + id + "] " + message);
 		} else {
 			log.warn(message);
 		}
@@ -569,11 +571,23 @@ public interface OpenemsComponent {
 	 * @param message   the message
 	 */
 	public static void logError(OpenemsComponent component, Logger log, String message) {
-		if (component != null) {
-			log.error("[" + component.id() + "] " + message);
+		var id = getComponentIdentifier(component);
+		if (id != null) {
+			log.error("[" + id + "] " + message);
 		} else {
 			log.error(message);
 		}
+	}
+
+	private static String getComponentIdentifier(OpenemsComponent component) {
+		if (component == null) {
+			return null;
+		}
+		var id = component.id();
+		if (id != null && !id.isBlank()) {
+			return id;
+		}
+		return component.getClass().getSimpleName();
 	}
 
 }

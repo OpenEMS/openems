@@ -1,7 +1,6 @@
 package io.openems.edge.app.timeofusetariff;
 
 import java.util.EnumMap;
-import java.util.List;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -15,7 +14,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.timeofusetariff.AwattarHourly.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -52,9 +50,11 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 public class AwattarHourly extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
-		ALIAS, //
+		// Component-IDs
 		CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID, //
 		TIME_OF_USE_TARIF_ID, //
+		// Properties
+		ALIAS, //
 		;
 	}
 
@@ -69,13 +69,13 @@ public class AwattarHourly extends AbstractOpenemsApp<Property> implements Opene
 		return (t, p, l) -> {
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
+
 			final var ctrlEssTimeOfUseTariffDischargeId = this.getId(t, p,
 					Property.CTRL_ESS_TIME_OF_USE_TARIF_DISCHARGE_ID, "ctrlEssTimeOfUseTariffDischarge0");
-
 			final var timeOfUseTariffId = this.getId(t, p, Property.TIME_OF_USE_TARIF_ID, "timeOfUseTariff0");
 
 			// TODO ess id may be changed
-			List<Component> comp = Lists.newArrayList(//
+			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffDischargeId, alias,
 							"Controller.Ess.Time-Of-Use-Tariff.Discharge", JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
@@ -84,7 +84,8 @@ public class AwattarHourly extends AbstractOpenemsApp<Property> implements Opene
 							JsonUtils.buildJsonObject() //
 									.build())//
 			);
-			return new AppConfiguration(comp, Lists.newArrayList("ctrlEssTimeOfUseTariffDischarge0", "ctrlBalancing0"));
+			return new AppConfiguration(components,
+					Lists.newArrayList(ctrlEssTimeOfUseTariffDischargeId, "ctrlBalancing0"));
 		};
 	}
 

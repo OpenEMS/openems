@@ -25,18 +25,18 @@ public class Edge {
 	private String comment;
 	private SemanticVersion version;
 	private String producttype;
-	private ZonedDateTime lastMessage = null;
+	private ZonedDateTime lastmessage = null;
 	private boolean isOnline = false;
 
 	private final List<EdgeUser> user;
 
 	public Edge(Metadata parent, String id, String comment, String version, String producttype,
-			ZonedDateTime lastMessage) {
+			ZonedDateTime lastmessage) {
 		this.id = id;
 		this.comment = comment;
 		this.version = SemanticVersion.fromStringOrZero(version);
 		this.producttype = producttype;
-		this.lastMessage = lastMessage;
+		this.lastmessage = lastmessage;
 
 		this.parent = parent;
 		this.user = new ArrayList<>();
@@ -69,6 +69,7 @@ public class Edge {
 				.addProperty("version", this.version.toString()) //
 				.addProperty("producttype", this.producttype) //
 				.addProperty("online", this.isOnline) //
+				.addPropertyIfNotNull("lastmessage", this.lastmessage) //
 				.build();
 	}
 
@@ -79,13 +80,17 @@ public class Edge {
 				+ "comment=" + this.comment + ", " //
 				+ "version=" + this.version + ", " //
 				+ "producttype=" + this.producttype + ", " //
-				+ "lastMessage=" + this.lastMessage + ", " //
+				+ "lastmessage=" + this.lastmessage + ", " //
 				+ "isOnline=" + this.isOnline //
 				+ "]";
 	}
 
 	public boolean isOnline() {
 		return this.isOnline;
+	}
+
+	public boolean isOffline() {
+		return !this.isOnline;
 	}
 
 	/**
@@ -95,35 +100,46 @@ public class Edge {
 	 */
 	public synchronized void setOnline(boolean isOnline) {
 		if (this.isOnline != isOnline) {
+			this.isOnline = isOnline;
+			
 			EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_ONLINE) //
-					.addArg(Events.OnSetOnline.EDGE, this) //
+					.addArg(Events.OnSetOnline.EDGE_ID, this.getId()) //
 					.addArg(Events.OnSetOnline.IS_ONLINE, isOnline) //
 					.send(); //
-
-			this.isOnline = isOnline;
 		}
 	}
 
 	/**
-	 * Sets the Last-Message-Timestamp and calls the SetLastMessage-Listeners.
+	 * Sets the Last-Message-Timestamp to now() and calls the
+	 * setLastmessage-Listeners.
 	 */
-	public synchronized void setLastMessageTimestamp() {
-		this.setLastMessageTimestamp(true);
+	public synchronized void setLastmessage() {
+		this.setLastmessage(ZonedDateTime.now(ZoneOffset.UTC));
+	}
+
+	/**
+	 * Sets the Last-Message-Timestamp and calls the setLastmessage-Listeners.
+	 * 
+	 * @param timestamp the Last-Message-Timestamp
+	 */
+	public synchronized void setLastmessage(ZonedDateTime timestamp) {
+		this.setLastmessage(timestamp, true);
 	}
 
 	/**
 	 * Sets the Last-Message-Timestamp.
 	 *
-	 * @param callListeners whether to call the SetLastMessage-Listeners
+	 * @param timestamp     the Last-Message-Timestamp
+	 * @param callListeners whether to call the setLastmessage-Listeners
 	 */
-	public synchronized void setLastMessageTimestamp(boolean callListeners) {
+	public synchronized void setLastmessage(ZonedDateTime timestamp, boolean callListeners) {
 		if (callListeners) {
-			EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_LAST_MESSAGE_TIMESTAMP) //
-					.addArg(Events.OnSetLastMessageTimestamp.EDGE, this) //
+			EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_LASTMESSAGE) //
+					.addArg(Events.OnSetLastmessage.EDGE, this) //
 					.send(); //
 		}
-		var now = ZonedDateTime.now(ZoneOffset.UTC);
-		this.lastMessage = now;
+		var now = timestamp;
+		this.lastmessage = now;
 	}
 
 	/**
@@ -131,8 +147,8 @@ public class Edge {
 	 *
 	 * @return Last-Message-Timestamp in UTC Timezone
 	 */
-	public ZonedDateTime getLastMessageTimestamp() {
-		return this.lastMessage;
+	public ZonedDateTime getLastmessage() {
+		return this.lastmessage;
 	}
 
 	/*
@@ -160,8 +176,8 @@ public class Edge {
 	public synchronized void setVersion(SemanticVersion version, boolean callListeners) {
 		if (!Objects.equal(this.version, version)) { // on change
 			if (callListeners) {
-				this.log.info("Edge [" + this.getId() + "]: Update version to [" + version + "]. It was ["
-						+ this.version + "]");
+				this.log.info(
+						"Edge [" + this.getId() + "]: Update version from [" + this.version + "] to [" + version + "]");
 
 				EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_VERSION) //
 						.addArg(Events.OnSetVersion.EDGE, this) //
@@ -241,7 +257,7 @@ public class Edge {
 		public static final String ON_SET_ONLINE = Events.TOPIC_BASE + "ON_SET_ONLINE";
 
 		public static final class OnSetOnline {
-			public static final String EDGE = "Edge:Edge";
+			public static final String EDGE_ID = "EdgeId:String";
 			public static final String IS_ONLINE = "IsOnline:boolean";
 		}
 
@@ -273,9 +289,9 @@ public class Edge {
 			public static final String CONFIG = "Config:EdgeConfig";
 		}
 
-		public static final String ON_SET_LAST_MESSAGE_TIMESTAMP = Events.TOPIC_BASE + "ON_SET_LAST_MESSAGE_TIMESTAMP";
+		public static final String ON_SET_LASTMESSAGE = Events.TOPIC_BASE + "ON_SET_LASTMESSAGE";
 
-		public static final class OnSetLastMessageTimestamp {
+		public static final class OnSetLastmessage {
 			public static final String EDGE = "Edge:Edge";
 		}
 

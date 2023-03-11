@@ -47,14 +47,13 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 		var result = new SubscribeChannelsRequest(r, count);
 		var channels = JsonUtils.getAsJsonArray(p, "channels");
 		for (JsonElement channel : channels) {
-			var address = ChannelAddress.fromString(JsonUtils.getAsString(channel));
-			result.addChannel(address);
+			result.addChannel(JsonUtils.getAsString(channel));
 		}
 		return result;
 	}
 
 	private final int count;
-	private final TreeSet<ChannelAddress> channels = new TreeSet<>();
+	private final TreeSet<String> channels = new TreeSet<>();
 
 	private SubscribeChannelsRequest(JsonrpcRequest request, int count) {
 		super(request, SubscribeChannelsRequest.METHOD);
@@ -66,7 +65,7 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 		this.count = count;
 	}
 
-	private void addChannel(ChannelAddress address) {
+	private void addChannel(String address) {
 		this.channels.add(address);
 	}
 
@@ -87,15 +86,15 @@ public class SubscribeChannelsRequest extends JsonrpcRequest {
 	 *
 	 * @return the {@link ChannelAddress}es
 	 */
-	public TreeSet<ChannelAddress> getChannels() {
+	public TreeSet<String> getChannels() {
 		return this.channels;
 	}
 
 	@Override
 	public JsonObject getParams() {
 		var channels = new JsonArray();
-		for (ChannelAddress address : this.channels) {
-			channels.add(address.toString());
+		for (var address : this.channels) {
+			channels.add(address);
 		}
 		return JsonUtils.buildJsonObject() //
 				.addProperty("count", this.count) //

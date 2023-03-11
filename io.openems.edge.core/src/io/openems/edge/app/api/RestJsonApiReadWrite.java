@@ -1,7 +1,6 @@
 package io.openems.edge.app.api;
 
 import java.util.EnumMap;
-import java.util.List;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -62,10 +61,11 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
-		// Components
+		// Component-IDs
 		CONTROLLER_ID, //
-		// User-Values
-		API_TIMEOUT;
+		// Properties
+		API_TIMEOUT //
+		;
 	}
 
 	@Activate
@@ -115,25 +115,28 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 
 			var apiTimeout = EnumUtils.getAsInt(p, Property.API_TIMEOUT);
 
-			List<EdgeConfig.Component> components = Lists.newArrayList(//
+			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.Rest.ReadWrite",
 							JsonUtils.buildJsonObject() //
 									.addProperty("apiTimeout", apiTimeout) //
-									.build()));
+									.build()) //
+			);
 
-			var dependencies = Lists.newArrayList(new DependencyDeclaration("READ_ONLY", //
-					DependencyDeclaration.CreatePolicy.NEVER, //
-					DependencyDeclaration.UpdatePolicy.ALWAYS, //
-					DependencyDeclaration.DeletePolicy.NEVER, //
-					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
-					DependencyDeclaration.DependencyDeletePolicy.ALLOWED, //
-					DependencyDeclaration.AppDependencyConfig.create() //
-							.setAppId("App.Api.RestJson.ReadOnly") //
-							.setProperties(JsonUtils.buildJsonObject() //
-									.addProperty(ModbusTcpApiReadOnly.Property.ACTIVE.name(),
-											t == ConfigurationTarget.DELETE) //
-									.build())
-							.build()));
+			var dependencies = Lists.newArrayList(//
+					new DependencyDeclaration("READ_ONLY", //
+							DependencyDeclaration.CreatePolicy.NEVER, //
+							DependencyDeclaration.UpdatePolicy.ALWAYS, //
+							DependencyDeclaration.DeletePolicy.NEVER, //
+							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+							DependencyDeclaration.DependencyDeletePolicy.ALLOWED, //
+							DependencyDeclaration.AppDependencyConfig.create() //
+									.setAppId("App.Api.RestJson.ReadOnly") //
+									.setProperties(JsonUtils.buildJsonObject() //
+											.addProperty(ModbusTcpApiReadOnly.Property.ACTIVE.name(),
+													t == ConfigurationTarget.DELETE) //
+											.build())
+									.build()) //
+			);
 
 			return new AppConfiguration(components, null, null, dependencies);
 		};

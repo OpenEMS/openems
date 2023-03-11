@@ -37,21 +37,25 @@ public class WsData extends io.openems.common.websocket.WsData {
 		 * Applies a SubscribeChannelsRequest.
 		 *
 		 * @param request the SubscribeChannelsRequest
+		 * @throws OpenemsNamedException on error
 		 */
-		public synchronized void handleSubscribeChannelsRequest(SubscribeChannelsRequest request) {
+		public synchronized void handleSubscribeChannelsRequest(SubscribeChannelsRequest request)
+				throws OpenemsNamedException {
 			if (this.lastRequestCount < request.getCount()) {
 				this.subscribedChannels.clear();
-				this.subscribedChannels.addAll(request.getChannels());
+				for (var channel : request.getChannels()) {
+					this.subscribedChannels.add(ChannelAddress.fromString(channel));
+				}
 			}
 		}
 
-		public Map<ChannelAddress, JsonElement> getChannelValues(ComponentManager componentManager) {
+		public Map<String, JsonElement> getChannelValues(ComponentManager componentManager) {
 			var subscribedChannels = this.subscribedChannels;
 			if (subscribedChannels == null || subscribedChannels.isEmpty()) {
 				return Collections.emptyMap();
 			}
 
-			var result = new HashMap<ChannelAddress, JsonElement>(subscribedChannels.size());
+			var result = new HashMap<String, JsonElement>(subscribedChannels.size());
 			for (var channel : subscribedChannels) {
 				JsonElement value;
 				try {
@@ -61,7 +65,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 					this.log.warn("Unable to read value for Channel [" + channel + "]");
 					value = JsonNull.INSTANCE;
 				}
-				result.put(channel, value);
+				result.put(channel.toString(), value);
 			}
 			return result;
 		}
@@ -168,8 +172,10 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * Applies a SubscribeChannelsRequest.
 	 *
 	 * @param request the {@link SubscribeChannelsRequest}
+	 * @throws OpenemsNamedException on error
 	 */
-	public synchronized void handleSubscribeChannelsRequest(SubscribeChannelsRequest request) {
+	public synchronized void handleSubscribeChannelsRequest(SubscribeChannelsRequest request)
+			throws OpenemsNamedException {
 		this.subscribedChannels.handleSubscribeChannelsRequest(request);
 	}
 

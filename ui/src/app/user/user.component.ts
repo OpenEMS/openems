@@ -45,7 +45,7 @@ export class UserComponent implements OnInit {
 
   ngOnInit() {
     // Set currentLanguage to 
-    this.currentLanguage = Language.getByFilename(localStorage.LANGUAGE) ?? Language.DEFAULT;
+    this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
     this.service.setCurrentComponent({ languageKey: 'Menu.user' }, this.route);
 
     this.getUserInformation().then((userInformation) => {
@@ -232,16 +232,16 @@ export class UserComponent implements OnInit {
 
   public setLanguage(language: Language): void {
     // Get Key of LanguageTag Enum
-    localStorage.LANGUAGE = language.filename;
+    localStorage.LANGUAGE = language.key;
 
     this.service.setLang(language);
-    this.websocket.sendRequest(new UpdateUserLanguageRequest({ language: language.filename })).then(() => {
+    this.websocket.sendRequest(new UpdateUserLanguageRequest({ language: language.key })).then(() => {
       this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
     }).catch((reason) => {
       this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
     });
 
     this.currentLanguage = language;
-    this.translate.use(language.filename);
+    this.translate.use(language.key);
   }
 }

@@ -45,8 +45,19 @@ public class AuthenticateWithPasswordRequest extends JsonrpcRequest {
 		return new AuthenticateWithPasswordRequest(r, usernameOpt, password);
 	}
 
-	private final Optional<String> usernameOpt;
-	private final String password;
+	/**
+	 * The Username if given.
+	 *
+	 * @return Username
+	 */
+	public final Optional<String> usernameOpt;
+
+	/**
+	 * The Password.
+	 *
+	 * @return Password
+	 */
+	public final String password;
 
 	private AuthenticateWithPasswordRequest(JsonrpcRequest request, Optional<String> usernameOpt, String password) {
 		super(request, AuthenticateWithPasswordRequest.METHOD);
@@ -58,24 +69,6 @@ public class AuthenticateWithPasswordRequest extends JsonrpcRequest {
 		super(AuthenticateWithPasswordRequest.METHOD);
 		this.usernameOpt = usernameOpt;
 		this.password = password;
-	}
-
-	/**
-	 * Gets the Username if given.
-	 *
-	 * @return Username
-	 */
-	public Optional<String> getUsername() {
-		return this.usernameOpt;
-	}
-
-	/**
-	 * Gets the Password.
-	 *
-	 * @return Password
-	 */
-	public String getPassword() {
-		return this.password;
 	}
 
 	@Override

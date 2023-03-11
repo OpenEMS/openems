@@ -26,6 +26,13 @@ public class FieldTypeConflictHandler {
 
 	public FieldTypeConflictHandler(InfluxImpl parent) {
 		this.parent = parent;
+		this.initializePredefinedHandlers();
+	}
+
+	/**
+	 * Add some already known Handlers.
+	 */
+	private void initializePredefinedHandlers() {
 	}
 
 	/**
@@ -42,7 +49,6 @@ public class FieldTypeConflictHandler {
 			throws IllegalStateException, IllegalArgumentException {
 		var matcher = FieldTypeConflictHandler.FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN.matcher(message);
 		if (!matcher.find()) {
-			this.parent.logWarn(this.log, "Unable to add special field handler for message [" + message + "]");
 			return false;
 		}
 		var field = matcher.group("channel");
@@ -61,8 +67,13 @@ public class FieldTypeConflictHandler {
 			this.parent.logWarn(this.log, "Unable to add special field handler for [" + field + "] from [" + thisType
 					+ "] to [" + requiredType.name().toLowerCase() + "]");
 		}
-		this.parent.logInfo(this.log, "Add special field handler for [" + field + "] from [" + thisType + "] to ["
-				+ requiredType.name().toLowerCase() + "]");
+		this.parent.logInfo(this.log,
+				"Add handler for [" + field + "] from [" + thisType + "] to [" + requiredType.name().toLowerCase()
+						+ "]\n" //
+						+ "Add predefined FieldTypeConflictHandler: this.createAndAddHandler(\"" + field
+						+ "\", RequiredType." + requiredType.name() + ");");
+		;
+
 		return true;
 	}
 
@@ -70,9 +81,12 @@ public class FieldTypeConflictHandler {
 		STRING, INTEGER, FLOAT;
 	}
 
-	private BiConsumer<Point, JsonElement> createAndAddHandler(String field, RequiredType requiredType) {
+	private BiConsumer<Point, JsonElement> createAndAddHandler(String field, RequiredType requiredType)
+			throws IllegalStateException {
 		var handler = this.createHandler(field, requiredType);
-		this.specialCaseFieldHandlers.put(field, handler);
+		if (this.specialCaseFieldHandlers.put(field, handler) != null) {
+			throw new IllegalStateException("Handler for field [" + field + "] was already existing");
+		}
 		return handler;
 	}
 

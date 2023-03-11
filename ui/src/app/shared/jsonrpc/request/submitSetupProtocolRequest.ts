@@ -1,4 +1,6 @@
-import { Category } from "src/app/edge/installation/shared/enums";
+import { TranslateService } from "@ngx-translate/core";
+import { Category } from "src/app/edge/installation/shared/category";
+import { Utils } from "../../shared";
 import { JsonrpcRequest } from "../base";
 
 export type SetupProtocol = {
@@ -100,7 +102,7 @@ export type SetupProtocol = {
  *              serialNumber: string
  *          }[],
  *          items?: {
- *              category: string,
+ *              category: Category,
  *              name: string,
  *              value: string
  *          }[],
@@ -113,9 +115,31 @@ export class SubmitSetupProtocolRequest extends JsonrpcRequest {
 
     static METHOD: string = "submitSetupProtocol";
 
-    public constructor(
+    public static translateFrom(protocol: SetupProtocol, translate: TranslateService): SubmitSetupProtocolRequest {
+        // protocol.items are type category in the protocol recieved and need to be translated before the request being sent.
+        var items: {
+            category: string,
+            name: string,
+            value: string
+        }[] = protocol.items.map((element) => {
+            return {
+                category: Category.toTranslatedString(element.category, translate),
+                name: element.name,
+                value: element.value
+            }
+        })
+
+        // 'Deep copy' to copy the object values from protocol recieved.
+        // To avoid type issues from category to string.
+        var protocolTranslated = Utils.deepCopy(protocol);
+        protocolTranslated.items = items;
+
+        return new SubmitSetupProtocolRequest({ protocol: protocolTranslated });
+    }
+
+    private constructor(
         public readonly params: {
-            protocol: SetupProtocol
+            protocol: any
         }
     ) {
         super(SubmitSetupProtocolRequest.METHOD, params);

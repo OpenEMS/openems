@@ -9,7 +9,7 @@ import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import io.openems.backend.timedata.utils.DummyMetadata;
+import io.openems.backend.common.test.DummyMetadata;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;

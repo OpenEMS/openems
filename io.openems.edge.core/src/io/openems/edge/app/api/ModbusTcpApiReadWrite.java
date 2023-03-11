@@ -1,7 +1,6 @@
 package io.openems.edge.app.api;
 
 import java.util.EnumMap;
-import java.util.List;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,7 +18,7 @@ import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -64,11 +63,12 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
-		// Components
+		// Component-IDs
 		CONTROLLER_ID, //
-		// User-Values
+		// Properties
 		API_TIMEOUT, //
-		COMPONENT_IDS;
+		COMPONENT_IDS //
+		;
 	}
 
 	@Activate
@@ -99,9 +99,12 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 										TranslationUtil.getTranslation(bundle, this.getAppId() + ".componentIds.label")) //
 								.setDescription(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".componentIds.description")) //
-								.setOptions(this.componentManager.getAllComponents(), t -> t.id() + ": " + t.alias(),
-										OpenemsComponent::id)
-								.setDefaultValue(JsonUtils.buildJsonArray().add("_sum").build()) //
+								.setOptions(this.componentManager.getEnabledComponentsOfType(ModbusSlave.class), //
+										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL, //
+										JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE)
+								.setDefaultValue(JsonUtils.buildJsonArray() //
+										.add("_sum") //
+										.build()) //
 								.build())
 						.build())
 				.build();
@@ -139,25 +142,28 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 				}
 			}
 
-			List<EdgeConfig.Component> components = Lists.newArrayList(//
+			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(controllerId, this.getName(l), "Controller.Api.ModbusTcp.ReadWrite",
 							JsonUtils.buildJsonObject() //
 									.addProperty("apiTimeout", apiTimeout) //
-									.add("component.ids", controllerIds).build()));
+									.add("component.ids", controllerIds).build()) //
+			);
 
-			var dependencies = Lists.newArrayList(new DependencyDeclaration("READ_ONLY", //
-					DependencyDeclaration.CreatePolicy.NEVER, //
-					DependencyDeclaration.UpdatePolicy.ALWAYS, //
-					DependencyDeclaration.DeletePolicy.NEVER, //
-					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
-					DependencyDeclaration.DependencyDeletePolicy.ALLOWED, //
-					DependencyDeclaration.AppDependencyConfig.create() //
-							.setAppId("App.Api.ModbusTcp.ReadOnly") //
-							.setProperties(JsonUtils.buildJsonObject() //
-									.addProperty(ModbusTcpApiReadOnly.Property.ACTIVE.name(),
-											t == ConfigurationTarget.DELETE) //
-									.build())
-							.build()));
+			var dependencies = Lists.newArrayList(//
+					new DependencyDeclaration("READ_ONLY", //
+							DependencyDeclaration.CreatePolicy.NEVER, //
+							DependencyDeclaration.UpdatePolicy.ALWAYS, //
+							DependencyDeclaration.DeletePolicy.NEVER, //
+							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+							DependencyDeclaration.DependencyDeletePolicy.ALLOWED, //
+							DependencyDeclaration.AppDependencyConfig.create() //
+									.setAppId("App.Api.ModbusTcp.ReadOnly") //
+									.setProperties(JsonUtils.buildJsonObject() //
+											.addProperty(ModbusTcpApiReadOnly.Property.ACTIVE.name(),
+													t == ConfigurationTarget.DELETE) //
+											.build())
+									.build()) //
+			);
 
 			return new AppConfiguration(components, null, null, dependencies);
 		};

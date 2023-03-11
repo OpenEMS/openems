@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -19,13 +20,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.ed.data.BatteryData;
-import com.ed.data.InverterData;
-import com.ed.data.Settings;
-import com.ed.data.Status;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
@@ -68,8 +62,6 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 
 	private static final int WATCHDOG_SECONDS = 8;
 	private static final int MAX_POWER_RAMP = 500; // [W/sec]
-
-	private final Logger log = LoggerFactory.getLogger(BpEssImpl.class);
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected BpCore core;
@@ -158,62 +150,51 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 		Integer batteryStatus = null;
 		PowerManagementConfiguration powerManagementConfiguration = PowerManagementConfiguration.UNDEFINED;
 
-		if (!this.core.isConnected()) {
-			this.logWarn(this.log, "Core is not connected!");
+		var bpData = this.core.getBpData();
+		this._setCommunicationFailed(bpData == null);
 
-		} else {
-			BatteryData battery = this.core.getBatteryData();
-			Status status = this.core.getStatusData();
-			InverterData inverter = this.core.getInverterData();
+		if (bpData != null) {
+			soc = Math.round(bpData.battery.getSOE());
+			float batteryPower = bpData.battery.getPower();
+			activePower = Math.round(batteryPower - bpData.inverter.getPvPower()) * -1; // invert
+			dcDischargePower = Math.round(batteryPower) * -1; // invert
+			bmsVoltage = bpData.battery.getBmsVoltage();
 
-			if (battery != null) {
-				soc = Math.round(battery.getSOE());
-				float batteryPower = battery.getPower();
-				activePower = Math.round(batteryPower - inverter.getPvPower()) * -1; // invert
-				dcDischargePower = Math.round(batteryPower) * -1; // invert
-				bmsVoltage = battery.getBmsVoltage();
-
-				// Handle MaxApparentPower
-				if (Math.abs(activePower) + MAX_POWER_RAMP > this.getMaxApparentPower().orElse(Integer.MAX_VALUE)) {
-					this._setMaxApparentPower(Math.abs(activePower) + MAX_POWER_RAMP);
-				}
+			// Handle MaxApparentPower
+			if (Math.abs(activePower) + MAX_POWER_RAMP > this.getMaxApparentPower().orElse(Integer.MAX_VALUE)) {
+				this._setMaxApparentPower(Math.abs(activePower) + MAX_POWER_RAMP);
 			}
 
-			if (status != null) {
-				switch (status.getInverterStatus()) {
-				case 12:
-					gridMode = GridMode.OFF_GRID;
-					break;
-				case 13:
-				case 14:
-					gridMode = GridMode.ON_GRID;
-					break;
-				}
-
-				inverterStatus = status.getInverterStatus();
-				batteryStatus = status.getBatteryStatus();
-
-				// Read Power Management Configuration, i.e. External EMS, Charging,...
-				int powerConfig = status.getPowerConfig();
-				for (PowerManagementConfiguration thisEnum : PowerManagementConfiguration.values()) {
-					if (thisEnum.getValue() == powerConfig) {
-						powerManagementConfiguration = thisEnum;
-						break;
-					}
-				}
-
-				// Set error channels
-				List<String> errors = status.getErrors();
-				for (ErrorChannelId channelId : ErrorChannelId.values()) {
-					this.channel(channelId).setNextValue(errors.contains(channelId.getErrorCode()));
-				}
+			switch (bpData.status.getInverterStatus()) {
+			case 12:
+				gridMode = GridMode.OFF_GRID;
+				break;
+			case 13:
+			case 14:
+				gridMode = GridMode.ON_GRID;
+				break;
 			}
 
-			if (inverter != null) {
-				reactivePower = Math.round(
-						inverter.getReactivPower(0) + inverter.getReactivPower(1) + inverter.getReactivPower(2)) * -1;
-				riso = inverter.getRIso();
-			}
+			inverterStatus = bpData.status.getInverterStatus();
+			batteryStatus = bpData.status.getBatteryStatus();
+
+			// Read Power Management Configuration, i.e. External EMS, Charging,...
+			powerManagementConfiguration = Stream.of(PowerManagementConfiguration.values()) //
+					.filter(e -> e.getValue() == bpData.status.getPowerConfig()) //
+					.findFirst() //
+					.orElse(null);
+
+			// Set error channels
+			List<String> errors = bpData.status.getErrors();
+			Stream.of(ErrorChannelId.values()) //
+					.forEach(c -> this.channel(c).setNextValue(errors.contains(c.getErrorCode())));
+
+			reactivePower = Math.round(//
+					/* L1 */ bpData.inverter.getReactivPower(0) //
+							/* L2 */ + bpData.inverter.getReactivPower(1) //
+							/* L3 */ + bpData.inverter.getReactivPower(2)) //
+					* -1;
+			riso = bpData.inverter.getRIso();
 		}
 
 		this._setSoc(soc);
@@ -307,14 +288,13 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) {
-		Status status = this.core.getStatusData();
-		Settings settings = this.core.getSettings();
-		if (status == null || settings == null) {
+		var bpData = this.core.getBpData();
+		if (bpData == null) {
 			return;
 		}
 
 		// Detect if hy-switch Grid-Meter is available for Read-Only mode
-		if (this.config.readOnly() && status.getPowerGridConfig() == 0 /* VECTIS disabled */) {
+		if (this.config.readOnly() && bpData.status.getPowerGridConfig() == 0 /* VECTIS disabled */) {
 			this._setNoGridMeterDetected(true);
 		} else {
 			this._setNoGridMeterDetected(false);
@@ -324,13 +304,11 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 		// if the default user password is configured
 		switch (this.core.getStableVersion()) {
 		case VERSION_8:
-			this._setUserPasswordNotChangedWithExternalKacoVersion8(true);
-			if (this.core.isDefaultUser()) {
+			if (!this.config.readOnly() //
+					&& (/* power has been set */ activePower != 0 || reactivePower != 0) //
+					&& this.core.isDefaultUser()) {
+				this._setUserPasswordNotChangedWithExternalKacoVersion8(true);
 				return;
-			}
-			if (!this.core.getUserAccessDenied().orElse(true)) {
-				// If the system is at least running, it should not remain in fault state
-				this._setUserPasswordNotChangedWithExternalKacoVersion8(false);
 			}
 			break;
 		case UNDEFINED:
@@ -346,20 +324,22 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 			return;
 		}
 
+		final float pacSetPoint;
 		if (this.config.readOnly()) {
 			activePower = 0;
 			// read-only: activates 'compensator normal operation'
-			settings.setPacSetPoint(0);
+			pacSetPoint = 0;
 
 		} else if (activePower == 0) {
 			// avoid setting active power to zero, because this activates 'compensator
 			// normal operation'
-			settings.setPacSetPoint(0.0001f);
+			pacSetPoint = 0.0001f;
 
 		} else {
 			// apply power
-			settings.setPacSetPoint(activePower);
+			pacSetPoint = activePower;
 		}
+		bpData.settings.setPacSetPoint(pacSetPoint);
 
 		this.lastApplyPower = Instant.now();
 		this.lastSetActivePower = activePower;
@@ -398,18 +378,19 @@ public class BpEssImpl extends AbstractOpenemsComponent implements BpEss, Hybrid
 
 	@Override
 	public Integer getSurplusPower() {
-		// Is battery and inverter data available?
-		BatteryData battery = this.core.getBatteryData();
-		InverterData inverter = this.core.getInverterData();
-		if (battery == null || inverter == null) {
+		var bpData = this.core.getBpData();
+
+		// Is data available?
+		if (bpData == null) {
 			return null;
 		}
+
 		// Is battery full?
-		if (battery.getSOE() < 99) {
+		if (bpData.battery.getSOE() < 99) {
 			return null;
 		}
 		// Is PV producing?
-		int pvPower = Math.round(inverter.getPvPower());
+		int pvPower = Math.round(bpData.inverter.getPvPower());
 		if (pvPower < 10) {
 			return null;
 		}

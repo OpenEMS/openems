@@ -1,185 +1,215 @@
 plugins {
-    id "com.github.node-gradle.node" version "2.2.3"
-    id 'checkstyle'
+	id 'java'
+	id 'biz.aQute.bnd.workspace'
+	id 'com.github.node-gradle.node'
+}
+
+/*
+ * disable report generation
+ */
+allprojects {
+	repositories {
+		mavenCentral()
+		gradlePluginPortal()
+	}
+
+	tasks.withType(JavaCompile) {
+		options.encoding = 'UTF-8'
+		options.fork = true
+		options.incremental = true
+	}	
+
+	tasks.withType(Test) {
+		maxParallelForks = 2
+		forkEvery = 100
+		reports {
+			html.required = false
+			junitXml.required = false
+		}
+	}	
+}
+
+/*
+ * setup bnd tasks
+ */
+subprojects {
+	if (plugins.hasPlugin("biz.aQute.bnd")) {	
+		apply plugin: 'checkstyle'
+
+		checkstyle {
+			toolVersion = '10.4'
+			configFile = file("${rootDir}/cnf/checkstyle.xml")
+			maxWarnings = 0
+			ignoreFailures false
+		}
+
+		tasks.withType(Checkstyle) {
+			reports {
+				xml.required = false
+				html.required = false
+			}
+		}
+
+		tasks.withType(aQute.bnd.gradle.Export) {
+			dependsOn tasks.withType(aQute.bnd.gradle.Resolve)
+		}
+	}
 }
 
 tasks.named('wrapper') {
-  jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
-}
-
-// UTF-8
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
+	jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
 /*
  * Build OpenEMS Edge and Backend Components
  */
 task buildComponents() {
-    subprojects.each { proj ->
-        if (proj.tasks.findAll { it.name == 'compileJava' }) {
-            dependsOn(proj.compileJava)
-            proj.test {
-                testLogging {
-                    events "passed", "skipped", "failed", "standardOut", "standardError"
-                }
-            }
-        }
-    }
+	subprojects.each { proj ->
+		if (proj.tasks.findAll { it.name == 'compileJava' }) {
+			dependsOn(proj.compileJava)
+			proj.test {
+				testLogging {
+					events "passed", "skipped", "failed", "standardOut", "standardError"
+				}
+			}
+		}
+	}
 }
 
 /*
  * Build OpenEMS Edge fat-jar
  */
 task buildEdge() {
-    dependsOn ":io.openems.edge.application:export.EdgeApp"
-    doLast {
-        file("${buildDir}/openems-edge.jar").delete()
-        copy {
-            from file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
-            into file("${buildDir}")
-            rename ("EdgeApp.jar", "openems-edge.jar")
-        }
-    }
+	dependsOn ':io.openems.edge.application:export.EdgeApp'
+	doLast {
+		file("${buildDir}/openems-edge.jar").delete()
+		copy {
+			from file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
+			into file("${buildDir}")
+			rename ("EdgeApp.jar", "openems-edge.jar")
+		}
+	}
 }
 
 /*
  * Build OpenEMS Backend fat-jar
  */
 task buildBackend() {
-    dependsOn ":io.openems.backend.application:export.BackendApp"
-    doLast {
-        file("${buildDir}/openems-backend.jar").delete()
-        copy {
-            from file("io.openems.backend.application/generated/distributions/executable/BackendApp.jar")
-            into file("${buildDir}")
-            rename ("BackendApp.jar", "openems-backend.jar")
-        }
-    }
+	dependsOn ":io.openems.backend.application:export.BackendApp"
+	doLast {
+		file("${buildDir}/openems-backend.jar").delete()
+		copy {
+			from file("io.openems.backend.application/generated/distributions/executable/BackendApp.jar")
+			into file("${buildDir}")
+			rename ("BackendApp.jar", "openems-backend.jar")
+		}
+	}
 }
 
 /*
  * Javadoc
  */
 task buildAggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
-        destinationDir = file("$buildDir/www/javadoc")
-    title = "OpenEMS Javadoc"
-    subprojects.each { proj ->
-        proj.tasks.withType(Javadoc).each { javadocTask ->
-            javadocTask.options.encoding = 'UTF-8'
-            options.addStringOption('Xdoclint:none', '-quiet')
-            source += javadocTask.source
-            classpath += javadocTask.classpath
-            excludes += javadocTask.excludes
-            includes += javadocTask.includes
-        }
-    }
+	destinationDir = file("$buildDir/www/javadoc")
+	title = "OpenEMS Javadoc"
+	subprojects.each { proj ->
+		proj.tasks.withType(Javadoc).each { javadocTask ->
+			javadocTask.options.encoding = 'UTF-8'
+			options.addStringOption('Xdoclint:none', '-quiet')
+			source += javadocTask.source
+			classpath += javadocTask.classpath
+			excludes += javadocTask.excludes
+			includes += javadocTask.includes
+		}
+	}
 }
 
 /*
  * Copies Bundle readme.adoc files to doc.
  */
 task copyBundleReadmes() {
-    doLast {
-        // define target files
-        def basePath = projectDir.getPath() + "/doc/modules/ROOT/pages/"
-        def targetController = basePath + "edge/controller.adoc.d"
-        def targetScheduler = basePath + "edge/scheduler.adoc.d"
-        def targetNature = basePath + "edge/nature.adoc.d"
-        def targetBridge = basePath + "edge/bridge.adoc.d"
-        def targetDeviceService = basePath + "edge/device_service.adoc.d"
-        def targetTimedata = basePath + "edge/timedata.adoc.d"
+	doLast {
+		// define target files
+		def basePath = projectDir.getPath() + "/doc/modules/ROOT/pages/"
+		def targetController = basePath + "edge/controller.adoc.d"
+		def targetScheduler = basePath + "edge/scheduler.adoc.d"
+		def targetNature = basePath + "edge/nature.adoc.d"
+		def targetBridge = basePath + "edge/bridge.adoc.d"
+		def targetDeviceService = basePath + "edge/device_service.adoc.d"
+		def targetTimedata = basePath + "edge/timedata.adoc.d"
 
-        // initialize target files and directories
-        [targetController, targetScheduler, targetNature, targetBridge, targetDeviceService, targetTimedata].each { target ->
-            delete fileTree(dir: target, include: '**/*.adoc') 
-            new File(target + "/_include.adoc").write('')
-        }
+		// initialize target files and directories
+		[targetController, targetScheduler, targetNature, targetBridge, targetDeviceService, targetTimedata].each { target ->
+			delete fileTree(dir: target, include: '**/*.adoc') 
+			new File(target + "/_include.adoc").write('')
+		}
 
-        subprojects.each { proj ->
-            // in each subproject (= bundle)...
-            proj.file(".").listFiles().each { sourceFile ->
-                // find the 'readme.adoc' file
-                if(sourceFile.getName().equalsIgnoreCase("readme.adoc")) {
-                    def bundle = sourceFile.getParentFile().getName()
-                    def target = null
-                    // evaluate the OpenEMS Component ('Backend' or 'Edge')
-                    if(bundle.startsWith("io.openems.edge.")) {
-                        // evaluate the bundle type (e.g. 'Controller')
-                        def edgeBundle = bundle.substring("io.openems.edge.".length())
-                        if(edgeBundle.endsWith(".api")) {
-                            target = targetNature
-                        } else if(edgeBundle.startsWith("controller.")) {
-                            target = targetController
-                        } else if(edgeBundle.startsWith("scheduler.")) {
-                            target = targetScheduler
-                        } else if(edgeBundle.startsWith("bridge.")) {
-                            target = targetBridge
-                        } else if(edgeBundle.startsWith("timedata.")) {
-                            target = targetTimedata
-                        } else {
-                            target = targetDeviceService
-                        }
+		subprojects.each { proj ->
+			// in each subproject (= bundle)...
+			proj.file(".").listFiles().each { sourceFile ->
+				// find the 'readme.adoc' file
+				if(sourceFile.getName().equalsIgnoreCase("readme.adoc")) {
+					def bundle = sourceFile.getParentFile().getName()
+					def target = null
+					// evaluate the OpenEMS Component ('Backend' or 'Edge')
+					if(bundle.startsWith("io.openems.edge.")) {
+					// evaluate the bundle type (e.g. 'Controller')
+					def edgeBundle = bundle.substring("io.openems.edge.".length())
+					if(edgeBundle.endsWith(".api")) {
+						target = targetNature
+					} else if(edgeBundle.startsWith("controller.")) {
+						target = targetController
+					} else if(edgeBundle.startsWith("scheduler.")) {
+						target = targetScheduler
+					} else if(edgeBundle.startsWith("bridge.")) {
+						target = targetBridge
+					} else if(edgeBundle.startsWith("timedata.")) {
+						target = targetTimedata
+					} else {
+						target = targetDeviceService
+					}
 
-                    } else if(bundle.startsWith("io.openems.backend.")) {
-                        // ignore
-                        return
+					} else if(bundle.startsWith("io.openems.backend.")) {
+						// ignore
+						return
 
-                    } else if(bundle.startsWith("io.openems.wrapper")) {
-                        // ignore
-                        return
-                    }
+					} else if(bundle.startsWith("io.openems.wrapper")) {
+						// ignore
+						return
+					}
 
-                    // could we exactly evaluate the bundle type and set the targetFile?
-                    if(target == null) {
-                        throw new Exception("Bundle type is unknown for " + bundle)
-                    }
+					// could we exactly evaluate the bundle type and set the targetFile?
+					if(target == null) {
+						throw new Exception("Bundle type is unknown for " + bundle)
+					}
 
-                    // copy the readme file to "target.d" folder
-                    copy {
-                        from (sourceFile.toPath())
-                        into (target)
-                        rename { fileName ->
-                           return bundle + ".adoc"
-                        }
-                    }
+					// copy the readme file to "target.d" folder
+					copy {
+						from (sourceFile.toPath())
+						into (target)
+						rename { fileName ->
+							return bundle + ".adoc"
+						}
+					}
 
-                    // append content of source file to target file
-                    File targetFile = new File(target + "/_include.adoc")
-                    targetFile.append("\ninclude::" + bundle + ".adoc[leveloffset=+1]\n")
-                }
-            }
-        }
-    }
+					// append content of source file to target file
+					File targetFile = new File(target + "/_include.adoc")
+					targetFile.append("\ninclude::" + bundle + ".adoc[leveloffset=+1]\n")
+				}
+			}
+		}
+	}
 }
 
 /*
  * Build Antora docs
  */
 task buildAntoraDocs(dependsOn: copyBundleReadmes) {
-    dependsOn ":doc:buildAntoraDocs"
-    doLast {
-        copy {
-            from "doc/build/www"
-            into "${buildDir}/www"
-        }
-    }
-}
-
-/*
- * Checkstyle configuration
- */
-allprojects {
-    apply plugin: 'checkstyle'
-
-    repositories {
-        mavenCentral()
-    }
-
-    checkstyle {
-        toolVersion = '10.3'
-        configFile = file("${rootDir}/cnf/checkstyle.xml")
-        maxWarnings = 0
-        ignoreFailures false
-    }
+	dependsOn ":doc:buildAntoraDocs"
+	doLast {
+		copy {
+			from "doc/build/www"
+			into "${buildDir}/www"
+		}
+	}
 }
