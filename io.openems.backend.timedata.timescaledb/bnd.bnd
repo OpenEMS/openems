@@ -8,6 +8,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	com.zaxxer.HikariCP,\
 	io.openems.backend.common,\
 	io.openems.common,\
+	io.openems.wrapper.pgbulkinsert,\
 	org.postgresql.jdbc,\
 
 -testpath: \

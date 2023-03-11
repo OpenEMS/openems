@@ -10,8 +10,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.api,\
 	io.openems.edge.controller.api.common,\
 	io.openems.edge.timedata.api,\
-	javax.servlet-api,\
-	org.apache.felix.http.jetty
+	org.apache.felix.http.jetty,\
+	org.apache.felix.http.servlet-api,\
 
 -testpath: \
 	${testpath}

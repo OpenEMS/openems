@@ -4,12 +4,11 @@ import { ActivatedRoute, Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { ChartDataSets, ChartLegendLabelItem } from 'chart.js';
-import { queryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
-import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { calculateResolution, ChannelFilter, ChartData, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
-import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
+import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/queryHistoricTimeseriesDataResponse';
 import { ChannelAddress, Edge, Service, Utils } from "../../shared";
 
@@ -28,7 +27,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     public loading: boolean = true;
     public labels: Date[] = [];
     public datasets: ChartDataSets[] = EMPTY_DATASET;
-    public options: ChartOptions | null = null;
+    public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
     public colors: any[] = [];
     public chartObject: ChartData = this.getChartData();
     public chartType: 'line' | 'bar' = 'line';
@@ -65,7 +64,13 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         this.loadChart()
     }
 
-    private fillChart(response: QueryHistoricTimeseriesDataResponse | queryHistoricTimeseriesEnergyPerPeriodResponse) {
+    private fillChart(response: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse) {
+
+        // TODO remove, when all widgets are refactored
+        if (Utils.isDataEmpty(response)) {
+            return
+        }
+
         let result = response.result;
         let labels: Date[] = [];
         for (let timestamp of result.timestamps) {
@@ -106,7 +111,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         for (let displayValue of this.chartObject.displayValue) {
             datasets.push({
                 label: displayValue.name,
-                data: displayValue.getValue(this.chartObject.channel),
+                data: displayValue.getValue(this.chartObject.channel) ?? null,
                 hidden: !isLabelVisible(displayValue.name),
             })
             colors.push({
@@ -161,12 +166,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                 })
                 this.chartType = 'bar';
                 this.setChartLabel();
-
-            }).catch(reason => {
-                console.error(reason); // TODO error message
-                this.initializeChart();
-                return;
-            });
+            })
 
         } else {
             // Shows Line-Chart
@@ -174,12 +174,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                 this.chartType = 'line'
                 this.fillChart(response);
                 this.setChartLabel();
-
-            }).catch(reason => {
-                console.error(reason); // TODO error message
-                this.initializeChart();
-                return;
-            });
+            })
         }
     }
 
@@ -195,22 +190,36 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
         let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
 
-        return new Promise((resolve, reject) => {
+        let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(config => {
+                this.service.getConfig().then(() => {
                     let channelAddresses = this.getChannelAddresses().powerChannels;
                     let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses, resolution);
                     edge.sendRequest(this.service.websocket, request).then(response => {
-                        let result = (response as QueryHistoricTimeseriesDataResponse).result;
-                        if (Object.keys(result.data).length != 0 && Object.keys(result.timestamps).length != 0) {
+                        let result = (response as QueryHistoricTimeseriesDataResponse)?.result;
+                        if (Object.keys(result).length != 0) {
                             resolve(response as QueryHistoricTimeseriesDataResponse);
                         } else {
-                            reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                            resolve(new QueryHistoricTimeseriesDataResponse(response.id, {
+                                timestamps: [null], data: { null: null }
+                            }));
                         }
-                    }).catch(reason => reject(reason));
-                }).catch(reason => reject(reason));
+                    });
+                })
             })
-        });
+        }).then((response) => {
+
+            // Check if channelAddresses are empty
+            if (Utils.isDataEmpty(response)) {
+
+                // load defaultchart
+                this.service.stopSpinner(this.spinnerId)
+                this.initializeChart()
+            }
+            return response
+        })
+
+        return result
     }
 
     /**
@@ -220,26 +229,38 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
      * @param toDate   the To-Date
      * @param channelAddresses       the Channel-Addresses
      */
-    protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date): Promise<queryHistoricTimeseriesEnergyPerPeriodResponse> {
+    protected queryHistoricTimeseriesEnergyPerPeriod(fromDate: Date, toDate: Date): Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> {
 
         let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
 
-        return new Promise((resolve, reject) => {
+        let response: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     let channelAddresses = this.getChannelAddresses().energyChannels;
-                    edge.sendRequest(this.service.websocket, new queryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
-                        let result = (response as QueryHistoricTimeseriesDataResponse).result;
-
+                    edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
+                        let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse)?.result;
                         if (Object.keys(result).length != 0) {
-                            resolve(response as queryHistoricTimeseriesEnergyPerPeriodResponse);
+                            resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse);
                         } else {
-                            reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                            resolve(new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
+                                timestamps: [null], data: { null: null }
+                            }));
                         }
-                    }).catch(reason => reject(reason));
+                    })
                 })
             });
-        });
+        }).then((response) => {
+
+            // Check if channelAddresses are empty
+            if (Utils.isDataEmpty(response)) {
+
+                // load defaultchart
+                this.service.stopSpinner(this.spinnerId)
+                this.initializeChart()
+            }
+            return response
+        })
+        return response
     }
 
     /**

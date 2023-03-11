@@ -1,0 +1,10 @@
+= Meter KDK 420506PRO20-U (2PU CT) Professional meter
+
+Implemented Natures
+
+- AsymmetricMeter
+- SymmetricMeter
+
+For details, see https://www.kdk-dornscheidt.de/produkte/420506pro20-ct/
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.kdk[Source Code icon:github[]]

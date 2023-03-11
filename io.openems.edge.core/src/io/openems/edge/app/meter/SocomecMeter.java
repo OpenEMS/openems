@@ -1,6 +1,5 @@
 package io.openems.edge.app.meter;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -9,6 +8,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -56,9 +56,9 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 public class SocomecMeter extends AbstractMeterApp<Property> implements OpenemsApp {
 
 	public enum Property {
-		// Components
+		// Component-IDs
 		METER_ID, //
-		// User-Values
+		// Properties
 		ALIAS, //
 		TYPE, //
 		MODBUS_ID, //
@@ -83,14 +83,14 @@ public class SocomecMeter extends AbstractMeterApp<Property> implements OpenemsA
 			var type = this.getValueOrDefault(p, Property.TYPE, "PRODUCTION");
 			var modbusUnitId = EnumUtils.getAsInt(p, Property.MODBUS_UNIT_ID);
 
-			var components = new ArrayList<EdgeConfig.Component>();
-
-			components.add(new EdgeConfig.Component(meterId, alias, "Meter.Socomec.Threephase", //
-					JsonUtils.buildJsonObject() //
-							.addProperty("modbus.id", modbusId) //
-							.addProperty("modbusUnitId", modbusUnitId) //
-							.addProperty("type", type) //
-							.build()));
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(meterId, alias, "Meter.Socomec.Threephase", //
+							JsonUtils.buildJsonObject() //
+									.addProperty("modbus.id", modbusId) //
+									.addProperty("modbusUnitId", modbusUnitId) //
+									.addProperty("type", type) //
+									.build()) //
+			);
 
 			return new AppConfiguration(components);
 		};

@@ -19,10 +19,12 @@ import org.slf4j.Logger;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
+import io.openems.backend.common.edgewebsocket.EdgeWebsocket;
 import io.openems.backend.common.jsonrpc.JsonRpcRequestHandler;
 import io.openems.backend.common.metadata.Metadata;
-import io.openems.backend.common.timedata.Timedata;
+import io.openems.backend.common.timedata.TimedataManager;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -46,7 +48,10 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent implements Eve
 	protected volatile Metadata metadata;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
-	protected volatile Timedata timeData;
+	protected volatile TimedataManager timedataManager;
+
+	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
+	protected volatile EdgeWebsocket edgeWebsocket;
 
 	protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(10,
 			new ThreadFactoryBuilder().setNameFormat("B2bWebsocket-%d").build());
@@ -75,7 +80,7 @@ public class B2bWebsocket extends AbstractOpenemsBackendComponent implements Eve
 	 * @param poolSize  number of threads dedicated to handle the tasks
 	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize, boolean debugMode) {
+	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
 		this.server = new WebsocketServer(this, this.getName(), port, poolSize, debugMode);
 		this.server.start();
 	}

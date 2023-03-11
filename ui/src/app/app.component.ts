@@ -1,9 +1,10 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, timer } from 'rxjs';
+import { retry, switchMap, takeUntil } from 'rxjs/operators';
 import { environment } from '../environments';
 import { Service, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
@@ -30,7 +31,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public websocket: Websocket,
     private titleService: Title
   ) {
-    service.setLang(Language.getByFilename(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+    service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
   }
 
   ngOnInit() {

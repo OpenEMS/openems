@@ -7,7 +7,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.types.ChannelAddress;
 
 /**
  * Represents a JSON-RPC Notification for sending the current data of all
@@ -27,9 +26,9 @@ public class CurrentDataNotification extends JsonrpcNotification {
 
 	public static final String METHOD = "currentData";
 
-	private final Map<ChannelAddress, JsonElement> data;
+	private final Map<String, JsonElement> data;
 
-	public CurrentDataNotification(Map<ChannelAddress, JsonElement> data) {
+	public CurrentDataNotification(Map<String, JsonElement> data) {
 		super(CurrentDataNotification.METHOD);
 		this.data = data;
 	}
@@ -37,8 +36,8 @@ public class CurrentDataNotification extends JsonrpcNotification {
 	@Override
 	public JsonObject getParams() {
 		var p = new JsonObject();
-		for (Entry<ChannelAddress, JsonElement> entry : this.data.entrySet()) {
-			p.add(entry.getKey().toString(), entry.getValue());
+		for (Entry<String, JsonElement> entry : this.data.entrySet()) {
+			p.add(entry.getKey(), entry.getValue());
 		}
 		return p;
 	}

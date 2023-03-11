@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
-  "defaultProject": "app",
   "newProjectRoot": "projects",
   "projects": {
     "app": {
@@ -76,6 +75,10 @@
             "openems-backend-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-dev.ts"
                 }
@@ -83,6 +86,10 @@
             },
             "openems-backend-prod": {
               "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/backend-prod.ts"
@@ -92,6 +99,10 @@
             "openems-edge-dev": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-dev.ts"
                 }
@@ -100,6 +111,10 @@
             "openems-edge-prod": {
               "fileReplacements": [
                 {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/edge-prod.ts"
                 }
@@ -107,6 +122,10 @@
             },
             "openems-gitpod": {
               "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
                 {
                   "replace": "src/environments/dummy.ts",
                   "with": "src/themes/openems/environments/gitpod.ts"
@@ -161,8 +180,7 @@
     }
   },
   "cli": {
-    "analytics": false,
-    "defaultCollection": "@angular-eslint/schematics"
+    "analytics": false
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {

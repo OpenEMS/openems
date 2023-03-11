@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { environment } from 'src/environments';
+import { Environment, environment } from 'src/environments';
 import { Edge, Service, Websocket } from '../../../shared/shared';
 import { ExecuteSystemUpdate } from '../systemupdate/executeSystemUpdate';
 import { GetApps } from './jsonrpc/getApps';
@@ -16,13 +16,13 @@ export class IndexComponent {
   private static readonly SELECTOR = "appIndex";
   public readonly spinnerId: string = IndexComponent.SELECTOR;
 
-  protected readonly environment = environment;
-  protected edge: Edge = null;
+  protected readonly environment: Environment = environment;
+  protected edge: Edge | null = null;
 
   /**
    * e. g. if more than 4 apps are in a list the apps are displayed in their categories
    */
-  private static readonly MAX_APPS_IN_LIST = 4;
+  private static readonly MAX_APPS_IN_LIST: number = 4;
 
   public apps: GetApps.App[] = [];
 
@@ -33,7 +33,7 @@ export class IndexComponent {
 
   public appLists: AppList[] = [this.installedApps, this.availableApps, this.incompatibleApps];
 
-  public categories = [];
+  public categories: { val: GetApps.Category, isChecked: boolean }[] = [];
 
   // check if update is available
   protected isUpdateAvailable: boolean = false;
@@ -97,10 +97,10 @@ export class IndexComponent {
   }
 
   /**
-   * Updates the slected categories.
+   * Updates the selected categories.
    * @param event the event of a click on a 'ion-fab-list' to stop it from closing
    */
-  private updateSelection(event) {
+  protected updateSelection(event: PointerEvent) {
     if (event != null) {
       event.stopPropagation()
     }
@@ -121,21 +121,21 @@ export class IndexComponent {
 
     sortedApps.forEach(a => {
       if (a.instanceIds.length > 0) {
-        this.pushIntoCategorie(a, this.installedApps)
+        this.pushIntoCategory(a, this.installedApps)
         if (a.cardinality === 'MULTIPLE' && a.status.name !== 'INCOMPATIBLE') {
-          this.pushIntoCategorie(a, this.availableApps)
+          this.pushIntoCategory(a, this.availableApps)
         }
       } else {
         if (a.status.name === 'INCOMPATIBLE') {
-          this.pushIntoCategorie(a, this.incompatibleApps)
+          this.pushIntoCategory(a, this.incompatibleApps)
         } else {
-          this.pushIntoCategorie(a, this.availableApps)
+          this.pushIntoCategory(a, this.availableApps)
         }
       }
     })
   }
 
-  private pushIntoCategorie(app: GetApps.App, list: AppList) {
+  private pushIntoCategory(app: GetApps.App, list: AppList) {
     app.categorys.forEach(category => {
       var catList = list.appCategories.find(l => l.category.name === category.name)
       if (catList == undefined) {
@@ -146,11 +146,11 @@ export class IndexComponent {
     })
   }
 
-  private showCategories(app: AppList) {
+  protected showCategories(app: AppList) {
     return this.sum(app) > IndexComponent.MAX_APPS_IN_LIST
   }
 
-  private isEmpty(app: AppList) {
+  protected isEmpty(app: AppList) {
     return this.sum(app) === 0
   }
 

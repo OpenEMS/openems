@@ -82,15 +82,15 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 				DefaultSunSpecModel.S204.VAR, DefaultSunSpecModel.S203.VAR, DefaultSunSpecModel.S202.VAR,
 				DefaultSunSpecModel.S201.VAR);
 		this.mapFirstPointToChannel(//
-				SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
-				ElementToChannelConverter.INVERT, //
-				DefaultSunSpecModel.S204.TOT_WH_IMP, DefaultSunSpecModel.S203.TOT_WH_IMP,
-				DefaultSunSpecModel.S202.TOT_WH_IMP, DefaultSunSpecModel.S201.TOT_WH_IMP);
-		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
-				ElementToChannelConverter.INVERT, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S204.TOT_WH_EXP, DefaultSunSpecModel.S203.TOT_WH_EXP,
 				DefaultSunSpecModel.S202.TOT_WH_EXP, DefaultSunSpecModel.S201.TOT_WH_EXP);
+		this.mapFirstPointToChannel(//
+				SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S204.TOT_WH_IMP, DefaultSunSpecModel.S203.TOT_WH_IMP,
+				DefaultSunSpecModel.S202.TOT_WH_IMP, DefaultSunSpecModel.S201.TOT_WH_IMP);
 		this.mapFirstPointToChannel(//
 				SymmetricMeter.ChannelId.VOLTAGE, //
 				ElementToChannelConverter.SCALE_FACTOR_3, //
@@ -172,15 +172,35 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 				DefaultSunSpecModel.S204.PH_VPH_C, DefaultSunSpecModel.S203.PH_VPH_C, DefaultSunSpecModel.S202.PH_VPH_C,
 				DefaultSunSpecModel.S201.PH_VPH_C);
 		this.mapFirstPointToChannel(//
-				SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+				AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
 				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S204.TOT_WH_EXP, DefaultSunSpecModel.S203.TOT_WH_EXP,
-				DefaultSunSpecModel.S202.TOT_WH_EXP, DefaultSunSpecModel.S201.TOT_WH_EXP);
+				DefaultSunSpecModel.S204.TOT_WH_EXP_PH_A, DefaultSunSpecModel.S203.TOT_WH_EXP_PH_A,
+				DefaultSunSpecModel.S202.TOT_WH_EXP_PH_A, DefaultSunSpecModel.S201.TOT_WH_EXP_PH_A);
 		this.mapFirstPointToChannel(//
-				SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+				AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
 				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S204.TOT_WH_IMP, DefaultSunSpecModel.S203.TOT_WH_IMP,
-				DefaultSunSpecModel.S202.TOT_WH_IMP, DefaultSunSpecModel.S201.TOT_WH_IMP);
+				DefaultSunSpecModel.S204.TOT_WH_EXP_PH_B, DefaultSunSpecModel.S203.TOT_WH_EXP_PH_B,
+				DefaultSunSpecModel.S202.TOT_WH_EXP_PH_B, DefaultSunSpecModel.S201.TOT_WH_EXP_PH_B);
+		this.mapFirstPointToChannel(//
+				AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S204.TOT_WH_EXP_PH_C, DefaultSunSpecModel.S203.TOT_WH_EXP_PH_C,
+				DefaultSunSpecModel.S202.TOT_WH_EXP_PH_C, DefaultSunSpecModel.S201.TOT_WH_EXP_PH_C);
+		this.mapFirstPointToChannel(//
+				AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S204.TOT_WH_IMP_PH_A, DefaultSunSpecModel.S203.TOT_WH_IMP_PH_A,
+				DefaultSunSpecModel.S202.TOT_WH_IMP_PH_A, DefaultSunSpecModel.S201.TOT_WH_IMP_PH_A);
+		this.mapFirstPointToChannel(//
+				AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S204.TOT_WH_IMP_PH_B, DefaultSunSpecModel.S203.TOT_WH_IMP_PH_B,
+				DefaultSunSpecModel.S202.TOT_WH_IMP_PH_B, DefaultSunSpecModel.S201.TOT_WH_IMP_PH_B);
+		this.mapFirstPointToChannel(//
+				AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S204.TOT_WH_IMP_PH_C, DefaultSunSpecModel.S203.TOT_WH_IMP_PH_C,
+				DefaultSunSpecModel.S202.TOT_WH_IMP_PH_C, DefaultSunSpecModel.S201.TOT_WH_IMP_PH_C);
 	}
 
 	@Override

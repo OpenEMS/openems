@@ -48,6 +48,7 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
+				HybridEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
 		this.power = power;
@@ -73,6 +74,32 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 	@Override
 	public int getPowerPrecision() {
 		return 1;
+	}
+
+	/**
+	 * Set {@link SymmetricEss.ChannelId#ACTIVE_POWER} of this
+	 * {@link DummyHybridEss}.
+	 *
+	 * @param value the active power
+	 * @return myself
+	 */
+	public DummyHybridEss withActivePower(Integer value) {
+		this._setActivePower(value);
+		this.getActivePowerChannel().nextProcessImage();
+		return this;
+	}
+
+	/**
+	 * Set {@link HybridEss.ChannelId#DC_DISCHARGE_POWER} of this
+	 * {@link DummyHybridEss}.
+	 *
+	 * @param value the DC discharge power
+	 * @return myself
+	 */
+	public DummyHybridEss withDcDischargePower(Integer value) {
+		this._setDcDischargePower(value);
+		this.getDcDischargePowerChannel().nextProcessImage();
+		return this;
 	}
 
 	/**

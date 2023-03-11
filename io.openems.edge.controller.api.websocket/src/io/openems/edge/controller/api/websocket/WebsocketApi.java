@@ -33,6 +33,7 @@ import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -126,7 +127,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 				new ThreadFactoryBuilder().setNameFormat(name + "-%d").build());
 
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
-		this.startServer(config.port(), POOL_SIZE, false);
+		this.startServer(config.port(), POOL_SIZE, DebugMode.OFF);
 	}
 
 	@Override
@@ -144,7 +145,7 @@ public class WebsocketApi extends AbstractOpenemsComponent
 	 * @param poolSize  number of threads dedicated to handle the tasks
 	 * @param debugMode activate a regular debug log about the state of the tasks
 	 */
-	private synchronized void startServer(int port, int poolSize, boolean debugMode) {
+	private synchronized void startServer(int port, int poolSize, DebugMode debugMode) {
 		this.server = new WebsocketServer(this, "Websocket Api", port, poolSize, debugMode);
 		this.server.start();
 	}

@@ -11,7 +11,7 @@ import { DefaultTypes } from "../defaulttypes";
 export class DummyService extends AbstractService {
 
     private readonly edge = new Edge("edge0", "comment", "productype"
-        , "1234-56-78", Role.ADMIN, true);
+        , "1234.56.78", Role.ADMIN, true, new Date());
 
     private readonly edgeConfig = new EdgeConfig(this.edge, undefined);
 

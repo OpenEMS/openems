@@ -85,14 +85,6 @@ public interface Metadata {
 	public abstract Optional<String> getEdgeIdForApikey(String apikey);
 
 	/**
-	 * Get all EdgeUsers to EdgeID.
-	 *
-	 * @param edgeId the Edge-ID
-	 * @return the List of Users as Optional
-	 */
-	public abstract Optional<List<EdgeUser>> getUserToEdge(String edgeId);
-
-	/**
 	 * Get an Edge by its unique Edge-ID.
 	 *
 	 * @param edgeId the Edge-ID
@@ -133,11 +125,11 @@ public interface Metadata {
 	public abstract Optional<User> getUser(String userId);
 
 	/**
-	 * Gets all Edges.
+	 * Gets all Offline-Edges.
 	 *
 	 * @return collection of Edges.
 	 */
-	public abstract Collection<Edge> getAllEdges();
+	public abstract Collection<Edge> getAllOfflineEdges();
 
 	/**
 	 * Assigns Edge with given setupPassword to the logged in user and returns it.
@@ -298,7 +290,7 @@ public interface Metadata {
 
 	/**
 	 * Gets all the alerting settings for given edge id.
-	 * 
+	 *
 	 *
 	 * @param edgeId the Edge ID
 	 * @return List of {@link AlertingSetting}

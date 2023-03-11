@@ -11,9 +11,13 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 	private final String toString;
 
 	public ChannelAddress(String componentId, String channelId) {
+		this(componentId, channelId, new StringBuilder(componentId).append("/").append(channelId).toString());
+	}
+
+	private ChannelAddress(String componentId, String channelId, String toString) {
 		this.componentId = componentId;
 		this.channelId = channelId;
-		this.toString = new StringBuilder(this.componentId).append("/").append(this.channelId).toString();
+		this.toString = toString;
 	}
 
 	/**
@@ -51,7 +55,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 			var addressArray = address.split("/");
 			var componentId = addressArray[0];
 			var channelId = addressArray[1];
-			return new ChannelAddress(componentId, channelId);
+			return new ChannelAddress(componentId, channelId, address);
 		} catch (Exception e) {
 			throw OpenemsError.COMMON_NO_VALID_CHANNEL_ADDRESS.exception(address);
 		}

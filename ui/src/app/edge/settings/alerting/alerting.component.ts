@@ -13,8 +13,9 @@ import { Edge, Service, Utils, Websocket } from 'src/app/shared/shared';
 export type UserSetting = { userId: string, delayTime: number }
 
 type Delay = { value: number, label: string }
+type UserSettingOptions = UserSetting & { options: Delay[] }
 type UserSettingRole = UserSetting & { role: Role };
-type RoleUsersSettings = { role: Role, form: FormGroup, settings: UserSetting[] }
+type RoleUsersSettings = { role: Role, form: FormGroup, settings: UserSettingOptions[] }
 
 @Component({
   selector: AlertingComponent.SELECTOR,
@@ -57,11 +58,9 @@ export class AlertingComponent implements OnInit {
 
       this.sendRequest(request).then(response => {
         const result = response.result;
-        // copy the array, because a later splice will otherwise falsify the log output of the response.
-        const userSettings: UserSettingResponse[] = result.userSettings.map(e => e);
-        this.findRemoveAndSetCurrentUser(userSettings)
+        this.findRemoveAndSetCurrentUser(result.userSettings)
         if (edge?.roleIsAtLeast('admin')) {
-          this.setRemainingUserSettings(userSettings);
+          this.setRemainingUserSettings(result.userSettings);
         }
       }).catch(error => {
         this.error = error.error;
@@ -165,11 +164,19 @@ export class AlertingComponent implements OnInit {
   private addUserToRoleUserSettings(userSetting: UserSettingResponse, roleSetting: RoleUsersSettings) {
     let activated = userSetting.delayTime > 0;
     let delay = userSetting.delayTime == 0 ? 15 : userSetting.delayTime;
-    roleSetting.settings.push(userSetting)
+    roleSetting.settings.push({ userId: userSetting.userId, delayTime: userSetting.delayTime, options: this.getDelayOptions(delay) })
     roleSetting.form.addControl(userSetting.userId, this.formBuilder.group({
       isActivated: new FormControl(activated),
       delayTime: new FormControl(delay),
     }));
+  }
+
+  private getDelayOptions(delay: number): Delay[] {
+    let delays: Delay[] = this.Delays
+    if (this.isInvalidDelay(delay)) {
+      delays.push({ value: delay, label: this.getLabelToDelay(delay) })
+    }
+    return delays;
   }
 
   private sortedByRole(roleUsersSettings: RoleUsersSettings[]): RoleUsersSettings[] {
@@ -221,40 +228,50 @@ export class AlertingComponent implements OnInit {
   protected setUsersAlertingConfig() {
     let edgeId: string = this.edge.id;
 
-    let formGroup: FormGroup<any>[] = []; // all dirty formGroups
-    let userSettings: UserSetting[] = []; // all changed userSettings
+    let dirtyformGroups: FormGroup<any>[] = [];
+    let changedUserSettings: UserSetting[] = [];
 
     if (this.currentUserForm.formGroup.dirty) {
-      formGroup.push(this.currentUserForm.formGroup)
+      dirtyformGroups.push(this.currentUserForm.formGroup)
 
-      userSettings.push({
+      changedUserSettings.push({
         delayTime: this.currentUserForm.formGroup.controls['delayTime']?.value ?? 0,
         userId: this.currentUserInformation.userId,
       })
     }
 
+    let userOptions: UserSettingOptions[] = [];
     if (this.otherUserSettings) {
       for (let setting of this.otherUserSettings) {
         if (setting.form.dirty) {
-          formGroup.push(setting.form)
+          dirtyformGroups.push(setting.form)
 
           for (let user of setting.settings) {
             let control = setting.form.controls[user.userId]
             if (control.dirty) {
               let delayTime = control.value['delayTime']
               let isActivated = control.value['isActivated']
-              userSettings.push({
+              changedUserSettings.push({
                 delayTime: isActivated ? delayTime : 0,
                 userId: user.userId,
               });
+              userOptions.push(user);
             }
           }
         }
       }
     }
 
-    let request = new SetUserAlertingConfigsRequest({ edgeId: edgeId, userSettings: userSettings })
-    this.sendRequestAndUpdate(request, formGroup)
+    let request = new SetUserAlertingConfigsRequest({ edgeId: edgeId, userSettings: changedUserSettings })
+    this.sendRequestAndUpdate(request, dirtyformGroups)
+
+    // reset options for users with a non-default option.
+    var defaultSettingsCount = this.Delays.length;
+    userOptions.forEach(user => {
+      if (user.options.length > defaultSettingsCount) {
+        user.options = this.getDelayOptions(user.delayTime);
+      }
+    });
   }
 
   /**

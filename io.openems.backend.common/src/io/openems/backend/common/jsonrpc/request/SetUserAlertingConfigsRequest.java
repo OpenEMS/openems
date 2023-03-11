@@ -60,7 +60,7 @@ public class SetUserAlertingConfigsRequest extends JsonrpcRequest {
 				var userId = JsonUtils.getAsString(userJsonObject, "userId");
 				var timeToWait = JsonUtils.getAsInt(userJsonObject, "delayTime");
 
-				this.userSettings.add(new AlertingSetting(userId, null, null, timeToWait));
+				this.userSettings.add(new AlertingSetting(userId, timeToWait));
 			} catch (OpenemsNamedException e) {
 				e.printStackTrace();
 			}

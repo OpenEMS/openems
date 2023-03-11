@@ -62,7 +62,7 @@ public class MyProcessImage implements ProcessImage {
 			 */
 			var length = count * 2;
 			if (length < 0 || length + 2 > 255) {
-				throw new IllegalArgumentException("Invalid length: " + length + "; max. 126 registers allowed");
+				throw new MyIllegalAddressException(this, "Invalid length: " + length + "; max. 126 registers allowed");
 			}
 
 			var records = this.parent.records.subMap(offset, offset + count);
@@ -137,7 +137,17 @@ public class MyProcessImage implements ProcessImage {
 	 */
 	private Register[] getRecordValueRegisters(ModbusRecord record) {
 		var result = new MyRegister[record.getType().getWords()];
-		OpenemsComponent component = this.parent.getComponent(record.getComponentId());
+		final OpenemsComponent component;
+		{
+			var cmp = this.parent.getPossiblyDisabledComponent(record.getComponentId());
+			if (cmp != null && !cmp.isEnabled()) {
+				this.parent.logWarn(this.log, "Trying to access disabled Component [" + cmp.id() + "] for " + record);
+				component = null;
+			} else {
+				component = cmp;
+			}
+		}
+
 		var value = record.getValue(component);
 		for (var j = 0; j < value.length / 2; j++) {
 			result[j] = new MyRegister(j, value[j * 2], value[j * 2 + 1], //
@@ -145,7 +155,7 @@ public class MyProcessImage implements ProcessImage {
 					 * On Set-Value event:
 					 */
 					register -> {
-						record.writeValue(component, register.getIndex(), register.getByte1(), register.getByte2());
+						record.writeValue(register.getIndex(), register.getByte1(), register.getByte2());
 					});
 		}
 		return result;

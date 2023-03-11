@@ -4,7 +4,8 @@ export type Edges = [{
     producttype: string,
     version: string
     role: "admin" | "installer" | "owner" | "guest",
-    isOnline: boolean
+    isOnline: boolean,
+    lastmessage: Date
 }];
 
 export type User = {

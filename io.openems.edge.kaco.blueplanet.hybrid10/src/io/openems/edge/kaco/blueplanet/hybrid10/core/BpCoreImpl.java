@@ -27,13 +27,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ed.data.BatteryData;
-import com.ed.data.EnergyMeter;
-import com.ed.data.InverterData;
-import com.ed.data.Settings;
-import com.ed.data.Status;
-import com.ed.data.SystemInfo;
-import com.ed.data.VectisData;
 import com.ed.edcom.Client;
 import com.ed.edcom.ClientListener;
 import com.ed.edcom.Discovery;
@@ -62,13 +55,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 	private Config config = null;
 	private ScheduledFuture<?> configFuture = null;
 	private Client client = null;
-	private BatteryData battery = null;
-	private InverterData inverter = null;
-	private Status status = null;
-	private Settings settings = null;
-	private VectisData vectis = null;
-	private EnergyMeter energy = null;
-	private SystemInfo systemInfo = null;
+	private BpData _bpData = null;
 
 	private StableVersion stableVersion;
 
@@ -101,7 +88,6 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 					break; // stop forever loop
 				} catch (Exception e) {
 					this.logError(this.log, e.getMessage());
-					this._setCommunicationFailed(true);
 					e.printStackTrace();
 				}
 				try {
@@ -110,7 +96,6 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 					this.logError(this.log, e.getMessage());
 				}
 			}
-			this._setCommunicationFailed(false);
 		};
 		this.configFuture = this.configExecutor.schedule(initializeLibrary, 0, TimeUnit.SECONDS);
 	}
@@ -247,88 +232,15 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 	}
 
 	@Override
-	public BatteryData getBatteryData() {
-		if (!this.isConnected()) {
+	public BpData getBpData() {
+		var client = this.client;
+		if (client == null) {
 			return null;
 		}
-		if (this.battery != null && this.battery.dataReady()) {
-			this.battery.refresh();
-		}
-		return this.battery;
-	}
-
-	@Override
-	public InverterData getInverterData() {
-		if (this.inverter == null || !this.isConnected()) {
+		if (!client.isConnected()) {
 			return null;
 		}
-
-		// In some old systems the data was read only once
-		// if (this.inverter != null && this.inverter.dataReady()) {
-		this.inverter.refresh();
-		return this.inverter;
-	}
-
-	@Override
-	public Status getStatusData() {
-		if (!this.isConnected()) {
-			return null;
-		}
-		if (this.status != null && this.status.dataReady()) {
-			this.status.refresh();
-		}
-		return this.status;
-	}
-
-	@Override
-	public boolean isConnected() {
-		boolean isConnected = this.client != null && this.client.isConnected();
-		this._setCommunicationFailed(!isConnected);
-		return isConnected;
-	}
-
-	@Override
-	public Settings getSettings() {
-		if (!this.isConnected()) {
-			return null;
-		}
-		if (this.settings != null && this.settings.dataReady()) {
-			this.settings.refresh();
-		}
-		return this.settings;
-	}
-
-	@Override
-	public VectisData getVectis() {
-		if (!this.isConnected()) {
-			return null;
-		}
-		if (this.vectis != null && this.vectis.dataReady()) {
-			this.vectis.refresh();
-		}
-		return this.vectis;
-	}
-
-	@Override
-	public EnergyMeter getEnergyMeter() {
-		if (!this.isConnected()) {
-			return null;
-		}
-		if (this.energy != null && this.energy.dataReady()) {
-			this.energy.refresh();
-		}
-		return this.energy;
-	}
-
-	@Override
-	public SystemInfo getSystemInfo() {
-		if (!this.isConnected()) {
-			return null;
-		}
-		if (this.systemInfo != null && this.systemInfo.dataReady()) {
-			this.systemInfo.refresh();
-		}
-		return this.systemInfo;
+		return this._bpData;
 	}
 
 	@Override
@@ -373,21 +285,8 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		// Set user password
 		this.client.setUserPass(this.config.userkey());
 
-		// Initialize all Data classes
-		this.battery = new BatteryData();
-		this.battery.registerData(this.client);
-		this.inverter = new InverterData();
-		this.inverter.registerData(this.client);
-		this.status = new Status();
-		this.status.registerData(this.client);
-		this.settings = new Settings();
-		this.settings.registerData(this.client);
-		this.energy = new EnergyMeter();
-		this.energy.registerData(this.client);
-		this.vectis = new VectisData();
-		this.vectis.registerData(this.client);
-		this.systemInfo = new SystemInfo();
-		this.systemInfo.registerData(this.client);
+		// Initialize all DataSets
+		this._bpData = BpData.from(this.client);
 
 		this.client.start();
 
@@ -398,7 +297,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 			availInitResponse = true;
 
 			// Get current software version
-			Float comVersion = TypeUtils.getAsType(OpenemsType.FLOAT, this.systemInfo.getComVersion());
+			Float comVersion = TypeUtils.getAsType(OpenemsType.FLOAT, this._bpData.systemInfo.getComVersion());
 			this.stableVersion = StableVersion.getCurrentStableVersion(comVersion);
 
 			switch (this.stableVersion) {
@@ -503,26 +402,36 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 	public void handleEvent(Event event) {
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.refreshBpData();
 			this.updateChannels();
 			break;
 		}
+	}
+
+	private void refreshBpData() {
+		var bpData = this.getBpData();
+		if (bpData == null) {
+			return;
+		}
+		bpData.refreshAll();
 	}
 
 	private void updateChannels() {
 		String serialNumber = null;
 		Float versionCom = null;
 
-		if (this.isConnected()) {
-			SystemInfo systemInfo = this.getSystemInfo();
-			if (systemInfo != null) {
-				serialNumber = systemInfo.getSerialNumber();
+		var bpData = this.getBpData();
+		if (bpData != null) {
+			if (bpData.systemInfo != null) {
+				serialNumber = bpData.systemInfo.getSerialNumber();
 				if (serialNumber != null) {
 					serialNumber = serialNumber.strip();
 				}
 				try {
-					versionCom = Float.parseFloat(systemInfo.getComVersion());
+					versionCom = Float.parseFloat(bpData.systemInfo.getComVersion());
 				} catch (NumberFormatException e) {
-					this.logWarn(this.log, "Unable to parse Com-Version from [" + systemInfo.getComVersion() + "]");
+					this.logWarn(this.log,
+							"Unable to parse Com-Version from [" + bpData.systemInfo.getComVersion() + "]");
 				}
 			}
 		}

@@ -29,4 +29,5 @@ npm-debug.log*
 /platforms
 /plugins
 /www
+/cache
 /.angular/cache

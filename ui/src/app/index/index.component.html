@@ -35,7 +35,7 @@
                   <!-- workaround for submit with enter key https://github.com/ionic-team/ionic-framework/issues/19368 -->
                   <input type="submit" style="visibility: hidden; position: absolute; position: -999px" />
 
-                  <ion-button type="submit" class="ion-float-right">
+                  <ion-button [disabled]="formIsDisabled" type="submit" class="ion-float-right">
                     <ion-icon slot="icon-only" name="log-in-outline"></ion-icon>
                   </ion-button>
                 </div>
@@ -46,7 +46,8 @@
             <ion-card-content *ngIf="environment.backend === 'OpenEMS Backend'">
               <form (ngSubmit)="doLogin({ username: username.value.trim(), password: password.value.trim() })">
                 <ion-item>
-                  <ion-label position="floating">E-Mail / <span translate>Login.user</span></ion-label>
+                  <ion-label position="floating">E-Mail / <span translate>Login.user</span>
+                  </ion-label>
                   <ion-input #username required type="input" [placeholder]="'E-Mail / ' + ('Login.user' | translate)">
                   </ion-input>
                 </ion-item>
@@ -61,7 +62,7 @@
 
                 <ion-item lines="none" class="ion-margin-top">
                   <table class=" full_width">
-                    <ion-button type="submit" class="ion-float-right" size="medium">
+                    <ion-button type="submit" class="ion-float-right" size="medium" [disabled]="formIsDisabled">
                       <small>Login</small>
                       <ion-icon slot="end" name="log-in-outline"></ion-icon>
                     </ion-button>
@@ -93,13 +94,13 @@
                       <ion-item color="warning" lines="full">
                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
                         <ion-label class="ion-text-wrap ion-text-center">Leider wurde noch kein
-                          {{environment.edgeShortName}}
-                          mit Ihrem Account verknüpft.</ion-label>
+                          {{environment.edgeShortName}} mit Ihrem Account verknüpft.
+                        </ion-label>
                       </ion-item>
                       <ion-card-content class="ion-text-center">
                         <p>Nach dem Ihr {{environment.edgeShortName}} durch einen Installateur in Betrieb genommen
-                          wurde, sehen Sie es an dieser
-                          Stelle.</p>
+                          wurde, sehen Sie es an dieser Stelle.
+                        </p>
                       </ion-card-content>
                     </ng-template>
                   </ng-container>
@@ -111,7 +112,8 @@
                 <ion-grid>
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
-                      <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()"></ion-searchbar>
+                      <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()">
+                      </ion-searchbar>
                     </ion-col>
                   </ion-row>
 
@@ -121,10 +123,15 @@
 
                         <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset"
                           [routerLink]="['/device', edge.id]" [color]="edge.isOnline ? null : 'light'">
+
                           <ion-label>
                             <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
                             <p *ngIf="!edge.isOnline" class="ion-text-wrap">
                               <ion-text translate>Index.deviceOffline</ion-text>
+                              <ion-label *ngIf="edge.lastmessage">
+                                <ion-text translate>Index.OFFLINE_SINCE</ion-text>
+                                {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
+                              </ion-label>
                             </p>
                           </ion-label>
                           <ion-label>

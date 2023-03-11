@@ -1,5 +1,6 @@
 package io.openems.common.jsonrpc.response;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -67,15 +68,17 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 		private final SemanticVersion version;
 		private final Role role;
 		private final boolean isOnline;
+		private final ZonedDateTime lastmessage;
 
 		public EdgeMetadata(String id, String comment, String producttype, SemanticVersion version, Role role,
-				boolean isOnline) {
+				boolean isOnline, ZonedDateTime lastmessage) {
 			this.id = id;
 			this.comment = comment;
 			this.producttype = producttype;
 			this.version = version;
 			this.role = role;
 			this.isOnline = isOnline;
+			this.lastmessage = lastmessage;
 		}
 
 		protected JsonObject toJsonObject() {
@@ -86,6 +89,7 @@ public class AuthenticateResponse extends JsonrpcResponseSuccess {
 					.addProperty("version", this.version.toString()) //
 					.add("role", this.role.asJson()) //
 					.addProperty("isOnline", this.isOnline) //
+					.addPropertyIfNotNull("lastmessage", this.lastmessage) //
 					.build();
 		}
 	}

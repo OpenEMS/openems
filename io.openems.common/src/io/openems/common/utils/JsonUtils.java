@@ -4,7 +4,8 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -46,7 +47,7 @@ public class JsonUtils {
 	 * 
 	 * @return list as JsonArray
 	 */
-	public static <T> JsonArray generateJsonArray(List<T> list, Function<T, JsonElement> convert) {
+	public static <T> JsonArray generateJsonArray(Collection<T> list, Function<T, JsonElement> convert) {
 		if (list == null) {
 			return null;
 		} else {
@@ -261,6 +262,23 @@ public class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link ZonedDateTime} value to the {@link JsonObject}.
+		 * 
+		 * <p>
+		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
+		 * 
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, ZonedDateTime value) {
+			if (value != null) {
+				this.j.addProperty(property, value.format(DateTimeFormatter.ISO_INSTANT));
+			}
+			return this;
+		}
+
+		/**
 		 * Add a {@link Boolean} value to the {@link JsonObject}.
 		 *
 		 * @param property the key
@@ -331,7 +349,7 @@ public class JsonUtils {
 		}
 
 		/**
-		 * Add a {@link Enum} value to the {@link JsonObject}.
+		 * Add a {@link Enum} value to the {@link JsonObject} if it is not null.
 		 *
 		 * @param property the key
 		 * @param value    the value
@@ -340,6 +358,24 @@ public class JsonUtils {
 		public JsonObjectBuilder addPropertyIfNotNull(String property, Enum<?> value) {
 			if (value != null) {
 				this.j.addProperty(property, value.name());
+			}
+			return this;
+		}
+
+		/**
+		 * Add a {@link ZonedDateTime} value to the {@link JsonObject} if it is not
+		 * null.
+		 * 
+		 * <p>
+		 * The value gets added in the format of {@link DateTimeFormatter#ISO_INSTANT}.
+		 * 
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addPropertyIfNotNull(String property, ZonedDateTime value) {
+			if (value != null) {
+				this.addProperty(property, value);
 			}
 			return this;
 		}
@@ -500,11 +536,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<JsonElement> getOptionalSubElement(JsonElement jElement, String memberName) {
-		var value = toSubElement(jElement, memberName);
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toSubElement(jElement, memberName));
 	}
 
 	/**
@@ -547,11 +579,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<JsonObject> getAsOptionalJsonObject(JsonElement jElement) {
-		var value = toJsonObject(jElement);
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toJsonObject(jElement));
 	}
 
 	/**
@@ -564,11 +592,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<JsonObject> getAsOptionalJsonObject(JsonElement jElement, String memberName) {
-		var value = toJsonObject(toSubElement(jElement, memberName));
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toJsonObject(toSubElement(jElement, memberName)));
 	}
 
 	/**
@@ -611,11 +635,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<JsonArray> getAsOptionalJsonArray(JsonElement jElement) {
-		var value = toJsonArray(jElement);
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toJsonArray(jElement));
 	}
 
 	/**
@@ -628,11 +648,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<JsonArray> getAsOptionalJsonArray(JsonElement jElement, String memberName) {
-		var value = toJsonArray(toSubElement(jElement, memberName));
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toJsonArray(toSubElement(jElement, memberName)));
 	}
 
 	/**
@@ -675,11 +691,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<String> getAsOptionalString(JsonElement jElement) {
-		var value = toString(toPrimitive(jElement));
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toString(toPrimitive(jElement)));
 	}
 
 	/**
@@ -692,11 +704,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<String> getAsOptionalString(JsonElement jElement, String memberName) {
-		var value = toString(toPrimitive(toSubElement(jElement, memberName)));
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toString(toPrimitive(toSubElement(jElement, memberName))));
 	}
 
 	/**
@@ -758,11 +766,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Boolean> getAsOptionalBoolean(JsonElement jElement) {
-		var value = toBoolean(toPrimitive(jElement));
-		if (value != null) {
-			return Optional.of(value.booleanValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toBoolean(toPrimitive(jElement)));
 	}
 
 	/**
@@ -775,11 +779,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Boolean> getAsOptionalBoolean(JsonElement jElement, String memberName) {
-		var value = toBoolean(toPrimitive(toSubElement(jElement, memberName)));
-		if (value != null) {
-			return Optional.of(value.booleanValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toBoolean(toPrimitive(toSubElement(jElement, memberName))));
 	}
 
 	/**
@@ -821,11 +821,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Short> getAsOptionalShort(JsonElement jElement) {
-		var value = toShort(toPrimitive(jElement));
-		if (value != null) {
-			return Optional.of(value.shortValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toShort(toPrimitive(jElement)));
 	}
 
 	/**
@@ -838,11 +834,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Short> getAsOptionalShort(JsonElement jElement, String memberName) {
-		var value = toShort(toPrimitive(toSubElement(jElement, memberName)));
-		if (value != null) {
-			return Optional.of(value.shortValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toShort(toPrimitive(toSubElement(jElement, memberName))));
 	}
 
 	/**
@@ -899,11 +891,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Integer> getAsOptionalInt(JsonElement jElement) {
-		var value = toInt(toPrimitive(jElement));
-		if (value != null) {
-			return Optional.of(value.intValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toInt(toPrimitive(jElement)));
 	}
 
 	/**
@@ -916,11 +904,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Integer> getAsOptionalInt(JsonElement jElement, String memberName) {
-		var value = toInt(toPrimitive(toSubElement(jElement, memberName)));
-		if (value != null) {
-			return Optional.of(value.intValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toInt(toPrimitive(toSubElement(jElement, memberName))));
 	}
 
 	/**
@@ -962,11 +946,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Long> getAsOptionalLong(JsonElement jElement) {
-		var value = toLong(toPrimitive(jElement));
-		if (value != null) {
-			return Optional.of(value.longValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toLong(toPrimitive(jElement)));
 	}
 
 	/**
@@ -978,11 +958,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Long> getAsOptionalLong(JsonElement jElement, String memberName) {
-		var value = toLong(toPrimitive(toSubElement(jElement, memberName)));
-		if (value != null) {
-			return Optional.of(value.longValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toLong(toPrimitive(toSubElement(jElement, memberName))));
 	}
 
 	/**
@@ -1024,11 +1000,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Float> getAsOptionalFloat(JsonElement jElement) {
-		var value = toFloat(toPrimitive(jElement));
-		if (value != null) {
-			return Optional.of(value.floatValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toFloat(toPrimitive(jElement)));
 	}
 
 	/**
@@ -1040,11 +1012,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Float> getAsOptionalFloat(JsonElement jElement, String memberName) {
-		var value = toFloat(toPrimitive(toSubElement(jElement, memberName)));
-		if (value != null) {
-			return Optional.of(value.floatValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toFloat(toPrimitive(toSubElement(jElement, memberName))));
 	}
 
 	/**
@@ -1086,11 +1054,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Double> getAsOptionalDouble(JsonElement jElement) {
-		var value = toDouble(toPrimitive(jElement));
-		if (value != null) {
-			return Optional.of(value.doubleValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toDouble(toPrimitive(jElement)));
 	}
 
 	/**
@@ -1103,11 +1067,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Double> getAsOptionalDouble(JsonElement jElement, String memberName) {
-		var value = toDouble(toPrimitive(toSubElement(jElement, memberName)));
-		if (value != null) {
-			return Optional.of(value.doubleValue());
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toDouble(toPrimitive(toSubElement(jElement, memberName))));
 	}
 
 	/**
@@ -1157,11 +1117,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static <E extends Enum<E>> Optional<E> getAsOptionalEnum(Class<E> enumType, JsonElement jElement) {
-		var value = toEnum(enumType, toString(toPrimitive(jElement)));
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toEnum(enumType, toString(toPrimitive(jElement))));
 	}
 
 	/**
@@ -1176,11 +1132,7 @@ public class JsonUtils {
 	 */
 	public static <E extends Enum<E>> Optional<E> getAsOptionalEnum(Class<E> enumType, JsonElement jElement,
 			String memberName) {
-		var value = toEnum(enumType, toString(toPrimitive(toSubElement(jElement, memberName))));
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toEnum(enumType, toString(toPrimitive(toSubElement(jElement, memberName)))));
 	}
 
 	/**
@@ -1222,11 +1174,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement) {
-		var value = toInet4Address(toString(toPrimitive(jElement)));
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toInet4Address(toString(toPrimitive(jElement))));
 	}
 
 	/**
@@ -1239,11 +1187,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement, String memberName) {
-		var value = toInet4Address(toString(toPrimitive(toSubElement(jElement, memberName))));
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toInet4Address(toString(toPrimitive(toSubElement(jElement, memberName)))));
 	}
 
 	/**
@@ -1285,17 +1229,13 @@ public class JsonUtils {
 	 * Gets the {@link JsonElement} as {@link Optional} {@link UUID}.
 	 *
 	 * @param jElement the {@link JsonElement}
-	 * @return the {@link Optional} {@link Inet4Address} value
+	 * @return the {@link Optional} {@link UUID} value
 	 * @throws OpenemsNamedException on error
 	 */
 	// CHECKSTYLE:OFF
 	public static Optional<UUID> getAsOptionalUUID(JsonElement jElement) {
 		// CHECKSTYLE:ON
-		var value = toUUID(toString(toPrimitive(jElement)));
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toUUID(toString(toPrimitive(jElement))));
 	}
 
 	/**
@@ -1309,11 +1249,7 @@ public class JsonUtils {
 	// CHECKSTYLE:OFF
 	public static Optional<UUID> getAsOptionalUUID(JsonElement jElement, String memberName) {
 		// CHECKSTYLE:ON
-		var value = toUUID(toString(toPrimitive(toSubElement(jElement, memberName))));
-		if (value != null) {
-			return Optional.of(value);
-		}
-		return Optional.empty();
+		return Optional.ofNullable(toUUID(toString(toPrimitive(toSubElement(jElement, memberName)))));
 	}
 
 	/**
@@ -1680,7 +1616,7 @@ public class JsonUtils {
 	 * @return the {@link ZonedDateTime}
 	 * @throws OpenemsNamedException on parse error
 	 */
-	public static ZonedDateTime getAsZonedDateTime(JsonElement element, String memberName, ZoneId timezone)
+	public static ZonedDateTime getAsZonedDateWithZeroTime(JsonElement element, String memberName, ZoneId timezone)
 			throws OpenemsNamedException {
 		var date = JsonUtils.getAsString(element, memberName).split("-");
 		try {
@@ -1985,7 +1921,7 @@ public class JsonUtils {
 	}
 
 	private static <E extends Enum<E>> E toEnum(Class<E> enumType, String name) {
-		if (name == null) {
+		if (name == null || name.isBlank()) {
 			return null;
 		}
 		try {
@@ -1997,7 +1933,7 @@ public class JsonUtils {
 	}
 
 	private static Inet4Address toInet4Address(String name) {
-		if (name == null) {
+		if (name == null || name.isBlank()) {
 			return null;
 		}
 		try {
@@ -2011,7 +1947,7 @@ public class JsonUtils {
 	// CHECKSTYLE:OFF
 	private static UUID toUUID(String value) {
 		// CHECKSTYLE:ON
-		if (value == null) {
+		if (value == null || value.isBlank()) {
 			return null;
 		}
 		try {

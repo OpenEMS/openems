@@ -498,7 +498,7 @@ public class TypeUtils {
 	/**
 	 * Safely multiply Integers.
 	 *
-	 * @param firstFactor first factor of the multiplication
+	 * @param firstFactor    first factor of the multiplication
 	 * @param furtherFactors further factors of the multiplication
 	 * @return the result, possibly null if the first factor is null
 	 */
@@ -706,6 +706,27 @@ public class TypeUtils {
 			return Double.NaN;
 		}
 		return sum / count;
+	}
+
+	/**
+	 * Safely finds the average value of all values.
+	 *
+	 * @param values the {@link Integer} values
+	 * @return the average value; or null if all values are null
+	 */
+	public static Integer averageInt(Integer... values) {
+		var count = 0;
+		float sum = 0;
+		for (Integer value : values) {
+			if (value != null) {
+				count++;
+				sum += value;
+			}
+		}
+		if (count == 0) {
+			return null;
+		}
+		return Math.round(sum / count);		
 	}
 
 	/**

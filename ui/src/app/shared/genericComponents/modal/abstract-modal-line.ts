@@ -5,7 +5,7 @@ import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { v4 as uuidv4 } from 'uuid';
 import { Role } from "../../type/role";
 
@@ -31,22 +31,14 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     converter = (value: any): string => { return value }
 
     /** Name for parameter, displayed on the left side*/
-    @Input()
-    name: string;
-
-    /** value defines value of the parameter, displayed on the right */
-    @Input() values: {
-        value: string | number,
-        /* If no role provided, default is guest */
-        roleIsAtLeast?: Role,
-        /* the converter to pass*/
-        unit?: (value: any) => {}
-    }[] = []
+    @Input() name: string;
+    @Input() value: number | string;
+    @Input() roleIsAtLeast?: Role = Role.GUEST;
 
     /** Channel defines the channel, you need for this line */
     @Input()
-    set channelAddress(channel: { address: string, unit?: (value: any) => {}, roleIsAtLeast?: Role }[]) {
-        this.subscribe(channel);
+    set channelAddress(channelAddress: string) {
+        this.subscribe(ChannelAddress.fromString(channelAddress));
     }
 
     /** Selector needed for Subscribe (Identifier) */
@@ -55,13 +47,16 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /** 
      * displayValue is the displayed @Input value in html
      */
-    public displayValue: string | string[] = null;
+    public displayValue: string = null;
 
     /** Checks if any value of this line can be seen => hides line if false */
-    protected isAllowed: boolean = true;
+    protected isAllowedToBeSeen: boolean = true;
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
+
+    protected readonly Role = Role;
+    protected readonly Utils = Utils;
 
     constructor(
         @Inject(Websocket) protected websocket: Websocket,
@@ -79,7 +74,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     }
 
     ngOnChanges() {
-        this.convertvalues(this.values);
+        this.setValue(this.value)
     }
 
     ngOnInit() {
@@ -117,53 +112,31 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     }
 
     /** value defines value of the parameter, displayed on the right */
-    protected setValue(value: any[]) {
-        this.displayValue = [];
-        for (let val of value) {
-            this.displayValue.push(this.converter(val))
-        }
+    protected setValue(value: number | string) {
+        this.displayValue = this.converter(value)
     }
 
     /** Subscribe on HTML passed Channels */
-    protected subscribe(channel: { address: string, unit?: (value: any) => {}, roleIsAtLeast?: Role }[]) {
+    protected subscribe(channelAddress: ChannelAddress) {
         this.service.setCurrentComponent('', this.route).then(edge => {
             this.edge = edge;
 
             // Check if user is allowed to see these channel-values
-            let permittedChannels: ChannelAddress[] = channel.filter(element => {
-                if (this.edge.roleIsAtLeast(element.roleIsAtLeast ?? Role.GUEST)) {
-                    return element.address
-                }
-            }).map(element => ChannelAddress.fromString(element.address));
+            if (this.edge.roleIsAtLeast(this.roleIsAtLeast)) {
+                this.isAllowedToBeSeen = true;
+                edge.subscribeChannels(this.websocket, this.selector, [channelAddress]);
 
-            edge.subscribeChannels(this.websocket, this.selector, permittedChannels);
-
-            // call onCurrentData() with latest data
-            edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
-                let values: any[] = [];
-                permittedChannels.forEach(element => {
-                    if (currentData.channel[element.toString()] != null) {
-                        let converter = channel.find(chan => chan.address == element.toString()).unit ?? function (value: any) { return value };
-                        values.push(converter(currentData.channel[element.toString()]))
+                // call onCurrentData() with latest data
+                edge.currentData.pipe(takeUntil(this.stopOnDestroy)).subscribe(currentData => {
+                    if (currentData.channel[channelAddress.toString()] != null) {
+                        this.setValue(currentData.channel[channelAddress.toString()])
                     }
                 });
+            } else {
+                this.isAllowedToBeSeen = false;
+            }
+        })
 
-                this.isAllowed = values.length !== 0;
-                values.length > 0 && this.setValue(values);
-            })
-        });
-    }
-    /**
-     * Converts a value based on its passed unit
-     * 
-     * @param data the data to be parsed
-     */
-    protected convertvalues(data: { value: string | number, roleIsAtLeast?: Role, unit?: (value: any) => {} }[]) {
-        let values: any[] = [];
-        data.forEach(element => {
-            values.push(element.unit ? element.unit(element.value) : element.value)
-        });
-        this.setValue(values)
     }
 
     public ngOnDestroy() {

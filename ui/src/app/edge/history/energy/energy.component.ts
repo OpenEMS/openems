@@ -5,20 +5,20 @@ import { ModalController, Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { differenceInCalendarMonths, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { saveAs } from 'file-saver-es';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
-import { queryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
+import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
+import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { QueryHistoricTimeseriesEnergyResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse';
 import { UnitvaluePipe } from 'src/app/shared/pipe/unitvalue/unitvalue.pipe';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from '../../../shared/shared';
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from 'src/app/shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
-import { calculateResolution, ChartData, ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from './../shared';
+import { calculateResolution, ChartData, ChartOptions, Data, DEFAULT_TIME_CHART_OPTIONS, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../shared';
 import { EnergyModalComponent } from './modal/modal.component';
 
 type EnergyChartLabels = {
@@ -174,6 +174,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
   private loadLineChart(chartLabels: EnergyChartLabels) {
     this.chartType = "line";
     this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
+
+      if (Utils.isDataEmpty(response)) {
+        return
+      }
+
       let result = (response as QueryHistoricTimeseriesDataResponse).result;
 
       // convert labels
@@ -393,9 +398,13 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
   private loadBarChart(chartLabels: EnergyChartLabels, config: EdgeConfig) {
     this.chartType = "bar";
     this.getEnergyChannelAddresses(config).then(channelAddresses => {
-
       this.queryHistoricTimeseriesEnergyPerPeriod(this.period.from, this.period.to, channelAddresses).then(response => {
-        let result = (response as queryHistoricTimeseriesEnergyPerPeriodResponse).result;
+
+        if (Utils.isDataEmpty(response)) {
+          return
+        }
+
+        let result = (response as QueryHistoricTimeseriesEnergyPerPeriodResponse).result;
 
         // convert datasets
         let datasets: ChartDataSets[] = [];
@@ -649,8 +658,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
         this.colors = [];
         this.loading = false;
         this.stopSpinner();
-      }).catch(() => {
-        this.loadLineChart(chartLabels);
       })
     })
   }
@@ -761,8 +768,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
             labels.directConsumption += " " + this.unitpipe.transform(directConsumptionValue, "kWh").toString();
           }
           resolve(labels)
-        }).catch(() => {
-          resolve(labels)
+        }).catch((error) => {
+          resolve(error)
         })
       })
     })

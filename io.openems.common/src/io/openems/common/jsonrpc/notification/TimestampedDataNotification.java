@@ -9,7 +9,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
-import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -45,7 +44,7 @@ public class TimestampedDataNotification extends JsonrpcNotification {
 			var timestamp = Long.parseLong(e1.getKey());
 			var jTime = JsonUtils.getAsJsonObject(e1.getValue());
 			for (Entry<String, JsonElement> e2 : jTime.entrySet()) {
-				result.add(timestamp, ChannelAddress.fromString(e2.getKey()), e2.getValue());
+				result.add(timestamp, e2.getKey(), e2.getValue());
 			}
 		}
 		return result;
@@ -53,7 +52,7 @@ public class TimestampedDataNotification extends JsonrpcNotification {
 
 	public static final String METHOD = "timestampedData";
 
-	private final TreeBasedTable<Long, ChannelAddress, JsonElement> data = TreeBasedTable.create();
+	private final TreeBasedTable<Long, String, JsonElement> data = TreeBasedTable.create();
 
 	public TimestampedDataNotification() {
 		super(TimestampedDataNotification.METHOD);
@@ -63,10 +62,10 @@ public class TimestampedDataNotification extends JsonrpcNotification {
 	 * Add timestamped data.
 	 *
 	 * @param timestamp the timestamp epoch in milliseconds
-	 * @param data      a map of {@link ChannelAddress} to {@link JsonElement} value
+	 * @param data      a map of Channel-Address to {@link JsonElement} value
 	 */
-	public void add(long timestamp, Map<ChannelAddress, JsonElement> data) {
-		for (Entry<ChannelAddress, JsonElement> entry : data.entrySet()) {
+	public void add(long timestamp, Map<String, JsonElement> data) {
+		for (Entry<String, JsonElement> entry : data.entrySet()) {
 			this.add(timestamp, entry.getKey(), entry.getValue());
 		}
 	}
@@ -75,29 +74,29 @@ public class TimestampedDataNotification extends JsonrpcNotification {
 	 * Add a timestamped value.
 	 *
 	 * @param timestamp the timestamp epoch in milliseconds
-	 * @param address   the {@link ChannelAddress}
+	 * @param address   the Channel-Address
 	 * @param value     the {@link JsonElement} value
 	 */
-	public void add(long timestamp, ChannelAddress address, JsonElement value) {
+	public void add(long timestamp, String address, JsonElement value) {
 		this.data.put(timestamp, address, value);
 	}
 
 	@Override
 	public JsonObject getParams() {
 		var p = new JsonObject();
-		for (Entry<Long, Map<ChannelAddress, JsonElement>> e1 : this.data.rowMap().entrySet()) {
+		for (Entry<Long, Map<String, JsonElement>> e1 : this.data.rowMap().entrySet()) {
 			var jTime = new JsonObject();
-			for (Entry<ChannelAddress, JsonElement> e2 : e1.getValue().entrySet()) {
+			for (Entry<String, JsonElement> e2 : e1.getValue().entrySet()) {
 				var address = e2.getKey();
 				var value = e2.getValue();
-				jTime.add(address.toString(), value);
+				jTime.add(address, value);
 			}
 			p.add(e1.getKey().toString(), jTime);
 		}
 		return p;
 	}
 
-	public TreeBasedTable<Long, ChannelAddress, JsonElement> getData() {
+	public TreeBasedTable<Long, String, JsonElement> getData() {
 		return this.data;
 	}
 }

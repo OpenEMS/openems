@@ -30,7 +30,7 @@ public abstract class AbstractEvcsApp<PROPERTY extends Enum<PROPERTY>> extends A
 			String ctrlEvcsId) {
 		return Lists.newArrayList(//
 				new EdgeConfig.Component(evcsId, alias, factorieId, JsonUtils.buildJsonObject() //
-						.addProperty("ip", ip) //
+						.addPropertyIfNotNull("ip", ip) //
 						.build()), //
 				new EdgeConfig.Component(ctrlEvcsId, "Data", "Controller.Evcs", JsonUtils.buildJsonObject() //
 						.addProperty("evcs.id", evcsId) //

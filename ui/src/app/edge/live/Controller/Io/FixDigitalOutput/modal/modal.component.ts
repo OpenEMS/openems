@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { Edge, Service, Websocket, EdgeConfig } from 'src/app/shared/shared';
-import { ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 
 @Component({
   selector: 'fixdigitaloutput-modal',

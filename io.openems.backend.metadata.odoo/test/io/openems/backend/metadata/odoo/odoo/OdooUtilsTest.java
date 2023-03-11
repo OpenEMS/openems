@@ -18,8 +18,8 @@ public class OdooUtilsTest {
 
 	@Test
 	public void testGetAsObjectArray() {
-		var arr = OdooUtils.getAsObjectArray(new Domain[] { new Domain(EdgeDevice.APIKEY, Operator.EQ, "foo"),
-				new Domain(EdgeDevice.COMMENT, Operator.EQ, "bar") });
+		var arr = OdooUtils.getAsObjectArray(new Domain(EdgeDevice.APIKEY, Operator.EQ, "foo"),
+				new Domain(EdgeDevice.COMMENT, Operator.EQ, "bar"));
 		{
 			var v = (Object[]) arr[0];
 			assertEquals(EdgeDevice.APIKEY.id(), v[0]);

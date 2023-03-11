@@ -1,6 +1,5 @@
 package io.openems.edge.app.heat;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -18,7 +17,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.heat.CombinedHeatAndPower.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -68,11 +66,12 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property implements DefaultEnum {
-		// User values
+		// Component-IDs
+		CTRL_CHP_SOC_ID("ctrlChpSoc0"), //
+		// Properties
 		ALIAS("Blockheizkraftwerk"), //
 		OUTPUT_CHANNEL("io0/Relay1"), //
-		// Components
-		CTRL_CHP_SOC_ID("ctrlChpSoc0");
+		;
 
 		private final String defaultValue;
 
@@ -96,28 +95,28 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
-			final var bhcId = this.getId(t, p, Property.CTRL_CHP_SOC_ID);
+			final var chpId = this.getId(t, p, Property.CTRL_CHP_SOC_ID);
 
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
 			final var outputChannelAddress = this.getValueOrDefault(p, Property.OUTPUT_CHANNEL);
 
-			List<Component> comp = new ArrayList<>();
-
-			comp.add(new EdgeConfig.Component(bhcId, alias, "Controller.CHP.SoC", JsonUtils.buildJsonObject() //
-					.addProperty("inputChannelAddress", "_sum/EssSoc")
-					.addProperty("outputChannelAddress", outputChannelAddress) //
-					.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("lowThreshold", 20)) //
-					.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("highThreshold", 80)) //
-					.build()));//
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(chpId, alias, "Controller.CHP.SoC", JsonUtils.buildJsonObject() //
+							.addProperty("inputChannelAddress", "_sum/EssSoc")
+							.addProperty("outputChannelAddress", outputChannelAddress) //
+							.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("lowThreshold", 20)) //
+							.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("highThreshold", 80)) //
+							.build()) //
+			);
 
 			var componentIdOfRelay = outputChannelAddress.substring(0, outputChannelAddress.indexOf('/'));
 
-			var appIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
+			var instanceIdOfRelay = DependencyUtil.getInstanceIdOfAppWhichHasComponent(this.componentManager,
 					componentIdOfRelay);
 
-			if (appIdOfRelay == null) {
+			if (instanceIdOfRelay == null) {
 				// relay may be created but not as a app
-				return new AppConfiguration(comp);
+				return new AppConfiguration(components);
 			}
 
 			var dependencies = Lists.newArrayList(new DependencyDeclaration("RELAY", //
@@ -127,10 +126,10 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 					DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ALL, //
 					DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 					DependencyDeclaration.AppDependencyConfig.create() //
-							.setSpecificInstanceId(appIdOfRelay) //
+							.setSpecificInstanceId(instanceIdOfRelay) //
 							.build()));
 
-			return new AppConfiguration(comp, null, null, dependencies);
+			return new AppConfiguration(components, null, null, dependencies);
 		};
 	}
 

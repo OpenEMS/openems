@@ -1,7 +1,6 @@
 package io.openems.backend.metadata.dummy;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,13 +33,11 @@ import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.AlertingSetting;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
-import io.openems.backend.common.metadata.EdgeUser;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.OpenemsOEM;
 import io.openems.common.event.EventReader;
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -172,8 +170,8 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 	}
 
 	@Override
-	public Collection<Edge> getAllEdges() {
-		return Collections.unmodifiableCollection(this.edges.values());
+	public Collection<Edge> getAllOfflineEdges() {
+		return  this.edges.values().stream().filter(Edge::isOffline).collect(Collectors.toUnmodifiableList());
 	}
 
 	private static Optional<Integer> parseNumberFromName(String name) {
@@ -191,47 +189,42 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public void addEdgeToUser(User user, Edge edge) throws OpenemsNamedException {
-		throw new NotImplementedException("DummyMetadata.addEdgeToUser()");
+		throw new UnsupportedOperationException("DummyMetadata.addEdgeToUser() is not implemented");
 	}
 
 	@Override
 	public Map<String, Object> getUserInformation(User user) throws OpenemsNamedException {
-		throw new NotImplementedException("DummyMetadata.getUserInformation()");
+		throw new UnsupportedOperationException("DummyMetadata.getUserInformation() is not implemented");
 	}
 
 	@Override
 	public void setUserInformation(User user, JsonObject jsonObject) throws OpenemsNamedException {
-		throw new NotImplementedException("DummyMetadata.setUserInformation()");
+		throw new UnsupportedOperationException("DummyMetadata.setUserInformation() is not implemented");
 	}
 
 	@Override
 	public byte[] getSetupProtocol(User user, int setupProtocolId) throws OpenemsNamedException {
-		throw new IllegalArgumentException("DummyMetadata.getSetupProtocol() is not implemented");
+		throw new UnsupportedOperationException("DummyMetadata.getSetupProtocol() is not implemented");
 	}
 
 	@Override
 	public JsonObject getSetupProtocolData(User user, String edgeId) throws OpenemsNamedException {
-		throw new NotImplementedException("DummyMetadata.getSetupProtocolData() is not implemented");
+		throw new UnsupportedOperationException("DummyMetadata.getSetupProtocolData() is not implemented");
 	}
 
 	@Override
 	public int submitSetupProtocol(User user, JsonObject jsonObject) {
-		throw new IllegalArgumentException("DummyMetadata.submitSetupProtocol() is not implemented");
+		throw new UnsupportedOperationException("DummyMetadata.submitSetupProtocol() is not implemented");
 	}
 
 	@Override
 	public void registerUser(JsonObject jsonObject, OpenemsOEM.Manufacturer oem) throws OpenemsNamedException {
-		throw new IllegalArgumentException("DummyMetadata.registerUser() is not implemented");
+		throw new UnsupportedOperationException("DummyMetadata.registerUser() is not implemented");
 	}
 
 	@Override
 	public void updateUserLanguage(User user, Language language) throws OpenemsNamedException {
 		this.defaultLanguage = language;
-	}
-
-	@Override
-	public Optional<List<EdgeUser>> getUserToEdge(String edgeId) {
-		throw new IllegalArgumentException("DummyMetadata.getUserToEdge() is not implemented");
 	}
 
 	@Override
@@ -257,21 +250,21 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public Optional<String> getSerialNumberForEdge(Edge edge) {
-		return Optional.empty();
+		throw new UnsupportedOperationException("DummyMetadata.getSerialNumberForEdge() is not implemented");
 	}
 
 	@Override
 	public List<AlertingSetting> getUserAlertingSettings(String edgeId) {
-		return Collections.emptyList();
+		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
 	}
 
 	@Override
 	public AlertingSetting getUserAlertingSettings(String edgeId, String userId) throws OpenemsException {
-		return null;
+		throw new UnsupportedOperationException("DummyMetadata.getUserAlertingSettings() is not implemented");
 	}
 
 	@Override
 	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) {
-		throw new IllegalArgumentException("DummyMetadata.setUserAlertingSettings() is not implemented");
+		throw new UnsupportedOperationException("DummyMetadata.setUserAlertingSettings() is not implemented");
 	}
 }

@@ -52,14 +52,15 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 public class KostalPvInverter extends AbstractPvInverter<Property> implements OpenemsApp {
 
 	public static enum Property {
-		// Components
+		// Component-IDs
 		PV_INVERTER_ID, //
 		MODBUS_ID, //
-		// User-Values
+		// Properties
 		ALIAS, //
-		IP, // the ip for the modbus
+		IP, //
 		PORT, //
-		MODBUS_UNIT_ID;
+		MODBUS_UNIT_ID //
+		;
 
 	}
 

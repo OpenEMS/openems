@@ -352,13 +352,13 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 
 	@Override
 	public String debugLog() {
-		var defectiveComponents = "";
+		String defectiveComponents;
 		synchronized (this.defectiveComponents) {
 			defectiveComponents = this.defectiveComponents.entrySet().stream() //
 					.map(e -> e.getKey() + "[" + e.getValue() + "]") //
 					.collect(Collectors.joining(" "));
 		}
-		var duplicatedComponents = "";
+		String duplicatedComponents;
 		synchronized (this.duplicatedComponentIds) {
 			duplicatedComponents = String.join(",", this.duplicatedComponentIds);
 		}

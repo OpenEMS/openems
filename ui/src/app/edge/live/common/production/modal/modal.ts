@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
 import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
+import { ChannelAddress, CurrentData, EdgeConfig, Utils } from 'src/app/shared/shared';
 
 @Component({
     templateUrl: './modal.html'
@@ -13,10 +13,10 @@ export class ModalComponent extends AbstractModal {
 
     public productionMeters: { component: EdgeConfig.Component, isAsymmetric: boolean }[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
-    public arePhasesNotNull: boolean = false;
     public isAsymmetric: boolean = false;
 
     protected override getChannelAddresses() {
+        let channelAddresses: ChannelAddress[] = [];
 
         // Get Chargers
         this.chargerComponents =
@@ -31,23 +31,16 @@ export class ModalComponent extends AbstractModal {
         this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
             .filter(component => component.isEnabled && this.config.isProducer(component))
             .forEach(component => {
-                this.productionMeters.push({ component: component, isAsymmetric: asymmetricMeters.filter(element => component.id == element.id).length > 0 })
+                var isAsymmetric = asymmetricMeters.filter(element => component.id == element.id).length > 0;
+                channelAddresses.push(new ChannelAddress(component.id, 'ActivePower'));
+                if (isAsymmetric) {
+                    ['L1', 'L2', 'L3'].forEach(phase => {
+                        channelAddresses.push(new ChannelAddress(component.id, 'ActivePower' + phase));
+                    });
+                }
+                this.productionMeters.push({ component: component, isAsymmetric: isAsymmetric });
             })
 
-        return [
-            new ChannelAddress('_sum', 'ProductionAcActivePowerL1'),
-            new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
-            new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
-        ]
-    }
-
-    protected override onCurrentData(currentData: CurrentData) {
-
-        let activePower = {};
-        for (let phase of ['L1', 'L2', 'L3']) {
-            activePower[phase] = currentData.allComponents['_sum/ProductionAcActivePower' + phase]
-        }
-
-        this.arePhasesNotNull = Object.values(activePower).every(phase => phase != null);
+        return channelAddresses;
     }
 }

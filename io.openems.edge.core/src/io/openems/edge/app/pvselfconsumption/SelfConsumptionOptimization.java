@@ -1,7 +1,6 @@
 package io.openems.edge.app.pvselfconsumption;
 
 import java.util.EnumMap;
-import java.util.List;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -15,7 +14,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization.Property;
@@ -57,10 +55,11 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class SelfConsumptionOptimization extends AbstractOpenemsApp<Property> implements OpenemsApp {
 
 	public static enum Property {
-		// User values
+		// Component-IDs
+		METER_ID, //
+		// Properties
 		ALIAS, //
 		ESS_ID, //
-		METER_ID, //
 		;
 	}
 
@@ -80,15 +79,17 @@ public class SelfConsumptionOptimization extends AbstractOpenemsApp<Property> im
 			final var essId = EnumUtils.getAsString(p, Property.ESS_ID);
 			final var meterId = EnumUtils.getAsString(p, Property.METER_ID);
 
-			List<Component> comp = Lists.newArrayList(new EdgeConfig.Component(ctrlBalacingId, alias,
-					"Controller.Symmetric.Balancing", JsonUtils.buildJsonObject() //
-							.addProperty("enabled", true) //
-							.addProperty("ess.id", essId) //
-							.addProperty("meter.id", meterId) //
-							.addProperty("targetGridSetpoint", 0) //
-							.build()));//
+			var components = Lists.newArrayList(//
+					new EdgeConfig.Component(ctrlBalacingId, alias, "Controller.Symmetric.Balancing",
+							JsonUtils.buildJsonObject() //
+									.addProperty("enabled", true) //
+									.addProperty("ess.id", essId) //
+									.addProperty("meter.id", meterId) //
+									.addProperty("targetGridSetpoint", 0) //
+									.build()) //
+			);
 
-			return new AppConfiguration(comp);
+			return new AppConfiguration(components);
 		};
 	}
 
