@@ -1,0 +1,18 @@
+Bundle-Vendor: Nico Ketzer
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.edge.io.generic_http_worker;version=latest,\
+	io.openems.edge.io.api;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.common;version=latest,\
+	io.openems.edge.meter.api;version=latest
+
+-testpath: \
+	${testpath}
+Bundle-Description: Implements a Generic HTTP IO for Comexio Smarthome
+Bundle-Category: IO / Smarthome
+Bundle-Copyright: Nico Ketzer
+Bundle-Name: IO Generic HTTP Comexio Implementation
