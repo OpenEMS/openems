@@ -30,13 +30,13 @@
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\
+	bnd.identity;id='org.apache.felix.http.jetty',\
+	bnd.identity;id='org.apache.felix.webconsole',\
+	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
+	bnd.identity;id='org.apache.felix.inventory',\
 	bnd.identity;id='org.apache.felix.eventadmin',\
 	bnd.identity;id='org.apache.felix.fileinstall',\
-	bnd.identity;id='org.apache.felix.http.jetty',\
-	bnd.identity;id='org.apache.felix.inventory',\
 	bnd.identity;id='org.apache.felix.metatype',\
-	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\
-	bnd.identity;id='org.apache.felix.webconsole',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
