@@ -1,3 +1,0 @@
-= io.openems.edge.io.generic_http_worker
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.generic_http_worker[Source Code icon:github[]]
