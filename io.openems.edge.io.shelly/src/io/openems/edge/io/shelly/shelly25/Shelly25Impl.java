@@ -22,7 +22,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.io.shelly.common.ShellyApi;
+import io.openems.edge.io.generic_http_worker.generic_http_worker;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -40,7 +40,12 @@ public class Shelly25Impl extends AbstractOpenemsComponent
 	private final Logger log = LoggerFactory.getLogger(Shelly25Impl.class);
 
 	private final BooleanWriteChannel[] digitalOutputChannels;
-	private ShellyApi shellyApi = null;
+	//private ShellyApi shellyApi = null;
+	private generic_http_worker worker;
+	private Config config;
+	private String base_url = null;
+	private String[] on_url = null;
+	private String[] off_url = null;
 
 	public Shelly25Impl() {
 		super(//
@@ -53,17 +58,37 @@ public class Shelly25Impl extends AbstractOpenemsComponent
 				this.channel(Shelly25.ChannelId.RELAY_2), //
 		};
 	}
+	
+	void generate_worker() {
+		this.base_url = "http://" + this.config.ip();
+		this.on_url = new String[]{this.base_url + "/relay/0?turn=on",this.base_url + "/relay/1?turn=on"}; 	
+		this.off_url = new String[]{this.base_url + "/relay/0?turn=off",this.base_url + "/relay/1?turn=off"}; 
+		String state_url = this.base_url + "/status";
+		int timeout = 5000; //Default Timeout
+		String tmp[] = {state_url};
+		this.worker = new generic_http_worker(tmp,timeout);
+	}
+	void destroy_worker() {
+		this.worker.deactivate();
+	}
+	void activate_worker() {
+		this.worker.activate("Shelly-Plug Worker");
+		this.worker.triggerNextRun();
+	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.shellyApi = new ShellyApi(config.ip());
+		this.config = config;
+		generate_worker();
+		activate_worker();
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		this.destroy_worker();
 	}
 
 	@Override
@@ -116,17 +141,30 @@ public class Shelly25Impl extends AbstractOpenemsComponent
 	private void eventBeforeProcessImage() {
 		Boolean relay1IsOn;
 		Boolean relay2IsOn;
-		try {
-			var json = this.shellyApi.getStatus();
-			var relays = JsonUtils.getAsJsonArray(json, "relays");
-			var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
-			relay1IsOn = JsonUtils.getAsBoolean(relay1, "ison");
-			var relay2 = JsonUtils.getAsJsonObject(relays.get(1));
-			relay2IsOn = JsonUtils.getAsBoolean(relay2, "ison");
+		try {			
+			var json_tmp = this.worker.get_last_by_id(0);
+			if(json_tmp == "_undefined_") {
+				this.logError(this.log, "Generic HTTP Worker Called on an Undefined Index 0");
+				throw this.worker.get_last_error();
+			}else if(json_tmp == "_no_value_") {
+				this.logInfo(this.log, "Generic HTTP Worker has not recieved Data yet");
+				relay1IsOn = null;
+				relay2IsOn = null;
+			}else if(json_tmp == "_com_error_") {
+				this.logError(this.log, "Generic HTTP Worker gave back the State \"Com-Error\"");
+				throw this.worker.get_last_error();
+			}else {
+				var json = JsonUtils.parse(json_tmp);
+				var relays = JsonUtils.getAsJsonArray(json, "relays");
+				var relay1 = JsonUtils.getAsJsonObject(relays.get(0));
+				relay1IsOn = JsonUtils.getAsBoolean(relay1, "ison");
+				var relay2 = JsonUtils.getAsJsonObject(relays.get(1));
+				relay2IsOn = JsonUtils.getAsBoolean(relay2, "ison");
 
-			this._setSlaveCommunicationFailed(false);
+				this._setSlaveCommunicationFailed(false);		
+			}
 
-		} catch (OpenemsNamedException | IndexOutOfBoundsException e) {
+		} catch (Exception e) {
 			relay1IsOn = null;
 			relay2IsOn = null;
 			this.logError(this.log, "Unable to read from Shelly API: " + e.getMessage());
@@ -161,7 +199,11 @@ public class Shelly25Impl extends AbstractOpenemsComponent
 			// read value = write value
 			return;
 		}
-		this.shellyApi.setRelayTurn(index, writeValue.get());
+		if(writeValue.get()) {
+			this.worker.send_external_url(this.on_url[index], "");
+		}else {
+			this.worker.send_external_url(this.off_url[index], "");
+		}
 	}
 
 }
