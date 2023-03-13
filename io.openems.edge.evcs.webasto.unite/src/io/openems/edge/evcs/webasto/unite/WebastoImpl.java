@@ -54,19 +54,14 @@ import io.openems.edge.evcs.webasto.unite.api.Webasto;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class WebastoImpl extends AbstractOpenemsModbusComponent
-		implements OpenemsComponent, Webasto, Evcs, ManagedEvcs, EventHandler {
+		implements
+			Webasto,
+			Evcs,
+			ManagedEvcs,
+			EventHandler,
+			OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(WebastoImpl.class);
-
-	@Reference
-	protected ConfigurationAdmin cm;
-
-	private Config config;
-
-	private WebastoReadHandler readHandler;
-
-	@Reference
-	private EvcsPower evcsPower;
 
 	/**
 	 * Handles charge states.
@@ -78,18 +73,28 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 	 */
 	private final WriteHandler writeHandler = new WriteHandler(this);
 
+	private Config config;
+
+	private WebastoReadHandler readHandler;
+
+	@Reference
+	protected ConfigurationAdmin cm;
+
+	@Reference
+	private EvcsPower evcsPower;
+
 	public WebastoImpl() {
 		super(//
-				OpenemsComponent.ChannelId.values(), //
 				Webasto.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
+				ManagedEvcs.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				ManagedEvcs.ChannelId.values() //
+				OpenemsComponent.ChannelId.values() //
 		);
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsException {
+	private void activate(ComponentContext context, Config config) throws ConfigurationException, OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -122,6 +127,11 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+		/*
+		 * The Webasto Unite does not support reading Multiple Registers in one task
+		 * with "gaps" in between. Therefore, this modbus protocol consists of many small
+		 * Tasks to compensate.
+		 */
 		var modbusProtocol = new ModbusProtocol(this,
 				new FC4ReadInputRegistersTask(100, Priority.LOW,
 						m(Webasto.ChannelId.SERIAL_NUMBER, new StringWordElement(100, 25))),
@@ -284,21 +294,21 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.readHandler.run();
-			break;
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE :
+				this.readHandler.run();
+				break;
+			case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE :
 
-			final var alive = this.getAliveChannel().getNextValue();
-			if (alive.isDefined() && alive.get() == 0) {
-				try {
-					this._setAliveValue(1);
-				} catch (OpenemsError.OpenemsNamedException e) {
-					e.printStackTrace();
+				final var alive = this.getAliveChannel().getNextValue();
+				if (alive.isDefined() && alive.get() == 0) {
+					try {
+						this._setAliveValue(1);
+					} catch (OpenemsError.OpenemsNamedException e) {
+						e.printStackTrace();
+					}
 				}
-			}
-			this.writeHandler.run();
-			break;
+				this.writeHandler.run();
+				break;
 		}
 	}
 }
