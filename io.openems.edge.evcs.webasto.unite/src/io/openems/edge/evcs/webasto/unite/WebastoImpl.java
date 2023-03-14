@@ -80,11 +80,11 @@ public class WebastoImpl extends AbstractOpenemsModbusComponent
 
 	public WebastoImpl() {
 		super(//
-				Webasto.ChannelId.values(), //
+				OpenemsComponent.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				OpenemsComponent.ChannelId.values() //
+				Webasto.ChannelId.values() //
 		);
 	}
 
