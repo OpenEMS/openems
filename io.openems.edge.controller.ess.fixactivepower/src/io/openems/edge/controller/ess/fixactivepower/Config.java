@@ -20,6 +20,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.MANUAL_ON;
 
+	@AttributeDefinition(name = "Hybrid-ESS Mode", description = "For Hybrid-ESS (ESS with attached DC-side PV system): apply target power to AC or DC side of inverter?")
+	HybridEssMode hybridEssMode() default HybridEssMode.TARGET_DC;
+
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();
 
