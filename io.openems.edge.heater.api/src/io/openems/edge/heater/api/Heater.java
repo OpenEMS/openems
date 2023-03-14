@@ -76,7 +76,7 @@ public interface Heater extends OpenemsComponent {
 	 * </ul>
 	 */
 	HEATING_ENERGY(Doc.of(OpenemsType.LONG) //
-		.unit(Unit.KILOWATT) //
+		.unit(Unit.KILOWATT_HOURS) //
 		.persistencePriority(PersistencePriority.MEDIUM) //
 		.accessMode(AccessMode.READ_ONLY)), //
 
