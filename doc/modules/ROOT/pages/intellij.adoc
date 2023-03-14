@@ -72,7 +72,7 @@ Type in your Eclipse installation folder
 .Set Eclipse Path
 image::intellij-code-formatter-path.png[]
 +
-Choose 'Eclipse 2.1 [built-in]' as a formatter config
+Choose 'Eclipse [built-in]' as a formatter config
 +
 .Choose Format
 image::intellij-code-formatter-format.png[]
