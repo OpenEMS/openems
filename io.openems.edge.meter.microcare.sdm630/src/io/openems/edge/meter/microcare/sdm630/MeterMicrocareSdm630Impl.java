@@ -165,19 +165,19 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
 						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new FloatDoublewordElement(30073 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
+								ElementToChannelConverter.SCALE_FACTOR_3),
 						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,								
 								new FloatDoublewordElement(30075 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(MeterMicrocareSdm630.ChannelId.REACTIVE_PRODUCTION_ENERGY,
+								ElementToChannelConverter.SCALE_FACTOR_3),
+						m(MeterMicrocareSdm630.ChannelId.REACTIVE_CONSUMPTION_ENERGY,
 								new FloatDoublewordElement(30077 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1),
-						m(MeterMicrocareSdm630.ChannelId.REACTIVE_CONSUMPTION_ENERGY,
+								ElementToChannelConverter.SCALE_FACTOR_3),
+						m(MeterMicrocareSdm630.ChannelId.REACTIVE_PRODUCTION_ENERGY,
 								new FloatDoublewordElement(30079 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.DIRECT_1_TO_1)));
+								ElementToChannelConverter.SCALE_FACTOR_3)));
 	}
 
 	@Override

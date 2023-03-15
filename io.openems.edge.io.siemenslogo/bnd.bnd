@@ -1,0 +1,19 @@
+Bundle-Name: OpenEMS Edge io.openems.edge.io.siemenslogo
+Bundle-Vendor: OpenEMS Association e.V.
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
+
+-buildpath: \
+	${buildpath},\
+	io.openems.common,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.common,\
+	io.openems.edge.io.api,\
+	slf4j.api
+
+-testpath: \
+	${testpath},\
+	com.ghgande.j2mod
+Bundle-Description: Siemens LOGO! 8 as network relais. Connected via Modbus. Relays starting \
+	at VM 101, Bit 0 on SPS. ToDo: make addresses configurable
+	
