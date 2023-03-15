@@ -193,5 +193,4 @@ public class MeterMicrocareSdm630Impl extends AbstractOpenemsModbusComponent
 				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
-
 }
