@@ -14,6 +14,7 @@
 ** xref:edge/build.adoc[Build OpenEMS Edge]
 ** xref:edge/deploy.adoc[Deploy OpenEMS Edge]
 * OpenEMS UI
+** xref:ui/setup-ide.adoc[Setup IDE]
 ** xref:ui/architecture.adoc[Architecture]
 ** xref:ui/build.adoc[Build OpenEMS UI]
 * OpenEMS Backend

@@ -82,7 +82,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.modbus_id(), this.modbus_id());
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
 	@Override
