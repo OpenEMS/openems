@@ -1,0 +1,9 @@
+= Hardware Abstraction Package for Raspberry Pi based controllers.
+
+
+== Modberry X500 CM4
+
+image::./Modberry-500-CM4-Pinout.jpg[./Modberry-500-CM4-Pinout.jpg] 
+
+Modberry is based on the Raspberry Pi Compute Module 4. 
+The pinout is visible in the figure above.

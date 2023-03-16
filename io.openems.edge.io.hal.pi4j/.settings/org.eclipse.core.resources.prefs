@@ -1,9 +1,0 @@
-eclipse.preferences.version=1
-encoding//src/io/openems/edge/io/hal/pi4j/Config.java=UTF-8
-encoding//src/io/openems/edge/io/hal/pi4j/RasbperryPiComponent.java=UTF-8
-encoding//src/io/openems/edge/io/hal/pi4j/RaspberryPiInterface.java=UTF-8
-encoding//test/io/openems/edge/io/hal/pi4j/MyConfig.java=UTF-8
-encoding//test/io/openems/edge/io/hal/pi4j/MyControllerTest.java=UTF-8
-encoding/<project>=UTF-8
-encoding/bnd.bnd=UTF-8
-encoding/readme.adoc=UTF-8

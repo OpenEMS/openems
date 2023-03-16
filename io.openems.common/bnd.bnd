@@ -9,7 +9,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.wrapper.fastexcel,\
 	io.openems.wrapper.opczip,\
 	org.ops4j.pax.logging.pax-logging-api,\
-	
+
 -testpath: \
 	${testpath}
 
