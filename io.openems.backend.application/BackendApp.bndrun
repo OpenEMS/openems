@@ -50,6 +50,7 @@
 	bnd.identity;id='io.openems.backend.metadata.dummy',\
 	bnd.identity;id='io.openems.backend.metadata.file',\
 	bnd.identity;id='io.openems.backend.metadata.odoo',\
+	bnd.identity;id='io.openems.backend.timedata.aggregatedinflux',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
 	bnd.identity;id='io.openems.backend.timedata.influx',\
 	bnd.identity;id='io.openems.backend.timedata.timescaledb',\
@@ -73,6 +74,7 @@
 	io.openems.backend.metadata.dummy;version=snapshot,\
 	io.openems.backend.metadata.file;version=snapshot,\
 	io.openems.backend.metadata.odoo;version=snapshot,\
+	io.openems.backend.timedata.aggregatedinflux;version=snapshot,\
 	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\
 	io.openems.backend.timedata.timescaledb;version=snapshot,\
