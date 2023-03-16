@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.pvinverter.sunspec.Phase;
 
 @ObjectClassDefinition(name = "PV-Inverter SolarEdge", //
-		description = "Implements the SolarEdge PV inverter.")
+		description = "Implements the SolarEdge PV inverter. Can be configured as an hybrid system in connection with a SolarEdge Home Battery")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -17,6 +17,9 @@ import io.openems.edge.pvinverter.sunspec.Phase;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Is Hybrid System?", description = "Is this inverter part of an hybrid system?")
+	boolean hybrid() default false;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
