@@ -67,7 +67,7 @@ image::eclipse-new-simulatedmeter-bundle.png[New simulated meter OpenEMS Modbus 
 ====
 You can see, that the Bundle is by default dependent on some core bundles
 
-$\{buildpath\}:: 
+$\{buildpath\}::
   applies some defaults defined in `/cnf/build.bnd`
 io.openems.common::
   OpenEMS commons
@@ -114,7 +114,7 @@ NOTE: The `;version=latest` declaration is not required and can be removed. Also
 
 === Define configuration parameters
 
-OpenEMS Components can have several configuration parameters. They are defined as Java annotations and specific OSGi annotations are used to generate meta information that is used e.g. by Apache Felix Web Console to generate a user interface form (see xref:gettingstarted.adoc[Getting Started]).  
+OpenEMS Components can have several configuration parameters. They are defined as Java annotations and specific OSGi annotations are used to generate meta information that is used e.g. by Apache Felix Web Console to generate a user interface form (see xref:gettingstarted.adoc[Getting Started]).
 
 . Open the btn:[Config.java] file inside `src/io.openems.edge.meter.simulated` by double clicking on it.
 
@@ -154,7 +154,7 @@ import io.openems.edge.meter.api.MeterType;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true; // <4>
-	
+
 	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (=default), Consumption") // <5>
 	MeterType type() default MeterType.PRODUCTION; // <6>
 
@@ -374,13 +374,13 @@ NOTE: In plain Java it is not required to add `implements OpenemsComponent` if w
 - This enum is empty, as we do not have custom Channels here.
 - ChannelId enums require a Doc object that provides meta information about the Channel - e.g. the above ACTIVE_POWER Channel is defined as `ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)`
 ====
-<8> We call the constructor of the super class (`AbstractOpenemsModbusComponent`/`AbstractOpenemsComponent`) to initialize the Channels of the Component. It is important to list all ChannelId-Enums of all implemented Natures. The call takes the *ChannelId* declarations and creates a Channel instance for each of them; e.g. for the `SymmetricMeter.ACTIVE_POWER` ChannelId, an object instance of `IntegerReadChannel` is created that represents the Channel. 
+<8> We call the constructor of the super class (`AbstractOpenemsModbusComponent`/`AbstractOpenemsComponent`) to initialize the Channels of the Component. It is important to list all ChannelId-Enums of all implemented Natures. The call takes the *ChannelId* declarations and creates a Channel instance for each of them; e.g. for the `SymmetricMeter.ACTIVE_POWER` ChannelId, an object instance of `IntegerReadChannel` is created that represents the Channel.
 <9> The `super.activate()` method requires an instance of *ConfigurationAdmin* as a parameter. Using the *@Reference* annotation the OSGi framework is going to provide the ConfigurationAdmin service via dependency injection.
 <10> The Component utilizes an external Modbus Component (the _Modbus Bridge_) for the actual Modbus communication. We receive an instance of this service via dependency injection (like we did already for the _ConfigurationAdmin_ service). Most of the magic is handled by the _AbstractOpenemsModbusComponent_ implementation, but the way the OSGi framework works, we need to define the _@Reference_ explicitly here in the actual implementation of the component and call the parent `setModbus()` method.
 <11> The *activate()* method (marked by the *@Activate* annotation) is called on activation of an object instance of this Component. It comes with a ComponentContext and an instance of a configuration in the form of a Config object. All logic for activating and deactivating the OpenEMS Component is hidden in the super classes and just needs to be called from here.
 <12> The *deactivate()* method (marked by the *@Deactivate* annotation) is called on deactivation of the Component instance.
-<13> _AbstractOpenemsModbusComponent_ requires to implement a *defineModbusProtocol()* method that returns an instance of *ModbusProtocol*. The _ModbusProtocol_ class maps Modbus addresses to OpenEMS Channels and provides some conversion utilities. Instantiation of a _ModbusProtocol_ object uses the https://en.wikipedia.org/wiki/Builder_pattern#Java[Builder pattern icon:external-link[]] 
-<14> Creates a *new ModbusProtocol* instance. A reference to the component itself is the first parameter, followed by an arbitrary number of 'Tasks' (implemented as a Java varags array).  
+<13> _AbstractOpenemsModbusComponent_ requires to implement a *defineModbusProtocol()* method that returns an instance of *ModbusProtocol*. The _ModbusProtocol_ class maps Modbus addresses to OpenEMS Channels and provides some conversion utilities. Instantiation of a _ModbusProtocol_ object uses the https://en.wikipedia.org/wiki/Builder_pattern#Java[Builder pattern icon:external-link[]]
+<14> Creates a *new ModbusProtocol* instance. A reference to the component itself is the first parameter, followed by an arbitrary number of 'Tasks' (implemented as a Java varags array).
 <15> *FC3ReadRegistersTask* is an implementation of Modbus http://www.simplymodbus.ca/FC03.htm[function code 3 "Read Holding Registers" icon:external-link[]]. Its first parameter is the start address of the register block. The second parameter is a priority information that defines how often this register block needs to be queried. Following parameters are an arbitrary number of *ModbusElements*.
 +
 NOTE: Most Modbus function codes are available by their respective _FC*_ implementation classes.
@@ -389,7 +389,7 @@ NOTE: Most Modbus function codes are available by their respective _FC*_ impleme
 [NOTE]
 ====
 - The _m()_ method also takes an instance of *ElementToChannelConverter* as an additional parameter. It can be used to add implicit unit conversions between Modbus element and OpenEMS Channel - like adding a scale factor that converts a read value of '95' to a channel value of '950'.
-- For Modbus registers that are empty or should be ignored, the *DummyRegisterElement* can be used. 
+- For Modbus registers that are empty or should be ignored, the *DummyRegisterElement* can be used.
 - For more advanced channel-to-element mapping functionalities the internal *cm()* method can be used - e.g. to map one Modbus element to multiple Channels.
 +
 Using this principle a complete Modbus table consisting of multiple register blocks that need to be read or written with different Modbus function codes can be defined. For details have a look at the existing implementation classes inside the Modbus Bridge source code.
@@ -433,7 +433,7 @@ image::eclipse-edgeapp-bndrun.png[Eclipse IDE EdgeApp.bndrun]
 
 Select the `io.openems.edge.meter.simulated` bundle in the left *Repositories* list and drag & drop it to the *Run Requirements* list.
 
-Press btn:[Ctrl] + btn:[s] to save the `EdgeApp.bndrun` file. 
+Press btn:[Ctrl] + btn:[s] to save the `EdgeApp.bndrun` file.
 
 Click on btn:[Resolve] to update the list of bundles that are required to run OpenEMS Edge. After a few seconds the *Resolution Results* window should appear; acknowledge by pressing btn:[Finish].
 
@@ -453,14 +453,14 @@ These steps changed the content of the 'EdgeApp.bndrun' file. You can observe th
 
 The `\` at the end of each line is required to announce bndtools that the definition still continues on the next line.
 
-Also you may have found, that the existing entries are sorted alphabetically. 
+Also you may have found, that the existing entries are sorted alphabetically.
 
 Now switch back to btn:[Run] view.
 ====
 
 === Run the implementation
 
-Press btn:[Run OSGi] to run OpenEMS Edge. 
+Press btn:[Run OSGi] to run OpenEMS Edge.
 
 From then you can configure your component as shown in xref:gettingstarted.adoc[Getting Started] guide. Add the following configurations inside Apache Felix Web Console:
 
@@ -494,3 +494,15 @@ It shows a Production of `500 W` which is what is provided by the simulated mete
 === Debug the implementation
 
 If you experience any errors you can always run OpenEMS Edge using the btn:[Debug OSGi] button in EdgeApp.bndrun. This allows you to stop code execution at any time using https://help.eclipse.org/2019-12/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Ftasks%2Ftask-add_line_breakpoints.htm[Breakpoints].
+
+=== Alternative Device Development Flow
+
+Instead of adding the device to the btn:[EdgeApp.bndrun] file (as described in xref:implement.adoc#_enable_the_component[Enable the Component]), the device can be loaded dynamically by using [Apache Felix File Install]. Copying the device's built jar file into a `load` folder, relative to the project's root directory. Apache Felix File Install watches this folder and handles the device automatically.
+
+The folder is configurable by supplying the `felix.fileinstall.dir` option when starting the edge app. More configuration options can be found in the https://felix.apache.org/documentation/subprojects/apache-felix-file-install.html[Apache Felix File Install documentation].
+
+[NOTE]
+This functionality can also be used in production environments albeit dynamic code loading without additional safety measures is not recommended.
+
+[NOTE]
+Same applies to the OpenEMS Backend for dynamically loading devices.
