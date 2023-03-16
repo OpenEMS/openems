@@ -118,7 +118,7 @@ public class ModbusTcpApiReadWrite extends AbstractOpenemsApp<Property> implemen
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.API };
 	}
 

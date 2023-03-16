@@ -100,7 +100,7 @@ public class RestJsonApiReadWrite extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.API };
 	}
 

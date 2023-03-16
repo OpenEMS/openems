@@ -117,7 +117,7 @@ public class StromdaoCorrently extends AbstractOpenemsApp<Property> implements O
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TIME_OF_USE_TARIFF };
 	}
 

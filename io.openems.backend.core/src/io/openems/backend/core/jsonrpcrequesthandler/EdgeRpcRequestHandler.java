@@ -53,7 +53,8 @@ public class EdgeRpcRequestHandler {
 		CompletableFuture<? extends JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
 		case AppCenterRequest.METHOD:
-			resultFuture = AppCenterHandler.handleUserRequest(this.parent.appCenterMetadata,
+			resultFuture = AppCenterHandler.handleUserRequest(this.parent.appCenterMetadata, //
+					t -> this.handleRequest(user, messageId, t), //
 					AppCenterRequest.from(request), user, edgeId);
 			break;
 

@@ -29,13 +29,14 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
 /**
  * Describes a prepare battery extension app.
@@ -58,9 +59,9 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
  */
 @Component(name = "App.Ess.PrepareBatteryExtension")
 public class PrepareBatteryExtension extends
-		AbstractOpenemsAppWithProps<PrepareBatteryExtension, Property, Parameter.BundleParamter> implements OpenemsApp {
+		AbstractOpenemsAppWithProps<PrepareBatteryExtension, Property, Parameter.BundleParameter> implements OpenemsApp {
 
-	public enum Property implements Type<Property, PrepareBatteryExtension, Parameter.BundleParamter> {
+	public enum Property implements Type<Property, PrepareBatteryExtension, Parameter.BundleParameter>, Nameable {
 		// Components
 		CTRL_PREPARE_BATTERY_EXTENSION_ID(AppDef.of(PrepareBatteryExtension.class) //
 				.setDefaultValue("ctrlPrepareBatteryExtension0")), //
@@ -72,14 +73,14 @@ public class PrepareBatteryExtension extends
 				.setTranslatedLabelWithAppPrefix(".targetSoc.label") //
 				.setDefaultValue(30) //
 				.setField(JsonFormlyUtil::buildRange, //
-						(v, f) -> f.isRequired(true) //
+						(app, prop, l, param, f) -> f.isRequired(true) //
 								.setMin(0) //
 								.setMax(100))), //
 		;
 
-		private final AppDef<PrepareBatteryExtension, Property, BundleParamter> def;
+		private final AppDef<PrepareBatteryExtension, Property, BundleParameter> def;
 
-		private Property(AppDef<PrepareBatteryExtension, Property, BundleParamter> def) {
+		private Property(AppDef<PrepareBatteryExtension, Property, BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -89,12 +90,12 @@ public class PrepareBatteryExtension extends
 		}
 
 		@Override
-		public AppDef<PrepareBatteryExtension, Property, BundleParamter> def() {
+		public AppDef<PrepareBatteryExtension, Property, BundleParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<PrepareBatteryExtension>, BundleParamter> getParamter() {
+		public Function<GetParameterValues<PrepareBatteryExtension>, BundleParameter> getParamter() {
 			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 	}
@@ -116,7 +117,7 @@ public class PrepareBatteryExtension extends
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.ESS };
 	}
 
@@ -130,7 +131,7 @@ public class PrepareBatteryExtension extends
 		return (t, p, l) -> {
 			final var ctrlPrepareBatteryExtensionId = this.getId(t, p, Property.CTRL_PREPARE_BATTERY_EXTENSION_ID);
 
-			final var alias = this.getValueOrDefault(p, l, Property.ALIAS);
+			final var alias = this.getString(p, l, Property.ALIAS);
 			final var targetSoc = EnumUtils.getAsOptionalInt(p, Property.TARGET_SOC).orElse(30);
 
 			final var components = Lists.newArrayList(//

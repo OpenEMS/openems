@@ -203,7 +203,7 @@ public class HeatingElement extends AbstractOpenemsApp<Property> implements Open
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.HEAT };
 	}
 

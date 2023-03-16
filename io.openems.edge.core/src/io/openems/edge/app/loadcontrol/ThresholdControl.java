@@ -141,7 +141,7 @@ public class ThresholdControl extends AbstractOpenemsApp<Property> implements Op
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.LOAD_CONTROL };
 	}
 

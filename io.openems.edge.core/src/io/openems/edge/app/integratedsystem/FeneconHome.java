@@ -620,7 +620,7 @@ public class FeneconHome extends AbstractOpenemsApp<Property> implements Openems
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.INTEGRATED_SYSTEM };
 	}
 

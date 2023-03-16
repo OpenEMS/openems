@@ -15,7 +15,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import org.slf4j.Logger;
@@ -28,7 +27,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.jsonrpc.notification.AbstractDataNotification;
 import io.openems.common.jsonrpc.notification.AggregatedDataNotification;
 import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.DurationUnit;
@@ -108,11 +106,10 @@ public class SendChannelValuesWorker {
 		final var aggregatedValues = this.collectAggregatedData(enabledComponents);
 
 		// Add to send Queue
-		this.executor.execute(new SendTask(this, now, allValues, TimestampedDataNotification::new, true));
+		this.executor.execute(new SendTask(this, now, allValues));
 		if (aggregatedValues != null && !aggregatedValues.isEmpty()) {
 			aggregatedValues.rowMap().forEach((timestamp, data) -> {
-				this.executor.execute(new SendTask(this, Instant.ofEpochMilli(timestamp), data,
-						AggregatedDataNotification::new, false));
+				this.executor.execute(new SendAggregatedDataTask(this, Instant.ofEpochMilli(timestamp), data));
 			});
 		}
 	}
@@ -195,7 +192,6 @@ public class SendChannelValuesWorker {
 						if (value == null) {
 							return;
 						}
-
 						table.put(timestampMillis, channel.address().toString(), value);
 					} catch (IllegalArgumentException e) {
 						// unable to collect data because types are not matching the expected one
@@ -270,22 +266,16 @@ public class SendChannelValuesWorker {
 	/*
 	 * From here things run asynchronously.
 	 */
-
 	private static class SendTask implements Runnable {
 
 		private final SendChannelValuesWorker parent;
 		private final Instant timestamp;
 		private final Map<String, JsonElement> allValues;
-		private final Supplier<? extends AbstractDataNotification> notificationSupplier;
-		private final boolean updateLastValues;
 
-		public SendTask(SendChannelValuesWorker parent, Instant timestamp, Map<String, JsonElement> allValues,
-				Supplier<? extends AbstractDataNotification> notificationSupplier, boolean updateLastValues) {
+		public SendTask(SendChannelValuesWorker parent, Instant timestamp, Map<String, JsonElement> allValues) {
 			this.parent = parent;
 			this.timestamp = timestamp;
 			this.allValues = allValues;
-			this.notificationSupplier = notificationSupplier;
-			this.updateLastValues = updateLastValues;
 		}
 
 		@Override
@@ -327,7 +317,7 @@ public class SendChannelValuesWorker {
 			}
 
 			// Create JSON-RPC notification
-			var message = this.notificationSupplier.get();
+			var message = new TimestampedDataNotification();
 			message.add(timestampMillis, sendValuesMap);
 
 			// Debug-Log
@@ -342,7 +332,7 @@ public class SendChannelValuesWorker {
 			// Set the UNABLE_TO_SEND channel
 			this.parent.parent.getUnableToSendChannel().setNextValue(!wasSent);
 
-			if (wasSent && this.updateLastValues) {
+			if (wasSent) {
 				// Successfully sent: update information for next runs
 				this.parent.lastAllValues = this.allValues;
 				if (lastAllValues.isEmpty()) {
@@ -351,6 +341,30 @@ public class SendChannelValuesWorker {
 				}
 			}
 
+		}
+
+	}
+
+	private static final class SendAggregatedDataTask implements Runnable {
+
+		private final SendChannelValuesWorker parent;
+		private final Instant timestamp;
+		private final Map<String, JsonElement> allValues;
+
+		public SendAggregatedDataTask(SendChannelValuesWorker parent, Instant timestamp,
+				Map<String, JsonElement> allValues) {
+			super();
+			this.parent = parent;
+			this.timestamp = timestamp;
+			this.allValues = allValues;
+		}
+
+		@Override
+		public void run() {
+			final var message = new AggregatedDataNotification();
+			message.add(this.timestamp.toEpochMilli(), this.allValues);
+
+			this.parent.parent.websocket.sendMessage(message);
 		}
 
 	}

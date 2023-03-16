@@ -163,7 +163,7 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.PV_SELF_CONSUMPTION };
 	}
 

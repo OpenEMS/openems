@@ -35,7 +35,17 @@ public class JsonFormlyUtil {
 	 * @return a {@link CheckboxBuilder}
 	 */
 	public static <T extends Enum<T>> CheckboxBuilder buildCheckbox(T property) {
-		return new CheckboxBuilder(property);
+		return new CheckboxBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Checkbox Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link CheckboxBuilder}
+	 */
+	public static CheckboxBuilder buildCheckboxFromNameable(Nameable nameable) {
+		return new CheckboxBuilder(nameable);
 	}
 
 	/**
@@ -46,7 +56,17 @@ public class JsonFormlyUtil {
 	 * @return a {@link InputBuilder}
 	 */
 	public static <T extends Enum<T>> InputBuilder buildInput(T property) {
-		return new InputBuilder(property);
+		return new InputBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Input Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link InputBuilder}
+	 */
+	public static InputBuilder buildInputFromNameable(Nameable nameable) {
+		return new InputBuilder(nameable);
 	}
 
 	/**
@@ -57,7 +77,17 @@ public class JsonFormlyUtil {
 	 * @return a {@link SelectBuilder}
 	 */
 	public static <T extends Enum<T>> SelectBuilder buildSelect(T property) {
-		return new SelectBuilder(property);
+		return new SelectBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Select Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link SelectBuilder}
+	 */
+	public static SelectBuilder buildSelectFromNameable(Nameable nameable) {
+		return new SelectBuilder(nameable);
 	}
 
 	/**
@@ -68,7 +98,17 @@ public class JsonFormlyUtil {
 	 * @return a {@link RangeBuilder}
 	 */
 	public static <T extends Enum<T>> RangeBuilder buildRange(T property) {
-		return new RangeBuilder(property);
+		return new RangeBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Range Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link RangeBuilder}
+	 */
+	public static RangeBuilder buildRangeFromNameable(Nameable nameable) {
+		return new RangeBuilder(nameable);
 	}
 
 	/**
@@ -79,7 +119,37 @@ public class JsonFormlyUtil {
 	 * @return a {@link RepeatBuilder}
 	 */
 	public static <T extends Enum<T>> RepeatBuilder buildRepeat(T property) {
-		return new RepeatBuilder(property);
+		return new RepeatBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Repeat Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link RepeatBuilder}
+	 */
+	public static RepeatBuilder buildRepeat(Nameable nameable) {
+		return new RepeatBuilder(nameable);
+	}
+
+	private static <T extends Enum<T>> Nameable toNameable(T property) {
+		return new StaticNameable(property.name());
+	}
+
+	private static final class StaticNameable implements Nameable {
+
+		private final String name;
+
+		public StaticNameable(String name) {
+			super();
+			this.name = name;
+		}
+
+		@Override
+		public String name() {
+			return this.name;
+		}
+
 	}
 
 	/**
@@ -108,7 +178,7 @@ public class JsonFormlyUtil {
 		protected final JsonObject templateOptions = new JsonObject();
 		private JsonObject expressionProperties = null;
 
-		private <PROPERTY extends Enum<PROPERTY>> FormlyBuilder(PROPERTY property) {
+		private FormlyBuilder(Nameable property) {
 			this.setKey(property.name());
 			this.setType(this.getType());
 			this.setLabel(property.name());
@@ -340,7 +410,7 @@ public class JsonFormlyUtil {
 		private JsonObject validation = null;
 		private Type type = Type.TEXT;
 
-		private <PROPERTY extends Enum<PROPERTY>> InputBuilder(PROPERTY property) {
+		private InputBuilder(Nameable property) {
 			super(property);
 		}
 
@@ -503,7 +573,7 @@ public class JsonFormlyUtil {
 
 	public static final class RangeBuilder extends FormlyBuilder<RangeBuilder> {
 
-		private <PROPERTY extends Enum<PROPERTY>> RangeBuilder(PROPERTY property) {
+		private RangeBuilder(Nameable property) {
 			super(property);
 		}
 
@@ -570,7 +640,7 @@ public class JsonFormlyUtil {
 	 */
 	public static final class CheckboxBuilder extends FormlyBuilder<CheckboxBuilder> {
 
-		private <PROPERTY extends Enum<PROPERTY>> CheckboxBuilder(PROPERTY property) {
+		private CheckboxBuilder(Nameable property) {
 			super(property);
 		}
 
@@ -618,7 +688,7 @@ public class JsonFormlyUtil {
 				|| t.alias().isEmpty() ? t.id() : t.id() + ": " + t.alias();
 		public static final Function<OpenemsComponent, String> DEFAULT_COMPONENT_2_VALUE = OpenemsComponent::id;
 
-		private <PROPERTY extends Enum<PROPERTY>> SelectBuilder(PROPERTY property) {
+		private SelectBuilder(Nameable property) {
 			super(property);
 		}
 
@@ -720,7 +790,7 @@ public class JsonFormlyUtil {
 
 		private JsonObject fieldArray;
 
-		private <PROPERTY extends Enum<PROPERTY>> RepeatBuilder(PROPERTY property) {
+		private RepeatBuilder(Nameable property) {
 			super(property);
 		}
 

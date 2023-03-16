@@ -23,16 +23,17 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
 /**
  * Describes a evcs cluster.
@@ -54,10 +55,10 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.Evcs.Cluster")
-public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Property, BundleParamter>
+public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Property, BundleParameter>
 		implements OpenemsApp {
 
-	public static enum Property implements Type<Property, EvcsCluster, BundleParamter> {
+	public static enum Property implements Type<Property, EvcsCluster, BundleParameter>, Nameable {
 		// Component-IDs
 		EVCS_CLUSTER_ID(AppDef.of(EvcsCluster.class) //
 				.setDefaultValue("evcsCluster0")), //
@@ -67,21 +68,21 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 		EVCS_IDS(AppDef.of(EvcsCluster.class) //
 				.setLabel("EVCS-IDs") //
 				.setTranslatedDescriptionWithAppPrefix(".evcsIds.description") //
-				.setField(JsonFormlyUtil::buildSelect, (v, b) -> {
-					b.setOptions(
-							v.app.componentUtil.getEnabledComponentsOfStartingId("evcs").stream()
+				.setField(JsonFormlyUtil::buildSelect, (app, prop, l, param, f) -> {
+					f.setOptions(
+							app.componentUtil.getEnabledComponentsOfStartingId("evcs").stream()
 									.filter(t -> !t.id().startsWith("evcsCluster")).collect(Collectors.toList()),
 							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
 							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 							.isRequired(true) //
 							.isMulti(true);
 				}) //
-				.bidirectional(EVCS_CLUSTER_ID, "evcs.ids")) //
+				.bidirectional(EVCS_CLUSTER_ID, "evcs.ids", a -> a.componentManager)) //
 		;
 
-		private final AppDef<EvcsCluster, Property, BundleParamter> def;
+		private final AppDef<EvcsCluster, Property, BundleParameter> def;
 
-		private Property(AppDef<EvcsCluster, Property, BundleParamter> def) {
+		private Property(AppDef<EvcsCluster, Property, BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -91,13 +92,13 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 		}
 
 		@Override
-		public AppDef<EvcsCluster, Property, BundleParamter> def() {
+		public AppDef<EvcsCluster, Property, BundleParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<EvcsCluster>, BundleParamter> getParamter() {
-			return BundleParamter.functionOf(AbstractOpenemsApp::getTranslationBundle);
+		public Function<GetParameterValues<EvcsCluster>, BundleParameter> getParamter() {
+			return BundleParameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 	}
 
@@ -113,7 +114,7 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 
 			var evcsClusterId = this.getId(t, p, Property.EVCS_CLUSTER_ID);
 
-			var alias = this.getValueOrDefault(p, l, Property.ALIAS);
+			var alias = this.getString(p, l, Property.ALIAS);
 			var ids = EnumUtils.getAsJsonArray(p, Property.EVCS_IDS);
 
 			var components = Lists.newArrayList(//
@@ -135,7 +136,7 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.EVCS };
 	}
 
