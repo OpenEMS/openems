@@ -26,3 +26,4 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	org.dhatim:fastexcel;version='0.14.3',\
 	org.eclipse.paho.mqttv5.client;version='1.2.5',\
 	org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm;version='1.6.4',\
+	
