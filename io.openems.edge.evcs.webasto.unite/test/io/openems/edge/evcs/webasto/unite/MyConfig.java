@@ -1,20 +1,17 @@
-package io.openems.edge.evcs.hypercharger;
+package io.openems.edge.evcs.webasto.unite;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.evcs.hypercharger.Hypercharger.Connector;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-
 		private String id;
 		private String modbusId;
 		private int modbusUnitId;
-		private int minHwPower;
-		private int maxHwPower;
-		private Hypercharger.Connector connector;
+		private int minHwCurrent;
+		private int maxHwCurrent;
 
 		private Builder() {
 		}
@@ -34,18 +31,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setMinHwPower(int minHwPower) {
-			this.minHwPower = minHwPower;
+		public Builder setMinHwCurrent(int minHwCurrent) {
+			this.minHwCurrent = minHwCurrent;
 			return this;
 		}
 
-		public Builder setMaxHwPower(int maxHwPower) {
-			this.maxHwPower = maxHwPower;
-			return this;
-		}
-
-		public Builder setConnector(Hypercharger.Connector connector) {
-			this.connector = connector;
+		public Builder setMaxHwCurrent(int maxHwCurrent) {
+			this.maxHwCurrent = maxHwCurrent;
 			return this;
 		}
 
@@ -76,6 +68,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public int minHwCurrent() {
+		return this.builder.minHwCurrent;
+	}
+
+	@Override
+	public int maxHwCurrent() {
+		return this.builder.maxHwCurrent;
+	}
+
+	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
 	}
@@ -88,20 +90,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
-	}
-
-	@Override
-	public int minHwPower() {
-		return this.builder.minHwPower;
-	}
-
-	@Override
-	public int maxHwPower() {
-		return this.builder.maxHwPower;
-	}
-
-	@Override
-	public Connector connector() {
-		return this.builder.connector;
 	}
 }
