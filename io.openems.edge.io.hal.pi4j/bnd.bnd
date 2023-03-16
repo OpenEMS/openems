@@ -1,4 +1,4 @@
-Bundle-Name: OpenEMS Edge RaspberryPi
+Bundle-Name: OpenEMS Edge Hardware Abstraction for Raspberry Pis
 Bundle-Vendor: OpenEMS Association e.V.
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
@@ -8,11 +8,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.common, \
 	io.openems.edge.common, \
 	io.openems.edge.controller.api, \
-	io.openems.wrapper.pi4j,\
 	io.openems.edge.io.hal.api, \
 	
 -testpath: \
 	${testpath},\
-	io.openems.wrapper.pi4j
-	
--runrequires: \

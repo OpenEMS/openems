@@ -123,12 +123,13 @@
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
 	bnd.identity;id='io.openems.edge.goodwe',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
+	bnd.identity;id='io.openems.edge.io.hal.api',\
+	bnd.identity;id='io.openems.edge.io.hal.pi4j',\
 	bnd.identity;id='io.openems.edge.io.offgridswitch',\
 	bnd.identity;id='io.openems.edge.io.revpi',\
 	bnd.identity;id='io.openems.edge.io.shelly',\
 	bnd.identity;id='io.openems.edge.io.wago',\
 	bnd.identity;id='io.openems.edge.io.weidmueller',\
-	bnd.identity;id='io.openems.edge.io.hal.pi4j',\
 	bnd.identity;id='io.openems.edge.kaco.blueplanet.hybrid10',\
 	bnd.identity;id='io.openems.edge.katek.edcom',\
 	bnd.identity;id='io.openems.edge.kostal.piko',\
@@ -172,7 +173,6 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-	
 -runbundles: \
 	Java-WebSocket;version='[1.5.3,1.5.4)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -380,5 +380,3 @@
 	org.osgi.util.promise;version='[1.3.0,1.3.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.8.2,3.8.3)',\
-	io.openems.edge.io.hal.pi4j;version=snapshot,\
-	io.openems.wrapper.pi4j;version=snapshot

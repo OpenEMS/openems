@@ -11,7 +11,7 @@ public class MyControllerTest {
 
 	@Test
 	public void test() throws Exception {
-		new ControllerTest(new Pi4JComponent()) //
+		new ControllerTest(new RasbperryPiComponent()) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.build())

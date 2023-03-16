@@ -25,16 +25,4 @@ public interface Led {
 	 * @return true if the LED is currently on, otherwise false.
 	 */
 	boolean isOn();
-
-	/**
-	 * Switches on and off the led periodically.
-	 * @param millids how long the LED should be on and off.
-	 */
-	void blink(int millids);
-
-	/**
-	 * Enables the LED for the given time, waits for the time parameter to elapse and disables the LED again. 
-	 * @param millis how long the LED should be on in milliseconds.
-	 */
-	void pulse(int millis);
 }
