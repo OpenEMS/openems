@@ -724,9 +724,9 @@
       "SHADE_MANAGEMENT_DESCRIPTION": "Nur wenn Optimierer verbaut sind, muss das Schattenmanagement deaktiviert werden",
       "TITLE_ADDITIONAL_AC": "AC-Erzeuger",
       "TITLE_PV": "DC-PV Installation (Wechselrichtereingänge)",
-      "VALID_DATA": "Geben Sie gültige Daten ein um zu Speichern.",
+      "VALID_DATA": "Geben Sie gültige Daten ein, um zu speichern.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC zähler nicht erstellt!"
+      "AC_NOT_CREATED": "AC Zähler nicht erstellt!"
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Batteriemodul ",
@@ -868,7 +868,7 @@
   },
   "SETTINGS": {
     "SYSTEM_UPDATE": {
-      "INSTALLED_VERSION": "Installierte version:",
+      "INSTALLED_VERSION": "Installierte Version:",
       "LATEST_VERISON": "Das System ist auf dem aktuellsten Softwarestand",
       "NEW_VERSION_INSTALLING": "Neueste version installieren",
       "NEW_VERSION": "Neueste version:",
