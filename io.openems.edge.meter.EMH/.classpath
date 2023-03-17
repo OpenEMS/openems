@@ -8,6 +8,5 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/io.openems.edge.ess.sunspec"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
