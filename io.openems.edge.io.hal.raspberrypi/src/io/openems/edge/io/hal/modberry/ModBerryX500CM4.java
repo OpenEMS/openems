@@ -1,19 +1,31 @@
 package io.openems.edge.io.hal.modberry;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.edge.io.hal.api.DigitalOut;
+import io.openems.edge.io.hal.api.HardwareComponent;
 import io.openems.edge.io.hal.api.Led;
 import io.openems.edge.io.hal.api.PressButton;
-import io.openems.edge.io.hal.devices.LinuxFsButton;
-import io.openems.edge.io.hal.devices.LinuxFsLed;
+import io.openems.edge.io.hal.api.devices.LinuxFsButton;
+import io.openems.edge.io.hal.api.devices.LinuxFsLed;
 import io.openems.edge.io.hal.linuxfs.HardwareFactory;
 
 public class ModBerryX500CM4 {
 	
+	private Logger logger = LoggerFactory.getLogger(ModBerryX500CM4.class);
+	
 	private HardwareFactory context;
+	private Map<Integer, HardwareComponent> occupiedPins;
 	
 	public ModBerryX500CM4(HardwareFactory context) {
-		// TODO take care about double initializing pins.
 		this.context = context;
+		this.occupiedPins = new HashMap<>();
 	}
 
 	/**
@@ -22,7 +34,9 @@ public class ModBerryX500CM4 {
 	 * @return a LED object ready for blinking.
 	 */
 	public Led getLed(Cm4Hardware.Led led) {
-		return new LinuxFsLed(context, led.getGpio());
+		var hardwareLed = new LinuxFsLed(context, led.getGpio());
+		lockComponent(led.getGpio(), hardwareLed);
+		return hardwareLed;
 	}
 
 	/**
@@ -34,17 +48,33 @@ public class ModBerryX500CM4 {
 	 * @return a PressButton object ready to use.
 	 */
 	public PressButton getButton(Cm4Hardware.Button btn) {
-		// Creating the button via the absctaction layer.
-		return new LinuxFsButton(context, btn.getGpio());
+		// Creating the button via the abstraction layer.
+		var hardwareButton = new LinuxFsButton(context, btn.getGpio());
+		lockComponent(btn.getGpio(), hardwareButton);
+		return hardwareButton;
 	}
 
-	
 	public DigitalOut getDigitalOut(Cm4Hardware.DigitalOut pin) {
 		// Creating the outputs directly with the low level API.
-		return context.fabricateOut(pin.getGpio());
+		var dout = context.fabricateOut(pin.getGpio());
+		lockComponent(pin.getGpio(), dout);
+		return dout;
 	}
 	
 	public DigitalOut getDigitalOut(Cm4Hardware.BidirectionalIo pin) {
-		return context.fabricateOut(pin.getGpio());
+		var dout = context.fabricateOut(pin.getGpio());
+		lockComponent(pin.getGpio(), dout);
+		return dout;
+	}
+	
+	public void releaseComponent(int pinNumber) {
+		this.occupiedPins.remove(pinNumber).release();
+	}
+	
+	private void lockComponent(int pinNumber, HardwareComponent comp) {
+		if(this.occupiedPins.containsKey(pinNumber)) {
+			this.logger.error("Pin " + pinNumber + " already in use!");
+		}
+		this.occupiedPins.put(pinNumber, comp);
 	}
 }

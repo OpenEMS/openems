@@ -20,6 +20,9 @@ public class ModberryCM4Test {
 	private File directionFile;
 	private File valueFile;
 
+	private ModBerryX500CM4 modberry;
+	private HardwareFactory factory;
+	
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
     
@@ -38,14 +41,23 @@ public class ModberryCM4Test {
                 "error creating temporary test file in " +
                 this.getClass().getSimpleName() );
         }
+        
+        factory = new HardwareFactory(this.root.getAbsolutePath());
+		modberry = new ModBerryX500CM4(factory);
+		
     }
 	
 	@Test
 	public void testCm4Led() {
-		HardwareFactory factory = new HardwareFactory(this.root.getAbsolutePath());
-		ModBerryX500CM4 modberry = new ModBerryX500CM4(factory);
 		var led = modberry.getLed(Cm4Hardware.Led.LED_1);
 		led.on();
+		assertTrue(led.isOn());
+	}
+	
+	@Test
+	public void testCm4LedToggle() {
+		var led = modberry.getLed(Cm4Hardware.Led.LED_1);
+		led.toggle();
 		assertTrue(led.isOn());
 	}
 }
