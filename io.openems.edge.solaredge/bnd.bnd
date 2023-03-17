@@ -11,7 +11,8 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.meter.api,\
 	io.openems.edge.meter.sunspec,\
 	io.openems.edge.pvinverter.api,\
-	io.openems.edge.pvinverter.sunspec
+	io.openems.edge.pvinverter.sunspec,\
+	io.openems.edge.ess.api
 
 -testpath: \
 	${testpath},\
