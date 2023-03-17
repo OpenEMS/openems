@@ -351,7 +351,7 @@
           "hour": "Stunde",
           "hours": "Stunden",
           "minute": "Minute",
-          "minutes": "minuten",
+          "minutes": "Minuten",
           "day": "Tag",
           "days": "Tage"
         }
@@ -611,7 +611,7 @@
       "DEVICE_ACTIVE_CHECKED": "Batterie und Wechselrichter eingeschaltet",
       "EDGE_NUMBER": "{{ edgeShortName }} Nummer",
       "GENERAL": "Allgemein",
-      "GTC_ACCEPT": "AGB akzeptieren",
+      "GTC_ACCEPT": "AGB",
       "INSTALLER": "Installateur",
       "INVERTER": "Wechselrichter",
       "NEXT_CLICKED_DESCRIPTION": "Wenn Sie jetzt 'weiter' klicken, wird das Speichersystem konfiguriert. Stellen Sie sicher, dass die Batterie und der Wechselrichter während des gesamten Konfigurationsvorgangs eingeschaltet sind.",
@@ -619,10 +619,11 @@
       "SUMMARY": "Zusammenfassung",
       "TIME_OF_INSTALLATION": "Zeitpunkt der Installation",
       "VALUE_AC": "Wert AC",
-      "WARRANTY_TERMS": "Garantiebedingungen akzeptieren",
+      "WARRANTY_TERMS": "Garantiebedingungen",
       "PEAK_SHAVING": "Lastspitzenkappung",
       "APPS": "Apps",
-      "HECKERT": "Ihre gewählte kostenlose App"
+      "HECKERT": "Ihre gewählte kostenlose App",
+      "ACCEPT": "akzeptieren"
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Anleitung öffnen",
@@ -724,9 +725,10 @@
       "SHADE_MANAGEMENT_DESCRIPTION": "Nur wenn Optimierer verbaut sind, muss das Schattenmanagement deaktiviert werden",
       "TITLE_ADDITIONAL_AC": "AC-Erzeuger",
       "TITLE_PV": "DC-PV Installation (Wechselrichtereingänge)",
-      "VALID_DATA": "Geben Sie gültige Daten ein um zu Speichern.",
+      "VALID_DATA": "Geben Sie gültige Daten ein, um zu speichern.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC zähler nicht erstellt!"
+      "AC_NOT_CREATED": "AC zähler nicht erstellt!",
+      "METER_SELECTION_WARNING": "Bitte wählen Sie den Zähler aus, indem Sie den Erzeuger hinzufügen."
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Batteriemodul ",
@@ -868,7 +870,7 @@
   },
   "SETTINGS": {
     "SYSTEM_UPDATE": {
-      "INSTALLED_VERSION": "Installierte version:",
+      "INSTALLED_VERSION": "Installierte Version:",
       "LATEST_VERISON": "Das System ist auf dem aktuellsten Softwarestand",
       "NEW_VERSION_INSTALLING": "Neueste version installieren",
       "NEW_VERSION": "Neueste version:",

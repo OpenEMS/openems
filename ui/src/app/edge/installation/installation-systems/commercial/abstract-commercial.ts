@@ -6,7 +6,7 @@ import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrp
 import { ChannelAddress, Edge, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { Category } from '../../shared/category';
-import { FeedInType } from '../../shared/enums';
+import { FeedInType, WebLinks } from '../../shared/enums';
 import { ComponentData } from '../../shared/ibndatatypes';
 import { Meter } from '../../shared/meter';
 import { AbstractIbn } from '../abstract-ibn';
@@ -48,6 +48,15 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
         this.feedInLimitation.feedInType = model.feedInType;
         return this.feedInLimitation;
     }
+
+    //Configuration Summary
+    public gtcAndWarrantyLinks: {
+        gtcLink: WebLinks;
+        warrantyLink: WebLinks;
+    } = {
+            gtcLink: WebLinks.GTC_LINK,
+            warrantyLink: WebLinks.WARRANTY_LINK_COMMERCIAL,
+        };
 
     public getLineSideMeterFuseFields() {
         const fields: FormlyFieldConfig[] = [];

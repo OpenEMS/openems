@@ -494,12 +494,12 @@
           "error": "Fout bij het laden van de instellingen"
         },
         "interval": {
-          "hours": "uur",
-          "minute": "minuut",
-          "minutes": "minuten",
-          "day": "dag",
-          "days": "dagen",
-          "hour": "uur"
+          "hours": "Uur",
+          "minute": "Minuut",
+          "minutes": "Minuten",
+          "day": "Dag",
+          "days": "Dagen",
+          "hour": "Uur"
         }
       },
       "App": {

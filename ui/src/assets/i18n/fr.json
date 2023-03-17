@@ -499,12 +499,12 @@
           "error": "Erreur lors du chargement des paramètres"
         },
         "interval": {
-          "hours": "heures",
-          "minute": "minute",
-          "minutes": "minutes",
-          "day": "journée",
-          "days": "journées",
-          "hour": "heure"
+          "hours": "Heures",
+          "minute": "Minute",
+          "minutes": "Minutes",
+          "day": "Journée",
+          "days": "Journées",
+          "hour": "Heure"
         }
       },
       "App": {

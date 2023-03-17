@@ -35,6 +35,12 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.3.3',
+        changes: [
+          Changelog.UI,
+        ]
+      },
+      {
         version: '2023.3.2',
         changes: [
           "Fehlerbehebung in der historischen Ansicht im lokalen Monitoring",

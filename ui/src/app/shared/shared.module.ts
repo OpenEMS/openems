@@ -13,6 +13,7 @@ import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
 import { DirectiveModule } from './directive/directive';
 import { MeterModule } from './edge/meter/meter.module';
+import { FormlyCheckBoxHyperlinkWrapperComponent } from './formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper';
 import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
 import { FormlySelectFieldModalComponent } from './formly/formly-select-field-modal.component';
 import { FormlySelectFieldExtendedWrapperComponent } from './formly/formly-select-field.extended';
@@ -62,7 +63,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
       wrappers: [
         { name: 'form-field', component: FormlyWrapperFormFieldComponent },
         { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
-        { name: 'formly-select-extended-wrapper', component: FormlySelectFieldExtendedWrapperComponent }
+        { name: 'formly-select-extended-wrapper', component: FormlySelectFieldExtendedWrapperComponent },
+        { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
@@ -92,7 +94,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     RepeatTypeComponent,
     FormlyWrapperInputSerialNumber,
     FormlySelectFieldExtendedWrapperComponent,
-    FormlySelectFieldModalComponent
+    FormlySelectFieldModalComponent,
+    FormlyCheckBoxHyperlinkWrapperComponent
   ],
   exports: [
     // modules
