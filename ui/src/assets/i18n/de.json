@@ -611,7 +611,7 @@
       "DEVICE_ACTIVE_CHECKED": "Batterie und Wechselrichter eingeschaltet",
       "EDGE_NUMBER": "{{ edgeShortName }} Nummer",
       "GENERAL": "Allgemein",
-      "GTC_ACCEPT": "AGB akzeptieren",
+      "GTC_ACCEPT": "AGB",
       "INSTALLER": "Installateur",
       "INVERTER": "Wechselrichter",
       "NEXT_CLICKED_DESCRIPTION": "Wenn Sie jetzt 'weiter' klicken, wird das Speichersystem konfiguriert. Stellen Sie sicher, dass die Batterie und der Wechselrichter während des gesamten Konfigurationsvorgangs eingeschaltet sind.",
@@ -619,10 +619,11 @@
       "SUMMARY": "Zusammenfassung",
       "TIME_OF_INSTALLATION": "Zeitpunkt der Installation",
       "VALUE_AC": "Wert AC",
-      "WARRANTY_TERMS": "Garantiebedingungen akzeptieren",
+      "WARRANTY_TERMS": "Garantiebedingungen",
       "PEAK_SHAVING": "Lastspitzenkappung",
       "APPS": "Apps",
-      "HECKERT": "Ihre gewählte kostenlose App"
+      "HECKERT": "Ihre gewählte kostenlose App",
+      "ACCEPT": "akzeptieren"
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Anleitung öffnen",

@@ -9,7 +9,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/sh
 import { environment } from 'src/environments';
 import { AppCenterUtil } from '../../shared/appcenterutil';
 import { Category } from '../../shared/category';
-import { FeedInSetting, FeedInType } from '../../shared/enums';
+import { FeedInSetting, FeedInType, WebLinks } from '../../shared/enums';
 import { AcPv, ComponentData, DcPv, SerialNumberFormData } from '../../shared/ibndatatypes';
 import { Meter } from '../../shared/meter';
 import { BaseMode, ComponentConfigurator, ConfigurationMode } from '../../views/configuration-execute/component-configurator';
@@ -83,6 +83,15 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
   } = {
       category: Category.LINE_SIDE_METER_FUSE_HOME
     }
+
+  //Configuration Summary
+  public gtcAndWarrantyLinks: {
+    gtcLink: WebLinks;
+    warrantyLink: WebLinks;
+  } = {
+      gtcLink: WebLinks.GTC_LINK,
+      warrantyLink: WebLinks.WARRANTY_LINK_HOME,
+    };
 
   public readonly imageUrl: string = 'assets/img/Home-Typenschild-web.jpg';
 

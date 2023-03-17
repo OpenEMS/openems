@@ -610,7 +610,7 @@
       "DEVICE_ACTIVE_CHECKED": "Battery and Inverter swicthed ON",
       "EDGE_NUMBER": "{{ edgeShortName }} Number",
       "GENERAL": "General",
-      "GTC_ACCEPT": "GTC acceptation",
+      "GTC_ACCEPT": "GTC",
       "INSTALLER": "Installer",
       "INVERTER": "Inverter",
       "NEXT_CLICKED_DESCRIPTION": "By clicking on the 'next' button, the storage system will be configured. Make sure the battery and inverter are powered on throughout the configuration process.",
@@ -618,10 +618,11 @@
       "SUMMARY": "Summary",
       "TIME_OF_INSTALLATION": "Time of the installation",
       "VALUE_AC": "Value AC",
-      "WARRANTY_TERMS": "Warranty terms acceptation",
+      "WARRANTY_TERMS": "Warranty terms",
       "PEAK_SHAVING": "Peak shaving",
       "APPS": "Apps",
-      "HECKERT": "Your chosen free app"
+      "HECKERT": "Your chosen free app",
+      "ACCEPT": "acceptation"
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Open instructions",
