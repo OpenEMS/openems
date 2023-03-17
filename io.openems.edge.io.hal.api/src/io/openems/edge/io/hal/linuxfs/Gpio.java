@@ -22,7 +22,7 @@ public class Gpio implements AutoCloseable {
 	}
 	
 	protected void writeValue(String value) {
-		this.writeFile(valuePath(this.pinNumber), value);
+		this.writeFile(this.valuePath(this.pinNumber), value);
 	}
 	
 	protected boolean getValue() {
@@ -31,7 +31,7 @@ public class Gpio implements AutoCloseable {
 
 	@Override
 	public void close() throws Exception {
-		this.writeFile(unexportPath(this.basePath), Integer.toString(this.pinNumber));
+		this.writeFile(this.unexportPath(this.basePath), Integer.toString(this.pinNumber));
 	}
 	
 	private String devicePath(int num) {
@@ -53,16 +53,17 @@ public class Gpio implements AutoCloseable {
 	private String unexportPath(String basePath) {
 		return basePath + "/unexport";
 	}
+	
 	private void setDirection(Direction dir) {
 		if (dir.equals(Direction.IN)) {
-			this.writeFile(this.directionPath(pinNumber), "in");	
+			this.writeFile(this.directionPath(this.pinNumber), "in");	
 		} else {
-			this.writeFile(this.directionPath(pinNumber), "out");
+			this.writeFile(this.directionPath(this.pinNumber), "out");
 		}
 	}
 	
 	private void exportPin(String basePath, int pinNumber) {
-		this.writeFile(exportPath(basePath), Integer.toString(pinNumber));
+		this.writeFile(this.exportPath(basePath), Integer.toString(pinNumber));
 	}
 	
 	private void writeFile(String filename, String value) {
@@ -72,9 +73,9 @@ public class Gpio implements AutoCloseable {
 			fos.close();
 		} catch (IOException ex) {
 			var msg = ex.getMessage();
-			if(msg.contains("Permission denied")) {
+			if (msg.contains("Permission denied")) {
 				throw new RuntimeException("Permission denied to GPIO file: " + msg);
-			} else if(msg.contains("busy")) {
+			} else if (msg.contains("busy")) {
 				this.logger.info("GPIO is already exported, ignoring request.");
 			} else {
 				throw new RuntimeException("Could not write to GPIO file: " + msg);
@@ -84,11 +85,11 @@ public class Gpio implements AutoCloseable {
 	
 	private int readFile() {
 		try {
-			var fis = new FileInputStream(valuePath(this.pinNumber));
+			var fis = new FileInputStream(this.valuePath(this.pinNumber));
 			return fis.read();
 		} catch (IOException ex) {
 			var msg = ex.getMessage();
-			if(msg.contains("Permission denied")) {
+			if (msg.contains("Permission denied")) {
 				throw new RuntimeException("Permission denied to GPIO file: " + msg);
 			} else {
 				throw new RuntimeException("Could not read from GPIO file: " + msg);
