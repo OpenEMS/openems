@@ -60,7 +60,7 @@ public class RasbperryPiComponent extends AbstractOpenemsComponent implements Co
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		log.debug("Loading HAL for Raspberry Pi...");
+		this.log.debug("Loading HAL for Raspberry Pi...");
 		var gpioFactory = new HardwareFactory(config.gpioPath());
 		var hardware = new ModBerryX500CM4(gpioFactory);
 		System.out.println("Hardware loaded");
@@ -82,11 +82,6 @@ public class RasbperryPiComponent extends AbstractOpenemsComponent implements Co
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		System.out.println("\nCalled run of Pi4J component");
-		if(status % 5 == 0) {
-			Optional.ofNullable(this.led).ifPresent(Led::toggle);
-			status = (byte) (status++ % 5);
-		}
 	}
 
 	@Override
