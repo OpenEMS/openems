@@ -1,6 +1,6 @@
 package io.openems.edge.io.hal.api;
 
-public interface DigitalOut {
+public interface DigitalOut extends HardwareComponent {
 	boolean isOn();
 	boolean isOff();
 

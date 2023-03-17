@@ -17,12 +17,12 @@ public class Gpio implements AutoCloseable {
 		this.basePath = basePath;
 		this.pinNumber = pinNumber;
 
-		exportPin(basePath, pinNumber);
-		setDirection(dir);
+		this.exportPin(basePath, pinNumber);
+		this.setDirection(dir);
 	}
 	
 	protected void writeValue(String value) {
-		writeFile(valuePath(this.pinNumber), value);
+		this.writeFile(valuePath(this.pinNumber), value);
 	}
 	
 	protected boolean getValue() {
@@ -31,19 +31,19 @@ public class Gpio implements AutoCloseable {
 
 	@Override
 	public void close() throws Exception {
-		writeFile(unexportPath(this.basePath), Integer.toString(this.pinNumber));
+		this.writeFile(unexportPath(this.basePath), Integer.toString(this.pinNumber));
 	}
 	
 	private String devicePath(int num) {
-		return basePath + String.format("/gpio%d", num);
+		return this.basePath + String.format("/gpio%d", num);
 	}
 	
 	private String directionPath(int num) {
-		return devicePath(num) + "/direction";
+		return this.devicePath(num) + "/direction";
 	}
 	
 	private String valuePath(int num) {
-		return devicePath(num) + "/value";
+		return this.devicePath(num) + "/value";
 	}
 	
 	private String exportPath(String basePath) {
@@ -55,14 +55,14 @@ public class Gpio implements AutoCloseable {
 	}
 	private void setDirection(Direction dir) {
 		if (dir.equals(Direction.IN)) {
-			writeFile(directionPath(pinNumber), "in");	
+			this.writeFile(this.directionPath(pinNumber), "in");	
 		} else {
-			writeFile(directionPath(pinNumber), "out");
+			this.writeFile(this.directionPath(pinNumber), "out");
 		}
 	}
 	
 	private void exportPin(String basePath, int pinNumber) {
-		writeFile(exportPath(basePath), Integer.toString(pinNumber));
+		this.writeFile(exportPath(basePath), Integer.toString(pinNumber));
 	}
 	
 	private void writeFile(String filename, String value) {
@@ -75,7 +75,7 @@ public class Gpio implements AutoCloseable {
 			if(msg.contains("Permission denied")) {
 				throw new RuntimeException("Permission denied to GPIO file: " + msg);
 			} else if(msg.contains("busy")) {
-				logger.info("GPIO is already exported, ignoring request.");
+				this.logger.info("GPIO is already exported, ignoring request.");
 			} else {
 				throw new RuntimeException("Could not write to GPIO file: " + msg);
 			}

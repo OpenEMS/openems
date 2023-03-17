@@ -1,4 +1,4 @@
-package io.openems.edge.io.hal.devices;
+package io.openems.edge.io.hal.api.devices;
 
 import io.openems.edge.io.hal.api.PressButton;
 import io.openems.edge.io.hal.linuxfs.HardwareFactory;
@@ -15,6 +15,15 @@ public class LinuxFsButton implements PressButton {
 	@Override
 	public boolean isPressed() {
 		return this.din.getValue();
+	}
+	
+	@Override
+	public void release() {
+		try {
+			din.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
 	}
 	
 

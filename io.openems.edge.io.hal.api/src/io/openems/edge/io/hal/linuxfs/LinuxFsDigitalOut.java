@@ -53,4 +53,14 @@ public class LinuxFsDigitalOut extends Gpio implements DigitalOut {
 	public void setOff() {
 		this.off();
 	}
+	
+	@Override
+	public void release() {
+		try {
+			this.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

@@ -3,7 +3,7 @@ package io.openems.edge.io.hal.api;
 /**
  * Represents an instance of a LED.
  */
-public interface Led {
+public interface Led extends HardwareComponent {
 	
 	/**
 	 * Enables the LED.

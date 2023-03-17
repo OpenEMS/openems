@@ -1,4 +1,4 @@
-package io.openems.edge.io.hal.devices;
+package io.openems.edge.io.hal.api.devices;
 
 import io.openems.edge.io.hal.api.Led;
 import io.openems.edge.io.hal.linuxfs.HardwareFactory;
@@ -31,6 +31,17 @@ public class LinuxFsLed implements Led {
 	@Override
 	public boolean isOn() {
 		return this.dout.isOn();
+	}
+	
+	@Override
+	public void release() {
+		try {
+			dout.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }
