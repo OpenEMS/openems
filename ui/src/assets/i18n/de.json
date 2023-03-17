@@ -351,7 +351,7 @@
           "hour": "Stunde",
           "hours": "Stunden",
           "minute": "Minute",
-          "minutes": "minuten",
+          "minutes": "Minuten",
           "day": "Tag",
           "days": "Tage"
         }
@@ -727,7 +727,8 @@
       "TITLE_PV": "DC-PV Installation (Wechselrichtereingänge)",
       "VALID_DATA": "Geben Sie gültige Daten ein, um zu speichern.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC Zähler nicht erstellt!"
+      "AC_NOT_CREATED": "AC zähler nicht erstellt!",
+      "METER_SELECTION_WARNING": "Bitte wählen Sie den Zähler aus, indem Sie den Erzeuger hinzufügen."
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Batteriemodul ",

@@ -500,12 +500,12 @@
           "error": "Chyba při načítání nastavení"
         },
         "interval": {
-          "hour": "hodina",
-          "hours": "hodiny",
-          "minute": "minuta",
-          "minutes": "minuty",
-          "day": "den",
-          "days": "dny"
+          "hour": "Hodina",
+          "hours": "Hodiny",
+          "minute": "Minuta",
+          "minutes": "Minuty",
+          "day": "Den",
+          "days": "Dny"
         }
       },
       "App": {

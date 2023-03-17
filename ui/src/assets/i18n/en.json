@@ -350,12 +350,12 @@
           "error": "Error loading the settings"
         },
         "interval": {
-          "hour": "hour",
-          "hours": "hours",
-          "minute": "minute",
-          "minutes": "minutes",
-          "day": "day",
-          "days": "days"
+          "hour": "Hour",
+          "hours": "Hours",
+          "minute": "Minute",
+          "minutes": "Minutes",
+          "day": "Day",
+          "days": "Days"
         }
       },
       "App": {
@@ -726,7 +726,8 @@
       "TITLE_PV": "DC-PV installation (Inverter inputs)",
       "VALID_DATA": "Enter valid data to save.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC Meter not created!"
+      "AC_NOT_CREATED": "AC Meter not created!",
+      "METER_SELECTION_WARNING": "Please select the meter by adding generator."
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Battery module ",
