@@ -29,34 +29,31 @@ public class ModberryCM4Test {
     @Before
     public void setUp() {
         try {
-        	root = folder.getRoot();
-        	new File(root.getAbsolutePath() + "/gpio27").mkdir();
-            this.exportFile = folder.newFile("export");
-            this.directionFile = folder.newFile("gpio27/direction");
-            this.valueFile = folder.newFile("gpio27/value");
-            folder.create();
-        }
-        catch(IOException ioe) {
-            System.err.println( 
-                "error creating temporary test file in " +
-                this.getClass().getSimpleName() );
+        	this.root = this.folder.getRoot();
+        	new File(this.root.getAbsolutePath() + "/gpio27").mkdir();
+            this.exportFile = this.folder.newFile("export");
+            this.directionFile = this.folder.newFile("gpio27/direction");
+            this.valueFile = this.folder.newFile("gpio27/value");
+            this.folder.create();
+        } catch (IOException ioe) {
+            System.err.println("error creating temporary test file in " + this.getClass().getSimpleName());
         }
         
-        factory = new HardwareFactory(this.root.getAbsolutePath());
-		modberry = new ModBerryX500CM4(factory);
+        this.factory = new HardwareFactory(this.root.getAbsolutePath());
+        this.modberry = new ModBerryX500CM4(this.factory);
 		
     }
 	
 	@Test
 	public void testCm4Led() {
-		var led = modberry.getLed(Cm4Hardware.Led.LED_1);
+		var led = this.modberry.getLed(Cm4Hardware.Led.LED_1);
 		led.on();
 		assertTrue(led.isOn());
 	}
 	
 	@Test
 	public void testCm4LedToggle() {
-		var led = modberry.getLed(Cm4Hardware.Led.LED_1);
+		var led = this.modberry.getLed(Cm4Hardware.Led.LED_1);
 		led.toggle();
 		assertTrue(led.isOn());
 	}
