@@ -3,7 +3,7 @@ package io.openems.edge.evcs.schneider.parking;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-@ObjectClassDefinition(name = "Evcs Schneider Ev Parking BETA", description = "Implements the Schneider Ev Parking electric vehicle charging station.")
+@ObjectClassDefinition(name = "EVCS Schneider Ev Parking/Smart Wallbox", description = "Implements the Schneider Ev Parking/Smart Wallbox electric vehicle charging station.")
 @interface Config {
 
     @AttributeDefinition(name = "Component-Id", description = "Unique Id for the EVCS.")
@@ -20,11 +20,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
     @AttributeDefinition(name = "Maximum Current", description = "Maximum current of the Charger in mA.", required = true)
     int maxHwCurrent() default 32000;
 
+    @AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+    boolean debugMode() default false;
+
     @AttributeDefinition(name = "ModbusUnitId", description = "Unique Id for the Modbusunit.")
     int modbusUnitId() default 255;
 
     @AttributeDefinition(name = "ModbusBridgeId", description = "Unique Id for the Modbusbridge.")
     String modbusBridgeId() default "modbus0";
 
-    String webconsole_configurationFactory_nameHint() default "Evcs Schneider Ev Parking [{id}]";
+    String webconsole_configurationFactory_nameHint() default "EVCS Schneider Ev Parking/Smart Wallbox [{id}]";
 }

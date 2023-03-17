@@ -16,20 +16,8 @@ public class SchneiderReadHandler {
         this.setStatus();
         //Schneider reads in kW
         this.parent._setChargePower((int) this.parent.getStationPowerTotal() * 1000);
-        this.parent._setChargingType(ChargingType.AC);
-        this.setEnergySession();
     }
 
-    /**
-     * Sets all the Channels regarding Energy.
-     */
-    private void setEnergySession() {
-        int currentEnergy = this.parent.getStationEnergyLsb() + this.parent.getStationEnergyMsb();
-        this.parent._setActiveConsumptionEnergy(currentEnergy);
-        this.energySession += currentEnergy;
-        this.parent._setEnergySession(this.energySession);
-
-    }
 
     /**
      * Reads the Status from the ModbusRegister and interprets it into the CPWState and the OpenEms EVCS Status.
@@ -72,7 +60,6 @@ public class SchneiderReadHandler {
      */
     private void setPhaseCount() {
         int phases = 0;
-
         if (this.parent.getStationIntensityPhaseX() >= 1) {
             phases += 1;
         }
