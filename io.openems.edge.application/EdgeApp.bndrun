@@ -392,3 +392,4 @@
 	rrd4j;version='[3.8.2,3.8.3)',\
 	io.openems.edge.meter.EMH;version=latest,\
 	io.openems.edge.io.siemenslogo;version=latest
+	
