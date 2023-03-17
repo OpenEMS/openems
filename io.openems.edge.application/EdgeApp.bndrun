@@ -389,4 +389,6 @@
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.3.0,1.3.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
-	rrd4j;version='[3.8.2,3.8.3)'
+	rrd4j;version='[3.8.2,3.8.3)',\
+	io.openems.edge.meter.EMH;version=latest,\
+	io.openems.edge.io.siemenslogo;version=latest
