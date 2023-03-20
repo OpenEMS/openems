@@ -350,12 +350,12 @@
           "error": "Error loading the settings"
         },
         "interval": {
-          "hour": "hour",
-          "hours": "hours",
-          "minute": "minute",
-          "minutes": "minutes",
-          "day": "day",
-          "days": "days"
+          "hour": "Hour",
+          "hours": "Hours",
+          "minute": "Minute",
+          "minutes": "Minutes",
+          "day": "Day",
+          "days": "Days"
         }
       },
       "App": {
@@ -610,7 +610,7 @@
       "DEVICE_ACTIVE_CHECKED": "Battery and Inverter swicthed ON",
       "EDGE_NUMBER": "{{ edgeShortName }} Number",
       "GENERAL": "General",
-      "GTC_ACCEPT": "GTC acceptation",
+      "GTC_ACCEPT": "GTC",
       "INSTALLER": "Installer",
       "INVERTER": "Inverter",
       "NEXT_CLICKED_DESCRIPTION": "By clicking on the 'next' button, the storage system will be configured. Make sure the battery and inverter are powered on throughout the configuration process.",
@@ -618,10 +618,11 @@
       "SUMMARY": "Summary",
       "TIME_OF_INSTALLATION": "Time of the installation",
       "VALUE_AC": "Value AC",
-      "WARRANTY_TERMS": "Warranty terms acceptation",
+      "WARRANTY_TERMS": "Warranty terms",
       "PEAK_SHAVING": "Peak shaving",
       "APPS": "Apps",
-      "HECKERT": "Your chosen free app"
+      "HECKERT": "Your chosen free app",
+      "ACCEPT": "acceptation"
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Open instructions",
@@ -725,7 +726,8 @@
       "TITLE_PV": "DC-PV installation (Inverter inputs)",
       "VALID_DATA": "Enter valid data to save.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC Meter not created!"
+      "AC_NOT_CREATED": "AC Meter not created!",
+      "METER_SELECTION_WARNING": "Please select the meter by adding generator."
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Battery module ",

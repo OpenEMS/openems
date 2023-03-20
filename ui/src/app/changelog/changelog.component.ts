@@ -35,6 +35,26 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.3.3',
+        changes: [
+          Changelog.UI,
+        ]
+      },
+      {
+        version: '2023.3.2',
+        changes: [
+          "Fehlerbehebung in der historischen Ansicht im lokalen Monitoring",
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + "Fehlerbehebung bei der Datenanzeige in der Live-Ansicht",
+          "Umfangreiche Performance-Optimierungen bei historischen Daten",
+          "Fehlerbehebung/Verbesserung bei der Datenübertragung zum Backend",
+          { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Webasto Unite Ladestation" },
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Umbenennung FEMS Relaisboard 8-Kanal TCP, Berechtigungsproblem bei Validierung von Keys im Backend, Auswahl der Phase bei SMA PV-Wechselrichter, Verbesserung handling kostenloser Apps" },
+          { roleIsAtLeast: Role.ADMIN, change: "UI: neues CI für Heckert" },
+          { roleIsAtLeast: Role.ADMIN, change: "Alpha-Test für PWA Service-Worker" },
+          Changelog.library(Library.FASTEXCEL),
+        ]
+      },
+      {
         version: '2023.3.1',
         changes: [
           Changelog.openems('2023.3.0'),

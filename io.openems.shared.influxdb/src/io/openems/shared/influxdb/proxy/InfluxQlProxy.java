@@ -145,17 +145,19 @@ public class InfluxQlProxy extends QueryProxy {
 			b.append(OpenemsOEM.INFLUXDB_TAG + " = '" + influxEdgeId.get() + "' AND ");
 		}
 		b //
-				.append("time > ") //
+				.append("time >= ") //
 				.append(String.valueOf(fromDate.toEpochSecond())) //
 				.append("s") //
 				.append(" AND time < ") //
 				.append(String.valueOf(toDate.toEpochSecond())) //
 				.append("s") //
-				.append(" GROUP BY time(") //
-				.append(resolution.toSeconds()) //
-				.append("s) fill(null)");
-
-		// Execute query
+				.append(" GROUP BY time(") //  TODO remove
+				.append(resolution.toSeconds());
+		if (fromDate.getOffset().getTotalSeconds() != 0) {
+			b.append("s,") //
+					.append(-fromDate.getOffset().getTotalSeconds());
+		}
+		b.append("s)");
 		return b.toString();
 	}
 
@@ -218,17 +220,19 @@ public class InfluxQlProxy extends QueryProxy {
 		} else {
 			res = resolution.toSeconds();
 		}
-
 		b //
-				.append("time > ") //
+				.append("time >= ") //
 				.append(String.valueOf(fromDate.toEpochSecond())) //
 				.append("s") //
 				.append(" AND time < ") //
 				.append(String.valueOf(toDate.toEpochSecond())) //
-				.append("s") //
-				.append(" GROUP BY time(") //
-				.append(res) //
-				.append("s)");
+				.append("s GROUP BY time(") // TODO remove
+				.append(res);
+		if (fromDate.getOffset().getTotalSeconds() != 0) {
+			b.append("s,") //
+					.append(-fromDate.getOffset().getTotalSeconds());
+		}
+		b.append("s)");
 		return b.toString();
 	}
 
@@ -286,10 +290,10 @@ public class InfluxQlProxy extends QueryProxy {
 			BiFunction<JsonElement, JsonElement, JsonElement> aggregateFunction //
 	) throws OpenemsNamedException {
 		if (queryResult == null) {
-			throw new OpenemsException("Historic data values are not available. QueryResult is null");
+			return null;
 		}
 
-		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
+		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table = new TreeMap<>();
 		for (var result : queryResult.getResults()) {
 			var seriess = result.getSeries();
 			if (seriess != null) {
@@ -426,7 +430,7 @@ public class InfluxQlProxy extends QueryProxy {
 	private static SortedMap<ChannelAddress, JsonElement> convertHistoricEnergyResult(InfluxQLQueryResult queryResult,
 			Optional<Integer> influxEdgeId, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		if (queryResult == null) {
-			throw new OpenemsException("Energy values are not available. QueryResult is null");
+			return null;
 		}
 
 		SortedMap<ChannelAddress, JsonElement> map = new TreeMap<>();

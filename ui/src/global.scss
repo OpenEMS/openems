@@ -59,6 +59,12 @@ formly-field-ion-radio {
     }
 }
 
+// Removes the ripple effect while using the custom box.
+.custom-checkbox {
+    --ripple-color: transparent;
+    --background-hover: transparent;
+}
+
 .margin-top {
     ion-item {
 

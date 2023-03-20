@@ -32,5 +32,7 @@ export interface Environment {
 
         readonly SETTINGS_ALERTING: string,
         readonly SETTINGS_NETWORK_CONFIGURATION: string,
+
+        readonly METER_SOCOMEC: string,
     }
 }

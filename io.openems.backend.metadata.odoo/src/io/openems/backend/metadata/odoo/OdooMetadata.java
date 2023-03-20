@@ -29,6 +29,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -464,16 +465,47 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
-	public void supplyKeyIfNeeded(User user, String edgeId, JsonrpcRequest request) {
-		// TODO may only be for fenecon employees/admins
-		if (!user.getRole(edgeId).map(r -> r.isAtLeast(Role.INSTALLER)).orElse(false)) {
-			return;
-		}
+	public void supplyKeyIfNeeded(//
+			final User user, //
+			final String edgeId, //
+			final JsonrpcRequest request //
+	) throws OpenemsNamedException {
 		if (request.getParams().has("key")) {
 			return;
 		}
+		var appId = JsonUtils.getAsString(request.getParams(), "appId");
+		final var key = this.getSuppliableKey(user, edgeId, appId);
+		if (key == null) {
+			return;
+		}
 		// TODO may be dynamically set
-		request.getParams().addProperty("key", "8fyk-Gma9-EUO3-j3gi");
+		request.getParams().addProperty("key", key);
+	}
+
+	@Override
+	public String getSuppliableKey(//
+			final User user, //
+			final String edgeId, //
+			final String appId //
+	) throws OpenemsNamedException {
+		if (this.isAppFree(user, appId)) {
+			return "8fyk-Gma9-EUO3-j3gi";
+		}
+		// TODO may only be for fenecon employees/admins
+		if (!user.getRole(edgeId).map(r -> r.isAtLeast(Role.INSTALLER)).orElse(false)) {
+			return null;
+		}
+		return "8fyk-Gma9-EUO3-j3gi";
+	}
+
+	@Override
+	public boolean isAppFree(//
+			final User user, //
+			final String appId //
+	) throws OpenemsNamedException {
+		return Sets.newHashSet(//
+				"App.Hardware.KMtronic8Channel" //
+		).contains(appId);
 	}
 
 	@Override

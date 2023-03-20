@@ -2,12 +2,12 @@ package io.openems.shared.influxdb;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,6 +15,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,10 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.WriteApiBlocking;
+import com.influxdb.client.domain.WriteConsistency;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
+import com.influxdb.client.write.WriteParameters;
 import com.influxdb.exceptions.BadRequestException;
 
 import io.openems.common.OpenemsOEM;
@@ -36,6 +39,7 @@ import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.common.worker.AbstractWorker;
 import io.openems.shared.influxdb.proxy.QueryProxy;
 import okhttp3.OkHttpClient;
 
@@ -46,10 +50,8 @@ public class InfluxConnector {
 	private static final int CONNECT_TIMEOUT = 10; // [s]
 	private static final int READ_TIMEOUT = 60; // [s]
 	private static final int WRITE_TIMEOUT = 10; // [s]
-	private static final int POINTS_QUEUE_SIZE = 1_000_000;
 
 	protected final ThreadPoolExecutor executor;
-	protected final BlockingQueue<Point> pointsQueue = new LinkedBlockingQueue<>(POINTS_QUEUE_SIZE);
 
 	private final Logger log = LoggerFactory.getLogger(InfluxConnector.class);
 
@@ -60,7 +62,9 @@ public class InfluxConnector {
 	private final String bucket;
 	private final boolean isReadOnly;
 	private final ScheduledExecutorService debugLogExecutor = Executors.newSingleThreadScheduledExecutor();
-	private final MergePointsWorker mergePointsWorker;
+
+	private final WriteParameters defaultWriteParameters;
+	private final Map<WriteParameters, MergePointsWorker> mergePointsWorkerByWriteParameters = new HashMap<>();
 
 	/**
 	 * The Constructor.
@@ -76,9 +80,13 @@ public class InfluxConnector {
 	 * @param poolSize      the number of threads dedicated to handle the tasks
 	 * @param maxQueueSize  queue size limit for executor
 	 * @param onWriteError  A consumer for write-errors
+	 * @param parameters    the {@link WriteParameters} to create a
+	 *                      {@link MergePointsWorker} for. All later used
+	 *                      {@link WriteParameters} need to be passed here
 	 */
 	public InfluxConnector(QueryLanguageConfig queryLanguage, URI url, String org, String apiKey, String bucket,
-			boolean isReadOnly, int poolSize, int maxQueueSize, Consumer<BadRequestException> onWriteError) {
+			boolean isReadOnly, int poolSize, int maxQueueSize, Consumer<BadRequestException> onWriteError,
+			WriteParameters... parameters) {
 		this.queryProxy = QueryProxy.from(queryLanguage);
 		this.url = url;
 		this.org = org;
@@ -91,21 +99,38 @@ public class InfluxConnector {
 				new ThreadFactoryBuilder().setNameFormat("InfluxDB-%d").build());
 
 		this.debugLogExecutor.scheduleWithFixedDelay(() -> {
-			int pointsQueueSize = this.pointsQueue.size();
 			this.log.info(new StringBuilder("[InfluxDB] [monitor] ") //
 					.append(ThreadPoolUtils.debugLog(this.executor)) //
-					.append(" Queue:") //
-					.append(pointsQueueSize) //
-					.append("/") //
-					.append(POINTS_QUEUE_SIZE) //
-					.append((pointsQueueSize == POINTS_QUEUE_SIZE) ? " !!!POINTS BACKPRESSURE!!!" : "") //
-					.append(" Limit:") //
+					.append(", MergePointsWorker[") //
+					.append(this.mergePointsWorkerByWriteParameters.values().stream().map(MergePointsWorker::debugLog)
+							.collect(Collectors.joining(", ")))
+					.append("], Limit:") //
 					.append(this.queryProxy.queryLimit) //
 					.toString());
 		}, 10, 10, TimeUnit.SECONDS);
 
-		this.mergePointsWorker = new MergePointsWorker(this, onWriteError);
-		this.mergePointsWorker.activate("TimescaleDB-MergePoints");
+		// initialize default merge points worker
+		// TODO most of the stuff can be omitted after update
+		// https://github.com/influxdata/influxdb-client-java/pull/483
+		this.defaultWriteParameters = new WriteParameters(this.bucket, this.org,
+				WriteParameters.DEFAULT_WRITE_PRECISION, WriteConsistency.ALL);
+		final var defaultMergePointsWorker = new MergePointsWorker(this, "Default", this.defaultWriteParameters,
+				onWriteError);
+		defaultMergePointsWorker.activate("TimescaleDB-MergePoints-Default");
+		this.mergePointsWorkerByWriteParameters.put(this.defaultWriteParameters, defaultMergePointsWorker);
+
+		final var defaultOptions = InfluxDBClientOptions.builder() //
+				.url(this.url.toString()) //
+				.org(this.org) //
+				.bucket(this.bucket) //
+				.build();
+		// initialize merge points worker for specific write parameters
+		for (var writeParameters : parameters) {
+			final var mergePointsWorker = new MergePointsWorker(this, writeParameters.bucketSafe(defaultOptions),
+					writeParameters, onWriteError);
+			mergePointsWorker.activate("TimescaleDB-MergePoints-" + writeParameters.toString());
+			this.mergePointsWorkerByWriteParameters.put(writeParameters, mergePointsWorker);
+		}
 	}
 
 	public static class InfluxConnection {
@@ -146,7 +171,6 @@ public class InfluxConnector {
 		if (this.apiKey != null && !this.apiKey.isBlank()) {
 			options.authenticateToken(String.format(this.apiKey).toCharArray()); //
 		}
-
 		var client = InfluxDBClientFactory //
 				.create(options.build()) //
 				.enableGzip();
@@ -163,11 +187,11 @@ public class InfluxConnector {
 	 * Close current {@link InfluxDBClient}.
 	 */
 	public synchronized void deactivate() {
-		this.mergePointsWorker.deactivate();
 		ThreadPoolUtils.shutdownAndAwaitTermination(this.debugLogExecutor, 0);
 		if (this.influxConnection != null) {
 			this.influxConnection.client.close();
 		}
+		this.mergePointsWorkerByWriteParameters.values().forEach(AbstractWorker::deactivate);
 	}
 
 	/**
@@ -246,15 +270,31 @@ public class InfluxConnector {
 	 * Actually write the Point to InfluxDB.
 	 *
 	 * @param point the InfluxDB Point
-	 * @throws OpenemsException on error
 	 */
 	public void write(Point point) {
+		this.write(point, this.defaultWriteParameters);
+	}
+
+	/**
+	 * Actually write the Point to InfluxDB.
+	 * 
+	 * @param point           the InfluxDB Point
+	 * @param writeParameters the {@link WriteParameters} of the written point. The
+	 *                        {@link WriteParameters} had to be passed in the
+	 *                        constructor
+	 */
+	public void write(Point point, WriteParameters writeParameters) {
 		if (this.isReadOnly) {
 			this.log.info("Read-Only-Mode is activated. Not writing points: "
 					+ StringUtils.toShortString(point.toLineProtocol(), 100));
 			return;
 		}
-		this.pointsQueue.offer(point);
+		final var mergePointsWorker = this.mergePointsWorkerByWriteParameters.get(writeParameters);
+		if (mergePointsWorker == null) {
+			this.log.info("Unknown write parameters: " + writeParameters);
+			return;
+		}
+		mergePointsWorker.offer(point);
 	}
 
 	/**

@@ -24,6 +24,9 @@ export const theme = {
 
         SETTINGS_ALERTING: "ui/settings.html#_benachrichtigung",
         SETTINGS_NETWORK_CONFIGURATION: "ui/settings.html#_netzwerkkonfiguration",
-        EVCS_CLUSTER: "fems-app/includes/FEMS_App_Multi-Ladepunkt-Management.html"
+        EVCS_CLUSTER: "fems-app/includes/FEMS_App_Multi-Ladepunkt-Management.html",
+
+        // Currently the links are different with different prefixes. so adding whole url.
+        METER_SOCOMEC: 'https://docs.intranet.fenecon.de/feature/OEM/de/_/latest/_attachments/Benutzerhandbuecher/Heckert_App_Socomec_Zaehler_Benutzerhandbuch.pdf'
     }
 };

@@ -52,3 +52,22 @@ export enum FeedInType {
     DYNAMIC_LIMITATION,
     EXTERNAL_LIMITATION
 }
+
+export enum WebLinks {
+    GTC_LINK,
+    WARRANTY_LINK_HOME,
+    WARRANTY_LINK_COMMERCIAL
+}
+
+export namespace WebLinks {
+    export function getLink(link: WebLinks): string {
+        switch (link) {
+            case WebLinks.GTC_LINK:
+                return 'https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/';
+            case WebLinks.WARRANTY_LINK_HOME:
+                return 'https://fenecon.de/wp-content/uploads/2022/06/V2021.11_DE_Garantiebedingungen_FENECON_Home.pdf';
+            case WebLinks.WARRANTY_LINK_COMMERCIAL:
+                return 'https://fenecon.de/wp-content/uploads/2022/07/V2022.03_DE_Garantiebedingungen_FENECON_Commercial_30_50.pdf';
+        }
+    }
+}

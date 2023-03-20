@@ -5,7 +5,7 @@ import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtoco
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { Country } from 'src/app/shared/type/country';
 import { Category } from '../shared/category';
-import { FeedInType } from '../shared/enums';
+import { FeedInType, WebLinks } from '../shared/enums';
 import { AcPv, ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
 import { Meter } from '../shared/meter';
 import { ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../views/configuration-execute/component-configurator';
@@ -130,6 +130,12 @@ export abstract class AbstractIbn {
   // Protocol Serial Numbers.
   public serialNumbers: {
     modules: ComponentData[];
+  };
+
+  // Configuration summary
+  public gtcAndWarrantyLinks: {
+    gtcLink: WebLinks;
+    warrantyLink: WebLinks;
   };
 
   //Controller-Id's

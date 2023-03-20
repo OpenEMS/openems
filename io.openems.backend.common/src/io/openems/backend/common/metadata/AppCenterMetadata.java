@@ -118,7 +118,29 @@ public interface AppCenterMetadata {
 		 * @param edgeId  the edge
 		 * @param request the request
 		 */
-		public void supplyKeyIfNeeded(User user, String edgeId, JsonrpcRequest request);
+		@Deprecated(since = "2023.3.1", forRemoval = true)
+		public void supplyKeyIfNeeded(User user, String edgeId, JsonrpcRequest request) throws OpenemsNamedException;
+
+		/**
+		 * Gets a key that can be supplied to the installation of the given app.
+		 * 
+		 * @param user   the requested user
+		 * @param edgeId the edge to install the app on
+		 * @param appId  the app to install
+		 * @return the key or null if none can be supplied
+		 * @throws OpenemsNamedException on error
+		 */
+		public String getSuppliableKey(User user, String edgeId, String appId) throws OpenemsNamedException;
+
+		/**
+		 * Gets if the given app is free.
+		 * 
+		 * @param user  the requested user
+		 * @param appId the id of the app
+		 * @return true if the app is free
+		 * @throws OpenemsNamedException on error
+		 */
+		public boolean isAppFree(User user, String appId) throws OpenemsNamedException;
 
 	}
 

@@ -498,12 +498,12 @@
           "error": "Error al cargar la configuración"
         },
         "interval": {
-          "hours": "horas",
-          "minute": "minuto",
-          "minutes": "minutos",
-          "day": "día",
-          "days": "días",
-          "hour": "hora"
+          "hours": "Horas",
+          "minute": "Minuto",
+          "minutes": "Minutos",
+          "day": "Día",
+          "days": "Días",
+          "hour": "Hora"
         }
       },
       "App": {
