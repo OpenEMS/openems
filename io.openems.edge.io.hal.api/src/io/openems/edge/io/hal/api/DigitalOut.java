@@ -13,6 +13,12 @@ public interface DigitalOut extends HardwareComponent {
 	 * @return true if the output is LOW, otherwise false.
 	 */
 	boolean isOff();
+	
+	/**
+	 * Sets the value of the GPIO according to the input parameter.
+	 * @param sets the GPIO to high if newVal is true, otherwise sets it to low.
+	 */
+	void setValue(boolean newVal);
 
 	/**
 	 * Inverts the state of the digital output.
@@ -28,4 +34,5 @@ public interface DigitalOut extends HardwareComponent {
 	 * Sets the digital output to LOW state.
 	 */
 	void setOff();
+
 }

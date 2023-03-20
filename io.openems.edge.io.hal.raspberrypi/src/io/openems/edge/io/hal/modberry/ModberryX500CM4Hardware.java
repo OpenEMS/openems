@@ -1,6 +1,6 @@
 package io.openems.edge.io.hal.modberry;
 
-public class Cm4Hardware {
+public class ModberryX500CM4Hardware {
 		
 	private interface HardwareEnum {
 		int getGpio();

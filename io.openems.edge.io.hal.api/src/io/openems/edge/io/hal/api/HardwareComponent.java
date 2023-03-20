@@ -6,4 +6,5 @@ public interface HardwareComponent {
 	 * Frees the underlying hardware lock of the component.
 	 */
 	void release();
+	
 }

@@ -1,13 +1,12 @@
 package io.openems.edge.io.hal.modberry;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.edge.io.hal.api.DigitalIn;
 import io.openems.edge.io.hal.api.DigitalOut;
 import io.openems.edge.io.hal.api.HardwareComponent;
 import io.openems.edge.io.hal.api.Led;
@@ -16,7 +15,7 @@ import io.openems.edge.io.hal.api.linuxfs.devices.LinuxFsButton;
 import io.openems.edge.io.hal.api.linuxfs.devices.LinuxFsLed;
 import io.openems.edge.io.hal.linuxfs.HardwareFactory;
 
-public class ModBerryX500CM4 {
+public class ModBerryX500CM4 extends RaspberryPiPlattform {
 	
 	private Logger logger = LoggerFactory.getLogger(ModBerryX500CM4.class);
 	
@@ -33,7 +32,7 @@ public class ModBerryX500CM4 {
 	 * @param led to select which LED you want to control.
 	 * @return a LED object ready for blinking.
 	 */
-	public Led getLed(Cm4Hardware.Led led) {
+	public Led getLed(ModberryX500CM4Hardware.Led led) {
 		var hardwareLed = new LinuxFsLed(this.context, led.getGpio());
 		this.lockComponent(led.getGpio(), hardwareLed);
 		return hardwareLed;
@@ -46,7 +45,7 @@ public class ModBerryX500CM4 {
 	 * @param btn specifies which button you want.
 	 * @return a PressButton object ready to use.
 	 */
-	public PressButton getButton(Cm4Hardware.Button btn) {
+	public PressButton getButton(ModberryX500CM4Hardware.Button btn) {
 		// Creating the button via the abstraction layer.
 		var hardwareButton = new LinuxFsButton(this.context, btn.getGpio());
 		this.lockComponent(btn.getGpio(), hardwareButton);
@@ -58,7 +57,7 @@ public class ModBerryX500CM4 {
 	 * @param pin the pin which the output should occupy.
 	 * @return digital output object.
 	 */
-	public DigitalOut getDigitalOut(Cm4Hardware.DigitalOut pin) {
+	public DigitalOut getDigitalOut(ModberryX500CM4Hardware.DigitalOut pin) {
 		// Creating the outputs directly with the low level API.
 		var dout = this.context.fabricateOut(pin.getGpio());
 		this.lockComponent(pin.getGpio(), dout);
@@ -70,10 +69,21 @@ public class ModBerryX500CM4 {
 	 * @param pin the pin which should be occupied.
 	 * @return digital output object.
 	 */
-	public DigitalOut getDigitalOut(Cm4Hardware.BidirectionalIo pin) {
+	public DigitalOut getDigitalOut(ModberryX500CM4Hardware.BidirectionalIo pin) {
 		var dout = this.context.fabricateOut(pin.getGpio());
 		this.lockComponent(pin.getGpio(), dout);
 		return dout;
+	}
+	
+	/**
+	 * Creates a digital input from one of the opto isolated inputs of the Modberry X500.
+	 * @param pin the pin which should be occupied.
+	 * @return digital input object.
+	 */
+	public DigitalIn getDigitalIn(ModberryX500CM4Hardware.OptoDigitalIn pin) {
+		var din = this.context.fabricateIn(pin.getGpio());
+		this.lockComponent(pin.getGpio(), din);
+		return din;
 	}
 	
 	/**

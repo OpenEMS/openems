@@ -2,6 +2,7 @@ package io.openems.edge.io.hal.raspberrypi;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+import org.osgi.service.metatype.annotations.Option;
 
 @ObjectClassDefinition(//
 		name = "IO RaspberryPi Hardware Abstraction Layer (HAL)", //
@@ -19,6 +20,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	
 	@AttributeDefinition(name = "GPIO Path", description = "Path to the GPIOs on the filesystem.")
 	String gpioPath() default "/sys/class/gpio";
+	
+	@AttributeDefinition(name = "Hardware Plattform", description = "The hardware plattform in use.")
+	HardwarePlattformEnum hardwarePlattform() default HardwarePlattformEnum.MODBERRY_X500_CM4;
+	
 
 	String webconsole_configurationFactory_nameHint() default "io.openems.edge.io.hal.raspberrypi [{id}]";
 

@@ -1,10 +1,10 @@
 package io.openems.edge.io.hal.raspberrypi;
 
-import org.osgi.service.event.EventHandler;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.io.hal.modberry.RaspberryPiPlattform;
 
-public interface RaspberryPiInterface extends OpenemsComponent, EventHandler {
+public interface RaspberryPiInterface extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -20,5 +20,7 @@ public interface RaspberryPiInterface extends OpenemsComponent, EventHandler {
 			return this.doc;
 		}
 	}
+	
+	<T extends RaspberryPiPlattform> T getHardwareAs(Class<T> clazz);
 
 }

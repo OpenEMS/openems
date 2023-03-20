@@ -6,24 +6,17 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.ServiceScope;
-import org.osgi.service.event.Event;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.io.hal.api.Led;
 import io.openems.edge.io.hal.linuxfs.HardwareFactory;
-import io.openems.edge.io.hal.modberry.Cm4Hardware;
+import io.openems.edge.io.hal.modberry.RaspberryPiPlattform;
 import io.openems.edge.io.hal.modberry.ModBerryX500CM4;
 import io.openems.edge.controller.api.Controller;
 
@@ -35,15 +28,14 @@ import io.openems.edge.controller.api.Controller;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		scope = ServiceScope.SINGLETON
 )
-public class RasbperryPiComponent extends AbstractOpenemsComponent implements Controller, RaspberryPiInterface, OpenemsComponent {
+public class RasbperryPiComponent extends AbstractOpenemsComponent implements RaspberryPiInterface, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(RasbperryPiComponent.class);
 	
 	private Config config;
-
-	private Led led;
-	private byte status = 0;
-
+	private HardwareFactory gpioFactory;
+	private RaspberryPiPlattform hardwarePlattform;
+	
 	public RasbperryPiComponent() {
 		super(OpenemsComponent.ChannelId.values(),
 				RaspberryPiInterface.ChannelId.values(),
@@ -54,39 +46,37 @@ public class RasbperryPiComponent extends AbstractOpenemsComponent implements Co
 			io.openems.edge.common.channel.ChannelId[][] furtherInitialChannelIds) {
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 	}
-
+	
+	
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		this.log.debug("Loading HAL for Raspberry Pi...");
-		var gpioFactory = new HardwareFactory(config.gpioPath());
-		var hardware = new ModBerryX500CM4(gpioFactory);
-		System.out.println("Hardware loaded");
-		this.led = hardware.getLed(Cm4Hardware.Led.LED_1);
-		var timer = new Timer();
-		timer.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				led.toggle();
-			}
-		}, 0, 2000);
+		this.gpioFactory = new HardwareFactory(config.gpioPath());
+		this.hardwarePlattform = this.createHardwarePlattform(config.hardwarePlattform());
+
 	}
+
 
 	@Deactivate
 	protected void deactivate() {
 		this.logError(this.log, "Shutting down Pi4J context.");
 		super.deactivate();
 	}
-
-	@Override
-	public void run() throws OpenemsNamedException {
+	
+	private RaspberryPiPlattform createHardwarePlattform(HardwarePlattformEnum selectedHardware) {
+		if (selectedHardware.equals(HardwarePlattformEnum.MODBERRY_X500_CM4)) {
+			return new ModBerryX500CM4(this.gpioFactory);
+		} else {
+			throw new IllegalArgumentException("Hardware plattform not configured properly. Value " + selectedHardware.asCamelCase());
+		}
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		// TODO Auto-generated method stub
-		System.out.println("Handle event");
+	public <T extends RaspberryPiPlattform> T getHardwareAs(Class<T> clazz) {
+		return clazz.cast(this.hardwarePlattform);
 	}
+	
 }

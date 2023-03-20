@@ -46,14 +46,14 @@ public class ModberryCM4Test {
 	
 	@Test
 	public void testCm4Led() {
-		var led = this.modberry.getLed(Cm4Hardware.Led.LED_1);
+		var led = this.modberry.getLed(ModberryX500CM4Hardware.Led.LED_1);
 		led.on();
 		assertTrue(led.isOn());
 	}
 	
 	@Test
 	public void testCm4LedToggle() {
-		var led = this.modberry.getLed(Cm4Hardware.Led.LED_1);
+		var led = this.modberry.getLed(ModberryX500CM4Hardware.Led.LED_1);
 		led.toggle();
 		assertTrue(led.isOn());
 	}

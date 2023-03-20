@@ -1,7 +1,9 @@
 eclipse.preferences.version=1
+encoding//src/io/openems/edge/io/hal/modberry/package-info.java=UTF-8
 encoding//src/io/openems/edge/io/hal/raspberrypi/Config.java=UTF-8
 encoding//src/io/openems/edge/io/hal/raspberrypi/RasbperryPiComponent.java=UTF-8
 encoding//src/io/openems/edge/io/hal/raspberrypi/RaspberryPiInterface.java=UTF-8
+encoding//src/io/openems/edge/io/hal/raspberrypi/package-info.java=UTF-8
 encoding/<project>=UTF-8
 encoding/bnd.bnd=UTF-8
 encoding/readme.adoc=UTF-8

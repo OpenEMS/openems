@@ -81,4 +81,13 @@ public class LinuxFsDigitalOut extends Gpio implements DigitalOut {
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public String toString() {
+		if (this.isOn())
+			return "on";
+		else 
+			return "off";
+	}
+
 }
