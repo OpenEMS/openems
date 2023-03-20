@@ -58,12 +58,12 @@ import io.openems.edge.evcs.webasto.next.enums.ChargePointState;
 public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 		implements EvcsWebastoNext, Evcs, ManagedEvcs, ModbusComponent, OpenemsComponent, EventHandler {
 
+	private static final int DEFAULT_LIFE_BIT = 1;
+	private static final int DETECT_PHASE_ACTIVITY = 100; // W
+
 	private final Logger log = LoggerFactory.getLogger(EvcsWebastoNext.class);
 
 	private Config config = null;
-
-	private static final int DEFAULT_LIFE_BIT = 1;
-	private static final int DETECT_PHASE_ACTIVITY = 100; //W
 
 	/**
 	 * Handles charge states.
@@ -244,7 +244,7 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 			}
 		});
 	}
-	
+
 	private void addPhasesListener() {
 		final Consumer<Value<Integer>> setPhases = ignore -> {
 			var phases = 0;
@@ -266,7 +266,6 @@ public class EvcsWebastoNextImpl extends AbstractOpenemsModbusComponent
 		this.getPowerL2Channel().onUpdate(setPhases);
 		this.getPowerL3Channel().onUpdate(setPhases);
 	}
-
 
 	@Override
 	public String debugLog() {

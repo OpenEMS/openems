@@ -1,13 +1,29 @@
-= EVCS Webasto Next Electrical Vehicle Charging Station (BETA)
+= Webasto Next Charging Station (BETA)
 
-This implementation allows to read and write to the Webasto Next EVCS.
-The EVCS is not fully tested e.g. EnergySession is still missing.
+Implementation of the Webasto Next electric vehicle charging station.
 
-== Technical Data
+== https://en.wikipedia.org/wiki/Software_release_life_cycle[Software release life cycle]: BETA
 
-* Rated current: 16A Single phase, 32A 3-phase
+This implementation has been carried out during OpenEMS Hackathon Q1/2023 and is not yet fully feature tested. Please consider it BETA quality
+
+== Compatibility
+
+** https://charging.webasto.com/de-de/products/webasto-next/[Webasto Next]
+
+=== Technical Data
+
+* Rated current:
+** 16A single phase
+** 32A three phases
 * Charging cable: Type 2, up to 32A / 400V AC
-* Max. charging power: 22kW (3-phase), 3.7 (1-phase)
+* Max. charging power: 22kW (three phases), 3.7 (single phase)
 * Communication protocol: Modbus TCP
+
+== Additional application notes
+
+The implementation includes:
+
+** Reading actual values from the charging station
+** Setting charge power/current set-points via OpenEMS Edge EVCS Controllers
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.wabsto.next[Source Code icon:github[]]
