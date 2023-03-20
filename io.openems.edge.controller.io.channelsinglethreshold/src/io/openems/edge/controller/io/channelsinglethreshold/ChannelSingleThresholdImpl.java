@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -27,7 +28,12 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.controller.api.Controller;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -36,7 +42,7 @@ import io.openems.edge.controller.api.Controller;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
-		implements ChannelSingleThreshold, Controller, OpenemsComponent {
+		implements ChannelSingleThreshold, Controller, OpenemsComponent, ModbusSlave {
 
 	@Reference
 	private ComponentManager componentManager;
@@ -206,6 +212,7 @@ public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 			 */
 			if (inputValue > this.config.threshold()) {
 				this.changeState(State.ABOVE_THRESHOLD);
+			
 			}
 			break;
 
@@ -233,6 +240,7 @@ public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 			 * Value is below threshold -> always OFF (or invert)
 			 */
 			this.setOutputs(outputChannels, false ^ this.config.invert());
+			this._setRegulationActive(false);
 			break;
 
 		case ABOVE_THRESHOLD:
@@ -240,6 +248,7 @@ public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 			 * Value is above threshold -> always ON (or invert)
 			 */
 			this.setOutputs(outputChannels, true ^ this.config.invert());
+			this._setRegulationActive(true);
 			break;
 		}
 	}
@@ -280,4 +289,20 @@ public class ChannelSingleThresholdImpl extends AbstractOpenemsComponent
 			}
 		}
 	}
+	
+	// Export the current status via modbus
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //				
+				ModbusSlaveNatureTable.of(ChannelSingleThreshold.class, accessMode, 100) //
+					.channel(0, ChannelSingleThreshold.ChannelId.REGULATION_ACTIVE, ModbusType.UINT16)
+					.build()
+		);
+
+	}
+
+
 }
+
+
