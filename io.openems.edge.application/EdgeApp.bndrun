@@ -121,6 +121,7 @@
 	bnd.identity;id='io.openems.edge.evcs.ocpp.common',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.ies.keywatt.singleccs',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.server',\
+	bnd.identity;id='io.openems.edge.evcs.webasto.next',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.unite',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
@@ -275,6 +276,7 @@
 	io.openems.edge.evcs.ocpp.common;version=snapshot,\
 	io.openems.edge.evcs.ocpp.ies.keywatt.singleccs;version=snapshot,\
 	io.openems.edge.evcs.ocpp.server;version=snapshot,\
+	io.openems.edge.evcs.webasto.next;version=snapshot,\
 	io.openems.edge.evcs.webasto.unite;version=snapshot,\
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
