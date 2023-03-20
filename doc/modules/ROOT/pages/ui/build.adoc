@@ -19,21 +19,58 @@ Execute the following commands inside the `ui` directory of your OpenEMS reposit
 
 To get more help on `angular-cli` use `ng help` or go check out the link:https://github.com/angular/angular-cli/blob/master/README.md[Angular-CLI README].
 
-Be aware that there is currently a link:https://github.com/angular/angular-cli/issues/11208[bug]
-in how angular-cli generates the service-worker configuration file (ngsw-config.json). After running the above command it is required to fix 'regex' statements in the file, replacing double '`\\`' by single '`\`' to avoid wrong escaping.
+=== Preparation
 
-=== Build for OpenEMS Backend
+- Install all dependencies
++
+`npm update`
 
-Execute
+=== OpenEMS Edge
 
-`ng build -c backend`
+NOTE: This expects an OpenEMS Edge with *Controller.Api.Websocket* on default port `8075`
 
-The build artifacts are created in the directory `ui/target/backend`.
+- Serve to port `4200`
++
+`ng serve -o -c openems-edge-dev`
 
-=== Build for OpenEMS Edge
+- Build Development
++
+`ng build -c "openems,openems-edge-dev"`
 
-Execute 
+- Build Production
++
+`ng build -c "openems,openems-edge-prod,prod"`
 
-`ng build -c edge`
+=== OpenEMS Backend
 
-The build artifacts are created in the directory `ui/target/edge`.
+NOTE: This expects an OpenEMS Backend with *Ui.Websocket* on default port `8082`
+
+- Serve to port `4200`
++
+`ng serve -o -c openems-backend-dev`
+
+- Build Development
++
+`ng build -c "openems,openems-backend-dev"`
+
+- Build Production
++
+`ng build -c "openems,openems-backend-prod,prod"`
+
+== Creating a Theme
+
+OpenEMS UI is able to support different themes, e.g. if you need to provide different colour sets for different OEM customers.
+
+To create a new Theme for OpenEMS UI:
+
+- Create new folder under `ui/src/themes`
+
+- Files in `root` will be copied to `/` of the OpenEMS UI
+
+- `scss/variables.scss` will be used for styling
+
+- `environments/*.ts` define settings for Backend/Edge and development/production environments
+
+- Generate contents of `root` folder using https://realfavicongenerator.net. and place them in `root` subdirectory
+
+- Add entries in `angular.json`
