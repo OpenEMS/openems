@@ -22,12 +22,17 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -51,7 +56,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
 })
 public class EvcsClusterImpl extends AbstractOpenemsComponent
-		implements OpenemsComponent, Evcs, EventHandler, EvcsCluster,
+		implements OpenemsComponent, Evcs, EventHandler, EvcsCluster, ModbusSlave,
 		/*
 		 * Cluster is not a Controller, but we need to be placed at the correct position
 		 * in the Cycle by the Scheduler to be able to read the actually available ESS
@@ -98,9 +103,6 @@ public class EvcsClusterImpl extends AbstractOpenemsComponent
 	protected Sum sum;
 
 	@Reference
-	private SymmetricEss ess;
-
-	@Reference
 	private SymmetricMeter meter;
 
 	public EvcsClusterImpl() {
@@ -112,6 +114,9 @@ public class EvcsClusterImpl extends AbstractOpenemsComponent
 		);
 	}
 
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private SymmetricEss ess;
+	
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addEvcs(Evcs evcs) {
 		if (evcs == this) {
@@ -143,8 +148,11 @@ public class EvcsClusterImpl extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Evcs", config.evcs_ids())) {
 			return;
 		}
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
+		
+		if (!config.ess_id().equals("NONE") ) {
+			if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+				return;
+			}
 		}
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
 			return;
@@ -471,14 +479,21 @@ public class EvcsClusterImpl extends AbstractOpenemsComponent
 	 * @return Maximum Power in Watt
 	 */
 	public int getMaximumPowerToDistribute() {
-		// Calculate maximum ess power
-		var essDischargePower = this.sum.getEssActivePower().orElse(0);
-		var essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
-		var maxAvailableStoragePower = this.maxEssDischargePower - (essDischargePower - essActivePowerDC);
+
+		
+		int maxAvailableStoragePower =0; 
+		if (!config.ess_id().equals("NONE")) {
+			// Calculate maximum ess power
+			var essDischargePower = this.sum.getEssActivePower().orElse(0);
+			var essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
+			maxAvailableStoragePower = this.maxEssDischargePower - (essDischargePower - essActivePowerDC);			
+		}
+		
 		this.channel(EvcsCluster.ChannelId.MAXIMUM_AVAILABLE_ESS_POWER).setNextValue(maxAvailableStoragePower);
 
 		// Calculate maximum grid power
 		var gridPower = this.getGridPower();
+		//gridPower = 140000; Just for testing purpose
 		var maxAvailableGridPower = (this.config.hardwarePowerLimitPerPhase() * Phases.THREE_PHASE.getValue())
 				- gridPower;
 		this.channel(EvcsCluster.ChannelId.MAXIMUM_AVAILABLE_GRID_POWER).setNextValue(maxAvailableGridPower);
@@ -493,7 +508,7 @@ public class EvcsClusterImpl extends AbstractOpenemsComponent
 						+ "]  +  Max. available storage power [" + maxAvailableStoragePower
 						+ "]  +  ( Configured Hardware Limit * 3 ["
 						+ this.config.hardwarePowerLimitPerPhase() * Phases.THREE_PHASE.getValue()
-						+ "]  -  Maximum of all three phases * 3 [" + gridPower + "]");
+						+ "]  -  GridPower [" + gridPower + "]");
 
 		return allowedChargePower > 0 ? allowedChargePower : 0;
 	}
@@ -583,13 +598,28 @@ public class EvcsClusterImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		// Read maximum ESS Discharge power at the current position in the Cycle
-		if (this.ess instanceof ManagedSymmetricEss) {
-			var e = (ManagedSymmetricEss) this.ess;
-			this.maxEssDischargePower = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
-
-		} else {
-			this.maxEssDischargePower = this.ess.getMaxApparentPower().orElse(0);
+		if (!config.ess_id().equals("NONE")) {
+			// Read maximum ESS Discharge power at the current position in the Cycle
+			if (this.ess instanceof ManagedSymmetricEss) {
+				var e = (ManagedSymmetricEss) this.ess;
+				this.maxEssDischargePower = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
+	
+			} else {
+				this.maxEssDischargePower = this.ess.getMaxApparentPower().orElse(0);
+			}
 		}
 	}
+	
+	// Export the current status via modbus
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+
+		return new ModbusSlaveTable( //
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //				
+				ModbusSlaveNatureTable.of(EvcsCluster.class, accessMode, 100) //
+					.channel(0, EvcsCluster.ChannelId.EVCS_BLOCKED_CHARGE_POWER, ModbusType.FLOAT32)
+					.build()
+		);
+
+	}
+
 }
