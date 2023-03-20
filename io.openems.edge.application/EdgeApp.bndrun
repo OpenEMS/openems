@@ -122,6 +122,8 @@
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
 	bnd.identity;id='io.openems.edge.fenecon.pro',\
 	bnd.identity;id='io.openems.edge.goodwe',\
+	bnd.identity;id='io.openems.edge.io.hal.api',\
+	bnd.identity;id='io.openems.edge.io.hal.raspberrypi',\
 	bnd.identity;id='io.openems.edge.io.kmtronic',\
 	bnd.identity;id='io.openems.edge.io.offgridswitch',\
 	bnd.identity;id='io.openems.edge.io.revpi',\
@@ -171,8 +173,8 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-	bnd.identity;id='io.openems.edge.io.hal.api';version=latest,\
-	bnd.identity;id='io.openems.edge.io.hal.raspberrypi';version=latest
+	bnd.identity;id='io.openems.edge.airconditioner.hydac4kw'
+	
 -runbundles: \
 	Java-WebSocket;version='[1.5.3,1.5.4)',\
 	com.fazecast.jSerialComm;version='[2.5.1,2.5.2)',\
@@ -276,6 +278,8 @@
 	io.openems.edge.fenecon.pro;version=snapshot,\
 	io.openems.edge.goodwe;version=snapshot,\
 	io.openems.edge.io.api;version=snapshot,\
+	io.openems.edge.io.hal.api;version=snapshot,\
+	io.openems.edge.io.hal.raspberrypi;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.io.offgridswitch;version=snapshot,\
 	io.openems.edge.io.revpi;version=snapshot,\
@@ -380,5 +384,4 @@
 	org.osgi.util.promise;version='[1.3.0,1.3.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.8.2,3.8.3)',\
-	io.openems.edge.io.hal.api;version=snapshot,\
-	io.openems.edge.io.hal.raspberrypi;version=snapshot
+	io.openems.edge.airconditioner.hydac4kw;version=snapshot
