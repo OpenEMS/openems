@@ -1,0 +1,3 @@
+= io.openems.edge.airconditioner.hydac4kw
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.airconditioner.hydac4kw[Source Code icon:github[]]
