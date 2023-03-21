@@ -171,7 +171,8 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 			
 			
 	
-			
+			//if (this.channel(SolarEdgeHybridEss.ChannelId.CONTROL_MODE).value().asEnum() != ControlMode )
+				
 			setControlMode.setNextWriteValue(ControlMode.SE_CTRL_MODE_REMOTE);	// Now the device can be remote controlled	
 			setChargePolicy.setNextWriteValue(AcChargePolicy.SE_CHARGE_DISCHARGE_MODE_ALWAYS);	// Always allowed.When used with Maximize self-consumption, only excess power is used for charging (charging from the grid is not allowed) 
 			setChargeDischargeDefaultMode.setNextWriteValue(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_SELF_CONSUMPTION);	// This mode is active after remote control timeout exceeded
