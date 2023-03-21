@@ -1,6 +1,5 @@
 package io.openems.shared.influxdb.proxy;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -26,6 +25,7 @@ import com.influxdb.query.InfluxQLQueryResult.Series;
 import io.openems.common.OpenemsOEM;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.timedata.DurationUnit;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.CollectorUtils;
@@ -106,7 +106,7 @@ public class InfluxQlProxy extends QueryProxy {
 				channels, resolution);
 		var queryResult = this.executeQuery(influxConnection, bucket, query);
 		var result = convertHistoricDataQueryResult(queryResult, fromDate, resolution, channels, InfluxQlProxy::last);
-		return normalizeTable(result, channels, resolution);
+		return normalizeTable(result, channels, resolution, fromDate, toDate);
 	}
 
 	private static JsonElement last(JsonElement first, JsonElement second) {
@@ -151,13 +151,9 @@ public class InfluxQlProxy extends QueryProxy {
 				.append(" AND time < ") //
 				.append(String.valueOf(toDate.toEpochSecond())) //
 				.append("s") //
-				.append(" GROUP BY time(") //  TODO remove
-				.append(resolution.toSeconds());
-		if (fromDate.getOffset().getTotalSeconds() != 0) {
-			b.append("s,") //
-					.append(-fromDate.getOffset().getTotalSeconds());
-		}
-		b.append("s)");
+				.append(" GROUP BY time(") //
+				.append(resolution.toSeconds()) //
+				.append("s)");
 		return b.toString();
 	}
 
@@ -226,13 +222,9 @@ public class InfluxQlProxy extends QueryProxy {
 				.append("s") //
 				.append(" AND time < ") //
 				.append(String.valueOf(toDate.toEpochSecond())) //
-				.append("s GROUP BY time(") // TODO remove
-				.append(res);
-		if (fromDate.getOffset().getTotalSeconds() != 0) {
-			b.append("s,") //
-					.append(-fromDate.getOffset().getTotalSeconds());
-		}
-		b.append("s)");
+				.append("s GROUP BY time(") //
+				.append(res) //
+				.append("s)");
 		return b.toString();
 	}
 
@@ -353,40 +345,58 @@ public class InfluxQlProxy extends QueryProxy {
 	private static SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> normalizeTable(//
 			SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> table, //
 			Set<ChannelAddress> channels, //
-			Resolution resolution //
+			Resolution resolution, //
+			ZonedDateTime fromDate, //
+			ZonedDateTime toDate //
 	) {
-		// currently only works for days otherwise just return the table
-		if (resolution.getUnit() != ChronoUnit.DAYS) {
+		// currently only works for days and months otherwise just return the table
+		if (resolution.getUnit() != ChronoUnit.DAYS //
+				&& resolution.getUnit() != ChronoUnit.MONTHS) {
 			return table;
 		}
-
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> normalizedTable = new TreeMap<>();
 
-		ZonedDateTime previousTimestamp = null;
-		for (var entry : table.entrySet()) {
-			var timestamp = entry.getKey();
-
-			if (previousTimestamp == null) {
-				previousTimestamp = timestamp;
+		var start = fromDate;
+		while (start.isBefore(toDate)) {
+			ZonedDateTime end = null;
+			switch (resolution.getUnit()) {
+			case DAYS:
+				end = start.plusDays(resolution.getValue()) //
+						.truncatedTo(DurationUnit.ofDays(1));
+				break;
+			case MONTHS:
+				end = start.plusMonths(resolution.getValue()) //
+						.withDayOfMonth(1);
+				break;
 			}
 
-			var duration = Duration.between(previousTimestamp, timestamp);
-			if (duration.toDays() > 1) {
-				for (int i = 1; i < duration.toDays(); i++) {
-					SortedMap<ChannelAddress, JsonElement> emptyValues = channels.stream() //
-							.collect(Collectors.toMap(//
-									t -> t, //
-									t -> JsonNull.INSTANCE, //
-									(oldValue, newValue) -> newValue, //
-									TreeMap::new //
-							));
-
-					normalizedTable.put(previousTimestamp.plusDays(i), emptyValues);
+			SortedMap<ChannelAddress, JsonElement> foundData = null;
+			for (var data : table.entrySet()) {
+				if (data.getKey().isBefore(start)) {
+					continue;
 				}
+				// end exclusive
+				if (data.getKey().isAfter(end)) {
+					continue;
+				}
+				if (data.getKey().isEqual(end)) {
+					continue;
+				}
+				foundData = data.getValue();
+				break;
 			}
-
-			previousTimestamp = timestamp;
-			normalizedTable.put(timestamp, entry.getValue());
+			// fill with null values
+			if (foundData == null) {
+				foundData = channels.stream() //
+						.collect(Collectors.toMap(//
+								t -> t, //
+								t -> JsonNull.INSTANCE, //
+								(oldValue, newValue) -> newValue, //
+								TreeMap::new //
+						));
+			}
+			normalizedTable.put(start, foundData);
+			start = end;
 		}
 
 		return normalizedTable;
