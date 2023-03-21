@@ -43,6 +43,7 @@ import { Evcs_Api_ClusterComponent } from './Multiple/Evcs_Api_Cluster/Evcs_Api_
 import { EvcsChartComponent } from './Multiple/Evcs_Api_Cluster/modal/evcs-chart/evcs.chart';
 import { Evcs_Api_ClusterModalComponent } from './Multiple/Evcs_Api_Cluster/modal/evcsCluster-modal.page';
 import { OfflineComponent } from './offline/offline.component';
+import { ThermometerComponent } from './thermometer/thermometer.component';
 
 @NgModule({
   imports: [
@@ -81,6 +82,7 @@ import { OfflineComponent } from './offline/offline.component';
     Io_Api_DigitalInput_ModalComponent,
     Io_Api_DigitalInputComponent,
     StorageModalComponent,
+    ThermometerComponent,
   ],
   declarations: [
     AdministrationComponent,
@@ -115,6 +117,7 @@ import { OfflineComponent } from './offline/offline.component';
     OfflineComponent,
     StorageComponent,
     StorageModalComponent,
+    ThermometerComponent,
   ]
 })
 export class LiveModule { }

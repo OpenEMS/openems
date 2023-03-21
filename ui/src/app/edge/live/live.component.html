@@ -137,6 +137,11 @@
                 <Controller_Ess_GridOptimizedCharge [componentId]="widget.componentId">
                 </Controller_Ess_GridOptimizedCharge>
               </ion-col>
+			  
+			   <ion-col *ngSwitchCase="'io.openems.edge.thermometer.api.Thermometer'" size="12" size-lg="6"
+                class="ion-no-padding">
+                <Thermometer></Thermometer>
+              </ion-col>
             </ng-container>
 
           </ion-row>

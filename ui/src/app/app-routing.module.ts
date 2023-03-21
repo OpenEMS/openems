@@ -36,6 +36,7 @@ import { SettingsComponent as EdgeSettingsComponent } from './edge/settings/sett
 import { SystemExecuteComponent as EdgeSettingsSystemExecuteComponent } from './edge/settings/systemexecute/systemexecute.component';
 import { SystemLogComponent as EdgeSettingsSystemLogComponent } from './edge/settings/systemlog/systemlog.component';
 import { SystemUpdateComponent as EdgeSettingsSystemUpdateComponent } from './edge/settings/systemupdate/systemupdate.component';
+import { ThermometerChartOverviewComponent } from './edge/history/thermometer/chartoverview/chartoverview.component';
 import { IndexComponent } from './index/index.component';
 import { UserComponent } from './user/user.component';
 
@@ -68,6 +69,7 @@ const routes: Routes = [
   { path: 'device/:edgeId/history/productionchart', component: ProductionChartOverviewComponent },
   { path: 'device/:edgeId/history/selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
   { path: 'device/:edgeId/history/storagechart', component: StorageChartOverviewComponent },
+  { path: 'device/:edgeId/history/thermometerchart', component: ThermometerChartOverviewComponent },
 
   { path: 'device/:edgeId/settings', component: EdgeSettingsComponent },
   { path: 'device/:edgeId/settings/channels', component: EdgeSettingsChannelsComponent },

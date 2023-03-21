@@ -302,6 +302,20 @@ export class Utils {
   }
 
   /**
+   * Converts a value in Tenth of a Degree Celsius to Degree Celsius [°C].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
+  public static CONVERT_TO_Degree = (value: any): string => {
+    if (value == null) {
+      return '-';
+    }
+    let thisValue: number = (value / 10);
+    return formatNumber(thisValue, 'de', '1.0-1') + ' °C';
+  };
+
+  /**
    * Converts states 'MANUAL_ON' and 'MANUAL_OFF' to translated strings.
    * 
    * @param value the value from passed value in html

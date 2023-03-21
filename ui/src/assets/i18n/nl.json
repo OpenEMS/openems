@@ -54,6 +54,7 @@
     "state": "Staat",
     "storageSystem": "Batterij",
     "systemState": "Systeemstatus",
+    "temperature": "Temperatuur",
     "total": "totale verbruik",
     "totalState": "Algemene staat",
     "warning": "Waarschuwing",
