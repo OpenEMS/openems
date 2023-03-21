@@ -88,15 +88,14 @@
     "save": "Save"
   },
   "Menu": {
-    "aboutUI": "About OpenEMS",
     "accessLevel": "Úroveň přístupu",
-    "edgeSettings": "OpenEMS Předvolby",
+    "edgeSettings": "Předvolby",
     "generalSettings": "Obecné Nastavení",
     "index": "Přehled",
     "logout": "Odhlásit",
     "menu": "Menu",
     "name": "Název",
-    "overview": "OpenEMS Přehled",
+    "overview": "Všechny systémy",
     "settings": "nastavení",
     "user": "Uživatel",
     "changelog": "Changelog"
@@ -119,43 +118,6 @@
     "passwordReset": "Obnovení hesla",
     "authenticationFailed": "Ověření se nezdařilo",
     "user": "Uživatel"
-  },
-  "Register": {
-    "title": "Vytvoření uživatelského účtu",
-    "segment": {
-      "user": "Uživatel",
-      "installer": "Instalatér"
-    },
-    "Form": {
-      "user": {
-        "acceptPrivacyPolicy": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
-      },
-      "installer": {
-        "acceptPrivacyPolicy": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
-      },
-      "contactDetails": "Kontaktní údaje",
-      "companyName": "název společnosti",
-      "firstname": "jméno",
-      "lastname": " Příjmení",
-      "street": "Ulice",
-      "zip": "Ulice",
-      "city": "Město",
-      "country": "Město",
-      "phone": "Telefonní číslo",
-      "email": "E-Mail",
-      "password": "Heslo",
-      "confirmPassword": "Potvrzení hesla",
-      "isElectrician": "Potvrzuji, že moje společnost je zapsána v registru instalátorů, a jsem tedy oprávněn připojit a uvést do provozu systém ukládání dat.",
-      "acceptPrivacyPolicy": "Vytvořením účtu instalátoru FENECON prohlašuji, že jsem si přečetl(a) a souhlasím se <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Zásadami ochrany osobních údajů</a> a Podmínkami použití společnosti FENECON.*",
-      "acceptAgb": "Potvrzuji <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
-      "subscribeNewsletter": "Chci se přihlásit k odběru newsletteru FENECON a dostávat všechny novinky z FENECON."
-    },
-    "button": "Vytvořit",
-    "errors": {
-      "requiredFields": "Vyplňte prosím všechna pole",
-      "passwordNotEqual": "Hesla nejsou stejná"
-    },
-    "success": "Úspěšná registrace"
   },
   "Edge": {
     "Index": {
@@ -501,16 +463,16 @@
           "error": "Chyba při načítání nastavení"
         },
         "interval": {
-          "hour": "hodina",
-          "hours": "hodiny",
-          "minute": "minuta",
-          "minutes": "minuty",
-          "day": "den",
-          "days": "dny"
+          "hour": "Hodina",
+          "hours": "Hodiny",
+          "minute": "Minuta",
+          "minutes": "Minuty",
+          "day": "Den",
+          "days": "Dny"
         }
       },
       "App": {
-        "header": "Správce aplikací je v současné době v první testovací verzi. Pokud se nezobrazují všechny aplikace, je možné, že bude třeba aktualizovat verzi OpenEMS.",
+        "header": "Správce aplikací je v současné době v první testovací verzi.",
         "installed": "Nainstalováno",
         "available": "Dostupné na",
         "incompatible": "Nekompatibilní",
@@ -518,7 +480,8 @@
         "modifyApp": "upravit aplikaci",
         "createApp": "vytvořit aplikaci",
         "deleteApp": "odstranit aplikaci",
-        "updateApp": "aktualizace aplikace"
+        "updateApp": "aktualizace aplikace",
+        "notAvailable": "Není k dispozici"
       }
     },
     "Service": {
@@ -549,8 +512,7 @@
     "faq": "Často kladené otázky (FAQ)",
     "language": "Zvolte jazyk:",
     "openEMS": "Více o OpenEMS",
-    "patchnotes": "Změny v monitorování tohoto sestavení",
-    "ui": "Uživatelské rozhraní pro OpenEMS"
+    "patchnotes": "Změny v monitorování tohoto sestavení"
   },
   "Notifications": {
     "authenticationFailed": "Žádné připojení: Ověření uživatele selhalo.",

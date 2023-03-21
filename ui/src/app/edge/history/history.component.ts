@@ -16,6 +16,8 @@ export class HistoryComponent implements OnInit {
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;
 
+  protected showWarning: boolean = false;
+
   // sets the height for a chart. This is recalculated on every window resize.
   public socChartHeight: string = "250px";
   public energyChartHeight: string = "250px";
@@ -38,9 +40,10 @@ export class HistoryComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent('', this.route).then(edge => {
-      this.edge = edge;
-    });
+    this.service.setCurrentComponent('', this.route)
+    this.service.currentEdge.subscribe((edge) => {
+      this.edge = edge
+    })
     this.service.getConfig().then(config => {
       // gather ControllerIds of Channelthreshold Components
       // for (let controllerId of
@@ -57,6 +60,9 @@ export class HistoryComponent implements OnInit {
         this.isTimedataAvailable = false;
       }
     });
+  }
+  protected setShowWarning(event: boolean) {
+    this.showWarning = event
   }
 
   // checks arrows when ChartPage is closed

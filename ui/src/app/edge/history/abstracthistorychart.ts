@@ -2,11 +2,11 @@ import { Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
 import { differenceInDays, differenceInMonths } from 'date-fns';
+import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
+import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
-import { QueryHistoricTimeseriesDataRequest } from "../../shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
-import { QueryHistoricTimeseriesDataResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { calculateResolution, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, TooltipItem } from './shared';
 
 // NOTE: Auto-refresh of widgets is currently disabled to reduce server load
@@ -14,6 +14,7 @@ export abstract class AbstractHistoryChart {
 
     public loading: boolean = true;
     protected edge: Edge | null = null;
+    protected isDataExisting: boolean = true;
 
     //observable is used to fetch new chart data every 10 minutes
     // private refreshChartData = interval(600000);
@@ -73,6 +74,8 @@ export abstract class AbstractHistoryChart {
         // Take custom resolution if passed
         let resolution = res ?? calculateResolution(this.service, fromDate, toDate).resolution;
 
+        this.isDataExisting = true;
+
         let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
@@ -90,6 +93,7 @@ export abstract class AbstractHistoryChart {
             })
         }).then((response) => {
             if (Utils.isDataEmpty(response)) {
+                this.isDataExisting = false;
                 this.loading = false;
                 this.service.stopSpinner(this.spinnerId)
                 this.initializeChart()
@@ -112,6 +116,8 @@ export abstract class AbstractHistoryChart {
         // TODO should be removed, edge delivers too much data 
         let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
 
+        this.isDataExisting = true;
+
         let response: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
@@ -126,6 +132,7 @@ export abstract class AbstractHistoryChart {
             });
         }).then((response) => {
             if (Utils.isDataEmpty(response)) {
+                this.isDataExisting = false;
                 this.loading = false;
                 this.service.stopSpinner(this.spinnerId)
                 this.initializeChart();

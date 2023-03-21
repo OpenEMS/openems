@@ -1,14 +1,12 @@
 {
   "About": {
     "build": "This build",
-    "contact": "Please contact our team for further information or suggestions about the system at <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
     "currentDevelopments": "Current developments",
     "developed": "This user interface is developed as open-source software.",
     "faq": "Frequently asked questions (FAQ)",
     "language": "Select language:",
     "openEMS": "More about OpenEMS",
-    "patchnotes": "Changes in the monitoring for this build",
-    "ui": "User interface for OpenEMS"
+    "patchnotes": "Changes in the monitoring for this build"
   },
   "Edge": {
     "Index": {
@@ -26,8 +24,7 @@
         "storageCharge": "Storage-Charge",
         "storageDischarge": "Storage-Discharge",
         "title": "Energymonitor",
-        "excelExportWarning": "The display and export of data over a longer period of time is currently only possible to a limited extent. The function is expected to be usable again at the start of 2023.",
-        "displayWarning": "The display of data over a longer period of time is currently only possible to a limited extent. \nThe feature is expected to be available again in early 2023."
+        "excelExportWarning": "The display and export of data over a longer period of time is currently only possible to a limited extent. We are working on providing this function again soon."
       },
       "Widgets": {
         "autarchyInfo": "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
@@ -238,10 +235,26 @@
             "notStarted": "Controller has not yet started",
             "delayed": "Delayed",
             "allowsDischarge": "Allows Discharge",
-            "standby": "Standby"
-          }
+            "standby": "Standby",
+            "CHARGING": "Charging"
+          },
+          "CHARGED": "Charged"
         }
-      }
+      },
+      "RETROFITTING": {
+        "OPTIMAL": "Capacity expansion",
+        "ON_DATE_AT_TIME": "on {{date}} at {{time}}",
+        "INSTANT_START": "Instant start",
+        "PLANNED_EXPANSION": "Planned Expansion",
+        "INFORMATION_FOR_PlANNED_EXPANSION": "The battery is expected to be charged/discharged from {{targetTime}} on {{targetDate}} to reach reach {{targetSoc}}\u00a0% state of charge for the planned expansion. In the process there may be grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}}\u00a0minutes, after which or after the capacity expansion, the storage system returns to the regular operating state.",
+        "INFORMATION_FOR_INSTANT_START": "The battery is charged or discharged at maximum power in order to reach a state of charge of {{targetSoc}}\u00a0% as quickly as possible for an expansion. This can result in grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}}\u00a0minutes, after which, or after the capacity has been expanded, the storage system returns to its regular operating state.",
+        "PREPARING": "Prepare for Capacity Extension",
+        "REACHED_TARGET_SOC": "Ready for Capacity Extension",
+        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "The battery is expected to be charged/discharged to reach {{targetSoc}}\u00a0% state of charge for the planned expansion.",
+        "SELECT_A_DATE": "Please select a date",
+        "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature."
+      },
+      "SYSTEMUPDATE": "System update"
     },
     "History": {
       "beginDate": "Select Begin Date",
@@ -350,27 +363,51 @@
           "error": "Error loading the settings"
         },
         "interval": {
-          "hour": "hour",
-          "hours": "hours",
-          "minute": "minute",
-          "minutes": "minutes",
-          "day": "day",
-          "days": "days"
+          "hour": "Hour",
+          "hours": "Hours",
+          "minute": "Minute",
+          "minutes": "Minutes",
+          "day": "Day",
+          "days": "Days"
         }
       },
       "App": {
         "header": "The App Manager is currently in a first test version.",
-        "updateAvailable": "There is a new {{ edgeShortName }} version is available! Please update the {{ edgeShortName }} so that all new {{ edgeShortName }} Apps are displayed in the App Center.",
+        "updateAvailable": "There is a new {{ edgeShortName }} version available! Please update the {{ edgeShortName }} so that all new {{ edgeShortName }} Apps are displayed in the App Center.",
         "installed": "Installed",
         "available": "Available",
         "incompatible": "Incompatible",
-        "buyApp": "Buy app",
+        "buyApp": "Buy licence key",
         "modifyApp": "Modify app",
         "createApp": "Install app",
         "deleteApp": "Delete app",
         "updateApp": "Update app",
-        "errorInstallable": "installation errors",
-        "errorCompatible": "Compatibility errors"
+        "errorInstallable": "Installation errors",
+        "errorCompatible": "Compatibility errors",
+        "notAvailable": "Not available",
+        "Key": {
+          "enterKey": "Enter the license key you received when you ordered the app here",
+          "useRegisteredKey": "Redeem already registered licence key?",
+          "registeredKey": "Registered licence keys",
+          "successRegisterKey": "successfully registered Key",
+          "failedRegisterKey": "failed registering Key",
+          "failedLoadingRegisterKey": "failed to get already registered Keys",
+          "key": "licence key",
+          "validateKey": "validate licence key",
+          "useKey": "redeem licence key",
+          "registerKey": "register licence key",
+          "valid": "licence key is valid",
+          "invalid": "licence key is invalid",
+          "alreadyRegisteredDifferentSystem": "Key already got registered on a different System! If you continue the other registration will get removed.",
+          "alreadyRegisteredDifferentApp": "Key already got registered for an app on this System! If you continue the other registration will get removed.",
+          "invalidPattern": "Input is invalid"
+        },
+        "successInstall": "Successfully installed App",
+        "failInstall": "Error installing App '{{error}}'",
+        "successUpdate": "Successfully updated App",
+        "failUpdate": "Error updating App '{{error}}'",
+        "successDelete": "Successfully deleted App",
+        "failDelete": "Error deleting App '{{error}}'"
       }
     },
     "Service": {
@@ -393,7 +430,7 @@
       "advancedMode": "Advanced Mode",
       "submit": "Submit"
     },
-    "title": "OpenEMS"
+    "title": "{{ edgeShortName }}"
   },
   "General": {
     "active": "Active",
@@ -565,7 +602,9 @@
       "COMMUNICATION_WITH_METER": "Communication with the Meter",
       "WAGO_BRIDGE": "Wago Bridge",
       "FIELD_BUS_COUPLER": "Fieldbus coupler",
-      "CONTROL_GRID_POINT": "Control of the grid disconnection point"
+      "CONTROL_GRID_POINT": "Control of the grid disconnection point",
+      "BATTERY_INTERFACE": "Battery interface",
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",
@@ -573,7 +612,8 @@
       "OTHER": "Other",
       "TITLE_COMMERCIAL": "Circuit breaker at the grid connection point / Counter circuit breaker",
       "TITLE_HOME": "Circuit breaker at the grid connection point",
-      "VALUE": "Value [A]"
+      "VALUE": "Value [A]",
+      "METER_LABEL": "Grid connection point meter type"
     },
     "CONFIGURATION_SUMMARY": {
       "BATTERY_LOCATION": "BESS Location",
@@ -583,7 +623,7 @@
       "DEVICE_ACTIVE_CHECKED": "Battery and Inverter swicthed ON",
       "EDGE_NUMBER": "{{ edgeShortName }} Number",
       "GENERAL": "General",
-      "GTC_ACCEPT": "GTC acceptation",
+      "GTC_ACCEPT": "GTC",
       "INSTALLER": "Installer",
       "INVERTER": "Inverter",
       "NEXT_CLICKED_DESCRIPTION": "By clicking on the 'next' button, the storage system will be configured. Make sure the battery and inverter are powered on throughout the configuration process.",
@@ -591,10 +631,11 @@
       "SUMMARY": "Summary",
       "TIME_OF_INSTALLATION": "Time of the installation",
       "VALUE_AC": "Value AC",
-      "WARRANTY_TERMS": "Warranty terms acceptation",
+      "WARRANTY_TERMS": "Warranty terms",
       "PEAK_SHAVING": "Peak shaving",
       "APPS": "Apps",
-      "HECKERT": "Your chosen free app"
+      "HECKERT": "Your chosen free app",
+      "ACCEPT": "acceptation"
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Open instructions",
@@ -678,7 +719,8 @@
       "MARKED_AS": " MPPT {{number}} (marked as \"PV{{ number}}\")",
       "METER_TYPE_WITH_LABEL": "Type of the sensor {{ label }}{{ number }}",
       "METER_TYPE": "Type of the sensor",
-      "MODBUS_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity(pasrtY) \"n\", Communication Stopbit (StoP) \"1\"",
+      "MODBUS_SOCOMEC_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"n\", Communication Stopbit (StoP) \"1\"",
+      "MODBUS_KDK_DESCRIPTION": "The sensor has to be configured with the following settings: Communication speed (baud) \"9600\", Communication parity (partY) \"e\", Communication Stopbit (StoP) \"1\"",
       "MODBUS_WITH_LABEL": "Modbus {{ label }}{{ number }}",
       "MODBUS": "Modbus",
       "MODULE_TYPE_DESCRIPTION": "e.g. Manufuturer and Power",
@@ -697,7 +739,8 @@
       "TITLE_PV": "DC-PV installation (Inverter inputs)",
       "VALID_DATA": "Enter valid data to save.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC Meter not created!"
+      "AC_NOT_CREATED": "AC Meter not created!",
+      "METER_SELECTION_WARNING": "Please select the meter by adding generator."
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Battery module ",
@@ -720,7 +763,15 @@
       "SYSTEM_SETUP": "System setup",
       "BATTERY_STRING": "Battery String {{ stringNumber }}",
       "EMS_BOX_HOME": "EMS Box ({{edgeShortName }} Box)",
-      "EMS_BOX_HECKERT": "EMS Box"
+      "EMS_BOX_HECKERT": "EMS Box",
+      "MINIMUM_AND_MAXIMUM_STRINGS": "Minimum Strings: {{ min }} and Maximum: {{ max }}",
+      "NUMBER_OF_STRINGS": "Number of Strings",
+      "NUMBER_OF_MODULES_PER_STRINGS": "Number of Modules per String",
+      "MODULES_PER_STRINGS_DESCRIPTION": "Modules per String for Commercial-50 system: {{ number }}",
+      "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Connection Box",
+      "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules per string: {{ min }} and Maximum: {{ max }}",
+      "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }}  Connection Box",
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "{{ edgeShortName }} Grid connection point"
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",
@@ -735,6 +786,24 @@
     },
     "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}",
     "ALIAS_WITH_LABEL": "Alias {{label}}{{number}}",
+    "CONFIGURATION_FEATURES_STORAGE_SYSTEM": {
+      "BALANCING": "Self-Consumption optmization",
+      "PEAK_SHAVING_SYMMETRIC": "Peak shaving",
+      "PEAK_SHAVING_ASYMMETRIC": "Phase Accurate Peak shaving",
+      "FEATURE_DESCRIPTION": "The corresponding App must be available",
+      "HEADER": "Information on the use of the Storage system",
+      "PEAK_SHAVING_SYMMETRIC_HEADER": "Peak load shaving settings",
+      "PEAK_SHAVING_ASYMMETRIC_HEADER": "Phases Accurate peak shaving settings"
+    },
+    "CONFIGURATION_PEAK_SHAVING": {
+      "DISCHARGE_ABOVE_VALUE": "Discharging above - Value [W]",
+      "CHARGE_BELOW_VALUE": "Charging below - Value [W]",
+      "DISCHARGE_ABOVE_DESCRIPTION": "If the grid power is above this value, the battery will be discharged.",
+      "CHARGE_BELOW_DESCRIPTION": "if the grid power is below this value, the battery is charged again.\nThis value must not exceed the \"Discharge over\" value.",
+      "DESCRIPTION": "Entered power values refer to individual phases. It is adjusted to the most heavily loaded phase.",
+      "DISCHARGE_ABOVE_LABEL": "Discharge above",
+      "CHARGE_BELOW_LABEL": "Charge below"
+    },
     "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}."
   },
   "Login": {
@@ -748,9 +817,8 @@
     "REQUEST_TIMEOUT": "Request timed out. Try again later."
   },
   "Menu": {
-    "aboutUI": "About OpenEMS",
     "accessLevel": "Access Level",
-    "edgeSettings": "OpenEMS Settings",
+    "edgeSettings": "Settings",
     "generalSettings": "General Settings",
     "index": "Index",
     "logout": "Sign Out",
@@ -768,44 +836,6 @@
     "failed": "Connection failed.",
     "loggedIn": "Logged in.",
     "loggedInAs": "Logged in as '{{ value }}'."
-  },
-  "Register": {
-    "title": "Create user account",
-    "segment": {
-      "user": "User",
-      "installer": "Installer"
-    },
-    "Form": {
-      "user": {
-        "acceptPrivacyPolicy": "By creating a FENECON account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*"
-      },
-      "installer": {
-        "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*"
-      },
-      "contactDetails": "Contact Details",
-      "companyName": "Company name",
-      "firstname": "First name",
-      "lastname": "Last name",
-      "street": "Street",
-      "zip": "Postal code",
-      "city": "City",
-      "country": "Country",
-      "phone": "Phone number",
-      "email": "E-Mail",
-      "password": "Password",
-      "confirmPassword": "Confirm password",
-      "isElectrician": "I confirm that my company is registered in the installer register and i am therefore authorised to connect and commission a storage system.",
-      "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
-      "acceptAgb": "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
-      "subscribeNewsletter": "I would like to subscribe to the FENECON newsletter to receive all the latest news from FENECON.",
-      "company": "Company"
-    },
-    "button": "Create",
-    "errors": {
-      "requiredFields": "Please fill in all fields",
-      "passwordNotEqual": "Passwords are not equal"
-    },
-    "success": "Registration successful"
   },
   "Role": {
     "guest": "Guest",

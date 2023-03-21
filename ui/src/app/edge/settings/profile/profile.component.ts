@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, ViewWillEnter } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { CategorizedComponents } from 'src/app/shared/edge/edgeconfig';
 import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
@@ -15,7 +15,7 @@ import { GetModbusProtocolExportXlsxRequest } from './modbusapi/getModbusProtoco
   selector: ProfileComponent.SELECTOR,
   templateUrl: './profile.component.html'
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
 
   private static readonly SELECTOR = "profile";
 
@@ -34,7 +34,7 @@ export class ProfileComponent {
     private translate: TranslateService,
   ) { }
 
-  ionViewWillEnter() {
+  public ngOnInit() {
     this.service.setCurrentComponent({ languageKey: 'Edge.Config.Index.systemProfile' }, this.route).then(edge => {
       this.edge = edge;
       this.service.getConfig().then(config => {

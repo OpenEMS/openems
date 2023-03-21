@@ -86,15 +86,14 @@
     "save": "Ahorrar"
   },
   "Menu": {
-    "aboutUI": "Sobre OpenEMS",
     "accessLevel": "Nivel de acceso",
-    "edgeSettings": "Configuración OpenEMS",
+    "edgeSettings": "Configuración",
     "generalSettings": "Configuración general",
     "index": "Visión general",
     "logout": "Desuscribirse",
     "menu": "Menú",
     "name": "Nombre",
-    "overview": "estudio OpenEMS",
+    "overview": "Todos los sistemas",
     "settings": "Ajustes",
     "user": "Usuario",
     "changelog": "Changelog",
@@ -118,43 +117,6 @@
     "passwordReset": "Restablecer contraseña",
     "authenticationFailed": "Fallo de autentificación",
     "user": "Usuario"
-  },
-  "Register": {
-    "title": "Crear una cuenta de usuario",
-    "segment": {
-      "user": "Usuario",
-      "installer": "Instalador"
-    },
-    "Form": {
-      "user": {
-        "acceptPrivacyPolicy": "Al crear una cuenta de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de Privacidad</a> y las Condiciones de Uso de FENECON.*"
-      },
-      "installer": {
-        "acceptPrivacyPolicy": "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de privacidad</a> y las Condiciones de uso de FENECON.*"
-      },
-      "contactDetails": "Datos de contacto",
-      "companyName": "Nombre de la empresa",
-      "firstname": "Nombre",
-      "lastname": "Apellido",
-      "street": "Calle | número de casa",
-      "zip": "Código postal",
-      "city": "Ciudad",
-      "country": "País",
-      "phone": "Número de teléfono",
-      "email": "Correo electrónico",
-      "password": "Contraseña",
-      "confirmPassword": "Confirmar contraseña",
-      "isElectrician": "Confirmo que mi empresa está inscrita en el registro de instaladores y, por tanto, estoy autorizado a conectar y poner en marcha un sistema de almacenamiento.",
-      "acceptPrivacyPolicy": "Al crear una cuenta de instalador de FENECON, declaro que he leído y acepto la  <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Política de privacidad</a> y las condiciones de uso de FENECON.*",
-      "acceptAgb": "Confirmo el <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
-      "subscribeNewsletter": "Me gustaría suscribirme al boletín de FENECON para recibir todas las novedades de FENECON."
-    },
-    "button": "Crear",
-    "errors": {
-      "requiredFields": "Por favor, rellene todos los campos",
-      "passwordNotEqual": "Las contraseñas no son iguales"
-    },
-    "success": "Registro realizado con éxito"
   },
   "Edge": {
     "Index": {
@@ -499,12 +461,12 @@
           "error": "Error al cargar la configuración"
         },
         "interval": {
-          "hours": "horas",
-          "minute": "minuto",
-          "minutes": "minutos",
-          "day": "día",
-          "days": "días",
-          "hour": "hora"
+          "hours": "Horas",
+          "minute": "Minuto",
+          "minutes": "Minutos",
+          "day": "Día",
+          "days": "Días",
+          "hour": "Hora"
         }
       },
       "App": {
@@ -519,7 +481,8 @@
         "deleteApp": "Eliminar la aplicación",
         "updateApp": "Actualizar la aplicación",
         "errorInstallable": "Errores de instalación",
-        "errorCompatible": "Errores de compatibilidad"
+        "errorCompatible": "Errores de compatibilidad",
+        "notAvailable": "No disponible"
       }
     },
     "Service": {
@@ -544,14 +507,12 @@
   },
   "About": {
     "build": "Esta compilación",
-    "contact": "Para preguntas y sugerencias sobre el sistema, por favor contacte a nuestro OpenEMS-Team en <a href=\"mailto:{{value}}\">{{value}}</a>.",
     "currentDevelopments": "Desarrollos actuales",
     "developed": "Esta interfaz de usario es desarrollada por FENECON como software de código abierto.",
     "faq": "Preguntas frecuentes (FAQ)",
     "language": "Seleccionar idioma:",
     "openEMS": "Acerca de OpenEMS",
-    "patchnotes": "Cambios en la supervisión de esta compilación",
-    "ui": "Interfaz de usario para OpenEMS"
+    "patchnotes": "Cambios en la supervisión de esta compilación"
   },
   "Notifications": {
     "authenticationFailed": "Sin conexión: error de autenticación.",

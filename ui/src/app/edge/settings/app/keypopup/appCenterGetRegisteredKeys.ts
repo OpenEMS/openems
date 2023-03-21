@@ -1,8 +1,12 @@
-import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
-import { GetAppInstances } from "./getAppInstances";
+import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
+import { Key } from "./key";
+
 
 /**
- * Adds an OpenemsAppInstance.
+ * Gets the registered keys to the current edge and if provided to the given app.
+ * 
+ * <p>
+ * Note: This Request needs to be wrapped in a appCenter Request.
  * 
  * <p>
  * Request:
@@ -11,11 +15,9 @@ import { GetAppInstances } from "./getAppInstances";
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
- *   "alias" : "alias",
- *   "method": "addAppInstance",
+ *   "method": "getRegisteredKeys",
  *   "params": {
- *     "appId": string,
- *     "properties": {}
+ *     "appId": string
  *   }
  * }
  * </pre>
@@ -28,23 +30,20 @@ import { GetAppInstances } from "./getAppInstances";
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *     "instanceId": string (uuid)
+        keys: Key[]
  *   }
  * }
  * </pre>
  */
-export namespace AddAppInstance {
+export namespace AppCenterGetRegisteredKeys {
 
-    export const METHOD: string = "addAppInstance";
+    export const METHOD: string = "getRegisteredKeys";
 
     export class Request extends JsonrpcRequest {
 
         public constructor(
             public readonly params: {
-                key?: string, // only for newer versions
-                appId: string,
-                alias: string,
-                properties: {}
+                appId?: string,
             }
         ) {
             super(METHOD, params);
@@ -56,12 +55,11 @@ export namespace AddAppInstance {
         public constructor(
             public readonly id: string,
             public readonly result: {
-                instanceId: string,
-                instance: GetAppInstances.AppInstance,
-                warnings: String[]
+                keys: Key[]
             }
         ) {
             super(id, result);
         }
     }
+
 }

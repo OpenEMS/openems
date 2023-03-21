@@ -1,38 +1,42 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SubscribeEdgesRequest } from 'src/app/shared/jsonrpc/request/subscribeEdgesRequest';
-import { Edge, EdgeConfig, Service, Utils, Widgets } from 'src/app/shared/shared';
-import { environment } from 'src/environments';
+import { Subject } from 'rxjs';
+import { Edge, EdgeConfig, Service, Utils, Websocket, Widgets } from 'src/app/shared/shared';
+import { AdvertWidgets } from 'src/app/shared/type/widget';
 
 @Component({
   selector: 'live',
   templateUrl: './live.component.html'
 })
-export class LiveComponent {
+export class LiveComponent implements OnInit, OnDestroy {
 
   public edge: Edge = null
   public config: EdgeConfig = null;
   public widgets: Widgets = null;
+  public advertWidgets: AdvertWidgets = null;
+  private stopOnDestroy: Subject<void> = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     public service: Service,
     protected utils: Utils,
-  ) {
-  }
+    protected websocket: Websocket
+  ) { }
 
-  ionViewWillEnter() {
-    this.service.setCurrentComponent('', this.route).then(edge => {
-
-      if (environment.backend == 'OpenEMS Backend' && edge.isOnline) {
-        this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] }))
-          .catch(error => console.warn(error))
-      }
-      this.edge = edge;
-    });
+  public ngOnInit() {
+    this.service.setCurrentComponent('', this.route)
+    this.service.currentEdge.subscribe((edge) => {
+      this.edge = edge
+    })
     this.service.getConfig().then(config => {
       this.config = config;
       this.widgets = config.widgets;
-    })
+      this.advertWidgets = config.advertWidgets;
+    });
+  }
+
+  public ngOnDestroy() {
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
   }
 }

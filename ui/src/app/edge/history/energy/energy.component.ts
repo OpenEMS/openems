@@ -1,11 +1,11 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import { differenceInCalendarMonths, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { saveAs } from 'file-saver-es';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -45,7 +45,9 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
   public chartType: string = "line";
+  public isExcelExportAllowed: boolean = true;
 
+  @Output() setShowWarning: EventEmitter<boolean> = new EventEmitter()
   @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
@@ -70,6 +72,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
    * Export historic data to Excel file.
    */
   public exportToXlxs() {
+    this.isExcelExportAllowed = differenceInCalendarMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) < 3;
+    if (!this.isExcelExportAllowed) {
+      return
+    }
+
     this.startSpinner();
     this.service.getCurrentEdge().then(edge => {
       edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.from, this.service.historyPeriod.to)).then(response => {
@@ -390,7 +397,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
 
     }).catch(reason => {
       console.error(reason); // TODO error message
-      this.initializeChart();
+      this.setShowWarning.emit(true)
       return;
     });
   }

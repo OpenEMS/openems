@@ -83,15 +83,14 @@
     "save": "Opslaan"
   },
   "Menu": {
-    "aboutUI": "Over FEMS",
     "accessLevel": "Toegangsniveau",
-    "edgeSettings": "FEMS instellingen",
+    "edgeSettings": "instellingen",
     "generalSettings": "Algemene instellingen",
     "index": "Overzicht",
     "logout": "Uitloggen",
     "menu": "Menu",
     "name": "Naam",
-    "overview": "FEMS overzicht",
+    "overview": "Alle systemen",
     "settings": "Instellingen",
     "user": "Gebruiker",
     "changelog": "Changelog",
@@ -115,43 +114,6 @@
     "passwordReset": "Wachtwoord opnieuw instellen",
     "authenticationFailed": "Authenticatie mislukt",
     "user": "Gebruiker"
-  },
-  "Register": {
-    "title": "Gebruikersaccount aanmaken",
-    "segment": {
-      "user": "Gebruiker",
-      "installer": "Installateur"
-    },
-    "Form": {
-      "user": {
-        "acceptPrivacyPolicy": "Door een FENECON account aan te maken, verklaar ik dat ik de FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacybeleid</a> en Gebruiksvoorwaarden heb gelezen en ermee akkoord ga.*"
-      },
-      "installer": {
-        "acceptPrivacyPolicy": "Door een FENECON installateursaccount aan te maken verklaar ik dat ik het FENECON <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Privacybeleid</a> en de Gebruiksvoorwaarden heb gelezen en ermee akkoord ga.*"
-      },
-      "contactDetails": "Contactgegevens",
-      "companyName": "Bedrijfsnaam",
-      "firstname": "Voornaam",
-      "lastname": "Achternaam",
-      "street": "Straat | huisnummer",
-      "zip": "Postcode",
-      "city": "Stad",
-      "country": "Land",
-      "phone": "Telefoonnummer",
-      "email": "E-Mail - adres",
-      "password": "Wachtwoord",
-      "confirmPassword": "Bevestig wachtwoord",
-      "isElectrician": "Ik bevestig dat mijn bedrijf is ingeschreven in het installateursregister en dat ik daarmee bevoegd ben om een opslagsysteem aan te sluiten en in bedrijf te stellen.*",
-      "acceptPrivacyPolicy": "Door een FENECON installateursaccount aan te maken, verklaar ik dat ik het<a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">privacybeleid</a> en de gebruiksvoorwaarden van FENECON heb gelezen en ermee akkoord ga.*",
-      "acceptAgb": "Ik bevestig de <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
-      "subscribeNewsletter": "Ik wil me graag abonneren op de FENECON nieuwsbrief om al het laatste nieuws van FENECON te ontvangen."
-    },
-    "button": "Maken",
-    "errors": {
-      "requiredFields": "Gelieve alle velden in te vullen"
-    },
-    "passwordNotEqual": "Wachtwoorden zijn niet gelijk",
-    "success": "Registratie succesvol"
   },
   "Edge": {
     "Index": {
@@ -495,12 +457,12 @@
           "error": "Fout bij het laden van de instellingen"
         },
         "interval": {
-          "hours": "uur",
-          "minute": "minuut",
-          "minutes": "minuten",
-          "day": "dag",
-          "days": "dagen",
-          "hour": "uur"
+          "hours": "Uur",
+          "minute": "Minuut",
+          "minutes": "Minuten",
+          "day": "Dag",
+          "days": "Dagen",
+          "hour": "Uur"
         }
       },
       "App": {
@@ -515,7 +477,8 @@
         "deleteApp": "App verwijderen",
         "updateApp": "App bijwerken",
         "errorInstallable": "Installatiefouten",
-        "errorCompatible": "Compatibiliteitsfouten"
+        "errorCompatible": "Compatibiliteitsfouten",
+        "notAvailable": "Niet beschikbaar"
       }
     },
     "Service": {
@@ -540,14 +503,12 @@
   },
   "About": {
     "build": "Versie",
-    "contact": "Voor meer informatie of suggesties over het systeem, neem contact op met het team via <a href=\"mailto:{{value}}\">{{value}}</a>.",
     "currentDevelopments": "Huidige ontwikkelingen",
     "developed": "Deze gebruikersinterface is ontwikkeld als open-source-software.",
     "faq": "Veel Gestelde Vragen (FAQ)",
     "language": "Selecteer taal:",
     "openEMS": "Meer over OpenEMS",
-    "patchnotes": "Veranderingen in de monitoring voor deze build",
-    "ui": "Gebruikersinterface voor FEMS"
+    "patchnotes": "Veranderingen in de monitoring voor deze build"
   },
   "Notifications": {
     "authenticationFailed": "Geen verbinding.Autorisatie mislukt.",

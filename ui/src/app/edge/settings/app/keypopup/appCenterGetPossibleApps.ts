@@ -1,8 +1,12 @@
-import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
-import { GetAppInstances } from "./getAppInstances";
+import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
+import { App } from "./app";
+
 
 /**
- * Adds an OpenemsAppInstance.
+ * Gets the Apps that can be installed with the given key.
+ * 
+ * <p>
+ * Note: This Request needs to be wrapped in a appCenter Request.
  * 
  * <p>
  * Request:
@@ -11,11 +15,9 @@ import { GetAppInstances } from "./getAppInstances";
  * {
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
- *   "alias" : "alias",
- *   "method": "addAppInstance",
+ *   "method": "getPossibleApps",
  *   "params": {
- *     "appId": string,
- *     "properties": {}
+ *     "key": string
  *   }
  * }
  * </pre>
@@ -28,23 +30,20 @@ import { GetAppInstances } from "./getAppInstances";
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "result": {
- *     "instanceId": string (uuid)
+ *      bundles: (App[])[]
  *   }
  * }
  * </pre>
  */
-export namespace AddAppInstance {
+export namespace AppCenterGetPossibleApps {
 
-    export const METHOD: string = "addAppInstance";
+    export const METHOD: string = "getPossibleApps";
 
     export class Request extends JsonrpcRequest {
 
         public constructor(
             public readonly params: {
-                key?: string, // only for newer versions
-                appId: string,
-                alias: string,
-                properties: {}
+                key: string
             }
         ) {
             super(METHOD, params);
@@ -56,12 +55,11 @@ export namespace AddAppInstance {
         public constructor(
             public readonly id: string,
             public readonly result: {
-                instanceId: string,
-                instance: GetAppInstances.AppInstance,
-                warnings: String[]
+                bundles: (App[])[]
             }
         ) {
             super(id, result);
         }
     }
+
 }
