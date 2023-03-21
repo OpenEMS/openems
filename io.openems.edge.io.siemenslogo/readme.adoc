@@ -1,0 +1,3 @@
+= io.openems.edge.io.siemenslogo
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.siemenslogo[Source Code icon:github[]]

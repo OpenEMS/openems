@@ -1,5 +1,6 @@
 package io.openems.edge.controller.io.channelsinglethreshold;
 
+
 import io.openems.common.types.OptionsEnum;
 
 public enum State implements OptionsEnum {
@@ -39,3 +40,4 @@ public enum State implements OptionsEnum {
 		return UNDEFINED;
 	}
 }
+

@@ -59,7 +59,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedEvcs evcs;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private SymmetricEss ess;
 
 	public EvcsController() {
@@ -93,8 +93,11 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcs", config.evcs_id())) {
 			return;
 		}
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
+		if (!config.ess_id().equals("NONE") ) {
+			if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+				return;
+			}
+			
 		}
 		this.evcs._setMaximumPower(null);
 	}
@@ -171,20 +174,23 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 				nextChargePower = this.calculateChargePowerFromExcessPower(this.evcs);
 				break;
 
-			case STORAGE:
-				int storageSoc = this.sum.getEssSoc().orElse(0);
-				if (storageSoc > 97) {
-					nextChargePower = this.calculateChargePowerFromExcessPower(this.evcs);
-				} else {
-					nextChargePower = this.calculateExcessPowerAfterEss(this.evcs);
-				}
-				break;
+			
+				case STORAGE:
+					int storageSoc = this.sum.getEssSoc().orElse(0);
+					if (storageSoc > 97) {
+						nextChargePower = this.calculateChargePowerFromExcessPower(this.evcs);
+					} else {
+						nextChargePower = this.calculateExcessPowerAfterEss(this.evcs);
+					}
+					break;
+				
 			}
 
-			nextMinPower = this.config.defaultChargeMinPower();
+			if (!config.ess_id().equals("NONE") ) nextMinPower = this.config.defaultChargeMinPower();
+			else nextMinPower = 0;
 			this.evcs._setMinimumPower(nextMinPower);
 			break;
-
+			
 		case FORCE_CHARGE:
 			this.evcs._setMinimumPower(0);
 			nextChargePower = this.config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
@@ -275,9 +281,14 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 */
 	private int calculateChargePowerFromExcessPower(ManagedEvcs evcs) throws OpenemsNamedException {
 
+		int essDischarge =0;
+		int essActivePowerDC =0;
 		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
-		int essDischarge = this.sum.getEssActivePower().orElse(0);
-		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
+		
+		if (!config.ess_id().equals("NONE")) {
+			essDischarge = this.sum.getEssActivePower().orElse(0);
+			essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
+		}
 		int evcsCharge = evcs.getChargePower().orElse(0);
 
 		return evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
