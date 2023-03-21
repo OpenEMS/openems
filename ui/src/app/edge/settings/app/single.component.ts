@@ -12,6 +12,7 @@ import { GetAppDescriptor } from './jsonrpc/getAppDescriptor';
 import { GetApps } from './jsonrpc/getApps';
 import { AppCenter } from './keypopup/appCenter';
 import { AppCenterGetPossibleApps } from './keypopup/appCenterGetPossibleApps';
+import { AppCenterIsAppFree } from './keypopup/appCenterIsAppFree';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
 import { canEnterKey, hasKeyModel, hasPredefinedKey } from './permissions';
 
@@ -46,7 +47,8 @@ export class SingleAppComponent implements OnInit, OnDestroy {
 
   private stopOnDestroy: Subject<void> = new Subject<void>()
   protected keyForFreeApps: string
-  protected isFreeApp: boolean
+  protected isFreeApp: boolean = false
+  protected isPreInstalledApp: boolean = false
 
   public constructor(
     private route: ActivatedRoute,
@@ -68,6 +70,19 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     let appId = this.appId;
     this.service.setCurrentComponent(this.appName, this.route).then(edge => {
       this.edge = edge;
+
+      this.edge.sendRequest(this.websocket,
+        new AppCenter.Request({
+          payload: new AppCenterIsAppFree.Request({
+            appId: this.appId
+          })
+        })
+      ).then(response => {
+        const result = (response as AppCenterIsAppFree.Response).result;
+        this.isFreeApp = result.isAppFree;
+      }).catch(() => {
+        this.isFreeApp = false;
+      });
 
       // update if the app is free depending of the configured key in the edge config
       if (hasKeyModel(this.edge)) {
@@ -92,7 +107,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
             })
           })).then(response => {
             const result = (response as AppCenterGetPossibleApps.Response).result;
-            this.isFreeApp = result.bundles.some(bundle => {
+            this.isPreInstalledApp = result.bundles.some(bundle => {
               return bundle.some(app => {
                 return app.appId == this.appId
               })
@@ -102,7 +117,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
           })
         })
       } else {
-        this.isFreeApp = false;
+        this.isPreInstalledApp = false;
         this.increaseReceivedResponse();
       }
 
@@ -211,7 +226,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
       return;
     }
     // if the version is not high enough and the edge doesnt support installing apps via keys directly navigate to installation
-    if (!hasKeyModel(this.edge) || this.hasPredefinedKey) {
+    if (!hasKeyModel(this.edge) || this.hasPredefinedKey || this.isFreeApp) {
       this.router.navigate(['device/' + (this.edge.id) + '/settings/app/install/' + this.appId]
         , { queryParams: { name: this.appName } });
       return;
