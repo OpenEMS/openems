@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'src/environments';
-import { Service } from '../shared/shared';
-import { Role } from '../shared/type/role';
+import { Service } from '../../../shared/shared';
+import { Role } from '../../../shared/type/role';
 import { Changelog, Library, OpenemsComponent, Product } from './changelog.constants';
 
 @Component({
@@ -14,12 +14,13 @@ export class ChangelogComponent implements OnInit {
 
   public environment = environment;
 
+  protected slice: number = 10;
+  protected showAll: boolean = false;
   constructor(
     public translate: TranslateService,
     public service: Service,
     private route: ActivatedRoute,
-  ) {
-  }
+  ) { }
 
   ngOnInit() {
     this.service.setCurrentComponent({ languageKey: 'Menu.changelog' }, this.route);

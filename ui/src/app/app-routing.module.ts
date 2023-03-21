@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { ChangelogComponent } from './changelog/changelog.component';
 import { ChannelthresholdChartOverviewComponent } from './edge/history/channelthreshold/channelthresholdchartoverview/channelthresholdchartoverview.component';
 import { AutarchyChartOverviewComponent } from './edge/history/common/autarchy/overview/overview';
 import { ConsumptionChartOverviewComponent } from './edge/history/consumption/consumptionchartoverview/consumptionchartoverview.component';
@@ -45,13 +44,14 @@ import { IndexComponent } from './index/index.component';
 import { UserComponent } from './user/user.component';
 import { EdgeComponent } from './edge/edge.component';
 import { HistoryParentComponent } from './edge/history/historyparent.component';
+import { ChangelogViewComponent } from './changelog/view/view';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
   { path: 'index', component: IndexComponent },
 
   { path: 'user', component: UserComponent },
-  { path: 'changelog', component: ChangelogComponent },
+  { path: 'changelog', component: ChangelogViewComponent },
 
   { path: 'index/installation', component: InstallationComponent },
 
@@ -81,7 +81,6 @@ const routes: Routes = [
           { path: 'productionchart', component: ProductionChartOverviewComponent },
           { path: 'selfconsumptionchart', component: SelfconsumptionChartOverviewComponent },
           { path: 'storagechart', component: StorageChartOverviewComponent },
-
         ]
       },
 

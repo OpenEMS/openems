@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from './../shared/shared.module';
-import { ChangelogComponent } from './changelog.component';
+import { ChangelogComponent } from './view/component/changelog.component';
+import { ChangelogViewComponent } from './view/view';
 
 @NgModule({
   imports: [
@@ -8,6 +9,11 @@ import { ChangelogComponent } from './changelog.component';
   ],
   declarations: [
     ChangelogComponent,
+    ChangelogViewComponent
+  ],
+  exports: [
+    ChangelogComponent,
+    ChangelogViewComponent
   ]
 })
 export class ChangelogModule { }

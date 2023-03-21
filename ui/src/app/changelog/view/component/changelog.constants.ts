@@ -1,5 +1,5 @@
+import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
-import { Role } from "../shared/type/role";
 
 export class Changelog {
 
