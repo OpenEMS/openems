@@ -184,7 +184,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				setChargePowerLimit.setNextWriteValue(activePowerWanted * -1); // Values for register must be positive
 			}
 			else {
-				setChargeDischargeMode.setNextWriteValue(ChargeDischargeMode.SE_CHARGE_POLICY_DISCHARGE); // Mode for discharging
+				setChargeDischargeMode.setNextWriteValue(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_EXPORT); // Mode for discharging
 				setDischargePowerLimit.setNextWriteValue(activePowerWanted); 
 			}
 	
