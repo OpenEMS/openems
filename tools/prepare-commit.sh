@@ -74,7 +74,7 @@ EOT
 				fi
 
 				# Set default .classpath file
-					cat <<EOT > "${D}/.classpath"
+				cat <<EOT > "${D}/.classpath"
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
@@ -89,9 +89,8 @@ EOT
 </classpath>
 EOT
 
-				# Set default .classpath file
-				if [ ! -f "${D}/.project" ]; then
-					cat <<EOT > "${D}/.project"
+				# Set default .project file
+				cat <<EOT > "${D}/.project"
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>${D}</name>
@@ -115,9 +114,7 @@ EOT
 		<nature>bndtools.core.bndnature</nature>
 	</natures>
 </projectDescription>
-
 EOT
-				fi
 
 				# Verify bnd.bnd file
 				if [ -f "${D}/bnd.bnd" ]; then
