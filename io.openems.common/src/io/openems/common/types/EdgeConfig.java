@@ -517,6 +517,7 @@ public class EdgeConfig {
 				properties.add(property.getKey(), property.getValue());
 			}
 			var result = JsonUtils.buildJsonObject() //
+					.addProperty("id", this.getId()) //
 					.addProperty("alias", this.getAlias()) //
 					.addProperty("factoryId", this.getFactoryId()) //
 					.add("properties", properties); //
@@ -527,7 +528,9 @@ public class EdgeConfig {
 			case COMPLETE:
 				var channels = new JsonObject();
 				for (Entry<String, Channel> channel : this.getChannels().entrySet()) {
-					channels.add(channel.getKey(), channel.getValue().toJson());
+					var channelJson = channel.getValue().toJson();
+					channelJson.addProperty("key", channel.getKey());
+					channels.add(channel.getKey(), channelJson);
 				}
 				result.add("channels", channels); //
 				break;
@@ -1112,7 +1115,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the {@link Component}s in the builder.
-			 * 
+			 *
 			 * @return components
 			 */
 			public TreeMap<String, Component> getComponents() {
@@ -1133,7 +1136,7 @@ public class EdgeConfig {
 
 			/**
 			 * Gets the {@link Factory}s in the builder.
-			 * 
+			 *
 			 * @return components
 			 */
 			public TreeMap<String, Factory> getFactories() {
@@ -1142,7 +1145,7 @@ public class EdgeConfig {
 
 			/**
 			 * Builds the {@link ActualEdgeConfig}.
-			 * 
+			 *
 			 * @return {@link ActualEdgeConfig}
 			 */
 			public ActualEdgeConfig build() {
@@ -1152,7 +1155,7 @@ public class EdgeConfig {
 
 			/**
 			 * Builds the {@link EdgeConfig}.
-			 * 
+			 *
 			 * @return {@link EdgeConfig}
 			 */
 			public EdgeConfig buildEdgeConfig() {
@@ -1162,7 +1165,7 @@ public class EdgeConfig {
 
 		/**
 		 * Creates an empty {@link ActualEdgeConfig}.
-		 * 
+		 *
 		 * @return {@link ActualEdgeConfig}
 		 */
 		public static ActualEdgeConfig empty() {
@@ -1171,7 +1174,7 @@ public class EdgeConfig {
 
 		/**
 		 * Create a {@link ActualEdgeConfig.Builder} builder.
-		 * 
+		 *
 		 * @return a {@link Builder}
 		 */
 		public static ActualEdgeConfig.Builder create() {
@@ -1190,7 +1193,7 @@ public class EdgeConfig {
 
 	/**
 	 * Creates an empty {@link EdgeConfig}.
-	 * 
+	 *
 	 * @return {@link EdgeConfig}
 	 */
 	public static EdgeConfig empty() {
@@ -1199,7 +1202,7 @@ public class EdgeConfig {
 
 	/**
 	 * Creates an {@link EdgeConfig} from a {@link JsonObject}.
-	 * 
+	 *
 	 * @param json the {@link JsonObject}
 	 * @return {@link EdgeConfig}
 	 */
@@ -1219,7 +1222,7 @@ public class EdgeConfig {
 
 	/**
 	 * Build from {@link ActualEdgeConfig} using a {@link Builder}.
-	 * 
+	 *
 	 * @param actual the {@link ActualEdgeConfig}
 	 */
 	private EdgeConfig(ActualEdgeConfig actual) {
@@ -1233,7 +1236,7 @@ public class EdgeConfig {
 	/**
 	 * Gets the {@link ActualEdgeConfig}. Either by parsing it from {@link #json} or
 	 * by returning from cache.
-	 * 
+	 *
 	 * @return {@link ActualEdgeConfig}; empty on JSON parse error
 	 */
 	private synchronized ActualEdgeConfig getActual() {
