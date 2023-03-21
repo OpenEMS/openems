@@ -77,4 +77,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.type;
 	}
 
+	@Override
+	public boolean hybrid() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
