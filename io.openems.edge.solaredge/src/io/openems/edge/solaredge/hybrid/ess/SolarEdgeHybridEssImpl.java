@@ -59,6 +59,8 @@ import io.openems.edge.solaredge.enums.ControlMode;
 import io.openems.edge.solaredge.enums.AcChargePolicy;
 import io.openems.edge.solaredge.enums.ChargeDischargeMode;
 
+//import io.openems.edge.common.channel.EnumReadChannel;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -154,8 +156,8 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		// Read-only mode -> switch to max. self consumption automatic
 		if (this.config.readOnlyMode()) {
 			// Switch to automatic mode
-			EnumWriteChannel setControlMode = this.channel(SolarEdgeHybridEss.ChannelId.SET_CONTROL_MODE);
-			setControlMode.setNextWriteValue(ControlMode.SE_CTRL_MODE_MAX_SELF_CONSUMPTION);
+			EnumWriteChannel setControlModeChannel = this.channel(SolarEdgeHybridEss.ChannelId.SET_CONTROL_MODE);
+			setControlModeChannel.setNextWriteValue(ControlMode.SE_CTRL_MODE_MAX_SELF_CONSUMPTION);
 			return;
 		}
 		else { //read_only is NOT enabled
@@ -170,9 +172,12 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 			IntegerWriteChannel setCommandTimeout		= this.channel(SolarEdgeHybridEss.ChannelId.SET_REMOTE_CONTROL_TIMEOUT);
 			
 			
-	
-			//if (this.channel(SolarEdgeHybridEss.ChannelId.CONTROL_MODE).value().asEnum() != ControlMode )
-				
+	/*
+			if (isControlModeRemote())
+			{
+				return;
+			}
+*/				
 			setControlMode.setNextWriteValue(ControlMode.SE_CTRL_MODE_REMOTE);	// Now the device can be remote controlled	
 			setChargePolicy.setNextWriteValue(AcChargePolicy.SE_CHARGE_DISCHARGE_MODE_ALWAYS);	// Always allowed.When used with Maximize self-consumption, only excess power is used for charging (charging from the grid is not allowed) 
 			setChargeDischargeDefaultMode.setNextWriteValue(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_SELF_CONSUMPTION);	// This mode is active after remote control timeout exceeded
@@ -208,9 +213,16 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
-	
-	
-
+/*	
+	private boolean isControlModeRemote() {
+		
+		if (this.channel(SolarEdgeHybridEss.ChannelId.CONTROL_MODE).value().asEnum() == ControlMode.SE_CTRL_MODE_REMOTE);
+		//EnumReadChannel controlModeChannel = this.channel(SolarEdgeHybridEss.ChannelId.CONTROL_MODE);
+		//ControlMode controlModeState = controlModeChannel.value().asEnum();
+		//return controlModeState == controlModeState.SE_CTRL_MODE_REMOTE;
+		return true;
+	}
+*/
 
 	//@Override
 	//protected ModbusProtocol defineModbusProtocol() throws OpenemsException {	
