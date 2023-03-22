@@ -94,6 +94,10 @@ public class HeatPumpImpl extends AbstractOpenemsComponent
 	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+		// reset channels
+		this._setGridActivePowerNotPresent(false);
+		this._setEssDischargePowerNotPresent(false);
+		this._setStateOfChargeNotPresent(false);
 	}
 
 	@Override
