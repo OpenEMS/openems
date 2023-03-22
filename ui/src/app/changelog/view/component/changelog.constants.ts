@@ -89,6 +89,7 @@ export class OpenemsComponent {
 
 export class Library {
     // Java
+    public static readonly APACHE_FELIX_FILEINSTALL = new Library('Apache Felix File Install', 'org.apache.felix..fileinstall');
     public static readonly APACHE_FELIX_FRAMEWORK = new Library('Apache Felix Framework', 'org.apache.felix.framework');
     public static readonly APACHE_FELIX_HTTP_JETTY = new Library('Apache Felix HTTP Jetty', 'org.apache.felix.http.jetty');
     public static readonly APACHE_FELIX_INVENTORY = new Library('Apache Felix Inventory', 'org.apache.felix.inventory');
