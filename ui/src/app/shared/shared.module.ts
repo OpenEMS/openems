@@ -14,14 +14,17 @@ import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
 import { DirectiveModule } from './directive/directive';
 import { MeterModule } from './edge/meter/meter.module';
 import { FormlyCheckBoxHyperlinkWrapperComponent } from './formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper';
+import { FormlyWrapperDefaultValueWithCasesComponent } from './formly/form-field-default-cases.wrapper';
 import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
 import { FormlySelectFieldModalComponent } from './formly/formly-select-field-modal.component';
 import { FormlySelectFieldExtendedWrapperComponent } from './formly/formly-select-field.extended';
 import { InputTypeComponent } from './formly/input';
 import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
+import { PanelWrapperComponent } from './formly/panel-wrapper.component';
 import { RepeatTypeComponent } from './formly/repeat';
 import { Generic_ComponentsModule } from './genericComponents/genericComponents';
 import { HeaderComponent } from './header/header.component';
+import { HistoryDataErrorComponent } from './history-data-error.component';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PipeModule } from './pipe/pipe';
 import { Logger } from './service/logger';
@@ -64,7 +67,9 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: 'form-field', component: FormlyWrapperFormFieldComponent },
         { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
         { name: 'formly-select-extended-wrapper', component: FormlySelectFieldExtendedWrapperComponent },
-        { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent }
+        { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent },
+        { name: 'formly-wrapper-default-of-cases', component: FormlyWrapperDefaultValueWithCasesComponent },
+        { name: 'panel', component: PanelWrapperComponent }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
@@ -87,6 +92,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     // components
     ChartOptionsComponent,
     HeaderComponent,
+    HistoryDataErrorComponent,
     PercentageBarComponent,
     // formly
     InputTypeComponent,
@@ -95,7 +101,9 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyWrapperInputSerialNumber,
     FormlySelectFieldExtendedWrapperComponent,
     FormlySelectFieldModalComponent,
-    FormlyCheckBoxHyperlinkWrapperComponent
+    FormlyCheckBoxHyperlinkWrapperComponent,
+    FormlyWrapperDefaultValueWithCasesComponent,
+    PanelWrapperComponent
   ],
   exports: [
     // modules
@@ -117,6 +125,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     // components
     ChartOptionsComponent,
     HeaderComponent,
+    HistoryDataErrorComponent,
     PercentageBarComponent,
   ],
   providers: [

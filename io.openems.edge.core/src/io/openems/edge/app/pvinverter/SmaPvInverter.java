@@ -1,6 +1,6 @@
 package io.openems.edge.app.pvinverter;
 
-import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -119,7 +119,7 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var ip = this.getString(p, l, Property.IP);
@@ -148,11 +148,6 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 	}
 
 	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
-	}
-
-	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.MULTIPLE;
 	}
@@ -165,6 +160,11 @@ public class SmaPvInverter extends AbstractOpenemsAppWithProps<SmaPvInverter, Pr
 	@Override
 	protected SmaPvInverter getApp() {
 		return this;
+	}
+
+	@Override
+	protected Property[] propertyValues() {
+		return Property.values();
 	}
 
 }

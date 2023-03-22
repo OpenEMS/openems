@@ -18,12 +18,13 @@ import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractOpenemsApp;
+import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -34,9 +35,9 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration.AppDepen
  * Test app for testing dependencies.
  */
 @Component(name = "App.Test.TestADependencyToC")
-public class TestADependencyToC extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class TestADependencyToC extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property {
+	public static enum Property implements Nameable {
 		CREATE_POLICY, //
 		UPDATE_POLICY, //
 		DELETE_POLICY, //

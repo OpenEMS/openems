@@ -1,9 +1,10 @@
-import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { HeaderComponent } from 'src/app/shared/header/header.component';
+import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { Edge, EdgeConfig, Service, Widgets } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
-import { HeaderComponent } from 'src/app/shared/header/header.component';
-import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'history',
@@ -16,7 +17,7 @@ export class HistoryComponent implements OnInit {
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;
 
-  protected showWarning: boolean = false;
+  protected errorResponse: JsonrpcResponseError | null = null;
 
   // sets the height for a chart. This is recalculated on every window resize.
   public socChartHeight: string = "250px";
@@ -61,8 +62,9 @@ export class HistoryComponent implements OnInit {
       }
     });
   }
-  protected setShowWarning(event: boolean) {
-    this.showWarning = event
+
+  protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
+    this.errorResponse = errorResponse;
   }
 
   // checks arrows when ChartPage is closed

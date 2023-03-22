@@ -16,6 +16,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.session.Language;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.FormlyBuilder;
+import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
 /**
@@ -129,6 +130,11 @@ public class AppDef<APP extends OpenemsApp, //
 	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, FormlyBuilder<?>> field;
 
 	/**
+	 * Determines if the field gets added to the {@link AppAssistant} automatically.
+	 */
+	private boolean autoGenerateField = true;
+
+	/**
 	 * Determines if the property should get visibly saved in the AppManager
 	 * configuration.
 	 */
@@ -143,6 +149,22 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Function to get the {@link ResourceBundle} for translations.
 	 */
 	private Function<? super PARAMETER, ResourceBundle> translationBundleSupplier;
+
+	/**
+	 * Creates a {@link AppDef} with the componentId as the default value.
+	 * 
+	 * @param <APP>       the type of the {@link OpenemsApp}
+	 * @param <PROPERTY>  the type of the {@link Nameable}
+	 * @param <PARAMETER> the type of the {@link Parameter}
+	 * @param componentId the id of the component
+	 * @return the {@link AppDef}
+	 */
+	public static final <APP extends OpenemsApp, //
+			PROPERTY extends Nameable, //
+			PARAMETER extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> componentId(String componentId) {
+		return new AppDef<APP, PROPERTY, PARAMETER>() //
+				.setDefaultValue(componentId);
+	}
 
 	/**
 	 * Creates a {@link AppDef} of a subclass of an
@@ -171,7 +193,7 @@ public class AppDef<APP extends OpenemsApp, //
 	 * @return the {@link AppDef}
 	 */
 	public static final <APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
-			PROPERTY extends Enum<PROPERTY> & Nameable & Type<PROPERTY, APP, PARAMETER>, //
+			PROPERTY extends Type<PROPERTY, APP, PARAMETER> & Nameable, //
 			PARAMETER extends Type.Parameter.BundleParameter> AppDef<APP, PROPERTY, PARAMETER> of(//
 					final Class<APP> clazz //
 	) {
@@ -220,6 +242,7 @@ public class AppDef<APP extends OpenemsApp, //
 		def.description = otherDef.description;
 		def.defaultValue = otherDef.defaultValue;
 		def.field = otherDef.field;
+		def.autoGenerateField = otherDef.autoGenerateField;
 		def.isAllowedToSave = otherDef.isAllowedToSave;
 		def.bidirectionalValue = otherDef.bidirectionalValue;
 		return def;
@@ -234,7 +257,6 @@ public class AppDef<APP extends OpenemsApp, //
 	 * @param <APPO>        the type of the app from the otherDef
 	 * @param <PROPERTYO>   the type of the property from the otherDef
 	 * @param <PARAMETERO>  the type of the parameter from the otherDef
-	 * @param propertyClass the class of the current property
 	 * @param otherDef      the other {@link AppDef}
 	 * @return the new {@link AppDef}
 	 */
@@ -243,9 +265,8 @@ public class AppDef<APP extends OpenemsApp, //
 			PROPERTY extends PROPERTYO, //
 			PARAMETER extends PARAMETERO, //
 			APPO extends OpenemsApp, //
-			PROPERTYO extends Nameable & Type<? extends PROPERTY, ? extends APP, ? extends PARAMETER>, //
+			PROPERTYO extends Nameable, //
 			PARAMETERO extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> copyOfGeneric(//
-					final Class<PROPERTY> propertyClass, //
 					final AppDef<APPO, PROPERTYO, PARAMETERO> otherDef //
 	) {
 		final var def = new AppDef<APP, PROPERTY, PARAMETER>();
@@ -254,6 +275,7 @@ public class AppDef<APP extends OpenemsApp, //
 		def.description = otherDef.description;
 		def.defaultValue = otherDef.defaultValue;
 		def.field = otherDef.field;
+		def.autoGenerateField = otherDef.autoGenerateField;
 		def.isAllowedToSave = otherDef.isAllowedToSave;
 		def.bidirectionalValue = otherDef.bidirectionalValue;
 		return def;
@@ -325,12 +347,14 @@ public class AppDef<APP extends OpenemsApp, //
 	 * overridden and return a non null value.
 	 * 
 	 * @param key the key of the translation
+	 * @param params the parameter of the translation
 	 * @return this
 	 */
 	public final AppDef<APP, PROPERTY, PARAMETER> setTranslatedLabel(//
-			final String key //
+			final String key, //
+			final Object... params //
 	) {
-		this.label = this.translate(key);
+		this.label = this.translate(key, params);
 		return this;
 	}
 
@@ -342,13 +366,15 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Note: If this method is used {@link Type#translationBundleSupplier()} must be
 	 * overridden and return a non null value.
 	 * 
-	 * @param key the key of the translation
+	 * @param key    the key of the translation
+	 * @param params the parameter of the translation
 	 * @return this
 	 */
 	public final AppDef<APP, PROPERTY, PARAMETER> setTranslatedLabelWithAppPrefix(//
-			final String key //
+			final String key, //
+			final Object... params //
 	) {
-		this.label = this.translateWithAppPrefix(key);
+		this.label = this.translateWithAppPrefix(key, params);
 		return this;
 	}
 
@@ -390,13 +416,15 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Note: If this method is used {@link Type#translationBundleSupplier()} must be
 	 * overridden and return a non null value.
 	 * 
-	 * @param key the key of the translation
+	 * @param key    the key of the translation
+	 * @param params the parameter of the translation
 	 * @return this
 	 */
 	public final AppDef<APP, PROPERTY, PARAMETER> setTranslatedDescriptionWithAppPrefix(//
-			final String key //
+			final String key, //
+			final Object... params //
 	) {
-		this.description = this.translateWithAppPrefix(key);
+		this.description = this.translateWithAppPrefix(key, params);
 		return this;
 	}
 
@@ -583,6 +611,15 @@ public class AppDef<APP extends OpenemsApp, //
 			final Function<PROPERTY, T> fieldSupplier //
 	) {
 		return this.setField(fieldSupplier, null);
+	}
+
+	public AppDef<APP, PROPERTY, PARAMETER> setAutoGenerateField(boolean autoGenerateField) {
+		this.autoGenerateField = autoGenerateField;
+		return this;
+	}
+
+	public boolean isAutoGenerateField() {
+		return this.autoGenerateField;
 	}
 
 	/**

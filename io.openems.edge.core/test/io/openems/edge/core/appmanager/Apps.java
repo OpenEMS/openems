@@ -11,10 +11,12 @@ import org.osgi.service.component.ComponentContext;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
+import io.openems.edge.app.TestMultipleIds;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
+import io.openems.edge.app.evcs.HardyBarthEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.integratedsystem.FeneconHome;
@@ -136,6 +138,16 @@ public class Apps {
 		return app(t, TestC::new, "App.Test.TestC");
 	}
 
+	/**
+	 * Test method for creating a {@link TestMultipleIds}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestMultipleIds testMultipleIds(AppManagerTestBundle t) {
+		return app(t, TestMultipleIds::new, "App.Test.TestMultipleIds");
+	}
+
 	// Api
 
 	/**
@@ -166,6 +178,18 @@ public class Apps {
 	 */
 	public static final RestJsonApiReadOnly restJsonApiReadOnly(AppManagerTestBundle t) {
 		return app(t, RestJsonApiReadOnly::new, "App.Api.RestJson.ReadOnly");
+	}
+
+	// Evcs
+
+	/**
+	 * Test method for creating a {@link RestJsonApiReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HardyBarthEvcs hardyBarthEvcs(AppManagerTestBundle t) {
+		return app(t, HardyBarthEvcs::new, "App.Evcs.HardyBarth");
 	}
 
 	// Heat

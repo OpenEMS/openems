@@ -88,9 +88,6 @@ export class InstallAppComponent implements OnInit, OnDestroy {
           payload: new GetAppAssistant.Request({ appId: appId })
         })).then(response => {
           let appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
-          // insert alias field into appAssistent fields
-          let aliasField = { key: 'ALIAS', type: 'input', templateOptions: { label: 'Alias' }, defaultValue: appAssistant.alias };
-          appAssistant.fields.splice(0, 0, aliasField);
 
           this.fields = appAssistant.fields;
           this.appName = appAssistant.name;

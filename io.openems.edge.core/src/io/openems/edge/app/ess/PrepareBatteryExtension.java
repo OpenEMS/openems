@@ -1,6 +1,6 @@
 package io.openems.edge.app.ess;
 
-import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -17,7 +17,6 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.ess.PrepareBatteryExtension.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -58,8 +57,9 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
  * </pre>
  */
 @Component(name = "App.Ess.PrepareBatteryExtension")
-public class PrepareBatteryExtension extends
-		AbstractOpenemsAppWithProps<PrepareBatteryExtension, Property, Parameter.BundleParameter> implements OpenemsApp {
+public class PrepareBatteryExtension
+		extends AbstractOpenemsAppWithProps<PrepareBatteryExtension, Property, Parameter.BundleParameter>
+		implements OpenemsApp {
 
 	public enum Property implements Type<Property, PrepareBatteryExtension, Parameter.BundleParameter>, Nameable {
 		// Components
@@ -127,12 +127,12 @@ public class PrepareBatteryExtension extends
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 			final var ctrlPrepareBatteryExtensionId = this.getId(t, p, Property.CTRL_PREPARE_BATTERY_EXTENSION_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var targetSoc = EnumUtils.getAsOptionalInt(p, Property.TARGET_SOC).orElse(30);
+			final var targetSoc = this.getInt(p, Property.TARGET_SOC);
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlPrepareBatteryExtensionId, alias,
@@ -173,8 +173,8 @@ public class PrepareBatteryExtension extends
 	}
 
 	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
+	protected Property[] propertyValues() {
+		return Property.values();
 	}
 
 	@Override
