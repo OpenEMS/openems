@@ -21,7 +21,7 @@
               <div *ngIf="false">
                 <ion-button style="width: 100%;" disabled translate>Edge.Config.App.buyApp</ion-button>
               </div>
-              <div *ngIf="!isFreeApp">
+              <div *ngIf="!(isPreInstalledApp || isFreeApp)">
                 <ion-button style="width: 100%;" (click)="registerKey(app.appId)" translate>
                   Edge.Config.App.Key.registerKey</ion-button>
               </div>
@@ -30,7 +30,7 @@
                   [routerLink]="['../../update', app.appId]" [queryParams]="{name: app.name}" translate>
                   Edge.Config.App.modifyApp</ion-button>
               </div>
-              <div *ngIf="!isFreeApp">
+              <div *ngIf="!isPreInstalledApp">
                 <ion-button style="width: 100%;" [disabled]="(app.cardinality !== 'MULTIPLE' && app.instanceIds.length !== 0) 
                   || app.status.name !== 'INSTALLABLE' 
                   || !(canEnterKey || hasPredefinedKey)" (click)="installApp(app.appId)"

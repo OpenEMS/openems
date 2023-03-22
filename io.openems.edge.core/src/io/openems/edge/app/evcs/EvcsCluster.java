@@ -1,6 +1,6 @@
 package io.openems.edge.app.evcs;
 
-import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -16,7 +16,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.EvcsCluster.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -109,13 +108,13 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 
 			var evcsClusterId = this.getId(t, p, Property.EVCS_CLUSTER_ID);
 
 			var alias = this.getString(p, l, Property.ALIAS);
-			var ids = EnumUtils.getAsJsonArray(p, Property.EVCS_IDS);
+			var ids = this.getJsonArray(p, Property.EVCS_IDS);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(evcsClusterId, alias, "Evcs.Cluster.PeakShaving",
@@ -141,8 +140,8 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 	}
 
 	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
+	protected Property[] propertyValues() {
+		return Property.values();
 	}
 
 	@Override

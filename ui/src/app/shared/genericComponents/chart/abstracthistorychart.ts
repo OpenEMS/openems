@@ -7,6 +7,7 @@ import { ChartDataSets, ChartLegendLabelItem } from 'chart.js';
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { calculateResolution, ChannelFilter, ChartData, ChartOptions, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, isLabelVisible, setLabelVisible, TooltipItem, Unit } from '../../../edge/history/shared';
+import { JsonrpcResponseError } from '../../jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from '../../jsonrpc/request/queryHistoricTimeseriesDataRequest';
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from '../../jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from '../../jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -31,7 +32,8 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
     public colors: any[] = [];
     public chartObject: ChartData = this.getChartData();
     public chartType: 'line' | 'bar' = 'line';
-    protected isDataExisting: boolean = true;
+
+    protected errorResponse: JsonrpcResponseError | null = null;
 
     constructor(
         public service: Service,
@@ -201,10 +203,16 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                         if (Object.keys(result).length != 0) {
                             resolve(response as QueryHistoricTimeseriesDataResponse);
                         } else {
+                            this.errorResponse = new JsonrpcResponseError(request.id, { code: 1, message: "Empty Result" });
                             resolve(new QueryHistoricTimeseriesDataResponse(response.id, {
                                 timestamps: [null], data: { null: null }
                             }));
                         }
+                    }).catch((response) => {
+                        this.errorResponse = response;
+                        resolve(new QueryHistoricTimeseriesDataResponse("0", {
+                            timestamps: [null], data: { null: null }
+                        }))
                     });
                 })
             })
@@ -212,9 +220,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
             // Check if channelAddresses are empty
             if (Utils.isDataEmpty(response)) {
-
                 // load defaultchart
-                this.isDataExisting = false;
                 this.service.stopSpinner(this.spinnerId)
                 this.initializeChart()
             }
@@ -248,16 +254,19 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                                 timestamps: [null], data: { null: null }
                             }));
                         }
-                    })
+                    }).catch((response) => {
+                        this.errorResponse = response;
+                        resolve(new QueryHistoricTimeseriesDataResponse("0", {
+                            timestamps: [null], data: { null: null }
+                        }))
+                    });
                 })
             });
         }).then((response) => {
 
             // Check if channelAddresses are empty
             if (Utils.isDataEmpty(response)) {
-
                 // load defaultchart
-                this.isDataExisting = false;
                 this.service.stopSpinner(this.spinnerId)
                 this.initializeChart()
             }

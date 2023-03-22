@@ -84,7 +84,8 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 		 * reach the target soc.s
 		 */
 		EXPECTED_START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
-				.text("Time when the controller is starting to charge or discharge depending on the target date and time.")),
+				.text("Time when the controller is starting to charge or discharge depending on the target date and time.") //
+				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * ESS is at target SoC. Discharging and charging is blocked by Controller.

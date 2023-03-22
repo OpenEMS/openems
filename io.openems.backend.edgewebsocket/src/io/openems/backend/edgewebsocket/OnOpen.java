@@ -26,21 +26,24 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 			// get apikey from handshake
 			var apikeyOpt = JsonUtils.getAsOptionalString(handshake, "apikey");
 			if (!apikeyOpt.isPresent()) {
-				throw new OpenemsException("Apikey is missing in handshake");
+				throw new OpenemsException("Apikey is missing in handshake. " //
+						+ "Remote [" + ws.getRemoteSocketAddress() + "]");
 			}
 			apikey = apikeyOpt.get().trim();
 
 			// get edgeId for apikey
 			var edgeIdOpt = this.parent.metadata.getEdgeIdForApikey(apikey);
 			if (!edgeIdOpt.isPresent()) {
-				throw new OpenemsException("Unable to authenticate this Apikey.");
+				throw new OpenemsException("Unable to authenticate this Apikey. " //
+						+ "Remote [" + ws.getRemoteSocketAddress() + "]");
 			}
 			var edgeId = edgeIdOpt.get();
 
 			// get metadata for Edge
 			var edgeOpt = this.parent.metadata.getEdge(edgeId);
 			if (!edgeOpt.isPresent()) {
-				throw new OpenemsException("Unable to get metadata for Edge [" + edgeId + "]");
+				throw new OpenemsException("Unable to get metadata for Edge [" + edgeId + "]. " //
+						+ "Remote [" + ws.getRemoteSocketAddress() + "]");
 			}
 			var edge = edgeOpt.get();
 
@@ -53,13 +56,17 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 		} catch (OpenemsException e) {
 			if (this.parent.metadata.isInitialized()) {
 				// close websocket
-				ws.closeConnection(CloseFrame.REFUSE,
-						"Connection to backend failed. Apikey [" + apikey + "]. Error: " + e.getMessage());
+				ws.closeConnection(CloseFrame.REFUSE, "Connection to backend failed. " //
+						+ "Apikey [" + apikey + "]. " //
+						+ "Remote [" + ws.getRemoteSocketAddress() + "] " //
+						+ "Error: " + e.getMessage());
 			} else {
 				// close websocket
 				ws.closeConnection(CloseFrame.TRY_AGAIN_LATER,
-						"Connection to backend failed. Metadata is not yet initialized. Apikey [" + apikey
-								+ "]. Error: " + e.getMessage());
+						"Connection to backend failed. Metadata is not yet initialized. " //
+								+ "Apikey [" + apikey + "]. " //
+								+ "Remote [" + ws.getRemoteSocketAddress() + "] " //
+								+ "Error: " + e.getMessage());
 			}
 		}
 	}

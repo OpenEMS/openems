@@ -1,6 +1,6 @@
 package io.openems.edge.app.api;
 
-import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -17,7 +17,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
-import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -122,9 +121,9 @@ public class ModbusTcpApiReadOnly
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-			if (!EnumUtils.getAsOptionalBoolean(p, Property.ACTIVE).orElse(true)) {
+			if (!this.getBoolean(p, Property.ACTIVE)) {
 				return new AppConfiguration();
 			}
 
@@ -140,8 +139,8 @@ public class ModbusTcpApiReadOnly
 	}
 
 	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
+	protected Property[] propertyValues() {
+		return Property.values();
 	}
 
 	@Override

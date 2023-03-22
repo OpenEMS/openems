@@ -24,8 +24,8 @@
         "storageCharge": "Speicher-Beladung",
         "storageDischarge": "Speicher-Entladung",
         "title": "Energiemonitor",
-        "excelExportWarning": "Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben.",
-        "displayWarning": "Die Anzeige von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben."
+        "ERROR_TEMPORARY": "Fehler beim Abruf der Daten. Bitte versuchen Sie es später noch einmal.",
+        "ERROR_TOO_LONG": "Die Anzeige von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben."
       },
       "Widgets": {
         "autarchyInfo": "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
@@ -240,7 +240,21 @@
           },
           "CHARGED": "Aufgeladen"
         }
-      }
+      },
+      "RETROFITTING": {
+        "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",
+        "OPTIMAL": "Kapazitätserweiterung",
+        "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}}\u00a0% Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}}\u00a0Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+        "SELECT_A_DATE": "Wählen Sie bitte ein Datum aus",
+        "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
+        "INSTANT_START": "Sofortstart",
+        "PLANNED_EXPANSION": "Geplante Erweiterung",
+        "INFORMATION_FOR_PlANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}}\u00a0Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}}\u00a0% Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}}\u00a0Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+        "PREPARING": "Kapazitätserweiterung wird vorbereitet",
+        "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
+        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}}\u00a0% zu erreichen."
+      },
+      "SYSTEMUPDATE": "Systemupdate"
     },
     "History": {
       "beginDate": "Startdatum wählen",

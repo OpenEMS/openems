@@ -314,6 +314,9 @@ public class ComponentUtilImpl implements ComponentUtil {
 	 */
 	public static List<Component> order(List<Component> components) {
 		var copy = new ArrayList<>(components);
+		if (components.size() <= 1) {
+			return copy;
+		}
 		for (Component component : components) {
 			// determine which id s the component needs
 			List<String> ids = new ArrayList<>();
@@ -470,13 +473,13 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	@Override
-	public String getNextAvailableId(String baseName, int startingNumber, List<Component> components) {
+	public String getNextAvailableId(String baseName, int startingNumber, List<String> componentIds) {
 		for (var i = startingNumber; true; i++) {
 			var id = baseName + i;
 			if (this.componentManager.getEdgeConfig().getComponent(id).isPresent()) {
 				continue;
 			}
-			if (components.stream().anyMatch(t -> t.getId().equals(id))) {
+			if (componentIds.stream().anyMatch(t -> t.equals(id))) {
 				continue;
 			}
 			return id;

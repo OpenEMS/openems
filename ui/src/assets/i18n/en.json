@@ -24,8 +24,8 @@
         "storageCharge": "Storage-Charge",
         "storageDischarge": "Storage-Discharge",
         "title": "Energymonitor",
-        "excelExportWarning": "The display and export of data over a longer period of time is currently only possible to a limited extent. We are working on providing this function again soon.",
-        "displayWarning": "The display of data over a longer period of time is currently only possible to a limited extent. We are working on providing this function again soon."
+        "ERROR_TEMPORARY": "Error while fetching data. Please try again later.",
+        "ERROR_TOO_LONG": "Displaying data of longer periods of time is currently limited. We are working on providing this function again soon."
       },
       "Widgets": {
         "autarchyInfo": "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
@@ -241,7 +241,21 @@
           },
           "CHARGED": "Charged"
         }
-      }
+      },
+      "RETROFITTING": {
+        "OPTIMAL": "Capacity expansion",
+        "ON_DATE_AT_TIME": "on {{date}} at {{time}}",
+        "INSTANT_START": "Instant start",
+        "PLANNED_EXPANSION": "Planned Expansion",
+        "INFORMATION_FOR_PlANNED_EXPANSION": "The battery is expected to be charged/discharged from {{targetTime}} on {{targetDate}} to reach reach {{targetSoc}}\u00a0% state of charge for the planned expansion. In the process there may be grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}}\u00a0minutes, after which or after the capacity expansion, the storage system returns to the regular operating state.",
+        "INFORMATION_FOR_INSTANT_START": "The battery is charged or discharged at maximum power in order to reach a state of charge of {{targetSoc}}\u00a0% as quickly as possible for an expansion. This can result in grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}}\u00a0minutes, after which, or after the capacity has been expanded, the storage system returns to its regular operating state.",
+        "PREPARING": "Prepare for Capacity Extension",
+        "REACHED_TARGET_SOC": "Ready for Capacity Extension",
+        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "The battery is expected to be charged/discharged to reach {{targetSoc}}\u00a0% state of charge for the planned expansion.",
+        "SELECT_A_DATE": "Please select a date",
+        "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature."
+      },
+      "SYSTEMUPDATE": "System update"
     },
     "History": {
       "beginDate": "Select Begin Date",
