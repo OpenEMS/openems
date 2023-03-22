@@ -75,7 +75,7 @@ public interface Type<P extends Nameable, //
 	 * 
 	 * @return the {@link AppDef}
 	 */
-	public AppDef<A, P, M> def();
+	public AppDef<? super A, ? super P, ? super M> def();
 
 	/**
 	 * Gets the name of the property.

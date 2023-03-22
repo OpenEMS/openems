@@ -1,6 +1,6 @@
 package io.openems.edge.app.timeofusetariff;
 
-import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -107,7 +107,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
 			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
@@ -149,8 +149,8 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 	}
 
 	@Override
-	protected Class<Property> getPropertyClass() {
-		return Property.class;
+	protected Property[] propertyValues() {
+		return Property.values();
 	}
 
 	@Override

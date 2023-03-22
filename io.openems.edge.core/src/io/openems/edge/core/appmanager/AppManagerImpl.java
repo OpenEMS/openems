@@ -484,7 +484,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleAddAppInstanceRequest(User user,
+	public CompletableFuture<AddAppInstance.Response> handleAddAppInstanceRequest(User user,
 			AddAppInstance.Request request, boolean ignoreBackend) throws OpenemsNamedException {
 		// check if key is valid for this app
 		if (!ignoreBackend && !this.backendUtil.isKeyApplicable(user, request.key, request.appId)) {
@@ -550,7 +550,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleAddAppInstanceRequest(User user,
+	public CompletableFuture<AddAppInstance.Response> handleAddAppInstanceRequest(User user,
 			AddAppInstance.Request request) throws OpenemsNamedException {
 		return this.handleAddAppInstanceRequest(user, request, false);
 	}
@@ -746,7 +746,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	public CompletableFuture<? extends JsonrpcResponseSuccess> handleUpdateAppInstanceRequest(User user,
+	public CompletableFuture<UpdateAppInstance.Response> handleUpdateAppInstanceRequest(User user,
 			UpdateAppInstance.Request request) throws OpenemsNamedException {
 		final var response = this.lockModifyingApps(() -> {
 			final OpenemsAppInstance oldApp;

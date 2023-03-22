@@ -23,6 +23,7 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 
@@ -51,7 +52,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 @org.osgi.service.component.annotations.Component(name = "App.PvInverter.Kostal")
 public class KostalPvInverter extends AbstractPvInverter<Property> implements OpenemsApp {
 
-	public static enum Property {
+	public static enum Property implements Nameable {
 		// Component-IDs
 		PV_INVERTER_ID, //
 		MODBUS_ID, //

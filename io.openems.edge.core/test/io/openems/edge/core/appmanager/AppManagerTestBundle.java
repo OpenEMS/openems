@@ -41,6 +41,7 @@ import io.openems.edge.core.appmanager.dependency.ComponentAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.dependency.SchedulerAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.StaticIpAggregateTaskImpl;
+import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Request;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
@@ -160,8 +161,8 @@ public class AppManagerTestBundle {
 			}
 
 			@Override
-			public CompletableFuture<? extends JsonrpcResponseSuccess> handleAddAppInstanceRequest(User user,
-					Request request, boolean ignoreBackend) throws OpenemsNamedException {
+			public CompletableFuture<AddAppInstance.Response> handleAddAppInstanceRequest(User user, Request request,
+					boolean ignoreBackend) throws OpenemsNamedException {
 				final var response = super.handleAddAppInstanceRequest(user, request, ignoreBackend);
 				this.modifyWithCurrentConfig();
 				return response;
@@ -176,7 +177,7 @@ public class AppManagerTestBundle {
 			}
 
 			@Override
-			public CompletableFuture<? extends JsonrpcResponseSuccess> handleUpdateAppInstanceRequest(User user,
+			public CompletableFuture<UpdateAppInstance.Response> handleUpdateAppInstanceRequest(User user,
 					UpdateAppInstance.Request request) throws OpenemsNamedException {
 				final var response = super.handleUpdateAppInstanceRequest(user, request);
 				this.modifyWithCurrentConfig();
