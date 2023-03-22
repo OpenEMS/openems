@@ -24,8 +24,8 @@
         "storageCharge": "Speicher-Beladung",
         "storageDischarge": "Speicher-Entladung",
         "title": "Energiemonitor",
-        "excelExportWarning": "Die Anzeige und der Export von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben.",
-        "displayWarning": "Die Anzeige von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben."
+        "ERROR_TEMPORARY": "Fehler beim Abruf der Daten. Bitte versuchen Sie es später noch einmal.",
+        "ERROR_TOO_LONG": "Die Anzeige von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben."
       },
       "Widgets": {
         "autarchyInfo": "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",

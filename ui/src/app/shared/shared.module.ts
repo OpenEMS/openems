@@ -24,6 +24,7 @@ import { PanelWrapperComponent } from './formly/panel-wrapper.component';
 import { RepeatTypeComponent } from './formly/repeat';
 import { Generic_ComponentsModule } from './genericComponents/genericComponents';
 import { HeaderComponent } from './header/header.component';
+import { HistoryDataErrorComponent } from './history-data-error.component';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PipeModule } from './pipe/pipe';
 import { Logger } from './service/logger';
@@ -91,6 +92,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     // components
     ChartOptionsComponent,
     HeaderComponent,
+    HistoryDataErrorComponent,
     PercentageBarComponent,
     // formly
     InputTypeComponent,
@@ -123,6 +125,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     // components
     ChartOptionsComponent,
     HeaderComponent,
+    HistoryDataErrorComponent,
     PercentageBarComponent,
   ],
   providers: [
