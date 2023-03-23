@@ -122,6 +122,7 @@ public class AuthenticatedRpcRequest<USER extends AbstractUser> extends JsonrpcR
 				.add("user", JsonUtils.buildJsonObject() //
 						.addProperty("id", this.user.getId()) //
 						.addProperty("name", this.user.getName()) //
+						.addPropertyIfNotNull("language", this.user.getLanguage()) //
 						.add("role", role.asJson()) //
 						.build()) //
 				.add("payload", this.payload.toJsonObject()) //
