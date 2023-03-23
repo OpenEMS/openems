@@ -41,6 +41,7 @@ export namespace AddAppInstance {
 
         public constructor(
             public readonly params: {
+                key?: string, // only for newer versions
                 appId: string,
                 alias: string,
                 properties: {}

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,8 +40,10 @@ import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.utils.StringUtils;
 import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
@@ -93,11 +94,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 	public User authenticate(String username, String password) throws OpenemsNamedException {
 		var name = "User #" + this.nextUserId.incrementAndGet();
 		var token = UUID.randomUUID().toString();
-		var roles = new TreeMap<String, Role>();
-		for (String edgeId : this.edges.keySet()) {
-			roles.put(edgeId, Role.ADMIN);
-		}
-		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN, roles);
+		var user = new User(username, name, token, this.defaultLanguage, Role.ADMIN);
 		this.users.put(user.getId(), user);
 		return user;
 	}
@@ -171,7 +168,7 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 
 	@Override
 	public Collection<Edge> getAllOfflineEdges() {
-		return  this.edges.values().stream().filter(Edge::isOffline).collect(Collectors.toUnmodifiableList());
+		return this.edges.values().stream().filter(Edge::isOffline).collect(Collectors.toUnmodifiableList());
 	}
 
 	private static Optional<Integer> parseNumberFromName(String name) {
@@ -267,4 +264,31 @@ public class DummyMetadata extends AbstractMetadata implements Metadata, EventHa
 	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) {
 		throw new UnsupportedOperationException("DummyMetadata.setUserAlertingSettings() is not implemented");
 	}
+
+	@Override
+	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions)
+			throws OpenemsNamedException {
+		var pagesStream = this.edges.values().stream();
+		final var query = paginationOptions.getQuery();
+		if (query != null) {
+			pagesStream = pagesStream.filter(//
+					edge -> StringUtils.containsWithNullCheck(edge.getId(), query) //
+							|| StringUtils.containsWithNullCheck(edge.getComment(), query) //
+							|| StringUtils.containsWithNullCheck(edge.getProducttype(), query) //
+			);
+		}
+		return pagesStream //
+				.sorted((s1, s2) -> s1.getId().compareTo(s2.getId())) //
+				.skip(paginationOptions.getPage() * paginationOptions.getLimit()) //
+				.limit(paginationOptions.getLimit()) //
+				.peek(t -> user.setRole(t.getId(), Role.ADMIN)) //
+				.collect(Collectors.toMap(t -> t.getId(), t -> Role.ADMIN)); //
+	}
+
+	@Override
+	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException {
+		user.setRole(edgeId, Role.ADMIN);
+		return Role.ADMIN;
+	}
+
 }

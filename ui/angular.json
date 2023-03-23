@@ -46,7 +46,8 @@
               "extractLicenses": true,
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false
+              "sourceMap": false,
+              "serviceWorker": true
             },
             "openems": {
               "assets": [

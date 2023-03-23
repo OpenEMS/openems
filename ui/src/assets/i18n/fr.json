@@ -88,15 +88,14 @@
     "save": "sauvegarder"
   },
   "Menu": {
-    "aboutUI": "à propos de OpenEMS UI",
     "accessLevel": "Niveau d'accès",
-    "edgeSettings": "Réglages de OpenEMS",
+    "edgeSettings": "Réglages",
     "generalSettings": "Réglages généraux",
     "index": "Index",
     "logout": "Déconnexion",
     "menu": "Menu",
     "name": "Nom",
-    "overview": "Apperçu OpenEMS ",
+    "overview": "Tous les systèmes",
     "profile": "Utilisateur",
     "settings": "Réglages",
     "changelog": "Changelog",
@@ -121,43 +120,6 @@
     "authenticationFailed": "Échec de l'authentification",
     "user": "Utilisateur"
   },
-  "Register": {
-    "title": "Créer un compte utilisateur",
-    "segment": {
-      "user": "Utilisateur",
-      "installer": "Installateur"
-    },
-    "Form": {
-      "user": {
-        "acceptPrivacyPolicy": "En créant un compte FENECON, je déclare avoir lu et accepté la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Politique de confidentialité</a> et les conditions d'utilisation de FENECON*."
-      },
-      "installer": {
-        "acceptPrivacyPolicy": "En créant un compte installateur FENECON, je déclare avoir lu et accepté la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Politique de confidentialité</a> et les conditions d'utilisation de FENECON.*"
-      },
-      "contactDetails": "Coordonnées",
-      "companyName": "Nom de la société",
-      "firstname": "Prénom",
-      "lastname": "Nom de famille",
-      "street": "Rue | Numéro de maison",
-      "zip": "Code postal",
-      "city": "Ville",
-      "country": "Pays",
-      "phone": "Numéro de téléphone",
-      "email": "Courrier électronique.",
-      "password": "Mot de passe.",
-      "confirmPassword": "Confirmer le mot de passe.",
-      "isElectrician": "Je confirme que mon entreprise est inscrite dans le registre des installateurs et que je suis donc autorisé à raccorder et à mettre en service un système de stockage.",
-      "acceptPrivacyPolicy": "En créant un compte installateur FENECON, je déclare avoir lu et accepté la <a target=\"_blank\" href=\"https://fenecon.de/page/datenschutzerklaerung/\">Politique de confidentialité</a> et les conditions d'utilisation de FENECON.*",
-      "acceptAgb": "Je confirme le <a target=\"_blank\" href=\"https://fenecon.de/page/agb/\">AGB</a>.*",
-      "subscribeNewsletter": "Je souhaite m'inscrire à la newsletter de la FENECON pour recevoir toutes les dernières nouvelles de la FENECON."
-    },
-    "button": "Créer",
-    "errors": {
-      "requiredFields": "Veuillez remplir tous les champs",
-      "passwordNotEqual": "Les mots de passe ne sont pas égaux."
-    },
-    "success": "Inscription réussie"
-  },
   "Edge": {
     "Index": {
       "EmergencyReserve": {
@@ -173,8 +135,7 @@
         "storage": "Stockage",
         "storageCharge": "Stockage-Charge",
         "storageDischarge": "Stockage-Décharge",
-        "title": "Moniteur d'énergie",
-        "excelExportWarning": "L`affichage et l`exportation de données sur une longue période sont actuellement limités. Veuillez réessayer ultérieurement."
+        "title": "Moniteur d'énergie"
       },
       "Energytable": {
         "title": "Tableau énergétique",
@@ -500,12 +461,12 @@
           "error": "Erreur lors du chargement des paramètres"
         },
         "interval": {
-          "hours": "heures",
-          "minute": "minute",
-          "minutes": "minutes",
-          "day": "journée",
-          "days": "journées",
-          "hour": "heure"
+          "hours": "Heures",
+          "minute": "Minute",
+          "minutes": "Minutes",
+          "day": "Journée",
+          "days": "Journées",
+          "hour": "Heure"
         }
       },
       "App": {
@@ -520,7 +481,8 @@
         "deleteApp": "Supprimer l'application",
         "updateApp": "Mise à jour de l'application",
         "errorInstallable": "Erreurs d'installation",
-        "errorCompatible": "Erreurs de compatibilité"
+        "errorCompatible": "Erreurs de compatibilité",
+        "notAvailable": "Pas disponible"
       }
     },
     "Service": {
@@ -545,12 +507,10 @@
   },
   "About": {
     "build": "This build",
-    "contact": "Veuillez contacter notre équipe pour plus d'informations ou suggestions sur le système à l'adresse<a href =\"mailto:{{ value }}\">{{ value }}</a>.",
     "currentDevelopments": "Développement actuels",
     "developed": "Cet interface utilisateur est développé en tant que logiciel libre.",
     "language": "Sélectionnez la langue:",
-    "openEMS": "Plus au sujet d'OpenEMS",
-    "ui": "interface utilisateur pour OpenEMS"
+    "openEMS": "Plus au sujet d'OpenEMS"
   },
   "Notifications": {
     "authenticationFailed": "Pas de connexion, échec d'authentification .",
