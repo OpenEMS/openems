@@ -24,7 +24,7 @@
         "storageCharge": "Storage-Charge",
         "storageDischarge": "Storage-Discharge",
         "title": "Energymonitor",
-        "excelExportWarning": "The display and export of data over a longer period of time is currently only possible to a limited extent. We are working on providing this function again soon."
+        "ERROR_TEMPORARY": "Error while fetching data. Please try again later."
       },
       "Widgets": {
         "autarchyInfo": "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",

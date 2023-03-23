@@ -1,11 +1,13 @@
 <header></header>
 <ion-content>
+  <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
+
   <!-- Only displayed when history allowed to be seen -->
   <ion-grid *ngIf="isTimedataAvailable && widgets">
     <ion-row>
       <!-- Energymonitor Chart -->
       <ion-col size="12">
-        <energy (setShowWarning)="setShowWarning($event)" [period]="service.historyPeriod"
+        <energy (setErrorResponse)="setErrorResponse($event)" [period]="service.historyPeriod"
           [style.height]="energyChartHeight"></energy>
       </ion-col>
 

@@ -11,11 +11,8 @@
 </ng-template>
 
 <ng-template #tplChart>
-  <ion-item lines="full" color="warning" *ngIf="!isDataExisting || !isExcelExportAllowed">
-    <ion-icon size="large" slot="start" name="alert-circle-outline"></ion-icon>
-    <ion-label class="ion-text-wrap" style="text-align: center"
-      translate>Edge.Index.Energymonitor.excelExportWarning</ion-label>
-  </ion-item>
+  <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
+
   <div [style.height.px]="getChartHeight()">
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
     <ng-container *ngIf="!loading">
