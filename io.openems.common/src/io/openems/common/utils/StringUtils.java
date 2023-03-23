@@ -115,4 +115,27 @@ public class StringUtils {
 	public static boolean matchesFloatPattern(String string) {
 		return DETECT_FLOAT_PATTERN.test(string);
 	}
+
+	/**
+	 * Causes this character sequence to be replaced by the reverse of the sequence.
+	 * 
+	 * @param string to be reversed.
+	 * @return reversed String.
+	 */
+	public static String reverse(String string) {
+		return new StringBuilder(string).reverse().toString();
+	}
+
+	/**
+	 * If the given string is null return false, otherwise result of
+	 * {@link String#contains(CharSequence)} is returned.
+	 * 
+	 * @param string the string to check
+	 * @param value  the sequence to search for
+	 * @return true if string is not null and string contains value, otherwise false
+	 */
+	public static boolean containsWithNullCheck(String string, String value) {
+		return string != null && string.contains(value);
+	}
+
 }

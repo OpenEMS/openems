@@ -2,7 +2,6 @@ package io.openems.backend.timedata.timescaledb;
 
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.Executors;
@@ -42,6 +41,7 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 
 	private final Logger log = LoggerFactory.getLogger(TimescaledbImpl.class);
 
+	private final Config config;
 	private final TimescaledbWriteHandler timescaledbWriteHandler;
 	private final TimescaledbReadHandler timescaledbReadHandler;
 
@@ -50,6 +50,7 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 	@Activate
 	public TimescaledbImpl(@Reference Metadata metadata, Config config) throws SQLException {
 		super("Timedata.TimescaleDB");
+		this.config = config;
 
 		this.logInfo(this.log, "Activate [" //
 				+ config.user() + (config.password() != null ? ":xxx" : "") //
@@ -107,8 +108,8 @@ public class TimescaledbImpl extends AbstractOpenemsBackendComponent implements 
 	}
 
 	@Override
-	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
-		return this.timescaledbReadHandler.getChannelValues(edgeId, channelAddresses);
+	public String id() {
+		return this.config.id();
 	}
 
 }

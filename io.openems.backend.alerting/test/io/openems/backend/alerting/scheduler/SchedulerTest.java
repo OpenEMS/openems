@@ -11,12 +11,12 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.osgi.service.event.Event;
 
 import com.google.gson.JsonObject;
 
 import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.Message;
+import io.openems.common.event.EventReader;
 
 public class SchedulerTest {
 
@@ -25,9 +25,9 @@ public class SchedulerTest {
 	 */
 	@BeforeClass
 	public static void dummyClass() {
-		var dummyMsg = new DummyMessage(null, 0);
+		var dummyMsg = new DummyMessage("", 0);
 		var dummyHan = new DummyHandler();
-		Runnable[] methods = { () -> dummyHan.handleEvent(null), () -> dummyHan.stop(), () -> dummyHan.getGeneric(),
+		Runnable[] methods = { () -> dummyHan.getEventHandler(null), () -> dummyHan.stop(), () -> dummyHan.getGeneric(),
 				() -> dummyMsg.getParams(), };
 		assertNotNull(dummyMsg.getNotifyStamp());
 		for (var method : methods) {
@@ -144,7 +144,7 @@ public class SchedulerTest {
 		ZonedDateTime wasSentAt = null;
 
 		@Override
-		public void handleEvent(Event event) {
+		public Runnable getEventHandler(EventReader event) {
 			throw new UnsupportedOperationException();
 		}
 

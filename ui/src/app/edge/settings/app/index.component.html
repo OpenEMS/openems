@@ -1,17 +1,42 @@
 <!-- Template for app lists -->
 <ng-template #appsList let-appCatList="appCatList">
   <ion-col *ngFor="let app of appCatList.apps" size="12" size-lg="6" size-xl="3">
-    <ion-card>
-      <ion-item lines="full" color="primary">
+    <ion-card style="width: 100%;">
+      <ion-item lines="full" color="primary" style="cursor: pointer" (click)="onAppClicked(app)">
         <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
         <ion-label style="white-space: initial">
           {{ app.name }}</ion-label>
       </ion-item>
-      <ion-card-content [routerLink]="['single', app.appId]" [queryParams]="{name: app.name}" [state]="app"
-        style="cursor: pointer;">
-        <div [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}"
-          style="display: flex; align-items: center;justify-content: center; ">
-          <img *ngIf="app.image" [src]="app.image" />
+      <ion-card-content>
+        <div>
+          <div style="display: flex; align-items: center; justify-content: center; cursor: pointer"
+            (click)="onAppClicked(app)"
+            [ngStyle]="{'opacity': (app.status.name === 'INSTALLABLE' || app.instanceIds.length > 0) ? '100%' : '20%'}">
+            <img *ngIf="app.image" [src]="app.image" />
+          </div>
+
+          <ng-container *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
+            <ion-grid>
+              <ion-row>
+                <ion-col>
+                  <ion-label class="ion-text-center">
+                    <h3 translate>Edge.Config.App.notAvailable</h3>
+                  </ion-label>
+                  <br />
+                  <ion-label>
+                    <div *ngFor="let message of app.status.errorCompatibleMessages">
+                      <span [innerHTML]="message"></span>
+                    </div>
+                  </ion-label>
+                  <ion-label>
+                    <div *ngFor="let message of app.status.errorInstallableMessages">
+                      <span [innerHTML]="message"></span>
+                    </div>
+                  </ion-label>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ng-container>
         </div>
         <p *ngIf="false">
           <small>Technischer Name: {{ app.appId }}</small><br />
@@ -21,18 +46,6 @@
             </a></small><br />
           <small>Cardinality: {{ app.cardinality }}</small>
         </p>
-        <div *ngIf="app.instanceIds.length === 0 && app.status.name !== 'INSTALLABLE'">
-          <div *ngIf="app.status.errorCompatibleMessages.length !== 0 ">
-            <small translate>Edge.Config.App.errorCompatible</small><br />
-            <small *ngFor="let message of app.status.errorCompatibleMessages"> - {{ message
-              }}</small><br />
-          </div>
-          <div *ngIf="app.status.errorInstallableMessages.length !== 0 ">
-            <small translate>Edge.Config.App.errorInstallable</small><br />
-            <small *ngFor="let message of app.status.errorInstallableMessages"> - {{ message
-              }}</small><br />
-          </div>
-        </div>
       </ion-card-content>
     </ion-card>
   </ion-col>
@@ -60,7 +73,7 @@
 
   <ion-grid>
     <ion-row *ngIf="true">
-      <ion-col size="12">
+      <ion-col size="12" [attr.size-xl]="canEnterKey ? 8 : 12">
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" name="information-outline"></ion-icon>
@@ -72,13 +85,44 @@
           </ion-item>
         </ion-card>
       </ion-col>
+      <ng-container *ngIf="canEnterKey">
+        <ion-col size="6" size-xl="2">
+          <ion-card style="cursor: pointer;" (click)="redeemKey()">
+            <ion-item lines="full" color="primary">
+              <ion-icon slot="start" size="large" name="key-outline"></ion-icon>
+              <ion-text text-nowrap translate>Edge.Config.App.Key.useKey</ion-text>
+            </ion-item>
+          </ion-card>
+        </ion-col>
+        <ion-col size="6" size-xl="2">
+          <ion-card style="cursor: pointer;" (click)="registerKey()">
+            <ion-item lines="full" color="primary">
+              <ion-icon slot="start" size="large" name="key-outline"></ion-icon>
+              <ion-text text-nowrap translate>Edge.Config.App.Key.registerKey</ion-text>
+            </ion-item>
+          </ion-card>
+        </ion-col>
+      </ng-container>
+    </ion-row>
+
+    <ion-row *ngIf="key && key.bundles">
+      <ion-col>
+        <ion-segment [(ngModel)]="selectedBundle">
+          <ion-segment-button *ngFor="let bundle of key.bundles; let i = index" value={{i}}
+            (click)="updateSelection(null)">
+            <ion-text text-nowrap>
+              {{ bundle.length }}
+            </ion-text>
+          </ion-segment-button>
+        </ion-segment>
+      </ion-col>
     </ion-row>
 
     <ion-row>
       <ion-col size="12">
         <ion-grid>
           <div *ngFor="let appList of appLists">
-            <ng-container *ngIf="!isEmpty(appList)">
+            <ng-container *ngIf="!isEmpty(appList) && appList.shouldBeShown()">
               <ion-row style="position: -webkit-sticky;
             position: sticky;
             top: 0px;

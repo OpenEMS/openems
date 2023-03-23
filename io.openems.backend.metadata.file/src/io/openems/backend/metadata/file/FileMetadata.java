@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -43,9 +42,11 @@ import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 
 /**
  * This implementation of MetadataService reads Edges configuration from a file.
@@ -70,7 +71,8 @@ import io.openems.common.utils.JsonUtils;
 @Designate(ocd = Config.class, factory = false)
 @Component(//
 		name = "Metadata.File", //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		immediate = true //
 )
 @EventTopics({ //
 		Edge.Events.ON_SET_CONFIG //
@@ -215,7 +217,6 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 			// Add Edges and configure User permissions
 			for (MyEdge edge : edges) {
 				this.edges.put(edge.getId(), edge);
-				this.user.setRole(edge.getId(), Role.ADMIN);
 			}
 		}
 		this.setInitialized();
@@ -223,7 +224,7 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 
 	private static User generateUser() {
 		return new User(FileMetadata.USER_ID, FileMetadata.USER_NAME, UUID.randomUUID().toString(),
-				FileMetadata.LANGUAGE, FileMetadata.USER_GLOBAL_ROLE, new TreeMap<>());
+				FileMetadata.LANGUAGE, FileMetadata.USER_GLOBAL_ROLE);
 	}
 
 	@Override
@@ -305,6 +306,32 @@ public class FileMetadata extends AbstractMetadata implements Metadata, EventHan
 	@Override
 	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) {
 		throw new UnsupportedOperationException("FileMetadata.setUserAlertingSettings() is not implemented");
+	}
+
+	@Override
+	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions)
+			throws OpenemsNamedException {
+		var pagesStream = this.edges.values().stream();
+		final var query = paginationOptions.getQuery();
+		if (query != null) {
+			pagesStream = pagesStream.filter(//
+					edge -> StringUtils.containsWithNullCheck(edge.getId(), query) //
+							|| StringUtils.containsWithNullCheck(edge.getComment(), query) //
+							|| StringUtils.containsWithNullCheck(edge.getProducttype(), query) //
+			);
+		}
+		return pagesStream //
+				.sorted((s1, s2) -> s1.getId().compareTo(s2.getId())) //
+				.skip(paginationOptions.getPage() * paginationOptions.getLimit()) //
+				.limit(paginationOptions.getLimit()) //
+				.peek(t -> user.setRole(t.getId(), Role.ADMIN)) //
+				.collect(Collectors.toMap(t -> t.getId(), t -> Role.ADMIN)); //
+	}
+
+	@Override
+	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException {
+		user.setRole(edgeId, Role.ADMIN);
+		return Role.ADMIN;
 	}
 
 }
