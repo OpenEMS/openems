@@ -360,6 +360,22 @@ public class InfluxQlProxy extends QueryProxy {
 		while (start.isBefore(toDate)) {
 			ZonedDateTime end = null;
 			switch (resolution.getUnit()) {
+			case CENTURIES:
+			case DECADES:
+			case ERAS:
+			case FOREVER:
+			case HALF_DAYS:
+			case HOURS:
+			case MICROS:
+			case MILLENNIA:
+			case MILLIS:
+			case MINUTES:
+			case NANOS:
+			case SECONDS:
+			case WEEKS:
+			case YEARS:
+				// No specific handling required
+				break;
 			case DAYS:
 				end = start.plusDays(resolution.getValue()) //
 						.truncatedTo(DurationUnit.ofDays(1));
