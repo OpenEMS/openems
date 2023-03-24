@@ -40,7 +40,7 @@
                 -5%;">
             </div>
           </ng-container>
-          <ion-row *ngIf="!showAll">
+          <ion-row *ngIf="changelogs.length > slice && !showAll">
             <ion-item lines="none">
               <ion-button (click)="showAll = true">
                 Alle anzeigen
