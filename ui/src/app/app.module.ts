@@ -11,6 +11,7 @@ import { FORMLY_CONFIG } from '@ngx-formly/core';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AngularMyDatePickerModule } from 'angular-mydatepicker';
 import { CookieService } from 'ngx-cookie-service';
+import { environment } from 'src/environments';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -60,7 +61,7 @@ import { UserModule } from './user/user.module';
     TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
     UserModule,
     RegistrationModule,
-    ServiceWorkerModule.register('/ngsw-worker.js', { enabled: true })
+    ServiceWorkerModule.register('/ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },

@@ -36,11 +36,18 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.3.5',
+        changes: [
+          "Aktualisierung der Java Runtime Environment auf Version 17 LTS",
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Verbesserung bei Übersetzungen" },
+        ]
+      },
+      {
         version: '2023.3.4',
         changes: [
           Changelog.UI,
           "Verbesserung am Changelog: Anzeige im Bereich \"Systemupdate\" und verbessertes Layout",
-          Changelog.product(Product.HOME) + "Vorbereitung einer Batterie-Erweiterung (Be-/Entladen auf 30 % SoC) über das Speicher-Widget im Online-Monitoring",
+          { roleIsAtLeast: Role.INSTALLER, change: Changelog.product(Product.HOME) + "Vorbereitung einer Batterie-Erweiterung (Be-/Entladen auf 30 % SoC) über das Speicher-Widget im Online-Monitoring" },
           Changelog.product(Product.FEMS_SG_READY_WAERMEPUMPE) + "Verbesserung der Fehlerprüfung bei Konfigurationsänderungen",
           { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Webasto Next Ladestation" },
           { roleIsAtLeast: Role.ADMIN, change: "App-Center: Optimierung Validierung kostenloser Apps, Verbesserung bei Default-Werten, Hardy-Barth mit zwei Ladepunkten" },
