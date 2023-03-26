@@ -1,5 +1,5 @@
-# name: Build Docs
-# on:
+name: Build Docs
+on: [push]
 #   push:
 #     branches:
 #       - develop
