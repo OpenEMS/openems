@@ -1,10 +1,10 @@
 #!/bin/bash
 # Build/Update 'openems-build' Container for Drone CI
 
-docker pull adoptopenjdk/openjdk11
+docker pull eclipse-temurin:17-jdk
 
 docker build -t openems-build:latest -<<EOF
-FROM adoptopenjdk/openjdk11
+FROM eclipse-temurin:17-jdk
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 
 RUN apt-get update  \
@@ -16,6 +16,7 @@ RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.d
         || apt-get install -y -f \
         && rm google-chrome-stable_current_amd64.deb
 
+RUN apt clean
 RUN rm -rf /var/lib/apt/lists/*
 EOF
 
