@@ -72,6 +72,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("battery0/Tower1Module6SerialNumber", RequiredType.STRING);
 		this.createAndAddHandler("battery0/Tower1Module7SerialNumber", RequiredType.STRING);
 		this.createAndAddHandler("battery0/Tower1Module8SerialNumber", RequiredType.STRING);
+		this.createAndAddHandler("battery0/Tower1Module9SerialNumber", RequiredType.STRING);
 		this.createAndAddHandler("battery0/Tower1SubMasterFirmwareVersion", RequiredType.STRING);
 		this.createAndAddHandler("battery1/BatterySoc", RequiredType.INTEGER);
 		this.createAndAddHandler("battery1/MasterMcuFirmwareVersion", RequiredType.STRING);
@@ -115,6 +116,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("batteryInverter0/ETotalBuyF", RequiredType.FLOAT);
 		this.createAndAddHandler("batteryInverter0/ETotalSell", RequiredType.FLOAT);
 		this.createAndAddHandler("batteryInverter0/ETotalSell2", RequiredType.FLOAT);
+		this.createAndAddHandler("batteryInverter0/Mac", RequiredType.STRING);
 		this.createAndAddHandler("batteryInverter0/Opt", RequiredType.STRING);
 		this.createAndAddHandler("batteryInverter0/S103Wh", RequiredType.FLOAT);
 		this.createAndAddHandler("batteryInverter0/Sn", RequiredType.STRING);
@@ -653,6 +655,7 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("gridcon0/CcuCurrentIl3", RequiredType.FLOAT);
 		this.createAndAddHandler("gridcon0/CcuPowerP", RequiredType.FLOAT);
 		this.createAndAddHandler("gridcon0/CcuPowerQ", RequiredType.FLOAT);
+		this.createAndAddHandler("gridcon0/CommandControlParameterPRef", RequiredType.INTEGER);
 		this.createAndAddHandler("gridcon0/CommandControlParameterPRefDebug", RequiredType.FLOAT);
 		this.createAndAddHandler("gridcon0/DcdcMeasurementsCurrentStringA", RequiredType.FLOAT);
 		this.createAndAddHandler("gridcon0/DcdcMeasurementsPowerStringA", RequiredType.FLOAT);
@@ -682,7 +685,10 @@ public class FieldTypeConflictHandler {
 		this.createAndAddHandler("kostalPiko1/ArticleNumber", RequiredType.STRING);
 		this.createAndAddHandler("kostalPiko1/FirmwareVersion", RequiredType.STRING);
 		this.createAndAddHandler("kostalPiko1/HardwareVersion", RequiredType.STRING);
+		this.createAndAddHandler("kostalPiko1/HomeConsumptionGrid", RequiredType.FLOAT);
+		this.createAndAddHandler("kostalPiko1/HomeConsumptionPv", RequiredType.FLOAT);
 		this.createAndAddHandler("kostalPiko1/KomboardVersion", RequiredType.STRING);
+		this.createAndAddHandler("kostalPiko1/MaxResidualCurrent", RequiredType.FLOAT);
 		this.createAndAddHandler("kostalPiko1/ParameterVersion", RequiredType.STRING);
 		this.createAndAddHandler("kostalPiko1/_PropertyPort", RequiredType.STRING);
 		this.createAndAddHandler("kostalPiko1/_PropertyUnitID", RequiredType.STRING);
