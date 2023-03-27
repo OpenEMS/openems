@@ -28,6 +28,7 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.DefaultEnum;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -56,7 +57,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 @Component(name = "App.Evcs.IesKeywatt")
 public class IesKeywattEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
 
-	public static enum Property implements DefaultEnum {
+	public static enum Property implements DefaultEnum, Nameable {
 		// Component-IDs
 		EVCS_ID("evcs0"), //
 		CTRL_EVCS_ID("ctrlEvcs0"), //

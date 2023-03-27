@@ -71,8 +71,8 @@ public class DependencyUtil {
 	 * NOTE: when calling this inside an app configuration it can lead to an endless
 	 * loop
 	 *
-	 * @param componentManager    a componentManager to get the appManager
-	 * @param componentId         the component id that the app should have
+	 * @param componentManager a componentManager to get the appManager
+	 * @param componentId      the component id that the app should have
 	 * @return the found instanceId or null if no app has this component
 	 */
 	public final UUID getInstanceIdOfAppWhichHasComponentInternal(ComponentManager componentManager,

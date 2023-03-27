@@ -1739,6 +1739,28 @@ public class JsonUtils {
 	}
 
 	/**
+	 * Returns a {@link Collector} that accumulates the input elements into a new
+	 * {@link JsonObject}.
+	 * 
+	 * @param <T>         the type of the input
+	 * @param keyMapper   the key mapper
+	 * @param valueMapper the value mapper
+	 * @return the {@link Collector}
+	 */
+	public static <T> Collector<T, ?, JsonObject> toJsonObject(//
+			final Function<T, ? extends String> keyMapper, //
+			final Function<T, ? extends JsonElement> valueMapper //
+	) {
+		return Collector.of(JsonObject::new, //
+				(t, u) -> {
+					t.add(keyMapper.apply(u), valueMapper.apply(u));
+				}, (t, u) -> {
+					u.entrySet().forEach(entry -> t.add(entry.getKey(), entry.getValue()));
+					return t;
+				});
+	}
+
+	/**
 	 * Returns a Collector that accumulates the input elements into a new JsonArray.
 	 * 
 	 * @return a Collector which collects all the input elements into a JsonArray

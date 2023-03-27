@@ -20,6 +20,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.heat.HeatPump.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -27,6 +28,7 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -63,9 +65,9 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.Heat.HeatPump")
-public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class HeatPump extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property {
+	public static enum Property implements Nameable {
 		// Component-IDs
 		CTRL_IO_HEAT_PUMP_ID, //
 		// Properties
@@ -136,16 +138,16 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[0])) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".outputChannel1.label"))
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".outputChannel1.description"))
+								.setDescription(TranslationUtil.getTranslation(bundle, //
+										"App.Heat.outputChannel.description")) //
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL_2) //
 								.setOptions(options) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(relays[1])) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".outputChannel2.label"))
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".outputChannel2.description"))
+								.setDescription(TranslationUtil.getTranslation(bundle, //
+										"App.Heat.outputChannel.description")) //
 								.build())
 						.build())
 				.build();
@@ -158,7 +160,7 @@ public class HeatPump extends AbstractOpenemsApp<Property> implements OpenemsApp
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.HEAT };
 	}
 

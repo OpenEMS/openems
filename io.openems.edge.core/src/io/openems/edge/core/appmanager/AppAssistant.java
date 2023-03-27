@@ -10,7 +10,7 @@ public class AppAssistant {
 	/**
 	 * A temporary builder class for an {@link AppAssistant}.
 	 */
-	public static class Builder {
+	public static class Builder implements Self<Builder>, OnlyIf<Builder> {
 
 		private String name;
 		private String alias;
@@ -58,6 +58,11 @@ public class AppAssistant {
 		 */
 		public Builder setAppName(String name) {
 			this.name = name;
+			return this;
+		}
+
+		@Override
+		public Builder self() {
 			return this;
 		}
 
