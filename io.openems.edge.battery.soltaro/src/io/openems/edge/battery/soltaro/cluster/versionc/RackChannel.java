@@ -413,8 +413,6 @@ public enum RackChannel {
 	// Pre-Alarm
 	PRE_ALARM_CELL_VOLTAGE_HIGH(Doc.of(OpenemsType.BOOLEAN) //
 			.text("Cell Voltage High Pre-Alarm")), //
-	PRE_ALARM_TOTAL_VOLTAGE_HIGH(Doc.of(Level.INFO) //
-			.text("Total Voltage High Pre-Alarm")), //
 	PRE_ALARM_CHARGE_CURRENT_HIGH(Doc.of(Level.INFO) //
 			.text("Charge Current High Pre-Alarm")), //
 	PRE_ALARM_CELL_VOLTAGE_LOW(Doc.of(OpenemsType.BOOLEAN) //

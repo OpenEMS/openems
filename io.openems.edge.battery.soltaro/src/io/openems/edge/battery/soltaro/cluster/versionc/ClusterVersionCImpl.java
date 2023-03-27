@@ -335,7 +335,6 @@ public class ClusterVersionCImpl extends AbstractOpenemsModbusComponent implemen
 								// Pre-Alarm: Temperature Alarm will active current limication
 								m(new BitsWordElement(r.offset + 0x142, this) //
 										.bit(0, this.createChannelId(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_HIGH)) //
-										.bit(1, this.createChannelId(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_HIGH)) //
 										.bit(2, this.createChannelId(r, RackChannel.PRE_ALARM_CHARGE_CURRENT_HIGH)) //
 										.bit(3, this.createChannelId(r, RackChannel.PRE_ALARM_CELL_VOLTAGE_LOW)) //
 										.bit(4, this.createChannelId(r, RackChannel.PRE_ALARM_TOTAL_VOLTAGE_LOW)) //
