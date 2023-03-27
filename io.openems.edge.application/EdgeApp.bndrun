@@ -35,6 +35,7 @@
 	bnd.identity;id='org.apache.felix.inventory',\
 	bnd.identity;id='org.apache.felix.eventadmin',\
 	bnd.identity;id='org.apache.felix.metatype',\
+	bnd.identity;id='io.openems.edge.airconditioner.hydac4kw',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
@@ -173,7 +174,6 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.awattar',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.corrently',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
-	bnd.identity;id='io.openems.edge.airconditioner.hydac4kw'
 	
 -runbundles: \
 	Java-WebSocket;version='[1.5.3,1.5.4)',\

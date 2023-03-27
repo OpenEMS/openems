@@ -11,4 +11,5 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.io.hal.raspberrypi
 	
 -testpath: \
-	${testpath}
+	${testpath},\
+	io.openems.edge.common

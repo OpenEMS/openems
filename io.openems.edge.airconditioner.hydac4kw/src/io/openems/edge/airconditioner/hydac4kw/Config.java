@@ -9,7 +9,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "io.openems.edge.airconditioner.hydac4kw0";
+	String id() default "airconditioner0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
@@ -18,5 +18,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean enabled() default true;
 	
 	String webconsole_configurationFactory_nameHint() default "io.openems.edge.airconditioner.hydac4kw [{id}]";
+
+	@AttributeDefinition(name = "Maximal starts per hour", description = "How often the air conditioner can be restarted per hour.") 
+	int getMaxRestartPerHour() default 4;
 
 }

@@ -43,6 +43,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		this.builder = builder;
 	}
 
+	@Override
+	public int getMaxRestartPerHour() {
+		return 4;
+	}
+
 //	@Override
 //	public String setting0() {
 //		return this.builder.setting0;

@@ -7,15 +7,15 @@ import io.openems.common.channel.Level;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.startstoppratelimited.RateLimitedStartStoppable;
 
-public interface HydacAirConditioner extends OpenemsComponent, EventHandler {
+public interface HydacAirConditioner extends OpenemsComponent, EventHandler, RateLimitedStartStoppable {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		ERROR_1(Doc.of(ErrorSignal.values()).accessMode(AccessMode.READ_ONLY)),
 		ERROR_2(Doc.of(ErrorSignal.values()).accessMode(AccessMode.READ_ONLY)),
-		ON(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE));
-//		START_COOLDOWN(Doc.of(Level.WARNING));
-		
+//		ON(Doc.of(OpenemsType.BOOLEAN).accessMode(AccessMode.READ_WRITE)),
+		START_EXCEEDED(Doc.of(Level.WARNING));
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -27,7 +27,4 @@ public interface HydacAirConditioner extends OpenemsComponent, EventHandler {
 			return this.doc;
 		}
 	}
-	
-	
-
 }

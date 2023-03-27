@@ -3,9 +3,9 @@ package io.openems.edge.airconditioner.hydac4kw;
 import io.openems.common.types.OptionsEnum;
 
 public enum ErrorSignal implements OptionsEnum {
-	STATE_UNDEFINED(0),
-	STATE_NORMAL(1),
-	STATE_ALARM(2);
+	STATE_UNDEFINED(-1),
+	STATE_NORMAL(0),
+	STATE_ALARM(1);
 	
 	int value;
 	
