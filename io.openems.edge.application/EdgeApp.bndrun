@@ -1,5 +1,5 @@
 -runfw: org.apache.felix.framework;version='[7.0.5,7.0.5]'
--runee: JavaSE-11
+-runee: JavaSE-17
 -runprovidedcapabilities: ${native_capability}
 
 -resolve.effective: active

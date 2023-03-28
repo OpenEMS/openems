@@ -27,6 +27,7 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -54,7 +55,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 @Component(name = "App.Meter.CarloGavazzi")
 public class CarloGavazziMeter extends AbstractMeterApp<Property> implements OpenemsApp {
 
-	public enum Property {
+	public enum Property implements Nameable {
 		// Component-IDs
 		METER_ID, //
 		// Properties
@@ -114,7 +115,8 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 								.build()) //
 						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "modbusUnitId.description")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, "App.Meter.modbusUnitId.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(6) //
 								.setMin(0) //
