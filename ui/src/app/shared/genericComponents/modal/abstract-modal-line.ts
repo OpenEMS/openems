@@ -21,6 +21,8 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /** FormGroup ControlName */
     @Input() controlName: string;
 
+    @Input() channelCondition: number | string | null = null;
+
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
     * 
@@ -32,13 +34,20 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     /** Name for parameter, displayed on the left side*/
     @Input() name: string;
+
+    @Input() nameSuffix = (value: any): string => {
+        return value
+    }
     @Input() value: number | string;
     @Input() roleIsAtLeast?: Role = Role.GUEST;
 
     /** Channel defines the channel, you need for this line */
     @Input()
     set channelAddress(channelAddress: string) {
-        this.subscribe(ChannelAddress.fromString(channelAddress));
+        console.log("🚀 ~ file: abstract-modal-line.ts:47 ~ AbstractModalLine ~ setchannelAddress ~ channelAddress:", channelAddress)
+        if (channelAddress) {
+            this.subscribe(ChannelAddress.fromString(channelAddress));
+        }
     }
 
     /** Selector needed for Subscribe (Identifier) */
@@ -48,9 +57,11 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
      * displayValue is the displayed @Input value in html
      */
     public displayValue: string = null;
+    public displayName: string = null;
 
     /** Checks if any value of this line can be seen => hides line if false */
     protected isAllowedToBeSeen: boolean = true;
+    protected canSeeLine: boolean = true;
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
@@ -113,7 +124,24 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     /** value defines value of the parameter, displayed on the right */
     protected setValue(value: number | string) {
-        this.displayValue = this.converter(value)
+        if (this.channelCondition != null) {
+            this.canSeeLine = false;
+
+            // If channelCondition set, but value is null, wait for first non null value
+            if (value != null) {
+                this.canSeeLine = value === this.channelCondition
+            }
+        }
+
+        if (this.nameSuffix && value != null) {
+            this.displayName = this.name + this.nameSuffix(value)
+        } else {
+            this.displayName = this.name
+        }
+
+        if (this.converter) {
+            this.displayValue = this.converter(value);
+        }
     }
 
     /** Subscribe on HTML passed Channels */

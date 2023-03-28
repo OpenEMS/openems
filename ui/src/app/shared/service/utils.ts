@@ -399,6 +399,63 @@ export class Utils {
     }
   }
 
+  public static CONVERT_TO_GRIDBUY_POWER = (value: number | null): string => {
+    if (!value || value < 0) {
+      return '0 W'
+    }
+    return formatNumber(value, 'de', '1.0-1') + ' W'
+  }
+  public static CONVERT_TO_GRIDSELL_POWER = (value: number | null): string => {
+    if (!value || value > 0) {
+      return '0 W'
+    }
+    return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W'
+  }
+
+  public static CONVERT_TO_DISCHARGE_POWER = (value: number | null): string => {
+    if (!value || value < 0) {
+      return '-'
+    }
+    return formatNumber(value, 'de', '1.0-1') + ' W'
+  }
+
+  public static CONVERT_TO_CHARGE_POWER = (value: number | null): string => {
+    if (!value || value >= 0) {
+      return '-'
+    }
+    return formatNumber(value * -1, 'de', '1.0-1') + ' W'
+  }
+
+  public static ADD_NAME_SUFFIX_FOR_GRIDSELL_OR_GRIDBUY = (translate: TranslateService) => {
+    return (value: any): string => {
+      if (!value) {
+        return "";
+      }
+
+      if (value < 0) {
+        return translate.instant('General.gridSellAdvanced');
+      }
+
+      if (value >= 0) {
+        return translate.instant('General.gridBuyAdvanced');
+      }
+    }
+  }
+
+  public static CONVERT_TO_GRIDSELL_OR_GRIDBUY_POWER = (value: number | null) => {
+    if (!value) {
+      return "0 W";
+    }
+
+    if (value < 0) {
+      return formatNumber(value * -1, 'de', '1.0-1') + ' W'
+    }
+
+    if (value >= 0) {
+      return formatNumber(value, 'de', '1.0-1') + ' W'
+    }
+  }
+
   /**
    * Gets the image path for storage depending on State-of-Charge.
    * 

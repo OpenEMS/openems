@@ -1,0 +1,21 @@
+<oe-modal [title]="props.attributes.title" *ngIf="props">
+    <ng-container *ngFor="let entry of props.options">
+        <ng-container *ngFor="let line of entry.lines">
+            <ng-container [ngSwitch]="line.type">
+                <oe-modal-line *ngSwitchCase="'line'" [channelCondition]="line.channelCondition"
+                    [textIndent]="line.indentation ?? '0%'" [name]="line.name" [nameSuffix]="line.nameSuffix"
+                    [channelAddress]="line.channel ?? null" [converter]="line.converter">
+                    <ng-container *ngFor="let lineItem of line.children">
+                        <oe-modal-line-item [channelAddress]="lineItem.channel"
+                            [roleIsAtLeast]="lineItem.roleIsAtLeast ?? Role.GUEST" [converter]="lineItem.converter">
+                        </oe-modal-line-item>
+                    </ng-container>
+                </oe-modal-line>
+
+                <oe-modal-info-line *ngSwitchCase="'line-info'" [info]="line.name">
+                </oe-modal-info-line>
+
+            </ng-container>
+        </ng-container>
+    </ng-container>
+</oe-modal>

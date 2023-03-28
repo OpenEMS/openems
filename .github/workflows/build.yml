@@ -86,6 +86,7 @@ jobs:
           node_modules/.bin/ng config cli.cache.path "~/.ng"
           node_modules/.bin/ng build -c "openems,openems-edge-prod,prod"
           node_modules/.bin/ng lint
+          node_modules/.bin/ng test
           
       #
       # Is this a Tag? Prepare release assets
