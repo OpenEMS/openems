@@ -71,7 +71,8 @@ public class FixStateOfChargeTest {
 						.setEndCondition(EndCondition.CAPACITY_CHANGED) //
 						.build())
 
-				.next(new TestCase()).next(new TestCase() //
+				.next(new TestCase()) //
+				.next(new TestCase() //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, null) //
 						.output(DEBUG_SET_ACTIVE_POWER, null) //
 						.output(DEBUG_SET_ACTIVE_POWER_RAW, null) //
