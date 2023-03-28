@@ -1,6 +1,8 @@
 package io.openems.edge.solaredge.hybrid.ess;
 
 
+import java.util.ArrayList;
+import java.util.List;
 //import java.util.ArrayList;
 //import java.util.List;
 import java.util.Map;
@@ -59,6 +61,8 @@ import io.openems.edge.solaredge.enums.ControlMode;
 import io.openems.edge.solaredge.enums.AcChargePolicy;
 import io.openems.edge.solaredge.enums.ChargeDischargeMode;
 
+import io.openems.edge.solaredge.charger.SolaredgeDcCharger;
+
 //import io.openems.edge.common.channel.EnumReadChannel;
 
 
@@ -73,11 +77,12 @@ import io.openems.edge.solaredge.enums.ChargeDischargeMode;
 })
 
 public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
-		implements SunSpecEss, SymmetricEss, HybridEss,  ModbusComponent, OpenemsComponent, ModbusSlave, EventHandler,ManagedSymmetricEss {
+		implements SolarEdgeHybridEss, SunSpecEss, SymmetricEss, HybridEss,  ModbusComponent, OpenemsComponent, ModbusSlave, EventHandler,ManagedSymmetricEss {
 		//implements SunSpecEss, SymmetricEss, HybridEss,  ModbusComponent, OpenemsComponent, ModbusSlave, EventHandler {
 
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
+	private final List<SolaredgeDcCharger> chargers = new ArrayList<>();
 	
 	// Hardware-Limits
 	protected static final int HW_MAX_APPARENT_POWER = 5200;
@@ -151,6 +156,21 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		this.config = config;
 	}
 	
+	
+	@Override
+	public void addCharger(SolaredgeDcCharger charger) {
+		this.chargers.add(charger);
+	}
+
+	@Override
+	public void removeCharger(SolaredgeDcCharger charger) {
+		this.chargers.remove(charger);
+	}
+	
+	@Override
+	public String getModbusBridgeId() {
+		return this.config.modbus_id();
+	}
 	
 	@Override
 	public void applyPower(int activePowerWanted, int reactivePowerWanted) throws OpenemsNamedException {
@@ -266,7 +286,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		protocol.addTask(//
 				new FC3ReadRegistersTask(0xE142, Priority.LOW, //
 
-						m(SolarEdgeHybridEss.ChannelId.RATED_ENERGY, //
+						m(HybridEss.ChannelId.DC_DISCHARGE_ENERGY, //
 								new FloatDoublewordElement(0xE142).wordOrder(WordOrder.LSWMSW)),
 						m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_CONTINUES_POWER, //
 								new FloatDoublewordElement(0xE144).wordOrder(WordOrder.LSWMSW)),
@@ -287,8 +307,8 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 						m(SolarEdgeHybridEss.ChannelId.BATT_ACTUAL_CURRENT, //
 								new FloatDoublewordElement(0xE172).wordOrder(WordOrder.LSWMSW)),							
 						m(HybridEss.ChannelId.DC_DISCHARGE_POWER, //
-								new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW),
-								ElementToChannelConverter.INVERT), //
+								new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW)),
+								//ElementToChannelConverter.INVERT), //
 						//new DummyRegisterElement(0xE176, 0xE17D), 
 						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
 								new UnsignedQuadruplewordElement(0xE176).wordOrder(WordOrder.LSWMSW)),
@@ -378,6 +398,17 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER, //
 				ElementToChannelConverter.DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S120.W_RTG);
+		
+		this.mapFirstPointToChannel(//
+			SymmetricEss.ChannelId.ACTIVE_POWER, //
+			ElementToChannelConverter.DIRECT_1_TO_1, //
+			DefaultSunSpecModel.S103.W);		
+		
+		this.mapFirstPointToChannel(//
+				SymmetricEss.ChannelId.REACTIVE_POWER, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S103.V_AR);		
+					
 		
 		
 		this.setLimits();

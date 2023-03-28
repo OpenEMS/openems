@@ -1,12 +1,6 @@
 package io.openems.edge.solaredge.charger;
 
-import java.time.ZonedDateTime;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.concurrent.CompletableFuture;
+
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -23,24 +17,16 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonElement;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.timedata.Resolution;
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
-import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
-import io.openems.edge.common.channel.Channel;
+
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.solaredge.hybrid.ess.SolarEdgeHybridEss;
 
@@ -58,30 +44,19 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		} //
 )
 public class SolaredgeDcChargerImpl extends AbstractSolaredgeDcCharger 
-	implements SolaredgeDcCharger,  EssDcCharger, ModbusComponent, OpenemsComponent,  EventHandler, Timedata {
+	implements SolaredgeDcCharger,  EssDcCharger, ModbusComponent, OpenemsComponent,  EventHandler, TimedataProvider {
 
 	// private Config config = null;
 	@Reference
 	protected ConfigurationAdmin cm;
+	
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	public SolaredgeDcChargerImpl() throws OpenemsException {
-		super(//
-				ACTIVE_MODELS, //
-				OpenemsComponent.ChannelId.values(), //
-				ModbusComponent.ChannelId.values(), //
-				EssDcCharger.ChannelId.values(), //
-				SolaredgeDcCharger.ChannelId.values()
-				
-		);
-	}
-	
-	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
-			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_802, Priority.LOW) //
 
-			.build();
+	}
+
 	
 	
 	@Override
@@ -102,7 +77,7 @@ public class SolaredgeDcChargerImpl extends AbstractSolaredgeDcCharger
 		}
 		
 		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
 			return;
 		}
 
@@ -110,36 +85,7 @@ public class SolaredgeDcChargerImpl extends AbstractSolaredgeDcCharger
 	}
 	
 	
-	@Override
-	protected void onSunSpecInitializationCompleted()  {
-		// TODO Add mappings for registers from S1 and S103
 
-		// Example:
-		// this.mapFirstPointToChannel(//
-		// SymmetricEss.ChannelId.ACTIVE_POWER, //
-		// ElementToChannelConverter.DIRECT_1_TO_1, //
-		// DefaultSunSpecModel.S103.W);
-	
-		// this.mapFirstPointToChannel(//
-		// SymmetricEss.ChannelId.CONSUMPTION_POWER, //
-		// ElementToChannelConverter.DIRECT_1_TO_1, //
-		// DefaultSunSpecModel.S103.W);
-		
-		 //DefaultSunSpecModel.S103.W);
-		
-		this.mapFirstPointToChannel(//
-				EssDcCharger.ChannelId.ACTUAL_POWER, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S103.W);
-		
-		
-		
-
-	}
-
-	
-	
-	
 	
 	
 /*	
@@ -168,45 +114,10 @@ public class SolaredgeDcChargerImpl extends AbstractSolaredgeDcCharger
 	}
 
 	@Override
-	public String debugLog() {
-		return "Hello World";
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 
-	@Override
-	public String id() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String alias() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public ComponentContext getComponentContext() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Channel<?> _channel(String channelName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Collection<Channel<?>> channels() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
@@ -214,38 +125,6 @@ public class SolaredgeDcChargerImpl extends AbstractSolaredgeDcCharger
 		return null;
 	}
 
-
-	@Override
-	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricData(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
-			throws OpenemsNamedException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public SortedMap<ChannelAddress, JsonElement> queryHistoricEnergy(String edgeId, ZonedDateTime fromDate,
-			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryHistoricEnergyPerPeriod(String edgeId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, Set<ChannelAddress> channels, Resolution resolution)
-			throws OpenemsNamedException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public CompletableFuture<Optional<Object>> getLatestValue(ChannelAddress channelAddress) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 
 }
