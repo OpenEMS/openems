@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Streams;
 
@@ -214,7 +215,7 @@ public class Data {
 				ConstraintUtil.createSymmetricEssConstraints(this.coefficients, this.esss, this.symmetricMode).stream(), //
 				ConstraintUtil.createSinglePhaseEssConstraints(this.coefficients, this.inverters, this.symmetricMode)
 						.stream(), //
-				this.constraints.stream()).toList();
+				this.constraints.stream()).collect(Collectors.toList());
 	}
 
 	protected ManagedSymmetricEss getEss(String essId) {
