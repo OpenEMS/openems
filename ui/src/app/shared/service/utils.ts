@@ -412,20 +412,6 @@ export class Utils {
     return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W'
   }
 
-  public static CONVERT_TO_DISCHARGE_POWER = (value: number | null): string => {
-    if (!value || value < 0) {
-      return '-'
-    }
-    return formatNumber(value, 'de', '1.0-1') + ' W'
-  }
-
-  public static CONVERT_TO_CHARGE_POWER = (value: number | null): string => {
-    if (!value || value >= 0) {
-      return '-'
-    }
-    return formatNumber(value * -1, 'de', '1.0-1') + ' W'
-  }
-
   public static ADD_NAME_SUFFIX_FOR_GRIDSELL_OR_GRIDBUY = (translate: TranslateService) => {
     return (value: any): string => {
       if (!value) {

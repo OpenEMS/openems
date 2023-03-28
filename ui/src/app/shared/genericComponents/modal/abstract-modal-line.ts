@@ -44,7 +44,6 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /** Channel defines the channel, you need for this line */
     @Input()
     set channelAddress(channelAddress: string) {
-        console.log("🚀 ~ file: abstract-modal-line.ts:47 ~ AbstractModalLine ~ setchannelAddress ~ channelAddress:", channelAddress)
         if (channelAddress) {
             this.subscribe(ChannelAddress.fromString(channelAddress));
         }
