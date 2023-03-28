@@ -10,15 +10,19 @@ import { Role } from 'src/app/shared/type/role';
 
 export type FormlyFieldLine = {
   type: string,
-  channel?: string, channelCondition?: string | number, converter?: Function, name?: string, nameSuffix?: Function, indentation?: TextIndentation, roleIsAtLeast?: Role, children?: FormlyFieldLine[]
+  channel?: string,
+  channelCondition?: string | number,
+  converter?: Function,
+  name?: string,
+  nameSuffix?: Function,
+  indentation?: TextIndentation,
+  roleIsAtLeast?: Role,
+  children?: FormlyFieldLine[]
 }
 
 @Component({
   selector: 'modal',
   templateUrl: './modal.html',
-  styles: [`
-  
-`]
 })
 export class ModalComponent extends AbstractModal {
 
@@ -52,7 +56,6 @@ export class ModalComponent extends AbstractModal {
       new ChannelAddress('_sum', 'GridActivePowerL3'),
     )
     this.edge.getConfig(this.websocket).pipe(filter(config => !!config)).subscribe((config) => {
-      sessionStorage.setItem("EdgeConfi2", JSON.stringify(config.components['meter0']))
       this.fields = ModalComponent.generateGridModal(this.edge.id, config, Role.getRole(this.edge.getRoleString()), this.translate);
     })
     return channelAddresses;
