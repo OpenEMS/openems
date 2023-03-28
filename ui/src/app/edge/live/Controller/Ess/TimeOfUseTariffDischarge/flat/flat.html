@@ -5,8 +5,7 @@
     <oe-flat-widget-line [name]="'Edge.Index.Widgets.TimeOfUseTariff.currentTariff' | translate"
         [channelAddress]="component.id + '/QuarterlyPrices'" [converter]="CONVERT_PRICE_TO_CENT_PER_KWH">
     </oe-flat-widget-line>
-    <oe-flat-widget-line [name]="'Edge.Index.Widgets.TimeOfUseTariff.storageDischarge' | translate"
-        [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE" [channelAddress]="component.id + '/StateMachine'">
+    <oe-flat-widget-line [name]="label" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE"
+        [channelAddress]="component.id + '/StateMachine'">
     </oe-flat-widget-line>
-
 </oe-flat-widget>

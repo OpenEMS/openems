@@ -4,6 +4,7 @@ import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
+import { EdgeConfig } from '../shared';
 
 export class Utils {
 
@@ -394,7 +395,7 @@ export class Utils {
         case 2:
           return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.standby');
         case 3:
-          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.charging');
+          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.CHARGING');
       }
     }
   }
@@ -534,5 +535,20 @@ export class Utils {
 
   public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
     return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true)
+  }
+
+  /**
+   * Returns the label based on component factory id.
+   * 
+   * @param component The Component.
+   * @param translate The Translate
+   * @returns the label.
+   */
+  public static getTimeOfUseTariffStorageLabel(component: EdgeConfig.Component, translate: TranslateService): string {
+    if (component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff.Discharge') {
+      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_DISCHARGE');
+    } else {
+      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_STATUS');
+    }
   }
 }

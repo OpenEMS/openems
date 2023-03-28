@@ -231,7 +231,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Current price",
           "delayedDischarge": "Delayed Discharge",
-          "storageDischarge": "Storage Discharge",
+          "STORAGE_DISCHARGE": "Storage Discharge",
           "State": {
             "notStarted": "Controller has not yet started",
             "delayed": "Delayed",
@@ -239,7 +239,8 @@
             "standby": "Standby",
             "CHARGING": "Charging"
           },
-          "CHARGED": "Charged"
+          "CHARGED": "Charged",
+          "STORAGE_STATUS": "Storage status"
         }
       },
       "RETROFITTING": {

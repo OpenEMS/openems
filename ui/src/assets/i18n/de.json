@@ -230,15 +230,16 @@
         "TimeOfUseTariff": {
           "currentTariff": "Aktueller Bezugsstrompreis",
           "delayedDischarge": "Entladung verzögert",
-          "storageDischarge": "Speicherentladung",
+          "STORAGE_DISCHARGE": "Speicherentladung",
           "State": {
             "notStarted": "Noch nicht gestartet",
             "delayed": "Verzögert",
             "allowsDischarge": "Freigegeben",
             "standby": "Standby",
-            "CHARGING": "Aufladen"
+            "CHARGING": "Beladung"
           },
-          "CHARGED": "Aufgeladen"
+          "CHARGED": "Beladung",
+          "STORAGE_STATUS": "Speicherstatus"
         }
       },
       "RETROFITTING": {
