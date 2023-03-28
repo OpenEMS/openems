@@ -3,7 +3,6 @@ package io.openems.edge.core.appmanager;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -55,7 +54,7 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 		return this.getAppManagerImpl().getInstantiatedApps().stream()
 				.filter(t -> t.dependencies != null && !t.dependencies.isEmpty())
 				.filter(t -> t.dependencies.stream().anyMatch(d -> d.instanceId.equals(instance.instanceId)))
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	private final AppManagerImpl getAppManagerImpl() {

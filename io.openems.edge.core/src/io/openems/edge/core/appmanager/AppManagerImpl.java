@@ -364,7 +364,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	private Iterator<Entry<OpenemsAppInstance, AppConfiguration>> appConfigIterator(List<OpenemsAppInstance> instances,
 			Predicate<? super OpenemsAppInstance> filter) {
 		List<OpenemsAppInstance> actualInstances = instances.stream().filter(i -> filter == null || filter.test(i)) //
-				.collect(Collectors.toList());
+				.toList();
 		return new Iterator<>() {
 
 			private final Iterator<OpenemsAppInstance> instanceIterator = actualInstances.iterator();
@@ -683,7 +683,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 			throws OpenemsNamedException {
 		var app = this.availableApps.stream().filter(t -> t.getAppId().equals(request.appId)).findFirst().get();
 		var instances = this.instantiatedApps.stream().filter(t -> t.appId.equals(request.appId))
-				.collect(Collectors.toList());
+				.toList();
 		return CompletableFuture
 				.completedFuture(new GetApp.Response(request.id, app, instances, user.getLanguage(), this.validator));
 	}

@@ -178,7 +178,7 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 
 	private void createComponent(User user, EdgeConfig.Component comp) throws OpenemsNamedException {
 		List<Property> properties = comp.getProperties().entrySet().stream()
-				.map(t -> new Property(t.getKey(), t.getValue())).collect(Collectors.toList());
+				.map(t -> new Property(t.getKey(), t.getValue())).toList();
 		properties.add(new Property("id", comp.getId()));
 		properties.add(new Property("alias", comp.getAlias()));
 
@@ -209,7 +209,7 @@ public class ComponentAggregateTaskImpl implements AggregateTask, AggregateTask.
 		// send update request
 		List<Property> properties = myComp.getProperties().entrySet().stream()
 				.map(t -> new Property(t.getKey(), t.getValue())) //
-				.collect(Collectors.toList());
+				.toList();
 		properties.add(new Property("alias", myComp.getAlias()));
 		var updateRequest = new UpdateComponentConfigRequest(actualComp.getId(), properties);
 

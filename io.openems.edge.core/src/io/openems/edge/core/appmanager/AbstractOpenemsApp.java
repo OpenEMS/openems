@@ -350,7 +350,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 										return false;
 									}
 									return true;
-								}).collect(Collectors.toList());
+								}).toList();
 
 						if (missingIps.isEmpty()) {
 							return;
@@ -413,7 +413,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		// find dependencies that are not in config
 		var notRegisteredDependencies = neededDependencies.stream().filter(
 				t -> configDependencies == null || !configDependencies.stream().anyMatch(o -> o.key.equals(t.key)))
-				.collect(Collectors.toList());
+				.toList();
 
 		// check if exactly one app is available of the needed appId
 		for (var dependency : notRegisteredDependencies) {
@@ -430,7 +430,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 				} else {
 
 					var list = appManager.getInstantiatedApps().stream().filter(t -> t.appId.equals(appConfig.appId))
-							.collect(Collectors.toList());
+							.toList();
 					if (list.size() != 1) {
 						errors.add("Missing dependency with Key[" + dependency.key + "] needed App[" + appConfig.appId
 								+ "]");

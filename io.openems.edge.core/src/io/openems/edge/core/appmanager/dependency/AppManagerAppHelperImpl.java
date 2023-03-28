@@ -387,7 +387,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 										}
 										return true;
 									}) //
-									.collect(Collectors.toList());
+									.toList();
 
 							if (apps2UpdateDependency.isEmpty() && fallBackAlwaysCreateApp.get() != null) {
 								apps2UpdateDependency.add(fallBackAlwaysCreateApp.get());
@@ -703,7 +703,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		instances.entrySet().stream() //
 				.filter(t -> Objects.equals(t.getKey().parent, parent)) //
 				.map(t -> t.getKey()) //
-				.collect(Collectors.toList()) //
+				.toList() //
 				.forEach(t -> instances.remove(t));
 	}
 
@@ -936,7 +936,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				.getAppsWithReferenceTo(
 						this.temporaryApps.currentlyDeletingApps().stream().map(t -> t.instanceId).toArray(UUID[]::new))
 				.stream().filter(a -> !this.temporaryApps.currentlyDeletingApps().stream().anyMatch(t -> t.equals(a)))
-				.collect(Collectors.toList());
+				.toList();
 
 		for (var app : unmodifiedApps) {
 			var dependencies = new ArrayList<>(app.dependencies);
@@ -957,7 +957,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 				.filter(i -> i.dependencies != null && !i.dependencies.isEmpty()) //
 				.filter(i -> i.dependencies.stream().anyMatch(//
 						d -> Arrays.stream(instanceIds).anyMatch(id -> id.equals(d.instanceId)))) //
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	private final void aggregateAllTasks(AppConfiguration instance, AppConfiguration oldInstance) {
@@ -1042,7 +1042,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		return configs.stream() //
 				.map(mapper) //
 				.flatMap(l -> l.stream()) //
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	/**
@@ -1067,7 +1067,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		var appId = config.appId;
 		if (declaration.createPolicy == DependencyDeclaration.CreatePolicy.ALWAYS) {
 			var neededApps = this.getAllInstances().stream().filter(t -> t.appId.equals(appId))
-					.collect(Collectors.toList());
+					.toList();
 			OpenemsAppInstance availableApp = null;
 			for (var neededApp : neededApps) {
 				if (this.appManagerUtil.getAppsWithDependencyTo(neededApp).isEmpty()) {
@@ -1077,7 +1077,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			}
 			return Optional.ofNullable(availableApp);
 		}
-		var neededApp = this.getAllInstances().stream().filter(t -> t.appId.equals(appId)).collect(Collectors.toList());
+		var neededApp = this.getAllInstances().stream().filter(t -> t.appId.equals(appId)).toList();
 		if (!neededApp.isEmpty()) {
 			return Optional.of(neededApp.get(0));
 		}
@@ -1254,7 +1254,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 
 		for (var config : configs) {
 			var instances = this.getAppManagerImpl().getInstantiatedApps().stream()
-					.filter(i -> i.appId.equals(config.appId)).collect(Collectors.toList());
+					.filter(i -> i.appId.equals(config.appId)).toList();
 			for (var instance : instances) {
 				var existingDependencies = this.appManagerUtil.getAppsWithDependencyTo(instance);
 				if (existingDependencies.isEmpty()) {
@@ -1408,7 +1408,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		return replaceableComponentIds.entrySet().stream() //
 				.map(entry -> new ReplacableIds(defaultIdToCurrentId.get(entry.getValue()), //
 						entry.getValue(), entry.getKey())) //
-				.collect(Collectors.toList()); //
+				.toList(); //
 	}
 
 	private final class ReplacableIds {
@@ -1554,7 +1554,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 						var startingNumber = Integer.parseInt(startingNumberString);
 						var ids = new ArrayList<>(orderedComponents).stream() //
 								.map(EdgeConfig.Component::getId) //
-								.collect(Collectors.toList());
+								.toList();
 						// add id if it was in the old configuration
 						ids.addAll(alreadyUsedIds);
 

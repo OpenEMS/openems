@@ -2,7 +2,6 @@ package io.openems.common.jsonrpc.response;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -55,7 +54,7 @@ public class AppCenterGetPossibleAppsResponse extends JsonrpcResponseSuccess {
 				JsonUtils.stream(bundles) //
 						.map(i -> i.getAsJsonArray()) //
 						.map(Bundle::from) //
-						.collect(Collectors.toList()) //
+						.toList() //
 		);
 	}
 
@@ -115,7 +114,7 @@ public class AppCenterGetPossibleAppsResponse extends JsonrpcResponseSuccess {
 			return new Bundle(JsonUtils.stream(jsonArray) //
 					.map(t -> t.getAsJsonObject()) //
 					.map(App::from) //
-					.collect(Collectors.toList()) //
+					.toList() //
 			);
 		}
 
