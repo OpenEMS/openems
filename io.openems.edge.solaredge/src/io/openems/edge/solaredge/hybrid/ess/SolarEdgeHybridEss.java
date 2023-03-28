@@ -13,6 +13,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 //import io.openems.edge.ess.api.SymmetricEss.ChannelId;
 import io.openems.edge.solaredge.enums.ControlMode;
 import io.openems.edge.solaredge.enums.ChargeDischargeMode;
+import io.openems.edge.solaredge.charger.SolaredgeDcChargerImpl;
 import io.openems.edge.solaredge.enums.AcChargePolicy;
 import io.openems.edge.solaredge.enums.BatteryStatus;
 
@@ -568,6 +569,12 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	public default void _setControlMode(ControlMode value) {
 		this.getControlModeChannel().setNextValue(value);
 	}
+
+	public int getUnitId();
+
+	public String getModbusBridgeId();
+
+	public void addCharger(SolaredgeDcChargerImpl solaredgeDcChargerImpl);
 
 	
 
