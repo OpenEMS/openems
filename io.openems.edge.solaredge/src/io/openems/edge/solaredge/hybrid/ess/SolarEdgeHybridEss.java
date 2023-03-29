@@ -4,11 +4,13 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.sum.GridMode;
 //import io.openems.edge.common.sum.GridMode;
 //import io.openems.edge.ess.api.SymmetricEss.ChannelId;
 import io.openems.edge.solaredge.enums.ControlMode;
@@ -451,6 +453,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 //				.persistencePriority(PersistencePriority.HIGH));
 		
 		
+		
 		private final Doc doc;
 	
 		private ChannelId(Doc doc) {
@@ -465,6 +468,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	}
 	
 
+	
 	/**
 	 * Gets the Channel for {@link ChannelId#ESS_SOC}.
 	 *
@@ -555,7 +559,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	}
 	
 	/**
-	 * Gets the Channel for {@link ChannelId#GRID_MODE}.
+	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
 	 *
 	 * @return the Channel
 	 */
@@ -564,7 +568,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Is the Energy Storage System On-Grid? See {@link ChannelId#GRID_MODE}.
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#CONTROL_MODE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -573,7 +577,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_MODE}
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CONTROL_MODE}
 	 * Channel.
 	 *
 	 * @param value the next value

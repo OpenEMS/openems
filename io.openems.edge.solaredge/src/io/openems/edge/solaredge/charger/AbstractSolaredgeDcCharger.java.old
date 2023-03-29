@@ -1,115 +1,108 @@
 package io.openems.edge.solaredge.charger;
 
-import java.util.Map;
-import java.util.Optional;
 
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Deactivate;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+
+import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
-import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
-import io.openems.edge.common.channel.Channel;
+import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 //import io.openems.edge.common.component.OpenemsComponent.ChannelId;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
+import io.openems.edge.common.event.EdgeEventConstants;
 
 
 
 public abstract class AbstractSolaredgeDcCharger extends AbstractOpenemsModbusComponent//AbstractOpenemsSunSpecComponent 
-	implements EssDcCharger, ModbusComponent, OpenemsComponent,
+	implements SolaredgeDcCharger, EssDcCharger, ModbusComponent, OpenemsComponent, TimedataProvider, 
 	EventHandler, ModbusSlave {
 
-	private final Logger log = LoggerFactory.getLogger(AbstractSolaredgeDcCharger.class);	
-	
-	/**
-	 * Make sure to call this method from the inheriting OSGi Component.
-	 *
-	 * @param context               ComponentContext of this component. Receive it
-	 *                              from parameter for @Activate
-	 * @param id                    ID of this component. Typically 'config.id()'
-	 * @param alias                 Human-readable name of this Component. Typically
-	 *                              'config.alias()'. Defaults to 'id' if empty
-	 * @param enabled               Whether the component should be enabled.
-	 *                              Typically 'config.enabled()'
-	 * @param unitId                Unit-ID of the Modbus target
-	 * @param cm                    An instance of ConfigurationAdmin. Receive it
-	 *                              using @Reference
-	 * @param modbusReference       The name of the @Reference setter method for the
-	 *                              Modbus bridge - e.g. 'Modbus' if you have a
-	 *                              setModbus()-method
-	 * @param modbusId              The ID of the Modbus bridge. Typically
-	 *                              'config.modbus_id()'
-	 * @param readFromCommonBlockNo the starting block number
-	 * @return true if the target filter was updated. You may use it to abort the
-	 *         activate() method.
-	 * @throws OpenemsException on error
-	 */
-	
-	
-	/*
-	 * 
-	 * 		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,	"Modbus", this.ess.getModbusBridgeId())) {
-	 * */
-	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo)
-			throws OpenemsException {
-		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId,
-				readFromCommonBlockNo);
+	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,EssDcCharger.ChannelId.ACTUAL_ENERGY);
+
+	public AbstractSolaredgeDcCharger() {
+		super(//
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				//EssDcCharger.ChannelId.values(), //
+				SolaredgeDcCharger.ChannelId.values() //
+		);
+
 	}
 
-	/**
-	 * Make sure to call this method from the inheriting OSGi Component.
-	 */
 	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+		
+		var protocol = new ModbusProtocol(this, //
+					new FC3ReadRegistersTask(0x9ca0, Priority.LOW, //
+					
+							m(SolaredgeDcCharger.ChannelId.CURRENT,
+									new SignedWordElement(0x9ca0), ElementToChannelConverter.DIRECT_1_TO_1), //
+							new DummyRegisterElement(0x9ca1), //
+							m(SolaredgeDcCharger.ChannelId.VOLTAGE,
+									new SignedWordElement(0x9ca2), ElementToChannelConverter.DIRECT_1_TO_1), //
+							m(SolaredgeDcCharger.ChannelId.VOLTAGE_SF,
+									new SignedWordElement(0x9ca3), ElementToChannelConverter.DIRECT_1_TO_1), //											
+							m(SolaredgeDcCharger.ChannelId.ACTUAL_POWER,
+									new SignedWordElement(0x9ca4), ElementToChannelConverter.DIRECT_1_TO_1))); //
+		
+		return protocol;
+		
+		
 	}
-/*
+
+
+	
 	@Override
 	public String debugLog() {
-		return new StringBuilder() //
-				.append("SoC:").append(this.getSoc().asString()) //
-				.append("|ESS ActivePower:").append(this.getActivePower().asString()) //
-				
-				.toString();
-	}
-*/
-	@Override
-	protected void onSunSpecInitializationCompleted() {
-		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
-		
-	}
-
-	
-	public AbstractSolaredgeDcCharger(Map<SunSpecModel, Priority> activeModels,
-			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
-			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
-		
-		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
-		
+		return "P:" + this.getActualPower().asString();
 	}
 
 	@Override
-	protected <T extends Channel<?>> Optional<T> getSunSpecChannel(SunSpecPoint point) {
-		return super.getSunSpecChannel(point);
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.calculateEnergy();
+			break;
+		}
 	}
 
-	@Override
-	protected <T extends Channel<?>> T getSunSpecChannelOrError(SunSpecPoint point) throws OpenemsException {
-		return super.getSunSpecChannelOrError(point);
+	/**
+	 * Calculate the Energy values from ActivePower.
+	 */
+	private void calculateEnergy() {
+		var actualPower = this.getActualPower().get();
+		if (actualPower == null) {
+			// Not available
+			this.calculateActualEnergy.update(null);
+		} else if (actualPower > 0) {
+			this.calculateActualEnergy.update(actualPower);
+		} else {
+			this.calculateActualEnergy.update(0);
+		}
 	}	
-	
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				EssDcCharger.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(SolaredgeDcCharger.class, accessMode, 100) //
+						.build());
+	}
 }

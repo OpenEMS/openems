@@ -44,6 +44,7 @@ import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -52,18 +53,19 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.dccharger.api.EssDcCharger;
+
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.sunspec.AbstractSunSpecEss;
-import io.openems.edge.ess.sunspec.SunSpecEss;
+
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.solaredge.enums.ControlMode;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.solaredge.enums.AcChargePolicy;
 import io.openems.edge.solaredge.enums.ChargeDischargeMode;
 
 import io.openems.edge.solaredge.charger.SolaredgeDcCharger;
 
-//import io.openems.edge.common.channel.EnumReadChannel;
 
 
 @Designate(ocd = Config.class, factory = true)
@@ -73,11 +75,13 @@ import io.openems.edge.solaredge.charger.SolaredgeDcCharger;
 		configurationPolicy = ConfigurationPolicy.REQUIRE) //
 
 @EventTopics({ //
-	EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+	EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
 
 public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
-		implements SolarEdgeHybridEss, SunSpecEss, SymmetricEss, HybridEss,  ModbusComponent, OpenemsComponent, ModbusSlave, EventHandler,ManagedSymmetricEss {
+		implements SolarEdgeHybridEss, ManagedSymmetricEss, SymmetricEss, HybridEss, ModbusComponent,
+		OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
 		//implements SunSpecEss, SymmetricEss, HybridEss,  ModbusComponent, OpenemsComponent, ModbusSlave, EventHandler {
 
 
@@ -123,9 +127,15 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 			.put(DefaultSunSpecModel.S_145, Priority.LOW) //	
 */
 			.build();
+	@Reference
+	protected ComponentManager componentManager;
 
+	
 	@Reference
 	protected ConfigurationAdmin cm;
+	
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;	
 	
 
 	public SolarEdgeHybridEssImpl() throws OpenemsException {
@@ -137,8 +147,9 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				HybridEss.ChannelId.values(), //
 				//EssDcCharger.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
-				SunSpecEss.ChannelId.values(), //
-				SolaredgeDcCharger.ChannelId.values(), //
+				//SymmetricEss.ChannelId.values(), //
+				//SunSpecEss.ChannelId.values(), //
+				//SolaredgeDcCharger.ChannelId.values(), //
 				SolarEdgeHybridEss.ChannelId.values()
 		);
 
@@ -155,6 +166,11 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 			return;
 		}
 		this.config = config;
+	}
+	
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 	
 	
@@ -411,10 +427,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				ElementToChannelConverter.DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S103.V_AR);		
 		
-		this.mapFirstPointToChannel(//
-				SolaredgeDcCharger.ChannelId.ACTUAL_POWER, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S103.DCW);		
+	
 		
 		
 		
