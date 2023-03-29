@@ -135,9 +135,10 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				HybridEss.ChannelId.values(), //
-				EssDcCharger.ChannelId.values(), //
+				//EssDcCharger.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				SunSpecEss.ChannelId.values(), //
+				SolaredgeDcCharger.ChannelId.values(), //
 				SolarEdgeHybridEss.ChannelId.values()
 		);
 
@@ -404,11 +405,18 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 			ElementToChannelConverter.DIRECT_1_TO_1, //
 			DefaultSunSpecModel.S103.W);		
 		
+		
 		this.mapFirstPointToChannel(//
 				SymmetricEss.ChannelId.REACTIVE_POWER, //
 				ElementToChannelConverter.DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S103.V_AR);		
-					
+		
+		this.mapFirstPointToChannel(//
+				SolaredgeDcCharger.ChannelId.ACTUAL_POWER, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S103.DCW);		
+		
+		
 		
 		
 		this.setLimits();

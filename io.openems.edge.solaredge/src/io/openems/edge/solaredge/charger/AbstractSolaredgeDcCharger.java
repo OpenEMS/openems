@@ -27,7 +27,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 
 
 public abstract class AbstractSolaredgeDcCharger extends AbstractOpenemsModbusComponent//AbstractOpenemsSunSpecComponent 
-	implements SolaredgeDcCharger, EssDcCharger, ModbusComponent, OpenemsComponent, TimedataProvider,
+	implements SolaredgeDcCharger, EssDcCharger, ModbusComponent, OpenemsComponent, TimedataProvider, 
 	EventHandler, ModbusSlave {
 
 	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,EssDcCharger.ChannelId.ACTUAL_ENERGY);
@@ -36,7 +36,7 @@ public abstract class AbstractSolaredgeDcCharger extends AbstractOpenemsModbusCo
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				EssDcCharger.ChannelId.values(), //
+				//EssDcCharger.ChannelId.values(), //
 				SolaredgeDcCharger.ChannelId.values() //
 		);
 
@@ -44,18 +44,23 @@ public abstract class AbstractSolaredgeDcCharger extends AbstractOpenemsModbusCo
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+		
 		var protocol = new ModbusProtocol(this, //
 					new FC3ReadRegistersTask(0x9ca0, Priority.LOW, //
-							m(EssDcCharger.ChannelId.CURRENT,
+					
+							m(SolaredgeDcCharger.ChannelId.CURRENT,
 									new SignedWordElement(0x9ca0), ElementToChannelConverter.DIRECT_1_TO_1), //
 							new DummyRegisterElement(0x9ca1), //
-							m(EssDcCharger.ChannelId.VOLTAGE,
+							m(SolaredgeDcCharger.ChannelId.VOLTAGE,
 									new SignedWordElement(0x9ca2), ElementToChannelConverter.DIRECT_1_TO_1), //
-							new DummyRegisterElement(0x9ca3), //							
-							m(EssDcCharger.ChannelId.ACTUAL_POWER,
+							m(SolaredgeDcCharger.ChannelId.VOLTAGE_SF,
+									new SignedWordElement(0x9ca3), ElementToChannelConverter.DIRECT_1_TO_1), //											
+							m(SolaredgeDcCharger.ChannelId.ACTUAL_POWER,
 									new SignedWordElement(0x9ca4), ElementToChannelConverter.DIRECT_1_TO_1))); //
 		
 		return protocol;
+		
+		
 	}
 
 	@Override
