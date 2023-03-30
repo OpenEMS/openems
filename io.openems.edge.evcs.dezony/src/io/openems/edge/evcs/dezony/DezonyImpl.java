@@ -15,12 +15,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
@@ -42,28 +39,21 @@ import io.openems.edge.evcs.api.Phases;
 })
 public class DezonyImpl extends AbstractManagedEvcsComponent
 		implements OpenemsComponent, EventHandler, Dezony, Evcs, ManagedEvcs {
-
-	protected final Logger log = LoggerFactory.getLogger(DezonyImpl.class);
 	protected Config config;
-
-	// API for main REST API functions
 	protected DezonyApi api;
-
-	// ReadWorker and WriteHandler: Reading and sending data to the EVCS
+	protected final Logger log = LoggerFactory.getLogger(DezonyImpl.class);
 	private final DezonyReadWorker readWorker = new DezonyReadWorker(this);
-
-	// Master EVCS is responsible for RFID authentication (Not implemented for now)
 	protected boolean masterEvcs = true;
 
 	@Reference
 	private EvcsPower evcsPower;
 
 	public DezonyImpl() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				Evcs.ChannelId.values(), //
-				ManagedEvcs.ChannelId.values(), //
-				Dezony.ChannelId.values() //
+		super(
+				OpenemsComponent.ChannelId.values(),
+				Evcs.ChannelId.values(),
+				ManagedEvcs.ChannelId.values(),
+				Dezony.ChannelId.values()
 		);
 	}
 
@@ -72,12 +62,9 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		
 		this.config = config;
-		
 		this._setChargingType(ChargingType.AC);
-		
-		this._setFixedMinimumHardwarePower(config.minHwCurrent() / 1000 * 3 * 230);
-		this._setFixedMaximumHardwarePower(config.maxHwCurrent() / 1000 * 3 * 230);
-		
+		this._setFixedMinimumHardwarePower(config.minHwCurrent() / 1000 * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue());
+		this._setFixedMaximumHardwarePower(config.maxHwCurrent() / 1000 * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue());
 		this._setPowerPrecision(230);
 
 		if (config.enabled()) {
@@ -99,17 +86,16 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public void handleEvent(Event event) {
-
 		if (!this.isEnabled()) {
 			return;
 		}
+		
 		super.handleEvent(event);
 		
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.readWorker.triggerNextRun();
 
-			// TODO: intelligent firmware update
 			break;
 		}
 	}
@@ -140,15 +126,20 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsNamedException {
-		// Convert it to ampere and apply hard limits		
+		this.api.sendPostRequest("/api/v1/charging/unlock");
+		
 		final var current = (int) Math.round(power / (double) this.getPhasesAsInt() / 230.0);
-
+		
 		return this.setTarget(current);
 	}
+	
 
 	@Override
 	public boolean pauseChargeProcess() throws OpenemsNamedException {
-		return this.setTarget(0);
+		final var resultLimit = this.api.sendPostRequest("/api/v1/charging/lock");
+		final var result = JsonUtils.getAsOptionalBoolean(resultLimit, "charging_is_locked");
+
+		return result.orElse(false).equals(true);
 	}
 
 	/**
@@ -159,10 +150,8 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	private boolean setTarget(int current) throws OpenemsNamedException {
-		// Send charge power limit
-		JsonElement resultLimit = this.api.sendPostRequest("/api/v1/charging/current?value=" + current);
-
-		Optional<String> resultLimitVal = JsonUtils.getAsOptionalString(resultLimit, "charging_current");
+		final var resultLimit = this.api.sendPostRequest("/api/v1/charging/current?value=" + current);
+		final var resultLimitVal = JsonUtils.getAsOptionalString(resultLimit, "charging_current");
 
 		return resultLimitVal.orElse("").equals("ok");
 	}

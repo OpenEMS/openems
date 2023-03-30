@@ -3,7 +3,6 @@ package io.openems.edge.evcs.dezony;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -15,13 +14,11 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
 /**
- * Implements the Hardy Barth Api.
+ * Implements the dezony Api.
  *
  */
 public class DezonyApi {
-
 	private final String baseUrl;
-
 	private final DezonyImpl dezonyImpl;
 
 	public DezonyApi(String ip, int port, DezonyImpl dezonyImpl) {
@@ -30,7 +27,7 @@ public class DezonyApi {
 	}
 
 	/**
-	 * Sends a get request to the Hardy Barth.
+	 * Sends a get request.
 	 *
 	 * @param endpoint the REST Api endpoint
 	 * @return a JsonObject or JsonArray
@@ -41,48 +38,44 @@ public class DezonyApi {
 		JsonObject result = null;
 
 		try {
-			// Create URL like "http://192.168.8.101/api/"
 			var url = new URL(this.baseUrl + endpoint);
-
-			// Open http url connection
 			var con = (HttpURLConnection) url.openConnection();
+			String body;
 
-			// Set general information
 			con.setRequestMethod("GET");
 			con.setConnectTimeout(5000);
 			con.setReadTimeout(5000);
 
-			// Read response
-			String body;
-			try (var in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
-
-				// Read HTTP response
-				var content = new StringBuilder();
+			try (final var in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+				final var content = new StringBuilder();
 				String line;
+
 				while ((line = in.readLine()) != null) {
 					content.append(line);
 					content.append(System.lineSeparator());
 				}
+
 				body = content.toString();
 			}
 
 			// Get response code
-			var status = con.getResponseCode();
+			final var status = con.getResponseCode();
 		
 			if (status >= 300) {
 				getRequestFailed = true;
 				throw new OpenemsException(
 						"Error while reading from dezony API. Response code: " + status + ". " + body);
 			}
-			getRequestFailed = false;
-			// Parse response to JSON
+			
 			result = JsonUtils.parseToJsonObject(body);
 		} catch (OpenemsNamedException | IOException e) {
 			getRequestFailed = true;
 		}
 
-		// Set state and return result
-		this.dezonyImpl._setChargingstationCommunicationFailed(getRequestFailed);
+		this
+			.dezonyImpl
+			._setChargingstationCommunicationFailed(getRequestFailed);
+
 		return result;
 	}
 
