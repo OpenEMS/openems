@@ -27,7 +27,6 @@ public class DezonyApi {
 		this.dezonyImpl = dezonyImpl;
 	}
 	
-	
 	public JsonElement getState() throws OpenemsNamedException {
 		return this.sendGetRequest("/api/v1/state");
 	}
