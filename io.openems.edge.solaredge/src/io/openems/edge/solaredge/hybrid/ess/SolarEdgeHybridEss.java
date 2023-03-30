@@ -10,16 +10,10 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.sum.GridMode;
-//import io.openems.edge.common.sum.GridMode;
-//import io.openems.edge.ess.api.SymmetricEss.ChannelId;
 import io.openems.edge.solaredge.enums.ControlMode;
 import io.openems.edge.solaredge.enums.ChargeDischargeMode;
-//import io.openems.edge.solaredge.charger.SolaredgeDcChargerImpl;
-
 import io.openems.edge.solaredge.enums.AcChargePolicy;
 import io.openems.edge.solaredge.enums.BatteryStatus;
-
 import io.openems.edge.solaredge.charger.SolaredgeDcCharger;
 
 

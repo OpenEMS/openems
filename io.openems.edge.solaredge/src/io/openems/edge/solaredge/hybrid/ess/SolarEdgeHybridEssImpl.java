@@ -324,8 +324,8 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 						m(SolarEdgeHybridEss.ChannelId.BATT_ACTUAL_CURRENT, //
 								new FloatDoublewordElement(0xE172).wordOrder(WordOrder.LSWMSW)),							
 						m(HybridEss.ChannelId.DC_DISCHARGE_POWER, //
-								new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW)),
-								//ElementToChannelConverter.INVERT), //
+								new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW),
+								ElementToChannelConverter.INVERT), //
 						//new DummyRegisterElement(0xE176, 0xE17D), 
 						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
 								new UnsignedQuadruplewordElement(0xE176).wordOrder(WordOrder.LSWMSW)),
@@ -416,6 +416,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				ElementToChannelConverter.DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S120.W_RTG);
 		
+		// AC-Output from the Inverter. Could be the combination from PV + battery
 		this.mapFirstPointToChannel(//
 			SymmetricEss.ChannelId.ACTIVE_POWER, //
 			ElementToChannelConverter.DIRECT_1_TO_1, //
@@ -457,22 +458,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				+ "|Feed-In:";
 	}	
 
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
-	 * Channel.
-	 *
-	 * @param value the next value
-	*/
-	public void _setActivePower() {
-	
-		// Actual Charge/Discharge-power of battery
-		var value = this.getDcDischargePowerChannel().value().get() ;
-		this._setActivePower(value);
-		
 
-
-		
-	}
 	 /*
 	@Override
 	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
@@ -500,8 +486,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-		
-			this._setActivePower();
+
 			break;	
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this.setLimits();
@@ -514,6 +499,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
+				//HybridEss.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(SolarEdgeHybridEssImpl.class, accessMode, 100) //
 						.build());
 	}

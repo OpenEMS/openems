@@ -27,7 +27,11 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 
+import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.WordOrder;
+import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -54,7 +58,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
 
 )
 @EventTopics({ //
-	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+	EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
 
 public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
@@ -78,7 +83,7 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 				SolaredgeDcCharger.ChannelId.values() //
 		);
 		
-		//addStaticModbusTasks(this.getModbusProtocol());
+		addStaticModbusTasks(this.getModbusProtocol());
 	}
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -108,6 +113,8 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_203, Priority.LOW) //
+			
 			.put(DefaultSunSpecModel.S_802, Priority.LOW) //
 						
 /*			.put(DefaultSunSpecModel.S_203, Priority.LOW) //
@@ -166,19 +173,45 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 			DefaultSunSpecModel.S103.DCA);		
 	
 		this.mapFirstPointToChannel(//
-			EssDcCharger.ChannelId.ACTUAL_POWER, //
+			SolaredgeDcCharger.ChannelId.PRODUCTION_POWER, //
 			ElementToChannelConverter.DIRECT_1_TO_1, //
 			DefaultSunSpecModel.S103.DCW);		
-		
-		
-		
-		
-		//this.setLimits();
 
 	}
 	
 	
+	/**
+	 * Adds static modbus tasks.
+	 * 
+	 * @param protocol the {@link ModbusProtocol}
+	 * @throws OpenemsException on error
+	 */
+	private void addStaticModbusTasks(ModbusProtocol protocol) throws OpenemsException {
+		protocol.addTask(//
+				new FC3ReadRegistersTask(0xE174, Priority.LOW, //
+						m(SolaredgeDcCharger.ChannelId.DC_DISCHARGE_POWER, //
+								new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW)) //
+						));
+	}
 	
+	public void _calculateAndSetActualPower() {
+		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch + Batterie-Ladung/Entladung *-1
+		// Actual power from inverter comes from house consumption + battery inverter power (*-1)
+		try {
+		int production_power 	= this.getProductionPowerChannel().value().get(); // Leistung Inverter
+		int battery_power 		= this.getDcDischargePowerChannel().value().get() ; // DC-Discharge 0xe174: negative while Charging, so we have to negate
+		int value				= 0;
+
+		value				= production_power + battery_power;
+		
+		if (value < 0) value =0; // Negative Values are not allowed for PV production
+		
+		this._setActualPower(value);
+		}
+		catch (Exception e){
+			return;
+		}		
+	}
 
 	
 	@Deactivate
@@ -193,9 +226,9 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			// TODO: fill channels
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+				_calculateAndSetActualPower();
+	    break;
 		}
 	}
 

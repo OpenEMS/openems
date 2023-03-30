@@ -6,10 +6,13 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
+
 
 
 
@@ -23,6 +26,7 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 		 * Curtail PV. Careful: this channel is shared between both Chargers.
 		 */
 		SET_PV_POWER_LIMIT(new IntegerDoc() //
+				
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_SET_PV_POWER_LIMIT))), //
@@ -31,7 +35,7 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 		 * Grid-Mode.
 		 *
 		 * <ul>
-		 * <li>Interface: SymmetricBatteryInverter
+		 * <li>Interface: SolaredgeDcCharger
 		 * <li>Type: Integer/Enum
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
@@ -40,12 +44,64 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH) //
 		),		
 		
+		
+		/*
+		 * 		
+		 * DC Discharge Power.
+		 *
+		 * <ul>
+		 * <li>Interface: HybridEss
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * <li>This is the
+		 * {@link io.openems.edge.ess.api.SymmetricEss.ChannelId#ACTIVE_POWER} minus
+		 * {@link io.openems.edge.ess.dccharger.api.EssDcCharger.ChannelId#ACTUAL_POWER},
+		 * i.e. the power that is actually charged to or discharged from the battery.
+		 * </ul>
+		 
+		 * */
+		/**
+		 * Production Power.
+		 *
+		 * <ul>
+		 * <li>Interface: SolaredgeDcCharger
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: ?
+		 * <li>This is the AC-Production Power coming out of the Inverter
+		 * 
+		 * It should be ACTUAL_POWER (PV Production Power) 	minus
+		 * DC_DISCHARGE_POWER/"instantaneous_power" (+/-)
+		 * </ul>
+		 */
+		PRODUCTION_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)),	
+		
+		
 		//GRID_MODE(Doc.of(OpenemsType.STRING) //
 		//		.unit(Unit.WATT_HOURS)), 
 
 		// LongReadChannel
 		BMS_DCDC_OUTPUT_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS));
+				.unit(Unit.WATT_HOURS)),
+		
+		/**
+		 * DC-Discharge Power.
+		 *
+		 * <ul>
+		 * <li>Interface: SolaredgeDcCharger
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * <li>This is the instantaneous power to or from the battery
+		 * </ul>
+		 */
+		DC_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH))	
+		;
 
 		private final Doc doc;
 
@@ -57,9 +113,46 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 		public Doc doc() {
 			return this.doc;
 		}
-
 	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getProductionPowerChannel() {
+		return this.channel(ChannelId.PRODUCTION_POWER);
+	}
+
+	/**
+	 * Gets the Production Power in [W]. This is the power delivered by the inverter
+	 * Discharge. See {@link ChannelId#PRODUCTION_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getProductionPower() {
+		return this.getProductionPowerChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DC_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDcDischargePowerChannel() {
+		return this.channel(ChannelId.DC_DISCHARGE_POWER);
+	}
+
+	/**
+	 * Gets the DC Discharge Power in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#DC_DISCHARGE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDcDischargePower() {
+		return this.getDcDischargePowerChannel().value();
+	}
+}
 
 	
 
-}

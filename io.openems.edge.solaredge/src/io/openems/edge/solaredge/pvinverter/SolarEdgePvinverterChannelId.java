@@ -131,7 +131,7 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 	}	
 	
 	/**
-	 * Gets the Channel for {@link ChannelId#DC_DISCHARGE_POWER}.
+	 * Gets the Channel for {@link ChannelId#PRODUCTION_POWER}.
 	 *
 	 * @return the Channel
 	 */
@@ -141,7 +141,7 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 
 	/**
 	 * Gets the DC Discharge Power in [W]. Negative values for Charge; positive for
-	 * Discharge. See {@link ChannelId#DC_DISCHARGE_POWER}.
+	 * Discharge. See {@link ChannelId#PRODUCTION_POWER}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -151,7 +151,7 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 
 	/**
 	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#DC_DISCHARGE_POWER} Channel.
+	 * {@link ChannelId#PRODUCTION_POWER} Channel.
 	 *
 	 * @param value the next value
 	 */
