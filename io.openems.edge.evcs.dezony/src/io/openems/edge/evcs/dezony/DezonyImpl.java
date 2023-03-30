@@ -126,9 +126,9 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsNamedException {
-		this.api.sendPostRequest("/api/v1/charging/unlock");
+		this.api.enalbeCharing();
 		
-		final var current = (int) Math.round(power / (double) this.getPhasesAsInt() / 230.0);
+		final var current = (int) Math.round(power / (double) this.getPhasesAsInt() / DEFAULT_VOLTAGE);
 		
 		return this.setTarget(current);
 	}
@@ -136,10 +136,7 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public boolean pauseChargeProcess() throws OpenemsNamedException {
-		final var resultLimit = this.api.sendPostRequest("/api/v1/charging/lock");
-		final var result = JsonUtils.getAsOptionalBoolean(resultLimit, "charging_is_locked");
-
-		return result.orElse(false).equals(true);
+		return this.api.disableCharing();
 	}
 
 	/**
@@ -150,10 +147,7 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	private boolean setTarget(int current) throws OpenemsNamedException {
-		final var resultLimit = this.api.sendPostRequest("/api/v1/charging/current?value=" + current);
-		final var resultLimitVal = JsonUtils.getAsOptionalString(resultLimit, "charging_current");
-
-		return resultLimitVal.orElse("").equals("ok");
+		return this.api.setCurrent(current).orElse("").equals("ok");
 	}
 
 	@Override

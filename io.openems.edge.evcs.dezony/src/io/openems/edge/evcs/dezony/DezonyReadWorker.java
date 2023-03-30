@@ -29,8 +29,8 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 
 	@Override
 	protected void forever() throws OpenemsNamedException {
-		final var json = this.parent.api.sendGetRequest("/api/v1/state");
-		final var metricLast = this.parent.api.sendGetRequest("/api/v1/metrics/last");
+		final var json = this.parent.api.getState();
+		final var metricLast = this.parent.api.getLastMetric();
 
 		if (json == null || metricLast == null) {
 			return;
