@@ -6,31 +6,30 @@ public class Lstm {
 
 	private double[] inputData;
 	private double outputData;
-	private double delLByDelRi;
-	private double delLByDelRo;
-	private double delLByDelRz;
-	private double delLByDelWi;
-	private double delLByDelWo;
-	private double delLByDelWz;
-	private double learningRate;
-	private Calculations maths1;
+	private double derivativeLWrtRi; // 
+	private double derivativeLWrtRo; // 
+	private double derivativeLWrtRz; // 
+	private double derivativeLWrtWi; // 
+	private double derivativeLWrtWo; // 
+	private double derivativeLWrtWz; // 
+	private double learningRate; //
+
 	ArrayList<Cell> cells;
 
 	public Lstm(double[] input, double output, double learningRate) {
 		this.inputData = input;
 		this.outputData = output;
-		this.delLByDelRi = 0;
-		this.delLByDelRo = 0;
-		this.delLByDelRz = 0;
-		this.delLByDelWi = 0;
-		this.delLByDelWo = 0;
-		this.delLByDelWz = 0;
-		this.delLByDelRi = 0;
-		this.delLByDelRo = 0;
-		this.delLByDelRz = 0;
+		this.derivativeLWrtRi = 0;
+		this.derivativeLWrtRo = 0;
+		this.derivativeLWrtRz = 0;
+		this.derivativeLWrtWi = 0;
+		this.derivativeLWrtWo = 0;
+		this.derivativeLWrtWz = 0;
+		this.derivativeLWrtRi = 0;
+		this.derivativeLWrtRo = 0;
+		this.derivativeLWrtRz = 0;
 		this.learningRate = learningRate;
-		this.maths1 = new Calculations();
-		this.learningRate=learningRate;
+
 	}
 
 	public class Cell {
@@ -40,10 +39,8 @@ public class Lstm {
 		double wi;
 		double wo;
 		double wz;
-		// private double wf;
 		double Ri;
 		double Ro;
-		// private double Rf;
 		double Rz;
 		private double ct;
 		private double ot;
@@ -51,7 +48,7 @@ public class Lstm {
 		double yt;
 		private double dlByDy;
 		private double dlByDo;
-		private double dlBydDc;
+		private double dlByDc;
 		private double dlByDi;
 		private double dlByDz;
 		private double delI;
@@ -61,29 +58,29 @@ public class Lstm {
 
 		private double xt;
 		private double outputDataLoc;
-		private Calculations maths;
+		private MathUtils maths;
 
 		public Cell(double xt, double outputData) {
-			this.dlBydDc = 0;
+			this.dlByDc = 0;
 			this.error = 0;
 
 			this.wi = 1;
 			this.wo = 1;
 			this.wz = 1;
-			// this.wf = 0;
+
 			this.Ri = 1;
 			this.Ro = 1;
-			// this.Rf = 0;
 			this.Rz = 0;
-			this.ct = 0;
 
+			this.ct = 0;
 			this.ot = 0;
 			this.zt = 0;
+
 			this.yt = 0;
 
 			this.dlByDy = 0;
 			this.dlByDo = 0;
-			this.dlBydDc = 0;
+			this.dlByDc = 0;
 			this.dlByDi = 0;
 			this.dlByDz = 0;
 
@@ -93,7 +90,7 @@ public class Lstm {
 			this.it = 0;
 			this.xt = xt;
 			this.outputDataLoc = outputData;
-			this.maths = new Calculations();
+			this.maths = new MathUtils();
 		}
 
 		public void calcForw() {
@@ -109,9 +106,9 @@ public class Lstm {
 		public void calcBack() {
 			this.dlByDy = this.error;
 			this.dlByDo = this.dlByDy * this.maths.tanh(this.ct);
-			this.dlBydDc = this.dlByDy * this.ot * this.maths.tanhDer(this.ct) + this.dlBydDc;
-			this.dlByDi = this.dlBydDc * this.zt;
-			this.dlByDz = this.dlBydDc * this.it;
+			this.dlByDc = this.dlByDy * this.ot * this.maths.tanhDer(this.ct) + this.dlByDc;
+			this.dlByDi = this.dlByDc * this.zt;
+			this.dlByDz = this.dlByDc * this.it;
 			this.delI = this.dlByDi * this.maths.sigmoidDer(this.wi + this.Ri * this.yt);
 			this.delO = this.dlByDo * this.maths.sigmoidDer(this.wo + this.Ro * this.yt);
 			this.delZ = this.dlByDz * this.maths.tanhDer(this.wz + this.Rz * this.yt);
@@ -148,26 +145,26 @@ public class Lstm {
 			if (i == cells.size() - 1) {
 				cells.get(i).calcBack();
 			} else {
-				cells.get(i).dlBydDc = cells.get(i + 1).dlBydDc;
+				cells.get(i).dlByDc = cells.get(i + 1).dlByDc;
 				cells.get(i).calcBack();
 			}
 		}
 
 		for (int i = 0; i < cells.size(); i++) {
-			delLByDelRi += cells.get(i).yt * cells.get(i).delI;
-			delLByDelRo += cells.get(i).yt * cells.get(i).delO;
-			delLByDelRz += cells.get(i).yt * cells.get(i).delZ;
+			derivativeLWrtRi += cells.get(i).yt * cells.get(i).delI;
+			derivativeLWrtRo += cells.get(i).yt * cells.get(i).delO;
+			derivativeLWrtRz += cells.get(i).yt * cells.get(i).delZ;
 
-			delLByDelWi += cells.get(i).xt * cells.get(i).delI;
-			delLByDelWo += cells.get(i).xt * cells.get(i).delO;
-			delLByDelWz += cells.get(i).xt * cells.get(i).delZ;
+			derivativeLWrtWi += cells.get(i).xt * cells.get(i).delI;
+			derivativeLWrtWo += cells.get(i).xt * cells.get(i).delO;
+			derivativeLWrtWz += cells.get(i).xt * cells.get(i).delZ;
 
-			cells.get(i).wi += this.learningRate * delLByDelWi;
-			cells.get(i).wo += this.learningRate * delLByDelWo;
-			cells.get(i).wz += this.learningRate * delLByDelWz;
-			cells.get(i).Ri += this.learningRate * delLByDelRi;
-			cells.get(i).Ro = cells.get(i).Ri + this.learningRate * delLByDelRo;
-			cells.get(i).Rz = cells.get(i).Ri + this.learningRate * delLByDelRz;
+			cells.get(i).wi += this.learningRate * derivativeLWrtWi;
+			cells.get(i).wo += this.learningRate * derivativeLWrtWo;
+			cells.get(i).wz += this.learningRate * derivativeLWrtWz;
+			cells.get(i).Ri += this.learningRate * derivativeLWrtRi;
+			cells.get(i).Ro = cells.get(i).Ri + this.learningRate * derivativeLWrtRo;
+			cells.get(i).Rz = cells.get(i).Ri + this.learningRate * derivativeLWrtRz;
 		}
 	}
 
@@ -180,10 +177,10 @@ public class Lstm {
 		ArrayList<ArrayList<Double>> Rz = new ArrayList<ArrayList<Double>>();
 		ArrayList<ArrayList<Double>> out = new ArrayList<ArrayList<Double>>();
 		ArrayList<Double> error_list = new ArrayList<Double>();
-		ArrayList<double[]> ct = new ArrayList<double[]>();
-		ArrayList<double[]> ot = new ArrayList<double[]>();
-		ArrayList<double[]> zt = new ArrayList<double[]>();
-		ArrayList<double[]> yt = new ArrayList<double[]>();
+//		ArrayList<double[]> ct = new ArrayList<double[]>();
+//		ArrayList<double[]> ot = new ArrayList<double[]>();
+//		ArrayList<double[]> zt = new ArrayList<double[]>();
+//		ArrayList<double[]> yt = new ArrayList<double[]>();
 
 		for (int i = 0; i < 300; i++) {
 			forwardprop();

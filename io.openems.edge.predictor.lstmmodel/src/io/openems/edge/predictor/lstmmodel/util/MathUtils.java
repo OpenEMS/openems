@@ -1,18 +1,14 @@
 package io.openems.edge.predictor.lstmmodel.util;
 
-public class Calculations {
-
-	public Calculations() {
-		// Constructor
-	}
+public class MathUtils {
 
 	public double tanh(double val) {
-		double e = 2.718281828459045;
+		double e = Math.E;
 		return (Math.pow(e, val) - Math.pow(e, -val)) / (Math.pow(e, val) + Math.pow(e, -val));
 	}
 
 	public double sigmoid(double val) {
-		double e = 2.718281828459045;
+		double e = Math.E;
 		return 1 / (1 + Math.pow(e, -val));
 	}
 

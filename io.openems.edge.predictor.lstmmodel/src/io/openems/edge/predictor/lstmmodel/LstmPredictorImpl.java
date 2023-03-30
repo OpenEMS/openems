@@ -118,23 +118,24 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 				// get as Array
 				.collect(Collectors.toList());
 
-		var numOfDataPerDay = 96;
+		//var numOfDataPerDay = 96;
 
 		System.out.println(data);
 
-//		// LSTM model
-//
+		// LSTM model
+
 		List<Double> doubleOfInt = data.parallelStream().mapToDouble(i -> i).boxed().collect(Collectors.toList());
-//
-		int windowsSize = 4;
+
+		int windowsSize = 24;
 
 		Preprocessing preprocessing = new Preprocessing(doubleOfInt, windowsSize);
-		
-		TrainPredict model = new TrainPredict(preprocessing.TrainData1, preprocessing.TrainTarget1,preprocessing.ValidateData1,preprocessing.ValidateTarget1);
+
+		TrainPredict model = new TrainPredict(preprocessing.TrainData1, preprocessing.TrainTarget1,
+				preprocessing.ValidateData1, preprocessing.ValidateTarget1);
 
 		ArrayList<ArrayList<Double>> value = model.train();
-//
-		double[] result = model.Predict(preprocessing.ValidateData1,preprocessing.ValidateTarget1, value);
+
+		double[] result = model.Predict(preprocessing.ValidateData1, preprocessing.ValidateTarget1, value);
 
 		// Return LSTM result
 		System.out.println(result);
@@ -144,7 +145,7 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 
 	public static Data2D1D generateData2D1D(int windowsSize, List<Double> dataGenerated) {
 
-		Random rnd = new Random();
+		//Random rnd = new Random();
 
 		List<List<Double>> XList = windowed(dataGenerated, windowsSize) //
 				.map(s -> s.collect(Collectors.toList())) //

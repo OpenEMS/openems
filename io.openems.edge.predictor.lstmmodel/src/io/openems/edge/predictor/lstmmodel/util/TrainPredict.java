@@ -1,7 +1,6 @@
 package io.openems.edge.predictor.lstmmodel.util;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class TrainPredict {
 	private double[][] inputMatrix;
@@ -24,7 +23,7 @@ public class TrainPredict {
 	public ArrayList<ArrayList<Double>> train() {
 		double perc = 0.0;
 		ArrayList<ArrayList<Double>> val = new ArrayList<ArrayList<Double>>();
-		
+
 		for (int i = 0; i < inputMatrix.length; i++) {
 			double learningRate = 1;
 
@@ -67,35 +66,25 @@ public class TrainPredict {
 
 			if (allWeight.size() == 200) {
 				int ind = selectWeight(allWeight);
-
-				System.out.println("Wieght of better matrix : " + ind);
 				val = allWeight.get(ind);
 				allWeightFinal.add(val);
 				allWeight.clear();
 			} else {
 				double error = val.get(7).get(0);
-				// System.out.println("AllWeight=" + allWeight.size() + " error=" + error + " %
-				// completed = " + perc);
+				System.out.println("AllWeight = " + allWeight.size() + " error = " + error + " % completed = " + perc);
 			}
 		}
 		int ind = selectWeight(allWeightFinal);
-		System.out.println("Wieght of better allWeightFinal : " + ind);
 		val = allWeightFinal.get(ind);
-
 		return val;
 	}
 
 	public double[] Predict(double[][] input_data, double[] Target, ArrayList<ArrayList<Double>> val) {
-		ArrayList<Double> wi = val.get(0);
-		ArrayList<Double> wo = val.get(1);
-		ArrayList<Double> wz = val.get(2);
-		ArrayList<Double> Ri = val.get(3);
-		ArrayList<Double> Ro = val.get(4);
-		ArrayList<Double> Rz = val.get(5);
+
 		double[] result = new double[input_data.length];
 		for (int i = 0; i < input_data.length; i++) {
 
-			result[i] = predict(input_data[i], wi, wo, wz, Ri, Ro, Rz);
+			result[i] = predict(input_data[i], val.get(0), val.get(1), val.get(2), val.get(3), val.get(4), val.get(5));
 		}
 
 		return result;
@@ -103,10 +92,11 @@ public class TrainPredict {
 
 	public static double predict(double[] input_data, ArrayList<Double> wi, ArrayList<Double> wo, ArrayList<Double> wz,
 			ArrayList<Double> Ri, ArrayList<Double> Ro, ArrayList<Double> Rz) {
-		double ct = 0;
 
+		double ct = 0;
 		double yt = 0;
-		Calculations maths = new Calculations();
+
+		MathUtils maths = new MathUtils();
 
 		for (int i = 0; i < wi.size(); i++) {
 			double it = maths.sigmoid(wi.get(i) * input_data[i] + Ri.get(i) * yt);
@@ -119,18 +109,24 @@ public class TrainPredict {
 	}
 
 	public int selectWeight(ArrayList<ArrayList<ArrayList<Double>>> wightMatrix) {
+
 		System.out.println("***************************Validating**************************");
+
 		double[] rms = new double[wightMatrix.size()];
+
 		for (int k = 0; k < wightMatrix.size(); k++) {
-			// System.out.print(i + "/" + allWeights.size() + "\r");
+
 			ArrayList<ArrayList<Double>> val = wightMatrix.get(k);
+
 			double[] pre = this.Predict(this.validateData, this.validateTarget, val);
+
 			rms[k] = this.computeRMS(this.validateTarget, pre);
 		}
 		int minInd = getMinIndex(rms);
 		return minInd;
 	}
 
+	// TODO optimize this
 	public int getMinIndex(double[] arr) {
 		int minInd = 0;
 		double minValue = arr[0];
@@ -144,6 +140,7 @@ public class TrainPredict {
 		return minInd;
 	}
 
+	// TODO optimize this
 	public double computeRMS(double[] original, double[] computed) {
 		double[] diff = new double[original.length];
 		double sum = 0;
