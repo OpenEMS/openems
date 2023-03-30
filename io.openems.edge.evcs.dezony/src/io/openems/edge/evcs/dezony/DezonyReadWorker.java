@@ -1,5 +1,6 @@
 package io.openems.edge.evcs.dezony;
 
+import java.util.Map;
 import java.util.function.Function;
 
 import com.google.gson.JsonArray;
@@ -15,8 +16,12 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
 
 public class DezonyReadWorker extends AbstractCycleWorker {
-	private final DezonyImpl parent;
 	private int chargingFinishedCounter = 0;
+	private final DezonyImpl parent;
+
+	private Map<String, Status> dezonyToOpenemsState = Map.of("IDLE", Status.NOT_READY_FOR_CHARGING, "CAR_CONNECTED",
+			Status.READY_FOR_CHARGING, "CHARGING", Status.CHARGING, "CHARGING_FINISHED", Status.CHARGING_FINISHED,
+			"CHARGING_ERROR", Status.ERROR);
 
 	public DezonyReadWorker(DezonyImpl parent) {
 		this.parent = parent;
@@ -26,187 +31,124 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 	protected void forever() throws OpenemsNamedException {
 		final var json = this.parent.api.sendGetRequest("/api/v1/state");
 		final var metricLast = this.parent.api.sendGetRequest("/api/v1/metrics/last");
-		
+
 		if (json == null || metricLast == null) {
 			return;
 		}
 
-		// Set value for every Dezony.ChannelId
-		for (var channelId : Dezony.ChannelId.values()) {
+		for (final var channelId : Dezony.ChannelId.values()) {
 			var jsonPaths = channelId.getJsonPaths();
 			var value = this.getValueFromJson(channelId, json, channelId.converter, jsonPaths);
 
-			// Set the channel-value
 			this.parent.channel(channelId).setNextValue(value);
 		}
-	
-		this.setEnergySession(metricLast);
 
-		// Set value for every Evcs.ChannelId
+		this.setEnergySession(metricLast);
 		this.setEvcsChannelIds(json);
 	}
-	
-	// TODO: Implement setting maximum power
-	private void setMaximumPower(JsonElement json) {
-		final var power = (Integer) this.getValueFromJson(Evcs.ChannelId.MAXIMUM_POWER, OpenemsType.INTEGER, json, value -> {			
-			return value;
-		}, "charging_current");
-		
-		
-		this.parent._setMaximumPower((int) Math.round(power * (double) this.parent.getPhasesAsInt() * 230.0));
-	}
 
-	
-	private void setEnergySession(JsonElement json) {
-		final var energy = (Double) this.getValueFromJson(Evcs.ChannelId.ENERGY_SESSION, OpenemsType.DOUBLE, json, value -> {			
-			return value;
-		}, "metric", "energy");
-		
-		
-		this.parent._setEnergySession(energy == null ? null : (int) Math.round(energy));
-	}
-	
 	/**
 	 * Set the value for every Evcs.ChannelId.
 	 *
 	 * @param json Given raw data in JSON
 	 */
 	private void setEvcsChannelIds(JsonElement json) {
-		// ACTIVE_CONSUMPTION_ENERGY
-		final var activeConsumptionEnergyArray = this.getArrayFromJson(json,"currDataPoint"); //
-		long activeConsumptionEnergy = 0;
-		var chargePower = 0;
-		
-		Integer powerL1 = 0;
-		Integer powerL2 = 0;
-		Integer powerL3 = 0;
-		
-		for (var i = 0; i < activeConsumptionEnergyArray.size(); ++i) {
-			final var object = activeConsumptionEnergyArray.get(i).getAsJsonObject();
-			final var key = object.get("short");
-			
-			if (key.getAsString().equals("etotal")) {
-				activeConsumptionEnergy = object.get("value").getAsInt();
-				continue;
-			}
-			
-			if (key.getAsString().equals("currl1")) {
-				powerL1 = object.get("value").isJsonNull() ? 0 :object.get("value").getAsInt() * 230;
-				continue;
-			}
-			
-			if (key.getAsString().equals("currl2")) {
-				powerL2 = object.get("value").isJsonNull() ? 0 :object.get("value").getAsInt() * 230;
-				continue;
-			}
-			
-			if (key.getAsString().equals("currl3")) {
-				powerL3 = object.get("value").isJsonNull() ? 0 :object.get("value").getAsInt() * 230;
-				continue;
-			}
-			
-			if (key.getAsString().equals("ptotal")) {
-				chargePower = object.get("value").isJsonNull() ? null :object.get("value").getAsInt();
-				this.parent._setChargePower(chargePower);
+		final var activeConsumptionEnergyArray = this.getArrayFromJson(json, "currDataPoint");
+
+		this.parent._setActiveConsumptionEnergy(this.getValueByKey(activeConsumptionEnergyArray, "etotal"));
+		this.parent._setChargePower(this.getValueByKey(activeConsumptionEnergyArray, "ptotal"));
+		this.parent._setSetChargePowerLimit(this.getValueByKey(activeConsumptionEnergyArray, "curlhm") * 3 * 230);
+		this.parent._setPhases(this.calculatePhases(activeConsumptionEnergyArray));
+		this.parent._setStatus(this.getStatus(json));
+	}
+
+	private void setEnergySession(JsonElement json) {
+		final var energy = (Double) this.getValueFromJson(Evcs.ChannelId.ENERGY_SESSION, OpenemsType.DOUBLE, json,
+				value -> {
+					return value;
+				}, "metric", "energy");
+
+		this.parent._setEnergySession(energy == null ? null : (int) Math.round(energy));
+	}
+
+	private Status getStatus(JsonElement json) {
+		final var rawChargeStatus = (String) this.getValueFromJson(Dezony.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, json,
+				value -> {
+					final String state = TypeUtils.getAsType(OpenemsType.STRING, value);
+					return state == null ? "" : state;
+				}, "state");
+
+		var status = this.dezonyToOpenemsState.getOrDefault(rawChargeStatus, Status.UNDEFINED);
+
+		if (status.equals(Status.READY_FOR_CHARGING)) {
+			int setChargePowerLimit = this.parent.getSetChargePowerLimit().orElse(0);
+			int minimumHardwarePower = this.parent.getMinimumHardwarePower().orElse(0);
+
+			if (setChargePowerLimit >= minimumHardwarePower) {
+				if (this.chargingFinishedCounter >= 90) {
+					status = Status.CHARGING_FINISHED;
+				} else {
+					this.chargingFinishedCounter++;
+				}
+			} else {
+				this.chargingFinishedCounter = 0;
+
+				if (setChargePowerLimit == 0) {
+					status = Status.CHARGING_REJECTED;
+				}
 			}
 		}
-		
-		this.parent._setMaximumPower(chargingFinishedCounter);
 
-		// PHASES
+		return status;
+	}
+
+	private Integer calculatePhases(JsonArray activeConsumptionEnergyArray) {
+		final var powerL1 = this.getValueByKey(activeConsumptionEnergyArray, "currl1") * 230;
+		final var powerL2 = this.getValueByKey(activeConsumptionEnergyArray, "currl2") * 230;
+		final var powerL3 = this.getValueByKey(activeConsumptionEnergyArray, "currl3") * 230;
+		final int MAX_POWER = 900;
+		final int MIN_POWER = 300;
+
+		final var sum = powerL1 + powerL2 + powerL3;
+
 		Integer phases = null;
-		
-			var sum = powerL1 + powerL2 + powerL3;
 
-			if (sum > 900) {
-				phases = 0;
+		if (sum > MAX_POWER) {
+			phases = 0;
 
-				if (powerL1 >= 300) {
-					phases += 1;
-				}
-				if (powerL2 >= 300) {
-					phases += 1;
-				}
-				if (powerL3 >= 300) {
-					phases += 1;
-				}
+			if (powerL1 >= MIN_POWER) {
+				phases += 1;
 			}
 
-		
-		this.parent._setPhases(phases);
-		
+			if (powerL2 >= MIN_POWER) {
+				phases += 1;
+			}
+
+			if (powerL3 >= MIN_POWER) {
+				phases += 1;
+			}
+		}
+
 		if (phases != null) {
 			this.parent.debugLog("Used phases: " + phases);
 		}
 
-		// STATUS
-		var status = (Status) this.getValueFromJson(Dezony.ChannelId.RAW_CHARGE_STATUS_CHARGEPOINT, json, value -> {
-			final String stringValue = TypeUtils.getAsType(OpenemsType.STRING, value);
-			
-			if (stringValue == null) {
-				return Status.UNDEFINED;
-			}
-
-			var rawStatus = Status.UNDEFINED;
-			
-			switch (stringValue) {
-			case "IDLE":
-				rawStatus = Status.NOT_READY_FOR_CHARGING;
-				break;
-			case "CAR_CONNECTED":
-				rawStatus = Status.READY_FOR_CHARGING;
-
-				// Detect if the car is full
-				if (this.parent.getSetChargePowerLimit().orElse(0) >= this.parent.getMinimumHardwarePower().orElse(0)) {
-
-					if (this.chargingFinishedCounter >= 90) {
-						rawStatus = Status.CHARGING_FINISHED;
-					} else {
-						this.chargingFinishedCounter++;
-					}
-				} else {
-					this.chargingFinishedCounter = 0;
-
-					// Charging rejected because we are forcing to pause charging
-					if (this.parent.getSetChargePowerLimit().orElse(0) == 0) {
-						rawStatus = Status.CHARGING_REJECTED;
-					}
-				}
-				break;
-			case "CHARGING":
-				rawStatus = Status.CHARGING;
-				break;
-			case "CHARGING_FINISHED":
-				rawStatus = Status.CHARGING_FINISHED;
-				break;
-			case "CHARGING_ERROR":
-			case "F":
-				rawStatus = Status.ERROR;
-				break;
-			default:
-				rawStatus = Status.UNDEFINED;
-				break;
-			}
-			if (stringValue.equals("B")) {
-				this.chargingFinishedCounter = 0;
-			}
-			return rawStatus;
-		}, "state");
-
-		this.parent._setStatus(status);
+		return phases;
 	}
 
-	/**
-	 * Call the getValueFromJson with the detailed information of the channel.
-	 *
-	 * @param channelId Channel that value will be detect.
-	 * @param json      Whole JSON path, where the JsonElement for the given channel
-	 *                  is located.
-	 * @return Value of the last JsonElement by running through the specified JSON
-	 *         path.
-	 */
-	private Object getValueForChannel(Dezony.ChannelId channelId, JsonElement json) {
-		return this.getValueFromJson(channelId, json, channelId.converter, channelId.getJsonPaths());
+	private int getValueByKey(JsonArray activeConsumptionEnergyArray, String searchKey) {
+		for (var i = 0; i < activeConsumptionEnergyArray.size(); ++i) {
+			final var object = activeConsumptionEnergyArray.get(i).getAsJsonObject();
+			final var key = object.get("short");
+
+			if (key.getAsString().equals(searchKey)) {
+				return object.get("value").isJsonNull() ? 0 : object.get("value").getAsInt();
+			}
+
+			continue;
+		}
+
+		return 0;
 	}
 
 	/**
@@ -289,8 +231,6 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 		}
 		return null;
 	}
-	
-	
 
 	/**
 	 * Get Value of the given JsonElement in the required type.
