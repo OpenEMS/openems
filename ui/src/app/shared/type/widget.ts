@@ -82,6 +82,10 @@ export class AdvertWidgets {
                 title: 'FENECON AVU'
             })
         }
+        list.push({
+            name: 'Fems-App-Center',
+            title: 'FEMS App Center'
+        })
 
 
         list = Utils.shuffleArray(list);
