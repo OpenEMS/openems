@@ -2,8 +2,12 @@ package io.openems.edge.app.evcs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -27,6 +31,7 @@ import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.evcs.HardyBarthEvcs.PropertyParent;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -50,6 +55,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 
 /**
  * Describes a Hardy Barth evcs App.
@@ -91,6 +97,7 @@ public class HardyBarthEvcs extends
 		EVCS_ID_CP_2(AppDef.componentId("evcs0")), //
 		CTRL_EVCS_ID_CP_2(AppDef.componentId("ctrlEvcs0")), //
 		// Properties
+		// TODO maybe make this immutable after first installation?
 		NUMBER_OF_CHARGING_STATIONS(AppDef.of(HardyBarthEvcs.class) //
 				.setTranslatedLabelWithAppPrefix(".numberOfChargingStations.label") //
 				.setDefaultValue(1) //
@@ -115,11 +122,27 @@ public class HardyBarthEvcs extends
 							.onlyShowIfValueEquals(NUMBER_OF_CHARGING_STATIONS, "2") //
 							.hideKey();
 				})), //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
+				.setAllowedToSave(false)), //
+		MAX_HARDWARE_POWER(AppDef.<HardyBarthEvcs, PropertyParent, Parameter.BundleParameter, //
+				HardyBarthEvcs, Nameable, Parameter.BundleParameter>copyOfGeneric(
+						EvcsProps.clusterMaxHardwarePower(MAX_HARDWARE_POWER_ACCEPT_PROPERTY)) //
+				.setDefaultValue(0) //
+				.wrapField((app, property, l, parameter, field) -> {
+					final var existingEvcs = app.componentUtil.getEnabledComponentsOfStartingId("evcs").stream() //
+							.filter(t -> !t.id().startsWith("evcsCluster")) //
+							.collect(Collectors.toList());
+					final var expressionForSingleUpdate = ExpressionBuilder.ofNotIn(EVCS_ID,
+							existingEvcs.stream().map(OpenemsComponent::id) //
+									.toArray(String[]::new));
+					field.onlyShowIf(ExpressionBuilder.of(NUMBER_OF_CHARGING_STATIONS, Operator.EQ, "2") //
+							.or(expressionForSingleUpdate));
+				})), //
 		;
 
-		private final AppDef<HardyBarthEvcs, PropertyParent, BundleParameter> def;
+		private final AppDef<? super HardyBarthEvcs, ? super PropertyParent, ? super BundleParameter> def;
 
-		private Property(AppDef<HardyBarthEvcs, PropertyParent, BundleParameter> def) {
+		private Property(AppDef<? super HardyBarthEvcs, ? super PropertyParent, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -129,7 +152,7 @@ public class HardyBarthEvcs extends
 		}
 
 		@Override
-		public AppDef<HardyBarthEvcs, PropertyParent, BundleParameter> def() {
+		public AppDef<? super HardyBarthEvcs, ? super PropertyParent, ? super BundleParameter> def() {
 			return this.def;
 		}
 
@@ -276,6 +299,12 @@ public class HardyBarthEvcs extends
 				throw new OpenemsException("Number of charging stations can only be 0 < n <= 2.");
 			}
 
+			var maxHardwarePowerPerPhase = OptionalInt.empty();
+			if (p.containsKey(Property.MAX_HARDWARE_POWER)) {
+				maxHardwarePowerPerPhase = OptionalInt
+						.of(this.getInt(p, Property.MAX_HARDWARE_POWER) / EvcsProps.NUMBER_OF_PHASES);
+			}
+
 			final var schedulerIds = new ArrayList<String>();
 
 			final var alias = this.getString(p, l, SubPropertyFirstChargepoint.ALIAS);
@@ -293,7 +322,7 @@ public class HardyBarthEvcs extends
 							.addProperty("evcs.id", evcsId) //
 							.build())//
 			);
-
+			final List<DependencyDeclaration> clusterDependency;
 			if (numberOfChargingStations == 2) {
 				final var aliasCp2 = this.getString(p, l, SubPropertySecondChargepoint.ALIAS_CP_2);
 				final var ipCp2 = this.getString(p, l, SubPropertySecondChargepoint.IP_CP_2);
@@ -308,6 +337,15 @@ public class HardyBarthEvcs extends
 						JsonUtils.buildJsonObject() //
 								.addProperty("evcs.id", evcsIdCp2) //
 								.build()));
+				clusterDependency = EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+						maxHardwarePowerPerPhase, evcsId, evcsIdCp2);
+			} else {
+				var removeIds = Collections.<String>emptyList();
+				if (p.containsKey(Property.EVCS_ID_CP_2)) {
+					removeIds = Lists.newArrayList(this.getId(t, p, Property.EVCS_ID_CP_2));
+				}
+				clusterDependency = EvcsCluster.dependency(t, this.componentManager, this.componentUtil,
+						maxHardwarePowerPerPhase, removeIds, evcsId);
 			}
 
 			final var ips = Lists.newArrayList(//
@@ -319,7 +357,8 @@ public class HardyBarthEvcs extends
 			return new AppConfiguration(//
 					components, //
 					schedulerIds, //
-					ip.startsWith("192.168.25.") ? ips : null //
+					ip.startsWith("192.168.25.") ? ips : null, //
+					clusterDependency //
 			);
 		};
 	}

@@ -39,7 +39,7 @@ import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
-		implements OpenemsApp {
+		implements OpenemsApp, ComponentUtilSupplier, ComponentManagerSupplier {
 
 	protected final ComponentManager componentManager;
 	protected final ConfigurationAdmin cm;
@@ -143,7 +143,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		var configuration = this.configuration(errors, target, language, enumMap);
 
 		if (!errors.isEmpty()) {
-			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
+			throw new OpenemsException(this.getAppId() + ": " + errors.stream().collect(Collectors.joining("|")));
 		}
 		return configuration;
 	}
@@ -584,6 +584,16 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 
 	protected static final Component getComponentWithFactoryId(List<Component> components, String factoryId) {
 		return components.stream().filter(t -> t.getFactoryId().equals(factoryId)).findFirst().orElse(null);
+	}
+
+	@Override
+	public ComponentManager getComponentManager() {
+		return this.componentManager;
+	}
+
+	@Override
+	public ComponentUtil getComponentUtil() {
+		return this.componentUtil;
 	}
 
 }

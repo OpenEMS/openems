@@ -16,7 +16,9 @@ import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
+import io.openems.edge.app.evcs.EvcsCluster;
 import io.openems.edge.app.evcs.HardyBarthEvcs;
+import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.integratedsystem.FeneconHome;
@@ -60,18 +62,6 @@ public class Apps {
 	 */
 	public static final FeneconHome feneconHome(AppManagerTestBundle t) {
 		return app(t, FeneconHome::new, "App.FENECON.Home");
-	}
-
-	// Evcs
-
-	/**
-	 * Test method for creating a {@link KebaEvcs}.
-	 * 
-	 * @param t the {@link AppManagerTestBundle}
-	 * @return the {@link OpenemsApp} instance
-	 */
-	public static final KebaEvcs kebaEvcs(AppManagerTestBundle t) {
-		return app(t, KebaEvcs::new, "App.Evcs.Keba");
 	}
 
 	// TimeOfUseTariff
@@ -190,6 +180,36 @@ public class Apps {
 	 */
 	public static final HardyBarthEvcs hardyBarthEvcs(AppManagerTestBundle t) {
 		return app(t, HardyBarthEvcs::new, "App.Evcs.HardyBarth");
+	}
+
+	/**
+	 * Test method for creating a {@link KebaEvcs}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final KebaEvcs kebaEvcs(AppManagerTestBundle t) {
+		return app(t, KebaEvcs::new, "App.Evcs.Keba");
+	}
+
+	/**
+	 * Test method for creating a {@link IesKeywattEvcs}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final IesKeywattEvcs iesKeywattEvcs(AppManagerTestBundle t) {
+		return app(t, IesKeywattEvcs::new, "App.Evcs.IesKeywatt");
+	}
+
+	/**
+	 * Test method for creating a {@link EvcsCluster}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final EvcsCluster evcsCluster(AppManagerTestBundle t) {
+		return app(t, EvcsCluster::new, "App.Evcs.Cluster");
 	}
 
 	// Heat
