@@ -30,6 +30,7 @@ public class Lstm {
 		this.delLByDelRz = 0;
 		this.learningRate = learningRate;
 		this.maths1 = new Calculations();
+		this.learningRate=learningRate;
 	}
 
 	public class Cell {
@@ -66,12 +67,12 @@ public class Lstm {
 			this.dlBydDc = 0;
 			this.error = 0;
 
-			this.wi = 0;
-			this.wo = 0;
-			this.wz = 0;
+			this.wi = 1;
+			this.wo = 1;
+			this.wz = 1;
 			// this.wf = 0;
-			this.Ri = 0;
-			this.Ro = 0;
+			this.Ri = 1;
+			this.Ro = 1;
 			// this.Rf = 0;
 			this.Rz = 0;
 			this.ct = 0;
@@ -161,12 +162,12 @@ public class Lstm {
 			delLByDelWo += cells.get(i).xt * cells.get(i).delO;
 			delLByDelWz += cells.get(i).xt * cells.get(i).delZ;
 
-			cells.get(i).wi += learningRate * delLByDelWi;
-			cells.get(i).wo += learningRate * delLByDelWo;
-			cells.get(i).wz += learningRate * delLByDelWz;
-			cells.get(i).Ri += learningRate * delLByDelRi;
-			cells.get(i).Ro = cells.get(i).Ri + learningRate * delLByDelRo;
-			cells.get(i).Rz = cells.get(i).Ri + learningRate * delLByDelRz;
+			cells.get(i).wi += this.learningRate * delLByDelWi;
+			cells.get(i).wo += this.learningRate * delLByDelWo;
+			cells.get(i).wz += this.learningRate * delLByDelWz;
+			cells.get(i).Ri += this.learningRate * delLByDelRi;
+			cells.get(i).Ro = cells.get(i).Ri + this.learningRate * delLByDelRo;
+			cells.get(i).Rz = cells.get(i).Ri + this.learningRate * delLByDelRz;
 		}
 	}
 
@@ -184,7 +185,7 @@ public class Lstm {
 		ArrayList<double[]> zt = new ArrayList<double[]>();
 		ArrayList<double[]> yt = new ArrayList<double[]>();
 
-		for (int i = 0; i < 25; i++) {
+		for (int i = 0; i < 300; i++) {
 			forwardprop();
 			backwardprop();
 

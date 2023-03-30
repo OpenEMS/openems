@@ -2,8 +2,11 @@ package io.openems.edge.predictor.lstmmodel;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 
@@ -30,7 +33,12 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
+import io.openems.edge.predictor.lstmmodel.util.Data2D1D;
+import io.openems.edge.predictor.lstmmodel.util.Preprocessing;
+import io.openems.edge.predictor.lstmmodel.util.TrainPredict;
 import io.openems.edge.timedata.api.Timedata;
+
+import static io.openems.edge.predictor.lstmmodel.util.SlidingWindowSpliterator.windowed;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -110,19 +118,60 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 				// get as Array
 				.collect(Collectors.toList());
 
-		// Num of Data per day
-		// TODO change this variable based on the resolution which is 900 in query
 		var numOfDataPerDay = 96;
+
+		System.out.println(data);
+
+//		// LSTM model
+//
+		List<Double> doubleOfInt = data.parallelStream().mapToDouble(i -> i).boxed().collect(Collectors.toList());
+//
+		int windowsSize = 4;
+
+		Preprocessing preprocessing = new Preprocessing(doubleOfInt, windowsSize);
 		
-		// LSTM model 
-		
-		
-		
-		
+		TrainPredict model = new TrainPredict(preprocessing.TrainData1, preprocessing.TrainTarget1,preprocessing.ValidateData1,preprocessing.ValidateTarget1);
+
+		ArrayList<ArrayList<Double>> value = model.train();
+//
+		double[] result = model.Predict(preprocessing.ValidateData1,preprocessing.ValidateTarget1, value);
+
 		// Return LSTM result
-		
+		System.out.println(result);
 
 		return null;
+	}
+
+	public static Data2D1D generateData2D1D(int windowsSize, List<Double> dataGenerated) {
+
+		Random rnd = new Random();
+
+		List<List<Double>> XList = windowed(dataGenerated, windowsSize) //
+				.map(s -> s.collect(Collectors.toList())) //
+				.collect(Collectors.toList());
+
+		XList.remove(XList.size() - 1);
+
+		System.out.println(XList);
+
+		long seed = new Random().nextLong();
+
+		Collections.shuffle(XList, new Random(seed));
+		double[][] Xarray = XList.stream() //
+				.map(l -> l.stream() //
+						.mapToDouble(Double::doubleValue) //
+						.toArray()) //
+				.toArray(double[][]::new);
+
+		List<Double> YList = dataGenerated.subList(windowsSize, dataGenerated.size());
+
+		System.out.println(YList);
+		Collections.shuffle(YList, new Random(seed));
+
+		double[] yArray = YList.stream().mapToDouble(d -> d).toArray();
+
+		return new Data2D1D(Xarray, yArray);
+
 	}
 
 }
