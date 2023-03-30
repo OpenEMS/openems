@@ -1,6 +1,6 @@
-= Hardy Barth Charging Station (Salia)
+= dezony IQ Charging Station
 
-This component implements the Salia charging station by the manufacturer Hardy Barth: https://www.echarge.de/de/home
+This component implements the dezony IQ charging station by the manufacturer dezony: https://dezony.com
 
 Implemented Natures:
 * Evcs (Electric Vehicle Charging Station)
