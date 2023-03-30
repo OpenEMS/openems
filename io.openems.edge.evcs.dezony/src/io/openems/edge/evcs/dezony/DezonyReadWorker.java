@@ -13,6 +13,7 @@ import io.openems.common.worker.AbstractCycleWorker;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.evcs.api.Phases;
 import io.openems.edge.evcs.api.Status;
 
 public class DezonyReadWorker extends AbstractCycleWorker {
@@ -57,7 +58,7 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 
 		this.parent._setActiveConsumptionEnergy(this.getValueByKey(activeConsumptionEnergyArray, "etotal"));
 		this.parent._setChargePower(this.getValueByKey(activeConsumptionEnergyArray, "ptotal"));
-		this.parent._setSetChargePowerLimit(this.getValueByKey(activeConsumptionEnergyArray, "curlhm") * 3 * 230);
+		this.parent._setSetChargePowerLimit(this.getValueByKey(activeConsumptionEnergyArray, "curlhm") * Phases.THREE_PHASE.getValue() * Evcs.DEFAULT_VOLTAGE);
 		this.parent._setPhases(this.calculatePhases(activeConsumptionEnergyArray));
 		this.parent._setStatus(this.getStatus(json));
 	}
@@ -103,9 +104,9 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 	}
 
 	private Integer calculatePhases(JsonArray activeConsumptionEnergyArray) {
-		final var powerL1 = this.getValueByKey(activeConsumptionEnergyArray, "currl1") * 230;
-		final var powerL2 = this.getValueByKey(activeConsumptionEnergyArray, "currl2") * 230;
-		final var powerL3 = this.getValueByKey(activeConsumptionEnergyArray, "currl3") * 230;
+		final var powerL1 = this.getValueByKey(activeConsumptionEnergyArray, "currl1") * Evcs.DEFAULT_VOLTAGE;
+		final var powerL2 = this.getValueByKey(activeConsumptionEnergyArray, "currl2") * Evcs.DEFAULT_VOLTAGE;
+		final var powerL3 = this.getValueByKey(activeConsumptionEnergyArray, "currl3") * Evcs.DEFAULT_VOLTAGE;
 		final int MAX_POWER = 900;
 		final int MIN_POWER = 300;
 
