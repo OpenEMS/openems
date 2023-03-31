@@ -1,4 +1,4 @@
-<ion-grid style="font-size: small; text-align: center;">
+<ion-grid style="font-size: small; text-align: center;" *ngIf="edge">
     <ion-row style="margin-bottom: 4%;">
         <ion-text class="full_width">
             Installation von FEMS Apps - ab 01.04. noch einfacher mittels Lizenzschlüssel.
@@ -7,13 +7,19 @@
     <ion-row class="full_width" style="text-align: center;display: block;margin-bottom: 4%;">
         <ion-text class="full_width" style="text-align: center;">
             Wie erfahren Sie
-            <a href="https://fenecon.de/pressemitteilungen/fenecon-veroeffentlicht-neues-fems-app-center-installation-von-energiemanagement-apps-jetzt-noch-einfacher/" target="_blank">hier</a>.
+            <a href="https://fenecon.de/pressemitteilungen/fenecon-veroeffentlicht-neues-fems-app-center-installation-von-energiemanagement-apps-jetzt-noch-einfacher/"
+                target="_blank">hier</a>.
         </ion-text>
     </ion-row>
     <ion-row class="full_width" style="text-align: center;display: block;">
         <ion-text class="full_width" style="text-align: center;">
-            Das FEMS App Center erreichen Sie
-            <a routerLink="/device/{{edge.id}}/settings/app">hier</a>.
+            <ng-container *ngIf="updatedRequired; else linkToAppCenter">Um das FEMS App Center zu aktivieren, führen Sie
+                bitte zuerst
+                <a [routerLink]="'/device/' + edge.id + '/settings/systemupdate'">hier</a> ein Systemupdate
+                durch.</ng-container>
+            <ng-template #linkToAppCenter>
+                Das FEMS App Center erreichen Sie<a [routerLink]="'/device/' + edge.id + '/settings/app'">hier</a>.
+            </ng-template>
         </ion-text>
     </ion-row>
 </ion-grid>

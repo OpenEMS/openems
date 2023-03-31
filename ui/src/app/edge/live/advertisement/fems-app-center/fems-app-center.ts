@@ -7,11 +7,13 @@ import { Edge, Service } from "src/app/shared/shared";
 })
 export class FemsAppCenterComponent {
     public edge: Edge | null = null;
+    protected updatedRequired: boolean = true;
     constructor(private service: Service) { }
 
     ngOnInit() {
         this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
+            this.updatedRequired = !edge.isVersionAtLeast('2023.3.6');
         })
     }
 }
