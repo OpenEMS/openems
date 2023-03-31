@@ -428,7 +428,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				ElementToChannelConverter.DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S103.V_AR);		
 		
-	
+
 		
 		
 		
@@ -499,7 +499,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				//HybridEss.getModbusSlaveNatureTable(accessMode), //
+				HybridEss.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(SolarEdgeHybridEssImpl.class, accessMode, 100) //
 						.build());
 	}

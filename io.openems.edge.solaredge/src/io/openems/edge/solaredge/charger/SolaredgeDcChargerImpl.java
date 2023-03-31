@@ -113,9 +113,9 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_203, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_203, Priority.LOW) //
 			
-			.put(DefaultSunSpecModel.S_802, Priority.LOW) //
+			//.put(DefaultSunSpecModel.S_802, Priority.LOW) //
 						
 /*			.put(DefaultSunSpecModel.S_203, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
@@ -177,6 +177,12 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 			ElementToChannelConverter.DIRECT_1_TO_1, //
 			DefaultSunSpecModel.S103.DCW);		
 
+		this.mapFirstPointToChannel(//
+				EssDcCharger.ChannelId.ACTUAL_ENERGY, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S103.WH);		
+		
+		
 	}
 	
 	
