@@ -36,6 +36,20 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.3.6',
+        changes: [
+          "App Center: öffentliches Release",
+          "Link zu " + Changelog.link("FAQ", 'https://fenecon.de/faq/#fems') + " korrigiert",
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + "Verbesserung der Datenanzeige in der Live-Ansicht",
+          "KDK-Zähler: Fehlerbehebung beim Lesen der Energiewerte",
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Anzeige von Modal-Fenstern, Automatische Installation Multiladepunktmanagement, UI-Verbesserungen, erfordere Rolle 'INSTALLER' für FENECON Home, erfordere Rolle 'ADMIN' für MQTT" },
+          { roleIsAtLeast: Role.ADMIN, change: "Werbewidget: FEMS App Center; Link zu Systemupdate bei Versionen < 2023.3.6" },
+          { roleIsAtLeast: Role.ADMIN, change: "Soltaro-Batterien Version C: PreAlarmTotalVoltageHigh, TemperatureDifferenceTooBigPre-Alarm ausgeblendet" },
+          { roleIsAtLeast: Role.ADMIN, change: "OEM Heckert: neues Logo" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fix-State-of-Charge-/Prepare-Battery-Extension-Controller: Fehlerbehebungen" },
+        ]
+      },
+      {
         version: '2023.3.5',
         changes: [
           "Aktualisierung der Java Runtime Environment auf Version 17 LTS",

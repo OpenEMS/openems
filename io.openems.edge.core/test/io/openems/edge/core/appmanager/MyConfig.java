@@ -7,7 +7,7 @@ import io.openems.common.test.AbstractComponentConfig;
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private String apps;
 		private String key;
 

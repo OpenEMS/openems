@@ -297,24 +297,32 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 	 * Helper to parse the configured target time into LocalDateTime.
 	 */
 	private void initializeTargetTime() {
-		if (!this.config.isTargetTimeSpecified()) {
-			return;
+		ZonedDateTime targetTime = null;
+		boolean showWarning = false;
+
+		if (this.config.isTargetTimeSpecified()) {
+			try {
+				// Try to parse ZonedDateTime format e.g. 2023-12-15T13:47:20+01:00
+				targetTime = ZonedDateTime.parse(this.config.getTargetTime());
+				showWarning = false;
+
+			} catch (DateTimeParseException e) {
+				// Parse failed -> show warning
+				this.logError(this.log, "Not able to parse target time: " + e.getMessage());
+
+				targetTime = null;
+				showWarning = true;
+			}
+
+		} else {
+			// Do not parse & show no warning
+			targetTime = null;
+			showWarning = false;
 		}
 
-		/*
-		 * Try to parse ZonedDateTime format e.g. 2023-12-15T13:47:20+01:00
-		 */
-		try {
-			this.targetDateTime = ZonedDateTime.parse(this.config.getTargetTime());
-			this.channel(FixStateOfCharge.ChannelId.NO_VALID_TARGET_TIME).setNextValue(false);
-
-		} catch (DateTimeParseException e) {
-
-			this.targetDateTime = null;
-			this.logError(this.log, "Not able to parse target time: " + e.getMessage());
-			this.channel(FixStateOfCharge.ChannelId.NO_VALID_TARGET_TIME).setNextValue(true);
-
-		}
+		// Apply results
+		this.targetDateTime = targetTime;
+		this.channel(FixStateOfCharge.ChannelId.NO_VALID_TARGET_TIME).setNextValue(showWarning);
 	}
 
 	/**

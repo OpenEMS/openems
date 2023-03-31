@@ -120,20 +120,6 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
             borderColor: 'rgba(51,102,0,1)',
           })
 
-          // Set dataset for buy from grid
-          datasets.push({
-            type: 'bar',
-            label: this.translate.instant('General.gridBuy'),
-            data: quarterlyPricesDelayedDischargeData,
-            order: 4,
-          });
-          this.colors.push({
-            // Black
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            borderColor: 'rgba(0,0,0,0.9)',
-
-          })
-
           // Set dataset for Quarterly Prices outside zone
           datasets.push({
             type: 'bar',
@@ -161,6 +147,20 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
               backgroundColor: 'rgba(0, 204, 204,0.5)',
               borderColor: 'rgba(0, 204, 204,0.7)',
             })
+          } else {
+            // Set dataset for buy from grid
+            datasets.push({
+              type: 'bar',
+              label: this.translate.instant('General.gridBuy'),
+              data: quarterlyPricesDelayedDischargeData,
+              order: 4,
+            });
+            this.colors.push({
+              // Black
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              borderColor: 'rgba(0,0,0,0.9)',
+            })
+
           }
 
           // Predicted SoC is not shown for now, because it is not inteligent enough with the simple prediction

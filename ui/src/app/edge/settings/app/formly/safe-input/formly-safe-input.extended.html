@@ -1,0 +1,9 @@
+<ion-item (click)="onSelectItem()" [disabled]="formControl.disabled" [button]="!formControl.disabled">
+    <ion-label>
+        <span>{{to.label}}</span>
+    </ion-label>
+    <ion-text>
+        {{ model[pathToDisplayValue] }}
+    </ion-text>
+    <ion-icon name="caret-down-outline"></ion-icon>
+</ion-item>

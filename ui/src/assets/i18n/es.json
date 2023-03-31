@@ -376,7 +376,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Precio actual",
           "delayedDischarge": "Retraso en el alta",
-          "storageDischarge": "Descarga de almacenamiento",
+          "STORAGE_DISCHARGE": "Descarga de almacenamiento",
           "State": {
             "notStarted": "El controlador aún no se ha iniciado ",
             "delayed": "Retraso",

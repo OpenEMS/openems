@@ -90,7 +90,9 @@ export namespace GetAppAssistant {
             field['defaultValue'] = false;
         }
         // this is needed to still show the input as the default style defined by us
-        if (field.wrappers?.includes('formly-wrapper-default-of-cases')) {
+        if (field.wrappers?.includes('formly-wrapper-default-of-cases')
+            || field.wrappers?.includes('formly-safe-input-wrapper')
+            || field.wrappers?.includes('input-with-unit')) {
             field.wrappers?.push('form-field')
         }
 
