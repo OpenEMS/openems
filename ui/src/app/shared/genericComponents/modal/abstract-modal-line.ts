@@ -21,7 +21,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /** FormGroup ControlName */
     @Input() controlName: string;
 
-    @Input() channelCondition: number | string | null = null;
+    @Input() showIfChannelValueMatchesCondition: number | string | null = null;
 
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
@@ -123,12 +123,12 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     /** value defines value of the parameter, displayed on the right */
     protected setValue(value: number | string) {
-        if (this.channelCondition != null) {
+        if (this.showIfChannelValueMatchesCondition != null) {
             this.canSeeLine = false;
 
             // If channelCondition set, but value is null, wait for first non null value
             if (value != null) {
-                this.canSeeLine = value === this.channelCondition
+                this.canSeeLine = value === this.showIfChannelValueMatchesCondition
             }
         }
 

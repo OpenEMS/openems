@@ -3,7 +3,6 @@ import { LiveModule } from './live/live.module';
 import { NgModule } from '@angular/core';
 import { SharedModule } from './../shared/shared.module';
 import { EdgeComponent } from './edge.component';
-import { ExampleSystemsModule } from './exampleSystems/exampleSystems.module';
 
 @NgModule({
   declarations: [
@@ -13,7 +12,6 @@ import { ExampleSystemsModule } from './exampleSystems/exampleSystems.module';
     HistoryModule,
     LiveModule,
     SharedModule,
-    ExampleSystemsModule
   ],
   exports: [
     EdgeComponent

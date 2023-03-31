@@ -69,7 +69,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         { name: 'formly-select-extended-wrapper', component: FormlySelectFieldExtendedWrapperComponent },
         { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent },
         { name: 'formly-wrapper-default-of-cases', component: FormlyWrapperDefaultValueWithCasesComponent },
-        { name: 'panel', component: PanelWrapperComponent }
+        { name: 'panel', component: PanelWrapperComponent },
+        { name: 'formly-field-modal', component: FormlyFieldModalComponent }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
@@ -86,7 +87,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     }),
     PipeModule,
     Generic_ComponentsModule,
-    TranslateModule
+    TranslateModule,
+
   ],
   declarations: [
     // components
@@ -101,6 +103,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     FormlyWrapperInputSerialNumber,
     FormlySelectFieldExtendedWrapperComponent,
     FormlySelectFieldModalComponent,
+    FormlyFieldModalComponent,
     FormlyCheckBoxHyperlinkWrapperComponent,
     FormlyWrapperDefaultValueWithCasesComponent,
     PanelWrapperComponent
