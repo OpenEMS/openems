@@ -156,7 +156,7 @@ public abstract class AbstractOpenemsAppWithProps<//
 		return AppAssistant.create(this.getName(language)) //
 				.onlyIf(alias != null, t -> t.setAlias(alias)) //
 				.fields(Arrays.stream(this.propertyValues()) //
-						.filter(p -> p.def().isAutoGenerateField()) //
+						.filter(p -> p.def().getShouldAddField().test(this.getApp(), p, language, parameter.get())) //
 						.filter(p -> p.def().getField() != null) //
 						.map(p -> p.def().getField().get(this.getApp(), p, language, parameter.get()).build()) //
 						.collect(JsonUtils.toJsonArray())) //

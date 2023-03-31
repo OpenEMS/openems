@@ -16,6 +16,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
@@ -157,6 +158,15 @@ public class JsonFormlyUtil {
 		return new RepeatBuilder(nameable);
 	}
 
+	/**
+	 * Creates a JsonObject Formly Text Builder for the given enum.
+	 *
+	 * @return a {@link TextBuilder}
+	 */
+	public static TextBuilder buildText() {
+		return new TextBuilder();
+	}
+
 	private static <T extends Enum<T>> Nameable toNameable(T property) {
 		return new StaticNameable(property.name());
 	}
@@ -188,6 +198,16 @@ public class JsonFormlyUtil {
 		 * Wrapper for a panel.
 		 */
 		PANEL("panel"), //
+
+		/**
+		 * Input with a popup.
+		 */
+		SAFE_INPUT("formly-safe-input-wrapper"), //
+
+		/**
+		 * Input with unit.
+		 */
+		INPUT_WITH_UNIT("input-with-unit"), //
 		;
 
 		private final String wrapperClass;
@@ -288,8 +308,11 @@ public class JsonFormlyUtil {
 		private final List<String> wrappers = new ArrayList<>();
 
 		private FormlyBuilder(Nameable property) {
-			this.setKey(property.name());
 			this.setType(this.getType());
+			if (property == null) {
+				return;
+			}
+			this.setKey(property.name());
 			this.setLabel(property.name());
 		}
 
@@ -458,6 +481,18 @@ public class JsonFormlyUtil {
 		}
 
 		/**
+		 * Hides the current key of the input. Results are all child inputs are not in
+		 * the model as a JsonObject value of this key instead the are on the same level
+		 * saved as this field.
+		 * 
+		 * @return this
+		 */
+		public T hideKey() {
+			this.setKey(null);
+			return this.self();
+		}
+
+		/**
 		 * Adds a wrapper to the current input.
 		 * 
 		 * @param wrapper the {@link Wrappers} to add
@@ -541,6 +576,30 @@ public class JsonFormlyUtil {
 			return new ExpressionBuilder(expressionOf(nameable));
 		}
 
+		/**
+		 * Creates a {@link ExpressionBuilder} where the value of the input of the given
+		 * property gets validated to be in the given values.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @param values   the values the value of the nameable should be in
+		 * @return the {@link ExpressionBuilder}
+		 */
+		public static final ExpressionBuilder ofIn(Nameable nameable, String... values) {
+			return new ExpressionBuilder(expressionOfIn(nameable, values));
+		}
+
+		/**
+		 * Creates a {@link ExpressionBuilder} where the value of the input of the given
+		 * property gets validated to not be in the given values.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @param values   the values the value of the nameable should not be in
+		 * @return the {@link ExpressionBuilder}
+		 */
+		public static final ExpressionBuilder ofNotIn(Nameable nameable, String... values) {
+			return new ExpressionBuilder(expressionOfNotIn(nameable, values));
+		}
+
 		private ExpressionBuilder(String baseExpression) {
 			this.sb = new StringBuilder(baseExpression);
 		}
@@ -621,6 +680,38 @@ public class JsonFormlyUtil {
 			return this;
 		}
 
+		private static final String expressionOfNotIn(Nameable nameable, String... values) {
+			if (values.length == 0) {
+				return "";
+			}
+			ExpressionBuilder expression = null;
+			for (var item : values) {
+				if (expression == null) {
+					expression = ExpressionBuilder.of(nameable, Operator.NEQ, item);
+					continue;
+				}
+				expression.and(nameable, Operator.NEQ, item);
+			}
+
+			return expression.toString();
+		}
+
+		private static final String expressionOfIn(Nameable nameable, String... values) {
+			if (values.length == 0) {
+				return "";
+			}
+			ExpressionBuilder expression = null;
+			for (var item : values) {
+				if (expression == null) {
+					expression = ExpressionBuilder.of(nameable, Operator.EQ, item);
+					continue;
+				}
+				expression.or(nameable, Operator.EQ, item);
+			}
+
+			return expression.toString();
+		}
+
 		private static final String expressionOf(Nameable nameable, Operator operator, String value) {
 			return "model." + nameable.name() + " " + operator.getOperation() + " '" + value + "'";
 		}
@@ -679,15 +770,9 @@ public class JsonFormlyUtil {
 			return this.self();
 		}
 
-		/**
-		 * Hides the current key of the input. Results are all child inputs are not in
-		 * the model as a JsonObject value of this key instead the are on the same level
-		 * saved as this field.
-		 * 
-		 * @return this
-		 */
-		public FieldGroupBuilder hideKey() {
-			this.setKey(null);
+		public FieldGroupBuilder setPopupInput(Nameable displayValue) {
+			this.addWrapper(Wrappers.SAFE_INPUT);
+			this.templateOptions.addProperty("pathToDisplayValue", displayValue.name());
 			return this;
 		}
 
@@ -897,6 +982,16 @@ public class JsonFormlyUtil {
 			return this;
 		}
 
+		public InputBuilder setUnit(Unit unit, Language l) {
+			var unitString = switch (unit) {
+			case WATT -> TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l), "watt");
+			default -> unit.name();
+			};
+			this.templateOptions.addProperty("unit", unitString);
+			this.addWrapper(Wrappers.INPUT_WITH_UNIT);
+			return this;
+		}
+
 		private InputBuilder setPattern(String pattern) {
 			if (this.type != Type.TEXT) {
 				throw new IllegalArgumentException("Pattern can only be set on Text inputs!");
@@ -1021,12 +1116,45 @@ public class JsonFormlyUtil {
 	 */
 	public static final class CheckboxBuilder extends FormlyBuilder<CheckboxBuilder> {
 
+		private JsonObject validation;
+
 		private CheckboxBuilder(Nameable property) {
 			super(property);
 		}
 
 		private CheckboxBuilder(DefaultEnum property) {
 			super(property);
+		}
+
+		/**
+		 * Requires the checkbox to be checked.
+		 * 
+		 * @param l the language of the message
+		 * @return this
+		 */
+		public CheckboxBuilder requireTrue(Language l) {
+			this.templateOptions.addProperty("pattern", "true");
+			final var message = TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l),
+					"formly.validation.requireChecked");
+			this.getValidation().add("messages", JsonUtils.buildJsonObject() //
+					.addProperty("pattern", message) //
+					.build());
+
+			return this;
+		}
+
+		private JsonObject getValidation() {
+			if (this.validation == null) {
+				this.validation = new JsonObject();
+			}
+			return this.validation;
+		}
+
+		@Override
+		public JsonObject build() {
+			final var result = super.build();
+			result.add("validation", this.validation);
+			return result;
 		}
 
 		@Override
@@ -1205,6 +1333,23 @@ public class JsonFormlyUtil {
 				this.jsonObject.add("fieldArray", this.fieldArray);
 			}
 			return super.build();
+		}
+
+	}
+
+	public static final class TextBuilder extends FormlyBuilder<TextBuilder> {
+
+		private TextBuilder() {
+			super((Nameable) null);
+		}
+
+		public TextBuilder setText(String text) {
+			return this.setDescription(text);
+		}
+
+		@Override
+		protected String getType() {
+			return "text";
 		}
 
 	}

@@ -1,5 +1,8 @@
 package io.openems.edge.core.appmanager;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
@@ -27,8 +30,10 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ReflectionUtils;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentContext;
@@ -53,7 +58,7 @@ import io.openems.edge.core.appmanager.validator.Validator;
 public class AppManagerTestBundle {
 
 	public final DummyConfigurationAdmin cm;
-	public final DummyComponentManager componentManger;
+	public final ComponentManager componentManger;
 	public final ComponentUtil componentUtil;
 	public final Validator validator;
 
@@ -65,12 +70,17 @@ public class AppManagerTestBundle {
 
 	public AppManagerTestBundle(JsonObject initialComponentConfig, MyConfig initialAppManagerConfig,
 			Function<AppManagerTestBundle, List<OpenemsApp>> availableAppsSupplier) throws Exception {
-		this(initialComponentConfig, initialAppManagerConfig, availableAppsSupplier, null);
+		this(initialComponentConfig, initialAppManagerConfig, availableAppsSupplier, null,
+				new DefaultComponentManagerFactory());
 	}
 
-	public AppManagerTestBundle(JsonObject initialComponentConfig, MyConfig initialAppManagerConfig,
-			Function<AppManagerTestBundle, List<OpenemsApp>> availableAppsSupplier,
-			Consumer<JsonUtils.JsonObjectBuilder> additionalComponentConfig) throws Exception {
+	public <T extends ComponentManager> AppManagerTestBundle(//
+			JsonObject initialComponentConfig, //
+			MyConfig initialAppManagerConfig, //
+			Function<AppManagerTestBundle, List<OpenemsApp>> availableAppsSupplier, //
+			Consumer<JsonUtils.JsonObjectBuilder> additionalComponentConfig, //
+			ComponentManagerFactory<T> componentManagerFactory //
+	) throws Exception {
 		if (initialComponentConfig == null) {
 			initialComponentConfig = JsonUtils.buildJsonObject() //
 					.add("scheduler0", JsonUtils.buildJsonObject() //
@@ -122,13 +132,11 @@ public class AppManagerTestBundle {
 		this.cm = new DummyConfigurationAdmin();
 		this.cm.getOrCreateEmptyConfiguration(AppManager.SINGLETON_SERVICE_PID);
 
-		this.componentManger = new DummyComponentManager();
-		this.componentManger.setConfigJson(JsonUtils.buildJsonObject() //
+		this.componentManger = componentManagerFactory.createComponentManager(JsonUtils.buildJsonObject() //
 				.add("components", initialComponentConfig) //
 				.add("factories", JsonUtils.buildJsonObject() //
 						.build()) //
-				.build() //
-		);
+				.build());
 
 		// create config for scheduler
 		this.cm.getOrCreateEmptyConfiguration(
@@ -202,8 +210,7 @@ public class AppManagerTestBundle {
 			}
 
 		};
-		this.componentManger.addComponent(this.sut);
-		this.componentManger.setConfigurationAdmin(this.cm);
+		componentManagerFactory.afterInit(this.sut, this.cm);
 		this.appManagerUtil = new AppManagerUtilImpl(this.componentManger);
 		this.appCenterBackendUtil = new DummyAppCenterBackendUtil();
 
@@ -261,6 +268,16 @@ public class AppManagerTestBundle {
 	}
 
 	/**
+	 * Calls the modified method.
+	 * 
+	 * @param config the configuration to update
+	 * @throws Exception on error
+	 */
+	public void modified(MyConfig config) throws Exception {
+		this.sut.modified(DummyComponentContext.from(config), config);
+	}
+
+	/**
 	 * Gets the first found instance of the given app.
 	 * 
 	 * @param appId the instance of which app
@@ -311,6 +328,51 @@ public class AppManagerTestBundle {
 		return JsonUtils.parse(((JsonPrimitive) config.getProperties().get("apps")).getAsString()).getAsJsonArray();
 	}
 
+	/**
+	 * Checkst if the current installed app count matches the given count.
+	 * 
+	 * @param count the count of the apps
+	 */
+	public void assertInstalledApps(int count) {
+		assertEquals(count, this.sut.getInstantiatedApps().size());
+	}
+
+	/**
+	 * Checks if the given component exists.
+	 * 
+	 * @param component the component that should exist
+	 * @throws OpenemsNamedException on error
+	 */
+	public void assertComponentExist(EdgeConfig.Component component) throws OpenemsNamedException {
+		final var foundComponent = this.componentManger.getPossiblyDisabledComponent(component.getId());
+		assertEquals(component.getFactoryId(), foundComponent.serviceFactoryPid());
+		final var props = foundComponent.getComponentContext().getProperties();
+		for (var entry : component.getProperties().entrySet()) {
+			final var existingValue = props.get(entry.getKey());
+			if (entry.getKey().equalsIgnoreCase("alias")) {
+				if (component.getAlias() != null) {
+					assertEquals(component.getAlias(), entry.getValue().getAsString());
+				}
+				continue;
+			}
+			assertNotNull(existingValue);
+			// only string comparison
+			assertEquals(entry.getValue().toString().replace("\"", ""), existingValue.toString());
+		}
+	}
+
+	/**
+	 * Checks if all the given components exist.
+	 * 
+	 * @param components the components that should exist
+	 * @throws OpenemsNamedException on error
+	 */
+	public void assertComponentsExist(EdgeConfig.Component... components) throws OpenemsNamedException {
+		for (var component : components) {
+			this.assertComponentExist(component);
+		}
+	}
+
 	public static class CheckablesBundle {
 
 		public final CheckCardinality checkCardinality;
@@ -344,6 +406,87 @@ public class AppManagerTestBundle {
 		Dictionary<String, Object> properties = new Hashtable<>();
 		properties.put(ComponentConstants.COMPONENT_NAME, appId);
 		return new DummyComponentContext(properties);
+	}
+
+	public static interface ComponentManagerFactory<T extends ComponentManager> {
+
+		/**
+		 * Creates the {@link ComponentManager} and initializes it with the
+		 * configuration.
+		 * 
+		 * @param config the initial configuration
+		 * @return the {@link ComponentManager}
+		 * @throws OpenemsNamedException on error
+		 */
+		public T createComponentManager(JsonObject config) throws OpenemsNamedException;
+
+		/**
+		 * Gets called after the passed components got initialized.
+		 * 
+		 * @param impl the {@link AppManagerImpl}
+		 * @param cm   the {@link ConfigurationAdmin}
+		 */
+		public void afterInit(AppManagerImpl impl, ConfigurationAdmin cm);
+
+	}
+
+	public static class DefaultComponentManagerFactory implements ComponentManagerFactory<DummyComponentManager> {
+
+		private final DummyComponentManager componentManager;
+
+		public DefaultComponentManagerFactory() {
+			super();
+			this.componentManager = new DummyComponentManager();
+		}
+
+		@Override
+		public DummyComponentManager createComponentManager(JsonObject config) {
+			this.componentManager.setConfigJson(config);
+			return this.componentManager;
+		}
+
+		public DummyComponentManager getComponentManager() {
+			return this.componentManager;
+		}
+
+		@Override
+		public void afterInit(AppManagerImpl impl, ConfigurationAdmin cm) {
+			this.componentManager.addComponent(impl);
+			this.componentManager.setConfigurationAdmin(cm);
+		}
+
+	}
+
+	public static class PseudoComponentManagerFactory implements ComponentManagerFactory<DummyPseudoComponentManager> {
+
+		private final DummyPseudoComponentManager componentManager;
+
+		public PseudoComponentManagerFactory() {
+			this.componentManager = new DummyPseudoComponentManager();
+		}
+
+		@Override
+		public DummyPseudoComponentManager createComponentManager(JsonObject config) throws OpenemsNamedException {
+			final var components = config.get("components").getAsJsonObject();
+			for (var entry : components.entrySet()) {
+				final var parsedComponent = EdgeConfig.Component.fromJson(entry.getKey(),
+						entry.getValue().getAsJsonObject());
+				this.componentManager.addComponent(parsedComponent);
+			}
+
+			return this.componentManager;
+		}
+
+		public DummyPseudoComponentManager getComponentManager() {
+			return this.componentManager;
+		}
+
+		@Override
+		public void afterInit(AppManagerImpl impl, ConfigurationAdmin cm) {
+			this.componentManager.addComponent(impl);
+			this.componentManager.setConfigurationAdmin(cm);
+		}
+
 	}
 
 }

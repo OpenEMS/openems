@@ -57,6 +57,27 @@ public class AppDef<APP extends OpenemsApp, //
 
 	}
 
+	@FunctionalInterface
+	public static interface FieldValuesPredicate<A, P, M> {
+
+		public static FieldValuesPredicate<? super Object, ? super Object, ? super Object> ALWAYS_TRUE = (app, property,
+				l, parameter) -> true;
+		public static FieldValuesPredicate<? super Object, ? super Object, ? super Object> ALWAYS_FALSE = (app,
+				property, l, parameter) -> false;
+
+		/**
+		 * A function with the values of the current field.
+		 * 
+		 * @param app       the current app
+		 * @param property  the current property
+		 * @param l         the current language
+		 * @param parameter the current provided parameters
+		 * @return true if the test was successful
+		 */
+		public boolean test(A app, P property, Language l, M parameter);
+
+	}
+
 	/**
 	 * Functional interface with field values and a extra parameter and and return
 	 * value.
@@ -130,9 +151,9 @@ public class AppDef<APP extends OpenemsApp, //
 	private FieldValuesSupplier<? super APP, ? super PROPERTY, ? super PARAMETER, FormlyBuilder<?>> field;
 
 	/**
-	 * Determines if the field gets added to the {@link AppAssistant} automatically.
+	 * Determines if the field gets added to the {@link AppAssistant}.
 	 */
-	private boolean autoGenerateField = true;
+	private FieldValuesPredicate<? super APP, ? super PROPERTY, ? super PARAMETER> shouldAddField = FieldValuesPredicate.ALWAYS_TRUE;
 
 	/**
 	 * Determines if the property should get visibly saved in the AppManager
@@ -242,7 +263,7 @@ public class AppDef<APP extends OpenemsApp, //
 		def.description = otherDef.description;
 		def.defaultValue = otherDef.defaultValue;
 		def.field = otherDef.field;
-		def.autoGenerateField = otherDef.autoGenerateField;
+		def.shouldAddField = otherDef.shouldAddField;
 		def.isAllowedToSave = otherDef.isAllowedToSave;
 		def.bidirectionalValue = otherDef.bidirectionalValue;
 		return def;
@@ -251,13 +272,13 @@ public class AppDef<APP extends OpenemsApp, //
 	/**
 	 * Creates a copy of the otherDef.
 	 * 
-	 * @param <APP>         the type of the app
-	 * @param <PROPERTY>    the type of the property
-	 * @param <PARAMETER>   the type of the parameter
-	 * @param <APPO>        the type of the app from the otherDef
-	 * @param <PROPERTYO>   the type of the property from the otherDef
-	 * @param <PARAMETERO>  the type of the parameter from the otherDef
-	 * @param otherDef      the other {@link AppDef}
+	 * @param <APP>        the type of the app
+	 * @param <PROPERTY>   the type of the property
+	 * @param <PARAMETER>  the type of the parameter
+	 * @param <APPO>       the type of the app from the otherDef
+	 * @param <PROPERTYO>  the type of the property from the otherDef
+	 * @param <PARAMETERO> the type of the parameter from the otherDef
+	 * @param otherDef     the other {@link AppDef}
 	 * @return the new {@link AppDef}
 	 */
 	public static final <//
@@ -275,7 +296,7 @@ public class AppDef<APP extends OpenemsApp, //
 		def.description = otherDef.description;
 		def.defaultValue = otherDef.defaultValue;
 		def.field = otherDef.field;
-		def.autoGenerateField = otherDef.autoGenerateField;
+		def.shouldAddField = otherDef.shouldAddField;
 		def.isAllowedToSave = otherDef.isAllowedToSave;
 		def.bidirectionalValue = otherDef.bidirectionalValue;
 		return def;
@@ -346,7 +367,7 @@ public class AppDef<APP extends OpenemsApp, //
 	 * Note: If this method is used {@link Type#translationBundleSupplier()} must be
 	 * overridden and return a non null value.
 	 * 
-	 * @param key the key of the translation
+	 * @param key    the key of the translation
 	 * @param params the parameter of the translation
 	 * @return this
 	 */
@@ -614,12 +635,18 @@ public class AppDef<APP extends OpenemsApp, //
 	}
 
 	public AppDef<APP, PROPERTY, PARAMETER> setAutoGenerateField(boolean autoGenerateField) {
-		this.autoGenerateField = autoGenerateField;
-		return this;
+		this.shouldAddField = autoGenerateField ? FieldValuesPredicate.ALWAYS_TRUE : FieldValuesPredicate.ALWAYS_FALSE;
+		return this.self();
 	}
 
-	public boolean isAutoGenerateField() {
-		return this.autoGenerateField;
+	public AppDef<APP, PROPERTY, PARAMETER> setShouldAddField(
+			FieldValuesPredicate<? super APP, ? super PROPERTY, ? super PARAMETER> shouldAddField) {
+		this.shouldAddField = shouldAddField;
+		return this.self();
+	}
+
+	public FieldValuesPredicate<? super APP, ? super PROPERTY, ? super PARAMETER> getShouldAddField() {
+		return this.shouldAddField;
 	}
 
 	/**
@@ -804,7 +831,7 @@ public class AppDef<APP extends OpenemsApp, //
 					.getComponent(componentId.getAsString());
 			return optionalComponent.map(component -> {
 				return component.getProperty(property).orElse(null);
-			}).orElse(null);
+			}).orElseGet(() -> this.getDefaultValue().get(app, prop, l, param));
 		};
 		// set allowedToSave automatically to false
 		this.isAllowedToSave = false;

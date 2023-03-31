@@ -395,17 +395,15 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 
 					try {
 						var app = AppManagerImpl.this.findAppById(this.nextInstance.appId);
-						this.nextInstance.properties.addProperty("ALIAS", this.nextInstance.alias);
-						this.nextConfiguration = app.getAppConfiguration(ConfigurationTarget.VALIDATE,
-								this.nextInstance.properties, null);
+						final var props = this.nextInstance.properties.deepCopy();
+						props.addProperty("ALIAS", this.nextInstance.alias);
+						this.nextConfiguration = app.getAppConfiguration(ConfigurationTarget.VALIDATE, props, null);
 					} catch (OpenemsNamedException e) {
 						// move to next app
 					} catch (NoSuchElementException e) {
 						// app not found for instance
 						// this may happen if the app id gets refactored
 						// apps which app ids are not known are printed in debug log as 'UNKNOWNAPPS'
-					} finally {
-						this.nextInstance.properties.remove("ALIAS");
 					}
 				}
 
