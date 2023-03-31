@@ -11,8 +11,4 @@ export class FormlyFieldModalComponent extends FieldWrapper {
 
     protected readonly Role = Role;
     protected readonly Utils = Utils;
-
-    ngOnInit() {
-        console.log("props", this.props);
-    }
 }
