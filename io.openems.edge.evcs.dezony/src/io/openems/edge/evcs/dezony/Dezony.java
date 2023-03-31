@@ -10,24 +10,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.type.TypeUtils;
 
 public interface Dezony {
-
-	public static final double SCALE_FACTOR_MINUS_1 = 0.1;
-
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-
-		/**
-		 * States of the dezony.
-		 *
-		 * <p>
-		 * <ul>
-		 * <li>A = Free (no EV connected)
-		 * <li>B = EV connected, no charging (pause state)
-		 * <li>C = Charging
-		 * <li>D = Charging (With ventilation)
-		 * <li>E = Deactivated Socket
-		 * <li>F = Failure
-		 * </ul>
-		 */
 		RAW_CHARGE_STATUS_CHARGEPOINT(Doc.of(OpenemsType.STRING), "state"),;
 
 		private final Doc doc;
