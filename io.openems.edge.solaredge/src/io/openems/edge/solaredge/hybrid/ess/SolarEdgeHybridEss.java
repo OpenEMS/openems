@@ -7,9 +7,12 @@ import io.openems.common.types.OpenemsType;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+//import io.openems.edge.ess.api.SymmetricEss.ChannelId;
 import io.openems.edge.solaredge.enums.ControlMode;
 import io.openems.edge.solaredge.enums.ChargeDischargeMode;
 import io.openems.edge.solaredge.enums.AcChargePolicy;
@@ -30,58 +33,6 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {	
 		
-		// StorEdge Control and Status Block
-		/*
-		Storage Control Mode is used to set the StorEdge system operating mode: 
-			0 – Disabled 
-			1 – Maximize Self Consumption – requires a SolarEdge Electricity meter on the grid or load connection point 
-			2 – Time of Use (Profile programming) – requires a SolarEdge Electricity meter on the grid or load connection point 
-			3 – Backup Only (applicable only for systems support backup functionality) 
-			4 – Remote Control – the battery charge/discharge state is controlled by an external controller 		
-		*/
-		CONTROL_MODE(Doc.of(ControlMode.values())
-				.accessMode(AccessMode.READ_ONLY)),// defined in external file
-		SET_CONTROL_MODE(Doc.of(ControlMode.values())
-				.accessMode(AccessMode.WRITE_ONLY)),  // defined in external file
-		
-		
-		
-		MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)), //		
-		SET_MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		
-		MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		SET_MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		
-		SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
-
-		/*
-		 * Storage AC Charge Limit 
-		 * is used to set the AC charge limit according to the policy set in the previous register. Either fixed in kWh or 
-			percentage is set (e.g. 100KWh or 70%). Relevant only for Storage AC Charge Policy = 2 or 3	
-		 * */
-		MAX_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent or kWh
-				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.HIGH)),		
-		SET_MAX_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.KILOWATT_HOURS) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		
-		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.accessMode(AccessMode.WRITE_ONLY)), //
-		
-		
-
 		/*
 		 * Storage AC Charge Policy is used to enable charging for AC and the limit of yearly AC charge (if applicable).  
 		0 – Disable 
@@ -93,10 +44,95 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 			regulation in the US) 
 		 *  
 		 *  **/
-		STORAGE_CHARGE_POLICY(Doc.of(AcChargePolicy.values())
-				.accessMode(AccessMode.READ_ONLY)),  // defined in external file
-		SET_STORAGE_CHARGE_POLICY(Doc.of(AcChargePolicy.values())
-				.accessMode(AccessMode.WRITE_ONLY)),  // defined in external file		
+		AC_CHARGE_POLICY(Doc.of(AcChargePolicy.values())
+				.accessMode(AccessMode.READ_WRITE)),  // defined in external file
+		
+		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE)), //
+		
+		BATTERY_STATUS(Doc.of(BatteryStatus.values())
+				.accessMode(AccessMode.READ_ONLY)), 
+				
+		
+		/* Charge/Discharge default Mode  / Remote Control Command Mode
+		Storage Charge/Discharge default Mode sets the default mode of operation when Remote Control Command Timeout has expired. 
+		The supported Charge/Discharge Modes are as follows: 
+		0 – Off 
+		1 – Charge excess PV power only.  
+			Only PV excess power not going to AC is used for charging the battery. Inverter NominalActivePowerLimit (or the 
+			inverter rated power whichever is lower) sets how much power the inverter is producing to the AC. In this mode, 
+			the battery cannot be discharged. If the PV power is lower than NominalActivePowerLimit the AC production will 
+			be equal to the PV power. 
+		2 – Charge from PV first, before producing power to the AC. 
+			The Battery charge has higher priority than AC production. First charge the battery then produce AC. 
+			If StorageRemoteCtrl_ChargeLimit is lower than PV excess power goes to AC according to 
+			NominalActivePowerLimit. If NominalActivePowerLimit is reached and battery StorageRemoteCtrl_ChargeLimit is 
+			reached, PV power is curtailed. 
+		3 – Charge from PV+AC according to the max battery power. 
+			Charge from both PV and AC with priority on PV power. 
+			If PV production is lower than StorageRemoteCtrl_ChargeLimit, the battery will be charged from AC up to 
+			NominalActivePow-erLimit. In this case AC power = StorageRemoteCtrl_ChargeLimit- PVpower.  
+			If PV power is larger than StorageRemoteCtrl_ChargeLimit the excess PV power will be directed to the AC up to the 
+			Nominal-ActivePowerLimit beyond which the PV is curtailed. 
+		4 – Maximize export – discharge battery to meet max inverter AC limit. 
+			AC power is maintained to NominalActivePowerLimit, using PV power and/or battery power. If the PV power is not 
+			sufficient, battery power is used to complement AC power up to StorageRemoteCtrl_DishargeLimit. In this mode, 
+			charging excess power will occur if there is more PV than the AC limit.  
+		5 – Discharge to meet loads consumption. Discharging to the grid is not allowed. 
+		7 – Maximize self-consumption 		
+		*/
+		CHARGE_DISCHARGE_DEFAULT_MODE(Doc.of(ChargeDischargeMode.values())
+				.accessMode(AccessMode.READ_WRITE)),  // defined in external file
+
+		
+		
+
+		
+		CHARGE_POWER_WANTED(Doc.of(OpenemsType.INTEGER) // Charge/Discharge-Power wanted from controllers
+				.unit(Unit.WATT)), //		
+		
+		// StorEdge Control and Status Block
+		/*
+		Storage Control Mode is used to set the StorEdge system operating mode: 
+			0 – Disabled 
+			1 – Maximize Self Consumption – requires a SolarEdge Electricity meter on the grid or load connection point 
+			2 – Time of Use (Profile programming) – requires a SolarEdge Electricity meter on the grid or load connection point 
+			3 – Backup Only (applicable only for systems support backup functionality) 
+			4 – Remote Control – the battery charge/discharge state is controlled by an external controller 		
+		*/
+		CONTROL_MODE(Doc.of(ControlMode.values())
+				.accessMode(AccessMode.READ_WRITE)),// defined in external file
+		
+		MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE)), //		
+
+		
+		MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.READ_WRITE)), //
+
+		
+
+		/*
+		 * Storage AC Charge Limit 
+		 * is used to set the AC charge limit according to the policy set in the previous register. Either fixed in kWh or 
+			percentage is set (e.g. 100KWh or 70%). Relevant only for Storage AC Charge Policy = 2 or 3	
+		 * */
+		MAX_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent or kWh
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH)
+				.accessMode(AccessMode.READ_WRITE)),		
+		
+		SET_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.accessMode(AccessMode.WRITE_ONLY)), //
+		
+		
+
+
+
 
 		/* Charge/Discharge default Mode  / Remote Control Command Mode
 		Storage Charge/Discharge default Mode sets the default mode of operation when Remote Control Command Timeout has expired. 
@@ -126,25 +162,9 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		7 – Maximize self-consumption 		
 		*/
 		REMOTE_CONTROL_COMMAND_MODE(Doc.of(ChargeDischargeMode.values())
-				.accessMode(AccessMode.READ_ONLY)),  // defined in external file
-		SET_REMOTE_CONTROL_COMMAND_MODE(Doc.of(ChargeDischargeMode.values())
-				.accessMode(AccessMode.WRITE_ONLY)),  // defined in external file		
-		
-		CHARGE_DISCHARGE_MODE(Doc.of(ChargeDischargeMode.values())
-				.accessMode(AccessMode.READ_ONLY)),  // defined in external file
-		SET_CHARGE_DISCHARGE_MODE(Doc.of(ChargeDischargeMode.values())
-				.accessMode(AccessMode.WRITE_ONLY)),  // defined in external file
-		
-		
-		CHARGE_DISCHARGE_DEFAULT_MODE(Doc.of(ChargeDischargeMode.values())
-				.accessMode(AccessMode.READ_ONLY)),  // defined in external file
-		SET_CHARGE_DISCHARGE_DEFAULT_MODE(Doc.of(ChargeDischargeMode.values())
-				.accessMode(AccessMode.WRITE_ONLY)),  // defined in external file
-		
-		
-		BATTERY_STATUS(Doc.of(BatteryStatus.values())
-				.accessMode(AccessMode.READ_ONLY)), 
-		
+				.accessMode(AccessMode.READ_WRITE)),  // defined in external file
+	
+
 		
 		/*
 		 * 	Storage Backup Reserved Setting sets the percentage of reserved battery SOE to be used for backup purposes. Relevant only for 
@@ -153,74 +173,17 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		STORAGE_BACKUP_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent. Only relevant for backup systems
 				.unit(Unit.PERCENT) //
 				.persistencePriority(PersistencePriority.HIGH)),	
-		
-		SET_STORAGE_BACKUP_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent. Only relevant for backup systems
-				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.HIGH)),		
+	
 
 		
 		/* Remote Control Command Timeout sets the operating timeframe for the charge/discharge command sets in Remote Control 
 		 * */
 		REMOTE_CONTROL_TIMEOUT(Doc.of(OpenemsType.INTEGER)  
-				.accessMode(AccessMode.READ_ONLY)
+				.accessMode(AccessMode.READ_WRITE)
 				.unit(Unit.SECONDS) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		
-		SET_REMOTE_CONTROL_TIMEOUT(Doc.of(OpenemsType.INTEGER) // Remote Control Command Timeout sets the operating timeframe for the charge/discharge command sets in Remote Control 
-				.accessMode(AccessMode.WRITE_ONLY)
-				.unit(Unit.SECONDS) //
-				.persistencePriority(PersistencePriority.HIGH)),		
-		
-		/*
 
-		// IntegerReadChannels
-		ORIGINAL_ALLOWED_CHARGE_POWER(new IntegerDoc() //
-				.onInit(channel -> { //
-					// on each Update to the channel -> set the ALLOWED_CHARGE_POWER value with a
-					// delta of max 500
-					channel.onUpdate(newValue -> {
-						IntegerReadChannel currentValueChannel = channel.getComponent()
-								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER);
-						var originalValue = newValue.asOptional();
-						var currentValue = currentValueChannel.value().asOptional();
-						int value;
-						if (!originalValue.isPresent() && !currentValue.isPresent()) {
-							value = 0;
-						} else if (originalValue.isPresent() && !currentValue.isPresent()) {
-							value = originalValue.get();
-						} else if (!originalValue.isPresent() && currentValue.isPresent()) {
-							value = currentValue.get();
-						} else {
-							value = Math.max(originalValue.get(), currentValue.get() - 500);
-						}
-						currentValueChannel.setNextValue(value);
-					});
-				})), //
-
-		ORIGINAL_ALLOWED_DISCHARGE_POWER(new IntegerDoc() //
-				.onInit(channel -> { //
-					// on each Update to the channel -> set the ALLOWED_DISCHARGE_POWER value with a
-					// delta of max 500
-					channel.onUpdate(newValue -> {
-						IntegerReadChannel currentValueChannel = channel.getComponent()
-								.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER);
-						var originalValue = newValue.asOptional();
-						var currentValue = currentValueChannel.value().asOptional();
-						int value;
-						if (!originalValue.isPresent() && !currentValue.isPresent()) {
-							value = 0;
-						} else if (originalValue.isPresent() && !currentValue.isPresent()) {
-							value = originalValue.get();
-						} else if (!originalValue.isPresent() && currentValue.isPresent()) {
-							value = currentValue.get();
-						} else {
-							value = Math.min(originalValue.get(), currentValue.get() + 500);
-						}
-						currentValueChannel.setNextValue(value);
-					});
-				})), //			
-				
-		*/
 		
 		/**
 		 * Available Energy
@@ -580,8 +543,243 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		this.getControlModeChannel().setNextValue(value);
 	}
 
+	/**
+	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<AcChargePolicy> getAcChargePolicyChannel() {
+		return this.channel(ChannelId.AC_CHARGE_POLICY);
+	}
 
+	/**
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default ControlMode getAcChargePolicy() {
+		return this.getAcChargePolicyChannel().value().asEnum();
+	}
 
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CONTROL_MODE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setAcChargePolicy(AcChargePolicy value) {
+		this.getAcChargePolicyChannel().setNextValue(value);
+	}
 	
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CHARGE_POWER_WANTED}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setChargePowerWanted(Integer value) {
+		this.getChargePowerWantedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getChargePowerWantedChannel() {
+		return this.channel(ChannelId.CHARGE_POWER_WANTED);
+	}
+
+	/**
+	 * Gets the Active Power in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getChargePowerWanted() {
+		return this.getChargePowerWantedChannel().value();
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaxDischargePeakPowerChannel() {
+		return this.channel(ChannelId.MAX_DISCHARGE_PEAK_POWER);
+	}
+
+	/**
+	 * Gets the Active Power in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxDischargePeakPower() {
+		return this.getMaxDischargePeakPowerChannel().value();
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaxChargePeakPowerChannel() {
+		return this.channel(ChannelId.MAX_CHARGE_PEAK_POWER);
+	}
+
+	/**
+	 * Gets the Active Power in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxChargePeakPower() {
+		return this.getMaxChargePeakPowerChannel().value();
+	}
+	
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#CHARGE_DISCHARGE_DEFAULT_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<ChargeDischargeMode> getChargeDischargeDefaultModeChannel() {
+		return this.channel(ChannelId.CHARGE_DISCHARGE_DEFAULT_MODE);
+	}
+
+	/**
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#CHARGE_DISCHARGE_DEFAULT_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default ControlMode getChargeDischargeDefaultMode() {
+		return this.getChargeDischargeDefaultModeChannel().value().asEnum();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CHARGE_DISCHARGE_DEFAULT_MODE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setChargeDischargeDefaultMode(ChargeDischargeMode value) {
+		this.getChargeDischargeDefaultModeChannel().setNextValue(value);
+	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<ChargeDischargeMode> getRemoteControlCommandModeChannel() {
+		return this.channel(ChannelId.REMOTE_CONTROL_COMMAND_MODE);
+	}
+
+	/**
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default ControlMode getRemoteControlCommandMode() {
+		return this.getRemoteControlCommandModeChannel().value().asEnum();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRemoteControlCommandMode(ChargeDischargeMode value) {
+		this.getRemoteControlCommandModeChannel().setNextValue(value);
+	}
+// #############		
+	/**
+	 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaxChargePowerChannel() {
+		return this.channel(ChannelId.MAX_CHARGE_POWER);
+	}
+
+	/**
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxChargePower() {
+		return this.getMaxChargePowerChannel().value().asEnum();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setMaxChargePower(Integer value) {
+		this.getMaxChargePowerChannel().setNextValue(value);
+	}
+	// #############		
+		/**
+		 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+		 *
+		 * @return the Channel
+		 */
+		public default IntegerReadChannel getMaxDischargePowerChannel() {
+			return this.channel(ChannelId.MAX_DISCHARGE_POWER);
+		}
+
+		/**
+		 * Is the Energy Storage System On-Grid? See {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+		 *
+		 * @return the Channel {@link Value}
+		 */
+		public default Value<Integer> getMaxDischargePower() {
+			return this.getMaxDischargePowerChannel().value();
+		}
+
+		/**
+		 * Internal method to set the 'nextValue' on {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}
+		 * Channel.
+		 *
+		 * @param value the next value
+		 */
+		public default void _setMaxDischargePower(Integer value) {
+			this.getMaxDischargePowerChannel().setNextValue(value);
+		}	
+		// #############		
+		/**
+		 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+		 *
+		 * @return the Channel
+		 */
+		public default IntegerReadChannel getRemoteControlTimeoutChannel() {
+			return this.channel(ChannelId.REMOTE_CONTROL_TIMEOUT);
+		}
+
+		/**
+		 * Is the Energy Storage System On-Grid? See {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+		 *
+		 * @return the Channel {@link Value}
+		 */
+		public default Value<Integer> getRemoteControlTimeout() {
+			return this.getRemoteControlTimeoutChannel().value();
+		}
+
+		/**
+		 * Internal method to set the 'nextValue' on {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}
+		 * Channel.
+		 *
+		 * @param value the next value
+		 */
+		public default void _setRemoteControlTimeout(Integer value) {
+			this.getMaxDischargePowerChannel().setNextValue(value);
+		}	
+			
+
 
 }

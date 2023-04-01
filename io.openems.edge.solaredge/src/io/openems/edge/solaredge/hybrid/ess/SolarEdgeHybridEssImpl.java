@@ -42,6 +42,7 @@ import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
@@ -193,21 +194,24 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 	public void applyPower(int activePowerWanted, int reactivePowerWanted) throws OpenemsNamedException {
 		CycleCounter++;
 		
+		// Using separate channel for the demanded charge/discharge power
+		this._setChargePowerWanted(activePowerWanted);
+		
 		// Read-only mode -> switch to max. self consumption automatic
 		if (this.config.readOnlyMode() ) {
-			if ( CycleCounter > 60) {
+			if ( CycleCounter >= 0) {
 				CycleCounter=0;
 				// Switch to automatic mode
-				EnumWriteChannel setControlModeChannel = this.channel(SolarEdgeHybridEss.ChannelId.SET_CONTROL_MODE);
+				EnumWriteChannel setControlModeChannel = this.channel(SolarEdgeHybridEss.ChannelId.CONTROL_MODE);
 				setControlModeChannel.setNextWriteValue(ControlMode.SE_CTRL_MODE_MAX_SELF_CONSUMPTION);
 				
 				
 				
 				// The next 2 are fallback values which should become active after the 60 seonds timeout
-				EnumWriteChannel setChargeDischargeDefaultMode	= this.channel(SolarEdgeHybridEss.ChannelId.SET_CHARGE_DISCHARGE_DEFAULT_MODE); //Same enum as Remote control mode
+				EnumWriteChannel setChargeDischargeDefaultMode	= this.channel(SolarEdgeHybridEss.ChannelId.CHARGE_DISCHARGE_DEFAULT_MODE); //Same enum as Remote control mode
 				setChargeDischargeDefaultMode.setNextWriteValue(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_SELF_CONSUMPTION);	// This mode is active after remote control timeout exceeded
 				
-				IntegerWriteChannel setCommandTimeout		= this.channel(SolarEdgeHybridEss.ChannelId.SET_REMOTE_CONTROL_TIMEOUT);
+				IntegerWriteChannel setCommandTimeout		= this.channel(SolarEdgeHybridEss.ChannelId.REMOTE_CONTROL_TIMEOUT);
 				setCommandTimeout.setNextWriteValue(60); // Our Remote-commands are only valid for a minute
 				
 				setLimits();				
@@ -215,44 +219,47 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 			return;
 		}
 		else {
-			if (CycleCounter > 0) { // Set values every Cycle
+			if (CycleCounter >= 0) { // Set values every Cycle
 				CycleCounter=0;
 				
-				//read_only is NOT enabled
-				EnumWriteChannel setControlMode 				= this.channel(SolarEdgeHybridEss.ChannelId.SET_CONTROL_MODE);
-				EnumWriteChannel setChargePolicy 				= this.channel(SolarEdgeHybridEss.ChannelId.SET_STORAGE_CHARGE_POLICY);
-				EnumWriteChannel setChargeDischargeDefaultMode	= this.channel(SolarEdgeHybridEss.ChannelId.SET_CHARGE_DISCHARGE_DEFAULT_MODE); //Same enum as Remote control mode
-				EnumWriteChannel setChargeDischargeMode			= this.channel(SolarEdgeHybridEss.ChannelId.SET_REMOTE_CONTROL_COMMAND_MODE);	//Same enum as Remote control default mode
-				
-				
-				IntegerWriteChannel setChargePowerLimit		= this.channel(SolarEdgeHybridEss.ChannelId.SET_MAX_CHARGE_POWER);
-				IntegerWriteChannel setDischargePowerLimit	= this.channel(SolarEdgeHybridEss.ChannelId.SET_MAX_DISCHARGE_POWER);
-				IntegerWriteChannel setCommandTimeout		= this.channel(SolarEdgeHybridEss.ChannelId.SET_REMOTE_CONTROL_TIMEOUT);
-				
-				
+
+				int maxDischargePeakPower 	= getMaxDischargePeakPower().get();
+				int maxChargePeakPower 		= getMaxChargePeakPower().get() -1;
 		
-				if (isControlModeRemote() == false)
+				if (isControlModeRemote() == false || isStorageChargePolicyAlways() == false)
 				{
-					setControlMode.setNextWriteValue(ControlMode.SE_CTRL_MODE_REMOTE);	// Now the device can be remote controlled	
-					setChargePolicy.setNextWriteValue(AcChargePolicy.SE_CHARGE_DISCHARGE_MODE_ALWAYS);	// Always allowed.When used with Maximize self-consumption, only excess power is used for charging (charging from the grid is not allowed) 
+					this._setControlMode(ControlMode.SE_CTRL_MODE_REMOTE); // Now the device can be remote controlled	
+					this._setAcChargePolicy(AcChargePolicy.SE_CHARGE_DISCHARGE_MODE_ALWAYS);
+					
+					//The next 2 are fallback values which should become active after the 60 seonds timeout
+					this._setChargeDischargeDefaultMode(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_SELF_CONSUMPTION);
+					this._setRemoteControlTimeout(60);
+					 
 				}
-	
-	//			setControlMode.setNextWriteValue(ControlMode.SE_CTRL_MODE_REMOTE);	// Now the device can be remote controlled	
-	//			setChargePolicy.setNextWriteValue(AcChargePolicy.SE_CHARGE_DISCHARGE_MODE_ALWAYS);	// Always allowed.When used with Maximize self-consumption, only excess power is used for charging (charging from the grid is not allowed) 
-	
-				
-				// The next 2 are fallback values which should become active after the 60 seonds timeout
-				setChargeDischargeDefaultMode.setNextWriteValue(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_SELF_CONSUMPTION);	// This mode is active after remote control timeout exceeded
-				setCommandTimeout.setNextWriteValue(60); // Our Remote-commands are only valid for a minute
-				
+				// We assume to be in RC-Mode
 				
 				if (activePowerWanted <= 0) { // Negative Values are for charging
-					setChargeDischargeMode.setNextWriteValue(ChargeDischargeMode.SE_CHARGE_POLICY_PV_AC); // Mode for charging
-					setChargePowerLimit.setNextWriteValue(activePowerWanted * -1); // Values for register must be positive
+					/*
+					 * Battery charging decreases when Soc > 90%. We have to set the wanted value to the max. power which the
+					 * battery is willing to handle 
+					 */
+					
+					if (activePowerWanted < maxChargePeakPower) activePowerWanted = maxChargePeakPower;
+					
+					if (activePowerWanted > 500) activePowerWanted -= 200; //Decrease Charging as a buffer
+
+					this._setRemoteControlCommandMode(ChargeDischargeMode.SE_CHARGE_POLICY_PV_AC); // Mode for charging);
+					this._setMaxChargePower(activePowerWanted * -1);// Values for register must be positive
+					
 				}
 				else {
-					setChargeDischargeMode.setNextWriteValue(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_EXPORT); // Mode for discharging
-					setDischargePowerLimit.setNextWriteValue(activePowerWanted); 
+					/*
+					 * The same for discharging. The battery can be discharged with high rates at the beginning
+					 */
+					if (activePowerWanted > maxDischargePeakPower) activePowerWanted = maxDischargePeakPower;
+					
+					this._setRemoteControlCommandMode(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_EXPORT); // Mode for Discharging);
+					this._setMaxDischargePower(activePowerWanted);				
 				}
 			}
 	
@@ -278,19 +285,20 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 	}
 	
 	private boolean isControlModeRemote() {
-		boolean ret = true;
 		
-		if (this.channel(SolarEdgeHybridEss.ChannelId.CONTROL_MODE).value().asEnum() != ControlMode.SE_CTRL_MODE_REMOTE) ret = false;
-		if (this.channel(SolarEdgeHybridEss.ChannelId.STORAGE_CHARGE_POLICY).value().asEnum() != AcChargePolicy.SE_CHARGE_DISCHARGE_MODE_ALWAYS) ret = false;
-		//EnumReadChannel controlModeChannel = this.channel(SolarEdgeHybridEss.ChannelId.CONTROL_MODE);
-		//ControlMode controlModeState = controlModeChannel.value().asEnum();
-		//return controlModeState == controlModeState.SE_CTRL_MODE_REMOTE;
-		return ret;
+		EnumReadChannel controlModeChannel = this.channel(SolarEdgeHybridEss.ChannelId.CONTROL_MODE);
+		ControlMode controlMode = controlModeChannel.value().asEnum();
+		
+		return controlMode == ControlMode.SE_CTRL_MODE_REMOTE;
+
 	}
-
-
-	//@Override
-	//protected ModbusProtocol defineModbusProtocol() throws OpenemsException {	
+	
+	private boolean isStorageChargePolicyAlways() {
+		EnumReadChannel acChargePolicyChannel = this.channel(SolarEdgeHybridEss.ChannelId.AC_CHARGE_POLICY);
+		AcChargePolicy acChargePolicy = acChargePolicyChannel.value().asEnum();
+		
+		return acChargePolicy == AcChargePolicy.SE_CHARGE_DISCHARGE_MODE_ALWAYS;
+	}
 	
 	
 	/**
@@ -349,7 +357,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		new FC3ReadRegistersTask(0xE004, Priority.LOW, //
 				m(SolarEdgeHybridEss.ChannelId.CONTROL_MODE, 
 						new UnsignedWordElement(0xE004)),
-				m(SolarEdgeHybridEss.ChannelId.STORAGE_CHARGE_POLICY, 
+				m(SolarEdgeHybridEss.ChannelId.AC_CHARGE_POLICY, 
 						new UnsignedWordElement(0xE005)),					
 				m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_LIMIT, 
 						new FloatDoublewordElement(0xE006).wordOrder(WordOrder.LSWMSW)),					
@@ -371,15 +379,15 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		
 		protocol.addTask(//
 		new FC16WriteRegistersTask(0xE004, 
-				m(SolarEdgeHybridEss.ChannelId.SET_CONTROL_MODE, new SignedWordElement(0xE004)),
-				m(SolarEdgeHybridEss.ChannelId.SET_STORAGE_CHARGE_POLICY, new SignedWordElement(0xE005)), // Max. charge power. Negative values
-				m(SolarEdgeHybridEss.ChannelId.SET_MAX_CHARGE_LIMIT, new FloatDoublewordElement(0xE006).wordOrder(WordOrder.LSWMSW)),  // kWh or percent
-				m(SolarEdgeHybridEss.ChannelId.SET_STORAGE_BACKUP_LIMIT, new FloatDoublewordElement(0xE008).wordOrder(WordOrder.LSWMSW)),  // Percent of capacity 
-				m(SolarEdgeHybridEss.ChannelId.SET_CHARGE_DISCHARGE_DEFAULT_MODE, new UnsignedWordElement(0xE00A)), // Usually set to 1 (Charge PV excess only)
-				m(SolarEdgeHybridEss.ChannelId.SET_REMOTE_CONTROL_TIMEOUT, new UnsignedDoublewordElement(0xE00B).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.SET_REMOTE_CONTROL_COMMAND_MODE, new UnsignedWordElement(0xE00D)),
-				m(SolarEdgeHybridEss.ChannelId.SET_MAX_CHARGE_POWER, new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)),  // Max. charge power. Negative values
-				m(SolarEdgeHybridEss.ChannelId.SET_MAX_DISCHARGE_POWER, new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW)) // Max. discharge power. Positive values
+				m(SolarEdgeHybridEss.ChannelId.CONTROL_MODE, new SignedWordElement(0xE004)),
+				m(SolarEdgeHybridEss.ChannelId.AC_CHARGE_POLICY, new SignedWordElement(0xE005)), // Max. charge power. Negative values
+				m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_LIMIT, new FloatDoublewordElement(0xE006).wordOrder(WordOrder.LSWMSW)),  // kWh or percent
+				m(SolarEdgeHybridEss.ChannelId.STORAGE_BACKUP_LIMIT, new FloatDoublewordElement(0xE008).wordOrder(WordOrder.LSWMSW)),  // Percent of capacity 
+				m(SolarEdgeHybridEss.ChannelId.CHARGE_DISCHARGE_DEFAULT_MODE, new UnsignedWordElement(0xE00A)), // Usually set to 1 (Charge PV excess only)
+				m(SolarEdgeHybridEss.ChannelId.REMOTE_CONTROL_TIMEOUT, new UnsignedDoublewordElement(0xE00B).wordOrder(WordOrder.LSWMSW)),
+				m(SolarEdgeHybridEss.ChannelId.REMOTE_CONTROL_COMMAND_MODE, new UnsignedWordElement(0xE00D)),
+				m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_POWER, new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)),  // Max. charge power. Negative values
+				m(SolarEdgeHybridEss.ChannelId.MAX_DISCHARGE_POWER, new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW)) // Max. discharge power. Positive values
 				)); // Disabled, automatic, remote controlled, etc.	
 		
 		
@@ -442,12 +450,13 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 	public String debugLog() {
 		return "SoC:" + this.getSoc().asString() //
 				+ "|L:" + this.getActivePower().asString() //
+				+ "|WantedPower:" + this.getChargePowerWanted().asString() //
 				+ "|Allowed Charge Power/Peak:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + " / " + this.channel(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_PEAK_POWER).value().asStringWithoutUnit() + ";"
 				+ "|Allowed DisCharge Power/Peak:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER).value().asStringWithoutUnit() + " / " + this.channel(SolarEdgeHybridEss.ChannelId.MAX_DISCHARGE_PEAK_POWER).value().asStringWithoutUnit() + ";"
 				+ "|ControlMode " + this.channel(SolarEdgeHybridEss.ChannelId.CONTROL_MODE).value().asStringWithoutUnit() //
-				+ "|ChargePolicy " + this.channel(SolarEdgeHybridEss.ChannelId.STORAGE_CHARGE_POLICY).value().asStringWithoutUnit() //
+				+ "|ChargePolicy " + this.channel(SolarEdgeHybridEss.ChannelId.AC_CHARGE_POLICY).value().asStringWithoutUnit() //
 				+ "|DefaultMode " + this.channel(SolarEdgeHybridEss.ChannelId.CHARGE_DISCHARGE_DEFAULT_MODE).value().asStringWithoutUnit() //
 				+ "|RemoteControlMode " + this.channel(SolarEdgeHybridEss.ChannelId.REMOTE_CONTROL_COMMAND_MODE).value().asStringWithoutUnit() //
 				+ "|ChargePower " + this.channel(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_POWER).value().asStringWithoutUnit() //
@@ -458,21 +467,6 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				+ "|Feed-In:";
 	}	
 
-
-	 /*
-	@Override
-	public Constraint[] getStaticConstraints() throws OpenemsNamedException {
-		// Read-Only-Mode
-		
-			return new Constraint[] { //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, 0), //
-					this.createPowerConstraint("Read-Only-Mode", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS, 0) //
-			};
-		
-
-
-	}	
-	*/
 	
 	@Override
 	@Deactivate
@@ -525,7 +519,10 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 
 	@Override
 	public boolean isManaged() {
-		return !this.config.readOnlyMode();
+		return true;
+		
+		// Just for Testing
+		// return !this.config.readOnlyMode();
 	}
 	
 }
