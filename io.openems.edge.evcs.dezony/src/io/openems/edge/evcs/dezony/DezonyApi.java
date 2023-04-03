@@ -26,29 +26,30 @@ public class DezonyApi {
 		this.baseUrl = "http://" + ip + ":" + port;
 		this.dezonyImpl = dezonyImpl;
 	}
-	
+
 	public JsonElement getState() throws OpenemsNamedException {
 		return this.sendGetRequest("/api/v1/state");
 	}
-	
+
 	public JsonElement getLastMetric() throws OpenemsNamedException {
 		return this.sendGetRequest("/api/v1/metrics/last");
 	}
-	
+
 	public JsonElement enalbeCharing() throws OpenemsNamedException {
 		return this.sendPostRequest("/api/v1/charging/unlock");
 	}
-	
+
 	public boolean disableCharing() throws OpenemsNamedException {
-		final var resultLimit = this.sendPostRequest("/api/v1/charging/lock");;
+		final var resultLimit = this.sendPostRequest("/api/v1/charging/lock");
+		;
 		final var result = JsonUtils.getAsOptionalBoolean(resultLimit, "charging_is_locked");
-		
+
 		return result.orElse(false).equals(true);
 	}
-	
+
 	public Optional<String> setCurrent(int current) throws OpenemsNamedException {
 		final var resultLimit = this.sendPostRequest("/api/v1/charging/current?value=" + current);
-		
+
 		return JsonUtils.getAsOptionalString(resultLimit, "charging_current");
 	}
 
@@ -60,42 +61,49 @@ public class DezonyApi {
 	 * @throws OpenemsNamedException on error
 	 */
 	public JsonElement sendGetRequest(String endpoint) throws OpenemsNamedException {
-	    try {
-	        URL url = new URL(this.baseUrl + endpoint);
-	        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+		var getRequestFailed = false;
+		JsonObject result = null;
 
-	        con.setRequestMethod("GET");
-	        con.setConnectTimeout(5000);
-	        con.setReadTimeout(5000);
+		try {
+			URL url = new URL(this.baseUrl + endpoint);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
-	        try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
-	            StringBuilder content = new StringBuilder();
-	            String line;
+			con.setRequestMethod("GET");
+			con.setConnectTimeout(5000);
+			con.setReadTimeout(5000);
 
-	            while ((line = in.readLine()) != null) {
-	                content.append(line);
-	                content.append(System.lineSeparator());
-	            }
+			try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+				StringBuilder content = new StringBuilder();
+				String line;
 
-	            String body = content.toString();
+				while ((line = in.readLine()) != null) {
+					content.append(line);
+					content.append(System.lineSeparator());
+				}
 
-	            // Get response code
-	            int status = con.getResponseCode();
+				String body = content.toString();
 
-	            if (status >= 300) {
-	                throw new OpenemsException("Error while reading from dezony API. Response code: " + status + ". " + body);
-	            }
+				// Get response code
+				int status = con.getResponseCode();
 
-	            return JsonUtils.parseToJsonObject(body);
-	        }
-	    } catch (IOException e) {
-	        // Log the error
+				if (status >= 300) {
+					throw new OpenemsException(
+							"Error while reading from dezony API. Response code: " + status + ". " + body);
+				}
+
+				result = JsonUtils.parseToJsonObject(body);
+			}
+		} catch (IOException e) {
+			// Log the error
 	        e.printStackTrace();
-	    }
+	        
+			getRequestFailed = true;
+		} finally {
+			System.out.println(getRequestFailed);
+			this.dezonyImpl._setChargingstationCommunicationFailed(getRequestFailed);
+		}
 
-	    // If there was an error, set the communication failed flag to true and return null
-	    this.dezonyImpl._setChargingstationCommunicationFailed(true);
-	    return null;
+		return result;
 	}
 
 	/**
@@ -107,48 +115,48 @@ public class DezonyApi {
 	 * @throws OpenemsNamedException on error
 	 */
 	public JsonObject sendPostRequest(String endpoint) throws OpenemsNamedException {
-	    var postRequestFailed = false;
-	    JsonObject result = null;
+		var postRequestFailed = false;
+		JsonObject result = null;
 
-	    try {
-	        var url = new URL(this.baseUrl + endpoint);
-	        var connection = (HttpURLConnection) url.openConnection();
+		try {
+			var url = new URL(this.baseUrl + endpoint);
+			var connection = (HttpURLConnection) url.openConnection();
 
-	        // Set general information
-	        connection.setRequestMethod("POST");
-	        connection.setDoOutput(true);
-	        connection.setConnectTimeout(5000);
-	        connection.setReadTimeout(5000);
+			// Set general information
+			connection.setRequestMethod("POST");
+			connection.setDoOutput(true);
+			connection.setConnectTimeout(5000);
+			connection.setReadTimeout(5000);
 
-	        // Send request and read response
-	        try (var in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-	            var content = new StringBuilder();
-	            String line;
-	            while ((line = in.readLine()) != null) {
-	                content.append(line);
-	                content.append(System.lineSeparator());
-	            }
-	            var body = content.toString();
+			// Send request and read response
+			try (var in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+				var content = new StringBuilder();
+				String line;
+				while ((line = in.readLine()) != null) {
+					content.append(line);
+					content.append(System.lineSeparator());
+				}
+				var body = content.toString();
 
-	            // Get response code
-	            var status = connection.getResponseCode();
-	            if (status >= 300) {
-	                // Respond error status-code
-	                postRequestFailed = true;
-	                throw new OpenemsException(
-	                        "Error while reading from dezony API. Response code: " + status + ". " + body);
-	            }
+				// Get response code
+				var status = connection.getResponseCode();
+				if (status >= 300) {
+					// Respond error status-code
+					postRequestFailed = true;
+					throw new OpenemsException(
+							"Error while reading from dezony API. Response code: " + status + ". " + body);
+				}
 
-	            // Result OK
-	            result = JsonUtils.parseToJsonObject(body);
-	        }
-	    } catch (IOException e) {
-	        postRequestFailed = true;
-	    } finally {
-	        // Set state
-	        this.dezonyImpl._setChargingstationCommunicationFailed(postRequestFailed);
-	    }
+				// Result OK
+				result = JsonUtils.parseToJsonObject(body);
+			}
+		} catch (IOException e) {
+			postRequestFailed = true;
+		} finally {
+			// Set state
+			this.dezonyImpl._setChargingstationCommunicationFailed(postRequestFailed);
+		}
 
-	    return result;
+		return result;
 	}
 }
