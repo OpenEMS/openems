@@ -33,15 +33,6 @@ public interface RateLimitedStartStoppable  extends StartStoppable {
 		}
 	}
 	
-	/**
-	 * Gets the Channel for {@link ChannelId#START_STOP}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<StartStop> getStartStopChannel() {
-		return this.channel(ChannelId.REMAINING_START_COUNT);
-	}
-		
 	int getRemainingStarts();
 	
 	StartFrequency getMaxStartFrequency();

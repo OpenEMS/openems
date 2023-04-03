@@ -1,9 +1,6 @@
 package io.openems.edge.airconditioner.hydac4kw;
 
 import java.time.Duration;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -40,8 +37,6 @@ import io.openems.edge.io.hal.raspberrypi.RaspberryPiInterface;
 )
 public class HydacAirConditionerImpl extends AbstractOpenemsComponent implements HydacAirConditioner, OpenemsComponent, EventHandler {
 	
-	private Config config;
-	
 	@Reference
 	RaspberryPiInterface raspberryPiProvider;
 	
@@ -63,7 +58,6 @@ public class HydacAirConditionerImpl extends AbstractOpenemsComponent implements
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
 		this.hardware = raspberryPiProvider.getHardwareAs(ModBerryX500CM4.class);
 		this.onGpio = this.hardware.getDigitalOut(ModberryX500CM4Hardware.DigitalOut.DOUT_2);
 		this.error1Gpio = this.hardware.getDigitalIn(ModberryX500CM4Hardware.OptoDigitalIn.DIN_1);
@@ -72,12 +66,12 @@ public class HydacAirConditionerImpl extends AbstractOpenemsComponent implements
 		this.maxRestartFrequency = StartFrequency //
 				.builder() //
 				.withOccurence(config.getMaxRestartPerHour()) //
-				.withDuration(Duration.ofHours(1)).build();
+				.withDuration(Duration.ofMinutes(1)).build();
 		
-		this.restartController = new RestartController(
-				this.maxRestartFrequency,
+		this.restartController = new RestartController( //
+				this.maxRestartFrequency, //
 				() -> this.onGpio.setOn(), //
-				() -> this.onGpio.setOff()
+				() -> this.onGpio.setOff() //
 		);
 	}
 
@@ -106,7 +100,7 @@ public class HydacAirConditionerImpl extends AbstractOpenemsComponent implements
 
 	@Override
 	public String debugLog() {
-		return String.format("[Air conditioner Hydac 4kw] Operating State: %s, Error1: %s, Error2: %s", this.onGpio.isOff(), this.error1Gpio.isOn(), this.error1Gpio.isOn());
+		return String.format("[Air conditioner Hydac 4kw] State: %s, Error1: %s, Error2: %s, RemainingStarts: %s", this.onGpio.isOn(), this.error1Gpio.isOn(), this.error1Gpio.isOn(), this.getRemainingStarts());
 	}
 
 	@Override
