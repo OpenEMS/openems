@@ -114,9 +114,9 @@
 	bnd.identity;id='io.openems.edge.evcs.alpitronic.hypercharger',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
+	bnd.identity;id='io.openems.edge.evcs.dezony',\
 	bnd.identity;id='io.openems.edge.evcs.goe.chargerhome',\
 	bnd.identity;id='io.openems.edge.evcs.hardybarth',\
-	bnd.identity;id='io.openems.edge.evcs.dezony',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.abl',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.common',\
@@ -270,9 +270,9 @@
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	io.openems.edge.evcs.core;version=snapshot,\
+	io.openems.edge.evcs.dezony;version=snapshot,\
 	io.openems.edge.evcs.goe.chargerhome;version=snapshot,\
 	io.openems.edge.evcs.hardybarth;version=snapshot,\
-	io.openems.edge.evcs.dezony;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.evcs.ocpp.abl;version=snapshot,\
 	io.openems.edge.evcs.ocpp.common;version=snapshot,\
