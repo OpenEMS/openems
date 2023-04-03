@@ -36,6 +36,12 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.3.7',
+        changes: [
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + "Fehlerbehebung in der Live-Ansicht"
+        ]
+      },
+      {
         version: '2023.3.6',
         changes: [
           "App Center: öffentliches Release",
