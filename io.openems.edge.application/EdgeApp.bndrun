@@ -35,7 +35,6 @@
 	bnd.identity;id='org.apache.felix.inventory',\
 	bnd.identity;id='org.apache.felix.eventadmin',\
 	bnd.identity;id='org.apache.felix.metatype',\
-	bnd.identity;id='io.openems.edge.airconditioner.hydac4kw',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
@@ -384,4 +383,4 @@
 	org.osgi.util.promise;version='[1.3.0,1.3.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.8.2,3.8.3)',\
-	io.openems.edge.airconditioner.hydac4kw;version=snapshot
+	
