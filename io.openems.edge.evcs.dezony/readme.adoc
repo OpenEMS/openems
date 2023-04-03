@@ -6,4 +6,6 @@ Implemented Natures:
 * Evcs (Electric Vehicle Charging Station)
 * ManagedEvcs
 
+https://app.swaggerhub.com/apis/reddo/dezony/1.1.0#/[dezony swagger documentation]
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.dezony[Source Code icon:github[]]
