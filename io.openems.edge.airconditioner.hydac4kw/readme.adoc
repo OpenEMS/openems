@@ -1,3 +1,0 @@
-= io.openems.edge.airconditioner.hydac4kw
-
-Max device start rate: 8/h
