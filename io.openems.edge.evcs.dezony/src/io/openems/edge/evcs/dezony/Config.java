@@ -20,10 +20,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	boolean debugMode() default false;
 
-	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station. If the charger has two connectors, the second/slave evcs has the IP 192.168.25.31.", required = true)
+	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station", required = true)
 	String ip() default "192.168.50.88";
 	
-	@AttributeDefinition(name = "Port", description = "The IP address of the charging station. If the charger has two connectors, the second/slave evcs has the IP 192.168.25.31.", required = true)
+	@AttributeDefinition(name = "Port", description = "The port on which the REST API listens", required = true)
 	int port() default 5000;
 
 	@AttributeDefinition(name = "Minimum hardware current", description = "Minimum current of the Charger in mA.", required = true)
