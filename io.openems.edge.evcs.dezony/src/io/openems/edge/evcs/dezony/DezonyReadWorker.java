@@ -58,7 +58,8 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 
 		this.parent._setActiveConsumptionEnergy(this.getValueByKey(activeConsumptionEnergyArray, "etotal"));
 		this.parent._setChargePower(this.getValueByKey(activeConsumptionEnergyArray, "ptotal"));
-		this.parent._setSetChargePowerLimit(this.getValueByKey(activeConsumptionEnergyArray, "curlhm") * Phases.THREE_PHASE.getValue() * Evcs.DEFAULT_VOLTAGE);
+		this.parent._setSetChargePowerLimit(this.getValueByKey(activeConsumptionEnergyArray, "curlhm")
+				* Phases.THREE_PHASE.getValue() * Evcs.DEFAULT_VOLTAGE);
 		this.parent._setPhases(this.calculatePhases(activeConsumptionEnergyArray));
 		this.parent._setStatus(this.getStatus(json));
 	}
@@ -212,7 +213,7 @@ public class DezonyReadWorker extends AbstractCycleWorker {
 		}
 		return null;
 	}
-	
+
 	private JsonArray getArrayFromJson(JsonElement json, String... jsonPaths) {
 
 		var currentJsonElement = json;

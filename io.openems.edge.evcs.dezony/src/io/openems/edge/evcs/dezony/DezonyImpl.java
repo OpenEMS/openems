@@ -1,7 +1,5 @@
 package io.openems.edge.evcs.dezony;
 
-import java.util.Optional;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -17,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
@@ -41,30 +38,28 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 		implements OpenemsComponent, EventHandler, Dezony, Evcs, ManagedEvcs {
 	protected Config config;
 	protected DezonyApi api;
-	protected final Logger log = LoggerFactory.getLogger(DezonyImpl.class);
-	private final DezonyReadWorker readWorker = new DezonyReadWorker(this);
 	protected boolean masterEvcs = true;
+	protected final Logger log = LoggerFactory.getLogger(DezonyImpl.class);
 
+	private final DezonyReadWorker readWorker = new DezonyReadWorker(this);
 	@Reference
 	private EvcsPower evcsPower;
 
 	public DezonyImpl() {
-		super(
-				OpenemsComponent.ChannelId.values(),
-				Evcs.ChannelId.values(),
-				ManagedEvcs.ChannelId.values(),
-				Dezony.ChannelId.values()
-		);
+		super(OpenemsComponent.ChannelId.values(), Evcs.ChannelId.values(), ManagedEvcs.ChannelId.values(),
+				Dezony.ChannelId.values());
 	}
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		
+
 		this.config = config;
 		this._setChargingType(ChargingType.AC);
-		this._setFixedMinimumHardwarePower(config.minHwCurrent() / 1000 * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue());
-		this._setFixedMaximumHardwarePower(config.maxHwCurrent() / 1000 * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue());
+		this._setFixedMinimumHardwarePower(
+				config.minHwCurrent() / 1000 * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue());
+		this._setFixedMaximumHardwarePower(
+				config.maxHwCurrent() / 1000 * DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue());
 		this._setPowerPrecision(230);
 
 		if (config.enabled()) {
@@ -89,9 +84,9 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 		if (!this.isEnabled()) {
 			return;
 		}
-		
+
 		super.handleEvent(event);
-		
+
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			this.readWorker.triggerNextRun();
@@ -127,12 +122,11 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsNamedException {
 		this.api.enalbeCharing();
-		
+
 		final var current = (int) Math.round(power / (double) this.getPhasesAsInt() / DEFAULT_VOLTAGE);
-		
+
 		return this.setTarget(current);
 	}
-	
 
 	@Override
 	public boolean pauseChargeProcess() throws OpenemsNamedException {

@@ -41,7 +41,6 @@ public class DezonyApi {
 
 	public boolean disableCharing() throws OpenemsNamedException {
 		final var resultLimit = this.sendPostRequest("/api/v1/charging/lock");
-		;
 		final var result = JsonUtils.getAsOptionalBoolean(resultLimit, "charging_is_locked");
 
 		return result.orElse(false).equals(true);
@@ -95,8 +94,8 @@ public class DezonyApi {
 			}
 		} catch (IOException e) {
 			// Log the error
-	        e.printStackTrace();
-	        
+			e.printStackTrace();
+
 			getRequestFailed = true;
 		} finally {
 			System.out.println(getRequestFailed);
