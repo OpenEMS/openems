@@ -36,12 +36,13 @@ import io.openems.edge.evcs.api.Phases;
 })
 public class DezonyImpl extends AbstractManagedEvcsComponent
 		implements OpenemsComponent, EventHandler, Dezony, Evcs, ManagedEvcs {
+
+	protected final Logger log = LoggerFactory.getLogger(DezonyImpl.class);
 	protected Config config;
 	protected DezonyApi api;
-	protected boolean masterEvcs = true;
-	protected final Logger log = LoggerFactory.getLogger(DezonyImpl.class);
-
 	private final DezonyReadWorker readWorker = new DezonyReadWorker(this);
+	protected boolean masterEvcs = true;
+	
 	@Reference
 	private EvcsPower evcsPower;
 
