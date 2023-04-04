@@ -38,7 +38,7 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2023.3.8',
         changes: [
-          "App Center: Fehlerbehebung bei " + Product.FEMS_HARDY_BARTH,
+          "App Center: Fehlerbehebung bei " + Changelog.product(Product.FEMS_HARDY_BARTH),
         ]
       },
       {
