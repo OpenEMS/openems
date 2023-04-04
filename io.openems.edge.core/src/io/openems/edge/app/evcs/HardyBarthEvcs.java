@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -129,9 +128,13 @@ public class HardyBarthEvcs extends
 						EvcsProps.clusterMaxHardwarePower(MAX_HARDWARE_POWER_ACCEPT_PROPERTY)) //
 				.setDefaultValue(0) //
 				.wrapField((app, property, l, parameter, field) -> {
-					final var existingEvcs = app.componentUtil.getEnabledComponentsOfStartingId("evcs").stream() //
-							.filter(t -> !t.id().startsWith("evcsCluster")) //
-							.collect(Collectors.toList());
+					final var existingEvcs = EvcsProps.getEvcsComponents(app.componentUtil);
+
+					if (existingEvcs.isEmpty()) {
+						field.onlyShowIf(ExpressionBuilder.of(NUMBER_OF_CHARGING_STATIONS, Operator.EQ, "2"));
+						return;
+					}
+
 					final var expressionForSingleUpdate = ExpressionBuilder.ofNotIn(EVCS_ID,
 							existingEvcs.stream().map(OpenemsComponent::id) //
 									.toArray(String[]::new));
