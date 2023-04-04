@@ -25,6 +25,8 @@ public class TrainPredict {
 		ArrayList<ArrayList<Double>> val = new ArrayList<ArrayList<Double>>();
 
 		for (int i = 0; i < inputMatrix.length; i++) {
+			//System.out.println("Training " + (i + 1) + " feature data");
+
 			double learningRate = 1;
 
 			perc = ((double) (i + 1) / inputMatrix.length) * 100.0;
@@ -40,10 +42,9 @@ public class TrainPredict {
 			} else {
 				learningRate = learningRate / 10;
 			}
-
+			// TODO look at the memory
 			if (i == 0) {
-				Lstm ls;
-				ls = new Lstm(inputMatrix[i], targetVector[i], learningRate);
+				Lstm ls = new Lstm(inputMatrix[i], targetVector[i], learningRate);
 				ls.initilizeCells();
 				val = ls.trainEpoc();
 				allWeight.add(val);
@@ -51,12 +52,13 @@ public class TrainPredict {
 				Lstm ls = new Lstm(inputMatrix[i], targetVector[i], learningRate);
 				ls.initilizeCells();
 				for (int j = 0; j < ls.cells.size(); j++) {
-					ls.cells.get(j).wi = (val.get(0)).get(j);
-					ls.cells.get(j).wo = (val.get(1)).get(j);
-					ls.cells.get(j).wz = (val.get(2)).get(j);
-					ls.cells.get(j).Ri = (val.get(3)).get(j);
-					ls.cells.get(j).Ro = (val.get(4)).get(j);
-					ls.cells.get(j).Rz = (val.get(5)).get(j);
+
+					ls.cells.get(j).setWi((val.get(0)).get(j));
+					ls.cells.get(j).setWo((val.get(1)).get(j));
+					ls.cells.get(j).setWz((val.get(2)).get(j));
+					ls.cells.get(j).setRi((val.get(3)).get(j));
+					ls.cells.get(j).setRo((val.get(4)).get(j));
+					ls.cells.get(j).setRz((val.get(5)).get(j));
 				}
 				ls.cells.get(0).yt = (val.get(6)).get((val.get(6).size() - 1));
 
@@ -64,14 +66,15 @@ public class TrainPredict {
 				allWeight.add(val);
 			}
 
-			if (allWeight.size() == 200) {
+			if (allWeight.size() == 50) {
 				int ind = selectWeight(allWeight);
 				val = allWeight.get(ind);
 				allWeightFinal.add(val);
 				allWeight.clear();
 			} else {
 				double error = val.get(7).get(0);
-				System.out.println("AllWeight = " + allWeight.size() + " error = " + error + " % completed = " + perc);
+				// System.out.println("AllWeight = " + allWeight.size() + " error = " + error +
+				// " % completed = " + perc);
 			}
 		}
 		int ind = selectWeight(allWeightFinal);

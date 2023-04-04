@@ -3,6 +3,7 @@ package io.openems.edge.predictor.lstmmodel;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -125,20 +126,28 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 		// LSTM model
 
 		List<Double> doubleOfInt = data.parallelStream().mapToDouble(i -> i).boxed().collect(Collectors.toList());
+		
 
-		int windowsSize = 24;
+		int windowsSize = 5;
+		double trainSplit = 0.7;
+		double validateSplit = 0.2;
+		
 
-		Preprocessing preprocessing = new Preprocessing(doubleOfInt, windowsSize);
+		Preprocessing preprocessing = new Preprocessing(doubleOfInt, windowsSize, trainSplit, validateSplit);
+		//Preprocessing preprocessing1 = new Preprocessing(doubleOfInt, windowsSize);
 
-		TrainPredict model = new TrainPredict(preprocessing.TrainData1, preprocessing.TrainTarget1,
-				preprocessing.ValidateData1, preprocessing.ValidateTarget1);
+		TrainPredict model = new TrainPredict(preprocessing.trainData, preprocessing.trainTarget,
+				preprocessing.validateData, preprocessing.validateTarget);
 
 		ArrayList<ArrayList<Double>> value = model.train();
 
-		double[] result = model.Predict(preprocessing.ValidateData1, preprocessing.ValidateTarget1, value);
+		double[] result = model.Predict(preprocessing.testData, preprocessing.testTarget, value);
 
 		// Return LSTM result
-		System.out.println(result);
+		double resultRMs = model.computeRMS(preprocessing.testTarget, result);
+		System.out.println(Arrays.toString(result));
+		System.out.println(Arrays.toString(preprocessing.testTarget));
+		System.out.println("The RMS is : " + resultRMs);
 
 		return null;
 	}

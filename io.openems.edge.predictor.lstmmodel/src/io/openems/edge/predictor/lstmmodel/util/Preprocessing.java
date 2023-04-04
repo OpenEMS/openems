@@ -3,223 +3,240 @@ package io.openems.edge.predictor.lstmmodel.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Preprocessing {
 
-	ArrayList<ArrayList<Double>> TrainData;
-	ArrayList<ArrayList<Double>> ValidateData;
-	ArrayList<ArrayList<Double>> TestData;
+	public static double trainSplit = 0.6;
+	public static double validateSplit = 0.2;
 
-	public double[][] TrainData1;
-	public double[][] ValidateData1;
-	public double[][] TestData1;
-
-	public double[] TrainTarget1;
-	public double[] ValidateTarget1;
-	public double[] TestTarget1;
-
-	ArrayList<Double> TrainTarget;
-	ArrayList<Double> ValidateTarget;
-	ArrayList<Double> TestTarget;
-
-	ArrayList<Double> data;
-	ArrayList<Double> ScaledData;
 	int LenTrain = 0;
 	int LenValidate = 0;
-	int window = 0;
 
-//	public Preprocessing() {
-//
-//		GetData alldata=new GetData();
-//		this.data=(ArrayList<Float>) alldata.data;
-//		this.ScaledData=new ArrayList<Double>();
-//		this.TrainData=new ArrayList<ArrayList<Double>>();
-//		this.ValidateData=new ArrayList<ArrayList<Double>>();
-//		this.TestData=new ArrayList<ArrayList<Double>>();
-//		this.TrainTarget=new ArrayList<Double>();
-//		this.ValidateTarget=new ArrayList<Double>();
-//		this.TestTarget=new ArrayList<Double>();
-//		//System.out.print((int)(0.6*this.data.size()));
-//		LenTrain=(int)(0.6*this.data.size());
-//		this.LenValidate=this.LenTrain+(int)(0.2*this.data.size());
-//		this.window=100;
-//		scale();
-//		
-//		TrainTestValidateData(0,this.LenTrain,this.window,-1);
-//		TrainTestValidateTarget(0,this.LenTrain,this.window,-1);
-//		TrainTestValidateData(this.LenTrain,this.LenValidate,this.window,0);
-//		TrainTestValidateTarget(this.LenTrain,this.LenValidate,this.window,0);
-//		TrainTestValidateData(this.LenTrain,this.LenValidate,this.window,1);
-//		TrainTestValidateTarget(this.LenTrain,this.LenValidate,this.window,1);
-//		//System.out.println(this.TestData);
-//		convertdata(-1);
-//		convertdata(0);
-//		convertdata(1);
-//		converttarget(-1);
-//		converttarget(0);
-//		converttarget(1);
-//	}
+	ArrayList<ArrayList<Double>> trainDataList;
+	ArrayList<ArrayList<Double>> validateDataList;
+	ArrayList<ArrayList<Double>> testDataList;
 
+	ArrayList<Double> trainTargetList;
+	ArrayList<Double> validataTargetList;
+	ArrayList<Double> testTargetList;
+
+	ArrayList<Double> dataList;
+	ArrayList<Double> scaleDataList;
+
+	public double[][] trainData;
+	public double[][] validateData;
+	public double[][] testData;
+
+	public double[] trainTarget;
+	public double[] validateTarget;
+	public double[] testTarget;
+
+	/**
+	 * Constructor with out explicit train/ validate split percentage
+	 * 
+	 * @param data       {@link List<Double>} data
+	 * @param windowSize size of the window
+	 */
 	public Preprocessing(List<Double> data, int windowSize) {
-
-		this.data = (ArrayList<Double>) data;
-		this.ScaledData = new ArrayList<Double>();
-		this.TrainData = new ArrayList<ArrayList<Double>>();
-		this.ValidateData = new ArrayList<ArrayList<Double>>();
-		this.TestData = new ArrayList<ArrayList<Double>>();
-		this.TrainTarget = new ArrayList<Double>();
-		this.ValidateTarget = new ArrayList<Double>();
-		this.TestTarget = new ArrayList<Double>();
-		// System.out.print((int)(0.6*this.data.size()));
-		LenTrain = (int) (0.6 * this.data.size());
-		this.LenValidate = this.LenTrain + (int) (0.2 * this.data.size());
-		this.window = windowSize;
-		scale();
-
-		TrainTestValidateData(0, this.LenTrain, this.window, -1);
-		TrainTestValidateTarget(0, this.LenTrain, this.window, -1);
-		TrainTestValidateData(this.LenTrain, this.LenValidate, this.window, 0);
-		TrainTestValidateTarget(this.LenTrain, this.LenValidate, this.window, 0);
-		TrainTestValidateData(this.LenTrain, this.LenValidate, this.window, 1);
-		TrainTestValidateTarget(this.LenTrain, this.LenValidate, this.window, 1);
-		// System.out.println(this.TestData);
-		convertdata(-1);
-		convertdata(0);
-		convertdata(1);
-		converttarget(-1);
-		converttarget(0);
-		converttarget(1);
+		this(data, windowSize, trainSplit, validateSplit);
 	}
 
-	public void scale() {
-		double max = Collections.max(this.data);
-		double min=Collections.min(this.data);
-		double minScaled=0.2;
-		double maxScaled=0.8;
-		for (int i = 0; i < this.data.size(); i++) {
-			double temp=((this.data.get(i)- min)/max)*(maxScaled-minScaled);
-			this.ScaledData.add(temp+minScaled);
-		}
+	/**
+	 * Constructor with train/ validate split percentage
+	 * 
+	 * @param data          {@link List<Double>} data
+	 * @param windowSize    size of the window
+	 * @param trainSplit    percent of the trainSplit (0.6 for 60 percent)
+	 * @param validateSplit percent of the validateSplit (0.2 for 20 percent)
+	 */
+	public Preprocessing(List<Double> data, int windowSize, double trainSplit, double validateSplit) {
+		System.out.println("Starting Preprocessing ....");
+		this.dataList = (ArrayList<Double>) data;
+		this.scaleDataList = new ArrayList<Double>();
+		this.trainDataList = new ArrayList<ArrayList<Double>>();
+		this.validateDataList = new ArrayList<ArrayList<Double>>();
+		this.testDataList = new ArrayList<ArrayList<Double>>();
+		this.trainTargetList = new ArrayList<Double>();
+		this.validataTargetList = new ArrayList<Double>();
+		this.testTargetList = new ArrayList<Double>();
+
+		this.LenTrain = (int) (trainSplit * this.dataList.size());
+		this.LenValidate = this.LenTrain + (int) (validateSplit * this.dataList.size());
+		System.out.println(" Total Data size : " + this.dataList.size());
+		System.out.println(" Train Data from : " + 0 + " to " + this.LenTrain + " index");
+		System.out.println(" Validate Data from : " + this.LenTrain + " to " + this.LenValidate + " index");
+		System.out.println(" Test Data from : " + this.LenValidate + " to " + this.dataList.size() + " index");
+
+		double minScaled = 0.2;
+		double maxScaled = 0.8;
+		System.out.println("Scaling the data with minScaled :" + minScaled + " and maxScaled :" + maxScaled + "....");
+		scale(minScaled, maxScaled);
+
+		//System.out.println(this.scaleDataList);
+
+		TrainTestValidateData(0, this.LenTrain, windowSize, ConverDataType.TRAIN);
+		TrainTestValidateTarget(0, this.LenTrain, windowSize, ConverDataType.TRAIN);
+		TrainTestValidateData(this.LenTrain, this.LenValidate, windowSize, ConverDataType.VALIDATE);
+		TrainTestValidateTarget(this.LenTrain, this.LenValidate, windowSize, ConverDataType.VALIDATE);
+		TrainTestValidateData(this.LenValidate, this.dataList.size(), windowSize, ConverDataType.TEST);
+		TrainTestValidateTarget(this.LenValidate, this.dataList.size(), windowSize, ConverDataType.TEST);
+		convertData(ConverDataType.TRAIN);
+		convertData(ConverDataType.VALIDATE);
+		convertData(ConverDataType.TEST);
+		convertTarget(ConverDataType.TRAIN);
+		convertTarget(ConverDataType.VALIDATE);
+		convertTarget(ConverDataType.TEST);
+
 	}
 
-	public void TrainTestValidateTarget(int lower, int upper, int window, int a) {
+	public void scale(double minScaled, double maxScaled) {
+		double max = Collections.max(this.dataList);
+		double min = Collections.min(this.dataList);
+		this.scaleDataList = (ArrayList<Double>) this.dataList.stream() //
+				.map(item -> (((item - min) / max) * (maxScaled - minScaled)) + minScaled) //
+				.collect(Collectors.toList());
+	}
+
+	public void TrainTestValidateTarget(int lower, int upper, int window, ConverDataType converDataType) {
 		for (int i = lower; i < (upper - window); i++) {
-			if (a == -1) {
-				TrainTarget.add(this.ScaledData.get(i + window));
-			} else if (a == 0) {
-				ValidateTarget.add((double) this.ScaledData.get(i + window));
-			} else if (a == 1) {
-				TestTarget.add((double) this.ScaledData.get(i + window));
-			} else {
+			switch (converDataType) {
+			case VALIDATE:
+				validataTargetList.add((double) this.scaleDataList.get(i + window));
+				break;
+			case TEST:
+				testTargetList.add((double) this.scaleDataList.get(i + window));
+				break;
+			case TRAIN:
+				trainTargetList.add(this.scaleDataList.get(i + window));
+				break;
+			default:
 				System.out.println(
 						"If you are seeing this, there is an error in TrainTestValidateTarget method of Preprocessing Class");
+				break;
 			}
 		}
-
 	}
 
-	// pass -1 to Get TrainData, 0 to get
-	// validate data and 0 1 o get test
-	// data, also pass the index of the data
-	public void TrainTestValidateData(int lower, int upper, int window, int a) {
+	/**
+	 * 
+	 * @param lower
+	 * @param upper
+	 * @param window
+	 * @param converDataType
+	 */
+	public void TrainTestValidateData(int lower, int upper, int window, ConverDataType converDataType) {
 
 		for (int i = lower; i < upper - window; i++) {
-			ArrayList<Double> temp = new ArrayList();
+			ArrayList<Double> temp = new ArrayList<Double>();
 			for (int j = 0; j < window; j++) {
-				double b = this.ScaledData.get(i + j);
+				double b = this.scaleDataList.get(i + j);
 				temp.add(b);
-				// System.out.println(temp);
 
 			}
-			if (a == -1) {
-				TrainData.add(temp);
-			} else if (a == 0) {
-				ValidateData.add(temp);
-			} else if (a == 1) {
-				TestData.add(temp);
-			} else {
+			switch (converDataType) {
+			case TEST:
+				testDataList.add(temp);
+				break;
+			case TRAIN:
+				trainDataList.add(temp);
+				break;
+			case VALIDATE:
+				validateDataList.add(temp);
+				break;
+			default:
 				System.out.println(
 						"If you are seeing this, there is an error in TrainTestValidate method of Preprocessing Class");
+				break;
+
 			}
 		}
 	}
+	
+	
 
-	// converts ArrayList<ArrayList<Double> to double[][], a=-1 is to convert test
-	// data,0 is to convert validation data and 1 is to convert test data
-	public void convertdata(int a)
+	/**
+	 * Converts ArrayList<ArrayList<Double> to double[][]
+	 * 
+	 * @param convertDataType {@link ConverDataType}
+	 */
+	public void convertData(ConverDataType convertDataType) {
 
-	{
-		if (a == -1) {
-			this.TrainData1 = new double[this.TrainData.size()][this.TrainData.get(0).size()];
-			for (int i = 0; i < this.TrainData.size(); i++) {
-				for (int j = 0; j < this.TrainData.get(0).size(); j++) {
-					this.TrainData1[i][j] = this.TrainData.get(i).get(j);
-				}
-			}
-
+		switch (convertDataType) {
+		case TRAIN:
+			this.trainData = convert2DArrayListTo2DArray(this.trainDataList);
+			break;
+		case VALIDATE:
+			this.validateData = convert2DArrayListTo2DArray(this.validateDataList);
+			break;
+		case TEST:
+			this.testData = convert2DArrayListTo2DArray(this.testDataList);
+			break;
+		default:
+			System.out.println("Something is wrong in preprocessing, check convertdata()");
+			break;
 		}
+	}
 
-		else if (a == 0) {
-			this.ValidateData1 = new double[this.ValidateData.size()][this.ValidateData.get(0).size()];
-			for (int i = 0; i < this.ValidateData.size(); i++) {
-				for (int j = 0; j < this.ValidateData.get(0).size(); j++) {
-					this.ValidateData1[i][j] = this.ValidateData.get(i).get(j);
-				}
-			}
+	public double[][] convert2DArrayListTo2DArray(ArrayList<ArrayList<Double>> data) {
+		return data.stream() //
+				.map(l -> l.stream() //
+						.mapToDouble(Double::doubleValue) //
+						.toArray()) //
+				.toArray(double[][]::new);
+	}
 
-		}
-
-		else if (a == 1) {
-			this.TestData1 = new double[this.TestData.size()][this.TestData.get(0).size()];
-			for (int i = 0; i < this.TestData.size(); i++) {
-				for (int j = 0; j < this.TestData.get(0).size(); j++) {
-					this.TestData1[i][j] = this.TestData.get(i).get(j);
-				}
-			}
-
-		}
-
-		else {
-			System.out
-					.println("If you are seeing this, there is an error in convertdata method of Preprocessing Class");
+	public void convertTarget(ConverDataType convertDataType) {
+		switch (convertDataType) {
+		case TRAIN:
+			this.trainTarget = convert1DArrayListTo1DArray(this.trainTargetList);
+			break;
+		case TEST:
+			this.testTarget = convert1DArrayListTo1DArray(this.testTargetList);
+			break;
+		case VALIDATE:
+			this.validateTarget = convert1DArrayListTo1DArray(this.validataTargetList);
+			break;
+		default:
+			System.out.println("Something is wrong in preprocessing, convertTarget()");
+			break;
 		}
 
 	}
 
-	public void converttarget(int a)// converts ArrayList<Double> to double[]
-	{
-		if (a == -1) {
-			this.TrainTarget1 = new double[this.TrainTarget.size()];
-			for (int i = 0; i < this.TrainData.size(); i++) {
+	public double[] convert1DArrayListTo1DArray(ArrayList<Double> data) {
+		return data.stream().mapToDouble(d -> d).toArray();
+	}
 
-				this.TrainTarget1[i] = this.TrainTarget.get(i);
+	/**
+	 * Simple enum for conversion types
+	 * 
+	 * <ul>
+	 * -1 is to convert train data
+	 * </ul>
+	 * 
+	 * <ul>
+	 * 0 is to convert validation data
+	 * </ul>
+	 * 
+	 * <ul>
+	 * 1 is to convert test data
+	 * </ul>
+	 */
+	public enum ConverDataType {
+		TRAIN(-1), //
+		VALIDATE(0), //
+		TEST(1);
 
-			}
+		private int numVal;
 
+		ConverDataType(int numVal) {
+			this.numVal = numVal;
 		}
 
-		else if (a == 0) {
-			this.ValidateTarget1 = new double[this.ValidateTarget.size()];
-			for (int i = 0; i < this.ValidateTarget.size(); i++) {
-
-				this.ValidateTarget1[i] = this.ValidateTarget.get(i);
-
-			}
-		} else if (a == 1) {
-			this.TestTarget1 = new double[this.TestTarget.size()];
-			for (int i = 0; i < this.TestTarget.size(); i++)
-
-			{
-
-				this.TestTarget1[i] = this.TestTarget.get(i);
-
-			}
-
-		} else {
-			System.out
-					.println("If you are seeing this, there is an error in convertdata method of Preprocessing Class");
+		public int getNumVal() {
+			return numVal;
 		}
-
 	}
 
 }
