@@ -182,7 +182,7 @@ public abstract class AbstractOpenemsAppWithProps<//
 	) throws OpenemsNamedException {
 		return super.getAppConfiguration(//
 				target, //
-				this.fillUpProperties(config), //
+				AbstractOpenemsApp.fillUpProperties(this, config), //
 				language //
 		);
 	}
@@ -193,42 +193,9 @@ public abstract class AbstractOpenemsAppWithProps<//
 			final List<Dependency> dependecies //
 	) {
 		return super.getValidationErrors(//
-				this.fillUpProperties(jProperties), //
+				AbstractOpenemsApp.fillUpProperties(this, jProperties), //
 				dependecies //
 		);
-	}
-
-	/**
-	 * Creates a copy of the original configuration and fills up properties which
-	 * are binded bidirectional.
-	 * 
-	 * <p>
-	 * e. g. a property in a component is the same as one configured in the app so
-	 * it directly gets stored in the component configuration and not twice to avoid
-	 * miss matching errors.
-	 * 
-	 * @param original the original configuration
-	 * @return a copy of the original one with the filled up properties
-	 */
-	public JsonObject fillUpProperties(//
-			final JsonObject original //
-	) {
-		final var copy = original.deepCopy();
-		for (var prop : this.getProperties()) {
-			if (copy.has(prop.name)) {
-				continue;
-			}
-			if (prop.bidirectionalValue == null) {
-				continue;
-			}
-			var value = prop.bidirectionalValue.apply(copy);
-			if (value == null) {
-				continue;
-			}
-			// add value to configuration
-			copy.add(prop.name, value);
-		}
-		return copy;
 	}
 
 	private Function<Language, JsonElement> mapDefaultValue(//

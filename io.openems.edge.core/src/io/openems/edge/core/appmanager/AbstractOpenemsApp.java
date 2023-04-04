@@ -476,12 +476,54 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 					}
 				}
 
+				var copy = appInstance.properties.deepCopy();
+				try {
+					final var app = appManager.findAppById(appInstance.appId);
+					copy = AbstractOpenemsApp.fillUpProperties(app, appInstance.properties);
+				} catch (UnsupportedOperationException | NoSuchElementException e) {
+					// get props not supported or app not found
+				}
 				// when available check properties
-				checkProperties(errors, appInstance.properties, appConfig.get(), dependency.key);
+				checkProperties(errors, copy, appConfig.get(), dependency.key);
 			} catch (NoSuchElementException e) {
 				errors.add("App with instance[" + dependency.instanceId + "] not available!");
 			}
 		}
+	}
+
+	/**
+	 * Creates a copy of the original configuration and fills up properties which
+	 * are binded bidirectional.
+	 * 
+	 * <p>
+	 * e. g. a property in a component is the same as one configured in the app so
+	 * it directly gets stored in the component configuration and not twice to avoid
+	 * miss matching errors.
+	 * 
+	 * @param original the original configuration
+	 * @param app      the app to get the properties from
+	 * @return a copy of the original one with the filled up properties
+	 */
+	public static JsonObject fillUpProperties(//
+			final OpenemsApp app, //
+			final JsonObject original //
+	) {
+		final var copy = original.deepCopy();
+		for (var prop : app.getProperties()) {
+			if (copy.has(prop.name)) {
+				continue;
+			}
+			if (prop.bidirectionalValue == null) {
+				continue;
+			}
+			var value = prop.bidirectionalValue.apply(copy);
+			if (value == null) {
+				continue;
+			}
+			// add value to configuration
+			copy.add(prop.name, value);
+		}
+		return copy;
 	}
 
 	private static final void checkProperties(List<String> errors, JsonObject actualAppProperties,

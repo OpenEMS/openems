@@ -465,7 +465,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	) {
 		var properties = instance.properties;
 		if (openemsApp instanceof AbstractOpenemsAppWithProps) {
-			properties = ((AbstractOpenemsAppWithProps<?, ?, ?>) openemsApp).fillUpProperties(properties);
+			properties = AbstractOpenemsApp.fillUpProperties(openemsApp, properties);
 		}
 		return new OpenemsAppInstance(//
 				instance.appId, instance.alias, instance.instanceId, //
@@ -662,7 +662,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 					final var app = this.findAppById(t.appId);
 					var properties = t.properties;
 					if (app instanceof AbstractOpenemsAppWithProps) {
-						properties = ((AbstractOpenemsAppWithProps<?, ?, ?>) app).fillUpProperties(properties);
+						properties = AbstractOpenemsApp.fillUpProperties(app, properties);
 					}
 					return new OpenemsAppInstance(t.appId, t.alias, t.instanceId, properties, t.dependencies);
 				});
