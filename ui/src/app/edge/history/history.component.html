@@ -1,10 +1,14 @@
 <header></header>
 <ion-content>
+  <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
+
+  <!-- Only displayed when history allowed to be seen -->
   <ion-grid *ngIf="isTimedataAvailable && widgets">
     <ion-row>
       <!-- Energymonitor Chart -->
       <ion-col size="12">
-        <energy [period]="service.historyPeriod" [style.height]="energyChartHeight"></energy>
+        <energy (setErrorResponse)="setErrorResponse($event)" [period]="service.historyPeriod"
+          [style.height]="energyChartHeight"></energy>
       </ion-col>
 
       <ng-container *ngFor="let clazz of widgets.classes" [ngSwitch]="clazz">
@@ -62,8 +66,10 @@
           </gridOptimizedChargeWidget>
         </ion-col>
 
+        <!-- Same widget is used for multiple Time-Of-Use-Tariff controllers temporarily, and later to be replaced by just one unified controller -->
+
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3"
-          *ngSwitchCase="'Controller.Ess.Time-Of-Use-Tariff.Discharge'">
+          *ngSwitchCase="widget.name === 'Controller.Ess.Time-Of-Use-Tariff.Discharge' || widget.name === 'Controller.Ess.Time-Of-Use-Tariff' ? widget.name : '' ">
           <timeOfUseTariffDischargeWidget [componentId]="widget.componentId" [period]="service.historyPeriod">
           </timeOfUseTariffDischargeWidget>
         </ion-col>
@@ -90,7 +96,7 @@
         <ion-card>
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" color="warning" name="information-circle-outline"></ion-icon>
-            <ion-label class="ion-text-wrap">Historic data is not available</ion-label>
+            <ion-label class="ion-text-wrap">Historische Daten sind derzeit lokal nicht verfügbar</ion-label>
           </ion-item>
           <ion-card-content>
             <p>Please setup a Timeseries provider like "Timedata InfluxDB" to record and visualize historic data.</p>

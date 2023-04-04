@@ -1,5 +1,5 @@
 import { formatNumber } from '@angular/common';
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { saveAs } from 'file-saver-es';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -46,6 +47,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
 
   public chartType: string = "line";
 
+  @Output() setErrorResponse: EventEmitter<JsonrpcResponseError | null> = new EventEmitter()
   @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
@@ -387,10 +389,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
       this.datasets = datasets;
       this.loading = false;
       this.stopSpinner();
+      this.setErrorResponse.emit(null)
 
     }).catch(reason => {
       console.error(reason); // TODO error message
-      this.initializeChart();
+      this.setErrorResponse.emit(reason)
       return;
     });
   }

@@ -393,6 +393,8 @@ export class Utils {
           return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.allowsDischarge');
         case 2:
           return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.standby');
+        case 3:
+          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.charging');
       }
     }
   }

@@ -57,6 +57,13 @@ public class SchedulerAggregateTaskImpl implements AggregateTask, AggregateTask.
 		this.delete(user, otherAppConfigurations);
 	}
 
+	/**
+	 * removes id's from the scheduler that were aggregated.
+	 *
+	 * @param user                   the executing user
+	 * @param otherAppConfigurations the other existing {@link AppConfiguration}s
+	 * @throws OpenemsNamedException on error
+	 */
 	@Override
 	public void delete(User user, List<AppConfiguration> otherAppConfigurations) throws OpenemsNamedException {
 		this.removeIds.addAll(this.aggregateTask.getDeletedComponents());

@@ -1,6 +1,7 @@
 package io.openems.edge.core.appmanager.jsonrpc;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.google.gson.JsonArray;
@@ -60,25 +61,30 @@ public class AddAppInstance {
 		 */
 		public static Request from(JsonrpcRequest r) throws OpenemsNamedException {
 			var p = r.getParams();
+			var key = JsonUtils.getAsString(p, "key");
 			var appId = JsonUtils.getAsString(p, "appId");
-			var alias = JsonUtils.getAsString(p, "alias");
+			var alias = JsonUtils.getAsOptionalString(p, "alias").orElse(null);
 			var properties = JsonUtils.getAsJsonObject(p, "properties");
-			return new Request(r, appId, alias, properties);
+			return new Request(r, key, appId, alias, properties);
 		}
+
+		public final String key;
 
 		public final String appId;
 		public final String alias;
 		public final JsonObject properties;
 
-		private Request(JsonrpcRequest request, String appId, String alias, JsonObject properties) {
+		private Request(JsonrpcRequest request, String key, String appId, String alias, JsonObject properties) {
 			super(request, METHOD);
+			this.key = key;
 			this.appId = appId;
 			this.alias = alias;
 			this.properties = properties;
 		}
 
-		public Request(String appId, String alias, JsonObject properties) {
+		public Request(String appId, String key, String alias, JsonObject properties) {
 			super(METHOD);
+			this.key = key;
 			this.appId = appId;
 			this.alias = alias;
 			this.properties = properties;
@@ -88,7 +94,7 @@ public class AddAppInstance {
 		public JsonObject getParams() {
 			return JsonUtils.buildJsonObject() //
 					.addProperty("appId", this.appId) //
-					.addProperty("alias", this.alias) //
+					.addPropertyIfNotNull("alias", this.alias) //
 					.add("properties", this.properties) //
 					.build();
 		}
@@ -102,8 +108,11 @@ public class AddAppInstance {
 		public Response(UUID id, OpenemsAppInstance instance, List<String> warnings) {
 			super(id);
 			this.instance = instance;
-			this.warnings = warnings == null ? new JsonArray()
-					: warnings.stream().map(JsonPrimitive::new).collect(JsonUtils.toJsonArray());
+			this.warnings = Optional.ofNullable(warnings) //
+					.map(t -> t.stream() //
+							.map(JsonPrimitive::new) //
+							.collect(JsonUtils.toJsonArray()))
+					.orElse(new JsonArray());
 		}
 
 		@Override

@@ -19,8 +19,6 @@ import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.integratedsystem.FeneconHome;
-import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
-import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
 import io.openems.edge.common.host.Host;
@@ -31,8 +29,6 @@ public class AppManagerImplTest {
 	private AppManagerTestBundle appManagerTestBundle;
 
 	private FeneconHome homeApp;
-	private GridOptimizedCharge gridOptimizedCharge;
-	private SelfConsumptionOptimization selfConsumptionOptimization;
 
 	private KebaEvcs kebaEvcsApp;
 	private AwattarHourly awattarApp;
@@ -178,11 +174,31 @@ public class AppManagerImplTest {
 								.addProperty("targetGridSetpoint", 0) //
 								.build()) //
 						.build()) //
+				.add("ctrlPrepareBatteryExtension0", JsonUtils.buildJsonObject() //
+						.addProperty("factoryId", "Controller.Ess.PrepareBatteryExtension") //
+						.addProperty("alias", "Batterie Erweiterung vorbereitung") //
+						.add("properties", JsonUtils.buildJsonObject() //
+								.addProperty("enabled", true) //
+								.addProperty("targetSoc", 30) //
+								.addProperty("enabled", true) //
+								.addProperty("ess_id", "ess0") //
+								.addProperty("isRunning", false) //
+								.addProperty("targetDate", "01.01.2000") //
+								.addProperty("targetTime", "08:00") //
+								.addProperty("targetTimeSpecified", false) //
+								.addProperty("targetTimeBuffer", 30) //
+								.addProperty("selfTermination", true) //
+								.addProperty("terminationBuffer", 120) //
+								.addProperty("conditionalTermination", true) //
+								.addProperty("endCondition", "CAPACITY_CHANGED") //
+								.build()) //
+						.build()) //
 				.add("scheduler0", JsonUtils.buildJsonObject() //
 						.addProperty("factoryId", "Scheduler.AllAlphabetically") //
 						.add("properties", JsonUtils.buildJsonObject() //
 								.addProperty("enabled", true) //
 								.add("controllers.ids", JsonUtils.buildJsonArray() //
+										.add("ctrlPrepareBatteryExtension0") //
 										.add("ctrlGridOptimizedCharge0") //
 										.add("ctrlEssSurplusFeedToGrid0") //
 										.add("ctrlBalancing0") //
@@ -258,36 +274,35 @@ public class AppManagerImplTest {
 										.addProperty("METER_ID", meterId) //
 										.build()) //
 								.build())
+						.add(JsonUtils.buildJsonObject() //
+								.addProperty("appId", "App.Ess.PrepareBatteryExtension") //
+								.addProperty("alias", "") //
+								.addProperty("instanceId", UUID.randomUUID().toString()) //
+								.add("properties", JsonUtils.buildJsonObject() //
+										.addProperty("TARGET_SOC", 30) //
+										.build()) //
+								.build())
 						.build().toString()) //
 				.build();
 
 		this.appManagerTestBundle = new AppManagerTestBundle(componentConfig, initialConfig, t -> {
+			return ImmutableList.of(//
+					this.homeApp = Apps.feneconHome(t), //
+					Apps.gridOptimizedCharge(t), //
+					Apps.selfConsumptionOptimization(t), //
+					Apps.prepareBatteryExtension(t), //
 
-			this.homeApp = new FeneconHome(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.FENECON.Home"), t.cm, t.componentUtil);
-			this.gridOptimizedCharge = new GridOptimizedCharge(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.PvSelfConsumption.GridOptimizedCharge"), t.cm,
-					t.componentUtil);
-			this.selfConsumptionOptimization = new SelfConsumptionOptimization(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.PvSelfConsumption.SelfConsumptionOptimization"), t.cm,
-					t.componentUtil);
-
-			this.kebaEvcsApp = new KebaEvcs(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Evcs.Keba"), t.cm, t.componentUtil);
-			this.awattarApp = new AwattarHourly(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.TimeVariablePrice.Awattar"), t.cm, t.componentUtil);
-			this.stromdao = new StromdaoCorrently(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.TimeVariablePrice.Stromdao"), t.cm, t.componentUtil);
-
-			return ImmutableList.of(this.homeApp, this.gridOptimizedCharge, this.selfConsumptionOptimization,
-					this.kebaEvcsApp, this.awattarApp, this.stromdao);
+					this.kebaEvcsApp = Apps.kebaEvcs(t), //
+					this.awattarApp = Apps.awattarHourly(t), //
+					this.stromdao = Apps.stromdaoCorrently(t) //
+			);
 		});
 
 	}
 
 	@Test
 	public void testAppValidateWorker() throws OpenemsException, Exception {
-		assertEquals(this.appManagerTestBundle.sut.instantiatedApps.size(), 3);
+		assertEquals(this.appManagerTestBundle.sut.instantiatedApps.size(), 4);
 
 		this.appManagerTestBundle.assertNoValidationErrors();
 	}

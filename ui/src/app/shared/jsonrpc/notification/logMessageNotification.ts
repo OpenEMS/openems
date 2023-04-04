@@ -1,12 +1,12 @@
 import { Level } from "../../service/logger";
-import { JsonrpcRequest } from "../base";
+import { JsonrpcNotification } from "../base";
 
 /**
  * <pre>
  * {
  *  "jsonrpc": "2.0",
  *  "id": UUID,
- *  "method": "sendLogMessage"
+ *  "method": "logMessage"
  *  "params": {
  *      "level": Level,
  *      "msg": string
@@ -14,9 +14,9 @@ import { JsonrpcRequest } from "../base";
  * }
  * </pre>
  */
-export class SendLogMessage extends JsonrpcRequest {
+export class LogMessageNotification extends JsonrpcNotification {
 
-    static METHOD: string = "sendLogMessage";
+    static METHOD: string = "logMessage";
 
     public constructor(
         public readonly params: {
@@ -24,7 +24,7 @@ export class SendLogMessage extends JsonrpcRequest {
             msg: string
         }
     ) {
-        super(SendLogMessage.METHOD, params);
+        super(LogMessageNotification.METHOD, params);
     }
 
 }

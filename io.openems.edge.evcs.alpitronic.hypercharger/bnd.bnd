@@ -13,4 +13,5 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.timedata.api,\
 
 -testpath: \
-	${testpath}
+	${testpath},\
+	com.ghgande.j2mod,\

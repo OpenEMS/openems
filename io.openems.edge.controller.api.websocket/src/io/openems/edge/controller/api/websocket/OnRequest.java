@@ -1,5 +1,6 @@
 package io.openems.edge.controller.api.websocket;
 
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -24,17 +26,25 @@ import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
+import io.openems.common.jsonrpc.request.GetEdgeRequest;
+import io.openems.common.jsonrpc.request.GetEdgesRequest;
 import io.openems.common.jsonrpc.request.LogoutRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesDataRequest;
+import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyPerPeriodRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesEnergyRequest;
 import io.openems.common.jsonrpc.request.QueryHistoricTimeseriesExportXlxsRequest;
 import io.openems.common.jsonrpc.request.SetChannelValueRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
+import io.openems.common.jsonrpc.request.SubscribeEdgesRequest;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.response.AuthenticateResponse;
 import io.openems.common.jsonrpc.response.EdgeRpcResponse;
+import io.openems.common.jsonrpc.response.GetEdgeResponse;
+import io.openems.common.jsonrpc.response.GetEdgesResponse;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesDataResponse;
+import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyPerPeriodResponse;
 import io.openems.common.jsonrpc.response.QueryHistoricTimeseriesEnergyResponse;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -77,6 +87,15 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		case EdgeRpcRequest.METHOD:
 			return this.handleEdgeRpcRequest(wsData, user, EdgeRpcRequest.from(request));
+
+		case GetEdgesRequest.METHOD:
+			return this.handleGetEdgesRequest(user, GetEdgesRequest.from(request));
+
+		case GetEdgeRequest.METHOD:
+			return this.handleGetEdgeRequest(user, GetEdgeRequest.from(request));
+
+		case SubscribeEdgesRequest.METHOD:
+			return this.handleSubscribeEdgesReqeust(user, SubscribeEdgesRequest.from(request));
 
 		default:
 			this.parent.logWarn(this.log, "Unhandled Request: " + request);
@@ -130,6 +149,11 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		case QueryHistoricTimeseriesEnergyRequest.METHOD:
 			resultFuture = this.handleQueryHistoricEnergyRequest(QueryHistoricTimeseriesEnergyRequest.from(request));
+			break;
+
+		case QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD:
+			resultFuture = this.handleQueryHistoricEnergyPerPeriodRequest(
+					QueryHistoricTimeseriesEnergyPerPeriodRequest.from(request));
 			break;
 
 		case QueryHistoricTimeseriesExportXlxsRequest.METHOD:
@@ -289,6 +313,23 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
+	}
+
+	/**
+	 * Handles a {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}.
+	 * 
+	 * @param request the {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}
+	 * @return the Future JSON-RPC Response
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyPerPeriodRequest(
+			QueryHistoricTimeseriesEnergyPerPeriodRequest request) throws OpenemsNamedException {
+		var data = this.parent.getTimedata().queryHistoricEnergyPerPeriod(//
+				null, /* ignore Edge-ID */
+				request.getFromDate(), request.getToDate(), request.getChannels(), request.getResolution());
+
+		return CompletableFuture
+				.completedFuture(new QueryHistoricTimeseriesEnergyPerPeriodResponse(request.getId(), data));
 	}
 
 	/**
@@ -452,6 +493,54 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 			throw OpenemsError.BACKEND_UI_TOKEN_MISSING.exception();
 		}
 		this.parent.handleSubscribeSystemLogRequest(token, request);
+		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
+	}
+
+	/**
+	 * Handles a {@link GetEdgesRequest}.
+	 *
+	 * @param user    the {@link User}
+	 * @param request the {@link GetEdgesRequest}
+	 * @return the {@link GetEdgesResponse} Response Future
+	 * @throws OpenemsNamedException on error
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgesRequest(User user, GetEdgesRequest request) {
+		return CompletableFuture.completedFuture(//
+				new GetEdgesResponse(request.getId(), Utils.getEdgeMetadata(user.getGlobalRole())));
+	}
+
+	/**
+	 * Handles a {@link GetEdgeRequest}.
+	 * 
+	 * @param user    the {@link User}
+	 * @param request the {@link GetEdgeRequest}
+	 * @return the {@link GetEdgeResponse} Response Future
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleGetEdgeRequest(User user, GetEdgeRequest request) {
+		return CompletableFuture.completedFuture(//
+				new GetEdgeResponse(request.id, //
+						new EdgeMetadata(//
+								WebsocketApi.EDGE_ID, //
+								WebsocketApi.EDGE_COMMENT, //
+								WebsocketApi.EDGE_PRODUCT_TYPE, //
+								OpenemsConstants.VERSION, //
+								user.getGlobalRole(), //
+								true, //
+								ZonedDateTime.now() //
+						) //
+				) //
+		);
+	}
+
+	/**
+	 * Handles a {@link SubscribeEdgesRequest}.
+	 * 
+	 * @param user    the {@link User}
+	 * @param request the {@link SubscribeEdgesRequest}
+	 * @return the Response Future
+	 */
+	private CompletableFuture<JsonrpcResponseSuccess> handleSubscribeEdgesReqeust(User user,
+			SubscribeEdgesRequest request) {
 		return CompletableFuture.completedFuture(new GenericJsonrpcResponseSuccess(request.getId()));
 	}
 
