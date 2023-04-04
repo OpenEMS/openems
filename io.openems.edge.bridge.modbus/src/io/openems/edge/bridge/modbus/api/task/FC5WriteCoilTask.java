@@ -71,6 +71,7 @@ public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 					+ value);
 			break;
 		case WRITES:
+		case DEV_REFACTORING:
 		case NONE:
 			break;
 		}

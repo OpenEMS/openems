@@ -3,21 +3,25 @@ package io.openems.edge.bridge.modbus.api.worker;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.ThrowingFunction;
 import io.openems.common.utils.Mutex;
 import io.openems.common.worker.AbstractImmediateWorker;
-import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
-import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * The ModbusWorker schedules the execution of all Modbus-Tasks, like reading
@@ -35,7 +39,13 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 	private final Logger log = LoggerFactory.getLogger(ModbusWorker.class);
 
-	private final AbstractModbusBridge parent;
+	// Callbacks
+	private final ThrowingFunction<Task, Integer, OpenemsException> execute;
+	private final Consumer<Boolean> setCycleTimeIsTooShort;
+	private final Consumer<ModbusElement<?>[]> invalidate;
+	private final BiConsumer<Logger, String> logWarn;
+
+	private final AtomicReference<LogVerbosity> logVerbosity;
 	private final LinkedBlockingDeque<WriteTask> writeTasksQueue = new LinkedBlockingDeque<>();
 	private final LinkedBlockingDeque<Task> readTasksQueue = new LinkedBlockingDeque<>();
 	private final Mutex signalAvailableTaskInQueue = new Mutex(false);
@@ -43,8 +53,27 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	private final ModbusTasksManager tasksManager;
 	private final WaitHandler waitHandler = new WaitHandler();
 
-	public ModbusWorker(AbstractModbusBridge parent) {
-		this.parent = parent;
+	/**
+	 * 
+	 * @param execute                executes a {@link Task}; returns number of
+	 *                               actually executed subtasks
+	 * @param invalidate             invalidates the given {@link ModbusElement}s
+	 *                               after read errors
+	 * @param setCycleTimeIsTooShort sets the
+	 *                               {@link BridgeModbus.ChannelId#CYCLE_TIME_IS_TOO_SHORT}
+	 *                               channel
+	 * @param logWarn                logs a warning
+	 * @param logVerbosity           the configured {@link LogVerbosity}
+	 */
+	public ModbusWorker(ThrowingFunction<Task, Integer, OpenemsException> execute,
+			Consumer<ModbusElement<?>[]> invalidate, Consumer<Boolean> setCycleTimeIsTooShort,
+			BiConsumer<Logger, String> logWarn, AtomicReference<LogVerbosity> logVerbosity) {
+		this.execute = execute;
+		this.invalidate = invalidate;
+		this.logWarn = logWarn;
+		this.logVerbosity = logVerbosity;
+
+		this.setCycleTimeIsTooShort = setCycleTimeIsTooShort;
 		this.defectiveComponents = new DefectiveComponents();
 		this.tasksManager = new ModbusTasksManager(this.defectiveComponents);
 	}
@@ -53,7 +82,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * This is called on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE cycle event.
 	 */
 	public synchronized void onBeforeProcessImage() {
-		this.log("onBeforeProcessImage"); // TODO remove before merge
+		this.log("-> onBeforeProcessImage");
 
 		// Update internal size of the WaitHandler queue if required. This causes the
 		// WaitHandler to automatically adapt to the number of Tasks and the number of
@@ -64,12 +93,12 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		this.waitHandler.onBeforeProcessImage();
 
 		// Set CYCLE_TIME_IS_TOO_SHORT state-channel
-		this.parent._setCycleTimeIsTooShort(this.waitHandler.isCycleTimeTooShort());
+		this.setCycleTimeIsTooShort.accept(this.waitHandler.isCycleTimeTooShort());
 
 		// If the current Read-Tasks queue spans multiple cycles and we are in-between
 		// -> stop here
 		if (!this.readTasksQueue.isEmpty()) {
-			this.log.info("Previous ReadTasks queue is not empty on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE");
+			this.log("Previous ReadTasks queue is not empty on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE");
 			return;
 		}
 
@@ -88,7 +117,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 * This is called on TOPIC_CYCLE_EXECUTE_WRITE cycle event.
 	 */
 	public synchronized void onExecuteWrite() {
-		this.log("onExecuteWrite"); // TODO remove before merge
+		this.log("-> onExecuteWrite");
 
 		synchronized (this.waitHandler.activeWaitTask) {
 			// Is currently a WaitTask active? Interrupt now and schedule again later.
@@ -98,7 +127,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 			}
 
 			if (!this.writeTasksQueue.isEmpty()) {
-				this.log.info("Previous WriteTasks queue is not empty on TOPIC_CYCLE_EXECUTE_WRITE");
+				this.log("Previous WriteTasks queue is not empty on TOPIC_CYCLE_EXECUTE_WRITE");
 				return;
 			}
 
@@ -159,7 +188,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		try {
 			// execute the task
 			this.log("Execute " + task); // TODO remove before merge
-			var noOfExecutedSubTasks = task.execute(this.parent);
+			var noOfExecutedSubTasks = this.execute.apply(task);
 
 			if (noOfExecutedSubTasks > 0) {
 				// no exception & at least one sub-task executed
@@ -167,13 +196,11 @@ public class ModbusWorker extends AbstractImmediateWorker {
 			}
 
 		} catch (OpenemsException e) {
-			OpenemsComponent.logWarn(this.parent, this.log, task.toString() + " execution failed: " + e.getMessage());
+			this.logWarn.accept(this.log, task.toString() + " execution failed: " + e.getMessage());
 			this.markComponentAsDefective(task.getParent(), true);
 
 			// invalidate elements of this task
-			for (ModbusElement<?> element : task.getElements()) {
-				element.invalidate(this.parent);
-			}
+			this.invalidate.accept(task.getElements());
 		}
 	}
 
@@ -182,8 +209,16 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 	// TODO remove before release
 	private void log(String message) {
-		System.out.println(//
-				String.format("%,10d %s", Duration.between(this.start, Instant.now()).toMillis(), message));
+		switch (this.logVerbosity.get()) {
+		case DEV_REFACTORING:
+			System.out.println(//
+					String.format("%,10d %s", Duration.between(this.start, Instant.now()).toMillis(), message));
+			break;
+		case NONE:
+		case READS_AND_WRITES:
+		case WRITES:
+			break;
+		}
 	}
 
 	/**

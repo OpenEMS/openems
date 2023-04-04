@@ -1,5 +1,8 @@
 package io.openems.edge.bridge.modbus.api;
 
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -33,10 +36,21 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 */
 	protected static final int DEFAULT_RETRIES = 1;
 
-	private LogVerbosity logVerbosity = LogVerbosity.NONE;
+	private final AtomicReference<LogVerbosity> logVerbosity = new AtomicReference<>(LogVerbosity.NONE);
 	private int invalidateElementsAfterReadErrors = 1;
 
-	protected final ModbusWorker worker = new ModbusWorker(this);
+	protected final ModbusWorker worker = new ModbusWorker(
+			// Execute Task
+			task -> task.execute(this),
+			// Invalidate ModbusElements
+			elements -> Stream.of(elements).forEach(e -> e.invalidate(this)),
+			// Set ChannelId.CYCLE_TIME_IS_TOO_SHORT
+			state -> this._setCycleTimeIsTooShort(state),
+			// Log Warning
+			(logger, message) -> this.logWarn(logger, message),
+			// LogVerbosity
+			this.logVerbosity //
+	);
 
 	protected AbstractModbusBridge(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
@@ -50,7 +64,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
 			LogVerbosity logVerbosity, int invalidateElementsAfterReadErrors) {
 		super.activate(context, id, alias, enabled);
-		this.logVerbosity = logVerbosity;
+		this.logVerbosity.set(logVerbosity);
 		this.invalidateElementsAfterReadErrors = invalidateElementsAfterReadErrors;
 		if (this.isEnabled()) {
 			this.worker.activate(id);
@@ -113,8 +127,9 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 */
 	public abstract void closeModbusConnection();
 
+	// TODO required?
 	public LogVerbosity getLogVerbosity() {
-		return this.logVerbosity;
+		return this.logVerbosity.get();
 	}
 
 	@Override

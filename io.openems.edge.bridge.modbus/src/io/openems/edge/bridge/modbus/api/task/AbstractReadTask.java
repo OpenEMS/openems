@@ -97,6 +97,7 @@ public abstract class AbstractReadTask<T> extends AbstractTask implements ReadTa
 							.collect(Collectors.joining(" ")));
 			break;
 		case WRITES:
+		case DEV_REFACTORING:
 		case NONE:
 			break;
 		}

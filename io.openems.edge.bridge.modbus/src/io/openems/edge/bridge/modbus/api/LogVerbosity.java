@@ -12,5 +12,7 @@ public enum LogVerbosity {
 	/**
 	 * Show verbose logs for modbus read and write requests.
 	 */
-	READS_AND_WRITES;
+	READS_AND_WRITES,
+	// TODO Remove before release
+	DEV_REFACTORING;
 }

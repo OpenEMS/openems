@@ -97,6 +97,7 @@ public class FC16WriteRegistersTask extends AbstractTask implements WriteTask {
 							.collect(Collectors.joining(" ")));
 			break;
 		case WRITES:
+		case DEV_REFACTORING:
 		case NONE:
 			break;
 		}

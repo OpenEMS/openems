@@ -85,6 +85,7 @@ public class FC6WriteRegisterTask extends AbstractTask implements WriteTask {
 					+ "[" + unitId + ":" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: " //
 					+ String.format("%4s", Integer.toHexString(register.getValue())).replace(' ', '0'));
 			break;
+		case DEV_REFACTORING:
 		case NONE:
 			break;
 		}
