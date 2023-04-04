@@ -7,9 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
@@ -48,13 +45,14 @@ import io.openems.shared.influxdb.InfluxConnector;
 		}, //
 		immediate = true //
 )
-public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influx, Timedata {
+public class InfluxImpl extends AbstractOpenemsBackendComponent implements Timedata {
 
 	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	private final Logger log = LoggerFactory.getLogger(InfluxImpl.class);
 	private final FieldTypeConflictHandler fieldTypeConflictHandler;
 
+	private Config config;
 	private InfluxConnector influxConnector = null;
 
 	public InfluxImpl() {
@@ -67,6 +65,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 
 	@Activate
 	private void activate(Config config) throws OpenemsException, IllegalArgumentException {
+		this.config = config;
+
 		this.logInfo(this.log, "Activate [" //
 				+ "url=" + config.url() + ";"//
 				+ "bucket=" + config.bucket() + ";"//
@@ -75,8 +75,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 				+ (config.isReadOnly() ? ";READ_ONLY_MODE" : "") //
 				+ "]");
 
-		this.influxConnector = new InfluxConnector(URI.create(config.url()), config.org(), config.apiKey(),
-				config.bucket(), config.isReadOnly(), //
+		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
+				config.apiKey(), config.bucket(), config.isReadOnly(), config.poolSize(), config.maxQueueSize(), //
 				(throwable) -> {
 					if (throwable instanceof BadRequestException) {
 						this.fieldTypeConflictHandler.handleException((BadRequestException) throwable);
@@ -287,20 +287,6 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 	}
 
 	@Override
-	public Map<ChannelAddress, JsonElement> getChannelValues(String edgeId, Set<ChannelAddress> channelAddresses) {
-		try {
-			var influxEdgeId = Optional.of(InfluxImpl.parseNumberFromName(edgeId));
-			return this.influxConnector.queryChannelValues(influxEdgeId, channelAddresses);
-
-		} catch (OpenemsException e) {
-			this.logError(this.log, e.getMessage());
-			e.printStackTrace();
-
-			return channelAddresses.stream().collect(Collectors.toMap(Function.identity(), c -> JsonNull.INSTANCE));
-		}
-	}
-
-	@Override
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
 	}
@@ -310,4 +296,8 @@ public class InfluxImpl extends AbstractOpenemsBackendComponent implements Influ
 		super.logWarn(log, message);
 	}
 
+	@Override
+	public String id() {
+		return this.config.id();
+	}
 }

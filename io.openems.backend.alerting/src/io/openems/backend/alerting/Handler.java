@@ -3,9 +3,9 @@ package io.openems.backend.alerting;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import org.osgi.service.event.EventHandler;
+import io.openems.common.event.EventReader;
 
-public interface Handler<T extends Message> extends EventHandler {
+public interface Handler<T extends Message> {
 
 	/**
 	 * Stop the Handler.
@@ -26,4 +26,12 @@ public interface Handler<T extends Message> extends EventHandler {
 	 * @return GenericType of handler
 	 */
 	public Class<T> getGeneric();
+
+	/**
+	 * Handle given event.
+	 * 
+	 * @param event to handle
+	 * @return Runnable to be scheduled in executor
+	 */
+	public Runnable getEventHandler(EventReader event);
 }

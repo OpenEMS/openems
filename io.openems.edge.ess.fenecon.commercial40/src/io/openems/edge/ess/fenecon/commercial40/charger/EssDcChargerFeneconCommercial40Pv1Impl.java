@@ -63,7 +63,7 @@ public class EssDcChargerFeneconCommercial40Pv1Impl extends AbstractEssDcCharger
 		}
 
 		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
 			return;
 		}
 

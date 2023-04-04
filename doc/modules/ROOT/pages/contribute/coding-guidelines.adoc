@@ -1,0 +1,84 @@
+= Coding Guidelines
+:imagesdir: ../assets/images
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+== General
+
+* The OpenEMS Coding Guidelines are based on (and complement) the link:https://www.oracle.com/technetwork/java/codeconventions-150003.pdf[Java Coding Convention].
+* Limit pull requests to a small and closed topic.
+
+== OpenEMS Edge & Backend
+
+=== Java Code
+
+* Limit Pull-Request to only one bundle/directory preferred
+* Remove unnecessary console.logs
+* Remove unnecessary empty lines
+* Never use System.out.println()
+* Fix all errors & warnings
+* Use precise naming for methods/functions
+* Use narrow scopes for variables; avoid class variables
+* Split code in Interface, Implementation(..Impl) and Config files
+* Use modern Java 17 syntax (e.g. 'var' keyword, streams, etc.)
+* Add readme.adoc to a new bundle
+* Review data in bnd.bnd file
+* Format all files via Eclipse Autoformat, organize Imports, apply Checkstyle suggestions (see below)
+* Avoid unnecessary comments on self explaining code
+* Add comments to code that is difficult to understand
+* Prefer functional programming (e.g. use Lambda expressions)
+* Add JUnit tests.
+* Run ./tools/prepare-commit.sh script
+
+=== Tool support
+
+While IntelliJ also works, Eclipse IDE is the officially supported development environment. It also provides tool support for guided assistance via bndtools.
+
+.Eclipse Code formatter
+
+Use OpenEMS Code Formatter Rules
+
+ * Eclipse -> Window -> Preferences -> Java -> Code Style -> Formatter -> ActiveProfile -> select
+ 
+  Java Conventions [build-in]
+  
+Before you commit files, run the Eclipse code formatter on java sourcecode file (Ctrl + Shift + F).
+
+.Eclipse Checkstyle plugin
+
+Use Eclipse checkstyle plugin `Eclipse-cs`. Install it with
+  
+* Eclipse -> Help -> Eclipse Marketplace -> Find -> Eclipse-cs -> Install 
+
+Configure it with
+
+* Eclipse -> Window -> Preferences -> New -> 
+** Type: Project Relative Configuration 
+** Name: OpenEMS 
+** Location: /cnf/checkstyle.xml
+
+Later set `OpenEMS` as default.
+
+Enable Checkstyle for every bundle you like in the Bndtools Explorer in the bundles context menu.      
+
+== OpenEMS UI
+
+=== TypeScript
+
+* Act according to the rules above wherever it makes sense to do so. 
+
+== Git-Flow workflow
+* OpenEMS development follows the link:https://docs.github.com/en/get-started/quickstart/github-flow[Git-Flow workflow].  
+* Choose precise naming of pull request and its comments when making a pull request
+* After opening the Pull-Request, review for yourself the actual changes line by line in the 'files' tab on Github. 
+Ask for review only after you checked the actual changes again this way.  
+* Ask for review when pull request is ready for review (not before)
+ 
+*Note:* If you realize, that you added files accidentally, you can always reset them to the current 'develop' state with the command `git checkout develop <filename>`
+

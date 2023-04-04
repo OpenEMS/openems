@@ -18,6 +18,8 @@ public interface AppManager extends OpenemsComponent, JsonApi {
 		DEFECTIVE_APP(Doc.of(Level.INFO) //
 				// TODO should be a WARNING eventually
 				.text("Defective App detected")), //
+		APPS_NOT_SYNCED_WITH_BACKEND(Doc.of(Level.INFO) //
+				.text("The currently installed apps are not the same as logged in the backend")), //
 		;
 
 		private final Doc doc;
@@ -57,6 +59,16 @@ public interface AppManager extends OpenemsComponent, JsonApi {
 	}
 
 	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#APPS_NOT_SYNCED_WITH_BACKEND} Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setAppsNotSyncedWithBackend(boolean value) {
+		this.getAppsNotSyncedWithBackendChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Defective-App Warning State. See {@link ChannelId#DEFECTIVE_APP}.
 	 *
 	 * @return the Channel {@link Value}
@@ -91,6 +103,25 @@ public interface AppManager extends OpenemsComponent, JsonApi {
 	 */
 	public default StateChannel getWrongAppConfigurationChannel() {
 		return this.channel(ChannelId.WRONG_APP_CONFIGURATION);
+	}
+
+	/**
+	 * Gets the Apps-Not-Synced-With-Backend Warning State. See
+	 * {@link ChannelId#APPS_NOT_SYNCED_WITH_BACKEND}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getAppsNotSyncedWithBackend() {
+		return this.getAppsNotSyncedWithBackendChannel().value();
+	}
+
+	/**
+	 * Gets the channel for {@link ChannelId#APPS_NOT_SYNCED_WITH_BACKEND}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getAppsNotSyncedWithBackendChannel() {
+		return this.channel(ChannelId.APPS_NOT_SYNCED_WITH_BACKEND);
 	}
 
 }

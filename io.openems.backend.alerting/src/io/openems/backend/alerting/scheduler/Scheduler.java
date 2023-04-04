@@ -3,6 +3,9 @@ package io.openems.backend.alerting.scheduler;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.Message;
 
@@ -13,6 +16,8 @@ public class Scheduler implements Runnable, MessageSchedulerService {
 
 	private final MinuteTimer minuteTimer;
 	private final List<MessageScheduler<? extends Message>> msgScheduler;
+
+	private final Logger log = LoggerFactory.getLogger(Scheduler.class);
 
 	public Scheduler() {
 		this.minuteTimer = MinuteTimer.getInstance();
@@ -35,6 +40,7 @@ public class Scheduler implements Runnable, MessageSchedulerService {
 	 * Subscribe to minuteTimer and start scheduling.
 	 */
 	public void start() {
+		this.log.info("[Alerting-Scheduler] start");
 		this.minuteTimer.subscribe(this);
 	}
 
@@ -42,6 +48,7 @@ public class Scheduler implements Runnable, MessageSchedulerService {
 	 * Unsubscribe from minuteTimer and stop scheduling.
 	 */
 	public void stop() {
+		this.log.info("[Alerting-Scheduler] stop");
 		this.minuteTimer.unsubscribe(this);
 	}
 

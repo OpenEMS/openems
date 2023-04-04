@@ -86,7 +86,7 @@ task buildEdge() {
 		copy {
 			from file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
 			into file("${buildDir}")
-			rename ("EdgeApp.jar", "openems.jar")
+			rename ("EdgeApp.jar", "openems-edge.jar")
 		}
 	}
 }

@@ -27,11 +27,10 @@
 @import "variables";
 
 /* ngx-spinner */
-@import "ngx-spinner/animations/ball-clip-rotate-multiple.css";
+@import "node_modules/ngx-spinner/animations/ball-clip-rotate-multiple.css";
 
 formly-wrapper-ion-form-field,
 formly-input-serial-number,
-formly-select-field-wrapper,
 formly-field-ion-radio {
     ion-label {
         line-height: 1.2;
@@ -51,12 +50,19 @@ formly-field-ion-radio {
     }
 }
 
-.line-break{
-    formly-wrapper-ion-form-field > ion-item > ion-label > span > small,
-    formly-field-ion-radio > ion-list > ion-radio-group > ion-item > ion-label {
+.line-break {
+
+    formly-wrapper-ion-form-field>ion-item>ion-label>span>small,
+    formly-field-ion-radio>ion-list>ion-radio-group>ion-item>ion-label {
         white-space: pre-line !important;
         line-height: 1.6 !important;
     }
+}
+
+// Removes the ripple effect while using the custom box.
+.custom-checkbox {
+    --ripple-color: transparent;
+    --background-hover: transparent;
 }
 
 .margin-top {
@@ -192,7 +198,7 @@ formly-input-section {
 
 // style to color table rows with translusent background
 .even-row {
-  background-color: rgba(var(--ion-color-primary-rgb), 0.2);
+    background-color: rgba(var(--ion-color-primary-rgb), 0.2);
 }
 
 // Added styles for alertController, because alertController doesn't take ionic default style
@@ -277,4 +283,36 @@ formly-input-section {
     ion-toggle {
         --background-checked: var(--ion-color-primary-tint);
     }
+
+    ion-spinner {
+        transform: scale(1.5);
+        left: 25%;
+        width: 50%;
+        color: var(--ion-color-primary);
+    }
+}
+
+// auto height for modals
+ion-modal.auto-height {
+    &.bottom {
+        align-items: flex-end;
+    }
+
+    --height: auto;
+
+    .ion-page {
+        position: relative;
+        display: block;
+        contain: content;
+
+        .inner-content {
+            max-height: 80vh;
+            overflow: auto;
+            padding: 10px;
+        }
+    }
+}
+
+ion-modal.full-width {
+    --width: 100%;
 }

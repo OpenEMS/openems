@@ -32,6 +32,7 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -62,7 +63,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 @Component(name = "App.Meter.Janitza")
 public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsApp {
 
-	public enum Property {
+	public enum Property implements Nameable {
 		// Component-IDs
 		METER_ID, //
 		MODBUS_ID, //
@@ -139,7 +140,8 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.MODBUS_UNIT_ID) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "modbusUnitId")) //
-								.setDescription(TranslationUtil.getTranslation(bundle, "modbusUnitId.description")) //
+								.setDescription(
+										TranslationUtil.getTranslation(bundle, "App.Meter.modbusUnitId.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(1) //
 								.setMin(0) //
