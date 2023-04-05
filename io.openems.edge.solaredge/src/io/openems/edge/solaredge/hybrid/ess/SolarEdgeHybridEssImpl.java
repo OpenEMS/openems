@@ -1,6 +1,5 @@
 package io.openems.edge.solaredge.hybrid.ess;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +18,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import io.openems.edge.common.event.EdgeEventConstants;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableMap;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
@@ -48,21 +44,17 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.sunspec.AbstractSunSpecEss;
-
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.solaredge.enums.ControlMode;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.solaredge.enums.AcChargePolicy;
 import io.openems.edge.solaredge.enums.ChargeDischargeMode;
-
 import io.openems.edge.solaredge.charger.SolaredgeDcCharger;
 
 
@@ -81,12 +73,9 @@ import io.openems.edge.solaredge.charger.SolaredgeDcCharger;
 public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		implements SolarEdgeHybridEss, ManagedSymmetricEss, SymmetricEss, HybridEss, ModbusComponent,
 		OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
-		//implements SunSpecEss, SymmetricEss, HybridEss,  ModbusComponent, OpenemsComponent, ModbusSlave, EventHandler {
-
 	
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 	private final List<SolaredgeDcCharger> chargers = new ArrayList<>();
-	//private final SurplusFeedInHandler surplusFeedInHandler = new SurplusFeedInHandler(this);
 	
 	// Hardware-Limits
 	protected static final int HW_MAX_APPARENT_POWER = 10000;
@@ -94,9 +83,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 	protected static final int HW_ALLOWED_DISCHARGE_POWER = 5000;
 	
 	int CycleCounter =60;
-	
-	//this._setAllowedChargePower(HW_ALLOWED_CHARGE_POWER);
-	//this._setAllowedChargePower(HW_ALLOWED_DISCHARGE_POWER);
+
 	
 	private Config config;
 	
@@ -127,11 +114,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				ModbusComponent.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
 				HybridEss.ChannelId.values(), //
-				//EssDcCharger.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
-				//SymmetricEss.ChannelId.values(), //
-				//SunSpecEss.ChannelId.values(), //
-				//SolaredgeDcCharger.ChannelId.values(), //
 				SolarEdgeHybridEss.ChannelId.values()
 		);
 
@@ -184,87 +167,46 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				CycleCounter=0;
 				// Switch to automatic mode
 				this._setControlMode(ControlMode.SE_CTRL_MODE_MAX_SELF_CONSUMPTION);
-				//setLimits();				
 			}
-			//int maxDischargePeakPower 	= getMaxDischargePeakPower().get();
-			//int maxChargePeakPower 		= getMaxChargePeakPower().get() -1;
-			
 			return;
 		}
 		else {
-			if (CycleCounter >= 0) { // Set values every Cycle
-				
-				
-
-				//int maxDischargePeakPower 		= getMaxDischargePeakPower().get();
-				//int maxChargePeakPower 			= getMaxChargePeakPower().get() * -1 ;
-				
-				int maxDischargeContinuesPower 	= getMaxDischargeContinuesPower().get();
-				int maxChargeContinuesPower 	= getMaxChargeContinuesPower().get() * -1 ;
-
 		
-				if (isControlModeRemote() == false || isStorageChargePolicyAlways() == false)
-				{
-					this._setControlMode(ControlMode.SE_CTRL_MODE_REMOTE); // Now the device can be remote controlled	
-					this._setAcChargePolicy(AcChargePolicy.SE_CHARGE_DISCHARGE_MODE_ALWAYS);
-					
-					//The next 2 are fallback values which should become active after the 60 seonds timeout
-					this._setChargeDischargeDefaultMode(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_SELF_CONSUMPTION);
-					this._setRemoteControlTimeout(60);
-					 
-				}
-				// We assume to be in RC-Mode
-				
-				//_setAllowedChargePower(maxChargePeakPower);
-				//_setAllowedDischargePower(maxDischargePeakPower);
-				
-				_setAllowedChargePower(maxChargeContinuesPower);
-				_setAllowedDischargePower(maxDischargeContinuesPower);
-				
-				if (activePowerWanted < 0) { // Negative Values are for charging
-					/*
-					 * Battery charging decreases when Soc > 90%. We have to set the wanted value to the max. power which the
-					 * battery is willing to handle 
-					 */
-					
-					//if (activePowerWanted < -500) activePowerWanted -= 200; //Decrease Charging as a buffer
-					//if (activePowerWanted <= maxChargePeakPower) activePowerWanted = maxChargePeakPower;
-					
-					
-
-					this._setRemoteControlCommandMode(ChargeDischargeMode.SE_CHARGE_POLICY_PV_AC); // Mode for charging);
-					this._setMaxChargePower((activePowerWanted * -1));// Values for register must be positive
-					
-					//if (this.config.ChargePowerLimit() < (maxChargePeakPower * -1)) setLimits();
-					//else _setAllowedChargePower(maxChargePeakPower);
-					
-				}
-				else {
-					/*
-					 * The same for discharging. The battery can be discharged with high rates at the beginning
-					 */
-					//if (activePowerWanted > maxDischargePeakPower) activePowerWanted = maxDischargePeakPower;
-					
-					this._setRemoteControlCommandMode(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_EXPORT); // Mode for Discharging);
-					this._setMaxDischargePower(activePowerWanted);		
-					
-					//if (this.config.DischargePowerLimit() < maxDischargePeakPower) setLimits();
-					//else _setAllowedDischargePower(maxDischargePeakPower);
-					
-				}
-			}
 			
+			int maxDischargeContinuesPower 	= getMaxDischargeContinuesPower().get();
+			int maxChargeContinuesPower 	= getMaxChargeContinuesPower().get() * -1 ;
+
+	
+			if (isControlModeRemote() == false || isStorageChargePolicyAlways() == false)
+			{
+				this._setControlMode(ControlMode.SE_CTRL_MODE_REMOTE); // Now the device can be remote controlled	
+				this._setAcChargePolicy(AcChargePolicy.SE_CHARGE_DISCHARGE_MODE_ALWAYS);
+				
+				//The next 2 are fallback values which should become active after the 60 seonds timeout
+				this._setChargeDischargeDefaultMode(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_SELF_CONSUMPTION);
+				this._setRemoteControlTimeout(60);
+				 
+			}
+			// We assume to be in RC-Mode
+			_setAllowedChargePower(maxChargeContinuesPower);
+			_setAllowedDischargePower(maxDischargeContinuesPower);
+			
+			if (activePowerWanted < 0) { // Negative Values are for charging
+				this._setRemoteControlCommandMode(ChargeDischargeMode.SE_CHARGE_POLICY_PV_AC); // Mode for charging);
+				this._setMaxChargePower((activePowerWanted * -1));// Values for register must be positive
+				
+			}
+			else {
+				this._setRemoteControlCommandMode(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_EXPORT); // Mode for Discharging);
+				this._setMaxDischargePower(activePowerWanted);		
+			}
+		
+		
 		}
-		CycleCounter=0;
 		
 	}
-
-
 	
 	private void setLimits()  {
-	
-		//_setAllowedChargePower(this.config.ChargePowerLimit() *-1);
-		//_setAllowedDischargePower(this.config.DischargePowerLimit());
 		_setMaxApparentPower(HW_MAX_APPARENT_POWER);
 	}
 
@@ -398,14 +340,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 						m(SolarEdgeHybridEss.ChannelId.SET_REMOTE_CONTROL_COMMAND_MODE, new UnsignedWordElement(0xE00D)),
 						m(SolarEdgeHybridEss.ChannelId.SET_MAX_CHARGE_POWER, new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)),  // Max. charge power. Negative values
 						m(SolarEdgeHybridEss.ChannelId.SET_MAX_DISCHARGE_POWER, new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW)) // Max. discharge power. Positive values
-						)); // Disabled, automatic, remote controlled, etc.	
-						
-						// If no managed System is implemented these registers don´t need to be set
-						
-						//m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)),  // Max. charge power. Negative values
-						//m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW)) // Max. discharge power. Positive values
-		
-							
+						)); 					
 	}
 
 	public void _setMyActivePower() {

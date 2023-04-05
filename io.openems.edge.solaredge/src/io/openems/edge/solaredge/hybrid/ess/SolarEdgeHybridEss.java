@@ -70,12 +70,12 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		
 		
 		/**
-		 * Available Energy
+		 * Battery Lifetime Export Energy
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Unit: Wh
 		 * <li>
 		 * </ul>
 		 */
@@ -84,12 +84,12 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),		
 		
 		/**
-		 * Available Energy
+		 * Battery Lifetime Import Energy
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Unit: Wh
 		 * <li>
 		 * </ul>
 		 */
@@ -98,12 +98,12 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),		
 		
 		/**
-		 * Available Energy
+		 * Actual Current to or from the battery 
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Unit: A
 		 * <li>
 		 * </ul>
 		 */
@@ -112,12 +112,12 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),
 		
 		/**
-		 * Available Energy
+		 * actual battery voltage 
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Unit: V
 		 * <li>
 		 * </ul>
 		 */
@@ -126,7 +126,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),
 		
 		/**
-		 * Available Energy
+		 * average battery temperature
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -139,7 +139,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.unit(Unit.DEGREE_CELSIUS) //
 				.persistencePriority(PersistencePriority.LOW)),			
 		/**
-		 * Available Energy
+		 * maximum battery temperature
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -155,7 +155,23 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		
 				
 
-		
+		/**
+		 * Internal battery status
+		 * 	SE_BATT_STATUS_OFF(0, "Off"), //
+		 *	SE_BATT_STATUS_STBY(1, "Standby"), //
+		 *	SE_BATT_STATUS_INIT(2, "Init"), //
+		 *	SE_BATT_STATUS_CHARGE(3, "Charge"), //
+		 *	SE_BATT_STATUS_DISCHARGE(4, "Discharge"), //
+		 *	SE_BATT_STATUS_FAULT(5, "Fault"), //
+		 *	// 6 doesn´t exist
+		 *	SE_BATT_STATUS_IDLE(7, "Idle"); //
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: enum
+		 * <li>Unit: 
+		 * <li>
+		 * </ul>
+		 */
 		BATTERY_STATUS(Doc.of(BatteryStatus.values())
 				.accessMode(AccessMode.READ_ONLY)), 
 				
@@ -189,14 +205,25 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		*/
 		CHARGE_DISCHARGE_DEFAULT_MODE(Doc.of(ChargeDischargeMode.values())
 				.accessMode(AccessMode.READ_ONLY)),  // defined in external file
-		
+		// Same Enum as CHARGE_DISCHARGE_DEFAULT_MODE
 		SET_CHARGE_DISCHARGE_DEFAULT_MODE(Doc.of(ChargeDischargeMode.values())
 				.accessMode(AccessMode.WRITE_ONLY)),  // defined in external file		
 
 		
 		
 
-		
+		/**
+		 * Charge Power Wanted is the activePower wanted from controllers
+		 * and internal Channel for applyPower()-Method
+		 *
+		 * negative values for charging
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>
+		 * </ul>
+		 */		
 		CHARGE_POWER_WANTED(Doc.of(OpenemsType.INTEGER) // Charge/Discharge-Power wanted from controllers
 				.unit(Unit.WATT)), //		
 		
@@ -291,12 +318,12 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 
 
 		/**
-		 * Available Energy
+		 * Rated Energy
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Unit: Wh
 		 * <li>
 		 * </ul>
 		 */
@@ -334,18 +361,63 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.unit(Unit.NONE) //
 				.persistencePriority(PersistencePriority.HIGH)),
 		
+		
+		/**
+		 * Charge Power READ Channel
+		 * always positive
+		 * 
+		 * Reads the charge power
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */		
 		MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)), //		
-		
+
+		/**
+		 * Charge Power WRITE Channel
+		 * always positive
+		 * 
+		 * Tells the ESS the charge power. Control mode and charge policy have to be set 
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */			
 		SET_MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY)), //				
 
-		
+		/**
+		 * Dicharge Power READ Channel
+		 * always positive
+		 * 
+		 * Reads the charge power
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */			
 		MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)), //
+		
+		/**
+		 * Discharge Power WRITE Channel
+		 * always positive
+		 * 
+		 * Tells the ESS the charge power. Control mode and charge policy have to be set 
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */			
 		SET_MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY)), //		
@@ -370,7 +442,8 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		
 		
 		/**
-		 * Available Energy
+		 * Charge continues power
+		 * Varies with storage state of charge
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -384,7 +457,8 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),		
 		
 		/**
-		 * Available Energy
+		 * Discharge continues power
+		 * Varies with storage state of charge
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -395,10 +469,13 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		 */
 		MAX_DISCHARGE_CONTINUES_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.LOW)),			
+				.persistencePriority(PersistencePriority.LOW)),		
+		
+		
 
 		/**
-		 * Available Energy
+		 * Charge continues power
+		 * Varies with storage state of charge
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -412,7 +489,8 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.LOW)),		
 		
 		/**
-		 * Available Energy
+		 * Discharge continues power
+		 * Varies with storage state of charge
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -428,7 +506,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		
 		
 		/**
-		 * Power from Grid. Used to calculate pv production
+		 * AC-Power produced by the ESS. Either for grid or consumption
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -443,12 +521,12 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		
 		
 		/**
-		 * Power from Grid. Used to calculate pv production
+		 * Scale factor for AC-Power
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Unit: Scale factor
 		 * <li>
 		 * </ul>
 		 */
@@ -458,7 +536,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 
 
 		/**
-		 * Power from Grid. Used to calculate pv production
+		 * DC-Power of the inverter
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -473,17 +551,16 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		
 		
 		/**
-		 * Power from Grid. Used to calculate pv production
+		 * Scale for the DC-Power value
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Unit: Scale
 		 * <li>
 		 * </ul>
 		 */
 		POWER_DC_SCALE(Doc.of(OpenemsType.INTEGER) //
-				
 				.persistencePriority(PersistencePriority.HIGH)),	
 		
 		
@@ -495,7 +572,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Unit: Percent
 		 * <li>
 		 * </ul>
 		 */
