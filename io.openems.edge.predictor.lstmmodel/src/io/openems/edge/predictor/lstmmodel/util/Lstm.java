@@ -1,6 +1,9 @@
 package io.openems.edge.predictor.lstmmodel.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Vector;
+import java.util.stream.Collectors;
 
 public class Lstm {
 
@@ -44,7 +47,7 @@ public class Lstm {
 	public void forwardprop() {
 		try {
 			for (int i = 0; i < cells.size(); i++) {
-				//System.out.println(i + 1);
+				// System.out.println(i + 1);
 				cells.get(i).forwardPropogation();
 				if (i < cells.size() - 1) {
 					cells.get(i + 1).yt = cells.get(i).yt;
@@ -76,23 +79,11 @@ public class Lstm {
 			derivativeLWrtWo += cells.get(i).xt * cells.get(i).delO;
 			derivativeLWrtWz += cells.get(i).xt * cells.get(i).delZ;
 
-			// wi += this.learningRate * derivativeLWrtWi;
 			cells.get(i).setWi(cells.get(i).getWi() + this.learningRate * derivativeLWrtWi);
-			// wo += this.learningRate * derivativeLWrtWo;
 			cells.get(i).setWo(cells.get(i).getWo() + this.learningRate * derivativeLWrtWo);
-			// wz += this.learningRate * derivativeLWrtWz;
 			cells.get(i).setWz(cells.get(i).getWz() + this.learningRate * derivativeLWrtWz);
-			// Ri += this.learningRate * derivativeLWrtRi;
 			cells.get(i).setRi(cells.get(i).getRi() + this.learningRate * derivativeLWrtRi);
-
-			// TODO check this formulas
-			// cells.get(i).setRo(cells.get(i).getRo() + this.learningRate *
-			// derivativeLWrtRi);
-
-			//cells.get(i).Ro = cells.get(i).Ro + this.learningRate * derivativeLWrtRo;
 			cells.get(i).setRo(cells.get(i).getRo() + this.learningRate * derivativeLWrtRo);
-
-			// cells.get(i).Rz = cells.get(i).Ri + this.learningRate * derivativeLWrtRz;
 			cells.get(i).setRz(cells.get(i).getRz() + this.learningRate * derivativeLWrtRz);
 
 		}
@@ -108,9 +99,9 @@ public class Lstm {
 		ArrayList<ArrayList<Double>> out = new ArrayList<ArrayList<Double>>();
 		ArrayList<Double> errorList = new ArrayList<Double>();
 
-		int EPOCH = 300;
+		int EPOCH = 1000;
 		for (int i = 0; i < EPOCH; i++) {
-			//System.out.println("Training " + i+1 + "/ " +  EPOCH);
+			// System.out.println("Training " + i+1 + "/ " + EPOCH);
 			forwardprop();
 			backwardprop();
 
@@ -141,53 +132,54 @@ public class Lstm {
 			out.add(temp7);
 		}
 
-		int ind = signChangeInList(errorList);
+		System.out.println(errorList);
+		int ind = findGlobalMinima(errorList);
 
-		if (ind == -1) {
-			int a = getMinIndex(errorList);
-			ArrayList<ArrayList<Double>> return_arr = new ArrayList<ArrayList<Double>>();
-			ArrayList<Double> err = new ArrayList<Double>();
-			return_arr.add(wI.get(a));
-			return_arr.add(wO.get(a));
-			return_arr.add(wZ.get(a));
-			return_arr.add(rI.get(a));
-			return_arr.add(rO.get(a));
-			return_arr.add(rZ.get(a));
-			return_arr.add(out.get(a));
-			err.add(errorList.get(a));
-			return_arr.add(err);
-			return return_arr;
-
-		} else {
-
-			ArrayList<Double> err = new ArrayList<Double>();
-			ArrayList<ArrayList<Double>> return_arr = new ArrayList<ArrayList<Double>>();
-			return_arr.add(wI.get(ind));
-			return_arr.add(wO.get(ind));
-			return_arr.add(wZ.get(ind));
-			return_arr.add(rI.get(ind));
-			return_arr.add(rO.get(ind));
-			return_arr.add(rZ.get(ind));
-			return_arr.add(out.get(ind));
-			err.add(errorList.get(ind));
-			return_arr.add(err);
-			return return_arr;
-
-		}
+		ArrayList<Double> err = new ArrayList<Double>();
+		ArrayList<ArrayList<Double>> return_arr = new ArrayList<ArrayList<Double>>();
+		return_arr.add(wI.get(ind));
+		return_arr.add(wO.get(ind));
+		return_arr.add(wZ.get(ind));
+		return_arr.add(rI.get(ind));
+		return_arr.add(rO.get(ind));
+		return_arr.add(rZ.get(ind));
+		return_arr.add(out.get(ind));
+		err.add(errorList.get(ind));
+		return_arr.add(err);
+		return return_arr;
 
 	}
 
-	public static int signChangeInList(ArrayList<Double> testList) {
+	public static int findGlobalMinima(ArrayList<Double> testList) {
+
+		ArrayList<Double> mn = new ArrayList<Double>();
+		ArrayList<Integer> index = new ArrayList<Integer>();
+
 		for (int idx = 0; idx < testList.size() - 1; idx++) {
-			if ((testList.get(idx) > 0 && testList.get(idx + 1) < 0)
-					|| (testList.get(idx) < 0 && testList.get(idx + 1) > 0)) {
-				return idx;
+			if ((testList.get(idx) > 0 && testList.get(idx + 1) < 0)) {
+				mn.add(testList.get(idx));
+				index.add(idx);
+			} else if ((testList.get(idx) < 0 && testList.get(idx + 1) > 0)) {
+				mn.add(testList.get(idx + 1));
+				index.add(idx + 1);
+			} else {
+				//
 			}
 		}
-		return -1;
+//		System.out.println(mn);
+//		System.out.println(index);
+//		System.out.println(getMinIndex(mn));
+//		System.out.println(testList.get(index.get(getMinIndex(mn))));
+
+		if (mn.isEmpty()) {
+			return getMinIndex(testList);
+		} else {
+			return index.get(getMinIndex(mn));
+		}
 	}
 
 	public static int getMinIndex(ArrayList<Double> arr) {
+
 		double minVal = arr.get(0);
 		int minIdx = 0;
 		for (int i = 1; i < arr.size(); i++) {
@@ -198,5 +190,4 @@ public class Lstm {
 		}
 		return minIdx;
 	}
-
 }

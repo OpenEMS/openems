@@ -13,7 +13,6 @@ public class Cell {
 
 	public double xt;
 	public double outputDataLoc;
-	
 
 	public enum propagationType {
 		FWD, BCK
@@ -21,7 +20,7 @@ public class Cell {
 
 	public Cell(double xt, double outputData) {
 		this.dlByDc = this.error = 0;
-		this.wi = this.wo = this.wz = this.Ri = this.Ro = this.Rz = 1;		
+		this.wi = this.wo = this.wz = this.Ri = this.Ro = this.Rz = 1;
 		this.ct = this.ot = this.zt = 0;
 		this.yt = 0;
 		this.dlByDy = this.dlByDo = this.dlByDc = this.dlByDi = this.dlByDz = 0;
@@ -29,7 +28,7 @@ public class Cell {
 		this.it = 0;
 		this.xt = xt;
 		this.outputDataLoc = outputData;
-		
+
 	}
 
 	public void forwardPropogation() {
@@ -39,7 +38,7 @@ public class Cell {
 		this.ct = this.ct + this.it * this.zt;
 		this.yt = this.ot * MathUtils.tanh(this.ct);
 		error = this.outputDataLoc - this.yt;
-		//System.out.println(toString(propagationType.FWD));
+		// System.out.println(toString(propagationType.FWD));
 
 	}
 
@@ -80,7 +79,7 @@ public class Cell {
 		this.delI = this.dlByDi * MathUtils.sigmoidDerivative(this.wi + this.Ri * this.yt);
 		this.delO = this.dlByDo * MathUtils.sigmoidDerivative(this.wo + this.Ro * this.yt);
 		this.delZ = this.dlByDz * MathUtils.tanhDerivative(this.wz + this.Rz * this.yt);
-		//System.out.println(toString(propagationType.BCK));
+		// System.out.println(toString(propagationType.BCK));
 	}
 
 	public double getError() {

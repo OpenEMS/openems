@@ -125,7 +125,7 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 
 		// LSTM model
 
-		List<Double> doubleOfInt = data.parallelStream().mapToDouble(i -> i).boxed().collect(Collectors.toList());
+		List<Double> doubleOfInt = data.stream().mapToDouble(i -> i).boxed().collect(Collectors.toList());
 		
 
 		int windowsSize = 5;
@@ -138,11 +138,15 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 
 		TrainPredict model = new TrainPredict(preprocessing.trainData, preprocessing.trainTarget,
 				preprocessing.validateData, preprocessing.validateTarget);
+		
 
 		ArrayList<ArrayList<Double>> value = model.train();
+		
+
+		
 
 		double[] result = model.Predict(preprocessing.testData, preprocessing.testTarget, value);
-
+		
 		// Return LSTM result
 		double resultRMs = model.computeRMS(preprocessing.testTarget, result);
 		System.out.println(Arrays.toString(result));
@@ -151,6 +155,8 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 
 		return null;
 	}
+	
+
 
 	public static Data2D1D generateData2D1D(int windowsSize, List<Double> dataGenerated) {
 

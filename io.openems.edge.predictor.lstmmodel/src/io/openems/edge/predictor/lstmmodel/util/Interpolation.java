@@ -9,6 +9,7 @@ public class Interpolation {
 		System.out.println("Data Before Interpolation");
 		System.out.print(data);
 
+		//TODO Check for NaN
 		if (Double.isNaN(data.get(0))) {
 			data.set(0, calculateMean(data));
 		}
@@ -31,33 +32,7 @@ public class Interpolation {
 		System.out.println(data);
 	}
 
-//	public  Interpolation(ArrayList<Float> data) {
-//		// Data.stream().map(t -> t.doubleValue()).collect(Collectors.toList());
-//
-//		this.Data = new ArrayList<Double>(
-//				data.stream().mapToDouble(Float::doubleValue).boxed().collect(Collectors.toCollection(ArrayList::new)));
-//
-//		System.out.println("Data Before Interpolation");
-//		System.out.print(this.Data);
-//
-//		if (Double.isNaN(this.Data.get(0))) {
-//			this.Data.set(0, calculateMean(this.Data));
-//		}
-//		if (Double.isNaN(this.Data.get(this.Data.size() - 1))) {
-//			this.Data.set(this.Data.size() - 1, calculateMean(this.Data));
-//		} else {
-//		}
-//		ArrayList<ArrayList<ArrayList<Double>>> coordinate = determineInterpolatingPoints(Data);
-//		for (int i = 0; i < coordinate.size(); i++) {
-//			ArrayList<Double> val = computeInterpolation(coordinate.get(i).get(0).get(0),
-//					coordinate.get(i).get(0).get(1), coordinate.get(i).get(1).get(0), coordinate.get(i).get(1).get(1));
-//			Data = conCat(Data, val, coordinate.get(i).get(0).get(0), coordinate.get(i).get(0).get(1));
-//
-//		}
-//		System.out.println("Data after Interpolation");
-//
-//		System.out.println(Data);
-//	}
+
 
 	private ArrayList<ArrayList<ArrayList<Double>>> determineInterpolatingPoints(ArrayList<Double> data) {
 		{

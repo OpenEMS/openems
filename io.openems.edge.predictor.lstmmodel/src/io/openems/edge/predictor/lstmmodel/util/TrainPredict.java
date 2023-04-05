@@ -1,6 +1,10 @@
 package io.openems.edge.predictor.lstmmodel.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class TrainPredict {
 	private double[][] inputMatrix;
@@ -25,7 +29,7 @@ public class TrainPredict {
 		ArrayList<ArrayList<Double>> val = new ArrayList<ArrayList<Double>>();
 
 		for (int i = 0; i < inputMatrix.length; i++) {
-			//System.out.println("Training " + (i + 1) + " feature data");
+			// System.out.println("Training " + (i + 1) + " feature data");
 
 			double learningRate = 1;
 
@@ -42,7 +46,7 @@ public class TrainPredict {
 			} else {
 				learningRate = learningRate / 10;
 			}
-			// TODO look at the memory
+			// i == 0 for the first iteration
 			if (i == 0) {
 				Lstm ls = new Lstm(inputMatrix[i], targetVector[i], learningRate);
 				ls.initilizeCells();
@@ -66,15 +70,14 @@ public class TrainPredict {
 				allWeight.add(val);
 			}
 
-			if (allWeight.size() == 50) {
+			if (allWeight.size() == inputMatrix.length / 2) {
 				int ind = selectWeight(allWeight);
 				val = allWeight.get(ind);
 				allWeightFinal.add(val);
 				allWeight.clear();
 			} else {
 				double error = val.get(7).get(0);
-				// System.out.println("AllWeight = " + allWeight.size() + " error = " + error +
-				// " % completed = " + perc);
+				//System.out.println("AllWeight = " + allWeight.size() + " error = " + error + " % completed = " + perc);
 			}
 		}
 		int ind = selectWeight(allWeightFinal);
@@ -99,14 +102,12 @@ public class TrainPredict {
 		double ct = 0;
 		double yt = 0;
 
-		MathUtils maths = new MathUtils();
-
 		for (int i = 0; i < wi.size(); i++) {
-			double it = maths.sigmoid(wi.get(i) * input_data[i] + Ri.get(i) * yt);
-			double ot = maths.sigmoid(wo.get(i) * input_data[i] + Ro.get(i) * yt);
-			double zt = maths.tanh(wz.get(i) * input_data[i] + Rz.get(i) * yt);
+			double it = MathUtils.sigmoid(wi.get(i) * input_data[i] + Ri.get(i) * yt);
+			double ot = MathUtils.sigmoid(wo.get(i) * input_data[i] + Ro.get(i) * yt);
+			double zt = MathUtils.tanh(wz.get(i) * input_data[i] + Rz.get(i) * yt);
 			ct = ct + it * zt;
-			yt = ot * maths.tanh(ct);
+			yt = ot * MathUtils.tanh(ct);
 		}
 		return yt;
 	}
@@ -114,46 +115,46 @@ public class TrainPredict {
 	public int selectWeight(ArrayList<ArrayList<ArrayList<Double>>> wightMatrix) {
 
 		System.out.println("***************************Validating**************************");
-
 		double[] rms = new double[wightMatrix.size()];
 
 		for (int k = 0; k < wightMatrix.size(); k++) {
-
 			ArrayList<ArrayList<Double>> val = wightMatrix.get(k);
-
 			double[] pre = this.Predict(this.validateData, this.validateTarget, val);
-
 			rms[k] = this.computeRMS(this.validateTarget, pre);
 		}
 		int minInd = getMinIndex(rms);
 		return minInd;
 	}
 
-	// TODO optimize this
+	/**
+	 * Get the index of the Min element in an array.
+	 * 
+	 * @param arr double array.
+	 * @return iMin index of the min element in an array.
+	 */
 	public int getMinIndex(double[] arr) {
-		int minInd = 0;
-		double minValue = arr[0];
-		for (int l = 1; l < arr.length; l++) {
-			if (arr[l] < minValue) {
-				minValue = arr[l];
-				minInd = l;
-			}
-		}
-		System.out.println("RMS error=" + arr[minInd]);
-		return minInd;
+		double min = Arrays.stream(arr).min().orElseThrow();
+		int iMin = Arrays.stream(arr).boxed().collect(Collectors.toList()).indexOf(min);
+		System.out.println("RMS error=" + arr[iMin]);
+		return iMin;
 	}
 
-	// TODO optimize this
+	/**
+	 * Root mean squared of two arrays.
+	 * 
+	 * @param original
+	 * @param computed
+	 * @return
+	 */
 	public double computeRMS(double[] original, double[] computed) {
-		double[] diff = new double[original.length];
-		double sum = 0;
-		for (int i = 0; i < original.length; i++) {
-			diff[i] = Math.pow(original[i] - computed[i], 2);
-		}
-		for (int i = 0; i < diff.length; i++) {
-			sum += diff[i];
-		}
-		double mean = sum / diff.length;
-		return Math.sqrt(mean);
+
+		List<Double> diff = IntStream.range(0, original.length) //
+				.mapToObj(i -> Math.pow(original[i] - computed[i], 2)) //
+				.collect(Collectors.toList());
+
+		return Math.sqrt(diff.stream() //
+				.mapToDouble(d -> d)//
+				.average()//
+				.orElse(0.0));
 	}
 }
