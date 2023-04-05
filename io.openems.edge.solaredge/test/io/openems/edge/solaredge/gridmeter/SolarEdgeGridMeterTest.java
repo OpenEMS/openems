@@ -14,7 +14,7 @@ public class SolarEdgeGridMeterTest {
 
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new SolarEdgeGridMeter()) //
+		new ComponentTest(new SolaredgeGridmeterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //

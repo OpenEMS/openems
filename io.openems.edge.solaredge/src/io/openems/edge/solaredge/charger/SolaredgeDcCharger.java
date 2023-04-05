@@ -16,6 +16,7 @@ import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
 
 
+
 public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -42,25 +43,38 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 		 */
 		GRID_MODE(Doc.of(GridMode.values()) //
 				.persistencePriority(PersistencePriority.HIGH) //
-		),		
+		),	
 		
-		
-		/*
-		 * 		
-		 * DC Discharge Power.
+		/**
+		 * Power from Grid. Used to calculate pv production
 		 *
 		 * <ul>
-		 * <li>Interface: HybridEss
+		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: W
-		 * <li>Range: negative values for Charge; positive for Discharge
-		 * <li>This is the
-		 * {@link io.openems.edge.ess.api.SymmetricEss.ChannelId#ACTIVE_POWER} minus
-		 * {@link io.openems.edge.ess.dccharger.api.EssDcCharger.ChannelId#ACTUAL_POWER},
-		 * i.e. the power that is actually charged to or discharged from the battery.
+		 * <li>
 		 * </ul>
+		 */
+		POWER_DC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		
+		
+		/**
+		 * Power from Grid. Used to calculate pv production
+		 *
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>
+		 * </ul>
+		 */
+		POWER_DC_SCALE(Doc.of(OpenemsType.INTEGER) //
+				
+				.persistencePriority(PersistencePriority.HIGH)),	
 		 
-		 * */
+	
 		/**
 		 * Production Power.
 		 *
@@ -114,6 +128,45 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 			return this.doc;
 		}
 	}
+	
+	//######################
+	/**
+	 * Gets the Channel for {@link ChannelId#POWER_DC}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDcPowerChannel() {
+		return this.channel(ChannelId.POWER_DC);
+	}
+
+	/**
+	 * DC Power Channel {@link ChannelId#POWER_DC_SCALE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDcPower() {
+		return this.getDcPowerChannel().value();
+	}	
+	
+	//######################
+	/**
+	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDcPowerScaleChannel() {
+		return this.channel(ChannelId.POWER_DC_SCALE);
+	}
+
+	/**
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDcPowerScale() {
+		return this.getDcPowerScaleChannel().value();
+	}		
+	
 	
 	/**
 	 * Gets the Channel for {@link ChannelId#PRODUCTION_POWER}.

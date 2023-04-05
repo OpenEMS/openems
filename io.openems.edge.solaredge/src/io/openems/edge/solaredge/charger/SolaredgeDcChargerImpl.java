@@ -30,6 +30,7 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
@@ -194,25 +195,36 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 	 */
 	private void addStaticModbusTasks(ModbusProtocol protocol) throws OpenemsException {
 		protocol.addTask(//
-				new FC3ReadRegistersTask(0xE174, Priority.LOW, //
-						m(SolaredgeDcCharger.ChannelId.DC_DISCHARGE_POWER, //
+				new FC3ReadRegistersTask(0xE174, Priority.HIGH, //
+						m(SolaredgeDcCharger.ChannelId.DC_DISCHARGE_POWER, // Instantaneous Power from Solaregde - no scaling
 								new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW)) //
 						));
+		
+		protocol.addTask(//
+				new FC3ReadRegistersTask(0x9CA4, Priority.HIGH, //
+
+						m(SolarEdgeHybridEss.ChannelId.POWER_DC, //
+								new SignedWordElement(0x9CA4)),
+						m(SolarEdgeHybridEss.ChannelId.POWER_DC_SCALE, //
+								new SignedWordElement(0x9CA5)
+						)));
+		
 	}
 	
 	public void _calculateAndSetActualPower() {
 		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch + Batterie-Ladung/Entladung *-1
 		// Actual power from inverter comes from house consumption + battery inverter power (*-1)
 		try {
-		int production_power 	= this.getProductionPowerChannel().value().get(); // Leistung Inverter
-		int battery_power 		= this.getDcDischargePowerChannel().value().get() ; // DC-Discharge 0xe174: negative while Charging, so we have to negate
-		int value				= 0;
-
-		value				= production_power + battery_power;
+		int dcPower 		= this.getDcPower().get(); // Leistung Inverter
+		int dcPowerScale 	= this.getDcPowerScale().get(); // Leistung Inverter
+		double dcPowerValue	= dcPower * Math.pow(10,dcPowerScale);
 		
-		if (value < 0) value =0; // Negative Values are not allowed for PV production
+		int dcDischargePower	= this.getDcDischargePower().get();
+		int pvDcProduction		= (int) dcPowerValue + dcDischargePower;
 		
-		this._setActualPower(value);
+		if (pvDcProduction < 0) pvDcProduction =0; // Negative Values are not allowed for PV production
+		
+		this._setActualPower(pvDcProduction);
 		}
 		catch (Exception e){
 			return;

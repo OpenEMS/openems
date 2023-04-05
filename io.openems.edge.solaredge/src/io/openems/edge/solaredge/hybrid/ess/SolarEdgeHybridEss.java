@@ -3,16 +3,16 @@ package io.openems.edge.solaredge.hybrid.ess;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-//import io.openems.edge.ess.api.SymmetricEss.ChannelId;
 import io.openems.edge.solaredge.enums.ControlMode;
 import io.openems.edge.solaredge.enums.ChargeDischargeMode;
 import io.openems.edge.solaredge.enums.AcChargePolicy;
@@ -45,12 +45,14 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		 *  
 		 *  **/
 		AC_CHARGE_POLICY(Doc.of(AcChargePolicy.values())
-				.accessMode(AccessMode.READ_WRITE)),  // defined in external file
-		
+				.accessMode(AccessMode.READ_ONLY)),  // defined in external file
+		SET_AC_CHARGE_POLICY(Doc.of(AcChargePolicy.values())
+				.accessMode(AccessMode.WRITE_ONLY)),  // defined in external file		
+/*		
 		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_WRITE)), //
-		
+*/
 		
 		/**
 		 * Available Energy
@@ -186,7 +188,10 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		7 – Maximize self-consumption 		
 		*/
 		CHARGE_DISCHARGE_DEFAULT_MODE(Doc.of(ChargeDischargeMode.values())
-				.accessMode(AccessMode.READ_WRITE)),  // defined in external file
+				.accessMode(AccessMode.READ_ONLY)),  // defined in external file
+		
+		SET_CHARGE_DISCHARGE_DEFAULT_MODE(Doc.of(ChargeDischargeMode.values())
+				.accessMode(AccessMode.WRITE_ONLY)),  // defined in external file		
 
 		
 		
@@ -205,7 +210,10 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 			4 – Remote Control – the battery charge/discharge state is controlled by an external controller 		
 		*/
 		CONTROL_MODE(Doc.of(ControlMode.values())
-				.accessMode(AccessMode.READ_WRITE)),// defined in external file
+				.accessMode(AccessMode.READ_ONLY)),// defined in external file
+		
+		SET_CONTROL_MODE(Doc.of(ControlMode.values())
+				.accessMode(AccessMode.WRITE_ONLY)),// defined in external file
 		
 
 
@@ -238,7 +246,10 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		7 – Maximize self-consumption 		
 		*/
 		REMOTE_CONTROL_COMMAND_MODE(Doc.of(ChargeDischargeMode.values())
-				.accessMode(AccessMode.READ_WRITE)),  // defined in external file
+				.accessMode(AccessMode.READ_ONLY)),  // defined in external file
+		SET_REMOTE_CONTROL_COMMAND_MODE(Doc.of(ChargeDischargeMode.values())
+				.accessMode(AccessMode.WRITE_ONLY)),  // defined in external file
+			
 	
 
 		
@@ -249,15 +260,31 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		STORAGE_BACKUP_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent. Only relevant for backup systems
 				.unit(Unit.PERCENT) //
 				.persistencePriority(PersistencePriority.HIGH)),	
+		
+		/*
+		 * 	Storage Backup Reserved Setting sets the percentage of reserved battery SOE to be used for backup purposes. Relevant only for 
+			inverters with backup functionality. 
+		 * */
+		SET_STORAGE_BACKUP_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent. Only relevant for backup systems
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH)),			
 	
 
 		
 		/* Remote Control Command Timeout sets the operating timeframe for the charge/discharge command sets in Remote Control 
 		 * */
 		REMOTE_CONTROL_TIMEOUT(Doc.of(OpenemsType.INTEGER)  
-				.accessMode(AccessMode.READ_WRITE)
+				.accessMode(AccessMode.READ_ONLY)
 				.unit(Unit.SECONDS) //
 				.persistencePriority(PersistencePriority.HIGH)),
+		
+		/* Remote Control Command Timeout sets the operating timeframe for the charge/discharge command sets in Remote Control 
+		 * */
+		SET_REMOTE_CONTROL_TIMEOUT(Doc.of(OpenemsType.INTEGER)  
+				.accessMode(AccessMode.WRITE_ONLY)
+				.unit(Unit.SECONDS) //
+				.persistencePriority(PersistencePriority.HIGH)),
+				
 		
 
 		
@@ -309,12 +336,19 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		
 		MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE)), //		
+				.accessMode(AccessMode.READ_ONLY)), //		
+		
+		SET_MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.WRITE_ONLY)), //				
 
 		
 		MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE)), //
+				.accessMode(AccessMode.READ_ONLY)), //
+		SET_MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.accessMode(AccessMode.WRITE_ONLY)), //		
 
 		
 
@@ -326,7 +360,14 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		MAX_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent or kWh
 				.unit(Unit.PERCENT) //
 				.persistencePriority(PersistencePriority.HIGH)
-				.accessMode(AccessMode.READ_WRITE)),	
+				.accessMode(AccessMode.READ_ONLY)),	
+		
+		SET_MAX_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent or kWh
+				.unit(Unit.PERCENT) //
+				.persistencePriority(PersistencePriority.HIGH)
+				.accessMode(AccessMode.WRITE_ONLY)),		
+		
+		
 		
 		/**
 		 * Available Energy
@@ -383,8 +424,71 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		MAX_DISCHARGE_PEAK_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.LOW)),			
+		
+		
+		
+		/**
+		 * Power from Grid. Used to calculate pv production
+		 *
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>
+		 * </ul>
+		 */
+		POWER_AC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		
+		
+		/**
+		 * Power from Grid. Used to calculate pv production
+		 *
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>
+		 * </ul>
+		 */
+		POWER_AC_SCALE(Doc.of(OpenemsType.INTEGER) //
+				
+				.persistencePriority(PersistencePriority.HIGH)),		
 
 
+		/**
+		 * Power from Grid. Used to calculate pv production
+		 *
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>
+		 * </ul>
+		 */
+		POWER_DC(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		
+		
+		/**
+		 * Power from Grid. Used to calculate pv production
+		 *
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>
+		 * </ul>
+		 */
+		POWER_DC_SCALE(Doc.of(OpenemsType.INTEGER) //
+				
+				.persistencePriority(PersistencePriority.HIGH)),	
+		
+		
+
+		
 		/**
 		 * State Of Health
 		 *
@@ -491,17 +595,109 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	public default ControlMode getControlMode() {
 		return this.getControlModeChannel().value().asEnum();
 	}
+// ######################	
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumWriteChannel getSetControlModeChannel() {
+		return this.channel(ChannelId.SET_CONTROL_MODE);
+	}
 
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CONTROL_MODE}
 	 * Channel.
 	 *
 	 * @param value the next value
+	 * @throws OpenemsNamedException 
 	 */
-	public default void _setControlMode(ControlMode value) {
-		this.getControlModeChannel().setNextValue(value);
+	public default void _setControlMode(ControlMode value) throws OpenemsNamedException {
+		
+			this.getSetControlModeChannel().setNextWriteValue(value);
+
+	}
+	
+	
+	//######################
+	/**
+	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getAcPowerChannel() {
+		return this.channel(ChannelId.POWER_AC);
 	}
 
+	/**
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getAcPower() {
+		return this.getAcPowerChannel().value();
+	}	
+	//######################
+	/**
+	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getAcPowerScaleChannel() {
+		return this.channel(ChannelId.POWER_AC_SCALE);
+	}
+
+	/**
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getAcPowerScale() {
+		return this.getAcPowerScaleChannel().value();
+	}		
+	
+	
+	//######################
+	/**
+	 * Gets the Channel for {@link ChannelId#POWER_DC}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDcPowerChannel() {
+		return this.channel(ChannelId.POWER_DC);
+	}
+
+	/**
+	 * DC Power Channel {@link ChannelId#POWER_DC_SCALE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDcPower() {
+		return this.getDcPowerChannel().value();
+	}	
+	//######################
+	/**
+	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDcPowerScaleChannel() {
+		return this.channel(ChannelId.POWER_DC_SCALE);
+	}
+
+	/**
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getDcPowerScale() {
+		return this.getDcPowerScaleChannel().value();
+	}		
+		
+
+	
+	//######################
 	/**
 	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
 	 *
@@ -521,15 +717,27 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumWriteChannel getSetAcChargePolicyChannel() {
+		return this.channel(ChannelId.SET_AC_CHARGE_POLICY);
+	}
+
+	
+	
+	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CONTROL_MODE}
 	 * Channel.
 	 *
 	 * @param value the next value
+	 * @throws OpenemsNamedException 
 	 */
-	public default void _setAcChargePolicy(AcChargePolicy value) {
-		this.getAcChargePolicyChannel().setNextValue(value);
+	public default void _setAcChargePolicy(AcChargePolicy value) throws OpenemsNamedException {
+		this.getSetAcChargePolicyChannel().setNextWriteValue(value);
 	}
-	
+	//######################
 
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CHARGE_POWER_WANTED}
@@ -598,6 +806,48 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		return this.getMaxChargePeakPowerChannel().value();
 	}
 	
+	//###########################
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaxChargeContinuesPowerChannel() {
+		return this.channel(ChannelId.MAX_CHARGE_CONTINUES_POWER);
+	}
+
+	/**
+	 * Gets the Active Power in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxChargeContinuesPower() {
+		return this.getMaxChargeContinuesPowerChannel().value();
+	}
+	
+	
+	//###########################
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getMaxDishargeContinuesPowerChannel() {
+		return this.channel(ChannelId.MAX_DISCHARGE_CONTINUES_POWER);
+	}
+
+	/**
+	 * Gets the Active Power in [W]. Negative values for Charge; positive for
+	 * Discharge. See {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getMaxDischargeContinuesPower() {
+		return this.getMaxDishargeContinuesPowerChannel().value();
+	}
+	
+	//###########################	
 	
 	/**
 	 * Gets the Channel for {@link ChannelId#CHARGE_DISCHARGE_DEFAULT_MODE}.
@@ -607,7 +857,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	public default Channel<ChargeDischargeMode> getChargeDischargeDefaultModeChannel() {
 		return this.channel(ChannelId.CHARGE_DISCHARGE_DEFAULT_MODE);
 	}
-
+	
 	/**
 	 * Is the Energy Storage System On-Grid? See {@link ChannelId#CHARGE_DISCHARGE_DEFAULT_MODE}.
 	 *
@@ -616,17 +866,29 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	public default ControlMode getChargeDischargeDefaultMode() {
 		return this.getChargeDischargeDefaultModeChannel().value().asEnum();
 	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#CHARGE_DISCHARGE_DEFAULT_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumWriteChannel getSetChargeDischargeDefaultModeChannel() {
+		return this.channel(ChannelId.SET_CHARGE_DISCHARGE_DEFAULT_MODE);
+	}
+
+
 
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#CHARGE_DISCHARGE_DEFAULT_MODE}
 	 * Channel.
 	 *
 	 * @param value the next value
+	 * @throws OpenemsNamedException 
 	 */
-	public default void _setChargeDischargeDefaultMode(ChargeDischargeMode value) {
-		this.getChargeDischargeDefaultModeChannel().setNextValue(value);
+	public default void _setChargeDischargeDefaultMode(ChargeDischargeMode value) throws OpenemsNamedException {
+		this.getSetChargeDischargeDefaultModeChannel().setNextWriteValue(value);
 	}
-	
+//###########################	
 	/**
 	 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
 	 *
@@ -644,15 +906,27 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	public default ControlMode getRemoteControlCommandMode() {
 		return this.getRemoteControlCommandModeChannel().value().asEnum();
 	}
+	
+	/**
+	 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumWriteChannel getSetRemoteControlCommandModeChannel() {
+		return this.channel(ChannelId.SET_REMOTE_CONTROL_COMMAND_MODE);
+	}
+
+	
 
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}
 	 * Channel.
 	 *
 	 * @param value the next value
+	 * @throws OpenemsNamedException 
 	 */
-	public default void _setRemoteControlCommandMode(ChargeDischargeMode value) {
-		this.getRemoteControlCommandModeChannel().setNextValue(value);
+	public default void _setRemoteControlCommandMode(ChargeDischargeMode value) throws OpenemsNamedException {
+		this.getSetRemoteControlCommandModeChannel().setNextWriteValue(value);
 	}
 // #############		
 	/**
@@ -670,18 +944,30 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getMaxChargePower() {
-		return this.getMaxChargePowerChannel().value().asEnum();
+		return this.getMaxChargePowerChannel().value();
 	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerWriteChannel getSetMaxChargePowerChannel() {
+		return this.channel(ChannelId.SET_MAX_CHARGE_POWER);
+	}
+
 
 	/**
 	 * Internal method to set the 'nextValue' on {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}
 	 * Channel.
 	 *
 	 * @param value the next value
+	 * @throws OpenemsNamedException 
 	 */
-	public default void _setMaxChargePower(Integer value) {
-		this.getMaxChargePowerChannel().setNextValue(value);
+	public default void _setMaxChargePower(Integer value) throws OpenemsNamedException {
+		this.getSetMaxChargePowerChannel().setNextWriteValue(value);
 	}
+	
 	// #############		
 		/**
 		 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
@@ -700,15 +986,26 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		public default Value<Integer> getMaxDischargePower() {
 			return this.getMaxDischargePowerChannel().value();
 		}
+		
+		/**
+		 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+		 *
+		 * @return the Channel
+		 */
+		public default IntegerWriteChannel getSetMaxDischargePowerChannel() {
+			return this.channel(ChannelId.SET_MAX_DISCHARGE_POWER);
+		}
+	
 
 		/**
 		 * Internal method to set the 'nextValue' on {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}
 		 * Channel.
 		 *
 		 * @param value the next value
+		 * @throws OpenemsNamedException 
 		 */
-		public default void _setMaxDischargePower(Integer value) {
-			this.getMaxDischargePowerChannel().setNextValue(value);
+		public default void _setMaxDischargePower(Integer value) throws OpenemsNamedException {
+			this.getSetMaxDischargePowerChannel().setNextWriteValue(value);
 		}	
 		// #############		
 		/**
@@ -716,7 +1013,7 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		 *
 		 * @return the Channel
 		 */
-		public default IntegerReadChannel getRemoteControlTimeoutChannel() {
+		public default IntegerWriteChannel getRemoteControlTimeoutChannel() {
 			return this.channel(ChannelId.REMOTE_CONTROL_TIMEOUT);
 		}
 
@@ -727,16 +1024,27 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 		 */
 		public default Value<Integer> getRemoteControlTimeout() {
 			return this.getRemoteControlTimeoutChannel().value();
+		}		
+		/**
+		 * Gets the Channel for {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}.
+		 *
+		 * @return the Channel
+		 */
+		public default IntegerWriteChannel getSetRemoteControlTimeoutChannel() {
+			return this.channel(ChannelId.SET_REMOTE_CONTROL_TIMEOUT);
 		}
+
+
 
 		/**
 		 * Internal method to set the 'nextValue' on {@link ChannelId#REMOTE_CONTROL_COMMAND_MODE}
 		 * Channel.
 		 *
 		 * @param value the next value
+		 * @throws OpenemsNamedException 
 		 */
-		public default void _setRemoteControlTimeout(Integer value) {
-			this.getMaxDischargePowerChannel().setNextValue(value);
+		public default void _setRemoteControlTimeout(Integer value) throws OpenemsNamedException {
+			this.getSetRemoteControlTimeoutChannel().setNextWriteValue(value);
 		}	
 			
 

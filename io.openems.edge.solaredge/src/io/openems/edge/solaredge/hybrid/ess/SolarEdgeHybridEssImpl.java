@@ -3,11 +3,7 @@ package io.openems.edge.solaredge.hybrid.ess;
 
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.ArrayList;
-//import java.util.List;
 import java.util.Map;
-//import java.util.Objects;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -23,6 +19,9 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import io.openems.edge.common.event.EdgeEventConstants;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableMap;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
@@ -43,14 +42,13 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -85,12 +83,13 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
 		//implements SunSpecEss, SymmetricEss, HybridEss,  ModbusComponent, OpenemsComponent, ModbusSlave, EventHandler {
 
-
+	
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 	private final List<SolaredgeDcCharger> chargers = new ArrayList<>();
+	//private final SurplusFeedInHandler surplusFeedInHandler = new SurplusFeedInHandler(this);
 	
 	// Hardware-Limits
-	protected static final int HW_MAX_APPARENT_POWER = 5200;
+	protected static final int HW_MAX_APPARENT_POWER = 10000;
 	protected static final int HW_ALLOWED_CHARGE_POWER = -5000;
 	protected static final int HW_ALLOWED_DISCHARGE_POWER = 5000;
 	
@@ -107,8 +106,8 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
-			//.put(DefaultSunSpecModel.S_120, Priority.LOW) //
-			//.put(DefaultSunSpecModel.S_802, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_203, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_802, Priority.LOW) //
 			.build();
 	@Reference
 	protected ComponentManager componentManager;
@@ -181,21 +180,28 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		
 		// Read-only mode -> switch to max. self consumption automatic
 		if (this.config.readOnlyMode() ) {
-			if ( CycleCounter >= 0) {
+			if ( CycleCounter >= 10) {
 				CycleCounter=0;
 				// Switch to automatic mode
 				this._setControlMode(ControlMode.SE_CTRL_MODE_MAX_SELF_CONSUMPTION);
-				setLimits();				
+				//setLimits();				
 			}
+			//int maxDischargePeakPower 	= getMaxDischargePeakPower().get();
+			//int maxChargePeakPower 		= getMaxChargePeakPower().get() -1;
+			
 			return;
 		}
 		else {
 			if (CycleCounter >= 0) { // Set values every Cycle
-				CycleCounter=0;
+				
 				
 
-				int maxDischargePeakPower 	= getMaxDischargePeakPower().get();
-				int maxChargePeakPower 		= getMaxChargePeakPower().get() -1;
+				//int maxDischargePeakPower 		= getMaxDischargePeakPower().get();
+				//int maxChargePeakPower 			= getMaxChargePeakPower().get() * -1 ;
+				
+				int maxDischargeContinuesPower 	= getMaxDischargeContinuesPower().get();
+				int maxChargeContinuesPower 	= getMaxChargeContinuesPower().get() * -1 ;
+
 		
 				if (isControlModeRemote() == false || isStorageChargePolicyAlways() == false)
 				{
@@ -209,32 +215,47 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				}
 				// We assume to be in RC-Mode
 				
-				if (activePowerWanted <= 0) { // Negative Values are for charging
+				//_setAllowedChargePower(maxChargePeakPower);
+				//_setAllowedDischargePower(maxDischargePeakPower);
+				
+				_setAllowedChargePower(maxChargeContinuesPower);
+				_setAllowedDischargePower(maxDischargeContinuesPower);
+				
+				if (activePowerWanted < 0) { // Negative Values are for charging
 					/*
 					 * Battery charging decreases when Soc > 90%. We have to set the wanted value to the max. power which the
 					 * battery is willing to handle 
 					 */
 					
-					if (activePowerWanted < maxChargePeakPower) activePowerWanted = maxChargePeakPower;
+					//if (activePowerWanted < -500) activePowerWanted -= 200; //Decrease Charging as a buffer
+					//if (activePowerWanted <= maxChargePeakPower) activePowerWanted = maxChargePeakPower;
 					
-					if (activePowerWanted > 500) activePowerWanted -= 200; //Decrease Charging as a buffer
+					
 
 					this._setRemoteControlCommandMode(ChargeDischargeMode.SE_CHARGE_POLICY_PV_AC); // Mode for charging);
-					this._setMaxChargePower(activePowerWanted * -1);// Values for register must be positive
+					this._setMaxChargePower((activePowerWanted * -1));// Values for register must be positive
+					
+					//if (this.config.ChargePowerLimit() < (maxChargePeakPower * -1)) setLimits();
+					//else _setAllowedChargePower(maxChargePeakPower);
 					
 				}
 				else {
 					/*
 					 * The same for discharging. The battery can be discharged with high rates at the beginning
 					 */
-					if (activePowerWanted > maxDischargePeakPower) activePowerWanted = maxDischargePeakPower;
+					//if (activePowerWanted > maxDischargePeakPower) activePowerWanted = maxDischargePeakPower;
 					
 					this._setRemoteControlCommandMode(ChargeDischargeMode.SE_CHARGE_POLICY_MAX_EXPORT); // Mode for Discharging);
-					this._setMaxDischargePower(activePowerWanted);				
+					this._setMaxDischargePower(activePowerWanted);		
+					
+					//if (this.config.DischargePowerLimit() < maxDischargePeakPower) setLimits();
+					//else _setAllowedDischargePower(maxDischargePeakPower);
+					
 				}
 			}
-	
+			
 		}
+		CycleCounter=0;
 		
 	}
 
@@ -242,8 +263,8 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 	
 	private void setLimits()  {
 	
-		_setAllowedChargePower(this.config.ChargePowerLimit() *-1);
-		_setAllowedDischargePower(this.config.DischargePowerLimit());
+		//_setAllowedChargePower(this.config.ChargePowerLimit() *-1);
+		//_setAllowedDischargePower(this.config.DischargePowerLimit());
 		_setMaxApparentPower(HW_MAX_APPARENT_POWER);
 	}
 
@@ -279,95 +300,127 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 	 * @throws OpenemsException on error
 	 */
 	private void addStaticModbusTasks(ModbusProtocol protocol) throws OpenemsException {
-		protocol.addTask(//
-		new FC3ReadRegistersTask(0xE004, Priority.LOW, //
-				m(SolarEdgeHybridEss.ChannelId.CONTROL_MODE, 
-						new UnsignedWordElement(0xE004)),
-				m(SolarEdgeHybridEss.ChannelId.AC_CHARGE_POLICY, 
-						new UnsignedWordElement(0xE005)),					
-				m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_LIMIT, 
-						new FloatDoublewordElement(0xE006).wordOrder(WordOrder.LSWMSW)),					
-				m(SolarEdgeHybridEss.ChannelId.STORAGE_BACKUP_LIMIT, 
-						new FloatDoublewordElement(0xE008).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.CHARGE_DISCHARGE_DEFAULT_MODE, 
-						new UnsignedWordElement(0xE00A)),
-				m(SolarEdgeHybridEss.ChannelId.REMOTE_CONTROL_TIMEOUT, 
-						new UnsignedDoublewordElement(0xE00B).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.REMOTE_CONTROL_COMMAND_MODE, 
-						new UnsignedWordElement(0xE00D)),
-				m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_POWER, 
-						new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.MAX_DISCHARGE_POWER, 
-						new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW)),
-				new DummyRegisterElement(0xE012, 0xE141), // Reserved
-				m(HybridEss.ChannelId.DC_DISCHARGE_ENERGY, //
-						new FloatDoublewordElement(0xE142).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_CONTINUES_POWER, //
-						new FloatDoublewordElement(0xE144).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.MAX_DISCHARGE_CONTINUES_POWER, //
-						new FloatDoublewordElement(0xE146).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_PEAK_POWER, //
-						new FloatDoublewordElement(0xE148).wordOrder(WordOrder.LSWMSW)),						
-				m(SolarEdgeHybridEss.ChannelId.MAX_DISCHARGE_PEAK_POWER, //
-						new FloatDoublewordElement(0xE14A).wordOrder(WordOrder.LSWMSW)),
-						
-				new DummyRegisterElement(0xE14C, 0xE16B), // Reserved
-				m(SolarEdgeHybridEss.ChannelId.BATT_AVG_TEMPERATURE, //
-						new FloatDoublewordElement(0xE16C).wordOrder(WordOrder.LSWMSW)),	
-				m(SolarEdgeHybridEss.ChannelId.BATT_MAX_TEMPERATURE, //
-						new FloatDoublewordElement(0xE16E).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.BATT_ACTUAL_VOLTAGE, //
-						new FloatDoublewordElement(0xE170).wordOrder(WordOrder.LSWMSW)),						
-				m(SolarEdgeHybridEss.ChannelId.BATT_ACTUAL_CURRENT, //
-						new FloatDoublewordElement(0xE172).wordOrder(WordOrder.LSWMSW)),							
-				m(HybridEss.ChannelId.DC_DISCHARGE_POWER, //
-						new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW),
-						ElementToChannelConverter.INVERT), //
-				//new DummyRegisterElement(0xE176, 0xE17D), 
-				m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
-						new UnsignedQuadruplewordElement(0xE176).wordOrder(WordOrder.LSWMSW)),
-				m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, //
-						new UnsignedQuadruplewordElement(0xE17A).wordOrder(WordOrder.LSWMSW)),
-				m(SymmetricEss.ChannelId.CAPACITY, //
-						new FloatDoublewordElement(0xE17E).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.AVAIL_ENERGY, //
-						new FloatDoublewordElement(0xE180).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.SOH, //
-						new FloatDoublewordElement(0xE182).wordOrder(WordOrder.LSWMSW)),
-				m(SymmetricEss.ChannelId.SOC, //
-						new FloatDoublewordElement(0xE184).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.BATTERY_STATUS, //
-						new UnsignedDoublewordElement(0xE186).wordOrder(WordOrder.LSWMSW)))				
-						
-						
-				);			
-				
-						
-				
 		
 		protocol.addTask(//
-		new FC16WriteRegistersTask(0xE004, 
-				m(SolarEdgeHybridEss.ChannelId.CONTROL_MODE, new SignedWordElement(0xE004)),
-				m(SolarEdgeHybridEss.ChannelId.AC_CHARGE_POLICY, new SignedWordElement(0xE005)), // Max. charge power. Negative values
-				m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_LIMIT, new FloatDoublewordElement(0xE006).wordOrder(WordOrder.LSWMSW)),  // kWh or percent
-				m(SolarEdgeHybridEss.ChannelId.STORAGE_BACKUP_LIMIT, new FloatDoublewordElement(0xE008).wordOrder(WordOrder.LSWMSW)),  // Percent of capacity 
-				m(SolarEdgeHybridEss.ChannelId.CHARGE_DISCHARGE_DEFAULT_MODE, new UnsignedWordElement(0xE00A)), // Usually set to 1 (Charge PV excess only)
-				m(SolarEdgeHybridEss.ChannelId.REMOTE_CONTROL_TIMEOUT, new UnsignedDoublewordElement(0xE00B).wordOrder(WordOrder.LSWMSW)),
-				m(SolarEdgeHybridEss.ChannelId.REMOTE_CONTROL_COMMAND_MODE, new UnsignedWordElement(0xE00D)),
-				m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_POWER, new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)),  // Max. charge power. Negative values
-				m(SolarEdgeHybridEss.ChannelId.MAX_DISCHARGE_POWER, new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW)) // Max. discharge power. Positive values
-				)); // Disabled, automatic, remote controlled, etc.	
+				new FC3ReadRegistersTask(0x9C93, Priority.HIGH, //
+
+						m(SolarEdgeHybridEss.ChannelId.POWER_AC, //
+								new SignedWordElement(0x9C93)),
+						m(SolarEdgeHybridEss.ChannelId.POWER_AC_SCALE, //
+								new SignedWordElement(0x9C94)
+						)));
 		
-		
-		// If no managed System is implemented these registers don´t need to be set
-		
-		//m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)),  // Max. charge power. Negative values
-		//m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW)) // Max. discharge power. Positive values
+		protocol.addTask(//
+				new FC3ReadRegistersTask(0x9CA4, Priority.LOW, //
+
+						m(SolarEdgeHybridEss.ChannelId.POWER_DC, //
+								new SignedWordElement(0x9CA4)),
+						m(SolarEdgeHybridEss.ChannelId.POWER_DC_SCALE, //
+								new SignedWordElement(0x9CA5)
+						)));
+
+		protocol.addTask(//
+				new FC3ReadRegistersTask(0xE142, Priority.LOW, //
+
+						m(HybridEss.ChannelId.DC_DISCHARGE_ENERGY, //
+								new FloatDoublewordElement(0xE142).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_CONTINUES_POWER, //
+								new FloatDoublewordElement(0xE144).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeHybridEss.ChannelId.MAX_DISCHARGE_CONTINUES_POWER, //
+								new FloatDoublewordElement(0xE146).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_PEAK_POWER, //
+								new FloatDoublewordElement(0xE148).wordOrder(WordOrder.LSWMSW)),						
+						m(SolarEdgeHybridEss.ChannelId.MAX_DISCHARGE_PEAK_POWER, //
+								new FloatDoublewordElement(0xE14A).wordOrder(WordOrder.LSWMSW)),
+								
+						new DummyRegisterElement(0xE14C, 0xE16B), // Reserved
+						m(SolarEdgeHybridEss.ChannelId.BATT_AVG_TEMPERATURE, //
+								new FloatDoublewordElement(0xE16C).wordOrder(WordOrder.LSWMSW)),	
+						m(SolarEdgeHybridEss.ChannelId.BATT_MAX_TEMPERATURE, //
+								new FloatDoublewordElement(0xE16E).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeHybridEss.ChannelId.BATT_ACTUAL_VOLTAGE, //
+								new FloatDoublewordElement(0xE170).wordOrder(WordOrder.LSWMSW)),						
+						m(SolarEdgeHybridEss.ChannelId.BATT_ACTUAL_CURRENT, //
+								new FloatDoublewordElement(0xE172).wordOrder(WordOrder.LSWMSW)),							
+						m(HybridEss.ChannelId.DC_DISCHARGE_POWER, //
+								new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW),
+								ElementToChannelConverter.INVERT), //
+						//new DummyRegisterElement(0xE176, 0xE17D), 
+						m(SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
+								new UnsignedQuadruplewordElement(0xE176).wordOrder(WordOrder.LSWMSW)),
+						m(SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY, //
+								new UnsignedQuadruplewordElement(0xE17A).wordOrder(WordOrder.LSWMSW)),
+						m(SymmetricEss.ChannelId.CAPACITY, //
+								new FloatDoublewordElement(0xE17E).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeHybridEss.ChannelId.AVAIL_ENERGY, //
+								new FloatDoublewordElement(0xE180).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeHybridEss.ChannelId.SOH, //
+								new FloatDoublewordElement(0xE182).wordOrder(WordOrder.LSWMSW)),
+						m(SymmetricEss.ChannelId.SOC, //
+								new FloatDoublewordElement(0xE184).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeHybridEss.ChannelId.BATTERY_STATUS, //
+								new UnsignedDoublewordElement(0xE186).wordOrder(WordOrder.LSWMSW))
+						
+						));
+				
+				
+				protocol.addTask(//
+				new FC3ReadRegistersTask(0xE004, Priority.LOW, //
+						m(SolarEdgeHybridEss.ChannelId.CONTROL_MODE, 
+								new UnsignedWordElement(0xE004)),
+						m(SolarEdgeHybridEss.ChannelId.AC_CHARGE_POLICY, 
+								new UnsignedWordElement(0xE005)),					
+						m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_LIMIT, 
+								new FloatDoublewordElement(0xE006).wordOrder(WordOrder.LSWMSW)),					
+						m(SolarEdgeHybridEss.ChannelId.STORAGE_BACKUP_LIMIT, 
+								new FloatDoublewordElement(0xE008).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeHybridEss.ChannelId.CHARGE_DISCHARGE_DEFAULT_MODE, 
+								new UnsignedWordElement(0xE00A)),
+						m(SolarEdgeHybridEss.ChannelId.REMOTE_CONTROL_TIMEOUT, 
+								new UnsignedDoublewordElement(0xE00B).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeHybridEss.ChannelId.REMOTE_CONTROL_COMMAND_MODE, 
+								new UnsignedWordElement(0xE00D)),
+						m(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_POWER, 
+								new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeHybridEss.ChannelId.MAX_DISCHARGE_POWER, 
+								new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW))));			
+				
+
+
+				protocol.addTask(//
+				new FC16WriteRegistersTask(0xE004, 
+						m(SolarEdgeHybridEss.ChannelId.SET_CONTROL_MODE, new SignedWordElement(0xE004)),
+						m(SolarEdgeHybridEss.ChannelId.SET_AC_CHARGE_POLICY, new SignedWordElement(0xE005)), // Max. charge power. Negative values
+						m(SolarEdgeHybridEss.ChannelId.SET_MAX_CHARGE_LIMIT, new FloatDoublewordElement(0xE006).wordOrder(WordOrder.LSWMSW)),  // kWh or percent
+						m(SolarEdgeHybridEss.ChannelId.SET_STORAGE_BACKUP_LIMIT, new FloatDoublewordElement(0xE008).wordOrder(WordOrder.LSWMSW)),  // Percent of capacity 
+						m(SolarEdgeHybridEss.ChannelId.SET_CHARGE_DISCHARGE_DEFAULT_MODE, new UnsignedWordElement(0xE00A)), // Usually set to 1 (Charge PV excess only)
+						m(SolarEdgeHybridEss.ChannelId.SET_REMOTE_CONTROL_TIMEOUT, new UnsignedDoublewordElement(0xE00B).wordOrder(WordOrder.LSWMSW)),
+						m(SolarEdgeHybridEss.ChannelId.SET_REMOTE_CONTROL_COMMAND_MODE, new UnsignedWordElement(0xE00D)),
+						m(SolarEdgeHybridEss.ChannelId.SET_MAX_CHARGE_POWER, new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)),  // Max. charge power. Negative values
+						m(SolarEdgeHybridEss.ChannelId.SET_MAX_DISCHARGE_POWER, new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW)) // Max. discharge power. Positive values
+						)); // Disabled, automatic, remote controlled, etc.	
+						
+						// If no managed System is implemented these registers don´t need to be set
+						
+						//m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new FloatDoublewordElement(0xE00E).wordOrder(WordOrder.LSWMSW)),  // Max. charge power. Negative values
+						//m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new FloatDoublewordElement(0xE010).wordOrder(WordOrder.LSWMSW)) // Max. discharge power. Positive values
 		
 							
 	}
 
+	public void _setMyActivePower() {
+		
+		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch + Batterie-Ladung/Entladung *-1
+		// Actual power from inverter comes from house consumption + battery inverter power (*-1)
+		
+		int acPower 		= this.getAcPower().get();
+		int acPowerScale 	= this.getAcPowerScale().get();
+		double value		= acPower * Math.pow(10,acPowerScale);
+		
+		this._setActivePower((int)value);
 
+	
+	}
 	
 
 	@Override
@@ -393,32 +446,26 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				DefaultSunSpecModel.S120.W_RTG);
 		
 		// AC-Output from the Inverter. Could be the combination from PV + battery
-		this.mapFirstPointToChannel(//
+		/*this.mapFirstPointToChannel(//
 			SymmetricEss.ChannelId.ACTIVE_POWER, //
 			ElementToChannelConverter.DIRECT_1_TO_1, //
 			DefaultSunSpecModel.S103.W);		
-		
+		*/
 		
 		this.mapFirstPointToChannel(//
 				SymmetricEss.ChannelId.REACTIVE_POWER, //
 				ElementToChannelConverter.DIRECT_1_TO_1, //
 				DefaultSunSpecModel.S103.V_AR);		
-		
-
-		
-		
-		
-		
-		this.setLimits();
+			this.setLimits();
 
 	}
 
-
 	@Override
 	public String debugLog() {
+		if (config.debugMode())
+		{
 		return "SoC:" + this.getSoc().asString() //
 				+ "|L:" + this.getActivePower().asString() //
-				+ "|WantedPower:" + this.getChargePowerWanted().asString() //
 				+ "|Allowed Charge Power/Peak:"
 				+ this.channel(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER).value().asStringWithoutUnit() + " / " + this.channel(SolarEdgeHybridEss.ChannelId.MAX_CHARGE_PEAK_POWER).value().asStringWithoutUnit() + ";"
 				+ "|Allowed DisCharge Power/Peak:"
@@ -433,8 +480,18 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				
 				+ "|" + this.getGridModeChannel().value().asOptionString() //
 				+ "|Feed-In:";
-	}	
+		}
+		else return "SoC:" + this.getSoc().asString() //
+				+ "|L:" + this.getActivePower().asString();
+	}
+	
+	
+	
 
+	
+	
+
+	
 	
 	@Override
 	@Deactivate
@@ -448,10 +505,11 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-
+				this._setMyActivePower();
 			break;	
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
-			this.setLimits();
+				this._setMyActivePower();
+				this.setLimits();
 			break;	
 		}
 	}	
@@ -465,13 +523,12 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 				ModbusSlaveNatureTable.of(SolarEdgeHybridEssImpl.class, accessMode, 100) //
 						.build());
 	}
-
+/*
 	@Override
 	public Integer getSurplusPower() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.surplusFeedInHandler.run(this.chargers, this.config, this.componentManager);
 	}
-
+*/
 
 	@Override
 	public Power getPower() {
@@ -487,10 +544,21 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 
 	@Override
 	public boolean isManaged() {
-		return true;
+		//return true;
 		
 		// Just for Testing
-		// return !this.config.readOnlyMode();
+	return !this.config.readOnlyMode();
 	}
+
+
+
+	@Override
+	public Integer getSurplusPower() {
+		// TODO Auto-generated method stub
+		//return this.surplusFeedInHandler.run(this.chargers, this.config, this.componentManager);
+		return null;
+	}
+	
+
 	
 }
