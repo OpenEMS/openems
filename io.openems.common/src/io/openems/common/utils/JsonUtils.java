@@ -1959,7 +1959,7 @@ public class JsonUtils {
 			return null;
 		}
 		try {
-			return (Inet4Address) Inet4Address.getByName(name);
+			return (Inet4Address) Inet4Address.getByName(name.strip());
 		} catch (UnknownHostException e) {
 			// handled below
 		}

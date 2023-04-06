@@ -50,7 +50,8 @@ public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 	void activate(ComponentContext context, Config config)
 			throws UnknownHostException, KeyManagementException, NoSuchAlgorithmException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.worker = new ReadWorker(this, (Inet4Address) InetAddress.getByName(config.ipAddress()), config.port());
+		this.worker = new ReadWorker(this, (Inet4Address) InetAddress.getByName(config.ipAddress().strip()),
+				config.port());
 		this.worker.activate(config.id());
 	}
 

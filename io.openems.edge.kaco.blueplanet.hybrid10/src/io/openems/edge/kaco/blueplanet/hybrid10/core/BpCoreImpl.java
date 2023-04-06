@@ -76,10 +76,10 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		this.config = config;
 
 		final InetAddress inverterAddress;
-		if (config.ip() == null) {
+		if (config.ip() == null || config.id().isBlank()) {
 			inverterAddress = null;
 		} else {
-			inverterAddress = InetAddress.getByName(config.ip());
+			inverterAddress = InetAddress.getByName(config.ip().trim());
 		}
 		Runnable initializeLibrary = () -> {
 			while (true) {
