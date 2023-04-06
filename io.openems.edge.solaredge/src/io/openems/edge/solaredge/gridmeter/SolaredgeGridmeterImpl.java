@@ -127,11 +127,11 @@ public class SolaredgeGridmeterImpl extends AbstractSolaredgeGridmeter
 		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch + Batterie-Ladung/Entladung *-1
 		// Actual power from inverter comes from house consumption + battery inverter power (*-1)
 		
-		int power 		= this.getPower().get(); // 
+		int power 		= this.getPower().orElse(0); // 
 		//int powerL1 	= this.getPowerL1().get(); 
 		//int powerL2		= this.getPowerL2().get(); 
 		//int powerL3 	= this.getPowerL3().get(); 
-		int PowerScale 	= this.getPowerScale().get(); 
+		int PowerScale 	= this.getPowerScale().orElse(0); 
 
 		double PowerValue	= power * Math.pow(10,PowerScale);
 		//double PowerValueL1	= powerL1 * Math.pow(10,PowerScale);

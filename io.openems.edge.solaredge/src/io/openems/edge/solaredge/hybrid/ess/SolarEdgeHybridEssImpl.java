@@ -172,8 +172,8 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		else {
 		
 			
-			int maxDischargeContinuesPower 	= getMaxDischargeContinuesPower().get();
-			int maxChargeContinuesPower 	= getMaxChargeContinuesPower().get() * -1 ;
+			int maxDischargeContinuesPower 	= getMaxDischargeContinuesPower().orElse(0);
+			int maxChargeContinuesPower 	= getMaxChargeContinuesPower().orElse(0) * -1 ;
 
 	
 			if (isControlModeRemote() == false || isStorageChargePolicyAlways() == false)
@@ -347,8 +347,8 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss
 		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch + Batterie-Ladung/Entladung *-1
 		// Actual power from inverter comes from house consumption + battery inverter power (*-1)
 		
-		int acPower 		= this.getAcPower().get();
-		int acPowerScale 	= this.getAcPowerScale().get();
+		int acPower 		= this.getAcPower().orElse(0);
+		int acPowerScale 	= this.getAcPowerScale().orElse(0);
 		double value		= acPower * Math.pow(10,acPowerScale);
 		
 		this._setActivePower((int)value);
