@@ -10,5 +10,7 @@ You can either talk to the relay outputs directly or configure network inputs wi
 
 In my case the addresses start with offset 808 which is virtual address 101.0 in the logo. So you need to configure the network inputs 101.0 -101.3 (for a 4 digital outputs standard Logo!)
 
+Sometimes it is better to have different addresses for reading and writing. So you can leave it to Logo!`s logic what to do with DIs/DOs
+
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.siemenslogo[Source Code icon:github[]]
