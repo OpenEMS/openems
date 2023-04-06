@@ -38,10 +38,15 @@ import io.openems.edge.io.api.DigitalOutput;
 public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 		implements SiemensLogoRelay, DigitalOutput, ModbusComponent, OpenemsComponent, ModbusSlave {
 
-	private Config config;
+	/* Siemens Logo Relay Modbus Adresses starting here
+	 * */ 
+	//int offset = 8193;  // Offset for Relays
+	int offset = 808;
 	
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	private Config config;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -54,24 +59,17 @@ public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id());
 		this.config = config;
+		offset = this.config.modbusOffsetAdress();
 	}
-
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
 
-	/* Siemens Logo Relay Modbus Adresses starting here
-	 * */ 
-	//int offset = 8193;  // Offset for Relays
-	int offset = this.config.modbusOffsetAdress();
-	
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //

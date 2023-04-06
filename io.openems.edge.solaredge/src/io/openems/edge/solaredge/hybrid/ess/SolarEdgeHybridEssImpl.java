@@ -48,7 +48,6 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.ess.sunspec.AbstractSunSpecEss;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.solaredge.enums.ControlMode;
 import io.openems.edge.timedata.api.Timedata;
