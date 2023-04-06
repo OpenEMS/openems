@@ -19,6 +19,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
+	
+	@AttributeDefinition(name = "Modbus address offset", description = "adress offset in Logo!. This is where the virtual addresses start, e.g. 808 for virtual address 101.0 in Logo!")
+	int modbusOffsetAdress() default 808;
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 0;
