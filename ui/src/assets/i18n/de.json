@@ -25,7 +25,7 @@
         "storageDischarge": "Speicher-Entladung",
         "title": "Energiemonitor",
         "ERROR_TEMPORARY": "Fehler beim Abruf der Daten. Bitte versuchen Sie es später noch einmal.",
-        "ERROR_TOO_LONG": "Die Anzeige von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben."
+        "ERROR_TOO_LONG": "Die Anzeige der Daten ist teilweise durch Umbauarbeiten an unseren Servern nicht möglich. Ihre Daten für diesen Zeitraum sind nicht verloren. Alternativ besteht weiterhin die Möglichkeit die historischen Daten über das <a href='https://docs.fenecon.de/de/_/latest/fems/ui/introduction.html#_offlinelokal' target='_blank'>lokale Monitoring</a> anzusehen. Wir bitten Sie um Ihr Verständnis."
       },
       "Widgets": {
         "autarchyInfo": "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",

@@ -36,9 +36,16 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.4.1',
+        changes: [
+          Changelog.openems('2023.4.0'),
+          Changelog.UI,
+        ]
+      },
+      {
         version: '2023.3.8',
         changes: [
-          "App Center: Fehlerbehebung bei " + Product.FEMS_HARDY_BARTH,
+          "App Center: Fehlerbehebung bei " + Changelog.product(Product.FEMS_HARDY_BARTH),
         ]
       },
       {
