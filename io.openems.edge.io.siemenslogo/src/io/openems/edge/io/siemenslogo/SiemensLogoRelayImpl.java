@@ -38,10 +38,13 @@ import io.openems.edge.io.api.DigitalOutput;
 public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 		implements SiemensLogoRelay, DigitalOutput, ModbusComponent, OpenemsComponent, ModbusSlave {
 
-	private Config config;
+	private int readOffset = 0;
+	private int writeOffset = 0;
 	
 	@Reference
 	protected ConfigurationAdmin cm;
+
+	private Config config;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -54,51 +57,49 @@ public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
 		this.config = config;
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id());
+		
+		
 	}
-
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
 	}
 
-	/* Siemens Logo Relay Modbus Adresses starting here
-	 * */ 
-	//int offset = 8193;  // Offset for Relays
-	int offset = this.config.modbusOffsetAdress();
-	
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+		
+		
+		readOffset 	= this.config.modbusOffsetReadAddress();
+		writeOffset = this.config.modbusOffsetWriteAddress();
 		return new ModbusProtocol(this, //
 				/*
 				 * For Read: Read Coils
 				 */
-				new FC1ReadCoilsTask(offset, Priority.LOW, //
-						m(SiemensLogoRelay.ChannelId.RELAY_1, new CoilElement(0 + offset)), //
-						m(SiemensLogoRelay.ChannelId.RELAY_2, new CoilElement(1 + offset)), //
-						m(SiemensLogoRelay.ChannelId.RELAY_3, new CoilElement(2 + offset)), //
-						m(SiemensLogoRelay.ChannelId.RELAY_4, new CoilElement(3 + offset)), //
-						m(SiemensLogoRelay.ChannelId.RELAY_5, new CoilElement(4 + offset)), //
-						m(SiemensLogoRelay.ChannelId.RELAY_6, new CoilElement(5 + offset)), //
-						m(SiemensLogoRelay.ChannelId.RELAY_7, new CoilElement(6 + offset)), //
-						m(SiemensLogoRelay.ChannelId.RELAY_8, new CoilElement(7 + offset)) //
+				new FC1ReadCoilsTask(readOffset, Priority.LOW, //
+						m(SiemensLogoRelay.ChannelId.RELAY_1, new CoilElement(0 + readOffset)), //
+						m(SiemensLogoRelay.ChannelId.RELAY_2, new CoilElement(1 + readOffset)), //
+						m(SiemensLogoRelay.ChannelId.RELAY_3, new CoilElement(2 + readOffset)), //
+						m(SiemensLogoRelay.ChannelId.RELAY_4, new CoilElement(3 + readOffset)), //
+						m(SiemensLogoRelay.ChannelId.RELAY_5, new CoilElement(4 + readOffset)), //
+						m(SiemensLogoRelay.ChannelId.RELAY_6, new CoilElement(5 + readOffset)), //
+						m(SiemensLogoRelay.ChannelId.RELAY_7, new CoilElement(6 + readOffset)), //
+						m(SiemensLogoRelay.ChannelId.RELAY_8, new CoilElement(7 + readOffset)) //
 				),
 				/*
 				 * For Write: Write Single Coil
 				 */
-				new FC5WriteCoilTask(0 + offset, m(SiemensLogoRelay.ChannelId.RELAY_1, new CoilElement(0 + offset))), //
-				new FC5WriteCoilTask(1 + offset, m(SiemensLogoRelay.ChannelId.RELAY_2, new CoilElement(1 + offset))), //
-				new FC5WriteCoilTask(2 + offset, m(SiemensLogoRelay.ChannelId.RELAY_3, new CoilElement(2 + offset))), //
-				new FC5WriteCoilTask(3 + offset, m(SiemensLogoRelay.ChannelId.RELAY_4, new CoilElement(3 + offset))), //
-				new FC5WriteCoilTask(4 + offset, m(SiemensLogoRelay.ChannelId.RELAY_5, new CoilElement(4 + offset))), //
-				new FC5WriteCoilTask(5 + offset, m(SiemensLogoRelay.ChannelId.RELAY_6, new CoilElement(5 + offset))), //
-				new FC5WriteCoilTask(6 + offset, m(SiemensLogoRelay.ChannelId.RELAY_7, new CoilElement(6 + offset))), //
-				new FC5WriteCoilTask(7 + offset, m(SiemensLogoRelay.ChannelId.RELAY_8, new CoilElement(7 + offset))) //
+				new FC5WriteCoilTask(0 + writeOffset, m(SiemensLogoRelay.ChannelId.RELAY_1, new CoilElement(0 + writeOffset))), //
+				new FC5WriteCoilTask(1 + writeOffset, m(SiemensLogoRelay.ChannelId.RELAY_2, new CoilElement(1 + writeOffset))), //
+				new FC5WriteCoilTask(2 + writeOffset, m(SiemensLogoRelay.ChannelId.RELAY_3, new CoilElement(2 + writeOffset))), //
+				new FC5WriteCoilTask(3 + writeOffset, m(SiemensLogoRelay.ChannelId.RELAY_4, new CoilElement(3 + writeOffset))), //
+				new FC5WriteCoilTask(4 + writeOffset, m(SiemensLogoRelay.ChannelId.RELAY_5, new CoilElement(4 + writeOffset))), //
+				new FC5WriteCoilTask(5 + writeOffset, m(SiemensLogoRelay.ChannelId.RELAY_6, new CoilElement(5 + writeOffset))), //
+				new FC5WriteCoilTask(6 + writeOffset, m(SiemensLogoRelay.ChannelId.RELAY_7, new CoilElement(6 + writeOffset))), //
+				new FC5WriteCoilTask(7 + writeOffset, m(SiemensLogoRelay.ChannelId.RELAY_8, new CoilElement(7 + writeOffset))) //
 		);
 	}
 
@@ -107,14 +108,14 @@ public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 		return new ModbusSlaveTable( //
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(SiemensLogoRelay.class, accessMode, 100)//
-						.channel(0 + offset, SiemensLogoRelay.ChannelId.RELAY_1, ModbusType.UINT16) //
-						.channel(1 + offset, SiemensLogoRelay.ChannelId.RELAY_2, ModbusType.UINT16) //
-						.channel(2 + offset, SiemensLogoRelay.ChannelId.RELAY_3, ModbusType.UINT16) //
-						.channel(3 + offset, SiemensLogoRelay.ChannelId.RELAY_4, ModbusType.UINT16) //
-						.channel(4 + offset, SiemensLogoRelay.ChannelId.RELAY_5, ModbusType.UINT16) //
-						.channel(5 + offset, SiemensLogoRelay.ChannelId.RELAY_6, ModbusType.UINT16) //
-						.channel(6 + offset, SiemensLogoRelay.ChannelId.RELAY_7, ModbusType.UINT16) //
-						.channel(7 + offset, SiemensLogoRelay.ChannelId.RELAY_8, ModbusType.UINT16) //
+						.channel(0 + readOffset, SiemensLogoRelay.ChannelId.RELAY_1, ModbusType.UINT16) //
+						.channel(1 + readOffset, SiemensLogoRelay.ChannelId.RELAY_2, ModbusType.UINT16) //
+						.channel(2 + readOffset, SiemensLogoRelay.ChannelId.RELAY_3, ModbusType.UINT16) //
+						.channel(3 + readOffset, SiemensLogoRelay.ChannelId.RELAY_4, ModbusType.UINT16) //
+						.channel(4 + readOffset, SiemensLogoRelay.ChannelId.RELAY_5, ModbusType.UINT16) //
+						.channel(5 + readOffset, SiemensLogoRelay.ChannelId.RELAY_6, ModbusType.UINT16) //
+						.channel(6 + readOffset, SiemensLogoRelay.ChannelId.RELAY_7, ModbusType.UINT16) //
+						.channel(7 + readOffset, SiemensLogoRelay.ChannelId.RELAY_8, ModbusType.UINT16) //
 						.build()//
 		);
 	}
