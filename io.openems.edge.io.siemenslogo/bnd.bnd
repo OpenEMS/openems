@@ -15,5 +15,5 @@ Bundle-Version: 1.0.0.${tstamp}
 	${testpath},\
 	com.ghgande.j2mod
 Bundle-Description: Siemens LOGO! 8 as network relais. Connected via Modbus. Relays starting \
-	at VM 101, Bit 0 on SPS. ToDo: make addresses configurable
+	at VM 101, Bit 0 on SPS.
 	
