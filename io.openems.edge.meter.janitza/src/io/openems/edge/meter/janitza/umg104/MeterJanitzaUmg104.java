@@ -72,7 +72,6 @@ public class MeterJanitzaUmg104 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
 
-
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -113,14 +112,14 @@ public class MeterJanitzaUmg104 extends AbstractOpenemsModbusComponent
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(19000, Priority.HIGH, //
 						m(new FloatDoublewordElement(19000)) //
-							.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3) //
-							.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3) //
-							.build(), //
+								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3) //
+								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3) //
+								.build(), //
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(19002),
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(19004),
-								ElementToChannelConverter.SCALE_FACTOR_3),						
-						new DummyRegisterElement(19006, 19011), //						
+								ElementToChannelConverter.SCALE_FACTOR_3),
+						new DummyRegisterElement(19006, 19011), //
 						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(19012),
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(19014),
@@ -137,7 +136,7 @@ public class MeterJanitzaUmg104 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(19026),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						new DummyRegisterElement(19028, 19035), //		
+						new DummyRegisterElement(19028, 19035), //
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(19036),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(19038),
@@ -145,8 +144,8 @@ public class MeterJanitzaUmg104 extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(19040),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(19042),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),						
-						new DummyRegisterElement(19044, 19049), //		
+								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
+						new DummyRegisterElement(19044, 19049), //
 						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(19050),
 								ElementToChannelConverter.SCALE_FACTOR_3)));
 
@@ -155,14 +154,12 @@ public class MeterJanitzaUmg104 extends AbstractOpenemsModbusComponent
 					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19068)),
 					new DummyRegisterElement(19070, 19075),
 					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19076))));
-			
+
 		} else {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
 					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19068)),
 					new DummyRegisterElement(19070, 19075),
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19076))));			
-			
-			
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19076))));
 
 		}
 
