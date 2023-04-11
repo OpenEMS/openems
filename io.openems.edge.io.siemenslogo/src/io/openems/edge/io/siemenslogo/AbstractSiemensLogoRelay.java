@@ -1,20 +1,18 @@
 package io.openems.edge.io.siemenslogo;
 
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.io.api.DigitalOutput;
@@ -52,24 +50,16 @@ public abstract class AbstractSiemensLogoRelay extends AbstractOpenemsModbusComp
 
 	@Override
 	public String debugLog() {
-		StringBuilder b = new StringBuilder();
-		int i = 1;
-		for (WriteChannel<Boolean> channel : this.digitalOutputChannels) {
-			String valueText;
-			Optional<Boolean> valueOpt = channel.value().asOptional();
-			if (valueOpt.isPresent()) {
-				valueText = valueOpt.get() ? "x" : "-";
-			} else {
-				valueText = "?";
-			}
-			b.append(i + valueText);
-
-			// add space for all but the last
-			if (++i <= this.digitalOutputChannels.length) {
-				b.append(" ");
-			}
-		}
-		return b.toString();
+	return (String) Arrays.stream(this.digitalOutputChannels) 
+	  .map(chan -> chan.value().asOptional()) 
+	  .map(t -> {
+	    if(t.isPresent())
+	      return t.get() ? "X" : "-";
+	    else 
+	      return "?";
+	  })
+	  .collect(Collectors.joining(","));
 	}
+
 
 }
