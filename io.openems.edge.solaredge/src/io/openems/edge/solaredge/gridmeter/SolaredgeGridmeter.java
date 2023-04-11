@@ -99,6 +99,15 @@ public interface SolaredgeGridmeter extends OpenemsComponent {
 		}
 	}
 	
+	/**
+	 * DC Power Channel {@link ChannelId#POWER_DC_SCALE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPower() {
+		return this.getPowerChannel().value();
+	}
+
 	//######################
 	/**
 	 * Gets the Channel for {@link ChannelId#POWER_DC}.
@@ -107,18 +116,18 @@ public interface SolaredgeGridmeter extends OpenemsComponent {
 	 */
 	public default IntegerReadChannel getPowerChannel() {
 		return this.channel(ChannelId.POWER);
-	}
-
+	}	
+	
+	
 	/**
 	 * DC Power Channel {@link ChannelId#POWER_DC_SCALE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getPower() {
-		return this.getPowerChannel().value();
-	}	
-	
-	
+	public default Value<Integer> getPowerL1() {
+		return this.getPowerL1Channel().value();
+	}
+
 	//######################
 	/**
 	 * Gets the Channel for {@link ChannelId#POWER_DC}.
@@ -127,17 +136,17 @@ public interface SolaredgeGridmeter extends OpenemsComponent {
 	 */
 	public default IntegerReadChannel getPowerL1Channel() {
 		return this.channel(ChannelId.POWER_L1);
-	}
-
+	}	
+	
 	/**
 	 * DC Power Channel {@link ChannelId#POWER_DC_SCALE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getPowerL1() {
-		return this.getPowerL1Channel().value();
-	}	
-	
+	public default Value<Integer> getPowerL2() {
+		return this.getPowerL2Channel().value();
+	}
+
 	//######################
 	/**
 	 * Gets the Channel for {@link ChannelId#POWER_DC}.
@@ -146,18 +155,18 @@ public interface SolaredgeGridmeter extends OpenemsComponent {
 	 */
 	public default IntegerReadChannel getPowerL2Channel() {
 		return this.channel(ChannelId.POWER_L2);
-	}
-
+	}	
+	
+	
 	/**
 	 * DC Power Channel {@link ChannelId#POWER_DC_SCALE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Integer> getPowerL2() {
-		return this.getPowerL2Channel().value();
-	}	
-	
-	
+	public default Value<Integer> getPowerL3() {
+		return this.getPowerL3Channel().value();
+	}
+
 	//######################
 	/**
 	 * Gets the Channel for {@link ChannelId#POWER_DC}.
@@ -166,18 +175,18 @@ public interface SolaredgeGridmeter extends OpenemsComponent {
 	 */
 	public default IntegerReadChannel getPowerL3Channel() {
 		return this.channel(ChannelId.POWER_L3);
-	}
-
-	/**
-	 * DC Power Channel {@link ChannelId#POWER_DC_SCALE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getPowerL3() {
-		return this.getPowerL3Channel().value();
 	}	
 	
 	
+	/**
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPowerScale() {
+		return this.getPowerScaleChannel().value();
+	}
+
 	//######################
 	/**
 	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
@@ -186,15 +195,6 @@ public interface SolaredgeGridmeter extends OpenemsComponent {
 	 */
 	public default IntegerReadChannel getPowerScaleChannel() {
 		return this.channel(ChannelId.POWER_SCALE);
-	}
-
-	/**
-	 * Is the Energy Storage System On-Grid? See {@link ChannelId#CONTROL_MODE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getPowerScale() {
-		return this.getPowerScaleChannel().value();
 	}		
 
 }	

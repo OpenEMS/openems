@@ -41,8 +41,6 @@ public class MeterEMHImpl extends AbstractOpenemsModbusComponent
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
-
-
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -56,8 +54,6 @@ public class MeterEMHImpl extends AbstractOpenemsModbusComponent
 		);
 	}
 
-
-
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
@@ -66,12 +62,12 @@ public class MeterEMHImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
-		
+
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
 		}
-		//this.config = config;
+		// this.config = config;
 	}
 
 	@Deactivate
@@ -82,26 +78,30 @@ public class MeterEMHImpl extends AbstractOpenemsModbusComponent
 	@Override
 	public MeterType getMeterType() {
 		return this.meterType;
-		//return this.config.type();
+		// return this.config.type();
 	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(8, Priority.HIGH, //
-					m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(8),SIGNED_POWER_CONVERTER_AND_INVERT),	
-					m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(10),SIGNED_POWER_CONVERTER_AND_INVERT),	
-					m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(12),SIGNED_POWER_CONVERTER_AND_INVERT),					
-					m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(14),SIGNED_POWER_CONVERTER_AND_INVERT),
-					m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(16),SIGNED_POWER_CONVERTER_AND_INVERT),
-					new DummyRegisterElement(18, 19), // Reserved
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new SignedDoublewordElement(20),SIGNED_POWER_CONVERTER_AND_INVERT),
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new SignedDoublewordElement(22),SIGNED_POWER_CONVERTER_AND_INVERT)
-						)
-			);
-	}	
-	
-	
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new SignedDoublewordElement(8),
+								SIGNED_POWER_CONVERTER_AND_INVERT),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new SignedDoublewordElement(10),
+								SIGNED_POWER_CONVERTER_AND_INVERT),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new SignedDoublewordElement(12),
+								SIGNED_POWER_CONVERTER_AND_INVERT),
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new SignedDoublewordElement(14),
+								SIGNED_POWER_CONVERTER_AND_INVERT),
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new SignedDoublewordElement(16),
+								SIGNED_POWER_CONVERTER_AND_INVERT),
+						new DummyRegisterElement(18, 19), // Reserved
+						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new SignedDoublewordElement(20),
+								SIGNED_POWER_CONVERTER_AND_INVERT),
+						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new SignedDoublewordElement(22),
+								SIGNED_POWER_CONVERTER_AND_INVERT)));
+	}
+
 	private static final ElementToChannelConverter SIGNED_POWER_CONVERTER_AND_INVERT = new ElementToChannelConverter(//
 			value -> {
 				if (value == null) {
@@ -114,7 +114,7 @@ public class MeterEMHImpl extends AbstractOpenemsModbusComponent
 				return intValue * 2000; // invert
 			}, //
 			value -> value);
-	
+
 	@Override
 	public String debugLog() {
 		return "L:" + this.getActivePower().asString();

@@ -1,6 +1,5 @@
 package io.openems.edge.solaredge.gridmeter;
 
-
 import java.util.Map;
 import java.util.Optional;
 

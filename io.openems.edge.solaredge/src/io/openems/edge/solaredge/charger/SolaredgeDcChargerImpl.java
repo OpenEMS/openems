@@ -1,7 +1,5 @@
 package io.openems.edge.solaredge.charger;
 
-
-
 import java.util.Map;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -50,7 +48,6 @@ import io.openems.edge.solaredge.hybrid.ess.SolarEdgeHybridEss;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "io.openems.edge.solaredge.charger", //
@@ -59,19 +56,18 @@ import io.openems.edge.timedata.api.TimedataProvider;
 
 )
 @EventTopics({ //
-	EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
-	EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
+		EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
 
-public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
-	implements SolaredgeDcCharger,  EssDcCharger, ModbusComponent, OpenemsComponent,  EventHandler, TimedataProvider, ModbusSlave {
+public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger implements SolaredgeDcCharger, EssDcCharger,
+		ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider, ModbusSlave {
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
-	
+
 	@Reference
 	protected ConfigurationAdmin cm;
-	
-	
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
@@ -83,9 +79,10 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 				EssDcCharger.ChannelId.values(), //
 				SolaredgeDcCharger.ChannelId.values() //
 		);
-		
+
 		addStaticModbusTasks(this.getModbusProtocol());
 	}
+
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
@@ -94,57 +91,52 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SolarEdgeHybridEss ess;
-	
+
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,"Modbus", this.ess.getModbusBridgeId(),READ_FROM_MODBUS_BLOCK)) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,
+				"Modbus", this.ess.getModbusBridgeId(), READ_FROM_MODBUS_BLOCK)) {
 			return;
 		}
-		
+
 		// update filter for 'Ess'
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
 			return;
 		}
 
-		this.ess.addCharger(this);		
+		this.ess.addCharger(this);
 	}
 
-	
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
-			//.put(DefaultSunSpecModel.S_203, Priority.LOW) //
-			
-			//.put(DefaultSunSpecModel.S_802, Priority.LOW) //
-						
-/*			.put(DefaultSunSpecModel.S_203, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_102, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_111, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_112, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_113, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_122, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_123, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_124, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_125, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_127, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_128, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_145, Priority.LOW) //	
-*/
+			// .put(DefaultSunSpecModel.S_203, Priority.LOW) //
+
+			// .put(DefaultSunSpecModel.S_802, Priority.LOW) //
+
+			/*
+			 * .put(DefaultSunSpecModel.S_203, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_101, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_102, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_103, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_111, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_112, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_113, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_120, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_121, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_122, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_123, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_124, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_125, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_127, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_128, Priority.LOW) //
+			 * .put(DefaultSunSpecModel.S_145, Priority.LOW) //
+			 */
 			.build();
-	
-	
 
-	
-	
-
-	
 	@Override
-	protected void onSunSpecInitializationCompleted()  {
+	protected void onSunSpecInitializationCompleted() {
 		// TODO Add mappings for registers from S1 and S103
 
 		// Example:
@@ -152,41 +144,36 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 		// SymmetricEss.ChannelId.ACTIVE_POWER, //
 		// ElementToChannelConverter.DIRECT_1_TO_1, //
 		// DefaultSunSpecModel.S103.W);
-	
+
 		// this.mapFirstPointToChannel(//
 		// SymmetricEss.ChannelId.CONSUMPTION_POWER, //
 		// ElementToChannelConverter.DIRECT_1_TO_1, //
 		// DefaultSunSpecModel.S103.W);
-		
-		 //DefaultSunSpecModel.S103.W);
-		
 
-		
+		// DefaultSunSpecModel.S103.W);
+
 		this.mapFirstPointToChannel(//
-			EssDcCharger.ChannelId.VOLTAGE, //
-			ElementToChannelConverter.DIRECT_1_TO_1, //
-			DefaultSunSpecModel.S103.DCV);		
-		
-		
+				EssDcCharger.ChannelId.VOLTAGE, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S103.DCV);
+
 		this.mapFirstPointToChannel(//
-			EssDcCharger.ChannelId.CURRENT, //
-			ElementToChannelConverter.DIRECT_1_TO_1, //
-			DefaultSunSpecModel.S103.DCA);		
-	
+				EssDcCharger.ChannelId.CURRENT, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S103.DCA);
+
 		this.mapFirstPointToChannel(//
-			SolaredgeDcCharger.ChannelId.PRODUCTION_POWER, //
-			ElementToChannelConverter.DIRECT_1_TO_1, //
-			DefaultSunSpecModel.S103.DCW);		
+				SolaredgeDcCharger.ChannelId.PRODUCTION_POWER, //
+				ElementToChannelConverter.DIRECT_1_TO_1, //
+				DefaultSunSpecModel.S103.DCW);
 
 		this.mapFirstPointToChannel(//
 				EssDcCharger.ChannelId.ACTUAL_ENERGY, //
 				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S103.WH);		
-		
-		
+				DefaultSunSpecModel.S103.WH);
+
 	}
-	
-	
+
 	/**
 	 * Adds static modbus tasks.
 	 * 
@@ -196,42 +183,43 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 	private void addStaticModbusTasks(ModbusProtocol protocol) throws OpenemsException {
 		protocol.addTask(//
 				new FC3ReadRegistersTask(0xE174, Priority.HIGH, //
-						m(SolaredgeDcCharger.ChannelId.DC_DISCHARGE_POWER, // Instantaneous Power from Solaregde - no scaling
+						m(SolaredgeDcCharger.ChannelId.DC_DISCHARGE_POWER, // Instantaneous Power from Solaregde - no
+																			// scaling
 								new FloatDoublewordElement(0xE174).wordOrder(WordOrder.LSWMSW)) //
-						));
-		
+				));
+
 		protocol.addTask(//
 				new FC3ReadRegistersTask(0x9CA4, Priority.HIGH, //
 
 						m(SolarEdgeHybridEss.ChannelId.POWER_DC, //
 								new SignedWordElement(0x9CA4)),
 						m(SolarEdgeHybridEss.ChannelId.POWER_DC_SCALE, //
-								new SignedWordElement(0x9CA5)
-						)));
-		
-	}
-	
-	public void _calculateAndSetActualPower() {
-		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch + Batterie-Ladung/Entladung *-1
-		// Actual power from inverter comes from house consumption + battery inverter power (*-1)
-		try {
-		int dcPower 		= this.getDcPower().get(); // Leistung Inverter
-		int dcPowerScale 	= this.getDcPowerScale().get(); // Leistung Inverter
-		double dcPowerValue	= dcPower * Math.pow(10,dcPowerScale);
-		
-		int dcDischargePower	= this.getDcDischargePower().get();
-		int pvDcProduction		= (int) dcPowerValue + dcDischargePower;
-		
-		if (pvDcProduction < 0) pvDcProduction =0; // Negative Values are not allowed for PV production
-		
-		this._setActualPower(pvDcProduction);
-		}
-		catch (Exception e){
-			return;
-		}		
+								new SignedWordElement(0x9CA5))));
+
 	}
 
-	
+	public void _calculateAndSetActualPower() {
+		// Aktuelle Erzeugung durch den Hybrid-WR ist der aktuelle Verbrauch +
+		// Batterie-Ladung/Entladung *-1
+		// Actual power from inverter comes from house consumption + battery inverter
+		// power (*-1)
+		try {
+			int dcPower = this.getDcPower().get(); // Leistung Inverter
+			int dcPowerScale = this.getDcPowerScale().get(); // Leistung Inverter
+			double dcPowerValue = dcPower * Math.pow(10, dcPowerScale);
+
+			int dcDischargePower = this.getDcDischargePower().get();
+			int pvDcProduction = (int) dcPowerValue + dcDischargePower;
+
+			if (pvDcProduction < 0)
+				pvDcProduction = 0; // Negative Values are not allowed for PV production
+
+			this._setActualPower(pvDcProduction);
+		} catch (Exception e) {
+			return;
+		}
+	}
+
 	@Deactivate
 	protected void deactivate() {
 		this.ess.removeCharger(this);
@@ -245,8 +233,8 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-				_calculateAndSetActualPower();
-	    break;
+			_calculateAndSetActualPower();
+			break;
 		}
 	}
 
@@ -254,7 +242,7 @@ public class SolaredgeDcChargerImpl extends AbstractSunSpecDcCharger
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
-	
+
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
