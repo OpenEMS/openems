@@ -30,7 +30,6 @@ public abstract class AbstractSunSpecDcCharger extends AbstractOpenemsSunSpecCom
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
 		//this._setGridMode(GridMode.ON_GRID);
 	}
-
 	/**
 	 * Make sure to call this method from the inheriting OSGi Component.
 	 *

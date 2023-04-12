@@ -213,3 +213,4 @@ public abstract class AbstractSolaredgeGridmeter extends AbstractOpenemsSunSpecC
 		return super.getSunSpecChannelOrError(point);
 	}
 }
+

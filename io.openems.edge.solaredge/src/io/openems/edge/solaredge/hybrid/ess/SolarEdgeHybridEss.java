@@ -1124,6 +1124,5 @@ public interface SolarEdgeHybridEss extends OpenemsComponent {
 
 		public void removeCharger(SolaredgeDcCharger charger);	
 			
-
-
 }
+

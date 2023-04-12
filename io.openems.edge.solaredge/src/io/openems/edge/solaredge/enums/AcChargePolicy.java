@@ -31,4 +31,5 @@ public  enum AcChargePolicy implements OptionsEnum {
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
 	}
+	
 }

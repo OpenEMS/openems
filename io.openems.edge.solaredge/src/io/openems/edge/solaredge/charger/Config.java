@@ -8,11 +8,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		description = "")
 @interface Config {
 
-	
-	
-	
-	
-
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
 	String id() default "charger0";
 

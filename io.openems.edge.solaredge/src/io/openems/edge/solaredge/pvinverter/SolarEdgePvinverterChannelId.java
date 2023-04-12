@@ -221,9 +221,5 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 	public default Value<Integer> getGridPower() {
 		return this.getGridPowerChannel().value();
 	}
-	
-	
-
-	
 
 }

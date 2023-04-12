@@ -169,3 +169,4 @@ public class SolaredgeGridmeterImpl extends AbstractSolaredgeGridmeter implement
 						.build());
 	}
 }
+

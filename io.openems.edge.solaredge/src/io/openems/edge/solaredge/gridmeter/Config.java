@@ -36,3 +36,4 @@ import io.openems.edge.meter.api.MeterType;
 	String webconsole_configurationFactory_nameHint() default "Meter SolarEdge [{id}]";
 
 }
+

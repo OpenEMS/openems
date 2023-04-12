@@ -27,7 +27,6 @@ public interface SolaredgeGridmeter extends OpenemsComponent {
 		POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)),
-
 	
 		
 		/**

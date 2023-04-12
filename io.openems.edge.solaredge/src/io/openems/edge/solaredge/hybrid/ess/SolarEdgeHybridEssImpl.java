@@ -480,3 +480,4 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 	}
 
 }
+

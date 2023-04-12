@@ -36,3 +36,4 @@ public  enum ChargeDischargeMode implements OptionsEnum {
 		return UNDEFINED;
 	}
 }	
+

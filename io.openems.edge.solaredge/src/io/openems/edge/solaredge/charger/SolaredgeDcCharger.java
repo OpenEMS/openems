@@ -14,9 +14,6 @@ import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
 
-
-
-
 public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

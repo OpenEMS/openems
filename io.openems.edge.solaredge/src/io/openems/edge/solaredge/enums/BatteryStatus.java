@@ -37,3 +37,4 @@ public  enum BatteryStatus implements OptionsEnum {
 		return UNDEFINED;
 	}
 }
+
