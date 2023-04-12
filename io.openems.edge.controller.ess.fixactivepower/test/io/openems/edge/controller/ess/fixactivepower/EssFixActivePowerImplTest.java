@@ -9,6 +9,8 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedAsymmetricEss;
 
@@ -32,6 +34,8 @@ public class EssFixActivePowerImplTest {
 						.setMode(Mode.MANUAL_ON) //
 						.setHybridEssMode(HybridEssMode.TARGET_DC) //
 						.setPower(1234) //
+						.setPhase(Phase.ALL) //
+						.setRelationship(Relationship.EQUALS) //
 						.build()) //
 				.next(new TestCase() //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, 1234));
@@ -57,6 +61,9 @@ public class EssFixActivePowerImplTest {
 	public void testGetAcPower() throws OpenemsException, Exception {
 		var hybridEss = new DummyHybridEss(ESS_ID) //
 				.withActivePower(7000) //
+				.withMaxApparentPower(10000) //
+				.withAllowedChargePower(-5000) //
+				.withAllowedDischargePower(5000) //
 				.withDcDischargePower(3000); //
 
 		assertEquals(Integer.valueOf(5000), //
