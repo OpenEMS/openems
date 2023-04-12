@@ -15,9 +15,9 @@ public interface ChannelSingleThreshold extends Controller, OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		AWAITING_HYSTERESIS(Doc.of(Level.INFO) //
 				.text("Would change State, but hystesis is active")), //
-		
+
 		REGULATION_ACTIVE(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE));	
+				.accessMode(AccessMode.READ_WRITE));
 
 		private final Doc doc;
 
@@ -32,12 +32,23 @@ public interface ChannelSingleThreshold extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#AWAITING_HYSTERESIS}.
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#AWAITING_HYSTERESIS} Channel.
 	 *
-	 * @return the Channel
+	 * @param value the next value
 	 */
-	public default StateChannel getAwaitingHysteresisChannel() {
-		return this.channel(ChannelId.AWAITING_HYSTERESIS);
+	public default void _setAwaitingHysteresis(boolean value) {
+		this.getAwaitingHysteresisChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REGULATION_ACTIVE}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setRegulationActive(boolean value) {
+		this.getRegulationActiveChannel().setNextValue(value);
 	}
 
 	/**
@@ -50,22 +61,12 @@ public interface ChannelSingleThreshold extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#AWAITING_HYSTERESIS} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setAwaitingHysteresis(boolean value) {
-		this.getAwaitingHysteresisChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#REGULATION_ACTIVE}.
+	 * Gets the Channel for {@link ChannelId#AWAITING_HYSTERESIS}.
 	 *
 	 * @return the Channel
 	 */
-	public default BooleanReadChannel getRegulationActiveChannel() {
-		return this.channel(ChannelId.REGULATION_ACTIVE);
+	public default StateChannel getAwaitingHysteresisChannel() {
+		return this.channel(ChannelId.AWAITING_HYSTERESIS);
 	}
 
 	/**
@@ -78,15 +79,12 @@ public interface ChannelSingleThreshold extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#REGULATION_ACTIVE} Channel.
+	 * Gets the Channel for {@link ChannelId#REGULATION_ACTIVE}.
 	 *
-	 * @param value the next value
+	 * @return the Channel
 	 */
-	public default void _setRegulationActive(boolean value) {
-		this.getRegulationActiveChannel().setNextValue(value);
-	}	
-	
-	
-}
+	public default BooleanReadChannel getRegulationActiveChannel() {
+		return this.channel(ChannelId.REGULATION_ACTIVE);
+	}
 
+}
