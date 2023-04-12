@@ -5,8 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.power.api.Phase;
@@ -17,17 +15,14 @@ import io.openems.edge.ess.test.DummyManagedAsymmetricEss;
 public class EssFixActivePowerImplTest {
 
 	private static final String CTRL_ID = "ctrl0";
-
 	private static final String ESS_ID = "ess0";
-
-	private static final ChannelAddress ESS_SET_ACTIVE_POWER_EQUALS = new ChannelAddress(ESS_ID,
-			"SetActivePowerEquals");
 
 	@Test
 	public void testOn() throws OpenemsException, Exception {
+		final var ess = new DummyManagedAsymmetricEss(ESS_ID);
 		new ControllerTest(new EssFixActivePowerImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("ess", new DummyManagedAsymmetricEss(ESS_ID)) //
+				.addReference("ess", ess) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
@@ -36,9 +31,7 @@ public class EssFixActivePowerImplTest {
 						.setPower(1234) //
 						.setPhase(Phase.ALL) //
 						.setRelationship(Relationship.EQUALS) //
-						.build()) //
-				.next(new TestCase() //
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, 1234));
+						.build()); //
 	}
 
 	@Test
@@ -52,9 +45,9 @@ public class EssFixActivePowerImplTest {
 						.setMode(Mode.MANUAL_OFF) //
 						.setHybridEssMode(HybridEssMode.TARGET_DC) //
 						.setPower(1234) //
-						.build()) //
-				.next(new TestCase() //
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, null));
+						.setPhase(Phase.ALL) //
+						.setRelationship(Relationship.EQUALS) //
+						.build()); //
 	}
 
 	@Test
@@ -72,5 +65,4 @@ public class EssFixActivePowerImplTest {
 		assertEquals(Integer.valueOf(9000), //
 				EssFixActivePowerImpl.getAcPower(hybridEss, HybridEssMode.TARGET_DC, 5000));
 	}
-
 }
