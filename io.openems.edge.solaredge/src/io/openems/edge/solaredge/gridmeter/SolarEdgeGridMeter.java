@@ -1,97 +1,203 @@
 package io.openems.edge.solaredge.gridmeter;
 
-import java.util.Map;
 
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.propertytypes.EventTopics;
-import org.osgi.service.metatype.annotations.Designate;
-
-import com.google.common.collect.ImmutableMap;
-
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.ModbusComponent;
-import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
-import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
+import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.Unit;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
-import io.openems.edge.meter.sunspec.AbstractSunSpecMeter;
 
-@Designate(ocd = Config.class, factory = true)
-@Component(//
-		name = "SolarEdge.Grid-Meter", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = { //
-				"type=GRID" //
-		})
-@EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
-})
-public class SolarEdgeGridMeter extends AbstractSunSpecMeter
-		implements AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent {
 
-	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
-			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_201, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_202, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_203, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_204, Priority.LOW) //
-			.build();
 
-	private static final int READ_FROM_MODBUS_BLOCK = 2;
+public interface SolaredgeGridmeter extends OpenemsComponent {
+	
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-	private Config config;
+		/**
+		 * Grid-Mode.
+		 *
+		 * <ul>
+		 * <li>Interface: SolaredgeDcCharger
+		 * <li>Type: Integer/Enum
+		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
+		 * </ul>
+		 */
+		POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)),
+	
+		
+		/**
+		 * Power from Grid. Used to calculate pv production
+		 *
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>
+		 * </ul>
+		 */
+		POWER_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)),
 
-	public SolarEdgeGridMeter() throws OpenemsException {
-		super(//
-				ACTIVE_MODELS, //
-				OpenemsComponent.ChannelId.values(), //
-				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values() //
-		);
-	}
+		/**
+		 * Power from Grid. Used to calculate pv production
+		 *
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>
+		 * </ul>
+		 */
+		POWER_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)),	
+		/**
+		 * Power from Grid. Used to calculate pv production
+		 *
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>
+		 * </ul>
+		 */
+		POWER_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH)),		
+		
+		
+		/**
+		 * Power from Grid. Used to calculate pv production
+		 *
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>
+		 * </ul>
+		 */
+		POWER_SCALE(Doc.of(OpenemsType.INTEGER) //
+				.persistencePriority(PersistencePriority.HIGH)),	
 
-	@Reference
-	protected ConfigurationAdmin cm;
+		;
 
-	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setModbus(BridgeModbus modbus) {
-		super.setModbus(modbus);
-	}
+		private final Doc doc;
 
-	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
-			return;
+		private ChannelId(Doc doc) {
+			this.doc = doc;
 		}
-		this.config = config;
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+	
+	/**
+	 * DC Power Channel {@link ChannelId#POWER_DC_SCALE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPower() {
+		return this.getPowerChannel().value();
 	}
 
-	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
+	//######################
+	/**
+	 * Gets the Channel for {@link ChannelId#POWER_DC}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getPowerChannel() {
+		return this.channel(ChannelId.POWER);
+	}	
+	
+	
+	/**
+	 * DC Power Channel {@link ChannelId#POWER_DC_SCALE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPowerL1() {
+		return this.getPowerL1Channel().value();
 	}
 
-	@Override
-	public MeterType getMeterType() {
-		return this.config.type();
+	//######################
+	/**
+	 * Gets the Channel for {@link ChannelId#POWER_DC}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getPowerL1Channel() {
+		return this.channel(ChannelId.POWER_L1);
+	}	
+	
+	/**
+	 * DC Power Channel {@link ChannelId#POWER_DC_SCALE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPowerL2() {
+		return this.getPowerL2Channel().value();
 	}
-}
+
+	//######################
+	/**
+	 * Gets the Channel for {@link ChannelId#POWER_DC}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getPowerL2Channel() {
+		return this.channel(ChannelId.POWER_L2);
+	}	
+	
+	
+	/**
+	 * DC Power Channel {@link ChannelId#POWER_DC_SCALE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPowerL3() {
+		return this.getPowerL3Channel().value();
+	}
+
+	//######################
+	/**
+	 * Gets the Channel for {@link ChannelId#POWER_DC}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getPowerL3Channel() {
+		return this.channel(ChannelId.POWER_L3);
+	}	
+	
+	
+	/**
+	 * Is the Energy Storage System On-Grid? See {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getPowerScale() {
+		return this.getPowerScaleChannel().value();
+	}
+
+	//######################
+	/**
+	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getPowerScaleChannel() {
+		return this.channel(ChannelId.POWER_SCALE);
+	}		
+
+}	
+	
+	
+
+
