@@ -56,20 +56,18 @@ public class PowerConstraint implements Consumer<Channel<Integer>> {
 			Relationship relationship, Integer value) throws OpenemsException {
 		if (value != null) {
 			// adjust value so that it fits into Min/MaxActivePower
-			switch (relationship) {
+			final var power = ess.getPower();
+			var v = switch (relationship) {
 			case EQUALS:
-				value = ess.getPower().fitValueIntoMinMaxPower(description, ess, phase, pwr, value);
-				break;
+				yield power.fitValueIntoMinMaxPower(description, ess, phase, pwr, value);
 			case GREATER_OR_EQUALS:
-				value = ess.getPower().fitValueToMaxPower(description, ess, phase, pwr, value);
-				break;
+				yield power.fitValueToMaxPower(description, ess, phase, pwr, value);
 			case LESS_OR_EQUALS:
-				value = ess.getPower().fitValueToMinPower(description, ess, phase, pwr, value);
-				break;
-			}
+				yield power.fitValueToMinPower(description, ess, phase, pwr, value);
+			};
 
 			// set power channel constraint; throws an exception on error
-			ess.addPowerConstraintAndValidate(description, phase, pwr, relationship, value);
+			ess.addPowerConstraintAndValidate(description, phase, pwr, relationship, v);
 		}
 	}
 
