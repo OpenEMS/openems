@@ -2,7 +2,7 @@ package io.openems.edge.solaredge.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public  enum ChargeDischargeMode implements OptionsEnum {
+public enum ChargeDischargeMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	SE_CHARGE_POLICY_NONE(0, "Disabled"), //
 	SE_CHARGE_POLICY_EXCESS_PV(1, "Only PV excess power not going to AC is used for charging the battery. "),
@@ -35,4 +35,4 @@ public  enum ChargeDischargeMode implements OptionsEnum {
 	public OptionsEnum getUndefined() {
 		return UNDEFINED;
 	}
-}	
+}

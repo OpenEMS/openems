@@ -111,6 +111,7 @@ public class SolarEdgeHybridEssImpl extends AbstractSunSpecEss implements SolarE
 				SolarEdgeHybridEss.ChannelId.values());
 
 		addStaticModbusTasks(this.getModbusProtocol());
+		
 
 	}
 

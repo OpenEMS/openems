@@ -100,6 +100,7 @@ public class SolaredgeGridmeterImpl extends AbstractSolaredgeGridmeter implement
 
 	@Reference
 	protected ConfigurationAdmin cm;
+	
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

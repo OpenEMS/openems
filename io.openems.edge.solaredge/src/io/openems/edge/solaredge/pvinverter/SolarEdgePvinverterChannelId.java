@@ -10,8 +10,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 //import io.openems.edge.ess.api.HybridEss.ChannelId;
 
 public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
-	
-	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {	
+
+	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
 		 * State of Charge.
 		 *
@@ -25,7 +25,7 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 		GRID_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)),
-		
+
 		/**
 		 * State of Charge.
 		 *
@@ -38,8 +38,9 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 		 */
 		GRID_POWER_SCALE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
-				.persistencePriority(PersistencePriority.HIGH)),		
+				.persistencePriority(PersistencePriority.HIGH)),
 		
+
 		/**
 		 * State of Charge.
 		 *
@@ -53,7 +54,7 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 		CONSUMPTION_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)),
-		
+
 		/**
 		 * State of Charge.
 		 *
@@ -66,8 +67,8 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 		 */
 		PRODUCTION_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH)),		
-		
+				.persistencePriority(PersistencePriority.HIGH)),
+
 		/**
 		 * DC Discharge Power.
 		 *
@@ -87,19 +88,19 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Actual AC-side battery discharge power of Energy Storage System. " //
 						+ "Negative values for charge; positive for discharge"));
+
 		private final Doc doc;
-	
+
 		private ChannelId(Doc doc) {
 			this.doc = doc;
 		}
-	
+
 		@Override
 		public Doc doc() {
 			return this.doc;
-		}		
-		
+		}
+
 	}
-	
 
 	/**
 	 * Gets the Channel for {@link ChannelId#DC_DISCHARGE_POWER}.
@@ -128,8 +129,8 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 	 */
 	public default void _setConsumptionPower(Integer value) {
 		this.getConsumptionPowerChannel().setNextValue(value);
-	}	
-	
+	}
+
 	/**
 	 * Gets the Channel for {@link ChannelId#PRODUCTION_POWER}.
 	 *
@@ -150,17 +151,14 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#PRODUCTION_POWER} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#PRODUCTION_POWER}
+	 * Channel.
 	 *
 	 * @param value the next value
 	 */
 	public default void _setProductionPower(Integer value) {
 		this.getProductionPowerChannel().setNextValue(value);
 	}
-	
-	
-	
 
 	/**
 	 * Gets the Channel for {@link ChannelId#DC_DISCHARGE_POWER}.
@@ -181,8 +179,6 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 		return this.getDcDischargePowerChannel().value();
 	}
 
-	
-	
 	/**
 	 * Gets the Channel for {@link ChannelId#DC_DISCHARGE_POWER}.
 	 *
@@ -201,8 +197,7 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 	public default Value<Integer> getGridPowerScale() {
 		return this.getGridPowerScaleChannel().value();
 	}
-	
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#DC_DISCHARGE_POWER}.
 	 *
@@ -221,9 +216,5 @@ public interface SolarEdgePvinverterChannelId extends OpenemsComponent {
 	public default Value<Integer> getGridPower() {
 		return this.getGridPowerChannel().value();
 	}
-	
-	
-
-	
 
 }

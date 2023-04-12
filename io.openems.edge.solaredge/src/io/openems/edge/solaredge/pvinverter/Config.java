@@ -35,4 +35,5 @@ import io.openems.edge.pvinverter.sunspec.Phase;
 
 	String webconsole_configurationFactory_nameHint() default "PV-Inverter SolarEdge [{id}]";
 
+	
 }

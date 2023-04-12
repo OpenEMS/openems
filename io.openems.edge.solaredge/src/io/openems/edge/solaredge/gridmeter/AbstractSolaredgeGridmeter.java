@@ -54,6 +54,7 @@ public abstract class AbstractSolaredgeGridmeter extends AbstractOpenemsSunSpecC
 		super.deactivate();
 	}
 
+	
 	@Override
 	public String debugLog() {
 		return "L:" + this.getActivePower().asString();

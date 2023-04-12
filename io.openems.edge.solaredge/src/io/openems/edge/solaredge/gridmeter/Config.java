@@ -20,7 +20,7 @@ import io.openems.edge.meter.api.MeterType;
 
 	@AttributeDefinition(name = "Is Hybrid System?", description = "Is this inverter part of an hybrid system?")
 	boolean hybrid() default false;
-	
+
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.GRID;
 
@@ -35,4 +35,5 @@ import io.openems.edge.meter.api.MeterType;
 
 	String webconsole_configurationFactory_nameHint() default "Meter SolarEdge [{id}]";
 
+	
 }

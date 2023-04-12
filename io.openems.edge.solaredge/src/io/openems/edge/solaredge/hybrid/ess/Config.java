@@ -42,4 +42,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	int DischargePowerLimit() default 5000;
 	
 	String webconsole_configurationFactory_nameHint() default "SolarEdge Hybrid Inverter System [{id}]";
+	
 }

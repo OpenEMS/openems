@@ -13,10 +13,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
-
-
-
-
 public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -27,11 +23,11 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 		 * Curtail PV. Careful: this channel is shared between both Chargers.
 		 */
 		SET_PV_POWER_LIMIT(new IntegerDoc() //
-				
+
 				.unit(Unit.WATT) //
 				.accessMode(AccessMode.WRITE_ONLY) //
 				.onInit(new IntegerWriteChannel.MirrorToDebugChannel(ChannelId.DEBUG_SET_PV_POWER_LIMIT))), //
-		
+
 		/**
 		 * Grid-Mode.
 		 *
@@ -43,8 +39,8 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 		 */
 		GRID_MODE(Doc.of(GridMode.values()) //
 				.persistencePriority(PersistencePriority.HIGH) //
-		),	
-		
+		),
+
 		/**
 		 * Power from Grid. Used to calculate pv production
 		 *
@@ -58,8 +54,7 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 		POWER_DC(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.HIGH)),
-		
-		
+
 		/**
 		 * Power from Grid. Used to calculate pv production
 		 *
@@ -71,10 +66,9 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 		 * </ul>
 		 */
 		POWER_DC_SCALE(Doc.of(OpenemsType.INTEGER) //
-				
-				.persistencePriority(PersistencePriority.HIGH)),	
-		 
-	
+
+				.persistencePriority(PersistencePriority.HIGH)),
+
 		/**
 		 * Production Power.
 		 *
@@ -85,22 +79,21 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 		 * <li>Range: ?
 		 * <li>This is the AC-Production Power coming out of the Inverter
 		 * 
-		 * It should be ACTUAL_POWER (PV Production Power) 	minus
+		 * It should be ACTUAL_POWER (PV Production Power) minus
 		 * DC_DISCHARGE_POWER/"instantaneous_power" (+/-)
 		 * </ul>
 		 */
 		PRODUCTION_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH)),	
-		
-		
-		//GRID_MODE(Doc.of(OpenemsType.STRING) //
-		//		.unit(Unit.WATT_HOURS)), 
+				.persistencePriority(PersistencePriority.HIGH)),
+
+		// GRID_MODE(Doc.of(OpenemsType.STRING) //
+		// .unit(Unit.WATT_HOURS)),
 
 		// LongReadChannel
 		BMS_DCDC_OUTPUT_ENERGY(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS)),
-		
+
 		/**
 		 * DC-Discharge Power.
 		 *
@@ -114,8 +107,7 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 		 */
 		DC_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH))	
-		;
+				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;
 
@@ -128,8 +120,8 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 			return this.doc;
 		}
 	}
-	
-	//######################
+
+	// ######################
 	/**
 	 * Gets the Channel for {@link ChannelId#POWER_DC}.
 	 *
@@ -146,9 +138,9 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 	 */
 	public default Value<Integer> getDcPower() {
 		return this.getDcPowerChannel().value();
-	}	
-	
-	//######################
+	}
+
+	// ######################
 	/**
 	 * Gets the Channel for {@link ChannelId#CONTROL_MODE}.
 	 *
@@ -165,9 +157,8 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 	 */
 	public default Value<Integer> getDcPowerScale() {
 		return this.getDcPowerScaleChannel().value();
-	}		
-	
-	
+	}
+
 	/**
 	 * Gets the Channel for {@link ChannelId#PRODUCTION_POWER}.
 	 *
@@ -206,6 +197,3 @@ public interface SolaredgeDcCharger extends EssDcCharger, OpenemsComponent {
 		return this.getDcDischargePowerChannel().value();
 	}
 }
-
-	
-

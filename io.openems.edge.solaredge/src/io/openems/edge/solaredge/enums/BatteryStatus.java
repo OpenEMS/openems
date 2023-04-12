@@ -2,7 +2,7 @@ package io.openems.edge.solaredge.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public  enum BatteryStatus implements OptionsEnum {
+public enum BatteryStatus implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	SE_BATT_STATUS_OFF(0, "Off"), //
 	SE_BATT_STATUS_STBY(1, "Standby"), //
@@ -12,7 +12,6 @@ public  enum BatteryStatus implements OptionsEnum {
 	SE_BATT_STATUS_FAULT(5, "Fault"), //
 	// 6 doesn´t exist
 	SE_BATT_STATUS_IDLE(7, "Idle"); //
-			
 
 	private final int value;
 	private final String name;

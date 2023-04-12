@@ -38,13 +38,10 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-
 import io.openems.edge.ess.sunspec.AbstractSunSpecDcCharger;
 import io.openems.edge.solaredge.hybrid.ess.SolarEdgeHybridEss;
-
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 

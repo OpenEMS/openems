@@ -1,6 +1,5 @@
 package io.openems.edge.solaredge.hybrid.ess;
 
-
 import java.util.Map;
 import java.util.Optional;
 
@@ -78,7 +77,7 @@ public abstract class AbstractSunSpecEss extends AbstractOpenemsSunSpecComponent
 		return new StringBuilder() //
 				.append("SoC:").append(this.getSoc().asString()) //
 				.append("|ESS ActivePower:").append(this.getActivePower().asString()) //
-				
+
 				.toString();
 	}
 
