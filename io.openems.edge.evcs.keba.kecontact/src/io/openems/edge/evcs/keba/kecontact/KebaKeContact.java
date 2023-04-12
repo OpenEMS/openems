@@ -5,7 +5,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -24,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.InetAddressUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -80,14 +80,14 @@ public class KebaKeContact extends AbstractManagedEvcsComponent
 	private InetAddress ip = null;
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws UnknownHostException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.channel(KebaChannelId.ALIAS).setNextValue(config.alias());
 
-		this.ip = InetAddress.getByName(config.ip().trim());
-
+		this.ip = InetAddressUtils.parseOrError(config.ip());
 		this.config = config;
+
 		this._setPowerPrecision(0.23);
 		this._setChargingType(ChargingType.AC);
 		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
