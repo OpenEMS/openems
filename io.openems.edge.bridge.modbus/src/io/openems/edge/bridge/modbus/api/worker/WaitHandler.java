@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.collect.EvictingQueue;
 
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WaitTask;
 
@@ -24,6 +25,8 @@ public class WaitHandler {
 
 	public final AtomicReference<WaitTask> activeWaitTask = new AtomicReference<>();
 
+	private final AtomicReference<LogVerbosity> logVerbosity;
+
 	/**
 	 * Waiting times that would have been possible.
 	 */
@@ -33,6 +36,10 @@ public class WaitHandler {
 	private long lastWaitingTime = 0;
 	private boolean isCycleTimeTooShort = false;
 	private boolean isCycleContainedDefectiveComponent = false;
+
+	public WaitHandler(AtomicReference<LogVerbosity> logVerbosity) {
+		this.logVerbosity = logVerbosity;
+	}
 
 	/**
 	 * Update the size of the internal 'possibleWaitingTimes' queue.
@@ -63,7 +70,7 @@ public class WaitHandler {
 		final boolean isCycleTimeTooShort;
 		if (this.stopwatch == null) {
 			// No pending Tasks did never happen -> Tasks could not be finished
-			System.out.println("'No pending Tasks' did never happen"); // TODO remove before merge
+			this.log("'AllTasksFinished' did never happen"); // TODO remove before merge
 			possibleWaitingTime = 0L;
 			isCycleTimeTooShort = true;
 		} else {
@@ -108,8 +115,8 @@ public class WaitHandler {
 		var waitingTime = this.possibleWaitingTimes.stream() //
 				.min(Long::compare) //
 				.orElseGet(() -> 0L);
-		System.out.println("WaitingTimes [" + this.possibleWaitingTimes.size() + "] " + this.possibleWaitingTimes
-				+ " -> " + waitingTime); // TODO remove before merge
+		this.log("WaitingTimes [" + this.possibleWaitingTimes.size() + "] " + this.possibleWaitingTimes + " -> "
+				+ waitingTime); // TODO remove before merge
 		if (waitingTime == null) {
 			this.lastWaitingTime = 0;
 			return null;
@@ -146,6 +153,19 @@ public class WaitHandler {
 	 */
 	public void setCycleContainedDefectiveComponent() {
 		this.isCycleContainedDefectiveComponent = true;
+	}
+
+	// TODO remove before release
+	private void log(String message) {
+		switch (this.logVerbosity.get()) {
+		case DEV_REFACTORING:
+			System.out.println("WaitHandler: " + message);
+			break;
+		case NONE:
+		case READS_AND_WRITES:
+		case WRITES:
+			break;
+		}
 	}
 
 }

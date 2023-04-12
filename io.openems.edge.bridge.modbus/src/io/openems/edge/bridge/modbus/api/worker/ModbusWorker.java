@@ -3,12 +3,15 @@ package io.openems.edge.bridge.modbus.api.worker;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Stopwatch;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingFunction;
@@ -48,12 +51,18 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	private final AtomicReference<LogVerbosity> logVerbosity;
 	private final LinkedBlockingDeque<WriteTask> writeTasksQueue = new LinkedBlockingDeque<>();
 	private final LinkedBlockingDeque<Task> readTasksQueue = new LinkedBlockingDeque<>();
+
+	/**
+	 * This Signal is released, when there possibly are new tasks in either
+	 * `writeTasksQueue` or `readTasksQueue`.
+	 */
 	private final Mutex signalAvailableTaskInQueue = new Mutex(false);
 	private final DefectiveComponents defectiveComponents;
 	private final ModbusTasksManager tasksManager;
-	private final WaitHandler waitHandler = new WaitHandler();
+	private final WaitHandler waitHandler;
 
 	/**
+	 * Constructor for {@link ModbusWorker}.
 	 * 
 	 * @param execute                executes a {@link Task}; returns number of
 	 *                               actually executed subtasks
@@ -73,6 +82,7 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		this.logWarn = logWarn;
 		this.logVerbosity = logVerbosity;
 
+		this.waitHandler = new WaitHandler(logVerbosity);
 		this.setCycleTimeIsTooShort = setCycleTimeIsTooShort;
 		this.defectiveComponents = new DefectiveComponents();
 		this.tasksManager = new ModbusTasksManager(this.defectiveComponents);
@@ -110,6 +120,11 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 		// Collect the next read-tasks
 		this.readTasksQueue.addAll(this.tasksManager.getNextReadTasks());
+		StringBuilder b = new StringBuilder();
+		for (var task : this.tasksManager.getNextReadTasks()) {
+			b.append(" read task " + task + "\n");
+		}
+		this.log.info(b.toString());
 		this.signalAvailableTaskInQueue.release();
 	}
 
@@ -187,10 +202,13 @@ public class ModbusWorker extends AbstractImmediateWorker {
 
 		try {
 			// execute the task
-			this.log("Execute " + task); // TODO remove before merge
+			var stopwatch = Stopwatch.createStarted();
 			var noOfExecutedSubTasks = this.execute.apply(task);
+			stopwatch.stop();
 
 			if (noOfExecutedSubTasks > 0) {
+				// TODO remove before merge
+				this.log("Execute " + task + "; elapsed: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
 				// no exception & at least one sub-task executed
 				this.markComponentAsDefective(task.getParent(), false);
 			}
