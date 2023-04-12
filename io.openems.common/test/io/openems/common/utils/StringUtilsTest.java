@@ -37,11 +37,11 @@ public class StringUtilsTest {
 
 	@Test
 	public void testMatchWildcard() {
-		var activePower = "ActivePower";
-		var anyPower = "*Power";
-		var anyActive = "Active*";
-		var any = "*";
-		var foobar = "foobar";
+		final var activePower = "ActivePower";
+		final var anyPower = "*Power";
+		final var anyActive = "Active*";
+		final var any = "*";
+		final var foobar = "foobar";
 
 		assertEquals(anyPower.length(), StringUtils.matchWildcard(activePower, anyPower));
 		assertEquals(anyActive.length(), StringUtils.matchWildcard(activePower, anyActive));

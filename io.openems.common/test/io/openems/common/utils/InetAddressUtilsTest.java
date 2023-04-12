@@ -12,6 +12,7 @@ import io.openems.common.exceptions.OpenemsException;
 public class InetAddressUtilsTest {
 
 	private static final Inet4Address IP;
+
 	static {
 		Inet4Address ip = null;
 		try {

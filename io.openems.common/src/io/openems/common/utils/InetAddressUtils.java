@@ -12,7 +12,7 @@ public final class InetAddressUtils {
 	}
 
 	/**
-	 * Parses a string to an {@link Inet4Address}.
+	 * Parses a string to an {@link Inet4Address} or returns null.
 	 * 
 	 * <p>
 	 * See {@link Inet4Address#getByName(String)}
@@ -39,6 +39,7 @@ public final class InetAddressUtils {
 	 * See {@link Inet4Address#getByName(String)}
 	 * 
 	 * @param value the string value
+	 * @return an {@link Inet4Address}
 	 * @throws OpenemsException on error
 	 */
 	public static Inet4Address parseOrError(String value) throws OpenemsException {
