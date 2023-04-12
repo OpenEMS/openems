@@ -10,8 +10,12 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ghgande.j2mod.modbus.Modbus;
+import com.ghgande.j2mod.modbus.io.AbstractSerialTransportListener;
 import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
+import com.ghgande.j2mod.modbus.io.ModbusSerialTransport;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.msg.ModbusMessage;
+import com.ghgande.j2mod.modbus.net.AbstractSerialConnection;
 import com.ghgande.j2mod.modbus.net.SerialConnection;
 import com.ghgande.j2mod.modbus.util.SerialParameters;
 
@@ -130,7 +134,19 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			} catch (Exception e) {
 				throw new OpenemsException("Connection via [" + this.portName + "] failed: " + e.getMessage());
 			}
-			this._connection.getModbusTransport().setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
+
+			var transport = (ModbusSerialTransport) this._connection.getModbusTransport();
+			transport.setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
+			// Add 1ms additional waiting time between write request and read response
+			transport.addListener(new AbstractSerialTransportListener() {
+				public void afterMessageWrite(AbstractSerialConnection port, ModbusMessage msg) {
+					try {
+						Thread.sleep(1);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			});
 		}
 		return this._connection;
 	}
