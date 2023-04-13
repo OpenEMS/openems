@@ -59,7 +59,6 @@
 	bnd.identity;id='io.openems.edge.controller.api.rest',\
 	bnd.identity;id='io.openems.edge.controller.api.websocket',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.balancingcosphi',\
-	bnd.identity;id='io.openems.edge.controller.asymmetric.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
@@ -212,7 +211,6 @@
 	io.openems.edge.controller.api.rest;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\
 	io.openems.edge.controller.asymmetric.balancingcosphi;version=snapshot,\
-	io.openems.edge.controller.asymmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
