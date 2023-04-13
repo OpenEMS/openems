@@ -30,6 +30,7 @@ public class LstmModelPredictorTest {
 				ZoneOffset.UTC);
 
 		var values = Data.data;
+		System.out.println(values.length);
 		var predictedValues = Data.predictedData;
 
 		var timedata = new DummyTimedata(TIMEDATA_ID);
@@ -38,6 +39,8 @@ public class LstmModelPredictorTest {
 		for (var i = 0; i < values.length; i++) {
 			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
 		}
+		
+		
 
 		var sut = new LstmPredictorImpl();
 
@@ -50,7 +53,7 @@ public class LstmModelPredictorTest {
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()).build());
 
 		var prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
-		///var p = prediction.getValues();
+//		var p = prediction.getValues();
 
 //		assertEquals(predictedValues[0], p[0]);
 //		assertEquals(predictedValues[48], p[48]);

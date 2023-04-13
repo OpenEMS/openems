@@ -2,13 +2,11 @@ package io.openems.edge.predictor.lstmmodel;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.SortedMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.osgi.service.component.ComponentContext;
@@ -34,12 +32,14 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
-import io.openems.edge.predictor.lstmmodel.util.Data2D1D;
-import io.openems.edge.predictor.lstmmodel.util.Preprocessing;
-import io.openems.edge.predictor.lstmmodel.util.TrainPredict;
+
+import io.openems.edge.predictor.lstmmodel.util.Engine;
+import io.openems.edge.predictor.lstmmodel.util.Engine.EngineBuilder;
+import io.openems.edge.predictor.lstmmodel.util.PreprocessingImpl2;
+import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 import io.openems.edge.timedata.api.Timedata;
 
-import static io.openems.edge.predictor.lstmmodel.util.SlidingWindowSpliterator.windowed;
+//import static io.openems.edge.predictor.lstmmodel.util.SlidingWindowSpliterator.windowed;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -50,6 +50,11 @@ import static io.openems.edge.predictor.lstmmodel.util.SlidingWindowSpliterator.
 public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predictor24Hours, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(LstmPredictorImpl.class);
+
+//	public static final Function<ArrayList<Double>, double[]> ONE_D_ARRAY = UtilityConversion::convert1DArrayListTo1DArray;
+//	public static final Function<ArrayList<ArrayList<Double>>, double[][]> TWO_D_ARRAY = UtilityConversion::convert2DArrayListTo2DArray;
+	public static final Function<List<Integer>, List<Double>> INTEGER_TO_DOUBLE_LIST = UtilityConversion::listIntegerToListDouble;
+//	public static final Function<double[], ArrayList<Double>> TWO_D_LIST = UtilityConversion::doubleToArrayListDouble;
 
 	@Reference
 	private Timedata timedata;
@@ -119,74 +124,61 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 				// get as Array
 				.collect(Collectors.toList());
 
-		//var numOfDataPerDay = 96;
-
 		System.out.println(data);
 
-		// LSTM model
+		int windowsSize = 24;
+		PreprocessingImpl2 preprocessing = new PreprocessingImpl2(INTEGER_TO_DOUBLE_LIST.apply(data), windowsSize);
 
-		List<Double> doubleOfInt = data.stream().mapToDouble(i -> i).boxed().collect(Collectors.toList());
-		
+		preprocessing.scale(0.2, 0.8);
 
-		int windowsSize = 5;
-		double trainSplit = 0.7;
-		double validateSplit = 0.2;
-		
+		double[] result;
 
-		Preprocessing preprocessing = new Preprocessing(doubleOfInt, windowsSize, trainSplit, validateSplit);
-		//Preprocessing preprocessing1 = new Preprocessing(doubleOfInt, windowsSize);
+		try {
 
-		TrainPredict model = new TrainPredict(preprocessing.trainData, preprocessing.trainTarget,
-				preprocessing.validateData, preprocessing.validateTarget);
-		
+			double[][] trainData = preprocessing.getFeatureData( //
+					preprocessing.trainTestSplit.trainIndexLower, //
+					preprocessing.trainTestSplit.trainIndexHigher);
 
-		ArrayList<ArrayList<Double>> value = model.train();
-		
+			double[][] validateData = preprocessing.getFeatureData(preprocessing.trainTestSplit.validateIndexLower,
+					preprocessing.trainTestSplit.validateIndexHigher);
 
-		
+			double[][] testData = preprocessing.getFeatureData( //
+					preprocessing.trainTestSplit.testIndexLower, preprocessing.trainTestSplit.testIndexHigher);
 
-		double[] result = model.Predict(preprocessing.testData, preprocessing.testTarget, value);
-		
-		// Return LSTM result
-		double resultRMs = model.computeRMS(preprocessing.testTarget, result);
-		System.out.println(Arrays.toString(result));
-		System.out.println(Arrays.toString(preprocessing.testTarget));
-		System.out.println("The RMS is : " + resultRMs);
+			double[] trainTarget = preprocessing.getTargetData( //
+					preprocessing.trainTestSplit.trainIndexLower, //
+					preprocessing.trainTestSplit.trainIndexHigher);
 
-		return null;
-	}
-	
+			double[] validateTarget = preprocessing.getTargetData( //
+					preprocessing.trainTestSplit.validateIndexLower, preprocessing.trainTestSplit.validateIndexHigher);
 
+			double[] testTarget = preprocessing.getTargetData( //
+					preprocessing.trainTestSplit.testIndexLower, preprocessing.trainTestSplit.testIndexHigher);
 
-	public static Data2D1D generateData2D1D(int windowsSize, List<Double> dataGenerated) {
+			Engine model = new EngineBuilder() //
+					.setInputMatrix(trainData) //
+					.setTargetVector(trainTarget) //
+					.setValidateData(validateData) //
+					.setValidateTarget(validateTarget) //
+					.build();
 
-		//Random rnd = new Random();
+			int epochs = 10;
+			model.fit(epochs);
 
-		List<List<Double>> XList = windowed(dataGenerated, windowsSize) //
-				.map(s -> s.collect(Collectors.toList())) //
-				.collect(Collectors.toList());
+			result = model.Predict(testData, testTarget);
+			double resultRMs = model.computeRMS(testTarget, result);
 
-		XList.remove(XList.size() - 1);
+			System.out.println("The RMS is : " + resultRMs);
+			System.out.println(Arrays.toString(preprocessing.reverseScale(0.2, 0.8, result)));
+			System.out.println(result.length);
+			System.out.println(Arrays.toString(preprocessing.reverseScale(0.2, 0.8, testTarget)));
+			System.out.println(testTarget.length);
+			return new Prediction24Hours(preprocessing.reverseScale(0.2, 0.8, result));
 
-		System.out.println(XList);
-
-		long seed = new Random().nextLong();
-
-		Collections.shuffle(XList, new Random(seed));
-		double[][] Xarray = XList.stream() //
-				.map(l -> l.stream() //
-						.mapToDouble(Double::doubleValue) //
-						.toArray()) //
-				.toArray(double[][]::new);
-
-		List<Double> YList = dataGenerated.subList(windowsSize, dataGenerated.size());
-
-		System.out.println(YList);
-		Collections.shuffle(YList, new Random(seed));
-
-		double[] yArray = YList.stream().mapToDouble(d -> d).toArray();
-
-		return new Data2D1D(Xarray, yArray);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 
 	}
 

@@ -1,53 +1,45 @@
 package io.openems.edge.predictor.lstmmodel.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Vector;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.function.Function;
 
 public class Lstm {
 
 	private double[] inputData;
 	private double outputData;
-	private double derivativeLWrtRi; //
-	private double derivativeLWrtRo; //
-	private double derivativeLWrtRz; //
-	private double derivativeLWrtWi; //
-	private double derivativeLWrtWo; //
-	private double derivativeLWrtWz; //
+	private double derivativeLWrtRi = 0;; //
+	private double derivativeLWrtRo = 0;; //
+	private double derivativeLWrtRz = 0;; //
+	private double derivativeLWrtWi = 0;; //
+	private double derivativeLWrtWo = 0;; //
+	private double derivativeLWrtWz = 0;; //
 	private double learningRate; //
+	private int epoch = 100;
 
-	ArrayList<Cell> cells;
+	protected ArrayList<Cell> cells;
 
-	public Lstm(double[] input, double output, double learningRate) {
-		this.inputData = input;
-		this.outputData = output;
-		this.derivativeLWrtRi = 0;
-		this.derivativeLWrtRo = 0;
-		this.derivativeLWrtRz = 0;
-		this.derivativeLWrtWi = 0;
-		this.derivativeLWrtWo = 0;
-		this.derivativeLWrtWz = 0;
-		this.derivativeLWrtRi = 0;
-		this.derivativeLWrtRo = 0;
-		this.derivativeLWrtRz = 0;
-		this.learningRate = learningRate;
+	public static Function<ArrayList<Double>, Integer> getMin = (arrayList) -> {
+		return arrayList.indexOf(Collections.min(arrayList));
+	};
 
-	}
+	public Lstm(LstmBuilder builder) {
+		this.inputData = builder.inputData;
+		this.outputData = builder.outputData;
+		this.derivativeLWrtRi = builder.derivativeLWrtRi;
+		this.derivativeLWrtRo = builder.derivativeLWrtRo;
+		this.derivativeLWrtRz = builder.derivativeLWrtRz;
 
-	public void initilizeCells() {
-		this.cells = new ArrayList<>();
-		for (int i = 0; i < inputData.length; i++) {
-			Cell a = new Cell(inputData[i], outputData);
-			cells.add(a);
-		}
-
+		this.derivativeLWrtWi = builder.derivativeLWrtWi;
+		this.derivativeLWrtWo = builder.derivativeLWrtWo;
+		this.derivativeLWrtWz = builder.derivativeLWrtWz;
+		this.learningRate = builder.learningRate;
+		this.epoch = builder.epoch;
 	}
 
 	public void forwardprop() {
 		try {
 			for (int i = 0; i < cells.size(); i++) {
-				// System.out.println(i + 1);
 				cells.get(i).forwardPropogation();
 				if (i < cells.size() - 1) {
 					cells.get(i + 1).yt = cells.get(i).yt;
@@ -89,19 +81,13 @@ public class Lstm {
 		}
 	}
 
-	public ArrayList<ArrayList<Double>> trainEpoc() {
-		ArrayList<ArrayList<Double>> wI = new ArrayList<ArrayList<Double>>();
-		ArrayList<ArrayList<Double>> wO = new ArrayList<ArrayList<Double>>();
-		ArrayList<ArrayList<Double>> wZ = new ArrayList<ArrayList<Double>>();
-		ArrayList<ArrayList<Double>> rI = new ArrayList<ArrayList<Double>>();
-		ArrayList<ArrayList<Double>> rO = new ArrayList<ArrayList<Double>>();
-		ArrayList<ArrayList<Double>> rZ = new ArrayList<ArrayList<Double>>();
-		ArrayList<ArrayList<Double>> out = new ArrayList<ArrayList<Double>>();
-		ArrayList<Double> errorList = new ArrayList<Double>();
+	public ArrayList<ArrayList<Double>> train() {
 
-		int EPOCH = 1000;
-		for (int i = 0; i < EPOCH; i++) {
-			// System.out.println("Training " + i+1 + "/ " + EPOCH);
+		MatrixWeight mW = new MatrixWeight();
+
+		for (int i = 0; i < this.epoch; i++) {
+			System.out.println("Epoch : " + i);
+
 			forwardprop();
 			backwardprop();
 
@@ -122,29 +108,28 @@ public class Lstm {
 				temp7.add(cells.get(j).yt);
 			}
 
-			errorList.add(cells.get(cells.size() - 1).getError());
-			wI.add(temp1);
-			wO.add(temp2);
-			wZ.add(temp3);
-			rI.add(temp4);
-			rO.add(temp5);
-			rZ.add(temp6);
-			out.add(temp7);
+			mW.errorList.add(cells.get(cells.size() - 1).getError());
+			mW.wI.add(temp1);
+			mW.wO.add(temp2);
+			mW.wZ.add(temp3);
+			mW.rI.add(temp4);
+			mW.rO.add(temp5);
+			mW.rZ.add(temp6);
+			mW.out.add(temp7);
 		}
 
-		System.out.println(errorList);
-		int ind = findGlobalMinima(errorList);
+		int ind = findGlobalMinima(mW.errorList);
 
 		ArrayList<Double> err = new ArrayList<Double>();
 		ArrayList<ArrayList<Double>> return_arr = new ArrayList<ArrayList<Double>>();
-		return_arr.add(wI.get(ind));
-		return_arr.add(wO.get(ind));
-		return_arr.add(wZ.get(ind));
-		return_arr.add(rI.get(ind));
-		return_arr.add(rO.get(ind));
-		return_arr.add(rZ.get(ind));
-		return_arr.add(out.get(ind));
-		err.add(errorList.get(ind));
+		return_arr.add(mW.wI.get(ind));
+		return_arr.add(mW.wO.get(ind));
+		return_arr.add(mW.wZ.get(ind));
+		return_arr.add(mW.rI.get(ind));
+		return_arr.add(mW.rO.get(ind));
+		return_arr.add(mW.rZ.get(ind));
+		return_arr.add(mW.out.get(ind));
+		err.add(mW.errorList.get(ind));
 		return_arr.add(err);
 		return return_arr;
 
@@ -163,31 +148,140 @@ public class Lstm {
 				mn.add(testList.get(idx + 1));
 				index.add(idx + 1);
 			} else {
-				//
+				// do nothing
 			}
 		}
-//		System.out.println(mn);
-//		System.out.println(index);
-//		System.out.println(getMinIndex(mn));
-//		System.out.println(testList.get(index.get(getMinIndex(mn))));
 
-		if (mn.isEmpty()) {
-			return getMinIndex(testList);
-		} else {
-			return index.get(getMinIndex(mn));
+		return mn.isEmpty() ? getMin.apply(testList) : index.get(getMin.apply(mn));
+
+	}
+
+	public double[] getInputData() {
+		return inputData;
+	}
+
+	public double getOutputData() {
+		return outputData;
+	}
+
+	public double getDerivativeLWrtRi() {
+		return derivativeLWrtRi;
+	}
+
+	public double getDerivativeLWrtRo() {
+		return derivativeLWrtRo;
+	}
+
+	public double getDerivativeLWrtRz() {
+		return derivativeLWrtRz;
+	}
+
+	public double getDerivativeLWrtWi() {
+		return derivativeLWrtWi;
+	}
+
+	public double getDerivativeLWrtWo() {
+		return derivativeLWrtWo;
+	}
+
+	public double getDerivativeLWrtWz() {
+		return derivativeLWrtWz;
+	}
+
+	public double getLearningRate() {
+		return learningRate;
+	}
+
+	public ArrayList<Cell> getCells() {
+		return cells;
+	}
+
+	public static class LstmBuilder {
+
+		protected double[] inputData;
+		protected double outputData;
+		protected double derivativeLWrtRi; //
+		protected double derivativeLWrtRo; //
+		protected double derivativeLWrtRz; //
+		protected double derivativeLWrtWi; //
+		protected double derivativeLWrtWo; //
+		protected double derivativeLWrtWz; //
+		protected double learningRate; //
+		protected int epoch = 100; //
+
+		protected ArrayList<Cell> cells;
+
+		public LstmBuilder(double[] inputData, double outputData) {
+			this.inputData = inputData;
+			this.outputData = outputData;
+		}
+
+		public LstmBuilder() {
+
+		}
+
+		public LstmBuilder setInputData(double[] inputData) {
+			this.inputData = inputData;
+			return this;
+		}
+
+		public LstmBuilder setOutputData(double outputData) {
+			this.outputData = outputData;
+			return this;
+		}
+
+		public LstmBuilder setDerivativeLWrtRi(double derivativeLWrtRi) {
+			this.derivativeLWrtRi = derivativeLWrtRi;
+			return this;
+		}
+
+		public LstmBuilder setDerivativeLWrtRo(double derivativeLWrtRo) {
+			this.derivativeLWrtRo = derivativeLWrtRo;
+			return this;
+		}
+
+		public LstmBuilder setDerivativeLWrtRz(double derivativeLWrtRz) {
+			this.derivativeLWrtRz = derivativeLWrtRz;
+			return this;
+		}
+
+		public LstmBuilder setDerivativeLWrtWi(double derivativeLWrtWi) {
+			this.derivativeLWrtWi = derivativeLWrtWi;
+			return this;
+		}
+
+		public LstmBuilder setDerivativeLWrtWo(double derivativeLWrtWo) {
+			this.derivativeLWrtWo = derivativeLWrtWo;
+			return this;
+		}
+
+		public LstmBuilder setDerivativeLWrtWz(double derivativeLWrtWz) {
+			this.derivativeLWrtWz = derivativeLWrtWz;
+			return this;
+		}
+
+		public LstmBuilder setLearningRate(double learningRate) {
+			this.learningRate = learningRate;
+			return this;
+		}
+
+		public LstmBuilder setEpoch(int epoch) {
+			this.epoch = epoch;
+			return this;
+		}
+
+		public Lstm build() {
+			return new Lstm(this);
 		}
 	}
 
-	public static int getMinIndex(ArrayList<Double> arr) {
-
-		double minVal = arr.get(0);
-		int minIdx = 0;
-		for (int i = 1; i < arr.size(); i++) {
-			if (arr.get(i) < minVal) {
-				minVal = arr.get(i);
-				minIdx = i;
-			}
+	public void initilizeCells() {
+		this.cells = new ArrayList<>();
+		for (int i = 0; i < inputData.length; i++) {
+			Cell a = new Cell(inputData[i], outputData);
+			cells.add(a);
 		}
-		return minIdx;
+
 	}
+
 }

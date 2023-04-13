@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.lstmmodel.util;
+package io.openems.edge.predictor.lstmmodel.utilities;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;

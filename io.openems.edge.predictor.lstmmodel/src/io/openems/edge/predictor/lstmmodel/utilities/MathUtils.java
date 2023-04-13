@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.lstmmodel.util;
+package io.openems.edge.predictor.lstmmodel.utilities;
 
 //import org.apache.commons.math3.analysis.function.Sigmoid;
 
