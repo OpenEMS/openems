@@ -27,6 +27,7 @@ import io.openems.edge.core.appmanager.DefaultEnum;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -54,7 +55,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 @Component(name = "App.Evcs.Keba")
 public class KebaEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
 
-	public enum Property implements DefaultEnum {
+	public enum Property implements DefaultEnum, Nameable {
 		// Component-IDs
 		EVCS_ID("evcs0"), //
 		CTRL_EVCS_ID("ctrlEvcs0"), //
@@ -115,8 +116,7 @@ public class KebaEvcs extends AbstractEvcsApp<Property> implements OpenemsApp {
 				.fields(JsonUtils.buildJsonArray() //
 						.add(JsonFormlyUtil.buildInput(Property.IP) //
 								.setLabel(TranslationUtil.getTranslation(bundle, "ipAddress")) //
-								.setDescription(
-										TranslationUtil.getTranslation(bundle, this.getAppId() + ".ip.description"))
+								.setDescription(TranslationUtil.getTranslation(bundle, "App.Evcs.ip.description"))
 								.setDefaultValue(Property.IP.getDefaultValue()) //
 								.isRequired(true) //
 								.setValidation(Validation.IP) //

@@ -1,22 +1,27 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.JsonUtils.JsonObjectBuilder;
+import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.core.host.NetworkConfiguration;
 
 /**
  * Source https://formly.dev/examples/introduction.
@@ -34,7 +39,17 @@ public class JsonFormlyUtil {
 	 * @return a {@link CheckboxBuilder}
 	 */
 	public static <T extends Enum<T>> CheckboxBuilder buildCheckbox(T property) {
-		return new CheckboxBuilder(property);
+		return new CheckboxBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Checkbox Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link CheckboxBuilder}
+	 */
+	public static CheckboxBuilder buildCheckboxFromNameable(Nameable nameable) {
+		return new CheckboxBuilder(nameable);
 	}
 
 	/**
@@ -45,7 +60,38 @@ public class JsonFormlyUtil {
 	 * @return a {@link InputBuilder}
 	 */
 	public static <T extends Enum<T>> InputBuilder buildInput(T property) {
-		return new InputBuilder(property);
+		return new InputBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Input Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link InputBuilder}
+	 */
+	public static InputBuilder buildInputFromNameable(Nameable nameable) {
+		return new InputBuilder(nameable);
+	}
+
+	/**
+	 * Creates a JsonObject Formly Input Builder for the given enum.
+	 *
+	 * @param <T>      the type of the enum
+	 * @param property the enum property
+	 * @return a {@link InputBuilder}
+	 */
+	public static <T extends Enum<T>> FieldGroupBuilder buildFieldGroup(T property) {
+		return new FieldGroupBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Input Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link InputBuilder}
+	 */
+	public static FieldGroupBuilder buildFieldGroupFromNameable(Nameable nameable) {
+		return new FieldGroupBuilder(nameable);
 	}
 
 	/**
@@ -56,7 +102,17 @@ public class JsonFormlyUtil {
 	 * @return a {@link SelectBuilder}
 	 */
 	public static <T extends Enum<T>> SelectBuilder buildSelect(T property) {
-		return new SelectBuilder(property);
+		return new SelectBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Select Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link SelectBuilder}
+	 */
+	public static SelectBuilder buildSelectFromNameable(Nameable nameable) {
+		return new SelectBuilder(nameable);
 	}
 
 	/**
@@ -67,7 +123,17 @@ public class JsonFormlyUtil {
 	 * @return a {@link RangeBuilder}
 	 */
 	public static <T extends Enum<T>> RangeBuilder buildRange(T property) {
-		return new RangeBuilder(property);
+		return new RangeBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Range Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link RangeBuilder}
+	 */
+	public static RangeBuilder buildRangeFromNameable(Nameable nameable) {
+		return new RangeBuilder(nameable);
 	}
 
 	/**
@@ -78,7 +144,119 @@ public class JsonFormlyUtil {
 	 * @return a {@link RepeatBuilder}
 	 */
 	public static <T extends Enum<T>> RepeatBuilder buildRepeat(T property) {
-		return new RepeatBuilder(property);
+		return new RepeatBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Repeat Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link RepeatBuilder}
+	 */
+	public static RepeatBuilder buildRepeat(Nameable nameable) {
+		return new RepeatBuilder(nameable);
+	}
+
+	private static <T extends Enum<T>> Nameable toNameable(T property) {
+		return new StaticNameable(property.name());
+	}
+
+	public static final class StaticNameable implements Nameable {
+
+		private final String name;
+
+		public StaticNameable(String name) {
+			super();
+			this.name = name;
+		}
+
+		@Override
+		public String name() {
+			return this.name;
+		}
+
+	}
+
+	public enum Wrappers {
+		/**
+		 * Wrapper for setting the default value dynamically based on the different
+		 * {@link Case Cases}.
+		 */
+		DEFAULT_OF_CASES("formly-wrapper-default-of-cases"), //
+
+		/**
+		 * Wrapper for a panel.
+		 */
+		PANEL("panel"), //
+		;
+
+		private final String wrapperClass;
+
+		private Wrappers(String wrapperClass) {
+			this.wrapperClass = wrapperClass;
+		}
+
+		public String getWrapperClass() {
+			return this.wrapperClass;
+		}
+
+	}
+
+	public static class DefaultValueOptions {
+
+		private final Nameable field;
+		private final List<Case> cases;
+
+		public DefaultValueOptions(Nameable field, Case... cases) {
+			super();
+			this.field = field;
+			this.cases = Arrays.stream(cases).collect(Collectors.toList());
+		}
+
+		/**
+		 * Creates a {@link JsonObject} from this {@link DefaultValueOptions}.
+		 * 
+		 * @return the {@link JsonObject}
+		 */
+		public JsonObject toJsonObject() {
+			return JsonUtils.buildJsonObject() //
+					.addProperty("field", this.field.name()) //
+					.add("cases", this.cases.stream().map(Case::toJsonObject).collect(JsonUtils.toJsonArray())) //
+					.build();
+		}
+
+	}
+
+	public static class Case {
+		private final JsonElement value;
+		private final JsonElement defaultValue;
+
+		public Case(JsonElement value, JsonElement defaultValue) {
+			super();
+			this.value = value;
+			this.defaultValue = defaultValue;
+		}
+
+		public Case(String value, String defaultValue) {
+			this(new JsonPrimitive(value), new JsonPrimitive(defaultValue));
+		}
+
+		public Case(Number value, String defaultValue) {
+			this(new JsonPrimitive(value), new JsonPrimitive(defaultValue));
+		}
+
+		/**
+		 * Creates a {@link JsonObject} from this {@link Case}.
+		 * 
+		 * @return the {@link JsonObject}
+		 */
+		public JsonObject toJsonObject() {
+			return JsonUtils.buildJsonObject() //
+					.add("case", this.value) //
+					.add("defaultValue", this.defaultValue) //
+					.build();
+		}
+
 	}
 
 	/**
@@ -96,18 +274,20 @@ public class JsonFormlyUtil {
 	 * 		"templateOptions.required": "model.PROPERTY"
 	 * 	},
 	 * 	"hideExpression": "!model.PROPERTY",
-	 * 	"defaultValue": "defaultValue"
+	 * 	"defaultValue": "defaultValue",
+	 *  "wrappers": []{@link Wrappers}
 	 * }
 	 * </pre>
 	 *
 	 */
-	private abstract static class FormlyBuilder<T extends FormlyBuilder<T>> {
+	public abstract static class FormlyBuilder<T extends FormlyBuilder<T>> implements OnlyIf<T>, Self<T> {
 
 		protected final JsonObject jsonObject = new JsonObject();
 		protected final JsonObject templateOptions = new JsonObject();
 		private JsonObject expressionProperties = null;
+		private final List<String> wrappers = new ArrayList<>();
 
-		private <PROPERTY extends Enum<PROPERTY>> FormlyBuilder(PROPERTY property) {
+		private FormlyBuilder(Nameable property) {
 			this.setKey(property.name());
 			this.setType(this.getType());
 			this.setLabel(property.name());
@@ -121,8 +301,12 @@ public class JsonFormlyUtil {
 		}
 
 		private final T setType(String type) {
+			if (type == null) {
+				this.jsonObject.remove("type");
+				return this.self();
+			}
 			this.jsonObject.addProperty("type", type);
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setKey(String key) {
@@ -131,7 +315,7 @@ public class JsonFormlyUtil {
 			} else if (this.jsonObject.has("key")) {
 				this.jsonObject.remove("key");
 			}
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDefaultValue(String defaultValue) {
@@ -141,7 +325,7 @@ public class JsonFormlyUtil {
 				this.jsonObject.remove("defaultValue");
 			}
 
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDefaultValue(Boolean defaultValue) {
@@ -151,7 +335,7 @@ public class JsonFormlyUtil {
 				this.jsonObject.remove("defaultValue");
 			}
 
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDefaultValue(Number defaultValue) {
@@ -161,7 +345,7 @@ public class JsonFormlyUtil {
 				this.jsonObject.remove("defaultValue");
 			}
 
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDefaultValue(JsonElement defaultValue) {
@@ -171,7 +355,7 @@ public class JsonFormlyUtil {
 				this.jsonObject.remove("defaultValue");
 			}
 
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDefaultValueWithStringSupplier(Supplier<String> supplieDefaultValue) {
@@ -182,13 +366,19 @@ public class JsonFormlyUtil {
 			return this.setDefaultValue(supplieDefaultValue.get());
 		}
 
+		/**
+		 * Sets if the input is required. Default: 'false'
+		 * 
+		 * @param isRequired if the input is required
+		 * @return this
+		 */
 		public final T isRequired(boolean isRequired) {
 			if (isRequired) {
 				this.templateOptions.addProperty("required", isRequired);
 			} else if (this.templateOptions.has("required")) {
 				this.templateOptions.remove("required");
 			}
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setLabel(String label) {
@@ -197,44 +387,95 @@ public class JsonFormlyUtil {
 			} else if (this.templateOptions.has("label")) {
 				this.templateOptions.remove("label");
 			}
-			return this.getSelf();
+			return this.self();
 		}
 
 		public final T setDescription(String description) {
 			this.templateOptions.addProperty("description", description);
-			return this.getSelf();
+			return this.self();
 		}
 
 		/**
-		 * Call a method on a FormlyBuilder if the expression is true.
-		 *
-		 * @param expression the expression
-		 * @param consumer   allows a lambda function on {@link FormlyBuilder}
-		 * @return the {@link JsonObjectBuilder}
+		 * Only shows the current input if the input of the given property is checked.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @return this
 		 */
-		public T onlyIf(boolean expression, Consumer<T> consumer) {
-			if (expression) {
-				consumer.accept(this.getSelf());
-			}
-			return this.getSelf();
+		public final T onlyShowIfChecked(Nameable nameable) {
+			return this.onlyShowIf(ExpressionBuilder.of(nameable));
 		}
 
-		public final <PROPERTEY extends Enum<PROPERTEY>> T onlyShowIfChecked(PROPERTEY property) {
-			this.getExpressionProperties().addProperty("templateOptions.required", "model." + property.name());
-			this.jsonObject.addProperty("hideExpression", "!model." + property.name());
-			return this.getSelf();
+		/**
+		 * Only shows the current input if the input of the given property is not
+		 * checked.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @return this
+		 */
+		public final T onlyShowIfNotChecked(Nameable nameable) {
+			return this.onlyShowIf(ExpressionBuilder.of(nameable).negotiate());
 		}
 
-		public final <PROPERTEY extends Enum<PROPERTEY>> T onlyShowIfNotChecked(PROPERTEY property) {
-			this.getExpressionProperties().addProperty("templateOptions.required", "!model." + property.name());
-			this.jsonObject.addProperty("hideExpression", "model." + property.name());
-			return this.getSelf();
+		/**
+		 * Only shows the current input if the value of the input of the given property
+		 * is the same as the given value.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @param value    the value to validate against
+		 * @return this
+		 */
+		public final T onlyShowIfValueEquals(Nameable nameable, String value) {
+			return this.onlyShowIf(ExpressionBuilder.of(nameable, ExpressionBuilder.Operator.EQ, value));
+		}
+
+		private final T onlyShowIf(String expression) {
+			this.getExpressionProperties().addProperty("templateOptions.required", expression);
+			this.jsonObject.addProperty("hideExpression", "!(" + expression + ")");
+			return this.self();
+		}
+
+		/**
+		 * Only shows the current input if the given {@link ExpressionBuilder} returns
+		 * true.
+		 * 
+		 * @param expressionBuilder the {@link ExpressionBuilder} to set
+		 * @return this
+		 */
+		public final T onlyShowIf(ExpressionBuilder expressionBuilder) {
+			return this.onlyShowIf(expressionBuilder.toString());
+		}
+
+		public final T setLabelExpression(ExpressionBuilder expression, String trueLabel, String falseLabel) {
+			this.getExpressionProperties().addProperty("templateOptions.label",
+					expression.toString() + " ? '" + trueLabel + "' : '" + falseLabel + "'");
+			return this.self();
+		}
+
+		public final T setDefaultValueCases(DefaultValueOptions... defaultValueOptions) {
+			this.templateOptions.add("defaultValueOptions", Arrays.stream(defaultValueOptions)
+					.map(DefaultValueOptions::toJsonObject).collect(JsonUtils.toJsonArray()));
+			return this.addWrapper(Wrappers.DEFAULT_OF_CASES);
+		}
+
+		/**
+		 * Adds a wrapper to the current input.
+		 * 
+		 * @param wrapper the {@link Wrappers} to add
+		 * @return this
+		 */
+		public final T addWrapper(Wrappers wrapper) {
+			this.wrappers.add(wrapper.getWrapperClass());
+			return this.self();
 		}
 
 		public JsonObject build() {
 			this.jsonObject.add("templateOptions", this.templateOptions);
 			if (this.expressionProperties != null && this.expressionProperties.size() > 0) {
 				this.jsonObject.add("expressionProperties", this.expressionProperties);
+			}
+			if (!this.wrappers.isEmpty()) {
+				this.jsonObject.add("wrappers",
+						this.wrappers.stream().map(JsonPrimitive::new).collect(JsonUtils.toJsonArray()));
 			}
 			return this.jsonObject;
 		}
@@ -248,9 +489,227 @@ public class JsonFormlyUtil {
 			return this.expressionProperties;
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
-		private final T getSelf() {
+		public T self() {
 			return (T) this;
+		}
+
+	}
+
+	public static final class ExpressionBuilder {
+
+		public static enum Operator {
+			EQ("=="), //
+			NEQ("!="), //
+			;
+
+			private final String operation;
+
+			private Operator(String operation) {
+				this.operation = operation;
+			}
+
+			public String getOperation() {
+				return this.operation;
+			}
+		}
+
+		private StringBuilder sb;
+
+		/**
+		 * Creates a {@link ExpressionBuilder} where the input of the given property
+		 * gets validated against the given value.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @param operator the {@link Operator} to validate against the value
+		 * @param value    the value to validate against
+		 * @return the {@link ExpressionBuilder}
+		 */
+		public static final ExpressionBuilder of(Nameable nameable, Operator operator, String value) {
+			return new ExpressionBuilder(expressionOf(nameable, operator, value));
+		}
+
+		/**
+		 * Creates a {@link ExpressionBuilder} where the value of the input of the given
+		 * property gets validated.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @return the {@link ExpressionBuilder}
+		 */
+		public static final ExpressionBuilder of(Nameable nameable) {
+			return new ExpressionBuilder(expressionOf(nameable));
+		}
+
+		private ExpressionBuilder(String baseExpression) {
+			this.sb = new StringBuilder(baseExpression);
+		}
+
+		/**
+		 * Combines the current expression with the given expression with an and.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @param operator the {@link Operator}
+		 * @param value    the value to validate the input of the property
+		 * @return this
+		 */
+		public ExpressionBuilder and(Nameable nameable, Operator operator, String value) {
+			return this.and(expressionOf(nameable, operator, value));
+		}
+
+		/**
+		 * Combines the current expression with the given expression with an and.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @return this
+		 */
+		public ExpressionBuilder and(Nameable nameable) {
+			return this.and(expressionOf(nameable));
+		}
+
+		/**
+		 * Combines the current expression with the given expression with an and.
+		 * 
+		 * @param builder the other expression
+		 * @return this
+		 */
+		public ExpressionBuilder and(ExpressionBuilder builder) {
+			return this.and(builder.toString());
+		}
+
+		private final ExpressionBuilder and(String expression) {
+			this.sb.append(" && ");
+			this.sb.append(expression);
+			return this;
+		}
+
+		/**
+		 * Combines the current expression with the given expression with an or.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @param operator the {@link Operator}
+		 * @param value    the value to validate the input of the property
+		 * @return this
+		 */
+		public ExpressionBuilder or(Nameable nameable, Operator operator, String value) {
+			return this.or(expressionOf(nameable, operator, value));
+		}
+
+		/**
+		 * Combines the current expression with the given expression with an or.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @return this
+		 */
+		public ExpressionBuilder or(Nameable nameable) {
+			return this.or(expressionOf(nameable));
+		}
+
+		/**
+		 * Combines the current expression with the given expression with an or.
+		 * 
+		 * @param builder the other expression
+		 * @return this
+		 */
+		public ExpressionBuilder or(ExpressionBuilder builder) {
+			return this.or(builder.toString());
+		}
+
+		private final ExpressionBuilder or(String expression) {
+			this.sb.append(" || ");
+			this.sb.append(expression);
+			return this;
+		}
+
+		private static final String expressionOf(Nameable nameable, Operator operator, String value) {
+			return "model." + nameable.name() + " " + operator.getOperation() + " '" + value + "'";
+		}
+
+		private static final String expressionOf(Nameable nameable) {
+			return "model." + nameable.name();
+		}
+
+		private ExpressionBuilder addToFront(String string) {
+			final var nextBuilder = new StringBuilder(string);
+			this.sb = nextBuilder.append(this.sb);
+			return this;
+		}
+
+		/**
+		 * Puts the current statement in brackets.
+		 * 
+		 * @return this
+		 */
+		public ExpressionBuilder inBrackets() {
+			this.sb.append(")");
+			return this.addToFront("(");
+		}
+
+		/**
+		 * Negotiates the whole expression.
+		 * 
+		 * @return this
+		 */
+		public ExpressionBuilder negotiate() {
+			this.sb.append(")");
+			return this.addToFront("!(");
+		}
+
+		@Override
+		public String toString() {
+			return this.sb.toString();
+		}
+
+	}
+
+	public static final class FieldGroupBuilder extends FormlyBuilder<FieldGroupBuilder> {
+
+		private JsonArray fieldGroup;
+
+		private FieldGroupBuilder(Nameable property) {
+			super(property);
+		}
+
+		private FieldGroupBuilder(DefaultEnum property) {
+			super(property);
+		}
+
+		public FieldGroupBuilder setFieldGroup(JsonArray fieldGroup) {
+			this.fieldGroup = fieldGroup;
+			return this.self();
+		}
+
+		/**
+		 * Hides the current key of the input. Results are all child inputs are not in
+		 * the model as a JsonObject value of this key instead the are on the same level
+		 * saved as this field.
+		 * 
+		 * @return this
+		 */
+		public FieldGroupBuilder hideKey() {
+			this.setKey(null);
+			return this;
+		}
+
+		@Override
+		protected String getType() {
+			return null;
+		}
+
+		@Override
+		public JsonObject build() {
+			final var object = super.build();
+			final var templateOptions = object.get("templateOptions").getAsJsonObject();
+			templateOptions.remove("required");
+			JsonUtils.getAsOptionalJsonObject(object, "expressionProperties") //
+					.map(t -> t.remove("templateOptions.required"));
+			object.add("fieldGroup", this.fieldGroup);
+			return JsonUtils.buildJsonObject() //
+					.add("hideExpression", object.remove("hideExpression")) //
+					.add("fieldGroup", JsonUtils.buildJsonArray() //
+							.add(object) //
+							.build())
+					.build();
 		}
 
 	}
@@ -307,7 +766,8 @@ public class JsonFormlyUtil {
 		}
 
 		public static enum Validation {
-			IP("(\\d{1,3}\\.){3}\\d{1,3}", "Input is not a valid IP Address!"), //
+			// TODO translation
+			IP(NetworkConfiguration.PATTERN_INET4ADDRESS, "Input is not a valid IP Address!"), //
 			;
 
 			private String pattern;
@@ -331,7 +791,7 @@ public class JsonFormlyUtil {
 		private JsonObject validation = null;
 		private Type type = Type.TEXT;
 
-		private <PROPERTY extends Enum<PROPERTY>> InputBuilder(PROPERTY property) {
+		private InputBuilder(Nameable property) {
 			super(property);
 		}
 
@@ -494,7 +954,7 @@ public class JsonFormlyUtil {
 
 	public static final class RangeBuilder extends FormlyBuilder<RangeBuilder> {
 
-		private <PROPERTY extends Enum<PROPERTY>> RangeBuilder(PROPERTY property) {
+		private RangeBuilder(Nameable property) {
 			super(property);
 		}
 
@@ -561,7 +1021,7 @@ public class JsonFormlyUtil {
 	 */
 	public static final class CheckboxBuilder extends FormlyBuilder<CheckboxBuilder> {
 
-		private <PROPERTY extends Enum<PROPERTY>> CheckboxBuilder(PROPERTY property) {
+		private CheckboxBuilder(Nameable property) {
 			super(property);
 		}
 
@@ -605,11 +1065,12 @@ public class JsonFormlyUtil {
 	 */
 	public static final class SelectBuilder extends FormlyBuilder<SelectBuilder> {
 
-		public static final Function<OpenemsComponent, String> DEFAULT_COMPONENT_2_LABEL = t -> t.alias() == null
-				|| t.alias().isEmpty() ? t.id() : t.id() + ": " + t.alias();
-		public static final Function<OpenemsComponent, String> DEFAULT_COMPONENT_2_VALUE = OpenemsComponent::id;
+		public static final Function<OpenemsComponent, JsonElement> DEFAULT_COMPONENT_2_LABEL = t -> new JsonPrimitive(
+				t.alias() == null || t.alias().isEmpty() ? t.id() : t.id() + ": " + t.alias());
+		public static final Function<OpenemsComponent, JsonElement> DEFAULT_COMPONENT_2_VALUE = t -> new JsonPrimitive(
+				t.id());
 
-		private <PROPERTY extends Enum<PROPERTY>> SelectBuilder(PROPERTY property) {
+		private SelectBuilder(Nameable property) {
 			super(property);
 		}
 
@@ -646,19 +1107,23 @@ public class JsonFormlyUtil {
 		}
 
 		public SelectBuilder setOptions(List<String> items) {
-			return this.setOptions(items, t -> t, t -> t);
+			return this.setOptions(items, JsonPrimitive::new, JsonPrimitive::new);
 		}
 
-		public <T> SelectBuilder setOptions(List<? extends T> items, Function<T, String> item2Label,
-				Function<T, String> item2Value) {
+		public <T> SelectBuilder setOptions(List<? extends T> items, Function<T, JsonElement> item2Label,
+				Function<T, JsonElement> item2Value) {
 			var options = JsonUtils.buildJsonArray();
 			for (var item : items) {
 				options.add(JsonUtils.buildJsonObject() //
-						.addProperty("label", item2Label.apply(item)) //
-						.addProperty("value", item2Value.apply(item)) //
+						.add("label", item2Label.apply(item)) //
+						.add("value", item2Value.apply(item)) //
 						.build());
 			}
 			return this.setOptions(options.build());
+		}
+
+		public SelectBuilder setOptions(OptionsFactory factory, Language l) {
+			return this.setOptions(factory.options(l));
 		}
 
 		/**
@@ -707,7 +1172,7 @@ public class JsonFormlyUtil {
 
 		private JsonObject fieldArray;
 
-		private <PROPERTY extends Enum<PROPERTY>> RepeatBuilder(PROPERTY property) {
+		private RepeatBuilder(Nameable property) {
 			super(property);
 		}
 

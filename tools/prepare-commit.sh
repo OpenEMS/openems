@@ -74,12 +74,11 @@ EOT
 				fi
 
 				# Set default .classpath file
-				if [ -f "${D}/.classpath" ]; then
-					cat <<EOT > "${D}/.classpath"
+				cat <<EOT > "${D}/.classpath"
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test">
 		<attributes>
@@ -89,7 +88,33 @@ EOT
 	<classpathentry kind="output" path="bin"/>
 </classpath>
 EOT
-				fi
+
+				# Set default .project file
+				cat <<EOT > "${D}/.project"
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>${D}</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>bndtools.core.bndbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>bndtools.core.bndnature</nature>
+	</natures>
+</projectDescription>
+EOT
 
 				# Verify bnd.bnd file
 				if [ -f "${D}/bnd.bnd" ]; then

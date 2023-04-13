@@ -1,26 +1,29 @@
 <header></header>
 <ion-content>
   <ion-grid>
-    <ion-row *ngFor="let varinstance of instances, let i = index" [label]="i" class="ion-justify-content-center">
+    <ion-row *ngFor="let varinstance of instances, let i = index" class="ion-justify-content-center">
       <ion-col size="12" size-xl="8">
         <ion-card>
           <form [formGroup]="forms[i]" (ngSubmit)="submit(varinstance)">
             <ion-item lines="full" color="primary">
               <ion-icon slot="start" size="large" name="grid-outline"></ion-icon>
-              <ion-label> {{ appName }}</ion-label>
+              <ion-label>{{ appName }}</ion-label>
             </ion-item>
             <ion-card-content>
               <formly-form [form]="instances[i].form" [fields]="instances[i].fields" [model]="instances[i].properties">
               </formly-form>
               <ion-item>
                 <ion-button type="submit" color="primary"
-                  [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdateting"
+                  [disabled]="(!((!varinstance.form.pristine) && (varinstance.form.valid))) || varinstance.isDeleting || varinstance.isUpdating"
                   translate> Edge.Config.App.updateApp
                 </ion-button>
-                <ion-button (click)="delete(varinstance)" color="primary"
-                  [disabled]="varinstance.isDeleting || varinstance.isUpdateting" translate>
+                <ion-button (click)="delete(varinstance)" color="primary" *ngIf="edge.roleIsAtLeast('admin')"
+                  [disabled]="varinstance.isDeleting || varinstance.isUpdating" translate>
                   Edge.Config.App.deleteApp
                 </ion-button>
+                <div *ngIf="varinstance.isDeleting || varinstance.isUpdating" style="min-height: 100px;">
+                </div>
+                <ngx-spinner [name]="varinstance.instanceId"></ngx-spinner>
               </ion-item>
             </ion-card-content>
           </form>

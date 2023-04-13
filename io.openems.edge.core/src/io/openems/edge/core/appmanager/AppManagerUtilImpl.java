@@ -1,7 +1,9 @@
 package io.openems.edge.core.appmanager;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -39,20 +41,21 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 		if (alias != null) {
 			properties.addProperty("ALIAS", alias);
 		}
-		AppConfiguration config = null;
-		OpenemsNamedException error = null;
 		try {
-			config = app.getAppConfiguration(target, properties, language);
-		} catch (OpenemsNamedException e) {
-			error = e;
+			return app.getAppConfiguration(target, properties, language);
+		} finally {
+			if (alias != null) {
+				properties.remove("ALIAS");
+			}
 		}
-		if (alias != null) {
-			properties.remove("ALIAS");
-		}
-		if (error != null) {
-			throw error;
-		}
-		return config;
+	}
+
+	@Override
+	public List<OpenemsAppInstance> getAppsWithDependencyTo(OpenemsAppInstance instance) {
+		return this.getAppManagerImpl().getInstantiatedApps().stream()
+				.filter(t -> t.dependencies != null && !t.dependencies.isEmpty())
+				.filter(t -> t.dependencies.stream().anyMatch(d -> d.instanceId.equals(instance.instanceId)))
+				.collect(Collectors.toList());
 	}
 
 	private final AppManagerImpl getAppManagerImpl() {

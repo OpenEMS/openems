@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.response.AuthenticateResponse.EdgeMetadata;
+import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.AbstractUser;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -21,6 +22,10 @@ public class User extends AbstractUser {
 	 * Keeps the login token.
 	 */
 	private final String token;
+
+	public User(String id, String name, String token, Language language, Role globalRole) {
+		this(id, name, token, language, globalRole, new TreeMap<>());
+	}
 
 	public User(String id, String name, String token, Language language, Role globalRole,
 			NavigableMap<String, Role> roles) {
@@ -87,4 +92,5 @@ public class User extends AbstractUser {
 		}
 		return metadatas;
 	}
+
 }
