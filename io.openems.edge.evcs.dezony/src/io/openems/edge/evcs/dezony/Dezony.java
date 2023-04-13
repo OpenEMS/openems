@@ -2,12 +2,8 @@ package io.openems.edge.evcs.dezony;
 
 import java.util.function.Function;
 
-import io.openems.common.channel.Level;
-import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.type.TypeUtils;
 
 public interface Dezony {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

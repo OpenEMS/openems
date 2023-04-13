@@ -42,7 +42,7 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 	protected DezonyApi api;
 	private final DezonyReadWorker readWorker = new DezonyReadWorker(this);
 	protected boolean masterEvcs = true;
-	
+
 	@Reference
 	private EvcsPower evcsPower;
 
