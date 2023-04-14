@@ -33,12 +33,14 @@ public final class Util {
 
 	private static final String INFO = "Katek Memmingen GmbH";
 	private static Util ref;
-	private static final String sPub = "MIIBITANBgkqhkiG9w0BAQEFAAOCAQ4AMIIBCQKCAQAws44+vRZyAF"
-			+ "tDocnqtHjMQwytJqrjq34t7LuPv+6aC1vuMvvQHTxjeQetsvg1Q3WoK49YfnC"
-			+ "rJTRNTX0SCD2SIFVqZqDkJVqCheeZiuk+aCQ3GFpdZdmHkRswaO2s8BqJ0CVT"
-			+ "cWCExMbxWDFK/0NIsBdIoykIixv/bwmYRX3WxCG+I3J1Lp9geYu+EPdBy09x0"
-			+ "Mbh6rziLfcark9YNUp2Tvj+O2nO1fkSiFOA3czaS042ORXnxRYcl2Zu5DXDb9"
-			+ "4Uh28JEXWLr02gEqvMCBkx+yYNAT8TRfO2pw8T+CrT+R0tfufL3ELIPGokKQV" + "NvlsYkjEvHQ0M9dYCQqpwAmC7AgMBAAE=";
+	private static final String sPub = """
+		MIIBITANBgkqhkiG9w0BAQEFAAOCAQ4AMIIBCQKCAQAws44+vRZyAF\
+		tDocnqtHjMQwytJqrjq34t7LuPv+6aC1vuMvvQHTxjeQetsvg1Q3WoK49YfnC\
+		rJTRNTX0SCD2SIFVqZqDkJVqCheeZiuk+aCQ3GFpdZdmHkRswaO2s8BqJ0CVT\
+		cWCExMbxWDFK/0NIsBdIoykIixv/bwmYRX3WxCG+I3J1Lp9geYu+EPdBy09x0\
+		Mbh6rziLfcark9YNUp2Tvj+O2nO1fkSiFOA3czaS042ORXnxRYcl2Zu5DXDb9\
+		4Uh28JEXWLr02gEqvMCBkx+yYNAT8TRfO2pw8T+CrT+R0tfufL3ELIPGokKQV\
+		NvlsYkjEvHQ0M9dYCQqpwAmC7AgMBAAE=""";
 
 	/**
 	 * COM version flag

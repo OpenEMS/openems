@@ -21,9 +21,10 @@ import io.openems.edge.pvinverter.sunspec.Phase;
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 
-	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device. "
-			+ "Be aware, that according to the manual you need to add '123' to the value that you configured "
-			+ "in the SMA web interface.")
+	@AttributeDefinition(name = "Modbus Unit-ID", description = """
+		The Unit-ID of the Modbus device.\s\
+		Be aware, that according to the manual you need to add '123' to the value that you configured\s\
+		in the SMA web interface.""")
 	int modbusUnitId() default 126;
 
 	@AttributeDefinition(name = "Phase", description = "On which phase is the inverter connected?")

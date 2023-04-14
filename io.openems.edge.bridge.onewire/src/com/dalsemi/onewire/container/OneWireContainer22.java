@@ -198,9 +198,11 @@ public class OneWireContainer22 extends OneWireContainer28 implements Temperatur
 	 */
 	@Override
 	public String getDescription() {
-		return "Digital thermometer measures temperatures from " + "-55C to 125C in 0.75 seconds (max).  +/- 2C "
-				+ "accuracy between -10C and 85C. Thermometer "
-				+ "resolution is programmable at 9, 10, 11, and 12 bits. ";
+		return """
+			Digital thermometer measures temperatures from\s\
+			-55C to 125C in 0.75 seconds (max).  +/- 2C\s\
+			accuracy between -10C and 85C. Thermometer\s\
+			resolution is programmable at 9, 10, 11, and 12 bits.\s""";
 	}
 
 	// --------

@@ -289,11 +289,13 @@ public class OneWireContainer0B extends OneWireContainer {
 	 */
 	@Override
 	public String getDescription() {
-		return "16384 bit Electrically Programmable Read Only Memory "
-				+ "(EPROM) partitioned into sixty-four 256 bit pages."
-				+ "Each memory page can be permanently write-protected "
-				+ "to prevent tampering.  Architecture allows software "
-				+ "to patch data by supersending a used page in favor of " + "a newly programmed page.";
+		return """
+			16384 bit Electrically Programmable Read Only Memory\s\
+			(EPROM) partitioned into sixty-four 256 bit pages.\
+			Each memory page can be permanently write-protected\s\
+			to prevent tampering.  Architecture allows software\s\
+			to patch data by supersending a used page in favor of\s\
+			a newly programmed page.""";
 	}
 
 	/**

@@ -51,9 +51,10 @@ public interface Sum extends OpenemsComponent {
 		ESS_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text("AC-side power of Energy Storage System. " //
-						+ "Includes excess DC-PV production for hybrid inverters. " //
-						+ "Negative values for charge; positive for discharge")),
+				.text("""
+					AC-side power of Energy Storage System.\s\
+					Includes excess DC-PV production for hybrid inverters.\s\
+					Negative values for charge; positive for discharge""")),
 		/**
 		 * Reactive Power.
 		 *
@@ -79,9 +80,10 @@ public interface Sum extends OpenemsComponent {
 		ESS_ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text("AC-side power of Energy Storage System on phase L1. " //
-						+ "Includes excess DC-PV production for hybrid inverters. " //
-						+ "Negative values for charge; positive for discharge")),
+				.text("""
+					AC-side power of Energy Storage System on phase L1.\s\
+					Includes excess DC-PV production for hybrid inverters.\s\
+					Negative values for charge; positive for discharge""")),
 		/**
 		 * Ess: Active Power L2.
 		 *
@@ -95,9 +97,10 @@ public interface Sum extends OpenemsComponent {
 		ESS_ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text("AC-side power of Energy Storage System on phase L2. " //
-						+ "Includes excess DC-PV production for hybrid inverters. " //
-						+ "Negative values for charge; positive for discharge")),
+				.text("""
+					AC-side power of Energy Storage System on phase L2.\s\
+					Includes excess DC-PV production for hybrid inverters.\s\
+					Negative values for charge; positive for discharge""")),
 		/**
 		 * Ess: Active Power L3.
 		 *
@@ -111,9 +114,10 @@ public interface Sum extends OpenemsComponent {
 		ESS_ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(PersistencePriority.VERY_HIGH) //
-				.text("AC-side power of Energy Storage System on phase L3. " //
-						+ "Includes excess DC-PV production for hybrid inverters. " //
-						+ "Negative values for charge; positive for discharge")),
+				.text("""
+					AC-side power of Energy Storage System on phase L3.\s\
+					Includes excess DC-PV production for hybrid inverters.\s\
+					Negative values for charge; positive for discharge""")),
 		/**
 		 * Ess: Discharge Power.
 		 *

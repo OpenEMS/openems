@@ -23,33 +23,34 @@ public class WagoTest {
 	/**
 	 * This is an example "ea-config.xml" downloaded from a WAGO Fieldbus coupler.
 	 */
-	private static final String EA_CONFIG = "" //
-			+ "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" //
-			+ "<?xml-stylesheet type=\"text/xsl\" href=\"../webserv/cplcfg/EA-config.xsl\" ?>\n" //
-			+ "<WAGO>\n" //
-			+ " <Module ARTIKELNR=\"750-5xx\" MODULETYPE=\"DO\" CHANNELCOUNT=\"2\" MAP=\"FB1\">\n" //
-			+ "  <Kanal CHANNELNAME=\"M001Ch1\" CHANNELTYPE=\"DO\">\n" //
-			+ "1\n" //
-			+ "  </Kanal>\n" //
-			+ "  <Kanal CHANNELNAME=\"M001Ch2\" CHANNELTYPE=\"DO\">\n" //
-			+ "0\n" //
-			+ "  </Kanal>\n" //
-			+ " </Module>\n" //
-			+ " <Module ARTIKELNR=\"750-5xx\" MODULETYPE=\"DO/DIA\" CHANNELCOUNT=\"2\" MAP=\"FB1\">\n" //
-			+ "  <Kanal CHANNELNAME=\"M002Ch1\" CHANNELTYPE=\"DO\">\n" //
-			+ "0\n" //
-			+ "  </Kanal>\n" //
-			+ "  <Kanal CHANNELNAME=\"M002Ch2\" CHANNELTYPE=\"DO\">\n" //
-			+ "0\n" //
-			+ "  </Kanal>\n" //
-			+ "  <Kanal CHANNELNAME=\"M002Ch3\" CHANNELTYPE=\"DIA\">\n" //
-			+ "0\n" //
-			+ "  </Kanal>\n" //
-			+ "  <Kanal CHANNELNAME=\"M002Ch4\" CHANNELTYPE=\"DIA\">\n" //
-			+ "0\n" //
-			+ "  </Kanal>\n" //
-			+ " </Module>\n" //
-			+ "</WAGO>\n";
+	private static final String EA_CONFIG = """
+		<?xml version="1.0" encoding="ISO-8859-1"?>
+		<?xml-stylesheet type="text/xsl" href="../webserv/cplcfg/EA-config.xsl" ?>
+		<WAGO>
+		 <Module ARTIKELNR="750-5xx" MODULETYPE="DO" CHANNELCOUNT="2" MAP="FB1">
+		  <Kanal CHANNELNAME="M001Ch1" CHANNELTYPE="DO">
+		1
+		  </Kanal>
+		  <Kanal CHANNELNAME="M001Ch2" CHANNELTYPE="DO">
+		0
+		  </Kanal>
+		 </Module>
+		 <Module ARTIKELNR="750-5xx" MODULETYPE="DO/DIA" CHANNELCOUNT="2" MAP="FB1">
+		  <Kanal CHANNELNAME="M002Ch1" CHANNELTYPE="DO">
+		0
+		  </Kanal>
+		  <Kanal CHANNELNAME="M002Ch2" CHANNELTYPE="DO">
+		0
+		  </Kanal>
+		  <Kanal CHANNELNAME="M002Ch3" CHANNELTYPE="DIA">
+		0
+		  </Kanal>
+		  <Kanal CHANNELNAME="M002Ch4" CHANNELTYPE="DIA">
+		0
+		  </Kanal>
+		 </Module>
+		</WAGO>
+		""";
 
 	@Test
 	public void test() throws Exception {
