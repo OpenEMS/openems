@@ -1,270 +1,154 @@
 package io.openems.edge.evcs.keba.kecontact;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
-import org.osgi.service.event.propertytypes.EventTopics;
-import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.InetAddressUtils;
-import io.openems.edge.common.channel.Channel;
+import io.openems.common.channel.Debounce;
+import io.openems.common.channel.Level;
+import io.openems.common.channel.Unit;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
-import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
-import io.openems.edge.evcs.api.ChargingType;
 import io.openems.edge.evcs.api.Evcs;
-import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
-import io.openems.edge.evcs.api.Phases;
-import io.openems.edge.evcs.keba.kecontact.core.KebaKeContactCore;
+import io.openems.edge.evcs.api.Status;
 
-@Designate(ocd = Config.class, factory = true)
-@Component(name = "Evcs.Keba.KeContact", //
-		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
-@EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
-})
-public class KebaKeContact extends AbstractManagedEvcsComponent
-		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
+public interface KebaKeContact extends ManagedEvcs, Evcs, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public static final int UDP_PORT = 7090;
 
-	private final Logger log = LoggerFactory.getLogger(KebaKeContact.class);
-	private final ReadWorker readWorker = new ReadWorker(this);
-	private final ReadHandler readHandler = new ReadHandler(this);
-	private Boolean lastConnectionLostState = false;
-
-	protected Config config;
-
-	@Reference
-	private EvcsPower evcsPower;
-
-	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
-	private KebaKeContactCore kebaKeContactCore = null;
-
-	/**
-	 * Constructor.
-	 */
-	public KebaKeContact() {
-		super(//
-				OpenemsComponent.ChannelId.values(), //
-				ManagedEvcs.ChannelId.values(), //
-				Evcs.ChannelId.values(), //
-				KebaChannelId.values() //
-		);
-	}
-
-	private InetAddress ip = null;
-
-	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		super.activate(context, config.id(), config.alias(), config.enabled());
-
-		this.channel(KebaChannelId.ALIAS).setNextValue(config.alias());
-
-		this.ip = InetAddressUtils.parseOrError(config.ip());
-		this.config = config;
-
-		this._setPowerPrecision(0.23);
-		this._setChargingType(ChargingType.AC);
-		this._setFixedMinimumHardwarePower(this.getConfiguredMinimumHardwarePower());
-		this._setFixedMaximumHardwarePower(this.getConfiguredMaximumHardwarePower());
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		/*
+		 * Report 1
+		 */
+		PRODUCT(Doc.of(OpenemsType.STRING) //
+				.text("Model name (variant)")), //
+		SERIAL(Doc.of(OpenemsType.STRING) //
+				.text("Serial number")), //
+		FIRMWARE(Doc.of(OpenemsType.STRING) //
+				.text("Firmware version")), //
+		COM_MODULE(Doc.of(OpenemsType.STRING) //
+				.text("Communication module is installed; KeContact P30 only")),
+		DIP_SWITCH_1(Doc.of(OpenemsType.STRING) //
+				.text("The first eight dip switch settings as binary")),
+		DIP_SWITCH_2(Doc.of(OpenemsType.STRING) //
+				.text("The second eight dip switch settings as binary")),
+		DIP_SWITCH_MAX_HW(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.text("The raw maximum limit configured by the dip switches")),
 
 		/*
-		 * subscribe on replies to report queries
+		 * Report 2
 		 */
-		this.kebaKeContactCore.onReceive((ip, message) -> {
-			if (ip.equals(this.ip)) { // same IP -> handle message
-				this.readHandler.accept(message);
-				this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED).setNextValue(false);
-			}
-		});
-
-		// start queryWorker
-		this.readWorker.activate(this.id() + "query");
-
-	}
-
-	@Override
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-		this.readWorker.deactivate();
-	}
-
-	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		super.handleEvent(event);
-		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-
-			// Clear channels if the connection to the Charging Station has been lost
-			Channel<Boolean> connectionLostChannel = this.channel(Evcs.ChannelId.CHARGINGSTATION_COMMUNICATION_FAILED);
-			var connectionLost = connectionLostChannel.value().orElse(this.lastConnectionLostState);
-			if (connectionLost != this.lastConnectionLostState) {
-				if (connectionLost) {
-					this.resetChannelValues();
-				}
-				this.lastConnectionLostState = connectionLost;
-			}
-			break;
-		}
-	}
-
-	/**
-	 * Send UDP message to KEBA KeContact. Returns true if sent successfully
-	 *
-	 * @param s Message to send
-	 * @return true if sent
-	 */
-	protected boolean send(String s) {
-		var raw = s.getBytes();
-		var packet = new DatagramPacket(raw, raw.length, this.ip, KebaKeContact.UDP_PORT);
-		try (DatagramSocket datagrammSocket = new DatagramSocket()) {
-			datagrammSocket.send(packet);
-			return true;
-		} catch (SocketException e) {
-			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + this.ip.getHostAddress()
-					+ "]: " + e.getMessage());
-		} catch (IOException e) {
-			this.logError(this.log,
-					"Unable to send [" + s + "] UDP message to [" + this.ip.getHostAddress() + "]: " + e.getMessage());
-		}
-		return false;
-	}
-
-	/**
-	 * Triggers an immediate execution of query reports.
-	 */
-	protected void triggerQuery() {
-		this.readWorker.triggerNextRun();
-	}
-
-	@Override
-	public String debugLog() {
-		return "Limit:" + this.channel(KebaChannelId.CURR_USER).value().asString() + "|" + this.getStatus().getName();
-	}
-
-	/**
-	 * Logs are displayed if the debug mode is configured.
-	 *
-	 * @param log    the {@link Logger}
-	 * @param string Text to display
-	 */
-	protected void logInfoInDebugmode(Logger log, String string) {
-		if (this.config.debugMode()) {
-			this.logInfo(log, string);
-		}
-	}
-
-	public ReadWorker getReadWorker() {
-		return this.readWorker;
-	}
-
-	public ReadHandler getReadHandler() {
-		return this.readHandler;
-	}
-
-	/**
-	 * Resets all channel values except the Communication_Failed channel.
-	 */
-	private void resetChannelValues() {
-		for (KebaChannelId c : KebaChannelId.values()) {
-			if (c != KebaChannelId.ALIAS) {
-				Channel<?> channel = this.channel(c);
-				channel.setNextValue(null);
-			}
-		}
-	}
-
-	@Override
-	public EvcsPower getEvcsPower() {
-		return this.evcsPower;
-	}
-
-	@Override
-	public boolean getConfiguredDebugMode() {
-		return this.config.debugMode();
-	}
-
-	@Override
-	public boolean applyChargePowerLimit(int power) throws OpenemsException {
-
-		var phases = this.getPhasesAsInt();
-		var current = Math.round((power * 1000) / phases / 230f);
-
+		STATUS_KEBA(Doc.of(Status.values()) //
+				.text("Current state of the charging station")),
+		ERROR_1(Doc.of(OpenemsType.INTEGER) //
+				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
+		ERROR_2(Doc.of(OpenemsType.INTEGER) //
+				.text("Detail code for state ERROR; exceptions see FAQ on www.kecontact.com")), //
+		PLUG(Doc.of(Plug.values())), //
+		ENABLE_SYS(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Enable state for charging (contains Enable input, RFID, UDP,..)")), //
+		ENABLE_USER(Doc.of(OpenemsType.BOOLEAN) //
+				.text("Enable condition via UDP")), //
+		MAX_CURR(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.text("Current preset value via Control pilot")), //
+		MAX_CURR_PERCENT(Doc.of(OpenemsType.INTEGER) //
+				.text("Current preset value via Control pilot in 0,1% of the PWM value")), //
+		CURR_USER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.text("Current preset value of the user via UDP; Default = 63000mA")), //
+		CURR_FAILSAFE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.text("Current preset value for the Failsafe function")), //
+		TIMEOUT_FAILSAFE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.SECONDS) //
+				.text("Communication timeout before triggering the Failsafe function")), //
+		CURR_TIMER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.text("Shows the current preset value of currtime")), //
+		TIMEOUT_CT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.SECONDS) //
+				.text("Shows the remaining time until the current value is accepted")), //
+		OUTPUT(Doc.of(OpenemsType.BOOLEAN) //
+				.unit(Unit.ON_OFF) //
+				.text("State of the output X2")), //
+		INPUT(Doc.of(OpenemsType.BOOLEAN) //
+				.unit(Unit.ON_OFF) //
+				.text("State of the potential free Enable input X1. When using the input, "
+						+ "please pay attention to the information in the installation manual.")), //
 		/*
-		 * Limits the charging value because KEBA knows only values between 6000 and
-		 * 63000
+		 * Report 3
 		 */
-		current = Math.min(current, 63_000);
+		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.text("Voltage on L1")), //
+		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.text("Voltage on L2")), //
+		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT) //
+				.text("Voltage on L3")), //
+		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.text("Current on L1")), //
+		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.text("Current on L2")), //
+		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.text("Current on L3")), //
+		ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIWATT) //
+				.text("Total real power")), //
+		COS_PHI(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.PERCENT) //
+				.text("Power factor")), //
+		ENERGY_TOTAL(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS) //
+				.text("Total power consumption (persistent) without current loading session. "
+						+ "Is summed up after each completed charging session")), //
+		DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM(Doc.of(Level.FAULT) //
+				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+				.text("Dip-Switch 1.3. for communication must be on")), //
+		DIP_SWITCH_ERROR_2_6_NOT_SET_FOR_STATIC_IP(Doc.of(Level.FAULT) //
+				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+				.text("A static ip is configured. The Dip-Switch 2.6. must be on")), //
+		DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP(Doc.of(Level.FAULT) //
+				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+				.text("A dynamic ip is configured. Either the Dip-Switch 2.6. must be off or a static ip has to be configured")), //
+		DIP_SWITCH_INFO_2_5_SET_FOR_MASTER_SLAVE_COMM(Doc.of(Level.INFO) //
+				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+				.text("Master-Slave communication is configured. If this is a normal KEBA that should be not controlled by a KEBA x-series, Dip-Switch 2.5. should be off")), //
+		DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION(Doc.of(Level.WARNING) //
+				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+				.text("Installation mode is configured. If the installation has finished, Dip-Switch 2.8. should be off")), //
+		PRODUCT_SERIES_IS_NOT_COMPATIBLE(Doc.of(Level.FAULT) //
+				.text("Keba e- and b-series cannot be controlled because their software and hardware are not designed for it.")), //
+		NO_ENERGY_METER_INSTALLED(Doc.of(Level.INFO) //
+				.text("This keba cannot measure energy values, because there is no energy meter in it.")), //
+		CHARGINGSTATION_STATE_ERROR(Doc.of(Level.WARNING) //
+				.debounce(5, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE));
 
-		if (current < 6000) {
-			current = 0;
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
 		}
-		return this.send("currtime " + current + " 1");
-	}
 
-	@Override
-	public boolean applyDisplayText(String text) throws OpenemsException {
-		if (text.length() > 23) {
-			text = text.substring(0, 23);
+		@Override
+		public Doc doc() {
+			return this.doc;
 		}
-		text = text.replace(" ", "$"); // $ == blank
-
-		return this.send("display 0 0 0 0 " + text);
 	}
 
 	@Override
-	public boolean pauseChargeProcess() throws OpenemsException {
-		return this.applyChargePowerLimit(0);
-	}
-
-	@Override
-	public int getMinimumTimeTillChargingLimitTaken() {
-		return 30;
-	}
-
-	@Override
-	public int getConfiguredMinimumHardwarePower() {
-		return Math.round(this.config.minHwCurrent() / 1000f) * Evcs.DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
-	}
-
-	@Override
-	public int getConfiguredMaximumHardwarePower() {
-		return Math.round(Evcs.DEFAULT_MAXIMUM_HARDWARE_CURRENT / 1000f) * Evcs.DEFAULT_VOLTAGE
-				* Phases.THREE_PHASE.getValue();
-	}
-
-	@Override
-	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-
+	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				Evcs.getModbusSlaveNatureTable(accessMode), //
@@ -280,37 +164,35 @@ public class KebaKeContact extends AbstractManagedEvcsComponent
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	private ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-
 		return ModbusSlaveNatureTable.of(KebaKeContact.class, accessMode, 300) //
-
-				.channel(0, KebaChannelId.PRODUCT, ModbusType.STRING16)
-				.channel(16, KebaChannelId.SERIAL, ModbusType.STRING16)
-				.channel(32, KebaChannelId.FIRMWARE, ModbusType.STRING16)
-				.channel(48, KebaChannelId.COM_MODULE, ModbusType.STRING16)
-				.channel(64, KebaChannelId.STATUS_KEBA, ModbusType.UINT16)
-				.channel(65, KebaChannelId.ERROR_1, ModbusType.UINT16)
-				.channel(66, KebaChannelId.ERROR_2, ModbusType.UINT16)
-				.channel(67, KebaChannelId.PLUG, ModbusType.UINT16)
-				.channel(68, KebaChannelId.ENABLE_SYS, ModbusType.UINT16)
-				.channel(69, KebaChannelId.ENABLE_USER, ModbusType.UINT16)
-				.channel(70, KebaChannelId.MAX_CURR_PERCENT, ModbusType.UINT16)
-				.channel(71, KebaChannelId.CURR_USER, ModbusType.UINT16)
-				.channel(72, KebaChannelId.CURR_FAILSAFE, ModbusType.UINT16)
-				.channel(73, KebaChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
-				.channel(74, KebaChannelId.CURR_TIMER, ModbusType.UINT16)
-				.channel(75, KebaChannelId.TIMEOUT_CT, ModbusType.UINT16).uint16Reserved(76)
-				.channel(77, KebaChannelId.OUTPUT, ModbusType.UINT16)
-				.channel(78, KebaChannelId.INPUT, ModbusType.UINT16)
+				.channel(0, KebaKeContact.ChannelId.PRODUCT, ModbusType.STRING16)
+				.channel(16, KebaKeContact.ChannelId.SERIAL, ModbusType.STRING16)
+				.channel(32, KebaKeContact.ChannelId.FIRMWARE, ModbusType.STRING16)
+				.channel(48, KebaKeContact.ChannelId.COM_MODULE, ModbusType.STRING16)
+				.channel(64, KebaKeContact.ChannelId.STATUS_KEBA, ModbusType.UINT16)
+				.channel(65, KebaKeContact.ChannelId.ERROR_1, ModbusType.UINT16)
+				.channel(66, KebaKeContact.ChannelId.ERROR_2, ModbusType.UINT16)
+				.channel(67, KebaKeContact.ChannelId.PLUG, ModbusType.UINT16)
+				.channel(68, KebaKeContact.ChannelId.ENABLE_SYS, ModbusType.UINT16)
+				.channel(69, KebaKeContact.ChannelId.ENABLE_USER, ModbusType.UINT16)
+				.channel(70, KebaKeContact.ChannelId.MAX_CURR_PERCENT, ModbusType.UINT16)
+				.channel(71, KebaKeContact.ChannelId.CURR_USER, ModbusType.UINT16)
+				.channel(72, KebaKeContact.ChannelId.CURR_FAILSAFE, ModbusType.UINT16)
+				.channel(73, KebaKeContact.ChannelId.TIMEOUT_FAILSAFE, ModbusType.UINT16)
+				.channel(74, KebaKeContact.ChannelId.CURR_TIMER, ModbusType.UINT16)
+				.channel(75, KebaKeContact.ChannelId.TIMEOUT_CT, ModbusType.UINT16).uint16Reserved(76)
+				.channel(77, KebaKeContact.ChannelId.OUTPUT, ModbusType.UINT16)
+				.channel(78, KebaKeContact.ChannelId.INPUT, ModbusType.UINT16)
 
 				// Report 3
-				.channel(79, KebaChannelId.VOLTAGE_L1, ModbusType.UINT16)
-				.channel(80, KebaChannelId.VOLTAGE_L2, ModbusType.UINT16)
-				.channel(81, KebaChannelId.VOLTAGE_L3, ModbusType.UINT16)
-				.channel(82, KebaChannelId.CURRENT_L1, ModbusType.UINT16)
-				.channel(83, KebaChannelId.CURRENT_L2, ModbusType.UINT16)
-				.channel(84, KebaChannelId.CURRENT_L3, ModbusType.UINT16)
-				.channel(85, KebaChannelId.ACTUAL_POWER, ModbusType.UINT16)
-				.channel(86, KebaChannelId.COS_PHI, ModbusType.UINT16).uint16Reserved(87)
-				.channel(88, KebaChannelId.ENERGY_TOTAL, ModbusType.UINT16).build();
+				.channel(79, KebaKeContact.ChannelId.VOLTAGE_L1, ModbusType.UINT16)
+				.channel(80, KebaKeContact.ChannelId.VOLTAGE_L2, ModbusType.UINT16)
+				.channel(81, KebaKeContact.ChannelId.VOLTAGE_L3, ModbusType.UINT16)
+				.channel(82, KebaKeContact.ChannelId.CURRENT_L1, ModbusType.UINT16)
+				.channel(83, KebaKeContact.ChannelId.CURRENT_L2, ModbusType.UINT16)
+				.channel(84, KebaKeContact.ChannelId.CURRENT_L3, ModbusType.UINT16)
+				.channel(85, KebaKeContact.ChannelId.ACTUAL_POWER, ModbusType.UINT16)
+				.channel(86, KebaKeContact.ChannelId.COS_PHI, ModbusType.UINT16).uint16Reserved(87)
+				.channel(88, KebaKeContact.ChannelId.ENERGY_TOTAL, ModbusType.UINT16).build();
 	}
 }
