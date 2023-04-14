@@ -57,7 +57,6 @@
 	bnd.identity;id='io.openems.edge.controller.api.rest',\
 	bnd.identity;id='io.openems.edge.controller.api.websocket',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.balancingcosphi',\
-	bnd.identity;id='io.openems.edge.controller.asymmetric.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
@@ -113,6 +112,7 @@
 	bnd.identity;id='io.openems.edge.evcs.alpitronic.hypercharger',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
+	bnd.identity;id='io.openems.edge.evcs.dezony',\
 	bnd.identity;id='io.openems.edge.evcs.goe.chargerhome',\
 	bnd.identity;id='io.openems.edge.evcs.hardybarth',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
@@ -207,7 +207,6 @@
 	io.openems.edge.controller.api.rest;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\
 	io.openems.edge.controller.asymmetric.balancingcosphi;version=snapshot,\
-	io.openems.edge.controller.asymmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
@@ -265,6 +264,7 @@
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	io.openems.edge.evcs.core;version=snapshot,\
+	io.openems.edge.evcs.dezony;version=snapshot,\
 	io.openems.edge.evcs.goe.chargerhome;version=snapshot,\
 	io.openems.edge.evcs.hardybarth;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
