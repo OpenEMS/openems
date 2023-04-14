@@ -1,41 +1,23 @@
 package io.openems.edge.evcs.dezony;
 
-import java.util.function.Function;
-
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 
 public interface Dezony {
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		RAW_CHARGE_STATUS_CHARGEPOINT(Doc.of(OpenemsType.STRING), "state"),;
+		RAW_CHARGE_STATUS_CHARGEPOINT(Doc.of(OpenemsType.STRING));
 
 		private final Doc doc;
-		private final String[] jsonPaths;
 
-		protected final Function<Object, Object> converter;
-
-		private ChannelId(Doc doc, String... jsonPaths) {
-			this(doc, value -> value, jsonPaths);
-		}
-
-		private ChannelId(Doc doc, Function<Object, Object> converter, String... jsonPaths) {
+		private ChannelId(Doc doc) {
 			this.doc = doc;
-			this.converter = converter;
-			this.jsonPaths = jsonPaths;
 		}
 
 		@Override
 		public Doc doc() {
 			return this.doc;
 		}
-
-		/**
-		 * Get the whole JSON path.
-		 *
-		 * @return Whole path.
-		 */
-		public String[] getJsonPaths() {
-			return this.jsonPaths;
-		}
 	}
+
 }

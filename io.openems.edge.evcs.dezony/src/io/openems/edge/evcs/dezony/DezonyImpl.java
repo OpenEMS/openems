@@ -37,10 +37,11 @@ import io.openems.edge.evcs.api.Phases;
 public class DezonyImpl extends AbstractManagedEvcsComponent
 		implements OpenemsComponent, EventHandler, Dezony, Evcs, ManagedEvcs {
 
-	protected final Logger log = LoggerFactory.getLogger(DezonyImpl.class);
+	private final Logger log = LoggerFactory.getLogger(DezonyImpl.class);
+	private final DezonyReadWorker readWorker = new DezonyReadWorker(this);
+
 	protected Config config;
 	protected DezonyApi api;
-	private final DezonyReadWorker readWorker = new DezonyReadWorker(this);
 	protected boolean masterEvcs = true;
 
 	@Reference
@@ -52,7 +53,7 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
@@ -122,7 +123,7 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public boolean applyChargePowerLimit(int power) throws OpenemsNamedException {
-		this.api.enalbeCharing();
+		this.api.enableCharging();
 
 		final var current = (int) Math.round(power / (double) this.getPhasesAsInt() / DEFAULT_VOLTAGE);
 
@@ -131,7 +132,7 @@ public class DezonyImpl extends AbstractManagedEvcsComponent
 
 	@Override
 	public boolean pauseChargeProcess() throws OpenemsNamedException {
-		return this.api.disableCharing();
+		return this.api.disableCharging();
 	}
 
 	/**

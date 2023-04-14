@@ -16,40 +16,71 @@ import io.openems.common.utils.JsonUtils;
 
 /**
  * Implements the dezony REST-Api.
- *
  */
 public class DezonyApi {
-	private final String baseUrl;
-	private final DezonyImpl dezonyImpl;
 
-	public DezonyApi(String ip, int port, DezonyImpl dezonyImpl) {
+	private final String baseUrl;
+	private final DezonyImpl parent;
+
+	public DezonyApi(String ip, int port, DezonyImpl parent) {
 		this.baseUrl = "http://" + ip + ":" + port;
-		this.dezonyImpl = dezonyImpl;
+		this.parent = parent;
 	}
 
+	/**
+	 * Sends a GET Request to read the State.
+	 * 
+	 * @return result or null
+	 * @throws OpenemsNamedException on error
+	 */
 	public JsonElement getState() throws OpenemsNamedException {
 		return this.sendGetRequest("/api/v1/state");
 	}
 
-	public JsonElement getLastMetric() throws OpenemsNamedException {
+	/**
+	 * Sends a GET Request to read the last metrics.
+	 * 
+	 * @return result or null
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonElement getLastMetrics() throws OpenemsNamedException {
 		return this.sendGetRequest("/api/v1/metrics/last");
 	}
 
-	public JsonElement enalbeCharing() throws OpenemsNamedException {
+	/**
+	 * Sends a GET Request to unlock charging.
+	 * 
+	 * @return result or null
+	 * @throws OpenemsNamedException on error
+	 */
+	public JsonElement enableCharging() throws OpenemsNamedException {
 		return this.sendPostRequest("/api/v1/charging/unlock");
 	}
 
-	public boolean disableCharing() throws OpenemsNamedException {
-		final var resultLimit = this.sendPostRequest("/api/v1/charging/lock");
-		final var result = JsonUtils.getAsOptionalBoolean(resultLimit, "charging_is_locked");
+	/**
+	 * Sends a GET Request to lock charging.
+	 * 
+	 * @return true if `charging_is_locked`; false otherwise
+	 * @throws OpenemsNamedException on error
+	 */
+	public boolean disableCharging() throws OpenemsNamedException {
+		final var response = this.sendPostRequest("/api/v1/charging/lock");
+		final var result = JsonUtils.getAsOptionalBoolean(response, "charging_is_locked");
 
-		return result.orElse(false).equals(true);
+		return result.orElse(false);
 	}
 
+	/**
+	 * Sends a POST Request to set the charging current.
+	 * 
+	 * @param current the new charging current in [mA]
+	 * @return response charging_current
+	 * @throws OpenemsNamedException on error
+	 */
 	public Optional<String> setCurrent(int current) throws OpenemsNamedException {
-		final var resultLimit = this.sendPostRequest("/api/v1/charging/current?value=" + current);
+		final var response = this.sendPostRequest("/api/v1/charging/current?value=" + current);
 
-		return JsonUtils.getAsOptionalString(resultLimit, "charging_current");
+		return JsonUtils.getAsOptionalString(response, "charging_current");
 	}
 
 	/**
@@ -95,13 +126,13 @@ public class DezonyApi {
 		} catch (IOException e) {
 			// Log the error
 			e.printStackTrace();
-
 			getRequestFailed = true;
+
 		} finally {
-			System.out.println(getRequestFailed);
-			this.dezonyImpl._setChargingstationCommunicationFailed(getRequestFailed);
+			this.parent._setChargingstationCommunicationFailed(getRequestFailed);
 		}
 
+		// TODO consider throwing an Exception if result is null here
 		return result;
 	}
 
@@ -153,7 +184,7 @@ public class DezonyApi {
 			postRequestFailed = true;
 		} finally {
 			// Set state
-			this.dezonyImpl._setChargingstationCommunicationFailed(postRequestFailed);
+			this.parent._setChargingstationCommunicationFailed(postRequestFailed);
 		}
 
 		return result;

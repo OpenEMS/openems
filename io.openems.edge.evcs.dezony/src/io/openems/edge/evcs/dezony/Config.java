@@ -17,14 +17,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
-	boolean debugMode() default false;
-
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station", required = true)
 	String ip() default "192.168.50.88";
 
 	@AttributeDefinition(name = "Port", description = "The port on which the REST API listens", required = true)
 	int port() default 5000;
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	boolean debugMode() default false;
 
 	@AttributeDefinition(name = "Minimum hardware current", description = "Minimum current of the Charger in mA.", required = true)
 	int minHwCurrent() default 6000;
@@ -32,5 +32,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Maximum hardware current", description = "Maximum current of the Charger in mA.", required = true)
 	int maxHwCurrent() default 32000;
 
-	String webconsole_configurationFactory_nameHint() default "EVCS dezony [{id}]";
+	String webconsole_configurationFactory_nameHint() default "EVCS dezony IQ [{id}]";
 }
