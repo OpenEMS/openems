@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,6 +31,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.ConfigurationProperty;
+import io.openems.common.utils.InetAddressUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.common.user.User;
@@ -169,11 +168,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	private static void onMatchInet4Address(Pattern pattern, String line,
 			ThrowingConsumer<Inet4Address, OpenemsNamedException> callback) throws OpenemsNamedException {
 		onMatchString(pattern, line, property -> {
-			try {
-				callback.accept((Inet4Address) InetAddress.getByName(property));
-			} catch (UnknownHostException e) {
-				throw new OpenemsException("Unable to parse IPv4 address [" + property + "]: " + e.getMessage());
-			}
+			callback.accept(InetAddressUtils.parseOrError(property));
 		});
 	}
 
