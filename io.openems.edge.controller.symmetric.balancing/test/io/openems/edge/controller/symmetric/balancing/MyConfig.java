@@ -1,6 +1,7 @@
 package io.openems.edge.controller.symmetric.balancing;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -70,4 +71,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.targetGridSetpoint;
 	}
 
+	@Override
+	public String ess_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
+	}
+
+	@Override
+	public String meter_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.meter_id());
+	}
 }

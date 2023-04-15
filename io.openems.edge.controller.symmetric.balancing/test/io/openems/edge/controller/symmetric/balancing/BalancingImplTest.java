@@ -4,13 +4,13 @@ import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.meter.test.DummySymmetricMeter;
 
-public class BalancingTest {
+public class BalancingImplTest {
 
 	private static final String CTRL_ID = "ctrl0";
 
@@ -24,10 +24,10 @@ public class BalancingTest {
 
 	@Test
 	public void test() throws Exception {
-		new ControllerTest(new Balancing()) //
-				.addReference("componentManager", new DummyComponentManager()) //
-				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1))) //
-				.addComponent(new DummySymmetricMeter(METER_ID)) //
+		new ControllerTest(new BalancingImpl()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1))) //
+				.addReference("meter", new DummySymmetricMeter(METER_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //
