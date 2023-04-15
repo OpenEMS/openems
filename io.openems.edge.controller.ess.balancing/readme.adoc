@@ -1,5 +1,16 @@
-= Symmetric Balancing
+= ESS Balancing
 
-Controls a symmetric energy storage system in self-consumption optimization mode.
+This controls a energy storage system in self-consumption optimization mode by trying to balance the power at the grid connection point, i.e.:
+- charge the battery, when production is larger than consumption (i.e. when feeding power to the grid)
+- discharge the battery, when consumption is larger than production (i.e. when buying power from the grid)
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.symmetric.balancing[Source Code icon:github[]]
+== Requirements
+
+** ManagedSymmetricEss, a controllable energy storage system
+** SymmetricMeter, a meter at the grid connection point
+
+== Additional application notes
+
+Above description assumes that the grid connection point should be balanced to `0 Watt`. This bevahiour is configurable using the `targetGridSetpoint` configuration parameter.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.balancing[Source Code icon:github[]]
