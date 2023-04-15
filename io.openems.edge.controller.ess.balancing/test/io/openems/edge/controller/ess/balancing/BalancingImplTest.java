@@ -1,4 +1,4 @@
-package io.openems.edge.controller.symmetric.balancing;
+package io.openems.edge.controller.ess.balancing;
 
 import org.junit.Test;
 

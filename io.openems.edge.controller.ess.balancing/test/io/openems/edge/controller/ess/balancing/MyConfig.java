@@ -1,7 +1,8 @@
-package io.openems.edge.controller.symmetric.balancing;
+package io.openems.edge.controller.ess.balancing;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.controller.ess.balancing.Config;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

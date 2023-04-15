@@ -1,4 +1,4 @@
-package io.openems.edge.controller.symmetric.balancing;
+package io.openems.edge.controller.ess.balancing;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -20,7 +20,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Controller.Symmetric.Balancing", //
+		name = "Controller.Symmetric.Balancing", // This name has to be kept for compatibility reasons
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -70,7 +70,7 @@ public class BalancingImpl extends AbstractOpenemsComponent implements Controlle
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */
-		var gridMode = ess.getGridMode();
+		var gridMode = this.ess.getGridMode();
 		if (gridMode.isUndefined()) {
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 		}
@@ -85,15 +85,16 @@ public class BalancingImpl extends AbstractOpenemsComponent implements Controlle
 		/*
 		 * Calculates required charge/discharge power
 		 */
-		var essPower = this.ess.getActivePower().getOrError();
-		var gridPower = this.meter.getActivePower().getOrError();
-		var calculatedPower = calculateRequiredPower(essPower, gridPower, this.config.targetGridSetpoint());
+		var calculatedPower = calculateRequiredPower(//
+				this.ess.getActivePower().getOrError(), //
+				this.meter.getActivePower().getOrError(), //
+				this.config.targetGridSetpoint());
 
 		/*
 		 * set result
 		 */
-		ess.setActivePowerEqualsWithPid(calculatedPower);
-		ess.setReactivePowerEquals(0);
+		this.ess.setActivePowerEqualsWithPid(calculatedPower);
+		this.ess.setReactivePowerEquals(0);
 	}
 
 	/**
