@@ -11,15 +11,11 @@
     </oe-modal-line>
 
     <ng-container *ngFor="let meter of meters">
-        <oe-modal-line *ngIf="meters.length > 1" [name]="meter.component.alias ?? meter.component.id"
-            [channelAddress]="meter.component.id + '/ActivePower'" [converter]="Utils.CONVERT_TO_WATT">
+        <oe-modal-line *ngIf="meters.length > 1" [name]="meter.alias ?? meter.id"
+            [channelAddress]="meter.id + '/ActivePower'" [converter]="Utils.CONVERT_TO_WATT">
         </oe-modal-line>
-
-        <!-- If meter is asymmetric, show Phases -->
-        <ng-container *ngIf="meter.isAsymmetric">
-            <oe-modal-meter-phases [component]="meter.component" [setTranslatedName]="setTranslatedName">
-            </oe-modal-meter-phases>
-        </ng-container>
+        <oe-modal-meter-phases [component]="meter" [setTranslatedName]="setTranslatedName">
+        </oe-modal-meter-phases>
     </ng-container>
 
     <!-- Info Text -->

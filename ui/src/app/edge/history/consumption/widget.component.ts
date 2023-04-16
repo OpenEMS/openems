@@ -82,7 +82,7 @@ export class ConsumptionComponent extends AbstractHistoryWidget implements OnIni
                 )
             }
 
-            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+            this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
             for (let component of this.consumptionMeterComponents) {
                 channels.push(

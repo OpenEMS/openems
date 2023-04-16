@@ -1,15 +1,14 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { filter } from 'rxjs/operators';
+import { Component, OnInit } from '@angular/core';
 import { AbstractModalLine } from 'src/app/shared/genericComponents/modal/abstract-modal-line';
 import { TextIndentation } from 'src/app/shared/genericComponents/modal/modal-line/modal-line';
 import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
 import { Role } from 'src/app/shared/type/role';
 
 @Component({
-    selector: 'oe-asymmetric-meter',
+    selector: 'oe-electricity-meter',
     templateUrl: './modal.component.html'
 })
-export class AsymmetricMeterComponent extends AbstractModalLine implements OnInit {
+export class ElectricityMeterComponent extends AbstractModalLine implements OnInit {
 
     protected readonly Role = Role;
     protected readonly Utils = Utils;

@@ -66,7 +66,7 @@ export class ProductionComponent extends AbstractHistoryWidget implements OnInit
                 )
             }
 
-            this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.isEnabled && config.isProducer(component));
+            this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter").filter(component => component.isEnabled && config.isProducer(component));
             for (let component of this.productionMeterComponents) {
                 channels.push(
                     new ChannelAddress(component.id, 'ActiveProductionEnergy'),

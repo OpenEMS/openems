@@ -32,7 +32,7 @@ export class ProductionChartOverviewComponent implements OnInit {
             this.service.getConfig().then(config => {
                 this.edge = edge;
                 this.config = config;
-                this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => config.isProducer(component));
+                this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter").filter(component => config.isProducer(component));
                 this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
                 if ((this.productionMeterComponents.length > 0 && this.chargerComponents.length > 0)
                     || (this.productionMeterComponents.length == 0 && this.chargerComponents.length > 1)

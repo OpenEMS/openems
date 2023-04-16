@@ -28,20 +28,16 @@ export class ModalComponent extends AbstractModal {
     let channelAddresses: ChannelAddress[] = [];
 
     // Get ConsumptionMeters
-    this.consumptionMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+    this.consumptionMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
       .filter(component => component.isEnabled && this.config.isTypeConsumptionMetered(component));
 
     for (let meter of this.consumptionMeters) {
       channelAddresses.push(
         new ChannelAddress(meter.id, 'ActivePower'),
+        new ChannelAddress(meter.id, 'ActivePowerL1'),
+        new ChannelAddress(meter.id, 'ActivePowerL2'),
+        new ChannelAddress(meter.id, 'ActivePowerL3'),
       )
-      if (this.config.getNatureIdsByFactoryId(meter.factoryId).includes('io.openems.edge.meter.api.AsymmetricMeter')) {
-        channelAddresses.push(
-          new ChannelAddress(meter.id, 'ActivePowerL1'),
-          new ChannelAddress(meter.id, 'ActivePowerL2'),
-          new ChannelAddress(meter.id, 'ActivePowerL3'),
-        )
-      }
       this.consumptionMetersActivePower.component.push({
         name: meter.alias ?? meter.id,
         value: 0,

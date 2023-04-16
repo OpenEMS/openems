@@ -66,7 +66,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                             effectiveProductionL2[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL2']?.[index], value / 3);
                             effectiveProductionL3[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL3']?.[index], value / 3);
                         })
-                    } else if (config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0) {
+                    } else if (config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter").length > 0) {
                         effectiveProductionL1 = result.data['_sum/ProductionAcActivePowerL1'];
                         effectiveProductionL2 = result.data['_sum/ProductionAcActivePowerL2'];
                         effectiveProductionL3 = result.data['_sum/ProductionAcActivePowerL3'];
@@ -205,7 +205,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                 new ChannelAddress('_sum', 'ProductionAcActivePowerL2'),
                 new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
             ];
-            config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => config.isProducer(component)).forEach(productionMeter => {
+            config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter").filter(component => config.isProducer(component)).forEach(productionMeter => {
                 result.push(new ChannelAddress(productionMeter.id, 'ActivePower'))
             })
             config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").forEach(charger => {
