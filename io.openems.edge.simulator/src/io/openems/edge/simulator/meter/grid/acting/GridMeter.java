@@ -29,9 +29,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -49,7 +48,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class GridMeter extends AbstractOpenemsComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		implements ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SIMULATED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
@@ -80,9 +79,9 @@ public class GridMeter extends AbstractOpenemsComponent
 	private volatile Timedata timedata = null;
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
@@ -103,8 +102,7 @@ public class GridMeter extends AbstractOpenemsComponent
 	public GridMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}

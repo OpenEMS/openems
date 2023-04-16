@@ -20,8 +20,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.kostal.piko.core.api.KostalPikoCore;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -34,7 +34,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 })
-public class KostalPikoGridMeter extends AbstractOpenemsComponent implements SymmetricMeter, OpenemsComponent {
+public class KostalPikoGridMeter extends AbstractOpenemsComponent implements ElectricityMeter, OpenemsComponent {
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -69,7 +69,7 @@ public class KostalPikoGridMeter extends AbstractOpenemsComponent implements Sym
 	public KostalPikoGridMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ThisChannelId.values() //
 		);
 	}

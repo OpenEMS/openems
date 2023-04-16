@@ -15,13 +15,13 @@ import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
-import io.openems.edge.meter.test.DummyAsymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class EvcsClusterTest {
 	// TODO: Add eventually something like DummyEvcsController
 
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0", 30000);
-	private static final DummyAsymmetricMeter METER = new DummyAsymmetricMeter("meter0");
+	private static final DummyElectricityMeter METER = new DummyElectricityMeter("meter0");
 	private static final DummyEvcsPower EVCS_POWER = new DummyEvcsPower(new DisabledRampFilter());
 	private static final DummyManagedEvcs EVCS0 = new DummyManagedEvcs("evcs0", EVCS_POWER);
 	private static final DummyManagedEvcs EVCS1 = new DummyManagedEvcs("evcs1", EVCS_POWER);

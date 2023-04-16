@@ -22,8 +22,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.io.shelly.common.ShellyApi;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -36,7 +36,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class ShellyPlugImpl extends AbstractOpenemsComponent
-		implements ShellyPlug, DigitalOutput, SymmetricMeter, OpenemsComponent, EventHandler {
+		implements ShellyPlug, DigitalOutput, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(ShellyPlugImpl.class);
 
@@ -47,7 +47,7 @@ public class ShellyPlugImpl extends AbstractOpenemsComponent
 	public ShellyPlugImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
 				ShellyPlug.ChannelId.values() //
 		);

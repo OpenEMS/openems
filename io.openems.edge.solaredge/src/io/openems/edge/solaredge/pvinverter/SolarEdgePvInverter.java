@@ -31,8 +31,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
 import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
@@ -48,8 +47,8 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class SolarEdgePvInverter extends AbstractSunSpecPvInverter implements SunSpecPvInverter, ManagedSymmetricPvInverter,
-		AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
+public class SolarEdgePvInverter extends AbstractSunSpecPvInverter implements SunSpecPvInverter,
+		ManagedSymmetricPvInverter, ElectricityMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
@@ -80,8 +79,7 @@ public class SolarEdgePvInverter extends AbstractSunSpecPvInverter implements Su
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				SunSpecPvInverter.ChannelId.values() //
 		);
@@ -116,7 +114,7 @@ public class SolarEdgePvInverter extends AbstractSunSpecPvInverter implements Su
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(SolarEdgePvInverter.class, accessMode, 100) //
 						.build());

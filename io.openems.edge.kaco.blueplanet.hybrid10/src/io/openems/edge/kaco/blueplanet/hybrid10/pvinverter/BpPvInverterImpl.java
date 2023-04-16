@@ -34,7 +34,7 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.kaco.blueplanet.hybrid10.ErrorChannelId;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -51,7 +51,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvInverter, ManagedSymmetricPvInverter,
-		SymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
+		ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(BpPvInverterImpl.class);
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
@@ -70,14 +70,14 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 	private volatile Timedata timedata = null;
 
 	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	private Instant lastSuccessfulCommunication = null;
 
 	public BpPvInverterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				ErrorChannelId.values(), //
 				BpPvInverter.ChannelId.values() //
@@ -191,7 +191,7 @@ public class BpPvInverterImpl extends AbstractOpenemsComponent implements BpPvIn
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(BpPvInverter.class, accessMode, 100) //
 						.build());

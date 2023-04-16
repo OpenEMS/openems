@@ -31,8 +31,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.pvinverter.sunspec.AbstractSunSpecPvInverter;
 import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
@@ -49,7 +48,7 @@ import io.openems.edge.pvinverter.sunspec.SunSpecPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class SmaPvInverter extends AbstractSunSpecPvInverter implements SunSpecPvInverter, ManagedSymmetricPvInverter,
-		SymmetricMeter, ModbusComponent, AsymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
+		ElectricityMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) // from 40002
@@ -84,8 +83,7 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter implements SunSpecP
 				ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				SunSpecPvInverter.ChannelId.values() //
 		);
@@ -120,7 +118,7 @@ public class SmaPvInverter extends AbstractSunSpecPvInverter implements SunSpecP
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(SmaPvInverter.class, accessMode, 100) //
 						.build());

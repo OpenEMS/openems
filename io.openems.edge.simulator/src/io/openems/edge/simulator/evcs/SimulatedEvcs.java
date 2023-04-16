@@ -30,9 +30,8 @@ import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.Evcs", //
@@ -43,7 +42,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
 public class SimulatedEvcs extends AbstractManagedEvcsComponent
-		implements SymmetricMeter, AsymmetricMeter, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
+		implements ElectricityMeter, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -73,7 +72,7 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				AsymmetricMeterEvcs.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ChannelId.values() //

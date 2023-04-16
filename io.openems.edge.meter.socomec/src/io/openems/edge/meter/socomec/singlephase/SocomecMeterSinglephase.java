@@ -4,10 +4,12 @@ import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.SinglePhaseMeter;
+import io.openems.edge.meter.socomec.SocomecMeter;
 
-public interface SocomecMeterSinglephase extends SymmetricMeter, AsymmetricMeter, OpenemsComponent, ModbusSlave {
+public interface SocomecMeterSinglephase
+		extends SocomecMeter, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		NOT_A_SINGLEPHASE_METER(Doc.of(Level.FAULT) //

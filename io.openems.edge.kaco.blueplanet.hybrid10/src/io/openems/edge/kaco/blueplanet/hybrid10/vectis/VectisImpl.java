@@ -21,9 +21,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.kaco.blueplanet.hybrid10.core.BpCore;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -38,7 +37,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 public class VectisImpl extends AbstractOpenemsComponent
-		implements Vectis, SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		implements Vectis, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected BpCore core;
@@ -52,9 +51,9 @@ public class VectisImpl extends AbstractOpenemsComponent
 	private Config config;
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	@Activate
 	void activate(ComponentContext context, Config config) throws UnknownHostException {
@@ -75,8 +74,7 @@ public class VectisImpl extends AbstractOpenemsComponent
 	public VectisImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				Vectis.ChannelId.values() //
 		);
 	}

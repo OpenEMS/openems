@@ -40,7 +40,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -64,7 +64,7 @@ public class BalancingScheduleImpl extends AbstractOpenemsComponent
 	private ManagedSymmetricEss ess;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private SymmetricMeter meter;
+	private ElectricityMeter meter;
 
 	public BalancingScheduleImpl() {
 		super(//

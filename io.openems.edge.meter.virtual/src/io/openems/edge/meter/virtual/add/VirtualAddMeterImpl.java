@@ -1,4 +1,7 @@
-package io.openems.edge.meter.virtual.symmetric.add;
+package io.openems.edge.meter.virtual.add;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -10,69 +13,78 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.VirtualMeter;
-import io.openems.edge.meter.virtual.common.AbstractVirtualAddMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Meter.Virtual.Symmetric.Add", //
+@Component(name = "Meter.Virtual.Add", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 ) //
-@EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
-})
-public class SymmetricVirtualAdd extends AbstractVirtualAddMeter<SymmetricMeter>
-		implements VirtualMeter, SymmetricMeter, OpenemsComponent, ModbusSlave {
+public class VirtualAddMeterImpl extends AbstractOpenemsComponent
+		implements VirtualAddMeter, VirtualMeter, ElectricityMeter, OpenemsComponent, ModbusSlave {
 
-	private final SymmetricChannelManager channelManager = new SymmetricChannelManager(this);
+	private final AddChannelManager channelManager = new AddChannelManager(this);
+	private final List<ElectricityMeter> meters = new ArrayList<>();
 
 	@Reference
-	private ConfigurationAdmin configurationAdmin;
+	private ConfigurationAdmin cm;
 
 	@Reference(//
 			policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE)
-	protected void addMeter(SymmetricMeter meter) {
-		super.addMeter(meter);
+	protected void addMeter(ElectricityMeter meter) {
+		synchronized (this.meters) {
+			this.meters.add(meter);
+			this.channelManager.update(this.meters);
+		}
 	}
 
-	protected void removeMeter(SymmetricMeter meter) {
-		super.removeMeter(meter);
+	protected void removeMeter(ElectricityMeter meter) {
+		synchronized (this.meters) {
+			this.meters.remove(meter);
+			this.channelManager.update(this.meters);
+		}
 	}
 
 	private Config config;
 
-	public SymmetricVirtualAdd() {
+	public VirtualAddMeterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values() //
+				ElectricityMeter.ChannelId.values(), //
+				VirtualAddMeter.ChannelId.values() //
 		);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
-		super.activate(context, config.id(), config.alias(), config.enabled(), this.configurationAdmin,
-				config.meterIds());
+		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
+
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Meter", config.meterIds())) {
+			return;
+		}
+
+		this.channelManager.update(this.meters);
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		this.channelManager.deactivate();
 	}
 
 	@Override
@@ -86,17 +98,17 @@ public class SymmetricVirtualAdd extends AbstractVirtualAddMeter<SymmetricMeter>
 	}
 
 	@Override
-	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(SymmetricVirtualAdd.class, accessMode, 100) //
-						.build());
+	public String debugLog() {
+		return this.getActivePower().asString();
 	}
 
 	@Override
-	protected SymmetricChannelManager getChannelManager() {
-		return this.channelManager;
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(VirtualAddMeterImpl.class, accessMode, 100) //
+						.build());
 	}
 
 }

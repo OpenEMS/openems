@@ -8,7 +8,7 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
-import io.openems.edge.meter.test.DummySymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class BalancingTest {
 
@@ -27,7 +27,7 @@ public class BalancingTest {
 		new ControllerTest(new Balancing()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1))) //
-				.addComponent(new DummySymmetricMeter(METER_ID)) //
+				.addComponent(new DummyElectricityMeter(METER_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //

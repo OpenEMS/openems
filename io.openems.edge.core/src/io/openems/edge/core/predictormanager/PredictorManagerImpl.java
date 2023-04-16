@@ -30,7 +30,7 @@ import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.user.User;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
@@ -188,7 +188,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 		}
 		case PRODUCTION_AC_ACTIVE_POWER: {
 			// Sum up "ActivePower" prediction of all SymmetricMeters
-			List<SymmetricMeter> meters = this.componentManager.getEnabledComponentsOfType(SymmetricMeter.class)
+			List<ElectricityMeter> meters = this.componentManager.getEnabledComponentsOfType(ElectricityMeter.class)
 					.stream() //
 					.filter(meter -> {
 						switch (meter.getMeterType()) {
@@ -208,7 +208,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 			for (var i = 0; i < meters.size(); i++) {
 				var meter = meters.get(i);
 				predictions[i] = this.get24HoursPrediction(
-						new ChannelAddress(meter.id(), SymmetricMeter.ChannelId.ACTIVE_POWER.id()));
+						new ChannelAddress(meter.id(), ElectricityMeter.ChannelId.ACTIVE_POWER.id()));
 			}
 			return Prediction24Hours.sum(predictions);
 		}

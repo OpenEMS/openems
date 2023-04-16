@@ -1,4 +1,4 @@
-package io.openems.edge.meter.virtual.symmetric.subtract;
+package io.openems.edge.meter.virtual.subtract;
 
 import org.junit.Test;
 
@@ -10,7 +10,7 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.test.DummySymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class VirtualSubtractMeterTest {
 
@@ -30,9 +30,9 @@ public class VirtualSubtractMeterTest {
 	public void test() throws Exception {
 		new ComponentTest(new VirtualSubtractMeter()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("minuend", new DummySymmetricMeter(MINUEND_ID)) //
+				.addReference("minuend", new DummyElectricityMeter(MINUEND_ID)) //
 				.addReference("subtrahends", Lists.newArrayList(//
-						new DummySymmetricMeter(SUBTRAHEND1_ID), //
+						new DummyElectricityMeter(SUBTRAHEND1_ID), //
 						new DummyManagedSymmetricEss(SUBTRAHEND2_ID))) //
 				.activate(MyConfig.create() //
 						.setId(METER_ID) //

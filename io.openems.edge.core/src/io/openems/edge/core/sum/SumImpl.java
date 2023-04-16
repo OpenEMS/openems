@@ -34,8 +34,7 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.meter.api.AsymmetricMeter;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.VirtualMeter;
 import io.openems.edge.timedata.api.Timedata;
 
@@ -209,7 +208,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					essDcDischargeEnergy.addValue(ess.getActiveDischargeEnergyChannel());
 				}
 
-			} else if (component instanceof SymmetricMeter) {
+			} else if (component instanceof ElectricityMeter meter) {
 				if (component instanceof VirtualMeter) {
 					if (!((VirtualMeter) component).addToSum()) {
 						// Ignore VirtualMeter if "addToSum" is not activated (default)
@@ -220,7 +219,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				/*
 				 * Meter
 				 */
-				var meter = (SymmetricMeter) component;
 				switch (meter.getMeterType()) {
 				case PRODUCTION_AND_CONSUMPTION:
 					// TODO PRODUCTION_AND_CONSUMPTION
@@ -243,17 +241,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					gridMaxActivePower.addValue(meter.getMaxActivePowerChannel());
 					gridBuyActiveEnergy.addValue(meter.getActiveProductionEnergyChannel());
 					gridSellActiveEnergy.addValue(meter.getActiveConsumptionEnergyChannel());
-
-					if (meter instanceof AsymmetricMeter) {
-						var m = (AsymmetricMeter) meter;
-						gridActivePowerL1.addValue(m.getActivePowerL1Channel());
-						gridActivePowerL2.addValue(m.getActivePowerL2Channel());
-						gridActivePowerL3.addValue(m.getActivePowerL3Channel());
-					} else {
-						gridActivePowerL1.addValue(meter.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
-						gridActivePowerL2.addValue(meter.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
-						gridActivePowerL3.addValue(meter.getActivePowerChannel(), CalculateIntegerSum.DIVIDE_BY_THREE);
-					}
+					gridActivePowerL1.addValue(meter.getActivePowerL1Channel());
+					gridActivePowerL2.addValue(meter.getActivePowerL2Channel());
+					gridActivePowerL3.addValue(meter.getActivePowerL3Channel());
 					break;
 
 				case PRODUCTION:
@@ -264,20 +254,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					productionMaxAcActivePower.addValue(meter.getMaxActivePowerChannel());
 					productionAcActiveEnergy.addValue(meter.getActiveProductionEnergyChannel());
 					productionAcActiveEnergyNegative.addValue(meter.getActiveConsumptionEnergyChannel());
-
-					if (meter instanceof AsymmetricMeter) {
-						var m = (AsymmetricMeter) meter;
-						productionAcActivePowerL1.addValue(m.getActivePowerL1Channel());
-						productionAcActivePowerL2.addValue(m.getActivePowerL2Channel());
-						productionAcActivePowerL3.addValue(m.getActivePowerL3Channel());
-					} else {
-						productionAcActivePowerL1.addValue(meter.getActivePowerChannel(),
-								CalculateIntegerSum.DIVIDE_BY_THREE);
-						productionAcActivePowerL2.addValue(meter.getActivePowerChannel(),
-								CalculateIntegerSum.DIVIDE_BY_THREE);
-						productionAcActivePowerL3.addValue(meter.getActivePowerChannel(),
-								CalculateIntegerSum.DIVIDE_BY_THREE);
-					}
+					productionAcActivePowerL1.addValue(meter.getActivePowerL1Channel());
+					productionAcActivePowerL2.addValue(meter.getActivePowerL2Channel());
+					productionAcActivePowerL3.addValue(meter.getActivePowerL3Channel());
 					break;
 
 				}

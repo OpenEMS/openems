@@ -2,40 +2,101 @@ package io.openems.edge.meter.api;
 
 import java.util.function.Consumer;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.IntUtils;
+import io.openems.common.utils.IntUtils.Round;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.type.TypeUtils;
 
 /**
- * Represents an Asymmetric Meter.
- *
+ * Represents an electricity Meter.
+ * 
+ * <p>
+ * This is the parent of everything that measures electricity flow. Consider
+ * using:
  * <ul>
- * <li>Negative ActivePowerL1/L2/L3 and ConsumptionActivePowerL1/L2/L3 represent
- * Consumption, i.e. power that is 'leaving the system', e.g. feed-to-grid
- * <li>Positive ActivePowerL1/L2/L3 and ProductionActivePowerL1/L2/L3 represent
- * Production, i.e. power that is 'entering the system', e.g. buy-from-grid
+ * <li>{@link SymmetricMeter}: if L1, L2 and L3 are always equal
+ * <li>{@link SinglePhaseMeter}: if only either L1, L2 or L3 can be set
  * </ul>
  */
-public interface AsymmetricMeter extends SymmetricMeter {
-
-	public static final String POWER_DOC_TEXT = "Negative values for Consumption; positive for Production";
+@ProviderType
+public interface ElectricityMeter extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+		@Deprecated
+		MIN_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+
+		@Deprecated
+		MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+
+		/**
+		 * Active Power.
+		 *
+		 * <ul>
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#WATT}
+		 * <li>Range: negative values for Consumption (power that is 'leaving the
+		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
+		 * the system')
+		 * </ul>
+		 */
+		ACTIVE_POWER(new IntegerDoc() //
+				.unit(Unit.WATT) //
+				.persistencePriority(PersistencePriority.HIGH) //
+				.onInit(channel -> {
+					channel.onSetNextValue(value -> {
+						/*
+						 * Fill Min/Max Active Power channels
+						 */
+						if (value.isDefined()) {
+							int newValue = value.get();
+							{
+								Channel<Integer> minActivePowerChannel = channel.getComponent()
+										.channel(ChannelId.MIN_ACTIVE_POWER);
+								int minActivePower = minActivePowerChannel.value().orElse(0);
+								int minNextActivePower = minActivePowerChannel.getNextValue().orElse(0);
+								if (newValue < Math.min(minActivePower, minNextActivePower)) {
+									// avoid getting called too often -> round to 100
+									newValue = IntUtils.roundToPrecision(newValue, Round.TOWARDS_ZERO, 100);
+									minActivePowerChannel.setNextValue(newValue);
+								}
+							}
+							{
+								Channel<Integer> maxActivePowerChannel = channel.getComponent()
+										.channel(ChannelId.MAX_ACTIVE_POWER);
+								int maxActivePower = maxActivePowerChannel.value().orElse(0);
+								int maxNextActivePower = maxActivePowerChannel.getNextValue().orElse(0);
+								if (newValue > Math.max(maxActivePower, maxNextActivePower)) {
+									// avoid getting called too often -> round to 100
+									newValue = IntUtils.roundToPrecision(newValue, Round.AWAY_FROM_ZERO, 100);
+									maxActivePowerChannel.setNextValue(newValue);
+								}
+							}
+						}
+					});
+				})), //
+
 		/**
 		 * Active Power L1.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#WATT}
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
 		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
 		 * the system')
@@ -43,15 +104,13 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT)), //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Active Power L2.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#WATT}
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
 		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
 		 * the system')
@@ -59,15 +118,13 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT)), //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Active Power L3.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: W
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#WATT}
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
 		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
 		 * the system')
@@ -75,15 +132,27 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT)), //
+				.persistencePriority(PersistencePriority.HIGH)), //
+		/**
+		 * Reactive Power.
+		 *
+		 * <ul>
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
+		 * <li>Range: negative values for Consumption (power that is 'leaving the
+		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
+		 * the system')
+		 * </ul>
+		 */
+		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L1.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: var
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
 		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
 		 * the system')
@@ -91,15 +160,13 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		REACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT)), //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L2.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: var
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
 		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
 		 * the system')
@@ -107,15 +174,13 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		REACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT)), //
+				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
 		 * Reactive Power L3.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: var
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#VOLT_AMPERE_REACTIVE}
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
 		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
 		 * the system')
@@ -123,15 +188,25 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 */
 		REACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text(POWER_DOC_TEXT)), //
+				.persistencePriority(PersistencePriority.HIGH)), //
+		// TODO Does VOLTAGE actually make sense?
+		/**
+		 * Voltage.
+		 *
+		 * <ul>
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#MILLIVOLT}
+		 * </ul>
+		 */
+		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIVOLT) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Voltage L1.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: mV
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
 		 */
 		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
@@ -141,9 +216,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * Voltage L2.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: mV
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
 		 */
 		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
@@ -153,21 +227,30 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * Voltage L3.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: mV
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
 		 */
 		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
 				.persistencePriority(PersistencePriority.HIGH)), //
 		/**
+		 * Current.
+		 *
+		 * <ul>
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#MILLIAMPERE}
+		 * </ul>
+		 */
+		CURRENT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIAMPERE) //
+				.persistencePriority(PersistencePriority.HIGH)), //
+		/**
 		 * Current L1.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: mA
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#MILLIAMPERE}
 		 * </ul>
 		 */
 		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
@@ -177,9 +260,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * Current L2.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: mA
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#MILLIAMPERE}
 		 * </ul>
 		 */
 		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
@@ -189,94 +271,113 @@ public interface AsymmetricMeter extends SymmetricMeter {
 		 * Current L3.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Integer
-		 * <li>Unit: mA
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#MILLIAMPERE}
 		 * </ul>
 		 */
 		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE) //
 				.persistencePriority(PersistencePriority.HIGH)),
-
+		/**
+		 * Frequency.
+		 *
+		 * <ul>
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#MILLIHERTZ}
+		 * <li>Range: only positive values
+		 * </ul>
+		 */
+		FREQUENCY(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.MILLIHERTZ) //
+				.persistencePriority(PersistencePriority.HIGH)),
+		/**
+		 * Active Production Energy.
+		 *
+		 * <ul>
+		 * <li>Type: {@link OpenemsType#LONG}
+		 * <li>Unit: {@link Unit#WATT_HOURS}
+		 * </ul>
+		 */
+		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveProductionEnergy on L1.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Long
+		 * <li>Type: {@link OpenemsType#LONG}
 		 * <li>Unit: {@link Unit#WATT_HOURS}
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
-
 		/**
 		 * The ActiveProductionEnergy on L2.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Long
+		 * <li>Type: {@link OpenemsType#LONG}
 		 * <li>Unit: {@link Unit#WATT_HOURS}
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
-
 		/**
 		 * The ActiveProductionEnergy on L3.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Long
+		 * <li>Type: {@link OpenemsType#LONG}
 		 * <li>Unit: {@link Unit#WATT_HOURS}
 		 * </ul>
 		 */
 		ACTIVE_PRODUCTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
-
+		/**
+		 * Active Consumption Energy.
+		 *
+		 * <ul>
+		 * <li>Type: {@link OpenemsType#LONG}
+		 * <li>Unit: {@link Unit#WATT_HOURS}
+		 * </ul>
+		 */
+		ACTIVE_CONSUMPTION_ENERGY(Doc.of(OpenemsType.LONG) //
+				.unit(Unit.WATT_HOURS) //
+				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * The ActiveConsumptionEnergy on L1.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Long
+		 * <li>Type: {@link OpenemsType#LONG}
 		 * <li>Unit: {@link Unit#WATT_HOURS}
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L1(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
-
 		/**
 		 * The ActiveConsumptionEnergy on L2.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Long
+		 * <li>Type: {@link OpenemsType#LONG}
 		 * <li>Unit: {@link Unit#WATT_HOURS}
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L2(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS) //
 				.persistencePriority(PersistencePriority.HIGH)),
-
 		/**
 		 * The ActiveConsumptionEnergy on L3.
 		 *
 		 * <ul>
-		 * <li>Interface: Meter Asymmetric
-		 * <li>Type: Long
+		 * <li>Type: {@link OpenemsType#LONG}
 		 * <li>Unit: {@link Unit#WATT_HOURS}
 		 * </ul>
 		 */
 		ACTIVE_CONSUMPTION_ENERGY_L3(Doc.of(OpenemsType.LONG) //
 				.unit(Unit.WATT_HOURS) //
-				.persistencePriority(PersistencePriority.HIGH)),
-
-		; //
+				.persistencePriority(PersistencePriority.HIGH)),; //
 
 		private final Doc doc;
 
@@ -291,6 +392,30 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
+	 * Gets the type of this Meter.
+	 *
+	 * @return the {@link MeterType}
+	 */
+	public MeterType getMeterType();
+
+	/**
+	 * Is this device actively managed by OpenEMS?.
+	 * 
+	 * <p>
+	 * If this is a normal electricity meter, return false.
+	 * 
+	 * <p>
+	 * If this is an actively managed device like a heat-pump or electric vehicle
+	 * charging station, return true. The value will then get ignored for
+	 * 'UnmanagedActivePower' prediction.
+	 *
+	 * @return true for managed, false for unmanaged devices.
+	 */
+	public default boolean isManaged() {
+		return false;
+	}
+
+	/**
 	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
 	 * of this Component.
 	 *
@@ -298,7 +423,8 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	 * @return the {@link ModbusSlaveNatureTable}
 	 */
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(AsymmetricMeter.class, accessMode, 100) //
+		return ModbusSlaveNatureTable.of(ElectricityMeter.class, accessMode, 100) //
+				// TODO sum values
 				.channel(0, ChannelId.ACTIVE_POWER_L1, ModbusType.FLOAT32) //
 				.channel(2, ChannelId.ACTIVE_POWER_L2, ModbusType.FLOAT32) //
 				.channel(4, ChannelId.ACTIVE_POWER_L3, ModbusType.FLOAT32) //
@@ -318,6 +444,132 @@ public interface AsymmetricMeter extends SymmetricMeter {
 				.channel(32, ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, ModbusType.FLOAT32) //
 				.channel(34, ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, ModbusType.FLOAT32) //
 				.build();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MIN_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	@Deprecated
+	public default IntegerReadChannel getMinActivePowerChannel() {
+		return this.channel(ChannelId.MIN_ACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Minimum Ever Active Power in [W]. See
+	 * {@link ChannelId#MIN_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	@Deprecated
+	public default Value<Integer> getMinActivePower() {
+		return this.getMinActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MIN_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	@Deprecated
+	public default void _setMinActivePower(Integer value) {
+		this.getMinActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MIN_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	@Deprecated
+	public default void _setMinActivePower(int value) {
+		this.getMinActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#MAX_ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	@Deprecated
+	public default IntegerReadChannel getMaxActivePowerChannel() {
+		return this.channel(ChannelId.MAX_ACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Maximum Ever Active Power in [W]. See
+	 * {@link ChannelId#MAX_ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	@Deprecated
+	public default Value<Integer> getMaxActivePower() {
+		return this.getMaxActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	@Deprecated
+	public default void _setMaxActivePower(Integer value) {
+		this.getMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#MAX_ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	@Deprecated
+	public default void _setMaxActivePower(int value) {
+		this.getMaxActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getActivePowerChannel() {
+		return this.channel(ChannelId.ACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Active Power in [W]. Negative values for Consumption (power that is
+	 * 'leaving the system', e.g. feed-to-grid); positive for Production (power that
+	 * is 'entering the system'). See {@link ChannelId#ACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getActivePower() {
+		return this.getActivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePower(Integer value) {
+		this.getActivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#ACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActivePower(int value) {
+		this.getActivePowerChannel().setNextValue(value);
 	}
 
 	/**
@@ -441,6 +693,44 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getReactivePowerChannel() {
+		return this.channel(ChannelId.REACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Reactive Power in [var]. See {@link ChannelId#REACTIVE_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getReactivePower() {
+		return this.getReactivePowerChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePower(Integer value) {
+		this.getReactivePowerChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#REACTIVE_POWER}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setReactivePower(int value) {
+		this.getReactivePowerChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#REACTIVE_POWER_L1}.
 	 *
 	 * @return the Channel
@@ -558,6 +848,42 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#VOLTAGE}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getVoltageChannel() {
+		return this.channel(ChannelId.VOLTAGE);
+	}
+
+	/**
+	 * Gets the Voltage in [mV]. See {@link ChannelId#VOLTAGE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getVoltage() {
+		return this.getVoltageChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setVoltage(Integer value) {
+		this.getVoltageChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#VOLTAGE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setVoltage(int value) {
+		this.getVoltageChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#VOLTAGE_L1}.
 	 *
 	 * @return the Channel
@@ -672,6 +998,42 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#CURRENT}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getCurrentChannel() {
+		return this.channel(ChannelId.CURRENT);
+	}
+
+	/**
+	 * Gets the Current in [mA]. See {@link ChannelId#CURRENT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getCurrent() {
+		return this.getCurrentChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCurrent(Integer value) {
+		this.getCurrentChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setCurrent(int value) {
+		this.getCurrentChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#CURRENT_L1}.
 	 *
 	 * @return the Channel
@@ -783,6 +1145,83 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	 */
 	public default void _setCurrentL3(int value) {
 		this.getCurrentL3Channel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#FREQUENCY}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getFrequencyChannel() {
+		return this.channel(ChannelId.FREQUENCY);
+	}
+
+	/**
+	 * Gets the Frequency in [mHz]. See {@link ChannelId#FREQUENCY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getFrequency() {
+		return this.getFrequencyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#FREQUENCY}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setFrequency(Integer value) {
+		this.getFrequencyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#FREQUENCY}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setFrequency(int value) {
+		this.getFrequencyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getActiveProductionEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_PRODUCTION_ENERGY);
+	}
+
+	/**
+	 * Gets the Active Production Energy in [Wh]. This relates to positive
+	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getActiveProductionEnergy() {
+		return this.getActiveProductionEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveProductionEnergy(Long value) {
+		this.getActiveProductionEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveProductionEnergy(long value) {
+		this.getActiveProductionEnergyChannel().setNextValue(value);
 	}
 
 	/**
@@ -903,6 +1342,45 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
+	 *
+	 * @return the Channel
+	 */
+	public default LongReadChannel getActiveConsumptionEnergyChannel() {
+		return this.channel(ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	}
+
+	/**
+	 * Gets the Active Consumption Energy in [Wh]. This relates to negative
+	 * ACTIVE_POWER. See {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Long> getActiveConsumptionEnergy() {
+		return this.getActiveConsumptionEnergyChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveConsumptionEnergy(Long value) {
+		this.getActiveConsumptionEnergyChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setActiveConsumptionEnergy(long value) {
+		this.getActiveConsumptionEnergyChannel().setNextValue(value);
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_CONSUMPTION_ENERGY_L1}.
 	 *
 	 * @return the Channel
@@ -1020,32 +1498,145 @@ public interface AsymmetricMeter extends SymmetricMeter {
 	}
 
 	/**
-	 * Initializes Channel listeners to set the Active- and Reactive-Power Channel
-	 * value as the sum of L1 + L2 + L3.
+	 * Initializes Channel listeners to calculate the
+	 * {@link ChannelId#ACTIVE_POWER}-Channel value as the sum of
+	 * {@link ChannelId#ACTIVE_POWER_L1}, {@link ChannelId#ACTIVE_POWER_L2} and
+	 * {@link ChannelId#ACTIVE_POWER_L3}.
 	 *
-	 * @param meter the {@link AsymmetricMeter}
+	 * @param meter the {@link ElectricityMeter}
 	 */
-	public static void initializePowerSumChannels(AsymmetricMeter meter) {
-		// Active Power
-		final Consumer<Value<Integer>> activePowerSum = ignore -> {
+	public static void calculateSumActivePowerFromPhases(ElectricityMeter meter) {
+		final Consumer<Value<Integer>> calculate = ignore -> {
 			meter._setActivePower(TypeUtils.sum(//
 					meter.getActivePowerL1Channel().getNextValue().get(), //
 					meter.getActivePowerL2Channel().getNextValue().get(), //
 					meter.getActivePowerL3Channel().getNextValue().get())); //
 		};
-		meter.getActivePowerL1Channel().onSetNextValue(activePowerSum);
-		meter.getActivePowerL2Channel().onSetNextValue(activePowerSum);
-		meter.getActivePowerL3Channel().onSetNextValue(activePowerSum);
+		meter.getActivePowerL1Channel().onSetNextValue(calculate);
+		meter.getActivePowerL2Channel().onSetNextValue(calculate);
+		meter.getActivePowerL3Channel().onSetNextValue(calculate);
+	}
 
-		// Reactive Power
-		final Consumer<Value<Integer>> reactivePowerSum = ignore -> {
+	/**
+	 * Initializes Channel listeners to calculate the
+	 * {@link ChannelId#REACTIVE_POWER}-Channel value as the sum of
+	 * {@link ChannelId#REACTIVE_POWER_L1}, {@link ChannelId#REACTIVE_POWER_L2} and
+	 * {@link ChannelId#REACTIVE_POWER_L3}.
+	 *
+	 * @param meter the {@link ElectricityMeter}
+	 */
+	public static void calculateSumReactivePowerFromPhases(ElectricityMeter meter) {
+		final Consumer<Value<Integer>> calculate = ignore -> {
 			meter._setReactivePower(TypeUtils.sum(//
 					meter.getReactivePowerL1Channel().getNextValue().get(), //
 					meter.getReactivePowerL2Channel().getNextValue().get(), //
 					meter.getReactivePowerL3Channel().getNextValue().get())); //
 		};
-		meter.getReactivePowerL1Channel().onSetNextValue(reactivePowerSum);
-		meter.getReactivePowerL2Channel().onSetNextValue(reactivePowerSum);
-		meter.getReactivePowerL3Channel().onSetNextValue(reactivePowerSum);
+		meter.getReactivePowerL1Channel().onSetNextValue(calculate);
+		meter.getReactivePowerL2Channel().onSetNextValue(calculate);
+		meter.getReactivePowerL3Channel().onSetNextValue(calculate);
 	}
+
+	/**
+	 * Initializes Channel listeners to calculate the
+	 * {@link ChannelId#CURRENT}-Channel value as the sum of
+	 * {@link ChannelId#CURRENT_L1}, {@link ChannelId#CURRENT_L2} and
+	 * {@link ChannelId#CURRENT_L3}.
+	 *
+	 * @param meter the {@link ElectricityMeter}
+	 */
+	public static void calculateSumCurrentFromPhases(ElectricityMeter meter) {
+		final Consumer<Value<Integer>> calculate = ignore -> {
+			meter._setCurrent(TypeUtils.sum(//
+					meter.getCurrentL1Channel().getNextValue().get(), //
+					meter.getCurrentL2Channel().getNextValue().get(), //
+					meter.getCurrentL3Channel().getNextValue().get())); //
+		};
+		meter.getCurrentL1Channel().onSetNextValue(calculate);
+		meter.getCurrentL2Channel().onSetNextValue(calculate);
+		meter.getCurrentL3Channel().onSetNextValue(calculate);
+	}
+
+	/**
+	 * Initializes Channel listeners to calculate the
+	 * {@link ChannelId#VOLTAGE}-Channel value as the average of
+	 * {@link ChannelId#VOLTAGE_L1}, {@link ChannelId#VOLTAGE_L2} and
+	 * {@link ChannelId#VOLTAGE_L3}.
+	 *
+	 * @param meter the {@link ElectricityMeter}
+	 */
+	public static void calculateAverageVoltageFromPhases(ElectricityMeter meter) {
+		final Consumer<Value<Integer>> calculateAverageVoltage = ignore -> {
+			meter._setVoltage(TypeUtils.averageRounded(//
+					meter.getVoltageL1Channel().getNextValue().get(), //
+					meter.getVoltageL2Channel().getNextValue().get(), //
+					meter.getVoltageL3Channel().getNextValue().get() //
+			));
+		};
+		meter.getVoltageL1Channel().onSetNextValue(calculateAverageVoltage);
+		meter.getVoltageL2Channel().onSetNextValue(calculateAverageVoltage);
+		meter.getVoltageL3Channel().onSetNextValue(calculateAverageVoltage);
+	}
+
+	/**
+	 * Initializes Channel listeners to calculate the
+	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}-Channel value as the sum of
+	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY_L1},
+	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY_L2} and
+	 * {@link ChannelId#ACTIVE_PRODUCTION_ENERGY_L3}.
+	 *
+	 * @param meter the {@link ElectricityMeter}
+	 */
+	public static void calculateSumActiveProductionEnergyFromPhases(ElectricityMeter meter) {
+		final Consumer<Value<Long>> calculate = ignore -> {
+			meter._setActiveProductionEnergy(TypeUtils.sum(//
+					meter.getActivePowerL1Channel().getNextValue().get(), //
+					meter.getActivePowerL2Channel().getNextValue().get(), //
+					meter.getActivePowerL3Channel().getNextValue().get())); //
+		};
+		meter.getActiveProductionEnergyL1Channel().onSetNextValue(calculate);
+		meter.getActiveProductionEnergyL2Channel().onSetNextValue(calculate);
+		meter.getActiveProductionEnergyL3Channel().onSetNextValue(calculate);
+	}
+
+	/**
+	 * Initializes Channel listeners for a Symmetric {@link ElectricityMeter}.
+	 * 
+	 * <p>
+	 * Calculate the {@link ChannelId#ACTIVE_POWER_L1},
+	 * {@link ChannelId#ACTIVE_POWER_L2} and
+	 * {@link ChannelId#ACTIVE_POWER_L3}-Channels from
+	 * {@link ChannelId#ACTIVE_POWER} by dividing by three.
+	 *
+	 * @param meter the {@link AsymmetricMeter}
+	 */
+	public static void calculatePhasesFromActivePower(ElectricityMeter meter) {
+		meter.getActivePowerChannel().onSetNextValue(value -> {
+			var phase = TypeUtils.divide(value.get(), 3);
+			meter.getActivePowerL1Channel().setNextValue(phase);
+			meter.getActivePowerL2Channel().setNextValue(phase);
+			meter.getActivePowerL3Channel().setNextValue(phase);
+		});
+	}
+
+	/**
+	 * Initializes Channel listeners for a Symmetric {@link ElectricityMeter}.
+	 * 
+	 * <p>
+	 * Calculate the {@link ChannelId#REACTIVE_POWER_L1},
+	 * {@link ChannelId#REACTIVE_POWER_L2} and
+	 * {@link ChannelId#REACTIVE_POWER_L3}-Channels from
+	 * {@link ChannelId#REACTIVE_POWER} by dividing by three.
+	 *
+	 * @param meter the {@link ElectricityMeter}
+	 */
+	public static void calculatePhasesFromReactivePower(ElectricityMeter meter) {
+		meter.getReactivePowerChannel().onSetNextValue(value -> {
+			var phase = TypeUtils.divide(value.get(), 3);
+			meter.getReactivePowerL1Channel().setNextValue(phase);
+			meter.getReactivePowerL2Channel().setNextValue(phase);
+			meter.getReactivePowerL2Channel().setNextValue(phase);
+		});
+	}
+
 }

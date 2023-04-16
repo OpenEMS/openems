@@ -22,8 +22,8 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -34,7 +34,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 		} //
 )
-public class BoschBpts5HybridMeter extends AbstractOpenemsComponent implements SymmetricMeter, OpenemsComponent {
+public class BoschBpts5HybridMeter extends AbstractOpenemsComponent implements ElectricityMeter, OpenemsComponent {
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private BoschBpts5HybridCore core;
@@ -45,7 +45,7 @@ public class BoschBpts5HybridMeter extends AbstractOpenemsComponent implements S
 	public BoschBpts5HybridMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}

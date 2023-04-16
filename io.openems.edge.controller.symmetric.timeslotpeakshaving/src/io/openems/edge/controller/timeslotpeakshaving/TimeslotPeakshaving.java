@@ -31,7 +31,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.power.api.Phase;
 import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.TimeslotPeakshaving", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -114,7 +114,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	@Override
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess());
-		SymmetricMeter meter = this.componentManager.getComponent(this.config.meter_id());
+		ElectricityMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
 		var power = this.getPower(ess, meter);
 		this.applyPower(ess, power);
@@ -139,12 +139,12 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * Gets the current ActivePower.
 	 *
 	 * @param ess   the {@link ManagedSymmetricEss}
-	 * @param meter the {@link SymmetricMeter}
+	 * @param meter the {@link ElectricityMeter}
 	 * @return the currently valid active power, or null to set no power
 	 * @throws IllegalArgumentException on error
 	 * @throws OpenemsException         on error
 	 */
-	private Integer getPower(ManagedSymmetricEss ess, SymmetricMeter meter)
+	private Integer getPower(ManagedSymmetricEss ess, ElectricityMeter meter)
 			throws OpenemsException, IllegalArgumentException {
 
 		var now = LocalDateTime.now(this.componentManager.getClock());
@@ -221,11 +221,11 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * time slot.
 	 *
 	 * @param ess   the {@link ManagedSymmetricEss}
-	 * @param meter the {@link SymmetricMeter} of the grid
+	 * @param meter the {@link ElectricityMeter} of the grid
 	 * @return active power to be set on the ESS
 	 * @throws InvalidValueException on error
 	 */
-	private int calculatePeakShavePower(ManagedSymmetricEss ess, SymmetricMeter meter) throws InvalidValueException {
+	private int calculatePeakShavePower(ManagedSymmetricEss ess, ElectricityMeter meter) throws InvalidValueException {
 		/*
 		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
 		 */

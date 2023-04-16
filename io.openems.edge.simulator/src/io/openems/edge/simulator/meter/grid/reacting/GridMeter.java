@@ -27,9 +27,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -45,7 +44,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class GridMeter extends AbstractOpenemsComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, TimedataProvider, EventHandler {
+		implements ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;
@@ -63,9 +62,9 @@ public class GridMeter extends AbstractOpenemsComponent
 	}
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 
 	private final CopyOnWriteArraySet<ManagedSymmetricEss> symmetricEsss = new CopyOnWriteArraySet<>();
 
@@ -90,21 +89,21 @@ public class GridMeter extends AbstractOpenemsComponent
 		this.symmetricEsss.remove(ess);
 	}
 
-	private final CopyOnWriteArraySet<SymmetricMeter> symmetricMeters = new CopyOnWriteArraySet<>();
+	private final CopyOnWriteArraySet<ElectricityMeter> meters = new CopyOnWriteArraySet<>();
 
 	@Reference(//
 			policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
 			cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(!(service.factoryPid=Simulator.GridMeter.Reacting)))")
-	protected void addMeter(SymmetricMeter meter) {
-		this.symmetricMeters.add(meter);
+	protected void addMeter(ElectricityMeter meter) {
+		this.meters.add(meter);
 		meter.getActivePowerChannel().onSetNextValue(this.updateChannelsCallback);
 	}
 
-	protected void removeMeter(SymmetricMeter meter) {
+	protected void removeMeter(ElectricityMeter meter) {
 		meter.getActivePowerChannel().removeOnSetNextValueCallback(this.updateChannelsCallback);
-		this.symmetricMeters.remove(meter);
+		this.meters.remove(meter);
 	}
 
 	@Override
@@ -129,19 +128,19 @@ public class GridMeter extends AbstractOpenemsComponent
 			}
 			sum = subtract(sum, ess.getActivePowerChannel().getNextValue().get());
 		}
-		for (SymmetricMeter sm : this.symmetricMeters) {
+		for (var m : this.meters) {
 			try {
-				switch (sm.getMeterType()) {
+				switch (m.getMeterType()) {
 				case CONSUMPTION_METERED:
 				case GRID:
 					// ignore
 					break;
 				case CONSUMPTION_NOT_METERED:
-					sum = add(sum, sm.getActivePowerChannel().getNextValue().get());
+					sum = add(sum, m.getActivePowerChannel().getNextValue().get());
 					break;
 				case PRODUCTION:
 				case PRODUCTION_AND_CONSUMPTION:
-					sum = subtract(sum, sm.getActivePowerChannel().getNextValue().get());
+					sum = subtract(sum, m.getActivePowerChannel().getNextValue().get());
 					break;
 				}
 			} catch (NullPointerException e) {
@@ -197,8 +196,7 @@ public class GridMeter extends AbstractOpenemsComponent
 	public GridMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}

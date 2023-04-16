@@ -14,7 +14,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.meter.test.DummySymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class CharacteristicImplTest {
 
@@ -31,7 +31,7 @@ public class CharacteristicImplTest {
 		new ControllerTest(new ReactivePwrVoltChractersticImpl())//
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
-				.addReference("meter", new DummySymmetricMeter(METER_ID)) //
+				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
 				.activate(MyConfig.create()//
 						.setId(CTRL_ID)//

@@ -1,4 +1,4 @@
-package io.openems.edge.meter.virtual.symmetric.subtract;
+package io.openems.edge.meter.virtual.subtract;
 
 import java.util.List;
 
@@ -20,19 +20,19 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.api.VirtualMeter;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Meter.Virtual.Symmetric.Subtract", //
+@Component(name = "Meter.Virtual.Subtract", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 ) //
 public class VirtualSubtractMeter extends AbstractOpenemsComponent
-		implements VirtualMeter, SymmetricMeter, OpenemsComponent, ModbusSlave {
+		implements VirtualMeter, ElectricityMeter, OpenemsComponent, ModbusSlave {
 
-	private final ChannelManager channelManager = new ChannelManager(this);
+	private final SubtractChannelManager channelManager = new SubtractChannelManager(this);
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -48,7 +48,7 @@ public class VirtualSubtractMeter extends AbstractOpenemsComponent
 	public VirtualSubtractMeter() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values() //
+				ElectricityMeter.ChannelId.values() //
 		);
 	}
 
@@ -107,7 +107,7 @@ public class VirtualSubtractMeter extends AbstractOpenemsComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode) //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 	}
 

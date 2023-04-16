@@ -27,9 +27,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 /**
  * Implements the Janitza UMG 96RM-E power analyzer.
@@ -40,7 +39,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.Janitza.UMG96RME", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+		implements ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -56,10 +55,12 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ChannelId.values() //
 		);
+
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
 	@Override
@@ -112,53 +113,51 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 		 */
 		var modbusProtocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(800, Priority.HIGH, //
-						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(800),
+						m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(800),
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						new DummyRegisterElement(802, 807), //
-						m(new FloatDoublewordElement(808)) //
-								.m(AsymmetricMeter.ChannelId.VOLTAGE_L1, ElementToChannelConverter.SCALE_FACTOR_3) //
-								.m(SymmetricMeter.ChannelId.VOLTAGE, ElementToChannelConverter.SCALE_FACTOR_3) //
-								.build(), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(810),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(808),
+								ElementToChannelConverter.SCALE_FACTOR_3), //
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(810),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(812),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(812),
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						new DummyRegisterElement(814, 859), //
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(860),
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(860),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(862),
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(862),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(864),
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(864),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(866),
+						m(ElectricityMeter.ChannelId.CURRENT, new FloatDoublewordElement(866),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(868),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(868),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(870),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(870),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(872),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(872),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(874),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(874),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(876),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(876),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(878),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(878),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(880),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(880),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert)),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(882),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(882),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.invert))));
 
 		if (this.invert) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19068)),
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19068)),
 					new DummyRegisterElement(19070, 19075),
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19076))));
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19076))));
 		} else {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(19068, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19068)),
+					m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, new FloatDoublewordElement(19068)),
 					new DummyRegisterElement(19070, 19075),
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19076))));
+					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new FloatDoublewordElement(19076))));
 		}
 
 		return modbusProtocol;
@@ -173,8 +172,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
-				AsymmetricMeter.getModbusSlaveNatureTable(accessMode) //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode) //
 		);
 
 	}

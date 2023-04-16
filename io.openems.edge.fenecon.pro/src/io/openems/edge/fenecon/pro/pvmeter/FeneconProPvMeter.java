@@ -1,7 +1,5 @@
 package io.openems.edge.fenecon.pro.pvmeter;
 
-import java.util.function.Consumer;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -27,15 +25,12 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -49,7 +44,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE //
 })
 public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
-		implements AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent {
+		implements ElectricityMeter, ModbusComponent, OpenemsComponent {
 
 	private static final int UNIT_ID = 4;
 
@@ -70,22 +65,14 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				FeneconProPvMeter.ChannelId.values() //
 		);
-		AsymmetricMeter.initializePowerSumChannels(this);
 
-		// Active Energy
-		final Consumer<Value<Long>> activeEnergySum = ignore -> {
-			this._setActiveProductionEnergy(TypeUtils.sum(//
-					this.getActiveProductionEnergyL1Channel().value().get(), //
-					this.getActiveProductionEnergyL2Channel().value().get(), //
-					this.getActiveProductionEnergyL3Channel().value().get()));
-		};
-		this.getActiveProductionEnergyL1Channel().onSetNextValue(activeEnergySum);
-		this.getActiveProductionEnergyL2Channel().onSetNextValue(activeEnergySum);
-		this.getActiveProductionEnergyL3Channel().onSetNextValue(activeEnergySum);
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
+		ElectricityMeter.calculateSumActiveProductionEnergyFromPhases(this);
 	}
 
 	@Override
@@ -117,30 +104,30 @@ public class FeneconProPvMeter extends AbstractOpenemsModbusComponent
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(121, Priority.LOW, //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(121),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new UnsignedWordElement(121),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(122),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new UnsignedWordElement(122),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(123),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new UnsignedWordElement(123),
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 
 				new FC3ReadRegistersTask(2035, Priority.LOW, // //
-						m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, new UnsignedDoublewordElement(2035),
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, new UnsignedDoublewordElement(2035),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2037, 2065), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(2066),
 								MINUS_10000_CONVERTER)), //
 				new FC3ReadRegistersTask(2135, Priority.LOW, // //
-						m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(2135),
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, new UnsignedDoublewordElement(2135),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2137, 2165), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(2166),
 								MINUS_10000_CONVERTER)), //
 				new FC3ReadRegistersTask(2235, Priority.LOW, // //
-						m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(2235),
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, new UnsignedDoublewordElement(2235),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(2237, 2265), //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(2266),
 								MINUS_10000_CONVERTER))//
 
 		);

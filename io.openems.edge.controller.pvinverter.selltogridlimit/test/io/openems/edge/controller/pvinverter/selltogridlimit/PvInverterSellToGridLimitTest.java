@@ -8,8 +8,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.test.ControllerTest;
-import io.openems.edge.meter.test.DummyAsymmetricMeter;
-import io.openems.edge.meter.test.DummySymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 import io.openems.edge.pvinverter.test.DummyManagedSymmetricPvInverter;
 
 public class PvInverterSellToGridLimitTest {
@@ -33,7 +32,7 @@ public class PvInverterSellToGridLimitTest {
 	public void symmetricMeterTest() throws Exception {
 		new ControllerTest(new PvInverterSellToGridLimit()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addComponent(new DummySymmetricMeter(METER_ID)) //
+				.addComponent(new DummyElectricityMeter(METER_ID)) //
 				.addComponent(new DummyManagedSymmetricPvInverter(PV_INVERTER)).activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setMeterId(METER_ID) //
@@ -79,7 +78,7 @@ public class PvInverterSellToGridLimitTest {
 	public void asymmetricMeterTest() throws Exception {
 		new ControllerTest(new PvInverterSellToGridLimit()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addComponent(new DummyAsymmetricMeter(METER_ID)) //
+				.addComponent(new DummyElectricityMeter(METER_ID)) //
 				.addComponent(new DummyManagedSymmetricPvInverter(PV_INVERTER)).activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setMeterId(METER_ID) //
@@ -135,7 +134,7 @@ public class PvInverterSellToGridLimitTest {
 
 		new ControllerTest(new PvInverterSellToGridLimit()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addComponent(new DummyAsymmetricMeter(METER_ID)) //
+				.addComponent(new DummyElectricityMeter(METER_ID)) //
 				.addComponent(new DummyManagedSymmetricPvInverter(PV_INVERTER)).activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setMeterId(METER_ID) //

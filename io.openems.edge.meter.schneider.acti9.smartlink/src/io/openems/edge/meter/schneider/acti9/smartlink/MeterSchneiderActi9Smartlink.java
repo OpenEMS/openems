@@ -24,9 +24,8 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -35,7 +34,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent {
+		implements ElectricityMeter, ModbusComponent, OpenemsComponent {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 	private boolean inverted;
@@ -47,9 +46,12 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values() //
+				ElectricityMeter.ChannelId.values() //
 		);
+
+		// Automatically calculate sum values from L1/L2/L3
+		ElectricityMeter.calculateSumCurrentFromPhases(this);
+		ElectricityMeter.calculateAverageVoltageFromPhases(this);
 	}
 
 	@Override
@@ -90,40 +92,40 @@ public class MeterSchneiderActi9Smartlink extends AbstractOpenemsModbusComponent
 		 */
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(3000 - offset, Priority.HIGH,
-						m(AsymmetricMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(3000 - offset),
+						m(ElectricityMeter.ChannelId.CURRENT_L1, new FloatDoublewordElement(3000 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3002 - offset),
+						m(ElectricityMeter.ChannelId.CURRENT_L2, new FloatDoublewordElement(3002 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3004 - offset),
+						m(ElectricityMeter.ChannelId.CURRENT_L3, new FloatDoublewordElement(3004 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3)),
 				new FC4ReadInputRegistersTask(3028 - offset, Priority.LOW,
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(3028 - offset),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L1, new FloatDoublewordElement(3028 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3030 - offset),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L2, new FloatDoublewordElement(3030 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						m(AsymmetricMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3032 - offset),
+						m(ElectricityMeter.ChannelId.VOLTAGE_L3, new FloatDoublewordElement(3032 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3)),
 				new FC4ReadInputRegistersTask(3054 - offset, Priority.HIGH,
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3054 - offset),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(3054 - offset),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(3056 - offset),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(3056 - offset),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(3058 - offset),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(3058 - offset),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3060 - offset),
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(3060 - offset),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted)),
 						new DummyRegisterElement(3062 - offset, 3067 - offset),
-						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3068 - offset),
+						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(3068 - offset),
 								ElementToChannelConverter.INVERT_IF_TRUE(this.inverted))),
 				new FC4ReadInputRegistersTask(3110 - offset, Priority.LOW,
-						m(SymmetricMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3110 - offset),
+						m(ElectricityMeter.ChannelId.FREQUENCY, new FloatDoublewordElement(3110 - offset),
 								ElementToChannelConverter.SCALE_FACTOR_3)),
 				new FC4ReadInputRegistersTask(3208 - offset, Priority.LOW,
-						m(this.inverted ? SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY
-								: SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+						m(this.inverted ? ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY
+								: ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new UnsignedQuadruplewordElement(3208 - offset)),
-						m(this.inverted ? SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY
-								: SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+						m(this.inverted ? ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY
+								: ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new UnsignedQuadruplewordElement(3212 - offset))));
 	}
 

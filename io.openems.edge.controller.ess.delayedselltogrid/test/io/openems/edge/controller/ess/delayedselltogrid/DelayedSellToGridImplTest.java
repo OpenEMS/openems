@@ -8,7 +8,7 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.meter.test.DummySymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class DelayedSellToGridImplTest {
 
@@ -25,7 +25,7 @@ public class DelayedSellToGridImplTest {
 		new ControllerTest(new DelayedSellToGridImpl())//
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addReference("meter", new DummySymmetricMeter(METER_ID)) //
+				.addReference("meter", new DummyElectricityMeter(METER_ID)) //
 				.addReference("ess", new DummyManagedSymmetricEss(ESS_ID)) //
 				.activate(MyConfig.create()//
 						.setId(CTRL_ID)//

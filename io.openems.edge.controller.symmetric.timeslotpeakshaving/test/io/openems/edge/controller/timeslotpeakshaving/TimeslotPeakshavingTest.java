@@ -14,7 +14,7 @@ import io.openems.edge.common.test.TimeLeapClock;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyPower;
-import io.openems.edge.meter.test.DummySymmetricMeter;
+import io.openems.edge.meter.test.DummyElectricityMeter;
 
 public class TimeslotPeakshavingTest {
 
@@ -36,7 +36,7 @@ public class TimeslotPeakshavingTest {
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addComponent(new DummyManagedSymmetricEss(ESS_ID, new DummyPower(0.3, 0.3, 0.1)) //
 						.withGridMode(GridMode.ON_GRID)) //
-				.addComponent(new DummySymmetricMeter(METER_ID)) //
+				.addComponent(new DummyElectricityMeter(METER_ID)) //
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setEssId(ESS_ID) //

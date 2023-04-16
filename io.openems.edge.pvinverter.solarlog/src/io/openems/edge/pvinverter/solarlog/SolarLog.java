@@ -9,11 +9,11 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 public interface SolarLog
-		extends ManagedSymmetricPvInverter, SymmetricMeter, OpenemsComponent, EventHandler, ModbusSlave {
+		extends ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		LAST_UPDATE_TIME(Doc.of(OpenemsType.INTEGER) //

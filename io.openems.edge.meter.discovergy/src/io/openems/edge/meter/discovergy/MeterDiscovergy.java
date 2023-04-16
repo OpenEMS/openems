@@ -31,9 +31,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.meter.discovergy.jsonrpc.Field;
 import io.openems.edge.meter.discovergy.jsonrpc.GetFieldNamesRequest;
 import io.openems.edge.meter.discovergy.jsonrpc.GetFieldNamesResponse;
@@ -50,7 +49,7 @@ import io.openems.edge.meter.discovergy.jsonrpc.GetMetersResponse;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
 public class MeterDiscovergy extends AbstractOpenemsComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler, JsonApi {
+		implements ElectricityMeter, OpenemsComponent, EventHandler, JsonApi {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 
@@ -60,8 +59,7 @@ public class MeterDiscovergy extends AbstractOpenemsComponent
 	public MeterDiscovergy() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ChannelId.values() //
 		);
 	}

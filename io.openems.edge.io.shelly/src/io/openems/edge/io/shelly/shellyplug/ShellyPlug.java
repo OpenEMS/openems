@@ -13,9 +13,9 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.meter.api.SymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface ShellyPlug extends DigitalOutput, SymmetricMeter, OpenemsComponent, EventHandler {
+public interface ShellyPlug extends DigitalOutput, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**

@@ -38,8 +38,8 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -54,7 +54,7 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class SolarLogImpl extends AbstractOpenemsModbusComponent implements SolarLog, ManagedSymmetricPvInverter,
-		SymmetricMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
+		ElectricityMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
 			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
@@ -68,7 +68,7 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
 				SolarLog.ChannelId.values() //
 		);
@@ -107,14 +107,14 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 				new FC4ReadInputRegistersTask(3500, Priority.HIGH,
 						m(SolarLog.ChannelId.LAST_UPDATE_TIME,
 								new SignedDoublewordElement(3500).wordOrder(WordOrder.LSWMSW)),
-						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER,
 								new SignedDoublewordElement(3502).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.PDC, new SignedDoublewordElement(3504).wordOrder(WordOrder.LSWMSW)),
-						m(SymmetricMeter.ChannelId.VOLTAGE, new SignedWordElement(3506),
+						m(ElectricityMeter.ChannelId.VOLTAGE, new SignedWordElement(3506),
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						m(SolarLog.ChannelId.UDC, new SignedWordElement(3507),
 								ElementToChannelConverter.SCALE_FACTOR_2),
-						m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY,
 								new SignedDoublewordElement(3508).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.YESTERDAY_YIELD,
 								new SignedDoublewordElement(3510).wordOrder(WordOrder.LSWMSW)),
@@ -126,7 +126,7 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 								new SignedDoublewordElement(3516).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.PAC_CONSUMPTION,
 								new SignedDoublewordElement(3518).wordOrder(WordOrder.LSWMSW)),
-						m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
+						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY,
 								new SignedDoublewordElement(3520).wordOrder(WordOrder.LSWMSW)),
 						m(SolarLog.ChannelId.YESTERDAY_YIELD_CONS,
 								new SignedDoublewordElement(3522).wordOrder(WordOrder.LSWMSW)),
@@ -191,7 +191,7 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricMeter.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				ManagedSymmetricPvInverter.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(SolarLog.class, accessMode, 100) //
 						.build());

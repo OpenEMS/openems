@@ -27,9 +27,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.fenecon.dess.FeneconDessConstants;
-import io.openems.edge.meter.api.AsymmetricMeter;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SymmetricMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -46,10 +45,10 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class FeneconDessPvMeterImpl extends AbstractOpenemsModbusComponent implements FeneconDessPvMeter,
-		AsymmetricMeter, SymmetricMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
+		ElectricityMeter, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -67,13 +66,12 @@ public class FeneconDessPvMeterImpl extends AbstractOpenemsModbusComponent imple
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
-				SymmetricMeter.ChannelId.values(), //
-				AsymmetricMeter.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				FeneconDessPvMeter.ChannelId.values() //
 		);
 
 		// automatically calculate Active/ReactivePower from L1/L2/L3
-		AsymmetricMeter.initializePowerSumChannels(this);
+		ElectricityMeter.calculateSumActivePowerFromPhases(this);
 	}
 
 	@Activate
@@ -94,11 +92,11 @@ public class FeneconDessPvMeterImpl extends AbstractOpenemsModbusComponent imple
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(11144, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11144), DELTA_10000)), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedWordElement(11144), DELTA_10000)), //
 				new FC3ReadRegistersTask(11174, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(11174), DELTA_10000)), //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedWordElement(11174), DELTA_10000)), //
 				new FC3ReadRegistersTask(11204, Priority.HIGH, //
-						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(11204), DELTA_10000)) //
+						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedWordElement(11204), DELTA_10000)) //
 		);
 	}
 
