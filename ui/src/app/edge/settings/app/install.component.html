@@ -1,5 +1,6 @@
 <header></header>
 <ion-content>
+  <ngx-spinner [name]="spinnerId"></ngx-spinner>
   <ion-grid *ngIf="form">
     <ion-row class="ion-justify-content-center">
 
@@ -16,12 +17,14 @@
                 <ion-button type="submit" color="primary" [disabled]="!(form.valid) || isInstalling" translate>
                   Edge.Config.App.createApp
                 </ion-button>
+                <div *ngIf="isInstalling" style="min-height: 100px;">
+                </div>
+                <ngx-spinner [name]="appId"></ngx-spinner>
               </ion-item>
             </ion-card-content>
           </ion-card>
         </form>
       </ion-col>
-
     </ion-row>
   </ion-grid>
 </ion-content>

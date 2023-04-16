@@ -6,18 +6,15 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.meter.SocomecMeter;
-import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
-import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
+import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
@@ -28,26 +25,16 @@ public class TestFeneconHome {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
-	private FeneconHome homeApp;
-	private GridOptimizedCharge gridOptimizedCharge;
-	private SelfConsumptionOptimization selfConsumptionOptimization;
-	private SocomecMeter socomecMeter;
-
 	@Before
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
-			this.homeApp = new FeneconHome(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.FENECON.Home"), t.cm, t.componentUtil);
-			this.gridOptimizedCharge = new GridOptimizedCharge(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.PvSelfConsumption.GridOptimizedCharge"), t.cm,
-					t.componentUtil);
-			this.selfConsumptionOptimization = new SelfConsumptionOptimization(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.PvSelfConsumption.SelfConsumptionOptimization"), t.cm,
-					t.componentUtil);
-			this.socomecMeter = new SocomecMeter(t.componentManger,
-					AppManagerTestBundle.getComponentContext("App.Meter.Socomec"), t.cm, t.componentUtil);
-			return ImmutableList.of(this.homeApp, this.gridOptimizedCharge, this.selfConsumptionOptimization,
-					this.socomecMeter);
+			return Apps.of(t, //
+					Apps::feneconHome, //
+					Apps::gridOptimizedCharge, //
+					Apps::selfConsumptionOptimization, //
+					Apps::socomecMeter, //
+					Apps::prepareBatteryExtension //
+			);
 		});
 	}
 
@@ -80,14 +67,14 @@ public class TestFeneconHome {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullConfig));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 4);
+		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			int expectedDependencies;
 			switch (instance.appId) {
 			case "App.FENECON.Home":
-				expectedDependencies = 3;
+				expectedDependencies = 4;
 				break;
 			case "App.PvSelfConsumption.GridOptimizedCharge":
 				expectedDependencies = 0;
@@ -98,8 +85,14 @@ public class TestFeneconHome {
 			case "App.Meter.Socomec":
 				expectedDependencies = 0;
 				break;
+			case "App.Ess.PrepareBatteryExtension":
+				expectedDependencies = 0;
+				break;
 			default:
 				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
+			}
+			if (expectedDependencies == 0 && instance.dependencies == null) {
+				continue;
 			}
 			assertEquals(expectedDependencies, instance.dependencies.size());
 		}
@@ -129,36 +122,6 @@ public class TestFeneconHome {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", configNoMeter));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 3);
-
-		// check properties of created apps
-		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
-			int expectedDependencies;
-			switch (instance.appId) {
-			case "App.FENECON.Home":
-				expectedDependencies = 2;
-				break;
-			case "App.PvSelfConsumption.GridOptimizedCharge":
-				expectedDependencies = 0;
-				break;
-			case "App.PvSelfConsumption.SelfConsumptionOptimization":
-				expectedDependencies = 0;
-				break;
-			default:
-				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
-			}
-			assertEquals(expectedDependencies, instance.dependencies.size());
-		}
-
-	}
-
-	private final OpenemsAppInstance createFullHome() throws Exception {
-		var fullConfig = fullSettings();
-
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
-				new AddAppInstance.Request("App.FENECON.Home", "alias", fullConfig));
-
-		// make sure every dependency got installed
 		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 4);
 
 		// check properties of created apps
@@ -174,11 +137,53 @@ public class TestFeneconHome {
 			case "App.PvSelfConsumption.SelfConsumptionOptimization":
 				expectedDependencies = 0;
 				break;
-			case "App.Meter.Socomec":
+			case "App.Ess.PrepareBatteryExtension":
 				expectedDependencies = 0;
 				break;
 			default:
 				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
+			}
+			if (expectedDependencies == 0 && instance.dependencies == null) {
+				continue;
+			}
+			assertEquals(expectedDependencies, instance.dependencies.size());
+		}
+
+	}
+
+	private final OpenemsAppInstance createFullHome() throws Exception {
+		var fullConfig = fullSettings();
+
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(this.user,
+				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", fullConfig));
+
+		// make sure every dependency got installed
+		assertEquals(this.appManagerTestBundle.sut.getInstantiatedApps().size(), 5);
+
+		// check properties of created apps
+		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
+			int expectedDependencies;
+			switch (instance.appId) {
+			case "App.FENECON.Home":
+				expectedDependencies = 4;
+				break;
+			case "App.PvSelfConsumption.GridOptimizedCharge":
+				expectedDependencies = 0;
+				break;
+			case "App.PvSelfConsumption.SelfConsumptionOptimization":
+				expectedDependencies = 0;
+				break;
+			case "App.Meter.Socomec":
+				expectedDependencies = 0;
+				break;
+			case "App.Ess.PrepareBatteryExtension":
+				expectedDependencies = 0;
+				break;
+			default:
+				throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
+			}
+			if (expectedDependencies == 0 && instance.dependencies == null) {
+				continue;
 			}
 			assertEquals(expectedDependencies, instance.dependencies.size());
 		}

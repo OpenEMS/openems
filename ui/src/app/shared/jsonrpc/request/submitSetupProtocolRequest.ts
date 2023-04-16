@@ -4,7 +4,7 @@ import { Utils } from "../../shared";
 import { JsonrpcRequest } from "../base";
 
 export type SetupProtocol = {
-    edge: {
+    fems: {
         id: string
     },
     installer: {
@@ -63,7 +63,7 @@ export type SetupProtocol = {
  *   "method": "submitSetupProtocol",
  *   "params": {
  *      protocol: {
- *          edge: {
+ *          fems: {
  *              id: string
  *          },
  *          customer: {

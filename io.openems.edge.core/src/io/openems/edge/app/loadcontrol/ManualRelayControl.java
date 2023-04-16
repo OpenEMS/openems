@@ -20,6 +20,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.loadcontrol.ManualRelayControl.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -28,6 +29,7 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.DefaultEnum;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -55,9 +57,9 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.LoadControl.ManualRelayControl")
-public class ManualRelayControl extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class ManualRelayControl extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property implements DefaultEnum {
+	public static enum Property implements DefaultEnum, Nameable {
 		// Component-IDs
 		CTRL_IO_FIX_DIGITAL_OUTPUT_ID("ctrlIoFixDigitalOutput0"), //
 		// Properties
@@ -135,7 +137,7 @@ public class ManualRelayControl extends AbstractOpenemsApp<Property> implements 
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.LOAD_CONTROL };
 	}
 

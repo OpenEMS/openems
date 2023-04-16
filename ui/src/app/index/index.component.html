@@ -112,7 +112,8 @@
                 <ion-grid>
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
-                      <ion-searchbar [(ngModel)]="filter" (ionChange)="updateFilteredEdges()">
+                      <ion-searchbar [(ngModel)]="filter" [debounce]="500" (ionChange)="searchOnChange($event)"
+                        *ngIf="!onlyOneEdgeAvailable">
                       </ion-searchbar>
                     </ion-col>
                   </ion-row>
@@ -120,37 +121,37 @@
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
                       <ion-list lines="full">
+                        <ion-spinner *ngIf="loading" [name]="'crescent'"></ion-spinner>
 
-                        <ion-item *ngFor="let edge of filteredEdges | slice:0:slice; let i=index" lines="inset"
-                          [routerLink]="['/device', edge.id]" [color]="edge.isOnline ? null : 'light'">
-
-                          <ion-label>
-                            <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
-                            <p *ngIf="!edge.isOnline" class="ion-text-wrap">
-                              <ion-text translate>Index.deviceOffline</ion-text>
-                              <ion-label *ngIf="edge.lastmessage">
-                                <ion-text translate>Index.OFFLINE_SINCE</ion-text>
-                                {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
-                              </ion-label>
-                            </p>
-                          </ion-label>
-                          <ion-label>
-                            <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
-                              <p>ID: {{ edge.id }}</p>
-                              <p class="ion-text-wrap">
-                                <ion-text translate>Index.type</ion-text> {{ edge.producttype }}
+                        <ng-container *ngFor="let edge of filteredEdges; let i=index">
+                          <ion-item lines="inset" [routerLink]="['/device', edge.id]"
+                            [color]="edge.isOnline ? null : 'light'">
+                            <ion-label>
+                              <h2 class="ion-text-wrap">{{ edge.comment }}</h2>
+                              <p *ngIf="!edge.isOnline" class="ion-text-wrap">
+                                <ion-text translate>Index.deviceOffline</ion-text>
+                                <ion-label *ngIf="edge.lastmessage">
+                                  <ion-text translate>Index.OFFLINE_SINCE</ion-text>
+                                  {{edge.lastmessage | date:'dd.MM.yyyy HH:mm'}}
+                                </ion-label>
                               </p>
-                            </ng-container>
-                            <p class="ion-text-wrap">
-                              <ion-text translate>Index.loggedInAs</ion-text> {{ edge.getRoleString() }}.
-                            </p>
-                          </ion-label>
-                          <ion-icon slot="end" name="play-outline" color="primary"></ion-icon>
-                        </ion-item>
-
-                        <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
-                          <ion-infinite-scroll-content loadingSpinner="bubbles" distance="1%"
-                            loadingText="Loading more data...">
+                            </ion-label>
+                            <ion-label>
+                              <ng-container *ngIf="environment.backend === 'OpenEMS Backend'">
+                                <p>ID: {{ edge.id }}</p>
+                                <p class="ion-text-wrap">
+                                  <ion-text translate>Index.type</ion-text> {{ edge.producttype }}
+                                </p>
+                              </ng-container>
+                              <p class="ion-text-wrap">
+                                <ion-text translate>Index.loggedInAs</ion-text> {{ edge.getRoleString() }}.
+                              </p>
+                            </ion-label>
+                            <ion-icon slot="end" name="play-outline" color="primary"></ion-icon>
+                          </ion-item>
+                        </ng-container>
+                        <ion-infinite-scroll (ionInfinite)="doInfinite($event)" [disabled]="limitReached">
+                          <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Loading more data...">
                           </ion-infinite-scroll-content>
                         </ion-infinite-scroll>
 

@@ -13,7 +13,7 @@ public interface AppManagerAppHelper {
 	 * @param user     the executing user
 	 * @param instance the settings of the new {@link OpenemsAppInstance}
 	 * @param app      the {@link OpenemsApp}
-	 * @return s a list of the created {@link OpenemsAppInstance}s
+	 * @return a list of the created {@link OpenemsAppInstance OpenemsAppInstances}
 	 * @throws OpenemsNamedException on error
 	 */
 	public UpdateValues installApp(User user, OpenemsAppInstance instance, OpenemsApp app) throws OpenemsNamedException;
@@ -26,7 +26,7 @@ public interface AppManagerAppHelper {
 	 *                    configurations.
 	 * @param instance    the settings of the new {@link OpenemsAppInstance}
 	 * @param app         the {@link OpenemsApp}
-	 * @return s a list of the replaced {@link OpenemsAppInstance}s
+	 * @return a list of the replaced {@link OpenemsAppInstance OpenemsAppInstances}
 	 * @throws OpenemsNamedException on error
 	 */
 	public UpdateValues updateApp(User user, OpenemsAppInstance oldInstance, OpenemsAppInstance instance,
@@ -37,7 +37,7 @@ public interface AppManagerAppHelper {
 	 *
 	 * @param user     the executing user
 	 * @param instance the instance to delete
-	 * @return s a list of the removed {@link OpenemsAppInstance}s
+	 * @return a list of the removed {@link OpenemsAppInstance OpenemsAppInstances}
 	 * @throws OpenemsNamedException on error
 	 */
 	public UpdateValues deleteApp(User user, OpenemsAppInstance instance) throws OpenemsNamedException;

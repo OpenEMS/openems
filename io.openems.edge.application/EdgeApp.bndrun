@@ -1,5 +1,5 @@
 -runfw: org.apache.felix.framework;version='[7.0.5,7.0.5]'
--runee: JavaSE-11
+-runee: JavaSE-17
 -runprovidedcapabilities: ${native_capability}
 
 -resolve.effective: active
@@ -59,7 +59,6 @@
 	bnd.identity;id='io.openems.edge.controller.api.rest',\
 	bnd.identity;id='io.openems.edge.controller.api.websocket',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.balancingcosphi',\
-	bnd.identity;id='io.openems.edge.controller.asymmetric.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
@@ -114,6 +113,7 @@
 	bnd.identity;id='io.openems.edge.evcs.alpitronic.hypercharger',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
+	bnd.identity;id='io.openems.edge.evcs.dezony',\
 	bnd.identity;id='io.openems.edge.evcs.goe.chargerhome',\
 	bnd.identity;id='io.openems.edge.evcs.hardybarth',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
@@ -121,6 +121,7 @@
 	bnd.identity;id='io.openems.edge.evcs.ocpp.common',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.ies.keywatt.singleccs',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.server',\
+	bnd.identity;id='io.openems.edge.evcs.webasto.next',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.unite',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
@@ -211,7 +212,6 @@
 	io.openems.edge.controller.api.rest;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\
 	io.openems.edge.controller.asymmetric.balancingcosphi;version=snapshot,\
-	io.openems.edge.controller.asymmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
@@ -268,6 +268,7 @@
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	io.openems.edge.evcs.core;version=snapshot,\
+	io.openems.edge.evcs.dezony;version=snapshot,\
 	io.openems.edge.evcs.goe.chargerhome;version=snapshot,\
 	io.openems.edge.evcs.hardybarth;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
@@ -275,6 +276,7 @@
 	io.openems.edge.evcs.ocpp.common;version=snapshot,\
 	io.openems.edge.evcs.ocpp.ies.keywatt.singleccs;version=snapshot,\
 	io.openems.edge.evcs.ocpp.server;version=snapshot,\
+	io.openems.edge.evcs.webasto.next;version=snapshot,\
 	io.openems.edge.evcs.webasto.unite;version=snapshot,\
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\
@@ -365,7 +367,7 @@
 	org.apache.commons.math3;version='[3.6.1,3.6.2)',\
 	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
-	org.apache.felix.fileinstall;version='[3.6.4,3.6.5)',\
+	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
 	org.apache.felix.http.jetty;version='[5.0.4,5.0.5)',\
 	org.apache.felix.http.servlet-api;version='[2.1.0,2.1.1)',\
 	org.apache.felix.inventory;version='[1.1.0,1.1.1)',\
@@ -378,7 +380,7 @@
 	org.eclipse.jetty.io;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[1.8.10,1.8.11)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[1.8.20,1.8.21)',\
 	org.jsoup;version='[1.15.4,1.15.5)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\

@@ -30,6 +30,11 @@ public enum OpenemsAppCategory {
 	HEAT("heat"),
 
 	/**
+	 * Ess Controller.
+	 */
+	ESS("ess"),
+
+	/**
 	 * Load Control.
 	 */
 	LOAD_CONTROL("loadControl"),
