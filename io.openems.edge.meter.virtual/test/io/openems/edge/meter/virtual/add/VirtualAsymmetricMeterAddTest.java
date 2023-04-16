@@ -41,7 +41,7 @@ public class VirtualAsymmetricMeterAddTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new VirtualAddMeterImpl()) //
-				.addReference("configurationAdmin", new DummyConfigurationAdmin()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("addMeter", new DummyElectricityMeter(METER_ID_1))
 				.addReference("addMeter", new DummyElectricityMeter(METER_ID_2)) //
 				.activate(MyConfig.create() //
