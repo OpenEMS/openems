@@ -50,16 +50,13 @@ public abstract class AbstractSiemensLogoRelay extends AbstractOpenemsModbusComp
 
 	@Override
 	public String debugLog() {
-	return (String) Arrays.stream(this.digitalOutputChannels) 
-	  .map(chan -> chan.value().asOptional()) 
-	  .map(t -> {
-	    if(t.isPresent())
-	      return t.get() ? "X" : "-";
-	    else 
-	      return "?";
-	  })
-	  .collect(Collectors.joining(","));
+		return (String) Arrays.stream(this.digitalOutputChannels).map(chan -> chan.value().asOptional()).map(t -> {
+			if (t.isPresent()) {
+				return t.get() ? "X" : "-";
+			} else {
+				return "?";
+			}
+		}).collect(Collectors.joining(","));
 	}
-
 
 }
