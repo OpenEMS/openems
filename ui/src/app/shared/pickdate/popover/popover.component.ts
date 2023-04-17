@@ -24,7 +24,7 @@ export class PickDatePopoverComponent implements OnInit {
     public locale: string = 'de';
     public showCustomDate: boolean = false;
 
-    myDpOptions: IAngularMyDpOptions = {
+    public myDpOptions: IAngularMyDpOptions = {
         stylesData: {
             selector: 'dp1',
             styles: `
