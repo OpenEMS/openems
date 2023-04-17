@@ -46,14 +46,13 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 		implements MeterKdk2puct, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
+	private static final long OLD_SOFTWARE_VERSION_CHECKSUM = 573118835; // hexadecimal 0x22291973
+	private static final int CT_RATIO_NOT_NEEDED = 1;
+
 	private Config config;
 
 	@Reference
-	protected ConfigurationAdmin cm;
-
-	private static final long OLD_SOFTWARE_VERSION_CHECKSUM = 573118835; // hexadecimal - 22291973
-
-	private static final int CT_RATIO_NOT_NEEDED = 1;
+	private ConfigurationAdmin cm;
 
 	public MeterKdk2puctImpl() {
 		super(//
@@ -231,7 +230,6 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 	 * current of the transformer.
 	 */
 	private void updateCtRatio() {
-
 		Integer ctRatio = null;
 		var currentVersionCheckSum = this.getSofwareVersionCheckSumChannel().getNextValue().get();
 
@@ -262,7 +260,6 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 	 * Sets and updates the power and current channels.
 	 */
 	private void setUpdatedCurrentAndPowerChannels() {
-
 		this.getSofwareVersionCheckSumChannel().onSetNextValue(value -> {
 			this.updateCtRatio();
 		});
