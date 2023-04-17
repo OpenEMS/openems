@@ -28,7 +28,6 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.evcs.api.ManagedEvcs;
 
 @Designate(ocd = Config.class, factory = true)
@@ -58,9 +57,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedEvcs evcs;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	private SymmetricEss ess;
 
 	public EvcsController() {
 		this(Clock.systemDefaultZone());
@@ -92,13 +88,6 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcs", config.evcs_id())) {
 			return;
-		}
-		if (!config.ess_id().equals("NONE") ) 	 // TKL
-			{
-			if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-				return;
-			}
-			
 		}
 		this.evcs._setMaximumPower(null);
 	}
