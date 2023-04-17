@@ -11,7 +11,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
-
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -70,13 +69,13 @@ public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 
-		readOffset = this.config.modbusOffsetReadAddress();
-		writeOffset = this.config.modbusOffsetWriteAddress();
+		this.readOffset = this.config.modbusOffsetReadAddress();
+		this.writeOffset = this.config.modbusOffsetWriteAddress();
 		return new ModbusProtocol(this, //
 				/*
 				 * For Read: Read Coils
 				 */
-				new FC1ReadCoilsTask(readOffset, Priority.LOW, //
+				new FC1ReadCoilsTask(this.readOffset, Priority.LOW, //
 						m(SiemensLogoRelay.ChannelId.RELAY_1, new CoilElement(0 + this.readOffset)), //
 						m(SiemensLogoRelay.ChannelId.RELAY_2, new CoilElement(1 + this.readOffset)), //
 						m(SiemensLogoRelay.ChannelId.RELAY_3, new CoilElement(2 + this.readOffset)), //
@@ -90,7 +89,7 @@ public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 				 * For Write: Write Single Coil
 				 */
 				new FC5WriteCoilTask(0 + this.writeOffset,
-						m(SiemensLogoRelay.ChannelId.RELAY_1, new CoilElement(0 +this.writeOffset))), //
+						m(SiemensLogoRelay.ChannelId.RELAY_1, new CoilElement(0 + this.writeOffset))), //
 				new FC5WriteCoilTask(1 + this.writeOffset,
 						m(SiemensLogoRelay.ChannelId.RELAY_2, new CoilElement(1 + this.writeOffset))), //
 				new FC5WriteCoilTask(2 + this.writeOffset,
@@ -110,8 +109,7 @@ public class SiemensLogoRelayImpl extends AbstractSiemensLogoRelay
 
 	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable( //
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+		return new ModbusSlaveTable(OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(SiemensLogoRelay.class, accessMode, 100)//
 						.channel(0 + this.readOffset, SiemensLogoRelay.ChannelId.RELAY_1, ModbusType.UINT16) //
 						.channel(1 + this.readOffset, SiemensLogoRelay.ChannelId.RELAY_2, ModbusType.UINT16) //
