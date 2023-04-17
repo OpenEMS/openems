@@ -26,7 +26,7 @@ export interface UserSettingRequest {
  * </pre>
  */
 export class SetUserAlertingConfigsRequest extends JsonrpcRequest {
-    static METHOD: string = "setUserAlertingConfigs";
+    public static METHOD: string = "setUserAlertingConfigs";
 
     public constructor(
         public readonly params: {

@@ -15,7 +15,7 @@ export class DummyService extends AbstractService {
 
     private readonly edgeConfig = new EdgeConfig(this.edge, undefined);
 
-    currentEdge: BehaviorSubject<Edge> = new BehaviorSubject(this.edge);
+    public currentEdge: BehaviorSubject<Edge> = new BehaviorSubject(this.edge);
 
     setLang(id: Language) {
         throw new Error("Method not implemented.");

@@ -22,7 +22,7 @@ import { JsonRpcUtils } from "../jsonrpcutils";
  */
 export class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
 
-    static METHOD: string = "queryHistoricTimeseriesEnergy";
+    public static METHOD: string = "queryHistoricTimeseriesEnergy";
 
     public constructor(
         private fromDate: Date,

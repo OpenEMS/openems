@@ -27,7 +27,7 @@ import { Resolution, Unit } from "src/app/edge/history/shared";
 export class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcRequest {
 
 
-    static METHOD: string = "queryHistoricTimeseriesEnergyPerPeriod";
+    public static METHOD: string = "queryHistoricTimeseriesEnergyPerPeriod";
 
     public constructor(
         private fromDate: Date,

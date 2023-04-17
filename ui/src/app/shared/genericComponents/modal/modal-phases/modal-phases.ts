@@ -16,7 +16,7 @@ export class ModalPhasesComponent extends AbstractModalLine {
     { key: "L2", name: "" },
     { key: "L3", name: "" }
   ]
-  @Input() setTranslatedName = (powerPerPhase: number) => { return "" }
+  @Input() private setTranslatedName = (powerPerPhase: number) => { return "" }
 
   protected readonly TextIndentation = TextIndentation;
 

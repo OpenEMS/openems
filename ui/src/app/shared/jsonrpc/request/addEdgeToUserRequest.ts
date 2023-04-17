@@ -14,7 +14,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class AddEdgeToUserRequest extends JsonrpcRequest {
 
-    static METHOD: string = "addEdgeToUser";
+    public static METHOD: string = "addEdgeToUser";
 
     public constructor(
         public readonly params: {
