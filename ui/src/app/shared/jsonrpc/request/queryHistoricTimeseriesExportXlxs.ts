@@ -19,7 +19,7 @@ import { JsonrpcRequest } from '../base';
  */
 export class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
 
-    public static METHOD: string = "queryHistoricTimeseriesExportXlxs";
+    private static METHOD: string = "queryHistoricTimeseriesExportXlxs";
 
     public constructor(
         private fromDate: Date,

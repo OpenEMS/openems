@@ -32,8 +32,8 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     /** Name for parameter, displayed on the left side*/
     @Input() public name: string;
-    @Input() protected value: number | string;
-    @Input() protected roleIsAtLeast?: Role = Role.GUEST;
+    @Input() public value: number | string;
+    @Input() public roleIsAtLeast?: Role = Role.GUEST;
 
     /** Channel defines the channel, you need for this line */
     @Input()

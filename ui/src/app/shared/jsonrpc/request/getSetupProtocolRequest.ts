@@ -13,7 +13,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class GetSetupProtocolRequest extends JsonrpcRequest {
 
-    public static METHOD: string = "getSetupProtocol";
+    private static METHOD: string = "getSetupProtocol";
 
     public constructor(
         public readonly params: {

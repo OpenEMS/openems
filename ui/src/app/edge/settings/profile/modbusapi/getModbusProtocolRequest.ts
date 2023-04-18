@@ -15,7 +15,7 @@ import { JsonrpcRequest } from '../../../../shared/jsonrpc/base';
  */
 export class GetModbusProtocolRequest extends JsonrpcRequest {
 
-    public static METHOD: string = "getModbusProtocol";
+    private static METHOD: string = "getModbusProtocol";
 
     public constructor(
     ) {

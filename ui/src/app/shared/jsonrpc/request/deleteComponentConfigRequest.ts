@@ -16,7 +16,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class DeleteComponentConfigRequest extends JsonrpcRequest {
 
-    public static METHOD: string = "deleteComponentConfig";
+    private static METHOD: string = "deleteComponentConfig";
 
     public constructor(
         public readonly params: {

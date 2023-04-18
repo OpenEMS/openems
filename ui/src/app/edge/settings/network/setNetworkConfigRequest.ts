@@ -24,7 +24,7 @@ import { NetworkInterface } from './shared';
  */
 export class SetNetworkConfigRequest extends JsonrpcRequest {
 
-    public static METHOD: string = "setNetworkConfig";
+    private static METHOD: string = "setNetworkConfig";
 
     public constructor(
         public readonly params: {

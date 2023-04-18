@@ -28,7 +28,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class SetUserInformationRequest extends JsonrpcRequest {
 
-    public static METHOD: string = "setUserInformation";
+    private static METHOD: string = "setUserInformation";
 
     public constructor(
         public readonly params: {
