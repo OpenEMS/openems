@@ -12,8 +12,8 @@ import { environment } from 'src/environments';
 })
 export class RegistrationModalComponent implements OnInit {
 
-  formGroup: FormGroup;
-  activeSegment: string = "owner";
+  public formGroup: FormGroup;
+  public activeSegment: string = "owner";
 
   constructor(
     private formBuilder: FormBuilder,
