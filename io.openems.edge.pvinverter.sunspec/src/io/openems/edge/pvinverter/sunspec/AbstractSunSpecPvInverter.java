@@ -122,7 +122,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			// Get ActivePowerLimit that should be applied
-			IntegerWriteChannel activePowerLimitChannel = (IntegerWriteChannel) this
+			var activePowerLimitChannel = (IntegerWriteChannel) this
 					.channel(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 			var activePowerLimitOpt = activePowerLimitChannel.getNextWriteValueAndReset();
 
