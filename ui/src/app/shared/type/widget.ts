@@ -44,8 +44,8 @@ export type Icon = {
 }
 
 export class Widget {
-    name: WidgetNature | WidgetFactory | String;
-    componentId: string
+    public name: WidgetNature | WidgetFactory | String;
+    public componentId: string
 }
 
 export type AdvertWidget = {

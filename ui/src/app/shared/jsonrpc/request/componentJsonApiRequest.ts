@@ -17,7 +17,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class ComponentJsonApiRequest extends JsonrpcRequest {
 
-    static METHOD: string = "componentJsonApi";
+    private static METHOD: string = "componentJsonApi";
 
     public constructor(
         public readonly params: {
