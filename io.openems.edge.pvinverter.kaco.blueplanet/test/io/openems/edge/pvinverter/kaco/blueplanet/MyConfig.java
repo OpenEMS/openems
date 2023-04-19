@@ -1,4 +1,4 @@
-package io.openems.edge.pvinverter.fronius;
+package io.openems.edge.pvinverter.kaco.blueplanet;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
@@ -42,7 +42,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
