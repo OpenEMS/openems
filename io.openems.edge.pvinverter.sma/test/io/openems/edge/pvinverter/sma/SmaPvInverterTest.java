@@ -5,6 +5,7 @@ import org.junit.Test;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.pvinverter.sunspec.Phase;
 
 public class SmaPvInverterTest {
 
@@ -21,6 +22,7 @@ public class SmaPvInverterTest {
 						.setReadOnly(true) //
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(1) //
+						.setPhase(Phase.ALL) //
 						.build()) //
 		;
 	}
