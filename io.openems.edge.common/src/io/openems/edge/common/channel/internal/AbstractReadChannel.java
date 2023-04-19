@@ -116,7 +116,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 			}
 			this.pastValues.put(this.activeValue.getTimestamp(), this.activeValue);
 
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			this.log.error("Error while updating process image for [" + this.address() + "]: " + e.getMessage());
 			e.printStackTrace();
 		}
