@@ -1,7 +1,8 @@
-package io.openems.edge.pvinverter.fronius;
+package io.openems.edge.pvinverter.sma;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.pvinverter.sunspec.Phase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -11,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean readOnly;
 		private String modbusId = null;
 		private int modbusUnitId;
+		private Phase phase;
 
 		private Builder() {
 		}
@@ -34,6 +36,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
+		
+		public Builder setPhase(Phase phase) {
+			this.phase = phase;
+			return this;
+		}
 
 		public MyConfig build() {
 			return new MyConfig(this);
@@ -42,7 +49,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -74,6 +81,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
+	}
+
+	@Override
+	public Phase phase() {
+		return this.builder.phase;
 	}
 
 }
