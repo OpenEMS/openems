@@ -91,8 +91,7 @@ public class ModbusTcpApiReadWrite extends AbstractEnumOpenemsApp<Property> impl
 								.setDefaultValue(60) //
 								.isRequired(true) //
 								.setInputType(Type.NUMBER) //
-								.setMin(30) //
-								.setMax(120) //
+								.setMin(0) //
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.COMPONENT_IDS) //
 								.isMulti(true) //

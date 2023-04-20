@@ -77,7 +77,10 @@ export class UpdateAppComponent implements OnInit {
                   isDeleting: false,
                   isUpdating: false,
                   fields: clonedFields,
-                  properties: instance.properties,
+                  properties: {
+                    'ALIAS': instance.alias,
+                    ...instance.properties
+                  },
                 })
               }
 

@@ -14,6 +14,7 @@ public interface Type<P extends Nameable, //
 
 	public class Parameter {
 
+		// TODO should be an interface
 		public static class BundleParameter extends Parameter {
 			public final ResourceBundle bundle;
 
