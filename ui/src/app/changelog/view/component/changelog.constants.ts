@@ -57,6 +57,7 @@ export class Product {
     public static readonly FEMS_PV_SMA = new Product('FEMS-App SMA PV-Wechselrichter', 'https://fenecon.de/produkte/fems/fems-app-sma-pv-wechselrichter/');
     public static readonly FEMS_PV_KOSTAL = new Product('FEMS-App Kostal PV-Wechselrichter', 'https://fenecon.de/produkte/fems/fems-app-kostal-pv-wechselrichter/');
     public static readonly FEMS_PV_FRONIUS = new Product('FEMS-App Fronius PV-Wechselrichter', 'https://fenecon.de/produkte/fems/fems-app-fronius-pv-wechselrichter/');
+    public static readonly FEMS_ALL_PV = [Product.FEMS_PV_KACO, Product.FEMS_PV_SMA, Product.FEMS_PV_KOSTAL, Product.FEMS_PV_FRONIUS];
     public static readonly FEMS_JANITZA_ZAEHLER = new Product('FEMS-App Janitza Zähler', 'https://fenecon.de/produkte/fems/fems-app-janitza-zaehler/');
     public static readonly FEMS_SG_READY_WAERMEPUMPE = new Product('FEMS App \"SG-Ready\" Wärmepumpe', 'https://fenecon.de/fenecon-fems/fems-app-sg-ready-waermepumpe/');
     public static readonly FEMS_HEIZSTAB = new Product('FEMS-App Heizstab', 'https://fenecon.de/fems/produkte/fems/fems-app-heizstab/');

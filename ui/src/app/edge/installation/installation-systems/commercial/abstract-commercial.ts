@@ -6,9 +6,10 @@ import { SetupProtocol, SubmitSetupProtocolRequest } from 'src/app/shared/jsonrp
 import { ChannelAddress, Edge, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { Category } from '../../shared/category';
-import { FeedInType, WebLinks } from '../../shared/enums';
+import { FeedInType, ModbusBridgeType, WebLinks } from '../../shared/enums';
 import { ComponentData } from '../../shared/ibndatatypes';
 import { Meter } from '../../shared/meter';
+import { ConfigurationMode, ConfigurationObject } from '../../views/configuration-execute/component-configurator';
 import { AbstractIbn } from '../abstract-ibn';
 
 export abstract class AbstractCommercialIbn extends AbstractIbn {
@@ -16,6 +17,8 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
     public readonly showRundSteuerManual: boolean = false;
 
     public showViewCount: boolean = false;
+
+    public modbusBridgeType: ModbusBridgeType;
 
     // configuration-emergency-reserve
     public emergencyReserve?= {
@@ -439,5 +442,54 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             }
         }
         return protocol;
+    }
+
+    /**
+     * Gets the ConfigurationObject based on the modbus bridge type selected.
+     * 
+     * @param modbusBridgeType Modbus bridge type (TCP or RS485).
+     * @param invalidateElementsAfterReadErrors number.
+     * @param alias alias for the component.
+     * @returns ConfigurationObject
+     */
+    public getModbusBridgeComponent(modbusBridgeType: ModbusBridgeType, invalidateElementsAfterReadErrors: number, alias: string): ConfigurationObject {
+
+        switch (modbusBridgeType) {
+            case ModbusBridgeType.TCP_IP:
+                // TCP
+                // modbus0
+                return {
+                    factoryId: 'Bridge.Modbus.Tcp',
+                    componentId: 'modbus0',
+                    alias: alias,
+                    properties: [
+                        { name: 'enabled', value: true },
+                        { name: 'ip', value: '192.168.0.7' },
+                        { name: 'port', value: '20108' },
+                        { name: 'logVerbosity', value: 'NONE' },
+                        { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+                    ],
+                    mode: ConfigurationMode.RemoveAndConfigure
+                }
+            case ModbusBridgeType.RS485:
+                //RTU
+                // modbus0
+                return {
+                    factoryId: 'Bridge.Modbus.Serial',
+                    componentId: 'modbus0',
+                    alias: alias,
+                    properties: [
+                        { name: 'enabled', value: true },
+                        { name: 'portName', value: '/dev/ttyAMA0' },
+                        { name: 'baudRate', value: 9600 },
+                        { name: 'databits', value: 8 },
+                        { name: 'stopbits', value: 'ONE' },
+                        { name: 'parity', value: 'NONE' },
+                        { name: 'logVerbosity', value: 'NONE' },
+                        { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+                    ],
+                    mode: ConfigurationMode.RemoveAndConfigure
+                }
+        }
     }
 }

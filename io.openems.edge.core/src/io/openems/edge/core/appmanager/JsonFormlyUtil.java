@@ -985,7 +985,7 @@ public class JsonFormlyUtil {
 		public InputBuilder setUnit(Unit unit, Language l) {
 			var unitString = switch (unit) {
 			case WATT -> TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l), "watt");
-			default -> unit.name();
+			default -> unit.getSymbol();
 			};
 			this.templateOptions.addProperty("unit", unitString);
 			this.addWrapper(Wrappers.INPUT_WITH_UNIT);

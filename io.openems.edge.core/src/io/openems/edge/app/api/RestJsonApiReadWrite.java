@@ -87,7 +87,7 @@ public class RestJsonApiReadWrite extends AbstractEnumOpenemsApp<Property> imple
 										TranslationUtil.getTranslation(bundle, "App.Api.apiTimeout.description")) //
 								.setInputType(Type.NUMBER) //
 								.setDefaultValue(60) //
-								.setMin(30) //
+								.setMin(0) //
 								.isRequired(true) //
 								.build())
 						.build())

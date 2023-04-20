@@ -15,7 +15,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class UpdateUserLanguageRequest extends JsonrpcRequest {
 
-    static METHOD: string = "updateUserLanguage";
+    private static METHOD: string = "updateUserLanguage";
 
     public constructor(
         public readonly params: {

@@ -8,6 +8,7 @@ import { InstallationComponent } from "./installation.component";
 import { KeyMaskDirective } from "./keymask";
 import { CompletionComponent } from "./views/completion/completion.component";
 import { ConfigurationCommercialComponent } from "./views/configuration-commercial-component/configuration-commercial.component";
+import { ConfigurationCommercialModbuBridgeComponent } from "./views/configuration-commercial-modbusbridge/configuration-commercial-modbusbridge";
 import { ConfigurationEmergencyReserveComponent } from "./views/configuration-emergency-reserve/configuration-emergency-reserve.component";
 import { ConfigurationExecuteComponent } from "./views/configuration-execute/configuration-execute.component";
 import { ConfigurationFeaturesStorageSystemComponent } from "./views/configuration-features-storage-system/configuration-features-storage-system.component";
@@ -132,6 +133,7 @@ export function Commercial50BatteryInverterSerialNumberValidator(control: FormCo
     ConfigurationCommercialComponent,
     ConfigurationFeaturesStorageSystemComponent,
     ConfigurationPeakShavingComponent,
+    ConfigurationCommercialModbuBridgeComponent
   ]
 })
 export class InstallationModule { }

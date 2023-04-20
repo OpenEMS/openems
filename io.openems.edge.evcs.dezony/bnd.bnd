@@ -1,5 +1,5 @@
-Bundle-Name: OpenEMS Edge Controller Asymmetric Fix-ActivePower
-Bundle-Vendor: FENECON GmbH
+Bundle-Name: OpenEMS Edge EVCS dezony
+Bundle-Vendor: dezony GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 
@@ -7,8 +7,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	${buildpath},\
 	io.openems.common,\
 	io.openems.edge.common,\
-	io.openems.edge.controller.api,\
-	io.openems.edge.ess.api
+	io.openems.edge.evcs.api
 
 -testpath: \
 	${testpath}

@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { ChannelAddress, Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { FeedInType } from '../../../shared/enums';
-import { AcPv, SerialNumberFormData } from '../../../shared/ibndatatypes';
+import { SerialNumberFormData } from '../../../shared/ibndatatypes';
 import { Meter } from '../../../shared/meter';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { AbstractCommercialIbn } from '../abstract-commercial';
@@ -214,27 +214,12 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
      * 
      * @returns ComponentConfigurator
      */
-    public getCommercialComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, invalidateElementsAfterReadErrors: number) {
+    public getCommercial30ComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, invalidateElementsAfterReadErrors: number) {
 
         const componentConfigurator: ComponentConfigurator = new ComponentConfigurator(edge, config, websocket);
 
         // modbus0
-        componentConfigurator.add({
-            factoryId: 'Bridge.Modbus.Serial',
-            componentId: 'modbus0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'portName', value: '/dev/ttyAMA0' },
-                { name: 'baudRate', value: 9600 },
-                { name: 'databits', value: 8 },
-                { name: 'stopbits', value: 'ONE' },
-                { name: 'parity', value: 'NONE' },
-                { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
+        componentConfigurator.add(super.getModbusBridgeComponent(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY')));
 
         // modbus1
         componentConfigurator.add({

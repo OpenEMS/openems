@@ -36,6 +36,20 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.4.2',
+        changes: [
+          Changelog.product(Product.FEMS_HEIZSTAB, Product.FEMS_REST_JSON_API, Product.FEMS_MODBUS_TCP_API) + "Verbesserungen im App-Center",
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.FEMS_SG_READY_WAERMEPUMPE) + "Verbesserung der Fehlerprüfung bei Konfigurationsänderungen",
+          Changelog.product(...Product.FEMS_ALL_PV) + "Fehlerbehung im nur-lesenden Betrieb (ohne Abregelung)",
+          "Robusteres Fehlerhandling beim Lesen ungültiger Daten von Peripheriegeräten",
+          { roleIsAtLeast: Role.ADMIN, change: "Fix-ActivePower-Controller: erlaubt (nur via 'Komponenten Konfigurieren') auch Min-/Max-Vorgaben für Be-/Entladung und phasengenaue Ansteuerung; ersetzt Asymmetric Fix-ActivePower-Controller" },
+          { roleIsAtLeast: Role.ADMIN, change: "Modbus/TCP-Bridge, KACO blueplanet 10: robusteres Verhalten wenn IP-Adressen mit führenden Leerzeichen konfiguriert werden" },
+          { roleIsAtLeast: Role.ADMIN, change: "EVCS-Controller: funktioniert jetzt auch ohne konfigurierten (Dummy-)Speicher" },
+          Changelog.library(Library.FASTEXCEL),
+        ]
+      },
+      {
         version: '2023.4.1',
         changes: [
           Changelog.openems('2023.4.0'),
