@@ -314,6 +314,27 @@ export abstract class AbstractIbn {
   };
 
   /**
+   * Gets the additional Emergency reserve fields.
+   * 
+   * eg: Coupler fields from Commercial 30 Netztrenstelle variant.
+   * 
+   * @param fields fields for the componenet.
+   * @returns The fields to be displayed.
+   */
+  public getAdditionalEmergencyReserveFields(fields: FormlyFieldConfig[]): FormlyFieldConfig[] {
+    return fields;
+  }
+
+  /**
+   * Adds the emergency reserve model to the IBN.
+   * 
+   * @param model The model.
+   */
+  public setEmergencyReserve(model: any) {
+    this.emergencyReserve = model;
+  }
+
+  /**
    * Returns the pv meter configuration object.
    * 
    * @param modbusId modbus unit id.

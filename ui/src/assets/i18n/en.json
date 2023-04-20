@@ -569,7 +569,8 @@
       "RECENT": "Current:",
       "TITLE": "Emergency power reserve",
       "VALUE": "Value [%]",
-      "EMERGENCY_RESERVE_LABEL": "Emergency power{{ symbol }}"
+      "EMERGENCY_RESERVE_LABEL": "Emergency power{{ symbol }}",
+      "COUPLER_TITLE": "Which fieldbus coupler is installed in your Offgrid network point?"
     },
     "CONFIGURATION_EXECUTE": {
       "BATTERY_INVERTER": "Battery-Inverter",
@@ -606,7 +607,11 @@
       "FIELD_BUS_COUPLER": "Fieldbus coupler",
       "CONTROL_GRID_POINT": "Control of the grid disconnection point",
       "BATTERY_INTERFACE": "Battery interface",
-      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge"
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge",
+      "LABEL": {
+        "WEIDMUELLER_BRIDGE": "Weidmüller (black component)",
+        "WAGO_BRIDGE": "WAGO (Gray component)"
+      }
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",

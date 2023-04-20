@@ -569,7 +569,8 @@
       "RECENT": "Aktuell:",
       "TITLE": "Angaben zu Notstrom",
       "VALUE": "Wert [%]",
-      "EMERGENCY_RESERVE_LABEL": "Notstrom{{ symbol }}"
+      "EMERGENCY_RESERVE_LABEL": "Notstrom{{ symbol }}",
+      "COUPLER_TITLE": "Welcher Feldbuskoppler ist in Ihrer Netztrennstelle verbaut?"
     },
     "CONFIGURATION_EXECUTE": {
       "BATTERY_INVERTER": "Batterie-Wechselrichter",
@@ -607,7 +608,11 @@
       "FIELD_BUS_COUPLER": "Feldbuskoppler",
       "CONTROL_GRID_POINT": "Ansteuerung der Netztrennstelle",
       "BATTERY_INTERFACE": "Schnittstelle Batterie",
-      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge"
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge",
+      "LABEL": {
+        "WEIDMUELLER_BRIDGE": "Weidmüller (schwarze Komponente)",
+        "WAGO_BRIDGE": "WAGO (graue Komponente)"
+      }
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
