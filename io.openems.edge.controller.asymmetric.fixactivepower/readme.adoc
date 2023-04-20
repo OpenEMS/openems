@@ -1,5 +1,0 @@
-= Asymmetric Fix Active Power
-
-Sets a fixed active power for charging/discharging of an asymmetric energy storage system.
-
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.asymmetric.fixactivepower[Source Code icon:github[]]

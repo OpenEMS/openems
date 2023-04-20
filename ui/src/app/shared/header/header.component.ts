@@ -15,7 +15,7 @@ import { StatusSingleComponent } from '../status/single/status.component';
 })
 export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
-    @ViewChild(PickDateComponent, { static: false }) PickDateComponent: PickDateComponent
+    @ViewChild(PickDateComponent, { static: false }) public PickDateComponent: PickDateComponent
 
     public environment = environment;
     public backUrl: string | boolean = '/';

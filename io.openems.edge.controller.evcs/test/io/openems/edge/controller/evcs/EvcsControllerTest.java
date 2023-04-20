@@ -11,9 +11,6 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.test.ControllerTest;
-import io.openems.edge.ess.test.DummyHybridEss;
-import io.openems.edge.ess.test.DummyManagedSymmetricEss;
-import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.evcs.api.ChargeMode;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.test.DummyEvcsPower;
@@ -21,8 +18,6 @@ import io.openems.edge.evcs.test.DummyManagedEvcs;
 
 public class EvcsControllerTest {
 
-	private static final DummyPower POWER = new DummyPower(30000);
-	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0", POWER);
 	private static final DummyEvcsPower EVCS_POWER = new DummyEvcsPower(new DisabledRampFilter());
 	private static final DummyManagedEvcs EVCS = new DummyManagedEvcs("evcs0", EVCS_POWER);
 
@@ -32,14 +27,13 @@ public class EvcsControllerTest {
 	private static int FORCE_CHARGE_MIN_POWER = 7360;
 	private static int DEFAULT_CHARGE_MIN_POWER = 0;
 	private static Priority PRIORITY = Priority.CAR;
-	private static String ESS_ID = "ess0";
 	private static int ENERGY_SESSION_LIMIT = 0;
 
 	private static ChannelAddress sumGridActivePower = new ChannelAddress("_sum", "GridActivePower");
-	private static ChannelAddress sumEssActivePower = new ChannelAddress("_sum", "EssActivePower");
+	private static ChannelAddress sumEssDischargePower = new ChannelAddress("_sum", "EssDischargePower");
+	private static ChannelAddress sumEssSoc = new ChannelAddress("_sum", "EssSoc");
 	private static ChannelAddress evcs0ChargePower = new ChannelAddress("evcs0", "ChargePower");
 	private static ChannelAddress evcs0SetChargePowerLimit = new ChannelAddress("evcs0", "SetChargePowerLimit");
-	private static ChannelAddress essAllowedChargePower = new ChannelAddress("ess0", "AllowedChargePower");
 	private static ChannelAddress evcs0MaximumPower = new ChannelAddress("evcs0", "MaximumPower");
 	private static ChannelAddress evcs0IsClustered = new ChannelAddress("evcs0", "IsClustered");
 	private static ChannelAddress evcs0SetPowerRequest = new ChannelAddress("evcs0", "SetChargePowerRequest");
@@ -58,7 +52,6 @@ public class EvcsControllerTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
-				.addReference("ess", ESS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
@@ -67,10 +60,10 @@ public class EvcsControllerTest {
 						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
 						.setPriority(PRIORITY) //
-						.setEssId(ESS_ID) //
 						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
 						.build()) //
-				.next(new TestCase().input(sumEssActivePower, -6000) //
+				.next(new TestCase() //
+						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, false) //
 						.input(sumGridActivePower, 0) //
 						.input(evcs0ChargePower, 0) //
@@ -84,13 +77,11 @@ public class EvcsControllerTest {
 		ENABLE_CHARGING = true;
 		CHARGE_MODE = ChargeMode.EXCESS_POWER;
 		PRIORITY = Priority.STORAGE;
-		final var ess = new DummyHybridEss(ESS_ID);
 		final var test = new ControllerTest(new EvcsController()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
-				.addReference("ess", ess) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
@@ -99,18 +90,15 @@ public class EvcsControllerTest {
 						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
 						.setPriority(PRIORITY) //
-						.setEssId(ESS_ID) //
 						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
 						.build()); //
 
-		// Adjust maximum apparent power
-		ess.withMaxApparentPower(30000);
 		test.next(new TestCase() //
-				.input(sumEssActivePower, -5000) //
+				.input(sumEssSoc, 50) //
+				.input(sumEssDischargePower, -5000) //
 				.input(evcs0IsClustered, false) //
 				.input(sumGridActivePower, -40000) //
 				.input(evcs0ChargePower, 5000) //
-				.input(essAllowedChargePower, 30000) //
 				.input(evcs0MaximumHardwarePower, 22080) //
 				.output(evcs0SetChargePowerLimit, 44800));
 	}
@@ -128,7 +116,6 @@ public class EvcsControllerTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
-				.addReference("ess", ESS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
@@ -137,15 +124,13 @@ public class EvcsControllerTest {
 						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
 						.setPriority(PRIORITY) //
-						.setEssId(ESS_ID) //
 						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
-						.input(sumEssActivePower, -5000) //
+						.input(sumEssDischargePower, -5000) //
 						.input(evcs0IsClustered, false) //
 						.input(sumGridActivePower, -40000) //
 						.input(evcs0ChargePower, 5000) //
-						.input(essAllowedChargePower, 30000) //
 						.output(evcs0SetChargePowerLimit, 22080));
 	}
 
@@ -159,7 +144,6 @@ public class EvcsControllerTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
-				.addReference("ess", ESS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
@@ -168,7 +152,6 @@ public class EvcsControllerTest {
 						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
 						.setPriority(PRIORITY) //
-						.setEssId(ESS_ID) //
 						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
@@ -187,7 +170,6 @@ public class EvcsControllerTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
-				.addReference("ess", ESS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
@@ -196,7 +178,6 @@ public class EvcsControllerTest {
 						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
 						.setPriority(PRIORITY) //
-						.setEssId(ESS_ID) //
 						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
@@ -219,7 +200,6 @@ public class EvcsControllerTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
-				.addReference("ess", ESS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
@@ -228,29 +208,31 @@ public class EvcsControllerTest {
 						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
 						.setPriority(PRIORITY) //
-						.setEssId(ESS_ID) //
 						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
-						.input(sumEssActivePower, -10000) //
+						.input(sumEssDischargePower, -10000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
 						.input(evcs0ChargePower, 0) //
 						.input(evcs0Status, Status.CHARGING) //
 						.output(evcs0SetPowerRequest, 10000))
-				.next(new TestCase().input(sumEssActivePower, -6000) //
+				.next(new TestCase() //
+						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
 						.input(evcs0ChargePower, 0) //
 						.input(evcs0Status, Status.NOT_READY_FOR_CHARGING) //
 						.output(evcs0SetPowerRequest, 0)) //
-				.next(new TestCase().input(sumEssActivePower, -6000) //
+				.next(new TestCase() //
+						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
 						.input(evcs0ChargePower, 0) //
 						.input(evcs0Status, null) //
 						.output(evcs0SetPowerRequest, 0)) //
-				.next(new TestCase().input(sumEssActivePower, -6000) //
+				.next(new TestCase() //
+						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
 						.input(evcs0ChargePower, 0) //
@@ -273,7 +255,6 @@ public class EvcsControllerTest {
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("evcs", EVCS) //
-				.addReference("ess", ESS) //
 				.activate(MyConfig.create() //
 						.setId("ctrlEvcs0") //
 						.setEvcsId(EVCS_ID) //
@@ -282,29 +263,31 @@ public class EvcsControllerTest {
 						.setForceChargeMinPower(FORCE_CHARGE_MIN_POWER) //
 						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
 						.setPriority(PRIORITY) //
-						.setEssId(ESS_ID) //
 						.setEnergySessionLimit(ENERGY_SESSION_LIMIT) //
 						.build()) //
 				.next(new TestCase() //
-						.input(sumEssActivePower, -10000) //
+						.input(sumEssDischargePower, -10000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
 						.input(evcs0ChargePower, 0) //
 						.input(evcs0Status, Status.CHARGING) //
 						.output(evcs0SetChargePowerLimit, 0))
-				.next(new TestCase().input(sumEssActivePower, -6000) //
+				.next(new TestCase() //
+						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
 						.input(evcs0ChargePower, 0) //
 						.input(evcs0Status, Status.NOT_READY_FOR_CHARGING) //
 						.output(evcs0SetChargePowerLimit, 0)) //
-				.next(new TestCase().input(sumEssActivePower, -6000) //
+				.next(new TestCase() //
+						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
 						.input(evcs0ChargePower, 0) //
 						.input(evcs0Status, null) //
 						.output(evcs0SetChargePowerLimit, 0)) //
-				.next(new TestCase().input(sumEssActivePower, -6000) //
+				.next(new TestCase() //
+						.input(sumEssDischargePower, -6000) //
 						.input(evcs0IsClustered, true) //
 						.input(sumGridActivePower, 0) //
 						.input(evcs0ChargePower, 0) //
