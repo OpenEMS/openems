@@ -20,8 +20,8 @@ RUN curl -o odoo.deb -sSL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/od
     && sudo rm -rf /var/lib/apt/lists/* odoo.deb
 
 # Install wkhtmltopdf
-ENV WKHTMLTOPDF_VERSION 0.12.6-1
-ENV WKHTMLTOPDF_RELEASE focal_amd64
+ENV WKHTMLTOPDF_VERSION 0.12.6.1-2
+ENV WKHTMLTOPDF_RELEASE jammy_amd64
 RUN curl -o wkhtmltox.deb -sSL https://github.com/wkhtmltopdf/packaging/releases/download/${WKHTMLTOPDF_VERSION}/wkhtmltox_${WKHTMLTOPDF_VERSION}.${WKHTMLTOPDF_RELEASE}.deb \
     && sudo apt-get update \
     && sudo apt-get install -y ./wkhtmltox.deb \
