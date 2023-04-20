@@ -2,6 +2,7 @@ package io.openems.common.jsonrpc.response;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -63,7 +64,7 @@ public class AppCenterGetInstalledAppsResponse extends JsonrpcResponseSuccess {
 		return JsonUtils.stream(a) //
 				.map(JsonElement::getAsJsonObject) //
 				.map(Instance::from) //
-				.toList();
+				.collect(Collectors.toList());
 	}
 
 	public AppCenterGetInstalledAppsResponse(UUID id, List<Instance> installedApps) {

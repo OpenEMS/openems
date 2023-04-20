@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.core.host.Inet4AddressWithSubnetmask;
@@ -116,7 +117,7 @@ public class InterfaceConfiguration {
 			var newInterface = new InterfaceConfiguration(u.interfaceName);
 			newInterface.getIps().addAll(existingInterfaces.stream() //
 					.flatMap(i -> i.getIps().stream()) //
-					.toList());
+					.collect(Collectors.toList()));
 		};
 		return Objects.requireNonNull(interfaceConfiguration).stream() //
 				.collect(ArrayList::new, flatAdd, (t, u) -> {
@@ -139,7 +140,7 @@ public class InterfaceConfiguration {
 				.forEach(i -> {
 					var otherInterfaces = other.stream() //
 							.filter(oi -> oi.interfaceName.equals(i.interfaceName)) //
-							.toList();
+							.collect(Collectors.toList());
 					if (otherInterfaces.isEmpty()) {
 						return;
 					}

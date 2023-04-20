@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -209,7 +210,7 @@ public class JsonFormlyUtil {
 		public DefaultValueOptions(Nameable field, Case... cases) {
 			super();
 			this.field = field;
-			this.cases = Arrays.stream(cases).toList();
+			this.cases = Arrays.stream(cases).collect(Collectors.toList());
 		}
 
 		/**
