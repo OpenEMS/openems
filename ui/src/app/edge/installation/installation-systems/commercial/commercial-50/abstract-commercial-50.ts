@@ -215,27 +215,12 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         return fields;
     }
 
-    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket) {
+    public getCommercial50ComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, invalidateElementsAfterReadErrors: number) {
 
         const componentConfigurator: ComponentConfigurator = new ComponentConfigurator(edge, config, websocket);
 
         // modbus0
-        componentConfigurator.add({
-            factoryId: 'Bridge.Modbus.Serial',
-            componentId: 'modbus0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INTERFACE'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'portName', value: '/dev/ttyAMA0' },
-                { name: 'baudRate', value: 9600 },
-                { name: 'databits', value: 8 },
-                { name: 'stopbits', value: 'ONE' },
-                { name: 'parity', value: 'NONE' },
-                { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: 3 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
+        componentConfigurator.add(super.getModbusBridgeComponent(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INTERFACE')));
 
         // modbus1
         componentConfigurator.add({
@@ -247,7 +232,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'ip', value: '10.4.0.10' },
                 { name: 'port', value: '502' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: 3 }
+                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });
@@ -265,7 +250,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'stopbits', value: 'ONE' },
                 { name: 'parity', value: 'NONE' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: 3 }
+                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });

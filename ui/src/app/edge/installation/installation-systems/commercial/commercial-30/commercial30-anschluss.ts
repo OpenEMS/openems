@@ -3,7 +3,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { FeedInType } from '../../../shared/enums';
-import { Meter } from '../../../shared/meter';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { SchedulerIdBehaviour, View } from '../../abstract-ibn';
 import { AbstractCommercial30Ibn } from './abstract-commercial-30';
@@ -24,6 +23,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
             View.ProtocolCustomer,
             View.ProtocolSystem,
             View.ConfigurationLineSideMeterFuse,
+            View.ConfigurationCommercialModbuBridgeComponent,
             View.ProtocolAdditionalAcProducers,
             View.ProtocolFeedInLimitation,
             View.ConfigurationSummary,
@@ -48,8 +48,8 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
     }
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket) {
-        const invalidateElementsAfterReadErrors: number = 1;
-        const componentConfigurator: ComponentConfigurator = super.getCommercialComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
+        const invalidateElementsAfterReadErrors: number = 3;
+        const componentConfigurator: ComponentConfigurator = this.getCommercial30ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
 
         // ess0
         componentConfigurator.add({

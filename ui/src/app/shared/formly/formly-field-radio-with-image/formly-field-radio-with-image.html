@@ -1,0 +1,21 @@
+<ion-radio-group [(ngModel)]="value" (ionChange)="updateFormControl()">
+    <ng-container *ngFor="let option of props.options">
+        <ion-row>
+            <ion-col>
+                <ion-item>
+                    <ion-label>{{option.label}}</ion-label>
+                    <ion-radio slot="end" [value]="option.value"> </ion-radio>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row class="ion-justify-content-center">
+            <ion-col>
+                <ion-list lines="none">
+                    <ion-item>
+                        <ion-img [src]="option.url"></ion-img>
+                    </ion-item>
+                </ion-list>
+            </ion-col>
+        </ion-row>
+    </ng-container>
+</ion-radio-group>

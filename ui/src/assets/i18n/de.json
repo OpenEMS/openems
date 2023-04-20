@@ -245,15 +245,15 @@
       "RETROFITTING": {
         "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",
         "OPTIMAL": "Kapazitätserweiterung",
-        "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}}\u00a0% Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}}\u00a0Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+        "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}} % Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
         "SELECT_A_DATE": "Wählen Sie bitte ein Datum aus",
         "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
         "INSTANT_START": "Sofortstart",
         "PLANNED_EXPANSION": "Geplante Erweiterung",
-        "INFORMATION_FOR_PlANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}}\u00a0Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}}\u00a0% Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}}\u00a0Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+        "INFORMATION_FOR_PlANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
         "PREPARING": "Kapazitätserweiterung wird vorbereitet",
         "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
-        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}}\u00a0% zu erreichen."
+        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen."
       },
       "SYSTEMUPDATE": "Systemupdate"
     },
@@ -807,7 +807,14 @@
       "DISCHARGE_ABOVE_LABEL": "Entladung über",
       "CHARGE_BELOW_LABEL": "Beladung unter"
     },
-    "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen."
+    "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen.",
+    "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
+      "TCP_IP_LABEL": "TCP/IP (6-RJ45-Ports) - Anschluss: Internal",
+      "RS485_LABEL": "RS485 (4-RJ45-Ports) - Anschluss: FEMS"
+    },
+    "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
+      "HEADER": "Auswahl der Kommunikationsart"
+    }
   },
   "Login": {
     "title": "Login",

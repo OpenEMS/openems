@@ -29,6 +29,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             View.ProtocolSystem,
             View.ConfigurationEmergencyReserve,
             View.ConfigurationLineSideMeterFuse,
+            View.ConfigurationCommercialModbuBridgeComponent,
             View.ProtocolAdditionalAcProducers,
             View.ProtocolFeedInLimitation,
             View.ConfigurationSummary,
@@ -75,7 +76,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket): ComponentConfigurator {
         const invalidateElementsAfterReadErrors: number = 3;
-        const componentConfigurator: ComponentConfigurator = super.getCommercialComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
+        const componentConfigurator: ComponentConfigurator = super.getCommercial30ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
 
         //modbus3
         componentConfigurator.add({

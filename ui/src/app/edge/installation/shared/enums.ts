@@ -71,3 +71,9 @@ export namespace WebLinks {
         }
     }
 }
+
+// Specific for Configuration-commercial-modbusbridge
+export enum ModbusBridgeType {
+    TCP_IP,
+    RS485
+}
