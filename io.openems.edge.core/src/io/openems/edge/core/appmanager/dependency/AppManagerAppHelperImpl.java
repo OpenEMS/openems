@@ -1066,7 +1066,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		}
 		var appId = config.appId;
 		if (declaration.createPolicy == DependencyDeclaration.CreatePolicy.ALWAYS) {
-			var neededApps = this.getAllInstances().stream().filter(t -> t.appId.equals(appId)).collect(Collectors.toList());
+			var neededApps = this.getAllInstances().stream().filter(t -> t.appId.equals(appId)).toList();
 			OpenemsAppInstance availableApp = null;
 			for (var neededApp : neededApps) {
 				if (this.appManagerUtil.getAppsWithDependencyTo(neededApp).isEmpty()) {
