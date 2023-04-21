@@ -8,6 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id = null;
+		private boolean readOnly;
 		private String modbusId = null;
 		private int modbusUnitId;
 
@@ -16,6 +17,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setId(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public Builder setReadOnly(boolean readOnly) {
+			this.readOnly = readOnly;
 			return this;
 		}
 
@@ -48,6 +54,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
+	}
+
+	@Override
+	public boolean readOnly() {
+		return this.builder.readOnly;
 	}
 
 	@Override
