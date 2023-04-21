@@ -345,6 +345,8 @@ export class EdgeConfig {
             case 'Fenecon.Mini.GridMeter':
             case 'Kostal.Piko.GridMeter':
             case 'SolarEdge.Grid-Meter':
+            case 'Simulator.GridMeter.Acting':
+            case 'Simulator.GridMeter.Reacting':
                 return true;
         }
         return false;
