@@ -36,6 +36,12 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.4.3',
+        changes: [
+          Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung bei automatischer Suche des Wechselrichters im Netzwerk",
+        ]
+      },
+      {
         version: '2023.4.2',
         changes: [
           Changelog.product(Product.FEMS_HEIZSTAB, Product.FEMS_REST_JSON_API, Product.FEMS_MODBUS_TCP_API) + "Verbesserungen im App-Center",
