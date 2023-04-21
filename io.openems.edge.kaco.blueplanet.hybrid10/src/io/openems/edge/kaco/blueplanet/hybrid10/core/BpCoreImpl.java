@@ -76,7 +76,7 @@ public class BpCoreImpl extends AbstractOpenemsComponent implements BpCore, Open
 		 */
 		this.config = config;
 
-		final InetAddress inverterAddress = InetAddressUtils.parseOrNull(config.ip().trim());
+		final InetAddress inverterAddress = InetAddressUtils.parseOrNull(config.ip());
 		Runnable initializeLibrary = () -> {
 			while (true) {
 				try {
