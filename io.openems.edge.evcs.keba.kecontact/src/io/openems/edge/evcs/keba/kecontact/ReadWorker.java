@@ -8,7 +8,9 @@ import io.openems.edge.evcs.api.Evcs;
 
 public class ReadWorker extends AbstractWorker {
 
-	private final KebaKeContact parent;
+	private static int MAX_TIME_TILL_REPLY = 15; // sec
+
+	private final KebaKeContactImpl parent;
 
 	private LocalDateTime lastReport1 = LocalDateTime.MIN;
 	private LocalDateTime lastReport2 = LocalDateTime.MIN;
@@ -16,9 +18,8 @@ public class ReadWorker extends AbstractWorker {
 	private boolean validateReport1 = false;
 	private boolean validateReport2 = false;
 	private boolean validateReport3 = false;
-	private static int MAX_TIME_TILL_REPLY = 15; // sec
 
-	public ReadWorker(KebaKeContact parent) {
+	public ReadWorker(KebaKeContactImpl parent) {
 		this.parent = parent;
 	}
 

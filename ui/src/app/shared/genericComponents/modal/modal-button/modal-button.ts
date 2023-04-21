@@ -8,7 +8,7 @@ import { AbstractModalLine } from "../abstract-modal-line";
 })
 export class ModalButtonsComponent extends AbstractModalLine {
 
-    @Input() buttons: ButtonLabel[];
+    @Input() protected buttons: ButtonLabel[];
 }
 
 export type ButtonLabel = {
