@@ -24,14 +24,11 @@ import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.evcs.api.AbstractManagedEvcsComponent;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.EvcsPower;
 import io.openems.edge.evcs.api.ManagedEvcs;
 import io.openems.edge.evcs.api.Status;
-import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Simulator.Evcs", //
@@ -42,7 +39,7 @@ import io.openems.edge.meter.api.MeterType;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
 public class SimulatedEvcs extends AbstractManagedEvcsComponent
-		implements ElectricityMeter, ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
+		implements ManagedEvcs, Evcs, OpenemsComponent, EventHandler {
 
 	@Reference
 	private EvcsPower evcsPower;
@@ -64,13 +61,10 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 
 	public SimulatedEvcs() {
 
-		// TODO: Remove AsymmetricMeterEvcs if the EVCS Nature already implements a new
-		// or parts of the ElectricityMeter Nature
-		// Therefore, some of the EVCS Nature Channels have to be changed or removed.
+		// TODO: Use ElectricityMeter; therefore, some of the EVCS Nature Channels have
+		// to be changed or removed.
 		super(//
 				OpenemsComponent.ChannelId.values(), //
-				AsymmetricMeterEvcs.ChannelId.values(), //
-				ElectricityMeter.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				ChannelId.values() //
@@ -123,11 +117,11 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 		/*
 		 * Set Simulated "meter" Active Power
 		 */
-		this._setActivePower(chargePowerLimit);
-		var simulatedActivePowerByThree = TypeUtils.divide(chargePowerLimit, 3);
-		this._setActivePowerL1(simulatedActivePowerByThree);
-		this._setActivePowerL2(simulatedActivePowerByThree);
-		this._setActivePowerL3(simulatedActivePowerByThree);
+//		this._setActivePower(chargePowerLimit);
+//		var simulatedActivePowerByThree = TypeUtils.divide(chargePowerLimit, 3);
+//		this._setActivePowerL1(simulatedActivePowerByThree);
+//		this._setActivePowerL2(simulatedActivePowerByThree);
+//		this._setActivePowerL3(simulatedActivePowerByThree);
 
 		/*
 		 * Set calculated energy
@@ -209,11 +203,11 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 		return this.channel(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 	}
 
-	@Override
-	public MeterType getMeterType() {
-		// TODO: This should be `MeterType.CONSUMPTION_METERED`, once Evcs actually
-		// implements Meter. For now this quick fix solves issues with calculating
-		// `_sum/GridActivePower`.
-		return MeterType.GRID;
-	}
+//	@Override
+//	public MeterType getMeterType() {
+//		// TODO: This should be `MeterType.CONSUMPTION_METERED`, once Evcs actually
+//		// implements Meter. For now this quick fix solves issues with calculating
+//		// `_sum/GridActivePower`.
+//		return MeterType.GRID;
+//	}
 }
