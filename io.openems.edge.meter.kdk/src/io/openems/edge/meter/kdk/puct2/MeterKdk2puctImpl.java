@@ -340,6 +340,6 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	public MeterType getMeterType() {
-		return this.config.meterType();
+		return this.config.type();
 	}
 }

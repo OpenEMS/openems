@@ -65,10 +65,8 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 	public SimulatedEvcs() {
 
 		// TODO: Remove AsymmetricMeterEvcs if the EVCS Nature already implements a new
-		// or parts of the Meter Nature
+		// or parts of the ElectricityMeter Nature
 		// Therefore, some of the EVCS Nature Channels have to be changed or removed.
-		// Omit SymmetricMeter and add AsymmetricMeterEvcs because of duplicated default
-		// set and get methods in EVCS and SymmetricMeter.
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				AsymmetricMeterEvcs.ChannelId.values(), //

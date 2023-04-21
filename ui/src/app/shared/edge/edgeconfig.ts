@@ -362,7 +362,8 @@ export class EdgeConfig {
             {
                 category: { title: 'Zähler', icon: 'speedometer-outline' },
                 factories: [
-                    this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter"),
+                    this.getFactoriesByNature("io.openems.edge.meter.api.SymmetricMeter"), // TODO replaced by ElectricityMeter
+                    this.getFactoriesByNature("io.openems.edge.meter.api.ElectricityMeter"),
                     this.getFactoriesByNature("io.openems.edge.ess.dccharger.api.EssDcCharger"),
                 ]
             },

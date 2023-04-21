@@ -117,7 +117,7 @@ public enum OcppInformations {
 	 */
 	CORE_METER_VALUES_POWER_OFFERED("Power.Offered", MeasuringEvcs.ChannelId.POWER_OFFERED),
 
-	// TODO: should be combined to REACTIVE_POWER in SymmetricMeter
+	// TODO: should be combined to REACTIVE_POWER in ElectricityMeter
 	/**
 	 * Instantaneous reactive power exported by EV. (var)
 	 */

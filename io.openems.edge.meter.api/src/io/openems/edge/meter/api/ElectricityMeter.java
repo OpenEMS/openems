@@ -26,11 +26,7 @@ import io.openems.edge.common.type.TypeUtils;
  * 
  * <p>
  * This is the parent of everything that measures electricity flow. Consider
- * using:
- * <ul>
- * <li>{@link SymmetricMeter}: if L1, L2 and L3 are always equal
- * <li>{@link SinglePhaseMeter}: if only either L1, L2 or L3 can be set
- * </ul>
+ * using {@link SinglePhaseMeter} if only either L1, L2 or L3 can be set
  */
 @ProviderType
 public interface ElectricityMeter extends OpenemsComponent {
@@ -1608,7 +1604,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 * {@link ChannelId#ACTIVE_POWER_L3}-Channels from
 	 * {@link ChannelId#ACTIVE_POWER} by dividing by three.
 	 *
-	 * @param meter the {@link AsymmetricMeter}
+	 * @param meter the {@link ElectricityMeter}
 	 */
 	public static void calculatePhasesFromActivePower(ElectricityMeter meter) {
 		meter.getActivePowerChannel().onSetNextValue(value -> {

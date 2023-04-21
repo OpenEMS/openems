@@ -187,7 +187,7 @@ public class PredictorManagerImpl extends AbstractOpenemsComponent
 			return Prediction24Hours.sum(predictions);
 		}
 		case PRODUCTION_AC_ACTIVE_POWER: {
-			// Sum up "ActivePower" prediction of all SymmetricMeters
+			// Sum up "ActivePower" prediction of all ElectricityMeter
 			List<ElectricityMeter> meters = this.componentManager.getEnabledComponentsOfType(ElectricityMeter.class)
 					.stream() //
 					.filter(meter -> {

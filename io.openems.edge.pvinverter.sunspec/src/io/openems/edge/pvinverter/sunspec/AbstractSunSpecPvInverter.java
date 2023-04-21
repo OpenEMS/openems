@@ -197,9 +197,6 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 				DefaultSunSpecModel.S111.A, DefaultSunSpecModel.S112.A, DefaultSunSpecModel.S113.A,
 				DefaultSunSpecModel.S101.A, DefaultSunSpecModel.S102.A, DefaultSunSpecModel.S103.A);
 
-		/*
-		 * SymmetricMeter
-		 */
 		if (!this.isSinglePhase) {
 			this.mapFirstPointToChannel(//
 					ElectricityMeter.ChannelId.VOLTAGE, //
@@ -215,9 +212,6 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 			return;
 		}
 
-		/*
-		 * AsymmetricMeter
-		 */
 		switch (this.phase) {
 		case ALL:
 			// use l1 when 'ALL' is configured and its not a tree phase inverter

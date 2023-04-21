@@ -25,7 +25,7 @@ public class AddChannelManager extends AbstractChannelListenerManager {
 	/**
 	 * Called on Component activate().
 	 *
-	 * @param meters the List of < ? extends {@link SymmetricMeter}>
+	 * @param meters the List of <{@link ElectricityMeter}>
 	 * 
 	 */
 	public void activate(List<ElectricityMeter> meters) {
@@ -65,7 +65,7 @@ public class AddChannelManager extends AbstractChannelListenerManager {
 	/**
 	 * Deactivates and activates the component.
 	 * 
-	 * @param meters the List of < ? extends {@link SymmetricMeter}>
+	 * @param meters the List of <{@link ElectricityMeter}>
 	 */
 	public void update(List<ElectricityMeter> meters) {
 		this.deactivate();
@@ -78,7 +78,7 @@ public class AddChannelManager extends AbstractChannelListenerManager {
 	 * @param <T>        the Channel Type
 	 * @param aggregator the aggregator function
 	 * @param meters     the List of {@link ElectricityMeter}
-	 * @param channelId  the SymmetricMeter.ChannelId
+	 * @param channelId  the ElectricityMeter.ChannelId
 	 */
 	private <T> void calculate(BiFunction<T, T, T> aggregator, //
 			List<ElectricityMeter> meters, ElectricityMeter.ChannelId channelId) {

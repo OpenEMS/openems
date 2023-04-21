@@ -152,7 +152,7 @@ public interface Sum extends OpenemsComponent {
 		 * Grid: Active Power.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter))
+		 * <li>Interface: Sum (origin: ElectricityMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
@@ -169,7 +169,7 @@ public interface Sum extends OpenemsComponent {
 		 * Grid: Active Power L1.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
@@ -186,7 +186,7 @@ public interface Sum extends OpenemsComponent {
 		 * Grid: Active Power L2.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
@@ -203,7 +203,7 @@ public interface Sum extends OpenemsComponent {
 		 * Grid: Active Power L3.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
@@ -220,7 +220,7 @@ public interface Sum extends OpenemsComponent {
 		 * Grid: Minimum Ever Active Power.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter))
+		 * <li>Interface: Sum (origin: ElectricityMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values or '0'
@@ -233,7 +233,7 @@ public interface Sum extends OpenemsComponent {
 		 * Grid: Maximum Ever Active Power.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
@@ -246,7 +246,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: Active Power.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter and ESS DC Charger)
+		 * <li>Interface: Sum (origin: ElectricityMeter and ESS DC Charger)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -260,7 +260,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: AC Active Power.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -274,7 +274,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: AC Active Power L1.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -288,7 +288,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: AC Active Power L2.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -302,7 +302,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: AC Active Power L3.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter / AsymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
@@ -330,7 +330,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: Maximum Ever Active Power.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter))
+		 * <li>Interface: Sum (origin: ElectricityMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
@@ -343,7 +343,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: Maximum Ever AC Active Power.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter))
+		 * <li>Interface: Sum (origin: ElectricityMeter))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: positive values or '0'
@@ -514,7 +514,7 @@ public interface Sum extends OpenemsComponent {
 		 * Grid: Buy-from-grid Energy ("Production").
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
 		 * </ul>
@@ -526,7 +526,7 @@ public interface Sum extends OpenemsComponent {
 		 * Grid: Sell-to-grid Energy ("Consumption").
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
@@ -549,7 +549,7 @@ public interface Sum extends OpenemsComponent {
 		 * Production: AC Energy.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>
@@ -573,7 +573,7 @@ public interface Sum extends OpenemsComponent {
 		 * Consumption: Energy.
 		 *
 		 * <ul>
-		 * <li>Interface: Sum (origin: SymmetricMeter)
+		 * <li>Interface: Sum (origin: ElectricityMeter)
 		 * <li>Type: Long
 		 * <li>Unit: Wh
 		 * </ul>

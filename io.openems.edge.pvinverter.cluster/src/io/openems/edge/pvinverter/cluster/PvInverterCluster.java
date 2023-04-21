@@ -159,7 +159,7 @@ public class PvInverterCluster extends AbstractOpenemsComponent
 			activePowerLimit.addValue(pvInverter.getActivePowerLimitChannel());
 		}
 
-		// SymmetricMeter
+		// ElectricityMeter
 		this.getFrequencyChannel().setNextValue(frequency.calculate());
 		this._setMinActivePower(minActivePower.calculate());
 		this._setMaxActivePower(maxActivePower.calculate());

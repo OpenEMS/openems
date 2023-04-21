@@ -16,7 +16,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
  * Calculates the value for energy channels in [Wh] from Power values in [W].
  *
  * <p>
- * This is commonly used to calculate SymmetricEss or SymmetricMeter
+ * This is commonly used to calculate SymmetricEss or ElectricityMeter
  * ActiveChargePower and ActiveDischargePower from ActivePower channels. To use
  * it, you have to:
  *
