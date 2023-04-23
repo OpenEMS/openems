@@ -1,14 +1,14 @@
-= Fronius GEN24
+= Fronius Symo GEN24
 
-Implementation of the Fronius GEN 24.
+Implementation of the Fronius Symo GEN 24.
 
 == Compatibility 
 
-* Fronius GEN 24
+* Fronius Symo GEN 24
 
 == Application Notes
 
-The Fronius GEN24 Modbus implementation seems to be buggy, it has sporadic artefacts and is not able to drive the battery seemlessly.
+The Fronius Symo GEN24 Modbus implementation seems to be buggy, it has sporadic artefacts and is not able to drive the battery seemlessly.
  
 See comment in FroniusGen24EssImpl:applyPower():Line 236 for a detailed description.
 
@@ -18,8 +18,8 @@ Production State: *-experimental-*
 
 Open Issues:
 
-* Fronius GEN24 can NOT be used with existing OpenEMS controllers. It can charge and discharge an attached battery. 
-But due to a BUG in the Fronius GEN24 hardware implementation it can not switch from charging to discharging without goint to 0 for a few seconds.
+* Fronius Symo GEN24 can NOT be used with existing OpenEMS controllers. It can charge and discharge an attached battery. 
+But due to a BUG in the Fronius Symo GEN24 hardware implementation it can not switch from charging to discharging without goint to 0 for a few seconds.
  
 * backported and untested Version
 
