@@ -35,7 +35,11 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint.PointType;
  * OpenEMS SunSpec implementation.
  *
  * <p>
- * Download XML files from https://github.com/sunspec/models.
+ * <ul>
+ * <li>Clone XML files from https://github.com/sunspec/models (must fit with SUNSPEC_XML_PATHs</li>
+ * <li>Run this Code Generator</li>
+ * <li>Replace DefaultSunspecModel.java with the newly generated version in OUT_FILE_PATH</li>
+ * </ul>
  */
 public class SunSpecCodeGenerator {
 
@@ -594,6 +598,9 @@ public class SunSpecCodeGenerator {
 	 */
 	private void writeSunSpecModelJavaFile(List<Model> models) throws IOException {
 		try (var w = Files.newBufferedWriter(Paths.get(OUT_FILE_PATH))) {
+			w.write("// CHECKSTYLE:OFF");
+			w.newLine();
+			w.newLine();
 			w.write("package io.openems.edge.bridge.modbus.sunspec;");
 			w.newLine();
 			w.newLine();
@@ -610,7 +617,7 @@ public class SunSpecCodeGenerator {
 			w.newLine();
 			w.write(" */");
 			w.newLine();
-			w.write("public enum SunSpecModel {");
+			w.write("public enum DefaultSunSpecModel implements SunSpecModel {");
 			w.newLine();
 
 			/*
@@ -628,7 +635,7 @@ public class SunSpecCodeGenerator {
 				w.newLine();
 				w.write("			" + model.len + ", //");
 				w.newLine();
-				w.write("			SunSpecModel.S" + model.id + ".values(), //");
+				w.write("			DefaultSunSpecModel.S" + model.id + ".values(), //");
 				w.newLine();
 				w.write("			SunSpecModelType." + model.modelType + " //");
 				w.newLine();
@@ -758,7 +765,7 @@ public class SunSpecCodeGenerator {
 					w.newLine();
 					w.write("		public int getValue() {");
 					w.newLine();
-					w.write("			return value;");
+					w.write("			return this.value;");
 					w.newLine();
 					w.write("		}");
 					w.newLine();
@@ -767,7 +774,7 @@ public class SunSpecCodeGenerator {
 					w.newLine();
 					w.write("		public String getName() {");
 					w.newLine();
-					w.write("			return name;");
+					w.write("			return this.name;");
 					w.newLine();
 					w.write("		}");
 					w.newLine();
@@ -799,7 +806,7 @@ public class SunSpecCodeGenerator {
 			w.write("	public final SunSpecModelType modelType;");
 			w.newLine();
 			w.newLine();
-			w.write("	private SunSpecModel(String label, String description, String notes, int length, SunSpecPoint[] points,");
+			w.write("	private DefaultSunSpecModel(String label, String description, String notes, int length, SunSpecPoint[] points,");
 			w.newLine();
 			w.write("			SunSpecModelType modelType) {");
 			w.newLine();
@@ -817,7 +824,27 @@ public class SunSpecCodeGenerator {
 			w.newLine();
 			w.write("	}");
 			w.newLine();
+			w.newLine();
+			w.write("	@Override");
+			w.newLine();
+			w.write("	public SunSpecPoint[] points() {");
+			w.newLine();
+			w.write("		return this.points;");
+			w.newLine();
+			w.write("	}");
+			w.newLine();
+			w.newLine();
+			w.write("	@Override");
+			w.newLine();
+			w.write("	public String label() {");
+			w.newLine();
+			w.write("		return this.label;");
+			w.newLine();
+			w.write("	}");
+			w.newLine();
 			w.write("}");
+			w.newLine();
+			w.write("// CHECKSTYLE:ON");
 			w.newLine();
 		}
 	}
