@@ -344,7 +344,7 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 				break;
 			case READ_WRITE:
 			case WRITE_ONLY:
-				if(this.readOnly) {
+				if (this.readOnly) {
 					break;
 				}
 				// Add a Write-Task
