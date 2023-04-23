@@ -6,10 +6,10 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
+	io.openems.edge.batteryinverter.sunspec,\
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
-	io.openems.edge.batteryinverter.sunspec
 
 -testpath: \
 	${testpath},\
