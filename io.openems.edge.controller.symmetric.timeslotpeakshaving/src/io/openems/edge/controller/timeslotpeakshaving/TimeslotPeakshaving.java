@@ -23,6 +23,7 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -83,19 +84,19 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {		
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
 	}
 
 	@Modified
-	void modified(ComponentContext context, Config config) throws OpenemsNamedException {			
+	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
 
 	}
 
-	private void applyConfig(Config config) throws OpenemsNamedException {		
+	private void applyConfig(Config config) throws OpenemsNamedException {
 		this.startDate = convertDate(config.startDate());
 		this.endDate = convertDate(config.endDate());
 		this.startTime = convertTime(config.startTime());
@@ -217,8 +218,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * This method calculates the power that is required to cut the peak during
-	 * time slot.
+	 * This method calculates the power that is required to cut the peak during time
+	 * slot.
 	 *
 	 * @param ess   the {@link ManagedSymmetricEss}
 	 * @param meter the {@link SymmetricMeter} of the grid
@@ -377,7 +378,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 */
 	protected static LocalDate convertDate(String date) throws OpenemsException {
 		var dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
-		return LocalDate.parse(date, dateTimeFormatter);
+		return DateUtils.parseLocalDateOrError(date, dateTimeFormatter);
 	}
 
 	/**
@@ -388,7 +389,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 */
 	protected static LocalTime convertTime(String time) throws OpenemsException {
 		var dateTimeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
-		return LocalTime.parse(time, dateTimeFormatter);
+		return DateUtils.parseLocalTimeOrError(time, dateTimeFormatter);
 	}
 
 	/**
@@ -398,8 +399,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 *
 	 * @param slowStartTime start of slow charging the battery
 	 * @param startTime     start of the high threshold period
-	 * @return forceChargeMinutes in integer, which specifies the total time the battery
-	 *         should be slowly charged
+	 * @return forceChargeMinutes in integer, which specifies the total time the
+	 *         battery should be slowly charged
 	 */
 	private static int calculateSlowForceChargeMinutes(LocalTime slowStartTime, LocalTime startTime) {
 		var forceChargeTime = (int) ChronoUnit.MINUTES.between(slowStartTime, startTime);

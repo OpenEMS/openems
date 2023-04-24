@@ -35,7 +35,7 @@ public class DateUtils {
 	 * See {@link ZonedDateTime#parse(CharSequence)}
 	 * 
 	 * @param date the string value
-	 * @return an {@link ZonedDateTime} or null
+	 * @return a {@link ZonedDateTime} or null
 	 */
 	public static ZonedDateTime parseZonedDateTimeOrNull(String date) {
 		return parseZonedDateTimeOrNull(date, DateTimeFormatter.ISO_ZONED_DATE_TIME);
@@ -49,10 +49,40 @@ public class DateUtils {
 	 * 
 	 * @param date      the string value
 	 * @param formatter the formatter to use, not null
-	 * @return an {@link ZonedDateTime} or null
+	 * @return a {@link ZonedDateTime} or null
 	 */
 	public static ZonedDateTime parseZonedDateTimeOrNull(String date, DateTimeFormatter formatter) {
 		return parseDateOrNull(ZonedDateTime::parse, date, formatter);
+	}
+
+	/**
+	 * Parses a string to an {@link ZonedDateTime} or throws an error.
+	 * 
+	 * <p>
+	 * See {@link ZonedDateTime#parse(CharSequence)}
+	 * 
+	 * @param date the string value
+	 * @return a {@link ZonedDateTime}
+	 * @throws OpenemsException on error
+	 */
+	public static ZonedDateTime parseZonedDateTimeOrError(String date) throws OpenemsException {
+		return parseZonedDateTimeOrError(date, DateTimeFormatter.ISO_ZONED_DATE_TIME);
+	}
+
+	/**
+	 * Parses a string to an {@link ZonedDateTime} or throws an error.
+	 * 
+	 * <p>
+	 * See {@link ZonedDateTime#parse(CharSequence, DateTimeFormatter)}
+	 * 
+	 * @param date      the string value
+	 * @param formatter the formatter to use, not null
+	 * @return a {@link ZonedDateTime}
+	 * @throws OpenemsException on error
+	 */
+	public static ZonedDateTime parseZonedDateTimeOrError(String date, DateTimeFormatter formatter)
+			throws OpenemsException {
+		return parseDateOrError(ZonedDateTime::parse, date, formatter);
 	}
 
 	/**
@@ -62,7 +92,7 @@ public class DateUtils {
 	 * See {@link LocalDate#parse(CharSequence)}
 	 * 
 	 * @param date the string value
-	 * @return an {@link LocalDate} or null
+	 * @return a {@link LocalDate} or null
 	 */
 	public static LocalDate parseLocalDateOrNull(String date) {
 		return parseLocalDateOrNull(date, DateTimeFormatter.ISO_LOCAL_DATE);
@@ -76,10 +106,39 @@ public class DateUtils {
 	 * 
 	 * @param date      the string value
 	 * @param formatter the formatter to use, not null
-	 * @return an {@link LocalDate} or null
+	 * @return a {@link LocalDate} or null
 	 */
 	public static LocalDate parseLocalDateOrNull(String date, DateTimeFormatter formatter) {
 		return parseDateOrNull(LocalDate::parse, date, formatter);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalDate} or throws an error.
+	 * 
+	 * <p>
+	 * See {@link LocalDate#parse(CharSequence)}
+	 * 
+	 * @param date the string value
+	 * @return a {@link LocalDate}
+	 * @throws OpenemsException on error
+	 */
+	public static LocalDate parseLocalDateOrError(String date) throws OpenemsException {
+		return parseLocalDateOrError(date, DateTimeFormatter.ISO_LOCAL_DATE);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalDate} or throws an error.
+	 * 
+	 * <p>
+	 * See {@link LocalDate#parse(CharSequence, DateTimeFormatter)}
+	 * 
+	 * @param date      the string value
+	 * @param formatter the formatter to use, not null
+	 * @return a {@link LocalDate}
+	 * @throws OpenemsException on error
+	 */
+	public static LocalDate parseLocalDateOrError(String date, DateTimeFormatter formatter) throws OpenemsException {
+		return parseDateOrError(LocalDate::parse, date, formatter);
 	}
 
 	/**
@@ -89,7 +148,7 @@ public class DateUtils {
 	 * See {@link LocalTime#parse(CharSequence)}
 	 * 
 	 * @param time the string value
-	 * @return an {@link LocalTime} or null
+	 * @return a {@link LocalTime} or null
 	 */
 	public static LocalTime parseLocalTimeOrNull(String time) {
 		return parseLocalTimeOrNull(time, DateTimeFormatter.ISO_LOCAL_TIME);
@@ -103,10 +162,39 @@ public class DateUtils {
 	 * 
 	 * @param time      the string value
 	 * @param formatter the formatter to use, not null
-	 * @return an {@link LocalTime} or null
+	 * @return a {@link LocalTime} or null
 	 */
 	public static LocalTime parseLocalTimeOrNull(String time, DateTimeFormatter formatter) {
 		return parseDateOrNull(LocalTime::parse, time, formatter);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalTime} or throws an error.
+	 * 
+	 * <p>
+	 * See {@link LocalTime#parse(CharSequence)}
+	 * 
+	 * @param time the string value
+	 * @return a {@link LocalTime}
+	 * @throws OpenemsException on error
+	 */
+	public static LocalTime parseLocalTimeOrError(String date) throws OpenemsException {
+		return parseLocalTimeOrError(date, DateTimeFormatter.ISO_LOCAL_TIME);
+	}
+
+	/**
+	 * Parses a string to an {@link LocalTime} or throws an error.
+	 * 
+	 * <p>
+	 * See {@link LocalTime#parse(CharSequence, DateTimeFormatter)}
+	 * 
+	 * @param time      the string value
+	 * @param formatter the formatter to use, not null
+	 * @return a {@link LocalTime}
+	 * @throws OpenemsException on error
+	 */
+	public static LocalTime parseLocalTimeOrError(String date, DateTimeFormatter formatter) throws OpenemsException {
+		return parseDateOrError(LocalTime::parse, date, formatter);
 	}
 
 	private static final <T> T parseDateOrNull(//
@@ -126,6 +214,28 @@ public class DateUtils {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	private static final <T> T parseDateOrError(//
+			BiFunction<String, DateTimeFormatter, T> parser, //
+			String value, //
+			DateTimeFormatter formatter //
+	) throws OpenemsException {
+		if (value == null) {
+			throw new OpenemsException("Date is null");
+		}
+		if (value.isBlank()) {
+			throw new OpenemsException("Date is blank");
+		}
+		try {
+			return parser.apply(value, formatter);
+		} catch (DateTimeParseException e) {
+			// unable to parse date
+			throw new OpenemsException("Unable to parse Date [" + value + "] " + e.getMessage());
+		} catch (RuntimeException e) {
+			// unexpected error
+			throw new OpenemsException("Unexpected error while trying to parse Date [" + value + "] " + e.getMessage());
+		}
 	}
 
 }

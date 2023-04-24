@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -225,7 +226,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 				: Status.ACTIVE;
 
 		var now = LocalTime.now(this.componentManager.getClock());
-		var configuredEndTime = LocalTime.parse(this.config.endTime());
+		var configuredEndTime = DateUtils.parseLocalTimeOrError(this.config.endTime());
 		var latestForceChargeStartTime = this.calculateLatestForceHeatingStartTime();
 
 		/*
