@@ -14,7 +14,7 @@ import io.openems.common.exceptions.OpenemsException;
 public class DateUtilsTest {
 
 	@Test
-	public void testParseDateWithDMYFormat() throws Exception {
+	public void testParseDateWithDmyFormat() throws Exception {
 		var dateString = "11.11.2018";
 		var expectedDate = LocalDate.of(2018, 11, 11);
 		assertEquals(expectedDate, DateUtils.parseLocalDateOrError(dateString, DateUtils.DMY_FORMATTER));
@@ -25,12 +25,12 @@ public class DateUtilsTest {
 	}
 
 	@Test(expected = OpenemsException.class)
-	public void testParseDateWithDMYFormatMissingLeadingZeros() throws Exception {
+	public void testParseDateWithDmyFormatMissingLeadingZeros() throws Exception {
 		DateUtils.parseLocalDateOrError("1.1.2018", DateUtils.DMY_FORMATTER);
 	}
 
 	@Test(expected = OpenemsException.class)
-	public void testParseDateWithDMYFormatInvalidDate() throws Exception {
+	public void testParseDateWithDmyFormatInvalidDate() throws Exception {
 		DateUtils.parseLocalDateOrError("32.12.2018", DateUtils.DMY_FORMATTER);
 	}
 
