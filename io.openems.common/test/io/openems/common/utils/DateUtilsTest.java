@@ -1,13 +1,38 @@
 package io.openems.common.utils;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 
 public class DateUtilsTest {
+
+	@Test
+	public void testParseDateWithDMYFormat() throws Exception {
+		var dateString = "11.11.2018";
+		var expectedDate = LocalDate.of(2018, 11, 11);
+		assertEquals(expectedDate, DateUtils.parseLocalDateOrError(dateString, DateUtils.DMY_FORMATTER));
+
+		dateString = "31.02.2018";
+		expectedDate = LocalDate.of(2018, 2, 28);
+		assertEquals(expectedDate, DateUtils.parseLocalDateOrError(dateString, DateUtils.DMY_FORMATTER));
+	}
+
+	@Test(expected = OpenemsException.class)
+	public void testParseDateWithDMYFormatMissingLeadingZeros() throws Exception {
+		DateUtils.parseLocalDateOrError("1.1.2018", DateUtils.DMY_FORMATTER);
+	}
+
+	@Test(expected = OpenemsException.class)
+	public void testParseDateWithDMYFormatInvalidDate() throws Exception {
+		DateUtils.parseLocalDateOrError("32.12.2018", DateUtils.DMY_FORMATTER);
+	}
 
 	@Test
 	public void testParseZonedDateTimeOrNull() {
@@ -108,7 +133,42 @@ public class DateUtilsTest {
 
 	@Test
 	public void testParseLocalTimeOrErrorSuccess() throws Exception {
-		DateUtils.parseLocalTimeOrError("10:15");
+		var timeString = "10:15";
+		var expectedTime = LocalTime.of(10, 15);
+		assertEquals(expectedTime, DateUtils.parseLocalTimeOrError(timeString));
+
+		timeString = "23:13";
+		expectedTime = LocalTime.of(23, 13);
+		assertEquals(expectedTime, DateUtils.parseLocalTimeOrError(timeString));
+
+		timeString = "00:13";
+		expectedTime = LocalTime.of(0, 13);
+		assertEquals(expectedTime, DateUtils.parseLocalTimeOrError(timeString));
+	}
+
+	@Test(expected = OpenemsException.class)
+	public void testParseLocalTimeOrErrorSuccess24Hour() throws Exception {
+		DateUtils.parseLocalTimeOrError("24:00");
+	}
+
+	@Test
+	public void testParseLocalTimeOrErrorSuccess24HourWithTimeFormatter() throws Exception {
+		assertEquals(LocalTime.of(0, 0), DateUtils.parseLocalTimeOrError("24:00", DateUtils.TIME_FORMATTER));
+	}
+
+	@Test(expected = OpenemsException.class)
+	public void testParseLocalTimeOrErrorSuccessInvalidTime() throws Exception {
+		DateUtils.parseLocalTimeOrError("25:21");
+	}
+
+	@Test(expected = OpenemsException.class)
+	public void testParseLocalTimeOrErrorSuccessInvalidTime2() throws Exception {
+		DateUtils.parseLocalTimeOrError("24:13");
+	}
+
+	@Test(expected = OpenemsException.class)
+	public void testParseLocalTimeOrErrorSuccessMissingLeadingZero() throws Exception {
+		DateUtils.parseLocalTimeOrError("0:13");
 	}
 
 }

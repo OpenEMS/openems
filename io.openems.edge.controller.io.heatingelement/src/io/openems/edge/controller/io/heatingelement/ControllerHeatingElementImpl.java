@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -299,7 +300,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 	 *
 	 * @return the time or null, if the minimum has already been reached
 	 */
-	private LocalTime calculateLatestForceHeatingStartTime() {
+	private LocalTime calculateLatestForceHeatingStartTime() throws OpenemsException {
 		var totalPhaseTime = this.phase1.getTotalDuration().getSeconds() //
 				+ this.phase2.getTotalDuration().getSeconds() //
 				+ this.phase3.getTotalDuration().getSeconds(); // [s]
@@ -309,7 +310,7 @@ public class ControllerHeatingElementImpl extends AbstractOpenemsComponent
 		if (remainingTotalPhaseTime <= 0) {
 			return null;
 		}
-		var endTime = LocalTime.parse(this.config.endTime());
+		var endTime = DateUtils.parseLocalTimeOrError(this.config.endTime());
 		switch (this.config.defaultLevel()) {
 		case LEVEL_0:
 		case UNDEFINED:

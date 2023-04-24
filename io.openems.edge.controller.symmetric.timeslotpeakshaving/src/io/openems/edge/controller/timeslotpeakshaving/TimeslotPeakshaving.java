@@ -38,8 +38,7 @@ import io.openems.edge.meter.api.SymmetricMeter;
 @Component(name = "Controller.TimeslotPeakshaving", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
-	public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("H:mm");;
-	public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("H:mm");
 
 	private final Logger log = LoggerFactory.getLogger(TimeslotPeakshaving.class);
 
@@ -377,7 +376,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @return the converted date
 	 */
 	protected static LocalDate convertDate(String date) throws OpenemsException {
-		return DateUtils.parseLocalDateOrError(date, DATE_FORMATTER);
+		return DateUtils.parseLocalDateOrError(date, DateUtils.DMY_FORMATTER);
 	}
 
 	/**

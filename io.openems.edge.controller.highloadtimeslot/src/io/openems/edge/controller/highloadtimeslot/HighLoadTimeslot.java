@@ -4,7 +4,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -18,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -35,9 +35,6 @@ import io.openems.edge.ess.power.api.Relationship;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class HighLoadTimeslot extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
-
-	public static final String TIME_FORMAT = "HH:mm";
-	public static final String DATE_FORMAT = "dd.MM.yyyy";
 
 	/**
 	 * This many minutes before the high-load timeslot force charging is activated.
@@ -85,10 +82,10 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.essId = config.ess();
-		this.startDate = convertDate(config.startDate());
-		this.endDate = convertDate(config.endDate());
-		this.startTime = convertTime(config.startTime());
-		this.endTime = convertTime(config.endTime());
+		this.startDate = DateUtils.parseLocalDateOrError(config.startDate(), DateUtils.DMY_FORMATTER);
+		this.endDate = DateUtils.parseLocalDateOrError(config.endDate(), DateUtils.DMY_FORMATTER);
+		this.startTime = DateUtils.parseLocalTimeOrError(config.startTime(), DateUtils.TIME_FORMATTER);
+		this.endTime = DateUtils.parseLocalTimeOrError(config.endTime(), DateUtils.TIME_FORMATTER);
 		this.chargePower = config.chargePower();
 		this.dischargePower = config.dischargePower();
 		this.hysteresisSoc = config.hysteresisSoc();
@@ -232,28 +229,6 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	protected static boolean isActiveTime(LocalTime startTime, LocalTime endTime, LocalDateTime dateTime) {
 		var time = dateTime.toLocalTime();
 		return !(time.isBefore(startTime) || time.isAfter(endTime));
-	}
-
-	/**
-	 * Converts a string to a LocalDate.
-	 *
-	 * @param date the string
-	 * @return a {@link LocalDate} object
-	 */
-	protected static LocalDate convertDate(String date) {
-		var dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
-		return LocalDate.parse(date, dateTimeFormatter);
-	}
-
-	/**
-	 * Converts a string to a LocalTime.
-	 *
-	 * @param time the string
-	 * @return a {@link LocalTime} object
-	 */
-	protected static LocalTime convertTime(String time) {
-		var dateTimeFormatter = DateTimeFormatter.ofPattern(TIME_FORMAT);
-		return LocalTime.parse(time, dateTimeFormatter);
 	}
 
 	/**
