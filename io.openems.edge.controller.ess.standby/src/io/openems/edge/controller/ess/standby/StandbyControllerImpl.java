@@ -60,7 +60,7 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 	private LocalDate configuredEndDate;
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;

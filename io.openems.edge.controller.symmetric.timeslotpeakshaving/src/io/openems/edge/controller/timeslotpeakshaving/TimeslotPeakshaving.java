@@ -83,19 +83,19 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {		
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
 	}
 
 	@Modified
-	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	void modified(ComponentContext context, Config config) throws OpenemsNamedException {			
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
 
 	}
 
-	private void applyConfig(Config config) throws OpenemsNamedException {
+	private void applyConfig(Config config) throws OpenemsNamedException {		
 		this.startDate = convertDate(config.startDate());
 		this.endDate = convertDate(config.endDate());
 		this.startTime = convertTime(config.startTime());
@@ -217,8 +217,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * This method calculates the power that is required to cut the peak during time
-	 * slot.
+	 * This method calculates the power that is required to cut the peak during
+	 * time slot.
 	 *
 	 * @param ess   the {@link ManagedSymmetricEss}
 	 * @param meter the {@link SymmetricMeter} of the grid
@@ -396,8 +396,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 *
 	 * @param slowStartTime start of slow charging the battery
 	 * @param startTime     start of the high threshold period
-	 * @return forceChargeMinutes in integer, which specifies the total time the
-	 *         battery should be slowly charged
+	 * @return forceChargeMinutes in integer, which specifies the total time the battery
+	 *         should be slowly charged
 	 */
 	private static int calculateSlowForceChargeMinutes(LocalTime slowStartTime, LocalTime startTime) {
 		var forceChargeTime = (int) ChronoUnit.MINUTES.between(slowStartTime, startTime);

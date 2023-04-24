@@ -82,8 +82,7 @@ public class DelayCharge {
 	 * @throws OpenemsNamedException on error
 	 */
 	protected Integer getManualDelayChargeMaxCharge() throws OpenemsNamedException {
-		LocalTime targetTime = null;
-		targetTime = parseTime(this.parent.config.manualTargetTime());
+		LocalTime targetTime = parseTime(this.parent.config.manualTargetTime());
 		if (targetTime == null) {
 			targetTime = DEFAULT_TARGET_TIME;
 			StateChannel noValidManualTargetTime = this.parent
