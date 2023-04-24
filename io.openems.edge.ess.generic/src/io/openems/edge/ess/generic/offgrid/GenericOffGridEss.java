@@ -2,14 +2,10 @@ package io.openems.edge.ess.generic.offgrid;
 
 import org.osgi.service.event.EventHandler;
 
-import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
-import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -38,17 +34,4 @@ public interface GenericOffGridEss extends GenericManagedEss, ManagedSymmetricEs
 			return this.doc;
 		}
 	}
-
-	@Override
-	public default ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
-		return new ModbusSlaveTable(//
-				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
-				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				ManagedSymmetricEss.getModbusSlaveNatureTable(accessMode), //
-				StartStoppable.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(GenericOffGridEss.class, accessMode, 100) //
-						.channel(0, GenericOffGridEss.ChannelId.STATE_MACHINE, ModbusType.UINT16) //
-						.build());
-	}
-
 }
