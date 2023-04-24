@@ -82,7 +82,7 @@ public class DateUtils {
 	 */
 	public static ZonedDateTime parseZonedDateTimeOrError(String date, DateTimeFormatter formatter)
 			throws OpenemsException {
-		return parseDateOrError(ZonedDateTime::parse, date, formatter);
+		return parseDateOrError(ZonedDateTime.class.getSimpleName(), ZonedDateTime::parse, date, formatter);
 	}
 
 	/**
@@ -138,7 +138,7 @@ public class DateUtils {
 	 * @throws OpenemsException on error
 	 */
 	public static LocalDate parseLocalDateOrError(String date, DateTimeFormatter formatter) throws OpenemsException {
-		return parseDateOrError(LocalDate::parse, date, formatter);
+		return parseDateOrError(LocalDate.class.getSimpleName(), LocalDate::parse, date, formatter);
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class DateUtils {
 	 * @throws OpenemsException on error
 	 */
 	public static LocalTime parseLocalTimeOrError(String time, DateTimeFormatter formatter) throws OpenemsException {
-		return parseDateOrError(LocalTime::parse, time, formatter);
+		return parseDateOrError(LocalTime.class.getSimpleName(), LocalTime::parse, time, formatter);
 	}
 
 	private static final <T> T parseDateOrNull(//
@@ -208,7 +208,7 @@ public class DateUtils {
 		try {
 			return parser.apply(value, formatter);
 		} catch (DateTimeParseException e) {
-			// unabel to parse date
+			// unable to parse date
 		} catch (RuntimeException e) {
 			// unexpected error
 			e.printStackTrace();
@@ -217,24 +217,26 @@ public class DateUtils {
 	}
 
 	private static final <T> T parseDateOrError(//
+			String variableName, //
 			BiFunction<String, DateTimeFormatter, T> parser, //
 			String value, //
 			DateTimeFormatter formatter //
 	) throws OpenemsException {
 		if (value == null) {
-			throw new OpenemsException("Date is null");
+			throw new OpenemsException(variableName + " is null");
 		}
 		if (value.isBlank()) {
-			throw new OpenemsException("Date is blank");
+			throw new OpenemsException(variableName + " is blank");
 		}
 		try {
 			return parser.apply(value, formatter);
 		} catch (DateTimeParseException e) {
 			// unable to parse date
-			throw new OpenemsException("Unable to parse Date [" + value + "] " + e.getMessage());
+			throw new OpenemsException("Unable to parse " + variableName + " [" + value + "] " + e.getMessage());
 		} catch (RuntimeException e) {
 			// unexpected error
-			throw new OpenemsException("Unexpected error while trying to parse Date [" + value + "] " + e.getMessage());
+			throw new OpenemsException(
+					"Unexpected error while trying to parse " + variableName + " [" + value + "] " + e.getMessage());
 		}
 	}
 
