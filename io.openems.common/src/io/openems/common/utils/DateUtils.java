@@ -2,6 +2,7 @@ package io.openems.common.utils;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 
 import io.openems.common.exceptions.OpenemsException;
 
@@ -22,4 +23,26 @@ public class DateUtils {
 			throw new OpenemsException("FromDate and ToDate need to be in the same timezone!");
 		}
 	}
+
+	/**
+	 * Parses a string to an {@link ZonedDateTime} or returns null.
+	 * 
+	 * <p>
+	 * See {@link ZonedDateTime#parse(String)}
+	 * 
+	 * @param value the string value
+	 * @return an {@link ZonedDateTime} or null
+	 */
+	public static ZonedDateTime parseZonedDateTimeOrNull(String date) {
+		if (date == null || date.isBlank()) {
+			return null;
+		}
+		try {
+			return ZonedDateTime.parse(date);
+		} catch (DateTimeParseException e) {
+			// handled below
+		}
+		return null;
+	}
+
 }
