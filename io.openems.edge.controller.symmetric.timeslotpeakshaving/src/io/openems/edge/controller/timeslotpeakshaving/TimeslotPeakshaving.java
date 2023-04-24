@@ -95,9 +95,9 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 
 	}
 
-	private void applyConfig(Config config) throws OpenemsNamedException {		
-		this.startDate = convertDate(config.startDate());
-		this.endDate = convertDate(config.endDate());
+	private void applyConfig(Config config) throws OpenemsNamedException {
+		this.startDate = DateUtils.parseLocalDateOrError(config.startDate(), DateUtils.DMY_FORMATTER);
+		this.endDate = DateUtils.parseLocalDateOrError(config.endDate(), DateUtils.DMY_FORMATTER);
 		this.startTime = convertTime(config.startTime());
 		this.endTime = convertTime(config.endTime());
 		this.slowStartTime = convertTime(config.slowChargeStartTime());
@@ -367,16 +367,6 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	protected static boolean isActiveTime(LocalTime startTime, LocalTime endTime, LocalDateTime dateTime) {
 		var time = dateTime.toLocalTime();
 		return !(time.isBefore(startTime) || time.isAfter(endTime));
-	}
-
-	/**
-	 * Converts a string to a LocalDate.
-	 *
-	 * @param date the date as a String
-	 * @return the converted date
-	 */
-	protected static LocalDate convertDate(String date) throws OpenemsException {
-		return DateUtils.parseLocalDateOrError(date, DateUtils.DMY_FORMATTER);
 	}
 
 	/**
