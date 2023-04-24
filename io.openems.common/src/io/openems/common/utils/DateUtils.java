@@ -30,7 +30,7 @@ public class DateUtils {
 	 * <p>
 	 * See {@link ZonedDateTime#parse(String)}
 	 * 
-	 * @param value the string value
+	 * @param date the string value
 	 * @return an {@link ZonedDateTime} or null
 	 */
 	public static ZonedDateTime parseZonedDateTimeOrNull(String date) {
