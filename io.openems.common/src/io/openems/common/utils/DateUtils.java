@@ -178,8 +178,8 @@ public class DateUtils {
 	 * @return a {@link LocalTime}
 	 * @throws OpenemsException on error
 	 */
-	public static LocalTime parseLocalTimeOrError(String date) throws OpenemsException {
-		return parseLocalTimeOrError(date, DateTimeFormatter.ISO_LOCAL_TIME);
+	public static LocalTime parseLocalTimeOrError(String time) throws OpenemsException {
+		return parseLocalTimeOrError(time, DateTimeFormatter.ISO_LOCAL_TIME);
 	}
 
 	/**
@@ -193,8 +193,8 @@ public class DateUtils {
 	 * @return a {@link LocalTime}
 	 * @throws OpenemsException on error
 	 */
-	public static LocalTime parseLocalTimeOrError(String date, DateTimeFormatter formatter) throws OpenemsException {
-		return parseDateOrError(LocalTime::parse, date, formatter);
+	public static LocalTime parseLocalTimeOrError(String time, DateTimeFormatter formatter) throws OpenemsException {
+		return parseDateOrError(LocalTime::parse, time, formatter);
 	}
 
 	private static final <T> T parseDateOrNull(//
