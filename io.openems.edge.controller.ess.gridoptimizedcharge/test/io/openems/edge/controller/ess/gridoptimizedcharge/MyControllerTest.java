@@ -12,7 +12,6 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -1814,19 +1813,14 @@ public class MyControllerTest {
 	}
 
 	private static int getValidTargetMinute(String maunualTargetTime) {
-		LocalTime targetTime = LocalTime.of(17, 0);
+		LocalTime targetTime = null;
 
 		// Try to parse the configured Time as LocalTime or ZonedDateTime, which is the
 		// format that comes from UI.
-		try {
-			targetTime = LocalTime.parse(maunualTargetTime);
-		} catch (DateTimeParseException e) {
-			try {
-				targetTime = ZonedDateTime.parse(maunualTargetTime).toLocalTime();
-
-			} catch (DateTimeParseException i) {
-				System.out.println("No valid target time - Default time is used");
-			}
+		targetTime = DelayCharge.parseTime(maunualTargetTime);
+		if (targetTime == null) {
+			targetTime = LocalTime.of(17, 0);
+			System.out.println("No valid target time - Default time is used");
 		}
 
 		return targetTime.get(ChronoField.MINUTE_OF_DAY);

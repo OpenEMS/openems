@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -19,6 +18,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -82,30 +82,32 @@ public class DelayCharge {
 	 * @throws OpenemsNamedException on error
 	 */
 	protected Integer getManualDelayChargeMaxCharge() throws OpenemsNamedException {
-		LocalTime targetTime = DEFAULT_TARGET_TIME;
-
-		// Try to parse the configured Time as LocalTime or ZonedDateTime, which is the
-		// format that comes from UI.
-		// TODO extract this feature into a DateTimeUtils class and reuse it wherever
-		// feasible
-		try {
-			targetTime = LocalTime.parse(this.parent.config.manualTargetTime());
-		} catch (DateTimeParseException e) {
-			try {
-				targetTime = ZonedDateTime.parse(this.parent.config.manualTargetTime()).toLocalTime();
-
-			} catch (DateTimeParseException i) {
-
-				// Set Info state channel and log
-				StateChannel noValidManualTargetTime = this.parent
-						.channel(GridOptimizedCharge.ChannelId.NO_VALID_MANUAL_TARGET_TIME);
-				noValidManualTargetTime.setNextValue(true);
-				this.parent.logDebug(noValidManualTargetTime.channelDoc().getText());
-			}
+		LocalTime targetTime = null;
+		targetTime = parseTime(this.parent.config.manualTargetTime());
+		if (targetTime == null) {
+			targetTime = DEFAULT_TARGET_TIME;
+			StateChannel noValidManualTargetTime = this.parent
+					.channel(GridOptimizedCharge.ChannelId.NO_VALID_MANUAL_TARGET_TIME);
+			noValidManualTargetTime.setNextValue(true);
+			this.parent.logDebug(noValidManualTargetTime.channelDoc().getText());
 		}
 
 		var targetMinute = targetTime.get(ChronoField.MINUTE_OF_DAY);
 		return this.calculateDelayChargeMaxCharge(targetMinute, DelayChargeRiskLevel.MEDIUM);
+	}
+
+	protected static LocalTime parseTime(String time) {
+		// Try to parse the configured Time as LocalTime or ZonedDateTime, which is the
+		// format that comes from UI.
+		final var localTime = DateUtils.parseLocalTimeOrNull(time);
+		if (localTime != null) {
+			return localTime;
+		}
+		final var zonedDateTime = DateUtils.parseZonedDateTimeOrNull(time);
+		if (zonedDateTime != null) {
+			return zonedDateTime.toLocalTime();
+		}
+		return null;
 	}
 
 	/**
