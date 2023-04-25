@@ -16,7 +16,7 @@ export class ModalInfoLineComponent {
      *  */
     @Input() public info: { text: string, lineStyle?: string }[] | string;
 
-    @Input() public lineStyle: string;
+    @Input() protected lineStyle: string;
 
     @Input() protected rowStyle: string;
 }
