@@ -19,7 +19,7 @@ import io.openems.edge.bridge.modbus.api.LogVerbosity;
 	String alias() default "";
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
-	boolean enabled() default true;
+boolean enabled() default true;
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Modbus/TCP device.")
 	String ip();
