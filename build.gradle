@@ -2,7 +2,6 @@ plugins {
 	id 'java'
 	id 'biz.aQute.bnd.workspace'
 	id 'com.github.node-gradle.node'
-	id 'com.github.spotbugs'
 }
 
 /*
@@ -28,15 +27,6 @@ allprojects {
 			junitXml.required = false
 		}
 	}	
-
-	/* Enable SpotBugs XML report for jwgmeligmeyling/spotbugs-github-action */
-	tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
-		reports {
-			xml {
-				required.set(true)
-			}
-		}
-	}
 }
 
 /*
@@ -45,17 +35,12 @@ allprojects {
 subprojects {
 	if (plugins.hasPlugin("biz.aQute.bnd")) {	
 		apply plugin: 'checkstyle'
-		apply plugin: 'com.github.spotbugs'
 
 		checkstyle {
 			toolVersion = '10.4'
 			configFile = file("${rootDir}/cnf/checkstyle.xml")
 			maxWarnings = 0
 			ignoreFailures false
-		}
-
-		spotbugs {
-			ignoreFailures = true
 		}
 
 		tasks.withType(Checkstyle) {

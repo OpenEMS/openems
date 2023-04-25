@@ -3,7 +3,6 @@ pluginManagement {
 		id 'biz.aQute.bnd.workspace' version "${bnd_version}"
 		id 'biz.aQute.bnd' version "${bnd_version}"
 		id 'com.github.node-gradle.node' version "3.5.0"
-		id 'com.github.spotbugs' version "5.0.14"
 	}
 	repositories {
 		maven {
