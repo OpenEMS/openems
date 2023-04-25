@@ -47,7 +47,7 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
 
   public chartType: string = "line";
 
-  @Output() setErrorResponse: EventEmitter<JsonrpcResponseError | null> = new EventEmitter()
+  @Output() public setErrorResponse: EventEmitter<JsonrpcResponseError | null> = new EventEmitter()
   @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {

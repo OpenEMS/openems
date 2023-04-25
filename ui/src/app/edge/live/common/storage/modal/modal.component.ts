@@ -14,11 +14,11 @@ export class StorageModalComponent implements OnInit, OnDestroy {
 
     // TODO after refactoring of Model: subscribe to EssActivePowerL1/L2/L3 here instead of Flat Widget
 
-    @Input() edge: Edge;
-    @Input() config: EdgeConfig;
-    @Input() essComponents: EdgeConfig.Component[] | null = null;
-    @Input() chargerComponents: EdgeConfig.Component[];
-    @Input() singleComponent: EdgeConfig.Component = null;
+    @Input() protected edge: Edge;
+    @Input() protected config: EdgeConfig;
+    @Input() protected essComponents: EdgeConfig.Component[] | null = null;
+    @Input() protected chargerComponents: EdgeConfig.Component[];
+    @Input() protected singleComponent: EdgeConfig.Component = null;
 
     // reference to the Utils method to access via html
     public isLastElement = Utils.isLastElement;
