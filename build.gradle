@@ -28,6 +28,15 @@ allprojects {
 			junitXml.required = false
 		}
 	}	
+
+	/* Enable SpotBugs XML report for jwgmeligmeyling/spotbugs-github-action */
+	tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+		reports {
+			xml {
+				required.set(true)
+			}
+		}
+	}
 }
 
 /*
@@ -219,3 +228,4 @@ task buildAntoraDocs(dependsOn: copyBundleReadmes) {
 		}
 	}
 }
+
