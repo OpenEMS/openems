@@ -49,7 +49,7 @@ jobs:
       # Uplload SpotBugs results as GitHub Annotations
       - uses: jwgmeligmeyling/spotbugs-github-action@master
         with:
-          path: '**/spotbugsXml.xml'
+          path: '**/spotbugs/*.xml'
 
       #
       # Is this a Tag? Prepare release assets
