@@ -140,11 +140,6 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		super.logError(log, message);
 	}
 
-	/**
-	 * After how many errors should a element be invalidated?.
-	 *
-	 * @return value
-	 */
 	public int invalidateElementsAfterReadErrors() {
 		return this.invalidateElementsAfterReadErrors;
 	}
