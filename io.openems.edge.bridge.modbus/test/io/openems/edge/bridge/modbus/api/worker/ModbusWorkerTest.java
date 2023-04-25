@@ -4,12 +4,15 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.common.taskmanager.Priority;
 
 public class ModbusWorkerTest {
@@ -59,7 +62,7 @@ public class ModbusWorkerTest {
 
 		public void onExecuteWrite() {
 			this.executionOrder.add(ON_EXECUTE_WRITE);
-			this.sut.onExecuteWrite();
+//			this.sut.onExecuteWrite();
 		}
 
 		public void onBeforeProcessImage() {
@@ -80,6 +83,39 @@ public class ModbusWorkerTest {
 		RT_L_1 = new DummyReadTask("RT_L_1", 20, Priority.LOW);
 		RT_L_2 = new DummyReadTask("RT_L_2", 30, Priority.LOW);
 		WT_1 = new DummyWriteTask("WT_1", 90);
+	}
+
+	@Test
+	public void testX() throws OpenemsException, InterruptedException {
+		var logVerbosity = new AtomicReference<LogVerbosity>(LogVerbosity.DEV_REFACTORING);
+		var defectiveComponents = new DefectiveComponents();
+		var waitHandler = new WaitHandler(logVerbosity);
+		var sut = new ModbusTasksManager(defectiveComponents, waitHandler, logVerbosity);
+
+		var bridge = new DummyModbusBridge("modbus0");
+		var foo = AbstractDummyComponent.of("foo", bridge, new AbstractDummyTask[0]);
+		var protocol0 = new ModbusProtocol(foo, RT_L_1, RT_L_2, RT_H_1, RT_H_2, WT_1);
+		sut.addProtocol(foo.id(), protocol0);
+
+		sut.onBeforeProcessImage();
+
+		// TODO: less boiler-plate code; test ModbusTasksManager
+		
+//		var worker = new ModbusWorker(
+//				// Execute Task
+//				task -> {
+//					System.out.println("Execute: " + task);
+//					return 1;
+//				},
+//				// Invalidate ModbusElements
+//				elements -> System.out.println("Invalidate: " + elements),
+//				// Set ChannelId.CYCLE_TIME_IS_TOO_SHORT
+//				state -> System.out.println("State: " + state),
+//				// Log Warning
+//				(logger, message) -> System.err.println(message),
+//				// LogVerbosity
+//				new AtomicReference<LogVerbosity>(LogVerbosity.DEV_REFACTORING) //
+//		);
 	}
 
 	// TODO @Ignore

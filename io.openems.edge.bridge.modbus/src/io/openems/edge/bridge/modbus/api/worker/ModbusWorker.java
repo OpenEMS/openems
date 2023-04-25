@@ -2,7 +2,6 @@ package io.openems.edge.bridge.modbus.api.worker;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -15,7 +14,6 @@ import com.google.common.base.Stopwatch;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingFunction;
-import io.openems.common.utils.Mutex;
 import io.openems.common.worker.AbstractImmediateWorker;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
@@ -24,7 +22,6 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WaitTask;
-import io.openems.edge.bridge.modbus.api.task.WriteTask;
 
 /**
  * The ModbusWorker schedules the execution of all Modbus-Tasks, like reading
@@ -48,18 +45,15 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	private final Consumer<ModbusElement<?>[]> invalidate;
 	private final BiConsumer<Logger, String> logWarn;
 
+	private final WaitHandler waitHandler;
 	private final AtomicReference<LogVerbosity> logVerbosity;
-	private final LinkedBlockingDeque<WriteTask> writeTasksQueue = new LinkedBlockingDeque<>();
-	private final LinkedBlockingDeque<Task> readTasksQueue = new LinkedBlockingDeque<>();
 
 	/**
 	 * This Signal is released, when there possibly are new tasks in either
 	 * `writeTasksQueue` or `readTasksQueue`.
 	 */
-	private final Mutex signalAvailableTaskInQueue = new Mutex(false);
 	private final DefectiveComponents defectiveComponents;
 	private final ModbusTasksManager tasksManager;
-	private final WaitHandler waitHandler;
 
 	/**
 	 * Constructor for {@link ModbusWorker}.
@@ -85,113 +79,12 @@ public class ModbusWorker extends AbstractImmediateWorker {
 		this.waitHandler = new WaitHandler(logVerbosity);
 		this.setCycleTimeIsTooShort = setCycleTimeIsTooShort;
 		this.defectiveComponents = new DefectiveComponents();
-		this.tasksManager = new ModbusTasksManager(this.defectiveComponents);
-	}
-
-	/**
-	 * This is called on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE cycle event.
-	 */
-	public synchronized void onBeforeProcessImage() {
-		this.log("-> onBeforeProcessImage");
-
-		// Update internal size of the WaitHandler queue if required. This causes the
-		// WaitHandler to automatically adapt to the number of Tasks and the number of
-		// required Cycles.
-		this.waitHandler.updateSize(this.tasksManager.countReadTasks());
-
-		// Forward TOPIC_CYCLE_BEFORE_PROCESS_IMAGE to WaitHandler
-		this.waitHandler.onBeforeProcessImage();
-
-		// Set CYCLE_TIME_IS_TOO_SHORT state-channel
-		this.setCycleTimeIsTooShort.accept(this.waitHandler.isCycleTimeTooShort());
-
-		// If the current Read-Tasks queue spans multiple cycles and we are in-between
-		// -> stop here
-		if (!this.readTasksQueue.isEmpty()) {
-			this.log("Previous ReadTasks queue is not empty on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE");
-			return;
-		}
-
-		// Add Wait-Task if appropriate
-		var waitTask = this.waitHandler.getWaitTask();
-		if (waitTask != null) {
-			this.readTasksQueue.addFirst(waitTask);
-		}
-
-		// Collect the next read-tasks
-		this.readTasksQueue.addAll(this.tasksManager.getNextReadTasks());
-		StringBuilder b = new StringBuilder();
-		for (var task : this.tasksManager.getNextReadTasks()) {
-			b.append(" read task " + task + "\n");
-		}
-		this.log.info(b.toString());
-		this.signalAvailableTaskInQueue.release();
-	}
-
-	/**
-	 * This is called on TOPIC_CYCLE_EXECUTE_WRITE cycle event.
-	 */
-	public synchronized void onExecuteWrite() {
-		this.log("-> onExecuteWrite");
-
-		synchronized (this.waitHandler.activeWaitTask) {
-			// Is currently a WaitTask active? Interrupt now and schedule again later.
-			var activeWaitTask = this.waitHandler.activeWaitTask.get();
-			if (activeWaitTask != null) {
-				this.thread.interrupt();
-			}
-
-			if (!this.writeTasksQueue.isEmpty()) {
-				this.log("Previous WriteTasks queue is not empty on TOPIC_CYCLE_EXECUTE_WRITE");
-				return;
-			}
-
-			// Add All WriteTasks
-			this.writeTasksQueue.addAll(this.tasksManager.getNextWriteTasks());
-
-			// Re-Schedule the WaitTask
-			if (activeWaitTask != null) {
-				this.readTasksQueue.addFirst(activeWaitTask);
-			}
-
-			this.signalAvailableTaskInQueue.release();
-		}
-	}
-
-	/**
-	 * Gets the next {@link Task}.
-	 * 
-	 * <ul>
-	 * <li>1st priority: Write-Tasks
-	 * <li>2nd priority: Read-Tasks
-	 * </ul>
-	 * 
-	 * @return next {@link Task}
-	 * @throws InterruptedException while waiting for
-	 *                              {@link #signalAvailableTaskInQueue}
-	 */
-	private Task getNextTask() throws InterruptedException {
-		while (true) {
-			// Write-Task available?
-			var writeTask = this.writeTasksQueue.pollFirst();
-			if (writeTask != null) {
-				return writeTask;
-			}
-			// Read-Task available?
-			var readTask = this.readTasksQueue.pollFirst();
-			if (readTask != null) {
-				return readTask;
-			}
-			// No available Read-Task. Forward event to WaitHandler
-			this.waitHandler.onAllTasksFinished();
-			// Wait for signal
-			this.signalAvailableTaskInQueue.await();
-		}
+		this.tasksManager = new ModbusTasksManager(this.defectiveComponents, this.waitHandler, logVerbosity);
 	}
 
 	@Override
 	protected void forever() throws InterruptedException {
-		var task = this.getNextTask();
+		var task = this.tasksManager.getNextTask();
 		synchronized (this.waitHandler.activeWaitTask) {
 			if (task instanceof WaitTask) {
 				this.waitHandler.activeWaitTask.set((WaitTask) task);
@@ -284,6 +177,20 @@ public class ModbusWorker extends AbstractImmediateWorker {
 	 */
 	public void removeProtocol(String sourceId) {
 		this.tasksManager.removeProtocol(sourceId);
+	}
+
+	public void onExecuteWrite() {
+		this.tasksManager.onExecuteWrite();
+	}
+
+	public void onBeforeProcessImage() {
+		// Forward TOPIC_CYCLE_BEFORE_PROCESS_IMAGE to WaitHandler
+		this.waitHandler.onBeforeProcessImage();
+
+		// Set CYCLE_TIME_IS_TOO_SHORT state-channel
+		this.setCycleTimeIsTooShort.accept(this.waitHandler.isCycleTimeTooShort());
+
+		this.tasksManager.onBeforeProcessImage();
 	}
 
 }
