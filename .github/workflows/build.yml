@@ -46,6 +46,11 @@ jobs:
       - name: Validate EdgeApp.bndrun
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
+      # Uplload SpotBugs results as GitHub Annotations
+      - uses: jwgmeligmeyling/spotbugs-github-action@master
+        with:
+          path: '**/spotbugsXml.xml'
+
       #
       # Is this a Tag? Prepare release assets
       #
