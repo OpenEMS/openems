@@ -47,9 +47,10 @@ jobs:
         run: git diff --exit-code io.openems.edge.application/EdgeApp.bndrun
 
       # Uplload SpotBugs results as GitHub Annotations
-      - uses: jwgmeligmeyling/spotbugs-github-action@master
+      - uses: jwgmeligmeyling/spotbugs-github-action@v1.2
         with:
-          path: '**/spotbugs/*.xml'
+          name: SpotBugs
+          path: '**/reports/spotbugs/main.xml'
 
       #
       # Is this a Tag? Prepare release assets
