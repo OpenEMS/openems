@@ -213,4 +213,3 @@ task buildAntoraDocs(dependsOn: copyBundleReadmes) {
 		}
 	}
 }
-
