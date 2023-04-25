@@ -423,7 +423,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent
 	 * @param id of the app
 	 * @return the found app
 	 */
-	protected final OpenemsApp findAppById(String id) throws NoSuchElementException {
+	public final OpenemsApp findAppById(String id) throws NoSuchElementException {
 		return this.availableApps.stream() //
 				.filter(t -> t.getAppId().equals(id)) //
 				.findFirst() //
