@@ -117,11 +117,11 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 		/*
 		 * Set Simulated "meter" Active Power
 		 */
-//		this._setActivePower(chargePowerLimit);
-//		var simulatedActivePowerByThree = TypeUtils.divide(chargePowerLimit, 3);
-//		this._setActivePowerL1(simulatedActivePowerByThree);
-//		this._setActivePowerL2(simulatedActivePowerByThree);
-//		this._setActivePowerL3(simulatedActivePowerByThree);
+		// this._setActivePower(chargePowerLimit);
+		// var simulatedActivePowerByThree = TypeUtils.divide(chargePowerLimit, 3);
+		// this._setActivePowerL1(simulatedActivePowerByThree);
+		// this._setActivePowerL2(simulatedActivePowerByThree);
+		// this._setActivePowerL3(simulatedActivePowerByThree);
 
 		/*
 		 * Set calculated energy
@@ -203,11 +203,11 @@ public class SimulatedEvcs extends AbstractManagedEvcsComponent
 		return this.channel(Evcs.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
 	}
 
-//	@Override
-//	public MeterType getMeterType() {
-//		// TODO: This should be `MeterType.CONSUMPTION_METERED`, once Evcs actually
-//		// implements Meter. For now this quick fix solves issues with calculating
-//		// `_sum/GridActivePower`.
-//		return MeterType.GRID;
-//	}
+	// @Override
+	// public MeterType getMeterType() {
+	// // TODO: This should be `MeterType.CONSUMPTION_METERED`, once Evcs actually
+	// // implements Meter. For now this quick fix solves issues with calculating
+	// // `_sum/GridActivePower`.
+	// return MeterType.GRID;
+	// }
 }
