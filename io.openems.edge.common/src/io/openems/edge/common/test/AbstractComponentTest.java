@@ -662,6 +662,21 @@ public abstract class AbstractComponentTest<SELF extends AbstractComponentTest<S
 		return this.self();
 	}
 
+	/**
+	 * Run a Test-Case multiple times.
+	 * 
+	 * @param testCase     The TestCase
+	 * @param executeCount The execution amount of the test case
+	 * @return itself, to use as a builder
+	 * @throws Exception on error
+	 */
+	public SELF next(TestCase testCase, int executeCount) throws Exception {
+		for (int i = 0; i < executeCount; i++) {
+			this.next(testCase);
+		}
+		return this.self();
+	}
+
 	private static void executeCallbacks(List<ThrowingRunnable<Exception>> callbacks) throws Exception {
 		for (ThrowingRunnable<Exception> callback : callbacks) {
 			callback.run();
