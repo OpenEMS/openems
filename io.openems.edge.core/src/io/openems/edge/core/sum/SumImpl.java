@@ -241,8 +241,8 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 					gridActivePower.addValue(meter.getActivePowerChannel());
 					gridMinActivePower.addValue(meter.getMinActivePowerChannel());
 					gridMaxActivePower.addValue(meter.getMaxActivePowerChannel());
-					gridBuyActiveEnergy.addValue(meter.getActiveProductionEnergyChannel());
-					gridSellActiveEnergy.addValue(meter.getActiveConsumptionEnergyChannel());
+					gridBuyActiveEnergy.addValue(meter.getActiveConsumptionEnergyChannel());
+					gridSellActiveEnergy.addValue(meter.getActiveProductionEnergyChannel());
 
 					if (meter instanceof AsymmetricMeter) {
 						var m = (AsymmetricMeter) meter;
