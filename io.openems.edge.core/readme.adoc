@@ -27,7 +27,7 @@ A service that provides 'OpenemsConstants' as Channels so that they are availabl
 
 == Sum
 
-A service that holds summed up information on the power and energy flows, like aggregated production, consumption and energy storage charge/discharge. 
+A service that holds summed up information on the power and energy flows, like aggregated production, consumption and energy storage charge/discharge.
 
 == AppManager
 
@@ -36,3 +36,11 @@ A service for managing Apps. It creates, deletes and updates Components, Network
 == App
 
 The predefined Apps for the AppManager.
+
+== TimerManager
+
+Access to different kind of timers. Can be used to
+
+* `timerManager.getTimerCount()` - count each call to the timer.
+* `timerManager.getTimerCoreCycles()` - count each core cycle.
+* `timerManager.getTimerTimer()` - count a given time in seconds.
