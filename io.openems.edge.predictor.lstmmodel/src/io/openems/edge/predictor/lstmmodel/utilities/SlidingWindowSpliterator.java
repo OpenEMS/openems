@@ -13,60 +13,66 @@ import java.util.stream.StreamSupport;
 
 public class SlidingWindowSpliterator<T> implements Spliterator<Stream<T>> {
 
-    public static <T> Stream<Stream<T>> windowed(Collection<T> stream, int windowSize) {
-        return StreamSupport.stream(new SlidingWindowSpliterator<>(stream, windowSize), false);
-    }
+	/**
+	 * creates windows.
+	 * 
+	 * @param <T>        generic data type
+	 * @param stream     Collection
+	 * @param windowSize size of the window
+	 * @return result List of List
+	 */
+	public static <T> Stream<Stream<T>> windowed(Collection<T> stream, int windowSize) {
+		return StreamSupport.stream(new SlidingWindowSpliterator<>(stream, windowSize), false);
+	}
 
-    private final Queue<T> buffer;
-    private final Iterator<T> sourceIterator;
-    private final int windowSize;
-    private final int size;
+	private final Queue<T> buffer;
+	private final Iterator<T> sourceIterator;
+	private final int windowSize;
+	private final int size;
 
-    private SlidingWindowSpliterator(Collection<T> source, int windowSize) {
-        this.buffer = new ArrayDeque<>(windowSize);
-        this.sourceIterator = Objects.requireNonNull(source).iterator();
-        this.windowSize = windowSize;
-        this.size = calculateSize(source, windowSize);
-    }
+	private SlidingWindowSpliterator(Collection<T> source, int windowSize) {
+		this.buffer = new ArrayDeque<>(windowSize);
+		this.sourceIterator = Objects.requireNonNull(source).iterator();
+		this.windowSize = windowSize;
+		this.size = calculateSize(source, windowSize);
+	}
 
-    @SuppressWarnings("unchecked")
-                @Override
-    public boolean tryAdvance(Consumer<? super Stream<T>> action) {
-        if (windowSize < 1) {
-            return false;
-        }
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean tryAdvance(Consumer<? super Stream<T>> action) {
+		if (this.windowSize < 1) {
+			return false;
+		}
 
-        while (sourceIterator.hasNext()) {
-            buffer.add(sourceIterator.next());
+		while (this.sourceIterator.hasNext()) {
+			this.buffer.add(this.sourceIterator.next());
 
-            if (buffer.size() == windowSize) {
-                action.accept(Arrays.stream((T[]) buffer.toArray(new Object[0])));
-                buffer.poll();
-                return true;
-            }
-        }
+			if (this.buffer.size() == this.windowSize) {
+				action.accept(Arrays.stream((T[]) this.buffer.toArray(new Object[0])));
+				this.buffer.poll();
+				return true;
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    @Override
-    public Spliterator<Stream<T>> trySplit() {
-        return null;
-    }
+	@Override
+	public Spliterator<Stream<T>> trySplit() {
+		return null;
+	}
 
-    @Override
-    public long estimateSize() {
-        return size;
-    }
+	@Override
+	public long estimateSize() {
+		return this.size;
+	}
 
-    @Override
-    public int characteristics() {
-        return ORDERED | NONNULL | SIZED;
-    }
+	@Override
+	public int characteristics() {
+		return ORDERED | NONNULL | SIZED;
+	}
 
-    private static int calculateSize(Collection<?> source, int windowSize) {
-        return source.size() < windowSize
-          ? 0
-          : source.size() - windowSize + 1;
-    }
+	private static int calculateSize(Collection<?> source, int windowSize) {
+		return source.size() < windowSize ? 0 : source.size() - windowSize + 1;
+	}
 }

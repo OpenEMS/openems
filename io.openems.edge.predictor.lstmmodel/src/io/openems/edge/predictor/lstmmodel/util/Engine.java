@@ -32,8 +32,8 @@ public class Engine implements EngineDriver {
 		double learningRate = 1;
 
 		Lstm ls = new LstmBuilder()//
-				.setInputData(inputMatrix[0]) //
-				.setOutputData(targetVector[0]) //
+				.setInputData(this.inputMatrix[0]) //
+				.setOutputData(this.targetVector[0]) //
 				.setLearningRate(learningRate) //
 				.setEpoch(epochs) //
 				.build();
@@ -42,11 +42,11 @@ public class Engine implements EngineDriver {
 
 		wieghtMatrix = ls.train();
 
-		weights.add(wieghtMatrix);
+		this.weights.add(wieghtMatrix);
 
 		for (int i = 1; i < this.inputMatrix.length; i++) {
 
-			learningRate = updateLearningRate(i, inputMatrix.length, learningRate);
+			learningRate = this.updateLearningRate(i, this.inputMatrix.length, learningRate);
 
 			ls = new LstmBuilder()//
 					.setInputData(this.inputMatrix[i]) //
@@ -66,45 +66,42 @@ public class Engine implements EngineDriver {
 				ls.cells.get(j).setRo((wieghtMatrix.get(4)).get(j));
 				ls.cells.get(j).setRz((wieghtMatrix.get(5)).get(j));
 			}
-			ls.cells.get(0).yt = (wieghtMatrix.get(6)).get((wieghtMatrix.get(6).size() - 1));
+			ls.cells.get(0).yT = (wieghtMatrix.get(6)).get((wieghtMatrix.get(6).size() - 1));
 
 			wieghtMatrix = ls.train();
-			weights.add(wieghtMatrix);
+			this.weights.add(wieghtMatrix);
 
 			int percentage = 10;
-			earlyStop(percentage, wieghtMatrix);
+			this.earlyStop(percentage, wieghtMatrix);
 
 		}
-		int ind = selectWeight(bestWeights);
+		int ind = this.selectWeight(this.bestWeights);
 		wieghtMatrix.clear();
-		finalWeight = bestWeights.get(ind);
+		this.finalWeight = this.bestWeights.get(ind);
 	}
 
 	/**
 	 * Do not need to go through entire data set to check the better weights, check
-	 * once at the specified percentage
+	 * once at the specified percentage.
 	 * 
-	 * @param percentage stopping percentage
-	 * @param wieghtMatrix
+	 * @param percentage   stopping percentage
+	 * @param weightMatrix actualWeight matrix
 	 */
-	private void earlyStop(int percentage, ArrayList<ArrayList<Double>> wieghtMatrix) {
+	private void earlyStop(int percentage, ArrayList<ArrayList<Double>> weightMatrix) {
 
-		if (weights.size() == (int) (inputMatrix.length * (float) (percentage * 0.01))) {
-			int ind = selectWeight(weights);
-			wieghtMatrix = weights.get(ind);
-			bestWeights.add(wieghtMatrix);
-			weights.clear();
+		if (this.weights.size() == (int) (this.inputMatrix.length * (float) (percentage * 0.01))) {
+			int ind = this.selectWeight(this.weights);
+			weightMatrix = this.weights.get(ind);
+			this.bestWeights.add(weightMatrix);
+			this.weights.clear();
 		}
-//		else {
-//			double error = wieghtMatrix.get(7).get(0);
-//			// System.out.println("AllWeight = " + weights.size() + " error = " + error);
-//		}
+
 	}
 
 	/**
 	 * Simple learning rate update based on the number of iterations.
 	 * 
-	 * @param iterations
+	 * @param iterations   iterations
 	 * @param length       Total length of the data.
 	 * @param learningRate learning rate.
 	 * @return updated learning rate
@@ -128,33 +125,42 @@ public class Engine implements EngineDriver {
 	}
 
 	/**
+	 * Predict using the model and the input data.
 	 * 
-	 * @param input_data
-	 * @return
+	 * @param inputData input data for the prediction.
+	 * @return result
 	 */
-	public double[] Predict(double[][] input_data/* , double[] Target */) {
+	public double[] predict(double[][] inputData) {
 
-		double[] result = new double[input_data.length];
-		for (int i = 0; i < input_data.length; i++) {
+		double[] result = new double[inputData.length];
+		for (int i = 0; i < inputData.length; i++) {
 
-			result[i] = predict(input_data[i], //
-					finalWeight.get(0), //
-					finalWeight.get(1), //
-					finalWeight.get(2), //
-					finalWeight.get(3), //
-					finalWeight.get(4), //
-					finalWeight.get(5));
+			result[i] = this.singleValuePredict(inputData[i], //
+					this.finalWeight.get(0), //
+					this.finalWeight.get(1), //
+					this.finalWeight.get(2), //
+					this.finalWeight.get(3), //
+					this.finalWeight.get(4), //
+					this.finalWeight.get(5));
 		}
 
 		return result;
 	}
 
-	public double[] validate(double[][] input_data, double[] Target, ArrayList<ArrayList<Double>> val) {
+	/**
+	 * Validate to get the best model.
+	 * 
+	 * @param inputData double array
+	 * @param target    double array
+	 * @param val       weight matrix
+	 * @return The resulted weight matrix
+	 */
+	public double[] validate(double[][] inputData, double[] target, ArrayList<ArrayList<Double>> val) {
 
-		double[] result = new double[input_data.length];
-		for (int i = 0; i < input_data.length; i++) {
+		double[] result = new double[inputData.length];
+		for (int i = 0; i < inputData.length; i++) {
 
-			result[i] = predict(input_data[i], //
+			result[i] = this.singleValuePredict(inputData[i], //
 					val.get(0), //
 					val.get(1), //
 					val.get(2), //
@@ -166,16 +172,28 @@ public class Engine implements EngineDriver {
 		return result;
 	}
 
-	public double predict(double[] input_data, ArrayList<Double> wi, ArrayList<Double> wo, ArrayList<Double> wz,
-			ArrayList<Double> Ri, ArrayList<Double> Ro, ArrayList<Double> Rz) {
+	/**
+	 * Takes in an array of inputData and predicts single value.
+	 * 
+	 * @param inputData double array
+	 * @param wi        weight wi
+	 * @param wo        weight wo
+	 * @param wz        weight wz
+	 * @param Ri        weight Ri
+	 * @param Ro        weight Ro
+	 * @param Rz        weight Rz
+	 * @return The predicted single double value
+	 */
+	private double singleValuePredict(double[] inputData, ArrayList<Double> wi, ArrayList<Double> wo,
+			ArrayList<Double> wz, ArrayList<Double> Ri, ArrayList<Double> Ro, ArrayList<Double> Rz) {
 
 		double ct = 0;
 		double yt = 0;
 
 		for (int i = 0; i < wi.size(); i++) {
-			double it = MathUtils.sigmoid(wi.get(i) * input_data[i] + Ri.get(i) * yt);
-			double ot = MathUtils.sigmoid(wo.get(i) * input_data[i] + Ro.get(i) * yt);
-			double zt = MathUtils.tanh(wz.get(i) * input_data[i] + Rz.get(i) * yt);
+			double it = MathUtils.sigmoid(wi.get(i) * inputData[i] + Ri.get(i) * yt);
+			double ot = MathUtils.sigmoid(wo.get(i) * inputData[i] + Ro.get(i) * yt);
+			double zt = MathUtils.tanh(wz.get(i) * inputData[i] + Rz.get(i) * yt);
 			ct = ct + it * zt;
 			yt = ot * MathUtils.tanh(ct);
 		}
@@ -183,7 +201,7 @@ public class Engine implements EngineDriver {
 	}
 
 	/**
-	 * Select Best Weight out of all the Weights
+	 * Select Best Weight out of all the Weights.
 	 * 
 	 * @param wightMatrix All the matrices of the weight.
 	 * @return index index of the best matrix.
@@ -197,9 +215,9 @@ public class Engine implements EngineDriver {
 		for (int k = 0; k < wightMatrix.size(); k++) {
 			ArrayList<ArrayList<Double>> val = wightMatrix.get(k);
 			double[] pre = this.validate(this.validateData, this.validateTarget, val);
-			rms[k] = this.computeRMS(this.validateTarget, pre);
+			rms[k] = this.computeRms(this.validateTarget, pre);
 		}
-		int minInd = getMinIndex(rms);
+		int minInd = this.getMinIndex(rms);
 		return minInd;
 	}
 
@@ -219,11 +237,11 @@ public class Engine implements EngineDriver {
 	/**
 	 * Root mean squared of two arrays.
 	 * 
-	 * @param original
-	 * @param computed
-	 * @return
+	 * @param original original array
+	 * @param computed computed array
+	 * @return rmsValue root mean squared value
 	 */
-	public double computeRMS(double[] original, double[] computed) {
+	public double computeRms(double[] original, double[] computed) {
 
 		List<Double> diff = IntStream.range(0, original.length) //
 				.mapToObj(i -> Math.pow(original[i] - computed[i], 2)) //

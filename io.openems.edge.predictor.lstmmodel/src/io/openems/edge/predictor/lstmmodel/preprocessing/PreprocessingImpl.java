@@ -15,7 +15,6 @@ public class PreprocessingImpl implements PreProcessing {
 
 	public static final Function<double[], ArrayList<Double>> DOUBLE_TO_DOUBLE_ARRAYLIST = UtilityConversion::doubleToArrayListDouble;
 	public static final Function<List<List<Double>>, double[][]> DOUBLE_TO_DOUBLE_LIST = UtilityConversion::convert2DArrayListTo2DArray;
-	public Function<double[], ArrayList<Double>> CONVERT = UtilityConversion::doubleToArrayListDouble;
 
 	private double max = 0;
 	private double min = 0;
@@ -50,7 +49,7 @@ public class PreprocessingImpl implements PreProcessing {
 	 * @param lower lowest index of the data list
 	 * @param upper upper index of the data list
 	 * @return featureData featureData for model training.
-	 * @throws Exception
+	 * @throws Exception when the scaleDatalist is empty
 	 */
 	public double[][] getFeatureData(int lower, int upper) throws Exception {
 
@@ -59,14 +58,14 @@ public class PreprocessingImpl implements PreProcessing {
 		}
 
 		double[] subArr = IntStream.range(lower, upper) //
-				.mapToDouble(index -> scaleDataList.get(index)) //
+				.mapToDouble(index -> this.scaleDataList.get(index)) //
 				.toArray();
 
-		List<List<Double>> XList = windowed(DOUBLE_TO_DOUBLE_ARRAYLIST.apply(subArr), this.windowSize) //
+		List<List<Double>> res = windowed(DOUBLE_TO_DOUBLE_ARRAYLIST.apply(subArr), this.windowSize) //
 				.map(s -> s.collect(Collectors.toList())) //
 				.collect(Collectors.toList());
 
-		return DOUBLE_TO_DOUBLE_LIST.apply(XList);
+		return DOUBLE_TO_DOUBLE_LIST.apply(res);
 
 	}
 
@@ -76,9 +75,13 @@ public class PreprocessingImpl implements PreProcessing {
 	 * @param lower lowest index of the data list
 	 * @param upper upper index of the data list
 	 * @return targetData targetDataList for model training.
-	 * @throws Exception
+	 * @throws Exception when the scaleDatalist is empty
 	 */
 	public double[] getTargetData(int lower, int upper) throws Exception {
+
+		if (this.scaleDataList.isEmpty()) {
+			throw new Exception("Scaled data is empty");
+		}
 
 		double[] subArr = IntStream.range(lower + this.windowSize, upper + 1) //
 				.mapToDouble(index -> this.scaleDataList.get(index)) //
@@ -90,25 +93,32 @@ public class PreprocessingImpl implements PreProcessing {
 	/**
 	 * Scale the Data with min and max values of the list.
 	 * 
-	 * @param minScaled
-	 * @param maxScaled
-	 * @return scaled list
+	 * @param minScaled minimum scale
+	 * @param maxScaled maximum scale
 	 */
 	public void scale(double minScaled, double maxScaled) {
 
 		double scaleFactor = maxScaled - minScaled;
 
-		scaleDataList = (ArrayList<Double>) this.dataList.stream() //
+		this.scaleDataList = (ArrayList<Double>) this.dataList.stream() //
 				.map(item -> (((item - this.min) / this.max) * (scaleFactor)) + minScaled) //
 				.collect(Collectors.toList());
 	}
 
-	public Integer[] reverseScale(double minScaled, double maxScaled, double[] result) {
+	/**
+	 * Reverse Scale the Data with min and max values of the list.
+	 * 
+	 * @param minScaled minimum scale
+	 * @param maxScaled maximum scale
+	 * @param data      list to be reverse scaled
+	 * @return result Integer array of reverse scaled data
+	 */
+	public Integer[] reverseScale(double minScaled, double maxScaled, double[] data) {
 
 		double scaleFactor = maxScaled - minScaled;
-		ArrayList<Double> first = CONVERT.apply(result);
 
-		List<Integer> second = first.stream() //
+		List<Integer> second = DOUBLE_TO_DOUBLE_ARRAYLIST.apply(data) //
+				.stream() //
 				.map(item -> (((item * this.max) / (scaleFactor)) + this.min)) //
 				.map(p -> p.intValue()) //
 				.collect(Collectors.toList());

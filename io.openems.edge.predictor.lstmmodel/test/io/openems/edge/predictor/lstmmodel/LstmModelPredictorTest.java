@@ -1,6 +1,6 @@
 package io.openems.edge.predictor.lstmmodel;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
 import java.time.ZoneId;

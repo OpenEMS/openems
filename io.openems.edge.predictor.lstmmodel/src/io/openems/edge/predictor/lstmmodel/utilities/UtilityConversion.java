@@ -8,7 +8,10 @@ import java.util.stream.DoubleStream;
 public class UtilityConversion {
 
 	/**
-	 * double[] to ArrayList<Double>
+	 * Convert double[] to {@link java.util.ArrayList} of Double.
+	 * 
+	 * @param toBeConverted array of double
+	 * @return result converted Array list
 	 */
 	public static ArrayList<Double> doubleToArrayListDouble(double[] toBeConverted) {
 
@@ -18,35 +21,65 @@ public class UtilityConversion {
 	}
 
 	/**
-	 * List<Integer> to List<Double>
+	 * Convert {@link java.util.List} of Integer to {@link java.util.List} of
+	 * Double.
+	 * 
+	 * @param toBeConverted the {@link java.util.List} of Integer
+	 * @return result {@link java.util.List} of Double.
 	 */
-	public static List<Double> listIntegerToListDouble(List<Integer> toBeConverterd) {
-
-		return toBeConverterd.stream() //
+	public static List<Double> listIntegerToListDouble(List<Integer> toBeConverted) {
+		return toBeConverted.stream() //
 				.mapToDouble(i -> i) //
 				.boxed() //
 				.collect(Collectors.toList());
-
 	}
-	
+
+	/**
+	 * Convert {@link java.util.ArrayList} to double[][].
+	 * 
+	 * @param data {@link java.util.ArrayList} double
+	 * @return result converted double [][]
+	 */
 	public static double[][] convert2DArrayListTo2DArray(ArrayList<ArrayList<Double>> data) {
 		return data.stream() //
 				.map(UtilityConversion::convert1DArrayListTo1DArray) //
 				.toArray(double[][]::new);
 	}
-	
+
+	/**
+	 * Convert {@link java.util.List} of double.
+	 * 
+	 * @param data {@link java.util.List} of Double
+	 * @return result converted double [][]
+	 */
 	public static double[][] convert2DArrayListTo2DArray(List<List<Double>> data) {
 		return data.stream() //
 				.map(UtilityConversion::convert1DArrayListTo1DArray) //
 				.toArray(double[][]::new);
 	}
-	
+
+	/**
+	 * Convert {@link java.util.ArrayList} of Double to double[].
+	 * 
+	 * @param data {@link java.util.ArrayList} of Double
+	 * @return result converted double []
+	 */
 	public static double[] convert1DArrayListTo1DArray(ArrayList<Double> data) {
-		return data.stream().mapToDouble(Double::doubleValue).toArray();
+		return data.stream() //
+				.mapToDouble(Double::doubleValue) //
+				.toArray();
 	}
-	
+
+	/**
+	 * Convert {@link java.util.List} of double to double[].
+	 * 
+	 * @param data {@link java.util.List} of double
+	 * @return result converted double []
+	 */
 	public static double[] convert1DArrayListTo1DArray(List<Double> data) {
-		return data.stream().mapToDouble(Double::doubleValue).toArray();
+		return data.stream() //
+				.mapToDouble(Double::doubleValue) //
+				.toArray();
 	}
-	
+
 }

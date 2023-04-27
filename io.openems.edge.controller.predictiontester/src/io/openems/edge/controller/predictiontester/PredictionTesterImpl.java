@@ -12,7 +12,6 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -27,7 +26,7 @@ import io.openems.edge.predictor.api.manager.PredictorManager;
 public class PredictionTesterImpl extends AbstractOpenemsComponent
 		implements PredictionTester, Controller, OpenemsComponent {
 
-	private Config config = null;
+	//private Config config = null;
 
 	public PredictionTesterImpl() {
 		super(//
@@ -41,13 +40,11 @@ public class PredictionTesterImpl extends AbstractOpenemsComponent
 	private PredictorManager predictorManager;
 
 	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
-	// private static final ChannelAddress SUM_CONSUMPTION = new
-	// ChannelAddress("_sum", "ConsumptionActivePower");
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.config = config;
+		//this.config = config;
 	}
 
 	@Deactivate
@@ -58,11 +55,11 @@ public class PredictionTesterImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		try {
-		Integer[] predictedProduction = predictorManager.get24HoursPrediction(SUM_PRODUCTION).getValues();
-		System.out.println(predictedProduction == null ? "null data" : Arrays.toString(predictedProduction));
-		}catch (Exception e) {
-			
+			Integer[] predictedProduction = predictorManager.get24HoursPrediction(SUM_PRODUCTION).getValues();
+			System.out.println(predictedProduction == null ? "null data" : Arrays.toString(predictedProduction));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
+
 	}
 }

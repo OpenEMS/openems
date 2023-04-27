@@ -1,6 +1,5 @@
 package io.openems.edge.predictor.lstmmodel.interpolation;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,30 +24,27 @@ public class CubicalInterpolation {
 	int groupSize = 1;
 
 	public CubicalInterpolation() {
-		Interpolate();
+
 	}
 
-	private void Interpolate() {
+	public void Interpolate() {
 
 		ArrayList<Double> x = new ArrayList<Double>(Arrays.asList(1.00, 2.00, 3.00, 4.00));
 		ArrayList<Double> y = new ArrayList<Double>(Arrays.asList(1.0, 0.5, 0.333, 0.25));
-		ArrayList<ArrayList<Double>> xInterval = groupToInterval(x);
-		ArrayList<ArrayList<Double>> yInterval = groupToInterval(y);
-		ArrayList<Double> mVector = generateAndSolveTriDiagonal(xInterval, yInterval);
-		double result = interpolationFunction(xInterval, yInterval, groupToInterval(mVector), 2.55);
+		ArrayList<ArrayList<Double>> xInterval = this.groupToInterval(x);
+		ArrayList<ArrayList<Double>> yInterval = this.groupToInterval(y);
+		ArrayList<Double> mVector = this.generateAndSolveTriDiagonal(xInterval, yInterval);
+		double result = this.interpolationFunction(xInterval, yInterval, this.groupToInterval(mVector), 2.55);
 		System.out.println("result : " + result);
-		InterpolatingInterval = linearInterpolation.determineInterpolatingPoints(data);
+		this.InterpolatingInterval = linearInterpolation.determineInterpolatingPoints(data);
 
 	}
 
 	private ArrayList<Double> generateAndSolveTriDiagonal(//
-			ArrayList<ArrayList<Double>> x,
-			ArrayList<ArrayList<Double>> y) //
-	{
+			ArrayList<ArrayList<Double>> x, ArrayList<ArrayList<Double>> y) {
 		ArrayList<ArrayList<Double>> cof = new ArrayList<ArrayList<Double>>();
 		ArrayList<ArrayList<Double>> tempMat = new ArrayList<ArrayList<Double>>();
 		List<Double> vector = new ArrayList<Double>();
-		List<Double> mVector = new ArrayList<Double>();
 		int colLen = x.size() - 1;
 		int rowLen = colLen + 2;
 
@@ -57,7 +53,7 @@ public class CubicalInterpolation {
 
 		for (int i = 0; i < x.size(); i++) {
 			if (i < x.size() - 1) {
-				cof = generateCof(x.get(i), x.get(i + 1), y.get(i), y.get(i + 1));
+				cof = this.generateCof(x.get(i), x.get(i + 1), y.get(i), y.get(i + 1));
 				vector.add(cof.get(1).get(0));
 				tempMat.add(cof.get(0));
 			} else {
@@ -76,7 +72,7 @@ public class CubicalInterpolation {
 			A.get(i).remove(A.get(i).size() - 1);
 		}
 		// solving system of linear equation
-		mVector = linearEquationSolver(A, vector);
+		List<Double> mVector = linearEquationSolver(A, vector);
 		// updating the m vector
 		mVector.add(0, 0.0);
 		mVector.add(0.0);
@@ -84,18 +80,16 @@ public class CubicalInterpolation {
 		System.out.println(mVector);
 
 		ArrayList<ArrayList<Double>> mVectorGrouped = groupToInterval((ArrayList<Double>) mVector);
+		System.out.println(mVectorGrouped);
 		return (ArrayList<Double>) mVector;
 
 	}
 
-	private ArrayList<ArrayList<Double>> generateCof( //
-			ArrayList<Double> intervalX1, //
+	private ArrayList<ArrayList<Double>> generateCof(ArrayList<Double> intervalX1, //
 			ArrayList<Double> intervalX2, //
 			ArrayList<Double> intervalY1, //
-			ArrayList<Double> intervalY2) //
-	{
+			ArrayList<Double> intervalY2) {
 		ArrayList<Double> cof = new ArrayList<>();
-		ArrayList<Double> Y = new ArrayList<>();
 		double temp1 = intervalX1.get(1) - intervalX1.get(0);
 		double temp2 = intervalX2.get(1) - intervalX1.get(0);
 		double temp3 = intervalX2.get(1) - intervalX2.get(0);
@@ -104,10 +98,12 @@ public class CubicalInterpolation {
 		double cof1 = temp1 / 6.0;
 		double cof2 = temp2 / 3.0;
 		double cof3 = temp3 / 6.0;
-		double y = (temp4 / temp3) - (temp5 / temp1);
+
 		cof.add(cof1);
 		cof.add(cof2);
 		cof.add(cof3);
+		double y = (temp4 / temp3) - (temp5 / temp1);
+		ArrayList<Double> Y = new ArrayList<>();
 		Y.add(y);
 		ArrayList<ArrayList<Double>> result = new ArrayList<ArrayList<Double>>();
 		result.add(cof);
@@ -156,8 +152,6 @@ public class CubicalInterpolation {
 			}
 
 		}
-
-		System.out.println(result);
 		return result;
 	}
 
@@ -170,15 +164,10 @@ public class CubicalInterpolation {
 		return -1;
 	}
 
-	public double interpolationFunction( //
-			ArrayList<ArrayList<Double>> xInter, //
-			ArrayList<ArrayList<Double>> yInt, //
-			ArrayList<ArrayList<Double>> mInter, //
-			double interpolationValue) //
-	{
-		
-		int index = identifyInterval(xInter, interpolationValue);
-		double result = 0.0;
+	public double interpolationFunction(ArrayList<ArrayList<Double>> xInter, ArrayList<ArrayList<Double>> yInt,
+			ArrayList<ArrayList<Double>> mInter, double interpolationValue) {
+
+		int index = this.identifyInterval(xInter, interpolationValue);
 		double temp1 = 0.0;
 		double temp2 = 0.0;
 		double temp3 = 0.0;
@@ -186,13 +175,12 @@ public class CubicalInterpolation {
 		temp2 = (double) interpolationValue - xInter.get(index).get(0);
 		temp3 = xInter.get(index).get(1) - xInter.get(index).get(0);
 		double res0 = (//
-				(Math.pow(temp1, 3) * mInter.get(index).get(0) +//
-						Math.pow(temp2, 3) * mInter.get(index).get(1))//
+		(Math.pow(temp1, 3) * mInter.get(index).get(0) //
+				+ Math.pow(temp2, 3) * mInter.get(index).get(1))//
 				/ (6 * temp3));
 		double res1 = ((temp1) * yInt.get(index).get(0) + temp2 * yInt.get(index).get(1)) / (temp3);
 		double res2 = (temp3 * (temp1 * mInter.get(index).get(0) + temp2 * mInter.get(index).get(1))) / 6;
-		result = res0 + res1 - res2;
+		double result = res0 + res1 - res2;
 		return result;
 	}
 }
-

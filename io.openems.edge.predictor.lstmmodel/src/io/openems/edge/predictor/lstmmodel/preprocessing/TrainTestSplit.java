@@ -10,22 +10,27 @@ public class TrainTestSplit {
 	public int testIndexHigher;
 	public int totalSize;
 
-	public TrainTestSplit(int totalSize, int windowSize, double percentage) {
+	public TrainTestSplit(int size, int windowSize, double percentage) {
 
-		this.totalSize = totalSize - 1;
+		this.totalSize = size - 1;
 
 		this.trainIndexLower = 0;
-		this.trainIndexHigher = (int) (percentage * totalSize);
+		this.trainIndexHigher = (int) (percentage * size);
 
-		testIndexLower = totalSize - (96 + windowSize);
-		testIndexHigher = this.totalSize;
+		this.testIndexLower = size - (96 + windowSize);
+		this.testIndexHigher = this.totalSize;
 
-		validateIndexLower = this.trainIndexHigher;
-		validateIndexHigher = this.testIndexLower;
+		this.validateIndexLower = this.trainIndexHigher;
+		this.validateIndexHigher = this.testIndexLower;
 
-		System.out.println(printTrainSplitPerc());
+		System.out.println(this.printTrainSplitPerc());
 	}
 
+	/**
+	 * Simple to string method for train/ test/validate split.
+	 * 
+	 * @return res string of the all the values
+	 */
 	public String printTrainSplitPerc() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Total Data size is : " + this.totalSize);
@@ -37,7 +42,7 @@ public class TrainTestSplit {
 				+ " to : " //
 				+ this.trainIndexHigher //
 				+ " size : " //
-				+ (trainIndexHigher - trainIndexLower));
+				+ (this.trainIndexHigher - this.trainIndexLower));
 
 		sb.append("\n");
 
@@ -46,7 +51,7 @@ public class TrainTestSplit {
 				+ " to : " //
 				+ this.validateIndexHigher //
 				+ " size : " //
-				+ (validateIndexHigher - validateIndexLower));
+				+ (this.validateIndexHigher - this.validateIndexLower));
 
 		sb.append("\n");
 
@@ -55,7 +60,7 @@ public class TrainTestSplit {
 				+ " to : " //
 				+ this.testIndexHigher //
 				+ " size : " //
-				+ (testIndexHigher - testIndexLower));
+				+ (this.testIndexHigher - this.testIndexLower));
 
 		sb.append("\n");
 

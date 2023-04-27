@@ -7,70 +7,82 @@ import io.openems.edge.predictor.lstmmodel.utilities.MathUtils;
 
 public class Cell {
 
+	public static final BiFunction<Double, Double, Double> MULTIPLY = (x, y) -> x * y;
+	public static final BiFunction<Double, Double, Double> ADD = (x, y) -> x + y;
+	public static final Function<Double, Double> SIGMOID = MathUtils::sigmoid;
+
 	private double error;
-	private double wi, wo, wz, Ri, Ro, Rz;
-	double yt;
+	private double wI;
+	private double wO;
+	private double wZ;
+	private double rI;
+	private double rO;
+	private double rZ;
+	public double yT;
 
-	public double ct, ot, zt;
+	public double cT;
+	public double oT;
+	public double zT;
 
-	public double it;
-	public double dlByDy, dlByDo, dlByDc, dlByDi, dlByDz, delI, delO, delZ;
+	public double iT;
+	public double dlByDy;
+	public double dlByDo;
+	public double dlByDc;
+	public double dlByDi;
+	public double dlByDz;
+	public double delI;
+	public double delO;
+	public double delZ;
 
-	public double xt;
+	public double xT;
 	public double outputDataLoc;
 
-	public enum propagationType {
+	public enum PropagationType {
 		FORWARD, BACKWARD
-	};
+	}
 
 	public Cell(double xt, double outputData) {
 		this.dlByDc = this.error = 0;
-		this.wi = this.wo = this.wz = this.Ri = this.Ro = this.Rz = 1;
-		this.ct = this.ot = this.zt = 0;
-		this.yt = 0;
+		this.wI = this.wO = this.wZ = this.rI = this.rO = this.rZ = 1;
+		this.cT = this.oT = this.zT = 0;
+		this.yT = 0;
 		this.dlByDy = this.dlByDo = this.dlByDc = this.dlByDi = this.dlByDz = 0;
 		this.delI = this.delO = this.delZ = 0;
-		this.it = 0;
-		this.xt = xt;
+		this.iT = 0;
+		this.xT = xt;
 		this.outputDataLoc = outputData;
 
 	}
 
-	public BiFunction<Double, Double, Double> MULTIPLY = (T, R) -> T * R;
-	public BiFunction<Double, Double, Double> ADD = (T, R) -> T + R;
-	public static final Function<Double, Double> SIGMOID = MathUtils::sigmoid;
-
+	/**
+	 * Forward propagation.
+	 */
 	public void forwardPropogation() {
-//		this.it = SIGMOID.apply( //
-//				ADD.apply( //
-//						MULTIPLY.apply(this.wi, this.xt), //
-//						MULTIPLY.apply(this.Ri, this.yt)//
-//				)
-//		);
-
-		
-		this.it = MathUtils.sigmoid(this.wi * this.xt + this.Ri * this.yt);
-		this.ot = MathUtils.sigmoid(this.wo * this.xt + this.Ro * this.yt);
-		this.zt = MathUtils.tanh(this.wz * this.xt + this.Rz * this.yt);
-		this.ct = this.ct + this.it * this.zt;
-		this.yt = this.ot * MathUtils.tanh(this.ct);
-		error = this.outputDataLoc - this.yt;
+		this.iT = MathUtils.sigmoid(this.wI * this.xT + this.rI * this.yT);
+		this.oT = MathUtils.sigmoid(this.wO * this.xT + this.rO * this.yT);
+		this.zT = MathUtils.tanh(this.wZ * this.xT + this.rZ * this.yT);
+		this.cT = this.cT + this.iT * this.zT;
+		this.yT = this.oT * MathUtils.tanh(this.cT);
+		this.error = this.outputDataLoc - this.yT;
 
 	}
 
+	/**
+	 * Backward propagation.
+	 */
 	public void backwardPropogation() {
 		this.dlByDy = this.error;
-		this.dlByDo = this.dlByDy * MathUtils.tanh(this.ct);
-		this.dlByDc = this.dlByDy * this.ot * MathUtils.tanhDerivative(this.ct) + this.dlByDc;
-		this.dlByDi = this.dlByDc * this.zt;
-		this.dlByDz = this.dlByDc * this.it;
-		this.delI = this.dlByDi * MathUtils.sigmoidDerivative(this.wi + this.Ri * this.yt);
-		this.delO = this.dlByDo * MathUtils.sigmoidDerivative(this.wo + this.Ro * this.yt);
-		this.delZ = this.dlByDz * MathUtils.tanhDerivative(this.wz + this.Rz * this.yt);
+		this.dlByDo = this.dlByDy * MathUtils.tanh(this.cT);
+		this.dlByDc = this.dlByDy * this.oT * MathUtils.tanhDerivative(this.cT) + this.dlByDc;
+		this.dlByDi = this.dlByDc * this.zT;
+		this.dlByDz = this.dlByDc * this.iT;
+		this.delI = this.dlByDi * MathUtils.sigmoidDerivative(this.wI + this.rI * this.yT);
+		this.delO = this.dlByDo * MathUtils.sigmoidDerivative(this.wO + this.rO * this.yT);
+		this.delZ = this.dlByDz * MathUtils.tanhDerivative(this.wZ + this.rZ * this.yT);
 	}
 
 	public double getError() {
-		return error;
+		return this.error;
 	}
 
 	public void setError(double error) {
@@ -78,72 +90,78 @@ public class Cell {
 	}
 
 	public double getWi() {
-		return wi;
+		return this.wI;
 	}
 
 	public void setWi(double wi) {
-		this.wi = wi;
+		this.wI = wi;
 	}
 
 	public double getWo() {
-		return wo;
+		return this.wO;
 	}
 
 	public void setWo(double wo) {
-		this.wo = wo;
+		this.wO = wo;
 	}
 
 	public double getWz() {
-		return wz;
+		return this.wZ;
 	}
 
 	public void setWz(double wz) {
-		this.wz = wz;
+		this.wZ = wz;
 	}
 
 	public double getRi() {
-		return Ri;
+		return this.rI;
 	}
 
 	public void setRi(double ri) {
-		Ri = ri;
+		this.rI = ri;
 	}
 
 	public double getRo() {
-		return Ro;
+		return this.rO;
 	}
 
 	public void setRo(double ro) {
-		Ro = ro;
+		this.rO = ro;
 	}
 
 	public double getRz() {
-		return Rz;
+		return this.rZ;
 	}
 
 	public void setRz(double rz) {
-		Rz = rz;
+		this.rZ = rz;
 	}
 
-	public String toString(propagationType propgationType) {
+	/**
+	 * Simple to string method.
+	 * 
+	 * @param propgationType forward or backward propagation
+	 * @return result string of the all the values
+	 */
+	public String toString(PropagationType propgationType) {
 		StringBuilder str = new StringBuilder();
 		switch (propgationType) {
 		case BACKWARD:
-			str.append("dlByDy : " + dlByDy + " | ");
-			str.append("dlByDo : " + dlByDo + " | ");
-			str.append("dlByDc : " + dlByDc + " | ");
-			str.append("dlByDi : " + dlByDi + " | ");
-			str.append("dlByDz : " + dlByDz + " | ");
-			str.append("delI : " + delI + " | ");
-			str.append("delO : " + delO + " | ");
-			str.append("delZ : " + delZ + " | ");
+			str.append("dlByDy : " + this.dlByDy + " | ");
+			str.append("dlByDo : " + this.dlByDo + " | ");
+			str.append("dlByDc : " + this.dlByDc + " | ");
+			str.append("dlByDi : " + this.dlByDi + " | ");
+			str.append("dlByDz : " + this.dlByDz + " | ");
+			str.append("delI : " + this.delI + " | ");
+			str.append("delO : " + this.delO + " | ");
+			str.append("delZ : " + this.delZ + " | ");
 			break;
 		case FORWARD:
-			str.append("xt :" + this.xt + " | ");
-			str.append("ot :" + this.ot + " | ");
-			str.append("zt :" + this.zt + " | ");
-			str.append("ct :" + this.ct + " | ");
-			str.append("yt :" + this.yt + " | ");
+			str.append("xt :" + this.xT + " | ");
+			str.append("ot :" + this.oT + " | ");
+			str.append("zt :" + this.zT + " | ");
+			str.append("ct :" + this.cT + " | ");
+			str.append("yt :" + this.yT + " | ");
 			break;
 		}
 		return str.toString();

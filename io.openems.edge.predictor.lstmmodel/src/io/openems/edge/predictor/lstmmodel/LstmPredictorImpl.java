@@ -89,19 +89,19 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 	@Override
 	protected Prediction24Hours createNewPrediction(ChannelAddress channelAddress) {
 
-		var now = ZonedDateTime.now(this.componentManager.getClock());
+		var nowDate = ZonedDateTime.now(this.componentManager.getClock());
 		// From now time to Last 4 weeks
-		var fromDate = now.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
+		var fromDate = nowDate.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
 
 		System.out.println("From date : " + fromDate //
-				+ "to current date : " + now //
-				+ " equals to : " + zonedDateTimeDifference(fromDate, now, ChronoUnit.DAYS) + " days");
+				+ "to current date : " + nowDate //
+				+ " equals to : " + zonedDateTimeDifference(fromDate, nowDate, ChronoUnit.DAYS) + " days");
 
 		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult;
 
 		// Query database
 		try {
-			queryResult = this.timedata.queryHistoricData(null, fromDate, now, Sets.newHashSet(channelAddress),
+			queryResult = this.timedata.queryHistoricData(null, fromDate, nowDate, Sets.newHashSet(channelAddress),
 					new Resolution(15, ChronoUnit.MINUTES));
 		} catch (OpenemsNamedException e) {
 			this.logError(this.log, e.getMessage());
@@ -133,24 +133,19 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 		double[] result;
 
 		try {
-			double[][] trainData = preprocessing.getFeatureData( //
-					preprocessing.trainTestSplit.trainIndexLower, //
+			double[][] trainData = preprocessing.getFeatureData(preprocessing.trainTestSplit.trainIndexLower,
 					preprocessing.trainTestSplit.trainIndexHigher);
 
-			double[][] validateData = preprocessing.getFeatureData(//
-					preprocessing.trainTestSplit.validateIndexLower, //
+			double[][] validateData = preprocessing.getFeatureData(preprocessing.trainTestSplit.validateIndexLower,
 					preprocessing.trainTestSplit.validateIndexHigher);
 
-			double[][] testData = preprocessing.getFeatureData( //
-					preprocessing.trainTestSplit.testIndexLower, //
+			double[][] testData = preprocessing.getFeatureData(preprocessing.trainTestSplit.testIndexLower,
 					preprocessing.trainTestSplit.testIndexHigher);
 
-			double[] trainTarget = preprocessing.getTargetData( //
-					preprocessing.trainTestSplit.trainIndexLower, //
+			double[] trainTarget = preprocessing.getTargetData(preprocessing.trainTestSplit.trainIndexLower,
 					preprocessing.trainTestSplit.trainIndexHigher);
 
-			double[] validateTarget = preprocessing.getTargetData( //
-					preprocessing.trainTestSplit.validateIndexLower, //
+			double[] validateTarget = preprocessing.getTargetData(preprocessing.trainTestSplit.validateIndexLower,
 					preprocessing.trainTestSplit.validateIndexHigher);
 
 			System.out.println("Train Window size   : " + trainData[0].length);
@@ -174,7 +169,7 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 			int epochs = 10;
 			model.fit(epochs);
 
-			result = model.Predict(testData);
+			result = model.predict(testData);
 
 			Integer[] perdictedValues = preprocessing.reverseScale(0.2, 0.8, result);
 
@@ -187,12 +182,28 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 
 	}
 
+	/**
+	 * Does the array is all nulls or not.
+	 * 
+	 * @param array the array
+	 * @return True if all elements are null, false otherwise
+	 */
 	public static boolean isAllNulls(Iterable<?> array) {
-		return StreamSupport.stream(array.spliterator(), true).allMatch(o -> o == null);
+		return StreamSupport //
+				.stream(array.spliterator(), true) //
+				.allMatch(o -> o == null);
 	}
 
-	static long zonedDateTimeDifference(ZonedDateTime d1, ZonedDateTime d2, ChronoUnit unit) {
-		return unit.between(d1, d2);
+	/**
+	 * Gets the number of days from fromDate and nowDate.
+	 * 
+	 * @param fromDate ZonedDateTime fromDate
+	 * @param nowDate  ZonedDateTime nowDate
+	 * @param unit     ChronoUnit.day
+	 * @return Number of days from fromDate and nowDate
+	 */
+	static long zonedDateTimeDifference(ZonedDateTime fromDate, ZonedDateTime nowDate, ChronoUnit unit) {
+		return unit.between(fromDate, nowDate);
 	}
 
 }
