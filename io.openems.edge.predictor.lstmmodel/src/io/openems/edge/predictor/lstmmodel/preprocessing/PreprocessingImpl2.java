@@ -1,4 +1,4 @@
-//package io.openems.edge.predictor.lstmmodel.util;
+//package io.openems.edge.predictor.lstmmodel.preprocessing;
 //
 //import java.util.ArrayList;
 //import java.util.Collections;
@@ -8,8 +8,10 @@
 //import java.util.stream.Stream;
 //
 //import io.openems.edge.predictor.lstmmodel.util.Cell.propagationType;
+//import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 //
-//public class PreprocessingImpl implements PreProcessing {
+//@Deprecated
+//public class PreprocessingImpl2 implements PreProcessing {
 //
 //	public static double trainSplit = 0.6;
 //	public static double validateSplit = 0.2;
@@ -45,7 +47,7 @@
 //	 * @param data       {@link List<Double>} data
 //	 * @param windowSize size of the window
 //	 */
-//	public PreprocessingImpl(List<Double> data, int windowSize) {
+//	public PreprocessingImpl2(List<Double> data, int windowSize) {
 //		this(data, windowSize, trainSplit, validateSplit);
 //	}
 //	
@@ -59,7 +61,7 @@
 //	 * @param trainSplit    percent of the trainSplit (0.6 for 60 percent)
 //	 * @param validateSplit percent of the validateSplit (0.2 for 20 percent)
 //	 */
-//	public PreprocessingImpl(List<Double> data, int windowSize, double trainSplit, double validateSplit) {
+//	public PreprocessingImpl2(List<Double> data, int windowSize, double trainSplit, double validateSplit) {
 //		System.out.println("Starting Preprocessing ....");
 //		this.dataList = (ArrayList<Double>) data;
 //
@@ -185,3 +187,4 @@
 //	}
 //
 //}
+//

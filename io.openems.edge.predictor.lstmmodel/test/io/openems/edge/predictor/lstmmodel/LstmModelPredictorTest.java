@@ -30,8 +30,9 @@ public class LstmModelPredictorTest {
 				ZoneOffset.UTC);
 
 		var values = Data.data;
-		System.out.println(values.length);
-		var predictedValues = Data.predictedData;
+
+		System.out.println("length of the Arrayy : " + values.length);
+		var predictedValues = Data.predictedData1;
 
 		var timedata = new DummyTimedata(TIMEDATA_ID);
 		var start = ZonedDateTime.of(2019, 12, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
@@ -39,8 +40,6 @@ public class LstmModelPredictorTest {
 		for (var i = 0; i < values.length; i++) {
 			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
 		}
-		
-		
 
 		var sut = new LstmPredictorImpl();
 
@@ -53,15 +52,14 @@ public class LstmModelPredictorTest {
 						.setChannelAddresses(METER1_ACTIVE_POWER.toString()).build());
 
 		var prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
-//		var p = prediction.getValues();
+		var p = prediction.getValues();
 
-//		assertEquals(predictedValues[0], p[0]);
-//		assertEquals(predictedValues[48], p[48]);
-//		assertEquals(predictedValues[95], p[95]);
+		assertEquals(predictedValues[0], p[0]);
+		assertEquals(predictedValues[48], p[48]);
+		assertEquals(predictedValues[95], p[95]);
 
-//		System.out.println(Arrays.toString(prediction.getValues()));
+		System.out.println(Arrays.toString(prediction.getValues()));
 
 	}
 
 }
-

@@ -2,12 +2,12 @@ package io.openems.edge.predictor.lstmmodel;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -32,10 +32,9 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
-
+import io.openems.edge.predictor.lstmmodel.preprocessing.PreprocessingImpl;
 import io.openems.edge.predictor.lstmmodel.util.Engine;
 import io.openems.edge.predictor.lstmmodel.util.Engine.EngineBuilder;
-import io.openems.edge.predictor.lstmmodel.util.PreprocessingImpl2;
 import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 import io.openems.edge.timedata.api.Timedata;
 
@@ -51,10 +50,7 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 
 	private final Logger log = LoggerFactory.getLogger(LstmPredictorImpl.class);
 
-//	public static final Function<ArrayList<Double>, double[]> ONE_D_ARRAY = UtilityConversion::convert1DArrayListTo1DArray;
-//	public static final Function<ArrayList<ArrayList<Double>>, double[][]> TWO_D_ARRAY = UtilityConversion::convert2DArrayListTo2DArray;
 	public static final Function<List<Integer>, List<Double>> INTEGER_TO_DOUBLE_LIST = UtilityConversion::listIntegerToListDouble;
-//	public static final Function<double[], ArrayList<Double>> TWO_D_LIST = UtilityConversion::doubleToArrayListDouble;
 
 	@Reference
 	private Timedata timedata;
@@ -97,6 +93,10 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 		// From now time to Last 4 weeks
 		var fromDate = now.minus(this.config.numOfWeeks(), ChronoUnit.WEEKS);
 
+		System.out.println("From date : " + fromDate //
+				+ "to current date : " + now //
+				+ " equals to : " + zonedDateTimeDifference(fromDate, now, ChronoUnit.DAYS) + " days");
+
 		final SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> queryResult;
 
 		// Query database
@@ -112,48 +112,57 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 		// Extract data
 		List<Integer> data = queryResult.values().stream() //
 				.map(SortedMap::values) //
-				// extract JsonElement values as flat stream
 				.flatMap(Collection::stream) //
-				// convert JsonElement to Integer
 				.map(v -> {
 					if (v.isJsonNull()) {
 						return (Integer) null;
 					}
 					return v.getAsInt();
-				})
-				// get as Array
-				.collect(Collectors.toList());
+				}).collect(Collectors.toList());
 
-		System.out.println(data);
+		if (isAllNulls(data)) {
+			System.out.println("Data is all null, use different predictor");
+			return null;
+		}
 
 		int windowsSize = 24;
-		PreprocessingImpl2 preprocessing = new PreprocessingImpl2(INTEGER_TO_DOUBLE_LIST.apply(data), windowsSize);
+		PreprocessingImpl preprocessing = new PreprocessingImpl(INTEGER_TO_DOUBLE_LIST.apply(data), windowsSize);
 
 		preprocessing.scale(0.2, 0.8);
 
 		double[] result;
 
 		try {
-
 			double[][] trainData = preprocessing.getFeatureData( //
 					preprocessing.trainTestSplit.trainIndexLower, //
 					preprocessing.trainTestSplit.trainIndexHigher);
 
-			double[][] validateData = preprocessing.getFeatureData(preprocessing.trainTestSplit.validateIndexLower,
+			double[][] validateData = preprocessing.getFeatureData(//
+					preprocessing.trainTestSplit.validateIndexLower, //
 					preprocessing.trainTestSplit.validateIndexHigher);
 
 			double[][] testData = preprocessing.getFeatureData( //
-					preprocessing.trainTestSplit.testIndexLower, preprocessing.trainTestSplit.testIndexHigher);
+					preprocessing.trainTestSplit.testIndexLower, //
+					preprocessing.trainTestSplit.testIndexHigher);
 
 			double[] trainTarget = preprocessing.getTargetData( //
 					preprocessing.trainTestSplit.trainIndexLower, //
 					preprocessing.trainTestSplit.trainIndexHigher);
 
 			double[] validateTarget = preprocessing.getTargetData( //
-					preprocessing.trainTestSplit.validateIndexLower, preprocessing.trainTestSplit.validateIndexHigher);
+					preprocessing.trainTestSplit.validateIndexLower, //
+					preprocessing.trainTestSplit.validateIndexHigher);
 
-			double[] testTarget = preprocessing.getTargetData( //
-					preprocessing.trainTestSplit.testIndexLower, preprocessing.trainTestSplit.testIndexHigher);
+			System.out.println("Train Window size   : " + trainData[0].length);
+			System.out.println("Train No of windows : " + trainData.length);
+			System.out.println("Train target Size   : " + trainTarget.length);
+
+			System.out.println("Validate Window size   : " + validateData[0].length);
+			System.out.println("Validate No of windows : " + validateData.length);
+			System.out.println("Validate target Size   : " + validateTarget.length);
+
+			System.out.println("Test Window size   : " + testData[0].length);
+			System.out.println("Test No of windows : " + testData.length);
 
 			Engine model = new EngineBuilder() //
 					.setInputMatrix(trainData) //
@@ -165,21 +174,25 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 			int epochs = 10;
 			model.fit(epochs);
 
-			result = model.Predict(testData, testTarget);
-			double resultRMs = model.computeRMS(testTarget, result);
+			result = model.Predict(testData);
 
-			System.out.println("The RMS is : " + resultRMs);
-			System.out.println(Arrays.toString(preprocessing.reverseScale(0.2, 0.8, result)));
-			System.out.println(result.length);
-			System.out.println(Arrays.toString(preprocessing.reverseScale(0.2, 0.8, testTarget)));
-			System.out.println(testTarget.length);
-			return new Prediction24Hours(preprocessing.reverseScale(0.2, 0.8, result));
+			Integer[] perdictedValues = preprocessing.reverseScale(0.2, 0.8, result);
+
+			return new Prediction24Hours(perdictedValues);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 
+	}
+
+	public static boolean isAllNulls(Iterable<?> array) {
+		return StreamSupport.stream(array.spliterator(), true).allMatch(o -> o == null);
+	}
+
+	static long zonedDateTimeDifference(ZonedDateTime d1, ZonedDateTime d2, ChronoUnit unit) {
+		return unit.between(d1, d2);
 	}
 
 }

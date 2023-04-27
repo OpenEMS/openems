@@ -35,7 +35,17 @@ public class UtilityConversion {
 				.toArray(double[][]::new);
 	}
 	
+	public static double[][] convert2DArrayListTo2DArray(List<List<Double>> data) {
+		return data.stream() //
+				.map(UtilityConversion::convert1DArrayListTo1DArray) //
+				.toArray(double[][]::new);
+	}
+	
 	public static double[] convert1DArrayListTo1DArray(ArrayList<Double> data) {
+		return data.stream().mapToDouble(Double::doubleValue).toArray();
+	}
+	
+	public static double[] convert1DArrayListTo1DArray(List<Double> data) {
 		return data.stream().mapToDouble(Double::doubleValue).toArray();
 	}
 	

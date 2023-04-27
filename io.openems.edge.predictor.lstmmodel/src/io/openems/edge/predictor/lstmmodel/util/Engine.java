@@ -20,6 +20,11 @@ public class Engine implements EngineDriver {
 	private ArrayList<ArrayList<ArrayList<Double>>> bestWeights = new ArrayList<ArrayList<ArrayList<Double>>>();
 	private ArrayList<ArrayList<Double>> finalWeight = new ArrayList<ArrayList<Double>>();
 
+	/**
+	 * This method train the LSTM network. and Update the finalWeight matrix.
+	 * 
+	 * @param epochs Number of times the forward and backward propagation.
+	 */
 	public void fit(int epochs) {
 
 		ArrayList<ArrayList<Double>> wieghtMatrix = new ArrayList<ArrayList<Double>>();
@@ -73,9 +78,15 @@ public class Engine implements EngineDriver {
 		int ind = selectWeight(bestWeights);
 		wieghtMatrix.clear();
 		finalWeight = bestWeights.get(ind);
-		// return wieghtMatrix;
 	}
 
+	/**
+	 * Do not need to go through entire data set to check the better weights, check
+	 * once at the specified percentage
+	 * 
+	 * @param percentage stopping percentage
+	 * @param wieghtMatrix
+	 */
 	private void earlyStop(int percentage, ArrayList<ArrayList<Double>> wieghtMatrix) {
 
 		if (weights.size() == (int) (inputMatrix.length * (float) (percentage * 0.01))) {
@@ -83,11 +94,11 @@ public class Engine implements EngineDriver {
 			wieghtMatrix = weights.get(ind);
 			bestWeights.add(wieghtMatrix);
 			weights.clear();
-		} else {
-			double error = wieghtMatrix.get(7).get(0);
-			// System.out.println("AllWeight = " + weights.size() + " error = " + error);
 		}
-
+//		else {
+//			double error = wieghtMatrix.get(7).get(0);
+//			// System.out.println("AllWeight = " + weights.size() + " error = " + error);
+//		}
 	}
 
 	/**
@@ -116,7 +127,12 @@ public class Engine implements EngineDriver {
 
 	}
 
-	public double[] Predict(double[][] input_data, double[] Target) {
+	/**
+	 * 
+	 * @param input_data
+	 * @return
+	 */
+	public double[] Predict(double[][] input_data/* , double[] Target */) {
 
 		double[] result = new double[input_data.length];
 		for (int i = 0; i < input_data.length; i++) {

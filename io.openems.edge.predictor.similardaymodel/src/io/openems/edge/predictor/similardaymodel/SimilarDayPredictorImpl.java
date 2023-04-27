@@ -132,8 +132,11 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 
 		// Getting the average predictions
 		var nextOneDayPredictions = getAverage(lastFourSimilarDays);
+		
+		Integer[] res = nextOneDayPredictions.stream().toArray(Integer[]::new);
+		System.out.println(res.length);
 
-		return new Prediction24Hours(nextOneDayPredictions.stream().toArray(Integer[]::new));
+		return new Prediction24Hours(res);
 	}
 
 	/**

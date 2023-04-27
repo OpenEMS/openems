@@ -10,7 +10,7 @@ public class Cell {
 	private double error;
 	private double wi, wo, wz, Ri, Ro, Rz;
 	double yt;
-	
+
 	public double ct, ot, zt;
 
 	public double it;
@@ -38,9 +38,8 @@ public class Cell {
 
 	public BiFunction<Double, Double, Double> MULTIPLY = (T, R) -> T * R;
 	public BiFunction<Double, Double, Double> ADD = (T, R) -> T + R;
-	
 	public static final Function<Double, Double> SIGMOID = MathUtils::sigmoid;
-	
+
 	public void forwardPropogation() {
 //		this.it = SIGMOID.apply( //
 //				ADD.apply( //
@@ -49,7 +48,8 @@ public class Cell {
 //				)
 //		);
 
-		this.it = MathUtils.sigmoid(this.wi * this.xt + this.Ri * this.yt);		
+		
+		this.it = MathUtils.sigmoid(this.wi * this.xt + this.Ri * this.yt);
 		this.ot = MathUtils.sigmoid(this.wo * this.xt + this.Ro * this.yt);
 		this.zt = MathUtils.tanh(this.wz * this.xt + this.Rz * this.yt);
 		this.ct = this.ct + this.it * this.zt;

@@ -1,4 +1,4 @@
-package io.openems.edge.predictor.lstmmodel;
+package io.openems.edge.predictor.lstmmodel.utilities;
 
 import static org.junit.Assert.*;
 

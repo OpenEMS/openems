@@ -84,9 +84,9 @@ public class Lstm {
 	public ArrayList<ArrayList<Double>> train() {
 
 		MatrixWeight mW = new MatrixWeight();
-
+		//System.out.print("Epoch : ");
 		for (int i = 0; i < this.epoch; i++) {
-			System.out.println("Epoch : " + i);
+		//	System.out.print(" " + i + " ..");
 
 			forwardprop();
 			backwardprop();
