@@ -15,7 +15,7 @@ export class DummyWebsocket implements WebsocketInterface {
 
     public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
         return new Promise((accept, reject) => {
-            reject("DummyComponent");
+            reject("Method not implemented.");
         });
     }
 
