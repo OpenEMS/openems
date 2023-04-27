@@ -16,10 +16,10 @@ import org.apache.commons.math3.linear.RealVector;
 
 public class CubicalInterpolation {
 
-	ArrayList<ArrayList<ArrayList<Double>>> InterpolatingInterval = new ArrayList<ArrayList<ArrayList<Double>>>();
+	ArrayList<ArrayList<ArrayList<Double>>> interpolatingInterval = new ArrayList<ArrayList<ArrayList<Double>>>();
 	ArrayList<Double> data = new ArrayList<Double>();
 	ArrayList<ArrayList<Double>> temp01 = new ArrayList<ArrayList<Double>>();
-	ArrayList<ArrayList<Double>> AInv = new ArrayList<ArrayList<Double>>();
+	ArrayList<ArrayList<Double>> matrixAInverted = new ArrayList<ArrayList<Double>>();
 	// Do not change this
 	int groupSize = 1;
 
@@ -27,7 +27,7 @@ public class CubicalInterpolation {
 
 	}
 
-	public void Interpolate() {
+	public void interpolate() {
 
 		ArrayList<Double> x = new ArrayList<Double>(Arrays.asList(1.00, 2.00, 3.00, 4.00));
 		ArrayList<Double> y = new ArrayList<Double>(Arrays.asList(1.0, 0.5, 0.333, 0.25));
@@ -36,7 +36,7 @@ public class CubicalInterpolation {
 		ArrayList<Double> mVector = this.generateAndSolveTriDiagonal(xInterval, yInterval);
 		double result = this.interpolationFunction(xInterval, yInterval, this.groupToInterval(mVector), 2.55);
 		System.out.println("result : " + result);
-		this.InterpolatingInterval = linearInterpolation.determineInterpolatingPoints(data);
+		this.interpolatingInterval = LinearInterpolation.determineInterpolatingPoints(this.data);
 
 	}
 
@@ -48,8 +48,9 @@ public class CubicalInterpolation {
 		int colLen = x.size() - 1;
 		int rowLen = colLen + 2;
 
-		List<List<Double>> A = IntStream.range(0, colLen) //
-				.mapToObj(i -> new ArrayList<Double>(Collections.nCopies(rowLen, 0d))).collect(Collectors.toList());
+		List<List<Double>> array = IntStream.range(0, colLen) //
+				.mapToObj(i -> new ArrayList<Double>(Collections.nCopies(rowLen, 0d))) //
+				.collect(Collectors.toList());
 
 		for (int i = 0; i < x.size(); i++) {
 			if (i < x.size() - 1) {
@@ -63,23 +64,23 @@ public class CubicalInterpolation {
 
 		for (int i = 0; i < tempMat.size(); i++) {
 			for (int j = 0; j < tempMat.get(0).size(); j++) {
-				A.get(i).set(j + i, tempMat.get(i).get(j));
+				array.get(i).set(j + i, tempMat.get(i).get(j));
 			}
 
 		}
-		for (int i = 0; i < A.size(); i++) {
-			A.get(i).remove(0);
-			A.get(i).remove(A.get(i).size() - 1);
+		for (int i = 0; i < array.size(); i++) {
+			array.get(i).remove(0);
+			array.get(i).remove(array.get(i).size() - 1);
 		}
 		// solving system of linear equation
-		List<Double> mVector = linearEquationSolver(A, vector);
+		List<Double> mVector = this.linearEquationSolver(array, vector);
 		// updating the m vector
 		mVector.add(0, 0.0);
 		mVector.add(0.0);
 		System.out.println("mVector");
 		System.out.println(mVector);
 
-		ArrayList<ArrayList<Double>> mVectorGrouped = groupToInterval((ArrayList<Double>) mVector);
+		ArrayList<ArrayList<Double>> mVectorGrouped = this.groupToInterval((ArrayList<Double>) mVector);
 		System.out.println(mVectorGrouped);
 		return (ArrayList<Double>) mVector;
 
@@ -103,11 +104,11 @@ public class CubicalInterpolation {
 		cof.add(cof2);
 		cof.add(cof3);
 		double y = (temp4 / temp3) - (temp5 / temp1);
-		ArrayList<Double> Y = new ArrayList<>();
-		Y.add(y);
+		ArrayList<Double> intermediatelist = new ArrayList<>();
+		intermediatelist.add(y);
 		ArrayList<ArrayList<Double>> result = new ArrayList<ArrayList<Double>>();
 		result.add(cof);
-		result.add(Y);
+		result.add(intermediatelist);
 		return result;
 	}
 
@@ -127,8 +128,8 @@ public class CubicalInterpolation {
 			}
 		}
 
-		RealMatrix MatA = new Array2DRowRealMatrix(tempMat, false);
-		DecompositionSolver solver = new LUDecomposition(MatA).getSolver();
+		RealMatrix matrixA = new Array2DRowRealMatrix(tempMat, false);
+		DecompositionSolver solver = new LUDecomposition(matrixA).getSolver();
 		RealVector vect = new ArrayRealVector(tempVect, false);
 		RealVector solution = solver.solve(vect);
 
@@ -145,9 +146,9 @@ public class CubicalInterpolation {
 		ArrayList<ArrayList<Double>> result = new ArrayList<ArrayList<Double>>();
 		for (int i = 0; i < arr.size(); i++) {
 			ArrayList<Double> temp = new ArrayList<Double>();
-			if (i + groupSize < arr.size()) {
+			if (i + this.groupSize < arr.size()) {
 				temp.add(arr.get(i));
-				temp.add(arr.get(i + groupSize));
+				temp.add(arr.get(i + this.groupSize));
 				result.add(temp);
 			}
 

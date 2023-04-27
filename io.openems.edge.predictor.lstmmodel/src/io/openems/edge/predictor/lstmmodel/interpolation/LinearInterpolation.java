@@ -3,40 +3,41 @@ package io.openems.edge.predictor.lstmmodel.interpolation;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public class linearInterpolation {
+public class LinearInterpolation {
 
-	ArrayList<Double> Data = new ArrayList<Double>();
+	ArrayList<Double> data = new ArrayList<Double>();
 
-	public linearInterpolation(ArrayList<Float> data) {
+	public LinearInterpolation(ArrayList<Float> data) {
 
-		this.Data = new ArrayList<Double>(//
+		this.data = new ArrayList<Double>(//
 				data.stream() //
 						.mapToDouble(Float::doubleValue)//
 						.boxed()//
 						.collect(Collectors.toCollection(ArrayList::new))//
 		);
 
-		this.Data = replaceNullWitNan(this.Data);
+		this.data = replaceNullWitNan(this.data);
 		System.out.println("Data Before Interpolation");
-		System.out.print(this.Data);
+		System.out.print(this.data);
 
-		if (Double.isNaN(this.Data.get(0))) {
-			this.Data.set(0, calculateMean(this.Data));
+		if (Double.isNaN(this.data.get(0))) {
+			this.data.set(0, calculateMean(this.data));
 		}
-		if (Double.isNaN(this.Data.get(this.Data.size() - 1))) {
-			this.Data.set(this.Data.size() - 1, calculateMean(this.Data));
+		if (Double.isNaN(this.data.get(this.data.size() - 1))) {
+			this.data.set(this.data.size() - 1, calculateMean(this.data));
 		} else {
+			//
 		}
-		ArrayList<ArrayList<ArrayList<Double>>> coordinate = determineInterpolatingPoints(Data);
+		ArrayList<ArrayList<ArrayList<Double>>> coordinate = determineInterpolatingPoints(this.data);
 		for (int i = 0; i < coordinate.size(); i++) {
-			ArrayList<Double> val = computeInterpolation(coordinate.get(i).get(0).get(0),
+			ArrayList<Double> val = this.computeInterpolation(coordinate.get(i).get(0).get(0),
 					coordinate.get(i).get(0).get(1), coordinate.get(i).get(1).get(0), coordinate.get(i).get(1).get(1));
-			Data = conCat(Data, val, coordinate.get(i).get(0).get(0), coordinate.get(i).get(0).get(1));
+			this.data = this.conCat(this.data, val, coordinate.get(i).get(0).get(0), coordinate.get(i).get(0).get(1));
 
 		}
 		System.out.println("Data after Interpolation");
 
-		System.out.println(Data);
+		System.out.println(this.data);
 	}
 
 	static ArrayList<ArrayList<ArrayList<Double>>> determineInterpolatingPoints(ArrayList<Double> data) {
@@ -48,7 +49,7 @@ public class linearInterpolation {
 		int flag = 0;
 		boolean flag1 = false;
 
-		ArrayList<ArrayList<ArrayList<Double>>> Coordinate = new ArrayList<ArrayList<ArrayList<Double>>>();
+		ArrayList<ArrayList<ArrayList<Double>>> coOrdinates = new ArrayList<ArrayList<ArrayList<Double>>>();
 
 		for (int i = 0; i < data.size(); i++) {
 			ArrayList<Double> x = new ArrayList<Double>();
@@ -66,8 +67,6 @@ public class linearInterpolation {
 				y1 = data.get(i - 1);
 				flag = 1;
 
-			} else if (flag1 == true && flag == 1) {
-
 			} else if (flag1 == false && flag == 1) {
 				x2 = i;
 				y2 = data.get(i);
@@ -79,14 +78,14 @@ public class linearInterpolation {
 
 				temp.add(x);
 				temp.add(y);
-				Coordinate.add(temp);
+				coOrdinates.add(temp);
 				Double.isNaN(i);
 
 			} else {
 				// nothing
 			}
 		}
-		return Coordinate;
+		return coOrdinates;
 
 	}
 
@@ -111,7 +110,7 @@ public class linearInterpolation {
 		double sum = 0;
 		for (int i = 0; i < data.size(); i++) {
 			if (Double.isNaN(data.get(i))) {
-
+					//
 			} else {
 				sum = sum + data.get(i);
 			}

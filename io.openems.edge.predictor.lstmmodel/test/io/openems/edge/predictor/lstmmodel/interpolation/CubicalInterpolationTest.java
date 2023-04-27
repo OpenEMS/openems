@@ -8,7 +8,7 @@ public class CubicalInterpolationTest {
 	@Test
 	public void test() {
 		CubicalInterpolation interpolation = new CubicalInterpolation();
-		interpolation.Interpolate();
+		interpolation.interpolate();
 		
 	}
 

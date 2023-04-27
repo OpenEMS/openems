@@ -9,30 +9,29 @@ public class Interpolation {
 		System.out.println("Data Before Interpolation");
 		System.out.print(data);
 
-		//TODO Check for NaN
+		// TODO Check for NaN
 		if (Double.isNaN(data.get(0))) {
-			data.set(0, calculateMean(data));
+			data.set(0, this.calculateMean(data));
 		}
 		if (Double.isNaN(data.get(data.size() - 1))) {
-			data.set(data.size() - 1, calculateMean(data));
+			data.set(data.size() - 1, this.calculateMean(data));
 		} else {
+			//
 		}
-		ArrayList<ArrayList<ArrayList<Double>>> coordinate = determineInterpolatingPoints(data);
+		ArrayList<ArrayList<ArrayList<Double>>> coordinate = this.determineInterpolatingPoints(data);
 		for (int i = 0; i < coordinate.size(); i++) {
-			ArrayList<Double> val = computeInterpolation(coordinate.get(i).get(0).get(0), //
+			ArrayList<Double> val = this.computeInterpolation(coordinate.get(i).get(0).get(0), //
 					coordinate.get(i).get(0).get(1), //
 					coordinate.get(i).get(1).get(0), //
 					coordinate.get(i).get(1).get(1) //
 			);
-			data = conCat(data, val, coordinate.get(i).get(0).get(0), coordinate.get(i).get(0).get(1));
+			data = this.conCat(data, val, coordinate.get(i).get(0).get(0), coordinate.get(i).get(0).get(1));
 
 		}
 		System.out.println("Data after Interpolation");
 
 		System.out.println(data);
 	}
-
-
 
 	private ArrayList<ArrayList<ArrayList<Double>>> determineInterpolatingPoints(ArrayList<Double> data) {
 		{
@@ -44,7 +43,7 @@ public class Interpolation {
 			int flag = 0;
 			boolean flag1 = false;
 
-			ArrayList<ArrayList<ArrayList<Double>>> Coordinate = new ArrayList<ArrayList<ArrayList<Double>>>();
+			ArrayList<ArrayList<ArrayList<Double>>> coOrdinates = new ArrayList<ArrayList<ArrayList<Double>>>();
 
 			for (int i = 0; i < data.size(); i++) {
 				ArrayList<Double> x = new ArrayList<Double>();
@@ -62,8 +61,6 @@ public class Interpolation {
 					y1 = data.get(i - 1);
 					flag = 1;
 
-				} else if (flag1 == true && flag == 1) {
-
 				} else if (flag1 == false && flag == 1) {
 					x2 = i;
 					y2 = data.get(i);
@@ -75,13 +72,14 @@ public class Interpolation {
 
 					temp.add(x);
 					temp.add(y);
-					Coordinate.add(temp);
+					coOrdinates.add(temp);
 					Double.isNaN(i);
 
 				} else {
+					//
 				}
 			}
-			return Coordinate;
+			return coOrdinates;
 		}
 	}
 
@@ -106,7 +104,7 @@ public class Interpolation {
 		double sum = 0;
 		for (int i = 0; i < data.size(); i++) {
 			if (Double.isNaN(data.get(i))) {
-
+				//
 			} else {
 				sum = sum + data.get(i);
 			}
