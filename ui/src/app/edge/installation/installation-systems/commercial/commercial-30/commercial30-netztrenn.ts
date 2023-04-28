@@ -15,8 +15,6 @@ import { AbstractCommercial30Ibn } from './abstract-commercial-30';
 
 export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
 
-    public readonly type: string = 'Fenceon-Commercial-30';
-
     public readonly id: string = 'commercial-30-netztrennstelle';
 
     // configuration-emergency-reserve
@@ -404,7 +402,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                 key: 'emsbox',
                 type: 'input',
                 templateOptions: {
-                    label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30', { edgeShortName: environment.edgeShortName }),
+                    label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30'),
                     required: true,
                     placeholder: 'xxxx'
                 },

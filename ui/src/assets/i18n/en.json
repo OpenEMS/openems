@@ -778,7 +778,8 @@
       "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Connection Box",
       "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules per string: {{ min }} and Maximum: {{ max }}",
       "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }}  Connection Box",
-      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "{{ edgeShortName }} Grid connection point"
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Grid connection point",
+      "BATTERY_MODULE_DESCRIPTION": "Please only enter the last 8 digits of the serial number."
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",

@@ -9,8 +9,6 @@ import { AbstractCommercial30Ibn } from './abstract-commercial-30';
 
 export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
 
-    public readonly type: string = 'Fenecon-Commercial-30';
-
     public readonly id: string = 'commercial-30-anschluss';
 
     constructor(translate: TranslateService) {

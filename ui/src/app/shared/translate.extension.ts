@@ -95,7 +95,7 @@ export function registerTranslateExtension(translate: TranslateService) {
             {
                 name: 'commercialBatteryModuleSerialNumber',
                 message(err, field: FormlyFieldConfig) {
-                    return serialNumber(translate, field, 20);
+                    return serialNumber(translate, field, 15);
                 },
             },
             {

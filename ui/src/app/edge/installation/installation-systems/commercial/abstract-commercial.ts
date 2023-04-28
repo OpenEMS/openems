@@ -14,6 +14,8 @@ import { AbstractIbn } from '../abstract-ibn';
 
 export abstract class AbstractCommercialIbn extends AbstractIbn {
 
+    private static readonly SELECTOR = 'Commercial';
+
     public readonly showRundSteuerManual: boolean = false;
 
     public showViewCount: boolean = false;
@@ -491,5 +493,98 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                     mode: ConfigurationMode.RemoveAndConfigure
                 }
         }
+    }
+
+    /**
+     * Returns the channel addresses for reading serial numbers of the system.
+     * 
+     * @param towerNr number of towers.
+     * @param numberOfModulesPerTower number of modules per tower.
+     * @returns The channel addresses.
+     */
+    protected getChannels(towerNr: number, numberOfModulesPerTower: number): ChannelAddress[] {
+
+        const channelAddresses: ChannelAddress[] = [];
+        channelAddresses['bmsBoxMaster'] = new ChannelAddress('battery0', 'MasterSerialNumber');
+
+        for (let moduleNr = 0; moduleNr < numberOfModulesPerTower; moduleNr++) {
+            channelAddresses['module' + moduleNr] = new ChannelAddress('battery0', 'Tower' + towerNr + 'Module' + moduleNr + 'SerialNumber');
+        }
+
+        return channelAddresses
+    }
+
+    public getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower: number) {
+        return new Promise((resolve) => {
+            let isResolved = false;
+            const channelAddresses: ChannelAddress[] = this.getChannels(towerNr, numberOfModulesPerTower);
+            const subscriptionId = AbstractCommercialIbn.SELECTOR + '-tower' + towerNr;
+            let model: Object = {};
+
+            // Subject to stop the subscription to currentData
+            const stopOnRequest: Subject<void> = new Subject<void>();
+
+            // Read data
+            edge.currentData.pipe(
+                takeUntil(stopOnRequest),
+                filter(currentData => currentData != null)
+            ).subscribe((currentData) => {
+
+                for (const [key, channelAddress] of Object.entries(channelAddresses)) {
+
+                    const serialNumber: string = currentData.channel[channelAddress.toString()];
+
+                    // If serial number is undefined or null, return
+                    if (!serialNumber) {
+                        return;
+                    }
+
+                    if (!this.addSerialNumbersToModel(key, model, serialNumber)) {
+                        // unhandled parsing
+                        // eg: battery module serial numbers are taken directly.
+                        model[key] = serialNumber;
+                    }
+
+                    // Resolve the promise
+                    isResolved = true;
+                    resolve(model);
+                }
+            });
+
+            // Edge-subscribe.
+            // TODO for method in edge to read channels once.
+            edge.subscribeChannels(websocket, subscriptionId, Object.values(channelAddresses));
+
+            setTimeout(() => {
+                // If data isn't available after the timeout, the
+                // promise gets resolved with an empty object
+                if (!isResolved) {
+                    resolve({});
+                }
+
+                // Unsubscribe to currentData and channels after timeout
+                stopOnRequest.next();
+                stopOnRequest.complete();
+                edge.unsubscribeChannels(websocket, subscriptionId);
+            }, 5000);
+        });
+    }
+
+    /**
+     * Adds serial numbers to the model. 
+     * 
+     * Returns true if adding serial numbers to the model was successful. If not, returns false.
+     * 
+     * @param key the channel address
+     * @param model the model.
+     * @param serialNumber the serial number from the channel.
+     */
+    protected addSerialNumbersToModel(key: string, model: Object, serialNumber: string): boolean {
+        if (key.startsWith('bmsBox')) {
+            // BMS master.
+            model[key] = serialNumber.substring(14);
+            return true;
+        }
+        return false;
     }
 }
