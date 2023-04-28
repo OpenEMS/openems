@@ -27,7 +27,7 @@ export class AdvertisementComponent implements OnInit, AfterContentChecked, OnDe
   public disablePrevBtn: boolean = null;
   public disableNextBtn: boolean = null;
 
-  slideOpts = {
+  protected slideOpts = {
     allowTouchMove: false,
     initialSlide: 0,
     preventClicks: false,
