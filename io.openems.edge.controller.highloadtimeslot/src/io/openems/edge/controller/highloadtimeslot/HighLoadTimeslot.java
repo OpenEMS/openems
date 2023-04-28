@@ -80,10 +80,11 @@ public class HighLoadTimeslot extends AbstractOpenemsComponent implements Contro
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.essId = config.ess();
 		this.startDate = DateUtils.parseLocalDateOrError(config.startDate(), DateUtils.DMY_FORMATTER);
 		this.endDate = DateUtils.parseLocalDateOrError(config.endDate(), DateUtils.DMY_FORMATTER);
+		// TODO switch format to {@link DateTimeFormatter#ISO_LOCAL_TIME}
 		this.startTime = DateUtils.parseLocalTimeOrError(config.startTime(), DateUtils.TIME_FORMATTER);
 		this.endTime = DateUtils.parseLocalTimeOrError(config.endTime(), DateUtils.TIME_FORMATTER);
 		this.chargePower = config.chargePower();

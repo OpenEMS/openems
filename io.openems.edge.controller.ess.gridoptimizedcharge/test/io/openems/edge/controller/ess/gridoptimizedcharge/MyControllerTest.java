@@ -1812,12 +1812,12 @@ public class MyControllerTest {
 		assertEquals(5788, (int) maximumChargePower); //
 	}
 
-	private static int getValidTargetMinute(String maunualTargetTime) {
+	private static int getValidTargetMinute(String manualTargetTime) {
 		LocalTime targetTime = null;
 
 		// Try to parse the configured Time as LocalTime or ZonedDateTime, which is the
 		// format that comes from UI.
-		targetTime = DelayCharge.parseTime(maunualTargetTime);
+		targetTime = DelayCharge.parseTime(manualTargetTime);
 		if (targetTime == null) {
 			targetTime = LocalTime.of(17, 0);
 			System.out.println("No valid target time - Default time is used");

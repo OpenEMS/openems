@@ -83,19 +83,20 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	@Activate
-	void activate(ComponentContext context, Config config) throws OpenemsNamedException {		
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
 	}
 
 	@Modified
-	void modified(ComponentContext context, Config config) throws OpenemsNamedException {			
+	void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
 
 	}
 
 	private void applyConfig(Config config) throws OpenemsNamedException {
+		// TODO switch format to {@link DateTimeFormatter#ISO_LOCAL_DATE}
 		this.startDate = DateUtils.parseLocalDateOrError(config.startDate(), DateUtils.DMY_FORMATTER);
 		this.endDate = DateUtils.parseLocalDateOrError(config.endDate(), DateUtils.DMY_FORMATTER);
 		this.startTime = convertTime(config.startTime());
@@ -217,8 +218,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	}
 
 	/**
-	 * This method calculates the power that is required to cut the peak during
-	 * time slot.
+	 * This method calculates the power that is required to cut the peak during time
+	 * slot.
 	 *
 	 * @param ess   the {@link ManagedSymmetricEss}
 	 * @param meter the {@link SymmetricMeter} of the grid
@@ -376,6 +377,7 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 * @return the converted time
 	 */
 	protected static LocalTime convertTime(String time) throws OpenemsException {
+		// TODO switch format to {@link DateTimeFormatter#ISO_LOCAL_TIME}
 		return DateUtils.parseLocalTimeOrError(time, TIME_FORMATTER);
 	}
 
@@ -386,8 +388,8 @@ public class TimeslotPeakshaving extends AbstractOpenemsComponent implements Con
 	 *
 	 * @param slowStartTime start of slow charging the battery
 	 * @param startTime     start of the high threshold period
-	 * @return forceChargeMinutes in integer, which specifies the total time the battery
-	 *         should be slowly charged
+	 * @return forceChargeMinutes in integer, which specifies the total time the
+	 *         battery should be slowly charged
 	 */
 	private static int calculateSlowForceChargeMinutes(LocalTime slowStartTime, LocalTime startTime) {
 		var forceChargeTime = (int) ChronoUnit.MINUTES.between(slowStartTime, startTime);

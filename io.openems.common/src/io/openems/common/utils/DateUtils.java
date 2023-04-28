@@ -15,12 +15,12 @@ public class DateUtils {
 	/**
 	 * Day-Month-Year with dots separated {@link DateTimeFormatter}.
 	 */
-	public static DateTimeFormatter DMY_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-	
+	public static final DateTimeFormatter DMY_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
 	/**
 	 * {@link DateTimeFormatter} with inclusively 24:00 which is converted to 00:00.
 	 */
-	public static DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+	public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
 	private DateUtils() {
 	}

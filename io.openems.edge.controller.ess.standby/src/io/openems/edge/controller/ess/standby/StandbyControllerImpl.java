@@ -65,6 +65,7 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 
 		this.config = config;
 		// TODO error handling if input is invalid
+		// TODO switch format to {@link DateTimeFormatter#ISO_LOCAL_DATE}
 		this.configuredStartDate = DateUtils.parseLocalDateOrError(config.startDate(), DateUtils.DMY_FORMATTER);
 		this.configuredEndDate = DateUtils.parseLocalDateOrError(config.endDate(), DateUtils.DMY_FORMATTER);
 	}
