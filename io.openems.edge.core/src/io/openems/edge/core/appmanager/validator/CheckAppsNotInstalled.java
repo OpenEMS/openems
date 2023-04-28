@@ -3,7 +3,6 @@ package io.openems.edge.core.appmanager.validator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.osgi.service.component.ComponentContext;
@@ -70,12 +69,9 @@ public class CheckAppsNotInstalled extends AbstractCheckable implements Checkabl
 		var appNameStream = this.installedApps.stream();
 		if (appManagerImpl != null) {
 			appNameStream = appNameStream.map(id -> {
-				try {
-					final var app = appManagerImpl.findAppById(id);
-
+				final var app = appManagerImpl.findAppById(id).orElse(null);
+				if (app != null) {
 					return app.getName(language);
-				} catch (NoSuchElementException e) {
-					// app not found return id
 				}
 				return id;
 			});

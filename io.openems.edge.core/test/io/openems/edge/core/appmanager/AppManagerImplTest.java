@@ -314,7 +314,7 @@ public class AppManagerImplTest {
 
 	@Test
 	public void testFindAppById() {
-		assertEquals(this.homeApp, this.appManagerTestBundle.sut.findAppById("App.FENECON.Home"));
+		assertEquals(this.homeApp, this.appManagerTestBundle.sut.findAppByIdOrNull("App.FENECON.Home"));
 	}
 
 	@Test

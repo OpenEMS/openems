@@ -13,11 +13,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.ComponentServiceObjects;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
@@ -40,12 +38,7 @@ import io.openems.edge.common.test.DummyComponentContext;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.user.User;
-import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
-import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
-import io.openems.edge.core.appmanager.dependency.ComponentAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
-import io.openems.edge.core.appmanager.dependency.SchedulerAggregateTaskImpl;
-import io.openems.edge.core.appmanager.dependency.StaticIpAggregateTaskImpl;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance.Request;
 import io.openems.edge.core.appmanager.jsonrpc.DeleteAppInstance;
@@ -144,10 +137,6 @@ public class AppManagerTestBundle {
 
 		this.componentUtil = new ComponentUtilImpl(this.componentManger, this.cm);
 
-		final var componentTask = new ComponentAggregateTaskImpl(this.componentManger);
-		final var schedulerTask = new SchedulerAggregateTaskImpl(componentTask, this.componentUtil);
-		final var staticIpTask = new StaticIpAggregateTaskImpl(this.componentUtil);
-
 		this.sut = new AppManagerImpl() {
 
 			@Activate
@@ -226,28 +215,10 @@ public class AppManagerTestBundle {
 		dummyValidator.setCheckables(this.checkablesBundle.all());
 		this.validator = dummyValidator;
 
-		var appManagerAppHelper = new AppManagerAppHelperImpl(this.componentManger, this.componentUtil, this.validator,
-				componentTask, schedulerTask, staticIpTask);
+		final var csoAppManagerAppHelper = DummyAppManagerAppHelper.cso(this.componentManger, this.componentUtil,
+				this.validator, this.appManagerUtil);
 
-		final var csoAppManagerAppHelper = new ComponentServiceObjects<AppManagerAppHelper>() {
-
-			@Override
-			public AppManagerAppHelper getService() {
-				return appManagerAppHelper;
-			}
-
-			@Override
-			public void ungetService(AppManagerAppHelper service) {
-				// empty for test
-			}
-
-			@Override
-			public ServiceReference<AppManagerAppHelper> getServiceReference() {
-				// not needed for test
-				return null;
-			}
-
-		};
+		final var appManagerAppHelper = csoAppManagerAppHelper.getService();
 
 		// use this so the appManagerAppHelper does not has to be a OpenemsComponent and
 		// the attribute can still be private
@@ -378,7 +349,7 @@ public class AppManagerTestBundle {
 		public final CheckCardinality checkCardinality;
 		public final CheckRelayCount checkRelayCount;
 
-		private CheckablesBundle(CheckCardinality checkCardinality, CheckRelayCount checkRelayCount) {
+		public CheckablesBundle(CheckCardinality checkCardinality, CheckRelayCount checkRelayCount) {
 			this.checkCardinality = checkCardinality;
 			this.checkRelayCount = checkRelayCount;
 		}
