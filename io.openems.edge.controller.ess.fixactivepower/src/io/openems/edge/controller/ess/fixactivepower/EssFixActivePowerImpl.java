@@ -19,6 +19,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.PowerConstraint;
+import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -78,7 +80,8 @@ public class EssFixActivePowerImpl extends AbstractOpenemsComponent
 		case MANUAL_ON:
 			// Apply Active-Power Set-Point
 			var acPower = getAcPower(this.ess, this.config.hybridEssMode(), this.config.power());
-			this.ess.setActivePowerEquals(acPower);
+			PowerConstraint.apply(this.ess, this.id(), //
+					this.config.phase(), Pwr.ACTIVE, this.config.relationship(), acPower);
 			break;
 
 		case MANUAL_OFF:
@@ -104,7 +107,7 @@ public class EssFixActivePowerImpl extends AbstractOpenemsComponent
 		case TARGET_DC:
 			if (ess instanceof HybridEss) {
 				var pv = ess.getActivePower().orElse(0) - ((HybridEss) ess).getDcDischargePower().orElse(0);
-				return pv + power;
+				return pv + power; // Charge or Discharge
 			} else {
 				return power;
 			}

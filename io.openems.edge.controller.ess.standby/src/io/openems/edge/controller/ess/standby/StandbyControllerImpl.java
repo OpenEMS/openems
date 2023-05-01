@@ -1,7 +1,6 @@
 package io.openems.edge.controller.ess.standby;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -14,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -32,8 +33,6 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 )
 public class StandbyControllerImpl extends AbstractOpenemsComponent
 		implements StandbyController, Controller, OpenemsComponent {
-
-	private static final String DATE_FORMAT = "dd.MM.yyyy";
 
 	private final Logger log = LoggerFactory.getLogger(StandbyControllerImpl.class);
 
@@ -61,12 +60,14 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 	private LocalDate configuredEndDate;
 
 	@Activate
-	void activate(ComponentContext context, Config config) {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		this.config = config;
-		this.configuredStartDate = convertDate(config.startDate());
-		this.configuredEndDate = convertDate(config.endDate());
+		// TODO error handling if input is invalid
+		// TODO switch format to {@link DateTimeFormatter#ISO_LOCAL_DATE}
+		this.configuredStartDate = DateUtils.parseLocalDateOrError(config.startDate(), DateUtils.DMY_FORMATTER);
+		this.configuredEndDate = DateUtils.parseLocalDateOrError(config.endDate(), DateUtils.DMY_FORMATTER);
 	}
 
 	@Override
@@ -105,14 +106,4 @@ public class StandbyControllerImpl extends AbstractOpenemsComponent
 		this.stateMachine.run(context);
 	}
 
-	/**
-	 * Converts a string to a LocalDate.
-	 *
-	 * @param date the date as string in the format "dd.MM.yyyy" (DATE_FORMAT).
-	 * @return the date as {@link LocalDate}
-	 */
-	private static LocalDate convertDate(String date) {
-		var dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
-		return LocalDate.parse(date, dateTimeFormatter);
-	}
 }

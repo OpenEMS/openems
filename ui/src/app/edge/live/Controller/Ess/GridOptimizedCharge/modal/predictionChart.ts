@@ -14,8 +14,8 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from 'src/app/shared
 })
 export class PredictionChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() refresh: boolean;
-    @Input() edge: Edge;
+    @Input() protected refresh: boolean;
+    @Input() protected edge: Edge;
     @Input() public component: EdgeConfig.Component;
     @Input() public targetEpochSeconds: number;
     @Input() public chargeStartEpochSeconds: number;

@@ -1,11 +1,10 @@
 package io.openems.edge.core.host;
 
 import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Objects;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.InetAddressUtils;
 
 /**
  * Helper class for wrapping an IPv4 address together with its subnetmask in
@@ -36,9 +35,10 @@ public class Inet4AddressWithSubnetmask {
 	public static Inet4AddressWithSubnetmask fromString(String label, String value) throws OpenemsException {
 		var arr = value.split("/");
 		try {
-			return new Inet4AddressWithSubnetmask(label, (Inet4Address) InetAddress.getByName(arr[0]),
+			return new Inet4AddressWithSubnetmask(label, //
+					InetAddressUtils.parseOrError(arr[0]), //
 					Integer.parseInt(arr[1]));
-		} catch (NumberFormatException | UnknownHostException | IndexOutOfBoundsException e) {
+		} catch (NumberFormatException | IndexOutOfBoundsException e) {
 			throw new OpenemsException(
 					"Unable to parse Inet4Address with netmask from [" + value + "]: " + e.getMessage());
 		}
@@ -150,8 +150,8 @@ public class Inet4AddressWithSubnetmask {
 		var ipBytesSecond = other.inet4Address.getAddress();
 		byte[] maskBytes;
 		try {
-			maskBytes = InetAddress.getByName(this.getSubnetmaskAsString()).getAddress();
-		} catch (UnknownHostException e) {
+			maskBytes = InetAddressUtils.parseOrError(this.getSubnetmaskAsString()).getAddress();
+		} catch (OpenemsException e) {
 			return false;
 		}
 
