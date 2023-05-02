@@ -1,14 +1,12 @@
-import { Component, Directive, Injectable } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import { FormlyFieldConfig, FORMLY_CONFIG } from "@ngx-formly/core";
+import { FORMLY_CONFIG, FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { ModalComponent as GridModal } from "src/app/edge/live/common/grid/modal/modal";
 import { Edge, EdgeConfig } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";
-import { Role } from "src/app/shared/type/role";
+import { Role } from "../../type/role";
 
-@Directive()
 export abstract class AbstractSystem {
   public abstract key: string;
   public edge: Edge | null = null;
@@ -47,7 +45,7 @@ export abstract class Widget {
   public abstract key: string;
   public abstract modal: Modal;
 }
-@Injectable()
+
 export class Grid extends Widget {
 
   public key: string = "Grid"
