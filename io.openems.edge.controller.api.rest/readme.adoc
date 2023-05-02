@@ -118,6 +118,18 @@ and the existing factories available for creating new ones.
 }
 ```
 
+Each component is represented by an object with five properties. Three strings, for identification
+and alias. The component's properties and channels are included in a nested object.
+```
+{
+    "id": "",
+    "alias": "",
+    "factoryId": "",
+    "properties": {},
+    "channels": {}
+}
+```
+
 === componentJsonApi
 
 Forwards a JSON-RPC payload to a given Component, identified by its Component-ID.
