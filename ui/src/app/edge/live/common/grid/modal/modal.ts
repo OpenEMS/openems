@@ -22,7 +22,7 @@ export type FormlyFieldLine = {
 
 @Component({
   selector: 'modal',
-  templateUrl: './modal.html',
+  templateUrl: './modal.html'
 })
 export class ModalComponent extends AbstractModal {
 
@@ -31,7 +31,7 @@ export class ModalComponent extends AbstractModal {
 
   protected override getChannelAddresses(): ChannelAddress[] {
     this.edge.getConfig(this.websocket).pipe(filter(config => !!config)).subscribe((config) => {
-      this.fields = ModalComponent.generateGridModal(this.edge.id, config, Role.getRole(this.edge.getRoleString()), this.translate);
+      this.fields = ModalComponent.generateGridModal(this.edge.id, config, this.edge.role, this.translate);
     })
     return [];
   }
@@ -100,7 +100,9 @@ export class ModalComponent extends AbstractModal {
     ]
 
     for (let [key, component] of Object.entries(edgeConfig.components)) {
-      let isAsymmetricMeter = edgeConfig?.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").filter(element => element.id === component.id);
+      let isMeterAsymmetric: boolean = edgeConfig
+        ?.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter")
+        .filter(element => element.id === component.id).length > 0;
       let type = edgeConfig.components[key]?.['properties']?.['type'] ?? null;
 
       if ((type && type == 'GRID') || edgeConfig?.isTypeGrid(component)) {
@@ -113,7 +115,7 @@ export class ModalComponent extends AbstractModal {
             channel: component.id + '/ActivePower',
             converter: Utils.CONVERT_TO_WATT,
           },
-          ...(isAsymmetricMeter.length > 0 ?
+          ...(isMeterAsymmetric ?
             this.generateModalMeterPhases(component, translate, userRole) : []),
         )
 

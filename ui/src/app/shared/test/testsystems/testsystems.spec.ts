@@ -5,7 +5,7 @@ import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-transla
 import { ModalComponent as GridModal } from "src/app/edge/live/common/grid/modal/modal";
 import { Edge, EdgeConfig } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
-import { MyTranslateLoader } from "src/app/shared/type/language";
+import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 import { Role } from "src/app/shared/type/role";
 
 @Directive()
@@ -62,29 +62,28 @@ export class Grid extends Widget {
 
 export class ems1 extends AbstractSystem {
   public components: { [id: string]: EdgeConfig.Component; } = {
-    "meter0": {
-      "alias": "Netzzähler",
-      "factoryId": "Meter.Socomec.Threephase",
-      "id": "meter0",
-      "isEnabled": true,
-      "properties": {
-        "alias": "Netzzähler",
-        "enabled": true,
-        "invert": false,
-        "modbus.id": "modbus10",
-        "modbusUnitId": 5,
-        "type": "GRID"
+    meter0: {
+      alias: "Netzzähler",
+      factoryId: "Meter.Socomec.Threephase",
+      id: "meter0",
+      isEnabled: true,
+      properties: {
+        alias: "Netzzähler",
+        enabled: true,
+        invert: false,
+        modbusUnitId: 5,
+        type: "GRID"
       },
-      "channels": {}
+      channels: {}
     }
   }
 
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['Meter.Socomec.Threephase']:
     {
-      "name": "Meter Socomec Threephase",
-      "description": "Implements a threephase Socomec meter. Actual type is identified automatically.",
-      "natureIds": [
+      name: "Meter Socomec Threephase",
+      description: "Implements a threephase Socomec meter. Actual type is identified automatically.",
+      natureIds: [
         "io.openems.edge.meter.api.AsymmetricMeter",
         "io.openems.edge.meter.api.SymmetricMeter",
         "io.openems.edge.bridge.modbus.api.ModbusComponent",
@@ -93,9 +92,9 @@ export class ems1 extends AbstractSystem {
         "io.openems.edge.meter.socomec.threephase.SocomecMeterThreephase",
         "io.openems.edge.meter.socomec.SocomecMeter"
       ],
-      "properties": [],
-      "id": "Meter.Socomec.Threephase",
-      "componentIds": [
+      properties: [],
+      id: "Meter.Socomec.Threephase",
+      componentIds: [
         "meter0"
       ]
     }
@@ -109,7 +108,9 @@ export class ems1 extends AbstractSystem {
     super.setConfig(this.components, this.factories);
   }
 
-  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{ "key": "ems1", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode", "channelCondition": 2 }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "name": "Phase L1 ", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "name": "Phase L2 ", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "name": "Phase L3 ", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
+  private readonly ownerAndGuestGridModal: FormlyFieldConfig[] = [{
+    "key": "ems1", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode", "channelCondition": 2 }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "name": "Phase L1 ", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "name": "Phase L2 ", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "name": "Phase L3 ", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [false, false, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"]
+  }]
   private readonly adminAndInstallerGridModal: FormlyFieldConfig[] = [{ "key": "ems1", "type": "input", "templateOptions": { "attributes": { "title": "Netz" }, "required": true, "options": [{ "lines": [{ "type": "line", "name": "Keine Netzverbindung!", "channel": "_sum/GridMode", "channelCondition": 2 }, { "type": "line", "name": "Bezug", "channel": "_sum/GridActivePower" }, { "type": "line", "name": "Einspeisung", "channel": "_sum/GridActivePower" }, false, { "type": "line", "name": "Phase L1 ", "indentation": "5%", "channel": "meter0/ActivePowerL1", "children": [{ "type": "line-item", "channel": "meter0/VoltageL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL1", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL1", "indentation": "5%" }] }, { "type": "line", "name": "Phase L2 ", "indentation": "5%", "channel": "meter0/ActivePowerL2", "children": [{ "type": "line-item", "channel": "meter0/VoltageL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL2", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL2", "indentation": "5%" }] }, { "type": "line", "name": "Phase L3 ", "indentation": "5%", "channel": "meter0/ActivePowerL3", "children": [{ "type": "line-item", "channel": "meter0/VoltageL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/CurrentL3", "indentation": "5%" }, { "type": "line-item", "channel": "meter0/ActivePowerL3", "indentation": "5%" }] }, { "type": "line-info", "name": "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen." }] }] }, "wrappers": ["formly-field-modal"] }]
 
   public widgets: Widget[] = [new Grid(new Modal("GridModal", new Map()
@@ -124,27 +125,26 @@ export class ems4 extends AbstractSystem {
   public override key: string = "ems4";
   public components: { [id: string]: EdgeConfig.Component; } =
     {
-      "meter1": {
-        "alias": "Netzanschlusspunkt",
-        "factoryId": "GoodWe.Grid-Meter",
-        "properties": {
-          "alias": "Netzanschlusspunkt",
-          "enabled": "true",
-          "modbus.id": "modbus2",
-          "modbusUnitId": "247",
-          "type": "GRID"
+      meter1: {
+        alias: "Netzanschlusspunkt",
+        factoryId: "GoodWe.Grid-Meter",
+        properties: {
+          alias: "Netzanschlusspunkt",
+          enabled: "true",
+          modbusUnitId: "247",
+          type: "GRID"
         },
-        "id": "meter1",
-        "isEnabled": true,
-        "channels": {}
+        id: "meter1",
+        isEnabled: true,
+        channels: {}
       },
     }
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['GoodWe.Grid-Meter']:
     {
-      "name": "GoodWe Grid-Meter",
-      "description": "GoodWe Smart Meter.",
-      "natureIds": [
+      name: "GoodWe Grid-Meter",
+      description: "GoodWe Smart Meter.",
+      natureIds: [
         "io.openems.edge.goodwe.gridmeter.GoodWeGridMeter",
         "io.openems.edge.meter.api.AsymmetricMeter",
         "io.openems.edge.meter.api.SymmetricMeter",
@@ -153,9 +153,9 @@ export class ems4 extends AbstractSystem {
         "io.openems.edge.common.component.OpenemsComponent",
         "io.openems.edge.timedata.api.TimedataProvider"
       ],
-      "properties": [],
-      "id": "GoodWe.Grid-Meter",
-      "componentIds": [
+      properties: [],
+      id: "GoodWe.Grid-Meter",
+      componentIds: [
         "meter1"
       ]
     }
@@ -184,28 +184,25 @@ export class ems10004 extends AbstractSystem {
   public override key: string = "ems10004";
   public components: { [id: string]: EdgeConfig.Component; } =
     {
-      "meter0": {
-        "alias": "Netzzähler",
-        "factoryId": "GoodWe.Grid-Meter",
-        "properties": {
-          "_lastChangeAt": "2022-08-30T15:28:21",
-          "_lastChangeBy": "lukas.rieger: Lukas Rieger",
-          "alias": "Netzzähler",
-          "enabled": true,
-          "modbus.id": "modbus1",
-          "modbusUnitId": 247
+      meter0: {
+        alias: "Netzzähler",
+        factoryId: "GoodWe.Grid-Meter",
+        properties: {
+          alias: "Netzzähler",
+          enabled: true,
+          modbusUnitId: 247
         },
-        "id": "meter0",
-        "isEnabled": true,
-        "channels": {}
+        id: "meter0",
+        isEnabled: true,
+        channels: {}
       },
     }
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['GoodWe.Grid-Meter']:
     {
-      "name": "GoodWe Grid-Meter",
-      "description": "GoodWe Smart Meter.",
-      "natureIds": [
+      name: "GoodWe Grid-Meter",
+      description: "GoodWe Smart Meter.",
+      natureIds: [
         "io.openems.edge.goodwe.gridmeter.GoodWeGridMeter",
         "io.openems.edge.meter.api.AsymmetricMeter",
         "io.openems.edge.meter.api.SymmetricMeter",
@@ -214,9 +211,9 @@ export class ems10004 extends AbstractSystem {
         "io.openems.edge.common.component.OpenemsComponent",
         "io.openems.edge.timedata.api.TimedataProvider"
       ],
-      "properties": [],
-      "id": "GoodWe.Grid-Meter",
-      "componentIds": [
+      properties: [],
+      id: "GoodWe.Grid-Meter",
+      componentIds: [
         "meter0"
       ]
     }
@@ -245,28 +242,25 @@ export class ems12786 extends AbstractSystem {
   public override key: string = "ems12786";
   public components: { [id: string]: EdgeConfig.Component; } =
     {
-      "meter0": {
-        "alias": "Netzzähler",
-        "factoryId": "GoodWe.Grid-Meter",
-        "properties": {
-          "_lastChangeAt": "2022-08-30T15:28:21",
-          "_lastChangeBy": "lukas.rieger: Lukas Rieger",
-          "alias": "Netzzähler",
-          "enabled": true,
-          "modbus.id": "modbus1",
-          "modbusUnitId": 247
+      meter0: {
+        alias: "Netzzähler",
+        factoryId: "GoodWe.Grid-Meter",
+        properties: {
+          alias: "Netzzähler",
+          enabled: true,
+          modbusUnitId: 247
         },
-        "id": "meter0",
-        "isEnabled": true,
-        "channels": {}
+        id: "meter0",
+        isEnabled: true,
+        channels: {}
       },
     }
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['GoodWe.Grid-Meter']:
     {
-      "name": "GoodWe Grid-Meter",
-      "description": "GoodWe Smart Meter.",
-      "natureIds": [
+      name: "GoodWe Grid-Meter",
+      description: "GoodWe Smart Meter.",
+      natureIds: [
         "io.openems.edge.goodwe.gridmeter.GoodWeGridMeter",
         "io.openems.edge.meter.api.AsymmetricMeter",
         "io.openems.edge.meter.api.SymmetricMeter",
@@ -275,9 +269,9 @@ export class ems12786 extends AbstractSystem {
         "io.openems.edge.common.component.OpenemsComponent",
         "io.openems.edge.timedata.api.TimedataProvider"
       ],
-      "properties": [],
-      "id": "GoodWe.Grid-Meter",
-      "componentIds": [
+      properties: [],
+      id: "GoodWe.Grid-Meter",
+      componentIds: [
         "meter0"
       ]
     }
@@ -306,30 +300,27 @@ export class ems30012 extends AbstractSystem {
   public override key: string = "ems30012";
   public components: { [id: string]: EdgeConfig.Component; } =
     {
-      "meter0": {
-        "alias": "meter0",
-        "factoryId": "Meter.Socomec.Threephase",
-        "properties": {
-          "_lastChangeAt": "2022-04-26T13:41:07",
-          "_lastChangeBy": "andreas.wust: Andreas Wust",
-          "alias": "",
-          "enabled": "true",
-          "invert": "false",
-          "modbus.id": "modbus2",
-          "modbusUnitId": 5,
-          "type": "GRID"
+      meter0: {
+        alias: "meter0",
+        factoryId: "Meter.Socomec.Threephase",
+        properties: {
+          alias: "",
+          enabled: "true",
+          invert: "false",
+          modbusUnitId: 5,
+          type: "GRID"
         },
-        "id": "meter0",
-        "isEnabled": true,
-        "channels": {}
+        id: "meter0",
+        isEnabled: true,
+        channels: {}
       },
     }
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['Meter.Socomec.Threephase']:
     {
-      "name": "Meter Socomec Threephase",
-      "description": "Implements a threephase Socomec meter. Actual type is identified automatically.",
-      "natureIds": [
+      name: "Meter Socomec Threephase",
+      description: "Implements a threephase Socomec meter. Actual type is identified automatically.",
+      natureIds: [
         "io.openems.edge.meter.api.AsymmetricMeter",
         "io.openems.edge.meter.api.SymmetricMeter",
         "io.openems.edge.bridge.modbus.api.ModbusComponent",
@@ -338,9 +329,9 @@ export class ems30012 extends AbstractSystem {
         "io.openems.edge.meter.socomec.threephase.SocomecMeterThreephase",
         "io.openems.edge.meter.socomec.SocomecMeter"
       ],
-      "properties": [],
-      "id": "Meter.Socomec.Threephase",
-      "componentIds": [
+      properties: [],
+      id: "Meter.Socomec.Threephase",
+      componentIds: [
         "meter0"
       ]
     }
@@ -369,28 +360,27 @@ export class ems30034 extends AbstractSystem {
   public override key: string = "ems30034";
   public components: { [id: string]: EdgeConfig.Component; } =
     {
-      "meter0": {
-        "alias": "meter0",
-        "factoryId": "Meter.Socomec.Threephase",
-        "properties": {
-          "alias": "",
-          "enabled": "true",
-          "invert": "false",
-          "modbus.id": "modbus2",
-          "modbusUnitId": 5,
-          "type": "GRID"
+      meter0: {
+        alias: "meter0",
+        factoryId: "Meter.Socomec.Threephase",
+        properties: {
+          alias: "",
+          enabled: "true",
+          invert: "false",
+          modbusUnitId: 5,
+          type: "GRID"
         },
-        "id": "meter0",
-        "isEnabled": true,
-        "channels": {}
+        id: "meter0",
+        isEnabled: true,
+        channels: {}
       },
     }
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['Meter.Socomec.Threephase']:
     {
-      "name": "Meter Socomec Threephase",
-      "description": "Implements a threephase Socomec meter. Actual type is identified automatically.",
-      "natureIds": [
+      name: "Meter Socomec Threephase",
+      description: "Implements a threephase Socomec meter. Actual type is identified automatically.",
+      natureIds: [
         "io.openems.edge.meter.api.AsymmetricMeter",
         "io.openems.edge.meter.api.SymmetricMeter",
         "io.openems.edge.bridge.modbus.api.ModbusComponent",
@@ -399,9 +389,9 @@ export class ems30034 extends AbstractSystem {
         "io.openems.edge.meter.socomec.threephase.SocomecMeterThreephase",
         "io.openems.edge.meter.socomec.SocomecMeter"
       ],
-      "properties": [],
-      "id": "Meter.Socomec.Threephase",
-      "componentIds": [
+      properties: [],
+      id: "Meter.Socomec.Threephase",
+      componentIds: [
         "meter0"
       ]
     }
@@ -430,28 +420,27 @@ export class ems30048 extends AbstractSystem {
   public override key: string = "ems30048";
   public components: { [id: string]: EdgeConfig.Component; } =
     {
-      "meter0": {
-        "alias": "meter0",
-        "factoryId": "Meter.Socomec.Threephase",
-        "properties": {
-          "alias": "",
-          "enabled": "true",
-          "invert": "false",
-          "modbus.id": "modbus2",
-          "modbusUnitId": 5,
-          "type": "GRID"
+      meter0: {
+        alias: "meter0",
+        factoryId: "Meter.Socomec.Threephase",
+        properties: {
+          alias: "",
+          enabled: "true",
+          invert: "false",
+          modbusUnitId: 5,
+          type: "GRID"
         },
-        "id": "meter0",
-        "isEnabled": true,
-        "channels": {}
+        id: "meter0",
+        isEnabled: true,
+        channels: {}
       },
     }
   public factories: { [id: string]: EdgeConfig.Factory } = {
     ['Meter.Socomec.Threephase']:
     {
-      "name": "Meter Socomec Threephase",
-      "description": "Implements a threephase Socomec meter. Actual type is identified automatically.",
-      "natureIds": [
+      name: "Meter Socomec Threephase",
+      description: "Implements a threephase Socomec meter. Actual type is identified automatically.",
+      natureIds: [
         "io.openems.edge.meter.api.AsymmetricMeter",
         "io.openems.edge.meter.api.SymmetricMeter",
         "io.openems.edge.bridge.modbus.api.ModbusComponent",
@@ -460,9 +449,9 @@ export class ems30048 extends AbstractSystem {
         "io.openems.edge.meter.socomec.threephase.SocomecMeterThreephase",
         "io.openems.edge.meter.socomec.SocomecMeter"
       ],
-      "properties": [],
-      "id": "Meter.Socomec.Threephase",
-      "componentIds": [
+      properties: [],
+      id: "Meter.Socomec.Threephase",
+      componentIds: [
         "meter0"
       ]
     }
@@ -493,7 +482,7 @@ describe('ExampleSystemsTest', () => {
   beforeEach((() => {
     TestBed.configureTestingModule({
       imports: [
-        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader, }, defaultLanguage: 'de' }),
+        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader, }, defaultLanguage: Language.DEFAULT.key }),
       ],
       providers: [TranslateService, { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },]
     }).compileComponents();
