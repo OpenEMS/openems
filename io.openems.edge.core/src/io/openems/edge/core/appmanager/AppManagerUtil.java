@@ -1,7 +1,7 @@
 package io.openems.edge.core.appmanager;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.google.gson.JsonObject;
@@ -13,24 +13,43 @@ import io.openems.common.session.Language;
 public interface AppManagerUtil {
 
 	/**
-	 * Gets the {@link OpenemsApp} for the given appId.
-	 *
-	 * @param appId the appId of the {@link OpenemsApp}
-	 * @return the {@link OpenemsApp}
-	 * @throws NoSuchElementException if there is no {@link OpenemsApp} with the
-	 *                                given appId
+	 * Finds the {@link OpenemsApp} with the given id.
+	 * 
+	 * @param id the {@link OpenemsApp#getAppId()} of the app.
+	 * @return a {@link Optional} of the app
 	 */
-	public OpenemsApp getAppById(String appId) throws NoSuchElementException;
+	public Optional<OpenemsApp> findAppById(String id);
 
 	/**
-	 * Gets the {@link OpenemsAppInstance} for the given instanceId.
-	 *
-	 * @param instanceId the instanceId of the {@link OpenemsAppInstance}
-	 * @return the {@link OpenemsAppInstance}
-	 * @throws NoSuchElementException if there is not {@link OpenemsAppInstance}
-	 *                                with the given instanceId
+	 * Finds the {@link OpenemsApp} with the given id.
+	 * 
+	 * @param id the {@link OpenemsApp#getAppId()} of the app.
+	 * @return the app
+	 * @throws OpenemsNamedException if the app was not found
 	 */
-	public OpenemsAppInstance getInstanceById(UUID instanceId) throws NoSuchElementException;
+	public default OpenemsApp findAppByIdOrError(String id) throws OpenemsNamedException {
+		return this.findAppById(id).orElseThrow(() -> new OpenemsException("Unable to find app with id '" + id + "'"));
+	}
+
+	/**
+	 * Finds the {@link OpenemsAppInstance} with the given {@link UUID}.
+	 *
+	 * @param id the id of the instance
+	 * @return a {@link Optional} of the instance
+	 */
+	public Optional<OpenemsAppInstance> findInstanceById(UUID id);
+
+	/**
+	 * Finds the {@link OpenemsAppInstance} with the given {@link UUID}.
+	 * 
+	 * @param id the {@link UUID} of the instance
+	 * @return the instance
+	 * @throws OpenemsNamedException if not found
+	 */
+	public default OpenemsAppInstance findInstanceByIdOrError(UUID id) throws OpenemsNamedException {
+		return this.findInstanceById(id)
+				.orElseThrow(() -> new OpenemsException("Unable to find instance with id '" + id + "'"));
+	}
 
 	/**
 	 * Gets the {@link AppConfiguration} with the given parameter.
@@ -59,7 +78,7 @@ public interface AppManagerUtil {
 	 */
 	public default AppConfiguration getAppConfiguration(ConfigurationTarget target, String appId, String alias,
 			JsonObject properties, Language language) throws OpenemsNamedException {
-		return this.getAppConfiguration(target, this.getAppById(appId), alias, properties, language);
+		return this.getAppConfiguration(target, this.findAppByIdOrError(appId), alias, properties, language);
 	}
 
 	/**
@@ -88,7 +107,7 @@ public interface AppManagerUtil {
 	 */
 	public default AppConfiguration getAppConfiguration(ConfigurationTarget target, OpenemsAppInstance instance,
 			Language language) throws OpenemsNamedException {
-		return this.getAppConfiguration(target, this.getAppById(instance.appId), instance, language);
+		return this.getAppConfiguration(target, this.findAppByIdOrError(instance.appId), instance, language);
 	}
 
 	/**

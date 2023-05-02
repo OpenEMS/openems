@@ -1,7 +1,6 @@
 package io.openems.common.utils;
 
 import java.net.Inet4Address;
-import java.net.UnknownHostException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -1156,7 +1155,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Inet4Address getAsInet4Address(JsonElement jElement) throws OpenemsNamedException {
-		var value = toInet4Address(toString(toPrimitive(jElement)));
+		var value = InetAddressUtils.parseOrNull(toString(toPrimitive(jElement)));
 		if (value != null) {
 			return value;
 		}
@@ -1172,7 +1171,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Inet4Address getAsInet4Address(JsonElement jElement, String memberName) throws OpenemsNamedException {
-		var value = toInet4Address(toString(toPrimitive(toSubElement(jElement, memberName))));
+		var value = InetAddressUtils.parseOrNull(toString(toPrimitive(toSubElement(jElement, memberName))));
 		if (value != null) {
 			return value;
 		}
@@ -1187,7 +1186,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement) {
-		return Optional.ofNullable(toInet4Address(toString(toPrimitive(jElement))));
+		return Optional.ofNullable(InetAddressUtils.parseOrNull(toString(toPrimitive(jElement))));
 	}
 
 	/**
@@ -1200,7 +1199,7 @@ public class JsonUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static Optional<Inet4Address> getAsOptionalInet4Address(JsonElement jElement, String memberName) {
-		return Optional.ofNullable(toInet4Address(toString(toPrimitive(toSubElement(jElement, memberName)))));
+		return Optional.ofNullable(InetAddressUtils.parseOrNull(toString(toPrimitive(toSubElement(jElement, memberName)))));
 	}
 
 	/**
@@ -1962,18 +1961,6 @@ public class JsonUtils {
 		try {
 			return Enum.valueOf(enumType, name.toUpperCase());
 		} catch (IllegalArgumentException e) {
-			// handled below
-		}
-		return null;
-	}
-
-	private static Inet4Address toInet4Address(String name) {
-		if (name == null || name.isBlank()) {
-			return null;
-		}
-		try {
-			return (Inet4Address) Inet4Address.getByName(name);
-		} catch (UnknownHostException e) {
 			// handled below
 		}
 		return null;

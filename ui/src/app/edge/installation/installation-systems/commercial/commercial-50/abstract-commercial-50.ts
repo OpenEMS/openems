@@ -65,13 +65,6 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             : Category.PEAK_SHAVING_ASYMMETRIC_HEADER;
     }
 
-    public getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower: number) {
-        return new Promise((resolve) => {
-            // We cannot read any serial numbers automatically from commercial-50.
-            resolve({});
-        });
-    }
-
     public fillForms(
         numberOfTowers: number,
         numberOfModulesPerTower: number,
@@ -163,7 +156,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             });
 
             fields.push({
-                key: 'bmsBox',
+                key: 'bmsBoxMaster',
                 type: 'input',
                 templateOptions: {
                     label: 'BMS Box Master',
@@ -179,7 +172,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             });
         } else {
             fields.push({
-                key: 'bmsBox',
+                key: 'bmsBoxSubmaster' + towerNr,
                 type: 'input',
                 templateOptions: {
                     label: 'BMS Box Submaster',
@@ -203,8 +196,9 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE') + (moduleNr + 1),
                     required: true,
                     // Note: Edit also validator (substring 12) if removing prefix
-                    prefix: 'WSDE213822',
-                    placeholder: 'xxxxxxxxxx'
+                    prefix: 'WSDE...',
+                    placeholder: 'xxxxxxxx',
+                    description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE_DESCRIPTION')
                 },
                 validators: {
                     validation: ['commercialBatteryModuleSerialNumber']
@@ -215,27 +209,12 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         return fields;
     }
 
-    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket) {
+    public getCommercial50ComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, invalidateElementsAfterReadErrors: number) {
 
         const componentConfigurator: ComponentConfigurator = new ComponentConfigurator(edge, config, websocket);
 
         // modbus0
-        componentConfigurator.add({
-            factoryId: 'Bridge.Modbus.Serial',
-            componentId: 'modbus0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INTERFACE'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'portName', value: '/dev/ttyAMA0' },
-                { name: 'baudRate', value: 9600 },
-                { name: 'databits', value: 8 },
-                { name: 'stopbits', value: 'ONE' },
-                { name: 'parity', value: 'NONE' },
-                { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: 3 }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
+        componentConfigurator.add(super.getModbusBridgeComponent(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INTERFACE')));
 
         // modbus1
         componentConfigurator.add({
@@ -247,7 +226,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'ip', value: '10.4.0.10' },
                 { name: 'port', value: '502' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: 3 }
+                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });
@@ -265,7 +244,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'stopbits', value: 'ONE' },
                 { name: 'parity', value: 'NONE' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: 3 }
+                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });

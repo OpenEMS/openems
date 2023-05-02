@@ -66,12 +66,12 @@
   <ion-grid>
     <ion-row *ngIf="true">
       <ion-col size="12" [attr.size-xl]="canEnterKey ? 8 : 12">
-        <ion-card>
+        <ion-card *ngIf="isUpdateAvailable">
           <ion-item lines="full" color="light">
             <ion-icon slot="start" size="large" name="information-outline"></ion-icon>
-            <ion-text text-nowrap translate>Edge.Config.App.header
+            <ion-text text-nowrap>
               <a routerLink="/device/{{ edge.id }}/settings/systemupdate{{ edge.isVersionAtLeast('2021.19.1') ? '' : '.old' }}"
-                *ngIf="isUpdateAvailable" text-nowrap translate>{{ 'Edge.Config.App.updateAvailable' | translate: {
+                text-nowrap translate>{{ 'Edge.Config.App.updateAvailable' | translate: {
                 edgeShortName: environment.edgeShortName } }}</a>
             </ion-text>
           </ion-item>

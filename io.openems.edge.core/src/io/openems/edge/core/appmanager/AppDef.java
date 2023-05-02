@@ -251,22 +251,44 @@ public class AppDef<APP extends OpenemsApp, //
 	 */
 	public static final <//
 			APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER> & OpenemsApp, //
-			PROPERTY extends Enum<PROPERTY> & Nameable & Type<PROPERTY, APP, PARAMETER>, //
+			PROPERTY extends Nameable & Type<PROPERTY, APP, PARAMETER>, //
 			PARAMETER extends Type.Parameter.BundleParameter> //
 	AppDef<APP, PROPERTY, PARAMETER> copyOf(//
 			final Class<PROPERTY> propertyClass, //
 			final AppDef<OpenemsApp, Nameable, Type.Parameter.BundleParameter> otherDef //
 	) {
-		final var def = new AppDef<APP, PROPERTY, PARAMETER>();
-		def.translationBundleSupplier = otherDef.translationBundleSupplier;
-		def.label = otherDef.label;
-		def.description = otherDef.description;
-		def.defaultValue = otherDef.defaultValue;
-		def.field = otherDef.field;
-		def.shouldAddField = otherDef.shouldAddField;
-		def.isAllowedToSave = otherDef.isAllowedToSave;
-		def.bidirectionalValue = otherDef.bidirectionalValue;
-		return def;
+		return copyOfGeneric(otherDef);
+	}
+
+	/**
+	 * Creates a copy of the otherDef. This method is often used instead of the
+	 * {@link AppDef#copyOfGeneric(AppDef)} because the return type doesn't have to
+	 * be set explicit if a method call is appended to the result of the method.
+	 * 
+	 * @param <APP>        the type of the app
+	 * @param <PROPERTY>   the type of the property
+	 * @param <PARAMETER>  the type of the parameter
+	 * @param <APPO>       the type of the app from the otherDef
+	 * @param <PROPERTYO>  the type of the property from the otherDef
+	 * @param <PARAMETERO> the type of the parameter from the otherDef
+	 * @param otherDef     the other {@link AppDef}
+	 * @param consumer     the {@link Consumer} to set attributes of the
+	 *                     {@link AppDef}
+	 * @return the new {@link AppDef}
+	 */
+	public static final <//
+			APP extends APPO, //
+			PROPERTY extends PROPERTYO, //
+			PARAMETER extends PARAMETERO, //
+			APPO extends OpenemsApp, //
+			PROPERTYO extends Nameable, //
+			PARAMETERO extends Type.Parameter> AppDef<APP, PROPERTY, PARAMETER> copyOfGeneric(//
+					final AppDef<APPO, PROPERTYO, PARAMETERO> otherDef, //
+					Consumer<AppDef<APP, PROPERTY, PARAMETER>> consumer //
+	) {
+		var a = AppDef.<APP, PROPERTY, PARAMETER, APPO, PROPERTYO, PARAMETERO>copyOfGeneric(otherDef);
+		consumer.accept(a);
+		return a;
 	}
 
 	/**

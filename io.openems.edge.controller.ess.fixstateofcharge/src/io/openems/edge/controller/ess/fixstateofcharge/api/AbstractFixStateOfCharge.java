@@ -3,7 +3,6 @@ package io.openems.edge.controller.ess.fixstateofcharge.api;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -23,6 +22,7 @@ import com.google.common.base.Stopwatch;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -301,19 +301,8 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		boolean showWarning = false;
 
 		if (this.config.isTargetTimeSpecified()) {
-			try {
-				// Try to parse ZonedDateTime format e.g. 2023-12-15T13:47:20+01:00
-				targetTime = ZonedDateTime.parse(this.config.getTargetTime());
-				showWarning = false;
-
-			} catch (DateTimeParseException e) {
-				// Parse failed -> show warning
-				this.logError(this.log, "Not able to parse target time: " + e.getMessage());
-
-				targetTime = null;
-				showWarning = true;
-			}
-
+			targetTime = DateUtils.parseZonedDateTimeOrNull(this.config.getTargetTime());
+			showWarning = targetTime == null;
 		} else {
 			// Do not parse & show no warning
 			targetTime = null;

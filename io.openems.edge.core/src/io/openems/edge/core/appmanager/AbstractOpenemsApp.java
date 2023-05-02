@@ -8,7 +8,6 @@ import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -422,10 +421,10 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 				var appConfigErrors = new LinkedList<String>();
 				if (appConfig.specificInstanceId != null) {
 					try {
-						var instance = appManager.findInstanceById(appConfig.specificInstanceId);
+						final var instance = appManager.findInstanceByIdOrError(appConfig.specificInstanceId);
 						checkProperties(errors, instance.properties, appConfig, dependency.key);
-					} catch (NoSuchElementException e) {
-						appConfigErrors.add("Specific InstanceId[" + appConfig.specificInstanceId + "] not found!");
+					} catch (OpenemsNamedException e) {
+						appConfigErrors.add(e.getMessage());
 					}
 				} else {
 
@@ -452,36 +451,82 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		}
 		// check if dependency apps are available
 		for (var dependency : configDependencies) {
+			final OpenemsAppInstance appInstance;
 			try {
-				var appInstance = appManager.findInstanceById(dependency.instanceId);
-				var dd = neededDependencies.stream().filter(d -> d.key.equals(dependency.key)).findAny();
-				if (dd.isEmpty()) {
-					errors.add("Can not get DependencyDeclaration of Dependency[" + dependency.key + "]");
-					continue;
-				}
+				appInstance = appManager.findInstanceByIdOrError(dependency.instanceId);
+			} catch (OpenemsNamedException e) {
+				errors.add(e.getMessage());
+				continue;
+			}
+			var dd = neededDependencies.stream().filter(d -> d.key.equals(dependency.key)).findAny();
+			if (dd.isEmpty()) {
+				errors.add("Can not get DependencyDeclaration of Dependency[" + dependency.key + "]");
+				continue;
+			}
 
-				// get app config
-				var appConfig = dd.get().appConfigs.stream() //
-						.filter(c -> c.specificInstanceId != null) //
-						.filter(c -> c.specificInstanceId.equals(appInstance.instanceId)).findAny();
+			// get app config
+			var appConfig = dd.get().appConfigs.stream() //
+					.filter(c -> c.specificInstanceId != null) //
+					.filter(c -> c.specificInstanceId.equals(appInstance.instanceId)).findAny();
+
+			if (appConfig.isEmpty()) {
+				appConfig = dd.get().appConfigs.stream() //
+						.filter(c -> c.appId != null) //
+						.filter(c -> c.appId.equals(appInstance.appId)).findAny();
 
 				if (appConfig.isEmpty()) {
-					appConfig = dd.get().appConfigs.stream() //
-							.filter(c -> c.appId != null) //
-							.filter(c -> c.appId.equals(appInstance.appId)).findAny();
-
-					if (appConfig.isEmpty()) {
-						errors.add("Can not get DependencyAppConfig of Dependency[" + dependency.key + "]");
-						continue;
-					}
+					errors.add("Can not get DependencyAppConfig of Dependency[" + dependency.key + "]");
+					continue;
 				}
-
-				// when available check properties
-				checkProperties(errors, appInstance.properties, appConfig.get(), dependency.key);
-			} catch (NoSuchElementException e) {
-				errors.add("App with instance[" + dependency.instanceId + "] not available!");
 			}
+
+			var copy = appInstance.properties.deepCopy();
+			try {
+				final var app = appManager.findAppByIdOrError(appInstance.appId);
+				copy = AbstractOpenemsApp.fillUpProperties(app, appInstance.properties);
+			} catch (OpenemsNamedException e) {
+				errors.add(e.getMessage());
+			} catch (UnsupportedOperationException e) {
+				// get props not supported
+			}
+			// when available check properties
+			checkProperties(errors, copy, appConfig.get(), dependency.key);
 		}
+	}
+
+	/**
+	 * Creates a copy of the original configuration and fills up properties which
+	 * are binded bidirectional.
+	 * 
+	 * <p>
+	 * e. g. a property in a component is the same as one configured in the app so
+	 * it directly gets stored in the component configuration and not twice to avoid
+	 * miss matching errors.
+	 * 
+	 * @param original the original configuration
+	 * @param app      the app to get the properties from
+	 * @return a copy of the original one with the filled up properties
+	 */
+	public static JsonObject fillUpProperties(//
+			final OpenemsApp app, //
+			final JsonObject original //
+	) {
+		final var copy = original.deepCopy();
+		for (var prop : app.getProperties()) {
+			if (copy.has(prop.name)) {
+				continue;
+			}
+			if (prop.bidirectionalValue == null) {
+				continue;
+			}
+			var value = prop.bidirectionalValue.apply(copy);
+			if (value == null) {
+				continue;
+			}
+			// add value to configuration
+			copy.add(prop.name, value);
+		}
+		return copy;
 	}
 
 	private static final void checkProperties(List<String> errors, JsonObject actualAppProperties,

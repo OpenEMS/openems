@@ -25,7 +25,7 @@
         "storageDischarge": "Storage-Discharge",
         "title": "Energymonitor",
         "ERROR_TEMPORARY": "Error while fetching data. Please try again later.",
-        "ERROR_TOO_LONG": "Displaying data of longer periods of time is currently limited. We are working on providing this function again soon."
+        "ERROR_TOO_LONG": "The display of the data is partly not possible due to reconstruction work on our servers. Your data for this period is not lost. Alternatively, it is still possible to view the historical data via <a href='https://docs.fenecon.de/de/_/latest/fems/ui/introduction.html#_offlinelokal' target='_blank'>local monitoring</a>. We ask for your understanding."
       },
       "Widgets": {
         "autarchyInfo": "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
@@ -248,11 +248,11 @@
         "ON_DATE_AT_TIME": "on {{date}} at {{time}}",
         "INSTANT_START": "Instant start",
         "PLANNED_EXPANSION": "Planned Expansion",
-        "INFORMATION_FOR_PlANNED_EXPANSION": "The battery is expected to be charged/discharged from {{targetTime}} on {{targetDate}} to reach reach {{targetSoc}}\u00a0% state of charge for the planned expansion. In the process there may be grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}}\u00a0minutes, after which or after the capacity expansion, the storage system returns to the regular operating state.",
-        "INFORMATION_FOR_INSTANT_START": "The battery is charged or discharged at maximum power in order to reach a state of charge of {{targetSoc}}\u00a0% as quickly as possible for an expansion. This can result in grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}}\u00a0minutes, after which, or after the capacity has been expanded, the storage system returns to its regular operating state.",
+        "INFORMATION_FOR_PlANNED_EXPANSION": "The battery is expected to be charged/discharged from {{targetTime}} on {{targetDate}} to reach reach {{targetSoc}} % state of charge for the planned expansion. In the process there may be grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}} minutes, after which or after the capacity expansion, the storage system returns to the regular operating state.",
+        "INFORMATION_FOR_INSTANT_START": "The battery is charged or discharged at maximum power in order to reach a state of charge of {{targetSoc}} % as quickly as possible for an expansion. This can result in grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}} minutes, after which, or after the capacity has been expanded, the storage system returns to its regular operating state.",
         "PREPARING": "Prepare for Capacity Extension",
         "REACHED_TARGET_SOC": "Ready for Capacity Extension",
-        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "The battery is expected to be charged/discharged to reach {{targetSoc}}\u00a0% state of charge for the planned expansion.",
+        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "The battery is expected to be charged/discharged to reach {{targetSoc}} % state of charge for the planned expansion.",
         "SELECT_A_DATE": "Please select a date",
         "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature."
       },
@@ -569,7 +569,8 @@
       "RECENT": "Current:",
       "TITLE": "Emergency power reserve",
       "VALUE": "Value [%]",
-      "EMERGENCY_RESERVE_LABEL": "Emergency power{{ symbol }}"
+      "EMERGENCY_RESERVE_LABEL": "Emergency power{{ symbol }}",
+      "COUPLER_TITLE": "Which fieldbus coupler is installed in your Offgrid network point?"
     },
     "CONFIGURATION_EXECUTE": {
       "BATTERY_INVERTER": "Battery-Inverter",
@@ -606,7 +607,11 @@
       "FIELD_BUS_COUPLER": "Fieldbus coupler",
       "CONTROL_GRID_POINT": "Control of the grid disconnection point",
       "BATTERY_INTERFACE": "Battery interface",
-      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge"
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge",
+      "LABEL": {
+        "WEIDMUELLER_BRIDGE": "Weidmüller (black component)",
+        "WAGO_BRIDGE": "WAGO (Gray component)"
+      }
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",
@@ -773,7 +778,8 @@
       "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Connection Box",
       "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules per string: {{ min }} and Maximum: {{ max }}",
       "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }}  Connection Box",
-      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "{{ edgeShortName }} Grid connection point"
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Grid connection point",
+      "BATTERY_MODULE_DESCRIPTION": "Please only enter the last 8 digits of the serial number."
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",
@@ -806,7 +812,14 @@
       "DISCHARGE_ABOVE_LABEL": "Discharge above",
       "CHARGE_BELOW_LABEL": "Charge below"
     },
-    "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}."
+    "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}.",
+    "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
+      "TCP_IP_LABEL": "TCP/IP (6-RJ45-Ports) - Anschluss: Internal",
+      "RS485_LABEL": "RS485 (4-RJ45-Ports) - Anschluss: FEMS"
+    },
+    "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
+      "HEADER": "Select the type of Communication"
+    }
   },
   "Login": {
     "title": "Login",

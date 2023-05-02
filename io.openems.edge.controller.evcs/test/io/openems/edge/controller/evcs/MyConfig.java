@@ -16,7 +16,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int forceChargeMinPower = 7560;
 		private int defaultChargeMinPower = 0;
 		private Priority priority = Priority.CAR;
-		private String essId = "ess0";
 		private int energySessionLimit = 0;
 
 		private Builder() {
@@ -64,11 +63,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setPriority(Priority priority) {
 			this.priority = priority;
-			return this;
-		}
-
-		public Builder setEssId(String essId) {
-			this.essId = essId;
 			return this;
 		}
 
@@ -131,11 +125,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public Priority priority() {
 		return this.builder.priority;
-	}
-
-	@Override
-	public String ess_id() {
-		return this.builder.essId;
 	}
 
 	@Override

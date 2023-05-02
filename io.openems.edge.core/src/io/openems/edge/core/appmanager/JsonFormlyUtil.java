@@ -306,6 +306,7 @@ public class JsonFormlyUtil {
 		protected final JsonObject templateOptions = new JsonObject();
 		private JsonObject expressionProperties = null;
 		private final List<String> wrappers = new ArrayList<>();
+		private JsonObject validators = null;
 
 		private FormlyBuilder(Nameable property) {
 			this.setType(this.getType());
@@ -503,6 +504,16 @@ public class JsonFormlyUtil {
 			return this.self();
 		}
 
+		public T setCustomValidation(String name, ExpressionBuilder expression, String errorMessage,
+				Nameable propertyToShowError) {
+			this.getValidators().add(name, JsonUtils.buildJsonObject() //
+					.addProperty("expressionString", expression.toString()) //
+					.addProperty("message", errorMessage) //
+					.addProperty("errorPath", propertyToShowError.name()) //
+					.build());
+			return this.self();
+		}
+
 		public JsonObject build() {
 			this.jsonObject.add("templateOptions", this.templateOptions);
 			if (this.expressionProperties != null && this.expressionProperties.size() > 0) {
@@ -512,16 +523,20 @@ public class JsonFormlyUtil {
 				this.jsonObject.add("wrappers",
 						this.wrappers.stream().map(JsonPrimitive::new).collect(JsonUtils.toJsonArray()));
 			}
+			if (this.validators != null) {
+				this.jsonObject.add("validators", this.validators);
+			}
 			return this.jsonObject;
 		}
 
 		protected abstract String getType();
 
 		protected final JsonObject getExpressionProperties() {
-			if (this.expressionProperties == null) {
-				this.expressionProperties = new JsonObject();
-			}
-			return this.expressionProperties;
+			return this.expressionProperties = single(this.expressionProperties);
+		}
+
+		protected final JsonObject getValidators() {
+			return this.validators = single(this.validators);
 		}
 
 		@Override
@@ -535,8 +550,18 @@ public class JsonFormlyUtil {
 	public static final class ExpressionBuilder {
 
 		public static enum Operator {
+			// Equals
 			EQ("=="), //
+			// Not-Equals
 			NEQ("!="), //
+			// Greater-Than-Equals
+			GTE(">="), //
+			// Greater-Than
+			GT(">"), //
+			// Lower-Than-Equals
+			LTE("<="), //
+			// Lower-Than
+			LT("<"), //
 			;
 
 			private final String operation;
@@ -563,6 +588,19 @@ public class JsonFormlyUtil {
 		 */
 		public static final ExpressionBuilder of(Nameable nameable, Operator operator, String value) {
 			return new ExpressionBuilder(expressionOf(nameable, operator, value));
+		}
+
+		/**
+		 * Creates a {@link ExpressionBuilder} where the value of the given nameable
+		 * gets validated against the value of the otherNameable.
+		 * 
+		 * @param nameable      the first property
+		 * @param operator      the validation {@link Operator}
+		 * @param otherNameable the second property
+		 * @return the {@link ExpressionBuilder}
+		 */
+		public static final ExpressionBuilder of(Nameable nameable, Operator operator, Nameable otherNameable) {
+			return new ExpressionBuilder(expressionOf(nameable, operator, otherNameable));
 		}
 
 		/**
@@ -714,6 +752,10 @@ public class JsonFormlyUtil {
 
 		private static final String expressionOf(Nameable nameable, Operator operator, String value) {
 			return "model." + nameable.name() + " " + operator.getOperation() + " '" + value + "'";
+		}
+
+		private static final String expressionOf(Nameable nameable, Operator operator, Nameable secondNameable) {
+			return "model." + nameable.name() + " " + operator.getOperation() + " model." + secondNameable.name();
 		}
 
 		private static final String expressionOf(Nameable nameable) {
@@ -985,7 +1027,7 @@ public class JsonFormlyUtil {
 		public InputBuilder setUnit(Unit unit, Language l) {
 			var unitString = switch (unit) {
 			case WATT -> TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l), "watt");
-			default -> unit.name();
+			default -> unit.getSymbol();
 			};
 			this.templateOptions.addProperty("unit", unitString);
 			this.addWrapper(Wrappers.INPUT_WITH_UNIT);
@@ -1039,10 +1081,7 @@ public class JsonFormlyUtil {
 		}
 
 		protected final JsonObject getValidation() {
-			if (this.validation == null) {
-				this.validation = new JsonObject();
-			}
-			return this.validation;
+			return this.validation = single(this.validation);
 		}
 
 	}
@@ -1144,10 +1183,7 @@ public class JsonFormlyUtil {
 		}
 
 		private JsonObject getValidation() {
-			if (this.validation == null) {
-				this.validation = new JsonObject();
-			}
-			return this.validation;
+			return this.validation = single(this.validation);
 		}
 
 		@Override
@@ -1352,6 +1388,13 @@ public class JsonFormlyUtil {
 			return "text";
 		}
 
+	}
+
+	private static final JsonObject single(JsonObject o) {
+		if (o == null) {
+			o = new JsonObject();
+		}
+		return o;
 	}
 
 }

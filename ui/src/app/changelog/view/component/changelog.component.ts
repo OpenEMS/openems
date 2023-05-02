@@ -36,6 +36,59 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.4.3',
+        changes: [
+          Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung bei automatischer Suche des Wechselrichters im Netzwerk",
+        ]
+      },
+      {
+        version: '2023.4.2',
+        changes: [
+          Changelog.product(Product.FEMS_HEIZSTAB, Product.FEMS_REST_JSON_API, Product.FEMS_MODBUS_TCP_API) + "Verbesserungen im App-Center",
+          Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.product(Product.FEMS_SG_READY_WAERMEPUMPE) + "Verbesserung der Fehlerprüfung bei Konfigurationsänderungen",
+          Changelog.product(...Product.FEMS_ALL_PV) + "Fehlerbehung im nur-lesenden Betrieb (ohne Abregelung)",
+          "Robusteres Fehlerhandling beim Lesen ungültiger Daten von Peripheriegeräten",
+          { roleIsAtLeast: Role.ADMIN, change: "Fix-ActivePower-Controller: erlaubt (nur via 'Komponenten Konfigurieren') auch Min-/Max-Vorgaben für Be-/Entladung und phasengenaue Ansteuerung; ersetzt Asymmetric Fix-ActivePower-Controller" },
+          { roleIsAtLeast: Role.ADMIN, change: "Modbus/TCP-Bridge, KACO blueplanet 10: robusteres Verhalten wenn IP-Adressen mit führenden Leerzeichen konfiguriert werden" },
+          { roleIsAtLeast: Role.ADMIN, change: "EVCS-Controller: funktioniert jetzt auch ohne konfigurierten (Dummy-)Speicher" },
+          Changelog.library(Library.FASTEXCEL),
+        ]
+      },
+      {
+        version: '2023.4.1',
+        changes: [
+          Changelog.openems('2023.4.0'),
+          Changelog.UI,
+        ]
+      },
+      {
+        version: '2023.3.8',
+        changes: [
+          "App Center: Fehlerbehebung bei " + Changelog.product(Product.FEMS_HARDY_BARTH),
+        ]
+      },
+      {
+        version: '2023.3.7',
+        changes: [
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + "Fehlerbehebung in der Live-Ansicht"
+        ]
+      },
+      {
+        version: '2023.3.6',
+        changes: [
+          "App Center: öffentliches Release",
+          "Link zu " + Changelog.link("FAQ", 'https://fenecon.de/faq/#fems') + " korrigiert",
+          Changelog.product(...Product.FEMS_ALL_TIME_OF_USE_TARIFF) + "Verbesserung der Datenanzeige in der Live-Ansicht",
+          "KDK-Zähler: Fehlerbehebung beim Lesen der Energiewerte",
+          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Anzeige von Modal-Fenstern, Automatische Installation Multiladepunktmanagement, UI-Verbesserungen, erfordere Rolle 'INSTALLER' für FENECON Home, erfordere Rolle 'ADMIN' für MQTT" },
+          { roleIsAtLeast: Role.ADMIN, change: "Werbewidget: FEMS App Center; Link zu Systemupdate bei Versionen < 2023.3.6" },
+          { roleIsAtLeast: Role.ADMIN, change: "Soltaro-Batterien Version C: PreAlarmTotalVoltageHigh, TemperatureDifferenceTooBigPre-Alarm ausgeblendet" },
+          { roleIsAtLeast: Role.ADMIN, change: "OEM Heckert: neues Logo" },
+          { roleIsAtLeast: Role.ADMIN, change: "Fix-State-of-Charge-/Prepare-Battery-Extension-Controller: Fehlerbehebungen" },
+        ]
+      },
+      {
         version: '2023.3.5',
         changes: [
           "Aktualisierung der Java Runtime Environment auf Version 17 LTS",

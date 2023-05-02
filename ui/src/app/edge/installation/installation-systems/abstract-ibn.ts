@@ -5,7 +5,7 @@ import { SetupProtocol } from 'src/app/shared/jsonrpc/request/submitSetupProtoco
 import { Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
 import { Country } from 'src/app/shared/type/country';
 import { Category } from '../shared/category';
-import { FeedInType, WebLinks } from '../shared/enums';
+import { FeedInType, ModbusBridgeType, WebLinks } from '../shared/enums';
 import { AcPv, ComponentData, SerialNumberFormData } from '../shared/ibndatatypes';
 import { Meter } from '../shared/meter';
 import { ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../views/configuration-execute/component-configurator';
@@ -31,6 +31,7 @@ export enum View {
   ConfigurationFeaturesStorageSystem,
   ConfigurationCommercialComponent,
   ConfigurationPeakShaving,
+  ConfigurationCommercialModbuBridgeComponent
 }
 
 export type SerialNumberData = {
@@ -311,6 +312,27 @@ export abstract class AbstractIbn {
   public getPeakShavingHeader(): Category {
     return null;
   };
+
+  /**
+   * Gets the additional Emergency reserve fields.
+   * 
+   * eg: Coupler fields from Commercial 30 Netztrenstelle variant.
+   * 
+   * @param fields fields for the componenet.
+   * @returns The fields to be displayed.
+   */
+  public getAdditionalEmergencyReserveFields(fields: FormlyFieldConfig[]): FormlyFieldConfig[] {
+    return fields;
+  }
+
+  /**
+   * Adds the emergency reserve model to the IBN.
+   * 
+   * @param model The model.
+   */
+  public setEmergencyReserve(model: any) {
+    this.emergencyReserve = model;
+  }
 
   /**
    * Returns the pv meter configuration object.

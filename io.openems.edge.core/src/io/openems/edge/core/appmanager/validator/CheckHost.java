@@ -3,7 +3,6 @@ package io.openems.edge.core.appmanager.validator;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Map;
 
 import org.osgi.service.component.ComponentContext;
@@ -12,6 +11,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 
 import io.openems.common.session.Language;
+import io.openems.common.utils.InetAddressUtils;
 
 @Component(//
 		name = CheckHost.COMPONENT_NAME, //
@@ -30,13 +30,7 @@ public class CheckHost extends AbstractCheckable implements Checkable {
 	}
 
 	private void init(String host, Integer port) {
-		InetAddress tempIp = null;
-		try {
-			tempIp = InetAddress.getByName(host);
-		} catch (UnknownHostException e) {
-			// could not get address by name
-		}
-		this.host = tempIp;
+		this.host = InetAddressUtils.parseOrNull(host);
 		this.port = port;
 	}
 

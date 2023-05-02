@@ -14,11 +14,19 @@ function isTestUser(user: User): boolean {
 
 export function canSeeAppCenter(edge: Edge): boolean {
     return edge.roleIsAtLeast(Role.ADMIN)
-        && edge.isVersionAtLeast('2022.1.0');
+        && edge.isVersionAtLeast('2022.1.0')
+        || edge.roleIsAtLeast(Role.OWNER)
+        && edge.isVersionAtLeast('2023.3.6');
 }
 
 export function canEnterKey(edge: Edge, user: User): boolean {
     if (isTestUser(user)) {
+        return true;
+    }
+    if (edge.roleIsAtLeast(Role.ADMIN)) {
+        return false;
+    }
+    if (edge.roleIsAtLeast(Role.OWNER)) {
         return true;
     }
     return false

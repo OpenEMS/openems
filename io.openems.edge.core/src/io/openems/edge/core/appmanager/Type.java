@@ -10,10 +10,11 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 public interface Type<P extends Nameable, //
 		A extends OpenemsApp, //
 		M extends io.openems.edge.core.appmanager.Type.Parameter> //
-		extends Self<Type<P, A, M>> {
+		extends Self<Type<P, A, M>>, Nameable {
 
 	public class Parameter {
 
+		// TODO should be an interface
 		public static class BundleParameter extends Parameter {
 			public final ResourceBundle bundle;
 
@@ -76,13 +77,6 @@ public interface Type<P extends Nameable, //
 	 * @return the {@link AppDef}
 	 */
 	public AppDef<? super A, ? super P, ? super M> def();
-
-	/**
-	 * Gets the name of the property.
-	 * 
-	 * @return the name
-	 */
-	public String name();
 
 	public static final class GetParameterValues<APP> {
 		public final APP app;

@@ -1,74 +1,17 @@
 import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
 import { ChannelAddress, Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { FeedInType } from '../../../shared/enums';
-import { AcPv, SerialNumberFormData } from '../../../shared/ibndatatypes';
+import { SerialNumberFormData } from '../../../shared/ibndatatypes';
 import { Meter } from '../../../shared/meter';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
 import { AbstractCommercialIbn } from '../abstract-commercial';
 
 export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
-    private static readonly SELECTOR = 'Commercial';
 
     public readonly defaultNumberOfModules = 9;
 
-    public getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower: number) {
-        return new Promise((resolve) => {
-            let isResolved = false;
-            const channelAddresses: ChannelAddress[] = [];
-            const subscriptionId = AbstractCommercial30Ibn.SELECTOR;
-            const model: Object = {};
-
-            // Gather channel addresses
-            channelAddresses['batteryInverter'] = new ChannelAddress('batteryInverter0', 'SerialNumber');
-
-            // Edge-subscribe
-            edge.subscribeChannels(websocket, subscriptionId, Object.values(channelAddresses));
-
-            // Subject to stop the subscription to currentData
-            const stopOnRequest: Subject<void> = new Subject<void>();
-
-            // Read data
-            edge.currentData.pipe(
-                takeUntil(stopOnRequest),
-                filter(currentData => currentData != null)
-            ).subscribe((currentData) => {
-
-                // We currently are reading only one channel address so we are directly indexing to it.
-                // Next batch of Commercial-30 will have possibility to read more registers.
-                const channelAddressIndex: string = Object.keys(channelAddresses)[0];
-                const channelAddress: ChannelAddress = channelAddresses[channelAddressIndex];
-                const serialNumber: string = currentData.channel[channelAddress.componentId + '/' + channelAddress.channelId];
-
-                // If one serial number is undefined return
-                if (!serialNumber) {
-                    return;
-                }
-
-                // Only take after first 5 digits.
-                model[channelAddressIndex] = serialNumber.substring(5);
-
-                // Resolve the promise
-                isResolved = true;
-                resolve(model);
-            });
-            setTimeout(() => {
-                // If data isn't available after the timeout, the
-                // promise gets resolved with an empty object
-                if (!isResolved) {
-                    resolve({});
-                }
-
-                // Unsubscribe to currentData and channels after timeout
-                stopOnRequest.next();
-                stopOnRequest.complete();
-                edge.unsubscribeChannels(websocket, subscriptionId);
-            }, 5000);
-
-        });
-    }
+    public readonly type: string = 'Fenecon-Commercial-30';
 
     public fillForms(
         numberOfTowers: number,
@@ -124,6 +67,25 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
         return fields;
     }
 
+    protected override getChannels(towerNr: number, numberOfModulesPerTower: number): ChannelAddress[] {
+        const channelAddresses = super.getChannels(towerNr, numberOfModulesPerTower);
+        channelAddresses['batteryInverter'] = new ChannelAddress('batteryInverter0', 'SerialNumber');
+        return channelAddresses;
+    }
+
+    protected override addSerialNumbersToModel(key: string, model: Object, serialNumber: string): boolean {
+        if (super.addSerialNumbersToModel(key, model, serialNumber)) {
+            // already serial number is parsed for the key.
+            return true;
+        } else if (key.startsWith('batteryInverter')) {
+            // Battery inverter serial number.
+            model[key] = serialNumber.substring(5);
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Returns thhe common serial number fields for commercial systems.
      * 
@@ -152,7 +114,7 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
             });
 
             fields.push({
-                key: 'bmsBox',
+                key: 'bmsBoxMaster',
                 type: 'input',
                 templateOptions: {
                     label: 'BMS Box Master',
@@ -167,7 +129,7 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
             });
         } else {
             fields.push({
-                key: 'bmsBox',
+                key: 'bmsBoxSubMaster' + stringNr,
                 type: 'input',
                 templateOptions: {
                     label: 'BMS Box Submaster',
@@ -190,8 +152,9 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE') + (moduleNr + 1),
                     required: true,
                     // Note: Edit also validator (substring 12) if removing prefix
-                    prefix: 'WSDE213822',
-                    placeholder: 'xxxxxxxxxx'
+                    prefix: 'WSDE...',
+                    placeholder: 'xxxxxxxx',
+                    description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE_DESCRIPTION')
                 },
                 validators: {
                     validation: ['commercialBatteryModuleSerialNumber']
@@ -214,27 +177,12 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
      * 
      * @returns ComponentConfigurator
      */
-    public getCommercialComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, invalidateElementsAfterReadErrors: number) {
+    public getCommercial30ComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, invalidateElementsAfterReadErrors: number) {
 
         const componentConfigurator: ComponentConfigurator = new ComponentConfigurator(edge, config, websocket);
 
         // modbus0
-        componentConfigurator.add({
-            factoryId: 'Bridge.Modbus.Serial',
-            componentId: 'modbus0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'portName', value: '/dev/ttyAMA0' },
-                { name: 'baudRate', value: 9600 },
-                { name: 'databits', value: 8 },
-                { name: 'stopbits', value: 'ONE' },
-                { name: 'parity', value: 'NONE' },
-                { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
+        componentConfigurator.add(super.getModbusBridgeComponent(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY')));
 
         // modbus1
         componentConfigurator.add({

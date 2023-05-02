@@ -8,7 +8,7 @@ import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
     <ion-icon size="large" slot="start" name="alert-circle-outline"></ion-icon>
     <ion-label class="ion-text-wrap" style="text-align: center">
         <ng-container [ngSwitch]="type">
-            <span *ngSwitchCase="'TOO_LONG'" translate>Edge.Index.Energymonitor.ERROR_TOO_LONG</span>
+            <span *ngSwitchCase="'TOO_LONG'" [innerHTML]="'Edge.Index.Energymonitor.ERROR_TOO_LONG' | translate"></span>
             <span *ngSwitchCase="'TEMPORARY'" translate>Edge.Index.Energymonitor.ERROR_TEMPORARY</span>
         </ng-container>
     </ion-label>

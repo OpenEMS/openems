@@ -1,3 +1,6 @@
+import { Language } from "src/app/shared/type/language";
+import { environment } from "src/environments";
+
 export enum FeedInSetting {
     QuEnableCurve = "QU_ENABLE_CURVE",
     PuEnableCurve = "PU_ENABLE_CURVE",
@@ -61,13 +64,42 @@ export enum WebLinks {
 
 export namespace WebLinks {
     export function getLink(link: WebLinks): string {
+        var lang: string = Language.getByKey(localStorage.LANGUAGE).key ?? Language.DEFAULT.key;
         switch (link) {
             case WebLinks.GTC_LINK:
-                return 'https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/';
+                switch (lang) {
+                    case "de":
+                    default:
+                        return environment.links['GTC_LINK_DE'];
+
+                    case "en":
+                        return environment.links['GTC_LINK_EN'];
+                }
+
             case WebLinks.WARRANTY_LINK_HOME:
-                return 'https://fenecon.de/wp-content/uploads/2022/06/V2021.11_DE_Garantiebedingungen_FENECON_Home.pdf';
+                switch (lang) {
+                    case "de":
+                    default:
+                        return environment.links['WARRANTY_LINK_HOME_DE'];
+                    case "en":
+                        return environment.links['WARRANTY_LINK_HOME_EN'];
+
+                }
+
             case WebLinks.WARRANTY_LINK_COMMERCIAL:
-                return 'https://fenecon.de/wp-content/uploads/2022/07/V2022.03_DE_Garantiebedingungen_FENECON_Commercial_30_50.pdf';
+                switch (lang) {
+                    case "de":
+                    default:
+                        return environment.links['WARRANTY_LINK_COMMERCIAL_DE'];
+                    case "en":
+                        return environment.links['WARRANTY_LINK_COMMERCIAL_EN'];
+                }
         }
     }
+}
+
+// Specific for Configuration-commercial-modbusbridge
+export enum ModbusBridgeType {
+    TCP_IP,
+    RS485
 }

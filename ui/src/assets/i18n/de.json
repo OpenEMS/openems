@@ -25,7 +25,7 @@
         "storageDischarge": "Speicher-Entladung",
         "title": "Energiemonitor",
         "ERROR_TEMPORARY": "Fehler beim Abruf der Daten. Bitte versuchen Sie es später noch einmal.",
-        "ERROR_TOO_LONG": "Die Anzeige von Daten über einen längeren Zeitraum ist derzeit nur eingeschränkt möglich. Wir arbeiten mit Hochdruck daran, dieses Problem zu beheben."
+        "ERROR_TOO_LONG": "Die Anzeige der Daten ist teilweise durch Umbauarbeiten an unseren Servern nicht möglich. Ihre Daten für diesen Zeitraum sind nicht verloren. Alternativ besteht weiterhin die Möglichkeit die historischen Daten über das <a href='https://docs.fenecon.de/de/_/latest/fems/ui/introduction.html#_offlinelokal' target='_blank'>lokale Monitoring</a> anzusehen. Wir bitten Sie um Ihr Verständnis."
       },
       "Widgets": {
         "autarchyInfo": "Die Autarkie gibt an zu wie viel Prozent die aktuell genutzte Leistung durch Erzeugung und Speicherentladung gedeckt wird.",
@@ -245,15 +245,15 @@
       "RETROFITTING": {
         "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich.",
         "OPTIMAL": "Kapazitätserweiterung",
-        "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}}\u00a0% Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}}\u00a0Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+        "INFORMATION_FOR_INSTANT_START": "Die Batterie wird mit maximaler Leistung beladen, beziehungsweise entladen um schnellstmöglichst {{targetSoc}} % Ladezustand für eine Erweiterung zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
         "SELECT_A_DATE": "Wählen Sie bitte ein Datum aus",
         "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
         "INSTANT_START": "Sofortstart",
         "PLANNED_EXPANSION": "Geplante Erweiterung",
-        "INFORMATION_FOR_PlANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}}\u00a0Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}}\u00a0% Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}}\u00a0Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
+        "INFORMATION_FOR_PlANNED_EXPANSION": "Die Batterie wird voraussichtlich ab {{targetTime}} Uhr am {{targetDate}} beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % Ladezustand zu erreichen. Dabei kann es zu Netzbezug oder Netzeinspeisung kommen. Dieser Ladezustand wird für {{targetTimeBuffer}} Minuten gehalten, danach oder nach erfolgter Kapazitätserweiterung kehrt das Speichersystem in den regulären Betriebszustand zurück.",
         "PREPARING": "Kapazitätserweiterung wird vorbereitet",
         "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
-        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}}\u00a0% zu erreichen."
+        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "Die Batterie wird voraussichtlich beladen/entladen um zur geplanten Erweiterung {{targetSoc}} % zu erreichen."
       },
       "SYSTEMUPDATE": "Systemupdate"
     },
@@ -569,7 +569,8 @@
       "RECENT": "Aktuell:",
       "TITLE": "Angaben zu Notstrom",
       "VALUE": "Wert [%]",
-      "EMERGENCY_RESERVE_LABEL": "Notstrom{{ symbol }}"
+      "EMERGENCY_RESERVE_LABEL": "Notstrom{{ symbol }}",
+      "COUPLER_TITLE": "Welcher Feldbuskoppler ist in Ihrer Netztrennstelle verbaut?"
     },
     "CONFIGURATION_EXECUTE": {
       "BATTERY_INVERTER": "Batterie-Wechselrichter",
@@ -607,7 +608,11 @@
       "FIELD_BUS_COUPLER": "Feldbuskoppler",
       "CONTROL_GRID_POINT": "Ansteuerung der Netztrennstelle",
       "BATTERY_INTERFACE": "Schnittstelle Batterie",
-      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge"
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge",
+      "LABEL": {
+        "WEIDMUELLER_BRIDGE": "Weidmüller (schwarze Komponente)",
+        "WAGO_BRIDGE": "WAGO (graue Komponente)"
+      }
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
@@ -774,7 +779,8 @@
       "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Anschlussbox",
       "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules pro String: {{ min }} und Maximum: {{ max }}",
       "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }} Anschlussbox",
-      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "{{ edgeShortName }} Netztrennstelle"
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Netztrennstelle",
+      "BATTERY_MODULE_DESCRIPTION": "Bitte geben Sie nur die letzten 8 Ziffern der Seriennummer ein."
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -807,7 +813,14 @@
       "DISCHARGE_ABOVE_LABEL": "Entladung über",
       "CHARGE_BELOW_LABEL": "Beladung unter"
     },
-    "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen."
+    "CLICK_RECOMMENDATION": "Bitte klicken Sie unten auf den \"Hinzufügen\"-Button wenn sie ein {{ edgeShortName }} in Betrieb nehmen wollen.",
+    "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
+      "TCP_IP_LABEL": "TCP/IP (6-RJ45-Ports) - Anschluss: Internal",
+      "RS485_LABEL": "RS485 (4-RJ45-Ports) - Anschluss: FEMS"
+    },
+    "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
+      "HEADER": "Auswahl der Kommunikationsart"
+    }
   },
   "Login": {
     "title": "Login",
