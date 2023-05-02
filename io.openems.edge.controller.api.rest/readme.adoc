@@ -1,6 +1,6 @@
 = REST-Api Controller
 
-A REST-Api for external access to OpenEMS Edge. This Controller provides access to Channels and JSON-RPC Requests from an external device via JSON/REST. 
+A REST-Api for external access to OpenEMS Edge. This Controller provides access to Channels and JSON-RPC Requests from an external device via JSON/REST.
 
 The default port for the server is *8084*; so the default base address for REST calls is `http://x:<PASSWORD>@<IP>:8084/rest`, where
 
@@ -33,7 +33,7 @@ Use a HTTP request with method `GET` to read the current value of a Channel.
   "unit":"%",
   "value":50
 }
-``` 
+```
 
 The `GET` api also understands regular expressions. Send a GET request to http://x:user@localhost:8084/rest/channel/.*/Active.*Power to read all `ActivePower` and `ReactivePower` channels of all components. It returns a response like:
 
@@ -97,10 +97,24 @@ Following JSON-RPC commands are available:
 
 Gets the current configuration of the OpenEMS Edge.
 
+Request body.
 ```
 {
   "method": "getEdgeConfig",
   "params": {}
+}
+```
+
+Expected reponse body structure. Should contain a result object with all of the defined components
+and the existing factories available for creating new ones.
+```
+{
+    "jsonrpc": "2.0",
+    "id": <uuid>,
+    "result": {
+        "components": {},
+        "factories": {}
+    }
 }
 ```
 
