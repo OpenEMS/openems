@@ -59,7 +59,6 @@
 	bnd.identity;id='io.openems.edge.controller.api.rest',\
 	bnd.identity;id='io.openems.edge.controller.api.websocket',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.balancingcosphi',\
-	bnd.identity;id='io.openems.edge.controller.asymmetric.fixactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.fixreactivepower',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.peakshaving',\
 	bnd.identity;id='io.openems.edge.controller.asymmetric.phaserectification',\
@@ -74,6 +73,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.delayedselltogrid',\
 	bnd.identity;id='io.openems.edge.controller.ess.emergencycapacityreserve',\
 	bnd.identity;id='io.openems.edge.controller.ess.fixactivepower',\
+	bnd.identity;id='io.openems.edge.controller.ess.fixstateofcharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.gridoptimizedcharge',\
 	bnd.identity;id='io.openems.edge.controller.ess.hybrid.surplusfeedtogrid',\
 	bnd.identity;id='io.openems.edge.controller.ess.limittotaldischarge',\
@@ -114,6 +114,7 @@
 	bnd.identity;id='io.openems.edge.evcs.alpitronic.hypercharger',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
+	bnd.identity;id='io.openems.edge.evcs.dezony',\
 	bnd.identity;id='io.openems.edge.evcs.goe.chargerhome',\
 	bnd.identity;id='io.openems.edge.evcs.hardybarth',\
 	bnd.identity;id='io.openems.edge.evcs.keba.kecontact',\
@@ -212,7 +213,6 @@
 	io.openems.edge.controller.api.rest;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\
 	io.openems.edge.controller.asymmetric.balancingcosphi;version=snapshot,\
-	io.openems.edge.controller.asymmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.fixreactivepower;version=snapshot,\
 	io.openems.edge.controller.asymmetric.peakshaving;version=snapshot,\
 	io.openems.edge.controller.asymmetric.phaserectification;version=snapshot,\
@@ -227,6 +227,7 @@
 	io.openems.edge.controller.ess.delayedselltogrid;version=snapshot,\
 	io.openems.edge.controller.ess.emergencycapacityreserve;version=snapshot,\
 	io.openems.edge.controller.ess.fixactivepower;version=snapshot,\
+	io.openems.edge.controller.ess.fixstateofcharge;version=snapshot,\
 	io.openems.edge.controller.ess.gridoptimizedcharge;version=snapshot,\
 	io.openems.edge.controller.ess.hybrid.surplusfeedtogrid;version=snapshot,\
 	io.openems.edge.controller.ess.limittotaldischarge;version=snapshot,\
@@ -269,6 +270,7 @@
 	io.openems.edge.evcs.api;version=snapshot,\
 	io.openems.edge.evcs.cluster;version=snapshot,\
 	io.openems.edge.evcs.core;version=snapshot,\
+	io.openems.edge.evcs.dezony;version=snapshot,\
 	io.openems.edge.evcs.goe.chargerhome;version=snapshot,\
 	io.openems.edge.evcs.hardybarth;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
@@ -380,8 +382,8 @@
 	org.eclipse.jetty.io;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[1.8.10,1.8.11)',\
-	org.jsoup;version='[1.15.4,1.15.5)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[1.8.21,1.8.22)',\
+	org.jsoup;version='[1.16.1,1.16.2)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\

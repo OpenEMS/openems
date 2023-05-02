@@ -20,7 +20,7 @@
       ],
       "rules": {
         "@typescript-eslint/explicit-member-accessibility": [
-          "warn",
+          "error",
           {
             "accessibility": "explicit",
             "overrides": {

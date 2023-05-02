@@ -31,6 +31,9 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
+      # Uploads Checkstyle errors & warnings as GitHub Annotations
+      - uses: kiancross/checkstyle-annotations-action@v1
+      
       - name: Build all Java packages
         run: ./gradlew build
 

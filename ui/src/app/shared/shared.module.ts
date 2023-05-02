@@ -88,8 +88,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     }),
     PipeModule,
     Generic_ComponentsModule,
-    TranslateModule,
-
+    TranslateModule
   ],
   declarations: [
     // components

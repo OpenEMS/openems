@@ -18,15 +18,15 @@ import { Icon } from "../../type/widget";
 })
 export class ModalComponent {
 
-    @Input() component: EdgeConfig.Component = null;
-    @Input() formGroup: FormGroup = new FormGroup({});
+    @Input() protected component: EdgeConfig.Component = null;
+    @Input() protected formGroup: FormGroup = new FormGroup({});
 
     /** Title in Header */
-    @Input() title: string;
+    @Input() public title: string;
 
-    @Input() toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | null = null;
+    @Input() protected toolbarButtons: { url: string, icon: Icon }[] | { url: string, icon: Icon } | null = null;
 
-    @Input() helpKey: string | null = null;
+    @Input() protected helpKey: string | null = null;
 
     public readonly Role = Role;
 

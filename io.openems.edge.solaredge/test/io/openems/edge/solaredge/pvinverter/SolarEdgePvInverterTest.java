@@ -19,6 +19,7 @@ public class SolarEdgePvInverterTest {
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
 				.activate(MyConfig.create() //
 						.setId(PV_INVERTER_ID) //
+						.setReadOnly(true) //
 						.setModbusId(MODBUS_ID) //
 						.setModbusUnitId(1) //
 						.setPhase(Phase.L1) //

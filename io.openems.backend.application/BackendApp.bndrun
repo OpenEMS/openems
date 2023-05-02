@@ -110,7 +110,7 @@
 	org.apache.felix.scr;version='[2.2.6,2.2.7)',\
 	org.apache.felix.webconsole;version='[4.7.2,4.7.3)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.2.0,2.2.1)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[1.8.10,1.8.11)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[1.8.21,1.8.22)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.2.1,2.2.2)',\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.2.1,2.2.2)',\
