@@ -13,15 +13,16 @@ import { Role } from "../../type/role";
 export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges {
 
     /** FormGroup */
-    @Input() formGroup: FormGroup;
+    @Input() public formGroup: FormGroup;
 
     /** component */
-    @Input() component: EdgeConfig.Component = null;
+    @Input() public component: EdgeConfig.Component = null;
 
     /** FormGroup ControlName */
-    @Input() controlName: string;
+    @Input() public controlName: string;
 
-    @Input() showIfChannelValueMatchesCondition: number | string | null = null;
+    /** Show line if value matches corresponding channelValue */
+    @Input() public valueToBeMatched: number | string | null = null;
 
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
@@ -29,17 +30,16 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     * @param value the value from CurrentData
     * @returns converter function
     */
-    @Input()
-    converter = (value: any): string => { return value }
+    @Input() public converter = (value: any): string => { return value }
 
     /** Name for parameter, displayed on the left side*/
-    @Input() name: string;
+    @Input() public name: string;
 
-    @Input() nameSuffix = (value: any): string => {
+    @Input() public nameSuffix = (value: any): string => {
         return value
     }
-    @Input() value: number | string;
-    @Input() roleIsAtLeast?: Role = Role.GUEST;
+    @Input() public value: number | string;
+    @Input() public roleIsAtLeast?: Role = Role.GUEST;
 
     /** Channel defines the channel, you need for this line */
     @Input()
@@ -123,12 +123,12 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     /** value defines value of the parameter, displayed on the right */
     protected setValue(value: number | string) {
-        if (this.showIfChannelValueMatchesCondition != null) {
+        if (this.valueToBeMatched != null) {
             this.canSeeLine = false;
 
             // If channelCondition set, but value is null, wait for first non null value
             if (value != null) {
-                this.canSeeLine = value === this.showIfChannelValueMatchesCondition
+                this.canSeeLine = value === this.valueToBeMatched
             }
         }
 

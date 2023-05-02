@@ -101,7 +101,7 @@ export class ModalComponent extends AbstractModal {
 
     for (let [key, component] of Object.entries(edgeConfig.components)) {
       let isMeterAsymmetric: boolean = edgeConfig
-        ?.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter")
+        .getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter")
         .filter(element => element.id === component.id).length > 0;
       let type = edgeConfig.components[key]?.['properties']?.['type'] ?? null;
 
