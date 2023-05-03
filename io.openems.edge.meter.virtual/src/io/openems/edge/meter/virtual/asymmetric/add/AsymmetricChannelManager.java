@@ -1,8 +1,10 @@
 package io.openems.edge.meter.virtual.asymmetric.add;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import io.openems.edge.common.channel.Channel;
@@ -66,16 +68,22 @@ public class AsymmetricChannelManager extends SymmetricChannelManager {
 	 * @param meters     the List of {@link AsymmetricMeter}
 	 * @param channelId  the AsymmetricMeter.ChannelId
 	 */
-	private <T> void calculate(BiFunction<T, T, T> aggregator, //
-			List<? extends AsymmetricMeter> meters, //
-			AsymmetricMeter.ChannelId channelId) {
+	private <T> void calculate(Function<List<T>, T> aggregator, //
+							   List<? extends AsymmetricMeter> meters, //
+							   AsymmetricMeter.ChannelId channelId) {
 
 		final BiConsumer<Value<T>, Value<T>> callback = (oldValue, newValue) -> {
-			T result = null;
+			List<T> values = new ArrayList<>();
 			for (AsymmetricMeter meter : meters) {
 				Channel<T> channel = meter.channel(channelId);
-				result = aggregator.apply(result, channel.getNextValue().get());
+				T channelValue = channel.getNextValue().get();
+				if (channelValue != null) {
+					values.add(channelValue);
+				}
 			}
+
+			T result = aggregator.apply(values);
+
 			Channel<T> channel = this.parent.channel(channelId);
 			channel.setNextValue(result);
 		};

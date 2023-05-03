@@ -45,16 +45,16 @@ public class VirtualSymmetricMeterAddTest {
 						.setType(MeterType.GRID) //
 						.build())
 				.next(new TestCase("one") //
-						.input(METER_ID_1_ACTIVEPOWER, 2_000) //
+						.input(METER_ID_1_ACTIVEPOWER, 1_500) //
 						.input(METER_ID_2_ACTIVEPOWER, 2_000) //
-						.input(METER_ID_3_ACTIVEPOWER, 2_000) //
-						.input(METER_ID_4_ACTIVEPOWER, 2_000) //
+						.input(METER_ID_3_ACTIVEPOWER, 2_500) //
+						.input(METER_ID_4_ACTIVEPOWER, 3_000) //
 						.input(METER_ID_1_FREQUENCY, 49) //
 						.input(METER_ID_2_FREQUENCY, 51) //
 						.input(METER_ID_3_FREQUENCY, 49) //
 						.input(METER_ID_4_FREQUENCY, 51)) //
 				.next(new TestCase() //
-						.output(METER_POWER, 8_000) //
-						.output(METER_FREQ, 51));
+						.output(METER_POWER, 9_000) //
+						.output(METER_FREQ, 50));
 	}
 }

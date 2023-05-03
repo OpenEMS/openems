@@ -1,8 +1,10 @@
 package io.openems.edge.meter.virtual.symmetric.add;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
@@ -12,9 +14,9 @@ import io.openems.edge.meter.api.SymmetricMeter;
 
 public class SymmetricChannelManager extends AbstractChannelListenerManager {
 
-	public static final BiFunction<Integer, Integer, Integer> INTEGER_SUM = TypeUtils::sum;
-	public static final BiFunction<Long, Long, Long> LONG_SUM = TypeUtils::sum;
-	public static final BiFunction<Integer, Integer, Integer> INTEGER_AVG = TypeUtils::averageInt;
+	public static final Function<List<Integer>, Integer> INTEGER_SUM = TypeUtils::sumInt;
+	public static final Function<List<Long>, Long> LONG_SUM = TypeUtils::sum;
+	public static final Function<List<Integer>, Integer> INTEGER_AVG = TypeUtils::averageInt;
 
 	protected final SymmetricMeter parent;
 
@@ -56,14 +58,20 @@ public class SymmetricChannelManager extends AbstractChannelListenerManager {
 	 * @param meters     the List of {@link SymmetricMeter}
 	 * @param channelId  the SymmetricMeter.ChannelId
 	 */
-	private <T> void calculate(BiFunction<T, T, T> aggregator, //
+	private <T> void calculate(Function<List<T>, T> aggregator, //
 			List<? extends SymmetricMeter> meters, SymmetricMeter.ChannelId channelId) {
 		final BiConsumer<Value<T>, Value<T>> callback = (oldValue, newValue) -> {
-			T result = null;
+			List<T> values = new ArrayList<>();
 			for (SymmetricMeter meter : meters) {
 				Channel<T> channel = meter.channel(channelId);
-				result = aggregator.apply(result, channel.getNextValue().get());
+				T channelValue = channel.getNextValue().get();
+				if (channelValue != null) {
+					values.add(channelValue);
+				}
 			}
+
+			T result = aggregator.apply(values);
+
 			Channel<T> channel = this.parent.channel(channelId);
 			channel.setNextValue(result);
 		};
@@ -71,5 +79,4 @@ public class SymmetricChannelManager extends AbstractChannelListenerManager {
 			this.addOnChangeListener(meter, channelId, callback);
 		}
 	}
-
 }
