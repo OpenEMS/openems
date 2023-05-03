@@ -103,9 +103,8 @@ export class ModalComponent extends AbstractModal {
       let isMeterAsymmetric: boolean = edgeConfig
         .getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter")
         .filter(element => element.id === component.id).length > 0;
-      let type = edgeConfig.components[key]?.['properties']?.['type'] ?? null;
 
-      if ((type && type == 'GRID') || edgeConfig?.isTypeGrid(component)) {
+      if (edgeConfig?.isTypeGrid(component)) {
         lines.push(
           // Show if multiple GridMeters are installed
           hasMultipleGridMeters &&
