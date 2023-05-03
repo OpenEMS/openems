@@ -2,6 +2,7 @@ package io.openems.edge.common.type;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import com.google.gson.JsonElement;
@@ -412,6 +413,17 @@ public class TypeUtils {
 	 * @param values the {@link Integer} values
 	 * @return the sum
 	 */
+	public static Integer sumInt(List<Integer> values) {
+		return sum(values.toArray(new Integer[0]));
+	}
+
+	/**
+	 * Safely add Integers. If one of them is null it is considered '0'. If all of
+	 * them are null, 'null' is returned.
+	 *
+	 * @param values the {@link Integer} values
+	 * @return the sum
+	 */
 	public static Integer sum(Integer... values) {
 		Integer result = null;
 		for (Integer value : values) {
@@ -425,6 +437,17 @@ public class TypeUtils {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Safely add Longs. If one of them is null it is considered '0'. If all of them
+	 * are null, 'null' is returned.
+	 *
+	 * @param values the {@link Long} values
+	 * @return the sum
+	 */
+	public static Long sum(List<Long> values) {
+		return sum(values.toArray(new Long[0]));
 	}
 
 	/**
@@ -727,6 +750,16 @@ public class TypeUtils {
 			return null;
 		}
 		return Math.round(sum / count);
+	}
+
+	/**
+	 * Safely finds the average value of all values.
+	 *
+	 * @param values the {@link Integer} values
+	 * @return the average value; or null if all values are null
+	 */
+	public static Integer averageInt(List<Integer> values) {
+		return averageInt(values.toArray(new Integer[0]));
 	}
 
 	/**

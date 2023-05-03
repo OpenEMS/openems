@@ -1,20 +1,21 @@
 package io.openems.edge.meter.virtual.add;
 
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
 public class AddChannelManager extends AbstractChannelListenerManager {
 
-	public static final BiFunction<Integer, Integer, Integer> INTEGER_SUM = TypeUtils::sum;
-	public static final BiFunction<Long, Long, Long> LONG_SUM = TypeUtils::sum;
-	public static final BiFunction<Integer, Integer, Integer> INTEGER_AVG = TypeUtils::averageInt;
+	public static final Function<List<Integer>, Integer> INTEGER_SUM = TypeUtils::sumInt;
+	public static final Function<List<Long>, Long> LONG_SUM = TypeUtils::sum;
+	public static final Function<List<Integer>, Integer> INTEGER_AVG = TypeUtils::averageInt;
 
 	protected final ElectricityMeter parent;
 
@@ -80,20 +81,25 @@ public class AddChannelManager extends AbstractChannelListenerManager {
 	 * @param meters     the List of {@link ElectricityMeter}
 	 * @param channelId  the ElectricityMeter.ChannelId
 	 */
-	private <T> void calculate(BiFunction<T, T, T> aggregator, //
-			List<ElectricityMeter> meters, ElectricityMeter.ChannelId channelId) {
+	private <T> void calculate(Function<List<T>, T> aggregator, //
+	                           List<? extends ElectricityMeter> meters, ElectricityMeter.ChannelId channelId) {
 		final BiConsumer<Value<T>, Value<T>> callback = (oldValue, newValue) -> {
-			T result = null;
-			for (var meter : meters) {
+			List<T> values = new ArrayList<>();
+			for (ElectricityMeter meter : meters) {
 				Channel<T> channel = meter.channel(channelId);
-				result = aggregator.apply(result, channel.getNextValue().get());
+				T channelValue = channel.getNextValue().get();
+				if (channelValue != null) {
+					values.add(channelValue);
+				}
 			}
+
+			T result = aggregator.apply(values);
+
 			Channel<T> channel = this.parent.channel(channelId);
 			channel.setNextValue(result);
 		};
-		for (var meter : meters) {
+		for (ElectricityMeter meter : meters) {
 			this.addOnChangeListener(meter, channelId, callback);
 		}
 	}
-
 }
