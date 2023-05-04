@@ -2,7 +2,6 @@ package io.openems.edge.app.evcs;
 
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -70,7 +69,7 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 				.setField(JsonFormlyUtil::buildSelect, (app, prop, l, param, f) -> {
 					f.setOptions(
 							app.componentUtil.getEnabledComponentsOfStartingId("evcs").stream()
-									.filter(t -> !t.id().startsWith("evcsCluster")).collect(Collectors.toList()),
+									.filter(t -> !t.id().startsWith("evcsCluster")).toList(),
 							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
 							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 							.isRequired(true) //
