@@ -655,8 +655,8 @@
     "FORM": {
       "MANDATORY_FIELD": "Dies ist ein Pflichtfeld.",
       "BATTERY_SERIAL_NUMBER": "{{ serialNumber }} ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus {{ length }} Ziffern.",
-      "MIN": "Nur Werte größer oder gleich {{ min }} sind erlaubt.",
-      "MAX": "Nur Werte kleiner oder gleich {{ max }} sind erlaubt.",
+      "MIN": "Bitte geben Sie einen Wert größer als {{ min }} ein.",
+      "MAX": "Bitte geben Sie einen Wert kleiner als {{ max }} ein.",
       "EMAIL_MATCH": "E-Mails stimmen nicht überein.",
       "EMAIL": "{{ email }} ist keine gültige E-Mail-Adresse.",
       "POSITIVE_INTEGER": "Nur ganze positive Zahlen sind erlaubt."

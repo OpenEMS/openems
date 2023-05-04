@@ -432,6 +432,10 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       }
     }
 
+    // Max feed in power is always 70% of total pv power.
+    // maximum limit for feed in power is 30000.
+    totalPvPower = Math.min((totalPvPower * 0.7), 29999);
+
     // Update the feedInlimitation field
     this.feedInLimitation.maximumFeedInPower = totalPvPower;
     this.feedInLimitation.isManualProperlyFollowedAndRead = this.feedInLimitation.isManualProperlyFollowedAndRead ? this.feedInLimitation.isManualProperlyFollowedAndRead : null;
@@ -458,12 +462,11 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         type: 'number',
         label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_FEED_IN_VALUE'),
         description: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.MAXIMUM_VALUE_DESCRIPTION'),
-        required: true
+        required: true,
+        max: 29999 // max feed in power limit value.
       },
       parsers: [Number],
-      // 10 is given as radix parameter.
-      // 2 = binary, 8 = octal, 10 = decimal, 16 = hexadecimal.
-      defaultValue: parseInt((totalPvPower * 0.7).toFixed(0), 10),
+      defaultValue: totalPvPower,
       hideExpression: model => model.feedInType != FeedInType.DYNAMIC_LIMITATION
     });
 
