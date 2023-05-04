@@ -1,14 +1,13 @@
 <oe-modal [title]="component.alias" [component]="component" [formGroup]="formGroup" *ngIf="isInitialized && formGroup">
 
     <!-- Discharge State -->
-    <oe-modal-line [name]="label" [channelAddress]="component.id + '/StateMachine'"
+    <oe-modal-line [name]="storageStatuslabel" [channelAddress]="component.id + '/StateMachine'"
         [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE">
     </oe-modal-line>
 
     <!-- Price -->
-    <oe-modal-line [name]="'Edge.Index.Widgets.TimeOfUseTariff.currentTariff' | translate"
-        [channelAddress]="component.id + '/QuarterlyPrices'" [converter]="CONVERT_PRICE_TO_CENT_PER_KWH">
-    </oe-modal-line>
+    <oe-flat-widget-line [name]="'Edge.Index.Widgets.TimeOfUseTariff.currentTariff' | translate"
+        [value]="priceWithCurrency"></oe-flat-widget-line>
 
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
 
