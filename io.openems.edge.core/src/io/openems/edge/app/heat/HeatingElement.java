@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -173,7 +172,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 						new int[] { 4, 5, 6 });
 				var options = values.app.componentUtil.getAllRelays() //
 						.stream().map(r -> r.relays).flatMap(List::stream) //
-						.collect(Collectors.toList());
+						.toList();
 				return new ChannelBundle(AbstractOpenemsApp.getTranslationBundle(values.language), relays, options);
 			};
 		}

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -119,7 +118,7 @@ public class SimilarDayPredictorImpl extends AbstractPredictor24Hours implements
 					return v.getAsInt();
 				})
 				// get as Array
-				.collect(Collectors.toList());
+				.toList();
 
 		// Num of Data per day
 		// TODO change this variable based on the resolution which is 900 in query
