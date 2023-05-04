@@ -156,7 +156,7 @@ public class HeatPump extends AbstractEnumOpenemsApp<Property> implements Openem
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-sg-ready-waermepumpe/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-power-to-heat/") //
 				.build();
 	}
 

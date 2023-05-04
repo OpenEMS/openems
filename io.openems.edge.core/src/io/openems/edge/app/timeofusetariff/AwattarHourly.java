@@ -99,7 +99,7 @@ public class AwattarHourly extends AbstractEnumOpenemsApp<Property> implements O
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-awattar-hourly/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-zeitvariabler-stromtarif/") //
 				.build();
 	}
 

@@ -100,7 +100,7 @@ public class SolarEdgePvInverter extends AbstractPvInverter<Property> implements
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-solaredge-pv-wechselrichter/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-pv-wechselrichter/") //
 				.build();
 	}
 

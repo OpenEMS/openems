@@ -129,7 +129,7 @@ public class CarloGavazziMeter extends AbstractMeterApp<Property> implements Ope
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-carlo-gavazzi-zaehler/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-erzeugungs-und-verbrauchszaehler/") //
 				.build();
 	}
 

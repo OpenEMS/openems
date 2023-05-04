@@ -365,7 +365,7 @@ public class HardyBarthEvcs extends
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-echarge-hardy-barth-ladestation/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-ac-ladestation/") //
 				.build();
 	}
 

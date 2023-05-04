@@ -164,7 +164,7 @@ public class CombinedHeatAndPower extends AbstractEnumOpenemsApp<Property> imple
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-blockheizkraftwerk-bhkw/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-power-to-heat/") //
 				.build();
 	}
 

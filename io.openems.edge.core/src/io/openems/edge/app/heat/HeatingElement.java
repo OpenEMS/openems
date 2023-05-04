@@ -237,7 +237,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-heizstab/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-power-to-heat/") //
 				.build();
 	}
 
