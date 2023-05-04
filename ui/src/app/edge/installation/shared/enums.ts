@@ -70,29 +70,27 @@ export namespace WebLinks {
                 switch (lang) {
                     case "de":
                     default:
-                        return environment.links['GTC_LINK_DE'];
-
+                        return environment.links.gtc.DE;
                     case "en":
-                        return environment.links['GTC_LINK_EN'];
+                        return environment.links.gtc.EN;
                 }
 
             case WebLinks.WARRANTY_LINK_HOME:
                 switch (lang) {
                     case "de":
                     default:
-                        return environment.links['WARRANTY_LINK_HOME_DE'];
+                        return environment.links.warranty.home.DE;
                     case "en":
-                        return environment.links['WARRANTY_LINK_HOME_EN'];
-
+                        return environment.links.warranty.home.EN;
                 }
 
             case WebLinks.WARRANTY_LINK_COMMERCIAL:
                 switch (lang) {
                     case "de":
                     default:
-                        return environment.links['WARRANTY_LINK_COMMERCIAL_DE'];
+                        return environment.links.warranty.commercial.DE;
                     case "en":
-                        return environment.links['WARRANTY_LINK_COMMERCIAL_EN'];
+                        return environment.links.warranty.commercial.EN;
                 }
         }
     }

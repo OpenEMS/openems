@@ -78,7 +78,7 @@ export namespace Meter {
     export function toManualLink(meter: Meter): string {
         switch (meter) {
             case Meter.SOCOMEC:
-                return environment.links['METER_SOCOMEC'];
+                return environment.links.METER_SOCOMEC;
             case Meter.KDK:
                 return 'https://docs.fenecon.de/de/_/latest/_attachments/Installationsanleitungen/KDK_2PU_CT_Installationsanleitung.pdf';
         }
