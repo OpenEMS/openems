@@ -44,7 +44,6 @@ public class SchemaGenerator {
 			  name text NOT NULL,
 			  UNIQUE(name)
 			);
-			
 			""";
 	}
 
@@ -55,7 +54,6 @@ public class SchemaGenerator {
 			  name text NOT NULL,
 			  UNIQUE(name)
 			);
-			
 			""";
 	}
 
@@ -68,7 +66,6 @@ public class SchemaGenerator {
 			  priority INTEGER NOT NULL,
 			  UNIQUE(component_id, name)
 			);
-			
 			""";
 	}
 
@@ -81,7 +78,6 @@ public class SchemaGenerator {
 			  type INTEGER NOT NULL,
 			  available_since TIMESTAMPTZ
 			);
-			
 			""";
 	}
 
@@ -214,7 +210,6 @@ public class SchemaGenerator {
 			  END LOOP;
 			END;
 			$$;
-			
 			""";
 	}
 
@@ -243,7 +238,6 @@ public class SchemaGenerator {
 			  END LOOP;
 			END;
 			$$;
-			
 			""";
 	}
 
@@ -324,7 +318,6 @@ public class SchemaGenerator {
 			  END LOOP;
 			END;
 			$$;
-			
 			""";
 	}
 }
