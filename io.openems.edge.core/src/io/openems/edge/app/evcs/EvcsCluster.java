@@ -84,7 +84,7 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 				.setField(JsonFormlyUtil::buildSelect, (app, prop, l, param, f) -> {
 					f.setOptions(
 							app.componentUtil.getEnabledComponentsOfStartingId("evcs").stream()
-									.filter(t -> !t.id().startsWith("evcsCluster")).collect(Collectors.toList()),
+									.filter(t -> !t.id().startsWith("evcsCluster")).toList(),
 							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
 							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE) //
 							.isRequired(true) //

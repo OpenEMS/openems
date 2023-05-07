@@ -223,7 +223,7 @@ public class FeneconHome extends AbstractEnumOpenemsApp<Property> implements Ope
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/home/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-home-10/") //
 				.build();
 	}
 

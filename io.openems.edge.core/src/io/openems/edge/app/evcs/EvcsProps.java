@@ -1,6 +1,9 @@
 package io.openems.edge.app.evcs;
 
 import java.util.List;
+import java.util.stream.IntStream;
+
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -28,6 +31,22 @@ public final class EvcsProps {
 	public static final int NUMBER_OF_PHASES = 3;
 
 	private EvcsProps() {
+	}
+
+	/**
+	 * Creates a {@link AppDef} for selecting the number of charge points.
+	 * 
+	 * @param maxValue the max number of charge points
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, Parameter.BundleParameter> numberOfChargePoints(int maxValue) {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef()) //
+				.setTranslatedLabel("App.Evcs.numberOfChargingStations.label") //
+				.setDefaultValue(1) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> //
+				field.setOptions(IntStream.rangeClosed(1, maxValue) //
+						.<Integer>mapToObj(value -> value) //
+						.toList(), JsonPrimitive::new, JsonPrimitive::new));
 	}
 
 	private static void field(//

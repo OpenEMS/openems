@@ -175,7 +175,7 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-ies-keywatt-ladestation/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-dc-ladestation/") //
 				.build();
 	}
 

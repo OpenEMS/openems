@@ -654,8 +654,8 @@
     "FORM": {
       "MANDATORY_FIELD": "This is a mandatory field",
       "BATTERY_SERIAL_NUMBER": "{{ serialNumber }} is not a valid serial number. A valid serial number consists of {{ length }} digits.",
-      "MIN": "Only values greater than or equal to {{ min }} are allowed.",
-      "MAX": "Only values less than or equal to {{ max }} are allowed.",
+      "MIN": "Please enter a value greater than {{ min }}",
+      "MAX": "Please enter a value less than {{ max }}.",
       "EMAIL_MATCH": "E-Mails do not match.",
       "EMAIL": "{{ email }} is not a valid E-Mail-Adress.",
       "POSITIVE_INTEGER": "Only positive numbers are allowed."

@@ -1,4 +1,5 @@
 import { Theme } from 'src/environments';
+import { EMPTY_URL } from 'src/environments/theme';
 
 export const theme = {
     theme: "OpenEMS" as Theme,
@@ -24,6 +25,22 @@ export const theme = {
         SETTINGS_ALERTING: null,
         SETTINGS_NETWORK_CONFIGURATION: null,
         EVCS_CLUSTER: "io.openems.edge.evcs.cluster/readme.adoc",
+
+        warranty: {
+            home: {
+                EN: EMPTY_URL,
+                DE: EMPTY_URL
+            },
+            commercial: {
+                EN: EMPTY_URL,
+                DE: EMPTY_URL,
+            }
+        },
+
+        gtc: {
+            EN: EMPTY_URL,
+            DE: EMPTY_URL
+        },
 
         // Currently the links are different with different prefixes. so adding whole url for Socomec.
         METER_SOCOMEC: null

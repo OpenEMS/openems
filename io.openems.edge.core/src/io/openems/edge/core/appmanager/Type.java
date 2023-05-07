@@ -12,6 +12,44 @@ public interface Type<P extends Nameable, //
 		M extends io.openems.edge.core.appmanager.Type.Parameter> //
 		extends Self<Type<P, A, M>>, Nameable {
 
+	public static class AbstractType<P extends Nameable, //
+			A extends OpenemsApp, //
+			M extends io.openems.edge.core.appmanager.Type.Parameter> implements Type<P, A, M> {
+
+		private final String name;
+		private final AppDef<? super A, ? super P, ? super M> def;
+		private final Function<GetParameterValues<A>, M> getParameterFunction;
+
+		public AbstractType(String name, AppDef<? super A, ? super P, ? super M> def,
+				Function<GetParameterValues<A>, M> getParameterFunction) {
+			super();
+			this.name = name;
+			this.def = def;
+			this.getParameterFunction = getParameterFunction;
+		}
+
+		@Override
+		public Type<P, A, M> self() {
+			return this;
+		}
+
+		@Override
+		public String name() {
+			return this.name;
+		}
+
+		@Override
+		public AppDef<? super A, ? super P, ? super M> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<A>, M> getParamter() {
+			return this.getParameterFunction;
+		}
+
+	}
+
 	public class Parameter {
 
 		// TODO should be an interface

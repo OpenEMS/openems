@@ -114,7 +114,7 @@ public class StromdaoCorrently extends AbstractEnumOpenemsApp<Property> implemen
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-stromdao-corrently/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-zeitvariabler-stromtarif/") //
 				.build();
 	}
 

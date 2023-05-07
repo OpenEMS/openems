@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { AbstractModal } from 'src/app/shared/genericComponents/modal/abstractModal';
-import { ChannelAddress, EdgeConfig } from 'src/app/shared/shared';
+import { ChannelAddress, CurrentData, EdgeConfig } from 'src/app/shared/shared';
 
 @Component({
     templateUrl: './modal.html',
@@ -11,9 +11,9 @@ export class ModalComponent extends AbstractModal {
 
     @Input() public component: EdgeConfig.Component;
 
-    protected readonly CONVERT_PRICE_TO_CENT_PER_KWH = this.Utils.CONVERT_PRICE_TO_CENT_PER_KWH(4);
     protected readonly CONVERT_TIME_OF_USE_TARIFF_STATE = this.Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(this.translate);
-    protected label: string;
+    protected storageStatuslabel: string;
+    protected priceWithCurrency: any;
 
     protected override getFormGroup(): FormGroup {
         return this.formBuilder.group({
@@ -21,10 +21,23 @@ export class ModalComponent extends AbstractModal {
         });
     }
 
-    // This method is used only to assign the 'label', since 'component' is empty during ngOninit.
-    // so assigning the label through getChannelAddresses method.
     protected override getChannelAddresses(): ChannelAddress[] {
-        this.label = this.Utils.getTimeOfUseTariffStorageLabel(this.component, this.translate);
-        return [];
+        return [
+            new ChannelAddress(this.component.id, 'QuarterlyPrices')
+        ];
+    }
+
+    protected override onCurrentData(currentData: CurrentData): void {
+        var quarterlyPrice = currentData.allComponents[this.component.id + '/QuarterlyPrices'];
+
+        var currencyLabel: string = 'Cent/kWh' // Default
+        if (this.edge.id === 'fems17289') {
+            // For Swedish system
+            currencyLabel = 'Öre/kWh'
+        }
+
+        // Since 'component' is empty during ngOninit. so assigning the labels through this method.
+        this.storageStatuslabel = this.Utils.getTimeOfUseTariffStorageLabel(this.component, this.translate);
+        this.priceWithCurrency = this.Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(quarterlyPrice);
     }
 }

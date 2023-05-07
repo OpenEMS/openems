@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -154,7 +155,7 @@ public class JsonFormlyUtil {
 	 * @param nameable the {@link Nameable} property
 	 * @return a {@link RepeatBuilder}
 	 */
-	public static RepeatBuilder buildRepeat(Nameable nameable) {
+	public static RepeatBuilder buildRepeatFromNameable(Nameable nameable) {
 		return new RepeatBuilder(nameable);
 	}
 
@@ -171,13 +172,38 @@ public class JsonFormlyUtil {
 		return new StaticNameable(property.name());
 	}
 
-	public static final class StaticNameable implements Nameable {
+	public static final class StaticNameable implements Nameable, Comparable<StaticNameable> {
 
 		private final String name;
 
 		public StaticNameable(String name) {
 			super();
 			this.name = name;
+		}
+
+		@Override
+		public int compareTo(StaticNameable o) {
+			return this.name.compareTo(o.name);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.name);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (this.getClass() != obj.getClass()) {
+				return false;
+			}
+			StaticNameable other = (StaticNameable) obj;
+			return Objects.equals(this.name, other.name);
 		}
 
 		@Override
@@ -640,6 +666,17 @@ public class JsonFormlyUtil {
 
 		private ExpressionBuilder(String baseExpression) {
 			this.sb = new StringBuilder(baseExpression);
+		}
+
+		/**
+		 * Combines the current expression with the given expression with an and.
+		 * 
+		 * @param nameable the {@link Nameable}
+		 * @param values   the values the current value should not be in
+		 * @return this
+		 */
+		public final ExpressionBuilder andNotIn(Nameable nameable, String... values) {
+			return this.and(expressionOfNotIn(nameable, values));
 		}
 
 		/**

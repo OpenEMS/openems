@@ -111,7 +111,7 @@ public class KostalPvInverter extends AbstractPvInverter<Property> implements Op
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-kostal-pv-wechselrichter/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-pv-wechselrichter/") //
 				.build();
 	}
 

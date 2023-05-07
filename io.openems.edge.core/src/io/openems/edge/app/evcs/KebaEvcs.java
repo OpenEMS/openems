@@ -166,7 +166,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-keba-ladestation/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-ac-ladestation/") //
 				.build();
 	}
 

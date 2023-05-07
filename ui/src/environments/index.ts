@@ -33,6 +33,22 @@ export interface Environment {
         readonly SETTINGS_ALERTING: string,
         readonly SETTINGS_NETWORK_CONFIGURATION: string,
 
+        readonly warranty: {
+            readonly home: {
+                readonly EN: string,
+                readonly DE: string,
+            },
+            readonly commercial: {
+                readonly EN: string,
+                readonly DE: string,
+            }
+        }
+
+        readonly gtc: {
+            readonly EN: string,
+            readonly DE: string
+        },
+
         readonly METER_SOCOMEC: string,
     }
 }
