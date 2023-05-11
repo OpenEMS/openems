@@ -181,8 +181,8 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
 
         const componentConfigurator: ComponentConfigurator = new ComponentConfigurator(edge, config, websocket);
 
-        // modbus0
-        componentConfigurator.add(super.getModbusBridgeComponent(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY')));
+        // adds Modbus 0, io0 (also modbus3 for Modbusbridge type TCP )
+        super.addModbusBridgeAndIoComponents(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_BATTERY'), componentConfigurator);
 
         // modbus1
         componentConfigurator.add({
@@ -213,19 +213,6 @@ export abstract class AbstractCommercial30Ibn extends AbstractCommercialIbn {
                 { name: 'parity', value: 'NONE' },
                 { name: 'logVerbosity', value: 'NONE' },
                 { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
-
-        // io0
-        componentConfigurator.add({
-            factoryId: 'IO.KMtronic',
-            componentId: 'io0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.RELAY_BOARD'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'modbus.id', value: 'modbus0' },
-                { name: 'modbusUnitId', value: 6 }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });

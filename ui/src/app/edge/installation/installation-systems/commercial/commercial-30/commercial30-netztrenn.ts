@@ -6,7 +6,7 @@ import { Edge, EdgeConfig, Websocket } from 'src/app/shared/shared';
 import { environment } from 'src/environments';
 import { Category } from '../../../shared/category';
 import { Coupler } from '../../../shared/coupler';
-import { FeedInType } from '../../../shared/enums';
+import { FeedInType, ModbusBridgeType } from '../../../shared/enums';
 import { ComponentData } from '../../../shared/ibndatatypes';
 import { Meter } from '../../../shared/meter';
 import { ComponentConfigurator, ConfigurationMode } from '../../../views/configuration-execute/component-configurator';
@@ -92,10 +92,13 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
         const invalidateElementsAfterReadErrors: number = 3;
         const componentConfigurator: ComponentConfigurator = super.getCommercial30ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
 
-        //modbus3
+        // Modbus bridge type will already have modbus3 reserved for io0.
+        const couplerComponentId: string = this.modbusBridgeType === ModbusBridgeType.TCP_IP ? 'modbus4' : 'modbus3';
+
+        // modbus3/modbus4
         componentConfigurator.add({
             factoryId: 'Bridge.Modbus.Tcp',
-            componentId: 'modbus3',
+            componentId: couplerComponentId,
             alias: Coupler.toAliasString(this.emergencyReserve.coupler, this.translate),
             properties: [
                 { name: 'enabled', value: true },
@@ -116,7 +119,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                     alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.FIELD_BUS_COUPLER'),
                     properties: [
                         { name: 'enabled', value: true },
-                        { name: 'modbus.id', value: 'modbus3' },
+                        { name: 'modbus.id', value: couplerComponentId },
                         { name: 'modbusUnitId', value: 1 }
                     ],
                     mode: ConfigurationMode.RemoveAndConfigure
@@ -145,7 +148,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                     alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.FIELD_BUS_COUPLER'),
                     properties: [
                         { name: 'enabled', value: true },
-                        { name: 'modbus.id', value: 'modbus3' },
+                        { name: 'modbus.id', value: couplerComponentId },
                         { name: 'username', value: 'admin' },
                         { name: 'password', value: 'wago' }
                     ],

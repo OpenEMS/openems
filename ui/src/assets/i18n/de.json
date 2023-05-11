@@ -612,7 +612,8 @@
       "LABEL": {
         "WEIDMUELLER_BRIDGE": "Weidmüller (schwarze Komponente)",
         "WAGO_BRIDGE": "WAGO (graue Komponente)"
-      }
+      },
+      "COMMUNICATION_WITH_RELAY": "Kommunikation mit Relais"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
