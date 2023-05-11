@@ -3,7 +3,6 @@ package io.openems.edge.app.loadcontrol;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -114,7 +113,7 @@ public class ManualRelayControl extends AbstractEnumOpenemsApp<Property> impleme
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL) //
 								.setOptions(this.componentUtil.getAllRelays() //
 										.stream().map(r -> r.relays).flatMap(List::stream) //
-										.collect(Collectors.toList())) //
+										.toList()) //
 								.setDefaultValueWithStringSupplier(() -> {
 									var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(),
 											new int[] { 1 }, new int[] { 1 });

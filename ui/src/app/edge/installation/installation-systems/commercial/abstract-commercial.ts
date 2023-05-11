@@ -9,10 +9,12 @@ import { Category } from '../../shared/category';
 import { FeedInType, ModbusBridgeType, WebLinks } from '../../shared/enums';
 import { ComponentData } from '../../shared/ibndatatypes';
 import { Meter } from '../../shared/meter';
-import { ConfigurationMode, ConfigurationObject } from '../../views/configuration-execute/component-configurator';
+import { ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../../views/configuration-execute/component-configurator';
 import { AbstractIbn } from '../abstract-ibn';
 
 export abstract class AbstractCommercialIbn extends AbstractIbn {
+
+    private static readonly SELECTOR = 'Commercial';
 
     public readonly showRundSteuerManual: boolean = false;
 
@@ -445,20 +447,24 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
     }
 
     /**
-     * Gets the ConfigurationObject based on the modbus bridge type selected.
+     * Adds the Modbus bridge and IO component.
+     * 
+     * adds modbus0 and io0 if RTU is selected. otherwise modbus0, modbus3, io0 is added.
      * 
      * @param modbusBridgeType Modbus bridge type (TCP or RS485).
-     * @param invalidateElementsAfterReadErrors number.
+     * @param invalidateElementsAfterReadErrors the maximum read errors allowed.
      * @param alias alias for the component.
-     * @returns ConfigurationObject
+     * @param componentConfigurator configuration object.
+     * @returns configuration object with modbus bridge components added.
      */
-    public getModbusBridgeComponent(modbusBridgeType: ModbusBridgeType, invalidateElementsAfterReadErrors: number, alias: string): ConfigurationObject {
+    public addModbusBridgeAndIoComponents(modbusBridgeType: ModbusBridgeType, invalidateElementsAfterReadErrors: number, alias: string, componentConfigurator: ComponentConfigurator): ComponentConfigurator {
+
+        let ioComponentId: string;
 
         switch (modbusBridgeType) {
             case ModbusBridgeType.TCP_IP:
-                // TCP
                 // modbus0
-                return {
+                componentConfigurator.add({
                     factoryId: 'Bridge.Modbus.Tcp',
                     componentId: 'modbus0',
                     alias: alias,
@@ -470,26 +476,164 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                         { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
                     ],
                     mode: ConfigurationMode.RemoveAndConfigure
-                }
+                });
+
+                ioComponentId = 'modbus3'; // To communicate with io.
+
+                // modbus3
+                componentConfigurator.add(this.getSerialModbusBridgeComponent(ioComponentId, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_RELAY')));
+                break;
+
             case ModbusBridgeType.RS485:
-                //RTU
+                ioComponentId = 'modbus0'; // To communicate with battery and io.
+
                 // modbus0
-                return {
-                    factoryId: 'Bridge.Modbus.Serial',
-                    componentId: 'modbus0',
-                    alias: alias,
-                    properties: [
-                        { name: 'enabled', value: true },
-                        { name: 'portName', value: '/dev/ttyAMA0' },
-                        { name: 'baudRate', value: 9600 },
-                        { name: 'databits', value: 8 },
-                        { name: 'stopbits', value: 'ONE' },
-                        { name: 'parity', value: 'NONE' },
-                        { name: 'logVerbosity', value: 'NONE' },
-                        { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
-                    ],
-                    mode: ConfigurationMode.RemoveAndConfigure
-                }
+                componentConfigurator.add(this.getSerialModbusBridgeComponent(ioComponentId, invalidateElementsAfterReadErrors, alias));
+                break;
         }
+
+        // io0
+        componentConfigurator.add({
+            factoryId: 'IO.KMtronic',
+            componentId: 'io0',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.RELAY_BOARD'),
+            properties: [
+                { name: 'enabled', value: true },
+                { name: 'modbus.id', value: ioComponentId },
+                { name: 'modbusUnitId', value: 6 }
+            ],
+            mode: ConfigurationMode.RemoveAndConfigure
+        }, 3);
+
+        return componentConfigurator;
+    }
+
+    /**
+     * Returns the Modbus Serial bridge component. 
+     * 
+     * @param ioComponentId The component id of the component.
+     * @param invalidateElementsAfterReadErrors the maximum read errors allowed.
+     * @param alias the alias string
+     * @returns The modbus serial Configuration Object.
+     */
+    private getSerialModbusBridgeComponent(ioComponentId: string, invalidateElementsAfterReadErrors: number, alias: string): ConfigurationObject {
+        return {
+            factoryId: 'Bridge.Modbus.Serial',
+            componentId: ioComponentId,
+            alias: alias,
+            properties: [
+                { name: 'enabled', value: true },
+                { name: 'portName', value: '/dev/ttyAMA0' },
+                { name: 'baudRate', value: 9600 },
+                { name: 'databits', value: 8 },
+                { name: 'stopbits', value: 'ONE' },
+                { name: 'parity', value: 'NONE' },
+                { name: 'logVerbosity', value: 'NONE' },
+                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+            ],
+            mode: ConfigurationMode.RemoveAndConfigure
+        }
+    }
+
+    /**
+     * Returns the channel addresses for reading serial numbers of the system.
+     * 
+     * @param towerNr number of towers.
+     * @param numberOfModulesPerTower number of modules per tower.
+     * @returns The channel addresses.
+     */
+    protected getChannels(towerNr: number, numberOfModulesPerTower: number): ChannelAddress[] {
+
+        const channelAddresses: ChannelAddress[] = [];
+        channelAddresses['bmsBoxMaster'] = new ChannelAddress('battery0', 'MasterSerialNumber');
+
+        for (let moduleNr = 0; moduleNr < numberOfModulesPerTower; moduleNr++) {
+            channelAddresses['module' + moduleNr] = new ChannelAddress('battery0', 'Tower' + towerNr + 'Module' + moduleNr + 'SerialNumber');
+        }
+
+        return channelAddresses
+    }
+
+    public getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower: number) {
+        return new Promise((resolve) => {
+            let isResolved = false;
+            const channelAddresses: ChannelAddress[] = this.getChannels(towerNr, numberOfModulesPerTower);
+            const subscriptionId = AbstractCommercialIbn.SELECTOR + '-tower' + towerNr;
+            let model: Object = {};
+
+            // Subject to stop the subscription to currentData
+            const stopOnRequest: Subject<void> = new Subject<void>();
+
+            // Read data
+            edge.currentData.pipe(
+                takeUntil(stopOnRequest),
+                filter(currentData => currentData != null)
+            ).subscribe((currentData) => {
+
+                for (const [key, channelAddress] of Object.entries(channelAddresses)) {
+
+                    const serialNumber: string = currentData.channel[channelAddress.toString()];
+
+                    // If serial number is undefined or null, return
+                    if (!serialNumber) {
+                        return;
+                    }
+
+                    if (!this.addSerialNumbersToModel(key, model, serialNumber)) {
+                        // unhandled parsing
+                        // eg: battery module serial numbers are taken directly.
+                        model[key] = serialNumber;
+                    }
+
+                    // Resolve the promise
+                    isResolved = true;
+                    resolve(model);
+                }
+            });
+
+            // Edge-subscribe.
+            // TODO for method in edge to read channels once.
+            edge.subscribeChannels(websocket, subscriptionId, Object.values(channelAddresses));
+
+            setTimeout(() => {
+                // If data isn't available after the timeout, the
+                // promise gets resolved with an empty object
+                if (!isResolved) {
+                    resolve({});
+                }
+
+                // Unsubscribe to currentData and channels after timeout
+                stopOnRequest.next();
+                stopOnRequest.complete();
+                edge.unsubscribeChannels(websocket, subscriptionId);
+            }, 5000);
+        });
+    }
+
+    /**
+     * Adds serial numbers to the model. 
+     * 
+     * Returns true if adding serial numbers to the model was successful. If not, returns false.
+     * 
+     * @param key the channel address
+     * @param model the model.
+     * @param serialNumber the serial number from the channel.
+     */
+    protected addSerialNumbersToModel(key: string, model: Object, serialNumber: string): boolean {
+        if (key.startsWith('bmsBox')) {
+            // BMS master.
+            model[key] = serialNumber.substring(14);
+            return true;
+        }
+        return false;
+    }
+
+    public setNonAbstractFields(ibnString: any) {
+
+        // Configuration commercial modbus bridge
+        if ('modbusBridgeType' in ibnString) {
+            this.modbusBridgeType = ibnString.modbusBridgeType;
+        }
+
     }
 }

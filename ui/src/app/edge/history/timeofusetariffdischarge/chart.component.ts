@@ -18,8 +18,14 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   @Input() public period: DefaultTypes.HistoryPeriod;
   @Input() public componentId: string;
   public component: EdgeConfig.Component = null;
+  public edge: Edge;
+  private currencyLabel: string = 'Cent/kWh'; // Default
 
   ngOnChanges() {
+    this.edge = this.service.currentEdge.value;
+    if (this.edge.id === 'fems17289') {
+      this.currencyLabel = 'Öre/kWh';
+    }
     this.updateChart();
   };
 
@@ -36,7 +42,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
     this.service.setCurrentComponent('', this.route);
     this.service.getConfig().then(config => {
       this.component = config.getComponent(this.componentId);
-    })
+    });
   }
 
   ngOnDestroy() {
@@ -271,6 +277,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   protected setLabel(config: EdgeConfig) {
     let options = this.createDefaultChartOptions();
     let translate = this.translate;
+    const currencyLabel: string = this.currencyLabel;
 
     // Scale prices y-axis between min-/max-values, not from zero
     options.scales.yAxes[0].ticks.beginAtZero = false;
@@ -315,7 +322,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
 
     //y-axis
     options.scales.yAxes[0].id = "yAxis1"
-    options.scales.yAxes[0].scaleLabel.labelString = "Cent / kWh";
+    options.scales.yAxes[0].scaleLabel.labelString = currencyLabel;
     options.scales.yAxes[0].scaleLabel.padding = -2;
     options.scales.yAxes[0].scaleLabel.fontSize = 11;
     options.scales.yAxes[0].ticks.padding = -5;
@@ -331,7 +338,7 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
         // } else if (label == 'Predicted Soc without logic') {
         //   return label + ": " + formatNumber(value, 'de', '1.0-0') + " %";
       } else {
-        return label + ": " + formatNumber(value, 'de', '1.0-4') + " Cent/kWh";
+        return label + ": " + formatNumber(value, 'de', '1.0-4') + ' ' + currencyLabel;
       }
     }
     this.options = options;

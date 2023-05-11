@@ -109,7 +109,7 @@ public class FroniusPvInverter extends AbstractPvInverter<Property> implements O
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-fronius-pv-wechselrichter/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-pv-wechselrichter/") //
 				.build();
 	}
 

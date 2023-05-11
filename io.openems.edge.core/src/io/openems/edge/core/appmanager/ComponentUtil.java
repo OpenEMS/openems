@@ -235,4 +235,14 @@ public interface ComponentUtil {
 	 * @return the optional component
 	 */
 	public Optional<EdgeConfig.Component> getComponent(String id, String factoryId);
+
+	/**
+	 * Gets an array of modbus unit ids which are already used by other components.
+	 * The result of this method may not contain all modbus unit ids.
+	 * 
+	 * @param modbusComponent the id of the modbus component
+	 * @return an array of used modbus unit ids
+	 */
+	public int[] getUsedModbusUnitIds(String modbusComponent);
+
 }

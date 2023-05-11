@@ -165,6 +165,7 @@ public class GetApp {
 		} catch (InterruptedException | CancellationException e) {
 			throw new OpenemsException(e);
 		} catch (ExecutionException e) {
+			e.getCause().printStackTrace();
 			throw new OpenemsException(e.getCause());
 		}
 	}

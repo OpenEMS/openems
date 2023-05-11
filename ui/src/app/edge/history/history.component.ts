@@ -12,7 +12,7 @@ import { environment } from 'src/environments';
 })
 export class HistoryComponent implements OnInit {
 
-  @ViewChild(HeaderComponent, { static: false }) HeaderComponent: HeaderComponent
+  @ViewChild(HeaderComponent, { static: false }) public HeaderComponent: HeaderComponent
 
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;

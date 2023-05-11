@@ -612,7 +612,8 @@
       "LABEL": {
         "WEIDMUELLER_BRIDGE": "Weidmüller (schwarze Komponente)",
         "WAGO_BRIDGE": "WAGO (graue Komponente)"
-      }
+      },
+      "COMMUNICATION_WITH_RELAY": "Kommunikation mit Relais"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "Mit welcher Stromstärke ist der Zähler abgesichert?",
@@ -655,8 +656,8 @@
     "FORM": {
       "MANDATORY_FIELD": "Dies ist ein Pflichtfeld.",
       "BATTERY_SERIAL_NUMBER": "{{ serialNumber }} ist keine gültige Seriennummer. Eine gültige Seriennummer besteht aus {{ length }} Ziffern.",
-      "MIN": "Nur Werte größer oder gleich {{ min }} sind erlaubt.",
-      "MAX": "Nur Werte kleiner oder gleich {{ max }} sind erlaubt.",
+      "MIN": "Bitte geben Sie einen Wert größer als {{ min }} ein.",
+      "MAX": "Bitte geben Sie einen Wert kleiner als {{ max }} ein.",
       "EMAIL_MATCH": "E-Mails stimmen nicht überein.",
       "EMAIL": "{{ email }} ist keine gültige E-Mail-Adresse.",
       "POSITIVE_INTEGER": "Nur ganze positive Zahlen sind erlaubt."
@@ -779,7 +780,8 @@
       "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Anschlussbox",
       "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules pro String: {{ min }} und Maximum: {{ max }}",
       "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }} Anschlussbox",
-      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "{{ edgeShortName }} Netztrennstelle"
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Netztrennstelle",
+      "BATTERY_MODULE_DESCRIPTION": "Bitte geben Sie nur die letzten 8 Ziffern der Seriennummer ein."
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "Vorname Kontaktperson",
@@ -880,12 +882,14 @@
       "isElectrician": "Hiermit bestätige ich, dass mein Betrieb ins Installateursverzeichnis eingetragen ist und somit bin ich berechtigt ein Speichersystem anzuschließen und in Betrieb zu nehmen.*",
       "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*",
       "acceptAgb": "Hiermit bestätige ich die <a target=\"_blank\" href=\"https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/\">AGB</a>.*",
-      "subscribeNewsletter": "Ich möchte den FENECON Newsletter abonnieren um immer alle Neuigkeiten von FENECON zu erhalten."
+      "subscribeNewsletter": "Ich möchte den FENECON Newsletter abonnieren um immer alle Neuigkeiten von FENECON zu erhalten.",
+      "confirmEmail": "E-Mail Adresse wiederholen"
     },
     "button": "Anlegen",
     "errors": {
       "requiredFields": "Bitte alle Felder ausfüllen",
-      "passwordNotEqual": "Passwörter sind nicht gleich"
+      "passwordNotEqual": "Passwörter sind nicht gleich",
+      "emailNotEqual": "E-Mails stimmen nicht überein"
     },
     "success": "Registrierung erfolgreich"
   },

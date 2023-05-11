@@ -300,18 +300,13 @@ export abstract class AbstractIbn {
   }
 
   /**
-   * Specific to commercial-50 and sets the Beladung Unter and Entladung Über information based on user's requirement.
+   * Sets the Non abstract fields for the IBN object from session storage or from specific views.
    * 
-   * @param model model information from the peak shaving view.
+   * for eg: commercial 50 features, modbus bridge type from commercial systems and many more.
+   * 
+   * @param model model information from the view.
    */
-  public setCommercialfeature(model: any) { }
-
-  /**
-   * Specific to commercial-50. Retrieves title for peakshaving view based on feature selected. 
-   */
-  public getPeakShavingHeader(): Category {
-    return null;
-  };
+  public setNonAbstractFields(model: any) { }
 
   /**
    * Gets the additional Emergency reserve fields.

@@ -53,7 +53,7 @@ export class ConfigurationCommercialModbuBridgeComponent implements OnInit {
             {
                 value: ModbusBridgeType.RS485,
                 label: this.translate.instant('INSTALLATION.CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT.RS485_LABEL'),
-                url: 'assets/img/RTU-4_Ports.png'
+                url: 'assets/img/RTU-4-Ports.png'
             }
         ]);
 

@@ -97,11 +97,7 @@ public class HardyBarthEvcs extends
 		CTRL_EVCS_ID_CP_2(AppDef.componentId("ctrlEvcs0")), //
 		// Properties
 		// TODO maybe make this immutable after first installation?
-		NUMBER_OF_CHARGING_STATIONS(AppDef.of(HardyBarthEvcs.class) //
-				.setTranslatedLabelWithAppPrefix(".numberOfChargingStations.label") //
-				.setDefaultValue(1) //
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> //
-				field.setOptions(Lists.newArrayList(1, 2), JsonPrimitive::new, JsonPrimitive::new))), //
+		NUMBER_OF_CHARGING_STATIONS(AppDef.copyOfGeneric(EvcsProps.numberOfChargePoints(2))), //
 		WRAPPER_FIRST_CHARGE_POINT(AppDef.of(HardyBarthEvcs.class) //
 				.setTranslatedLabel("App.Evcs.chargingStation.label", 1)
 				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
@@ -369,7 +365,7 @@ public class HardyBarthEvcs extends
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-echarge-hardy-barth-ladestation/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-ac-ladestation/") //
 				.build();
 	}
 

@@ -370,12 +370,16 @@ export class Utils {
   };
 
   /**
-   * Converts Price to Cent per kWh [Cent / kWh]
+   * Converts Price to Cent per kWh [currency / kWh]
    * 
    * @param decimal number of decimals after fraction
+   * @param label label to be displayed along with price
    * @returns converted value
    */
-  public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number) => { return (value: any): string => (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' Cent/kWh' };
+  public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
+    return (value: any): string =>
+      (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' ' + label
+  };
 
   /**
    * Converts Time-Of-Use-Tariff-State 

@@ -154,7 +154,7 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-janitza-zaehler/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-erzeugungs-und-verbrauchszaehler/") //
 				.build();
 	}
 

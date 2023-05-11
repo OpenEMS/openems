@@ -99,7 +99,7 @@ public class KacoPvInverter extends AbstractPvInverter<Property> implements Open
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-kaco-pv-wechselrichter/") //
+				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-pv-wechselrichter/") //
 				.build();
 	}
 

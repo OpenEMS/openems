@@ -14,6 +14,12 @@ export class Changelog {
         return products.map(product => Changelog.link(product.name, product.url)).join(", ") + '. ';
     }
 
+    public static app(app: App, ...names: string[]) {
+        return Changelog.link(app.name, app.url)
+            + (names.length === 0 ? "" : " (" + names.join(", ") + ")")
+            + ": ";
+    }
+
     public static openems(version: string) {
         return 'Update auf OpenEMS Version ' + version + '. Mehr Details auf ' + Changelog.link('Github', 'https://github.com/OpenEMS/openems/releases/tag/' + version);
     }
@@ -32,46 +38,72 @@ export class Changelog {
 }
 
 export class Product {
+    private static readonly DEPRECATED = "https://fenecon.de/files-fruehere-modelle/";
+
     // TODO Umsetzung OEM-Links?
     // ESS
-    public static readonly HOME = new Product('FENECON Home', 'https://fenecon.de/produkte/home/');
-    public static readonly PRO_HYBRID_10 = new Product('FENECON Pro Hybrid 10', 'https://fenecon.de/');
-    public static readonly PRO_HYBRID_GW = new Product('FENECON Pro Hybrid GW', 'https://fenecon.de/');
-    public static readonly PRO_HYBRID_AC_GW = new Product('FENECON Pro Hybrid AC GW', 'https://fenecon.de/');
-    public static readonly COMMERCIAL_30 = new Product('FENECON Commercial 30', 'https://fenecon.de/produkte/commercial-30/');
-    public static readonly COMMERCIAL_50 = new Product('FENECON Commercial 50', 'https://fenecon.de/produkte/commercial-50/');
-    public static readonly COMMERCIAL_BYD = new Product('FENECON Commercial BYD', 'https://fenecon.de/');
-    public static readonly ALL_ESS = [Product.HOME, Product.PRO_HYBRID_10, Product.PRO_HYBRID_GW, Product.PRO_HYBRID_AC_GW, Product.COMMERCIAL_30, Product.COMMERCIAL_50, Product.COMMERCIAL_BYD];
+    public static readonly HOME = new Product("FENECON Home", 'https://fenecon.de/fenecon-home-10/');
+    public static readonly COMMERCIAL_30 = new Product("FENECON Commercial 30", 'https://fenecon.de/fenecon-commercial-30/');
+    public static readonly COMMERCIAL_50 = new Product("FENECON Commercial 50", 'https://fenecon.de/fenecon-commercial-50/');
+
     // Deprecated ESS
-    public static readonly DESS = new Product('FENECON DESS', 'https://fenecon.de/produkte/#Heimspeicher');
-
-    // FEMS-App
-    public static readonly FEMS_KEBA = new Product('FEMS-App KEBA Ladestation', 'https://fenecon.de/produkte/fems/fems-app-keba-ladestation/');
-    public static readonly FEMS_HARDY_BARTH = new Product('FEMS-App eCharge Hardy Barth Ladestation', 'https://fenecon.de/produkte/fems/fems-app-echarge-hardy-barth-ladestation/');
-    public static readonly ALL_EVCS = [Product.FEMS_KEBA, Product.FEMS_HARDY_BARTH];
-
-    public static readonly FEMS_NETZDIENLICHE_BELADUNG = new Product('FEMS-App Netzdienliche Beladung', 'https://fenecon.de/produkte/fems/fems-app-netzdienliche-beladung/');
-    public static readonly FEMS_MODBUS_TCP_API = new Product('FEMS-App Modbus/TCP-Api', 'https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_modbustcp_lese_und_schreibzugriff');
-    public static readonly FEMS_REST_JSON_API = new Product('FEMS-App REST/JSON-Api', 'https://docs.fenecon.de/de/_/latest/fems/apis.html#_fems_app_restjson_lese_und_schreibzugriff');
-    public static readonly FEMS_PV_KACO = new Product('FEMS-App KACO PV-Wechselrichter', 'https://fenecon.de/produkte/fems/fems-app-kaco-pv-wechselrichter/');
-    public static readonly FEMS_PV_SMA = new Product('FEMS-App SMA PV-Wechselrichter', 'https://fenecon.de/produkte/fems/fems-app-sma-pv-wechselrichter/');
-    public static readonly FEMS_PV_KOSTAL = new Product('FEMS-App Kostal PV-Wechselrichter', 'https://fenecon.de/produkte/fems/fems-app-kostal-pv-wechselrichter/');
-    public static readonly FEMS_PV_FRONIUS = new Product('FEMS-App Fronius PV-Wechselrichter', 'https://fenecon.de/produkte/fems/fems-app-fronius-pv-wechselrichter/');
-    public static readonly FEMS_ALL_PV = [Product.FEMS_PV_KACO, Product.FEMS_PV_SMA, Product.FEMS_PV_KOSTAL, Product.FEMS_PV_FRONIUS];
-    public static readonly FEMS_JANITZA_ZAEHLER = new Product('FEMS-App Janitza Zähler', 'https://fenecon.de/produkte/fems/fems-app-janitza-zaehler/');
-    public static readonly FEMS_SG_READY_WAERMEPUMPE = new Product('FEMS App \"SG-Ready\" Wärmepumpe', 'https://fenecon.de/fenecon-fems/fems-app-sg-ready-waermepumpe/');
-    public static readonly FEMS_HEIZSTAB = new Product('FEMS-App Heizstab', 'https://fenecon.de/fems/produkte/fems/fems-app-heizstab/');
-    public static readonly FEMS_SCHWELLWERT_STEUERUNG = new Product('FEMS-App Schwellwertsteuerung', 'https://fenecon.de/produkte/fems/fems-app-schwellwert-steuerung/');
-    public static readonly FEMS_BLOCKHEIZKRAFTWERK = new Product('FEMS-App Blockheizkraftwerk (BHKW)', 'https://fenecon.de/produkte/fems/fems-app-blockheizkraftwerk-bhkw/');
-    public static readonly FEMS_MANUELLE_RELAISSTEUERUNG = new Product('FEMS-App Manuelle Relaissteuerung', 'https://fenecon.de/produkte/fems/fems-app-manuelle-relaissteuerung/');
-    public static readonly FEMS_AWATTAR = new Product('FEMS-App Awattar HOURLY', 'https://fenecon.de/produkte/fems/fems-app-awattar-hourly/');
-    public static readonly FEMS_CORRENTLY = new Product('FEMS-App STROMDAO Corrently', 'https://fenecon.de/produkte/fems/fems-app-stromdao-corrently/');
-    public static readonly FEMS_TIBBER = new Product('FEMS-App Tibber', 'https://fenecon.de/produkte/fems/fems-app-tibber/');
-    public static readonly FEMS_ALL_TIME_OF_USE_TARIFF = [Product.FEMS_AWATTAR, Product.FEMS_CORRENTLY, Product.FEMS_TIBBER];
-    public static readonly FEMS_HOCHLASTZEITFENSTER = new Product('FEMS-App Hochlastzeitfenster', 'https://fenecon.de/produkte/fems/fems-app-hochlastzeitfenster/');
+    public static readonly DESS = new Product("FENECON DESS", this.DEPRECATED);
+    public static readonly PRO_HYBRID_10 = new Product("FENECON Pro Hybrid 10", this.DEPRECATED);
+    public static readonly PRO_HYBRID_GW = new Product("FENECON Pro Hybrid GW", this.DEPRECATED);
+    public static readonly PRO_HYBRID_AC_GW = new Product("FENECON Pro Hybrid AC GW", this.DEPRECATED);
 
     // Industrial
-    public static readonly INDUSTRIAL = new Product('FENECON Industrial-Serie', 'https://fenecon.de/produkte/industrial-m/');
+    public static readonly INDUSTRIAL_S = new Product("FENECON Industrial S", 'https://fenecon.de/fenecon-industrial-s/');
+    public static readonly INDUSTRIAL_M = new Product("FENECON Industrial M", 'https://fenecon.de/fenecon-industrial-m/');
+    public static readonly INDUSTRIAL_L = new Product("FENECON Industrial L", 'https://fenecon.de/fenecon-industrial-l/');
+
+    // private to disallow creating other instances of this type
+    private constructor(public readonly name: string, public readonly url: any) {
+    }
+}
+
+export class App {
+    // TODO Umsetzung OEM-Links?
+    public static readonly NETZDIENLICHE_BELADUNG = new App("FEMS App Netzdienliche Beladung", 'https://fenecon.de/fenecon-fems/fems-app-netzdienliche-beladung/');
+    public static readonly REST_JSON_API = new App("FEMS App Rest/JSON lesend", 'https://fenecon.de/fenecon-fems/fems-app-rest-json-lesend/');
+    public static readonly MODBUS_TCP_API = new App("FEMS App Modbus/TCP lesend", 'https://fenecon.de/fenecon-fems/fems-app-modbus-tcp-lesend/');
+    public static readonly PEAKSHAVING = new App("FEMS App Lastspitzenkappung", 'https://fenecon.de/fenecon-fems/fems-app-lastspitzenkappung/');
+    public static readonly HOCHLASTZEITFENSTER = new App("FEMS App Hochlastzeitfenster", 'https://fenecon.de/fenecon-fems/fems-app-hochlastzeitfenster/');
+    public static readonly PEAKSHAVING_PHASE = new App("FEMS App Phasengenaue Lastspitzenkappung", 'https://fenecon.de/fenecon-fems/fems-app-phasengenaue-lastspitzenkappung/');
+    public static readonly SCHWELLWERTSTEUERUNG = new App("FEMS App Schwellwertsteuerung", 'https://fenecon.de/fenecon-fems/fems-app-schwellwert-steuerung/');
+    public static readonly MANUELLE_RELAISSTEUERUNG = new App("FEMS App Manuelle Relaissteuerung", 'https://fenecon.de/fenecon-fems/fems-app-manuelle-relaissteuerung/');
+
+    public static readonly EVCS_AC = new App("FEMS App AC-Ladestation", 'https://fenecon.de/fenecon-fems/fems-app-ac-ladestation/');
+    public static readonly KEBA = "KEBA";
+    public static readonly HARDY_BARTH = "Hardy Barth eCharge";
+
+    public static readonly EVCS_DC = new App("FEMS App DC-Ladestation", 'https://fenecon.de/fenecon-fems/fems-app-dc-ladestation/');
+    public static readonly IES_KEYWATT = "IES Keywatt";
+    public static readonly ALPITRONIC = "Alpitronic Hypercharger";
+
+    public static readonly POWER_TO_HEAT = new App("FEMS App Power-to-Heat", 'https://fenecon.de/fenecon-fems/fems-app-power-to-heat/');
+    public static readonly HEIZSTAB = "Heizstab";
+    public static readonly BHKW = "Blockheizkraftwerk (BHKW)";
+    public static readonly WAERMEPUMPE = "SG-Ready Wärmepumpe";
+
+    public static readonly METER = new App("FEMS App Erzeugungs- und Verbrauchszähler", 'https://fenecon.de/fenecon-fems/fems-app-power-to-heat/');
+    public static readonly SOCOMEC = "SOCOMEC";
+    public static readonly KDK = "KDK";
+    public static readonly JANITZA = "Janitza";
+    public static readonly CARLO_GAVAZZI = "CARLO GAVAZZI";
+    public static readonly DISCOVERGY = "Discovergy";
+
+    public static readonly PV_INVERTER = new App("FEMS App PV-Wechselrichter", 'https://fenecon.de/fenecon-fems/fems-app-pv-wechselrichter/');
+    public static readonly KACO = "KACO";
+    public static readonly SMA = "SMA";
+    public static readonly KOSTAL = "Kostal";
+    public static readonly FRONIUS = "Fronius";
+    public static readonly SOLAREDGE = "SolarEdge";
+
+    public static readonly TIME_OF_USE = new App("FEMS App Zeitvariabler Stromtarif", 'https://fenecon.de/fenecon-fems/fems-app-zeitvariabler-stromtarif/');
+    public static readonly AWATTAR = "Awattar HOURLY";
+    public static readonly TIBBER = "Tibber";
+    public static readonly CORRENTLY = "STROMDAO Corrently";
 
     // private to disallow creating other instances of this type
     private constructor(public readonly name: string, public readonly url: any) {
@@ -81,7 +113,6 @@ export class Product {
 export class OpenemsComponent {
     public static readonly PQ_PLUS_ZAEHLER = new OpenemsComponent('PQ-Plus Zähler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus');
     public static readonly SDM630_ZAEHLER = new OpenemsComponent('SDM 630 Zähler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.microcare.sdm630');
-    public static readonly PV_FRONIUS = new OpenemsComponent('Fronius PV-Wechselrichter', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.pvinverter.fronius');
 
     // private to disallow creating other instances of this type
     private constructor(public readonly name: string, public readonly url: any) {
