@@ -9,7 +9,7 @@ import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.test.DummyElectricityMeter;
 
-public class VirtualAsymmetricMeterAddTest {
+public class VirtualAddMeterTest {
 
 	private static final String METER_ID = "meter0";
 	private static final ChannelAddress METER_POWER = new ChannelAddress(METER_ID, "ActivePower");

@@ -382,8 +382,8 @@
 	org.eclipse.jetty.io;version='[9.4.28,9.4.29)',\
 	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[1.8.20,1.8.21)',\
-	org.jsoup;version='[1.15.4,1.15.5)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[1.8.21,1.8.22)',\
+	org.jsoup;version='[1.16.1,1.16.2)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\

@@ -41,6 +41,9 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -54,13 +57,19 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
 public class SolarLogImpl extends AbstractOpenemsModbusComponent implements SolarLog, ManagedSymmetricPvInverter,
-		ElectricityMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
+		ElectricityMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
+
+	@Reference
+	protected ConfigurationAdmin cm;
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this,
 			ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
 
-	@Reference
-	protected ConfigurationAdmin cm;
+	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
+			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	protected Config config;
 
@@ -169,6 +178,9 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 				this.channel(SolarLog.ChannelId.PV_LIMIT_FAILED).setNextValue(true);
 			}
 			break;
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.calculateProductionEnergy.update(this.getActivePower().get());
+			break;
 		}
 	}
 
@@ -196,4 +208,10 @@ public class SolarLogImpl extends AbstractOpenemsModbusComponent implements Sola
 				ModbusSlaveNatureTable.of(SolarLog.class, accessMode, 100) //
 						.build());
 	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
+
 }
