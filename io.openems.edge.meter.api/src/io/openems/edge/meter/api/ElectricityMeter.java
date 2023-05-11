@@ -32,11 +32,9 @@ import io.openems.edge.common.type.TypeUtils;
 public interface ElectricityMeter extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		@Deprecated
 		MIN_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 
-		@Deprecated
 		MAX_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 
@@ -193,7 +191,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Unit: {@link Unit#MILLIVOLT}
 		 * </ul>
 		 */
-		@Deprecated
 		VOLTAGE(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIVOLT) //
 				.persistencePriority(PersistencePriority.HIGH)),
@@ -238,7 +235,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 		 * <li>Unit: {@link Unit#MILLIAMPERE}
 		 * </ul>
 		 */
-		@Deprecated
 		CURRENT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.MILLIAMPERE) //
 				.persistencePriority(PersistencePriority.HIGH)), //
@@ -448,7 +444,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	@Deprecated
 	public default IntegerReadChannel getMinActivePowerChannel() {
 		return this.channel(ChannelId.MIN_ACTIVE_POWER);
 	}
@@ -459,7 +454,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	@Deprecated
 	public default Value<Integer> getMinActivePower() {
 		return this.getMinActivePowerChannel().value();
 	}
@@ -470,7 +464,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	@Deprecated
 	public default void _setMinActivePower(Integer value) {
 		this.getMinActivePowerChannel().setNextValue(value);
 	}
@@ -481,7 +474,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	@Deprecated
 	public default void _setMinActivePower(int value) {
 		this.getMinActivePowerChannel().setNextValue(value);
 	}
@@ -491,7 +483,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	@Deprecated
 	public default IntegerReadChannel getMaxActivePowerChannel() {
 		return this.channel(ChannelId.MAX_ACTIVE_POWER);
 	}
@@ -502,7 +493,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	@Deprecated
 	public default Value<Integer> getMaxActivePower() {
 		return this.getMaxActivePowerChannel().value();
 	}
@@ -513,7 +503,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	@Deprecated
 	public default void _setMaxActivePower(Integer value) {
 		this.getMaxActivePowerChannel().setNextValue(value);
 	}
@@ -524,7 +513,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	@Deprecated
 	public default void _setMaxActivePower(int value) {
 		this.getMaxActivePowerChannel().setNextValue(value);
 	}
@@ -849,7 +837,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	@Deprecated
 	public default IntegerReadChannel getVoltageChannel() {
 		return this.channel(ChannelId.VOLTAGE);
 	}
@@ -859,7 +846,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	@Deprecated
 	public default Value<Integer> getVoltage() {
 		return this.getVoltageChannel().value();
 	}
@@ -869,7 +855,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	@Deprecated
 	public default void _setVoltage(Integer value) {
 		this.getVoltageChannel().setNextValue(value);
 	}
@@ -879,7 +864,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	@Deprecated
 	public default void _setVoltage(int value) {
 		this.getVoltageChannel().setNextValue(value);
 	}
@@ -1003,7 +987,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @return the Channel
 	 */
-	@Deprecated
 	public default IntegerReadChannel getCurrentChannel() {
 		return this.channel(ChannelId.CURRENT);
 	}
@@ -1013,7 +996,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @return the Channel {@link Value}
 	 */
-	@Deprecated
 	public default Value<Integer> getCurrent() {
 		return this.getCurrentChannel().value();
 	}
@@ -1023,7 +1005,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	@Deprecated
 	public default void _setCurrent(Integer value) {
 		this.getCurrentChannel().setNextValue(value);
 	}
@@ -1033,7 +1014,6 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 *
 	 * @param value the next value
 	 */
-	@Deprecated
 	public default void _setCurrent(int value) {
 		this.getCurrentChannel().setNextValue(value);
 	}
