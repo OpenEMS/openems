@@ -1,14 +1,14 @@
 import { HttpClient } from '@angular/common/http';
-import { ApplicationRef, Component, Injectable, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { SwUpdate } from '@angular/service-worker';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
-import { concat, interval, Subject, timer } from 'rxjs';
-import { first, retry, switchMap, takeUntil } from 'rxjs/operators';
+import { Subject, timer } from 'rxjs';
+import { retry, switchMap, takeUntil } from 'rxjs/operators';
 
 import { environment } from '../environments';
 import { CheckForUpdateService } from './appupdateservice';
+import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
 import { Service, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
 
@@ -42,7 +42,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public toastController: ToastController,
     public websocket: Websocket,
     private titleService: Title,
-    checkForUpdateService: CheckForUpdateService
+    private checkForUpdateService: CheckForUpdateService,
+    private globaleRouteChangeHandler: GlobalRouteChangeHandler
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
     checkForUpdateService.init();
