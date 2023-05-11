@@ -1,6 +1,8 @@
 <ion-item (click)="onSelectItem()" [disabled]="formControl.disabled" [button]="!formControl.disabled">
-    <ion-label>
-        <span>{{to.label}}</span>
+    <ion-label [position]="to.labelPosition" style="max-width:none">
+        <span>{{ to.label }}</span>
+        <span *ngIf="to.required && to.hideRequiredMarker !== true">*</span>
+        <span *ngIf="to.description"><br /><small> {{ to.description }} </small></span>
     </ion-label>
     <ion-text>
         {{ model[pathToDisplayValue] }}
