@@ -78,6 +78,8 @@ export class App {
     public static readonly HARDY_BARTH = "Hardy Barth eCharge";
 
     public static readonly EVCS_DC = new App("FEMS App DC-Ladestation", 'https://fenecon.de/fenecon-fems/fems-app-dc-ladestation/');
+    public static readonly IES_KEYWATT = "IES Keywatt";
+    public static readonly ALPITRONIC = "Alpitronic Hypercharger";
 
     public static readonly POWER_TO_HEAT = new App("FEMS App Power-to-Heat", 'https://fenecon.de/fenecon-fems/fems-app-power-to-heat/');
     public static readonly HEIZSTAB = "Heizstab";

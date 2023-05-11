@@ -36,6 +36,18 @@ export class ChangelogComponent implements OnInit {
     changes: Array<string | { roleIsAtLeast: Role, change: string }>
   }[] = [
       {
+        version: '2023.5.1',
+        changes: [
+          Changelog.UI,
+          "App Center: Allgemeine Verbesserungen",
+          Changelog.app(App.EVCS_DC, App.ALPITRONIC) + "Release",
+          Changelog.product(Product.HOME, Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
+          Changelog.app(App.TIME_OF_USE) + "Anzeige der richtigen Währung in Schweden",
+          Changelog.library(Library.OKHTTP, Library.DATE_FNS),
+          { roleIsAtLeast: Role.ADMIN, change: "Solar-Log: Fehlerbehebung bei Energiewerten" },
+        ]
+      },
+      {
         version: '2023.4.3',
         changes: [
           Changelog.product(Product.PRO_HYBRID_10) + "Fehlerbehebung bei automatischer Suche des Wechselrichters im Netzwerk",
@@ -44,9 +56,9 @@ export class ChangelogComponent implements OnInit {
       {
         version: '2023.4.2',
         changes: [
-          Changelog.app(App.POWER_TO_HEAT, App.BHKW) + "Verbesserungen im App-Center",
-          Changelog.app(App.MODBUS_TCP_API) + "Verbesserungen im App-Center",
-          Changelog.app(App.REST_JSON_API) + "Verbesserungen im App-Center",
+          Changelog.app(App.POWER_TO_HEAT, App.BHKW) + "Verbesserungen im App Center",
+          Changelog.app(App.MODBUS_TCP_API) + "Verbesserungen im App Center",
+          Changelog.app(App.REST_JSON_API) + "Verbesserungen im App Center",
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           Changelog.app(App.POWER_TO_HEAT, App.WAERMEPUMPE) + "Verbesserung der Fehlerprüfung bei Konfigurationsänderungen",
           Changelog.app(App.PV_INVERTER) + "Fehlerbehung im nur-lesenden Betrieb (ohne Abregelung)",
@@ -83,7 +95,7 @@ export class ChangelogComponent implements OnInit {
           "Link zu " + Changelog.link("FAQ", 'https://fenecon.de/faq/#fems') + " korrigiert",
           Changelog.app(App.TIME_OF_USE) + "Verbesserung der Datenanzeige in der Live-Ansicht",
           Changelog.app(App.METER, App.KDK) + "Fehlerbehebung beim Lesen der Energiewerte",
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Anzeige von Modal-Fenstern, Automatische Installation Multiladepunktmanagement, UI-Verbesserungen, erfordere Rolle 'INSTALLER' für FENECON Home, erfordere Rolle 'ADMIN' für MQTT" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Anzeige von Modal-Fenstern, Automatische Installation Multiladepunktmanagement, UI-Verbesserungen, erfordere Rolle 'INSTALLER' für FENECON Home, erfordere Rolle 'ADMIN' für MQTT" },
           { roleIsAtLeast: Role.ADMIN, change: "Werbewidget: FEMS App Center; Link zu Systemupdate bei Versionen < 2023.3.6" },
           { roleIsAtLeast: Role.ADMIN, change: "Soltaro-Batterien Version C: PreAlarmTotalVoltageHigh, TemperatureDifferenceTooBigPre-Alarm ausgeblendet" },
           { roleIsAtLeast: Role.ADMIN, change: "OEM Heckert: neues Logo" },
@@ -94,7 +106,7 @@ export class ChangelogComponent implements OnInit {
         version: '2023.3.5',
         changes: [
           "Aktualisierung der Java Runtime Environment auf Version 17 LTS",
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Verbesserung bei Übersetzungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserung bei Übersetzungen" },
         ]
       },
       {
@@ -105,7 +117,7 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.INSTALLER, change: Changelog.product(Product.HOME) + "Vorbereitung einer Batterie-Erweiterung (Be-/Entladen auf 30 % SoC) über das Speicher-Widget im Online-Monitoring" },
           Changelog.app(App.POWER_TO_HEAT, App.WAERMEPUMPE) + "Verbesserung der Fehlerprüfung bei Konfigurationsänderungen",
           { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Webasto Next Ladestation" },
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Optimierung Validierung kostenloser Apps, Verbesserung bei Default-Werten, Hardy-Barth mit zwei Ladepunkten" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Optimierung Validierung kostenloser Apps, Verbesserung bei Default-Werten, Hardy-Barth mit zwei Ladepunkten" },
           { roleIsAtLeast: Role.ADMIN, change: "Backend: historische Abfragen auffüllen mit 'null'-Werten, retry by InfluxDB Schreibfehlern, bessere Logs" },
           Changelog.library(Library.POSTGRESQL, Library.APACHE_FELIX_FILEINSTALL),
         ]
@@ -124,7 +136,7 @@ export class ChangelogComponent implements OnInit {
           "Umfangreiche Performance-Optimierungen bei historischen Daten",
           "Fehlerbehebung/Verbesserung bei der Datenübertragung zum Backend",
           { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Webasto Unite Ladestation" },
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Umbenennung FEMS Relaisboard 8-Kanal TCP, Berechtigungsproblem bei Validierung von Keys im Backend, Auswahl der Phase bei SMA PV-Wechselrichter, Verbesserung handling kostenloser Apps" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Umbenennung FEMS Relaisboard 8-Kanal TCP, Berechtigungsproblem bei Validierung von Keys im Backend, Auswahl der Phase bei SMA PV-Wechselrichter, Verbesserung handling kostenloser Apps" },
           { roleIsAtLeast: Role.ADMIN, change: "UI: neues CI für Heckert" },
           { roleIsAtLeast: Role.ADMIN, change: "Alpha-Test für PWA Service-Worker" },
           Changelog.library(Library.FASTEXCEL),
@@ -161,7 +173,7 @@ export class ChangelogComponent implements OnInit {
         changes: [
           Changelog.UI + "Fehlerbehebung beim Reconnect der Websocket-Verbindung",
           Changelog.library(Library.POSTGRESQL, Library.GRADLE),
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Verbesserungen an Keys" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserungen an Keys" },
           { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Alpitronic Hypercharger DC" },
           { roleIsAtLeast: Role.ADMIN, change: "Bugfix Meter.Virtual.Symmetric.Add: Energiewerte" },
           { roleIsAtLeast: Role.ADMIN, change: "Bugfix SolarEdge Grid-Meter (SunSpec Meter): Energie je Phase" },
@@ -179,7 +191,7 @@ export class ChangelogComponent implements OnInit {
         version: '2023.2.4',
         changes: [
           Changelog.UI,
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Start Demo-Test, Meldung freie Digital-/Relaisausgänge" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Start Demo-Test, Meldung freie Digital-/Relaisausgänge" },
         ]
       },
       {
@@ -194,7 +206,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI,
           Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           Changelog.app(App.TIME_OF_USE, App.TIBBER) + "Fehlerbehebungen bei mehreren registrierten Zählern",
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Verbesserungen an Keys, Navigation, Übersetzungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserungen an Keys, Navigation, Übersetzungen" },
           { roleIsAtLeast: Role.ADMIN, change: "Fix-State-of-Charge-/Prepare-Battery-Extension-Controller: Änderung der Datums-Konfiguration, Automatische Installation auf Home-Systemen" },
           Changelog.library(Library.POSTGRESQL, Library.FASTEXCEL),
         ]
@@ -219,7 +231,7 @@ export class ChangelogComponent implements OnInit {
         version: '2023.1.2',
         changes: [
           Changelog.GENERAL_OPTIMIZATION,
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Aktiviere App-Keys" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Aktiviere App-Keys" },
           { roleIsAtLeast: Role.ADMIN, change: "Beta-Release Fix-State-of-Charge-/Prepare-Battery-Extension-Controller" },
         ]
       },
@@ -231,7 +243,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME) + "Verbesserung SMART-Mode bei Vorgabe einer maximalen Be-/Entladeleistung",
           Changelog.app(App.TIME_OF_USE) + "Historie-Chart: Skalierung der Preis-Achse",
           Changelog.library(Library.NGX_FORMLY, Library.IONIC, Library.JNA, Library.D3),
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Verbesserung der Geschwindigkeit, automatische Installation von Abhängigkeiten, UI-Verbesserungen, Schreibzugriff-Apps, Übersetzungen/Begriffe" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserung der Geschwindigkeit, automatische Installation von Abhängigkeiten, UI-Verbesserungen, Schreibzugriff-Apps, Übersetzungen/Begriffe" },
         ]
       },
       {
@@ -281,7 +293,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI + "Verbesserung Login/Session-Management",
           "Verbesserungen Inbetriebnahmeassistent Commercial: englische Übersetzung und Unterstützung KDK-Zähler",
           Changelog.app(App.EVCS_AC, App.KEBA) + "Anzeige Ladeleistung und Status am Display",
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Vorbereitungen für Key-Modell" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Vorbereitungen für Key-Modell" },
           { roleIsAtLeast: Role.ADMIN, change: "UI: Verhindere mehrfaches Klicken des Login-Button; unterscheide Authentifizierungs-Fehler vs. Odoo-Timeout" },
           { roleIsAtLeast: Role.ADMIN, change: "ESS-Cluster: Unterstützung für Start-Stop von mehreren ESS" },
           { roleIsAtLeast: Role.ADMIN, change: Changelog.product(Product.HOME) + "Korrektur bei Frequenzmessung des Netzzählers" },
@@ -315,7 +327,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.MODBUS_TCP_API) + Changelog.GENERAL_OPTIMIZATION,
           { roleIsAtLeast: Role.INSTALLER, change: "Anzeige von Strom und Spannung des Netzzählers" },
           { roleIsAtLeast: Role.INSTALLER, change: Changelog.product(Product.HOME) + "Korrektur bei Strom-/Spannungswerten des Netzzählers" },
-          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App-Center" },
+          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App Center" },
         ]
       },
       {
@@ -334,7 +346,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI + "Verbesserungen in der historischen Ansicht",
           "Verbesserungen bei automatischen E-Mail-Benachrichtungen",
           "Darstellung des Zeitpunkts der letzten Datenübertragung in der Übersicht",
-          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App-Center" },
+          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App Center" },
           { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für KDK 2PU CT Zähler" },
         ]
       },
@@ -411,7 +423,7 @@ export class ChangelogComponent implements OnInit {
           { roleIsAtLeast: Role.ADMIN, change: "Refactoring und detaillierte JUnit-Tests der zentralen JsonUtils-Klasse" },
           { roleIsAtLeast: Role.ADMIN, change: "Battery Soltaro.Single.C: entferne 'Cell Voltage Low Pre-Alarm'" },
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung bei automatischem Reconnect Edge mit Backend" },
-          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App-Center" },
+          { roleIsAtLeast: Role.ADMIN, change: "Kleine Korrekturen im App Center" },
           { roleIsAtLeast: Role.ADMIN, change: "In 'Channels' können die gewählten Channels jetzt gespeichert werden" },
         ]
       },
@@ -459,7 +471,7 @@ export class ChangelogComponent implements OnInit {
           "Funktion für Systemupdate in den Einstellungen",
           { roleIsAtLeast: Role.INSTALLER, change: "Anzeige von Strom und Spannung für Erzeuger" },
           { roleIsAtLeast: Role.ADMIN, change: "Werbewidgets: GLS Crowdfunding" },
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Info, wenn ein Update zur Verfügung steht" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Info, wenn ein Update zur Verfügung steht" },
           { roleIsAtLeast: Role.ADMIN, change: "Shelly: Anzeige als Stromzähler" },
         ]
       },
@@ -470,7 +482,7 @@ export class ChangelogComponent implements OnInit {
           "Optimierung der Stabilität und Leistung des Backends",
           Changelog.library(Library.NGX_FORMLY),
           { roleIsAtLeast: Role.ADMIN, change: "Unterstützung für SMA Sunny Island 4.4 und 6" },
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Verbesserungen" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Verbesserungen" },
           { roleIsAtLeast: Role.ADMIN, change: "OCPP-Server für Ladesäulen: Fehlerbehebung" },
         ]
       },
@@ -486,7 +498,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI,
           Changelog.product(Product.HOME) + "Automatisches Update durch den Inbetriebnahmeassistent",
           { roleIsAtLeast: Role.ADMIN, change: "GoodWe/Home Charger: Channel CURRENT/VOLTAGE" },
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: App-Icons überarbeitet" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: App-Icons überarbeitet" },
           { roleIsAtLeast: Role.ADMIN, change: "UI: generische Überarbeitung Live-Ansicht Verbrauch/Netz" },
         ]
       },
@@ -518,7 +530,7 @@ export class ChangelogComponent implements OnInit {
         changes: [
           Changelog.product(Product.HOME) + Changelog.GENERAL_OPTIMIZATION + " am Inbetriebnahmeassistent",
           { roleIsAtLeast: Role.ADMIN, change: "Backend-Alerting: Übernahme der FEMS-Nummer und Anpassung UI" },
-          { roleIsAtLeast: Role.ADMIN, change: "App-Center: Installation/Deinstallation von Read-Write-/Read-Only-Apps" },
+          { roleIsAtLeast: Role.ADMIN, change: "App Center: Installation/Deinstallation von Read-Write-/Read-Only-Apps" },
           { roleIsAtLeast: Role.ADMIN, change: "User-Registrierung: OEM-fähigkeit" },
           { roleIsAtLeast: Role.ADMIN, change: "TimescaleDB: Weitere Entwicklungen; Test auf fems888" },
         ]
@@ -529,8 +541,8 @@ export class ChangelogComponent implements OnInit {
           Changelog.product(Product.HOME) + "Inbetriebnahmeassistent unterstützt die Einbindung eines Rundsteuerempfängers",
           Changelog.product(Product.COMMERCIAL_30, Product.COMMERCIAL_50) + "Anpassungen für die neueste Batteriegeneration (Gen2)",
           { roleIsAtLeast: Role.ADMIN, change: "Commercial Gen2-Batterie: Darstellung SoC zwischen 0 und 100 %; Anpassung der Parameter für die Batterie-Protection" },
-          { roleIsAtLeast: Role.ADMIN, change: "'App-Assistent' aus dem UI entfernt. Dieser wird vollständig ersetzt vom neuen App-Center" },
-          { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am App-Center" },
+          { roleIsAtLeast: Role.ADMIN, change: "'App-Assistent' aus dem UI entfernt. Dieser wird vollständig ersetzt vom neuen App Center" },
+          { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am App Center" },
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung beim Setzen von Shelly Relais" },
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung beim Auslesen der FEMS-Nummber über die Modbus-TCP-Api" },
           { roleIsAtLeast: Role.ADMIN, change: "Fehlerbehebung für via OCPP eingebundene Ladesäulen (ABL, IES KeyWatt)" },
@@ -632,7 +644,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.UI + "Verbesserung der Anzeige von Verbrauchs- und Erzeugungszählern",
           Changelog.UI + "Refactoring der Charts für historische Daten",
           Changelog.openemsComponent(OpenemsComponent.SDM630_ZAEHLER, "Korrektur der Modbus-Register für Blindleistung"),
-          { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am FEMS App-Center (Beta-Test)" },
+          { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am FEMS App Center (Beta-Test)" },
           { roleIsAtLeast: Role.ADMIN, change: "Benachrichtigung bei Ausfall eines FEMS (Beta-Test)" },
           { roleIsAtLeast: Role.ADMIN, change: "Neues Werbewidget für direkte Anbindung eines KOSTAL PV-Wechselrichter" },
         ]
@@ -653,7 +665,7 @@ export class ChangelogComponent implements OnInit {
           Changelog.app(App.PV_INVERTER, App.KOSTAL) + "Kompatibilität mit Kostal PV-Wechselrichtern. Getestet mit Kostal Plenticore 5.5 und Pico 5.5",
           Changelog.library(Library.INFLUXDB),
           { roleIsAtLeast: Role.ADMIN, change: "Zusammenlegung der FEMS System-Update Funktion, je nach installierter FEMS-Version" },
-          { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am FEMS App-Center (Beta-Test)" },
+          { roleIsAtLeast: Role.ADMIN, change: "Umfangreiche Verbesserungen am FEMS App Center (Beta-Test)" },
         ]
       },
       {
