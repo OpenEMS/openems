@@ -190,6 +190,19 @@ public interface ManagedEvcs extends Evcs {
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
+		 * Priority of this EVCS.
+		 *
+		 * <ul>
+		 * <li>Interface: ManagedEvcs
+		 * <li>Writable
+		 * <li>Type: Priority @see {@link Priority}
+		 * </ul>
+		 */
+		PRIORITY(Doc.of(Priority.values()) //
+			.accessMode(AccessMode.READ_WRITE) //
+		.persistencePriority(PersistencePriority.LOW)), //
+
+		/**
 		 * Sets the charge power limit of the EVCS in [W].
 		 *
 		 * <p>
@@ -745,7 +758,7 @@ public interface ManagedEvcs extends Evcs {
 				.channel(0, ChannelId.SET_CHARGE_POWER_LIMIT, ModbusType.UINT16) //
 				.channel(1, ChannelId.SET_DISPLAY_TEXT, ModbusType.STRING16) //
 				.channel(17, ChannelId.SET_ENERGY_LIMIT, ModbusType.UINT16) //
-				// TODO: Add remaining channels
+				.channel(18, ChannelId.PRIORITY, ModbusType.ENUM16) //
 				.build();
 	}
 }
