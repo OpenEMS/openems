@@ -505,6 +505,19 @@ public class AppDef<APP extends OpenemsApp, //
 	}
 
 	/**
+	 * Wraps the name of the {@link Enum} in a {@link JsonPrimitive} and sets it as
+	 * the default value with {@link AppDef#setDefaultValue(Function)}.
+	 * 
+	 * @param e the {@link Enum} as the default value
+	 * @return this
+	 */
+	public final AppDef<APP, PROPERTY, PARAMETER> setDefaultValue(//
+			final Enum<?> e //
+	) {
+		return this.setDefaultValue(e.name());
+	}
+
+	/**
 	 * Wraps the {@link Boolean} in a {@link JsonPrimitive} and sets it as the
 	 * default value with {@link AppDef#setDefaultValue(Function)}.
 	 * 
@@ -816,6 +829,17 @@ public class AppDef<APP extends OpenemsApp, //
 	@Override
 	public AppDef<APP, PROPERTY, PARAMETER> self() {
 		return this;
+	}
+
+	/**
+	 * Executes the given {@link Consumer} with the current instance.
+	 * 
+	 * @param consumer the {@link Consumer} to be executed with this instance
+	 * @return this
+	 */
+	public AppDef<APP, PROPERTY, PARAMETER> also(Consumer<AppDef<APP, PROPERTY, PARAMETER>> consumer) {
+		consumer.accept(this.self());
+		return this.self();
 	}
 
 	/**

@@ -26,6 +26,11 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 	}
 
 	@Override
+	public List<OpenemsAppInstance> getInstantiatedApps() {
+		return this.getAppManagerImpl().getInstantiatedApps();
+	}
+
+	@Override
 	public Optional<OpenemsApp> findAppById(String id) {
 		return this.getAppManagerImpl().findAppById(id);
 	}

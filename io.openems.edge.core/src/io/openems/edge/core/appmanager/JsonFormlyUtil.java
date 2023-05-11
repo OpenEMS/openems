@@ -495,6 +495,51 @@ public class JsonFormlyUtil {
 			return this.onlyShowIf(expressionBuilder.toString());
 		}
 
+		/**
+		 * Sets if input is hidden by default.
+		 * 
+		 * @param hide true if the input should be hidden
+		 * @return this
+		 */
+		public final T hide(boolean hide) {
+			if (!hide) {
+				this.jsonObject.remove("hide");
+				return this.self();
+			}
+			this.jsonObject.addProperty("hide", true);
+			return this.self();
+		}
+
+		/**
+		 * Sets if input is disabled by default.
+		 * 
+		 * @param disabled true if the input should be disabled
+		 * @return this
+		 */
+		public final T disabled(boolean disabled) {
+			if (!disabled) {
+				this.templateOptions.remove("disabled");
+				return this.self();
+			}
+			this.templateOptions.addProperty("disabled", true);
+			return this.self();
+		}
+
+		/**
+		 * Sets if input is readonly.
+		 * 
+		 * @param readonly true if the input should be readonly
+		 * @return this
+		 */
+		public final T readonly(boolean readonly) {
+			if (!readonly) {
+				this.templateOptions.remove("readonly");
+				return this.self();
+			}
+			this.templateOptions.addProperty("readonly", true);
+			return this.self();
+		}
+
 		public final T setLabelExpression(ExpressionBuilder expression, String trueLabel, String falseLabel) {
 			this.getExpressionProperties().addProperty("templateOptions.label",
 					expression.toString() + " ? '" + trueLabel + "' : '" + falseLabel + "'");
@@ -530,14 +575,27 @@ public class JsonFormlyUtil {
 			return this.self();
 		}
 
-		public T setCustomValidation(String name, ExpressionBuilder expression, String errorMessage,
-				Nameable propertyToShowError) {
+		public T setCustomValidation(//
+				String name, //
+				ExpressionBuilder expression, //
+				String errorMessage, //
+				Nameable propertyToShowError //
+		) {
 			this.getValidators().add(name, JsonUtils.buildJsonObject() //
 					.addProperty("expressionString", expression.toString()) //
 					.addProperty("message", errorMessage) //
-					.addProperty("errorPath", propertyToShowError.name()) //
+					.onlyIf(propertyToShowError != null, //
+							b -> b.addProperty("errorPath", propertyToShowError.name())) //
 					.build());
 			return this.self();
+		}
+
+		public T setCustomValidation(//
+				String name, //
+				ExpressionBuilder expression, //
+				String errorMessage //
+		) {
+			return this.setCustomValidation(name, expression, errorMessage, null);
 		}
 
 		public JsonObject build() {
@@ -574,6 +632,8 @@ public class JsonFormlyUtil {
 	}
 
 	public static final class ExpressionBuilder {
+
+		private static String CURRENT_VALUE_VARIABLE = "control.value";
 
 		public static enum Operator {
 			// Equals
@@ -630,6 +690,30 @@ public class JsonFormlyUtil {
 		}
 
 		/**
+		 * Creates a {@link ExpressionBuilder} where the value of the current input gets
+		 * validated against the given value.
+		 * 
+		 * @param operator the validation {@link Operator}
+		 * @param value    the expected value of the input
+		 * @return the {@link ExpressionBuilder}
+		 */
+		public static final ExpressionBuilder of(Operator operator, String value) {
+			return new ExpressionBuilder(expressionOf(CURRENT_VALUE_VARIABLE, operator, value));
+		}
+
+		/**
+		 * Creates a {@link ExpressionBuilder} where the value of the current input gets
+		 * validated against the value of the input with the given key.
+		 * 
+		 * @param operator the validation {@link Operator}
+		 * @param value    the input key of the other input
+		 * @return the {@link ExpressionBuilder}
+		 */
+		public static final ExpressionBuilder of(Operator operator, Nameable value) {
+			return new ExpressionBuilder(expressionOf(CURRENT_VALUE_VARIABLE, operator, value));
+		}
+
+		/**
 		 * Creates a {@link ExpressionBuilder} where the value of the input of the given
 		 * property gets validated.
 		 * 
@@ -638,6 +722,16 @@ public class JsonFormlyUtil {
 		 */
 		public static final ExpressionBuilder of(Nameable nameable) {
 			return new ExpressionBuilder(expressionOf(nameable));
+		}
+
+		/**
+		 * Creates a {@link ExpressionBuilder} where the value of the current input gets
+		 * validated.
+		 * 
+		 * @return the {@link ExpressionBuilder}
+		 */
+		public static final ExpressionBuilder of() {
+			return new ExpressionBuilder(expressionOf(CURRENT_VALUE_VARIABLE));
 		}
 
 		/**
@@ -653,6 +747,17 @@ public class JsonFormlyUtil {
 		}
 
 		/**
+		 * Creates a {@link ExpressionBuilder} where the value of the current input gets
+		 * validated to be in the given values.
+		 * 
+		 * @param values the values the current value should be in
+		 * @return the {@link ExpressionBuilder}
+		 */
+		public static final ExpressionBuilder ofIn(String... values) {
+			return new ExpressionBuilder(expressionOfIn(CURRENT_VALUE_VARIABLE, values));
+		}
+
+		/**
 		 * Creates a {@link ExpressionBuilder} where the value of the input of the given
 		 * property gets validated to not be in the given values.
 		 * 
@@ -664,41 +769,19 @@ public class JsonFormlyUtil {
 			return new ExpressionBuilder(expressionOfNotIn(nameable, values));
 		}
 
+		/**
+		 * Creates a {@link ExpressionBuilder} where the value of the current input gets
+		 * validated to not be in the given values.
+		 * 
+		 * @param values the values the current value should not be in
+		 * @return the {@link ExpressionBuilder}
+		 */
+		public static final ExpressionBuilder ofNotIn(String... values) {
+			return new ExpressionBuilder(expressionOfNotIn(CURRENT_VALUE_VARIABLE, values));
+		}
+
 		private ExpressionBuilder(String baseExpression) {
 			this.sb = new StringBuilder(baseExpression);
-		}
-
-		/**
-		 * Combines the current expression with the given expression with an and.
-		 * 
-		 * @param nameable the {@link Nameable}
-		 * @param values   the values the current value should not be in
-		 * @return this
-		 */
-		public final ExpressionBuilder andNotIn(Nameable nameable, String... values) {
-			return this.and(expressionOfNotIn(nameable, values));
-		}
-
-		/**
-		 * Combines the current expression with the given expression with an and.
-		 * 
-		 * @param nameable the {@link Nameable}
-		 * @param operator the {@link Operator}
-		 * @param value    the value to validate the input of the property
-		 * @return this
-		 */
-		public ExpressionBuilder and(Nameable nameable, Operator operator, String value) {
-			return this.and(expressionOf(nameable, operator, value));
-		}
-
-		/**
-		 * Combines the current expression with the given expression with an and.
-		 * 
-		 * @param nameable the {@link Nameable}
-		 * @return this
-		 */
-		public ExpressionBuilder and(Nameable nameable) {
-			return this.and(expressionOf(nameable));
 		}
 
 		/**
@@ -720,28 +803,6 @@ public class JsonFormlyUtil {
 		/**
 		 * Combines the current expression with the given expression with an or.
 		 * 
-		 * @param nameable the {@link Nameable}
-		 * @param operator the {@link Operator}
-		 * @param value    the value to validate the input of the property
-		 * @return this
-		 */
-		public ExpressionBuilder or(Nameable nameable, Operator operator, String value) {
-			return this.or(expressionOf(nameable, operator, value));
-		}
-
-		/**
-		 * Combines the current expression with the given expression with an or.
-		 * 
-		 * @param nameable the {@link Nameable}
-		 * @return this
-		 */
-		public ExpressionBuilder or(Nameable nameable) {
-			return this.or(expressionOf(nameable));
-		}
-
-		/**
-		 * Combines the current expression with the given expression with an or.
-		 * 
 		 * @param builder the other expression
 		 * @return this
 		 */
@@ -755,47 +816,71 @@ public class JsonFormlyUtil {
 			return this;
 		}
 
-		private static final String expressionOfNotIn(Nameable nameable, String... values) {
+		private static final String expressionOfNotIn(String variable, String... values) {
 			if (values.length == 0) {
 				return "";
 			}
 			ExpressionBuilder expression = null;
 			for (var item : values) {
 				if (expression == null) {
-					expression = ExpressionBuilder.of(nameable, Operator.NEQ, item);
+					expression = new ExpressionBuilder(expressionOf(variable, Operator.NEQ, item));
 					continue;
 				}
-				expression.and(nameable, Operator.NEQ, item);
+				expression.and(expressionOf(variable, Operator.NEQ, item));
+			}
+
+			return expression.toString();
+		}
+
+		private static final String expressionOfNotIn(Nameable nameable, String... values) {
+			return expressionOfNotIn(toVariable(nameable), values);
+		}
+
+		private static final String expressionOfIn(String variable, String... values) {
+			if (values.length == 0) {
+				return "";
+			}
+			ExpressionBuilder expression = null;
+			for (var item : values) {
+				if (expression == null) {
+					expression = new ExpressionBuilder(expressionOf(variable, Operator.EQ, item));
+					continue;
+				}
+				expression.or(expressionOf(variable, Operator.EQ, item));
 			}
 
 			return expression.toString();
 		}
 
 		private static final String expressionOfIn(Nameable nameable, String... values) {
-			if (values.length == 0) {
-				return "";
-			}
-			ExpressionBuilder expression = null;
-			for (var item : values) {
-				if (expression == null) {
-					expression = ExpressionBuilder.of(nameable, Operator.EQ, item);
-					continue;
-				}
-				expression.or(nameable, Operator.EQ, item);
-			}
+			return expressionOfNotIn(toVariable(nameable), values);
+		}
 
-			return expression.toString();
+		private static final String expressionOf(String name, Operator operator, String value) {
+			return name + " " + operator.getOperation() + " '" + value + "'";
+		}
+
+		private static final String expressionOf(String name, Operator operator, Nameable nameable) {
+			return name + " " + operator.getOperation() + " " + toVariable(nameable);
 		}
 
 		private static final String expressionOf(Nameable nameable, Operator operator, String value) {
-			return "model." + nameable.name() + " " + operator.getOperation() + " '" + value + "'";
+			return expressionOf(toVariable(nameable), operator, value);
 		}
 
 		private static final String expressionOf(Nameable nameable, Operator operator, Nameable secondNameable) {
-			return "model." + nameable.name() + " " + operator.getOperation() + " model." + secondNameable.name();
+			return expressionOf(toVariable(nameable), operator, secondNameable);
+		}
+
+		private static final String expressionOf(String variableName) {
+			return variableName;
 		}
 
 		private static final String expressionOf(Nameable nameable) {
+			return expressionOf(toVariable(nameable));
+		}
+
+		private static final String toVariable(Nameable nameable) {
 			return "model." + nameable.name();
 		}
 
@@ -1058,6 +1143,25 @@ public class JsonFormlyUtil {
 		public InputBuilder setValidation(Validation validation) {
 			this.setPattern(validation.getPattern());
 			this.setValidationMessage("pattern", validation.getErrorMsg());
+			return this;
+		}
+
+		/**
+		 * Only allows positive number as a input.
+		 * 
+		 * @return this
+		 * @throws IllegalArgumentException if this {@link InputBuilder} has not been
+		 *                                  set to a {@link Type#NUMBER} input via the
+		 *                                  {@link InputBuilder}{@link #setInputType(Type)}
+		 *                                  method.
+		 */
+		public InputBuilder onlyPositiveNumbers() {
+			if (this.type != Type.NUMBER) {
+				throw new IllegalArgumentException("OnlyPositiveNumbers can only be set on number inputs!");
+			}
+			this.getValidators().add("validation", JsonUtils.buildJsonArray() //
+					.add("onlyPositiveInteger") //
+					.build());
 			return this;
 		}
 
