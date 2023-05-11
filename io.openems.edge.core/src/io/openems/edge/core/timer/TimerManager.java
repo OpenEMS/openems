@@ -9,9 +9,9 @@ import io.openems.edge.common.timer.Timer;
  * Use it to
  * 
  * <ul>
- * <li>getTimerCount() - count each call to the timer.check() method.
- * <li>getTimerCoreCycles() - count each core cycle.
- * <li>getTimerTimer() - count a given time in s.
+ * <li>getTimerByCount() - count each call to the timer.check() method.
+ * <li>getTimerByCoreCycles() - count each core cycle.
+ * <li>getTimerByTime() - count a given time in s.
  * </ul>
  * 
  */
