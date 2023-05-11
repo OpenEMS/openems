@@ -21,7 +21,6 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /** FormGroup ControlName */
     @Input() public controlName: string;
 
-
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
     * 
@@ -41,9 +40,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /** Name for parameter, displayed on the left side*/
     @Input() public name: string;
 
-    @Input() public nameSuffix = (value: any): string => {
-        return ""
-    }
+    @Input() public nameSuffix = (value: any): string => { return "" }
     @Input() public value: number | string;
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
     protected show: boolean = true;
@@ -205,4 +202,3 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
         return [];
     }
 }
-

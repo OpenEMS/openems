@@ -434,13 +434,7 @@ export class Utils {
       return "0 W";
     }
 
-    if (value < 0) {
-      return formatNumber(value * -1, 'de', '1.0-1') + ' W'
-    }
-
-    if (value >= 0) {
-      return formatNumber(value, 'de', '1.0-1') + ' W'
-    }
+    return formatNumber(Math.abs(value), 'de', '1.0-1') + " W"
   }
 
   /**
