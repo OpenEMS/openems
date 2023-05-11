@@ -41,6 +41,6 @@ The predefined Apps for the AppManager.
 
 Access to different kind of timers. Can be used to
 
-* `timerManager.getTimerCount()` - count each call to the timer.
-* `timerManager.getTimerCoreCycles()` - count each core cycle.
-* `timerManager.getTimerTimer()` - count a given time in seconds.
+* `timerManager.getTimerByCount()` - count each call to the timer.
+* `timerManager.getTimerByCoreCycles()` - count each core cycle.
+* `timerManager.getTimerByTimer()` - count a given time in seconds.
