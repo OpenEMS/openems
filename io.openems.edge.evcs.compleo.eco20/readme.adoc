@@ -8,17 +8,13 @@ Implementation of a Compleo Eco 20 charging station.
 
 == Application Notes
 
-* charge process will be stopped when a request is below 3.45kW. Nevertheless, it will always charge with min hw power.
-(e.g. config.minHwCurrent() = 10 A (6.9kW), if 4kW is requested, it charges with 6.9kW, if 3kW is requested it goes off). 
+* The charging station may not have an integrated meter, in which case the current, power and energy values
+are calculated from the set charging current.
  
-
 === Dependencies
 * this requires a Compleo/Wallbe EVCS with FW being at least Version 1.12.
 
-=== Maturity
-Production State: *-pilot projects-* 
-
-Open Issues:
+=== Open Issues:
 * this implementation is not tested with a Wallbe EVCS with integrated meter. It is tested with meter simulation mode only.
 * bundle does not support the channel ManagedEvcs.SET_CHARGE_POWER_REQUEST.
 		
