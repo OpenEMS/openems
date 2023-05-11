@@ -21,8 +21,6 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     /** FormGroup ControlName */
     @Input() public controlName: string;
 
-    /** Show line if value matches corresponding channelValue */
-    @Input() public valueToBeMatched: number | string | null = null;
 
     /**
     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
@@ -32,14 +30,23 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     */
     @Input() public converter = (value: any): string => { return value }
 
+    /**
+    * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
+    * 
+    * @param value the value from CurrentData
+    * @returns converter function
+    */
+    @Input() public filter = (value: any): boolean => { return true }
+
     /** Name for parameter, displayed on the left side*/
     @Input() public name: string;
 
     @Input() public nameSuffix = (value: any): string => {
-        return value
+        return ""
     }
     @Input() public value: number | string;
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
+    protected show: boolean = true;
 
     /** Channel defines the channel, you need for this line */
     @Input()
@@ -123,13 +130,9 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
     /** value defines value of the parameter, displayed on the right */
     protected setValue(value: number | string) {
-        if (this.valueToBeMatched != null) {
-            this.canSeeLine = false;
 
-            // If channelCondition set, but value is null, wait for first non null value
-            if (value != null) {
-                this.canSeeLine = value === this.valueToBeMatched
-            }
+        if (value != null && this.filter) {
+            this.show = this.filter(value) ?? true;
         }
 
         if (this.nameSuffix && value != null) {

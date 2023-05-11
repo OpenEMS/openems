@@ -11,7 +11,7 @@ import { Role } from 'src/app/shared/type/role';
 export type FormlyFieldLine = {
   type: string,
   channel?: string,
-  channelCondition?: string | number,
+  filter?: Function,
   converter?: Function,
   name?: string,
   nameSuffix?: Function,
@@ -83,7 +83,7 @@ export class ModalComponent extends AbstractModal {
         type: 'line',
         name: translate.instant("General.offGrid"),
         channel: '_sum/GridMode',
-        channelCondition: GridMode.OFF_GRID
+        filter: Utils.isGridModeOffGrid()
       },
       {
         type: 'line',

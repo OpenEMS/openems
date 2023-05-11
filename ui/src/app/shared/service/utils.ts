@@ -4,6 +4,7 @@ import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
+import { GridMode } from '../shared';
 
 export class Utils {
 
@@ -577,5 +578,9 @@ export class Utils {
 
   public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
     return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true)
+  }
+
+  public static isGridModeOffGrid() {
+    return (value: number): boolean => value === GridMode.OFF_GRID;
   }
 }
