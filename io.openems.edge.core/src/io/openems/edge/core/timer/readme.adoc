@@ -3,9 +3,9 @@
 
 Access to different kind of timers. Can be used to 
 
-* `timerManager.getTimerCount()` - count each call to the timer.  
-* `timerManager.getTimerCoreCycles()` - count each core cycle.
-* `timerManager.getTimerTimer()` - count a given time in seconds.
+* `timerManager.getTimerByCount()` - count each call to the timer.  
+* `timerManager.getTimerByCoreCycles()` - count each core cycle.
+* `timerManager.getTimerByTime()` - count a given time in seconds.
 
 
 === Usage Example 
@@ -22,20 +22,20 @@ Timer cyclesTimer;
 
 activate() {
     //counts down on each call of countTimer.check()
-    countTimer        = timerManager.getTimerCount( 104 );                             
+    countTimer        = timerManager.getTimerByCount( 104 );                             
 
     //counts down on each call to countTimer.check(), but has an initial start delay, 
     //helpful for e.g. heatpumps
-    countTimer2       = timerManager.getTimerCount( 104, config.getStartDelay() );
+    countTimer2       = timerManager.getTimerByCount( 104, config.getStartDelay() );
 	
 	//counts down on each core cycle
-    coreCyclesTimer   = timerManager.getTimerCoreCycles(100 );
+    coreCyclesTimer   = timerManager.getTimerByCoreCycles(100 );
               		     
 	//counts down seconds from now
-    oneMinTimer       = timerManager.getTimerTime( 120 );
+    oneMinTimer       = timerManager.getTimerByTime( 120 );
                                    
     //counts down seconds, writes state of timer to the given channel
-    twoMinTimer       = timerManager.getTimerTime( this.channel, 180 );            
+    twoMinTimer       = timerManager.getTimerByTime( this.channel, 180 );            
 }
 
 doSomething() {
