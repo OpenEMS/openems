@@ -3,6 +3,8 @@ export { environment } from './dummy';
 
 export type Theme = 'OpenEMS' | 'FENECON' | 'Heckert';
 
+export const EMPTY_URL: string = "#";
+
 export interface Environment {
     readonly theme: Theme;
 
