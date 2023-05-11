@@ -882,12 +882,14 @@
       "isElectrician": "Hiermit bestätige ich, dass mein Betrieb ins Installateursverzeichnis eingetragen ist und somit bin ich berechtigt ein Speichersystem anzuschließen und in Betrieb zu nehmen.*",
       "acceptPrivacyPolicy": "Durch das Erstellen eines FENECON Installateur Accounts erkläre ich, die FENECON <a target=\"_blank\" href=\"https://fenecon.de/datenschutzerklaerung/\">Datenschutzerklärung</a> und die Nutzungsbedingungen gelesen zu haben und stimme ihnen zu.*",
       "acceptAgb": "Hiermit bestätige ich die <a target=\"_blank\" href=\"https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/\">AGB</a>.*",
-      "subscribeNewsletter": "Ich möchte den FENECON Newsletter abonnieren um immer alle Neuigkeiten von FENECON zu erhalten."
+      "subscribeNewsletter": "Ich möchte den FENECON Newsletter abonnieren um immer alle Neuigkeiten von FENECON zu erhalten.",
+      "confirmEmail": "E-Mail Adresse wiederholen"
     },
     "button": "Anlegen",
     "errors": {
       "requiredFields": "Bitte alle Felder ausfüllen",
-      "passwordNotEqual": "Passwörter sind nicht gleich"
+      "passwordNotEqual": "Passwörter sind nicht gleich",
+      "emailNotEqual": "E-Mails stimmen nicht überein"
     },
     "success": "Registrierung erfolgreich"
   },

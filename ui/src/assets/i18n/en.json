@@ -882,12 +882,14 @@
       "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/en/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
       "acceptAgb": "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/gtc/\">AGB</a>.*",
       "subscribeNewsletter": "I would like to subscribe to the FENECON newsletter to receive all the latest news from FENECON.",
-      "company": "Company"
+      "company": "Company",
+      "confirmEmail": "confirm E-Mail"
     },
     "button": "Create",
     "errors": {
       "requiredFields": "Please fill in all fields",
-      "passwordNotEqual": "Passwords are not equal"
+      "passwordNotEqual": "Passwords are not equal",
+      "emailNotEqual": "E-Mails are not equal"
     },
     "success": "Registration successful"
   },

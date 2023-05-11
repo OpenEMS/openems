@@ -53,6 +53,14 @@ export class RegistrationModalComponent implements OnInit {
       return;
     }
 
+    let email = this.formGroup.value.email;
+    let confirmEmail = this.formGroup.value.confirmEmail;
+
+    if (email != confirmEmail) {
+      this.service.toast(this.translate.instant("Register.errors.emailNotEqual"), 'danger');
+      return;
+    }
+
     let request = new RegisterUserRequest({
       user: {
         firstname: this.formGroup.value.firstname,
@@ -106,6 +114,7 @@ export class RegistrationModalComponent implements OnInit {
         country: new FormControl("", Validators.required),
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
+        confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
         confirmPassword: new FormControl("", Validators.required),
         isElectrician: new FormControl(false, Validators.requiredTrue),
@@ -123,6 +132,7 @@ export class RegistrationModalComponent implements OnInit {
         country: new FormControl("", Validators.required),
         phone: new FormControl("", Validators.required),
         email: new FormControl("", [Validators.required, Validators.email]),
+        confirmEmail: new FormControl("", [Validators.required, Validators.email]),
         password: new FormControl("", Validators.required),
         confirmPassword: new FormControl("", Validators.required),
         acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
