@@ -43,4 +43,4 @@ Access to different kind of timers. Can be used to
 
 * `timerManager.getTimerByCount()` - count each call to the timer.
 * `timerManager.getTimerByCoreCycles()` - count each core cycle.
-* `timerManager.getTimerByTimer()` - count a given time in seconds.
+* `timerManager.getTimerByTime()` - count a given time in seconds.
