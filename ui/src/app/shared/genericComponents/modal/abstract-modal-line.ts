@@ -65,9 +65,11 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     public displayValue: string = null;
     public displayName: string = null;
 
-    /** Checks if any value of this line can be seen => hides line if false */
+    /** Checks if any value of this line can be seen => hides line if false
+     * 
+     * @deprecated can be remove in future when live-view is refactored with formlyfield
+     */
     protected isAllowedToBeSeen: boolean = true;
-    protected canSeeLine: boolean = true;
     public edge: Edge = null;
     public config: EdgeConfig = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
