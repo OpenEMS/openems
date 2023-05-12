@@ -1,6 +1,10 @@
 package io.openems.edge.app.pvselfconsumption;
 
 import java.util.EnumMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -8,6 +12,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -18,6 +23,7 @@ import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -26,6 +32,7 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -52,9 +59,9 @@ import io.openems.edge.core.appmanager.TranslationUtil;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.PvSelfConsumption.GridOptimizedCharge")
-public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class GridOptimizedCharge extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property {
+	public static enum Property implements Nameable {
 		// Component-IDs
 		CTRL_GRID_OPTIMIZED_CHARGE_ID,
 		// Properties
@@ -119,8 +126,6 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 						.add(JsonFormlyUtil.buildCheckbox(Property.SELL_TO_GRID_LIMIT_ENABLED) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".sellToGridLimitEnabled.label")) //
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".sellToGridLimitEnabled.description")) //
 								.build())
 						.add(JsonFormlyUtil.buildInput(Property.MAXIMUM_SELL_TO_GRID_POWER) //
 								.setInputType(Type.NUMBER) //
@@ -129,16 +134,27 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 								.onlyShowIfChecked(Property.SELL_TO_GRID_LIMIT_ENABLED) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".maximumSellToGridPower.label")) //
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".maximumSellToGridPower.description")) //
 								.build())
 						.add(JsonFormlyUtil.buildSelect(Property.MODE) //
 								.setLabel(TranslationUtil.getTranslation(bundle, this.getAppId() + ".mode.label")) //
-								.setOptions(Lists.newArrayList("OFF", "AUTOMATIC", "MANUAL")) //
+								.setOptions(getModeOptions(bundle)) //
 								.setDefaultValue("AUTOMATIC") //
 								.build())
 						.build())
 				.build();
+	}
+
+	@SuppressWarnings("unchecked")
+	private static final Set<Entry<String, String>> getModeOptions(ResourceBundle bundle) {
+		return Sets.newHashSet(//
+				Map.entry(TranslationUtil.getTranslation(bundle, "App.PvSelfConsumption.GridOptimizedCharge.mode.off"),
+						"OFF"), //
+				Map.entry(TranslationUtil.getTranslation(bundle,
+						"App.PvSelfConsumption.GridOptimizedCharge.mode.automatic"), "AUTOMATIC"), //
+				Map.entry(
+						TranslationUtil.getTranslation(bundle, "App.PvSelfConsumption.GridOptimizedCharge.mode.manual"),
+						"MANUAL") //
+		);
 	}
 
 	@Override
@@ -148,7 +164,7 @@ public class GridOptimizedCharge extends AbstractOpenemsApp<Property> implements
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.PV_SELF_CONSUMPTION };
 	}
 

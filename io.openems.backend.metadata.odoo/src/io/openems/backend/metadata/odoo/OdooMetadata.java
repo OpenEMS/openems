@@ -3,6 +3,7 @@ package io.openems.backend.metadata.odoo;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -12,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -45,8 +45,10 @@ import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
 import io.openems.common.OpenemsOEM;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -194,7 +196,7 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 
 	@Override
 	public Collection<Edge> getAllOfflineEdges() {
-		return this.edgeCache.getAllEdges().stream().filter(Edge::isOffline).collect(Collectors.toList());
+		return this.edgeCache.getAllEdges().stream().filter(Edge::isOffline).toList();
 	}
 
 	/**
@@ -418,4 +420,35 @@ public class OdooMetadata extends AbstractMetadata implements Metadata, Mailer, 
 	public void setUserAlertingSettings(User user, String edgeId, List<AlertingSetting> users) throws OpenemsException {
 		this.odooHandler.setUserAlertingSettings((MyUser) user, edgeId, users);
 	}
+
+	@Override
+	public Map<String, Role> getPageDevice(User user, PaginationOptions paginationOptions)
+			throws OpenemsNamedException {
+		var result = this.odooHandler.getEdges((MyUser) user, paginationOptions);
+
+		Map<String, Role> devices = new LinkedHashMap<>();
+
+		var jDevices = JsonUtils.getAsJsonArray(result, "devices");
+		for (var jDevice : jDevices) {
+			var edgeId = JsonUtils.getAsString(jDevice, "name");
+			var role = Role.getRole(JsonUtils.getAsString(jDevice, "role"));
+			user.setRole(edgeId, role);
+
+			devices.put(edgeId, role);
+		}
+
+		return devices;
+	}
+
+	@Override
+	public Role getRoleForEdge(User user, String edgeId) throws OpenemsNamedException {
+		var result = this.odooHandler.getEdgeWithRole((MyUser) user, edgeId);
+		var roleString = JsonUtils.getAsOptionalString(result, "role") //
+				.orElseThrow(() -> OpenemsError.COMMON_ROLE_UNDEFINED.exception(edgeId, user.getId()));
+
+		var role = Role.getRole(roleString);
+		user.setRole(edgeId, role);
+		return role;
+	}
+
 }

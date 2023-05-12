@@ -12,8 +12,8 @@ export class ChartOptionsComponent {
 
     @Input() public showPhases: boolean | null;
     @Input() public showTotal: boolean | null;
-    @Output() setShowPhases = new EventEmitter<boolean>();
-    @Output() setShowTotal = new EventEmitter<boolean>();
+    @Output() public setShowPhases = new EventEmitter<boolean>();
+    @Output() public setShowTotal = new EventEmitter<boolean>();
 
     constructor(
         public service: Service,

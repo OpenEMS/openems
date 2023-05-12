@@ -13,7 +13,7 @@ export abstract class AbstractService extends ErrorHandler {
   /**
    * Holds the currently selected Edge.
    */
-  abstract currentEdge: BehaviorSubject<Edge>;
+  public abstract currentEdge: BehaviorSubject<Edge>;
 
   /**
    * Set the application language

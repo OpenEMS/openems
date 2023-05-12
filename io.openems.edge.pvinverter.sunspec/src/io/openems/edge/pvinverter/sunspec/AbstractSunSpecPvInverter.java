@@ -21,6 +21,7 @@ import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
@@ -35,6 +36,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	private final Logger log = LoggerFactory.getLogger(AbstractSunSpecPvInverter.class);
 	private final SetPvLimitHandler setPvLimitHandler = new SetPvLimitHandler(this);
 
+	private boolean readOnly;
 	private boolean isSinglePhase;
 	private Phase phase;
 
@@ -55,6 +57,8 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	 *                              'config.alias()'. Defaults to 'id' if empty
 	 * @param enabled               Whether the component should be enabled.
 	 *                              Typically 'config.enabled()'
+	 * @param readOnly              In Read-Only mode no power-limitation commands
+	 *                              are sent to the inverter
 	 * @param unitId                Unit-ID of the Modbus target
 	 * @param cm                    An instance of ConfigurationAdmin. Receive it
 	 *                              using @Reference
@@ -69,9 +73,10 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	 *         activate() method.
 	 * @throws OpenemsException on error
 	 */
-	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo, Phase phase)
-			throws OpenemsException {
+	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, boolean readOnly,
+			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo,
+			Phase phase) throws OpenemsException {
+		this.readOnly = readOnly;
 		this.phase = phase;
 		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId,
 				readFromCommonBlockNo);
@@ -110,13 +115,28 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	public void handleEvent(Event event) {
 		if (!this.isEnabled() || !this.isSunSpecInitializationCompleted()) {
 			this.channel(SunSpecPvInverter.ChannelId.PV_LIMIT_FAILED).setNextValue(false);
+			this.channel(SunSpecPvInverter.ChannelId.READ_ONLY_MODE_PV_LIMIT_FAILED).setNextValue(false);
 			return;
 		}
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+			// Get ActivePowerLimit that should be applied
+			var activePowerLimitChannel = (IntegerWriteChannel) this
+					.channel(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT);
+			var activePowerLimitOpt = activePowerLimitChannel.getNextWriteValueAndReset();
+
+			// Set warning if read-only mode is active but a PV limit was requested
+			this.channel(SunSpecPvInverter.ChannelId.READ_ONLY_MODE_PV_LIMIT_FAILED)
+					.setNextValue(this.readOnly && activePowerLimitOpt.isPresent());
+
+			// In read-only mode: stop here
+			if (this.readOnly) {
+				return;
+			}
+
 			try {
-				this.setPvLimitHandler.run();
+				this.setPvLimitHandler.accept(activePowerLimitOpt);
 
 				this.channel(SunSpecPvInverter.ChannelId.PV_LIMIT_FAILED).setNextValue(false);
 			} catch (OpenemsNamedException e) {
