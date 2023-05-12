@@ -1,4 +1,4 @@
-import { EMPTY_URL, Theme } from 'src/environments';
+import { Theme } from 'src/environments';
 
 export const theme = {
     theme: "OpenEMS" as Theme,
@@ -27,18 +27,18 @@ export const theme = {
 
         warranty: {
             home: {
-                EN: EMPTY_URL,
-                DE: EMPTY_URL
+                EN: "#",
+                DE: "#"
             },
             commercial: {
-                EN: EMPTY_URL,
-                DE: EMPTY_URL,
+                EN: "#",
+                DE: "#",
             }
         },
 
         gtc: {
-            EN: EMPTY_URL,
-            DE: EMPTY_URL
+            EN: "#",
+            DE: "#"
         },
 
         // Currently the links are different with different prefixes. so adding whole url for Socomec.

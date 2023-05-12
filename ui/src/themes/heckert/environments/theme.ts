@@ -1,4 +1,4 @@
-import { EMPTY_URL, Theme } from 'src/environments';
+import { Theme } from 'src/environments';
 
 export const theme = {
     theme: "Heckert" as Theme,
@@ -33,8 +33,8 @@ export const theme = {
                 DE: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_DE_Garantiebedingungen_FENECON_Home.pdf"
             },
             commercial: {
-                EN: EMPTY_URL,
-                DE: EMPTY_URL,
+                EN: "#",
+                DE: "#",
             }
         },
 
