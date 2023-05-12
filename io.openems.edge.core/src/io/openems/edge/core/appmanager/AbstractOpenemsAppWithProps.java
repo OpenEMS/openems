@@ -80,6 +80,13 @@ public abstract class AbstractOpenemsAppWithProps<//
 		return this.getString(map, l, property, PROPERTY::def);
 	}
 
+	protected String getString(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return this.getString(map, Language.DEFAULT, property);
+	}
+
 	protected JsonArray getJsonArray(//
 			final Map<PROPERTY, JsonElement> map, //
 			final PROPERTY property //

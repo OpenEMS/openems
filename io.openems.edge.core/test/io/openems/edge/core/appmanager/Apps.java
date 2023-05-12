@@ -255,7 +255,8 @@ public class Apps {
 	 * @return the {@link OpenemsApp} instance
 	 */
 	public static final SocomecMeter socomecMeter(AppManagerTestBundle t) {
-		return app(t, SocomecMeter::new, "App.Meter.Socomec");
+		return app(t, (componentManager, componentContext, cm, componentUtil) -> new SocomecMeter(componentManager,
+				componentContext, cm, componentUtil, t.appManagerUtil), "App.Meter.Socomec");
 	}
 
 	// ess-controller

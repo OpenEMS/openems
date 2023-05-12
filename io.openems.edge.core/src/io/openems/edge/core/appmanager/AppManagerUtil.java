@@ -1,6 +1,7 @@
 package io.openems.edge.core.appmanager;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,6 +12,28 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Language;
 
 public interface AppManagerUtil {
+
+	/**
+	 * Gets a {@link List} of the current installed {@link OpenemsAppInstance}.
+	 * 
+	 * @return the list of installed apps
+	 */
+	public List<OpenemsAppInstance> getInstantiatedApps();
+
+	/**
+	 * Gets a {@link List} of the current installed {@link OpenemsAppInstance} which
+	 * match the given appId.
+	 * 
+	 * @param appId the appId which should match with
+	 *              {@link OpenemsAppInstance#appId}
+	 * @return a {@link List} of {@link OpenemsAppInstance}
+	 */
+	public default List<OpenemsAppInstance> getInstantiatedAppsOfApp(String appId) {
+		Objects.requireNonNull(appId);
+		return this.getInstantiatedApps().stream() //
+				.filter(instance -> appId.equals(instance.appId)) //
+				.toList();
+	}
 
 	/**
 	 * Finds the {@link OpenemsApp} with the given id.

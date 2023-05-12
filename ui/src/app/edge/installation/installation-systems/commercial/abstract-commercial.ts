@@ -9,7 +9,7 @@ import { Category } from '../../shared/category';
 import { FeedInType, ModbusBridgeType, WebLinks } from '../../shared/enums';
 import { ComponentData } from '../../shared/ibndatatypes';
 import { Meter } from '../../shared/meter';
-import { ConfigurationMode, ConfigurationObject } from '../../views/configuration-execute/component-configurator';
+import { ComponentConfigurator, ConfigurationMode, ConfigurationObject } from '../../views/configuration-execute/component-configurator';
 import { AbstractIbn } from '../abstract-ibn';
 
 export abstract class AbstractCommercialIbn extends AbstractIbn {
@@ -447,20 +447,24 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
     }
 
     /**
-     * Gets the ConfigurationObject based on the modbus bridge type selected.
+     * Adds the Modbus bridge and IO component.
+     * 
+     * adds modbus0 and io0 if RTU is selected. otherwise modbus0, modbus3, io0 is added.
      * 
      * @param modbusBridgeType Modbus bridge type (TCP or RS485).
-     * @param invalidateElementsAfterReadErrors number.
+     * @param invalidateElementsAfterReadErrors the maximum read errors allowed.
      * @param alias alias for the component.
-     * @returns ConfigurationObject
+     * @param componentConfigurator configuration object.
+     * @returns configuration object with modbus bridge components added.
      */
-    public getModbusBridgeComponent(modbusBridgeType: ModbusBridgeType, invalidateElementsAfterReadErrors: number, alias: string): ConfigurationObject {
+    public addModbusBridgeAndIoComponents(modbusBridgeType: ModbusBridgeType, invalidateElementsAfterReadErrors: number, alias: string, componentConfigurator: ComponentConfigurator): ComponentConfigurator {
+
+        let ioComponentId: string;
 
         switch (modbusBridgeType) {
             case ModbusBridgeType.TCP_IP:
-                // TCP
                 // modbus0
-                return {
+                componentConfigurator.add({
                     factoryId: 'Bridge.Modbus.Tcp',
                     componentId: 'modbus0',
                     alias: alias,
@@ -472,26 +476,62 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                         { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
                     ],
                     mode: ConfigurationMode.RemoveAndConfigure
-                }
+                });
+
+                ioComponentId = 'modbus3'; // To communicate with io.
+
+                // modbus3
+                componentConfigurator.add(this.getSerialModbusBridgeComponent(ioComponentId, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.COMMUNICATION_WITH_RELAY')));
+                break;
+
             case ModbusBridgeType.RS485:
-                //RTU
+                ioComponentId = 'modbus0'; // To communicate with battery and io.
+
                 // modbus0
-                return {
-                    factoryId: 'Bridge.Modbus.Serial',
-                    componentId: 'modbus0',
-                    alias: alias,
-                    properties: [
-                        { name: 'enabled', value: true },
-                        { name: 'portName', value: '/dev/ttyAMA0' },
-                        { name: 'baudRate', value: 9600 },
-                        { name: 'databits', value: 8 },
-                        { name: 'stopbits', value: 'ONE' },
-                        { name: 'parity', value: 'NONE' },
-                        { name: 'logVerbosity', value: 'NONE' },
-                        { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
-                    ],
-                    mode: ConfigurationMode.RemoveAndConfigure
-                }
+                componentConfigurator.add(this.getSerialModbusBridgeComponent(ioComponentId, invalidateElementsAfterReadErrors, alias));
+                break;
+        }
+
+        // io0
+        componentConfigurator.add({
+            factoryId: 'IO.KMtronic',
+            componentId: 'io0',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.RELAY_BOARD'),
+            properties: [
+                { name: 'enabled', value: true },
+                { name: 'modbus.id', value: ioComponentId },
+                { name: 'modbusUnitId', value: 6 }
+            ],
+            mode: ConfigurationMode.RemoveAndConfigure
+        }, 3);
+
+        return componentConfigurator;
+    }
+
+    /**
+     * Returns the Modbus Serial bridge component. 
+     * 
+     * @param ioComponentId The component id of the component.
+     * @param invalidateElementsAfterReadErrors the maximum read errors allowed.
+     * @param alias the alias string
+     * @returns The modbus serial Configuration Object.
+     */
+    private getSerialModbusBridgeComponent(ioComponentId: string, invalidateElementsAfterReadErrors: number, alias: string): ConfigurationObject {
+        return {
+            factoryId: 'Bridge.Modbus.Serial',
+            componentId: ioComponentId,
+            alias: alias,
+            properties: [
+                { name: 'enabled', value: true },
+                { name: 'portName', value: '/dev/ttyAMA0' },
+                { name: 'baudRate', value: 9600 },
+                { name: 'databits', value: 8 },
+                { name: 'stopbits', value: 'ONE' },
+                { name: 'parity', value: 'NONE' },
+                { name: 'logVerbosity', value: 'NONE' },
+                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+            ],
+            mode: ConfigurationMode.RemoveAndConfigure
         }
     }
 
@@ -586,5 +626,14 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             return true;
         }
         return false;
+    }
+
+    public setNonAbstractFields(ibnString: any) {
+
+        // Configuration commercial modbus bridge
+        if ('modbusBridgeType' in ibnString) {
+            this.modbusBridgeType = ibnString.modbusBridgeType;
+        }
+
     }
 }

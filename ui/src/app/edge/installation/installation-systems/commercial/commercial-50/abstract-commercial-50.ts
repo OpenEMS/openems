@@ -45,24 +45,24 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         return peakShavingData;
     }
 
-    public setCommercialfeature(commercial50Feature: any) {
+    public override setNonAbstractFields(commercial50Feature: any) {
 
+        // Configuration commercial modbus bridge
+        if ('modbusBridgeType' in commercial50Feature) {
+            super.setNonAbstractFields(commercial50Feature);
+        }
+
+        // Configuration peak shaving
         if (commercial50Feature.feature) {
-            // Directly copy from Session Storage
+            // ibn string from Session Storage
             this.commercial50Feature.feature = commercial50Feature.feature;
         } else {
-            // From Peak Shaving view.
+            // model From Peak Shaving view.
             if (this.commercial50Feature.feature.type !== Category.BALANCING) {
                 this.commercial50Feature.feature.beladungUnter = commercial50Feature.beladungUnter;
                 this.commercial50Feature.feature.entladungÜber = commercial50Feature.entladungÜber;
             }
         }
-    }
-
-    public getPeakShavingHeader() {
-        return this.commercial50Feature.feature.type === Category.PEAK_SHAVING_SYMMETRIC
-            ? Category.PEAK_SHAVING_SYMMETRIC_HEADER
-            : Category.PEAK_SHAVING_ASYMMETRIC_HEADER;
     }
 
     public fillForms(
@@ -213,8 +213,8 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
 
         const componentConfigurator: ComponentConfigurator = new ComponentConfigurator(edge, config, websocket);
 
-        // modbus0
-        componentConfigurator.add(super.getModbusBridgeComponent(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INTERFACE')));
+        // adds Modbus 0, io0 (also modbus3 for Modbusbridge type TCP )
+        super.addModbusBridgeAndIoComponents(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INTERFACE'), componentConfigurator);
 
         // modbus1
         componentConfigurator.add({
@@ -245,19 +245,6 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'parity', value: 'NONE' },
                 { name: 'logVerbosity', value: 'NONE' },
                 { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
-            ],
-            mode: ConfigurationMode.RemoveAndConfigure
-        });
-
-        // io0 
-        componentConfigurator.add({
-            factoryId: 'IO.KMtronic',
-            componentId: 'io0',
-            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.RELAY_BOARD'),
-            properties: [
-                { name: 'enabled', value: true },
-                { name: 'modbus.id', value: 'modbus0' },
-                { name: 'modbusUnitId', value: 6 }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });

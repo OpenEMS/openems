@@ -9,6 +9,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AppDef;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtilSupplier;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
@@ -82,13 +83,13 @@ public final class ComponentProps {
 	}
 
 	private static <APP extends OpenemsApp> AppDef<APP, Nameable, Parameter.BundleParameter> pickComponentId(//
-			Function<APP, List<? extends OpenemsComponent>> supplyComponents //
+			final Function<APP, List<? extends OpenemsComponent>> supplyComponents //
 	) {
 		return AppDef.<APP, Nameable, Parameter.BundleParameter, //
 				OpenemsApp, Nameable, Parameter.BundleParameter>copyOfGeneric(CommonProps.defaultDef()) //
 				.setLabel("Component-ID") //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(supplyComponents.apply(app),
+					field.setOptions(supplyComponents.apply(app), //
 							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_LABEL,
 							JsonFormlyUtil.SelectBuilder.DEFAULT_COMPONENT_2_VALUE);
 				}).setDefaultValue((app, property, l, parameter) -> {
@@ -159,6 +160,31 @@ public final class ComponentProps {
 						meter -> meter.getMeterType() == MeterType.GRID) //
 				.setTranslatedLabel("gridMeterId.label") //
 				.setTranslatedDescription("gridMeterId.description");
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a input to select a {@link OpenemsComponent}
+	 * with the starting id 'modbus'.
+	 * 
+	 * @param <APP> the type of the {@link OpenemsApp}
+	 * @return the {@link AppDef}
+	 */
+	public static <APP extends OpenemsApp & ComponentUtilSupplier & AppManagerUtilSupplier> //
+	AppDef<APP, Nameable, Parameter.BundleParameter> pickModbusId() {
+		return ComponentProps.<APP>pickComponentId("modbus") //
+				.setTranslatedLabel("modbusId") //
+				.setTranslatedDescription("modbusId.description") //
+				.also(def -> {
+					final var oldDefaultValue = def.getDefaultValue();
+
+					def.setDefaultValue((app, property, l, parameter) -> {
+						if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
+							return new JsonPrimitive("modbus1");
+						}
+
+						return oldDefaultValue.get(app, property, l, parameter);
+					});
+				});
 	}
 
 	private ComponentProps() {

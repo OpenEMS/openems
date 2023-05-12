@@ -1,5 +1,4 @@
-import { Theme } from 'src/environments';
-import { EMPTY_URL } from 'src/environments/theme';
+import { EMPTY_URL, Theme } from 'src/environments';
 
 export const theme = {
     theme: "Heckert" as Theme,

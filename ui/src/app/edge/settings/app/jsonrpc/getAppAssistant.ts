@@ -103,11 +103,11 @@ export namespace GetAppAssistant {
                 if (expressionString) {
                     expressionString = GetAppAssistant.convertStringExpression(rootFields, field, expressionString);
 
-                    const func = Function(...['model', 'formState', 'field'], `return ${expressionString};`)
+                    const func = Function('model', 'formState', 'field', 'control', `return ${expressionString};`)
                     field.validators[key]["expression"] = (control: AbstractControl, f: FormlyFieldConfig) => {
                         const model = f.model;
                         const formState = f.options.formState;
-                        const result = func(...[model, formState, f])
+                        const result = func(model, formState, f, control)
                         return result;
                     }
                 }

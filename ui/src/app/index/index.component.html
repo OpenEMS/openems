@@ -120,7 +120,7 @@
                 <ion-grid>
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
-                      <ion-searchbar [(ngModel)]="filter" [debounce]="500" (ionChange)="searchOnChange($event)"
+                      <ion-searchbar [(ngModel)]="query" [debounce]="500" (ionChange)="searchOnChange()"
                         *ngIf="!onlyOneEdgeAvailable">
                       </ion-searchbar>
                     </ion-col>
