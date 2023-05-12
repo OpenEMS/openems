@@ -13,8 +13,8 @@ import io.openems.edge.predictor.lstmmodel.utilities.UtilityConversion;
 
 public class PreprocessingImpl implements PreProcessing {
 
-	public static final Function<double[], ArrayList<Double>> DOUBLE_TO_DOUBLE_ARRAYLIST = UtilityConversion::doubleToArrayListDouble;
-	public static final Function<List<List<Double>>, double[][]> DOUBLE_TO_DOUBLE_LIST = UtilityConversion::convert2DArrayListTo2DArray;
+	public static final Function<double[], ArrayList<Double>> CONVERT_DOUBLE_ARRAY_TO_DOUBLE_ARRAYLIST = UtilityConversion::convertDoubleArrayToArrayListDouble;
+	public static final Function<List<List<Double>>, double[][]> CONVERT_2DDOUBLE_LIST_TO_2DDOUBLE_ARRAY = UtilityConversion::convert2DArrayListTo2DArray;
 
 	private double max = 0;
 	private double min = 0;
@@ -61,11 +61,11 @@ public class PreprocessingImpl implements PreProcessing {
 				.mapToDouble(index -> this.scaleDataList.get(index)) //
 				.toArray();
 
-		List<List<Double>> res = windowed(DOUBLE_TO_DOUBLE_ARRAYLIST.apply(subArr), this.windowSize) //
+		List<List<Double>> res = windowed(CONVERT_DOUBLE_ARRAY_TO_DOUBLE_ARRAYLIST.apply(subArr), this.windowSize) //
 				.map(s -> s.collect(Collectors.toList())) //
 				.collect(Collectors.toList());
 
-		return DOUBLE_TO_DOUBLE_LIST.apply(res);
+		return CONVERT_2DDOUBLE_LIST_TO_2DDOUBLE_ARRAY.apply(res);
 
 	}
 
@@ -101,7 +101,7 @@ public class PreprocessingImpl implements PreProcessing {
 		double scaleFactor = maxScaled - minScaled;
 
 		this.scaleDataList = (ArrayList<Double>) this.dataList.stream() //
-				.map(item -> (((item - this.min) / this.max) * (scaleFactor)) + minScaled) //
+				.map(item -> (((item - this.min) / (this.max - this.min)) * (scaleFactor)) + minScaled) //
 				.collect(Collectors.toList());
 	}
 
@@ -117,13 +117,10 @@ public class PreprocessingImpl implements PreProcessing {
 
 		double scaleFactor = maxScaled - minScaled;
 
-		List<Integer> second = DOUBLE_TO_DOUBLE_ARRAYLIST.apply(data) //
+		return CONVERT_DOUBLE_ARRAY_TO_DOUBLE_ARRAYLIST.apply(data) //
 				.stream() //
-				.map(item -> (((item * this.max) / (scaleFactor)) + this.min)) //
+				.map(item -> (((item * (this.max - this.min)) / (scaleFactor)) + this.min)) //
 				.map(p -> p.intValue()) //
-				.collect(Collectors.toList());
-
-		return second.stream() //
 				.toArray(Integer[]::new);
 
 	}

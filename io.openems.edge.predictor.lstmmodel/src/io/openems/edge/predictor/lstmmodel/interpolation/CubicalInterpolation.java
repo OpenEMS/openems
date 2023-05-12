@@ -28,6 +28,10 @@ public class CubicalInterpolation {
 	}
 
 	public void interpolate() {
+		
+//		ArrayList<Double> datax = new ArrayList<Double>(Arrays.asList(1.0, 0.5, null, null, 0.333, 0.25));
+//		ArrayList<Double> datay = new ArrayList<Double>(Arrays.asList(1.00, 2.00, 3.00, 4.00, 5.00, 6.00));
+		
 
 		ArrayList<Double> x = new ArrayList<Double>(Arrays.asList(1.00, 2.00, 3.00, 4.00));
 		ArrayList<Double> y = new ArrayList<Double>(Arrays.asList(1.0, 0.5, 0.333, 0.25));

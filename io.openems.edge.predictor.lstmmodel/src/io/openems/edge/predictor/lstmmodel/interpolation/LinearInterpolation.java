@@ -1,11 +1,12 @@
 package io.openems.edge.predictor.lstmmodel.interpolation;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class LinearInterpolation {
 
-	ArrayList<Double> data = new ArrayList<Double>();
+	public ArrayList<Double> data = new ArrayList<Double>();
 
 	public LinearInterpolation(ArrayList<Float> data) {
 
@@ -15,6 +16,34 @@ public class LinearInterpolation {
 						.boxed()//
 						.collect(Collectors.toCollection(ArrayList::new))//
 		);
+
+		this.data = replaceNullWitNan(this.data);
+		System.out.println("Data Before Interpolation");
+		System.out.print(this.data);
+
+		if (Double.isNaN(this.data.get(0))) {
+			this.data.set(0, calculateMean(this.data));
+		}
+		if (Double.isNaN(this.data.get(this.data.size() - 1))) {
+			this.data.set(this.data.size() - 1, calculateMean(this.data));
+		} else {
+			//
+		}
+		ArrayList<ArrayList<ArrayList<Double>>> coordinate = determineInterpolatingPoints(this.data);
+		for (int i = 0; i < coordinate.size(); i++) {
+			ArrayList<Double> val = this.computeInterpolation(coordinate.get(i).get(0).get(0),
+					coordinate.get(i).get(0).get(1), coordinate.get(i).get(1).get(0), coordinate.get(i).get(1).get(1));
+			this.data = this.conCat(this.data, val, coordinate.get(i).get(0).get(0), coordinate.get(i).get(0).get(1));
+
+		}
+		System.out.println("Data after Interpolation");
+
+		System.out.println(this.data);
+	}
+	
+	public LinearInterpolation(List<Double> data) {
+
+		this.data = (ArrayList<Double>) data;
 
 		this.data = replaceNullWitNan(this.data);
 		System.out.println("Data Before Interpolation");

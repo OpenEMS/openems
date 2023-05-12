@@ -18,6 +18,7 @@ public class Engine implements EngineDriver {
 
 	private ArrayList<ArrayList<ArrayList<Double>>> weights = new ArrayList<ArrayList<ArrayList<Double>>>();
 	private ArrayList<ArrayList<ArrayList<Double>>> bestWeights = new ArrayList<ArrayList<ArrayList<Double>>>();
+	
 	private ArrayList<ArrayList<Double>> finalWeight = new ArrayList<ArrayList<Double>>();
 
 	/**
@@ -46,7 +47,7 @@ public class Engine implements EngineDriver {
 
 		for (int i = 1; i < this.inputMatrix.length; i++) {
 
-			learningRate = this.updateLearningRate(i, this.inputMatrix.length, learningRate);
+			learningRate = this.updateLearningRate(i, this.inputMatrix.length);
 
 			ls = new LstmBuilder()//
 					.setInputData(this.inputMatrix[i]) //
@@ -71,8 +72,15 @@ public class Engine implements EngineDriver {
 			wieghtMatrix = ls.train();
 			this.weights.add(wieghtMatrix);
 
-			int percentage = 10;
-			this.earlyStop(percentage, wieghtMatrix);
+			int percentage = 90;
+			// this.earlyStop(percentage, wieghtMatrix);
+			if (this.weights.size() == 200/* (int) (this.inputMatrix.length * (float) (percentage * 0.01)) */) {
+				int ind = this.selectWeight(this.weights);
+				wieghtMatrix = this.weights.get(ind);
+				System.out.println(ind);
+				this.bestWeights.add(wieghtMatrix);
+				this.weights.clear();
+			}
 
 		}
 		int ind = this.selectWeight(this.bestWeights);
@@ -80,23 +88,18 @@ public class Engine implements EngineDriver {
 		this.finalWeight = this.bestWeights.get(ind);
 	}
 
-	/**
-	 * Do not need to go through entire data set to check the better weights, check
-	 * once at the specified percentage.
-	 * 
-	 * @param percentage   stopping percentage
-	 * @param weightMatrix actualWeight matrix
-	 */
-	private void earlyStop(int percentage, ArrayList<ArrayList<Double>> weightMatrix) {
-
-		if (this.weights.size() == (int) (this.inputMatrix.length * (float) (percentage * 0.01))) {
-			int ind = this.selectWeight(this.weights);
-			weightMatrix = this.weights.get(ind);
-			this.bestWeights.add(weightMatrix);
-			this.weights.clear();
-		}
-
-	}
+//	/**
+//	 * Do not need to go through entire data set to check the better weights, check
+//	 * once at the specified percentage.
+//	 * 
+//	 * @param percentage   stopping percentage
+//	 * @param weightMatrix actualWeight matrix
+//	 */
+//	private void earlyStop(int percentage, ArrayList<ArrayList<Double>> weightMatrix) {
+//
+//		
+//
+//	}
 
 	/**
 	 * Simple learning rate update based on the number of iterations.
@@ -106,20 +109,21 @@ public class Engine implements EngineDriver {
 	 * @param learningRate learning rate.
 	 * @return updated learning rate
 	 */
-	private double updateLearningRate(int iterations, int length, double learningRate) {
+	private double updateLearningRate(int iterations, int length) {
+		double learningRate = 1.0;
 		double perc = 0.0;
 		perc = ((double) (iterations + 1) / length) * 100.0;
 
 		if (perc < 15) {
-			return learningRate / 100000;
+			return learningRate / 10;
 		} else if (15 < perc && perc < 30) {
-			return learningRate / 10000;
+			return learningRate / 100;
 		} else if (30 < perc && perc < 60) {
 			return learningRate / 1000;
 		} else if (60 < perc && perc < 90) {
-			return learningRate / 100;
+			return learningRate / 10000;
 		} else {
-			return learningRate / 10;
+			return learningRate / 100000;
 		}
 
 	}
@@ -218,6 +222,7 @@ public class Engine implements EngineDriver {
 			rms[k] = this.computeRms(this.validateTarget, pre);
 		}
 		int minInd = this.getMinIndex(rms);
+		System.out.println("Index : " + minInd);
 		return minInd;
 	}
 

@@ -13,7 +13,7 @@ public class UtilityConversion {
 	 * @param toBeConverted array of double
 	 * @return result converted Array list
 	 */
-	public static ArrayList<Double> doubleToArrayListDouble(double[] toBeConverted) {
+	public static ArrayList<Double> convertDoubleArrayToArrayListDouble(double[] toBeConverted) {
 
 		return DoubleStream.of(toBeConverted) //
 				.boxed() //
@@ -27,9 +27,10 @@ public class UtilityConversion {
 	 * @param toBeConverted the {@link java.util.List} of Integer
 	 * @return result {@link java.util.List} of Double.
 	 */
-	public static List<Double> listIntegerToListDouble(List<Integer> toBeConverted) {
+	public static List<Double> convertListIntegerToListDouble(List<Integer> toBeConverted) {
 		return toBeConverted.stream() //
-				.mapToDouble(i -> i) //
+				.mapToDouble(
+						i ->  i == null ? null :  i) //
 				.boxed() //
 				.collect(Collectors.toList());
 	}

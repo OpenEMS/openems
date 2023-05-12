@@ -2,6 +2,7 @@ package io.openems.edge.predictor.lstmmodel;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
@@ -32,6 +33,7 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.predictor.api.oneday.AbstractPredictor24Hours;
 import io.openems.edge.predictor.api.oneday.Prediction24Hours;
 import io.openems.edge.predictor.api.oneday.Predictor24Hours;
+import io.openems.edge.predictor.lstmmodel.interpolation.LinearInterpolation;
 import io.openems.edge.predictor.lstmmodel.preprocessing.PreprocessingImpl;
 import io.openems.edge.predictor.lstmmodel.util.Engine;
 import io.openems.edge.predictor.lstmmodel.util.Engine.EngineBuilder;
@@ -50,7 +52,7 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 
 	private final Logger log = LoggerFactory.getLogger(LstmPredictorImpl.class);
 
-	public static final Function<List<Integer>, List<Double>> INTEGER_TO_DOUBLE_LIST = UtilityConversion::listIntegerToListDouble;
+	public static final Function<List<Integer>, List<Double>> INTEGER_TO_DOUBLE_LIST = UtilityConversion::convertListIntegerToListDouble;
 
 	@Reference
 	private Timedata timedata;
@@ -125,8 +127,30 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 			return null;
 		}
 
+		System.out.println("adsfgsad" + data);
+
+		ArrayList<Double> doubleListData = new ArrayList<>();
+		
+		doubleListData = data.stream()//
+				.map(i -> i == null ? Double.NaN : i.doubleValue()) //
+				.collect(Collectors.toCollection(ArrayList::new));
+		
+		System.out.println(doubleListData);
+
+		LinearInterpolation interpolation = new LinearInterpolation(doubleListData);
+
+		doubleListData = interpolation.data;
+
+		System.out.println(data);
+
+//		System.out.println("---");
+//		System.out.println(data);
+//		System.out.println("---");
+//		System.out.println(INTEGER_TO_DOUBLE_LIST.apply(data));
+//		System.out.println("---");
+
 		int windowsSize = 24;
-		PreprocessingImpl preprocessing = new PreprocessingImpl(INTEGER_TO_DOUBLE_LIST.apply(data), windowsSize);
+		PreprocessingImpl preprocessing = new PreprocessingImpl(doubleListData, windowsSize);
 
 		preprocessing.scale(0.2, 0.8);
 
@@ -166,7 +190,7 @@ public class LstmPredictorImpl extends AbstractPredictor24Hours implements Predi
 					.setValidateTarget(validateTarget) //
 					.build();
 
-			int epochs = 10;
+			int epochs = 1000;
 			model.fit(epochs);
 
 			result = model.predict(testData);
