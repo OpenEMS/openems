@@ -39,7 +39,7 @@ public class PredictionTesterImpl extends AbstractOpenemsComponent
 	@Reference
 	private PredictorManager predictorManager;
 
-	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
+	private static final ChannelAddress SUM_CONSUMPTION = new ChannelAddress("_sum", "ConsumptionActivePower");
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
@@ -55,7 +55,7 @@ public class PredictionTesterImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		try {
-			Integer[] predictedProduction = predictorManager.get24HoursPrediction(SUM_PRODUCTION).getValues();
+			Integer[] predictedProduction = predictorManager.get24HoursPrediction(SUM_CONSUMPTION).getValues();
 			System.out.println(predictedProduction == null ? "null data" : Arrays.toString(predictedProduction));
 		} catch (Exception e) {
 			e.printStackTrace();

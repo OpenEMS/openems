@@ -1,0 +1,165 @@
+package io.openems.edge.predictor.lstmmodel;
+
+import static org.junit.Assert.*;
+
+import java.awt.Color;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Scanner;
+import java.util.stream.DoubleStream;
+
+import org.junit.Test;
+
+import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.Plot;
+import io.openems.edge.common.test.TimeLeapClock;
+import io.openems.edge.common.test.Plot.AxisFormat;
+import io.openems.edge.timedata.test.DummyTimedata;
+
+public class LstmModelPredictorTestReadCsv {
+
+	private static final String TIMEDATA_ID = "timedata0";
+	private static final String PREDICTOR_ID = "predictor0";
+
+	private static final ChannelAddress METER1_ACTIVE_POWER = new ChannelAddress("meter1", "ActivePower");
+
+	@Test
+	public void test() throws Exception {
+
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(1577836800) /* starts at 1. January 2020 00:00:00 */,
+				ZoneOffset.UTC);
+		
+//		DoubleStream.of(getData()).mapToInt(d -> (int) Math.ceil(d)).toArray();
+		
+//		getData().stream().mapToInt(i -> i).toArray(integer[]::new);
+
+		var values = getData();// Data.data;
+
+		var predictedValues = Data.actualData;
+
+		var timedata = new DummyTimedata(TIMEDATA_ID);
+		var start = ZonedDateTime.of(2019, 12, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
+
+//		for (var i = 0; i < values.length; i++) {
+//			timedata.add(start.plusMinutes(i * 15), METER1_ACTIVE_POWER, values[i]);
+//		}
+
+		var sut = new LstmPredictorImpl();
+
+		new ComponentTest(sut) //
+				.addReference("timedata", timedata) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.activate(MyConfig.create() //
+						.setId(PREDICTOR_ID) //
+						.setNumOfWeeks(4) //
+						.setChannelAddresses(METER1_ACTIVE_POWER.toString()).build());
+
+		var prediction = sut.get24HoursPrediction(METER1_ACTIVE_POWER);
+		var p = prediction.getValues();
+
+		/*
+		 * assertEquals(predictedValues[0], p[0]); assertEquals(predictedValues[48],
+		 * p[48]); assertEquals(predictedValues[95], p[95]);
+		 * 
+		 * System.out.println(Arrays.toString(prediction.getValues()));
+		 * 
+		 * plotting makePlot(predictedValues, p);
+		 */
+
+	}
+
+	private List<Double> getData() {
+		String pathFile = "C:\\repositories\\forecasting\\io.openems.edge.predictor.lstmmodel\\testResults\\loadValues.csv";
+		List<String> allData = this.readCsv(pathFile);
+		List<Double> data = this.getDateAndData(allData);
+
+		return data;
+	}
+
+	private List<Double> getDateAndData(List<String> allData) {
+		List<OffsetDateTime> date = new ArrayList<OffsetDateTime>();
+		List<Double> data = new ArrayList<Double>();
+		try {
+
+			OffsetDateTime z = OffsetDateTime.parse("2018-05-01T00:00:00+02:00", DateTimeFormatter.ISO_DATE_TIME);
+			for (int i = 0; i < allData.size() - 1; i++) {
+
+				String b = allData.get(i + 1).toString();
+
+				date.add(z);
+				data.add(Double.parseDouble(b));
+				i = i + 1;
+				z = z.plusMinutes(5);
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		}
+		return data;
+
+	}
+
+	private List<String> readCsv(String path) {
+		List<String> all_data = new ArrayList<String>();
+		try {
+			String pathFile = "C:\\Users\\bishal.ghimire\\Desktop\\data\\loadValues.csv";
+			Scanner sc = new Scanner(new File(pathFile));
+
+			sc.useDelimiter(",");
+			while (sc.hasNext()) {
+				all_data.add(sc.next());
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return all_data;
+
+	}
+
+//	private void makePlot(Integer[] predictedValues, Integer[] p) {
+//		Plot.Data dataActualValues = Plot.data();
+//		Plot.Data dataPredictedValues = Plot.data();
+//
+//		for (int i = 0; i < 96; i++) {
+//			dataActualValues.xy(i, predictedValues[i]);
+//			dataPredictedValues.xy(i, p[i]);
+//		}
+//
+//		Plot plot = Plot.plot(//
+//				Plot.plotOpts() //
+//						.title("Pridction Charts") //
+//						.legend(Plot.LegendFormat.BOTTOM)) //
+//				.xAxis("x, every 15min data for a day", Plot.axisOpts() //
+//						.format(AxisFormat.NUMBER_INT) //
+//						.range(0, 96)) //
+//				.yAxis("y, Watts ", Plot.axisOpts() //
+//						.format(AxisFormat.NUMBER_INT)) //
+//				.series("Actual", dataActualValues, Plot.seriesOpts() //
+//						.color(Color.BLACK)) //
+//				.series("Prediction", dataPredictedValues, Plot.seriesOpts() //
+//						.color(Color.RED)); //
+//
+//		try {
+//			String path = "./testResults";
+//			plot.save(path + "/prediction", "png");
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//
+//	}
+
+}
