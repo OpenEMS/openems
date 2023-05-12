@@ -3,7 +3,6 @@ package io.openems.edge.app.loadcontrol;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -21,6 +20,7 @@ import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.loadcontrol.ThresholdControl.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -29,6 +29,7 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.DefaultEnum;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -56,9 +57,9 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.LoadControl.ThresholdControl")
-public class ThresholdControl extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class ThresholdControl extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property implements DefaultEnum {
+	public static enum Property implements DefaultEnum, Nameable {
 		// Component-IDs
 		CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID("ctrlIoChannelSingleThreshold0"), //
 		// Properties
@@ -118,7 +119,7 @@ public class ThresholdControl extends AbstractOpenemsApp<Property> implements Op
 								.isMulti(true) //
 								.setOptions(this.componentUtil.getAllRelays() //
 										.stream().map(r -> r.relays).flatMap(List::stream) //
-										.collect(Collectors.toList())) //
+										.toList()) //
 								.onlyIf(relays != null, t -> t.setDefaultValue(//
 										JsonUtils.buildJsonArray() //
 												.add(relays[0]) //
@@ -140,7 +141,7 @@ public class ThresholdControl extends AbstractOpenemsApp<Property> implements Op
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.LOAD_CONTROL };
 	}
 

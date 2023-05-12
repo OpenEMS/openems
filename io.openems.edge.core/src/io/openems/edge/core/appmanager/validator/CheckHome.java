@@ -6,12 +6,16 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ServiceScope;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.session.Language;
 import io.openems.edge.common.component.ComponentManager;
 
-@Component(name = CheckHome.COMPONENT_NAME)
+@Component(//
+		name = CheckHome.COMPONENT_NAME, //
+		scope = ServiceScope.PROTOTYPE //
+)
 public class CheckHome extends AbstractCheckable implements Checkable {
 
 	public static final String COMPONENT_NAME = "Validator.Checkable.CheckHome";

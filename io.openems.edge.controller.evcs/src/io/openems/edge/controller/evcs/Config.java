@@ -40,9 +40,6 @@ import io.openems.edge.evcs.api.ChargeMode;
 	@AttributeDefinition(name = "Priority of charging", description = "Decide which Component should be preferred.")
 	Priority priority() default Priority.CAR;
 
-	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
-	String ess_id() default "ess0";
-
 	@AttributeDefinition(name = "Energy limit in this session in [Wh]", description = "Set the Energylimit in this Session in Wh. The charging station will only charge till this limit; '0' is no limit.")
 	int energySessionLimit() default 0;
 

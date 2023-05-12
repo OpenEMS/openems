@@ -9,12 +9,16 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ServiceScope;
 
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.AppManager;
 import io.openems.edge.core.appmanager.AppManagerImpl;
 
-@Component(name = CheckAppsNotInstalled.COMPONENT_NAME)
+@Component(//
+		name = CheckAppsNotInstalled.COMPONENT_NAME, //
+		scope = ServiceScope.PROTOTYPE //
+)
 public class CheckAppsNotInstalled extends AbstractCheckable implements Checkable {
 
 	public static final String COMPONENT_NAME = "Validator.Checkable.CheckAppsNotInstalled";

@@ -1,14 +1,11 @@
 package io.openems.edge.controller.highloadtimeslot;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
 
 import org.junit.Test;
 
@@ -82,91 +79,5 @@ public class ControllerSimpleTests {
 
 		currentDate = LocalDateTime.of(2018, 11, 11, 12, 0);
 		assertFalse(HighLoadTimeslot.isActiveWeekday(weekdayFilter, currentDate)); // Sunday
-	}
-
-	@Test
-	public void testconvertDate() {
-		var dateString = "11.11.2018";
-		var expectedDate = LocalDate.of(2018, 11, 11);
-		assertEquals(expectedDate, HighLoadTimeslot.convertDate(dateString));
-
-		dateString = "karlheinz";
-		try {
-			HighLoadTimeslot.convertDate(dateString);
-			fail();
-		} catch (DateTimeParseException e) {
-			assertTrue(e instanceof DateTimeParseException);
-		}
-
-		dateString = "1.1.2018";
-		try {
-			HighLoadTimeslot.convertDate(dateString);
-			fail();
-		} catch (DateTimeParseException e) {
-			assertTrue(e instanceof DateTimeParseException);
-		}
-
-		dateString = "31.02.2018";
-		expectedDate = LocalDate.of(2018, 2, 28);
-		assertEquals(expectedDate, HighLoadTimeslot.convertDate(dateString));
-
-		dateString = "32.12.2018";
-		try {
-			HighLoadTimeslot.convertDate(dateString);
-			fail();
-		} catch (DateTimeParseException e) {
-			assertTrue(e instanceof DateTimeParseException);
-		}
-	}
-
-	@Test
-	public void testconvertTime() {
-		var timeString = "11:11";
-		var expectedTime = LocalTime.of(11, 11);
-		assertEquals(expectedTime, HighLoadTimeslot.convertTime(timeString));
-
-		timeString = "karlheinz";
-		try {
-			HighLoadTimeslot.convertTime(timeString);
-			fail();
-		} catch (DateTimeParseException e) {
-			assertTrue(e instanceof DateTimeParseException);
-		}
-
-		timeString = "25:13";
-		try {
-			HighLoadTimeslot.convertTime(timeString);
-			fail();
-		} catch (DateTimeParseException e) {
-			assertTrue(e instanceof DateTimeParseException);
-		}
-
-		timeString = "24:13";
-		try {
-			HighLoadTimeslot.convertTime(timeString);
-			fail();
-		} catch (DateTimeParseException e) {
-			assertTrue(e instanceof DateTimeParseException);
-		}
-
-		timeString = "24:00";
-		expectedTime = LocalTime.of(0, 00);
-		assertEquals(expectedTime, HighLoadTimeslot.convertTime(timeString));
-
-		timeString = "23:13";
-		expectedTime = LocalTime.of(23, 13);
-		assertEquals(expectedTime, HighLoadTimeslot.convertTime(timeString));
-
-		timeString = "0:13";
-		try {
-			HighLoadTimeslot.convertTime(timeString);
-			fail();
-		} catch (DateTimeParseException e) {
-			assertTrue(e instanceof DateTimeParseException);
-		}
-
-		timeString = "00:13";
-		expectedTime = LocalTime.of(0, 13);
-		assertEquals(expectedTime, HighLoadTimeslot.convertTime(timeString));
 	}
 }

@@ -4,7 +4,7 @@ import { Utils } from "../../shared";
 import { JsonrpcRequest } from "../base";
 
 export type SetupProtocol = {
-    edge: {
+    fems: {
         id: string
     },
     installer: {
@@ -63,7 +63,7 @@ export type SetupProtocol = {
  *   "method": "submitSetupProtocol",
  *   "params": {
  *      protocol: {
- *          edge: {
+ *          fems: {
  *              id: string
  *          },
  *          customer: {
@@ -113,7 +113,7 @@ export type SetupProtocol = {
  */
 export class SubmitSetupProtocolRequest extends JsonrpcRequest {
 
-    static METHOD: string = "submitSetupProtocol";
+    private static METHOD: string = "submitSetupProtocol";
 
     public static translateFrom(protocol: SetupProtocol, translate: TranslateService): SubmitSetupProtocolRequest {
         // protocol.items are type category in the protocol recieved and need to be translated before the request being sent.

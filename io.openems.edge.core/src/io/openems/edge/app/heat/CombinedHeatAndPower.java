@@ -3,7 +3,6 @@ package io.openems.edge.app.heat;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -20,6 +19,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.heat.CombinedHeatAndPower.Property;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppAssistant;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -28,6 +28,7 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.DefaultEnum;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
@@ -63,9 +64,9 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
  * </pre>
  */
 @org.osgi.service.component.annotations.Component(name = "App.Heat.CHP")
-public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implements OpenemsApp {
+public class CombinedHeatAndPower extends AbstractEnumOpenemsApp<Property> implements OpenemsApp {
 
-	public static enum Property implements DefaultEnum {
+	public static enum Property implements DefaultEnum, Nameable {
 		// Component-IDs
 		CTRL_CHP_SOC_ID("ctrlChpSoc0"), //
 		// Properties
@@ -141,7 +142,7 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 						.add(JsonFormlyUtil.buildSelect(Property.OUTPUT_CHANNEL) //
 								.setOptions(this.componentUtil.getAllRelays() //
 										.stream().map(r -> r.relays).flatMap(List::stream) //
-										.collect(Collectors.toList())) //
+										.toList()) //
 								.setDefaultValueWithStringSupplier(() -> {
 									var relays = this.componentUtil.getPreferredRelays(Lists.newArrayList(),
 											new int[] { 1 }, new int[] { 1 });
@@ -152,8 +153,8 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 								}) //
 								.setLabel(TranslationUtil.getTranslation(bundle,
 										this.getAppId() + ".outputChannel.label")) //
-								.setDescription(TranslationUtil.getTranslation(bundle,
-										this.getAppId() + ".outputChannel.description")) //
+								.setDescription(TranslationUtil.getTranslation(bundle, //
+										"App.Heat.outputChannel.description")) //
 								.build())
 						.build())
 				.build();
@@ -166,7 +167,7 @@ public class CombinedHeatAndPower extends AbstractOpenemsApp<Property> implement
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategorys() {
+	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.HEAT };
 	}
 

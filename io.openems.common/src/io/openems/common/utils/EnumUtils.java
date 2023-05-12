@@ -31,6 +31,25 @@ public class EnumUtils {
 	}
 
 	/**
+	 * Gets the {@link JsonElement} as {@link Optional} {@link Enum}.
+	 * 
+	 * @param <ENUM>   the type {@link EnumMap}
+	 * @param <E>      the {@link Enum} type
+	 * @param enumType the class of the {@link Enum}
+	 * @param map      the {@link EnumMap}
+	 * @param member   the member of the {@link EnumMap}
+	 * @return the enum value
+	 */
+	public static <ENUM extends Enum<ENUM>, E extends Enum<E>> Optional<E> getAsOptionalEnum(Class<E> enumType,
+			EnumMap<ENUM, JsonElement> map, ENUM member) {
+		try {
+			return JsonUtils.getAsOptionalEnum(enumType, getAsPrimitive(map, member));
+		} catch (OpenemsNamedException e) {
+			return Optional.empty();
+		}
+	}
+
+	/**
 	 * Gets the member of the {@link EnumMap} as {@link Optional} {@link String}.
 	 *
 	 * @param <ENUM> the type of the EnumMap key
@@ -108,6 +127,22 @@ public class EnumUtils {
 	public static <ENUM extends Enum<ENUM>> Boolean getAsBoolean(EnumMap<ENUM, JsonElement> map, ENUM member)
 			throws OpenemsNamedException {
 		return JsonUtils.getAsBoolean(getAsPrimitive(map, member));
+	}
+
+	/**
+	 * Gets the member of the {@link EnumMap} as {@link Enum}.
+	 *
+	 * @param <ENUM>   the type {@link EnumMap}
+	 * @param <E>      the {@link Enum} type
+	 * @param enumType the class of the {@link Enum}
+	 * @param map      the {@link EnumMap}
+	 * @param member   the member
+	 * @return the enum value
+	 * @throws OpenemsNamedException on error
+	 */
+	public static <ENUM extends Enum<ENUM>, E extends Enum<E>> E getAsEnum(Class<E> enumType,
+			EnumMap<ENUM, JsonElement> map, ENUM member) throws OpenemsNamedException {
+		return JsonUtils.getAsEnum(enumType, getAsPrimitive(map, member));
 	}
 
 	/**
