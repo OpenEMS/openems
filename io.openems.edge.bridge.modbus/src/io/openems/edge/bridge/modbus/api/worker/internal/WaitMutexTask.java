@@ -1,27 +1,27 @@
-package io.openems.edge.bridge.modbus.api.task;
+package io.openems.edge.bridge.modbus.api.worker.internal;
 
-import java.time.Duration;
-import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.Mutex;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.taskmanager.Priority;
 
-public class WaitTask implements Task {
+public class WaitMutexTask implements Task {
 
-	private final Logger log = LoggerFactory.getLogger(WaitTask.class);
-
-	private long delay;
+	private final Logger log = LoggerFactory.getLogger(WaitMutexTask.class);
+	private final Mutex mutex = new Mutex(false);
 
 	private AbstractOpenemsModbusComponent parent = null;
 
-	public WaitTask(long delay) {
-		this.delay = delay;
+	public void interrupt() {
+		this.mutex.release();
 	}
 
 	@Override
@@ -60,24 +60,19 @@ public class WaitTask implements Task {
 
 	@Override
 	public <T> int execute(AbstractModbusBridge bridge) throws OpenemsException {
-		if (this.delay <= 0) {
-			return 0;
-		}
-
-		var start = Instant.now();
 		try {
-			Thread.sleep(this.delay);
+			this.mutex.awaitOrTimeout(0, TimeUnit.MILLISECONDS); // throw away active release
+			this.mutex.await();
 
 		} catch (InterruptedException e) {
-			this.delay -= Duration.between(start, Instant.now()).toMillis();
-			this.log.warn(e.getMessage() + "; reduce delay to " + this.delay);
+			this.log.info("WaitMutexTask interrupted: " + e.getMessage());
 		}
+
 		return 0;
 	}
 
 	@Override
 	public String toString() {
-		return "WaitTask [delay=" + this.delay + "]";
+		return "WaitMutexTask []";
 	}
-
 }

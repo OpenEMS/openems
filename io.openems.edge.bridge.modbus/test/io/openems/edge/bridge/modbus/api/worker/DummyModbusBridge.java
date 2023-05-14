@@ -24,9 +24,9 @@ public class DummyModbusBridge extends AbstractModbusBridge {
 		super.activate(null, id, "", true, LogVerbosity.NONE, 1);
 	}
 
-	public ModbusWorker getWorker() {
-		return this.worker;
-	}
+//	public ModbusWorker getWorker() {
+//		return this.worker;
+//	}
 
 	@Override
 	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
