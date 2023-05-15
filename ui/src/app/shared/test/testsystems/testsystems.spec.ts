@@ -497,10 +497,10 @@ describe('ExampleSystemsTest', () => {
       it(system.key + "-" + widget.modal.name, () => {
         for (let [key, modelToBeMatched] of widget.modal.fieldsWithRoles) {
           sessionStorage.setItem("old", JSON.stringify(
-            GridModal.generateGridModal(system.key, system.config, Role.getRole(Role[key]), translate)))
+            GridModal.generateView(system.key, system.config, Role.getRole(Role[key]), translate)))
           sessionStorage.setItem("new", JSON.stringify(modelToBeMatched))
           expect(JSON.stringify(
-            GridModal.generateGridModal(system.key, system.config, Role.getRole(Role[key]), translate))).toBe(JSON.stringify(modelToBeMatched))
+            GridModal.generateView(system.key, system.config, Role.getRole(Role[key]), translate))).toBe(JSON.stringify(modelToBeMatched))
         }
       })
     }

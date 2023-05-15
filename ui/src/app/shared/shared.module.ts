@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
+import { Inject, Injector, NgModule } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
@@ -140,4 +140,11 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
   ]
 })
 
-export class SharedModule { }
+export class SharedModule {
+
+  static injector: Injector;
+
+  constructor(private injector: Injector) {
+    SharedModule.injector = injector;
+  }
+}

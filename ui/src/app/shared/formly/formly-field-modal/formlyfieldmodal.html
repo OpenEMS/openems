@@ -3,8 +3,8 @@
         <ng-container *ngFor="let line of entry.lines">
             <ng-container [ngSwitch]="line.type">
                 <oe-modal-line *ngSwitchCase="'line'" [filter]="line.filter ?? null"
-                    [textIndent]="line.indentation ?? '0%'" [name]="line.name" [nameSuffix]="line.nameSuffix"
-                    [channelAddress]="line.channel ?? null" [converter]="line.converter">
+                    [textIndent]="line.indentation ?? '0%'" [name]="line.name" [channelAddress]="line.channel ?? null"
+                    [converter]="line.converter">
                     <ng-container *ngFor="let lineItem of line.children">
 
                         <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"

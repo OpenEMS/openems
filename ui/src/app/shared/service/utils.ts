@@ -400,36 +400,37 @@ export class Utils {
     }
   }
 
-  public static CONVERT_TO_GRIDBUY_POWER = (value: number | null): string => {
+  public static CONVERT_TO_GRID_BUY_POWER = (value: number | null): string => {
     if (!value || value < 0) {
       return '0 W'
     }
     return formatNumber(value, 'de', '1.0-1') + ' W'
   }
-  public static CONVERT_TO_GRIDSELL_POWER = (value: number | null): string => {
+  public static CONVERT_TO_GRID_SELL_POWER = (value: number | null): string => {
     if (!value || value > 0) {
       return '0 W'
     }
     return formatNumber(Math.abs(value), 'de', '1.0-1') + ' W'
   }
 
-  public static ADD_NAME_SUFFIX_FOR_GRIDSELL_OR_GRIDBUY = (translate: TranslateService) => {
+  public static ADD_NAME_SUFFIX_FOR_GRID_SELL_OR_GRID_BUY = (translate: TranslateService, phase: string) => {
+    let name: string = translate.instant('General.phase') + " " + phase;
     return (value: any): string => {
       if (!value) {
         return "";
       }
 
       if (value < 0) {
-        return translate.instant('General.gridSellAdvanced');
+        return name + " " + translate.instant('General.gridSellAdvanced');
       }
 
       if (value >= 0) {
-        return translate.instant('General.gridBuyAdvanced');
+        return name + " " + translate.instant('General.gridBuyAdvanced');
       }
     }
   }
 
-  public static CONVERT_TO_GRIDSELL_OR_GRIDBUY_POWER = (value: number | null) => {
+  public static CONVERT_TO_GRID_SELL_OR_GRID_BUY_POWER = (value: number | null) => {
     if (!value) {
       return "0 W";
     }
