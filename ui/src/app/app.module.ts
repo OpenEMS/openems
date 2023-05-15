@@ -1,7 +1,7 @@
 import { registerLocaleData } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import localDE from '@angular/common/locales/de';
-import { ErrorHandler, LOCALE_ID, NgModule } from '@angular/core';
+import { ErrorHandler, Injector, LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy } from '@angular/router';
@@ -74,6 +74,7 @@ import { UserModule } from './user/user.module';
   bootstrap: [AppComponent],
 })
 export class AppModule {
+
   constructor() {
     registerLocaleData(localDE);
   }
