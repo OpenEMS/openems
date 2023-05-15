@@ -548,7 +548,8 @@
     "toEnergymonitor": "Zum Energiemonitor...",
     "type": "Typ",
     "OFFLINE_SINCE": "Offline seit",
-    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen"
+    "ADD_EDGE": "Neues {{ edgeShortName }} hinzufügen",
+    "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt."
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Beachten Sie, dass die Auswahl nachträglich nicht mehr rückgängig gemacht werden kann.",

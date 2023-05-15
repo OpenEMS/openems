@@ -90,8 +90,10 @@
                       <!-- No access to Edges -->
                       <ion-item color="warning" lines="full">
                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
-                        <ion-label class="ion-text-wrap ion-text-center">Sie haben noch kein
-                          {{environment.edgeShortName}} hinzugefügt.</ion-label>
+                        <ion-label class="ion-text-wrap ion-text-center" translate
+                          [translateParams]="{edgeShortName: environment.edgeShortName}" translate>
+                          Index.NO_EDGE_AVAILABLE
+                        </ion-label>
                       </ion-item>
                       <ion-card-content class="ion-text-center">
                         <ion-text>{{ 'INSTALLATION.CLICK_RECOMMENDATION' | translate: { edgeShortName:
