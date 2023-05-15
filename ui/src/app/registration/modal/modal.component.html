@@ -52,9 +52,9 @@
                 <ion-item>
                     <ion-label position="floating" translate>Register.Form.country<span>*</span></ion-label>
                     <ion-select formControlName="country">
-                        <ion-select-option value="de">Deutschland</ion-select-option>
-                        <ion-select-option value="at">Österreich</ion-select-option>
-                        <ion-select-option value="ch">Schweiz</ion-select-option>
+                        <ng-container *ngFor="let country of countries">
+                            <ion-select-option [value]="country.value">{{country.label}}</ion-select-option>
+                        </ng-container>
                     </ion-select>
                 </ion-item>
                 <ion-item>
@@ -139,9 +139,9 @@
                 <ion-item>
                     <ion-label position="floating" translate>Register.Form.country<span>*</span></ion-label>
                     <ion-select formControlName="country">
-                        <ion-select-option value="de">Deutschland</ion-select-option>
-                        <ion-select-option value="at">Österreich</ion-select-option>
-                        <ion-select-option value="ch">Schweiz</ion-select-option>
+                        <ng-container *ngFor="let country of countries">
+                            <ion-select-option [value]="country.value">{{country.label}}</ion-select-option>
+                        </ng-container>
                     </ion-select>
                 </ion-item>
                 <ion-item>

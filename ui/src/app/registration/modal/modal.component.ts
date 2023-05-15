@@ -4,6 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { RegisterUserRequest } from 'src/app/shared/jsonrpc/request/registerUserRequest';
 import { Service, Websocket } from 'src/app/shared/shared';
+import { COUNTRY_OPTIONS } from 'src/app/shared/type/country';
 import { environment } from 'src/environments';
 
 @Component({
@@ -14,6 +15,7 @@ export class RegistrationModalComponent implements OnInit {
 
   protected formGroup: FormGroup;
   protected activeSegment: string = "owner";
+  protected readonly countries = COUNTRY_OPTIONS(this.translate);
 
   constructor(
     private formBuilder: FormBuilder,
