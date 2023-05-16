@@ -90,10 +90,8 @@
                       <!-- No access to Edges -->
                       <ion-item color="warning" lines="full">
                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
-                        <ion-label class="ion-text-wrap ion-text-center" translate
-                          [translateParams]="{edgeShortName: environment.edgeShortName}" translate>
-                          Index.NO_EDGE_AVAILABLE
-                        </ion-label>
+                        <ion-label class="ion-text-wrap ion-text-center">Sie haben noch kein
+                          {{environment.edgeShortName}} hinzugefügt.</ion-label>
                       </ion-item>
                       <ion-card-content class="ion-text-center">
                         <ion-text>{{ 'INSTALLATION.CLICK_RECOMMENDATION' | translate: { edgeShortName:
@@ -122,7 +120,7 @@
                 <ion-grid>
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
-                      <ion-searchbar [(ngModel)]="query" [debounce]="500" (ionChange)="searchOnChange()"
+                      <ion-searchbar [(ngModel)]="filter" [debounce]="500" (ionChange)="searchOnChange($event)"
                         *ngIf="!onlyOneEdgeAvailable">
                       </ion-searchbar>
                     </ion-col>
@@ -131,7 +129,7 @@
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
                       <ion-list lines="full">
-                        <ion-spinner *ngIf="loading" [name]="'crescent'"></ion-spinner>
+                        <ngx-spinner [name]="spinnerId"></ngx-spinner>
 
                         <ng-container *ngFor="let edge of filteredEdges; let i=index">
                           <ion-item lines="inset" [routerLink]="['/device', edge.id]"

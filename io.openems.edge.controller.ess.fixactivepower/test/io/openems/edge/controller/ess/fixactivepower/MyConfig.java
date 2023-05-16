@@ -2,8 +2,6 @@ package io.openems.edge.controller.ess.fixactivepower;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Relationship;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -13,9 +11,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String essId = null;
 		public int power;
 		public Mode mode;
-		public HybridEssMode hybridEssMode;
-		public Phase phase;
-		public Relationship relationship;
 
 		private Builder() {
 		}
@@ -37,21 +32,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMode(Mode mode) {
 			this.mode = mode;
-			return this;
-		}
-
-		public Builder setHybridEssMode(HybridEssMode hybridEssMode) {
-			this.hybridEssMode = hybridEssMode;
-			return this;
-		}
-
-		public Builder setPhase(Phase phase) {
-			this.phase = phase;
-			return this;
-		}
-
-		public Builder setRelationship(Relationship relationship) {
-			this.relationship = relationship;
 			return this;
 		}
 
@@ -94,21 +74,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public Mode mode() {
 		return this.builder.mode;
-	}
-
-	@Override
-	public HybridEssMode hybridEssMode() {
-		return this.builder.hybridEssMode;
-	}
-
-	@Override
-	public Relationship relationship() {
-		return this.builder.relationship;
-	}
-
-	@Override
-	public Phase phase() {
-		return this.builder.phase;
 	}
 
 }

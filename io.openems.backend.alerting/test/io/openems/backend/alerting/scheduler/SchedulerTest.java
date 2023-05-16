@@ -27,7 +27,7 @@ public class SchedulerTest {
 	public static void dummyClass() {
 		var dummyMsg = new DummyMessage("", 0);
 		var dummyHan = new DummyHandler();
-		Runnable[] methods = { () -> dummyHan.getEventHandler(null), () -> dummyHan.stop(), () -> dummyHan.getGeneric(),
+		Runnable[] methods = { () -> dummyHan.handleEvent(null), () -> dummyHan.stop(), () -> dummyHan.getGeneric(),
 				() -> dummyMsg.getParams(), };
 		assertNotNull(dummyMsg.getNotifyStamp());
 		for (var method : methods) {
@@ -144,7 +144,7 @@ public class SchedulerTest {
 		ZonedDateTime wasSentAt = null;
 
 		@Override
-		public Runnable getEventHandler(EventReader event) {
+		public void handleEvent(EventReader event) {
 			throw new UnsupportedOperationException();
 		}
 

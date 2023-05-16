@@ -171,36 +171,6 @@ public abstract class AbstractSunSpecMeter extends AbstractOpenemsSunSpecCompone
 				ElementToChannelConverter.SCALE_FACTOR_3, //
 				DefaultSunSpecModel.S204.PH_VPH_C, DefaultSunSpecModel.S203.PH_VPH_C, DefaultSunSpecModel.S202.PH_VPH_C,
 				DefaultSunSpecModel.S201.PH_VPH_C);
-		this.mapFirstPointToChannel(//
-				AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S204.TOT_WH_EXP_PH_A, DefaultSunSpecModel.S203.TOT_WH_EXP_PH_A,
-				DefaultSunSpecModel.S202.TOT_WH_EXP_PH_A, DefaultSunSpecModel.S201.TOT_WH_EXP_PH_A);
-		this.mapFirstPointToChannel(//
-				AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S204.TOT_WH_EXP_PH_B, DefaultSunSpecModel.S203.TOT_WH_EXP_PH_B,
-				DefaultSunSpecModel.S202.TOT_WH_EXP_PH_B, DefaultSunSpecModel.S201.TOT_WH_EXP_PH_B);
-		this.mapFirstPointToChannel(//
-				AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S204.TOT_WH_EXP_PH_C, DefaultSunSpecModel.S203.TOT_WH_EXP_PH_C,
-				DefaultSunSpecModel.S202.TOT_WH_EXP_PH_C, DefaultSunSpecModel.S201.TOT_WH_EXP_PH_C);
-		this.mapFirstPointToChannel(//
-				AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S204.TOT_WH_IMP_PH_A, DefaultSunSpecModel.S203.TOT_WH_IMP_PH_A,
-				DefaultSunSpecModel.S202.TOT_WH_IMP_PH_A, DefaultSunSpecModel.S201.TOT_WH_IMP_PH_A);
-		this.mapFirstPointToChannel(//
-				AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S204.TOT_WH_IMP_PH_B, DefaultSunSpecModel.S203.TOT_WH_IMP_PH_B,
-				DefaultSunSpecModel.S202.TOT_WH_IMP_PH_B, DefaultSunSpecModel.S201.TOT_WH_IMP_PH_B);
-		this.mapFirstPointToChannel(//
-				AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
-				ElementToChannelConverter.DIRECT_1_TO_1, //
-				DefaultSunSpecModel.S204.TOT_WH_IMP_PH_C, DefaultSunSpecModel.S203.TOT_WH_IMP_PH_C,
-				DefaultSunSpecModel.S202.TOT_WH_IMP_PH_C, DefaultSunSpecModel.S201.TOT_WH_IMP_PH_C);
 	}
 
 	@Override

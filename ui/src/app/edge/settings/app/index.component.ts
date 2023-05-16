@@ -208,8 +208,7 @@ export class IndexComponent implements OnInit, OnDestroy {
       component: KeyModalComponent,
       componentProps: {
         edge: this.edge,
-        behaviour: KeyValidationBehaviour.SELECT,
-        knownApps: this.apps
+        behaviour: KeyValidationBehaviour.SELECT
       },
       cssClass: 'auto-height'
     });

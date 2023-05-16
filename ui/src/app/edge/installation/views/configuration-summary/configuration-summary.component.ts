@@ -10,7 +10,6 @@ import { Category } from '../../shared/category';
 import { ComponentData, TableData } from '../../shared/ibndatatypes';
 import { EmsApp, EmsAppId } from '../heckert-app-installer/heckert-app-installer.component';
 import { Meter } from '../../shared/meter';
-import { WebLinks } from '../../shared/enums';
 
 @Component({
   selector: ConfigurationSummaryComponent.SELECTOR,
@@ -64,26 +63,19 @@ export class ConfigurationSummaryComponent implements OnInit {
     fields.push({
       key: 'isAgbAccepted',
       type: 'checkbox',
-      props: {
+      templateOptions: {
         label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.GTC_ACCEPT'),
-        required: true,
-        description: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ACCEPT'),
-        url: WebLinks.getLink(this.ibn.gtcAndWarrantyLinks.gtcLink),
-      },
-      wrappers: ['form-field-checkbox-hyperlink']
+        required: true
+      }
     });
 
     fields.push({
       key: 'isGuaranteeConditionsAccepted',
       type: 'checkbox',
-      props: {
+      templateOptions: {
         label: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.WARRANTY_TERMS'),
-        required: true,
-        defaultValue: false,
-        description: this.translate.instant('INSTALLATION.CONFIGURATION_SUMMARY.ACCEPT'),
-        url: WebLinks.getLink(this.ibn.gtcAndWarrantyLinks.warrantyLink),
-      },
-      wrappers: ['form-field-checkbox-hyperlink']
+        required: true
+      }
     });
 
     fields.push({
@@ -94,7 +86,6 @@ export class ConfigurationSummaryComponent implements OnInit {
         required: true
       }
     });
-
     return fields;
   }
 

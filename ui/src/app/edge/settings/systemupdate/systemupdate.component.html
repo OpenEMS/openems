@@ -9,7 +9,7 @@
             <ion-item color="light">
               <ion-icon slot="start" name="cloud-download-outline" color="primary"></ion-icon>
               <ion-label>
-                <span>Systemupdate</span>
+                <span>System Update</span>
                 <span *ngIf="environment.backend === 'OpenEMS Backend'"> für {{ edge.id }}</span>
               </ion-label>
             </ion-item>
@@ -21,6 +21,4 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-
-  <changelog></changelog>
 </ion-content>

@@ -15,7 +15,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class SubscribeEdgesRequest extends JsonrpcRequest {
 
-    private static METHOD: string = "subscribeEdges";
+    static METHOD: string = "subscribeEdges";
 
     public constructor(
         public readonly params: {

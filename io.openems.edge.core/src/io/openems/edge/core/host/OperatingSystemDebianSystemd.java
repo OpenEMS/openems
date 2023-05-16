@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +33,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.types.ConfigurationProperty;
-import io.openems.common.utils.InetAddressUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.common.user.User;
@@ -77,7 +78,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 				/*
 				 * Parse the content of the network configuration file
 				 */
-				var lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+				var lines = Files.readAllLines(file.toPath(), StandardCharsets.US_ASCII);
 				NetworkInterface<File> networkInterface = parseSystemdNetworkdConfigurationFile(lines, file);
 
 				// check for null value
@@ -124,7 +125,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			var file = (File) iface.getAttachment();
 			var lines = this.toFileFormat(user, iface);
 			try {
-				Files.write(file.toPath(), lines, StandardCharsets.UTF_8);
+				Files.write(file.toPath(), lines, StandardCharsets.US_ASCII);
 			} catch (IOException e) {
 				writeException = e;
 			}
@@ -168,7 +169,11 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	private static void onMatchInet4Address(Pattern pattern, String line,
 			ThrowingConsumer<Inet4Address, OpenemsNamedException> callback) throws OpenemsNamedException {
 		onMatchString(pattern, line, property -> {
-			callback.accept(InetAddressUtils.parseOrError(property));
+			try {
+				callback.accept((Inet4Address) InetAddress.getByName(property));
+			} catch (UnknownHostException e) {
+				throw new OpenemsException("Unable to parse IPv4 address [" + property + "]: " + e.getMessage());
+			}
 		});
 	}
 
@@ -182,9 +187,9 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 	 */
 	private List<String> toFileFormat(User user, NetworkInterface<?> iface) throws OpenemsNamedException {
 		List<String> result = new ArrayList<>();
-		result.add("# changedBy: " //
+		result.add("# changedBy:" //
 				+ user.getName());
-		result.add("# changedAt: " //
+		result.add("# changedAt:" //
 				+ LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES).toString() //
 		);
 		result.add("[Match]");
@@ -341,7 +346,7 @@ public class OperatingSystemDebianSystemd implements OperatingSystem {
 			if (!Files.exists(UDEV_PATH)) {
 				return "";
 			}
-			var lines = Files.readAllLines(UDEV_PATH, StandardCharsets.UTF_8);
+			var lines = Files.readAllLines(UDEV_PATH, StandardCharsets.US_ASCII);
 			return String.join("\n", lines);
 		} catch (IOException e) {
 			throw new OpenemsException("Unable to read file [" + UDEV_PATH + "]: " + e.getMessage());

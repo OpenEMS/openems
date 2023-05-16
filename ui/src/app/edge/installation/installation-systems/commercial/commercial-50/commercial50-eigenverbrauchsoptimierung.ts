@@ -20,7 +20,6 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
             View.ProtocolCustomer,
             View.ProtocolSystem,
             View.ConfigurationLineSideMeterFuse,
-            View.ConfigurationCommercialModbuBridgeComponent,
             View.ProtocolAdditionalAcProducers,
             View.ProtocolFeedInLimitation,
             View.ConfigurationSummary,
@@ -47,9 +46,8 @@ export class Commercial50EigenverbrauchsOptimierung extends AbstractCommercial50
 
     public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket): ComponentConfigurator {
 
-        const invalidateElementsAfterReadErrors: number = 3;
         const componentConfigurator: ComponentConfigurator =
-            super.getCommercial50ComponentConfigurator(edge, config, websocket, invalidateElementsAfterReadErrors);
+            super.getComponentConfigurator(edge, config, websocket);
 
         if (this.feedInLimitation.feedInType === FeedInType.DYNAMIC_LIMITATION) {
             // ctrlGridOptimizedCharge0

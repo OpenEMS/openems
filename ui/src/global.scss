@@ -31,6 +31,7 @@
 
 formly-wrapper-ion-form-field,
 formly-input-serial-number,
+formly-select-field-wrapper,
 formly-field-ion-radio {
     ion-label {
         line-height: 1.2;
@@ -57,12 +58,6 @@ formly-field-ion-radio {
         white-space: pre-line !important;
         line-height: 1.6 !important;
     }
-}
-
-// Removes the ripple effect while using the custom box.
-.custom-checkbox {
-    --ripple-color: transparent;
-    --background-hover: transparent;
 }
 
 .margin-top {
@@ -283,13 +278,6 @@ formly-input-section {
     ion-toggle {
         --background-checked: var(--ion-color-primary-tint);
     }
-
-    ion-spinner {
-        transform: scale(1.5);
-        left: 25%;
-        width: 50%;
-        color: var(--ion-color-primary);
-    }
 }
 
 // auto height for modals
@@ -311,8 +299,4 @@ ion-modal.auto-height {
             padding: 10px;
         }
     }
-}
-
-ion-modal.full-width {
-    --width: 100%;
 }

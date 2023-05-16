@@ -3,14 +3,14 @@
 # Prepares a Commit
 #
 # - Adds .gitignore file to empty test directories.
-#
-#   When Eclipse creates 'test' src folders they are sometimes empty. Empty
+# 
+#   When Eclipse creates 'test' src folders they are sometimes empty. Empty 
 #   folders are not committed to GIT. Because of this Eclipse would show errors
 #   when importing the projects. This script creates an empty '.gitignore' file
 #   inside each 'test' folder to solve this.
 #
 #   See https://stackoverflow.com/questions/115983
-#
+# 
 # - Resets .classpath files.
 #
 #   When Eclipse 'Build All' is called, all .classpath files are touched and
@@ -50,13 +50,13 @@ for D in *; do
 					echo "${D}/.gitignore -> not complete"
 					echo '/bin_test/' > ${D}/.gitignore
 					echo '/generated/' >> ${D}/.gitignore
-				fi
-
+				fi 
+		
 				# verify there is a test folder
 				if [ ! -d "${D}/test" ]; then
 					mkdir -p ${D}/test
 				fi
-
+				
 				# verify that the test folder has a .gitignore file
 				if [ ! -f "./${D}/test/.gitignore" ]; then
 					echo "${D}/test/.gitignore -> missing"
@@ -74,11 +74,12 @@ EOT
 				fi
 
 				# Set default .classpath file
-				cat <<EOT > "${D}/.classpath"
+				if [ -f "${D}/.classpath" ]; then
+					cat <<EOT > "${D}/.classpath"
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test">
 		<attributes>
@@ -88,33 +89,7 @@ EOT
 	<classpathentry kind="output" path="bin"/>
 </classpath>
 EOT
-
-				# Set default .project file
-				cat <<EOT > "${D}/.project"
-<?xml version="1.0" encoding="UTF-8"?>
-<projectDescription>
-	<name>${D}</name>
-	<comment></comment>
-	<projects>
-	</projects>
-	<buildSpec>
-		<buildCommand>
-			<name>org.eclipse.jdt.core.javabuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>bndtools.core.bndbuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-	</buildSpec>
-	<natures>
-		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>bndtools.core.bndnature</nature>
-	</natures>
-</projectDescription>
-EOT
+				fi
 
 				# Verify bnd.bnd file
 				if [ -f "${D}/bnd.bnd" ]; then
@@ -154,7 +129,6 @@ echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.fileinstall',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
 for D in io.openems.edge.*; do
 	if [[ "$D" == *api ]]; then
@@ -179,7 +153,6 @@ echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.fileinstall',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
 echo "	bnd.identity;id='io.openems.wrapper.pgbulkinsert',\\" >> "$bndrun.new" # required for timescaledb
 for D in io.openems.backend.*; do

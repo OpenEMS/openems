@@ -1,5 +1,5 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { MenuController, ModalController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
@@ -15,7 +15,7 @@ import { StatusSingleComponent } from '../status/single/status.component';
 })
 export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
-    @ViewChild(PickDateComponent, { static: false }) public PickDateComponent: PickDateComponent
+    @ViewChild(PickDateComponent, { static: false }) PickDateComponent: PickDateComponent
 
     public environment = environment;
     public backUrl: string | boolean = '/';
@@ -30,8 +30,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public modalCtrl: ModalController,
         public router: Router,
         public service: Service,
-        public websocket: Websocket,
-        private route: ActivatedRoute
+        public websocket: Websocket
     ) { }
 
     ngOnInit() {
@@ -154,7 +153,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
-            this.router.navigate(['../history'], { relativeTo: this.route });
+            this.router.navigateByUrl("/device/" + this.service.currentEdge.value.id + "/history", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
     }

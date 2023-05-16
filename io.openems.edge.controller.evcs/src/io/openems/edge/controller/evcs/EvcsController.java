@@ -11,6 +11,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
@@ -26,6 +28,7 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.evcs.api.ManagedEvcs;
 
 @Designate(ocd = Config.class, factory = true)
@@ -48,13 +51,16 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	protected ComponentManager componentManager;
 
 	@Reference
-	private ConfigurationAdmin cm;
+	protected ConfigurationAdmin cm;
 
 	@Reference
-	private Sum sum;
+	protected Sum sum;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedEvcs evcs;
+
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	private SymmetricEss ess;
 
 	public EvcsController() {
 		this(Clock.systemDefaultZone());
@@ -69,7 +75,7 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (config.forceChargeMinPower() < 0) {
@@ -85,6 +91,9 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 		this.evcs._setChargeMode(config.chargeMode());
 
 		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcs", config.evcs_id())) {
+			return;
+		}
+		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
 		this.evcs._setMaximumPower(null);
@@ -146,32 +155,41 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 			}
 		}
 
-		/*
-		 * Calculates the next charging power depending on the charge mode and priority
-		 */
-		var nextChargePower = //
-				switch (this.config.chargeMode()) {
-				case EXCESS_POWER -> //
-					switch (this.config.priority()) {
-					case CAR -> calculateChargePowerFromExcessPower(this.sum, this.evcs);
-					case STORAGE -> {
-						// SoC > 97 % or always, when there is no ESS is available
-						if (this.sum.getEssSoc().orElse(100) > 97) {
-							yield calculateChargePowerFromExcessPower(this.sum, this.evcs);
-						} else {
-							yield calculateExcessPowerAfterEss(this.sum, this.evcs);
-						}
-					}
-					};
-				case FORCE_CHARGE -> this.config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
-				};
+		var nextChargePower = 0;
+		var nextMinPower = 0;
 
-		var nextMinPower = //
-				switch (this.config.chargeMode()) {
-				case EXCESS_POWER -> this.config.defaultChargeMinPower();
-				case FORCE_CHARGE -> 0;
-				};
-		this.evcs._setMinimumPower(nextMinPower);
+		/*
+		 * Calculates the next charging power depending on the charge mode
+		 */
+		switch (this.config.chargeMode()) {
+		case EXCESS_POWER:
+			/*
+			 * Get the next charge power depending on the priority.
+			 */
+			switch (this.config.priority()) {
+			case CAR:
+				nextChargePower = this.calculateChargePowerFromExcessPower(this.evcs);
+				break;
+
+			case STORAGE:
+				int storageSoc = this.sum.getEssSoc().orElse(0);
+				if (storageSoc > 97) {
+					nextChargePower = this.calculateChargePowerFromExcessPower(this.evcs);
+				} else {
+					nextChargePower = this.calculateExcessPowerAfterEss(this.evcs);
+				}
+				break;
+			}
+
+			nextMinPower = this.config.defaultChargeMinPower();
+			this.evcs._setMinimumPower(nextMinPower);
+			break;
+
+		case FORCE_CHARGE:
+			this.evcs._setMinimumPower(0);
+			nextChargePower = this.config.forceChargeMinPower() * this.evcs.getPhasesAsInt();
+			break;
+		}
 
 		nextChargePower = Math.max(nextChargePower, nextMinPower);
 
@@ -251,28 +269,28 @@ public class EvcsController extends AbstractOpenemsComponent implements Controll
 	 * Calculates the next charging power, depending on the current PV production
 	 * and house consumption.
 	 *
-	 * @param sum  the {@link Sum} component
 	 * @param evcs Electric Vehicle Charging Station
 	 * @return the available excess power for charging
 	 * @throws OpenemsNamedException on error
 	 */
-	private static int calculateChargePowerFromExcessPower(Sum sum, ManagedEvcs evcs) throws OpenemsNamedException {
-		int buyFromGrid = sum.getGridActivePower().orElse(0);
-		int essDischarge = sum.getEssDischargePower().orElse(0);
+	private int calculateChargePowerFromExcessPower(ManagedEvcs evcs) throws OpenemsNamedException {
+
+		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
+		int essDischarge = this.sum.getEssActivePower().orElse(0);
+		int essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
 		int evcsCharge = evcs.getChargePower().orElse(0);
 
-		return evcsCharge - buyFromGrid - essDischarge;
+		return evcsCharge - buyFromGrid - (essDischarge - essActivePowerDC);
 	}
 
 	/**
 	 * Calculate result depending on the current evcs power and grid power.
 	 *
-	 * @param sum  the {@link Sum} component
 	 * @param evcs the {@link ManagedEvcs}
 	 * @return the excess power
 	 */
-	private static int calculateExcessPowerAfterEss(Sum sum, ManagedEvcs evcs) {
-		int buyFromGrid = sum.getGridActivePower().orElse(0);
+	private int calculateExcessPowerAfterEss(ManagedEvcs evcs) {
+		int buyFromGrid = this.sum.getGridActivePower().orElse(0);
 		int evcsCharge = evcs.getChargePower().orElse(0);
 
 		var result = evcsCharge - buyFromGrid;

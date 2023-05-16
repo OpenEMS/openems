@@ -45,24 +45,31 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         return peakShavingData;
     }
 
-    public override setNonAbstractFields(commercial50Feature: any) {
+    public setCommercialfeature(commercial50Feature: any) {
 
-        // Configuration commercial modbus bridge
-        if ('modbusBridgeType' in commercial50Feature) {
-            super.setNonAbstractFields(commercial50Feature);
-        }
-
-        // Configuration peak shaving
         if (commercial50Feature.feature) {
-            // ibn string from Session Storage
+            // Directly copy from Session Storage
             this.commercial50Feature.feature = commercial50Feature.feature;
         } else {
-            // model From Peak Shaving view.
+            // From Peak Shaving view.
             if (this.commercial50Feature.feature.type !== Category.BALANCING) {
                 this.commercial50Feature.feature.beladungUnter = commercial50Feature.beladungUnter;
                 this.commercial50Feature.feature.entladungÜber = commercial50Feature.entladungÜber;
             }
         }
+    }
+
+    public getPeakShavingHeader() {
+        return this.commercial50Feature.feature.type === Category.PEAK_SHAVING_SYMMETRIC
+            ? Category.PEAK_SHAVING_SYMMETRIC_HEADER
+            : Category.PEAK_SHAVING_ASYMMETRIC_HEADER;
+    }
+
+    public getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower: number) {
+        return new Promise((resolve) => {
+            // We cannot read any serial numbers automatically from commercial-50.
+            resolve({});
+        });
     }
 
     public fillForms(
@@ -156,7 +163,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             });
 
             fields.push({
-                key: 'bmsBoxMaster',
+                key: 'bmsBox',
                 type: 'input',
                 templateOptions: {
                     label: 'BMS Box Master',
@@ -172,7 +179,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             });
         } else {
             fields.push({
-                key: 'bmsBoxSubmaster' + towerNr,
+                key: 'bmsBox',
                 type: 'input',
                 templateOptions: {
                     label: 'BMS Box Submaster',
@@ -188,6 +195,23 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             });
         }
 
+        // Bms Master and Submaster.
+        // const bmsComponents = ([
+        //     { value: 'master', label: 'Master' },
+        //     { value: 'submaster', label: 'Submaster' }
+        // ]);
+
+        // fields.push({
+        //     key: 'bmsComponent',
+        //     type: 'select',
+        //     templateOptions: {
+        //         label: 'BMS Box',
+        //         options: bmsComponents,
+        //         required: true
+        //     },
+        //     wrappers: ['formly-select-field-wrapper']
+        // });
+
         for (let moduleNr = 0; moduleNr < numberOfModulesPerTower; moduleNr++) {
             fields.push({
                 key: 'module' + moduleNr,
@@ -196,9 +220,8 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE') + (moduleNr + 1),
                     required: true,
                     // Note: Edit also validator (substring 12) if removing prefix
-                    prefix: 'WSDE...',
-                    placeholder: 'xxxxxxxx',
-                    description: this.translate.instant('INSTALLATION.PROTOCOL_SERIAL_NUMBERS.BATTERY_MODULE_DESCRIPTION')
+                    prefix: 'WSDE213822',
+                    placeholder: 'xxxxxxxxxx'
                 },
                 validators: {
                     validation: ['commercialBatteryModuleSerialNumber']
@@ -209,12 +232,27 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
         return fields;
     }
 
-    public getCommercial50ComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket, invalidateElementsAfterReadErrors: number) {
+    public getComponentConfigurator(edge: Edge, config: EdgeConfig, websocket: Websocket) {
 
         const componentConfigurator: ComponentConfigurator = new ComponentConfigurator(edge, config, websocket);
 
-        // adds Modbus 0, io0 (also modbus3 for Modbusbridge type TCP )
-        super.addModbusBridgeAndIoComponents(this.modbusBridgeType, invalidateElementsAfterReadErrors, this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INTERFACE'), componentConfigurator);
+        // modbus0
+        componentConfigurator.add({
+            factoryId: 'Bridge.Modbus.Serial',
+            componentId: 'modbus0',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.BATTERY_INTERFACE'),
+            properties: [
+                { name: 'enabled', value: true },
+                { name: 'portName', value: '/dev/ttyAMA0' },
+                { name: 'baudRate', value: 9600 },
+                { name: 'databits', value: 8 },
+                { name: 'stopbits', value: 'ONE' },
+                { name: 'parity', value: 'NONE' },
+                { name: 'logVerbosity', value: 'NONE' },
+                { name: 'invalidateElementsAfterReadErrors', value: 3 }
+            ],
+            mode: ConfigurationMode.RemoveAndConfigure
+        });
 
         // modbus1
         componentConfigurator.add({
@@ -226,7 +264,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'ip', value: '10.4.0.10' },
                 { name: 'port', value: '502' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+                { name: 'invalidateElementsAfterReadErrors', value: 3 }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });
@@ -244,7 +282,20 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 { name: 'stopbits', value: 'ONE' },
                 { name: 'parity', value: 'NONE' },
                 { name: 'logVerbosity', value: 'NONE' },
-                { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
+                { name: 'invalidateElementsAfterReadErrors', value: 3 }
+            ],
+            mode: ConfigurationMode.RemoveAndConfigure
+        });
+
+        // io0 
+        componentConfigurator.add({
+            factoryId: 'IO.KMtronic',
+            componentId: 'io0',
+            alias: this.translate.instant('INSTALLATION.CONFIGURATION_EXECUTE.RELAY_BOARD'),
+            properties: [
+                { name: 'enabled', value: true },
+                { name: 'modbus.id', value: 'modbus0' },
+                { name: 'modbusUnitId', value: 6 }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
         });

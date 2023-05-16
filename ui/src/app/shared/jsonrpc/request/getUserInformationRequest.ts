@@ -11,7 +11,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class GetUserInformationRequest extends JsonrpcRequest {
 
-    private static METHOD: string = "getUserInformation";
+    static METHOD: string = "getUserInformation";
 
     public constructor() {
         super(GetUserInformationRequest.METHOD, {});

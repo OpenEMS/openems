@@ -3,7 +3,6 @@ package io.openems.edge.common.channel.internal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -20,6 +19,7 @@ import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.CircularTreeMap;
 
 public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implements Channel<T> {
 
@@ -33,7 +33,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	private final List<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
 	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
 	private final List<BiConsumer<Value<T>, Value<T>>> onChangeCallbacks = new CopyOnWriteArrayList<>();
-	private final TreeMap<LocalDateTime, Value<T>> pastValues = new TreeMap<>();
+	private final CircularTreeMap<LocalDateTime, Value<T>> pastValues = new CircularTreeMap<>(NO_OF_PAST_VALUES);
 
 	private volatile Value<T> nextValue = null;
 	private volatile Value<T> activeValue = null;
@@ -99,40 +99,21 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 
 	@Override
 	public void nextProcessImage() {
-		try {
-			var oldValue = this.activeValue;
-			final boolean valueHasChanged;
-			if (oldValue == null && this.nextValue == null) {
-				valueHasChanged = false;
-			} else if (oldValue == null || this.nextValue == null) {
-				valueHasChanged = true;
-			} else {
-				valueHasChanged = !Objects.equals(oldValue.get(), this.nextValue.get());
-			}
-			this.activeValue = this.nextValue;
-			this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
-			if (valueHasChanged) {
-				this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, this.activeValue));
-			}
-			this.appendPastValue(this.activeValue);
-
-		} catch (RuntimeException e) {
-			this.log.error("Error while updating process image for [" + this.address() + "]: " + e.getMessage());
-			e.printStackTrace();
+		var oldValue = this.activeValue;
+		final boolean valueHasChanged;
+		if (oldValue == null && this.nextValue == null) {
+			valueHasChanged = false;
+		} else if (oldValue == null || this.nextValue == null) {
+			valueHasChanged = true;
+		} else {
+			valueHasChanged = !Objects.equals(oldValue.get(), this.nextValue.get());
 		}
-	}
-
-	/**
-	 * Appends a value to `pastValues` and deletes entries that are elder than
-	 * {@link Channel#MAX_AGE_OF_PAST_VALUES}.
-	 * 
-	 * @param value a new {@link Value}
-	 */
-	private void appendPastValue(Value<T> value) {
-		final var compareTime = value.getTimestamp().minus(Channel.MAX_AGE_OF_PAST_VALUES);
-		this.pastValues.put(value.getTimestamp(), value);
-		// changes to sub map are also applied to the backed map
-		this.pastValues.headMap(compareTime).clear();
+		this.activeValue = this.nextValue;
+		this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
+		if (valueHasChanged) {
+			this.onChangeCallbacks.forEach(callback -> callback.accept(oldValue, this.activeValue));
+		}
+		this.pastValues.put(this.activeValue.getTimestamp(), this.activeValue);
 	}
 
 	@Override
@@ -276,7 +257,7 @@ public abstract class AbstractReadChannel<D extends AbstractDoc<T>, T> implement
 	 * @return a map of recording time and historic value at that time
 	 */
 	@Override
-	public TreeMap<LocalDateTime, Value<T>> getPastValues() {
+	public CircularTreeMap<LocalDateTime, Value<T>> getPastValues() {
 		return this.pastValues;
 	}
 

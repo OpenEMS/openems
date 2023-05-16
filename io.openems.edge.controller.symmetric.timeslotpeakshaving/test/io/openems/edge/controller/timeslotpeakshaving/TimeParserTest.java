@@ -37,14 +37,28 @@ public class TimeParserTest {
 
 	}
 
-	@Test(expected = OpenemsException.class)
-	public void testWrongFormat() throws OpenemsException {
-		TimeslotPeakshaving.convertTime(".9:00");
+	@Test
+	public void testWrongFormat() {
+
+		String startTime = ".9:00";
+		String expected = "Text '.9:00' could not be parsed at index 0";
+		try {
+			TimeslotPeakshaving.convertTime(startTime);
+		} catch (Exception e) {
+			assertEquals(expected, e.getMessage());
+		}
 	}
 
-	@Test(expected = OpenemsException.class)
-	public void testWrongFormat1() throws OpenemsException {
-		TimeslotPeakshaving.convertTime("55:00");
+	@Test
+	public void testWrongFormat1() {
+
+		String startTime = "55:00";
+		String expected = "Text '55:00' could not be parsed: Invalid value for HourOfDay (valid values 0 - 23): 55";
+		try {
+			TimeslotPeakshaving.convertTime(startTime);
+		} catch (Exception e) {
+			assertEquals(expected, e.getMessage());
+		}
 	}
 
 }

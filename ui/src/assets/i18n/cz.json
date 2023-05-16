@@ -171,7 +171,8 @@
         "storage": "Úložiště",
         "storageCharge": "baterie nakládání",
         "storageDischarge": "baterie výtok",
-        "title": "Monitoring energetických toků"
+        "title": "Monitoring energetických toků",
+        "excelExportWarning": "Zobrazení a export dat za delší časové období je v současné době možné pouze v omezené míře. Zkuste to prosím později."
       },
       "Widgets": {
         "autarchyInfo": "Autarky označuje procento aktuální energie, kterou lze pokrýt vybitím z výroby a skladování.",
@@ -377,7 +378,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Aktuální cena",
           "delayedDischarge": "Opožděné propuštění",
-          "STORAGE_DISCHARGE": "Vybíjení ze skladu",
+          "storageDischarge": "Vybíjení ze skladu",
           "State": {
             "notStarted": "Ovladač ještě nezačal ",
             "delayed": "Opožděné",
@@ -499,12 +500,12 @@
           "error": "Chyba při načítání nastavení"
         },
         "interval": {
-          "hour": "Hodina",
-          "hours": "Hodiny",
-          "minute": "Minuta",
-          "minutes": "Minuty",
-          "day": "Den",
-          "days": "Dny"
+          "hour": "hodina",
+          "hours": "hodiny",
+          "minute": "minuta",
+          "minutes": "minuty",
+          "day": "den",
+          "days": "dny"
         }
       },
       "App": {

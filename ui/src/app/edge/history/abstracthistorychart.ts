@@ -2,7 +2,6 @@ import { Data } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ChartDataSets } from 'chart.js';
 import { differenceInDays, differenceInMonths } from 'date-fns';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesDataRequest } from "src/app/shared/jsonrpc/request/queryHistoricTimeseriesDataRequest";
 import { QueryHistoricTimeseriesEnergyPerPeriodRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesEnergyPerPeriodRequest';
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
@@ -15,7 +14,7 @@ export abstract class AbstractHistoryChart {
 
     public loading: boolean = true;
     protected edge: Edge | null = null;
-    protected errorResponse: JsonrpcResponseError | null = null;
+    protected isDataExisting: boolean = true;
 
     //observable is used to fetch new chart data every 10 minutes
     // private refreshChartData = interval(600000);
@@ -75,7 +74,7 @@ export abstract class AbstractHistoryChart {
         // Take custom resolution if passed
         let resolution = res ?? calculateResolution(this.service, fromDate, toDate).resolution;
 
-        this.errorResponse = null;
+        this.isDataExisting = true;
 
         let result: Promise<QueryHistoricTimeseriesDataResponse> = new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
@@ -86,17 +85,15 @@ export abstract class AbstractHistoryChart {
                         let request = new QueryHistoricTimeseriesDataRequest(fromDate, toDate, channelAddresses, resolution);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             resolve(response as QueryHistoricTimeseriesDataResponse);
-                        }).catch(error => {
-                            this.errorResponse = error;
-                            resolve(new QueryHistoricTimeseriesDataResponse(error.id, {
-                                timestamps: [null], data: { null: null }
-                            }))
-                        });
+                        }).catch((error) => resolve(new QueryHistoricTimeseriesDataResponse(error.id, {
+                            timestamps: [null], data: { null: null }
+                        })));
                     });
                 })
             })
         }).then((response) => {
             if (Utils.isDataEmpty(response)) {
+                this.isDataExisting = false;
                 this.loading = false;
                 this.service.stopSpinner(this.spinnerId)
                 this.initializeChart()
@@ -119,7 +116,7 @@ export abstract class AbstractHistoryChart {
         // TODO should be removed, edge delivers too much data 
         let resolution = calculateResolution(this.service, fromDate, toDate).resolution;
 
-        this.errorResponse = null;
+        this.isDataExisting = true;
 
         let response: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
@@ -128,16 +125,14 @@ export abstract class AbstractHistoryChart {
                         resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse ?? new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
                             timestamps: [null], data: { null: null }
                         }))
-                    }).catch((response) => {
-                        this.errorResponse = response;
-                        resolve(new QueryHistoricTimeseriesDataResponse("0", {
-                            timestamps: [null], data: { null: null }
-                        }))
-                    });
+                    }).catch(() => resolve(new QueryHistoricTimeseriesDataResponse("0", {
+                        timestamps: [null], data: { null: null }
+                    })));
                 });
             });
         }).then((response) => {
             if (Utils.isDataEmpty(response)) {
+                this.isDataExisting = false;
                 this.loading = false;
                 this.service.stopSpinner(this.spinnerId)
                 this.initializeChart();

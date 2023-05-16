@@ -29,7 +29,7 @@ export function registerTranslateExtension(translate: TranslateService) {
             {
                 name: 'min',
                 message(err, field: FormlyFieldConfig) {
-                    return translate.stream('INSTALLATION.FORM.MIN', { min: (field.props.min - 1) });
+                    return translate.stream('INSTALLATION.FORM.MIN', { min: field.props.min });
                 },
             },
             {
@@ -53,7 +53,7 @@ export function registerTranslateExtension(translate: TranslateService) {
             {
                 name: 'max',
                 message(err, field: FormlyFieldConfig) {
-                    return translate.stream('INSTALLATION.FORM.MAX', { max: (field.props.max + 1) });
+                    return translate.stream('INSTALLATION.FORM.MAX', { max: field.props.max });
                 },
             },
             {
@@ -95,7 +95,7 @@ export function registerTranslateExtension(translate: TranslateService) {
             {
                 name: 'commercialBatteryModuleSerialNumber',
                 message(err, field: FormlyFieldConfig) {
-                    return serialNumber(translate, field, 15);
+                    return serialNumber(translate, field, 20);
                 },
             },
             {

@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -332,14 +331,7 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 		var fromTimestamp = fromDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
 		var toTimeStamp = toDate.withZoneSameInstant(ZoneOffset.UTC).toEpochSecond();
 
-		final long res;
-		if (resolution.getUnit().isDurationEstimated()) {
-			res = new Resolution(1, ChronoUnit.DAYS).toSeconds();
-		} else {
-			res = resolution.toSeconds();
-		}
-
-		var nextStamp = fromTimestamp + res;
+		var nextStamp = fromTimestamp + resolution.toSeconds();
 		var timeStamp = fromTimestamp;
 
 		while (nextStamp <= toTimeStamp) {
@@ -353,29 +345,10 @@ public class Rrd4jTimedataImpl extends AbstractOpenemsComponent
 
 			var tableRow = this.queryHistoricEnergy(null, dateTimeFrom, dateTimeTo, channels);
 
-			SortedMap<ChannelAddress, JsonElement> existingData = null;
-			if (resolution.getUnit() == ChronoUnit.MONTHS) {
-				for (var entry : table.entrySet()) {
-					final var date = entry.getKey();
-					if (date.getMonth() == dateTimeFrom.getMonth() && date.getYear() == dateTimeFrom.getYear()) {
-						existingData = entry.getValue();
-						break;
-					}
-				}
-			}
-
-			SortedMap<ChannelAddress, JsonElement> row;
-			if (existingData != null) {
-				row = existingData;
-			} else {
-				row = new TreeMap<>();
-				table.put(dateTimeFrom, row);
-			}
-
-			row.putAll(tableRow);
+			table.put(dateTimeFrom, tableRow);
 
 			timeStamp = nextStamp;
-			nextStamp += res;
+			nextStamp += resolution.toSeconds();
 		}
 
 		return table;

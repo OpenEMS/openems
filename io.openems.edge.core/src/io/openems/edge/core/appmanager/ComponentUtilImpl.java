@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -14,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -316,9 +314,6 @@ public class ComponentUtilImpl implements ComponentUtil {
 	 */
 	public static List<Component> order(List<Component> components) {
 		var copy = new ArrayList<>(components);
-		if (components.size() <= 1) {
-			return copy;
-		}
 		for (Component component : components) {
 			// determine which id s the component needs
 			List<String> ids = new ArrayList<>();
@@ -475,13 +470,13 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	@Override
-	public String getNextAvailableId(String baseName, int startingNumber, List<String> componentIds) {
+	public String getNextAvailableId(String baseName, int startingNumber, List<Component> components) {
 		for (var i = startingNumber; true; i++) {
 			var id = baseName + i;
 			if (this.componentManager.getEdgeConfig().getComponent(id).isPresent()) {
 				continue;
 			}
-			if (componentIds.stream().anyMatch(t -> t.equals(id))) {
+			if (components.stream().anyMatch(t -> t.getId().equals(id))) {
 				continue;
 			}
 			return id;
@@ -772,55 +767,6 @@ public class ComponentUtilImpl implements ComponentUtil {
 			return Optional.empty();
 		}
 		return comp;
-	}
-
-	@Override
-	public int[] getUsedModbusUnitIds(//
-			final String modbusComponent //
-	) {
-		final var components = this.componentManager.getAllComponents();
-
-		final var usedModbusUnitIds = new ArrayList<Integer>();
-		for (var component : components) {
-			final var props = component.getComponentContext().getProperties();
-
-			if (find(props, t -> "modbus.id".equals(t), //
-					t -> modbusComponent.equals(t)) == null) {
-				continue;
-			}
-
-			final var modbusUnitIdObj = find(props, t -> "modbusUnitId".equals(t), t -> true);
-			if (modbusUnitIdObj == null) {
-				continue;
-			}
-			if (modbusUnitIdObj instanceof Integer modbusUnitId) {
-				usedModbusUnitIds.add(modbusUnitId);
-			}
-		}
-
-		return usedModbusUnitIds.stream() //
-				.mapToInt(value -> value) //
-				.toArray();
-	}
-
-	private static Object find(//
-			Dictionary<String, Object> dict, //
-			Predicate<String> keyPredicate, //
-			Predicate<Object> objPredicate //
-	) {
-		final var iterator = dict.keys().asIterator();
-		while (iterator.hasNext()) {
-			var key = iterator.next();
-			if (!keyPredicate.test(key)) {
-				continue;
-			}
-			var element = dict.get(key);
-			if (!objPredicate.test(element)) {
-				continue;
-			}
-			return element;
-		}
-		return null;
 	}
 
 }

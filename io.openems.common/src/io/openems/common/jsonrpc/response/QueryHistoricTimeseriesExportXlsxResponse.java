@@ -130,10 +130,8 @@ public class QueryHistoricTimeseriesExportXlsxResponse extends Base64PayloadResp
 				SortedMap<ChannelAddress, JsonElement> energyData, Language language)
 				throws IOException, OpenemsNamedException {
 			byte[] payload = {};
-			try (//
-					var os = new ByteArrayOutputStream();
-					var wb = new Workbook(os, OpenemsConstants.MANUFACTURER_MODEL, null) //
-			) {
+			try (var os = new ByteArrayOutputStream()) {
+				var wb = new Workbook(os, OpenemsConstants.MANUFACTURER_MODEL, null);
 				var ws = wb.newWorksheet("Export");
 
 				Locale currentLocale = language.getLocal();

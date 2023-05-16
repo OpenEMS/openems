@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.dhatim.fastexcel.Workbook;
 import org.dhatim.fastexcel.Worksheet;
@@ -72,7 +73,7 @@ public class ChannelExportXlsxResponse extends Base64PayloadResponse {
 					// Create Sheet
 					List<Channel<?>> channels = component.channels().stream() //
 							.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name()))
-							.toList(); //
+							.collect(Collectors.toList()); //
 					for (Channel<?> channel : channels) {
 						/*
 						 * create descriptive text

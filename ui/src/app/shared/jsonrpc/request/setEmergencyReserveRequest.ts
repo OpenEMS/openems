@@ -16,7 +16,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class SetEmergencyReserveRequest extends JsonrpcRequest {
 
-    private static METHOD: string = "setEmergencyReserve";
+    static METHOD: string = "setEmergencyReserve";
 
     public constructor(
         public readonly params: {

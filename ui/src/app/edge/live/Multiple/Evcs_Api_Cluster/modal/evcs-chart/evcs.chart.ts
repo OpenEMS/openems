@@ -14,18 +14,18 @@ import * as Chart from 'chart.js';
 })
 export class EvcsChartComponent implements OnInit, OnChanges {
 
-  @Input() private evcsMap: { [sourceId: string]: EdgeConfig.Component };
-  @Input() private edge: Edge;
-  @Input() private currentData: CurrentData;
-  @Input() private evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
-  @Input() private componentId: string;
+  @Input() evcsMap: { [sourceId: string]: EdgeConfig.Component };
+  @Input() edge: Edge;
+  @Input() currentData: CurrentData;
+  @Input() evcsConfigMap: { [evcsId: string]: EdgeConfig.Component } = {};
+  @Input() componentId: string;
 
   private static readonly SELECTOR = "evcsChart";
   public loading: boolean = true;
   public options: BarChartOptions;
   public labels: Label[];
   public datasets: ChartDataSets[];
-  public chart: Chart; // This will hold our chart info
+  chart: Chart; // This will hold our chart info
 
 
   constructor(

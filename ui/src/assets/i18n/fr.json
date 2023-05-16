@@ -172,7 +172,8 @@
         "storage": "Stockage",
         "storageCharge": "Stockage-Charge",
         "storageDischarge": "Stockage-Décharge",
-        "title": "Moniteur d'énergie"
+        "title": "Moniteur d'énergie",
+        "excelExportWarning": "L`affichage et l`exportation de données sur une longue période sont actuellement limités. Veuillez réessayer ultérieurement."
       },
       "Energytable": {
         "title": "Tableau énergétique",
@@ -377,7 +378,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Prix actuel",
           "delayedDischarge": "Sortie retardée",
-          "STORAGE_DISCHARGE": "Décharge de stockage",
+          "storageDischarge": "Décharge de stockage",
           "State": {
             "notStarted": "Le contrôleur n'a pas encore démarré",
             "delayed": "Retardé",
@@ -498,12 +499,12 @@
           "error": "Erreur lors du chargement des paramètres"
         },
         "interval": {
-          "hours": "Heures",
-          "minute": "Minute",
-          "minutes": "Minutes",
-          "day": "Journée",
-          "days": "Journées",
-          "hour": "Heure"
+          "hours": "heures",
+          "minute": "minute",
+          "minutes": "minutes",
+          "day": "journée",
+          "days": "journées",
+          "hour": "heure"
         }
       },
       "App": {

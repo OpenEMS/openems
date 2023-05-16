@@ -6,11 +6,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup Java 17
+      - name: Setup Java 11
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '11'
           java-package: jdk
 
       - name: Setup Cache for Java/Gradle
@@ -31,9 +31,6 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
-      # Uploads Checkstyle errors & warnings as GitHub Annotations
-      - uses: kiancross/checkstyle-annotations-action@v1
-      
       - name: Build all Java packages
         run: ./gradlew build
 

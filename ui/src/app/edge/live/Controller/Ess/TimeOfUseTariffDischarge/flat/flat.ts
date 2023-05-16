@@ -1,18 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
+import { Utils } from 'src/app/shared/shared';
 import { ModalComponent } from '../modal/modal';
 
 @Component({
     selector: 'Controller_Ess_TimeOfUseTariff_Discharge',
     templateUrl: './flat.html'
 })
-export class FlatComponent extends AbstractFlatWidget implements OnInit {
+export class FlatComponent extends AbstractFlatWidget {
 
     protected readonly CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
     protected readonly CONVERT_TIME_OF_USE_TARIFF_STATE = Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(this.translate);
-    protected storageStatuslabel: string;
-    protected priceWithCurrency: any;
+    protected readonly CONVERT_PRICE_TO_CENT_PER_KWH = Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2);
 
     async presentModal() {
         const modal = await this.modalController.create({
@@ -22,25 +21,5 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
             }
         });
         return await modal.present();
-    }
-
-    protected override getChannelAddresses(): ChannelAddress[] {
-        return [
-            new ChannelAddress(this.component.id, 'QuarterlyPrices')
-        ];
-    }
-
-    protected override onCurrentData(currentData: CurrentData): void {
-        var quarterlyPrice = currentData.allComponents[this.component.id + '/QuarterlyPrices'];
-
-        var currencyLabel: string = 'Cent/kWh' // Default
-        if (this.edge.id === 'fems17289') {
-            // For Swedish system
-            currencyLabel = 'Öre/kWh'
-        }
-
-        // Since 'component' is empty during ngOninit. so assigning the labels through this method.
-        this.storageStatuslabel = Utils.getTimeOfUseTariffStorageLabel(this.component, this.translate);
-        this.priceWithCurrency = Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(quarterlyPrice);
     }
 }

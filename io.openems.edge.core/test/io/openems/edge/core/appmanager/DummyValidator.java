@@ -17,8 +17,8 @@ public class DummyValidator implements Validator {
 			boolean returnImmediate) {
 		var errors = new ArrayList<String>();
 		for (var check : checkableConfigs) {
-			var checkable = this.findCheckableByName(check.checkableComponentName());
-			checkable.setProperties(check.properties());
+			var checkable = this.findCheckableByName(check.checkableComponentName);
+			checkable.setProperties(check.properties);
 			if (!checkable.check()) {
 				errors.add(checkable.getErrorMessage(language));
 				return errors;

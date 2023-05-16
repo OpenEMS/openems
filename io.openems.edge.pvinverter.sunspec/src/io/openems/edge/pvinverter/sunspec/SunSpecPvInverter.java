@@ -8,8 +8,6 @@ public interface SunSpecPvInverter {
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		PV_LIMIT_FAILED(Doc.of(Level.FAULT) //
 				.text("PV-Limit failed")), //
-		READ_ONLY_MODE_PV_LIMIT_FAILED(Doc.of(Level.WARNING) //
-				.text("Read-Only mode is active: PV-Limit failed")), //
 		WRONG_PHASE_CONFIGURED(Doc.of(Level.WARNING) //
 				.text("Configured Phase does not match the Model")), //
 		;

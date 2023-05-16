@@ -9,8 +9,8 @@ RUN apt-get install -y --no-install-recommends software-properties-common curl
 RUN curl -sL https://repos.influxdata.com/influxdb.key | apt-key add -
 RUN add-apt-repository -y ppa:openjdk-r/ppa
 RUN apt-get update
-RUN apt-get install -y openjdk-17-jdk
-RUN apt-get install -y openjdk-17-jre
+RUN apt-get install -y openjdk-11-jdk
+RUN apt-get install -y openjdk-11-jre
 RUN apt-get install -y influxdb
 RUN update-alternatives --config java
 RUN update-alternatives --config javac

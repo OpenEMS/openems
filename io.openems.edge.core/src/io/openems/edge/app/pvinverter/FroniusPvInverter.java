@@ -23,7 +23,6 @@ import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 
@@ -52,7 +51,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 @org.osgi.service.component.annotations.Component(name = "App.PvInverter.Fronius")
 public class FroniusPvInverter extends AbstractPvInverter<Property> implements OpenemsApp {
 
-	public static enum Property implements Nameable {
+	public static enum Property {
 		// Component-IDs
 		PV_INVERTER_ID, //
 		MODBUS_ID, //
@@ -109,7 +108,7 @@ public class FroniusPvInverter extends AbstractPvInverter<Property> implements O
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-pv-wechselrichter/") //
+				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-fronius-pv-wechselrichter/") //
 				.build();
 	}
 

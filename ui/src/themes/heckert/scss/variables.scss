@@ -9,23 +9,23 @@ $font-family: var(--ion-font-family);
 
 :root {
   /** primary **/
-  --ion-color-primary: rgb(25, 63, 97);
+  --ion-color-primary: rgb(1, 100, 80);
   --ion-color-primary-rgb: 54, 174, 209;
   --ion-color-primary-contrast: #fff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
   --ion-color-primary-shade: #287e96;
-  --ion-color-primary-tint: rgb(25, 63, 97, 0.3);
+  --ion-color-primary-tint: rgb(1, 100, 80, 0.3);
 
   /** secondary **/
-  --ion-color-secondary: rgb(255, 255, 255);
+  --ion-color-secondary: rgb(253, 194, 34);
   --ion-color-secondary-rgb: 50, 219, 100;
-  --ion-color-secondary-contrast: rgb(25, 63, 97);
+  --ion-color-secondary-contrast: rgb(1, 100, 80);
   --ion-color-secondary-contrast-rgb: 255, 255, 255;
   --ion-color-secondary-shade: #68a2b3;
   --ion-color-secondary-tint: #84bfd0;
 
   /** tertiary **/
-  --ion-color-tertiary: #979393;
+  --ion-color-tertiary: #f4a942;
   --ion-color-tertiary-rgb: 244, 169, 66;
   --ion-color-tertiary-contrast: #fff;
   --ion-color-tertiary-contrast-rgb: 255, 255, 255;

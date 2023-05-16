@@ -64,10 +64,8 @@ public class QueryHistoricTimeseriesExportXlsxResponseTest {
 
 		final byte[] result;
 
-		try (//
-				var os = new ByteArrayOutputStream();
-				var workbook = new Workbook(os, "Historic data", null) //
-		) {
+		try (var os = new ByteArrayOutputStream()) {
+			var workbook = new Workbook(os, "Historic data", null);
 			var ws = workbook.newWorksheet("Export");
 
 			Locale currentLocale = new Locale("en", "EN");

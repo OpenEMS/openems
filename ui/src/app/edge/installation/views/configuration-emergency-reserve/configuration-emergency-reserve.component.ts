@@ -85,14 +85,6 @@ export class ConfigurationEmergencyReserveComponent implements OnInit {
       parsers: [Number],
       hideExpression: model => !model.isEnabled || !model.isReserveSocEnabled
     });
-
-    // Adds the fields only for Commercial-30 Netztrennstelle.
-    fields = this.ibn.getAdditionalEmergencyReserveFields(fields);
-
     return fields;
-  }
-
-  public setEmergencyReserve(model: any) {
-    this.ibn.emergencyReserve = model;
   }
 }

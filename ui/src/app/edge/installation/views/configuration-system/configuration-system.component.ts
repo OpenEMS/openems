@@ -85,7 +85,7 @@ export class ConfigurationSystemComponent implements OnInit {
 
     switch (system) {
       case 'heckert-home':
-        window.open('https://www.heckertsolar.com/wp-content/uploads/2022/06/Montage_und-Serviceanleitung-Symphon-E-1.pdf');
+        window.open('https://www.heckertsolar.com/wp-content/uploads/2022/03/Montage_und-Serviceanleitung-Symphon-E.pdf');
         break;
       case 'home':
         window.open('https://fenecon.de/download/montage-und-serviceanleitung-feneconhome/?wpdmdl=17765&refresh=62a048d9acf401654671577');

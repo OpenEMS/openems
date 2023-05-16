@@ -40,7 +40,8 @@ export class UserComponent implements OnInit {
     public service: Service,
     private route: ActivatedRoute,
     private websocket: Websocket,
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     // Set currentLanguage to 

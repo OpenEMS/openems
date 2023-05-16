@@ -3,7 +3,6 @@ package io.openems.edge.battery.bmw;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.bmw.enums.BmsState;
@@ -289,7 +288,6 @@ public interface BmwBattery extends OpenemsComponent, EventHandler {
 				.accessMode(AccessMode.READ_ONLY)), //
 
 		SERIAL_NUMBER(Doc.of(OpenemsType.INTEGER) //
-				.persistencePriority(PersistencePriority.HIGH) //
 				.accessMode(AccessMode.READ_ONLY)), //
 
 		SOFTWARE_VERSION(Doc.of(OpenemsType.INTEGER) //

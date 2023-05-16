@@ -39,10 +39,8 @@ NOTE: OpenEMS uses the **git** version control system via the popular GitHub pla
 
 == Setup Eclipse IDE for OpenEMS Edge and Backend
 
-NOTE: Eclipse IDE is the recommended development environment for newcomers to OpenEMS. If you are more familiar with IntelliJ IDEA, feel free to use it. Follow xref:intellij.adoc[this guide].
-
 . Prepare Eclipse IDE
-.. Download Java Development Kit (JDK) 17 and install it. We recommend the https://adoptium.net/de/temurin/releases/?version=17[OpenJDK Temurin builds by the Adoptium project]
+.. Download Java Development Kit (JDK) 11 and install it. We recommend the https://adoptium.net/?variant=openjdk11&jvmVariant=hotspot[OpenJDK Temurin builds by the Adoptium project]
 .. Download https://www.eclipse.org[Eclipse for Java icon:external-link[]], install and start it
 .. On first start you will get asked to create a workspace.
 Select your source code directory (`C:\Users\your.user\git\openems` in our example) and press btn:[Launch].
@@ -54,15 +52,15 @@ image::eclipse-workspace.png[Creating a workspace in Eclipse IDE]
 +
 Menu: btn:[Help] → btn:[Eclipse Marketplace...] → btn:[Find:] → enter btn:[Bndtools] → press btn:[Install]
 
-.. Configure Eclipse IDE to use JDK 17.
+.. Configure Eclipse IDE to use JDK 11.
 +
 - In the Menu select btn:[Windows] → btn:[Preferences]
 - Select btn:[Java] - btn:[Installed JREs] in the navigation tree
 - Press the btn:[Add...] button
 - Keep btn:[Standard VM] selected and press btn:[Next >]
-- Press the btn:[Directory...] button and select the folder of the installed JDK (e.g. `C:\Program Files\Eclipse Adoptium\jdk-17.0.6.10-hotspot`)
+- Press the btn:[Directory...] button and select the folder of the installed JDK (e.g. `C:\Program Files\Eclipse Adoptium\jdk-11.0.13.8-hotspot`)
 - Press the btn:[Finish] button
-- Back in the Preferences window, tick the newly added JDK 17 and press btn:[Apply and Close]
+- Back in the Preferences window, tick the newly added JDK 11 and press btn:[Apply and Close]
 +
 .Creating a workspace in Eclipse IDE
 image::eclipse-select-jdk.png[Set the Java Development Kit in Eclipse IDE]
@@ -72,8 +70,6 @@ image::eclipse-select-jdk.png[Set the Java Development Kit in Eclipse IDE]
 Menu: btn:[File] →  btn:[Import...] → btn:[Bndtools] → btn:[Existing Bnd Workspace] → your source code directory should have been selected as *Root Directory* automatically → btn:[Finish] → "Switch to Bndtools perspective?" btn:[Yes]
 
 . Eclipse will now spend some time importing and building OpenEMS Edge and Backend. Close the *Welcome* window to follow the progress till you eventually see the full tree of OpenEMS projects (or bundles) in the *Bndtools Explorer* and all errors and warnings in the *Problems* tab disappear.
-
-// TODO add Setup of Checkstyle
 
 == Run OpenEMS Edge and start Simulator
 
@@ -209,13 +205,43 @@ INFO  [socket.AbstractWebsocketServer] Starting [Websocket Api] websocket server
 +
 NOTE: The Controller Api Websocket is required so that OpenEMS UI can connect to OpenEMS Edge locally.
 
+== Setup Visual Studio Code for OpenEMS UI
+
+. Download https://nodejs.org[node.js LTS icon:external-link[]] and install it.
+. Download https://code.visualstudio.com/[Visual Studio Code icon:external-link[]], install and start it.
+. Open OpenEMS UI source code in Visual Studio Code:
++
+Menu: btn:[File] → btn:[Open Folder...] → Select the `ui` directory inside the downloaded source code (for example `C:\Users\your.user\git\openems\ui`) → btn:[Select directory]
+
+. Open the integrated terminal:
++
+Menu: btn:[Terminal] → btn:[New Terminal]
+
+. Install https://cli.angular.io/[Angular CLI icon:external-link[]]:
++
+`npm install -g @angular/cli`
++
+NOTE: If you receive an error message that the command `npm` could not be found, make sure that node.js is installed and restart Visual Studio Code.
+
+. Resolve and download dependencies:
++
+`npm install`
+
 == Run OpenEMS UI
 
-NOTE: If you plan to actively develop on OpenEMS UI, you can now also setup a development environment for it using xref:ui/setup-ide.adoc[this guide]. Otherwise just go ahead with the hosted version:
+. In Visual Studios integrated terminal type...
++
+`ng serve -c openems-edge-dev`
++
+NOTE: If you receive an error message, that you have no rights to execute "ng serve", set `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.
++
+The log shows:
++
+```
+NG Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/
+```
 
-. Make sure OpenEMS Edge is running locally and the websocket is running on port `8085`.
-
-. Open https://openemsuilocal.consolinno.de[https://openemsuilocal.consolinno.de icon:external-link[]]
+. Open a browser at http://localhost:4200
 
 . You should see OpenEMS UI. Log in as user "guest" by leaving the standard password and clicking the login button. Alternatively type "admin" in the password field to log in with extended permissions.
 +

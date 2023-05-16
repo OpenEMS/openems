@@ -6,14 +6,10 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { JsonrpcRequest } from 'src/app/shared/jsonrpc/base';
 import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
 import { Edge, Service, Utils, Websocket } from '../../../shared/shared';
 import { AddAppInstance } from './jsonrpc/addAppInstance';
 import { GetAppAssistant } from './jsonrpc/getAppAssistant';
-import { AppCenter } from './keypopup/appCenter';
-import { AppCenterInstallAppWithSuppliedKeyRequest } from './keypopup/appCenterInstallAppWithSuppliedKey';
-import { AppCenterIsAppFree } from './keypopup/appCenterIsAppFree';
 import { KeyModalComponent, KeyValidationBehaviour } from './keypopup/modal.component';
 import { hasPredefinedKey } from './permissions';
 
@@ -39,7 +35,6 @@ export class InstallAppComponent implements OnInit, OnDestroy {
   protected isInstalling: boolean = false;
 
   private hasPredefinedKey: boolean = false;
-  private isAppFree: boolean = false;
 
   public constructor(
     private route: ActivatedRoute,
@@ -64,19 +59,6 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     this.service.setCurrentComponent(appName, this.route).then(edge => {
       this.edge = edge
 
-      this.edge.sendRequest(this.websocket,
-        new AppCenter.Request({
-          payload: new AppCenterIsAppFree.Request({
-            appId: this.appId
-          })
-        })
-      ).then(response => {
-        const result = (response as AppCenterIsAppFree.Response).result;
-        this.isAppFree = result.isAppFree;
-      }).catch(() => {
-        this.isAppFree = false;
-      });
-
       this.service.metadata
         .pipe(takeUntil(this.stopOnDestroy))
         .subscribe(entry => {
@@ -88,6 +70,9 @@ export class InstallAppComponent implements OnInit, OnDestroy {
           payload: new GetAppAssistant.Request({ appId: appId })
         })).then(response => {
           let appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
+          // insert alias field into appAssistent fields
+          let aliasField = { key: 'ALIAS', type: 'input', templateOptions: { label: 'Alias' }, defaultValue: appAssistant.alias };
+          appAssistant.fields.splice(0, 0, aliasField);
 
           this.fields = appAssistant.fields;
           this.appName = appAssistant.name;
@@ -122,47 +107,37 @@ export class InstallAppComponent implements OnInit, OnDestroy {
           clonedFields[item] = this.form.value[item];
         }
       }
-
-      let request: JsonrpcRequest = new ComponentJsonApiRequest({
-        componentId: '_appManager',
-        payload: new AddAppInstance.Request({
-          appId: this.appId,
-          alias: alias,
-          properties: clonedFields,
-          ...(key && { key: key })
-        })
-      });
-      // if key not set send request with supplied key
-      if (!key) {
-        request = new AppCenter.Request({
-          payload: new AppCenterInstallAppWithSuppliedKeyRequest.Request({
-            installRequest: request
-          })
-        });
-      }
-
       this.isInstalling = true
-      this.edge.sendRequest(this.websocket, request).then(response => {
-        let result = (response as AddAppInstance.Response).result;
+      this.edge.sendRequest(this.websocket,
+        new ComponentJsonApiRequest({
+          componentId: '_appManager',
+          payload: new AddAppInstance.Request({
+            appId: this.appId,
+            alias: alias,
+            properties: clonedFields,
+            ...(key && { key: key })
+          })
+        })).then(response => {
+          let result = (response as AddAppInstance.Response).result;
 
-        if (result.instance) {
-          result.instanceId = result.instance.instanceId;
-          this.model = result.instance.properties;
-        }
-        if (result.warnings && result.warnings.length > 0) {
-          this.service.toast(result.warnings.join(';'), 'warning');
-        } else {
-          this.service.toast(this.translate.instant('Edge.Config.App.successInstall'), 'success')
-        }
+          if (result.instance) {
+            result.instanceId = result.instance.instanceId;
+            this.model = result.instance.properties;
+          }
+          if (result.warnings && result.warnings.length > 0) {
+            this.service.toast(result.warnings.join(';'), 'warning');
+          } else {
+            this.service.toast(this.translate.instant('Edge.Config.App.successInstall'), 'success')
+          }
 
-        this.form.markAsPristine();
-        this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
-      }).catch(reason => {
-        this.service.toast(this.translate.instant('Edge.Config.App.failInstall', { error: reason.error.message }), 'danger')
-      }).finally(() => {
-        this.isInstalling = false
-        this.service.stopSpinner(this.appId);
-      });
+          this.form.markAsPristine();
+          this.router.navigate(['device/' + (this.edge.id) + '/settings/app/']);
+        }).catch(reason => {
+          this.service.toast(this.translate.instant('Edge.Config.App.failInstall', { error: reason.error.message }), 'danger')
+        }).finally(() => {
+          this.isInstalling = false
+          this.service.stopSpinner(this.appId);
+        });
     }).catch(() => {
       // can not get key => dont install
     })
@@ -180,10 +155,6 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         return;
       }
       if (this.hasPredefinedKey) {
-        resolve(null);
-        return;
-      }
-      if (this.isAppFree) {
         resolve(null);
         return;
       }

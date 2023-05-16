@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -93,7 +94,7 @@ public class Dummy {
 
 		@Override
 		public Collection<Edge> getAllOfflineEdges() {
-			return this.edges.stream().filter(Edge::isOffline).toList();
+			return this.edges.stream().filter(Edge::isOffline).collect(Collectors.toList());
 		}
 
 		@Override

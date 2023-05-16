@@ -1,6 +1,6 @@
 package io.openems.edge.app.ess;
 
-import java.util.Map;
+import java.util.EnumMap;
 import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -17,6 +17,7 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.ess.PrepareBatteryExtension.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -28,14 +29,13 @@ import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
 
 /**
  * Describes a prepare battery extension app.
@@ -57,11 +57,10 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
  * </pre>
  */
 @Component(name = "App.Ess.PrepareBatteryExtension")
-public class PrepareBatteryExtension
-		extends AbstractOpenemsAppWithProps<PrepareBatteryExtension, Property, Parameter.BundleParameter>
-		implements OpenemsApp {
+public class PrepareBatteryExtension extends
+		AbstractOpenemsAppWithProps<PrepareBatteryExtension, Property, Parameter.BundleParamter> implements OpenemsApp {
 
-	public enum Property implements Type<Property, PrepareBatteryExtension, Parameter.BundleParameter>, Nameable {
+	public enum Property implements Type<Property, PrepareBatteryExtension, Parameter.BundleParamter> {
 		// Components
 		CTRL_PREPARE_BATTERY_EXTENSION_ID(AppDef.of(PrepareBatteryExtension.class) //
 				.setDefaultValue("ctrlPrepareBatteryExtension0")), //
@@ -73,14 +72,14 @@ public class PrepareBatteryExtension
 				.setTranslatedLabelWithAppPrefix(".targetSoc.label") //
 				.setDefaultValue(30) //
 				.setField(JsonFormlyUtil::buildRange, //
-						(app, prop, l, param, f) -> f.isRequired(true) //
+						(v, f) -> f.isRequired(true) //
 								.setMin(0) //
 								.setMax(100))), //
 		;
 
-		private final AppDef<PrepareBatteryExtension, Property, BundleParameter> def;
+		private final AppDef<PrepareBatteryExtension, Property, BundleParamter> def;
 
-		private Property(AppDef<PrepareBatteryExtension, Property, BundleParameter> def) {
+		private Property(AppDef<PrepareBatteryExtension, Property, BundleParamter> def) {
 			this.def = def;
 		}
 
@@ -90,12 +89,12 @@ public class PrepareBatteryExtension
 		}
 
 		@Override
-		public AppDef<PrepareBatteryExtension, Property, BundleParameter> def() {
+		public AppDef<PrepareBatteryExtension, Property, BundleParamter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<PrepareBatteryExtension>, BundleParameter> getParamter() {
+		public Function<GetParameterValues<PrepareBatteryExtension>, BundleParamter> getParamter() {
 			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 	}
@@ -117,7 +116,7 @@ public class PrepareBatteryExtension
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategories() {
+	public OpenemsAppCategory[] getCategorys() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.ESS };
 	}
 
@@ -127,12 +126,12 @@ public class PrepareBatteryExtension
 	}
 
 	@Override
-	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
+	protected ThrowingTriFunction<ConfigurationTarget, EnumMap<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appConfigurationFactory() {
 		return (t, p, l) -> {
 			final var ctrlPrepareBatteryExtensionId = this.getId(t, p, Property.CTRL_PREPARE_BATTERY_EXTENSION_ID);
 
-			final var alias = this.getString(p, l, Property.ALIAS);
-			final var targetSoc = this.getInt(p, Property.TARGET_SOC);
+			final var alias = this.getValueOrDefault(p, l, Property.ALIAS);
+			final var targetSoc = EnumUtils.getAsOptionalInt(p, Property.TARGET_SOC).orElse(30);
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlPrepareBatteryExtensionId, alias,
@@ -144,6 +143,8 @@ public class PrepareBatteryExtension
 											b -> b.addProperty("enabled", true) //
 													.addProperty("ess_id", "ess0") //
 													.addProperty("isRunning", false) //
+													.addProperty("targetDate", "2000-01-01") //
+													.addProperty("targetTime", "08:00") //
 													.addProperty("targetTimeSpecified", false) //
 													.addProperty("targetTimeBuffer", 30) //
 													.addProperty("selfTermination", true) //
@@ -173,8 +174,8 @@ public class PrepareBatteryExtension
 	}
 
 	@Override
-	protected Property[] propertyValues() {
-		return Property.values();
+	protected Class<Property> getPropertyClass() {
+		return Property.class;
 	}
 
 	@Override

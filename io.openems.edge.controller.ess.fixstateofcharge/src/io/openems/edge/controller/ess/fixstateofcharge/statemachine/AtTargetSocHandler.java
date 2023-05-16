@@ -40,7 +40,7 @@ public class AtTargetSocHandler extends StateHandler<State, Context> {
 			}
 
 			var targetTimeBuffer = 0;
-			if (context.considerTargetTime()) {
+			if (context.config.isTargetTimeSpecified()) {
 				targetTimeBuffer = context.config.getTargetTimeBuffer();
 			}
 

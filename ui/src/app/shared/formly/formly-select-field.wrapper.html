@@ -1,0 +1,18 @@
+<ion-grid>
+    <ion-row>
+        <ion-col>
+            <ion-item [lines]="to.itemLines">
+                <ion-label [position]="to.labelPosition" style="max-width:none">
+                    <span>{{to.label}}</span>
+                    <span *ngIf="to.required && to.hideRequiredMarker !== true">*</span>
+                    <span *ngIf="to.description"><br /><small>{{ to.description }}</small></span>
+                </ion-label>
+                <ion-select [formControl]="formControl" [formlyAttributes]="field">
+                    <ion-col *ngFor="let option of to.options">
+                        <ion-select-option [value]="option.value">{{option.label}}</ion-select-option>
+                    </ion-col>
+                </ion-select>
+            </ion-item>
+        </ion-col>
+    </ion-row>
+</ion-grid>

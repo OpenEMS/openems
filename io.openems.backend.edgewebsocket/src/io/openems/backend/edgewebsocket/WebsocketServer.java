@@ -42,7 +42,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 			ThreadPoolUtils.debugMetrics(executor).forEach((key, value) -> {
 				data.put(now, "edgewebsocket/" + key, new JsonPrimitive(value));
 			});
-			parent.timedataManager.write("backend0", new TimestampedDataNotification(data));
+			parent.timedataManager.write("backend0", data);
 		});
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);

@@ -10,15 +10,14 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
-    "target": "ES2022",
+    "target": "es2015",
     "module": "es2020",
     "lib": [
       "es2018",
       "dom"
     ],
     "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "useDefineForClassFields": false,
+    "esModuleInterop": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

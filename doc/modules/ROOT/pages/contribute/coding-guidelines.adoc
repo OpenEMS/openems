@@ -26,7 +26,7 @@
 * Use precise naming for methods/functions
 * Use narrow scopes for variables; avoid class variables
 * Split code in Interface, Implementation(..Impl) and Config files
-* Use modern Java 17 syntax (e.g. 'var' keyword, streams, etc.)
+* Use modern Java 11 syntax (e.g. 'var' keyword, streams, etc.)
 * Add readme.adoc to a new bundle
 * Review data in bnd.bnd file
 * Format all files via Eclipse Autoformat, organize Imports, apply Checkstyle suggestions (see below)

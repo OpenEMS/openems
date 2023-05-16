@@ -170,7 +170,8 @@
         "storage": "Memoria",
         "storageCharge": "Carga del almacenaje",
         "storageDischarge": "Descarga de memoria",
-        "title": "Monitor de energía"
+        "title": "Monitor de energía",
+        "excelExportWarning": "La visualización y exportación de datos durante un periodo de tiempo más largo sólo es posible actualmente de forma limitada. Por favor, inténtelo más tarde."
       },
       "Widgets": {
         "autarchyInfo": "La autarquía indica el porcentaje de energía actual que puede cubrirse mediante la descarga de generación y almacenamiento.",
@@ -376,7 +377,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Precio actual",
           "delayedDischarge": "Retraso en el alta",
-          "STORAGE_DISCHARGE": "Descarga de almacenamiento",
+          "storageDischarge": "Descarga de almacenamiento",
           "State": {
             "notStarted": "El controlador aún no se ha iniciado ",
             "delayed": "Retraso",
@@ -497,12 +498,12 @@
           "error": "Error al cargar la configuración"
         },
         "interval": {
-          "hours": "Horas",
-          "minute": "Minuto",
-          "minutes": "Minutos",
-          "day": "Día",
-          "days": "Días",
-          "hour": "Hora"
+          "hours": "horas",
+          "minute": "minuto",
+          "minutes": "minutos",
+          "day": "día",
+          "days": "días",
+          "hour": "hora"
         }
       },
       "App": {

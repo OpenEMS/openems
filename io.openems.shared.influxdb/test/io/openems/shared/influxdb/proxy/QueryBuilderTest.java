@@ -15,7 +15,6 @@ import io.openems.common.types.ChannelAddress;
 public class QueryBuilderTest {
 
 	private static final String BUCKET = "db/default";
-	private static final String MEASUREMENT = "data";
 	private static final Optional<Integer> EDGE_ID = Optional.of(888);
 	private static final ZoneId ZONE = ZoneId.of("Europe/Berlin");
 	private static final ZonedDateTime FROM_DATE = ZonedDateTime.of(2022, 12, 29, 0, 0, 0, 0, ZONE);
@@ -32,44 +31,32 @@ public class QueryBuilderTest {
 
 	@Test
 	public void testFluxBuildHistoricDataQuery() throws OpenemsNamedException {
-		FLUX.buildHistoricDataQuery(BUCKET, MEASUREMENT, EDGE_ID, FROM_DATE, TO_DATE, POWER_CHANNELS, RESOLUTION);
+		FLUX.buildHistoricDataQuery(BUCKET, EDGE_ID, FROM_DATE, TO_DATE, POWER_CHANNELS, RESOLUTION);
 	}
 
 	@Test
 	public void testInfluxqlBuildHistoricDataQuery() throws OpenemsNamedException {
-		INFLUX_QL.buildHistoricDataQuery(BUCKET, MEASUREMENT, EDGE_ID, FROM_DATE, TO_DATE, POWER_CHANNELS, RESOLUTION);
+		INFLUX_QL.buildHistoricDataQuery(BUCKET, EDGE_ID, FROM_DATE, TO_DATE, POWER_CHANNELS, RESOLUTION);
 	}
 
 	@Test
 	public void testFluxBuildHistoricEnergyQuery() throws OpenemsNamedException {
-		FLUX.buildHistoricEnergyQuery(BUCKET, MEASUREMENT, EDGE_ID, FROM_DATE, TO_DATE, ENERGY_CHANNELS);
+		FLUX.buildHistoricEnergyQuery(BUCKET, EDGE_ID, FROM_DATE, TO_DATE, ENERGY_CHANNELS);
 	}
 
 	@Test
 	public void testInfluxqlBuildHistoricEnergyQuery() throws OpenemsNamedException {
-		INFLUX_QL.buildHistoricEnergyQuery(BUCKET, MEASUREMENT, EDGE_ID, FROM_DATE, TO_DATE, ENERGY_CHANNELS);
+		INFLUX_QL.buildHistoricEnergyQuery(BUCKET, EDGE_ID, FROM_DATE, TO_DATE, ENERGY_CHANNELS);
 	}
 
 	@Test
 	public void testFluxBuildHistoricEnergyQueryPerPeriod() throws OpenemsNamedException {
-		FLUX.buildHistoricEnergyPerPeriodQuery(BUCKET, MEASUREMENT, EDGE_ID, FROM_DATE, TO_DATE, ENERGY_CHANNELS,
-				RESOLUTION);
+		FLUX.buildHistoricEnergyPerPeriodQuery(BUCKET, EDGE_ID, FROM_DATE, TO_DATE, ENERGY_CHANNELS, RESOLUTION);
 	}
 
 	@Test
 	public void testInfluxqlBuildHistoricEnergyPerPeriodQuery() throws OpenemsNamedException {
-		INFLUX_QL.buildHistoricEnergyPerPeriodQuery(BUCKET, MEASUREMENT, EDGE_ID, FROM_DATE, TO_DATE, ENERGY_CHANNELS,
-				RESOLUTION);
-	}
-
-	@Test
-	public void testInlfuxqlFetchAvailableSinceQuery() throws OpenemsNamedException {
-		INFLUX_QL.buildFetchAvailableSinceQuery(BUCKET);
-	}
-
-	@Test
-	public void testFluxFetchAvailableSinceQuery() throws OpenemsNamedException {
-		FLUX.buildFetchAvailableSinceQuery(BUCKET);
+		INFLUX_QL.buildHistoricEnergyPerPeriodQuery(BUCKET, EDGE_ID, FROM_DATE, TO_DATE, ENERGY_CHANNELS, RESOLUTION);
 	}
 
 }

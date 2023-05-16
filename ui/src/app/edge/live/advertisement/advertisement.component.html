@@ -19,10 +19,6 @@
             (ionSlideWillChange)="changeSlides()" (ionSlideTransitionStart)="changeNextPrevButtons()">
             <ng-container *ngFor="let widget of advertWidgets.list" [ngSwitch]="widget.name">
 
-                <ion-slide *ngSwitchCase="'Fems-App-Center'">
-                    <fems-app-center></fems-app-center>
-                </ion-slide>
-
                 <ion-slide *ngSwitchCase="'Alerting'">
                     <alerting></alerting>
                 </ion-slide>

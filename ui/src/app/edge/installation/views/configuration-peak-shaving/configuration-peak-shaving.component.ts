@@ -4,7 +4,6 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
 import { Category } from '../../shared/category';
-import { Commercial50Lastspitzenkappung } from '../../installation-systems/commercial/commercial-50/commercial50-lastspitzenkappung';
 
 @Component({
     selector: ConfigurationPeakShavingComponent.SELECTOR,
@@ -14,7 +13,7 @@ export class ConfigurationPeakShavingComponent implements OnInit {
 
     private static readonly SELECTOR = 'configuration-peak-shaving';
 
-    @Input() public ibn: Commercial50Lastspitzenkappung;
+    @Input() public ibn: AbstractIbn;
     @Output() public previousViewEvent: EventEmitter<any> = new EventEmitter();
     @Output() public nextViewEvent = new EventEmitter<AbstractIbn>();
 
@@ -29,8 +28,8 @@ export class ConfigurationPeakShavingComponent implements OnInit {
     ngOnInit(): void {
         this.form = new FormGroup({});
         this.fields = this.getFields();
-        this.header = this.getHeader();
-        this.showDescription = this.isAsymmetricPeakShaving();
+        this.header = Category.toTranslatedString(this.ibn.getPeakShavingHeader(), this.translate);
+        this.showDescription = this.header == Category.toTranslatedString(Category.PEAK_SHAVING_ASYMMETRIC_HEADER, this.translate) ? true : false
         this.model = {};
     }
 
@@ -44,7 +43,7 @@ export class ConfigurationPeakShavingComponent implements OnInit {
             return;
         }
 
-        this.ibn.setNonAbstractFields(this.model);
+        this.ibn.setCommercialfeature(this.model);
         this.nextViewEvent.emit(this.ibn);
     }
 
@@ -80,18 +79,5 @@ export class ConfigurationPeakShavingComponent implements OnInit {
         });
 
         return fields;
-    }
-
-    private getHeader(): string {
-        if (this.ibn.commercial50Feature.feature.type === Category.PEAK_SHAVING_SYMMETRIC) {
-            return Category.toTranslatedString(Category.PEAK_SHAVING_SYMMETRIC_HEADER, this.translate);
-        } else {
-            return Category.toTranslatedString(Category.PEAK_SHAVING_ASYMMETRIC_HEADER, this.translate);
-        }
-    }
-
-    // Returns true if Asymmetric peakshaving (Phasengenaue Lastspitzenkappung) is selected in commercial features view.
-    private isAsymmetricPeakShaving(): boolean {
-        return this.ibn.commercial50Feature.feature.type === Category.PEAK_SHAVING_ASYMMETRIC ? true : false
     }
 }

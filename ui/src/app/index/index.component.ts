@@ -32,6 +32,7 @@ export class IndexComponent implements OnInit, OnDestroy {
   public form: FormGroup;
   public filteredEdges: Edge[] = [];
 
+  protected formIsDisabled: boolean = false;
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
   private page = 0;
@@ -42,10 +43,9 @@ export class IndexComponent implements OnInit, OnDestroy {
   /** True, if all available edges for this user had been retrieved */
   private limitReached: boolean = false;
 
-  protected formIsDisabled: boolean = false;
   protected onlyOneEdgeAvailable: boolean = false;
-  protected spinnerId: string = 'index';
-  protected loading: boolean = false;
+
+  protected spinnerId: string = 'index'
 
   constructor(
     public service: Service,
@@ -85,10 +85,13 @@ export class IndexComponent implements OnInit, OnDestroy {
    * 
    * @param event from template passed event
    */
-  protected searchOnChange() {
+  protected searchOnChange(event) {
     this.filteredEdges = [];
     this.page = 0;
     this.limitReached = false;
+
+    const query = event.target.value.toLowerCase();
+    this.query = query;
 
     this.loadNextPage().then((edges) => {
       this.filteredEdges = edges
@@ -102,7 +105,7 @@ export class IndexComponent implements OnInit, OnDestroy {
    * @param param data provided in login form
    */
   public doLogin(param: { username?: string, password: string }) {
-    this.query = "";
+
     this.limitReached = false;
 
     // Prevent that user submits via keyevent 'enter' multiple times
@@ -171,20 +174,18 @@ export class IndexComponent implements OnInit, OnDestroy {
 
   loadNextPage(): Promise<Edge[]> {
 
-    this.loading = true;
+    this.service.startSpinnerTransparentBackground(this.spinnerId)
     return new Promise<Edge[]>((resolve, reject) => {
       if (this.limitReached) {
         resolve([])
         return
       }
-      this.service.getEdges(this.page, this.query, this.limit)
-        .then((edges) => {
-          this.limitReached = edges.length < this.limit;
-          resolve(edges)
-        }).catch((err) => {
-          reject(err)
-        })
-    }).finally(() =>
-      this.loading = false)
+      this.service.getEdges(this.page, this.query, this.limit).then((edges) => {
+        this.limitReached = edges.length < this.limit;
+        resolve(edges)
+      }).catch((err) => {
+        reject(err)
+      })
+    }).finally(() => this.service.stopSpinner(this.spinnerId))
   }
 }

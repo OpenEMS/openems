@@ -3,21 +3,21 @@ package io.openems.edge.core.appmanager;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
+import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.osgi.service.component.ComponentContext;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -29,6 +29,7 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
+import io.openems.common.utils.EnumUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.dependency.Dependency;
@@ -37,8 +38,8 @@ import io.openems.edge.core.appmanager.validator.CheckCardinality;
 import io.openems.edge.core.appmanager.validator.Checkable;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
-public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
-		implements OpenemsApp, ComponentUtilSupplier, ComponentManagerSupplier {
+public abstract class AbstractOpenemsApp<PROPERTY extends Enum<PROPERTY>> //
+		implements OpenemsApp {
 
 	protected final ComponentManager componentManager;
 	protected final ConfigurationAdmin cm;
@@ -57,15 +58,16 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	 * Provides a factory for {@link AppConfiguration AppConfigurations}.
 	 *
 	 * @return a {@link ThrowingFunction} that creates a {@link AppConfiguration}
-	 *         from a {@link Map} of configuration properties for a given
+	 *         from a {@link EnumMap} of configuration properties for a given
 	 *         {@link ConfigurationTarget} in the specified language.
 	 */
 	protected abstract ThrowingTriFunction<//
-			ConfigurationTarget, //
-			Map<PROPERTY, JsonElement>, //
-			Language, //
-			AppConfiguration, //
-			OpenemsNamedException> appPropertyConfigurationFactory();
+			ConfigurationTarget, // ADD, UPDATE, VALIDATE, DELETE or TEST
+			EnumMap<PROPERTY, JsonElement>, // configuration properties
+			Language, // the language
+			AppConfiguration, // return value of the function
+			OpenemsNamedException> // Exception on error
+			appConfigurationFactory();
 
 	protected final void assertCheckables(ConfigurationTarget t, Checkable... checkables) throws OpenemsNamedException {
 		if (t != ConfigurationTarget.ADD && t != ConfigurationTarget.UPDATE) {
@@ -92,9 +94,9 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	 * @return the {@link AppConfiguration} or null
 	 */
 	private AppConfiguration configuration(ArrayList<String> errors, ConfigurationTarget configurationTarget,
-			Language language, Map<PROPERTY, JsonElement> properties) {
+			Language language, EnumMap<PROPERTY, JsonElement> properties) {
 		try {
-			return this.appPropertyConfigurationFactory().apply(configurationTarget, properties, language);
+			return this.appConfigurationFactory().apply(configurationTarget, properties, language);
 		} catch (OpenemsNamedException e) {
 			errors.add(e.getMessage());
 			return null;
@@ -102,47 +104,46 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	}
 
 	/**
-	 * Convert JsonObject with Properties to Map.
+	 * Convert JsonObject with Properties to EnumMap.
 	 *
 	 * @param errors     a collection of validation errors
 	 * @param properties the configured App properties
-	 * @return a typed {@link Map} of Properties
+	 * @return a typed {@link EnumMap} of Properties
 	 */
-	private Map<PROPERTY, JsonElement> convertToMap(List<String> errors, JsonObject properties) {
-		final var nameableByName = Arrays.stream(this.propertyValues()) //
-				.collect(Collectors.toMap(t -> t.name(), Function.identity()));
-		final var resultMap = ImmutableMap.<PROPERTY, JsonElement>builder();
-		final var unknownProperties = new ArrayList<String>();
-		for (var entry : properties.entrySet()) {
-			final var name = entry.getKey();
-			if (!nameableByName.containsKey(name)) {
-				if ("ALIAS".equals(name)) {
-					// ignore alias if passed but not used
-					continue;
+	private EnumMap<PROPERTY, JsonElement> convertToEnumMap(ArrayList<String> errors, JsonObject properties) {
+		var clazz = this.getPropertyClass();
+		var result = new EnumMap<PROPERTY, JsonElement>(clazz);
+		var unknownProperties = new ArrayList<String>();
+		for (Entry<String, JsonElement> entry : properties.entrySet()) {
+			final PROPERTY key;
+			try {
+				key = Enum.valueOf(clazz, entry.getKey());
+			} catch (IllegalArgumentException e) {
+				// ignore ALIAS if passed but not used
+				if (!entry.getKey().equals("ALIAS")) {
+					unknownProperties.add(entry.getKey());
 				}
-				unknownProperties.add(entry.getKey());
 				continue;
 			}
-			// TODO maybe type validation of value
-			resultMap.put(nameableByName.get(entry.getKey()), entry.getValue());
+			result.put(key, entry.getValue());
 		}
 		if (!unknownProperties.isEmpty()) {
 			errors.add("Unknown Configuration Propert" //
 					+ (unknownProperties.size() > 1 ? "ies" : "y") + ":" //
 					+ unknownProperties.stream().collect(Collectors.joining(",")));
 		}
-		return resultMap.build();
+		return result;
 	}
 
 	@Override
 	public AppConfiguration getAppConfiguration(ConfigurationTarget target, JsonObject config, Language language)
 			throws OpenemsNamedException {
 		var errors = new ArrayList<String>();
-		var enumMap = this.convertToMap(target != ConfigurationTarget.TEST ? errors : new ArrayList<>(), config);
+		var enumMap = this.convertToEnumMap(target != ConfigurationTarget.TEST ? errors : new ArrayList<>(), config);
 		var configuration = this.configuration(errors, target, language, enumMap);
 
 		if (!errors.isEmpty()) {
-			throw new OpenemsException(this.getAppId() + ": " + errors.stream().collect(Collectors.joining("|")));
+			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
 		return configuration;
 	}
@@ -150,6 +151,27 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	@Override
 	public String getAppId() {
 		return this.componentContext.getProperties().get(ComponentConstants.COMPONENT_NAME).toString();
+	}
+
+	/**
+	 * Gets the id of the map with the given DefaultEnum
+	 *
+	 * <p>
+	 * e. g. defaultValue: "ess0" => the next available id with the base-name "ess"
+	 * and the the next available number
+	 *
+	 * @param t   the configuration target
+	 * @param map the configuration map
+	 * @param key the key to be searched for
+	 * @return the found id
+	 */
+	protected String getId(ConfigurationTarget t, EnumMap<PROPERTY, JsonElement> map, DefaultEnum key) {
+		try {
+			return this.getId(t, map, Enum.valueOf(this.getPropertyClass(), key.name()), key.getDefaultValue());
+		} catch (IllegalArgumentException ex) {
+			// not a enum of property
+		}
+		return key.getDefaultValue();
 	}
 
 	/**
@@ -165,14 +187,16 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	 * @param defaultId the defaultId to be used
 	 * @return the found id
 	 */
-	protected String getId(ConfigurationTarget t, Map<PROPERTY, JsonElement> map, PROPERTY p, String defaultId) {
+	protected String getId(ConfigurationTarget t, EnumMap<PROPERTY, JsonElement> map, PROPERTY p, String defaultId) {
 		if (t == ConfigurationTarget.TEST) {
-			return JsonUtils.getAsOptionalString(map.get(p)) //
+			return EnumUtils.getAsOptionalString(map, p) //
 					.map(id -> id + p.name() + ":" + defaultId) //
 					.orElse(p.name());
 		}
 		return this.getValueOrDefault(map, p, defaultId);
 	}
+
+	protected abstract Class<PROPERTY> getPropertyClass();
 
 	/**
 	 * Validate the App configuration.
@@ -184,7 +208,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	protected List<String> getValidationErrors(JsonObject jProperties, List<Dependency> dependecies) {
 		final var errors = new ArrayList<String>();
 
-		final var properties = this.convertToMap(errors, jProperties);
+		final var properties = this.convertToEnumMap(errors, jProperties);
 		final var appConfiguration = this.configuration(errors, ConfigurationTarget.VALIDATE, null, properties);
 		if (appConfiguration == null) {
 			return errors;
@@ -231,6 +255,19 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	}
 
 	/**
+	 * Gets the value of the property name in the map or the defaulValue if the
+	 * property was not found.
+	 *
+	 * @param map      the configuration map
+	 * @param property the property to be searched for
+	 * @return the String value
+	 */
+	protected String getValueOrDefault(EnumMap<PROPERTY, JsonElement> map, DefaultEnum property) {
+		var key = Enum.valueOf(this.getPropertyClass(), property.name());
+		return this.getValueOrDefault(map, key, property.getDefaultValue());
+	}
+
+	/**
 	 * Gets the value of the property in the map or the defaulValue if the property
 	 * was not found.
 	 *
@@ -239,7 +276,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	 * @param defaultValue the default value
 	 * @return the String value
 	 */
-	protected String getValueOrDefault(Map<PROPERTY, JsonElement> map, PROPERTY property, String defaultValue) {
+	protected String getValueOrDefault(EnumMap<PROPERTY, JsonElement> map, PROPERTY property, String defaultValue) {
 		var element = map.get(property);
 		if (element != null) {
 			return JsonUtils.getAsOptionalString(element).orElse(defaultValue);
@@ -254,8 +291,13 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	 * @return true if it is included else false
 	 */
 	public boolean hasProperty(String property) {
-		return Arrays.stream(this.propertyValues()) //
-				.anyMatch(t -> t.name().equals(property));
+		try {
+			Enum.valueOf(this.getPropertyClass(), property);
+			return true;
+		} catch (IllegalArgumentException ex) {
+			// property not an enum property
+		}
+		return false;
 	}
 
 	/**
@@ -271,7 +313,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	 */
 	protected ThrowingBiFunction<//
 			ConfigurationTarget, // ADD, UPDATE, VALIDATE, DELETE or TEST
-			Map<PROPERTY, JsonElement>, // configuration properties
+			EnumMap<PROPERTY, JsonElement>, // configuration properties
 			Map<String, Map<String, ?>>, // return value of the function
 			OpenemsNamedException> // Exception on error
 			installationValidation() {
@@ -421,10 +463,10 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 				var appConfigErrors = new LinkedList<String>();
 				if (appConfig.specificInstanceId != null) {
 					try {
-						final var instance = appManager.findInstanceByIdOrError(appConfig.specificInstanceId);
+						var instance = appManager.findInstanceById(appConfig.specificInstanceId);
 						checkProperties(errors, instance.properties, appConfig, dependency.key);
-					} catch (OpenemsNamedException e) {
-						appConfigErrors.add(e.getMessage());
+					} catch (NoSuchElementException e) {
+						appConfigErrors.add("Specific InstanceId[" + appConfig.specificInstanceId + "] not found!");
 					}
 				} else {
 
@@ -451,82 +493,36 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		}
 		// check if dependency apps are available
 		for (var dependency : configDependencies) {
-			final OpenemsAppInstance appInstance;
 			try {
-				appInstance = appManager.findInstanceByIdOrError(dependency.instanceId);
-			} catch (OpenemsNamedException e) {
-				errors.add(e.getMessage());
-				continue;
-			}
-			var dd = neededDependencies.stream().filter(d -> d.key.equals(dependency.key)).findAny();
-			if (dd.isEmpty()) {
-				errors.add("Can not get DependencyDeclaration of Dependency[" + dependency.key + "]");
-				continue;
-			}
-
-			// get app config
-			var appConfig = dd.get().appConfigs.stream() //
-					.filter(c -> c.specificInstanceId != null) //
-					.filter(c -> c.specificInstanceId.equals(appInstance.instanceId)).findAny();
-
-			if (appConfig.isEmpty()) {
-				appConfig = dd.get().appConfigs.stream() //
-						.filter(c -> c.appId != null) //
-						.filter(c -> c.appId.equals(appInstance.appId)).findAny();
-
-				if (appConfig.isEmpty()) {
-					errors.add("Can not get DependencyAppConfig of Dependency[" + dependency.key + "]");
+				var appInstance = appManager.findInstanceById(dependency.instanceId);
+				var dd = neededDependencies.stream().filter(d -> d.key.equals(dependency.key)).findAny();
+				if (dd.isEmpty()) {
+					errors.add("Can not get DependencyDeclaration of Dependency[" + dependency.key + "]");
 					continue;
 				}
-			}
 
-			var copy = appInstance.properties.deepCopy();
-			try {
-				final var app = appManager.findAppByIdOrError(appInstance.appId);
-				copy = AbstractOpenemsApp.fillUpProperties(app, appInstance.properties);
-			} catch (OpenemsNamedException e) {
-				errors.add(e.getMessage());
-			} catch (UnsupportedOperationException e) {
-				// get props not supported
-			}
-			// when available check properties
-			checkProperties(errors, copy, appConfig.get(), dependency.key);
-		}
-	}
+				// get app config
+				var appConfig = dd.get().appConfigs.stream() //
+						.filter(c -> c.specificInstanceId != null) //
+						.filter(c -> c.specificInstanceId.equals(appInstance.instanceId)).findAny();
 
-	/**
-	 * Creates a copy of the original configuration and fills up properties which
-	 * are binded bidirectional.
-	 * 
-	 * <p>
-	 * e. g. a property in a component is the same as one configured in the app so
-	 * it directly gets stored in the component configuration and not twice to avoid
-	 * miss matching errors.
-	 * 
-	 * @param original the original configuration
-	 * @param app      the app to get the properties from
-	 * @return a copy of the original one with the filled up properties
-	 */
-	public static JsonObject fillUpProperties(//
-			final OpenemsApp app, //
-			final JsonObject original //
-	) {
-		final var copy = original.deepCopy();
-		for (var prop : app.getProperties()) {
-			if (copy.has(prop.name)) {
-				continue;
+				if (appConfig.isEmpty()) {
+					appConfig = dd.get().appConfigs.stream() //
+							.filter(c -> c.appId != null) //
+							.filter(c -> c.appId.equals(appInstance.appId)).findAny();
+
+					if (appConfig.isEmpty()) {
+						errors.add("Can not get DependencyAppConfig of Dependency[" + dependency.key + "]");
+						continue;
+					}
+				}
+
+				// when available check properties
+				checkProperties(errors, appInstance.properties, appConfig.get(), dependency.key);
+			} catch (NoSuchElementException e) {
+				errors.add("App with instance[" + dependency.instanceId + "] not available!");
 			}
-			if (prop.bidirectionalValue == null) {
-				continue;
-			}
-			var value = prop.bidirectionalValue.apply(copy);
-			if (value == null) {
-				continue;
-			}
-			// add value to configuration
-			copy.add(prop.name, value);
 		}
-		return copy;
 	}
 
 	private static final void checkProperties(List<String> errors, JsonObject actualAppProperties,
@@ -576,25 +572,15 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 		throw new UnsupportedOperationException();
 	}
 
-	protected abstract PROPERTY[] propertyValues();
-
-	protected final PROPERTY getPropertyByName(String name) {
-		return Arrays.stream(this.propertyValues()) //
-				.filter(t -> t.name().equals(name)) //
-				.findFirst().orElse(null); //
+	protected final PROPERTY[] propertyValues() {
+		return this.getPropertyClass().getEnumConstants();
 	}
 
 	protected static String getTranslation(Language language, String key) {
 		return TranslationUtil.getTranslation(getTranslationBundle(language), key);
 	}
 
-	/**
-	 * Gets the {@link ResourceBundle} based on the given {@link Language}.
-	 * 
-	 * @param language the {@link Language} of the translations
-	 * @return the {@link ResourceBundle}
-	 */
-	public static ResourceBundle getTranslationBundle(Language language) {
+	protected static ResourceBundle getTranslationBundle(Language language) {
 		if (language == null) {
 			language = Language.DEFAULT;
 		}
@@ -629,16 +615,6 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 
 	protected static final Component getComponentWithFactoryId(List<Component> components, String factoryId) {
 		return components.stream().filter(t -> t.getFactoryId().equals(factoryId)).findFirst().orElse(null);
-	}
-
-	@Override
-	public ComponentManager getComponentManager() {
-		return this.componentManager;
-	}
-
-	@Override
-	public ComponentUtil getComponentUtil() {
-		return this.componentUtil;
 	}
 
 }

@@ -16,7 +16,7 @@ import { JsonrpcNotification } from "../base";
  */
 export class LogMessageNotification extends JsonrpcNotification {
 
-    public static METHOD: string = "logMessage";
+    static METHOD: string = "logMessage";
 
     public constructor(
         public readonly params: {

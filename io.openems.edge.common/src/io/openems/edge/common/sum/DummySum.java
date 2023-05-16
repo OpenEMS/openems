@@ -10,6 +10,8 @@ import io.openems.edge.common.component.OpenemsComponent;
  */
 public class DummySum extends AbstractOpenemsComponent implements Sum, OpenemsComponent {
 
+	public static final int MAX_APPARENT_POWER = Integer.MAX_VALUE;
+
 	public DummySum() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //

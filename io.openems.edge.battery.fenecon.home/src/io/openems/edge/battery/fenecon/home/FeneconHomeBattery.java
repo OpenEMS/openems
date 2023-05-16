@@ -2,7 +2,6 @@ package io.openems.edge.battery.fenecon.home;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
-import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.battery.api.Battery;
@@ -584,14 +583,12 @@ public interface FeneconHomeBattery extends Battery, OpenemsComponent, StartStop
 
 		NUMBER_OF_MODULES_PER_TOWER(new IntegerDoc() //
 				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of modules per tower") //
 				.onInit(FeneconHomeBatteryImpl.UPDATE_NUMBER_OF_TOWERS_AND_MODULES_CALLBACK)),
 
 		NUMBER_OF_TOWERS(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.NONE) //
 				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
 				.text("Number of towers of the built system")),
 
 		TOWER_2_BMS_SOFTWARE_VERSION(new IntegerDoc() //

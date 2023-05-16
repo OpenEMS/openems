@@ -82,9 +82,9 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 		}
 
 		this.influxConnector = new InfluxConnector(config.queryLanguage(), URI.create(config.url()), config.org(),
-				config.apiKey(), config.bucket(), config.isReadOnly(), 5, config.maxQueueSize(), //
-				(e) -> {
-					// ignore
+				config.apiKey(), config.bucket(), config.isReadOnly(), 5, //
+				(throwable) -> {
+					this.logError(this.log, "Unable to write to InfluxDB: " + throwable.getMessage());
 				});
 	}
 
@@ -115,7 +115,7 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 
 		if (++this.cycleCount >= this.config.noOfCycles()) {
 			this.cycleCount = 0;
-			final var point = Point.measurement(this.config.measurement()).time(timestamp, WritePrecision.MS);
+			final var point = Point.measurement(InfluxConnector.MEASUREMENT).time(timestamp, WritePrecision.MS);
 			final var addedAtLeastOneChannelValue = new AtomicBoolean(false);
 
 			this.componentManager.getEnabledComponents().stream().filter(OpenemsComponent::isEnabled)
@@ -182,8 +182,7 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 			throws OpenemsNamedException {
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();
-		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution,
-				this.config.measurement());
+		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution);
 	}
 
 	@Override
@@ -191,8 +190,7 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 			ZonedDateTime toDate, Set<ChannelAddress> channels) throws OpenemsNamedException {
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();
-		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels,
-				this.config.measurement());
+		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels);
 	}
 
 	@Override
@@ -201,8 +199,7 @@ public class InfluxTimedataImpl extends AbstractOpenemsComponent
 			throws OpenemsNamedException {
 		// ignore edgeId as Points are also written without Edge-ID
 		Optional<Integer> influxEdgeId = Optional.empty();
-		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution,
-				this.config.measurement());
+		return this.influxConnector.queryHistoricEnergyPerPeriod(influxEdgeId, fromDate, toDate, channels, resolution);
 	}
 
 	@Override

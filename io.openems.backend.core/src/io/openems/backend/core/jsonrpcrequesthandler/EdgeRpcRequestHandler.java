@@ -53,8 +53,7 @@ public class EdgeRpcRequestHandler {
 		CompletableFuture<? extends JsonrpcResponseSuccess> resultFuture;
 		switch (request.getMethod()) {
 		case AppCenterRequest.METHOD:
-			resultFuture = AppCenterHandler.handleUserRequest(this.parent.appCenterMetadata, //
-					t -> this.handleRequest(user, messageId, t), //
+			resultFuture = AppCenterHandler.handleUserRequest(this.parent.appCenterMetadata,
 					AppCenterRequest.from(request), user, edgeId);
 			break;
 
@@ -135,11 +134,9 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId, User user,
 			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		var historicData = this.parent.timedataManager.queryHistoricData(edgeId, request);
+		var data = this.parent.timedataManager.queryHistoricData(edgeId, request);
 
-		// JSON-RPC response
-		return CompletableFuture
-				.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), historicData));
+		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), data));
 	}
 
 	/**
@@ -153,10 +150,9 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(String edgeId, User user,
 			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
-		var data = this.parent.timedataManager.queryHistoricEnergy(//
-				edgeId, request.getFromDate(), request.getToDate(), request.getChannels());
+		var data = this.parent.timedataManager.queryHistoricEnergy(edgeId, request.getFromDate(), request.getToDate(),
+				request.getChannels());
 
-		// JSON-RPC response
 		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
 	}
 
@@ -189,8 +185,10 @@ public class EdgeRpcRequestHandler {
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricTimeseriesExportXlxsRequest(String edgeId,
 			User user, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
-		return CompletableFuture.completedFuture(this.parent.timedataManager
-				.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request, user.getLanguage()));
+		var data = this.parent.timedataManager.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request,
+				user.getLanguage());
+
+		return CompletableFuture.completedFuture(data);
 	}
 
 	/**
@@ -286,11 +284,6 @@ public class EdgeRpcRequestHandler {
 	private CompletableFuture<JsonrpcResponseSuccess> handleComponentJsonApiRequest(String edgeId, User user,
 			ComponentJsonApiRequest componentJsonApiRequest) throws OpenemsNamedException {
 		user.assertEdgeRoleIsAtLeast(ComponentJsonApiRequest.METHOD, edgeId, Role.GUEST);
-
-		if ("addAppInstance".equals(componentJsonApiRequest.getPayload().getMethod()) //
-				&& this.parent.appCenterMetadata != null) {
-			this.parent.appCenterMetadata.supplyKeyIfNeeded(user, edgeId, componentJsonApiRequest.getPayload());
-		}
 
 		return this.parent.edgeWebsocket.send(edgeId, user, componentJsonApiRequest);
 	}

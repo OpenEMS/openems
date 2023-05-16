@@ -14,7 +14,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class GetEdgeConfigRequest extends JsonrpcRequest {
 
-    private static METHOD: string = "getEdgeConfig";
+    static METHOD: string = "getEdgeConfig";
 
     public constructor(
     ) {

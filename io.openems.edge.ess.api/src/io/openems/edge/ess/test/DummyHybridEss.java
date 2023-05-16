@@ -48,7 +48,6 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				ManagedSymmetricEss.ChannelId.values(), //
 				SymmetricEss.ChannelId.values(), //
-				HybridEss.ChannelId.values(), //
 				ChannelId.values() //
 		);
 		this.power = power;
@@ -74,32 +73,6 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 	@Override
 	public int getPowerPrecision() {
 		return 1;
-	}
-
-	/**
-	 * Set {@link SymmetricEss.ChannelId#ACTIVE_POWER} of this
-	 * {@link DummyHybridEss}.
-	 *
-	 * @param value the active power
-	 * @return myself
-	 */
-	public DummyHybridEss withActivePower(Integer value) {
-		this._setActivePower(value);
-		this.getActivePowerChannel().nextProcessImage();
-		return this;
-	}
-
-	/**
-	 * Set {@link HybridEss.ChannelId#DC_DISCHARGE_POWER} of this
-	 * {@link DummyHybridEss}.
-	 *
-	 * @param value the DC discharge power
-	 * @return myself
-	 */
-	public DummyHybridEss withDcDischargePower(Integer value) {
-		this._setDcDischargePower(value);
-		this.getDcDischargePowerChannel().nextProcessImage();
-		return this;
 	}
 
 	/**
@@ -131,32 +104,6 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Set {@link ManagedSymmetricEss.ChannelId#ALLOWED_CHARGE_POWER} of this
-	 * {@link DummyHybridEss}.
-	 *
-	 * @param value the allowed charge power
-	 * @return myself
-	 */
-	public DummyHybridEss withAllowedChargePower(int value) {
-		this._setAllowedChargePower(value);
-		this.getAllowedChargePowerChannel().nextProcessImage();
-		return this;
-	}
-
-	/**
-	 * Set {@link ManagedSymmetricEss.ChannelId#ALLOWED_DISCHARGE_POWER} of this
-	 * {@link DummyHybridEss}.
-	 *
-	 * @param value the allowed discharge power
-	 * @return myself
-	 */
-	public DummyHybridEss withAllowedDischargePower(int value) {
-		this._setAllowedDischargePower(value);
-		this.getAllowedDischargePowerChannel().nextProcessImage();
-		return this;
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#SURPLUS_POWER}.
 	 *
 	 * @return the Channel
@@ -184,5 +131,4 @@ public class DummyHybridEss extends AbstractOpenemsComponent
 	public Integer getSurplusPower() {
 		return this.getSurplusPowerChannel().value().get();
 	}
-
 }

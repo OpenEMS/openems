@@ -13,5 +13,4 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.pvinverter.sunspec
 
 -testpath: \
-	${testpath},\
-	com.ghgande.j2mod
+	${testpath}

@@ -13,19 +13,16 @@ import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.pvinverter.FroniusPvInverter.Property;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.core.appmanager.AbstractEnumOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.TranslationUtil;
 
-public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY> & Nameable>
-		extends AbstractEnumOpenemsApp<PROPERTY> {
+public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY>> extends AbstractOpenemsApp<PROPERTY> {
 
 	protected AbstractPvInverter(ComponentManager componentManager, ComponentContext componentContext,
 			ConfigurationAdmin cm, ComponentUtil componentUtil) {
@@ -33,7 +30,7 @@ public abstract class AbstractPvInverter<PROPERTY extends Enum<PROPERTY> & Namea
 	}
 
 	@Override
-	public OpenemsAppCategory[] getCategories() {
+	public OpenemsAppCategory[] getCategorys() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.PV_INVERTER };
 	}
 

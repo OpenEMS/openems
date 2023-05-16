@@ -22,13 +22,12 @@ import io.openems.edge.evcs.api.Status;
 public class ReadHandler implements Consumer<String> {
 
 	private final Logger log = LoggerFactory.getLogger(ReadHandler.class);
-	private final KebaKeContactImpl parent;
-
+	private final KebaKeContact parent;
 	private boolean receiveReport1 = false;
 	private boolean receiveReport2 = false;
 	private boolean receiveReport3 = false;
 
-	public ReadHandler(KebaKeContactImpl parent) {
+	public ReadHandler(KebaKeContact parent) {
 		this.parent = parent;
 	}
 
@@ -64,9 +63,9 @@ public class ReadHandler implements Consumer<String> {
 					 * Reply to report 1
 					 */
 					this.receiveReport1 = true;
-					this.setString(KebaKeContact.ChannelId.SERIAL, jsonMessage, "Serial");
-					this.setString(KebaKeContact.ChannelId.FIRMWARE, jsonMessage, "Firmware");
-					this.setInt(KebaKeContact.ChannelId.COM_MODULE, jsonMessage, "COM-module");
+					this.setString(KebaChannelId.SERIAL, jsonMessage, "Serial");
+					this.setString(KebaChannelId.FIRMWARE, jsonMessage, "Firmware");
+					this.setInt(KebaChannelId.COM_MODULE, jsonMessage, "COM-module");
 
 					// Dip-Switches
 					var dipSwitch1 = JsonUtils.getAsOptionalString(jsonMessage, "DIP-Sw1");
@@ -79,7 +78,7 @@ public class ReadHandler implements Consumer<String> {
 					// Product information
 					var product = JsonUtils.getAsOptionalString(jsonMessage, "Product");
 					if (product.isPresent()) {
-						this.parent.channel(KebaKeContact.ChannelId.PRODUCT).setNextValue(product.get());
+						this.parent.channel(KebaChannelId.PRODUCT).setNextValue(product.get());
 						this.checkProductInformation(product.get());
 					}
 
@@ -88,13 +87,13 @@ public class ReadHandler implements Consumer<String> {
 					 * Reply to report 2
 					 */
 					this.receiveReport2 = true;
-					this.setInt(KebaKeContact.ChannelId.STATUS_KEBA, jsonMessage, "State");
+					this.setInt(KebaChannelId.STATUS_KEBA, jsonMessage, "State");
 
 					// Value "setenergy" not used, because it is reset by the currtime 0 1 command
 
 					// Set Evcs status
-					Channel<Status> stateChannel = this.parent.channel(KebaKeContact.ChannelId.STATUS_KEBA);
-					Channel<Plug> plugChannel = this.parent.channel(KebaKeContact.ChannelId.PLUG);
+					Channel<Status> stateChannel = this.parent.channel(KebaChannelId.STATUS_KEBA);
+					Channel<Status> plugChannel = this.parent.channel(KebaChannelId.PLUG);
 
 					Plug plug = plugChannel.value().asEnum();
 					Status status = stateChannel.value().asEnum();
@@ -143,46 +142,46 @@ public class ReadHandler implements Consumer<String> {
 
 					this.parent._setStatus(status);
 					var errorState = status == Status.ERROR == true;
-					this.parent.channel(KebaKeContact.ChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(errorState);
+					this.parent.channel(KebaChannelId.CHARGINGSTATION_STATE_ERROR).setNextValue(errorState);
 
-					this.setInt(KebaKeContact.ChannelId.ERROR_1, jsonMessage, "Error1");
-					this.setInt(KebaKeContact.ChannelId.ERROR_2, jsonMessage, "Error2");
-					this.setInt(KebaKeContact.ChannelId.PLUG, jsonMessage, "Plug");
-					this.setBoolean(KebaKeContact.ChannelId.ENABLE_SYS, jsonMessage, "Enable sys");
-					this.setBoolean(KebaKeContact.ChannelId.ENABLE_USER, jsonMessage, "Enable user");
-					this.setInt(KebaKeContact.ChannelId.MAX_CURR_PERCENT, jsonMessage, "Max curr %");
-					this.setInt(KebaKeContact.ChannelId.CURR_FAILSAFE, jsonMessage, "Curr FS");
-					this.setInt(KebaKeContact.ChannelId.TIMEOUT_FAILSAFE, jsonMessage, "Tmo FS");
-					this.setInt(KebaKeContact.ChannelId.CURR_TIMER, jsonMessage, "Curr timer");
-					this.setInt(KebaKeContact.ChannelId.TIMEOUT_CT, jsonMessage, "Tmo CT");
-					this.setBoolean(KebaKeContact.ChannelId.OUTPUT, jsonMessage, "Output");
-					this.setBoolean(KebaKeContact.ChannelId.INPUT, jsonMessage, "Input");
-					this.setInt(KebaKeContact.ChannelId.MAX_CURR, jsonMessage, "Curr HW");
-					this.setInt(KebaKeContact.ChannelId.CURR_USER, jsonMessage, "Curr user");
+					this.setInt(KebaChannelId.ERROR_1, jsonMessage, "Error1");
+					this.setInt(KebaChannelId.ERROR_2, jsonMessage, "Error2");
+					this.setInt(KebaChannelId.PLUG, jsonMessage, "Plug");
+					this.setBoolean(KebaChannelId.ENABLE_SYS, jsonMessage, "Enable sys");
+					this.setBoolean(KebaChannelId.ENABLE_USER, jsonMessage, "Enable user");
+					this.setInt(KebaChannelId.MAX_CURR_PERCENT, jsonMessage, "Max curr %");
+					this.setInt(KebaChannelId.CURR_FAILSAFE, jsonMessage, "Curr FS");
+					this.setInt(KebaChannelId.TIMEOUT_FAILSAFE, jsonMessage, "Tmo FS");
+					this.setInt(KebaChannelId.CURR_TIMER, jsonMessage, "Curr timer");
+					this.setInt(KebaChannelId.TIMEOUT_CT, jsonMessage, "Tmo CT");
+					this.setBoolean(KebaChannelId.OUTPUT, jsonMessage, "Output");
+					this.setBoolean(KebaChannelId.INPUT, jsonMessage, "Input");
+					this.setInt(KebaChannelId.MAX_CURR, jsonMessage, "Curr HW");
+					this.setInt(KebaChannelId.CURR_USER, jsonMessage, "Curr user");
 
 				} else if (id.equals("3")) {
 					/*
 					 * Reply to report 3
 					 */
 					this.receiveReport3 = true;
-					this.setInt(KebaKeContact.ChannelId.VOLTAGE_L1, jsonMessage, "U1");
-					this.setInt(KebaKeContact.ChannelId.VOLTAGE_L2, jsonMessage, "U2");
-					this.setInt(KebaKeContact.ChannelId.VOLTAGE_L3, jsonMessage, "U3");
-					this.setInt(KebaKeContact.ChannelId.CURRENT_L1, jsonMessage, "I1");
-					this.setInt(KebaKeContact.ChannelId.CURRENT_L2, jsonMessage, "I2");
-					this.setInt(KebaKeContact.ChannelId.CURRENT_L3, jsonMessage, "I3");
-					this.setInt(KebaKeContact.ChannelId.ACTUAL_POWER, jsonMessage, "P");
-					this.setInt(KebaKeContact.ChannelId.COS_PHI, jsonMessage, "PF");
+					this.setInt(KebaChannelId.VOLTAGE_L1, jsonMessage, "U1");
+					this.setInt(KebaChannelId.VOLTAGE_L2, jsonMessage, "U2");
+					this.setInt(KebaChannelId.VOLTAGE_L3, jsonMessage, "U3");
+					this.setInt(KebaChannelId.CURRENT_L1, jsonMessage, "I1");
+					this.setInt(KebaChannelId.CURRENT_L2, jsonMessage, "I2");
+					this.setInt(KebaChannelId.CURRENT_L3, jsonMessage, "I3");
+					this.setInt(KebaChannelId.ACTUAL_POWER, jsonMessage, "P");
+					this.setInt(KebaChannelId.COS_PHI, jsonMessage, "PF");
 
 					long totalEnergy = Math
 							.round(JsonUtils.getAsOptionalLong(jsonMessage, "E total").orElse(0L) * 0.1F);
-					this.parent.channel(KebaKeContact.ChannelId.ENERGY_TOTAL).setNextValue(totalEnergy);
+					this.parent.channel(KebaChannelId.ENERGY_TOTAL).setNextValue(totalEnergy);
 					this.parent._setActiveConsumptionEnergy(totalEnergy);
 
 					// Set the count of the Phases that are currently used
-					Channel<Integer> currentL1 = this.parent.channel(KebaKeContact.ChannelId.CURRENT_L1);
-					Channel<Integer> currentL2 = this.parent.channel(KebaKeContact.ChannelId.CURRENT_L2);
-					Channel<Integer> currentL3 = this.parent.channel(KebaKeContact.ChannelId.CURRENT_L3);
+					Channel<Integer> currentL1 = this.parent.channel(KebaChannelId.CURRENT_L1);
+					Channel<Integer> currentL2 = this.parent.channel(KebaChannelId.CURRENT_L2);
+					Channel<Integer> currentL3 = this.parent.channel(KebaChannelId.CURRENT_L3);
 					var currentSum = currentL1.getNextValue().orElse(0) + currentL2.getNextValue().orElse(0)
 							+ currentL3.getNextValue().orElse(0);
 
@@ -210,8 +209,7 @@ public class ReadHandler implements Consumer<String> {
 					 * dynamically calculated MAXIMUM_HARDWARE_POWER including the current used
 					 * phases.
 					 */
-					Channel<Integer> maxDipSwitchLimitChannel = this.parent
-							.channel(KebaKeContact.ChannelId.DIP_SWITCH_MAX_HW);
+					Channel<Integer> maxDipSwitchLimitChannel = this.parent.channel(KebaChannelId.DIP_SWITCH_MAX_HW);
 					int maxDipSwitchPowerLimit = Math.round(
 							maxDipSwitchLimitChannel.value().orElse(Evcs.DEFAULT_MAXIMUM_HARDWARE_CURRENT) / 1000f)
 							* Evcs.DEFAULT_VOLTAGE * Phases.THREE_PHASE.getValue();
@@ -251,16 +249,16 @@ public class ReadHandler implements Consumer<String> {
 				 * message without ID -> UDP broadcast
 				 */
 				if (jsonMessage.has("State")) {
-					this.setInt(KebaKeContact.ChannelId.STATUS_KEBA, jsonMessage, "State");
+					this.setInt(KebaChannelId.STATUS_KEBA, jsonMessage, "State");
 				}
 				if (jsonMessage.has("Plug")) {
-					this.setInt(KebaKeContact.ChannelId.PLUG, jsonMessage, "Plug");
+					this.setInt(KebaChannelId.PLUG, jsonMessage, "Plug");
 				}
 				if (jsonMessage.has("Input")) {
-					this.setBoolean(KebaKeContact.ChannelId.INPUT, jsonMessage, "Input");
+					this.setBoolean(KebaChannelId.INPUT, jsonMessage, "Input");
 				}
 				if (jsonMessage.has("Enable sys")) {
-					this.setBoolean(KebaKeContact.ChannelId.ENABLE_SYS, jsonMessage, "Enable sys");
+					this.setBoolean(KebaChannelId.ENABLE_SYS, jsonMessage, "Enable sys");
 				}
 				if (jsonMessage.has("E pres")) {
 					this.parent.channel(Evcs.ChannelId.ENERGY_SESSION)
@@ -280,15 +278,15 @@ public class ReadHandler implements Consumer<String> {
 		dipSwitch1 = hexStringToBinaryString(dipSwitch1);
 		dipSwitch2 = hexStringToBinaryString(dipSwitch2);
 
-		this.parent.channel(KebaKeContact.ChannelId.DIP_SWITCH_1).setNextValue(dipSwitch1);
-		this.parent.channel(KebaKeContact.ChannelId.DIP_SWITCH_2).setNextValue(dipSwitch2);
+		this.parent.channel(KebaChannelId.DIP_SWITCH_1).setNextValue(dipSwitch1);
+		this.parent.channel(KebaChannelId.DIP_SWITCH_2).setNextValue(dipSwitch2);
 
 		var setState = false;
 		var hasStaticIp = false;
 
 		// Set Channel for the communication
 		setState = dipSwitch1.charAt(2) == '1' == false;
-		this.setnextStateChannelValue(KebaKeContact.ChannelId.DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM, setState);
+		this.setnextStateChannelValue(KebaChannelId.DIP_SWITCH_ERROR_1_3_NOT_SET_FOR_COMM, setState);
 
 		// Is IP static or dynamic
 		var staticIpSum = Integer.parseInt(dipSwitch2.substring(0, 4));
@@ -297,21 +295,21 @@ public class ReadHandler implements Consumer<String> {
 		if (hasStaticIp) {
 			// Set Channel for "static IP dip-switch not set"
 			setState = dipSwitch2.charAt(5) == '1' == false;
-			this.setnextStateChannelValue(KebaKeContact.ChannelId.DIP_SWITCH_ERROR_2_6_NOT_SET_FOR_STATIC_IP, setState);
+			this.setnextStateChannelValue(KebaChannelId.DIP_SWITCH_ERROR_2_6_NOT_SET_FOR_STATIC_IP, setState);
 
 		} else {
 			// Set Channel for "static IP dip-switch wrongly set"
 			setState = dipSwitch2.charAt(5) == '1' == true;
-			this.setnextStateChannelValue(KebaKeContact.ChannelId.DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP, setState);
+			this.setnextStateChannelValue(KebaChannelId.DIP_SWITCH_ERROR_2_6_SET_FOR_DYNAMIC_IP, setState);
 		}
 
 		// Set Channel for "Master-Slave communication set"
 		setState = dipSwitch2.charAt(4) == '1' == true;
-		this.setnextStateChannelValue(KebaKeContact.ChannelId.DIP_SWITCH_INFO_2_5_SET_FOR_MASTER_SLAVE_COMM, setState);
+		this.setnextStateChannelValue(KebaChannelId.DIP_SWITCH_INFO_2_5_SET_FOR_MASTER_SLAVE_COMM, setState);
 
 		// Set Channel for "installation mode set"
 		setState = dipSwitch2.charAt(7) == '1' == true;
-		this.setnextStateChannelValue(KebaKeContact.ChannelId.DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION, setState);
+		this.setnextStateChannelValue(KebaChannelId.DIP_SWITCH_INFO_2_8_SET_FOR_INSTALLATION, setState);
 
 		// Set Channel for the configured maximum limit in mA
 		Integer hwLimit = null;
@@ -337,7 +335,7 @@ public class ReadHandler implements Consumer<String> {
 			hwLimit = 32_000;
 			break;
 		}
-		this.parent.channel(KebaKeContact.ChannelId.DIP_SWITCH_MAX_HW).setNextValue(hwLimit);
+		this.parent.channel(KebaChannelId.DIP_SWITCH_MAX_HW).setNextValue(hwLimit);
 	}
 
 	/**
@@ -351,12 +349,12 @@ public class ReadHandler implements Consumer<String> {
 		// e- and b-series cannot be controlled
 		var series = blocks[2].charAt(6);
 		var oldSeries = series == '0' || series == '1' == true;
-		this.setnextStateChannelValue(KebaKeContact.ChannelId.PRODUCT_SERIES_IS_NOT_COMPATIBLE, oldSeries);
+		this.setnextStateChannelValue(KebaChannelId.PRODUCT_SERIES_IS_NOT_COMPATIBLE, oldSeries);
 
 		// Energy cannot be measured if there is no meter installed
 		var meter = blocks[3].charAt(0);
 		var noMeter = meter == '0' == true;
-		this.setnextStateChannelValue(KebaKeContact.ChannelId.NO_ENERGY_METER_INSTALLED, noMeter);
+		this.setnextStateChannelValue(KebaChannelId.NO_ENERGY_METER_INSTALLED, noMeter);
 	}
 
 	/**
@@ -365,7 +363,7 @@ public class ReadHandler implements Consumer<String> {
 	 * @param channel Channel that needs to be set
 	 * @param bool    Value that will be set
 	 */
-	private void setnextStateChannelValue(KebaKeContact.ChannelId channel, boolean bool) {
+	private void setnextStateChannelValue(KebaChannelId channel, boolean bool) {
 		this.parent.channel(channel).setNextValue(bool);
 	}
 
@@ -379,19 +377,19 @@ public class ReadHandler implements Consumer<String> {
 		return binaryString;
 	}
 
-	private void set(KebaKeContact.ChannelId channelId, Object value) {
+	private void set(KebaChannelId channelId, Object value) {
 		this.parent.channel(channelId).setNextValue(value);
 	}
 
-	private void setString(KebaKeContact.ChannelId channelId, JsonObject jMessage, String name) {
+	private void setString(KebaChannelId channelId, JsonObject jMessage, String name) {
 		this.set(channelId, JsonUtils.getAsOptionalString(jMessage, name).orElse(null));
 	}
 
-	private void setInt(KebaKeContact.ChannelId channelId, JsonObject jMessage, String name) {
+	private void setInt(KebaChannelId channelId, JsonObject jMessage, String name) {
 		this.set(channelId, JsonUtils.getAsOptionalInt(jMessage, name).orElse(null));
 	}
 
-	private void setBoolean(KebaKeContact.ChannelId channelId, JsonObject jMessage, String name) {
+	private void setBoolean(KebaChannelId channelId, JsonObject jMessage, String name) {
 		var enableSysOpt = JsonUtils.getAsOptionalInt(jMessage, name);
 		if (enableSysOpt.isPresent()) {
 			this.set(channelId, enableSysOpt.get() == 1);

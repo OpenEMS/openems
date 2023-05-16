@@ -2,7 +2,6 @@ package io.openems.edge.common.channel;
 
 import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
-import io.openems.common.channel.PersistencePriority;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class StateChannelDoc extends BooleanDoc {
@@ -13,7 +12,6 @@ public class StateChannelDoc extends BooleanDoc {
 		super();
 		this.level = level;
 		this.initialValue(false);
-		this.persistencePriority(PersistencePriority.HIGH);
 	}
 
 	@Override

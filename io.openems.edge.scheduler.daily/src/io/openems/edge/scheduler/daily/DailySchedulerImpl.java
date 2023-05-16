@@ -16,7 +16,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
@@ -65,7 +64,7 @@ public class DailySchedulerImpl extends AbstractOpenemsComponent
 	private void updateControllerSchedule(JsonArray schedule) throws OpenemsNamedException {
 		this.controllerSchedule.clear();
 		for (JsonElement period : schedule) {
-			var time = DateUtils.parseLocalTimeOrError(JsonUtils.getAsString(period, "time"));
+			var time = LocalTime.parse(JsonUtils.getAsString(period, "time"));
 			var jControllerIds = JsonUtils.getAsJsonArray(period, "controllers");
 			var controllerIds = new LinkedHashSet<String>();
 			for (JsonElement controllerId : jControllerIds) {

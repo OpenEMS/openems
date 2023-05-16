@@ -20,7 +20,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class ExecuteSystemCommandRequest extends JsonrpcRequest {
 
-    private static METHOD: string = "executeSystemCommand";
+    static METHOD: string = "executeSystemCommand";
 
     public constructor(
         public readonly params: {

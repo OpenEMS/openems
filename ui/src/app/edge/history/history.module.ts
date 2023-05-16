@@ -6,7 +6,8 @@ import { ChannelthresholdTotalChartComponent } from './channelthreshold/totalcha
 import { ChannelthresholdWidgetComponent } from './channelthreshold/widget.component';
 import { ChpSocChartComponent } from './chpsoc/chart.component';
 import { ChpSocWidgetComponent } from './chpsoc/widget.component';
-import { Autarchy } from './common/autarchy/Autarchy';
+import { Common_Autarchy } from './common/autarchy/Autarchy';
+import { Common_Production } from './common/production/Production';
 import { ConsumptionChartOverviewComponent } from './consumption/consumptionchartoverview/consumptionchartoverview.component';
 import { ConsumptionEvcsChartComponent } from './consumption/evcschart.component';
 import { ConsumptionMeterChartComponent } from './consumption/meterchart.component';
@@ -37,7 +38,6 @@ import { HeatPumpChartComponent } from './heatpump/chart.component';
 import { HeatPumpChartOverviewComponent } from './heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
 import { HeatpumpWidgetComponent } from './heatpump/widget.component';
 import { HistoryComponent } from './history.component';
-import { HistoryParentComponent } from './historyparent.component';
 import { AsymmetricPeakshavingChartOverviewComponent } from './peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
 import { AsymmetricPeakshavingChartComponent } from './peakshaving/asymmetric/chart.component';
 import { AsymmetricPeakshavingWidgetComponent } from './peakshaving/asymmetric/widget.component';
@@ -47,14 +47,6 @@ import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/wid
 import { TimeslotPeakshavingChartComponent } from './peakshaving/timeslot/chart.component';
 import { TimeslotPeakshavingChartOverviewComponent } from './peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
 import { TimeslotPeakshavingWidgetComponent } from './peakshaving/timeslot/widget.component';
-import { ProductionChargerChartComponent } from './production/chargerchart.component';
-import { ProductionChartOverviewComponent } from './production/productionchartoverview/productionchartoverview.component';
-import { ProductionMeterChartComponent } from './production/productionmeterchart';
-import { ProductionSingleChartComponent } from './production/singlechart';
-import { ProductionTotalAcChartComponent } from './production/totalacchart';
-import { ProductionTotalChartComponent } from './production/totalchart';
-import { ProductionTotalDcChartComponent } from './production/totaldcchart';
-import { ProductionComponent } from './production/widget.component';
 import { SelfconsumptionChartComponent } from './selfconsumption/chart.component';
 import { SelfconsumptionChartOverviewComponent } from './selfconsumption/selfconsumptionchartoverview/selfconsumptionchartoverview.component';
 import { SelfconsumptionWidgetComponent } from './selfconsumption/widget.component';
@@ -71,11 +63,13 @@ import { StorageComponent } from './storage/widget.component';
 import { TimeOfUseTariffDischargeChartComponent } from './timeofusetariffdischarge/chart.component';
 import { TimeOfUseTariffDischargeChartOverviewComponent } from './timeofusetariffdischarge/timeofusetariffdischargeoverview/timeofusetariffdischargechartoverview.component';
 import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischarge/widget.component';
+import { HistoryParentComponent } from './historyparent.component';
 
 @NgModule({
   imports: [
     SharedModule,
-    Autarchy
+    Common_Autarchy,
+    Common_Production
   ],
   entryComponents: [
     EnergyModalComponent,
@@ -119,14 +113,6 @@ import { TimeOfUseTariffDischargeWidgetComponent } from './timeofusetariffdischa
     HeatPumpChartOverviewComponent,
     HeatpumpWidgetComponent,
     HistoryComponent,
-    ProductionChargerChartComponent,
-    ProductionChartOverviewComponent,
-    ProductionComponent,
-    ProductionMeterChartComponent,
-    ProductionSingleChartComponent,
-    ProductionTotalAcChartComponent,
-    ProductionTotalChartComponent,
-    ProductionTotalDcChartComponent,
     SelfconsumptionChartComponent,
     SelfconsumptionChartOverviewComponent,
     SelfconsumptionWidgetComponent,

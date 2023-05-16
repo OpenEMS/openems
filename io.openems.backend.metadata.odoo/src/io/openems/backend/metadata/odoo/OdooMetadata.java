@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -28,7 +29,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -52,7 +52,6 @@ import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
@@ -144,12 +143,6 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 		var result = this.odooHandler.authenticateSession(sessionId);
 
 		// Parse Result
-		var jUser = JsonUtils.getAsJsonObject(result, "user");
-		var odooUserId = JsonUtils.getAsInt(jUser, "id");
-		var login = JsonUtils.getAsString(jUser, "login");
-		var name = JsonUtils.getAsString(jUser, "name");
-		var language = Language.from(JsonUtils.getAsString(jUser, "language"));
-		var globalRole = Role.getRole(JsonUtils.getAsString(jUser, "global_role"));
 		var jDevices = JsonUtils.getAsJsonArray(result, "devices");
 		NavigableMap<String, Role> roles = new TreeMap<>();
 		for (JsonElement device : jDevices) {
@@ -157,20 +150,24 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 			var role = Role.getRole(JsonUtils.getAsString(device, "role"));
 			roles.put(edgeId, role);
 		}
+		var jUser = JsonUtils.getAsJsonObject(result, "user");
+		var odooUserId = JsonUtils.getAsInt(jUser, "id");
 
-		var user = new MyUser(odooUserId, login, name, sessionId, language, globalRole, roles);
-		var oldUser = this.users.put(login, user);
-		if (oldUser != null) {
-			oldUser.getEdgeRoles().forEach((edgeId, role) -> {
-				user.setRole(edgeId, role);
-			});
-		}
+		var user = new MyUser(//
+				odooUserId, //
+				JsonUtils.getAsString(jUser, "login"), //
+				JsonUtils.getAsString(jUser, "name"), //
+				sessionId, //
+				Language.from(JsonUtils.getAsString(jUser, "language")), //
+				Role.getRole(JsonUtils.getAsString(jUser, "global_role")), //
+				roles);
+
+		this.users.put(user.getId(), user);
 		return user;
 	}
 
 	@Override
 	public void logout(User user) {
-		this.users.remove(user.getId());
 		this.odooHandler.logout(user.getToken());
 	}
 
@@ -204,7 +201,7 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public Collection<Edge> getAllOfflineEdges() {
-		return this.edgeCache.getAllEdges().stream().filter(Edge::isOffline).toList();
+		return this.edgeCache.getAllEdges().stream().filter(Edge::isOffline).collect(Collectors.toList());
 	}
 
 	/**
@@ -301,15 +298,11 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 
 		switch (event.getTopic()) {
 		case Edge.Events.ON_SET_ONLINE: {
-			var edgeId = reader.getString(Edge.Events.OnSetOnline.EDGE_ID);
+			var edge = (MyEdge) reader.getProperty(Edge.Events.OnSetOnline.EDGE);
 			var isOnline = reader.getBoolean(Edge.Events.OnSetOnline.IS_ONLINE);
 
-			this.getEdge(edgeId).ifPresent(edge -> {
-				if (edge instanceof MyEdge) {
-					// Set OpenEMS Is Connected in Odoo/Postgres
-					this.postgresHandler.getPeriodicWriteWorker().onSetOnline((MyEdge) edge, isOnline);
-				}
-			});
+			// Set OpenEMS Is Connected in Odoo/Postgres
+			this.postgresHandler.getPeriodicWriteWorker().onSetOnline(edge, isOnline);
 		}
 			break;
 
@@ -461,50 +454,6 @@ public class OdooMetadata extends AbstractMetadata implements AppCenterMetadata,
 	@Override
 	public JsonObject sendGetInstalledApps(String edgeId) throws OpenemsNamedException {
 		return this.odooHandler.getInstalledApps(edgeId);
-	}
-
-	@Override
-	public void supplyKeyIfNeeded(//
-			final User user, //
-			final String edgeId, //
-			final JsonrpcRequest request //
-	) throws OpenemsNamedException {
-		if (request.getParams().has("key")) {
-			return;
-		}
-		var appId = JsonUtils.getAsString(request.getParams(), "appId");
-		final var key = this.getSuppliableKey(user, edgeId, appId);
-		if (key == null) {
-			return;
-		}
-		// TODO may be dynamically set
-		request.getParams().addProperty("key", key);
-	}
-
-	@Override
-	public String getSuppliableKey(//
-			final User user, //
-			final String edgeId, //
-			final String appId //
-	) throws OpenemsNamedException {
-		if (this.isAppFree(user, appId)) {
-			return "8fyk-Gma9-EUO3-j3gi";
-		}
-		// TODO may only be for fenecon employees/admins
-		if (!user.getRole(edgeId).map(r -> r.isAtLeast(Role.INSTALLER)).orElse(false)) {
-			return null;
-		}
-		return "8fyk-Gma9-EUO3-j3gi";
-	}
-
-	@Override
-	public boolean isAppFree(//
-			final User user, //
-			final String appId //
-	) throws OpenemsNamedException {
-		return Sets.newHashSet(//
-				"App.Hardware.KMtronic8Channel" //
-		).contains(appId);
 	}
 
 	@Override

@@ -16,7 +16,7 @@ export class StorageChargerChartComponent extends AbstractHistoryChart implement
     @Input() public period: DefaultTypes.HistoryPeriod;
     @Input() public componentId: string;
 
-    private moreThanOneProducer: boolean = null;
+    moreThanOneProducer: boolean = null;
 
     ngOnChanges() {
         this.updateChart();

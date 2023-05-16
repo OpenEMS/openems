@@ -31,6 +31,9 @@ public class RecordWorker extends AbstractImmediateWorker {
 	private final Logger log = LoggerFactory.getLogger(RecordWorker.class);
 	private final Rrd4jTimedataImpl parent;
 
+	// Counts the number of Cycles till data is recorded
+	private int cycleCount = 0;
+
 	private static class Record {
 		private final long timestamp;
 		private final ChannelAddress address;
@@ -65,17 +68,26 @@ public class RecordWorker extends AbstractImmediateWorker {
 		var timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		final var nextReadChannelValuesSince = LocalDateTime.now();
 
+		// Increase CycleCount
+		this.cycleCount += 1;
+
 		// Same second as last run? -> RRD4j can only handle one sample per second per
 		// database. Timestamps are all stored "truncated to seconds".
 		if (timestamp.equals(this.lastTimestamp)) {
 			return;
 		}
 
-		// RRD4j requires us to write one value per DEFAULT_HEARTBEAT_SECONDS
-		if (Duration.between(this.lastTimestamp, timestamp).getSeconds() //
-				< Rrd4jTimedataImpl.DEFAULT_HEARTBEAT_SECONDS - 1) {
+		if (
+		// No need to persist data, as it is still stored by the Channel itself. The
+		// Channel keeps the last NO_OF_PAST_VALUES values
+		this.cycleCount < Channel.NO_OF_PAST_VALUES
+				// RRD4j requires us to write one value per DEFAULT_HEARTBEAT_SECONDS
+				&& Duration.between(this.lastTimestamp, timestamp)
+						.getSeconds() < Rrd4jTimedataImpl.DEFAULT_HEARTBEAT_SECONDS - 1) {
 			return;
 		}
+		this.cycleCount = 0; // Reset Cycle-Count
+
 		this.lastTimestamp = timestamp;
 
 		for (OpenemsComponent component : this.parent.componentManager.getEnabledComponents()) {

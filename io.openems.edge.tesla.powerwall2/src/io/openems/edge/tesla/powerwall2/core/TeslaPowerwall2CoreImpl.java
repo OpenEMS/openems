@@ -1,5 +1,8 @@
 package io.openems.edge.tesla.powerwall2.core;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
@@ -15,8 +18,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.InetAddressUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -46,10 +47,10 @@ public class TeslaPowerwall2CoreImpl extends AbstractOpenemsComponent
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config)
-			throws KeyManagementException, NoSuchAlgorithmException, OpenemsException {
+	void activate(ComponentContext context, Config config)
+			throws UnknownHostException, KeyManagementException, NoSuchAlgorithmException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.worker = new ReadWorker(this, InetAddressUtils.parseOrError(config.ipAddress()), config.port());
+		this.worker = new ReadWorker(this, (Inet4Address) InetAddress.getByName(config.ipAddress()), config.port());
 		this.worker.activate(config.id());
 	}
 

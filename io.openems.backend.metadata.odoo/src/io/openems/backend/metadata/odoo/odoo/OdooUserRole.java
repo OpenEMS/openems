@@ -2,6 +2,7 @@ package io.openems.backend.metadata.odoo.odoo;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
@@ -46,7 +47,7 @@ public enum OdooUserRole {
 	public List<Integer> toOdooIds() {
 		return Arrays.stream(this.odooGroups) //
 				.map(OdooUserGroup::getGroupId) //
-				.toList();
+				.collect(Collectors.toList());
 	}
 
 	/**

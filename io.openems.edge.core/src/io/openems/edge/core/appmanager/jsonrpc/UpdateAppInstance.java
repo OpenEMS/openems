@@ -96,8 +96,8 @@ public class UpdateAppInstance {
 
 	public static class Response extends JsonrpcResponseSuccess {
 
-		public final OpenemsAppInstance instance;
-		public final JsonArray warnings;
+		private final OpenemsAppInstance instance;
+		private final JsonArray warnings;
 
 		public Response(UUID id, OpenemsAppInstance instance, List<String> warnings) {
 			super(id);

@@ -32,7 +32,6 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Type;
 import io.openems.edge.core.appmanager.JsonFormlyUtil.InputBuilder.Validation;
-import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -63,7 +62,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 @Component(name = "App.Meter.Janitza")
 public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsApp {
 
-	public enum Property implements Nameable {
+	public enum Property {
 		// Component-IDs
 		METER_ID, //
 		MODBUS_ID, //
@@ -154,7 +153,7 @@ public class JanitzaMeter extends AbstractMeterApp<Property> implements OpenemsA
 	@Override
 	public AppDescriptor getAppDescriptor() {
 		return AppDescriptor.create() //
-				.setWebsiteUrl("https://fenecon.de/fenecon-fems/fems-app-erzeugungs-und-verbrauchszaehler/") //
+				.setWebsiteUrl("https://fenecon.de/produkte/fems/fems-app-janitza-zaehler/") //
 				.build();
 	}
 

@@ -5,10 +5,7 @@ import { Router } from '@angular/router';
 import { MenuController, ModalController, Platform, ToastController } from '@ionic/angular';
 import { Subject, timer } from 'rxjs';
 import { retry, switchMap, takeUntil } from 'rxjs/operators';
-
 import { environment } from '../environments';
-import { CheckForUpdateService } from './appupdateservice';
-import { GlobalRouteChangeHandler } from './shared/service/globalRouteChangeHandler';
 import { Service, Websocket } from './shared/shared';
 import { Language } from './shared/type/language';
 
@@ -41,12 +38,9 @@ export class AppComponent implements OnInit, OnDestroy {
     public service: Service,
     public toastController: ToastController,
     public websocket: Websocket,
-    private titleService: Title,
-    private checkForUpdateService: CheckForUpdateService,
-    private globaleRouteChangeHandler: GlobalRouteChangeHandler
+    private titleService: Title
   ) {
     service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
-    checkForUpdateService.init();
   }
 
   ngOnInit() {
