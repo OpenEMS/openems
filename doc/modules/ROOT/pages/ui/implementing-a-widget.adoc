@@ -1,0 +1,36 @@
+= Implementing a UI-Widget
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: ../../assets/images
+
+This chapter explains, how a OpenEMS UI Widget can be built.
+
+== Implementing a UI-Widget
+
+There are many examples of how ui widgets are created and used in
+link:file:ui/src/app/edge/live/live.component.html[LiveComponent] and link:file:ui/src/app/edge/live/live.component.html[HistoryComponent].
+
+UI-Widgets created for the Live-View, mainly consist of two components:
+
+- `FlatWidget` : directly visible in Live-View:
+- `ModalComponent`: Popover, that can be opened when clicking on a `FlatWidget`
+- `Module`: Every `FlatWidget` and his corresponding `ModalComponent` should be wrapped inside their own module.
+
+
+.  Copy an existing Controller/Folder e.g. link:file:ui/src/app/edge/live/Controller/Ess/FixActivePower/Ess_FixActivePower.ts[FixActivePower].
+
+. Rename the link:file:ui/src/app/edge/live/Controller/Ess/FixActivePower/Ess_FixActivePower.ts[Module] and import it in link:file:ui/src/app/edge/live/live.module.ts[LiveModule].
+
+. Change the `@Component` selector and use this selector inside link:file:ui/src/app/edge/live/live.component.html#L135[LiveComponent].
++  
+The Live and History View are designed to show UI-Widgets dependent on the `EdgeConfig`, except of widgets listed in link:file:ui/src/app/edge/live/common/[Common].
+If you implemented a controller or component, that is part of `EdgeConfig` you will have to use the factoryId as a switchCase statement.
+If thats not the case, go into link:file:ui/src/app/shared/type/widget.ts[widget.ts] and add a identifier to the classes array. 
+
+. The Widget should now be visible in the Live-View.
