@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { CustomViewComponent } from 'src/app/shared/decorators';
@@ -15,12 +16,15 @@ export type FormlyFieldLine = {
   indentation?: TextIndentation,
   children?: FormlyFieldLine[]
 }
-/** Future Work: In a Future Version of angular it may be possible to extend the component decorator */
+
 @Component({
   templateUrl: '../../../../../shared/formly/formly-field-modal/generalModal.html',
 })
 @CustomViewComponent
 export class ModalComponent {
+
+  protected fields: FormlyFieldConfig[] = [];
+  protected form: FormGroup = new FormGroup({});
 
   public static generateModalMeterPhases(component: EdgeConfig.Component, translate: TranslateService, userRole: Role): FormlyFieldLine[] {
     let fields: FormlyFieldLine[] = [];

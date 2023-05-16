@@ -81,3 +81,12 @@ ngOnDestroy() {
     this.stopOnDestroy.complete();
 }
 ```
+
+### Create a custom angular decorator
+
+
+Look at this example to understand, how angular decorators can be used. 
+
+- Getting Started: [Helpful Article](https://ultimatecourses.com/blog/angular-decorators)
+- The usage: [Grid-Modal](src/app/edge/live/common/grid/modal/modal.ts)
+- The implementation: [Decorator](src/app/shared/decorators.ts)
