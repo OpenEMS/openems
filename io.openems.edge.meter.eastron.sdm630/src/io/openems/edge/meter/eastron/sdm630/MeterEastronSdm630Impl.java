@@ -95,6 +95,10 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 		};
 	}
 
+	private boolean shouldInvertPowerAndCurrent() {
+		return !this.connectedComponentIsProvidingLoad();
+	}
+
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
 		final var offset = 30001;
@@ -120,61 +124,61 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 						m(AsymmetricMeter.ChannelId.CURRENT_L1,
 								new FloatDoublewordElement(30007 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 						m(AsymmetricMeter.ChannelId.CURRENT_L2,
 								new FloatDoublewordElement(30009 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3,
 								new FloatDoublewordElement(30011 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 
 						// Power per phase
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1,
 								new FloatDoublewordElement(30013 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2,
 								new FloatDoublewordElement(30015 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3,
 								new FloatDoublewordElement(30017 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 						new DummyRegisterElement(30019 - offset, 30024 - offset),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1,
 								new FloatDoublewordElement(30025 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2,
 								new FloatDoublewordElement(30027 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3,
 								new FloatDoublewordElement(30029 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 						new DummyRegisterElement(30031 - offset, 30048 - offset),
 
 						// Current
 						m(SymmetricMeter.ChannelId.CURRENT,
 								new FloatDoublewordElement(30049 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 						new DummyRegisterElement(30051 - offset, 30052 - offset),
 
 						// Power
 						m(SymmetricMeter.ChannelId.ACTIVE_POWER,
 								new FloatDoublewordElement(30053 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 						new DummyRegisterElement(30055 - offset, 30060 - offset),
 						m(SymmetricMeter.ChannelId.REACTIVE_POWER,
 								new FloatDoublewordElement(30061 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								ElementToChannelConverter.INVERT_IF_TRUE(this.connectedComponentIsProvidingLoad())),
+								ElementToChannelConverter.INVERT_IF_TRUE(this.shouldInvertPowerAndCurrent())),
 						new DummyRegisterElement(30063 - offset, 30070 - offset),
 
 						// Frequency
