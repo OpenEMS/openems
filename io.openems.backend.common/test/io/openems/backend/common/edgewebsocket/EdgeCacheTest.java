@@ -43,7 +43,7 @@ public class EdgeCacheTest {
 		assertEquals("value2", cache.getChannelValue(CHANNEL2).getAsString());
 
 		// invalidate cache
-		var data4 = buildData(timestamp += 5 * 60 * 1000 + 1, CHANNEL3, "value3");
+		var data4 = buildData(timestamp += 15 * 60 * 1000 + 1, CHANNEL3, "value3");
 		cache.update(data4);
 		assertEquals(JsonNull.INSTANCE, cache.getChannelValue(CHANNEL1));
 		assertEquals(JsonNull.INSTANCE, cache.getChannelValue(CHANNEL2));

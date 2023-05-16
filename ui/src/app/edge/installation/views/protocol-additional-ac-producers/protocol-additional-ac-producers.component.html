@@ -10,7 +10,7 @@
                 ('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.ADD' | translate)}}</ion-label>
             <ion-icon [name]="insertModeEnabled ? 'save-outline':'add-outline'" slot="start"></ion-icon>
         </ion-button>
-        <ion-button (click)="openManual()" slot="end">
+        <ion-button (click)="openManual()" slot="end" [disabled]="manualLink === null">
             <ion-label>{{ 'INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.OPEN_MANUAL' | translate}}</ion-label>
             <ion-icon name="open-outline" slot="start"></ion-icon>
         </ion-button>

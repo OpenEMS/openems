@@ -24,8 +24,8 @@
         "storageCharge": "Storage-Charge",
         "storageDischarge": "Storage-Discharge",
         "title": "Energymonitor",
-        "excelExportWarning": "The display and export of data over a longer period of time is currently only possible to a limited extent. We are working on providing this function again soon.",
-        "displayWarning": "The display of data over a longer period of time is currently only possible to a limited extent. We are working on providing this function again soon."
+        "ERROR_TEMPORARY": "Error while fetching data. Please try again later.",
+        "ERROR_TOO_LONG": "The display of the data is partly not possible due to reconstruction work on our servers. Your data for this period is not lost. Alternatively, it is still possible to view the historical data via <a href='https://docs.fenecon.de/de/_/latest/fems/ui/introduction.html#_offlinelokal' target='_blank'>local monitoring</a>. We ask for your understanding."
       },
       "Widgets": {
         "autarchyInfo": "Autarky indicates the percentage of current power that can be covered by generation and storage discharge.",
@@ -231,15 +231,32 @@
         "TimeOfUseTariff": {
           "currentTariff": "Current price",
           "delayedDischarge": "Delayed Discharge",
-          "storageDischarge": "Storage Discharge",
+          "STORAGE_DISCHARGE": "Storage Discharge",
           "State": {
             "notStarted": "Controller has not yet started",
             "delayed": "Delayed",
             "allowsDischarge": "Allows Discharge",
-            "standby": "Standby"
-          }
+            "standby": "Standby",
+            "CHARGING": "Charging"
+          },
+          "CHARGED": "Charged",
+          "STORAGE_STATUS": "Storage status"
         }
-      }
+      },
+      "RETROFITTING": {
+        "OPTIMAL": "Capacity expansion",
+        "ON_DATE_AT_TIME": "on {{date}} at {{time}}",
+        "INSTANT_START": "Instant start",
+        "PLANNED_EXPANSION": "Planned Expansion",
+        "INFORMATION_FOR_PlANNED_EXPANSION": "The battery is expected to be charged/discharged from {{targetTime}} on {{targetDate}} to reach reach {{targetSoc}} % state of charge for the planned expansion. In the process there may be grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}} minutes, after which or after the capacity expansion, the storage system returns to the regular operating state.",
+        "INFORMATION_FOR_INSTANT_START": "The battery is charged or discharged at maximum power in order to reach a state of charge of {{targetSoc}} % as quickly as possible for an expansion. This can result in grid consumption or grid feed-in. This state of charge is maintained for {{targetTimeBuffer}} minutes, after which, or after the capacity has been expanded, the storage system returns to its regular operating state.",
+        "PREPARING": "Prepare for Capacity Extension",
+        "REACHED_TARGET_SOC": "Ready for Capacity Extension",
+        "INFORMATION_FOR_PlANNED_EXPANSION_INVALID_TARGET_DATE": "The battery is expected to be charged/discharged to reach {{targetSoc}} % state of charge for the planned expansion.",
+        "SELECT_A_DATE": "Please select a date",
+        "UPDATE_TO_NEW_VERSION": "Update to the newest version to be able to use the battery retrofitting feature."
+      },
+      "SYSTEMUPDATE": "System update"
     },
     "History": {
       "beginDate": "Select Begin Date",
@@ -348,12 +365,12 @@
           "error": "Error loading the settings"
         },
         "interval": {
-          "hour": "hour",
-          "hours": "hours",
-          "minute": "minute",
-          "minutes": "minutes",
-          "day": "day",
-          "days": "days"
+          "hour": "Hour",
+          "hours": "Hours",
+          "minute": "Minute",
+          "minutes": "Minutes",
+          "day": "Day",
+          "days": "Days"
         }
       },
       "App": {
@@ -531,7 +548,8 @@
     "toEnergymonitor": "To Energymonitor...",
     "type": "Type",
     "OFFLINE_SINCE": "Offline since",
-    "ADD_EDGE": "Add new {{ edgeShortName }}"
+    "ADD_EDGE": "Add new {{ edgeShortName }}",
+    "NO_EDGE_AVAILABLE": "You have not added any {{edgeShortName}} yet."
   },
   "INSTALLATION": {
     "ATTENTION_MESSAGE": "Note that the selection cannot be undone afterwards.",
@@ -552,7 +570,8 @@
       "RECENT": "Current:",
       "TITLE": "Emergency power reserve",
       "VALUE": "Value [%]",
-      "EMERGENCY_RESERVE_LABEL": "Emergency power{{ symbol }}"
+      "EMERGENCY_RESERVE_LABEL": "Emergency power{{ symbol }}",
+      "COUPLER_TITLE": "Which fieldbus coupler is installed in your Offgrid network point?"
     },
     "CONFIGURATION_EXECUTE": {
       "BATTERY_INVERTER": "Battery-Inverter",
@@ -589,7 +608,12 @@
       "FIELD_BUS_COUPLER": "Fieldbus coupler",
       "CONTROL_GRID_POINT": "Control of the grid disconnection point",
       "BATTERY_INTERFACE": "Battery interface",
-      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge"
+      "WEIDMUELLER_BRIDGE": "Weidmueller Bridge",
+      "LABEL": {
+        "WEIDMUELLER_BRIDGE": "Weidmüller (black component)",
+        "WAGO_BRIDGE": "WAGO (Gray component)"
+      },
+      "COMMUNICATION_WITH_RELAY": "Communication with Relay"
     },
     "CONFIGURATION_LINE_SIDE_METER_FUSE": {
       "FIXED_VALUE_DESCRIPTION": "What is the current value on the circuit breaker?",
@@ -608,7 +632,7 @@
       "DEVICE_ACTIVE_CHECKED": "Battery and Inverter swicthed ON",
       "EDGE_NUMBER": "{{ edgeShortName }} Number",
       "GENERAL": "General",
-      "GTC_ACCEPT": "GTC acceptation",
+      "GTC_ACCEPT": "GTC",
       "INSTALLER": "Installer",
       "INVERTER": "Inverter",
       "NEXT_CLICKED_DESCRIPTION": "By clicking on the 'next' button, the storage system will be configured. Make sure the battery and inverter are powered on throughout the configuration process.",
@@ -616,10 +640,11 @@
       "SUMMARY": "Summary",
       "TIME_OF_INSTALLATION": "Time of the installation",
       "VALUE_AC": "Value AC",
-      "WARRANTY_TERMS": "Warranty terms acceptation",
+      "WARRANTY_TERMS": "Warranty terms",
       "PEAK_SHAVING": "Peak shaving",
       "APPS": "Apps",
-      "HECKERT": "Your chosen free app"
+      "HECKERT": "Your chosen free app",
+      "ACCEPT": "acceptation"
     },
     "CONFIGURATION_SYSTEM": {
       "OPEN_INSTRUCTIONS": "Open instructions",
@@ -631,8 +656,8 @@
     "FORM": {
       "MANDATORY_FIELD": "This is a mandatory field",
       "BATTERY_SERIAL_NUMBER": "{{ serialNumber }} is not a valid serial number. A valid serial number consists of {{ length }} digits.",
-      "MIN": "Only values greater than or equal to {{ min }} are allowed.",
-      "MAX": "Only values less than or equal to {{ max }} are allowed.",
+      "MIN": "Please enter a value greater than {{ min }}",
+      "MAX": "Please enter a value less than {{ max }}.",
       "EMAIL_MATCH": "E-Mails do not match.",
       "EMAIL": "{{ email }} is not a valid E-Mail-Adress.",
       "POSITIVE_INTEGER": "Only positive numbers are allowed."
@@ -723,7 +748,8 @@
       "TITLE_PV": "DC-PV installation (Inverter inputs)",
       "VALID_DATA": "Enter valid data to save.",
       "TITLE_DC": "DC-PV-Installation",
-      "AC_NOT_CREATED": "AC Meter not created!"
+      "AC_NOT_CREATED": "AC Meter not created!",
+      "METER_SELECTION_WARNING": "Please select the meter by adding generator."
     },
     "PROTOCOL_SERIAL_NUMBERS": {
       "BATTERY_MODULE": "Battery module ",
@@ -754,7 +780,8 @@
       "EMS_BOX_COMMERCIAL": "{{ edgeShortname }} Connection Box",
       "MINIMUM_AND_MAXIMUM_MODULES_PER_STRINGS": "Minimum modules per string: {{ min }} and Maximum: {{ max }}",
       "EMS_BOX_CONNECTION_BOX_COMMERCIAL30": "{{ edgeShortName }}  Connection Box",
-      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "{{ edgeShortName }} Grid connection point"
+      "EMS_BOX_GRID_CONNECTION_POINT_COMMERCIAL30": "Grid connection point",
+      "BATTERY_MODULE_DESCRIPTION": "Please only enter the last 8 digits of the serial number."
     },
     "PROTOCOL_SYSTEM": {
       "FIRSTNAME": "First name of the contact person",
@@ -787,7 +814,14 @@
       "DISCHARGE_ABOVE_LABEL": "Discharge above",
       "CHARGE_BELOW_LABEL": "Charge below"
     },
-    "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}."
+    "CLICK_RECOMMENDATION": "Please click on the \"Add\" button below if you want to commission a {{ edgeShortName }}.",
+    "CONFIGURATION_COMMERCIAL_MODBUS_COMPONENT": {
+      "TCP_IP_LABEL": "TCP/IP (6-RJ45-Ports) - Anschluss: Internal",
+      "RS485_LABEL": "RS485 (4-RJ45-Ports) - Anschluss: FEMS"
+    },
+    "CONFIGURATION_COMMERCIAL_MODBUS_BRIDGE": {
+      "HEADER": "Select the type of Communication"
+    }
   },
   "Login": {
     "title": "Login",
@@ -849,12 +883,14 @@
       "acceptPrivacyPolicy": "By creating a FENECON installer account, I declare that I have read and agree to the FENECON <a target=\"_blank\" href=\"https://fenecon.de/en/datenschutzerklaerung/\">Privacy Policy</a> and Terms of Use.*",
       "acceptAgb": "I confirm the <a target=\"_blank\" href=\"https://fenecon.de/page/gtc/\">AGB</a>.*",
       "subscribeNewsletter": "I would like to subscribe to the FENECON newsletter to receive all the latest news from FENECON.",
-      "company": "Company"
+      "company": "Company",
+      "confirmEmail": "confirm E-Mail"
     },
     "button": "Create",
     "errors": {
       "requiredFields": "Please fill in all fields",
-      "passwordNotEqual": "Passwords are not equal"
+      "passwordNotEqual": "Passwords are not equal",
+      "emailNotEqual": "E-Mails are not equal"
     },
     "success": "Registration successful"
   },

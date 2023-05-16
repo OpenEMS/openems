@@ -6,11 +6,13 @@ import { AbstractFlatWidgetLine } from "../abstract-flat-widget-line";
     templateUrl: './flat-widget-line.html'
 })
 export class FlatWidgetLineComponent extends AbstractFlatWidgetLine {
+
     /** Name for parameter, displayed on the left side */
     @Input()
-    name: string;
+    public name: string;
 
     /** Width of left Column, right Column is (100 - width of left Column) */
     @Input()
-    leftColumnWidth: number;
+    public leftColumnWidth: number;
+
 }

@@ -4,6 +4,7 @@ import { saveAs } from 'file-saver-es';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
 import { JsonrpcResponseSuccess } from '../jsonrpc/base';
 import { Base64PayloadResponse } from '../jsonrpc/response/base64PayloadResponse';
+import { EdgeConfig } from '../shared';
 
 export class Utils {
 
@@ -297,8 +298,8 @@ export class Utils {
   * @param value the value from passed value in html
   * @returns converted value
   */
-  public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
-    return formatNumber(Utils.divideSafely(value, 1000), 'de', '1.0-1') + ' kWh'
+  public static CONVERT_TO_KILO_WATTHOURS = (value: any): string => {
+    return formatNumber(value / 1000, 'de', '1.0-1') + ' kWh'
   }
 
   /**
@@ -369,12 +370,16 @@ export class Utils {
   };
 
   /**
-   * Converts Price to Cent per kWh [Cent / kWh]
+   * Converts Price to Cent per kWh [currency / kWh]
    * 
    * @param decimal number of decimals after fraction
+   * @param label label to be displayed along with price
    * @returns converted value
    */
-  public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number) => { return (value: any): string => (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' Cent/kWh' };
+  public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
+    return (value: any): string =>
+      (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' ' + label
+  };
 
   /**
    * Converts Time-Of-Use-Tariff-State 
@@ -393,6 +398,8 @@ export class Utils {
           return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.allowsDischarge');
         case 2:
           return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.standby');
+        case 3:
+          return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.CHARGING');
       }
     }
   }
@@ -534,11 +541,18 @@ export class Utils {
     return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true)
   }
 
-}
-
-export namespace HistoryUtils {
-
-  export const CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS = (data: number[]): number[] | null[] => {
-    return data?.map(value => value == null ? null : value / 1000)
+  /**
+   * Returns the label based on component factory id.
+   * 
+   * @param component The Component.
+   * @param translate The Translate
+   * @returns the label.
+   */
+  public static getTimeOfUseTariffStorageLabel(component: EdgeConfig.Component, translate: TranslateService): string {
+    if (component.factoryId === 'Controller.Ess.Time-Of-Use-Tariff.Discharge') {
+      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_DISCHARGE');
+    } else {
+      return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.STORAGE_STATUS');
+    }
   }
 }

@@ -24,6 +24,26 @@ export const theme = {
 
         SETTINGS_ALERTING: "ui/settings.html#_benachrichtigung",
         SETTINGS_NETWORK_CONFIGURATION: "ui/settings.html#_netzwerkkonfiguration",
-        EVCS_CLUSTER: "fems-app/includes/FEMS_App_Multi-Ladepunkt-Management.html"
+        EVCS_CLUSTER: "fems-app/includes/FEMS_App_Multi-Ladepunkt-Management.html",
+
+        // Currently we are showing same links as what we shown for Fenecon OEM untill we recieve new links.
+        warranty: {
+            home: {
+                EN: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_EN_Warranty_conditions_FENECON_Home.pdf",
+                DE: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_DE_Garantiebedingungen_FENECON_Home.pdf"
+            },
+            commercial: {
+                EN: "#",
+                DE: "#",
+            }
+        },
+
+        gtc: {
+            EN: "https://fenecon.de/page/gtc/",
+            DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/",
+        },
+
+        // Currently the links are different with different prefixes. so adding whole url.
+        METER_SOCOMEC: 'https://docs.intranet.fenecon.de/feature/OEM/de/_/latest/_attachments/Benutzerhandbuecher/Heckert_App_Socomec_Zaehler_Benutzerhandbuch.pdf'
     }
 };

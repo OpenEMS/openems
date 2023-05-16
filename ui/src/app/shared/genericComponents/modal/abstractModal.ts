@@ -13,7 +13,7 @@ import { TextIndentation } from "./modal-line/modal-line";
 @Directive()
 export abstract class AbstractModal implements OnInit, OnDestroy {
 
-    @Input() component: EdgeConfig.Component = null;
+    @Input() public component: EdgeConfig.Component = null;
 
     public isInitialized: boolean = false;
     public edge: Edge = null;

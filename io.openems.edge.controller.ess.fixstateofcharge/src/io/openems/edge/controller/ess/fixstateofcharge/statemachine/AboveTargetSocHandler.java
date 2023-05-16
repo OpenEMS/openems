@@ -24,7 +24,7 @@ public class AboveTargetSocHandler extends StateHandler<State, Context> {
 		/*
 		 * Maximum discharge if no target time specified or already passed
 		 */
-		if (!context.config.isTargetTimeSpecified() || context.passedTargetTime()) {
+		if (!context.considerTargetTime() || context.passedTargetTime()) {
 			context.setTargetPower(context.maxApparentPower);
 			return State.ABOVE_TARGET_SOC;
 		}

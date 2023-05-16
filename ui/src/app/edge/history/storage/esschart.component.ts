@@ -18,7 +18,7 @@ export class StorageESSChartComponent extends AbstractHistoryChart implements On
     @Input() public componentId: string;
     @Input() public showPhases: boolean;
 
-    moreThanOneProducer: boolean = null;
+    private moreThanOneProducer: boolean = null;
 
     ngOnChanges() {
         this.updateChart();

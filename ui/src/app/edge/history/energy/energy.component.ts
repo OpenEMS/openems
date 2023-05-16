@@ -5,10 +5,11 @@ import { ModalController, Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import * as Chart from 'chart.js';
 import { ChartDataSets, ChartLegendLabelItem, ChartTooltipItem } from 'chart.js';
-import { differenceInCalendarMonths, format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
+import { format, isSameDay, isSameMonth, isSameYear } from 'date-fns';
 import { saveAs } from 'file-saver-es';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
 import { QueryHistoricTimeseriesExportXlxsRequest } from 'src/app/shared/jsonrpc/request/queryHistoricTimeseriesExportXlxs';
 import { Base64PayloadResponse } from 'src/app/shared/jsonrpc/response/base64PayloadResponse';
 import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
@@ -45,9 +46,8 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
   public chartType: string = "line";
-  public isExcelExportAllowed: boolean = true;
 
-  @Output() setShowWarning: EventEmitter<boolean> = new EventEmitter()
+  @Output() public setErrorResponse: EventEmitter<JsonrpcResponseError | null> = new EventEmitter()
   @Input() public period: DefaultTypes.HistoryPeriod;
 
   ngOnChanges() {
@@ -72,11 +72,6 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
    * Export historic data to Excel file.
    */
   public exportToXlxs() {
-    this.isExcelExportAllowed = differenceInCalendarMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) < 3;
-    if (!this.isExcelExportAllowed) {
-      return
-    }
-
     this.startSpinner();
     this.service.getCurrentEdge().then(edge => {
       edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(this.service.historyPeriod.from, this.service.historyPeriod.to)).then(response => {
@@ -394,10 +389,11 @@ export class EnergyComponent extends AbstractHistoryChart implements OnInit, OnC
       this.datasets = datasets;
       this.loading = false;
       this.stopSpinner();
+      this.setErrorResponse.emit(null)
 
     }).catch(reason => {
       console.error(reason); // TODO error message
-      this.setShowWarning.emit(true)
+      this.setErrorResponse.emit(reason)
       return;
     });
   }

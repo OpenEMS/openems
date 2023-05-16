@@ -23,6 +23,25 @@ export const theme = {
 
         SETTINGS_ALERTING: "ui/settings.html#_benachrichtigung",
         SETTINGS_NETWORK_CONFIGURATION: "ui/settings.html#_netzwerkkonfiguration",
-        EVCS_CLUSTER: "fems-app/includes/FEMS_App_Multi-Ladepunkt-Management.html"
+        EVCS_CLUSTER: "fems-app/includes/FEMS_App_Multi-Ladepunkt-Management.html",
+
+        warranty: {
+            home: {
+                EN: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_EN_Warranty_conditions_FENECON_Home.pdf",
+                DE: "https://fenecon.de/wp-content/uploads/2022/06/V2021.11_DE_Garantiebedingungen_FENECON_Home.pdf"
+            },
+            commercial: {
+                EN: "https://fenecon.de/wp-content/uploads/2022/08/V2022.03_EN_Warranty_conditions_for-FENECON-Commercial_30_50.pdf",
+                DE: "https://fenecon.de/wp-content/uploads/2022/07/V2022.03_DE_Garantiebedingungen_FENECON_Commercial_30_50.pdf",
+            }
+        },
+
+        gtc: {
+            EN: "https://fenecon.de/page/gtc/",
+            DE: "https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/",
+        },
+
+        // Currently the links are different with different prefixes. so adding whole url for Socomec.
+        METER_SOCOMEC: 'https://docs.fenecon.de/de/_/latest/_attachments/Benutzerhandbuecher/FEMS_App_Socomec_Zaehler_Benutzerhandbuch.pdf'
     },
 };

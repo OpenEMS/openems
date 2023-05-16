@@ -1,17 +1,11 @@
 package io.openems.edge.controller.ess.fixstateofcharge;
 
-import static org.junit.Assert.assertEquals;
-
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import io.openems.common.types.ChannelAddress;
@@ -29,8 +23,6 @@ import io.openems.edge.timedata.test.DummyTimedata;
 
 public class FixStateOfChargeTest {
 
-	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm");
-
 	// Ids
 	private static final String CTRL_ID = "ctrlFixStateOfCharge0";
 	private static final String ESS_ID = "ess0";
@@ -39,8 +31,7 @@ public class FixStateOfChargeTest {
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss(ESS_ID, 10_000);
 
 	// Defaults
-	private static final String DEFAULT_TARGET_DATE = "2022-10-27";
-	private static final String DEFAULT_TARGET_TIME = "10:30";
+	private static final String DEFAULT_TARGET_TIME = "2022-10-27T10:30:00+01:00";
 
 	// Ess channels
 	private static final ChannelAddress ESS_CAPACITY = new ChannelAddress(ESS_ID, "Capacity");
@@ -51,7 +42,6 @@ public class FixStateOfChargeTest {
 
 	// Controller channels
 	private static final ChannelAddress STATE_MACHINE = new ChannelAddress(CTRL_ID, "StateMachine");
-	private static final ChannelAddress NO_VALID_TARGET_TIME = new ChannelAddress(CTRL_ID, "NoValidTargetTime");
 	private static final ChannelAddress DEBUG_SET_ACTIVE_POWER = new ChannelAddress(CTRL_ID, "DebugSetActivePower");
 	private static final ChannelAddress DEBUG_SET_ACTIVE_POWER_RAW = new ChannelAddress(CTRL_ID,
 			"DebugSetActivePowerRaw");
@@ -74,13 +64,14 @@ public class FixStateOfChargeTest {
 						.setRunning(false) //
 						.setTargetSoc(30) //
 						.setSpecifyTargetTime(true) //
-						.setTargetDate(DEFAULT_TARGET_DATE) //
 						.setTargetTime(DEFAULT_TARGET_TIME) //
 						.setSelfTermination(false) //
 						.setTerminationBuffer(720) //
 						.setConditionalTermination(false) //
 						.setEndCondition(EndCondition.CAPACITY_CHANGED) //
 						.build())
+
+				.next(new TestCase()) //
 				.next(new TestCase() //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, null) //
 						.output(DEBUG_SET_ACTIVE_POWER, null) //
@@ -103,7 +94,6 @@ public class FixStateOfChargeTest {
 						.setRunning(true) //
 						.setTargetSoc(30) //
 						.setSpecifyTargetTime(true) //
-						.setTargetDate(DEFAULT_TARGET_DATE) //
 						.setTargetTime(DEFAULT_TARGET_TIME) //
 						.setSelfTermination(false) //
 						.setTerminationBuffer(720) //
@@ -160,7 +150,6 @@ public class FixStateOfChargeTest {
 						.setRunning(true) //
 						.setTargetSoc(30) //
 						.setSpecifyTargetTime(true) //
-						.setTargetDate(DEFAULT_TARGET_DATE) //
 						.setTargetTime(DEFAULT_TARGET_TIME) //
 						.setSelfTermination(false) //
 						.setTerminationBuffer(720) //
@@ -232,7 +221,6 @@ public class FixStateOfChargeTest {
 						.setRunning(true) //
 						.setTargetSoc(30) //
 						.setSpecifyTargetTime(false) //
-						.setTargetDate(DEFAULT_TARGET_DATE) //
 						.setTargetTime(DEFAULT_TARGET_TIME) //
 						.setSelfTermination(false) //
 						.setTerminationBuffer(720) //
@@ -278,7 +266,6 @@ public class FixStateOfChargeTest {
 						.setRunning(true) //
 						.setTargetSoc(30) //
 						.setSpecifyTargetTime(false) //
-						.setTargetDate(DEFAULT_TARGET_DATE) //
 						.setTargetTime(DEFAULT_TARGET_TIME) //
 						.setSelfTermination(false) //
 						.setTerminationBuffer(720) //
@@ -324,7 +311,6 @@ public class FixStateOfChargeTest {
 						.setRunning(true) //
 						.setTargetSoc(30) //
 						.setSpecifyTargetTime(false) //
-						.setTargetDate(DEFAULT_TARGET_DATE) //
 						.setTargetTime(DEFAULT_TARGET_TIME) //
 						.setSelfTermination(false) //
 						.setTerminationBuffer(720) //
@@ -438,7 +424,6 @@ public class FixStateOfChargeTest {
 						.setRunning(true) //
 						.setTargetSoc(30) //
 						.setSpecifyTargetTime(false) //
-						.setTargetDate(DEFAULT_TARGET_DATE) //
 						.setTargetTime(DEFAULT_TARGET_TIME) //
 						.setSelfTermination(false) //
 						.setTerminationBuffer(720) //
@@ -518,7 +503,6 @@ public class FixStateOfChargeTest {
 						.setRunning(true) //
 						.setTargetSoc(30) //
 						.setSpecifyTargetTime(false) //
-						.setTargetDate(DEFAULT_TARGET_DATE) //
 						.setTargetTime(DEFAULT_TARGET_TIME) //
 						.setSelfTermination(false) //
 						.setTerminationBuffer(720) //
@@ -601,7 +585,6 @@ public class FixStateOfChargeTest {
 						.setRunning(true) //
 						.setTargetSoc(30) //
 						.setSpecifyTargetTime(false) //
-						.setTargetDate(DEFAULT_TARGET_DATE) //
 						.setTargetTime(DEFAULT_TARGET_TIME) //
 						.setSelfTermination(false) //
 						.setTerminationBuffer(720) //
@@ -670,7 +653,8 @@ public class FixStateOfChargeTest {
 
 	@Test
 	public void testLimitWithSpecifiedTimeBelowLimit() throws Exception {
-		final var clock = new TimeLeapClock(Instant.parse("2022-10-27T09:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.parse("2022-10-27T08:00:00.00Z"), ZoneOffset.ofHours(1));
+		new TimeLeapClock(Instant.parse("2022-10-27T09:00:00.00Z"), ZoneOffset.ofHours(1));
 		final var componentManager = new DummyComponentManager(clock);
 
 		new ControllerTest(new FixStateOfChargeImpl()) //
@@ -685,7 +669,6 @@ public class FixStateOfChargeTest {
 						.setRunning(true) //
 						.setTargetSoc(30) //
 						.setSpecifyTargetTime(true) //
-						.setTargetDate(DEFAULT_TARGET_DATE) //
 						.setTargetTime(DEFAULT_TARGET_TIME) //
 						.setSelfTermination(false) //
 						.setTerminationBuffer(720) //
@@ -706,7 +689,7 @@ public class FixStateOfChargeTest {
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, StateMachine.State.NOT_STARTED)) //
 
-				// Start time = 2022-10-27T09:14:24, Current: 2022-10-27T10:00
+				// Start time = 2022-10-27T09:14:24+01:00, Current: 2022-10-27T09:00:00+01:00
 				.next(new TestCase() //
 						.input(ESS_SOC, 10) //
 						.input(ESS_MAX_APPARENT_POWER, 10_000) //
@@ -759,7 +742,7 @@ public class FixStateOfChargeTest {
 
 	@Test
 	public void testLimitWithSpecifiedTimeAboveLimit() throws Exception {
-		final var clock = new TimeLeapClock(Instant.parse("2022-10-26T23:00:00.00Z"), ZoneOffset.UTC);
+		final var clock = new TimeLeapClock(Instant.parse("2022-10-26T22:00:00.00Z"), ZoneOffset.ofHours(1));
 		final var componentManager = new DummyComponentManager(clock);
 
 		new ControllerTest(new FixStateOfChargeImpl()) //
@@ -774,7 +757,6 @@ public class FixStateOfChargeTest {
 						.setRunning(true) //
 						.setTargetSoc(30) //
 						.setSpecifyTargetTime(true) //
-						.setTargetDate(DEFAULT_TARGET_DATE) //
 						.setTargetTime(DEFAULT_TARGET_TIME) //
 						.setTargetTimeBuffer(60) //
 						.setSelfTermination(false) //
@@ -860,57 +842,5 @@ public class FixStateOfChargeTest {
 				.next(new TestCase() //
 						.output(ESS_SET_ACTIVE_POWER_EQUALS, 0)) //
 		;
-	}
-
-	@Test
-	public void test_targetTime() throws Exception {
-		String targetDate = "27.10.2022";
-		String targetTime = "10:30";
-		LocalDateTime result = FixStateOfChargeImpl.parseDateTime(targetDate, targetTime, DATE_TIME_FORMATTER);
-		assertEquals(result.format(DATE_TIME_FORMATTER), "27.10.2022 10:30");
-
-		targetDate = "27.10.2022";
-		targetTime = "8:30";
-		result = FixStateOfChargeImpl.parseDateTime(targetDate, targetTime, DATE_TIME_FORMATTER);
-		assertEquals(result.format(DATE_TIME_FORMATTER), "27.10.2022 8:30");
-
-		targetDate = "27.10.22";
-		targetTime = "10:30";
-		try {
-			result = FixStateOfChargeImpl.parseDateTime(targetDate, targetTime, DATE_TIME_FORMATTER);
-
-			Assert.fail("Should not be able to parse DateTime");
-		} catch (DateTimeParseException e) {
-			Assert.assertTrue(true);
-		}
-
-		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T08:00:00.00Z"), ZoneOffset.UTC);
-		final var componentManager = new DummyComponentManager(clock);
-
-		new ControllerTest(new FixStateOfChargeImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", componentManager) //
-				.addReference("sum", new DummySum()) //
-				.addReference("timedata", new DummyTimedata("timedata0")) //
-				.addReference("ess", ESS) //
-				.activate(FixStateOfChargeConfig.create() //
-						.setId(CTRL_ID) //
-						.setEssId(ESS_ID) //
-						.setRunning(false) //
-						.setTargetSoc(30) //
-						.setSpecifyTargetTime(true) //
-						.setTargetDate("27.10.22") //
-						.setTargetTime(DEFAULT_TARGET_TIME) //
-						.setSelfTermination(false) //
-						.setTerminationBuffer(720) //
-						.setConditionalTermination(false) //
-						.setEndCondition(EndCondition.CAPACITY_CHANGED) //
-						.build())
-				.next(new TestCase() //
-						.output(ESS_SET_ACTIVE_POWER_EQUALS, null) //
-						.output(DEBUG_SET_ACTIVE_POWER, null) //
-						.output(DEBUG_SET_ACTIVE_POWER_RAW, null) //
-						.output(NO_VALID_TARGET_TIME, true) //
-				);
 	}
 }

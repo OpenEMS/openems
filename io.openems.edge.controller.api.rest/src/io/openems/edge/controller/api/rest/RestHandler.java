@@ -16,10 +16,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
@@ -59,6 +55,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.JsonApi;
 import io.openems.edge.common.user.User;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class RestHandler extends AbstractHandler {
 
@@ -72,7 +70,7 @@ public class RestHandler extends AbstractHandler {
 
 	@Override
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+			throws IOException {
 		try {
 			var user = this.authenticate(request);
 
@@ -218,18 +216,15 @@ public class RestHandler extends AbstractHandler {
 			HttpServletResponse response) throws OpenemsNamedException {
 		user.assertRoleIsAtLeast("HTTP GET", Role.GUEST);
 
-		if (this.parent.isDebugModeEnabled()) {
-			this.parent.logInfo(this.log,
-					"REST call by User [" + user.getName() + "]: GET Channel [" + channelAddress.toString() + "]");
-		}
-
 		var components = this.parent.getComponentManager().getEnabledComponents();
 		var channels = getChannels(components, channelAddress);
 
 		// Return with error when no matching channel was found
 		if (channels.size() == 0) {
-			this.parent.logWarn(this.log, "REST call by User [" + user.getName() + "]: GET Channel ["
-					+ channelAddress.toString() + "] Result [No Match]");
+			if (this.parent.isDebugModeEnabled()) {
+				this.parent.logWarn(this.log, "REST call by User [" + user.getName() + "]: GET Channel ["
+						+ channelAddress.toString() + "] Result [No Match]");
+			}
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			return false;
 		}
@@ -283,7 +278,7 @@ public class RestHandler extends AbstractHandler {
 				.filter(component -> Pattern.matches(channelAddress.getComponentId(), component.id())) //
 				.flatMap(component -> component.channels().stream()) //
 				.filter(channel -> Pattern.matches(channelAddress.getChannelId(), channel.channelId().id()))
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	private void sendErrorResponse(Request baseRequest, HttpServletResponse response, UUID jsonrpcId, Throwable ex) {

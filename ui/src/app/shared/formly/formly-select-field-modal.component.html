@@ -1,0 +1,54 @@
+<ion-header>
+    <ion-toolbar class="ion-justify-content-center" color="primary">
+        <ion-title>{{ title }}</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalCtrl.dismiss()">
+                <ion-icon name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<div class="inner-content">
+    <ion-grid>
+        <ion-radio-group [(ngModel)]="selectedValue">
+            <ion-row *ngFor="let option of options">
+                <ion-col>
+                    <ion-item>
+                        <ion-radio slot="start" [value]="option.value"> </ion-radio>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col size="12" size-xs="12" size-sm="5" size-md="4" size-lg="3" size-xl="2">
+                                    <ion-text>{{ option.label }}</ion-text>
+                                </ion-col>
+                                <ion-col size="12" size-xs="12" size-sm="5" size-md="4" *ngIf="option.description">
+                                    <div>
+                                        {{ option.description }}
+                                    </div>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-item>
+                </ion-col>
+            </ion-row>
+        </ion-radio-group>
+        <ion-row>
+            <ion-col>
+                <ion-grid>
+                    <ion-row>
+                        <ion-col size="12" size-md="4">
+                            <ion-button (click)="modalCtrl.dismiss()" style="display: flex;" translate>
+                                General.cancel
+                            </ion-button>
+                        </ion-col>
+                        <ion-col size="12" size-md="8">
+                            <ion-button style="display: flex;" (click)="onSelected()" translate>
+                                General.ok
+                            </ion-button>
+                        </ion-col>
+                    </ion-row>
+                </ion-grid>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</div>

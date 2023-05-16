@@ -21,7 +21,7 @@ public class Fieldbus4xxDI extends FieldbusModule {
 		this.inputCoil0Elements = new ModbusCoilElement[channelsCount];
 		for (var i = 0; i < channelsCount; i++) {
 			var doc = new BooleanDoc();
-			doc.persistencePriority(PersistencePriority.MEDIUM);
+			doc.persistencePriority(PersistencePriority.HIGH);
 			var channelId = new FieldbusChannelId(id + "_C" + (i + 1), doc);
 			BooleanReadChannel channel = parent.addChannel(channelId);
 			this.readChannels[i] = channel;

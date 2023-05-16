@@ -1,29 +1,62 @@
 package io.openems.edge.core.appmanager;
 
-import java.util.EnumMap;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
-import io.openems.common.utils.EnumUtils;
-import io.openems.edge.core.appmanager.Type.Parameter.BundleParamter;
+import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 
-public interface Type<P extends Enum<P> & Type<P, A, M>, //
-		A extends AbstractOpenemsAppWithProps<A, P, M>, //
+public interface Type<P extends Nameable, //
+		A extends OpenemsApp, //
 		M extends io.openems.edge.core.appmanager.Type.Parameter> //
-		extends Self<P> {
+		extends Self<Type<P, A, M>>, Nameable {
+
+	public static class AbstractType<P extends Nameable, //
+			A extends OpenemsApp, //
+			M extends io.openems.edge.core.appmanager.Type.Parameter> implements Type<P, A, M> {
+
+		private final String name;
+		private final AppDef<? super A, ? super P, ? super M> def;
+		private final Function<GetParameterValues<A>, M> getParameterFunction;
+
+		public AbstractType(String name, AppDef<? super A, ? super P, ? super M> def,
+				Function<GetParameterValues<A>, M> getParameterFunction) {
+			super();
+			this.name = name;
+			this.def = def;
+			this.getParameterFunction = getParameterFunction;
+		}
+
+		@Override
+		public Type<P, A, M> self() {
+			return this;
+		}
+
+		@Override
+		public String name() {
+			return this.name;
+		}
+
+		@Override
+		public AppDef<? super A, ? super P, ? super M> def() {
+			return this.def;
+		}
+
+		@Override
+		public Function<GetParameterValues<A>, M> getParamter() {
+			return this.getParameterFunction;
+		}
+
+	}
 
 	public class Parameter {
 
-		public static class BundleParamter extends Parameter {
+		// TODO should be an interface
+		public static class BundleParameter extends Parameter {
 			public final ResourceBundle bundle;
 
-			public BundleParamter(ResourceBundle bundle) {
+			public BundleParameter(ResourceBundle bundle) {
 				this.bundle = bundle;
 			}
 
@@ -34,33 +67,33 @@ public interface Type<P extends Enum<P> & Type<P, A, M>, //
 		}
 
 		/**
-		 * Creates a {@link BundleParamter} of a {@link ResourceBundle}.
+		 * Creates a {@link BundleParameter} of a {@link ResourceBundle}.
 		 * 
 		 * @param bundle the {@link ResourceBundle}
-		 * @return the {@link BundleParamter}
+		 * @return the {@link BundleParameter}
 		 */
-		public static final BundleParamter of(ResourceBundle bundle) {
-			return new BundleParamter(bundle);
+		public static final BundleParameter of(ResourceBundle bundle) {
+			return new BundleParameter(bundle);
 		}
 
 		/**
-		 * Creates a {@link BundleParamter} of a {@link ResourceBundle}.
+		 * Creates a {@link BundleParameter} of a {@link ResourceBundle}.
 		 * 
 		 * @param bundle the {@link ResourceBundle}
-		 * @return the {@link BundleParamter}
+		 * @return the {@link BundleParameter}
 		 */
-		public static final Supplier<BundleParamter> supplierOf(ResourceBundle bundle) {
+		public static final Supplier<BundleParameter> supplierOf(ResourceBundle bundle) {
 			return () -> of(bundle);
 		}
 
 		/**
-		 * Creates a {@link Function} to get a instance of {@link BundleParamter}.
+		 * Creates a {@link Function} to get a instance of {@link BundleParameter}.
 		 * 
 		 * @param <APP>                  the type of the {@link OpenemsApp}
 		 * @param resourceBundleSupplier the supplier to get the {@link ResourceBundle}
 		 * @return the {@link Function}
 		 */
-		public static final <APP> Function<GetParameterValues<APP>, BundleParamter> functionOf(
+		public static final <APP> Function<GetParameterValues<APP>, BundleParameter> functionOf(
 				Function<Language, ResourceBundle> resourceBundleSupplier) {
 			return t -> of(resourceBundleSupplier.apply(t.language));
 		}
@@ -81,25 +114,7 @@ public interface Type<P extends Enum<P> & Type<P, A, M>, //
 	 * 
 	 * @return the {@link AppDef}
 	 */
-	public AppDef<A, P, M> def();
-
-	/**
-	 * Gets the name of the property.
-	 * 
-	 * @return the name
-	 */
-	public String name();
-
-	/**
-	 * Gets the mapped {@link JsonPrimitive} from a {@link EnumMap}.
-	 * 
-	 * @param map the {@link EnumMap}
-	 * @return the {@link JsonPrimitive}
-	 * @throws OpenemsNamedException on error
-	 */
-	public default JsonPrimitive from(EnumMap<P, JsonElement> map) throws OpenemsNamedException {
-		return EnumUtils.getAsPrimitive(map, this.self());
-	}
+	public AppDef<? super A, ? super P, ? super M> def();
 
 	public static final class GetParameterValues<APP> {
 		public final APP app;
@@ -124,14 +139,14 @@ public interface Type<P extends Enum<P> & Type<P, A, M>, //
 	 * 
 	 * <p>
 	 * If the {@link Parameter} type is a BundleParamter,
-	 * {@link BundleParamter#bundle} will get returned.
+	 * {@link BundleParameter#bundle} will get returned.
 	 * 
 	 * @return the function
 	 */
 	public default Function<M, ResourceBundle> translationBundleSupplier() {
 		return p -> {
-			if (p instanceof BundleParamter) {
-				return ((BundleParamter) p).bundle;
+			if (p instanceof BundleParameter) {
+				return ((BundleParameter) p).bundle;
 			}
 			return null;
 		};

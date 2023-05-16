@@ -37,6 +37,7 @@ import io.openems.common.jsonrpc.base.AbstractJsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.utils.ThreadPoolUtils;
 import io.openems.common.websocket.AbstractWebsocketServer.DebugMode;
 
@@ -84,7 +85,7 @@ public class UiWebsocketImpl extends AbstractOpenemsBackendComponent implements 
 			var now = Instant.now().toEpochMilli();
 			data.put(now, COMPONENT_ID + "/Connections",
 					new JsonPrimitive(this.server != null ? this.server.getConnections().size() : 0));
-			this.timedataManager.write(EDGE_ID, data);
+			this.timedataManager.write(EDGE_ID, new TimestampedDataNotification(data));
 		}, 10, 10, TimeUnit.SECONDS);
 	}
 

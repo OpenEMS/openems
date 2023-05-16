@@ -828,18 +828,20 @@ public class OdooHandler {
 	 * @param odooUserId Odoo user id to send the mail
 	 * @param password   password for the user
 	 * @param oem        OEM name
-	 * @throws OpenemsNamedException error
 	 */
-	private void sendRegistrationMail(int odooUserId, String password, OpenemsOEM.Manufacturer oem)
-			throws OpenemsNamedException {
-		OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/sendRegistrationEmail",
-				JsonUtils.buildJsonObject() //
-						.add("params", JsonUtils.buildJsonObject() //
-								.addProperty("userId", odooUserId) //
-								.addProperty("password", password) //
-								.addProperty("oem", oem) //
-								.build()) //
-						.build());
+	private void sendRegistrationMail(int odooUserId, String password, OpenemsOEM.Manufacturer oem) {
+		try {
+			OdooUtils.sendAdminJsonrpcRequest(this.credentials, "/openems_backend/sendRegistrationEmail",
+					JsonUtils.buildJsonObject() //
+							.add("params", JsonUtils.buildJsonObject() //
+									.addProperty("userId", odooUserId) //
+									.addProperty("password", password) //
+									.addProperty("oem", oem) //
+									.build()) //
+							.build());
+		} catch (OpenemsNamedException e) {
+			this.log.warn("Unable to send registration mail for Odoo user id [" + odooUserId + "]", e);
+		}
 	}
 
 	/**
@@ -1025,9 +1027,8 @@ public class OdooHandler {
 						.addProperty("userId", user.getId()) //
 						.build()) //
 				.build();
-		return JsonUtils.getAsJsonObject(
-				OdooUtils.sendJsonrpcRequest(this.credentials.getUrl() + "/openems_app_center/add_register_key_history",
-						"session_id=" + user.getToken(), request).result);
+		return JsonUtils.getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
+				"/openems_app_center/add_register_key_history", request).result);
 	}
 
 	/**
@@ -1052,9 +1053,8 @@ public class OdooHandler {
 						.build())
 				.build();
 
-		return JsonUtils.getAsJsonObject(OdooUtils.sendJsonrpcRequest(
-				this.credentials.getUrl() + "/openems_app_center/add_deregister_key_history",
-				"session_id=" + user.getToken(), request).result);
+		return JsonUtils.getAsJsonObject(OdooUtils.sendAdminJsonrpcRequest(this.credentials,
+				"/openems_app_center/add_deregister_key_history", request).result);
 	}
 
 	/**

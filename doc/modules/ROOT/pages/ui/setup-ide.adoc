@@ -1,0 +1,51 @@
+= Setup IDE for OpenEMS UI
+:imagesdir: ../../assets/images
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+NOTE: Visual Studio Code is the recommended development environment for OpenEMS UI. If you do not plan to actively develop on OpenEMS UI, you can simply use the hosted version we provide at https://openemsuilocal.consolinno.de[https://openemsuilocal.consolinno.de icon:external-link[]].
+
+
+== Setup Visual Studio Code
+
+. Download https://nodejs.org[node.js LTS icon:external-link[]] and install it.
+. Download https://code.visualstudio.com/[Visual Studio Code icon:external-link[]], install and start it.
+. Open OpenEMS UI source code in Visual Studio Code:
++
+Menu: btn:[File] → btn:[Open Folder...] → Select the `ui` directory inside the downloaded source code (for example `C:\Users\your.user\git\openems\ui`) → btn:[Select directory]
+
+. Open the integrated terminal:
++
+Menu: btn:[Terminal] → btn:[New Terminal]
+
+. Install https://cli.angular.io/[Angular CLI icon:external-link[]]:
++
+`npm install -g @angular/cli`
++
+NOTE: If you receive an error message that the command `npm` could not be found, make sure that node.js is installed and restart Visual Studio Code.
+
+. Resolve and download dependencies:
++
+`npm install`
+
+== Run OpenEMS UI
+
+. In Visual Studios integrated terminal type...
++
+`ng serve -c openems-edge-dev`
++
+NOTE: If you receive an error message, that you have no rights to execute "ng serve", set `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`.
++
+The log shows:
++
+```
+NG Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200/
+```
+
+. Open a browser at http://localhost:4200

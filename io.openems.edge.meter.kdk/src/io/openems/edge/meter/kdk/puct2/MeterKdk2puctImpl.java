@@ -46,14 +46,13 @@ import io.openems.edge.meter.api.SymmetricMeter;
 public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 		implements MeterKdk2puct, SymmetricMeter, AsymmetricMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
+	private static final long OLD_SOFTWARE_VERSION_CHECKSUM = 573118835; // hexadecimal 0x22291973
+	private static final int CT_RATIO_NOT_NEEDED = 1;
+
 	private Config config;
 
 	@Reference
-	protected ConfigurationAdmin cm;
-
-	private static final long OLD_SOFTWARE_VERSION_CHECKSUM = 573118835; // hexadecimal - 22291973
-
-	private static final int CT_RATIO_NOT_NEEDED = 1;
+	private ConfigurationAdmin cm;
 
 	public MeterKdk2puctImpl() {
 		super(//
@@ -158,59 +157,59 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 
 		if (this.config.invert()) {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(0x600C, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 							new FloatDoublewordElement(0x600C), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x600E, 0x6011), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x6012), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6014), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6016), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 							new FloatDoublewordElement(0x6018), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x601A, 0x601D), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x601E), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6020), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6022), //
 							ElementToChannelConverter.SCALE_FACTOR_3) //
 			));
 		} else {
 			modbusProtocol.addTask(new FC3ReadRegistersTask(0x600C, Priority.LOW, //
-					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
+					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 							new FloatDoublewordElement(0x600C), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x600E, 0x6011), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x6012), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6014), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6016), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
-					m(SymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
+					m(SymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 							new FloatDoublewordElement(0x6018), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
 					new DummyRegisterElement(0x601A, 0x601D), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, //
 							new FloatDoublewordElement(0x601E), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, //
 							new FloatDoublewordElement(0x6020), //
 							ElementToChannelConverter.SCALE_FACTOR_3), //
-					m(AsymmetricMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, //
+					m(AsymmetricMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, //
 							new FloatDoublewordElement(0x6022), //
 							ElementToChannelConverter.SCALE_FACTOR_3) //
 			));
@@ -231,7 +230,6 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 	 * current of the transformer.
 	 */
 	private void updateCtRatio() {
-
 		Integer ctRatio = null;
 		var currentVersionCheckSum = this.getSofwareVersionCheckSumChannel().getNextValue().get();
 
@@ -262,7 +260,6 @@ public class MeterKdk2puctImpl extends AbstractOpenemsModbusComponent
 	 * Sets and updates the power and current channels.
 	 */
 	private void setUpdatedCurrentAndPowerChannels() {
-
 		this.getSofwareVersionCheckSumChannel().onSetNextValue(value -> {
 			this.updateCtRatio();
 		});

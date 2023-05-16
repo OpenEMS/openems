@@ -11,16 +11,21 @@ import { ChartsModule } from 'ng2-charts';
 import { NgxSpinnerModule } from "ngx-spinner";
 import { appRoutingProviders } from './../app-routing.module';
 import { ChartOptionsComponent } from './chartoptions/chartoptions.component';
-import { ChartOptionsPopoverComponent } from './chartoptions/popover/popover.component';
 import { DirectiveModule } from './directive/directive';
 import { MeterModule } from './edge/meter/meter.module';
+import { FormlyCheckBoxHyperlinkWrapperComponent } from './formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper';
+import { FormlyWrapperDefaultValueWithCasesComponent } from './formly/form-field-default-cases.wrapper';
 import { FormlyWrapperFormFieldComponent } from './formly/form-field.wrapper';
-import { FormlySelectFieldWrapperComponent } from './formly/formly-select-field.wrapper';
+import { FormlyFieldRadioWithImageComponent } from './formly/formly-field-radio-with-image/formly-field-radio-with-image';
+import { FormlySelectFieldModalComponent } from './formly/formly-select-field-modal.component';
+import { FormlySelectFieldExtendedWrapperComponent } from './formly/formly-select-field.extended';
 import { InputTypeComponent } from './formly/input';
 import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './formly/input-serial-number-wrapper';
+import { PanelWrapperComponent } from './formly/panel-wrapper.component';
 import { RepeatTypeComponent } from './formly/repeat';
 import { Generic_ComponentsModule } from './genericComponents/genericComponents';
 import { HeaderComponent } from './header/header.component';
+import { HistoryDataErrorComponent } from './history-data-error.component';
 import { PercentageBarComponent } from './percentagebar/percentagebar.component';
 import { PipeModule } from './pipe/pipe';
 import { Logger } from './service/logger';
@@ -62,7 +67,11 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
       wrappers: [
         { name: 'form-field', component: FormlyWrapperFormFieldComponent },
         { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
-        { name: 'formly-select-field-wrapper', component: FormlySelectFieldWrapperComponent }
+        { name: 'formly-select-extended-wrapper', component: FormlySelectFieldExtendedWrapperComponent },
+        { name: 'formly-field-radio-with-image', component: FormlyFieldRadioWithImageComponent },
+        { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent },
+        { name: 'formly-wrapper-default-of-cases', component: FormlyWrapperDefaultValueWithCasesComponent },
+        { name: 'panel', component: PanelWrapperComponent }
       ],
       types: [
         { name: 'input', component: InputTypeComponent },
@@ -78,19 +87,26 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
       ],
     }),
     PipeModule,
-    Generic_ComponentsModule
+    Generic_ComponentsModule,
+    TranslateModule
   ],
   declarations: [
     // components
+    ChartOptionsComponent,
     HeaderComponent,
+    HistoryDataErrorComponent,
     PercentageBarComponent,
     // formly
     InputTypeComponent,
     FormlyWrapperFormFieldComponent,
     RepeatTypeComponent,
     FormlyWrapperInputSerialNumber,
-    FormlySelectFieldWrapperComponent,
-    ChartOptionsComponent,
+    FormlySelectFieldExtendedWrapperComponent,
+    FormlySelectFieldModalComponent,
+    FormlyFieldRadioWithImageComponent,
+    FormlyCheckBoxHyperlinkWrapperComponent,
+    FormlyWrapperDefaultValueWithCasesComponent,
+    PanelWrapperComponent
   ],
   exports: [
     // modules
@@ -110,17 +126,17 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     Generic_ComponentsModule,
     MeterModule,
     // components
-    HeaderComponent,
-    PercentageBarComponent,
     ChartOptionsComponent,
+    HeaderComponent,
+    HistoryDataErrorComponent,
+    PercentageBarComponent,
   ],
   providers: [
     appRoutingProviders,
     Service,
     Utils,
     Websocket,
-    Logger,
-    CommonModule
+    Logger
   ]
 })
 

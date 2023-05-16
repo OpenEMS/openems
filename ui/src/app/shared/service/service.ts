@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, ToastController } from '@ionic/angular';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerService, Spinner } from 'ngx-spinner';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { filter, first, map, take } from 'rxjs/operators';
 import { environment } from 'src/environments';

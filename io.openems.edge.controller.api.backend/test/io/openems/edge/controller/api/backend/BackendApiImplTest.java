@@ -45,7 +45,8 @@ public class BackendApiImplTest {
 							.setApikey("12345") //
 							.setProxyType(Type.DIRECT) //
 							.setProxyAddress("") //
-							.setPersistencePriority(PersistencePriority.VERY_LOW) //
+							.setPersistencePriority(PersistencePriority.HIGH) //
+							.setAggregationPriority(PersistencePriority.VERY_LOW) //
 							.build());
 
 			// Stop connection

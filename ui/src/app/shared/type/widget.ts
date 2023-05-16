@@ -26,6 +26,7 @@ export enum WidgetFactory {
     'Controller.Ess.FixActivePower',
     'Controller.Ess.GridOptimizedCharge',
     'Controller.Ess.Time-Of-Use-Tariff.Discharge',
+    'Controller.Ess.Time-Of-Use-Tariff',
     'Controller.IO.ChannelSingleThreshold',
     'Controller.Io.FixDigitalOutput',
     'Controller.IO.HeatingElement',
@@ -43,8 +44,8 @@ export type Icon = {
 }
 
 export class Widget {
-    name: WidgetNature | WidgetFactory | String;
-    componentId: string
+    public name: WidgetNature | WidgetFactory | String;
+    public componentId: string
 }
 
 export type AdvertWidget = {
@@ -81,6 +82,10 @@ export class AdvertWidgets {
                 title: 'FENECON AVU'
             })
         }
+        list.push({
+            name: 'Fems-App-Center',
+            title: 'FEMS App Center'
+        })
 
 
         list = Utils.shuffleArray(list);
