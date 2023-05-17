@@ -34,7 +34,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
     }
 
     public ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -56,16 +56,16 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                     let datasets = [];
 
                     // calculate total production of each phase
-                    let effectiveProductionL1 = []
-                    let effectiveProductionL2 = []
-                    let effectiveProductionL3 = []
+                    let effectiveProductionL1 = [];
+                    let effectiveProductionL2 = [];
+                    let effectiveProductionL3 = [];
 
                     if (config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").length > 0) {
                         result.data['_sum/ProductionDcActualPower'].forEach((value, index) => {
                             effectiveProductionL1[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL1']?.[index], value / 3);
                             effectiveProductionL2[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL2']?.[index], value / 3);
                             effectiveProductionL3[index] = Utils.addSafely(result.data['_sum/ProductionAcActivePowerL3']?.[index], value / 3);
-                        })
+                        });
                     } else if (config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter").length > 0) {
                         effectiveProductionL1 = result.data['_sum/ProductionAcActivePowerL1'];
                         effectiveProductionL2 = result.data['_sum/ProductionAcActivePowerL2'];
@@ -74,39 +74,39 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
 
                     let totalProductionDataL1 = effectiveProductionL1?.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
-                            return value / 1000 // convert to kW
+                            return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
                     let totalProductionDataL2 = effectiveProductionL2?.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
-                            return value / 1000 // convert to kW
+                            return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
                     let totalProductionDataL3 = effectiveProductionL3?.map(value => {
                         if (value == null) {
-                            return null
+                            return null;
                         } else {
-                            return value / 1000 // convert to kW
+                            return value / 1000; // convert to kW
                         }
-                    })
+                    });
 
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
                         channelAddresses.forEach(channelAddress => {
                             let component = config.getComponent(channelAddress.componentId);
 
                             if (!result.data[channelAddress.toString()]) {
-                                return
+                                return;
                             }
 
                             let data = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else {
                                     return value / 1000; // convert to kW
                                 }
@@ -206,13 +206,13 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
                 new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
             ];
             config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => config.isProducer(component)).forEach(productionMeter => {
-                result.push(new ChannelAddress(productionMeter.id, 'ActivePower'))
-            })
+                result.push(new ChannelAddress(productionMeter.id, 'ActivePower'));
+            });
             config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger").forEach(charger => {
-                result.push(new ChannelAddress(charger.id, 'ActualPower'))
-            })
+                result.push(new ChannelAddress(charger.id, 'ActualPower'));
+            });
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -222,7 +222,7 @@ export class ProductionTotalChartComponent extends AbstractHistoryChart implemen
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

@@ -86,8 +86,10 @@
                       <!-- No access to Edges -->
                       <ion-item color="warning" lines="full">
                         <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
-                        <ion-label class="ion-text-wrap ion-text-center">Sie haben noch kein
-                          {{environment.edgeShortName}} hinzugefügt.</ion-label>
+                        <ion-label class="ion-text-wrap ion-text-center" translate
+                          [translateParams]="{edgeShortName: environment.edgeShortName}" translate>
+                          Index.NO_EDGE_AVAILABLE
+                        </ion-label>
                       </ion-item>
                     </ng-container>
                     <ng-template #others>
@@ -112,7 +114,7 @@
                 <ion-grid>
                   <ion-row class="ion-justify-content-center">
                     <ion-col>
-                      <ion-searchbar [(ngModel)]="filter" [debounce]="500" (ionChange)="searchOnChange($event)"
+                      <ion-searchbar [(ngModel)]="query" [debounce]="500" (ionChange)="searchOnChange()"
                         *ngIf="!onlyOneEdgeAvailable">
                       </ion-searchbar>
                     </ion-col>

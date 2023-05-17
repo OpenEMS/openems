@@ -33,7 +33,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -57,21 +57,21 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
 
                 let stateTimeData = result.data[this.component.id + '/Status'].map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else {
-                        return value
+                        return value;
                     }
-                })
+                });
 
                 datasets.push({
                     label: this.translate.instant('General.state'),
                     data: stateTimeData,
                     hidden: false
-                })
+                });
                 this.colors.push({
                     backgroundColor: 'rgba(200,0,0,0.05)',
                     borderColor: 'rgba(200,0,0,1)',
-                })
+                });
             }
             this.datasets = datasets;
             this.loading = false;
@@ -87,13 +87,13 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
         return new Promise((resolve) => {
             resolve([new ChannelAddress(this.component.id, 'Status')]);
-        })
+        });
     }
 
     protected setLabel() {
         let options = this.createDefaultChartOptions();
         let translate = this.translate;
-        options.scales.yAxes[0].id = 'yAxis1'
+        options.scales.yAxes[0].id = 'yAxis1';
         options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.state');
         options.scales.yAxes[0].ticks.callback = function (label, index, labels) {
             switch (label) {
@@ -108,7 +108,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                 case 3:
                     return translate.instant('Edge.Index.Widgets.HeatPump.switchOnComShort');
             }
-        }
+        };
         options.scales.yAxes[0].ticks.max = 3;
         options.scales.yAxes[0].ticks.stepSize = 1;
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
@@ -137,7 +137,7 @@ export class HeatPumpChartComponent extends AbstractHistoryChart implements OnIn
                     break;
             }
             return label + ": " + toolTipValue; // TODO get locale dynamically
-        }
+        };
         this.options = options;
     }
 

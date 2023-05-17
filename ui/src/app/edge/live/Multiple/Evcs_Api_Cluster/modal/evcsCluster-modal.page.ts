@@ -52,7 +52,7 @@ export class Evcs_Api_ClusterModalComponent implements OnInit {
 
         this.prioritizedEvcsList = this.config.properties["evcs.ids"];
         this.evcsAmount = this.prioritizedEvcsList.length;
-        this.lastEvcs = this.prioritizedEvcsList[this.evcsAmount - 1]
+        this.lastEvcs = this.prioritizedEvcsList[this.evcsAmount - 1];
         this.firstEvcs = this.prioritizedEvcsList[0];
 
         this.service.getConfig().then(config => {

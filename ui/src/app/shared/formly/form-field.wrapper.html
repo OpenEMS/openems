@@ -1,4 +1,4 @@
-<ion-item [lines]="to.itemLines">
+<ion-item [lines]="to.itemLines" [disabled]="props.readonly">
     <ion-label [position]="to.labelPosition" style="max-width:none">
         <span>{{ to.label }}</span>
         <span *ngIf="to.required && to.hideRequiredMarker !== true">*</span>
