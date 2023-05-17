@@ -85,13 +85,10 @@ export class IndexComponent implements OnInit, OnDestroy {
    * 
    * @param event from template passed event
    */
-  protected searchOnChange(event) {
+  protected searchOnChange() {
     this.filteredEdges = [];
     this.page = 0;
     this.limitReached = false;
-
-    const query = event.target.value.toLowerCase();
-    this.query = query;
 
     this.loadNextPage().then((edges) => {
       this.filteredEdges = edges;
@@ -105,7 +102,7 @@ export class IndexComponent implements OnInit, OnDestroy {
    * @param param data provided in login form
    */
   public doLogin(param: { username?: string, password: string }) {
-
+    this.query = "";
     this.limitReached = false;
 
     // Prevent that user submits via keyevent 'enter' multiple times

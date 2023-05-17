@@ -1,6 +1,14 @@
 import { Role } from "src/app/shared/type/role";
+import { environment } from "src/environments";
 
 export class Changelog {
+
+    public static readonly GENERAL_OPTIMIZATION = "Optimierungen und Fehlerbehebungen";
+    public static readonly EDGE = Changelog.GENERAL_OPTIMIZATION + " am " + environment.edgeShortName + ".";
+    public static readonly UI = Changelog.GENERAL_OPTIMIZATION + " am Online-Monitoring. ";
+    public static readonly BACKEND = Changelog.GENERAL_OPTIMIZATION + " am Backend für das Online-Monitoring.";
+
+    public static readonly BATTERY_PROTECTION = "Verbesserung des Batterie Lade- und Entladeverhaltens im oberen und unteren Ladezustandsbereich";
 
     public static product(...products: Product[]) {
         return products.map(product => Changelog.link(product.name, product.url)).join(", ") + '. ';
@@ -40,12 +48,57 @@ export class Product {
 }
 
 export class App {
+    // TODO Umsetzung OEM-Links?
+    public static readonly NETZDIENLICHE_BELADUNG = new App("FEMS App Netzdienliche Beladung", 'https://fenecon.de/fenecon-fems/fems-app-netzdienliche-beladung/');
+    public static readonly REST_JSON_API = new App("FEMS App Rest/JSON lesend", 'https://fenecon.de/fenecon-fems/fems-app-rest-json-lesend/');
+    public static readonly MODBUS_TCP_API = new App("FEMS App Modbus/TCP lesend", 'https://fenecon.de/fenecon-fems/fems-app-modbus-tcp-lesend/');
+    public static readonly PEAKSHAVING = new App("FEMS App Lastspitzenkappung", 'https://fenecon.de/fenecon-fems/fems-app-lastspitzenkappung/');
+    public static readonly HOCHLASTZEITFENSTER = new App("FEMS App Hochlastzeitfenster", 'https://fenecon.de/fenecon-fems/fems-app-hochlastzeitfenster/');
+    public static readonly PEAKSHAVING_PHASE = new App("FEMS App Phasengenaue Lastspitzenkappung", 'https://fenecon.de/fenecon-fems/fems-app-phasengenaue-lastspitzenkappung/');
+    public static readonly SCHWELLWERTSTEUERUNG = new App("FEMS App Schwellwertsteuerung", 'https://fenecon.de/fenecon-fems/fems-app-schwellwert-steuerung/');
+    public static readonly MANUELLE_RELAISSTEUERUNG = new App("FEMS App Manuelle Relaissteuerung", 'https://fenecon.de/fenecon-fems/fems-app-manuelle-relaissteuerung/');
+
+    public static readonly EVCS_AC = new App("FEMS App AC-Ladestation", 'https://fenecon.de/fenecon-fems/fems-app-ac-ladestation/');
+    public static readonly KEBA = "KEBA";
+    public static readonly HARDY_BARTH = "Hardy Barth eCharge";
+
+    public static readonly EVCS_DC = new App("FEMS App DC-Ladestation", 'https://fenecon.de/fenecon-fems/fems-app-dc-ladestation/');
+    public static readonly IES_KEYWATT = "IES Keywatt";
+    public static readonly ALPITRONIC = "Alpitronic Hypercharger";
+
+    public static readonly POWER_TO_HEAT = new App("FEMS App Power-to-Heat", 'https://fenecon.de/fenecon-fems/fems-app-power-to-heat/');
+    public static readonly HEIZSTAB = "Heizstab";
+    public static readonly BHKW = "Blockheizkraftwerk (BHKW)";
+    public static readonly WAERMEPUMPE = "SG-Ready Wärmepumpe";
+
+    public static readonly METER = new App("FEMS App Erzeugungs- und Verbrauchszähler", 'https://fenecon.de/fenecon-fems/fems-app-power-to-heat/');
+    public static readonly SOCOMEC = "SOCOMEC";
+    public static readonly KDK = "KDK";
+    public static readonly JANITZA = "Janitza";
+    public static readonly CARLO_GAVAZZI = "CARLO GAVAZZI";
+    public static readonly DISCOVERGY = "Discovergy";
+
+    public static readonly PV_INVERTER = new App("FEMS App PV-Wechselrichter", 'https://fenecon.de/fenecon-fems/fems-app-pv-wechselrichter/');
+    public static readonly KACO = "KACO";
+    public static readonly SMA = "SMA";
+    public static readonly KOSTAL = "Kostal";
+    public static readonly FRONIUS = "Fronius";
+    public static readonly SOLAREDGE = "SolarEdge";
+
+    public static readonly TIME_OF_USE = new App("FEMS App Zeitvariabler Stromtarif", 'https://fenecon.de/fenecon-fems/fems-app-zeitvariabler-stromtarif/');
+    public static readonly AWATTAR = "Awattar HOURLY";
+    public static readonly TIBBER = "Tibber";
+    public static readonly CORRENTLY = "STROMDAO Corrently";
+
     // private to disallow creating other instances of this type
     private constructor(public readonly name: string, public readonly url: any) {
     }
 }
 
 export class OpenemsComponent {
+    public static readonly PQ_PLUS_ZAEHLER = new OpenemsComponent('PQ-Plus Zähler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus');
+    public static readonly SDM630_ZAEHLER = new OpenemsComponent('SDM 630 Zähler', 'https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.microcare.sdm630');
+
     // private to disallow creating other instances of this type
     private constructor(public readonly name: string, public readonly url: any) {
     }
