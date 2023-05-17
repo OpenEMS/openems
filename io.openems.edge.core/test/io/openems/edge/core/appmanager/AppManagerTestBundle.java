@@ -296,16 +296,23 @@ public class AppManagerTestBundle {
 	 */
 	public JsonArray getAppsFromConfig() throws IOException, OpenemsNamedException {
 		final var config = this.cm.getConfiguration(this.sut.servicePid());
-		return JsonUtils.parse(((JsonPrimitive) config.getProperties().get("apps")).getAsString()).getAsJsonArray();
+		final var configObj = config.getProperties().get("apps");
+		if (configObj instanceof JsonPrimitive json) {
+			return JsonUtils.getAsJsonArray(JsonUtils.parse(JsonUtils.getAsString(json)));
+		}
+		return JsonUtils.getAsJsonArray(JsonUtils.parse(configObj.toString()));
 	}
 
 	/**
-	 * Checkst if the current installed app count matches the given count.
+	 * Checks if the current installed app count matches the given count.
 	 * 
 	 * @param count the count of the apps
+	 * @throws OpenemsNamedException on parse error
+	 * @throws IOException           on IO error
 	 */
-	public void assertInstalledApps(int count) {
+	public void assertInstalledApps(int count) throws IOException, OpenemsNamedException {
 		assertEquals(count, this.sut.getInstantiatedApps().size());
+		assertEquals(count, this.getAppsFromConfig().size());
 	}
 
 	/**
