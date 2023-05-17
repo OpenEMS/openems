@@ -17,17 +17,15 @@ public class CycleTasksManager {
 
 	private final Supplier<CycleTasks> cycleTasksSupplier;
 	private final Consumer<Boolean> cycleTimeIsTooShortCallback;
-
+	private final WaitDelayHandler waitDelayHandler;
 	private final WaitMutexTask waitMutexTask = new WaitMutexTask();
 
-	private WaitDelayTask waitDelayTask;
 	private CycleTasks cycleTasks;
 
 	public CycleTasksManager(Supplier<CycleTasks> cycleTasksSupplier, Consumer<Boolean> cycleTimeIsTooShortCallback) {
-		this.setWaitDelayTask(0);
-
 		this.cycleTasksSupplier = cycleTasksSupplier;
 		this.cycleTimeIsTooShortCallback = cycleTimeIsTooShortCallback;
+		this.waitDelayHandler = new WaitDelayHandler(() -> this.onWaitDelayTaskFinished());
 	}
 
 	private static enum StateMachine {
@@ -58,8 +56,7 @@ public class CycleTasksManager {
 		this.cycleTasks = this.cycleTasksSupplier.get();
 
 		// Calculate Delay
-		var delay = 100;
-		this.setWaitDelayTask(delay);
+		this.waitDelayHandler.onBeforeProcessImage();
 
 		// Initialize next Cycle
 		this.state = StateMachine.INITIAL_WAIT;
@@ -95,7 +92,7 @@ public class CycleTasksManager {
 
 		case INITIAL_WAIT ->
 			// Waiting for planned waiting time to pass
-			this.waitDelayTask;
+			this.waitDelayHandler.getWaitDelayTask();
 
 		case READ_BEFORE_WRITE -> {
 			// Read-Task available?
@@ -125,7 +122,7 @@ public class CycleTasksManager {
 
 		case WAIT_BEFORE_READ ->
 			// Waiting for planned waiting time to pass
-			this.waitDelayTask;
+			this.waitDelayHandler.getWaitDelayTask();
 
 		case READ_AFTER_WRITE -> {
 			// Read-Task available?
@@ -138,21 +135,13 @@ public class CycleTasksManager {
 			yield this.getNextTask();
 		}
 
-		case FINISHED ->
+		case FINISHED -> {
+			this.waitDelayHandler.onFinished();
 			// Waiting for BEFORE_PROCESS_IMAGE event
-			this.waitMutexTask;
-		};
-	}
+			yield this.waitMutexTask;
+		}
 
-	/**
-	 * Initialize a new {@link WaitDelayTask}.
-	 * 
-	 * @param delay the delay in [ms]
-	 */
-	private synchronized void setWaitDelayTask(int delay) {
-		this.waitDelayTask = new WaitDelayTask(delay, () -> {
-			this.onWaitDelayTaskFinished();
-		});
+		};
 	}
 
 	/**

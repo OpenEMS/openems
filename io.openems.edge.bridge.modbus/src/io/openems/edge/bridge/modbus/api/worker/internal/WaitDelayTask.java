@@ -14,14 +14,17 @@ import io.openems.edge.common.taskmanager.Priority;
 
 public class WaitDelayTask implements Task {
 
+	public final long initialDelay;
+
 	private final Logger log = LoggerFactory.getLogger(WaitDelayTask.class);
 	private final Runnable onFinished;
+
 	private long delay;
 
 	private AbstractOpenemsModbusComponent parent = null;
 
 	public WaitDelayTask(long delay, Runnable onFinished) {
-		this.delay = delay;
+		this.initialDelay = this.delay = delay;
 		this.onFinished = onFinished;
 	}
 
