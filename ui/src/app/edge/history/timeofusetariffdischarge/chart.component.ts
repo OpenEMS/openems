@@ -4,8 +4,9 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { differenceInDays } from 'date-fns';
 import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
+
 import { QueryHistoricTimeseriesDataResponse } from '../../../shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Edge, EdgeConfig, Service } from '../../../shared/shared';
+import { ChannelAddress, Currency, Edge, EdgeConfig, Service } from '../../../shared/shared';
 import { AbstractHistoryChart } from '../abstracthistorychart';
 import { Data, TooltipItem, Unit } from '../shared';
 
@@ -19,13 +20,11 @@ export class TimeOfUseTariffDischargeChartComponent extends AbstractHistoryChart
   @Input() public componentId: string;
   public component: EdgeConfig.Component = null;
   public edge: Edge;
-  private currencyLabel: string = 'Cent/kWh'; // Default
+  private currencyLabel: string; // Default
 
   ngOnChanges() {
     this.edge = this.service.currentEdge.value;
-    if (this.edge.id === 'fems17289') {
-      this.currencyLabel = 'Öre/kWh';
-    }
+    this.currencyLabel = Currency.getCurrencyLabelByEdgeId(this.edge.id);
     this.updateChart();
   };
 

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractFlatWidget } from 'src/app/shared/genericComponents/flat/abstract-flat-widget';
-import { ChannelAddress, CurrentData, Utils } from 'src/app/shared/shared';
+import { ChannelAddress, Currency, CurrentData, Utils } from 'src/app/shared/shared';
+
 import { ModalComponent } from '../modal/modal';
 
 @Component({
@@ -33,11 +34,7 @@ export class FlatComponent extends AbstractFlatWidget implements OnInit {
     protected override onCurrentData(currentData: CurrentData): void {
         var quarterlyPrice = currentData.allComponents[this.component.id + '/QuarterlyPrices'];
 
-        var currencyLabel: string = 'Cent/kWh' // Default
-        if (this.edge.id === 'fems17289') {
-            // For Swedish system
-            currencyLabel = 'Öre/kWh'
-        }
+        var currencyLabel: string = Currency.getCurrencyLabelByEdgeId(this.edge.id);
 
         // Since 'component' is empty during ngOninit. so assigning the labels through this method.
         this.storageStatuslabel = Utils.getTimeOfUseTariffStorageLabel(this.component, this.translate);
