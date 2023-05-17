@@ -151,9 +151,9 @@ export class ProtocolAdditionalAcProducersComponent implements OnInit {
 
           // Load the appropriate description based on the meter selected.
           if (meterType === Meter.SOCOMEC) {
-            return this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_SOCOMEC_DESCRIPTION')
+            return this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_SOCOMEC_DESCRIPTION');
           } else {
-            return this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_KDK_DESCRIPTION')
+            return this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.MODBUS_KDK_DESCRIPTION');
           }
         }
       }

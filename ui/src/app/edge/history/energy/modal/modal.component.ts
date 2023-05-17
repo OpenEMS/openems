@@ -67,7 +67,7 @@ export class EnergyModalComponent implements OnInit {
 
             }).catch(reason => {
                 console.warn(reason);
-            })
-        })
+            });
+        });
     }
 }

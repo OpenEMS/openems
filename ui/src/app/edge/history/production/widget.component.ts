@@ -35,7 +35,7 @@ export class ProductionComponent extends AbstractHistoryWidget implements OnInit
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -49,9 +49,9 @@ export class ProductionComponent extends AbstractHistoryWidget implements OnInit
                     this.data = response.result.data;
                 }).catch(() => {
                     this.data = null;
-                })
-            })
-        })
+                });
+            });
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -63,7 +63,7 @@ export class ProductionComponent extends AbstractHistoryWidget implements OnInit
             for (let component of this.chargerComponents) {
                 channels.push(
                     new ChannelAddress(component.id, 'ActualEnergy'),
-                )
+                );
             }
 
             this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => component.isEnabled && config.isProducer(component));

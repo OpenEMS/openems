@@ -9,7 +9,7 @@ import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.compone
 })
 export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnInit {
 
-    protected pathToDisplayValue: string
+    protected pathToDisplayValue: string;
 
     constructor(
         private modalController: ModalController
@@ -18,7 +18,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
     }
 
     ngOnInit(): void {
-        this.pathToDisplayValue = this.props["pathToDisplayValue"]
+        this.pathToDisplayValue = this.props["pathToDisplayValue"];
     }
 
     protected onSelectItem() {
@@ -44,10 +44,10 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
                 return;
             }
             for (const [key, value] of Object.entries(event.data)) {
-                this.model[key] = value
+                this.model[key] = value;
             }
             // update values in model so ui also gets updated
-            this.form.setValue(this.form.getRawValue())
+            this.form.setValue(this.form.getRawValue());
         });
         return await modal.present();
     }

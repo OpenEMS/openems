@@ -33,7 +33,7 @@ export class ProductionChartOverviewComponent implements OnInit {
                 this.edge = edge;
                 this.config = config;
                 this.productionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter").filter(component => config.isProducer(component));
-                this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+                this.chargerComponents = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
                 if ((this.productionMeterComponents.length > 0 && this.chargerComponents.length > 0)
                     || (this.productionMeterComponents.length == 0 && this.chargerComponents.length > 1)
                     || (this.productionMeterComponents.length > 1 && this.chargerComponents.length == 0)) {
@@ -48,8 +48,8 @@ export class ProductionChartOverviewComponent implements OnInit {
                 if (this.productionMeterComponents.length == 0) {
                     this.showPhases = false;
                 }
-            })
-        })
+            });
+        });
     }
 
     onNotifyPhases(showPhases: boolean): void {

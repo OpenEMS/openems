@@ -96,12 +96,12 @@ export class InstallationComponent implements OnInit {
       this.service.updateCurrentEdge(edgeId).then((edge) => {
         this.edge = edge;
         this.displayViewAtIndex(viewIndex);
-        this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [this.edge.id] }))
+        this.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [this.edge.id] }));
       }).catch(() => {
         // View with index 0 will always be the Pre-InstallationView, 
         //so if there is non subscribable edge due to being offline or not reachable, the IBN will be directed back to its initial page.
         this.displayViewAtIndex(0);
-      })
+      });
     } else {
       this.displayViewAtIndex(0);
     }
@@ -147,7 +147,7 @@ export class InstallationComponent implements OnInit {
    * @param index index of the desired view.
    */
   public displayViewAtIndex(index: number) {
-    this.logger.debug("View: " + Object.keys(View)[Object.values(View).indexOf(this.ibn.views[index])] + " Edge: " + this.edge?.id)
+    this.logger.debug("View: " + Object.keys(View)[Object.values(View).indexOf(this.ibn.views[index])] + " Edge: " + this.edge?.id);
     this.removeUpdateView();
     const viewCount = this.ibn.views.length;
     if (index >= 0 && index < viewCount) {
@@ -214,9 +214,9 @@ export class InstallationComponent implements OnInit {
       return;
     }
     if (!this.edge.isVersionAtLeast('2021.19.1')) {
-      let indexOfUpdate = this.ibn.views.indexOf(View.PreInstallationUpdate)
+      let indexOfUpdate = this.ibn.views.indexOf(View.PreInstallationUpdate);
       if (indexOfUpdate != -1) {
-        this.ibn.views.splice(indexOfUpdate, 1)
+        this.ibn.views.splice(indexOfUpdate, 1);
       }
     }
   }

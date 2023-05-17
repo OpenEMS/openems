@@ -19,7 +19,7 @@ export class AsymmetricMeterComponent extends AbstractModalLine implements OnIni
         { key: "L1", name: "", power: null, current: null, voltage: null },
         { key: "L2", name: "", power: null, current: null, voltage: null },
         { key: "L3", name: "", power: null, current: null, voltage: null },
-    ]
+    ];
 
     protected getChannelAddresses(): ChannelAddress[] {
         let channelAddresses: ChannelAddress[] = [];
@@ -28,7 +28,7 @@ export class AsymmetricMeterComponent extends AbstractModalLine implements OnIni
                 new ChannelAddress(this.component.id, 'CurrentL' + phase),
                 new ChannelAddress(this.component.id, 'VoltageL' + phase),
                 new ChannelAddress(this.component.id, 'ActivePowerL' + phase),
-            )
+            );
         }
         return channelAddresses;
     }

@@ -24,7 +24,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
             feature: {
                 type: Category.BALANCING
             }
-        }
+        };
 
     public readonly type: string = 'Fenecon-Commercial-50';
 
@@ -40,7 +40,7 @@ export abstract class AbstractCommercial50Ibn extends AbstractCommercialIbn {
                 {
                     label: this.translate.instant('INSTALLATION.CONFIGURATION_PEAK_SHAVING.CHARGE_BELOW_LABEL'),
                     value: this.commercial50Feature.feature.beladungUnter
-                })
+                });
         }
         return peakShavingData;
     }

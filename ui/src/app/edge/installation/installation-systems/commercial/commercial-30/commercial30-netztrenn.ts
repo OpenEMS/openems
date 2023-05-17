@@ -324,7 +324,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
             });
         }
 
-        const additionalAcCategory: Category = Category.ADDITIONAL_AC_PRODUCERS
+        const additionalAcCategory: Category = Category.ADDITIONAL_AC_PRODUCERS;
         for (let index = 0; index < ac.length; index++) {
             const element = ac[index];
             const label = 'AC';
@@ -413,7 +413,7 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                     validation: ['emsBoxNetztrennstelleSerialNumber']
                 },
                 wrappers: ['input-serial-number']
-            }
+            };
 
             // ems box field is added at a specific position in array, because it is always displayed at specific position in UI.
             fields.splice(1, 0, emsbox);

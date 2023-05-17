@@ -127,7 +127,7 @@ export module DefaultTypes {
           'General.periodFromTo', {
           value1: format(this.from, translate.instant('General.dateFormatShort')),
           value2: format(this.to, translate.instant('General.dateFormat'))
-        })
+        });
       }
     }
 

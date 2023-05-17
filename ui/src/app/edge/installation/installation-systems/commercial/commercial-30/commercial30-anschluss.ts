@@ -37,7 +37,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
             this.requiredControllerIds.push({
                 componentId: "ctrlGridOptimizedCharge0"
                 , behaviour: SchedulerIdBehaviour.ALWAYS_INCLUDE
-            })
+            });
         }
         this.requiredControllerIds.push({
             componentId: "ctrlBalancing0"
@@ -86,7 +86,7 @@ export class Commercial30AnschlussIbn extends AbstractCommercial30Ibn {
                     validation: ['emsBoxSerialNumber']
                 },
                 wrappers: ['input-serial-number']
-            }
+            };
 
             // ems box field is added at a specific position in array, because it is always displayed at specific position in UI.
             fields.splice(1, 0, emsbox);

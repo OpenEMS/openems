@@ -87,7 +87,7 @@ export class RegistrationModalComponent implements OnInit {
     if (companyName) {
       request.params.user.company = {
         name: companyName
-      }
+      };
     }
 
     this.websocket.sendRequest(request)

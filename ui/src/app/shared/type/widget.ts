@@ -45,7 +45,7 @@ export type Icon = {
 
 export class Widget {
     public name: WidgetNature | WidgetFactory | String;
-    public componentId: string
+    public componentId: string;
 }
 
 export type AdvertWidget = {
@@ -80,12 +80,12 @@ export class AdvertWidgets {
             list.push({
                 name: 'FeneconAvu',
                 title: 'FENECON AVU'
-            })
+            });
         }
         list.push({
             name: 'Fems-App-Center',
             title: 'FEMS App Center'
-        })
+        });
 
 
         list = Utils.shuffleArray(list);

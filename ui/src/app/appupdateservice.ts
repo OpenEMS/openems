@@ -24,10 +24,10 @@ export class CheckForUpdateService {
         console.log(updateFound ? 'A new version is available.' : 'Already on the latest version.');
 
         if (updateFound) {
-          window.location.reload()
+          window.location.reload();
         }
       }
-    }, 10000)
+    }, 10000);
   }
 }
 // Will be used in Future

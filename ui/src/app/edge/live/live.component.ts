@@ -10,7 +10,7 @@ import { AdvertWidgets } from 'src/app/shared/type/widget';
 })
 export class LiveComponent implements OnInit, OnDestroy {
 
-  public edge: Edge = null
+  public edge: Edge = null;
   public config: EdgeConfig = null;
   public widgets: Widgets = null;
   public advertWidgets: AdvertWidgets = null;
@@ -24,10 +24,10 @@ export class LiveComponent implements OnInit, OnDestroy {
   ) { }
 
   public ngOnInit() {
-    this.service.setCurrentComponent('', this.route)
+    this.service.setCurrentComponent('', this.route);
     this.service.currentEdge.subscribe((edge) => {
-      this.edge = edge
-    })
+      this.edge = edge;
+    });
     this.service.getConfig().then(config => {
       this.config = config;
       this.widgets = config.widgets;

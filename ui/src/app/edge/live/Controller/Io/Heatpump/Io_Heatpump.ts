@@ -23,7 +23,7 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
       new ChannelAddress(this.component.id, 'Status'),
       new ChannelAddress(this.component.id, 'State'),
       new ChannelAddress(this.component.id, Controller_Io_HeatpumpComponent.PROPERTY_MODE)
-    ]
+    ];
   }
 
   protected onCurrentData(currentData: CurrentData) {
@@ -55,7 +55,7 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
         break;
       }
       case 'MANUAL': {
-        this.mode = this.translate.instant('General.manually')
+        this.mode = this.translate.instant('General.manually');
         break;
       }
     }
@@ -72,8 +72,8 @@ export class Controller_Io_HeatpumpComponent extends AbstractFlatWidget {
     modal.onDidDismiss().then(() => {
       this.service.getConfig().then(config => {
         this.component = config.components[this.componentId];
-      })
-    })
+      });
+    });
     return await modal.present();
   }
 }

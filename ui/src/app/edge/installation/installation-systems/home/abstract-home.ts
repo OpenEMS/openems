@@ -82,7 +82,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
     otherValue?: number;
   } = {
       category: Category.LINE_SIDE_METER_FUSE_HOME
-    }
+    };
 
   //Configuration Summary
   public gtcAndWarrantyLinks: {
@@ -453,7 +453,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         ],
         required: true,
       }
-    })
+    });
 
     fields.push({
       key: 'maximumFeedInPower',
@@ -569,7 +569,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       this.requiredControllerIds.push({
         componentId: "ctrlEmergencyCapacityReserve0"
         , behaviour: SchedulerIdBehaviour.MANAGED_BY_APP_MANAGER
-      })
+      });
     }
     this.requiredControllerIds.push(
       {
@@ -624,7 +624,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
         {
           label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.SHADE_MANAGEMENT_DEACTIVATED'),
           value: this.translate.instant('General.yes')
-        })
+        });
 
     if (
       feedInLimitation.feedInSetting === FeedInSetting.FixedPowerFactor
@@ -1032,11 +1032,11 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       ...(this.emergencyReserve.isEnabled && { EMERGENCY_RESERVE_ENABLED: this.emergencyReserve.isReserveSocEnabled }),
       ...(this.emergencyReserve.isReserveSocEnabled && { EMERGENCY_RESERVE_SOC: this.emergencyReserve.value }),
       ...(this.batteryInverter?.shadowManagementDisabled && { SHADOW_MANAGEMENT_DISABLED: true })
-    }
+    };
 
     // TODO remove
     // system not updated => newest appManager not available
-    const isAppManagerAvailable: boolean = AppCenterUtil.isAppManagerAvailable(edge)
+    const isAppManagerAvailable: boolean = AppCenterUtil.isAppManagerAvailable(edge);
     const baseMode = isAppManagerAvailable ? BaseMode.AppManager : BaseMode.UI;
 
     if (isAppManagerAvailable) {
@@ -1045,25 +1045,25 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
           AppCenterUtil.createOrUpdateApp(edge, websocket, "App.FENECON.Home", "FENECON Home", homeAppProperties, AppCenterUtil.keyForIntegratedSystems())
             .then(instance => {
               if (!isAcCreated) {
-                resolve(instance)
+                resolve(instance);
               }
               let acMeters = instance.dependencies.filter(dependency => {
-                return dependency.key == "AC_METER"
-              })
+                return dependency.key == "AC_METER";
+              });
               if (acMeters.length == 0) {
-                reject(this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.AC_NOT_CREATED'))
+                reject(this.translate.instant('INSTALLATION.PROTOCOL_PV_AND_ADDITIONAL_AC.AC_NOT_CREATED'));
               }
 
               AppCenterUtil.getAppInstance(edge, websocket, Meter.toAppId(acMeterType), acMeters[0].instanceId)
                 .then(instance => {
                   // update meter with existing properties
-                  instance.properties["MODBUS_UNIT_ID"] = acModbusUnitId
+                  instance.properties["MODBUS_UNIT_ID"] = acModbusUnitId;
                   AppCenterUtil.updateApp(edge, websocket, instance.instanceId, acAlias, instance.properties)
                     .then(resolve)
-                    .catch(reject)
-                }).catch(reject)
-            }).catch(reject)
-        })
+                    .catch(reject);
+                }).catch(reject);
+            }).catch(reject);
+        });
       });
     }
 
@@ -1173,7 +1173,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
       baseMode: baseMode
-    }
+    };
 
     feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
       ? goodweconfig.properties.push({
@@ -1184,7 +1184,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       )
       : goodweconfig.properties.push(
         { name: 'feedPowerEnable', value: 'DISABLE' },
-      )
+      );
 
     componentConfigurator.add(goodweconfig);
 
@@ -1268,7 +1268,7 @@ export abstract class AbstractHomeIbn extends AbstractIbn {
       ],
       mode: ConfigurationMode.RemoveAndConfigure,
       baseMode: baseMode
-    }
+    };
 
     feedInLimitation.feedInType == FeedInType.DYNAMIC_LIMITATION
       ? gridOptimizedCharge.properties.push(

@@ -87,8 +87,8 @@ export class AppComponent implements OnInit, OnDestroy {
         this.service.deviceHeight = this.platform.height();
         this.service.deviceWidth = this.platform.width();
         this.checkSmartphoneResolution(false);
-      })
-    })
+      });
+    });
   }
 
   /**

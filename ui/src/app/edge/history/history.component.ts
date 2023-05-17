@@ -12,7 +12,7 @@ import { environment } from 'src/environments';
 })
 export class HistoryComponent implements OnInit {
 
-  @ViewChild(HeaderComponent, { static: false }) public HeaderComponent: HeaderComponent
+  @ViewChild(HeaderComponent, { static: false }) public HeaderComponent: HeaderComponent;
 
   // is a Timedata service available, i.e. can historic data be queried.
   public isTimedataAvailable: boolean = true;
@@ -41,10 +41,10 @@ export class HistoryComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.service.setCurrentComponent('', this.route)
+    this.service.setCurrentComponent('', this.route);
     this.service.currentEdge.subscribe((edge) => {
-      this.edge = edge
-    })
+      this.edge = edge;
+    });
     this.service.getConfig().then(config => {
       // gather ControllerIds of Channelthreshold Components
       // for (let controllerId of
@@ -53,7 +53,7 @@ export class HistoryComponent implements OnInit {
       //   this.channelthresholdComponents.push(controllerId)
       // }
       this.config = config;
-      config.hasStorage()
+      config.hasStorage();
       this.widgets = config.widgets;
       // Are we connected to OpenEMS Edge and is a timedata service available?
       if (environment.backend == 'OpenEMS Edge'
