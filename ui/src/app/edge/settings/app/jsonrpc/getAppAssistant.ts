@@ -1,6 +1,6 @@
+import { AbstractControl } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
-import { AbstractControl } from "@angular/forms";
 
 /**
  * Represents a JSON-RPC Request for 'getAppAssistant'.
@@ -94,7 +94,7 @@ export namespace GetAppAssistant {
         if (field.wrappers?.includes('formly-wrapper-default-of-cases')
             || field.wrappers?.includes('formly-safe-input-wrapper')
             || field.wrappers?.includes('input-with-unit')) {
-            field.wrappers?.push('form-field')
+            field.wrappers?.push('form-field');
         }
 
         if (field.validators) {
@@ -103,13 +103,13 @@ export namespace GetAppAssistant {
                 if (expressionString) {
                     expressionString = GetAppAssistant.convertStringExpression(rootFields, field, expressionString);
 
-                    const func = Function('model', 'formState', 'field', 'control', `return ${expressionString};`)
+                    const func = Function('model', 'formState', 'field', 'control', `return ${expressionString};`);
                     field.validators[key]["expression"] = (control: AbstractControl, f: FormlyFieldConfig) => {
                         const model = f.model;
                         const formState = f.options.formState;
-                        const result = func(model, formState, f, control)
+                        const result = func(model, formState, f, control);
                         return result;
-                    }
+                    };
                 }
             }
         }
@@ -140,14 +140,14 @@ export namespace GetAppAssistant {
      * @returns the converted expression
      */
     export function convertStringExpression(rootFields: FormlyFieldConfig[], field: FormlyFieldConfig, expression: String): String {
-        const parts = expression.split('model.')
+        const parts = expression.split('model.');
         let finalExpression: string = "";
         for (let part of parts) {
             if (part.length === 0) {
                 continue;
             }
             const indexOfSpace = part.indexOf(' ');
-            let propertyName: string
+            let propertyName: string;
             if (indexOfSpace !== -1) {
                 propertyName = part.substring(0, indexOfSpace);
             } else {
@@ -163,7 +163,7 @@ export namespace GetAppAssistant {
                 // parses the value to a number
                 finalExpression += "+";
             }
-            finalExpression += "model."
+            finalExpression += "model.";
             finalExpression += propertyName;
             if (indexOfSpace != -1) {
                 finalExpression += part.substring(indexOfSpace);

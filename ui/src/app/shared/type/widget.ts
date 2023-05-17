@@ -1,6 +1,6 @@
 import { Edge } from '../edge/edge';
 import { EdgeConfig } from '../edge/edgeconfig';
-import { Service, Utils } from '../shared';
+import { Utils } from '../shared';
 
 export enum WidgetClass {
     'Energymonitor',
@@ -86,7 +86,6 @@ export class AdvertWidgets {
             name: 'Fems-App-Center',
             title: 'FEMS App Center'
         });
-
 
         list = Utils.shuffleArray(list);
         return new AdvertWidgets(list);

@@ -203,20 +203,23 @@ export class StorageTotalChartComponent extends AbstractHistoryChart implements 
                 new ChannelAddress('_sum', 'EssActivePowerL2'),
                 new ChannelAddress('_sum', 'EssActivePowerL3'),
             ];
-            config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster")).forEach(component => {
-                let factoryID = component.factoryId;
-                let factory = config.factories[factoryID];
-                result.push(new ChannelAddress(component.id, 'ActivePower'));
-                if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
-                    result.push(
-                        new ChannelAddress(component.id, 'ActivePowerL1'),
-                        new ChannelAddress(component.id, 'ActivePowerL2'),
-                        new ChannelAddress(component.id, 'ActivePowerL3')
-                    );
-                }
-            });
+            config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
+                .filter(component => !component.factoryId.includes("Ess.Cluster"))
+                .forEach(component => {
+                    let factoryID = component.factoryId;
+                    let factory = config.factories[factoryID];
+                    result.push(new ChannelAddress(component.id, 'ActivePower'));
+                    if ((factory.natureIds.includes("io.openems.edge.ess.api.AsymmetricEss"))) {
+                        result.push(
+                            new ChannelAddress(component.id, 'ActivePowerL1'),
+                            new ChannelAddress(component.id, 'ActivePowerL2'),
+                            new ChannelAddress(component.id, 'ActivePowerL3')
+                        );
+                    }
+                });
             let charger = config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger");
-            if (config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter(component => !component.factoryId.includes("Ess.Cluster")).length != 1 && charger.length > 0) {
+            if (config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
+                .filter(component => !component.factoryId.includes("Ess.Cluster")).length != 1 && charger.length > 0) {
                 charger.forEach(component => {
                     result.push(new ChannelAddress(component.id, 'ActualPower'));
                 });

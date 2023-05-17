@@ -201,11 +201,11 @@ export class Utils {
   }
 
   /**
-  * Converts a value in Watt [W] to KiloWatt [kW].
-  * 
-  * @param value the value from passed value in html
-  * @returns converted value
-  */
+   * Converts a value in Watt [W] to KiloWatt [kW].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_WATT = (value: any): string => {
     if (value == null) {
       return '-';
@@ -214,14 +214,14 @@ export class Utils {
     } else {
       return '0 W';
     }
-  }
+  };
 
   /**
- * Converts a value in Watt [W] to KiloWatt [kW].
- * 
- * @param value the value from passed value in html
- * @returns converted value
- */
+   * Converts a value in Watt [W] to KiloWatt [kW].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_VOLT = (value: any): string => {
     if (value == null) {
       return '-';
@@ -230,14 +230,14 @@ export class Utils {
     } else {
       return '0 V';
     }
-  }
+  };
 
   /**
-* Converts a value in Milliampere [mA] to Ampere[A].
-* 
-* @param value the value from passed value in html
-* @returns converted value
-*/
+   * Converts a value in Milliampere [mA] to Ampere[A].
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_CURRENT = (value: any): string => {
     if (value == null) {
       return '-';
@@ -246,8 +246,7 @@ export class Utils {
     } else {
       return '0 A';
     }
-  }
-
+  };
 
   /**
    * Converts a value in Watt [W] to KiloWatt [kW].
@@ -266,7 +265,7 @@ export class Utils {
     } else {
       return '0 kW';
     }
-  }
+  };
 
   /**
    * Converts a value in Seconds [s] to Dateformat [kk:mm:ss].
@@ -275,32 +274,38 @@ export class Utils {
    * @returns converted value
    */
   public static CONVERT_SECONDS_TO_DATE_FORMAT = (value: any): string => {
-    return new Date(value * 1000).toLocaleTimeString()
-  }
+    return new Date(value * 1000).toLocaleTimeString();
+  };
 
+  /**
+   * Adds unit percentage [%] to a value.
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_PERCENT = (value: any): string => {
-    return value + ' %'
-  }
+    return value + ' %';
+  };
 
   /**
-  * Converts a value to WattHours [Wh]
-  * 
-  * @param value the value from passed value in html
-  * @returns converted value
-  */
+   * Converts a value to WattHours [Wh]
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_WATTHOURS = (value: any): string => {
-    return formatNumber(value, 'de', '1.0-1') + ' Wh'
-  }
+    return formatNumber(value, 'de', '1.0-1') + ' Wh';
+  };
 
   /**
-  * Converts a value in WattHours [Wh] to KiloWattHours [kWh]
-  * 
-  * @param value the value from passed value in html
-  * @returns converted value
-  */
+   * Converts a value in WattHours [Wh] to KiloWattHours [kWh]
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_TO_KILO_WATTHOURS = (value: any): string => {
-    return formatNumber(value / 1000, 'de', '1.0-1') + ' kWh'
-  }
+    return formatNumber(value / 1000, 'de', '1.0-1') + ' kWh';
+  };
 
   /**
    * Converts states 'MANUAL_ON' and 'MANUAL_OFF' to translated strings.
@@ -317,8 +322,8 @@ export class Utils {
       } else {
         return '-';
       }
-    }
-  }
+    };
+  };
 
   /**
    * Takes a power value and extracts the information if it represents Charge or Discharge.
@@ -333,14 +338,14 @@ export class Utils {
     } else {
       return { name: translate.instant('General.chargePower'), value: power * -1 };
     }
-  }
+  };
 
   /**
- * Converts states 'MANUAL', 'OFF' and 'AUTOMATIC' to translated strings.
- * 
- * @param value the value from passed value in html
- * @returns converted value
- */
+   * Converts states 'MANUAL', 'OFF' and 'AUTOMATIC' to translated strings.
+   * 
+   * @param value the value from passed value in html
+   * @returns converted value
+   */
   public static CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = (translate: TranslateService) => {
     return (value: any): string => {
       if (value === 'MANUAL') {
@@ -352,8 +357,8 @@ export class Utils {
       } else {
         return '-';
       }
-    }
-  }
+    };
+  };
 
   /**
    * Converts Minute from start of day to daytime in 'HH:mm' format.
@@ -366,7 +371,7 @@ export class Utils {
       date.setHours(0, 0, 0, 0);
       date.setMinutes(value);
       return date.toLocaleTimeString(translate.getBrowserCultureLang(), { hour: '2-digit', minute: '2-digit' });
-    }
+    };
   };
 
   /**
@@ -378,7 +383,7 @@ export class Utils {
    */
   public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
     return (value: any): string =>
-      (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' ' + label
+      (!value ? "-" : formatNumber(value / 10, 'de', '1.0-' + decimal)) + ' ' + label;
   };
 
   /**
@@ -401,8 +406,8 @@ export class Utils {
         case 3:
           return translate.instant('Edge.Index.Widgets.TimeOfUseTariff.State.CHARGING');
       }
-    }
-  }
+    };
+  };
 
   /**
    * Gets the image path for storage depending on State-of-Charge.
@@ -518,7 +523,7 @@ export class Utils {
    * @returns the shuffled array
    */
   public static shuffleArray(array: any[]): any[] {
-    return array.sort(() => Math.random() - 0.5)
+    return array.sort(() => Math.random() - 0.5);
   }
 
   /**
@@ -538,7 +543,7 @@ export class Utils {
   }
 
   public static isDataEmpty(arg: JsonrpcResponseSuccess): boolean {
-    return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true)
+    return Object.values(arg.result['data'])?.map(element => element as number[])?.every(element => element?.every(elem => elem == null) ?? true);
   }
 
   /**

@@ -20,7 +20,7 @@
       ],
       "rules": {
         "semi": [
-          "warn",
+          "error",
           "always"
         ],
         "quote-props": [

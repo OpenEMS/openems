@@ -3,8 +3,8 @@ import { FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractIbn } from '../../installation-systems/abstract-ibn';
-import { Category } from '../../shared/category';
 import { Commercial50Lastspitzenkappung } from '../../installation-systems/commercial/commercial-50/commercial50-lastspitzenkappung';
+import { Category } from '../../shared/category';
 
 @Component({
     selector: ConfigurationPeakShavingComponent.SELECTOR,
@@ -92,6 +92,6 @@ export class ConfigurationPeakShavingComponent implements OnInit {
 
     // Returns true if Asymmetric peakshaving (Phasengenaue Lastspitzenkappung) is selected in commercial features view.
     private isAsymmetricPeakShaving(): boolean {
-        return this.ibn.commercial50Feature.feature.type === Category.PEAK_SHAVING_ASYMMETRIC ? true : false
+        return this.ibn.commercial50Feature.feature.type === Category.PEAK_SHAVING_ASYMMETRIC ? true : false;
     }
 }

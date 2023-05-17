@@ -45,7 +45,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
     } = {
             category: Category.LINE_SIDE_METER_FUSE_COMMERCIAL,
             meterType: Meter.SOCOMEC
-        }
+        };
 
     public numberOfModulesPerTower: number;
 
@@ -124,7 +124,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 ],
                 required: true,
             }
-        })
+        });
 
         fields.push({
             key: 'maximumFeedInPower',
@@ -158,7 +158,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 {
                     label: this.translate.instant('INSTALLATION.PROTOCOL_FEED_IN_MANAGEMENT.EXTERNAL_CONTROLLER_RECIEVER'),
                     value: this.translate.instant('General.yes')
-                })
+                });
 
         return batteryInverterData;
     }
@@ -532,7 +532,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
                 { name: 'invalidateElementsAfterReadErrors', value: invalidateElementsAfterReadErrors }
             ],
             mode: ConfigurationMode.RemoveAndConfigure
-        }
+        };
     }
 
     /**
@@ -551,7 +551,7 @@ export abstract class AbstractCommercialIbn extends AbstractIbn {
             channelAddresses['module' + moduleNr] = new ChannelAddress('battery0', 'Tower' + towerNr + 'Module' + moduleNr + 'SerialNumber');
         }
 
-        return channelAddresses
+        return channelAddresses;
     }
 
     public getSerialNumbers(towerNr: number, edge: Edge, websocket: Websocket, numberOfModulesPerTower: number) {

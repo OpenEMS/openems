@@ -18,7 +18,7 @@ export class UserPermission {
 
     switch (user.id) {
       case 'volta-x':
-        return true
+        return true;
     }
 
     return Role.isAtLeast(user.globalRole, Role.INSTALLER);

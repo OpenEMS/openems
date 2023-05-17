@@ -4,12 +4,12 @@ import { ActivatedRoute } from '@angular/router';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments';
-import { COUNTRY_OPTIONS } from '../shared/type/country';
 import { GetUserInformationRequest } from '../shared/jsonrpc/request/getUserInformationRequest';
 import { SetUserInformationRequest } from '../shared/jsonrpc/request/setUserInformationRequest';
 import { UpdateUserLanguageRequest } from '../shared/jsonrpc/request/updateUserLanguageRequest';
 import { GetUserInformationResponse } from '../shared/jsonrpc/response/getUserInformationResponse';
 import { Service, Websocket } from '../shared/shared';
+import { COUNTRY_OPTIONS } from '../shared/type/country';
 import { Language } from '../shared/type/language';
 
 type UserInformation = {
