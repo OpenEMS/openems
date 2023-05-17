@@ -9,28 +9,46 @@
 :icons: font
 :imagesdir: ../../assets/images
 
-This chapter explains, how a OpenEMS UI Widget can be built.
+== Step-by-step guide
 
-== Implementing a UI-Widget
-
-There are many examples of how ui widgets are created and used in
-link:file:ui/src/app/edge/live/live.component.html[LiveComponent] and link:file:ui/src/app/edge/live/live.component.html[HistoryComponent].
-
-UI-Widgets created for the Live-View, mainly consist of two components:
-
-- `FlatWidget` : directly visible in Live-View:
-- `ModalComponent`: Popover, that can be opened when clicking on a `FlatWidget`
-- `Module`: Every `FlatWidget` and his corresponding `ModalComponent` should be wrapped inside their own module.
+This chapter explains the steps required to implement a UI Widget for OpenEMS UI. There are many examples of how ui widgets are created and used in
+link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/live.component.html[LiveComponent, window="_blank"] and link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/history/history.component.html[HistoryComponent, window="_blank"].
 
 
-.  Copy an existing Controller/Folder e.g. link:file:ui/src/app/edge/live/Controller/Ess/FixActivePower/Ess_FixActivePower.ts[FixActivePower].
+UI-Widgets mainly consist of these components:
 
-. Rename the link:file:ui/src/app/edge/live/Controller/Ess/FixActivePower/Ess_FixActivePower.ts[Module] and import it in link:file:ui/src/app/edge/live/live.module.ts[LiveModule].
+Module:: Modules should always be used to import and export all of the components, relevant to this Widget. The following components could be part of it: 
 
-. Change the `@Component` selector and use this selector inside link:file:ui/src/app/edge/live/live.component.html#L135[LiveComponent].
-+  
-The Live and History View are designed to show UI-Widgets dependent on the `EdgeConfig`, except of widgets listed in link:file:ui/src/app/edge/live/common/[Common].
-If you implemented a controller or component, that is part of `EdgeConfig` you will have to use the factoryId as a switchCase statement.
-If thats not the case, go into link:file:ui/src/app/shared/type/widget.ts[widget.ts] and add a identifier to the classes array. 
+     FlatWidget::: directly visible in Live-View.
+    ModalComponent::: Popover, that can be opened when clicking on a `FlatWidget`, used in Live-View.
+    Chart::: Chart that is shown instead of a modal, used in History-View
 
-. The Widget should now be visible in the Live-View.
+=== Create a new module [Live-View]
+
+.  Copy an existing Module e.g. link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/Controller/Ess/FixActivePower/Ess_FixActivePower.ts[FixActivePower, window="_blank"] and paste it somewhere inside the Live-View somewhere.
+
+. Change the `@Component` link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/Controller/Ess/FixActivePower/flat/flat.ts[selector, window="_blank"] and use it inside link:file:ui/src/app/edge/live/live.component.html#L135[LiveComponent, window="_blank"].
+
+. Rename the link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/Controller/Ess/FixActivePower/Ess_FixActivePower.ts[Module, window="_blank"] and import it in link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/live.module.ts[LiveModule, window="_blank"] under imports. 
+To be able to see the module in action, you need to create a new switchCase Statement with your controllers factoryId.
+
+[source,html]
+----
+    <ion-col size="12" *ngSwitchCase="'Controller.Ess.FixActivePower'" 
+    size-lg="6" class="ion-no-padding">
+        <Controller_Ess_FixActivePower [componentId]="widget.componentId">
+        </Controller_Ess_FixActivePower>
+    </ion-col>
+----
+
+
+
+NOTE: The Live and History View are designed to show UI-Widgets dependent on the `EdgeConfig`, except of widgets listed in link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/edge/live/common/[Common, window="_blank"].
+If you have implemented a controller or component, that is part of `EdgeConfig`, you will have to use the factoryId as a switchCase statement.
+If thats not the case, go into link:https://github.com/OpenEMS/openems/blob/develop/ui/src/app/shared/type/widget.ts[widget.ts, window="_blank"] and add a identifier to the classes array inside `parseWidgets()`.
+
+
+
+The FlatWidget should now be visible in the Live-View and can be looking like this.
+
+image::ui-flat-widget-fixactivepower.png[FlatWidget FixActivePower]
