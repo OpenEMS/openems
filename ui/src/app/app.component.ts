@@ -39,8 +39,8 @@ export class AppComponent implements OnInit, OnDestroy {
     checkForUpdateService.init();
 
     this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
-      this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user)
-    })
+      this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
+    });
   }
 
   ngOnInit() {

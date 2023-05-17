@@ -30,7 +30,7 @@ export class ModalComponent extends AbstractModal {
     protected override onCurrentData(currentData: CurrentData): void {
         var quarterlyPrice = currentData.allComponents[this.component.id + '/QuarterlyPrices'];
 
-        var currencyLabel: string = Currency.getCurrencyLabelByEdgeId(this.edge?.id)
+        var currencyLabel: string = Currency.getCurrencyLabelByEdgeId(this.edge?.id);
 
         // Since 'component' is empty during ngOninit. so assigning the labels through this method.
         this.storageStatuslabel = this.Utils.getTimeOfUseTariffStorageLabel(this.component, this.translate);
