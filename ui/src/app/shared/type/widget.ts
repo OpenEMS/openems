@@ -44,7 +44,7 @@ export type Icon = {
 
 export class Widget {
     public name: WidgetNature | WidgetFactory | String;
-    public componentId: string
+    public componentId: string;
 }
 
 export class Widgets {

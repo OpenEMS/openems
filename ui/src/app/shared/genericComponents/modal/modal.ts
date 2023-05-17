@@ -55,7 +55,7 @@ export class ModalComponent {
             updateComponentArray.push({
                 name: key,
                 value: this.formGroup.value[key]
-            })
+            });
         }
 
         if (this.edge) {
@@ -64,7 +64,7 @@ export class ModalComponent {
                     this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
                 }).catch(reason => {
                     this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                })
+                });
         }
         this.formGroup.markAsPristine();
     }

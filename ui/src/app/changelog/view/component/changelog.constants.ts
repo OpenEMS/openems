@@ -1,10 +1,15 @@
 import { Role } from "src/app/shared/type/role";
-import { environment } from "src/environments";
 
 export class Changelog {
 
     public static product(...products: Product[]) {
         return products.map(product => Changelog.link(product.name, product.url)).join(", ") + '. ';
+    }
+
+    public static app(app: App, ...names: string[]) {
+        return Changelog.link(app.name, app.url)
+            + (names.length === 0 ? "" : " (" + names.join(", ") + ")")
+            + ": ";
     }
 
     public static openems(version: string) {
@@ -29,6 +34,12 @@ export class Product {
     public static readonly OPENEMS_UI = new Product('OpenEMS Edge', 'https://github.com/OpenEMS/openems');
     public static readonly OPENEMS_BACKEND = new Product('OpenEMS Edge', 'https://github.com/OpenEMS/openems');
 
+    // private to disallow creating other instances of this type
+    private constructor(public readonly name: string, public readonly url: any) {
+    }
+}
+
+export class App {
     // private to disallow creating other instances of this type
     private constructor(public readonly name: string, public readonly url: any) {
     }

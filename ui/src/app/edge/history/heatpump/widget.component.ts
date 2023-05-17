@@ -18,10 +18,10 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
 
     public component: EdgeConfig.Component | null = null;
 
-    public activeTimeOverPeriodForceOn: number | null = null
-    public activeTimeOverPeriodRegular: number | null = null
-    public activeTimeOverPeriodRecommendation: number | null = null
-    public activeTimeOverPeriodLock: number | null = null
+    public activeTimeOverPeriodForceOn: number | null = null;
+    public activeTimeOverPeriodRegular: number | null = null;
+    public activeTimeOverPeriodRecommendation: number | null = null;
+    public activeTimeOverPeriodLock: number | null = null;
 
     public edge: Edge = null;
 
@@ -67,9 +67,9 @@ export class HeatpumpWidgetComponent extends AbstractHistoryWidget implements On
                     if (this.componentId + '/LockStateTime' in result.data) {
                         this.activeTimeOverPeriodLock = result.data[this.componentId + '/LockStateTime'];
                     }
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

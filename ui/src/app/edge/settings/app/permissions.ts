@@ -3,11 +3,11 @@ import { Edge } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 const keyTestUsers: string[] = [
-]
+];
 
 function isTestUser(user: User): boolean {
     return keyTestUsers.some((id) => {
-        return user.id === id
+        return user.id === id;
     });
 }
 
@@ -20,7 +20,13 @@ export function canEnterKey(edge: Edge, user: User): boolean {
     if (isTestUser(user)) {
         return true;
     }
-    return false
+    if (edge.roleIsAtLeast(Role.ADMIN)) {
+        return false;
+    }
+    if (edge.roleIsAtLeast(Role.OWNER)) {
+        return true;
+    }
+    return false;
 }
 
 export function hasPredefinedKey(edge: Edge, user: User): boolean {
@@ -31,5 +37,5 @@ export function hasPredefinedKey(edge: Edge, user: User): boolean {
 }
 
 export function hasKeyModel(edge: Edge): boolean {
-    return edge.isVersionAtLeast('2023.1.2')
+    return edge.isVersionAtLeast('2023.1.2');
 }
