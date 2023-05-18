@@ -1,2 +1,4 @@
 /bin_test/
 /generated/
+/**/.settings/
+.vscode/
