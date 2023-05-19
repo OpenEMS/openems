@@ -135,8 +135,8 @@ export class Commercial30NetztrennIbn extends AbstractCommercial30Ibn {
                         { name: 'inputGridStatus', value: 'io1/DigitalInputM0C2' },
                         { name: 'inputGroundingContactor', value: 'io1/DigitalInputM0C3' },
                         { name: 'inputMainContactor', value: 'io1/DigitalInputM0C1' },
-                        { name: 'outputGroundingContactor', value: 'io1/DigitalOutputM0C2' },
-                        { name: 'outputMainContactor', value: 'io1/DigitalOutputM0C1' }
+                        { name: 'outputGroundingContactor', value: 'io1/DigitalOutputM1C2' },
+                        { name: 'outputMainContactor', value: 'io1/DigitalOutputM1C1' }
                     ],
                     mode: ConfigurationMode.RemoveAndConfigure
                 }, 6);
