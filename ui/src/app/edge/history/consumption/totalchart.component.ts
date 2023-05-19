@@ -130,7 +130,7 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                             } else {
                                 if (channelAddress.channelId == 'ConsumptionActivePower') {
                                     datasets.push({
-                                        label: this.translate.instant('General.total'),
+                                        label: this.translate.instant('General.TOTAL'),
                                         data: data,
                                         hidden: false
                                     });
@@ -198,9 +198,9 @@ export class ConsumptionTotalChartComponent extends AbstractHistoryChart impleme
                                 }
 
                                 if (regularEvcsComponents.length > 1 && totalEvcsConsumption.length != 0) {
-                                    if (!this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.total') + ')' in datasets) {
+                                    if (!this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.TOTAL') + ')' in datasets) {
                                         datasets.push({
-                                            label: this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.total') + ')',
+                                            label: this.translate.instant('Edge.Index.Widgets.EVCS.chargingStation') + ' (' + this.translate.instant('General.TOTAL') + ')',
                                             data: totalEvcsConsumption,
                                             hidden: false
                                         });
