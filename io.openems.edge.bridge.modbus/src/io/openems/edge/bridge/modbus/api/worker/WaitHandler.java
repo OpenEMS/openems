@@ -23,17 +23,9 @@
 // */
 //public class WaitHandler {
 //
-//	private static final int BUFFER_MS = 20;
-//
 //	public final AtomicReference<WaitTask> activeWaitTask = new AtomicReference<>();
 //
 //	private final AtomicReference<LogVerbosity> logVerbosity;
-//
-//	/**
-//	 * Waiting times that would have been possible.
-//	 */
-//	private EvictingQueue<Long> possibleWaitingTimes = EvictingQueue.create(1);
-//
 //	private Instant stopwatch = null;
 //	private long lastWaitingTime = 0;
 //	private boolean isCycleTimeTooShort = false;
@@ -66,21 +58,6 @@
 //	 * Receive TOPIC_CYCLE_BEFORE_PROCESS_IMAGE event.
 //	 */
 //	public void onBeforeProcessImage() {
-//		var now = Instant.now();
-//
-//		final long possibleWaitingTime;
-//		final boolean isCycleTimeTooShort;
-//		if (this.stopwatch == null) {
-//			// No pending Tasks did never happen -> Tasks could not be finished
-//			this.log("'AllTasksFinished' did never happen"); // TODO remove before merge
-//			possibleWaitingTime = 0L;
-//			isCycleTimeTooShort = true;
-//		} else {
-//			// Calculate possible waiting time
-//			possibleWaitingTime = this.lastWaitingTime + Duration.between(this.stopwatch, now).toMillis();
-//			isCycleTimeTooShort = false;
-//			this.stopwatch = null;
-//		}
 //
 //		this.isCycleTimeTooShort = isCycleTimeTooShort;
 //		if (this.isCycleContainedDefectiveComponent) {
@@ -157,17 +134,5 @@
 //		this.isCycleContainedDefectiveComponent = true;
 //	}
 //
-//	// TODO remove before release
-//	private void log(String message) {
-//		switch (this.logVerbosity.get()) {
-//		case DEV_REFACTORING:
-//			System.out.println("WaitHandler: " + message);
-//			break;
-//		case NONE:
-//		case READS_AND_WRITES:
-//		case WRITES:
-//			break;
-//		}
-//	}
 //
 //}

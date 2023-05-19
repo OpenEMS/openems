@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.worker.DummyReadTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyWriteTask;
 import io.openems.edge.common.taskmanager.Priority;
@@ -45,7 +46,8 @@ public class CycleTasksTest {
 				.build();
 		var cycleTasksSupplier = new DummyCycleTasksSupplier(cycle1, cycle2);
 
-		var sut = new CycleTasksManager(cycleTasksSupplier, CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
+		var sut = new CycleTasksManager(LogVerbosity.DEV_REFACTORING, cycleTasksSupplier,
+				CYCLE_TIME_IS_TOO_SHORT_CALLBACK);
 
 		// Cycle 1
 		sut.onBeforeProcessImage();

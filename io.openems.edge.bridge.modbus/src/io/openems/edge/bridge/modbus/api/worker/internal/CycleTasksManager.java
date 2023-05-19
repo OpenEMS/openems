@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.api.worker.internal;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.task.Task;
 
 /**
@@ -22,10 +23,11 @@ public class CycleTasksManager {
 
 	private CycleTasks cycleTasks;
 
-	public CycleTasksManager(Supplier<CycleTasks> cycleTasksSupplier, Consumer<Boolean> cycleTimeIsTooShortCallback) {
+	public CycleTasksManager(LogVerbosity logVerbosity, Supplier<CycleTasks> cycleTasksSupplier,
+			Consumer<Boolean> cycleTimeIsTooShortCallback) {
 		this.cycleTasksSupplier = cycleTasksSupplier;
 		this.cycleTimeIsTooShortCallback = cycleTimeIsTooShortCallback;
-		this.waitDelayHandler = new WaitDelayHandler(() -> this.onWaitDelayTaskFinished());
+		this.waitDelayHandler = new WaitDelayHandler(logVerbosity, () -> this.onWaitDelayTaskFinished());
 	}
 
 	private static enum StateMachine {
