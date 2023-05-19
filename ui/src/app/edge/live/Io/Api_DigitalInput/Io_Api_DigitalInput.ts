@@ -27,8 +27,8 @@ export class Io_Api_DigitalInputComponent extends AbstractFlatWidget {
                 }
             }
             this.ioComponentCount = this.ioComponents.length;
-        })
-        return channels
+        });
+        return channels;
     }
 
     async presentModal() {

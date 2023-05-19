@@ -30,15 +30,15 @@ export class FixDigitalOutputChartOverviewComponent implements OnInit {
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
                 config.getComponentsByFactory('Controller.Io.FixDigitalOutput').forEach(component => {
-                    this.fixDigitalOutputComponents.push(component.id)
-                })
+                    this.fixDigitalOutputComponents.push(component.id);
+                });
                 if (this.fixDigitalOutputComponents.length > 1) {
                     this.showTotal = false;
                 } else if (this.fixDigitalOutputComponents.length == 1) {
                     this.showTotal = null;
                 }
-            })
-        })
+            });
+        });
 
     }
 

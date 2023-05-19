@@ -19,6 +19,14 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
+        "semi": [
+          "warn",
+          "always"
+        ],
+        "quote-props": [
+          "warn",
+          "consistent"
+        ],
         "@typescript-eslint/explicit-member-accessibility": [
           "error",
           {

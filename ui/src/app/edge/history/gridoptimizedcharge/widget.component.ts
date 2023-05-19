@@ -41,7 +41,7 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -67,9 +67,9 @@ export class GridOptimizedChargeWidgetComponent extends AbstractHistoryWidget im
                     if (this.componentId + '/NoLimitationTime' in result.data) {
                         this.activeTimeNoChargeLimit = result.data[this.componentId + '/NoLimitationTime'];
                     }
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

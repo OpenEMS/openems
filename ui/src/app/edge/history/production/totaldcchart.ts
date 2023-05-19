@@ -33,7 +33,7 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -56,7 +56,7 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
                 let address = ChannelAddress.fromString(channel);
                 let data = result.data[channel].map(value => {
                     if (value == null) {
-                        return null
+                        return null;
                     } else {
                         return value / 1000; // convert to kW
                     }
@@ -71,7 +71,7 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
                         borderColor: 'rgba(45,143,171,1)'
                     });
                 }
-            })
+            });
             this.datasets = datasets;
             this.loading = false;
             this.stopSpinner();
@@ -91,7 +91,7 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
             ];
             resolve(result);
 
-        })
+        });
     }
 
     protected setLabel() {
@@ -101,7 +101,7 @@ export class ProductionTotalDcChartComponent extends AbstractHistoryChart implem
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

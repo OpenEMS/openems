@@ -35,12 +35,12 @@ export class ChannelthresholdWidgetComponent extends AbstractHistoryWidget imple
                 this.edge = response;
                 this.config = config;
                 this.component = config.getComponent(this.componentId);
-            })
+            });
         });
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -54,7 +54,7 @@ export class ChannelthresholdWidgetComponent extends AbstractHistoryWidget imple
             this.service.getConfig().then(config => {
                 let outputChannel = ChannelAddress.fromString(config.getComponentProperties(this.componentId)['outputChannelAddress']);
                 this.activeSecondsOverPeriod = calculateActiveTimeOverPeriod(outputChannel, result);
-            })
+            });
         });
     };
 

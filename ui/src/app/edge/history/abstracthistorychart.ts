@@ -28,7 +28,7 @@ export abstract class AbstractHistoryChart {
     public labels: Date[] = [];
     public datasets: ChartDataSets[] = EMPTY_DATASET;
     public options: ChartOptions | null = DEFAULT_TIME_CHART_OPTIONS;
-    public colors = []
+    public colors = [];
     // prevents subscribing more than once
     protected hasSubscribed: boolean = false;
 
@@ -36,15 +36,15 @@ export abstract class AbstractHistoryChart {
     protected phase1Color = {
         backgroundColor: 'rgba(255,127,80,0.05)',
         borderColor: 'rgba(255,127,80,1)',
-    }
+    };
     protected phase2Color = {
         backgroundColor: 'rgba(0,0,255,0.1)',
         borderColor: 'rgba(0,0,255,1)',
-    }
+    };
     protected phase3Color = {
         backgroundColor: 'rgba(128,128,0,0.1)',
         borderColor: 'rgba(128,128,0,1)',
-    }
+    };
 
     constructor(
         public readonly spinnerId: string,
@@ -90,21 +90,21 @@ export abstract class AbstractHistoryChart {
                             this.errorResponse = error;
                             resolve(new QueryHistoricTimeseriesDataResponse(error.id, {
                                 timestamps: [null], data: { null: null }
-                            }))
+                            }));
                         });
                     });
-                })
-            })
+                });
+            });
         }).then((response) => {
             if (Utils.isDataEmpty(response)) {
                 this.loading = false;
-                this.service.stopSpinner(this.spinnerId)
-                this.initializeChart()
+                this.service.stopSpinner(this.spinnerId);
+                this.initializeChart();
             }
-            return response
-        })
+            return response;
+        });
 
-        return result
+        return result;
     }
 
     /**
@@ -127,23 +127,23 @@ export abstract class AbstractHistoryChart {
                     edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(fromDate, toDate, channelAddresses, resolution)).then(response => {
                         resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse ?? new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
                             timestamps: [null], data: { null: null }
-                        }))
+                        }));
                     }).catch((response) => {
                         this.errorResponse = response;
                         resolve(new QueryHistoricTimeseriesDataResponse("0", {
                             timestamps: [null], data: { null: null }
-                        }))
+                        }));
                     });
                 });
             });
         }).then((response) => {
             if (Utils.isDataEmpty(response)) {
                 this.loading = false;
-                this.service.stopSpinner(this.spinnerId)
+                this.service.stopSpinner(this.spinnerId);
                 this.initializeChart();
             }
-            return response
-        })
+            return response;
+        });
         return response;
     }
 
@@ -172,7 +172,7 @@ export abstract class AbstractHistoryChart {
         options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
             let date = new Date(tooltipItems[0].xLabel);
             return this.toTooltipTitle(this.service.historyPeriod.from, this.service.historyPeriod.to, date);
-        }
+        };
 
         //x-axis
         if (differenceInMonths(this.service.historyPeriod.to, this.service.historyPeriod.from) > 1) {
@@ -182,7 +182,7 @@ export abstract class AbstractHistoryChart {
         } else {
             options.scales.xAxes[0].time.unit = "hour";
         }
-        return options
+        return options;
     }
 
     /**
@@ -249,7 +249,7 @@ export abstract class AbstractHistoryChart {
      * @param spinnerSelector to stop spinner
      */
     protected initializeChart() {
-        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
+        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData');
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;
