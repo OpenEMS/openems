@@ -229,7 +229,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
     let resolution: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' };
 
     if (days <= 1) {
-        resolution = { resolution: { value: 5, unit: Unit.MINUTES }, timeFormat: 'hour' } // 5 Minutes
+        resolution = { resolution: { value: 5, unit: Unit.MINUTES }, timeFormat: 'hour' }; // 5 Minutes
     } else if (days == 2) {
         if (service.isSmartphoneResolution) {
             resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'hour' }; // 1 Day
@@ -241,7 +241,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         if (service.isSmartphoneResolution) {
             resolution = { resolution: { value: 1, unit: Unit.DAYS }, timeFormat: 'day' }; // 1 Day
         } else {
-            resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'hour' } // 1 Hour
+            resolution = { resolution: { value: 1, unit: Unit.HOURS }, timeFormat: 'hour' }; // 1 Hour
         }
 
     } else if (days <= 6) {
@@ -267,7 +267,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         // >> show Months
         resolution = { resolution: { value: 1, unit: Unit.MONTHS }, timeFormat: 'month' }; // 1 Month
     }
-    return resolution
+    return resolution;
 }
 
 /**

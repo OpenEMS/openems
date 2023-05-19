@@ -3,7 +3,6 @@ package io.openems.edge.meter.virtual.asymmetric.add;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
@@ -30,7 +29,7 @@ public class AsymmetricChannelManager extends SymmetricChannelManager {
 		var asymmetricMeters = meters.stream() //
 				.filter(AsymmetricMeter.class::isInstance) //
 				.map(AsymmetricMeter.class::cast) //
-				.collect(Collectors.toList());
+				.toList();
 
 		this.calculate(INTEGER_SUM, asymmetricMeters, AsymmetricMeter.ChannelId.ACTIVE_POWER_L1);
 		this.calculate(INTEGER_SUM, asymmetricMeters, AsymmetricMeter.ChannelId.ACTIVE_POWER_L2);

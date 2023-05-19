@@ -41,10 +41,11 @@ import { UserComponent } from './user/user.component';
 import { EdgeComponent } from './edge/edge.component';
 import { HistoryParentComponent } from './edge/history/historyparent.component';
 import { ChangelogViewComponent } from './changelog/view/view';
+import { environment } from 'src/environments';
 
 const routes: Routes = [
   { path: '', redirectTo: 'index', pathMatch: 'full' },
-  { path: 'index', component: IndexComponent },
+  { path: 'index', data: { navbarTitle: environment.uiTitle }, component: IndexComponent },
 
   { path: 'user', component: UserComponent },
   { path: 'changelog', component: ChangelogViewComponent },
@@ -53,7 +54,7 @@ const routes: Routes = [
   {
     path: 'device/:edgeId', component: EdgeComponent, children: [
       { path: '', redirectTo: 'live', pathMatch: 'full' },
-      { path: 'live', component: EdgeLiveComponent },
+      { path: 'live', data: { navbarTitle: environment.uiTitle }, component: EdgeLiveComponent },
       {
         path: 'history', component: HistoryParentComponent, children: [
           { path: '', component: EdgeHistoryComponent },
@@ -78,7 +79,7 @@ const routes: Routes = [
         ]
       },
 
-      { path: 'settings', component: EdgeSettingsComponent },
+      { path: 'settings', data: { navbarTitleToBeTranslated: 'Menu.edgeSettings' }, component: EdgeSettingsComponent },
       { path: 'settings/channels', component: EdgeSettingsChannelsComponent },
       { path: 'settings/component.install', component: EdgeSettingsComponentInstallIndexComponentComponent },
       { path: 'settings/component.install/:factoryId', component: EdgeSettingsComponentInstallComponentComponent },
@@ -90,8 +91,7 @@ const routes: Routes = [
       { path: 'settings/systemexecute', component: EdgeSettingsSystemExecuteComponent },
       { path: 'settings/systemlog', component: EdgeSettingsSystemLogComponent },
       { path: 'settings/systemupdate', component: EdgeSettingsSystemUpdateComponent },
-      { path: 'settings/app', component: EdgeSettingsAppIndex },
-      { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
+      { path: 'settings/app',data: { navbarTitle: environment.edgeShortName + ' Apps' }, component: EdgeSettingsAppIndex },      { path: 'settings/app/install/:appId', component: EdgeSettingsAppInstall },
       { path: 'settings/app/update/:appId', component: EdgeSettingsAppUpdate },
       { path: 'settings/app/single/:appId', component: EdgeSettingsAppSingle },
       { path: 'settings/alerting', component: EdgeSettingsAlerting },

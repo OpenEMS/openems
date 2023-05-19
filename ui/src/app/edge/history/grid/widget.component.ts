@@ -32,7 +32,7 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
     }
 
     ngOnDestroy() {
-        this.unsubscribeWidgetRefresh()
+        this.unsubscribeWidgetRefresh();
     }
 
     ngOnChanges() {
@@ -46,9 +46,9 @@ export class GridComponent extends AbstractHistoryWidget implements OnInit, OnCh
                     this.data = response.result.data;
                 }).catch(() => {
                     this.data = null;
-                })
+                });
             });
-        })
+        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {

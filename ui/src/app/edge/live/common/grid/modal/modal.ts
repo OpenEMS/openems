@@ -59,10 +59,15 @@ export class ModalComponent {
         })
     });
 
-    return fields;
-  }
+    const asymmetricMeters = this.config.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter")
+      .filter(comp => comp.isEnabled && this.config.isTypeGrid(comp))
 
-  public static generateView(edgeId: string, edgeConfig: EdgeConfig, userRole: Role, translate: TranslateService): FormlyFieldConfig[] {
+    this.config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
+      .filter(component => component.isEnabled && this.config.isTypeGrid(component))
+      .forEach(component => {
+        var isAsymmetric = asymmetricMeters.filter(element => component.id == element.id).length > 0;
+        this.meters.push({ component: component, isAsymmetric: isAsymmetric });
+      })
 
     const asymmetricMeters = edgeConfig.getComponentsImplementingNature("io.openems.edge.meter.api.AsymmetricMeter")
       .filter(comp => comp.isEnabled && edgeConfig.isTypeGrid(comp));

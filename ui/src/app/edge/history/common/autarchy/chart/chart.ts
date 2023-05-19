@@ -28,7 +28,7 @@ export class ChartComponent extends AbstractHistoryChart {
             displayValue: [{
                 name: this.translate.instant('General.autarchy'),
                 getValue: function (data: number[]) {
-                    return data['Consumption'].map((value, index) => Utils.calculateAutarchy(data['GridBuy'][index], value))
+                    return data['Consumption'].map((value, index) => Utils.calculateAutarchy(data['GridBuy'][index], value));
                 },
                 color: 'rgb(0,152,204)'
             }],
@@ -37,7 +37,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 formatNumber: '1.0-0'
             },
             yAxisTitle: this.translate.instant("General.percentage"),
-        }
+        };
     }
     protected override getChannelAddresses() {
         return {
@@ -49,6 +49,6 @@ export class ChartComponent extends AbstractHistoryChart {
                 new ChannelAddress('_sum', 'GridBuyActiveEnergy'),
                 new ChannelAddress('_sum', 'ConsumptionActiveEnergy')
             ]
-        }
+        };
     }
 }
