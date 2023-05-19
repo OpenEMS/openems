@@ -28,7 +28,7 @@ export class Language {
     public static readonly FR: Language = new Language("French", "fr", fr);
 
     public static readonly ALL = [Language.DE, Language.EN, Language.CZ, Language.NL, Language.ES, Language.FR];
-    public static readonly DEFAULT = Language.DE;
+    public static readonly DEFAULT = Language.EN;
 
     public static getByKey(key: string): Language | null {
         for (let language of Language.ALL) {

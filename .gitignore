@@ -230,4 +230,6 @@ io.openems.edge.controller.api.mqtt/edge0
 io.openems.edge.application/c:/
 
 **/.settings/*.prefs
+**/.project
+**/.classpath
 .vscode/

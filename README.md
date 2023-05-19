@@ -39,7 +39,6 @@ To view build tasks, in a terminal on Mac, Linux, or Windows Subsystem for Linux
 ### Pre-requisites
 
 - Java 17 - [Official](https://www.oracle.com/java/) or [OpenJDK](https://openjdk.org/)
-- [Eclipse](https://www.eclipse.org/ide/)
 - [Node.JS 16](https://nodejs.org/e)
 
 Installing Java 17 on a Mac, Linux, or Windows Subsystem for Linux:
