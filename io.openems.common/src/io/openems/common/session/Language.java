@@ -16,7 +16,7 @@ public enum Language {
 	ES(Locale.forLanguageTag("es")), //
 	FR(Locale.FRENCH);
 
-	public static Language DEFAULT = Language.DE;
+	public static Language DEFAULT = Language.EN;
 
 	private static Logger LOG = LoggerFactory.getLogger(Language.class);
 
