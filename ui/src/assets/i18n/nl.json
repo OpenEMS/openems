@@ -334,7 +334,7 @@
         "TimeOfUseTariff": {
           "currentTariff": "Huidige prijs",
           "delayedDischarge": "Vertraagd ontslag",
-          "storageDischarge": "Opslag ontlading",
+          "STORAGE_DISCHARGE": "Opslag ontlading",
           "State": {
             "notStarted": "De regelaar is nog niet gestart",
             "delayed": "Vertraagd",

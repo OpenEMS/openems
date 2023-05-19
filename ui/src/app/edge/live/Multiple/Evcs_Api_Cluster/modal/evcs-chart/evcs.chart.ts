@@ -58,7 +58,7 @@ export class EvcsChartComponent implements OnInit, OnChanges {
     let index = 0;
     for (let evcsId in this.evcsMap) {
       let chargePower = this.edge.currentData.value.channel[evcsId + '/ChargePower'];
-      let chargePowerKW = chargePower / 1000.0
+      let chargePowerKW = chargePower / 1000.0;
       let alias = this.evcsConfigMap[evcsId].properties.alias;
       if (this.datasets[index] == null) {
         this.datasets.push({

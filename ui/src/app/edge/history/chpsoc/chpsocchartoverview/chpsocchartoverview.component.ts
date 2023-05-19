@@ -26,7 +26,7 @@ export class ChpSocChartOverviewComponent implements OnInit {
                 this.edge = edge;
                 this.config = config;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
-            })
-        })
+            });
+        });
     }
 }

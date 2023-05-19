@@ -34,7 +34,7 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
     }
 
     ngOnDestroy() {
-        this.unsubscribeChartRefresh()
+        this.unsubscribeChartRefresh();
     }
 
     protected updateChart() {
@@ -59,7 +59,7 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
                         channelAddresses.forEach(channelAddress => {
                             let data = result.data[channelAddress.toString()].map(value => {
                                 if (value == null) {
-                                    return null
+                                    return null;
                                 } else {
                                     return value / 1000; // convert to kW
                                 }
@@ -135,7 +135,7 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
                 new ChannelAddress('_sum', 'ProductionAcActivePowerL3'),
             ];
             resolve(result);
-        })
+        });
     }
 
     protected setLabel() {
@@ -145,7 +145,7 @@ export class ProductionSingleChartComponent extends AbstractHistoryChart impleme
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
             return label + ": " + formatNumber(value, 'de', '1.0-2') + " kW";
-        }
+        };
         this.options = options;
     }
 

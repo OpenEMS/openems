@@ -22,7 +22,7 @@ export namespace Role {
             case "guest":
                 return Role.GUEST;
             default:
-                console.warn("Role [" + name + "] not found.")
+                console.warn("Role [" + name + "] not found.");
                 return Role.GUEST;
         }
     }

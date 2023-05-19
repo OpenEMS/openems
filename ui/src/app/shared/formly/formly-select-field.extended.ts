@@ -40,11 +40,11 @@ export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
                 // nothing selected
                 return;
             }
-            const selectedValue = event.data.selectedValue
+            const selectedValue = event.data.selectedValue;
             if (!selectedValue) {
                 return;
             }
-            this.formControl.setValue(selectedValue)
+            this.formControl.setValue(selectedValue);
         });
         return await modal.present();
     }

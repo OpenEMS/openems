@@ -35,7 +35,7 @@ export class ModalComponent extends AbstractModal {
             if ('ess.id' in this.component.properties) {
                 channels.push(
                     new ChannelAddress(this.component.properties['ess.id'], "Capacity"),
-                )
+                );
             }
         }
         channels.push(
@@ -48,8 +48,8 @@ export class ModalComponent extends AbstractModal {
             new ChannelAddress(this.component.id, "TargetMinute"),
             new ChannelAddress(this.component.id, "DelayChargeMaximumChargeLimit"),
             new ChannelAddress(this.component.id, "PredictedChargeStartEpochSeconds")
-        )
-        return channels
+        );
+        return channels;
     }
 
     protected override onCurrentData(currentData: CurrentData) {
@@ -62,7 +62,7 @@ export class ModalComponent extends AbstractModal {
             this.chargeLimit = {
                 name: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.minimumCharge'),
                 value: currentData.thisComponent['SellToGridLimitMinimumChargeLimit']
-            }
+            };
             this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.gridFeedInLimitationIsAvoided');
 
         } else {
@@ -71,23 +71,23 @@ export class ModalComponent extends AbstractModal {
             switch (currentData.thisComponent['DelayChargeState']) {
                 case -1: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.notDefined');
                     break;
-                case 0: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive')
+                case 0: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.chargeLimitActive');
                     break;
-                case 1: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.passedEndTime')
+                case 1: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.passedEndTime');
                     break;
-                case 2: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.storageAlreadyFull')
+                case 2: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.storageAlreadyFull');
                     break;
-                case 3: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.endTimeNotCalculated')
+                case 3: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.endTimeNotCalculated');
                     break;
-                case 4: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible')
+                case 4: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitPossible');
                     break;
                 case 5:
 
                 // Case 6: 'DISABLED' hides 'state-line', so no Message needed 
-                case 7: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive')
+                case 7: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.State.noLimitActive');
                     break;
 
-                case 8: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed')
+                case 8: this.state = this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.chargingDelayed');
                     break;
             }
 
@@ -96,17 +96,17 @@ export class ModalComponent extends AbstractModal {
                 this.chargeLimit = {
                     name: this.translate.instant('Edge.Index.Widgets.GridOptimizedCharge.maximumCharge'),
                     value: currentData.thisComponent['DelayChargeMaximumChargeLimit']
-                }
+                };
             }
         }
         this.delayChargeState = currentData.thisComponent['DelayChargeState'];
 
         // Capacity (visible for admin only)
         if (this.edge.roleIsAtLeast(Role.ADMIN) && 'ess.id' in this.component.properties) {
-            this.channelCapacity = currentData.allComponents[this.component.properties['ess.id'] + '/Capacity']
+            this.channelCapacity = currentData.allComponents[this.component.properties['ess.id'] + '/Capacity'];
         }
 
-        this.maximumSellToGridPower = currentData.thisComponent['_PropertyMaximumSellToGridPower']
+        this.maximumSellToGridPower = currentData.thisComponent['_PropertyMaximumSellToGridPower'];
         this.targetMinute = currentData.thisComponent['TargetMinute'];
         this.delayChargeMaximumChargeLimit = currentData.thisComponent['DelayChargeMaximumChargeLimit'];
         this.targetEpochSeconds = currentData.thisComponent['TargetEpochSeconds'];
@@ -123,7 +123,7 @@ export class ModalComponent extends AbstractModal {
             ])),
             delayChargeRiskLevel: new FormControl(this.component.properties.delayChargeRiskLevel),
             manualTargetTime: new FormControl(this.component.properties.manualTargetTime)
-        })
+        });
     }
 }
 

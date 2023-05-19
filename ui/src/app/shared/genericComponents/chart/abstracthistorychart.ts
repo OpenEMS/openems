@@ -64,14 +64,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
 
     public updateChart() {
         this.service.startSpinner(this.spinnerId);
-        this.loadChart()
+        this.loadChart();
     }
 
     private fillChart(response: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse) {
 
         // TODO remove, when all widgets are refactored
         if (Utils.isDataEmpty(response)) {
-            return
+            return;
         }
 
         let result = response.result;
@@ -85,7 +85,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                 this.chartObject.channel[element.name] = result.data[channelAddress.toString()].map(value => {
 
                     if (value == null) {
-                        return null
+                        return null;
                     } else {
                         switch (element.filter) {
                             case ChannelFilter.NOT_NULL:
@@ -103,12 +103,12 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                                     return 0;
                                 }
                             default:
-                                return value
+                                return value;
                         }
                     }
-                })
+                });
             }
-        })
+        });
         let datasets: any[] = [];
         let colors: any[] = [];
         for (let displayValue of this.chartObject.displayValue) {
@@ -116,11 +116,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                 label: displayValue.name,
                 data: displayValue.getValue(this.chartObject.channel) ?? null,
                 hidden: !isLabelVisible(displayValue.name),
-            })
+            });
             colors.push({
                 backgroundColor: 'rgba(' + displayValue.color.split('(').pop().split(')')[0] + ',0.05)',
                 borderColor: 'rgba(' + displayValue.color.split('(').pop().split(')')[0] + ',1)',
-            })
+            });
         }
         this.datasets = datasets;
         this.colors = colors;
@@ -166,18 +166,18 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                 this.datasets.forEach(element => {
                     element.barPercentage = barWidthPercentage;
                     element.categoryPercentage = categoryGapPercentage;
-                })
+                });
                 this.chartType = 'bar';
                 this.setChartLabel();
-            })
+            });
 
         } else {
             // Shows Line-Chart
             this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-                this.chartType = 'line'
+                this.chartType = 'line';
                 this.fillChart(response);
                 this.setChartLabel();
-            })
+            });
         }
     }
 
@@ -212,22 +212,22 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                         this.errorResponse = response;
                         resolve(new QueryHistoricTimeseriesDataResponse("0", {
                             timestamps: [null], data: { null: null }
-                        }))
+                        }));
                     });
-                })
-            })
+                });
+            });
         }).then((response) => {
 
             // Check if channelAddresses are empty
             if (Utils.isDataEmpty(response)) {
                 // load defaultchart
-                this.service.stopSpinner(this.spinnerId)
-                this.initializeChart()
+                this.service.stopSpinner(this.spinnerId);
+                this.initializeChart();
             }
-            return response
-        })
+            return response;
+        });
 
-        return result
+        return result;
     }
 
     /**
@@ -258,21 +258,21 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
                         this.errorResponse = response;
                         resolve(new QueryHistoricTimeseriesDataResponse("0", {
                             timestamps: [null], data: { null: null }
-                        }))
+                        }));
                     });
-                })
+                });
             });
         }).then((response) => {
 
             // Check if channelAddresses are empty
             if (Utils.isDataEmpty(response)) {
                 // load defaultchart
-                this.service.stopSpinner(this.spinnerId)
-                this.initializeChart()
+                this.service.stopSpinner(this.spinnerId);
+                this.initializeChart();
             }
-            return response
-        })
-        return response
+            return response;
+        });
+        return response;
     }
 
     /**
@@ -323,14 +323,14 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
         options.tooltips.callbacks.title = (tooltipItems: TooltipItem[], data: Data): string => {
             let date = new Date(tooltipItems[0].xLabel);
             return this.toTooltipTitle(this.service.historyPeriod.from, this.service.historyPeriod.to, date);
-        }
+        };
         options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
             let label = data.datasets[tooltipItem.datasetIndex].label;
             let value = tooltipItem.yLabel;
 
             // Show floating point number for values between 0 and 1
             return label + ": " + formatNumber(value, 'de', chartObject.tooltip.formatNumber) + ' ' + chartObject.tooltip.unit;
-        }
+        };
 
         // Set Y-Axis Title
         options.scales.yAxes[0].scaleLabel.labelString = chartObject.yAxisTitle;
@@ -345,7 +345,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
             // Set @Angular SessionStorage for Labels to check if they are hidden
             setLabelVisible(legendItem.text, !chart.isDatasetVisible(legendItemIndex));
             original.call(this, event, legendItem);
-        }
+        };
         this.options = options;
         this.loading = false;
         this.service.stopSpinner(this.spinnerId);
@@ -356,7 +356,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
      * @param spinnerSelector to stop spinner
      */
     protected initializeChart() {
-        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData')
+        EMPTY_DATASET[0].label = this.translate.instant('Edge.History.noData');
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;
@@ -367,11 +367,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnChanges {
      * Gets the ChannelAddresses that should be queried.
      */
     protected getChannelAddresses(): { powerChannels: ChannelAddress[], energyChannels: ChannelAddress[] } {
-        return null
+        return null;
     };
 
     protected getChartData(): ChartData | null {
-        return null
+        return null;
     }
 
     /**
