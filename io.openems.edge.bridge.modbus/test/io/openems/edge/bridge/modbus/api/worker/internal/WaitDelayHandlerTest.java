@@ -16,11 +16,11 @@ public class WaitDelayHandlerTest {
 
 		sut.onFinished();
 		ticker.advance(100, TimeUnit.MILLISECONDS);
-		sut.onBeforeProcessImage();
-		
+		sut.onBeforeProcessImage(false);
+
 		sut.onFinished();
 		ticker.advance(100, TimeUnit.MILLISECONDS);
-		sut.onBeforeProcessImage();
+		sut.onBeforeProcessImage(false);
 	}
 
 }

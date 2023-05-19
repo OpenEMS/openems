@@ -19,63 +19,49 @@ public class WaitDelayHandler {
 
 	private WaitDelayTask waitDelayTask;
 
+	private boolean previousCycleContainedDefectiveComponents;
+
 	protected WaitDelayHandler(LogVerbosity logVerbosity, Ticker ticker, Runnable onWaitDelayTaskFinished) {
 		this.logVerbosity = logVerbosity;
 		this.stopwatch = Stopwatch.createUnstarted(ticker);
 		this.onWaitDelayTaskFinished = onWaitDelayTaskFinished;
-		this.waitDelayTask = this.generateWaitDelayTask();
+		this.waitDelayTask = this.generateZeroWaitDelayTask();
 	}
 
 	public WaitDelayHandler(LogVerbosity logVerbosity, Runnable onWaitDelayTaskFinished) {
 		this(logVerbosity, Ticker.systemTicker(), onWaitDelayTaskFinished);
 	}
 
-	public void onBeforeProcessImage() {
-		final long possibleDelay;
-		if (this.stopwatch.isRunning()) {
-			// Coming from FINISHED state -> it's possible to increase delay
-			this.stopwatch.stop();
-			possibleDelay = this.waitDelayTask.initialDelay + this.stopwatch.elapsed().toMillis();
-			this.log("onBeforeProcessImage: measured possible delay [" + this.waitDelayTask.initialDelay + " + "
-					+ this.stopwatch.elapsed().toMillis() + " = " + possibleDelay + "]");
-		} else {
-			// FINISHED state has not happened -> reduce possible delay
-			this.log("onBeforeProcessImage: FINISHED state has not happened -> reduce possible delay");
-			this.stopwatch.stop();
-			possibleDelay = 0;
-		}
+	public void onBeforeProcessImage(boolean nextCycleContainsDefectiveComponents) {
+		if (previousCycleContainedDefectiveComponents) {
+			// Do not add possibleDelay if previous Cycle contained a defective component
+			final long possibleDelay;
+			if (this.stopwatch.isRunning()) {
+				// Coming from FINISHED state -> it's possible to increase delay
+				this.stopwatch.stop();
+				possibleDelay = this.waitDelayTask.initialDelay + this.stopwatch.elapsed().toMillis();
+				this.log("onBeforeProcessImage: measured possible delay [" + this.waitDelayTask.initialDelay + " + "
+						+ this.stopwatch.elapsed().toMillis() + " = " + possibleDelay + "]");
+			} else {
+				// FINISHED state has not happened -> reduce possible delay
+				this.log("onBeforeProcessImage: FINISHED state has not happened -> reduce possible delay");
+				this.stopwatch.stop();
+				possibleDelay = 0;
+			}
 
-		// if (this.isCycleContainedDefectiveComponent) {
-		// // Do not add possibleWaitingTime if this Cycle contained a defective
-		// component.
-		// // Additionally remove recent zeros, because there might have been an overlap
-		// of
-		// // Tasks and Cycles, i.e. reading from a defective component might have
-		// already
-		// // blocked a previous Cycle and caused a zero possible waiting time.
-		// var hasNonZeroElements = this.possibleWaitingTimes.stream().anyMatch(v -> v >
-		// 0);
-		// if (hasNonZeroElements) {
-		// Iterator<Long> i = this.possibleWaitingTimes.iterator();
-		// var foundNonZeroElement = false;
-		// while (i.hasNext()) {
-		// var v = i.next();
-		// if (foundNonZeroElement && v == 0) {
-		// i.remove();
-		// } else if (!foundNonZeroElement && v > 0) {
-		// foundNonZeroElement = true;
-		// }
-		// }
-		// }
-		// } else {
-		this.possibleDelays.add(possibleDelay);
-		// }
-		// this.isCycleContainedDefectiveComponent = false;
+			this.possibleDelays.add(possibleDelay);
+		}
 
 		// TODO handle defective components; copy from old WaitHandler
 
 		// Initialize a new WaitDelayTask.
-		this.waitDelayTask = this.generateWaitDelayTask();
+		if (nextCycleContainsDefectiveComponents) {
+			this.waitDelayTask = this.generateZeroWaitDelayTask();
+		} else {
+			this.waitDelayTask = this.generateWaitDelayTask();
+		}
+
+		this.previousCycleContainedDefectiveComponents = nextCycleContainsDefectiveComponents;
 	}
 
 	public void onFinished() {
@@ -100,7 +86,7 @@ public class WaitDelayHandler {
 		this.log("generateWaitDelayTask: PossibleDelays " //
 				+ "[" + this.possibleDelays.size() + "/"
 				+ (this.possibleDelays.size() + this.possibleDelays.remainingCapacity()) + "] " //
-				+ this.possibleDelays + " -> " + shortestPossibleDelay); // TODO
+				+ this.possibleDelays + " -> " + shortestPossibleDelay);
 		final long delay;
 		if (shortestPossibleDelay == null || shortestPossibleDelay < BUFFER_MS) {
 			delay = 0;
@@ -108,6 +94,11 @@ public class WaitDelayHandler {
 			delay = shortestPossibleDelay - BUFFER_MS;
 		}
 		return new WaitDelayTask(delay, this.onWaitDelayTaskFinished);
+	}
+
+	private WaitDelayTask generateZeroWaitDelayTask() {
+		this.log("generateZeroWaitDelayTask");
+		return new WaitDelayTask(0, this.onWaitDelayTaskFinished);
 	}
 
 	// TODO remove before release

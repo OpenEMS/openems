@@ -17,7 +17,7 @@ import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
-import io.openems.edge.bridge.modbus.api.worker.DefectiveComponents;
+import io.openems.edge.bridge.modbus.api.worker.DefectiveComponentsHandler;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.taskmanager.TasksManager;
 
@@ -41,10 +41,10 @@ public class CycleTasksSupplier implements Supplier<CycleTasks> {
 	 */
 	private final Queue<ReadTask> nextLowPriorityTasks = new LinkedList<>();
 
-	private final DefectiveComponents defectiveComponents;
+	private final DefectiveComponentsHandler defectiveComponents;
 	private final AtomicReference<LogVerbosity> logVerbosity;
 
-	public CycleTasksSupplier(DefectiveComponents defectiveComponents, AtomicReference<LogVerbosity> logVerbosity) {
+	public CycleTasksSupplier(DefectiveComponentsHandler defectiveComponents, AtomicReference<LogVerbosity> logVerbosity) {
 		this.defectiveComponents = defectiveComponents;
 		this.logVerbosity = logVerbosity;
 	}
@@ -153,7 +153,7 @@ public class CycleTasksSupplier implements Supplier<CycleTasks> {
 	 * 
 	 * @return a list of tasks
 	 */
-	private Queue<ReadTask> getNextReadTasks() {
+	private LinkedList<ReadTask> getNextReadTasks() {
 		var result = this.getHighPriorityReadTasks();
 
 		var lowPriorityTask = this.getOneLowPriorityReadTask();
@@ -168,8 +168,9 @@ public class CycleTasksSupplier implements Supplier<CycleTasks> {
 	 * 
 	 * @return a list of tasks
 	 */
-	private Queue<WriteTask> getNextWriteTasks() {
-		// TODO add IMMEDIATE priority for WriteTasks. See https://github.com/OpenEMS/openems/pull/1976#issuecomment-1411609673
+	private LinkedList<WriteTask> getNextWriteTasks() {
+		// TODO add IMMEDIATE priority for WriteTasks. See
+		// https://github.com/OpenEMS/openems/pull/1976#issuecomment-1411609673
 		return this.writeTaskManagers.entrySet().stream() //
 				// Take only components that are not defective
 				// TODO does not work if component has no read tasks

@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.bridge.modbus.api.worker.DefectiveComponentsHandler;
 
 /**
  * Manages the Read-, Write- and Wait-Tasks for one Cycle.
@@ -20,6 +21,7 @@ public class CycleTasksManager {
 	private final Consumer<Boolean> cycleTimeIsTooShortCallback;
 	private final WaitDelayHandler waitDelayHandler;
 	private final WaitMutexTask waitMutexTask = new WaitMutexTask();
+	private final DefectiveComponentsHandler defectiveComponentsHandler = new DefectiveComponentsHandler();
 
 	private CycleTasks cycleTasks;
 
@@ -56,9 +58,13 @@ public class CycleTasksManager {
 
 		// Fill queues for this Cycle
 		this.cycleTasks = this.cycleTasksSupplier.get();
+		// TODO alternativ hier schon 'containsDefectiveCOmponents' füllen:
+		// this.cycleTasks =
+		// this.cycleTasksSupplier.get(this.defectiveComponentsHandler);
 
 		// Calculate Delay
-		this.waitDelayHandler.onBeforeProcessImage();
+		this.waitDelayHandler
+				.onBeforeProcessImage(this.cycleTasks.containsDefectiveComponent(this.defectiveComponentsHandler));
 
 		// Initialize next Cycle
 		this.state = StateMachine.INITIAL_WAIT;

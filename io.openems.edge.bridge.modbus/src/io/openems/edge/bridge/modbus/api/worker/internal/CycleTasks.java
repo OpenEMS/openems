@@ -1,16 +1,16 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.stream.Stream;
 
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
+import io.openems.edge.bridge.modbus.api.worker.DefectiveComponentsHandler;
 
 /**
  * Holds the Read- and Write-Tasks for one Cycle.
  */
-public record CycleTasks(Queue<ReadTask> reads, Queue<WriteTask> writes) {
+public record CycleTasks(LinkedList<ReadTask> reads, LinkedList<WriteTask> writes) {
 
 	public static class Builder {
 		private final LinkedList<ReadTask> reads = new LinkedList<>();
@@ -41,5 +41,11 @@ public record CycleTasks(Queue<ReadTask> reads, Queue<WriteTask> writes) {
 	 */
 	public static Builder create() {
 		return new Builder();
+	}
+
+	public boolean containsDefectiveComponent(DefectiveComponentsHandler defectiveComponents) {
+		return Stream.concat(this.reads.stream(), this.writes.stream()) //
+				.map(t -> t.getParent().id()) //
+				.anyMatch(c -> defectiveComponents.isKnown(c));
 	}
 }

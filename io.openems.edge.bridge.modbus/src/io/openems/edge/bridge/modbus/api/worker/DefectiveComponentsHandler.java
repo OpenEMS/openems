@@ -6,7 +6,7 @@ import java.util.Map;
 
 import io.openems.edge.common.type.TypeUtils;
 
-public class DefectiveComponents {
+public class DefectiveComponentsHandler {
 	/**
 	 * Do not retry reading from/writing to a defective Component for PAUSE_SECONDS.
 	 */
@@ -14,7 +14,7 @@ public class DefectiveComponents {
 
 	private final Map<String, Instant> nextTries = new HashMap<>();
 
-	public DefectiveComponents() {
+	public DefectiveComponentsHandler() {
 	}
 
 	/**
