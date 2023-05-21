@@ -10,7 +10,7 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
  * {@link ModbusElement} which have register addresses in the same range.
  */
-public abstract class AbstractTask implements Task {
+public abstract class AbstractTask {
 
 	private final int length;
 	private final int startAddress;
@@ -31,27 +31,22 @@ public abstract class AbstractTask implements Task {
 		this.length = length;
 	}
 
-	@Override
 	public ModbusElement<?>[] getElements() {
 		return this.elements;
 	}
 
-	@Override
 	public int getLength() {
 		return this.length;
 	}
 
-	@Override
 	public int getStartAddress() {
 		return this.startAddress;
 	}
 
-	@Override
 	public void setParent(AbstractOpenemsModbusComponent parent) {
 		this.parent = parent;
 	}
 
-	@Override
 	public AbstractOpenemsModbusComponent getParent() {
 		return this.parent;
 	}
@@ -64,7 +59,6 @@ public abstract class AbstractTask implements Task {
 	 * @return the number of executed Sub-Tasks
 	 * @throws OpenemsException on error
 	 */
-	@Override
 	public abstract int execute(AbstractModbusBridge bridge) throws OpenemsException;
 
 	/*
@@ -100,7 +94,6 @@ public abstract class AbstractTask implements Task {
 		return bridge.getLogVerbosity();
 	}
 
-	@Override
 	public void deactivate() {
 		for (ModbusElement<?> element : this.elements) {
 			element.deactivate();

@@ -10,10 +10,10 @@ import io.openems.common.utils.Mutex;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.common.taskmanager.Priority;
 
-public class WaitMutexTask implements Task {
+public class WaitMutexTask implements WaitTask {
 
 	private final Logger log = LoggerFactory.getLogger(WaitMutexTask.class);
 	private final Mutex mutex = new Mutex(false);

@@ -1,21 +1,31 @@
-package io.openems.edge.bridge.modbus.api.worker;
+package io.openems.edge.bridge.modbus.api.worker.internal;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 import io.openems.edge.common.type.TypeUtils;
 
-public class DefectiveComponentsHandler {
+public class DefectiveComponents {
 	/**
 	 * Do not retry reading from/writing to a defective Component for PAUSE_SECONDS.
 	 */
 	public static final int PAUSE_SECONDS = 30;
 
+	private final Clock clock;
 	private final Map<String, Instant> nextTries = new HashMap<>();
 
-	public DefectiveComponentsHandler() {
+	public DefectiveComponents() {
+		this(Clock.systemDefaultZone());
 	}
+
+	protected DefectiveComponents(Clock clock) {
+		this.clock = clock;
+	}
+
+	// TODO add method to inform about repeated read/write error for a Component.
+	// Use this information to dynamically increase delay.
 
 	/**
 	 * Adds a defective Component and sets retry time to now() +
@@ -25,7 +35,7 @@ public class DefectiveComponentsHandler {
 	 */
 	public synchronized void add(String componentId) {
 		TypeUtils.assertNull("DefectiveComponents add() takes no null values", componentId);
-		this.nextTries.put(componentId, Instant.now().plusSeconds(PAUSE_SECONDS));
+		this.nextTries.put(componentId, Instant.now(this.clock).plusSeconds(PAUSE_SECONDS));
 	}
 
 	/**
@@ -60,7 +70,7 @@ public class DefectiveComponentsHandler {
 		if (dueTime == null) {
 			return null;
 		}
-		var now = Instant.now();
+		var now = Instant.now(this.clock);
 		return now.isAfter(dueTime);
 	}
 }

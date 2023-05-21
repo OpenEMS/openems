@@ -1,18 +1,22 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Ticker;
 import com.google.common.collect.EvictingQueue;
 
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.task.WaitTask;
 
 public class WaitDelayHandler {
 
 	private static final int BUFFER_MS = 20;
 
-	private final LogVerbosity logVerbosity;
 	private final Runnable onWaitDelayTaskFinished;
 	private final Stopwatch stopwatch;
+
+	private final AtomicReference<LogVerbosity> logVerbosity;
 
 	/** Delays that would have been possible. */
 	private final EvictingQueue<Long> possibleDelays = EvictingQueue.create(10 /* TODO size? */);
@@ -21,15 +25,20 @@ public class WaitDelayHandler {
 
 	private boolean previousCycleContainedDefectiveComponents;
 
-	protected WaitDelayHandler(LogVerbosity logVerbosity, Ticker ticker, Runnable onWaitDelayTaskFinished) {
+	protected WaitDelayHandler(Ticker ticker, AtomicReference<LogVerbosity> logVerbosity,
+			Runnable onWaitDelayTaskFinished) {
 		this.logVerbosity = logVerbosity;
 		this.stopwatch = Stopwatch.createUnstarted(ticker);
 		this.onWaitDelayTaskFinished = onWaitDelayTaskFinished;
 		this.waitDelayTask = this.generateZeroWaitDelayTask();
 	}
 
-	public WaitDelayHandler(LogVerbosity logVerbosity, Runnable onWaitDelayTaskFinished) {
-		this(logVerbosity, Ticker.systemTicker(), onWaitDelayTaskFinished);
+	protected WaitDelayHandler(Ticker ticker, Runnable onWaitDelayTaskFinished) {
+		this(Ticker.systemTicker(), new AtomicReference<>(LogVerbosity.NONE), onWaitDelayTaskFinished);
+	}
+
+	protected WaitDelayHandler(AtomicReference<LogVerbosity> logVerbosity, Runnable onWaitDelayTaskFinished) {
+		this(Ticker.systemTicker(), logVerbosity, onWaitDelayTaskFinished);
 	}
 
 	public void onBeforeProcessImage(boolean nextCycleContainsDefectiveComponents) {
@@ -103,7 +112,7 @@ public class WaitDelayHandler {
 
 	// TODO remove before release
 	private void log(String message) {
-		switch (this.logVerbosity) {
+		switch (this.logVerbosity.get()) {
 		case DEV_REFACTORING:
 			System.out.println("WaitDelayHandler: " + message);
 			break;

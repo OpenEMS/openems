@@ -1,10 +1,10 @@
 package io.openems.edge.bridge.modbus.api.task;
 
-import io.openems.edge.common.taskmanager.ManagedTask;
 import io.openems.edge.common.taskmanager.Priority;
 
-public interface WriteTask extends Task, ManagedTask {
-
+public non-sealed interface WriteTask extends Task {
+	// TODO add IMMEDIATE priority for WriteTasks. See
+	// https://github.com/OpenEMS/openems/pull/1976#issuecomment-1411609673
 	/**
 	 * Priority for WriteTasks is by default always HIGH.
 	 *

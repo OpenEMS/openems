@@ -75,43 +75,36 @@ public class WagoTest {
 		sut.createProtocolFromModules(modules);
 
 		{
-			var readTasks = sut.protocol.getReadTasksManager().getTasks();
-			ReadTask t;
+			var tasks = sut.protocol.getTaskManager().getTasks();
 			{
-				t = readTasks.get(0);
+				var t = (ReadTask) tasks.get(0);
 				assertEquals(FC1ReadCoilsTask.class, t.getClass());
 				assertEquals(0, t.getStartAddress());
 				assertEquals(2, t.getLength());
 			}
 			{
-				t = readTasks.get(1);
+				var t = (ReadTask) tasks.get(1);
 				assertEquals(FC1ReadCoilsTask.class, t.getClass());
 				assertEquals(512, t.getStartAddress());
 				assertEquals(4, t.getLength());
 			}
-		}
-
-		{
-			var writeTasks = sut.protocol.getWriteTasksManager().getTasks();
-			System.out.println(writeTasks);
-			WriteTask t;
 			{
-				t = writeTasks.get(0);
+				var t = (WriteTask) tasks.get(0);
 				assertEquals(FC5WriteCoilTask.class, t.getClass());
 				assertEquals(512, t.getStartAddress());
 			}
 			{
-				t = writeTasks.get(1);
+				var t = (WriteTask) tasks.get(1);
 				assertEquals(FC5WriteCoilTask.class, t.getClass());
 				assertEquals(513, t.getStartAddress());
 			}
 			{
-				t = writeTasks.get(2);
+				var t = (WriteTask) tasks.get(2);
 				assertEquals(FC5WriteCoilTask.class, t.getClass());
 				assertEquals(514, t.getStartAddress());
 			}
 			{
-				t = writeTasks.get(3);
+				var t = (WriteTask) tasks.get(3);
 				assertEquals(FC5WriteCoilTask.class, t.getClass());
 				assertEquals(515, t.getStartAddress());
 			}

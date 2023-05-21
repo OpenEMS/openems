@@ -14,7 +14,11 @@ import io.openems.edge.common.test.DummyComponentContext;
 import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.DummyConfigurationAdmin.DummyConfiguration;
 
-public abstract class DummyModbusComponent extends AbstractOpenemsModbusComponent implements ModbusComponent {
+public class DummyModbusComponent extends AbstractOpenemsModbusComponent implements ModbusComponent {
+
+	public DummyModbusComponent(String id, AbstractModbusBridge bridge) throws OpenemsException {
+		this(id, bridge, 0, new io.openems.edge.common.channel.ChannelId[0]);
+	}
 
 	public DummyModbusComponent(String id, AbstractModbusBridge bridge, int unitId,
 			io.openems.edge.common.channel.ChannelId[] additionalChannelIds) throws OpenemsException {
@@ -37,7 +41,13 @@ public abstract class DummyModbusComponent extends AbstractOpenemsModbusComponen
 		super.activate(context, id, "", true, unitId, cm, "Modbus", bridge.id());
 	}
 
+	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
+		return new ModbusProtocol(this);
+	}
+
 	@Override
-	protected abstract ModbusProtocol defineModbusProtocol() throws OpenemsException;
+	public ModbusProtocol getModbusProtocol() throws OpenemsException {
+		return super.getModbusProtocol();
+	}
 
 }

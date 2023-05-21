@@ -4,14 +4,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import io.openems.edge.bridge.modbus.api.LogVerbosity;
-
 public class WaitDelayHandlerTest {
 
 	@Test
 	public void test() {
 		var ticker = new FakeTicker();
-		var sut = new WaitDelayHandler(LogVerbosity.DEV_REFACTORING, ticker, () -> {
+		var sut = new WaitDelayHandler(ticker, () -> {
 		});
 
 		sut.onFinished();

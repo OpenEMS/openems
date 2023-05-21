@@ -2,12 +2,12 @@ package io.openems.edge.bridge.modbus.api.worker.internal;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -16,36 +16,31 @@ import org.slf4j.LoggerFactory;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
+import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
-import io.openems.edge.bridge.modbus.api.worker.DefectiveComponentsHandler;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.taskmanager.TasksManager;
+import io.openems.edge.common.type.Tuple;
 
 /**
  * Supplies the {@link CycleTasks} for one Cycle.
  */
-public class CycleTasksSupplier implements Supplier<CycleTasks> {
+public class CycleTasksSupplier implements Function<DefectiveComponents, CycleTasks> {
 
 	private final Logger log = LoggerFactory.getLogger(CycleTasksSupplier.class);
+	private LogVerbosity logVerbosity = LogVerbosity.NONE;
 
 	/**
-	 * Component-ID -> TasksManager for {@link ReadTask}s.
+	 * Source-ID -> TasksManager for {@link Task}s.
 	 */
-	private final Map<String, TasksManager<ReadTask>> readTaskManagers = new HashMap<>();
-	/**
-	 * Component-ID -> TasksManager for {@link WriteTask}s.
-	 */
-	private final Map<String, TasksManager<WriteTask>> writeTaskManagers = new HashMap<>();
-	/**
-	 * Component-ID -> Queue of {@link ReadTask}s.
-	 */
-	private final Queue<ReadTask> nextLowPriorityTasks = new LinkedList<>();
+	private final Map<String, TasksManager<Task>> taskManagers = new HashMap<>();
 
-	private final DefectiveComponentsHandler defectiveComponents;
-	private final AtomicReference<LogVerbosity> logVerbosity;
+	/**
+	 * Queue of LOW priority {@link ReadTask}s.
+	 */
+	private final Queue<Tuple<String, ReadTask>> nextLowPriorityTasks = new LinkedList<>();
 
-	public CycleTasksSupplier(DefectiveComponentsHandler defectiveComponents, AtomicReference<LogVerbosity> logVerbosity) {
-		this.defectiveComponents = defectiveComponents;
+	protected void setLogVerbosity(LogVerbosity logVerbosity) {
 		this.logVerbosity = logVerbosity;
 	}
 
@@ -56,8 +51,7 @@ public class CycleTasksSupplier implements Supplier<CycleTasks> {
 	 * @param protocol the ModbusProtocol
 	 */
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
-		this.readTaskManagers.put(sourceId, protocol.getReadTasksManager());
-		this.writeTaskManagers.put(sourceId, protocol.getWriteTasksManager());
+		this.taskManagers.put(sourceId, protocol.getTaskManager());
 	}
 
 	/**
@@ -66,141 +60,50 @@ public class CycleTasksSupplier implements Supplier<CycleTasks> {
 	 * @param sourceId Component-ID of the source
 	 */
 	public void removeProtocol(String sourceId) {
-		this.readTaskManagers.remove(sourceId);
-		this.writeTaskManagers.remove(sourceId);
+		this.taskManagers.remove(sourceId);
 	}
-
-	/**
-	 * Gets the total number of Read-Tasks.
-	 * 
-	 * @return number of Read-Tasks
-	 */
-	private int countReadTasks() {
-		return this.readTaskManagers.values().stream() //
-				.mapToInt(TasksManager::countTasks) //
-				.sum();
-	}
-
-//	/**
-//	 * This is called on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE cycle event.
-//	 */
-//	public synchronized void onBeforeProcessImage() {
-//		this.log("-> onBeforeProcessImage");
-//
-//		// Update internal size of the WaitHandler queue if required. This causes the
-//		// WaitHandler to automatically adapt to the number of Tasks and the number of
-//		// required Cycles.
-//		this.waitHandler.updateSize(this.countReadTasks());
-//
-//		// If the current Read-Tasks queue spans multiple cycles and we are in-between
-//		// -> stop here
-//		if (!this.readTasksQueue.isEmpty()) {
-//			this.log("Previous ReadTasks queue is not empty on TOPIC_CYCLE_BEFORE_PROCESS_IMAGE");
-//			return;
-//		}
-//
-//		// Add Wait-Task if appropriate
-//		var waitTask = this.waitHandler.getWaitTask();
-//		if (waitTask != null) {
-//			this.readTasksQueue.addFirst(waitTask);
-//		}
-//
-//		// Collect the next read-tasks
-//		var nextReadTasks = this.getNextReadTasks();
-//		this.readTasksQueue.addAll(nextReadTasks);
-//		this.log.info(nextReadTasks.stream().map(Task::toString).collect(Collectors.joining(", ")));
-//		this.signalAvailableTaskInQueue.release();
-//	}
-
-//	/**
-//	 * This is called on TOPIC_CYCLE_EXECUTE_WRITE cycle event.
-//	 */
-//	public synchronized void onExecuteWrite() {
-//		this.log("-> onExecuteWrite");
-//
-//		synchronized (this.waitHandler.activeWaitTask) {
-//			// Is currently a WaitTask active? Interrupt now and schedule again later.
-//			var activeWaitTask = this.waitHandler.activeWaitTask.get();
-//			if (activeWaitTask != null) {
-//				// TODO
-//				// this.thread.interrupt();
-//			}
-//
-//			if (!this.writeTasksQueue.isEmpty()) {
-//				this.log("Previous WriteTasks queue is not empty on TOPIC_CYCLE_EXECUTE_WRITE");
-//				return;
-//			}
-//
-//			// Add All WriteTasks
-//			this.writeTasksQueue.addAll(this.getNextWriteTasks());
-//
-//			// Re-Schedule the WaitTask
-//			if (activeWaitTask != null) {
-//				this.readTasksQueue.addFirst(activeWaitTask);
-//			}
-//
-//			this.signalAvailableTaskInQueue.release();
-//		}
-//	}
 
 	@Override
-	public CycleTasks get() {
-		return new CycleTasks(this.getNextReadTasks(), this.getNextWriteTasks());
-	}
-
-	/**
-	 * Gets the next {@link ReadTask}s.
-	 * 
-	 * @return a list of tasks
-	 */
-	private LinkedList<ReadTask> getNextReadTasks() {
-		var result = this.getHighPriorityReadTasks();
-
-		var lowPriorityTask = this.getOneLowPriorityReadTask();
-		if (lowPriorityTask != null) {
-			result.addFirst(lowPriorityTask);
-		}
-		return result;
-	}
-
-	/**
-	 * Gets the next {@link WriteTask}s.
-	 * 
-	 * @return a list of tasks
-	 */
-	private LinkedList<WriteTask> getNextWriteTasks() {
-		// TODO add IMMEDIATE priority for WriteTasks. See
-		// https://github.com/OpenEMS/openems/pull/1976#issuecomment-1411609673
-		return this.writeTaskManagers.entrySet().stream() //
-				// Take only components that are not defective
-				// TODO does not work if component has no read tasks
-				.filter(e -> !this.defectiveComponents.isKnown(e.getKey())) //
-				.flatMap(e -> e.getValue().getTasks().stream()) //
-				.collect(Collectors.toCollection(LinkedList::new));
-	}
-
-	/**
-	 * Get HIGH priority tasks + handle defective components.
-	 * 
-	 * @return a list of {@link ReadTask}s
-	 */
-	private synchronized LinkedList<ReadTask> getHighPriorityReadTasks() {
-		var result = new LinkedList<ReadTask>();
-		for (var e : this.readTaskManagers.entrySet()) {
-			var isDueForNextTry = this.defectiveComponents.isDueForNextTry(e.getKey());
-			if (isDueForNextTry == null) {
-				// Component is not defective -> get all high prio tasks
-				result.addAll(e.getValue().getTasks(Priority.HIGH));
-
-			} else if (isDueForNextTry == true) {
-				// Component is defective, but due for next try: get one task
-				result.add(e.getValue().getOneTask());
-
-			} else {
-				// Component is defective and not due; add no task
+	public CycleTasks apply(DefectiveComponents defectiveComponents) {
+		Map<String, LinkedList<Task>> tasks = new HashMap<>();
+		// One Low Priority ReadTask
+		{
+			var t = this.getOneLowPriorityReadTask();
+			if (t != null) {
+				tasks.computeIfAbsent(t.a(), (ignore) -> new LinkedList<>()) //
+						.add(t.b());
 			}
 		}
-		return result;
+		// All High Priority ReadTasks + all WriteTasks
+		this.taskManagers.forEach((id, taskManager) -> {
+			var list = tasks.computeIfAbsent(id, (ignore) -> new LinkedList<>());
+			taskManager.getTasks().stream() //
+					.filter(t -> t instanceof WriteTask || t.getPriority() == Priority.HIGH) //
+					.forEach(list::add);
+		});
+		// Filter out defective components
+		tasks.forEach((id, componentTasks) -> {
+			var isDue = defectiveComponents.isDueForNextTry(id);
+			if (isDue == null) {
+				// Component is not defective -> keep all tasks
+			} else if (isDue) {
+				// Component is due for next try -> keep only one random Task
+				Collections.shuffle(componentTasks);
+				while (componentTasks.size() > 1) {
+					componentTasks.pop();
+				}
+			} else {
+				// Component is defective and not due -> drop all tasks
+				componentTasks.clear();
+			}
+		});
+		return new CycleTasks(//
+				tasks.values().stream().flatMap(LinkedList::stream) //
+						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast)
+						.collect(Collectors.toCollection(LinkedList::new)),
+				tasks.values().stream().flatMap(LinkedList::stream) //
+						.filter(WriteTask.class::isInstance).map(WriteTask.class::cast)
+						.collect(Collectors.toCollection(LinkedList::new)));
 	}
 
 	/**
@@ -208,26 +111,25 @@ public class CycleTasksSupplier implements Supplier<CycleTasks> {
 	 *
 	 * @return the next task; null if there is no available task
 	 */
-	private synchronized ReadTask getOneLowPriorityReadTask() {
+	private synchronized Tuple<String, ReadTask> getOneLowPriorityReadTask() {
 		var refilledBefore = false;
 		while (true) {
 			var task = this.nextLowPriorityTasks.poll();
-			if (task == null) {
-				if (refilledBefore) {
-					// queue had been refilled before, but still cannot find a matching task -> quit
-					return null;
-				}
-				// refill the queue
-				this.nextLowPriorityTasks.addAll(this.readTaskManagers.values().stream() //
-						.flatMap(m -> m.getTasks(Priority.LOW).stream()) //
-						.collect(Collectors.toUnmodifiableList()));
-				refilledBefore = true;
-				continue;
-			}
-
-			if (!this.defectiveComponents.isKnown(task.getParent().id())) {
+			if (task != null) {
 				return task;
 			}
+			if (refilledBefore) {
+				// queue had been refilled before, but still cannot find a matching task -> quit
+				return null;
+			}
+			// refill the queue
+			this.taskManagers.forEach((id, taskManager) -> {
+				taskManager.getTasks(Priority.LOW).stream() //
+						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
+						.map(t -> new Tuple<String, ReadTask>(id, t)) //
+						.forEach(this.nextLowPriorityTasks::add);
+			});
+			refilledBefore = true;
 		}
 	}
 
@@ -236,7 +138,7 @@ public class CycleTasksSupplier implements Supplier<CycleTasks> {
 
 	// TODO remove before release
 	private void log(String message) {
-		switch (this.logVerbosity.get()) {
+		switch (this.logVerbosity) {
 		case DEV_REFACTORING:
 			System.out.println(//
 					String.format("%,10d %s", Duration.between(this.start, Instant.now()).toMillis(), message));

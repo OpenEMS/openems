@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.common.taskmanager.Priority;
 
-public class WaitDelayTask implements Task {
+public class WaitDelayTask implements WaitTask {
 
 	public final long initialDelay;
 

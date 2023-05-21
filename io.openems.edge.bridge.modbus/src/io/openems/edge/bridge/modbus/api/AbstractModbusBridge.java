@@ -63,6 +63,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 			LogVerbosity logVerbosity, int invalidateElementsAfterReadErrors) {
 		super.activate(context, id, alias, enabled);
 		this.logVerbosity.set(logVerbosity);
+//		this.modbusWorker.setLogVerbosity(logVerbosity);
 		this.invalidateElementsAfterReadErrors = invalidateElementsAfterReadErrors;
 		if (this.isEnabled()) {
 //			this.worker.activate(id);
