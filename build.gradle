@@ -17,7 +17,7 @@ allprojects {
 		options.encoding = 'UTF-8'
 		options.fork = true
 		options.incremental = true
-	}	
+	}
 
 	tasks.withType(Test) {
 		maxParallelForks = 2
@@ -26,8 +26,13 @@ allprojects {
 			html.required = false
 			junitXml.required = false
 		}
-	}	
+	}
 }
+
+task cleanEdge();
+task cleanBackend();
+task assembleEdge();
+task assembleBackend();
 
 /*
  * setup bnd tasks
@@ -52,6 +57,24 @@ subprojects {
 
 		tasks.withType(aQute.bnd.gradle.Export) {
 			dependsOn tasks.withType(aQute.bnd.gradle.Resolve)
+		}
+	}
+
+	if ( it.name ==~ /io.openems.(common|edge|share|wrapper).*/ ) {
+		def clean = tasks.findByName('clean')
+		def assemble = tasks.findByName('assemble')
+		if( clean && assemble ) {
+			rootProject.tasks.findByPath(':cleanEdge').dependsOn(clean)
+			rootProject.tasks.findByPath(':assembleEdge').dependsOn(assemble)
+		}
+	}
+
+	if ( it.name ==~ /io.openems.(backend|common|share|wrapper).*/ ) {
+		def clean = tasks.findByName('clean')
+		def assemble = tasks.findByName('assemble')
+		if( clean && assemble ) {
+			rootProject.tasks.findByPath(':cleanBackend').dependsOn(clean)
+			rootProject.tasks.findByPath(':assembleBackend').dependsOn(assemble)
 		}
 	}
 }
@@ -80,7 +103,11 @@ task buildComponents() {
  * Build OpenEMS Edge fat-jar
  */
 task buildEdge() {
+	dependsOn ':cleanEdge'
+	dependsOn ':assembleEdge'
 	dependsOn ':io.openems.edge.application:export.EdgeApp'
+	tasks.findByPath(':assembleEdge').mustRunAfter ':cleanEdge'
+	tasks.findByPath(':io.openems.edge.application:export.EdgeApp').mustRunAfter ':assembleEdge'
 	doLast {
 		file("${buildDir}/openems-edge.jar").delete()
 		copy {
@@ -95,7 +122,11 @@ task buildEdge() {
  * Build OpenEMS Backend fat-jar
  */
 task buildBackend() {
-	dependsOn ":io.openems.backend.application:export.BackendApp"
+	dependsOn ':cleanBackend'
+	dependsOn ':assembleBackend'
+	dependsOn ':io.openems.backend.application:export.BackendApp'
+	tasks.findByPath(':assembleBackend').mustRunAfter ':cleanBackend'
+	tasks.findByPath(':io.openems.backend.application:export.BackendApp').mustRunAfter ':assembleBackend'
 	doLast {
 		file("${buildDir}/openems-backend.jar").delete()
 		copy {

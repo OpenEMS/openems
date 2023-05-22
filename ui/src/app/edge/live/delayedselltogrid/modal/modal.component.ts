@@ -10,8 +10,8 @@ import { Edge, EdgeConfig, Service, Websocket } from '../../../../shared/shared'
 })
 export class DelayedSellToGridModalComponent implements OnInit {
 
-    @Input() component: EdgeConfig.Component;
-    @Input() edge: Edge;
+    @Input() protected component: EdgeConfig.Component;
+    @Input() protected edge: Edge;
 
     private static readonly SELECTOR = "delayedselltogrid-modal";
 

@@ -6,8 +6,8 @@ import * as d3 from 'd3';
 export type Ratio = 'Only Positive [0,1]' | 'Negative and Positive [-1,1]';
 
 export class SectionValue {
-    absolute: number;
-    ratio: number;
+    public absolute: number;
+    public ratio: number;
 }
 
 export class SvgSquarePosition {

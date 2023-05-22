@@ -9,6 +9,10 @@ import { FormControl, ValidationErrors } from '@angular/forms';
 import { FormlyModule, FORMLY_CONFIG } from '@ngx-formly/core';
 import { TranslateExtension } from 'src/app/shared/translate.extension';
 import { TranslateService } from '@ngx-translate/core';
+import { FormlySafeInputModalComponent } from './formly/safe-input/formly-safe-input-modal.component';
+import { FormlySafeInputWrapperComponent } from './formly/safe-input/formly-safe-input.extended';
+import { FormlyTextComponent } from './formly/formly-text';
+import { FormlyInputWithUnitComponent } from './formly/input-with-unit';
 
 export function KeyValidator(control: FormControl): ValidationErrors {
   return /^(.{4}-){3}.{4}$/.test(control.value) ? null : { 'key': true };
@@ -31,6 +35,13 @@ export function registerTranslateExtension(translate: TranslateService) {
   imports: [
     SharedModule,
     FormlyModule.forRoot({
+      wrappers: [
+        { name: "formly-safe-input-wrapper", component: FormlySafeInputWrapperComponent },
+        { name: "input-with-unit", component: FormlyInputWithUnitComponent },
+      ],
+      types: [
+        { name: "text", component: FormlyTextComponent },
+      ],
       validators: [
         { name: 'key', validation: KeyValidator }
       ],
@@ -45,6 +56,10 @@ export function registerTranslateExtension(translate: TranslateService) {
     SingleAppComponent,
     UpdateAppComponent,
     KeyModalComponent,
+    FormlySafeInputModalComponent,
+    FormlySafeInputWrapperComponent,
+    FormlyTextComponent,
+    FormlyInputWithUnitComponent,
   ],
   exports: [
     IndexComponent,

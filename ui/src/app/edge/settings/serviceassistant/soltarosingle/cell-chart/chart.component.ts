@@ -15,9 +15,9 @@ import { ChannelChartDescription } from '../../abstractbattery.component';
 })
 export class SoltaroCellChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
 
-    @Input() battery: string;
-    @Input() channels: ChannelChartDescription[];
-    @Input() refresh: boolean;
+    @Input() private battery: string;
+    @Input() private channels: ChannelChartDescription[];
+    @Input() private refresh: boolean;
 
     private static DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod(new Date(), new Date());
 

@@ -119,7 +119,7 @@ export class SoltaroVersionCComponent extends AbstractBattery implements OnInit 
             { channelName: "Level1CellVoltageDifferenceProtection", register: "0x2058", description: "Maximale Zellspannungsdifferenz Lvl. 1 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level1CellVoltageDifferenceProtectionRecover", unit: "mV" }], unit: "mV" },
             { channelName: "Level2CellVoltageDifferenceProtection", register: "0x2418", description: "Maximale Zellspannungsdifferenz Lvl. 2 Protection(Recover)", requiredInput: "", dependentChannelNames: [{ channelName: "Level2CellVoltageDifferenceProtectionRecover", unit: "mV" }], unit: "mV" },
         ];
-    } Level1CellOverTemperatureRecover
+    }
     protected getImportantCellTemperatureReadChannelDescriptions(): ChannelDescription[] {
         return [
             { channelName: "MinCellTemperature", register: "0x210C", description: " Minimale Zelltemperatur(Entsprechende ID)", requiredInput: "", dependentChannelNames: [{ channelName: "Cluster1MinCellTemperatureId", unit: "- id" }], unit: "°C" },
