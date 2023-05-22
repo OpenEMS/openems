@@ -122,7 +122,7 @@ export class ProtocolInstallerComponent implements OnInit {
             key: 'country',
             type: 'select',
             templateOptions: {
-              label: 'Land',
+              label: this.translate.instant('INSTALLATION.PROTOCOL_INSTALLER_AND_CUSTOMER.COUNTRY'),
               options: COUNTRY_OPTIONS(this.translate),
               disabled: true,
             },

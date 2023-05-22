@@ -27,6 +27,6 @@ export class ModalComponent extends AbstractModal {
     return this.formBuilder.group({
       mode: new FormControl(this.component.properties.mode),
       power: new FormControl(this.component.properties.power),
-    })
+    });
   }
 }

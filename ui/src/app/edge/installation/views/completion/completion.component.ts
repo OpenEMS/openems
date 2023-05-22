@@ -35,7 +35,7 @@ export class CompletionComponent {
   }
 
   public downloadProtocol() {
-    let request = new GetSetupProtocolRequest({ setupProtocolId: this.ibn.setupProtocolId })
+    let request = new GetSetupProtocolRequest({ setupProtocolId: this.ibn.setupProtocolId });
 
     this.websocket.sendRequest(request).then((response: Base64PayloadResponse) => {
       var binary = atob(response.result.payload.replace(/\s/g, ''));

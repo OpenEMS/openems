@@ -17,7 +17,7 @@ export class ExecuteSystemUpdate {
     public systemUpdateState: SystemUpdateState = { unknown: {} };
     private ngUnsubscribe = new Subject<void>();
 
-    public systemUpdateStateChange: (value: SystemUpdateState) => void
+    public systemUpdateStateChange: (value: SystemUpdateState) => void;
 
     public constructor(
         private edge: Edge,
@@ -52,7 +52,7 @@ export class ExecuteSystemUpdate {
             // if the version is a SNAPSHOT always set the udpate state
             // to updated with the current SNAPSHOT version
             if (this.edge.isSnapshot()) {
-                let updateState = { updated: { version: this.edge.version } }
+                let updateState = { updated: { version: this.edge.version } };
                 this.setSystemUpdateState(updateState);
                 this.stopRefreshSystemUpdateState();
                 resolve(updateState);
@@ -73,9 +73,9 @@ export class ExecuteSystemUpdate {
                     }).catch(error => {
                         if (this.systemUpdateState.running) {
                             this.isEdgeRestarting = true;
-                            return
+                            return;
                         }
-                        reject(error)
+                        reject(error);
                     });
             }
         });
@@ -87,7 +87,7 @@ export class ExecuteSystemUpdate {
      * @returns Promise<SystemUpdateState>
      */
     public executeSystemUpdate(): Promise<SystemUpdateState> {
-        this.systemUpdateState = { running: { percentCompleted: 0, logs: [] } }
+        this.systemUpdateState = { running: { percentCompleted: 0, logs: [] } };
         return new Promise<SystemUpdateState>((resolve, reject) => {
             this.edge.sendRequest(this.websocket,
                 new ComponentJsonApiRequest({
@@ -108,8 +108,8 @@ export class ExecuteSystemUpdate {
                         resolve(this.systemUpdateState);
                     }
                 }).catch(error => {
-                    reject(error)
-                })
+                    reject(error);
+                });
         });
     }
 
@@ -129,12 +129,12 @@ export class ExecuteSystemUpdate {
                 }
                 this.refreshSystemUpdateState()
                     .then(updateState => {
-                        resolve(updateState)
+                        resolve(updateState);
                     }).catch(error => {
                         if (!error["error"]) {
                             return;
                         }
-                        let errorMessage = error["error"]["message"] as string
+                        let errorMessage = error["error"]["message"] as string;
                         if (!errorMessage) {
                             return;
                         }
@@ -162,6 +162,6 @@ export class ExecuteSystemUpdate {
 
     private setSystemUpdateState(systemUpdateState: SystemUpdateState) {
         this.systemUpdateState = systemUpdateState;
-        this.systemUpdateStateChange(systemUpdateState)
+        this.systemUpdateStateChange(systemUpdateState);
     }
 }

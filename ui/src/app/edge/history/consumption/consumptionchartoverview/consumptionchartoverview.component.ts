@@ -31,7 +31,7 @@ export class ConsumptionChartOverviewComponent implements OnInit {
                     .filter(component =>
                         !(component.factoryId == 'Evcs.Cluster'
                             || component.factoryId == 'Evcs.Cluster.PeakShaving'
-                            || component.factoryId == 'Evcs.Cluster.SelfConsumption'))
+                            || component.factoryId == 'Evcs.Cluster.SelfConsumption'));
                 this.consumptionMeterComponents = config.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter")
                     .filter(component => config.isTypeConsumptionMetered(component));
                 // determine if singlechart is the only chart that is shown
@@ -42,8 +42,8 @@ export class ConsumptionChartOverviewComponent implements OnInit {
                 } else {
                     this.isOnlyChart = true;
                 }
-            })
-        })
+            });
+        });
     }
 
     onNotifyPhases(showPhases: boolean): void {
